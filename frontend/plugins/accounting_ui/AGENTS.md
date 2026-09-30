@@ -74,7 +74,7 @@
 | Plugin config       | `src/config.tsx`                                                                | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                                                | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                                      | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
-| Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns the per-row split settings sheet, source unit display, ratio calculation, and unsaved follow previews.     |
+| Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns split form context, row settings, batched unit lookup, ratio calculation, and unsaved follow previews.      |
 | Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm`     | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
 | Safe remainders     | `src/modules/inventories/safeRemainders/components/SafeRemainderDetail.tsx`     | Coordinates inventory count detail data, status actions, header, and extracted tab/import surfaces.             |
 | Census tables       | `src/modules/inventories/safeRemainders/components/SafeRemainderDetailTabs.tsx` | Owns declarative count/income/out/sale/adjustment table configuration, filtering, pagination, and hotkeys.      |
@@ -118,7 +118,7 @@
 - Closing adjustment contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
 - Core system currency settings through `configsByCode(codes)` for `dealCurrency` and `mainCurrency`.
 - Core product, branch, department, customer, company, and team member selectors through public `ui-modules` APIs.
-- Core product lookup for inventory split source/result units of measure through the accounting-prefixed `AccountingInventorySplitProducts` operation.
+- Core product lookup for inventory split source/result units of measure through the accounting-prefixed `accountingInventorySplitProducts` operation.
 - UI primitives, form components, tables, sheets, comboboxes, filters, toasts, and currency inputs from `erxes-ui`.
 
 ## Data and State
@@ -162,6 +162,7 @@
 - Inventory out and internal movement forms must not allow unit cost or cost amount edits; changing product, account, quantity, or source location must refresh active cost, and editing an existing movement must exclude both its source and generated destination transactions from that lookup.
 - Inventory move, sale, and sale-return follow details must retain each source detail `_id` as `originId`; quantity edits update only that source row's generated follow details, preserve every other row's fetched active cost, and ignore transient current-cost responses that do not contain the selected product.
 - Inventory split previews must create one `invOut` and one `invIncome` follow transaction per source transaction, keep both `originId` values pointed at the source transaction, give the pair one shared pointer distinct from the source transaction pointer, include only enabled split details, preserve total cost, derive converted count and unit price from the ratio, and use destination account/location for internal movements.
+- Inventory income and movement forms must batch all visible source/result product unit lookups through one `InventorySplitProvider`; preview transaction and detail ids remain stable while editing.
 - Inventory income and internal-movement tables must keep only the source unit of measure as a split-related column; split enablement, result product, ratio, and result unit belong in the leading row action sheet.
 - A detail must display its leading row action button with a yellow background only when `followInfos.invSplit.hasSplit` is true.
 - Inventory and fixed asset transaction tables, including their row-detail sheets, must keep icon-action and selection columns aligned at `w-8`; paired icon buttons remain `h-8 w-8` so these controls render square without widening the data table.

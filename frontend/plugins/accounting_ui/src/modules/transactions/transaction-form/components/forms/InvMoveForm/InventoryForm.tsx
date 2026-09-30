@@ -15,7 +15,7 @@ import {
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
-import { InventorySplitSync } from '../InventorySplit';
+import { InventorySplitProvider } from '../InventorySplit';
 
 export const InventoryForm = ({
   form,
@@ -37,7 +37,7 @@ export const InventoryForm = ({
     8;
 
   return (
-    <>
+    <InventorySplitProvider form={form} journalIndex={journalIndex}>
       <RecordTableHotkeyProvider
         columnLength={columnsLength}
         rowLength={fields.length}
@@ -69,7 +69,6 @@ export const InventoryForm = ({
           <ScrollArea.Bar orientation="horizontal" className="z-10" />
         </ScrollArea>
       </RecordTableHotkeyProvider>
-      <InventorySplitSync form={form} journalIndex={journalIndex} />
       <div className="flex w-full justify-center gap-4">
         <AddDetailRowButton
           append={append}
@@ -78,7 +77,7 @@ export const InventoryForm = ({
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
       </div>
-    </>
+    </InventorySplitProvider>
   );
 };
 

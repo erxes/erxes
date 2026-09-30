@@ -24,39 +24,125 @@ const SPLIT_FOLLOW_TYPES = [
   TR_FOLLOW_TYPES.INV_SPLIT_INCOME,
 ];
 
-type TEnabledInvSplitInfo = Extract<IInvSplitDetailInfo, { hasSplit: true }>;
+type TLegacyInvSplitInfo = {
+  detailId?: string;
+  productId?: string;
+  ratio?: number;
+};
+type TExistingInvSplitFollowDocs = {
+  out?: ITransactionDocument;
+  income?: ITransactionDocument;
+};
 
-const getSplitInfo = (
-  detail: ITrDetail,
-  index: number,
-): TEnabledInvSplitInfo | undefined => {
-  const splitInfo = detail.followInfos?.invSplit;
+const toRecord = (value: unknown): Record<string, unknown> | undefined =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
 
-  if (splitInfo == null) {
+export const parseInvSplitInfo = (
+  value: unknown,
+  errorMessage = 'Invalid inventory split detail',
+): IInvSplitDetailInfo | undefined => {
+  if (value == null) {
     return undefined;
   }
 
-  if (typeof splitInfo !== 'object' || Array.isArray(splitInfo)) {
-    throw new Error(`Invalid inventory split detail at index ${index}`);
+  const splitInfo = toRecord(value);
+  if (!splitInfo || typeof splitInfo.hasSplit !== 'boolean') {
+    throw new Error(errorMessage);
   }
 
-  if (typeof splitInfo.hasSplit !== 'boolean') {
-    throw new Error(`Invalid inventory split detail at index ${index}`);
+  if (splitInfo.hasSplit === false) {
+    return { hasSplit: false };
   }
 
-  if (!splitInfo.hasSplit) {
-    return undefined;
-  }
+  const productId = splitInfo.productId;
+  const ratio = Number(splitInfo.ratio);
 
-  const productId = splitInfo?.productId;
-  const ratio = Number(splitInfo?.ratio);
-
-  if (!productId || !Number.isFinite(ratio) || ratio <= 0) {
-    throw new Error(`Invalid inventory split detail at index ${index}`);
+  if (
+    typeof productId !== 'string' ||
+    !productId ||
+    !Number.isFinite(ratio) ||
+    ratio <= 0
+  ) {
+    throw new Error(errorMessage);
   }
 
   return { hasSplit: true, productId, ratio };
 };
+
+const normalizeStoredInvSplitInfo = (
+  currentValue: unknown,
+  legacyValue?: TLegacyInvSplitInfo,
+) => {
+  const currentInfo = toRecord(currentValue);
+  if (currentInfo) {
+    return parseInvSplitInfo({
+      ...currentInfo,
+      hasSplit:
+        typeof currentInfo.hasSplit === 'boolean'
+          ? currentInfo.hasSplit
+          : Boolean(currentInfo.productId),
+    });
+  }
+
+  if (!legacyValue) {
+    return undefined;
+  }
+
+  return parseInvSplitInfo({
+    hasSplit: true,
+    productId: legacyValue.productId,
+    ratio: legacyValue.ratio,
+  });
+};
+
+export const normalizeInvSplitTransaction = (
+  transaction: ITransaction,
+): ITransaction => {
+  if (![JOURNALS.INV_INCOME, JOURNALS.INV_MOVE].includes(transaction.journal)) {
+    return transaction;
+  }
+
+  const followInfos = { ...transaction.followInfos };
+  const legacySplitInfos = Array.isArray(followInfos.invSplitDetails)
+    ? (followInfos.invSplitDetails as TLegacyInvSplitInfo[])
+    : [];
+  delete followInfos.invSplitDetails;
+
+  return {
+    ...transaction,
+    followInfos,
+    details: transaction.details.map((detail) => {
+      const legacyInfo = legacySplitInfos.find(
+        (splitInfo) => splitInfo.detailId === detail._id,
+      );
+      const invSplit = normalizeStoredInvSplitInfo(
+        detail.followInfos?.invSplit,
+        legacyInfo,
+      );
+
+      if (!invSplit) {
+        return detail;
+      }
+
+      return {
+        ...detail,
+        followInfos: {
+          ...detail.followInfos,
+          invSplit,
+        },
+      };
+    }),
+  };
+};
+
+const findExistingDetailId = (
+  transaction: ITransactionDocument | undefined,
+  originId: string,
+) =>
+  transaction?.details.find((detail) => detail.originId === originId)?._id ||
+  nanoid();
 
 const getCommonFollowDoc = (
   originTransaction: ITransactionDocument,
@@ -82,6 +168,7 @@ export const buildInvSplitFollowDocs = (
   originTransaction: ITransactionDocument,
   incomeTransaction: ITransactionDocument,
   ptrId: string,
+  existingFollowDocs: TExistingInvSplitFollowDocs = {},
 ): ITransaction[] => {
   const detailsById = new Map(
     incomeTransaction.details.map((detail) => [
@@ -93,8 +180,11 @@ export const buildInvSplitFollowDocs = (
   const incomeDetails: ITrDetail[] = [];
 
   for (const [index, sourceDetail] of originTransaction.details.entries()) {
-    const splitInfo = getSplitInfo(sourceDetail, index);
-    if (!splitInfo) {
+    const splitInfo = parseInvSplitInfo(
+      sourceDetail.followInfos?.invSplit,
+      `Invalid inventory split detail at index ${index}`,
+    );
+    if (!splitInfo?.hasSplit) {
       continue;
     }
     if (!sourceDetail._id) {
@@ -105,7 +195,9 @@ export const buildInvSplitFollowDocs = (
 
     const detail = detailsById.get(sourceDetail._id);
     if (!detail) {
-      continue;
+      throw new Error(
+        `Inventory split income detail not found: ${sourceDetail._id}`,
+      );
     }
     if (detail.productId === splitInfo.productId) {
       throw new Error('Split product must differ from the source product');
@@ -121,7 +213,7 @@ export const buildInvSplitFollowDocs = (
     const sourceCount = detail.count ?? 0;
     const sourceUnitPrice = sourceCount ? fixNum(amount / sourceCount, 4) : 0;
     outDetails.push({
-      _id: nanoid(),
+      _id: findExistingDetailId(existingFollowDocs.out, sourceDetail._id),
       originId: sourceDetail._id,
       originType: TR_DETAIL_FOLLOW_TYPES.INV_SPLIT_OUT,
       accountId: detail.accountId,
@@ -131,7 +223,7 @@ export const buildInvSplitFollowDocs = (
       amount,
     });
     incomeDetails.push({
-      _id: nanoid(),
+      _id: findExistingDetailId(existingFollowDocs.income, sourceDetail._id),
       originId: sourceDetail._id,
       originType: TR_DETAIL_FOLLOW_TYPES.INV_SPLIT_INCOME,
       accountId: detail.accountId,
@@ -169,6 +261,36 @@ export const buildInvSplitFollowDocs = (
   ];
 };
 
+const reverseInvSplitTransactions = async (
+  subdomain: string,
+  transactions: ITransactionDocument[],
+) => {
+  for (const transaction of transactions) {
+    const multiplier =
+      transaction.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
+    await removeSyncProductsInventory(subdomain, transaction, multiplier);
+  }
+};
+
+const selectCurrentFollowDocs = (transactions: ITransactionDocument[]) => {
+  const current: TExistingInvSplitFollowDocs = {};
+  const duplicates: ITransactionDocument[] = [];
+
+  for (const transaction of transactions) {
+    const key =
+      transaction.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT
+        ? 'out'
+        : 'income';
+    if (current[key]) {
+      duplicates.push(transaction);
+    } else {
+      current[key] = transaction;
+    }
+  }
+
+  return { current, duplicates };
+};
+
 export const syncInvSplitFollowTrs = async (
   subdomain: string,
   models: IModels,
@@ -180,8 +302,19 @@ export const syncInvSplitFollowTrs = async (
     originId: originTransaction._id,
     originType: { $in: SPLIT_FOLLOW_TYPES },
   }).lean();
+  const { current, duplicates } = selectCurrentFollowDocs(oldFollowTrs);
+  if (duplicates.length) {
+    await reverseInvSplitTransactions(subdomain, duplicates);
+    await models.Transactions.deleteMany({
+      _id: { $in: duplicates.map((transaction) => transaction._id) },
+    });
+  }
+
+  const currentFollowTrs = [current.out, current.income].filter(
+    (transaction): transaction is ITransactionDocument => Boolean(transaction),
+  );
   const ptrId =
-    oldFollowTrs.find(
+    currentFollowTrs.find(
       (transaction) =>
         transaction.ptrId && transaction.ptrId !== originTransaction.ptrId,
     )?.ptrId || nanoid();
@@ -189,13 +322,15 @@ export const syncInvSplitFollowTrs = async (
     originTransaction,
     incomeTransaction,
     ptrId,
+    current,
   );
   const savedFollowTrs: ITransactionDocument[] = [];
 
   for (const followDoc of followDocs) {
-    const oldFollowTr = oldFollowTrs.find(
-      (transaction) => transaction.originType === followDoc.originType,
-    );
+    const oldFollowTr =
+      followDoc.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT
+        ? current.out
+        : current.income;
     const savedFollowTr = await createOrUpdateTr(
       models,
       userId,
@@ -214,14 +349,10 @@ export const syncInvSplitFollowTrs = async (
   }
 
   const retainedTypes = new Set(followDocs.map((doc) => doc.originType));
-  const removedFollowTrs = oldFollowTrs.filter(
+  const removedFollowTrs = currentFollowTrs.filter(
     (transaction) => !retainedTypes.has(transaction.originType),
   );
-  for (const oldFollowTr of removedFollowTrs) {
-    const multiplier =
-      oldFollowTr.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
-    await removeSyncProductsInventory(subdomain, oldFollowTr, multiplier);
-  }
+  await reverseInvSplitTransactions(subdomain, removedFollowTrs);
   if (removedFollowTrs.length) {
     await models.Transactions.deleteMany({
       _id: { $in: removedFollowTrs.map((transaction) => transaction._id) },
@@ -240,12 +371,7 @@ export const removeInvSplitFollowTrs = async (
     originId: originTransactionId,
     originType: { $in: SPLIT_FOLLOW_TYPES },
   }).lean();
-
-  for (const followTr of followTrs) {
-    const multiplier =
-      followTr.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
-    await removeSyncProductsInventory(subdomain, followTr, multiplier);
-  }
+  await reverseInvSplitTransactions(subdomain, followTrs);
 };
 
 export const isInvSplitFollow = (transaction: ITransaction) =>

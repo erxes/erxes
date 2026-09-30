@@ -12,7 +12,13 @@ import {
 } from 'erxes-ui';
 import { fixNum } from 'erxes-ui/lib';
 import { useSetAtom } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Path, useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { ITransaction, ITrDetail } from '../../../types/Transaction';
@@ -27,8 +33,8 @@ import {
 } from '../../types/JournalForms';
 import { fixSumDtCt, getTempId } from '../utils';
 
-const INV_SPLIT_OUT = 'invSplitOut';
-const INV_SPLIT_INCOME = 'invSplitIncome';
+const INV_SPLIT_OUT_ORIGIN_TYPE = 'invSplitOut';
+const INV_SPLIT_INCOME_ORIGIN_TYPE = 'invSplitIncome';
 
 type TSplitJournal = TInvIncomeJournal | TInvMoveJournal;
 type TSplitInfo = NonNullable<
@@ -38,6 +44,60 @@ type TSplitInfo = NonNullable<
 type TProductUom = {
   _id: string;
   uom?: string;
+};
+
+const InventorySplitUomContext = createContext<ReadonlyMap<string, string>>(
+  new Map(),
+);
+
+export const InventorySplitProvider = ({
+  children,
+  form,
+  journalIndex,
+}: {
+  children: ReactNode;
+  form: ITransactionGroupForm;
+  journalIndex: number;
+}) => {
+  const trDoc = useWatch({
+    control: form.control,
+    name: `trDocs.${journalIndex}`,
+  }) as TSplitJournal;
+  const productIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          trDoc.details.flatMap((detail) => [
+            detail.productId,
+            detail.followInfos?.invSplit?.productId,
+          ]),
+        ),
+      ).filter((productId): productId is string => Boolean(productId)),
+    [trDoc.details],
+  );
+  const { data } = useQuery<{
+    productsMain: { list: TProductUom[] };
+  }>(ACCOUNTING_INVENTORY_SPLIT_PRODUCTS, {
+    variables: { ids: productIds },
+    skip: productIds.length === 0,
+  });
+  const uomByProductId = useMemo(
+    () =>
+      new Map(
+        (data?.productsMain.list || []).map((product) => [
+          product._id,
+          product.uom || '',
+        ]),
+      ),
+    [data?.productsMain.list],
+  );
+
+  return (
+    <InventorySplitUomContext.Provider value={uomByProductId}>
+      {children}
+      <InventorySplitSync form={form} journalIndex={journalIndex} />
+    </InventorySplitUomContext.Provider>
+  );
 };
 
 export const InventorySplitSheet = ({
@@ -61,21 +121,7 @@ export const InventorySplitSheet = ({
   const splitProductPath =
     `${splitPath}.productId` as Path<TAddTransactionGroup>;
   const splitRatioPath = `${splitPath}.ratio` as Path<TAddTransactionGroup>;
-  const productIds = [splitInfo?.productId].filter(
-    (productId): productId is string => Boolean(productId),
-  );
-  const { data } = useQuery<{
-    productsMain: { list: TProductUom[] };
-  }>(ACCOUNTING_INVENTORY_SPLIT_PRODUCTS, {
-    variables: { ids: productIds },
-    skip: productIds.length === 0,
-  });
-  const uomByProductId = new Map(
-    (data?.productsMain.list || []).map((product) => [
-      product._id,
-      product.uom,
-    ]),
-  );
+  const uomByProductId = useContext(InventorySplitUomContext);
 
   const setSplitInfo = (nextSplitInfo?: TSplitInfo) => {
     form.setValue(splitPath, nextSplitInfo, {
@@ -199,18 +245,26 @@ export const InventorySplitSheet = ({
 };
 
 export const InventorySourceUom = ({ productId }: { productId?: string }) => {
-  const { data } = useQuery<{
-    productsMain: { list: TProductUom[] };
-  }>(ACCOUNTING_INVENTORY_SPLIT_PRODUCTS, {
-    variables: { ids: productId ? [productId] : [] },
-    skip: !productId,
-  });
-  const uom = data?.productsMain.list.find(
-    (product) => product._id === productId,
-  )?.uom;
+  const uomByProductId = useContext(InventorySplitUomContext);
 
-  return <RecordTableInlineCell>{uom || '-'}</RecordTableInlineCell>;
+  return (
+    <RecordTableInlineCell>
+      {(productId && uomByProductId.get(productId)) || '-'}
+    </RecordTableInlineCell>
+  );
 };
+
+const withStableDetailIds = (
+  details: ITrDetail[],
+  currentTransaction?: ITransaction,
+) =>
+  details.map((detail) => ({
+    ...detail,
+    _id:
+      currentTransaction?.details.find(
+        (currentDetail) => currentDetail.originId === detail.originId,
+      )?._id || getTempId(),
+  }));
 
 const buildSplitDetails = (trDoc: TSplitJournal) => {
   const outDetails: ITrDetail[] = [];
@@ -231,9 +285,8 @@ const buildSplitDetails = (trDoc: TSplitJournal) => {
       ? trDoc.followInfos.moveInAccountId
       : detail.accountId;
     outDetails.push({
-      _id: getTempId(),
       originId: detail._id,
-      originType: INV_SPLIT_OUT,
+      originType: INV_SPLIT_OUT_ORIGIN_TYPE,
       accountId,
       productId: detail.productId,
       count,
@@ -241,9 +294,8 @@ const buildSplitDetails = (trDoc: TSplitJournal) => {
       amount,
     });
     incomeDetails.push({
-      _id: getTempId(),
       originId: detail._id,
-      originType: INV_SPLIT_INCOME,
+      originType: INV_SPLIT_INCOME_ORIGIN_TYPE,
       accountId,
       productId: splitInfo.productId,
       count: splitCount,
@@ -277,25 +329,28 @@ export const InventorySplitSync = ({
   const departmentId = isMove
     ? trDoc.followInfos.moveInDepartmentId
     : trDoc.departmentId;
-  const { journal, parentId, ptrId } = trDoc;
+  const { parentId, ptrId } = trDoc;
 
   useEffect(() => {
     setFollowTrDocs((previous) => {
       const existingOut = previous.find(
         (transaction) =>
           transaction.originId === originId &&
-          transaction.originType === INV_SPLIT_OUT,
+          transaction.originType === INV_SPLIT_OUT_ORIGIN_TYPE,
       );
       const existingIncome = previous.find(
         (transaction) =>
           transaction.originId === originId &&
-          transaction.originType === INV_SPLIT_INCOME,
+          transaction.originType === INV_SPLIT_INCOME_ORIGIN_TYPE,
       );
       const next = previous.filter(
         (transaction) =>
           !(
             transaction.originId === originId &&
-            [INV_SPLIT_OUT, INV_SPLIT_INCOME].includes(
+            [
+              INV_SPLIT_OUT_ORIGIN_TYPE,
+              INV_SPLIT_INCOME_ORIGIN_TYPE,
+            ].includes(
               transaction.originType || '',
             )
           ),
@@ -322,8 +377,8 @@ export const InventorySplitSync = ({
         _id: existingOut?._id || getTempId(),
         journal: TrJournalEnum.INV_OUT,
         side: TR_SIDES.CREDIT,
-        originType: INV_SPLIT_OUT,
-        details: outDetails,
+        originType: INV_SPLIT_OUT_ORIGIN_TYPE,
+        details: withStableDetailIds(outDetails, existingOut),
       } as ITransaction);
       const incomeTransaction = fixSumDtCt({
         ...existingIncome,
@@ -331,8 +386,8 @@ export const InventorySplitSync = ({
         _id: existingIncome?._id || getTempId(),
         journal: TrJournalEnum.INV_INCOME,
         side: TR_SIDES.DEBIT,
-        originType: INV_SPLIT_INCOME,
-        details: incomeDetails,
+        originType: INV_SPLIT_INCOME_ORIGIN_TYPE,
+        details: withStableDetailIds(incomeDetails, existingIncome),
       } as ITransaction);
 
       return [...next, outTransaction, incomeTransaction];
@@ -341,7 +396,6 @@ export const InventorySplitSync = ({
     branchId,
     departmentId,
     incomeDetails,
-    journal,
     originId,
     outDetails,
     parentId,

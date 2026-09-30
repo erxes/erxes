@@ -1,7 +1,23 @@
 /// <reference types="jest" />
 
+import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '../../@types/transaction';
-import { buildInvSplitFollowDocs } from '../invSplit';
+import {
+  buildInvSplitFollowDocs,
+  normalizeInvSplitTransaction,
+  syncInvSplitFollowTrs,
+} from '../invSplit';
+import {
+  createOrUpdateTr,
+  removeSyncProductsInventory,
+  syncProductsInventory,
+} from '../utils';
+
+jest.mock('../utils', () => ({
+  createOrUpdateTr: jest.fn(),
+  removeSyncProductsInventory: jest.fn(),
+  syncProductsInventory: jest.fn(),
+}));
 
 const makeTransaction = (
   overrides: Partial<ITransactionDocument> = {},
@@ -37,6 +53,10 @@ const makeTransaction = (
   } as ITransactionDocument);
 
 describe('inventory split follow transactions', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('keeps total cost and applies the ratio to count and unit price', () => {
     const transaction = makeTransaction();
 
@@ -136,6 +156,59 @@ describe('inventory split follow transactions', () => {
     );
     expect(outTransaction.details[0].accountId).toBe('destination-account');
     expect(incomeTransaction.details[0].accountId).toBe('destination-account');
+  });
+
+  it('fails when an enabled split has no matching income detail', () => {
+    const transaction = makeTransaction();
+    const incomeTransaction = makeTransaction({ details: [] });
+
+    expect(() =>
+      buildInvSplitFollowDocs(transaction, incomeTransaction, 'split-ptr'),
+    ).toThrow('Inventory split income detail not found: detail-1');
+  });
+
+  it('reuses generated detail ids while editing', () => {
+    const transaction = makeTransaction();
+    const existingOut = makeTransaction({
+      _id: 'out-1',
+      originType: 'invSplitOut',
+      details: [
+        {
+          _id: 'existing-out-detail',
+          originId: 'detail-1',
+          accountId: 'inventory-account',
+          productId: 'source-product',
+          count: 2,
+          unitPrice: 130,
+          amount: 260,
+        },
+      ],
+    });
+    const existingIncome = makeTransaction({
+      _id: 'split-income-1',
+      originType: 'invSplitIncome',
+      details: [
+        {
+          _id: 'existing-income-detail',
+          originId: 'detail-1',
+          accountId: 'inventory-account',
+          productId: 'split-product',
+          count: 8,
+          unitPrice: 32.5,
+          amount: 260,
+        },
+      ],
+    });
+
+    const [outTransaction, incomeTransaction] = buildInvSplitFollowDocs(
+      transaction,
+      transaction,
+      'split-ptr',
+      { out: existingOut, income: existingIncome },
+    );
+
+    expect(outTransaction.details[0]._id).toBe('existing-out-detail');
+    expect(incomeTransaction.details[0]._id).toBe('existing-income-detail');
   });
 
   it('does not create follow transactions without split settings', () => {
@@ -255,5 +328,95 @@ describe('inventory split follow transactions', () => {
         ),
       ),
     ).toBe(true);
+  });
+
+  it('normalizes legacy root split settings into detail state', () => {
+    const transaction = makeTransaction({
+      details: [
+        {
+          _id: 'detail-1',
+          accountId: 'inventory-account',
+          productId: 'source-product',
+          count: 2,
+          unitPrice: 120,
+          amount: 240,
+        },
+      ],
+      followInfos: {
+        invSplitDetails: [
+          {
+            detailId: 'detail-1',
+            productId: 'split-product',
+            ratio: 3,
+          },
+        ],
+      },
+    });
+
+    const normalized = normalizeInvSplitTransaction(transaction);
+
+    expect(normalized.followInfos.invSplitDetails).toBeUndefined();
+    expect(normalized.details[0].followInfos.invSplit).toEqual({
+      hasSplit: true,
+      productId: 'split-product',
+      ratio: 3,
+    });
+  });
+
+  it('removes duplicate generated transactions before synchronizing', async () => {
+    const originTransaction = makeTransaction();
+    const oldOut = makeTransaction({
+      _id: 'old-out',
+      ptrId: 'split-ptr',
+      originType: 'invSplitOut',
+    });
+    const duplicateOut = makeTransaction({
+      _id: 'duplicate-out',
+      ptrId: 'duplicate-ptr',
+      originType: 'invSplitOut',
+    });
+    const oldIncome = makeTransaction({
+      _id: 'old-income',
+      ptrId: 'split-ptr',
+      originType: 'invSplitIncome',
+    });
+    const deleteMany = jest.fn();
+    const models = {
+      Transactions: {
+        find: jest.fn().mockReturnValue({
+          lean: jest.fn().mockResolvedValue([oldOut, duplicateOut, oldIncome]),
+        }),
+        deleteMany,
+      },
+    } as unknown as IModels;
+
+    jest
+      .mocked(createOrUpdateTr)
+      .mockImplementation(
+        async (_models, _userId, doc, oldTransaction) =>
+          ({ ...doc, _id: oldTransaction?._id || 'new-follow' } as never),
+      );
+
+    await syncInvSplitFollowTrs(
+      'tenant',
+      models,
+      'user-1',
+      originTransaction,
+      originTransaction,
+    );
+
+    expect(removeSyncProductsInventory).toHaveBeenCalledWith(
+      'tenant',
+      duplicateOut,
+      -1,
+    );
+    expect(deleteMany).toHaveBeenCalledWith({
+      _id: { $in: ['duplicate-out'] },
+    });
+    expect(createOrUpdateTr).toHaveBeenCalledTimes(2);
+    expect(syncProductsInventory).toHaveBeenCalledTimes(2);
+    expect(
+      jest.mocked(createOrUpdateTr).mock.calls.map((call) => call[2].ptrId),
+    ).toEqual(['split-ptr', 'split-ptr']);
   });
 });

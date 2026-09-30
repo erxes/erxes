@@ -24,65 +24,14 @@ import {
 } from './fixedAssets';
 import { activeCost } from './inventories';
 import { saveInvJustify } from './invJustify';
-import { syncInvSplitFollowTrs } from './invSplit';
+import {
+  normalizeInvSplitTransaction,
+  syncInvSplitFollowTrs,
+} from './invSplit';
 import {
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
-
-const normalizeInventorySplitInfos = (doc: ITransaction): ITransaction => {
-  if (!['invIncome', 'invMove'].includes(doc.journal)) {
-    return doc;
-  }
-
-  const followInfos = { ...doc.followInfos };
-  const legacySplitInfos = Array.isArray(followInfos.invSplitDetails)
-    ? followInfos.invSplitDetails
-    : [];
-  delete followInfos.invSplitDetails;
-
-  return {
-    ...doc,
-    followInfos,
-    details: (doc.details || []).map((detail) => {
-      const legacySplitInfo = legacySplitInfos.find(
-        (splitInfo) => splitInfo?.detailId === detail._id,
-      );
-      const currentInvSplit = detail.followInfos?.invSplit;
-      const invSplit = currentInvSplit
-        ? {
-            ...currentInvSplit,
-            hasSplit:
-              typeof currentInvSplit.hasSplit === 'boolean'
-                ? currentInvSplit.hasSplit
-                : Boolean(currentInvSplit.productId),
-          }
-        : legacySplitInfo
-        ? {
-            hasSplit: true,
-            productId: legacySplitInfo.productId,
-            ratio: legacySplitInfo.ratio,
-          }
-        : undefined;
-
-      if (!invSplit) {
-        return detail;
-      }
-
-      return {
-        ...detail,
-        followInfos: {
-          ...detail.followInfos,
-          invSplit: {
-            hasSplit: invSplit.hasSplit,
-            productId: invSplit.productId,
-            ratio: invSplit.ratio,
-          },
-        },
-      };
-    }),
-  };
-};
 
 export const commonSave = async (
   subdomain: string,
@@ -95,7 +44,7 @@ export const commonSave = async (
     throw new Error('Journal cannot be changed');
   }
 
-  const normalizedDoc = normalizeInventorySplitInfos(doc);
+  const normalizedDoc = normalizeInvSplitTransaction(doc);
   const handler = getJournalHandler(normalizedDoc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
 

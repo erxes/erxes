@@ -1,10 +1,7 @@
 import { IconX } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
-import {
-  ITransactionGroupForm,
-  TInvMoveJournal,
-} from '../../../types/JournalForms';
+import { ITransactionGroupForm } from '../../../types/JournalForms';
 
 export const RemoveButton = ({
   form,
@@ -13,11 +10,10 @@ export const RemoveButton = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
-  const trDoc = useWatch({
+  const details = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}`,
-  }) as TInvMoveJournal;
-  const details = trDoc.details;
+    name: `trDocs.${journalIndex}.details`,
+  });
 
   if (!details.filter((d) => d.checked).length) return null;
 
