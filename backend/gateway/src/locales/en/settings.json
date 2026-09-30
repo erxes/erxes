@@ -2,7 +2,11 @@
   "account": "Account",
   "workspace": "Workspace",
   "developer": "Developer",
-  "client-portal": "Client Portal",
+  "client-portal": {
+    "_": "Client Portal",
+    "client-portal": "Client Portal",
+    "no-client-portal-found": "No client portal found"
+  },
   "core-modules": "Core Modules",
   "products": "Products",
   "automations": "Automations",
@@ -95,7 +99,8 @@
     "code": "Code",
     "date-created": "Date created",
     "brands": "Brands",
-    "brand-created-successfully": "Brand created successfully"
+    "brand-created-successfully": "Brand created successfully",
+    "no-brands-found": "No brands found"
   },
   "file-upload": {
     "_": "File Upload",
@@ -232,5 +237,26 @@
     "basic-information": "Basic information",
     "visible": "Visible",
     "system-fields-hint": "Defined by the system. Only its settings can be changed."
+  },
+  "app-tokens": {
+    "_": "App Tokens",
+    "app-tokens": "App Tokens",
+    "no-app-tokens-found": "No app tokens found"
+  },
+  "oauth-clients": {
+    "_": "OAuth Clients",
+    "oauth-clients": "OAuth Clients",
+    "no-oauth-clients-found": "No OAuth clients yet",
+    "oauth-clients-description": "OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform."
+  },
+  "system-logs": {
+    "_": "System Logs",
+    "no-system-logs-found": "No results found yet",
+    "system-logs-description": "We couldn't find anything matching your search. Try adjusting your filters or search query."
+  },
+  "email-deliveries": {
+    "_": "Email Deliveries",
+    "no-email-deliveries-found": "No emails found yet",
+    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it."
   }
 }

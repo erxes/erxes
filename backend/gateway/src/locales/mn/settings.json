@@ -2,7 +2,11 @@
   "account": "Миний бүртгэл",
   "workspace": "Ажлын орчин",
   "developer": "Хөгжүүлэгч",
-  "client-portal": "Харилцагчийн портал",
+  "client-portal": {
+    "_": "Харилцагчийн портал",
+    "client-portal": "Харилцагчийн портал",
+    "no-client-portal-found": "Харилцагчийн порталууд олдсонгүй"
+  },
   "core-modules": "Үндсэн модулиуд",
   "products": "Бүтээгдэхүүнүүд",
   "automations": "Автоматжуулалтууд",
@@ -95,7 +99,8 @@
     "code": "Код",
     "date-created": "Үүсгэсэн огноо",
     "brands": "Брэндүүд",
-    "brand-created-successfully": "Брэнд үүсгэсэн"
+    "brand-created-successfully": "Брэнд үүсгэсэн",
+    "no-brands-found": "Брэнд олдсонгүй"
   },
   "file-upload": {
     "_": "Файл байршуулах",
@@ -232,5 +237,26 @@
     "basic-information": "Үндсэн мэдээлэл",
     "visible": "Харагдах",
     "system-fields-hint": "Системээс тодорхойлсон талбар. Зөвхөн тохиргоог нь өөрчилнө."
+  },
+  "app-tokens": {
+    "_": "Апп токен",
+    "app-tokens": "Апп токенууд",
+    "no-app-tokens-found": "Апп токен олдсонгүй"
+  },
+  "oauth-clients": {
+    "_": "OAuth Clients",
+    "oauth-clients": "OAuth Clients",
+    "no-oauth-clients-found": "OAuth харилцагч олдсонгүй",
+    "oauth-clients-description": "Таны үүсгэсэн OAuth харилцагчууд энд харагдах болно. Аппликейшнүүд таны платформд нэвтрэх эрхээ баталгаажуулах боломжтой болгохын тулд эхний харилцагчаа үүсгэнэ үү."
+  },
+  "system-logs": {
+    "_": "Системийн бүртгэл",
+    "no-system-logs-found": "Одоо системийн бүртгэл олдсонгүй",
+    "system-logs-description": "Таны хайлтад тохирсон зүйл олдсонгүй. Шүүлтүүрийг орлуулж, хайлтын тэмдэгтийг өөрчилж үзнэ үү."
+  },
+  "email-deliveries": {
+    "_": "Имэйл хүргэлтүүд",
+    "no-email-deliveries-found": "Имэйл олдсонгүй",
+    "email-deliveries-description": "Имэйл хүргэлтүүд энд харагдах болно, таны имэйл өгөгдөл оруулсны дараа."
   }
 }

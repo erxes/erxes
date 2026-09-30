@@ -1,4 +1,4 @@
-import { IconArchive } from '@tabler/icons-react';
+import { IconArchiveOff } from '@tabler/icons-react';
 import { Label, PageSubHeader, RecordTable, Skeleton } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import {
 } from '../hooks/useApprovalRequests';
 import { useApprovalRequestStatus } from './ApprovalRequestStatusSelect';
 import { approvalRequestColumns } from './ApprovalRequestColumns';
+import { EmptyState } from '@/settings/components/EmptyState';
 
 export const ApprovalRequestsRecordTable = () => {
   const { t } = useTranslation('approval');
@@ -76,18 +77,11 @@ export const ApprovalRequestsRecordTable = () => {
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {isEmpty && (
-                <tr className="h-[60vh]">
-                  <td colSpan={columns.length} className="py-10 text-center">
-                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <IconArchive className="mb-2 size-8" />
-                      <Label>{t('no-requests')}</Label>
-                    </div>
-                  </td>
-                </tr>
-              )}
             </RecordTable.Body>
           </RecordTable>
+          {isEmpty && (
+            <EmptyState icon={IconArchiveOff} title={t('no-requests')} />
+          )}
         </RecordTable.CursorProvider>
       </RecordTable.Provider>
     </div>
