@@ -45,6 +45,7 @@
 - Public and base pricing plans write scoped product discount metadata to core products; public entries use `base: null`, while base entries use `base: true` and may be scoped by branch, department, and pipeline.
 - Core product create and update events recalculate that product's active public and base pricing discounts, clearing stale discounts when it leaves every plan filter.
 - Voucher, coupon, lottery, spin, and agent modules provide their plugin-owned loyalty behaviors.
+- A voucher campaign may cap what one owner receives (`perOwnerLimit {count, period: campaign|year|month}`, calendar periods in the organization's time zone via `loyaltyTimeZone`). Every issue path enforces it in `modules/voucher/services/ownerLimit.ts`: `createVoucher` throws `VoucherOwnerLimitError`, `createVouchers` leaves those owners out, and the Issue voucher automation action reports them as `skipped` (all refused) or `refusedOwnerIds` (some refused). Vouchers, spins and lotteries issued from the campaign all count; a `score` voucher cannot be limited.
 - `loyaltyAccounts` lists loyalty accounts newest first (cursor paginated on `joinedAt`) with filters for owner type, status, account type and its tier (`none` = holds the type without a tier); `searchValue` is either a 10-digit account number or text matched against owners in core (customers, companies, users; at most 200 owners per type), built in `services/accountList.ts`. `LoyaltyAccount.owner` resolves the owner document.
 
 ## Architecture
@@ -108,6 +109,7 @@
 - Pricing plan list ordering must include `_id` as a deterministic tie-breaker
   so records do not repeat or move between adjacent pages.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
+- A voucher campaign's per-owner limit is checked only through `ownersWithinLimit`; no issue path may create a voucher, spin or lottery for a campaign without it.
 - Every balance change goes through `changeBalance` in `scoreLedger.ts`: keyed balances (an account type, or `default` for the top-level score) change with one atomic `$inc`/`$set` on `loyalty_accounts.balances` (floor-checked for subtractions), and the featured field or owner `score` is only a copy that re-reads the account until it matches; never compute a new balance from an owner snapshot. Every read of a balance goes through `getOwnerBalance`: the account first, otherwise the featured field (typed) or the ledger sum (default score — customers have no `score` field, so `owner.score` is never a source). Repair writes ledger-derived balances through `updateOwnerScoreCache`; never `$set` a whole `propertiesData` object on an owner.
 - Invariant: available lots' `remaining` sums to `max(0, balance)` and pending lots to `pending`. Only `changeBalance`, the lot jobs and repair (`reconcileAvailable`) move lots; lot consumption is one atomic pipeline update per lot. Production runs MongoDB 4.4: no operators newer than 4.4 (`$dateAdd`, `$getField`, `$setWindowFields` …); dates are computed in Node.
 - `balances.<key>` entries are written per field (`balances.<key>.balance`, `.tier`, …), never as a whole object, so balance and tier writes never erase each other.
@@ -128,6 +130,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-30` — Per-owner voucher limit
+
+- **Summary:** Voucher campaigns can cap how many one owner receives per campaign, year or month, so a changed birth date cannot farm a second birthday coupon.
+- **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/{Voucher,VoucherCampaign}.ts,graphql/schemas/voucherCamapign.ts,services/ownerLimit.ts}`, `meta/automations/voucher/producers.ts`.
+- **Contracts changed:** `VoucherCampaign.perOwnerLimit`, `VoucherOwnerLimitInput` on `voucherCampaignsAdd`/`voucherCampaignsEdit`; Issue voucher result may be `skipped` or carry `refusedOwnerIds`.
 
 ### `2026-09-30` — Hard cut at a period reset
 
@@ -182,15 +190,3 @@
 - **Summary:** A base earning row may now give a percent of the amount (like bonus rows) or a multiplier of the rate's points; the value type decides.
 - **Affected areas:** `services/earnTable.ts` (`points`, `normalizeEarnTable`), `@types/earnTable.ts`, earn table tests.
 - **Contracts changed:** Earning row `valueType` adds `multiplier`; base rows read `percent` as a percent of the amount (previously ignored and always a multiplier).
-
-### `2026-09-28` — Account types shown as wallets
-
-- **Summary:** User-facing errors about account types now say wallet, matching the UI name.
-- **Affected areas:** `AccountType.ts`, `scoreLedger.ts`, `score/utils.ts`, `meta/automations/score/producers.ts`.
-- **Contracts changed:** None (error message text only).
-
-### `2026-09-28` — Account list
-
-- **Summary:** Accounts can be listed and filtered by owner type, status, account type and tier, and searched by account number or owner name.
-- **Affected areas:** `modules/score/services/accountList.ts` (+ tests), `graphql/resolvers/queries/account.ts`, `graphql/schemas/account.ts`, `customResolvers/loyaltyAccount.ts` (balances read from both hydrated `Map` and lean objects), `@types/account.ts`.
-- **Contracts changed:** Added query `loyaltyAccounts(searchValue, ownerType, status, accountTypeId, tier, cursor params): LoyaltyAccountListResponse`; `LoyaltyAccount.owner: JSON`.

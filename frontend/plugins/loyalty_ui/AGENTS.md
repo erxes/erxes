@@ -46,6 +46,7 @@
   `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
   through pricing form values.
 - Automation history renders loyalty action results through `LoyaltyActionResult` (`historyActionResult`), which picks by action type: Adjust score → `ScoreActionResult` / `useScoreActionResult` (skipped runs list each owner's reasons in words, successful runs show the score change); Set tier → `SetTierActionResult` / `useSetTierActionResult` (tier names from the action's account type, `from → to`, or skipped when nothing changed); Issue voucher → `IssueVoucherActionResult` / `useIssueVoucherActionResult` (count issued, campaign title, each recipient by owner type); other loyalty actions fall back to raw JSON. Tier changed runs are named in the history by the owner (`historyName` → `TierChangedHistoryName`, through `LoyaltyOwnerInline`: customer, company or team member inline from `ui-modules`).
+- The voucher campaign Restriction tab (add and edit share `AddVoucherRestrictionForm`) has a "Per customer" limit (`VoucherOwnerLimitField`: count + period year/month/whole campaign); `toOwnerLimit` sends `perOwnerLimit`, or `null` when the count is empty so an edit clears it.
 - The "Tier changed" trigger is configured by `TierChangedTriggerConfigForm` / `useTierChangedTriggerForm` (wallet required, direction up/down/any defaulting to up, target tier or any) and summarized on its node by `TierChangedTriggerNodeContent`, both registered in `LoyaltyRemoteEntry` (`triggerForm`, `triggerConfigContent`).
 - Loyalty action nodes report what their config still misses (`useLoyaltyActionNodeIssues`: the action's own zod form schema, reported through `useReportNodeIssues` from `ui-modules`); the builder draws the warning and blocks activation.
 - `/loyalty/accounts` ("Accounts" in the loyalty navigation) lists loyalty accounts: owner, owner type, account number, status, one column per active account type with its balance and an inline tier select, joined date. Filters: search (account number or owner name), status, owner type, account type and tier. Row menu: freeze (reason dialog) / unfreeze (confirm), score history (scores page filtered by owner), owner profile. Freeze, unfreeze and tier changes refetch `LoyaltyAccounts`.
@@ -138,6 +139,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-30` — Per-customer voucher limit
+
+- **Summary:** Voucher campaigns can be limited to N per customer per year, month or campaign from the Restriction tab; empty means no limit.
+- **Affected areas:** `settings/voucher/{constants/voucherFormSchema.ts,utils/voucherOwnerLimit.ts,types/voucherTypes.ts}`, `add-voucher-campaign/components/{AddVoucherRestrictionForm,VoucherTabs}.tsx`, `voucher-restriction-field/VoucherOwnerLimitField.tsx`, `voucher-detail/components/{EditVoucherTabs,LoyaltyVoucherEditSheet}.tsx`, voucher add/edit mutations and detail query; `owner-limit*` translations.
+- **Contracts changed:** None
+
 ### `2026-09-30` — No-earn window shown
 
 - **Summary:** The wallet preview names the days before a reset in which purchases earn nothing, and the Adjust score history explains such a skip with both dates.
@@ -187,15 +194,3 @@
 - **Summary:** Set tier runs show `from → to` tier names, or a skipped line when the tier was already set, instead of raw JSON.
 - **Affected areas:** `widgets/automations/modules/loyalty/components/action/LoyaltyActionResult.tsx`, `set-tier/SetTierActionResult.tsx`, `hooks/useSetTierActionResult.ts`, `LoyaltyRemoteEntry.tsx`; `set-tier-result-*` translations.
 - **Contracts changed:** None
-
-### `2026-09-28` — Two row kinds
-
-- **Summary:** The earning table offers Base and Bonus rows only; a bonus can be "% of amount", "Fixed points" or "× base points", a base "% of amount" or "× the rate", and older multiplier rows load as bonus "× base points".
-- **Affected areas:** `settings/score/types/earnTable.ts`, `constants/formSchema.ts`, `utils/earnTableForm.ts`, `earn-table/EarnRowEditor.tsx`, `hooks/useEarnRowAutomation.ts`, `hooks/useEarnTableEditor.ts`; earn table translations.
-- **Contracts changed:** Sends earning row `kind` `base | bonus` only.
-
-### `2026-09-28` — Base rows as percent or multiplier
-
-- **Summary:** The earning table's Form column lets base rows choose "% of amount" or "Multiplier" (new base rows start at 1%), bonus rows "% of amount" or "Fixed points"; the cell suffix follows the choice and changing a row's kind keeps a form it allows.
-- **Affected areas:** `settings/score/types/earnTable.ts` (`EARN_VALUE_TYPES` per kind, `earnValueTypeFor`), `constants/formSchema.ts`, `utils/earnTableForm.ts`, `earn-table/EarnRowEditor.tsx`; `earn-table-hint` translation.
-- **Contracts changed:** Sends earning row `valueType` `multiplier` for multiplier-form base rows and multiplier rows.

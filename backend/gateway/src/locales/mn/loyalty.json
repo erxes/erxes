@@ -53,7 +53,6 @@
   "add-quantity-rule": "Тоо хэмжээний дүрэм нэмэх",
   "add-repeat-rule": "Давтамжийн дүрэм нэмэх",
   "save-changes": "Өөрчлөлт хадгалах",
-
   "// --- Inline text ---": "",
   "loyalty-title": "Лояалти",
   "enabled": "Идэвхтэй",
@@ -401,7 +400,6 @@
   "action": "Үйлдэл",
   "results-count": "{{count}} үр дүн",
   "loading-deals": "Хэлцлүүдийг ачааллаж байна...",
-
   "// --- Placeholders ---": "",
   "search": "Хайх...",
   "search-rules": "Дүрмүүд хайх...",
@@ -501,7 +499,6 @@
   "specific-vendor": "Тодорхой нийлүүлэгч",
   "specific-tag": "Тодорхой шошго",
   "specific-bundle": "Тодорхой багц",
-
   "// --- Messages ---": "",
   "success": "Амжилттай",
   "error": "Алдаа",
@@ -891,5 +888,13 @@
   "tier-changed-any-tier": "Аль ч tier",
   "tier-changed-hint": "Гишүүн энэ tier-т орох бүрт ажиллана, period reset-ийн дараа дахин орсон ч мөн адил. Reset өөрөө үүнийг эхлүүлэхгүй.",
   "issue-voucher-result_one": "Voucher олгосон",
-  "issue-voucher-result_other": "{{count}} voucher олгосон"
+  "issue-voucher-result_other": "{{count}} voucher олгосон",
+  "owner-limit": "Нэг хэрэглэгчид",
+  "owner-limit-none": "Хязгааргүй",
+  "owner-limit-hint": "Нэг хэрэглэгч энэ campaign-аас хэдэн удаа авч болох вэ. Хоосон бол хязгааргүй.",
+  "owner-limit-period": {
+    "year": "жилд",
+    "month": "сард",
+    "campaign": "campaign-ийн хугацаанд"
+  }
 }

@@ -43,6 +43,21 @@ export const voucherCampaignSchema = schemaWrapper(
       restrictions: {
         type: Schema.Types.Mixed,
       },
+
+      perOwnerLimit: {
+        type: new Schema(
+          {
+            count: { type: Number, min: 1, required: true },
+            period: {
+              type: String,
+              enum: ['campaign', 'year', 'month'],
+              required: true,
+            },
+          },
+          { _id: false },
+        ),
+        label: 'Per owner limit',
+      },
     },
     {
       timestamps: true,

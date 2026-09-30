@@ -53,7 +53,6 @@
   "add-quantity-rule": "Add quantity rule",
   "add-repeat-rule": "Add repeat rule",
   "save-changes": "Save Changes",
-
   "// --- Inline text ---": "",
   "loyalty-title": "Loyalty",
   "enabled": "Enabled",
@@ -401,7 +400,6 @@
   "action": "Action",
   "results-count": "{{count}} results",
   "loading-deals": "Loading deals...",
-
   "// --- Placeholders ---": "",
   "search": "Search...",
   "search-rules": "Search rules...",
@@ -501,7 +499,6 @@
   "specific-vendor": "Specific Vendor",
   "specific-tag": "Specific Tag",
   "specific-bundle": "Specific Bundle",
-
   "// --- Messages ---": "",
   "success": "Success",
   "error": "Error",
@@ -891,5 +888,13 @@
   "tier-changed-any-tier": "Any tier",
   "tier-changed-hint": "Runs every time a member enters it, again after a period reset too. Resets themselves never start it.",
   "issue-voucher-result_one": "Voucher issued",
-  "issue-voucher-result_other": "{{count}} vouchers issued"
+  "issue-voucher-result_other": "{{count}} vouchers issued",
+  "owner-limit": "Per customer",
+  "owner-limit-none": "No limit",
+  "owner-limit-hint": "How many one customer may receive from this campaign. Leave empty for no limit.",
+  "owner-limit-period": {
+    "year": "per year",
+    "month": "per month",
+    "campaign": "for the whole campaign"
+  }
 }

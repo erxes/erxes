@@ -1,6 +1,8 @@
+import { VoucherOwnerLimitError } from '@/voucher/services/ownerLimit';
 import {
   AUTOMATION_ERROR_CODES,
   buildFailedAction,
+  buildSkippedAction,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
@@ -32,17 +34,40 @@ export const voucherAutomationProducers = {
       errorMessage: 'Voucher owner is required',
     });
 
-    const result = await Promise.all(
-      ownerIds.map((ownerId) =>
-        models.Vouchers.createVoucher({
-          campaignId: config.voucherCampaignId || '',
-          ownerType,
-          ownerId,
-          config: getVoucherConfigByRule(config.customRule),
-        }),
-      ),
+    const issued = await Promise.all(
+      ownerIds.map(async (ownerId) => {
+        try {
+          const voucher = await models.Vouchers.createVoucher({
+            campaignId: config.voucherCampaignId || '',
+            ownerType,
+            ownerId,
+            config: getVoucherConfigByRule(config.customRule),
+          });
+
+          return { ownerId, voucher };
+        } catch (error) {
+          // At the campaign's limit is a decision, not a failure.
+          if (error instanceof VoucherOwnerLimitError) {
+            return { ownerId, refused: error.message };
+          }
+
+          throw error;
+        }
+      }),
     );
 
-    return { result };
+    const result = issued.flatMap(({ voucher }) => (voucher ? [voucher] : []));
+    const refused = issued.filter(({ refused }) => refused);
+
+    if (!result.length && refused.length) {
+      return buildSkippedAction(refused[0].refused as string, { result });
+    }
+
+    return {
+      result,
+      ...(refused.length && {
+        refusedOwnerIds: refused.map(({ ownerId }) => ownerId),
+      }),
+    };
   },
 };
