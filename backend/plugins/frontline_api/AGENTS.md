@@ -163,6 +163,11 @@
   rejects missing records, repeated connections, and reused integrations, and
   returns the updated bot without selecting credentials. The external
   integration creation flow does not invoke this method yet.
+- The internal `telegramCreateIntegrations` adapter validates the
+  `telegram-messenger` kind and a strict setup payload containing `sourceBotId`,
+  resolves tenant models, and attaches the saved bot to the supplied integration.
+  It returns `{ status: 'success' }` or throws; it is not yet registered in the
+  external integration creation dispatcher.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
   token. It returns provider information without changing the bot record or
   webhook configuration.
@@ -238,7 +243,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison, internal creation adapter |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -385,6 +390,10 @@
   `telegram-messenger` kind through the supplied tenant's integration model.
   Callers must enforce permissions before invoking the internal attachment
   method; it does not create or remove integration records.
+- `telegramCreateIntegrations` treats parsed setup JSON as unknown and validates
+  it before resolving tenant models. `sourceBotId` is the saved bot's erxes
+  `_id`; accept no token or extra setup fields. Propagate attachment failures to
+  the caller, which owns integration creation and rollback.
 - Backend queries must explicitly select any Telegram credential fields they
   need; `select: false` controls query projection and does not encrypt storage.
 - Callers of `TelegramBots.getWebhookInfo` must enforce integration permissions
@@ -410,6 +419,10 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram creation adapter checks: invalid kinds, malformed JSON, and invalid
+  or extra setup fields fail before model access. Forward the supplied subdomain,
+  bot ID, and integration ID unchanged; return success only after attachment and
+  propagate model initialization or attachment failures.
 - Telegram link metadata check: the bot schema declares a unique sparse
   `erxesApiId` index, existing unconnected bots remain valid, and the running
   Frontline and gateway schemas expose the link as nullable `String` without
@@ -469,6 +482,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-30` — Telegram integration creation adapter
+
+- **Summary:** Added strict setup validation and tenant-scoped saved-bot attachment behind the provider creation adapter.
+- **Affected areas:** `src/modules/integrations/telegram/messageBroker.ts`.
+- **Contracts changed:** Added internal `telegramCreateIntegrations({ subdomain, data })`; public creation dispatch remains unchanged.
+
 ### `2026-09-30` — Telegram inbox attachment model
 
 - **Summary:** Added optional integration metadata and conditional bot attachment that prevents conflicting connections within a tenant.
@@ -522,9 +541,3 @@
 - **Summary:** Added permission-checked list and detail queries for saved Telegram bots, returning public metadata from the tenant's database.
 - **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`, `src/modules/integrations/telegram/graphql/`.
 - **Contracts changed:** Added `telegramBots: [TelegramBot!]!`, `telegramBot(_id: String!): TelegramBot!`, and `ITelegramBotModel.getBots(filter)`.
-
-### `2026-09-29` — Telegram bot creation API
-
-- **Summary:** Exposed permission-checked bot creation through GraphQL, with the authenticated creator and a credential-free return type.
-- **Affected areas:** `src/modules/integrations/telegram/graphql/`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/mutations.ts`.
-- **Contracts changed:** Added `TelegramBot` and `telegramAddBot(token: String!): TelegramBot!`.
