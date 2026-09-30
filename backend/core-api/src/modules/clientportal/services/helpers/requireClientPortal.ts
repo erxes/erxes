@@ -1,11 +1,10 @@
-import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { IClientPortal, IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { IModels } from '~/connectionResolvers';
-import { IContextClientPortal } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
 
 export async function requireClientPortal(
   models: IModels,
-  clientPortal: IContextClientPortal | null | undefined,
+  clientPortal: IClientPortalDocument | null | undefined,
 ): Promise<IClientPortalDocument> {
   if (!clientPortal?._id) {
     throw new ExpectedError('Client portal required', 'UNAUTHORIZED');
