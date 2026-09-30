@@ -2,9 +2,16 @@ import {
   TAutomationFindObjectTargetDefinition,
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
+  TAutomationTriggerActionInputs,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
 import { generateTotalAmount } from './action/generateTotalAmount';
+import {
+  dealPaidAmount,
+  dealPurchaseItems,
+  LOYALTY_ADJUST_SCORE_ACTION,
+} from './purchase';
 import { IDeal, IProductData } from '../../@types';
 import { buildDealAmountAttributes } from '../../documents/dealContent';
 import { generateProducts } from '../../utils';
@@ -322,6 +329,16 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
         { key: 'uom', label: 'Unit of measure' },
       ],
     },
+    { key: 'paidAmount', label: 'Paid amount (without points)' },
+    {
+      key: 'purchaseItems',
+      label: 'Purchased items',
+      fields: [
+        { key: 'productId', label: 'Product ID' },
+        { key: 'amount', label: 'Amount' },
+        { key: 'discounted', label: 'Discounted' },
+      ],
+    },
     { key: 'link', label: 'Deal link' },
     { key: 'pipelineLabels', label: 'Pipeline labels' },
     { key: 'createdAt', label: 'Created at' },
@@ -339,6 +356,9 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     'productsData.*': ({ subdomain, source, path }) =>
       resolveProductsDataPath(subdomain, source, path),
     totalAmount: ({ source }) => generateTotalAmount(source.productsData),
+    paidAmount: async ({ subdomain, source }) =>
+      dealPaidAmount(await generateModels(subdomain), source),
+    purchaseItems: ({ source }) => dealPurchaseItems(source),
     unUsedTotalAmount: ({ source }) => {
       let totalAmount = 0;
 
@@ -375,6 +395,16 @@ const SALES_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
   },
 ];
 
+// A deal handed to loyalty as a purchase: the ticked products are what was
+// bought, and point payments are not money paid.
+const DEAL_ACTION_INPUTS: TAutomationTriggerActionInputs = {
+  [LOYALTY_ADJUST_SCORE_ACTION]: {
+    totalAmount: 'unUsedTotalAmount',
+    paidAmount: 'paidAmount',
+    items: 'purchaseItems',
+  },
+};
+
 export const salesAutomationContants = {
   triggers: [
     {
@@ -385,6 +415,7 @@ export const salesAutomationContants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off sales pipeline item',
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
@@ -397,6 +428,7 @@ export const salesAutomationContants = {
         'Start this workflow when a deal moves to a stage with the selected probability.',
       isCustom: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
@@ -409,6 +441,7 @@ export const salesAutomationContants = {
         'Start this workflow when a deal moves from one stage to another.',
       isCustom: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
   ],

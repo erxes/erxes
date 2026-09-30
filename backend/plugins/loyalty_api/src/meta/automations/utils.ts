@@ -32,18 +32,6 @@ const splitListValue = (value: string) =>
 
 const unique = (values: string[]) => [...new Set(values)];
 
-export const getBirthDate = (target: LoyaltyAutomationTarget) => {
-  return target.details?.birthDate || target.birthDate;
-};
-
-export const isBirthdayThisMonth = (birthDate?: string | Date) => {
-  if (!birthDate) {
-    return false;
-  }
-
-  return new Date(birthDate).getMonth() === new Date().getMonth();
-};
-
 export const getVoucherConfigByRule = (customRule?: { duration?: string }) => {
   if (!customRule?.duration) {
     return undefined;
@@ -97,6 +85,10 @@ const getOwnerTypeFromTarget = (
 ): LoyaltyOwnerType => {
   if (!target) {
     return 'customer';
+  }
+
+  if (target.ownerType) {
+    return target.ownerType;
   }
 
   if ('details' in target) {

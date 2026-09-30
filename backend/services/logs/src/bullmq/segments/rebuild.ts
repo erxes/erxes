@@ -4,6 +4,7 @@ import {
   SegmentForgetEvent,
   SegmentMembershipUpdate,
   SegmentRebuildEvent,
+  sendSegmentMaterialized,
   sendSegmentRebuild,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
@@ -115,6 +116,7 @@ const rebuildReferencing = async (subdomain: string, segmentId: string) => {
 export const rebuildSegment = async ({
   subdomain,
   segmentId,
+  source,
 }: SegmentRebuildEvent) => {
   const segment: { _id: string; contentType: string } | null =
     await sendTRPCMessage({
@@ -243,6 +245,14 @@ export const rebuildSegment = async ({
     }
 
     segmentLog(`${segmentId}: rebuilt`, { members: membersCount });
+
+    if (source === 'reconcile') {
+      sendSegmentMaterialized({
+        subdomain,
+        segmentId,
+        materializedAt: Date.now(),
+      });
+    }
 
     await rebuildReferencing(subdomain, segmentId);
   } catch (error) {

@@ -21,6 +21,7 @@ import {
 import { SCORE_LOG_STATISTICS_QUERY } from '../graphql/queries';
 import { ScoreStats, useScoreStatistics } from '../hooks/useScoreStatistics';
 import { useRepairOwnerScore } from '../hooks/useRepairOwnerScore';
+import { LoyaltyAccountCard } from '../../accounts/components/LoyaltyAccountCard';
 
 const ScoreStatCards = ({
   stats,
@@ -175,7 +176,8 @@ export const ScoreSummaryWidget = ({
       </div>
       <Separator />
       <ScrollArea className="flex-auto">
-        <div className="p-4">
+        <div className="p-4 flex flex-col gap-3">
+          <LoyaltyAccountCard ownerType={ownerType} ownerId={ownerId} />
           <ScoreStatCards stats={stats} loading={loading} />
         </div>
       </ScrollArea>

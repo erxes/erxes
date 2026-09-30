@@ -9,7 +9,7 @@ import {
   getBroadcastCacheKey,
   getBroadcastEmailConfig,
 } from '@/broadcast/utils/outboundEmail';
-import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
+import { TScheduleInput } from '@/broadcast/db/models/Engages';
 import { scheduledAt } from '@/broadcast/utils/schedule';
 import {
   recordPlaceholderResolver,
@@ -113,7 +113,8 @@ export const engageMutations = {
       _id,
       dateTime,
       recurrence,
-    }: { _id: string; dateTime?: Date; recurrence?: TBroadcastRecurrence },
+      afterSegment,
+    }: { _id: string } & TScheduleInput,
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
@@ -122,7 +123,11 @@ export const engageMutations = {
     // watching when the alarm goes off.
     await assertCampaignAccess({ models, user }, { _id }, 'live');
 
-    return models.EngageMessages.schedule(_id, { dateTime, recurrence });
+    return models.EngageMessages.schedule(_id, {
+      dateTime,
+      recurrence,
+      afterSegment,
+    });
   },
 
   /**

@@ -3,15 +3,23 @@ export type TCampaignSchedule = {
   isDraft?: boolean;
   status?: string;
   scheduleDate?: {
+    type?: string | null;
     dateTime?: string | null;
     every?: string | null;
     endDate?: string | null;
   } | null;
 };
 
-/** Repeats, rather than waiting for a single moment. */
+/** Started by its segment's nightly refresh rather than by a clock. */
+export const isAfterSegment = (campaign?: TCampaignSchedule | null) =>
+  campaign?.scheduleDate?.type === 'afterSegment';
+
+/**
+ * Repeats, rather than waiting for a single moment. Following a segment
+ * repeats too: it goes out night after night.
+ */
 export const isRecurring = (campaign?: TCampaignSchedule | null) =>
-  !!campaign?.scheduleDate?.every;
+  !!campaign?.scheduleDate?.every || isAfterSegment(campaign);
 
 /** The moment a campaign is set to go out, if one was picked. */
 export const scheduledAt = (campaign?: TCampaignSchedule | null) => {

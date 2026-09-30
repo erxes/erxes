@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { SegmentForm, useFormValidationErrorHandler } from 'ui-modules';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
+import { AUTOMATION_SEGMENT_OWNER } from '@/automations/components/common/AutomationSegmentForm';
 
 export const SplitConditionForm = ({
   contentType,
@@ -17,7 +18,11 @@ export const SplitConditionForm = ({
   onDirtyChange?: (isDirty: boolean) => void;
 }) => {
   return (
-    <SegmentForm.Root contentType={contentType} segmentId={segmentId}>
+    <SegmentForm.Root
+      contentType={contentType}
+      segmentId={segmentId}
+      ownedBy={AUTOMATION_SEGMENT_OWNER}
+    >
       <SegmentForm.Wrapper>
         <SegmentForm.Content>
           <div className="mt-2">

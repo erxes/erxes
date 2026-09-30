@@ -15,6 +15,7 @@ import { AgentsSection } from './components/AgentsSection/AgentsSection';
 import { CallbacksSection } from './components/CallbacksSection/CallbacksSection';
 import { TopNumbersSection } from './components/TopNumbersSection/TopNumbersSection';
 import { CallHistorySection } from './components/CallHistorySection/CallHistorySection';
+import { SlaSection } from './components/SlaSection/SlaSection';
 
 import { deduplicateIntegrations, normalizeQueue } from './utils';
 import type { CallFilters, SelectOption } from './types';
@@ -22,6 +23,7 @@ import type { CallFilters, SelectOption } from './types';
 const TABS = [
   { value: 'overview', label: 'overview' },
   { value: 'queues', label: 'queues' },
+  { value: 'sla', label: 'SLA' },
   { value: 'agents', label: 'agents' },
   { value: 'callbacks', label: 'callbacks' },
   { value: 'top-numbers', label: 'top-numbers' },
@@ -31,6 +33,8 @@ const TABS = [
 type TabValue = (typeof TABS)[number]['value'];
 
 const ALL_QUEUES = 'all';
+
+const CONTENT_WIDTH = 'mx-auto w-full max-w-[1440px] px-6';
 
 export function CallReportsPage() {
   const { t } = useTranslation('frontline');
@@ -158,8 +162,10 @@ export function CallReportsPage() {
             onValueChange={(v) => setTab(v as TabValue)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            <div className="border-b bg-sidebar px-6 shrink-0">
-              <Tabs.List className="h-10 gap-0 rounded-none bg-transparent p-0">
+            <div className="border-b bg-sidebar shrink-0">
+              <Tabs.List
+                className={`${CONTENT_WIDTH} flex h-10 justify-start gap-0 rounded-none bg-transparent py-0`}
+              >
                 {TABS.map(({ value, label }) => (
                   <Tabs.Trigger
                     key={value}
@@ -172,18 +178,22 @@ export function CallReportsPage() {
               </Tabs.List>
             </div>
 
-            <div className="px-6 pt-5 shrink-0">
+            <div className={`${CONTENT_WIDTH} pt-5 shrink-0`}>
               <KpiSection />
             </div>
 
             <ScrollArea className="flex-1 min-h-0">
-              <div className="mx-auto w-full max-w-[1440px] px-6 pb-10 pt-5">
+              <div className={`${CONTENT_WIDTH} pb-10 pt-5`}>
                 <Tabs.Content value="overview" className="mt-0 outline-none">
                   <OverviewSection />
                 </Tabs.Content>
 
                 <Tabs.Content value="queues" className="mt-0 outline-none">
                   <QueuesSection queueOptions={queueOptions} />
+                </Tabs.Content>
+
+                <Tabs.Content value="sla" className="mt-0 outline-none">
+                  <SlaSection />
                 </Tabs.Content>
 
                 <Tabs.Content value="agents" className="mt-0 outline-none">

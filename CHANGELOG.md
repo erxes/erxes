@@ -1,5 +1,32 @@
 # Changelog
 
+## [3.2.8](https://github.com/erxes/erxes/compare/3.2.7...3.2.8) (2026-09-30)
+
+
+### Features
+
+* **loyalty:** tiers, period runs, birthday coupons via nightly segment broadcasts ([#9514](https://github.com/erxes/erxes/issues/9514)) ([d23cfaf](https://github.com/erxes/erxes/commit/d23cfaf9fbf375d36f1c6153977e3bfb9703edbd))
+
+## [3.2.7](https://github.com/erxes/erxes/compare/3.2.6...3.2.7) (2026-09-30)
+
+
+### Bug Fixes
+
+* citytaxPercent ([4b25043](https://github.com/erxes/erxes/commit/4b25043f82b2a0167047fa3c2a08a60aa35d8171))
+* clientportal context ([#9508](https://github.com/erxes/erxes/issues/9508)) ([05e32a9](https://github.com/erxes/erxes/commit/05e32a96ea84a806c61e5989ffb1b8a1eafa5cf9))
+* forward client portal auth config ([4e1cf0a](https://github.com/erxes/erxes/commit/4e1cf0a29d2b829f9b6d6ad5b84614e457e72fdf))
+* **frontline:** guard null message content in forwarded check ([4ed7404](https://github.com/erxes/erxes/commit/4ed7404ef6dfb6d75b9911c0f41a2cb7e0e8bd8b))
+* **migrations:** port SaaS v2 migration fixes to backend commands  ([4a4cc83](https://github.com/erxes/erxes/commit/4a4cc839042e75d0d10183d649aaba7afe0f37a2))
+* **saas-migrations:** retype legacy tag types already copied to target ([af31f78](https://github.com/erxes/erxes/commit/af31f785719a349369bd2785fbd71ca24dd38405))
+
+
+### Features
+
+* add configurable confirm dialog content and button variants ([deba038](https://github.com/erxes/erxes/commit/deba038eba2970a079f0f7a8aeafa8b8885a2551))
+* **frontline:** add SLA tab and bar charts to call report ([f53bf17](https://github.com/erxes/erxes/commit/f53bf17471821f5ced3b5c0900584e437f04da29))
+
+
+
 ## [3.2.6](https://github.com/erxes/erxes/compare/3.2.5...3.2.6) (2026-09-29)
 
 

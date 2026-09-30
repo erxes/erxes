@@ -7,6 +7,10 @@ import {
 import { IVoucherCampaignDocument } from '@/voucher/@types/voucherCampaign';
 import { VOUCHER_STATUS } from '@/voucher/constants';
 import { voucherSchema } from '@/voucher/db/definitions/voucher';
+import {
+  ownersWithinLimit,
+  VoucherOwnerLimitError,
+} from '@/voucher/services/ownerLimit';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -62,11 +66,23 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign =
-        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: voucher is expired');
+      }
+
+      const { refused, reason } = await ownersWithinLimit(
+        models,
+        subdomain,
+        voucherCampaign,
+        [ownerId],
+      );
+
+      if (refused.length) {
+        throw new VoucherOwnerLimitError(reason as string);
       }
 
       switch (voucherCampaign.voucherType) {
@@ -115,8 +131,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      const voucherCampaign =
-        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
 
       if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
         throw new Error('Cannot create voucher: campaign is expired');
@@ -142,6 +159,14 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
           ownerIds = customers.map((customer) => customer._id) || [];
         }
       }
+
+      // Those already at the campaign's limit are left out, not failed.
+      ({ allowed: ownerIds } = await ownersWithinLimit(
+        models,
+        subdomain,
+        voucherCampaign,
+        ownerIds || [],
+      ));
 
       try {
         const BATCH_SIZE = 100;
@@ -236,8 +261,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy voucher, owner is undefined');
       }
 
-      const voucherCampaign =
-        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
+        campaignId,
+      );
 
       if (!voucherCampaign.buyScore) {
         throw new Error('can not buy this voucher');

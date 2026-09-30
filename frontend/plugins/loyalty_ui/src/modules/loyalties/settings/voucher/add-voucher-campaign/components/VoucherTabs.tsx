@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
+import { toOwnerLimit } from '../../utils/voucherOwnerLimit';
 import { useAddVoucher } from '../../hooks/useAddVoucher';
 import {
   VoucherTab,
@@ -75,6 +76,8 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
           tag: data.tag || [],
           orExcludeTag: data.orExcludeTag || [],
         },
+
+        perOwnerLimit: toOwnerLimit(data),
 
         ...(data.bonusProduct && {
           bonusProductId: data.bonusProduct,
