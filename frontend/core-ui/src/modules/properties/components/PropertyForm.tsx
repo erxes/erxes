@@ -204,7 +204,12 @@ export const PropertyForm = ({
                 )}
               />
               <PropertyFormValidation form={form} />
-              <PropertyFormSelectFields form={form} isEdit={isEdit} />
+              <PropertyFormSelectFields
+                form={form}
+                isEdit={isEdit}
+                contentType={contentType}
+                fieldId={fieldId}
+              />
               <PropertyFormObjectListFields form={form} isEdit={isEdit} />
               <PropertySelectRelationType form={form} />
               <PropertyFormLogicFields
