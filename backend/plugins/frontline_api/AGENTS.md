@@ -945,6 +945,15 @@ isInternal)` is the agent-side list and requires `showTickets`.
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
   typo here fails silently.
 
+## Local Invariants
+
+- Ticket activity logging (`createActivity` in
+  `src/modules/ticket/utils/ticket.ts`) receives the whole ticket as `newDoc`
+  (`{ ...ticket.toObject(), ...rest }`), so every field is compared on every
+  update. `startDate`/`targetDate` must be compared by timestamp, never by
+  reference: `toObject()` returns new `Date` instances and a reference compare
+  logs a "changed start date X → X" activity on every unrelated edit.
+
 ## Validation
 
 - `pnpm nx lint frontline_api`
