@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -1216,6 +1216,9 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
   single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
   both sheets are mounted. Do not fork a second form for edit.
+- The Call Pro recording player sets `src` on `<audio>` directly with no MIME
+  `type`. The PBX serves ogg/mp3/wav depending on the account, and a wrong
+  `<source type>` makes the browser skip the file silently.
 - Messenger `onlineHours` is persisted per concrete `Weekday` only. The
   `everyday` / `weekday` / `weekend` keys of `ScheduleDay` live in the same form
   record but are UI quick-selectors derived from the individual days, so they

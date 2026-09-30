@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -711,7 +711,13 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
 - HTTP `POST /callpro/receive` — the Call Pro PBX pushes one call event
   (`numberTo`, `numberFrom`, `disp`, `callID`, `owner`). The route is only
   mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns 404. Public URL: `{DOMAIN}/gateway/pl:frontline/callpro/receive`
-  (`{DOMAIN}/pl:frontline/...` outside production).
+  (`{DOMAIN}/pl:frontline/...` outside production). Every step of the
+  webhook (raw body, integration lookup, customer/conversation get-or-create,
+  state change, inbox response, member notification) and integration
+  create/update/remove is written to stdout through
+  `callpro/debuggers.ts` with `[callpro]` / `[callpro:error]` prefixes, as is every
+  reason `Conversation.callProAudio` resolves to null (flag off, viewer not
+  owner/assignee, missing `recordUrl`, lookup failure).
 - GraphQL `callProConfig` — `{ enabled, webhookUrl }`. This is the only way the
   UI learns whether Call Pro is licensed; `webhookUrl` is null when it is not.
 - GraphQL `callProIntegrationDetail(integrationId)` — the `phoneNumber` and
