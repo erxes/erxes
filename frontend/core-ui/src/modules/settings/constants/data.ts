@@ -18,7 +18,6 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
-  IconPuzzle,
   IconShoppingCart,
   IconShieldCheck,
   IconShieldLock,
@@ -185,11 +184,6 @@ export const SETTINGS_PATH_DATA = (
       name: t('message-pro', 'Message Pro'),
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
-    },
-    {
-      name: t('marketplace', 'Marketplace'),
-      icon: IconPuzzle,
-      path: SettingsWorkspacePath.Marketplace,
     },
   ],
   developer: [

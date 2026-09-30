@@ -1,5 +1,5 @@
 import { PageContainer } from 'erxes-ui';
-import { MarketplaceSettings } from '@/settings/marketplace/components/MarketplaceSettings';
+import { MarketplaceSettings } from '@/marketplace/components/MarketplaceSettings';
 
 export function MarketplacePage() {
   return (

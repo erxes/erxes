@@ -14,7 +14,7 @@ export const marketplaceMutations = {
     { name, repoUrl }: { name?: string; repoUrl?: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('pluginsManage');
+    await checkPermission('marketplaceManage');
 
     if (!name && !repoUrl) {
       throw new Error('pluginInstall requires a name or a repoUrl');
@@ -56,7 +56,7 @@ export const marketplaceMutations = {
     { _id, enabled }: { _id: string; enabled: boolean },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('pluginsManage');
+    await checkPermission('marketplaceManage');
 
     const install = await models.PluginInstalls.setEnabled(_id, enabled);
 
@@ -78,7 +78,7 @@ export const marketplaceMutations = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('pluginsManage');
+    await checkPermission('marketplaceManage');
 
     const install = await models.PluginInstalls.getInstall(_id);
 

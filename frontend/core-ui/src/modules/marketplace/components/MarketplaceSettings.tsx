@@ -22,7 +22,6 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
 import {
   INSTALLED_PLUGINS,
   MARKETPLACE_CATALOG_ERROR,
@@ -166,7 +165,7 @@ const PluginCard = ({
           </span>
         </div>
         {plugin.installed && (
-          <Badge variant={plugin.enabled ? 'secondary' : 'outline'}>
+          <Badge variant={plugin.enabled ? 'success' : 'secondary'}>
             {plugin.enabled ? 'Installed' : 'Disabled'}
           </Badge>
         )}
@@ -248,7 +247,7 @@ export const MarketplaceSettings = () => {
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to={`/settings/${SettingsWorkspacePath.Marketplace}`}>
+                  <Link to="/marketplace">
                     <IconPackage />
                     Marketplace
                   </Link>

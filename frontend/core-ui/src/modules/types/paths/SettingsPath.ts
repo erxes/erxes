@@ -40,7 +40,6 @@ export enum SettingsWorkspacePath {
   Logs = 'logs',
   Broadcast = 'broadcast',
   MessagePro = 'message-pro',
-  Marketplace = 'marketplace',
 }
 
 export type TSettingPath = {
