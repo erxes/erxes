@@ -100,9 +100,6 @@
     "date-created": "Үүсгэсэн огноо",
     "brands": "Брэндүүд",
     "brand-created-successfully": "Брэнд үүсгэсэн",
-<<<<<<< HEAD
-    "no-brands-found": "Брэнд олдсонгүй"
-=======
     "no-brands-match": "Тохирох брэнд олдсонгүй",
     "no-brands-yet": "Брэнд алга байна",
     "no-brands-match-description": "Өөр түлхүүр үгээр хайх эсвэл шүүлтүүрийг цэвэрлэнэ үү.",
@@ -115,7 +112,6 @@
   "oauth-clients": {
     "no-oauth-clients-yet": "OAuth клиент алга байна",
     "no-oauth-clients-yet-description": "Таны үүсгэсэн OAuth клиентүүд энд харагдана. Аппликейшнүүд танай платформд нэвтрэх боломжтой болгохын тулд эхний клиентээ үүсгээрэй."
->>>>>>> 4b25043f82b2a0167047fa3c2a08a60aa35d8171
   },
   "file-upload": {
     "_": "Файл байршуулах",
@@ -257,12 +253,6 @@
     "_": "Апп токен",
     "app-tokens": "Апп токенууд",
     "no-app-tokens-found": "Апп токен олдсонгүй"
-  },
-  "oauth-clients": {
-    "_": "OAuth Clients",
-    "oauth-clients": "OAuth Clients",
-    "no-oauth-clients-found": "OAuth харилцагч олдсонгүй",
-    "oauth-clients-description": "Таны үүсгэсэн OAuth харилцагчууд энд харагдах болно. Аппликейшнүүд таны платформд нэвтрэх эрхээ баталгаажуулах боломжтой болгохын тулд эхний харилцагчаа үүсгэнэ үү."
   },
   "system-logs": {
     "_": "Системийн бүртгэл",

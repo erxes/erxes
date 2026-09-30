@@ -100,9 +100,6 @@
     "date-created": "Date created",
     "brands": "Brands",
     "brand-created-successfully": "Brand created successfully",
-<<<<<<< HEAD
-    "no-brands-found": "No brands found"
-=======
     "no-brands-match": "No brands match",
     "no-brands-yet": "No brands yet",
     "no-brands-match-description": "Try a different search, or clear the filter.",
@@ -115,7 +112,6 @@
   "oauth-clients": {
     "no-oauth-clients-yet": "No OAuth clients yet",
     "no-oauth-clients-yet-description": "OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform."
->>>>>>> 4b25043f82b2a0167047fa3c2a08a60aa35d8171
   },
   "file-upload": {
     "_": "File Upload",
@@ -257,12 +253,6 @@
     "_": "App Tokens",
     "app-tokens": "App Tokens",
     "no-app-tokens-found": "No app tokens found"
-  },
-  "oauth-clients": {
-    "_": "OAuth Clients",
-    "oauth-clients": "OAuth Clients",
-    "no-oauth-clients-found": "No OAuth clients yet",
-    "oauth-clients-description": "OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform."
   },
   "system-logs": {
     "_": "System Logs",
