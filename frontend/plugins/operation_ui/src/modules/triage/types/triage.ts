@@ -11,6 +11,9 @@ export interface ITriage {
   updatedAt: string;
   priority: number;
   status: number;
+  githubIssueNumber?: number;
+  githubIssueUrl?: string;
+  githubRepoName?: string;
 }
 
 export interface IAddTriage {

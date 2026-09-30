@@ -2,6 +2,7 @@ import { ITriage } from '@/triage/types/triage';
 import {
   IconCalendarEventFilled,
   IconCaretLeftRight,
+  IconBrandGithub,
 } from '@tabler/icons-react';
 import { Badge, Button, Card, Separator, Sheet, Spinner } from 'erxes-ui';
 import { format } from 'date-fns';
@@ -30,11 +31,24 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
               size="sm"
               className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
             >
-              <ActivityActor.Provider actorId={triage.createdBy}>
-                <ActivityActor.Avatar />
-                <ActivityActor.Name />
-              </ActivityActor.Provider>{' '}
-              created
+              {triage.createdBy === 'system' &&
+              triage.githubIssueUrl &&
+              typeof triage.githubIssueNumber === 'number' ? (
+                <>
+                  <IconBrandGithub className="size-4" />
+                  {t('created-from-github-issue', {
+                    defaultValue: 'Created from GitHub issue',
+                  })}
+                </>
+              ) : (
+                <>
+                  <ActivityActor.Provider actorId={triage.createdBy}>
+                    <ActivityActor.Avatar />
+                    <ActivityActor.Name />
+                  </ActivityActor.Provider>{' '}
+                  created
+                </>
+              )}
             </Button>
           </div>
           <Separator />
