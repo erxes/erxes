@@ -32,7 +32,7 @@ const ebarimtConfigSchema = new Schema(
       label: 'Default inventory code',
     }),
     vatPercent: field({ type: Number, optional: true, label: 'Vat percent' }),
-    cityTaxPercent: {
+    citytaxPercent: {
       type: Number,
       optional: true,
       label: 'UB city tax percent',

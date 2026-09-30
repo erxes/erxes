@@ -84,8 +84,8 @@ export default {
 
     const vatPercent =
       (ebarimtConfig.hasVat && Number(ebarimtConfig.vatPercent)) || 0;
-    const cityTaxPercent =
-      (ebarimtConfig.hasCitytax && Number(ebarimtConfig.cityTaxPercent)) || 0;
+    const citytaxPercent =
+      (ebarimtConfig.hasCitytax && Number(ebarimtConfig.citytaxPercent)) || 0;
 
     const taxRule = product.taxRules?.[config.token] || {};
 
@@ -93,7 +93,7 @@ export default {
       return mainPrice;
     }
 
-    let totalPercent = vatPercent + cityTaxPercent + 100;
+    let totalPercent = vatPercent + citytaxPercent + 100;
 
     const hasReverseCtaxRule =
       !!taxRule.citytaxCode &&
