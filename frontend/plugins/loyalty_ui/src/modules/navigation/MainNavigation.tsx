@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { label: 'spins', path: '/loyalty/spins' },
   { label: 'donates', path: '/loyalty/donates' },
   { label: 'scores', path: '/loyalty/scores' },
+  { label: 'loyalty-accounts', path: '/loyalty/accounts' },
   { label: 'assignments', path: '/loyalty/assignments' },
   { label: 'agents', path: '/loyalty/agents' },
   { label: 'coupons', path: '/loyalty/coupons' },

@@ -27,7 +27,7 @@ import {
   checkLoyalties,
   checkPricing,
   confirmLoyalties,
-  doScoreCampaign,
+  syncDealPoints,
 } from './loyaltyUtils';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 
@@ -261,7 +261,14 @@ export const editDeal = async ({
     });
   }
 
-  await doScoreCampaign(subdomain, models, _id, updatedItem, oldDeal);
+  await syncDealPoints({
+    subdomain,
+    models,
+    dealId: _id,
+    deal: updatedItem,
+    oldDeal,
+    userId: user._id,
+  });
   await confirmLoyalties(subdomain, _id, updatedItem);
 
   if (oldDeal.stageId === updatedItem.stageId) {
@@ -322,7 +329,14 @@ export const changeDeal = async (
   const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
   if (item.stageId !== destinationStageId) {
-    await doScoreCampaign(subdomain, models, item._id, updatedItem, item);
+    await syncDealPoints({
+      subdomain,
+      models,
+      dealId: item._id,
+      deal: updatedItem,
+      oldDeal: item,
+      userId,
+    });
     await confirmLoyalties(subdomain, item._id, updatedItem);
   }
 

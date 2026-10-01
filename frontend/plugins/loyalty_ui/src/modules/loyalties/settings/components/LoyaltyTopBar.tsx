@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router';
+import { LoyaltyAccountTypeAddHeader } from '../account-type/components/LoyaltyAccountTypeAddHeader';
 import { LoyaltyScoreAddHeader } from '../score/components/LoyaltyScoreAddHeader';
 import { LoyaltyVoucherAddHeader } from '../voucher/components/VouchersHeader';
 import { LoyaltyCouponAddHeader } from '../coupon/components/CouponHeader';
@@ -10,6 +11,13 @@ import { LotteryHeader } from '../lottery/components/LotteryHeader';
 export const LoyaltyTopBar = () => {
   const { pathname } = useLocation();
 
+  if (pathname === '/settings/loyalty/config/account-type') {
+    return (
+      <div className="flex items-center gap-3">
+        <LoyaltyAccountTypeAddHeader />
+      </div>
+    );
+  }
   if (pathname === '/settings/loyalty/config/score') {
     return (
       <div className="flex items-center gap-3">

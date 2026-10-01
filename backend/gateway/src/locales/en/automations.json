@@ -310,5 +310,20 @@
   "ownership-hand-over": "Hand this over to someone",
   "ownership-hand-over-description": "They decide: the records this automation creates move to their name only once they accept.",
   "ownership-waiting": "waiting for their answer",
-  "ownership-offer-summary": "Take ownership of \"{{automation}}\": the records it creates would be made under {{person}}’s name."
+  "ownership-offer-summary": "Take ownership of \"{{automation}}\": the records it creates would be made under {{person}}’s name.",
+  "node-issue-no-segment": "No segment chosen: this trigger enrolls no one",
+  "node-issue-not-configured": "Not configured yet",
+  "node-issue-split-branch": "Branch “{{label}}” has no condition",
+  "node-issue-split-no-options": "No branches yet",
+  "activate-blocked-title": "Cannot activate: {{count}} step(s) still need configuration",
+  "node-issue-unreachable": "Not connected to a trigger: this step never runs",
+  "node-issue-no-branch": "Neither exit leads anywhere: this trigger starts nothing",
+  "segment-membership-joined": "Enter",
+  "segment-membership-left": "Exit",
+  "segment-membership-segment": "Segment",
+  "segment-membership-runs": "Runs",
+  "segment-membership-runs-every": "Every time a record enters or leaves",
+  "segment-membership-runs-once": "Only the first time for each record",
+  "segment-membership-missing": "Segment not found",
+  "segment-membership-hint": "Runs every time a record enters or leaves this segment. The segment is edited on its own page, and a change there applies to every flow that listens to it."
 }

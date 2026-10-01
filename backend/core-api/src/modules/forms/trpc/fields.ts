@@ -12,6 +12,22 @@ import {
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
+const featuredOwnerSchema = z.object({
+  plugin: z.string().min(1),
+  module: z.string().min(1),
+  refId: z.string().min(1).optional(),
+});
+
+const featuredFieldSchema = z.object({
+  key: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/),
+  name: z.string().min(1),
+  type: z.enum(['text', 'number', 'boolean', 'date', 'select', 'multiSelect']),
+  options: z
+    .array(z.object({ label: z.string().min(1), value: z.string().min(1) }))
+    .optional(),
+  index: z.object({ unique: z.boolean().optional() }).optional(),
+});
+
 export const fieldsTrpcRouter = t.router({
   fields: t.router({
     find: t.procedure
@@ -199,5 +215,68 @@ export const fieldsTrpcRouter = t.router({
 
         return await models.Fields.validateFieldValues(data);
       }),
+
+    // Featured fields: a plugin feature owns the definition and the values.
+    ensureFeatured: t.procedure
+      .input(
+        z.object({
+          owner: featuredOwnerSchema,
+          contentType: z.string().min(1),
+          group: z.object({
+            key: z.string().min(1),
+            name: z.string().min(1),
+          }),
+          fields: z.array(featuredFieldSchema).min(1),
+        }),
+      )
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Fields.ensureFeaturedFields(input),
+      ),
+    releaseFeatured: t.procedure
+      .input(z.object({ owner: featuredOwnerSchema }))
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Fields.releaseFeaturedFields(input.owner),
+      ),
+    setFeaturedArchived: t.procedure
+      .input(z.object({ owner: featuredOwnerSchema, archived: z.boolean() }))
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Fields.setFeaturedFieldsArchived(
+          input.owner,
+          input.archived,
+        ),
+      ),
+    adoptFeatured: t.procedure
+      .input(
+        z.object({
+          fieldId: z.string().min(1),
+          owner: featuredOwnerSchema,
+          group: z.object({
+            key: z.string().min(1),
+            name: z.string().min(1),
+          }),
+          field: featuredFieldSchema,
+        }),
+      )
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Fields.adoptFeaturedField(input),
+      ),
+    setFeaturedValues: t.procedure
+      .input(
+        z.object({
+          owner: featuredOwnerSchema,
+          contentType: z.string().min(1),
+          records: z
+            .array(
+              z.object({
+                _id: z.string().min(1),
+                values: z.record(z.unknown()),
+              }),
+            )
+            .min(1),
+        }),
+      )
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.Fields.setFeaturedValues(input),
+      ),
   }),
 });

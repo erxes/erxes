@@ -11,6 +11,7 @@ import {
   ISmsDeliveryQueryParams,
 } from '@/broadcast/@types';
 import { BROADCAST_APPROVAL_CONTENT_TYPES } from '@/broadcast/constants';
+import { AFTER_SEGMENT_SCHEDULE } from '@/broadcast/utils/schedule';
 import {
   countsByKind,
   countsByStatus,
@@ -72,9 +73,14 @@ const generateFilter = async (
     filter['scheduleDate.every'] = { $in: [null, undefined] };
   }
 
+  if (trigger === AFTER_SEGMENT_SCHEDULE) {
+    filter['scheduleDate.type'] = AFTER_SEGMENT_SCHEDULE;
+  }
+
   if (trigger === 'manual') {
     filter['scheduleDate.every'] = { $in: [null, undefined] };
     filter['scheduleDate.dateTime'] = { $in: [null, undefined] };
+    filter['scheduleDate.type'] = { $ne: AFTER_SEGMENT_SCHEDULE };
   }
 
   if (method) {

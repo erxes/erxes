@@ -15,6 +15,7 @@ export const CUSTOMER_DETAIL = gql`
       department
       leadStatus
       sex
+      birthDate
       email
       emailValidationStatus
       emails

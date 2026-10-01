@@ -15,7 +15,9 @@ import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentA
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutoamtionConfigFormFooter } from './AutomationConfigFormFooter';
 
-const OWNER = 'automation';
+// Segments an automation writes belong to it: no name, not listed, not
+// materialized.
+export const AUTOMATION_SEGMENT_OWNER = 'automation';
 
 export const AutomationSegmentForm = ({
   contentType,
@@ -31,7 +33,7 @@ export const AutomationSegmentForm = ({
   <SegmentForm.Root
     contentType={contentType}
     segmentId={segmentId}
-    ownedBy={OWNER}
+    ownedBy={AUTOMATION_SEGMENT_OWNER}
   >
     <SegmentForm.Wrapper>
       <div className="flex justify-end gap-1 px-4 pt-3">

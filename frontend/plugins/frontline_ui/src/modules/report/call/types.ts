@@ -155,3 +155,72 @@ export interface CallHistoryPage {
 
   agents: CallHistoryAgent[];
 }
+
+export interface SlaTotals {
+  totalCalls: number;
+  offeredCalls: number;
+  answeredCalls: number;
+  abandonedCalls: number;
+  shortAbandonedCalls: number;
+  calledBackCalls: number;
+  pendingCallbacks: number;
+  breachedCalls: number;
+  serviceLevel: number | null;
+}
+
+export interface SlaQueue extends SlaTotals {
+  queue: string;
+}
+
+export interface SlaPoint {
+  day: string;
+  offeredCalls: number;
+  answeredCalls: number;
+  breachedCalls: number;
+  serviceLevel: number | null;
+}
+
+export interface SlaBreach {
+  uniqueid: string;
+  startedAt: string | null;
+  customerPhone: string | null;
+  queue: string | null;
+  agent: string | null;
+  agentName: string | null;
+  waitTime: number;
+  isPendingCallback: boolean;
+}
+
+export type MissedReason =
+  | 'SHORT_HANGUP'
+  | 'VOICEMAIL'
+  | 'BUSY'
+  | 'FAILED'
+  | 'IVR'
+  | 'NOT_PICKED_UP'
+  | 'QUEUE_ABANDON';
+
+export interface MissedReasonCount {
+  reason: MissedReason;
+  count: number;
+  calledBack: number;
+}
+
+export interface MissedHourCell {
+  hour: number;
+  reason: MissedReason;
+  count: number;
+}
+
+export interface SlaReport {
+  shortAbandonSeconds: number;
+  callbackWindowMinutes: number;
+  agents: CallHistoryAgent[];
+  missedReasons: MissedReasonCount[];
+  missedByHour: MissedHourCell[];
+  summary: SlaTotals;
+  series: SlaPoint[];
+  queues: SlaQueue[];
+  breachCount: number;
+  breaches: SlaBreach[];
+}

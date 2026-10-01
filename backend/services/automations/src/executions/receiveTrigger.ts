@@ -1,3 +1,4 @@
+import { isSegmentMembershipTrigger } from 'erxes-api-shared/core-modules';
 import { IModels } from '../connectionResolver';
 import { calculateExecution } from './calculateExecutions';
 import { executeActions } from './executeActions';
@@ -55,6 +56,7 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
+
   if (!automations.length) {
     return;
   }
@@ -66,7 +68,12 @@ export const receiveTrigger = async ({
 
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
-        if (!matchesTriggerType(trigger.type, type)) {
+        // Started by the segment worker when a record crosses, not by the
+        // record's own events.
+        if (
+          !matchesTriggerType(trigger.type, type) ||
+          isSegmentMembershipTrigger(trigger)
+        ) {
           continue;
         }
 

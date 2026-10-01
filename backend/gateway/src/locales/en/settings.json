@@ -262,6 +262,9 @@
   "email-deliveries": {
     "_": "Email Deliveries",
     "no-email-deliveries-found": "No emails found yet",
-    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it."
+    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it.",
+    "system-fields-hint": "Defined by the system. Only its settings can be changed.",
+    "owned-group-hint": "Managed by {{plugin}}: its fields and values come from the plugin; only the name and order can change here.",
+    "featured-field-toggle-locked": "Filled by its plugin, so it is never asked for"
   }
 }

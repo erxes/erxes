@@ -1,12 +1,17 @@
 import {
   IconCalendarClock,
+  IconChartPie,
   IconHandFinger,
   IconRepeat,
   TablerIcon,
 } from '@tabler/icons-react';
-import { TCampaignSchedule } from './campaignSchedule';
+import { isAfterSegment, TCampaignSchedule } from './campaignSchedule';
 
-export type TBroadcastTrigger = 'manual' | 'scheduled' | 'recurring';
+export type TBroadcastTrigger =
+  | 'manual'
+  | 'scheduled'
+  | 'recurring'
+  | 'afterSegment';
 
 /**
  * What actually sets a campaign going.
@@ -22,8 +27,17 @@ export const BROADCAST_TRIGGERS: {
   Icon: TablerIcon;
 }[] = [
   { value: 'manual', labelKey: 'trigger.manual', Icon: IconHandFinger },
-  { value: 'scheduled', labelKey: 'trigger.scheduled', Icon: IconCalendarClock },
+  {
+    value: 'scheduled',
+    labelKey: 'trigger.scheduled',
+    Icon: IconCalendarClock,
+  },
   { value: 'recurring', labelKey: 'trigger.recurring', Icon: IconRepeat },
+  {
+    value: 'afterSegment',
+    labelKey: 'trigger.afterSegment',
+    Icon: IconChartPie,
+  },
 ];
 
 const spec = (value?: string | null) =>
@@ -32,6 +46,10 @@ const spec = (value?: string | null) =>
 export const campaignTrigger = (
   row: TCampaignSchedule & { kind?: string },
 ): { Icon: TablerIcon; labelKey: string } => {
+  if (isAfterSegment(row)) {
+    return spec('afterSegment') as { Icon: TablerIcon; labelKey: string };
+  }
+
   if (row.scheduleDate?.every) {
     return spec('recurring') as { Icon: TablerIcon; labelKey: string };
   }

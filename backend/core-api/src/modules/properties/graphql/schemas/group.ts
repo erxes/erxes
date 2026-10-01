@@ -13,6 +13,8 @@ export const types = `
         order: Float
         logics: JSON
         configs: JSON
+        # Set on groups a plugin feature keeps its featured fields in.
+        owner: FieldOwner
         createdAt: Date!
         updatedAt: Date!
     }
