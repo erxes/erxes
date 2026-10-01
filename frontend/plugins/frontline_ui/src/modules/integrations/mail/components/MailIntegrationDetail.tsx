@@ -31,30 +31,31 @@ import { useMailSendingReadiness } from '../hooks/useMailSendingReadiness';
 
 const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 
-export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;
-
-export const MailIntegrationActions = ({
-  cell,
+const MailIntegrationBrandField = ({
+  control,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
-}) => <MailIntegrationEditSheet id={cell.row.original._id} />;
-
-const MailIntegrationEditSheet = ({ id }: { id: string }) => {
+  control: Control<MailFormValues>;
+}) => {
   const { t } = useTranslation('frontline');
-  const [open, setOpen] = useState(false);
-
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <div className="flex items-center gap-2 w-full cursor-pointer">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-xl">
-        <MailIntegrationEditForm id={id} setOpen={setOpen} />
-      </Sheet.View>
-    </Sheet>
+    <Form.Field
+      name="brandId"
+      control={control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('brand')}</Form.Label>
+          <Form.Control>
+            <SelectBrand
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('select-a-brand')}
+              className="w-full h-10 rounded-lg border bg-background"
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
   );
 };
 
@@ -207,30 +208,29 @@ const MailIntegrationEditForm = ({
   );
 };
 
-const MailIntegrationBrandField = ({
-  control,
-}: {
-  control: Control<MailFormValues>;
-}) => {
+const MailIntegrationEditSheet = ({ id }: { id: string }) => {
   const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(false);
+
   return (
-    <Form.Field
-      name="brandId"
-      control={control}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('brand')}</Form.Label>
-          <Form.Control>
-            <SelectBrand
-              value={field.value}
-              onValueChange={field.onChange}
-              placeholder={t('select-a-brand')}
-              className="w-full h-10 rounded-lg border bg-background"
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <div className="flex items-center gap-2 w-full cursor-pointer">
+          <IconEdit size={16} />
+          {t('edit')}
+        </div>
+      </Sheet.Trigger>
+      <Sheet.View className="sm:max-w-xl">
+        <MailIntegrationEditForm id={id} setOpen={setOpen} />
+      </Sheet.View>
+    </Sheet>
   );
 };
+
+export const MailIntegrationActions = ({
+  cell,
+}: {
+  cell: CellContext<IIntegrationDetail, unknown>;
+}) => <MailIntegrationEditSheet id={cell.row.original._id} />;
+
+export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;

@@ -39,6 +39,66 @@ const EmojiCategory = ({
   </div>
 );
 
+const ActiveEmojiPreview = ({
+  emoji,
+}: {
+  emoji?: { emoji: string; label: string };
+}) =>
+  emoji ? (
+    <>
+      <div className="flex size-7 flex-none items-center justify-center text-lg">
+        {emoji.emoji}
+      </div>
+      <span className="text-secondary-foreground truncate text-xs">
+        {emoji.label}
+      </span>
+    </>
+  ) : (
+    <span className="text-muted-foreground ml-1.5 flex h-7 items-center truncate text-xs">
+      Select an emoji…
+    </span>
+  );
+
+const MailEmojiPicker = ({
+  onSelect,
+}: {
+  onSelect: (emoji: string) => void;
+}) => (
+  <EmojiPickerPrimitive.Root
+    className="bg-popover text-popover-foreground isolate flex h-80 w-full flex-col overflow-hidden rounded-md"
+    onEmojiSelect={({ emoji }) => onSelect(emoji)}
+  >
+    <div className="flex h-9 items-center gap-2 border-b px-3">
+      <IconSearch className="size-4 shrink-0 opacity-50" />
+      <EmojiPickerPrimitive.Search
+        placeholder="Search emoji"
+        className="h-9 w-full bg-transparent text-sm outline-none"
+      />
+    </div>
+    <EmojiPickerPrimitive.Viewport className="relative min-h-0 flex-1 outline-none">
+      <EmojiPickerPrimitive.Loading className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+        <IconLoader className="size-4 animate-spin" />
+      </EmojiPickerPrimitive.Loading>
+      <EmojiPickerPrimitive.Empty className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
+        No emoji found.
+      </EmojiPickerPrimitive.Empty>
+      <EmojiPickerPrimitive.List
+        className="select-none pb-1"
+        components={{
+          Row: EmojiRow,
+          Emoji: EmojiOption,
+          CategoryHeader: EmojiCategory,
+        }}
+      />
+    </EmojiPickerPrimitive.Viewport>
+    <div className="flex w-full min-w-0 items-center gap-1 border-t p-2">
+      <EmojiPickerPrimitive.ActiveEmoji>
+        {({ emoji }) => <ActiveEmojiPreview emoji={emoji} />}
+      </EmojiPickerPrimitive.ActiveEmoji>
+    </div>
+  </EmojiPickerPrimitive.Root>
+);
+
 export const MailReactionMenu = ({
   conversationId,
   message,
@@ -90,63 +150,3 @@ export const MailReactionMenu = ({
     </Popover>
   );
 };
-
-const MailEmojiPicker = ({
-  onSelect,
-}: {
-  onSelect: (emoji: string) => void;
-}) => (
-  <EmojiPickerPrimitive.Root
-    className="bg-popover text-popover-foreground isolate flex h-80 w-full flex-col overflow-hidden rounded-md"
-    onEmojiSelect={({ emoji }) => onSelect(emoji)}
-  >
-    <div className="flex h-9 items-center gap-2 border-b px-3">
-      <IconSearch className="size-4 shrink-0 opacity-50" />
-      <EmojiPickerPrimitive.Search
-        placeholder="Search emoji"
-        className="h-9 w-full bg-transparent text-sm outline-none"
-      />
-    </div>
-    <EmojiPickerPrimitive.Viewport className="relative min-h-0 flex-1 outline-none">
-      <EmojiPickerPrimitive.Loading className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-        <IconLoader className="size-4 animate-spin" />
-      </EmojiPickerPrimitive.Loading>
-      <EmojiPickerPrimitive.Empty className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
-        No emoji found.
-      </EmojiPickerPrimitive.Empty>
-      <EmojiPickerPrimitive.List
-        className="select-none pb-1"
-        components={{
-          Row: EmojiRow,
-          Emoji: EmojiOption,
-          CategoryHeader: EmojiCategory,
-        }}
-      />
-    </EmojiPickerPrimitive.Viewport>
-    <div className="flex w-full min-w-0 items-center gap-1 border-t p-2">
-      <EmojiPickerPrimitive.ActiveEmoji>
-        {({ emoji }) => <ActiveEmojiPreview emoji={emoji} />}
-      </EmojiPickerPrimitive.ActiveEmoji>
-    </div>
-  </EmojiPickerPrimitive.Root>
-);
-
-const ActiveEmojiPreview = ({
-  emoji,
-}: {
-  emoji?: { emoji: string; label: string };
-}) =>
-  emoji ? (
-    <>
-      <div className="flex size-7 flex-none items-center justify-center text-lg">
-        {emoji.emoji}
-      </div>
-      <span className="text-secondary-foreground truncate text-xs">
-        {emoji.label}
-      </span>
-    </>
-  ) : (
-    <span className="text-muted-foreground ml-1.5 flex h-7 items-center truncate text-xs">
-      Select an emoji…
-    </span>
-  );
