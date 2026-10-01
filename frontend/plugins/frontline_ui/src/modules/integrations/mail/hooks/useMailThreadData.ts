@@ -6,6 +6,7 @@ import {
   MAIL_MESSAGE_INSERTED_SUBSCRIPTION,
 } from '@/integrations/mail/graphql/queries/mailQueries';
 import type { MailMessage } from '@/integrations/mail/types/mailThread';
+import { toast } from 'erxes-ui';
 import type { IMessage } from '@/inbox/types/Conversation';
 
 const PAGE_SIZE = 20;
@@ -52,8 +53,10 @@ export const useMailThreadData = (conversationId?: string) => {
     variables: { _id: conversationId },
     skip: !conversationId,
     onData: () => {
-      void refetch();
-      void fetchMoreNotes({
+      refetch().catch((err: Error) => {
+        toast({ title: err.message, variant: 'destructive' });
+      });
+      fetchMoreNotes({
         variables: { notesSkip: 0 },
         updateQuery: (previous, { fetchMoreResult }) => {
           if (!fetchMoreResult) return previous;
@@ -70,6 +73,8 @@ export const useMailThreadData = (conversationId?: string) => {
             ],
           };
         },
+      }).catch((err: Error) => {
+        toast({ title: err.message, variant: 'destructive' });
       });
     },
   });

@@ -29,7 +29,7 @@ export const AttachmentChip: React.FC<{ attachment: Attachment }> = ({
       <span className="max-w-[160px] truncate">
         {attachment.filename || 'attachment'}
       </span>
-      {!!attachment.size && (
+      {Boolean(attachment.size) && (
         <span className="text-[#5f6368]">
           {formatAttachmentSize(attachment.size)}
         </span>

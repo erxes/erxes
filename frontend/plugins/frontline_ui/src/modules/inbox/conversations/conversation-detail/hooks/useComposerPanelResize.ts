@@ -26,7 +26,7 @@ export const useComposerPanelResize = () => {
 
   useLayoutEffect(() => {
     const group = panelGroupRef.current;
-    if (!group) return;
+    if (!group) return undefined;
 
     if (collapsed && !wasCollapsedRef.current) {
       expandedSizeRef.current = inputPanelRef.current?.getSize() ?? null;

@@ -59,6 +59,7 @@ export interface MailMessage {
 export type ComposeMode = 'reply' | 'replyAll' | 'forward' | 'new';
 
 export interface MailReaction {
+  messageId: string;
   emoji: string;
   sender: string;
   targetMessageId: string;

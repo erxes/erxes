@@ -28,8 +28,8 @@ interface MailDeliveryService {
 }
 
 export const createMailDelivery = (models: IModels): MailDeliveryService => {
-  class MailDelivery {
-    public static async retrySend(_id: string, subdomain: string) {
+  const mailDelivery = {
+    async retrySend(_id: string, subdomain: string) {
       const message = await models.MailMessages.findOne({ _id });
 
       if (!message) {
@@ -73,10 +73,10 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
         );
       }
 
-      return MailDelivery.deliver(subdomain, message, integration);
-    }
+      return mailDelivery.deliver(subdomain, message, integration);
+    },
 
-    public static async deliver(
+    async deliver(
       subdomain: string,
       message: IMailMessageDocument,
       integration: IMailIntegrationDocument,
@@ -86,15 +86,16 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
         message.replyTag,
       );
 
-      const senderName =
-        await models.MailIntegrations.resolveSenderName(integration);
+      const senderName = await models.MailIntegrations.resolveSenderName(
+        integration,
+      );
 
-      const [inReplyTo] = await MailDelivery.toWireReferences(
+      const [inReplyTo] = await mailDelivery.toWireReferences(
         message.inboxIntegrationId,
         message.inReplyTo ? [message.inReplyTo] : [],
       );
 
-      const references = await MailDelivery.toWireReferences(
+      const references = await mailDelivery.toWireReferences(
         message.inboxIntegrationId,
         message.references ?? [],
       );
@@ -139,7 +140,7 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
           },
         );
 
-        await MailDelivery.settleIntegrationHealth(integration, deliveryError);
+        await mailDelivery.settleIntegrationHealth(integration, deliveryError);
       }
 
       if (result) {
@@ -169,7 +170,7 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
               },
         );
 
-        await MailDelivery.settleIntegrationHealth(integration);
+        await mailDelivery.settleIntegrationHealth(integration);
 
         if (!bounced) {
           await settleConversationStatus(models, message).catch((e) =>
@@ -184,9 +185,9 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
       return models.MailMessages.findOne({
         _id: message._id,
       }) as Promise<IMailMessageDocument>;
-    }
+    },
 
-    private static async settleIntegrationHealth(
+    async settleIntegrationHealth(
       integration: IMailIntegrationDocument,
       deliveryError?: string,
     ) {
@@ -205,12 +206,9 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
           e,
         );
       }
-    }
+    },
 
-    private static async toWireReferences(
-      inboxIntegrationId: string,
-      chain: string[],
-    ) {
+    async toWireReferences(inboxIntegrationId: string, chain: string[]) {
       if (!chain.length) {
         return chain;
       }
@@ -235,8 +233,8 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
       return chain
         .map((id) => (onTheWire.has(id) ? (onTheWire.get(id) as string) : id))
         .filter(Boolean);
-    }
-  }
+    },
+  };
 
-  return MailDelivery;
+  return mailDelivery;
 };

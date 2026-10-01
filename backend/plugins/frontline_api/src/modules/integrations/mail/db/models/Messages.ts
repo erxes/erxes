@@ -47,7 +47,7 @@ export const loadMailMessageClass = (models: IModels) => {
 
   // skipcq: JS-0327
   class Message {
-    public static async findRelatedThread(
+    public static findRelatedThread(
       scopeId: string,
       messageId: string,
       inReplyTo?: string,
@@ -70,22 +70,24 @@ export const loadMailMessageClass = (models: IModels) => {
       return models.MailMessages.findOne({
         inboxIntegrationId: scopeId,
         $or,
-      });
+      }).exec();
     }
 
-    public static async findByReplyTag(scopeId: string, tag: string) {
+    public static findByReplyTag(scopeId: string, tag: string) {
       return models.MailMessages.findOne({
         inboxIntegrationId: scopeId,
         replyTag: tag,
-      });
+      }).exec();
     }
 
-    public static async findLatestFromSender(scopeId: string, address: string) {
+    public static findLatestFromSender(scopeId: string, address: string) {
       return models.MailMessages.findOne({
         inboxIntegrationId: scopeId,
         ticketId: { $exists: true, $ne: null },
         'from.address': address,
-      }).sort({ createdAt: -1, _id: -1 });
+      })
+        .sort({ createdAt: -1, _id: -1 })
+        .exec();
     }
 
     public static async createSendMail(args: IMailSendArgs, subdomain: string) {
@@ -207,7 +209,7 @@ export const loadMailMessageClass = (models: IModels) => {
       return mailDelivery.deliver(subdomain, message, integration);
     }
 
-    public static async retrySend(_id: string, subdomain: string) {
+    public static retrySend(_id: string, subdomain: string) {
       return mailDelivery.retrySend(_id, subdomain);
     }
 

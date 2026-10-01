@@ -12,7 +12,7 @@ import {
 import { IconAlertTriangle, IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -123,6 +123,70 @@ const MailIntegrationEditForm = ({
     return <Spinner className="p-20" />;
   }
 
+  const content = (
+    <Sheet.Content className="min-h-0 space-y-4 overflow-y-auto p-4">
+      {details.healthStatus === MAIL_HEALTH_UNHEALTHY && details.error && (
+        <Alert variant="destructive" className="mb-4">
+          <IconAlertTriangle className="h-4 w-4" />
+          <Alert.Title className="font-medium">
+            {t('mail-integration-unhealthy')}
+          </Alert.Title>
+          <Alert.Description className="mt-1 text-sm">
+            {details.error}
+          </Alert.Description>
+        </Alert>
+      )}
+
+      {details.address && <MailAddressCallout address={details.address} />}
+
+      <MailConnectionCheck />
+
+      <Separator />
+
+      {MAIL_FORM_FIELDS.map((field) => (
+        <MailFormField key={field.name} {...field} control={form.control} />
+      ))}
+
+      <Separator />
+
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{t('mail-sending')}</p>
+        <p className="text-sm text-muted-foreground">
+          {sendingDomain
+            ? t('mail-sending-sender-default', { domain: sendingDomain })
+            : t('mail-sending-sender-default-unavailable')}
+        </p>
+        {details.address && (
+          <MailSenderPreview
+            senderName={
+              form.watch('senderName')?.trim() ||
+              form.watch('name')?.trim() ||
+              ''
+            }
+            address={details.address}
+          />
+        )}
+      </div>
+
+      <Separator />
+
+      <MailIntegrationBrandField control={form.control} />
+    </Sheet.Content>
+  );
+
+  const footer = (
+    <Sheet.Footer>
+      <Sheet.Close asChild>
+        <Button type="button" variant="ghost" disabled={editLoading}>
+          {t('close')}
+        </Button>
+      </Sheet.Close>
+      <Button type="submit" disabled={editLoading}>
+        {editLoading ? t('saving') : t('save')}
+      </Button>
+    </Sheet.Footer>
+  );
+
   return (
     <Form {...form}>
       <form
@@ -135,83 +199,38 @@ const MailIntegrationEditForm = ({
           <Sheet.Close />
         </Sheet.Header>
 
-        <Sheet.Content className="min-h-0 space-y-4 overflow-y-auto p-4">
-          {details.healthStatus === MAIL_HEALTH_UNHEALTHY && details.error && (
-            <Alert variant="destructive" className="mb-4">
-              <IconAlertTriangle className="h-4 w-4" />
-              <Alert.Title className="font-medium">
-                {t('mail-integration-unhealthy')}
-              </Alert.Title>
-              <Alert.Description className="mt-1 text-sm">
-                {details.error}
-              </Alert.Description>
-            </Alert>
-          )}
+        {content}
 
-          {details.address && <MailAddressCallout address={details.address} />}
-
-          <MailConnectionCheck />
-
-          <Separator />
-
-          {MAIL_FORM_FIELDS.map((field) => (
-            <MailFormField key={field.name} {...field} control={form.control} />
-          ))}
-
-          <Separator />
-
-          <div className="space-y-1">
-            <p className="text-sm font-medium">{t('mail-sending')}</p>
-            <p className="text-sm text-muted-foreground">
-              {sendingDomain
-                ? t('mail-sending-sender-default', { domain: sendingDomain })
-                : t('mail-sending-sender-default-unavailable')}
-            </p>
-            {details.address && (
-              <MailSenderPreview
-                senderName={
-                  form.watch('senderName')?.trim() ||
-                  form.watch('name')?.trim() ||
-                  ''
-                }
-                address={details.address}
-              />
-            )}
-          </div>
-
-          <Separator />
-
-          <Form.Field
-            name="brandId"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('brand')}</Form.Label>
-                <Form.Control>
-                  <SelectBrand
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder={t('select-a-brand')}
-                    className="w-full h-10 rounded-lg border bg-background"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </Sheet.Content>
-
-        <Sheet.Footer>
-          <Sheet.Close asChild>
-            <Button type="button" variant="ghost" disabled={editLoading}>
-              {t('close')}
-            </Button>
-          </Sheet.Close>
-          <Button type="submit" disabled={editLoading}>
-            {editLoading ? t('saving') : t('save')}
-          </Button>
-        </Sheet.Footer>
+        {footer}
       </form>
     </Form>
+  );
+};
+
+const MailIntegrationBrandField = ({
+  control,
+}: {
+  control: Control<MailFormValues>;
+}) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <Form.Field
+      name="brandId"
+      control={control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('brand')}</Form.Label>
+          <Form.Control>
+            <SelectBrand
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('select-a-brand')}
+              className="w-full h-10 rounded-lg border bg-background"
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
   );
 };

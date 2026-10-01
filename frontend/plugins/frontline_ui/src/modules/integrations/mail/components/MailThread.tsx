@@ -237,9 +237,9 @@ export const MailThread: React.FC<MailThreadProps> = ({
               defaultExpanded={idx === visibleMessages.length - 1}
             />
           ))}
-          {orphanReactions.map((reaction, index) => (
+          {orphanReactions.map((reaction) => (
             <div
-              key={`${reaction.targetMessageId}-${reaction.emoji}-${index}`}
+              key={reaction.messageId}
               className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground"
             >
               {reaction.sender} reacted {reaction.emoji}

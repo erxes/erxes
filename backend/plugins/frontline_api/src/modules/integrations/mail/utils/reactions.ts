@@ -4,12 +4,12 @@ import { MailSendError } from '@/integrations/mail/utils/transports/common';
 export const isValidMailReactionEmoji = (emoji: string) =>
   Boolean(
     emoji &&
-    Buffer.byteLength(emoji, 'utf8') <= 64 &&
-    [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(emoji)]
-      .length === 1 &&
-    (/\p{Extended_Pictographic}/u.test(emoji) ||
-      /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
-      /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
+      Buffer.byteLength(emoji, 'utf8') <= 64 &&
+      [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(emoji)]
+        .length === 1 &&
+      (/\p{Extended_Pictographic}/u.test(emoji) ||
+        /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
+        /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
   );
 
 const ADDRESS = /^[^\s<>@]+@[^\s<>@]+$/;
@@ -54,19 +54,18 @@ export const buildReactionMime = (input: ISendMailInput): string => {
   ];
 
   const part = (type: string, body: string) =>
-    `--${boundary}\r\n` +
-    `Content-Type: ${type}; charset=UTF-8\r\n` +
-    'Content-Transfer-Encoding: base64\r\n\r\n' +
-    `${encodedPart(body)}\r\n`;
+    `--${boundary}\r\nContent-Type: ${type}; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${encodedPart(
+      body,
+    )}\r\n`;
 
-  return (
-    `${headers.join('\r\n')}\r\n\r\n` +
-    part('text/plain', `${input.reactionEmoji}\nReacted to your email.`) +
+  return [
+    `${headers.join('\r\n')}\r\n\r\n`,
+    part('text/plain', `${input.reactionEmoji}\nReacted to your email.`),
     part(
       'text/vnd.google.email-reaction+json',
       JSON.stringify({ emoji: input.reactionEmoji, version: 1 }),
-    ) +
-    part('text/html', input.html) +
-    `--${boundary}--\r\n`
-  );
+    ),
+    part('text/html', input.html),
+    `--${boundary}--\r\n`,
+  ].join('');
 };

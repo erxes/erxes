@@ -63,15 +63,11 @@ export const senderAvatarBg = (name?: string, email?: string) => {
 };
 
 export const buildQuote = (message: MailMessage) =>
-  `<br/><br/>` +
-  `<blockquote style="border-left:3px solid #1a73e8;margin:0;padding-left:12px;color:#5f6368">` +
-  `<p style="margin:0 0 4px;font-size:12px"><b>On ${new Date(
+  `<br/><br/><blockquote style="border-left:3px solid #1a73e8;margin:0;padding-left:12px;color:#5f6368"><p style="margin:0 0 4px;font-size:12px"><b>On ${new Date(
     message.createdAt,
   ).toLocaleString()}, ${
     formatAddresses(message.mailData.from) || 'Unknown'
-  } wrote:</b></p>` +
-  (message.mailData.body ?? '') +
-  `</blockquote>`;
+  } wrote:</b></p>${message.mailData.body ?? ''}</blockquote>`;
 
 export const deriveSenderAddress = (messages: MailMessage[]) => {
   for (const message of messages) {
@@ -88,7 +84,7 @@ export const deriveSenderAddress = (messages: MailMessage[]) => {
 export const getReplyRecipients = (message: MailMessage, mode: ComposeMode) => {
   if (mode === 'forward') return [];
   const { type, from, to } = message.mailData;
-  return (type === 'SENT' ? (to ?? []) : (from ?? []))
+  return (type === 'SENT' ? to ?? [] : from ?? [])
     .map(({ email }) => email ?? '')
     .filter(Boolean);
 };

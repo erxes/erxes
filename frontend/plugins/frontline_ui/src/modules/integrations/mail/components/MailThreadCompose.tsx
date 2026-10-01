@@ -60,14 +60,14 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
   const [showBcc, setShowBcc] = useState(false);
   const [bodyText, setBodyText] = useState(() =>
     defaultBody
-      ? (new DOMParser()
+      ? new DOMParser()
           .parseFromString(
             defaultBody
               .replace(/<br\s*(?:\/\s*)?>/gi, '\n')
               .replace(/<\/(?:p|div|blockquote)>/gi, '\n'),
             'text/html',
           )
-          .body.textContent?.trim() ?? '')
+          .body.textContent?.trim() ?? ''
       : '',
   );
 
@@ -79,16 +79,20 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
 
   const send = () => {
     const toList = split(to);
-    if (!toList.length)
-      return toast({
+    if (!toList.length) {
+      toast({
         title: t('enter-at-least-one-recipient'),
         variant: 'destructive',
       });
-    if (!bodyText.trim())
-      return toast({
+      return;
+    }
+    if (!bodyText.trim()) {
+      toast({
         title: t('message-body-cannot-be-empty'),
         variant: 'destructive',
       });
+      return;
+    }
 
     onSend(
       {

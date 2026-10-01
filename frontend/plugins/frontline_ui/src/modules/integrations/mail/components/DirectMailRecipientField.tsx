@@ -137,7 +137,7 @@ const VerifiedEmailSelect = ({
       loadMoreError ||
       !data?.customers.pageInfo.hasNextPage
     ) {
-      return;
+      return undefined;
     }
 
     const observer = new IntersectionObserver(
