@@ -128,8 +128,8 @@ const Leaf = ({
         active
           ? 'bg-shell-soft text-white'
           : muted
-          ? 'text-white/50 hover:text-white'
-          : 'text-white/75 hover:text-white',
+            ? 'text-white/50 hover:text-white'
+            : 'text-white/75 hover:text-white',
       )}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -279,7 +279,7 @@ const RootList = ({
       {links.map((link) => {
         const active = linkActive(link.href, pathname);
         const group = groups.find((item) => item.href === link.href);
-        const expanded = group ? toggled[group.key] ?? active : false;
+        const expanded = group ? (toggled[group.key] ?? active) : false;
 
         const toggle = (next: boolean) => {
           if (group) {

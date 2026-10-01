@@ -93,8 +93,8 @@ export const sectionCards = (section: PortalSection): PortalCategory[] =>
   section.children.length
     ? section.children
     : section.articleCount
-    ? [section]
-    : [];
+      ? [section]
+      : [];
 
 export const sectionArticleCount = (section: PortalSection): number =>
   section.children.length

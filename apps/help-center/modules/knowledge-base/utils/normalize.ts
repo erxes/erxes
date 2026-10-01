@@ -101,7 +101,7 @@ const normalizeCategory = (
     icon: resolveIcon(category.icon),
     articleCount: category.articles
       ? articles.length
-      : category.numOfArticles ?? 0,
+      : (category.numOfArticles ?? 0),
     authorCount: new Set((category.authors ?? []).map((a) => a._id)).size,
     articles,
   };

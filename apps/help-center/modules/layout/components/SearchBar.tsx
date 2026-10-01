@@ -204,10 +204,10 @@ export const SearchBar = ({
                 query || vanishing
                   ? 'opacity-0'
                   : index === slot.index
-                  ? 'translate-y-0 opacity-100'
-                  : index === slot.previous
-                  ? '-translate-y-4 opacity-0'
-                  : 'translate-y-4 opacity-0',
+                    ? 'translate-y-0 opacity-100'
+                    : index === slot.previous
+                      ? '-translate-y-4 opacity-0'
+                      : 'translate-y-4 opacity-0',
               )}
             >
               <span className="min-w-0 truncate">{text}</span>

@@ -74,8 +74,8 @@ const MenuRow = ({
           danger
             ? 'bg-danger-soft text-danger'
             : active
-            ? 'bg-brand text-white'
-            : 'bg-subtle text-ink-soft',
+              ? 'bg-brand text-white'
+              : 'bg-subtle text-ink-soft',
         )}
       >
         <Icon name={icon} size={15} />

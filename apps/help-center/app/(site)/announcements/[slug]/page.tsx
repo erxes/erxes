@@ -34,7 +34,7 @@ export const generateMetadata = async ({ params }: Props) => {
   return {
     title:
       post.state === 'ready' && post.data
-        ? post.data.title ?? t('nav.announcement')
+        ? (post.data.title ?? t('nav.announcement'))
         : t('nav.announcement'),
   };
 };

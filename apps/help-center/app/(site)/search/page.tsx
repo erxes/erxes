@@ -248,10 +248,10 @@ export default async function SearchPage({ searchParams }: Props) {
             {announcements.state === 'error'
               ? t('search.cmsError', { message: announcements.message })
               : announcements.state === 'unpublished'
-              ? t('search.cmsUnpublished', { domain: announcements.domain })
-              : t('search.cmsMissing', {
-                  missing: announcements.missing.join(', '),
-                })}
+                ? t('search.cmsUnpublished', { domain: announcements.domain })
+                : t('search.cmsMissing', {
+                    missing: announcements.missing.join(', '),
+                  })}
           </p>
         ) : null}
 
