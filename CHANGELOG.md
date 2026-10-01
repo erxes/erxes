@@ -1,3 +1,20 @@
+
+
+## [3.2.11](https://github.com/erxes/erxes/compare/3.2.10...3.2.11) (2026-10-01)
+
+
+### Bug Fixes
+
+* **frontline:** link Call Pro conversations to their customer ([5d58d5b](https://github.com/erxes/erxes/commit/5d58d5bfee7cdd2e108954bd4c48ad46026fc5e8))
+* **frontline:** restore v2 department/branch ticket visibility ([fff105b](https://github.com/erxes/erxes/commit/fff105b00c6e4040dc09ab9e6cf7d321af6767d8))
+* posclient order to deal convert fix ([dec2256](https://github.com/erxes/erxes/commit/dec22560dd25b1a28c8fec8a148abe1f8a9c73e5))
+
+
+### Features
+
+* **frontline:** selectable Ticket List report columns with matching Excel export ([66bec10](https://github.com/erxes/erxes/commit/66bec100f2e0f1f82a14aab8ce3bd7f9a048d639))
+* **loyalty:** make serviceName optional in score campaigns and update documentation ([9525ce4](https://github.com/erxes/erxes/commit/9525ce4f2e2cfa4474bec37d8d2dccd3aa102934))
+
 # Changelog
 
 ## [3.2.10](https://github.com/erxes/erxes/compare/3.2.9...3.2.10) (2026-10-01)
