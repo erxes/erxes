@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -31,6 +31,7 @@
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
 - Task activity rows show the accepting member's avatar and name with a triage-acceptance action; the action component supplies only the action text while the shared activity wrapper supplies the actor and timestamp.
+- Task, project, and triage activity timelines show each entry's creator in the leading avatar, hover label, and sentence; assignee changes show the new assignee only in the change detail.
 - The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
@@ -46,6 +47,7 @@
 | Plugin config        | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                              |
 | Property side panel  | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state. |
 | Operation modules    | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                            |
+| Activity timeline    | `frontend/plugins/operation_ui/src/modules/activity/components`                         | Renders activity actors and field changes for task, project, and triage details.                             |
 | Pages                | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                       |
 | GraphQL codegen      | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/plugins/operation_api/generated/schema.graphql`.            |
 | Relation widgets     | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                           |
@@ -79,6 +81,7 @@
 ## Local Invariants
 
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
+- The leading avatar, hover label, and actor name of an activity entry must all resolve from `activity.createdBy`; changed field values belong in the entry body.
 - Module Federation exposes, route paths, widget names, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Keep custom properties as a local panel in the existing task/project right-side `SideMenu`, separate from cross-record relation widget registration; do not duplicate the form in the main detail body.
