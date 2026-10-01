@@ -49,17 +49,198 @@ function mapPronounToCode(pronoun: string): number {
   }
 }
 
-function handleCompanyFields(
-  submissionType: string,
-  value: any,
-  companyDoc: any,
-) {
-  if (submissionType === 'company_avatar' && value.length > 0) {
-    companyDoc.avatar = value[0].url;
-  } else {
-    const key = submissionType.split('_')[1];
-    companyDoc[key] = value;
+type CompanyFormDoc = {
+  primaryName?: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  website?: string;
+  industry?: string[];
+  size?: number;
+  description?: string;
+};
+
+type FormCompany = {
+  _id?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  industry?: string[];
+  trackedData?: ICustomField[];
+};
+
+function getFileUrl(value: unknown): string | undefined {
+  const file = Array.isArray(value) ? value[0] : value;
+
+  if (typeof file === 'string') return file;
+
+  if (file && typeof file === 'object' && 'url' in file) {
+    return typeof file.url === 'string' ? file.url : undefined;
   }
+
+  return undefined;
+}
+
+function handleCoreCompanyField(
+  fieldName: string,
+  value: unknown,
+  companyDoc: CompanyFormDoc,
+) {
+  if (fieldName === 'avatar') {
+    const url = getFileUrl(value);
+    if (url) companyDoc.avatar = url;
+    return;
+  }
+
+  const text = typeof value === 'string' ? value.trim() : String(value ?? '');
+  if (!text) return;
+
+  switch (fieldName) {
+    case 'primaryName':
+      companyDoc.primaryName = text;
+      break;
+    case 'primaryEmail':
+      companyDoc.email = text;
+      break;
+    case 'primaryPhone':
+      companyDoc.phone = text;
+      break;
+    case 'website':
+      companyDoc.website = text;
+      break;
+    case 'industry':
+      companyDoc.industry = [text];
+      break;
+    case 'size': {
+      const size = Number(text);
+      if (!Number.isNaN(size)) companyDoc.size = size;
+      break;
+    }
+    case 'description':
+      companyDoc.description = text;
+      break;
+    default:
+      break;
+  }
+}
+
+async function findFormCompany(
+  subdomain: string,
+  { primaryName, email, phone }: CompanyFormDoc,
+): Promise<FormCompany | null> {
+  const selectors: Record<string, string>[] = [];
+
+  if (primaryName) selectors.push({ companyPrimaryName: primaryName });
+  if (email) selectors.push({ companyPrimaryEmail: email });
+  if (phone) selectors.push({ companyPrimaryPhone: phone });
+
+  for (const query of selectors) {
+    const company = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'companies',
+      action: 'findOne',
+      input: { query },
+      defaultValue: null,
+    });
+
+    if (company?._id) return company;
+  }
+
+  return null;
+}
+
+async function saveFormCompany(
+  subdomain: string,
+  companyDoc: CompanyFormDoc,
+  customerId: string,
+) {
+  const { primaryName, email, phone, industry, ...rest } = companyDoc;
+
+  if (!primaryName && !email && !phone) return;
+
+  let company = await findFormCompany(subdomain, companyDoc);
+
+  if (company?._id) {
+    const doc: Record<string, unknown> = {
+      ...rest,
+      trackedData: company.trackedData || [],
+    };
+
+    if (industry) {
+      doc.industry = Array.from(
+        new Set([...(company.industry || []), ...industry]),
+      );
+    }
+
+    if (primaryName) doc.names = [primaryName];
+
+    if (email) {
+      if (company.primaryEmail) doc.emails = [email];
+      else doc.email = email;
+    }
+
+    if (phone) {
+      if (company.primaryPhone) doc.phones = [phone];
+      else doc.phone = phone;
+    }
+
+    company = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'companies',
+      action: 'updateCompany',
+      input: { _id: company._id, doc },
+      defaultValue: company,
+    });
+  } else {
+    company = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'companies',
+      action: 'createCompany',
+      input: {
+        doc: { ...companyDoc, names: primaryName ? [primaryName] : [] },
+      },
+      defaultValue: null,
+    });
+  }
+
+  if (!company?._id) return;
+
+  const relatedCompanyIds: string[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: 'core:customer',
+      contentId: customerId,
+      relatedContentType: 'core:company',
+    },
+    defaultValue: [],
+  });
+
+  if (relatedCompanyIds.includes(company._id)) return;
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'relation',
+    action: 'createRelation',
+    input: {
+      relation: {
+        entities: [
+          { contentType: 'core:customer', contentId: customerId },
+          { contentType: 'core:company', contentId: company._id },
+        ],
+      },
+    },
+  });
 }
 
 function handleCoreCustomerField(
@@ -273,32 +454,15 @@ export const widgetFormMutation: Record<
         collectionType: 'customer',
       },
     });
-    const companyfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'company',
-      },
-    });
-
     const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
       name: f.name,
       label: f.label || f.name,
     }));
 
     const customerDoc: any = {};
-    const companyDoc: any = {};
+    const companyDoc: CompanyFormDoc = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
-    const companyLinks: ILink = {};
     const submissionValues = {};
 
     for (const submission of submissions) {
@@ -308,8 +472,6 @@ export const widgetFormMutation: Record<
 
       if (submissionType.includes('customerLinks')) {
         customerLinks[getSocialLinkKey(submissionType)] = value;
-      } else if (submissionType.includes('companyLinks')) {
-        companyLinks[getSocialLinkKey(submissionType)] = value;
       }
 
       if (submissionType === 'pronoun') {
@@ -327,12 +489,9 @@ export const widgetFormMutation: Record<
         }
       }
 
-      if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      }
-
-      if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
+      if (submissionType.startsWith('core:company:')) {
+        const fieldName = submissionType.slice('core:company:'.length);
+        handleCoreCompanyField(fieldName, value, companyDoc);
       }
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
@@ -460,6 +619,8 @@ export const widgetFormMutation: Record<
       customer = updatedCustomer || customer;
     }
 
+    await saveFormCompany(subdomain, companyDoc, customer._id);
+
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
       integrationId: integration?._id,
@@ -536,32 +697,15 @@ export const widgetFormMutation: Record<
         collectionType: 'customer',
       },
     });
-    const companyfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'company',
-      },
-    });
-
     const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
       name: f.name,
       label: f.label || f.name,
     }));
 
     const customerDoc: any = {};
-    const companyDoc: any = {};
+    const companyDoc: CompanyFormDoc = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
-    const companyLinks: ILink = {};
     const submissionValues = {};
 
     for (const submission of submissions) {
@@ -571,8 +715,6 @@ export const widgetFormMutation: Record<
 
       if (submissionType.includes('customerLinks')) {
         customerLinks[getSocialLinkKey(submissionType)] = value;
-      } else if (submissionType.includes('companyLinks')) {
-        companyLinks[getSocialLinkKey(submissionType)] = value;
       }
 
       if (submissionType === 'pronoun') {
@@ -590,12 +732,9 @@ export const widgetFormMutation: Record<
         }
       }
 
-      if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      }
-
-      if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
+      if (submissionType.startsWith('core:company:')) {
+        const fieldName = submissionType.slice('core:company:'.length);
+        handleCoreCompanyField(fieldName, value, companyDoc);
       }
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
@@ -723,6 +862,8 @@ export const widgetFormMutation: Record<
       });
       customer = updatedCustomer || customer;
     }
+
+    await saveFormCompany(subdomain, companyDoc, customer._id);
 
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,

@@ -25,8 +25,16 @@ import {
   IconAddressBook,
   IconChevronLeft,
   IconWorld,
+  IconBuilding,
+  IconBriefcase,
+  IconUsersGroup,
+  IconWorldWww,
 } from '@tabler/icons-react';
-import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
+import {
+  FORM_FIELD_TYPES,
+  FormGroupKey,
+  GroupedFields,
+} from '../constants/formFieldTypes';
 import React, { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
@@ -107,15 +115,26 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
     case 'file':
       return <IconPaperclip />;
     case 'core:customer:avatar':
+    case 'core:company:avatar':
       return <IconUserCircle />;
     case 'core:customer:email':
+    case 'core:company:primaryEmail':
       return <IconAt />;
     case 'core:customer:phone':
+    case 'core:company:primaryPhone':
       return <IconPhoneSpark />;
     case 'core:customer:sex':
       return <IconGenderBigender />;
     case 'core:customer:birthDate':
       return <IconCalendarEvent />;
+    case 'core:company:primaryName':
+      return <IconBuilding />;
+    case 'core:company:website':
+      return <IconWorldWww />;
+    case 'core:company:industry':
+      return <IconBriefcase />;
+    case 'core:company:size':
+      return <IconUsersGroup />;
     default:
       return <IconTextSize />;
   }
@@ -124,20 +143,23 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
   const { t } = useTranslation('frontline');
   const { handleAddField } = useFormDnd();
-  const [view, setView] = useState<'main' | 'customer'>('main');
+  const [view, setView] = useState<'main' | 'customer' | 'company'>('main');
 
   const GROUPED_FIELD_TYPES: GroupedFields = FORM_FIELD_TYPES.reduce(
     (groups, type) => {
-      const group = type.value.startsWith('core:customer:')
-        ? 'core:customer'
-        : 'basic';
+      let group: FormGroupKey = 'basic';
+      if (type.value.startsWith('core:customer:')) {
+        group = 'core:customer';
+      } else if (type.value.startsWith('core:company:')) {
+        group = 'core:company';
+      }
       if (!groups[group]) {
         groups[group] = [];
       }
       groups[group].push(type);
       return groups;
     },
-    {} as Record<'basic' | 'core:customer', typeof FORM_FIELD_TYPES>,
+    {} as GroupedFields,
   );
 
   return (
@@ -183,6 +205,15 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             >
               <IconAddressBook /> {t('customer-fields', 'Customer fields')}
             </DropdownMenu.Item>
+
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('company');
+              }}
+            >
+              <IconBuilding /> {t('company-fields', 'Company fields')}
+            </DropdownMenu.Item>
           </>
         ) : (
           <>
@@ -197,10 +228,14 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             </DropdownMenu.Item>
 
             <DropdownMenu.Label className="font-bold">
-              {t('customer-fields', 'Customer fields')}
+              {view === 'company'
+                ? t('company-fields', 'Company fields')
+                : t('customer-fields', 'Customer fields')}
             </DropdownMenu.Label>
 
-            {GROUPED_FIELD_TYPES['core:customer'].map((type) => (
+            {GROUPED_FIELD_TYPES[
+              view === 'company' ? 'core:company' : 'core:customer'
+            ].map((type) => (
               <DropdownMenu.Item
                 key={type.value}
                 onClick={() => handleAddField(step, type)}

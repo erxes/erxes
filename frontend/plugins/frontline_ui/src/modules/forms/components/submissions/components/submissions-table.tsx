@@ -119,7 +119,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
       const { t } = useTranslation('frontline');
       const value = getValue();
 
-      if (type === 'core:customer:avatar') {
+      if (type === 'core:customer:avatar' || type === 'core:company:avatar') {
         return (
           <RecordTableInlineCell>
             <Avatar size={'lg'}>

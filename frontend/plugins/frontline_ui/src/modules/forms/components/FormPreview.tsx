@@ -278,7 +278,10 @@ export const FormPreviewContent = ({
                     name={erxesField.id}
                     control={form.control}
                     render={({ field }) => {
-                      if (erxesField.type === 'number') {
+                      if (
+                        erxesField.type === 'number' ||
+                        erxesField.type === 'core:company:size'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
@@ -319,7 +322,8 @@ export const FormPreviewContent = ({
                       }
                       if (
                         erxesField.type === 'textarea' ||
-                        erxesField.type === 'core:customer:description'
+                        erxesField.type === 'core:customer:description' ||
+                        erxesField.type === 'core:company:description'
                       ) {
                         return (
                           <ErxesFormItem span={erxesField.span}>
@@ -497,7 +501,8 @@ export const FormPreviewContent = ({
 
                       if (
                         erxesField.type === 'file' ||
-                        erxesField.type === 'core:customer:avatar'
+                        erxesField.type === 'core:customer:avatar' ||
+                        erxesField.type === 'core:company:avatar'
                       ) {
                         const urls: string[] = Array.isArray(field.value)
                           ? field.value
