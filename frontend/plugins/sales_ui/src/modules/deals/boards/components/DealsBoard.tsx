@@ -13,12 +13,15 @@ import type {
   ColumnPaginationState,
 } from '@/deals/types/boards';
 import { DealsBoardCard } from './DealsBoardCard';
+import { BoardEmptyState } from './BoardEmptyState';
 import { DealsBoardColumn } from './DealsBoardColumn';
 import { GenericBoard } from './common/GenericBoard';
 import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
+import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { usePipelineChanged } from '@/deals/boards/hooks/usePipelineChanged';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
@@ -34,6 +37,9 @@ import {
 const PAGE_SIZE = 20;
 
 export const DealsBoard = () => {
+  const [boardId] = useQueryState<string>('boardId');
+  const { boards, loading: boardsLoading, error: boardsError } = useBoards();
+  const board = boards?.find((item) => item._id === boardId);
   const [boardState, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
   const { columns, columnsLoading } = useDealsBoardData();
@@ -259,7 +265,20 @@ export const DealsBoard = () => {
     return result;
   }, [pagination]);
 
-  if (!pipelineId || columnsLoading) {
+  if (!boardsLoading && !boardsError && boards && !board) {
+    return <BoardEmptyState hasBoards={boards.length > 0} />;
+  }
+
+  if (
+    !boardsLoading &&
+    !boardsError &&
+    board &&
+    !(board.pipelines || []).some((pipeline) => pipeline.status !== 'archived')
+  ) {
+    return <PipelineEmptyState boardId={board._id} />;
+  }
+
+  if (boardsLoading || !pipelineId || columnsLoading) {
     return <StagesLoading />;
   }
 
