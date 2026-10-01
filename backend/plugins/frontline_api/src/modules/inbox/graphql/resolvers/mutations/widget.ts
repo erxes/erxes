@@ -225,7 +225,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
-const findMessengerCompany = async (
+export const findMessengerCompany = async (
   subdomain: string,
   companyData: { name?: string; email?: string; phone?: string },
 ) => {

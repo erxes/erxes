@@ -519,7 +519,9 @@ export const FormPreviewContent = ({
                                 <Upload.Root
                                   value={displayValue}
                                   onChange={(e) => {
-                                    const value = (e as any).target.value;
+                                    const value = (
+                                      e as unknown as React.ChangeEvent<HTMLInputElement>
+                                    ).target.value;
                                     field.onChange(
                                       value
                                         ? value

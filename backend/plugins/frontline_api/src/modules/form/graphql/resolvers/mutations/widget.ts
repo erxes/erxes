@@ -1,9 +1,15 @@
-import { ICustomField, Resolver } from 'erxes-api-shared/core-types';
+import {
+  ICompany,
+  ICustomField,
+  Resolver,
+} from 'erxes-api-shared/core-types';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IContext, IModels } from '~/connectionResolvers';
+import { ISubmission } from '~/modules/form/db/definitions/fields';
 import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
+import { findMessengerCompany } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 import { createConversationAndMessage } from '~/modules/inbox/trpc/inbox';
 // helpers
 
@@ -49,23 +55,13 @@ function mapPronounToCode(pronoun: string): number {
   }
 }
 
-type CompanyFormDoc = {
-  primaryName?: string;
+type CompanyFormDoc = Pick<
+  ICompany,
+  'primaryName' | 'avatar' | 'website' | 'size' | 'description'
+> & {
   email?: string;
   phone?: string;
-  avatar?: string;
-  website?: string;
   industry?: string[];
-  size?: number;
-  description?: string;
-};
-
-type FormCompany = {
-  _id?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-  industry?: string[];
-  trackedData?: ICustomField[];
 };
 
 function getFileUrl(value: unknown): string | undefined {
@@ -123,79 +119,34 @@ function handleCoreCompanyField(
   }
 }
 
-async function findFormCompany(
-  subdomain: string,
-  { primaryName, email, phone }: CompanyFormDoc,
-): Promise<FormCompany | null> {
-  const selectors: Record<string, string>[] = [];
-
-  if (primaryName) selectors.push({ companyPrimaryName: primaryName });
-  if (email) selectors.push({ companyPrimaryEmail: email });
-  if (phone) selectors.push({ companyPrimaryPhone: phone });
-
-  for (const query of selectors) {
-    const company = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'companies',
-      action: 'findOne',
-      input: { query },
-      defaultValue: null,
-    });
-
-    if (company?._id) return company;
-  }
-
-  return null;
-}
-
 async function saveFormCompany(
   subdomain: string,
-  companyDoc: CompanyFormDoc,
+  submissions: ISubmission[],
   customerId: string,
 ) {
-  const { primaryName, email, phone, industry, ...rest } = companyDoc;
+  const companyDoc: CompanyFormDoc = {};
+
+  for (const { type, value } of submissions) {
+    if (type?.startsWith('core:company:')) {
+      handleCoreCompanyField(
+        type.slice('core:company:'.length),
+        value,
+        companyDoc,
+      );
+    }
+  }
+
+  const { primaryName, email, phone } = companyDoc;
 
   if (!primaryName && !email && !phone) return;
 
-  let company = await findFormCompany(subdomain, companyDoc);
-
-  if (company?._id) {
-    const doc: Record<string, unknown> = {
-      ...rest,
-      trackedData: company.trackedData || [],
-    };
-
-    if (industry) {
-      doc.industry = Array.from(
-        new Set([...(company.industry || []), ...industry]),
-      );
-    }
-
-    if (primaryName) doc.names = [primaryName];
-
-    if (email) {
-      if (company.primaryEmail) doc.emails = [email];
-      else doc.email = email;
-    }
-
-    if (phone) {
-      if (company.primaryPhone) doc.phones = [phone];
-      else doc.phone = phone;
-    }
-
-    company = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'companies',
-      action: 'updateCompany',
-      input: { _id: company._id, doc },
-      defaultValue: company,
-    });
-  } else {
-    company = await sendTRPCMessage({
+  const company: { _id?: string } | null =
+    (await findMessengerCompany(subdomain, {
+      name: primaryName,
+      email,
+      phone,
+    })) ||
+    (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
@@ -205,8 +156,7 @@ async function saveFormCompany(
         doc: { ...companyDoc, names: primaryName ? [primaryName] : [] },
       },
       defaultValue: null,
-    });
-  }
+    }));
 
   if (!company?._id) return;
 
@@ -460,7 +410,6 @@ export const widgetFormMutation: Record<
     }));
 
     const customerDoc: any = {};
-    const companyDoc: CompanyFormDoc = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
     const submissionValues = {};
@@ -487,11 +436,6 @@ export const widgetFormMutation: Record<
         } else {
           customerDoc[submissionType] = value;
         }
-      }
-
-      if (submissionType.startsWith('core:company:')) {
-        const fieldName = submissionType.slice('core:company:'.length);
-        handleCoreCompanyField(fieldName, value, companyDoc);
       }
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
@@ -619,7 +563,7 @@ export const widgetFormMutation: Record<
       customer = updatedCustomer || customer;
     }
 
-    await saveFormCompany(subdomain, companyDoc, customer._id);
+    await saveFormCompany(subdomain, submissions, customer._id);
 
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
@@ -703,7 +647,6 @@ export const widgetFormMutation: Record<
     }));
 
     const customerDoc: any = {};
-    const companyDoc: CompanyFormDoc = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
     const submissionValues = {};
@@ -730,11 +673,6 @@ export const widgetFormMutation: Record<
         } else {
           customerDoc[submissionType] = value;
         }
-      }
-
-      if (submissionType.startsWith('core:company:')) {
-        const fieldName = submissionType.slice('core:company:'.length);
-        handleCoreCompanyField(fieldName, value, companyDoc);
       }
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
@@ -863,7 +801,7 @@ export const widgetFormMutation: Record<
       customer = updatedCustomer || customer;
     }
 
-    await saveFormCompany(subdomain, companyDoc, customer._id);
+    await saveFormCompany(subdomain, submissions, customer._id);
 
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
