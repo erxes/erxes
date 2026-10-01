@@ -117,6 +117,11 @@ export type IAutomationsTriggerConfig = {
    * record enrolls once unless the automation sets its own re-enrollment.
    */
   reEnrollment?: boolean;
+  /**
+   * Each event is its own occurrence (a deal reaching a stage), so the
+   * automation may offer "every time it happens" as a re-enrollment rule.
+   */
+  reEnrollable?: boolean;
   output?: TAutomationRuntimeOutputDefinition;
   actionInputs?: TAutomationTriggerActionInputs;
   conditions?: {

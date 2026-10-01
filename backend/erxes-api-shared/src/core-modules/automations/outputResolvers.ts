@@ -774,6 +774,16 @@ const getAutomationOutputDefinition = async (nodeType: string) =>
     ])
   )?.output as TAutomationRuntimeOutputDefinition | undefined;
 
+/** Whether the trigger's own plugin lets an automation re-run on every event. */
+export const isReEnrollableTrigger = async (triggerType: string) =>
+  Boolean(
+    (
+      (await findAutomationNodeConstant(triggerType, ['triggers'])) as
+        | IAutomationsTriggerConfig
+        | undefined
+    )?.reEnrollable,
+  );
+
 /** Whether the trigger's own plugin declared every event a new run. */
 export const isReEnrollingTrigger = async (triggerType: string) =>
   Boolean(

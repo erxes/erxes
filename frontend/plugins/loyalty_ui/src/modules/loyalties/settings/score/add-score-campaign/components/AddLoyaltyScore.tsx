@@ -28,7 +28,6 @@ export function AddLoyaltyScoreForm({
       description: '',
       order: undefined,
       conditions: {
-        serviceName: '',
         productCategoryIds: [],
         productIds: [],
         tagIds: [],
@@ -50,7 +49,6 @@ export function AddLoyaltyScoreForm({
       title: data.title,
       description: data.description || '',
       order: data.order,
-      serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
         productIds: data.conditions.productIds?.join(','),

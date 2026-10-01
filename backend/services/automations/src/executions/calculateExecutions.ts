@@ -7,8 +7,11 @@ import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  AUTOMATION_RE_ENROLL_EVERY_TIME,
   IAutomationTrigger,
+  isReEnrollableTrigger,
   isReEnrollingTrigger,
+  reEnrollsEveryTime,
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
@@ -115,7 +118,9 @@ export const buildExecutionTarget = (
  * owner. `runId` is left out: the execution is the run, and filling it would
  * cost a second write on the enrolment path for an id nothing reads back.
  */
-export const buildTriggeredVia = (automation: IAutomationDocument): TCreatedVia => ({
+export const buildTriggeredVia = (
+  automation: IAutomationDocument,
+): TCreatedVia => ({
   source: 'automation',
   sourceId: automation._id,
   sourceName: automation.name,
@@ -184,16 +189,17 @@ export const calculateExecution = async ({
       return;
     }
 
-    let isChanged = false;
+    // "Every time it happens" counts only where the trigger offers it.
+    const everyTime =
+      reEnrollsEveryTime(config) && (await isReEnrollableTrigger(type));
 
-    for (const reEnrollmentRule of reEnrollmentRules) {
-      if (
-        isDiffValue(latestExecution.target, executionTarget, reEnrollmentRule)
-      ) {
-        isChanged = true;
-        break;
-      }
-    }
+    const isChanged =
+      everyTime ||
+      reEnrollmentRules.some(
+        (rule) =>
+          rule !== AUTOMATION_RE_ENROLL_EVERY_TIME &&
+          isDiffValue(latestExecution.target, executionTarget, rule),
+      );
 
     if (!isChanged) {
       return;

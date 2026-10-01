@@ -385,3 +385,44 @@ describe('explainEmptyEarn', () => {
     ).toEqual([{ reason: 'no-rows' }]);
   });
 });
+
+describe('earning breakdown calculation', () => {
+  const percentTable: IEarnTable = {
+    amountSource: 'paid',
+    rounding: 'floor',
+    rows: [
+      {
+        key: 'cashback',
+        name: 'Cashback',
+        kind: 'base',
+        valueType: 'percent',
+        conditions: {},
+        values: { none: { value: 1.5 } },
+      },
+    ],
+  };
+
+  it('keeps what each row counted, so the points can be explained', () => {
+    const { total, breakdown } = evaluateEarnTable({
+      table: percentTable,
+      ctx: {
+        ratio: 1000,
+        pointValue: 1,
+        totalAmount: 1200000,
+        paidAmount: 1199983,
+        scopedAmounts: {},
+        firstPurchase: false,
+      },
+    });
+
+    expect(total).toBe(17);
+    expect(breakdown[0].calc).toEqual({
+      valueType: 'percent',
+      value: 1.5,
+      column: 'none',
+      amount: 1199983,
+      ratio: 1000,
+      pointValue: 1,
+    });
+  });
+});

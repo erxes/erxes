@@ -427,6 +427,7 @@ export const salesAutomationContants = {
       description:
         'Start this workflow when a deal moves to a stage with the selected probability.',
       isCustom: true,
+      reEnrollable: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
       actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
@@ -440,6 +441,7 @@ export const salesAutomationContants = {
       description:
         'Start this workflow when a deal moves from one stage to another.',
       isCustom: true,
+      reEnrollable: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
       actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,

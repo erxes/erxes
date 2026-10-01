@@ -321,9 +321,11 @@
   "segment-membership-joined": "Орох",
   "segment-membership-left": "Гарах",
   "segment-membership-segment": "Segment",
-  "segment-membership-runs": "Хэдэн удаа",
-  "segment-membership-runs-every": "Бичлэг орох эсвэл гарах бүрт",
-  "segment-membership-runs-once": "Бичлэг бүрт зөвхөн анх удаа",
   "segment-membership-missing": "Segment олдсонгүй",
-  "segment-membership-hint": "Бичлэг энэ segment-д орох эсвэл гарах бүрт ажиллана. Segment-ийг өөрийнх нь хуудсанд засна, тэнд хийсэн өөрчлөлт үүнийг сонсож буй бүх automation-д нөлөөлнө."
+  "segment-membership-hint": "Бичлэг энэ segment-д орох эсвэл гарах бүрт ажиллана. Segment-ийг өөрийнх нь хуудсанд засна, тэнд хийсэн өөрчлөлт үүнийг сонсож буй бүх automation-д нөлөөлнө.",
+  "re-enrollment": "Дахин ажиллах",
+  "re-enrollment-fields-hint": "Тэмдэглэсэн талбаруудын аль нэг нь өөрчлөгдвөл record-д дахин ажиллана.",
+  "re-enrollment-no-fields": "Trigger-ийн нөхцөлд хянах талбар алга. Сонгохын тулд нөхцөл нэмнэ үү.",
+  "re-enrollment-every-time": "Тохиолдох бүрт ажиллах",
+  "re-enrollment-every-time-hint": "Өмнө нь ажилласан record дараагийн удаа дахин ажиллана. Унтраавал record бүрт нэг л удаа ажиллана."
 }

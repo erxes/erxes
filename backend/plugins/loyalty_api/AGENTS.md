@@ -34,7 +34,7 @@
 - Points are earned only by the "Adjust score" automation action, from a purchase (`ILoyaltyPurchase`: `totalAmount`, `paidAmount` = paid with money, `items` of `{ productId, amount, discounted }`) that the action declares as `inputs` and the trigger's own plugin fills through its `actionInputs` (sales deal and POS order triggers). Loyalty never reads a deal or an order. A trigger that declares nothing (a customer, a tier change) gives a zero purchase, so only fixed-point rows earn on it. The action only gives; an older config with `action: 'subtract'` fails with CONFIG_INVALID.
 - When the action moves no one's balance, `ScoreCampaigns.earn` reports every reason through its optional `onSkip` (`explainEmptyEarn`: no selected rows, no value for the owner's tier column, row conditions unmet, no amount, rounded to zero) and the producer returns a `skipped` outcome.
 - Spending and refunds belong to the selling side: tRPC `score.checkSpend` / `score.spend` take `pointsPaymentAmount` (the whole amount paid with points; a repeat moves only the difference) and `totalAmount`, and `score.refund` undoes every standing earning and spending on a `targetId` (`ScoreCampaigns.refundTarget`). Campaigns have no deal-stage rules (`additionalConfig.cardBasedRule` is stripped on save).
-- Every ledger write records an activity log (`loyalty.score.<action>`) on the owner's record and, when the log has `targetId` + `targetType`, on that record too (`ScoreLogs.recordActivity`). Score logs carry `createdVia` (`TCreatedVia`) when nothing was typed in: automation earnings pass the execution's, period-run expiries and resets pass the wallet's (`walletRunVia`: source `wallet`, the wallet's name, the run id, actor = the wallet's creator), so the activity reads "from wallet X" under a real actor. Activity lines name the wallet and the balance move, e.g. "added 18 points to Лоялти үлдэгдэл (120 → 138) from automation scoring"; the source record's line ends "of the customer". Entries with neither `createdBy` nor a `createdVia.actorId` are not written, since core rejects them.
+- Every ledger write records an activity log (`loyalty.score.<action>`) on the owner's record and, when the log has `targetId` + `targetType`, on that record too (`ScoreLogs.recordActivity`). Score logs carry `createdVia` (`TCreatedVia`) when nothing was typed in: automation earnings pass the execution's, period-run expiries and resets pass the wallet's (`walletRunVia`: source `wallet`, the wallet's name, the run id, actor = the wallet's creator), so the activity reads "from wallet X" under a real actor. Activity lines name the wallet and the balance move, e.g. "added 18 points to Лоялти үлдэгдэл (120 → 138) from automation scoring"; the source record's line ends "of the customer". Refund lines say what they undo by their sign: "returned N points paid with …" (a payment) or "took back N points earned in …" (an earning). Entries with neither `createdBy` nor a `createdVia.actorId` are not written, since core rejects them.
 - Account types carry both rates: `currencyRatio` (earning: every N of money is 1 point) and `pointValue` (spending: 1 point pays N). A campaign's spending rules are `minBalance`, `maxShare` % of the order and `step`; rules turn `pointsPaymentAmount` into points through `pointValue` and are enforced by loyalty in both `checkSpend` and `spend` (`services/spendRules.ts`).
 - `loyaltyAccountTypesAdoptCampaignFields` turns the custom fields legacy campaigns write into account types in place (same field id, values recast to numbers); `loyaltyAccountTypeLegacyFieldCount` reports how many remain.
 - With purchase `items`, a campaign's total counts only items that pass its product/category/tag restrictions; discounted items are skipped only when `additionalConfig.discountCheck === true`. Without items the purchase `totalAmount` is used as is.
@@ -46,6 +46,8 @@
 - Core product create and update events recalculate that product's active public and base pricing discounts, clearing stale discounts when it leaves every plan filter.
 - Voucher, coupon, lottery, spin, and agent modules provide their plugin-owned loyalty behaviors.
 - A voucher campaign may cap what one owner receives (`perOwnerLimit {count, period: campaign|year|month}`, calendar periods in the organization's time zone via `loyaltyTimeZone`). Every issue path enforces it in `modules/voucher/services/ownerLimit.ts`: `createVoucher` throws `VoucherOwnerLimitError`, `createVouchers` leaves those owners out, and the Issue voucher automation action reports them as `skipped` (all refused) or `refusedOwnerIds` (some refused). Vouchers, spins and lotteries issued from the campaign all count; a `score` voucher cannot be limited.
+- `loyaltyScoreSpendLimit(campaignId, ownerType, ownerId, totalAmount, targetId)` tells a paying screen the most money points may pay on an order (`ScoreCampaigns.spendLimit`, rules in `maxSpendMoney` beside `checkSpendRules` so the offer always passes the check): balance including what this target already spent, point value, step, and `blocked` (`frozen`, `belowMin`, `empty`).
+- Each earning row in a score log's `breakdown` keeps how it was counted (`calc`: value type and value, the tier column it came from, the money counted, money per point, base points for a multiplier bonus, the cap that cut it, and what a point pays), written by `evaluateEarnTable` so earnings and `scoreCampaignEarnPreview` explain themselves the same way; logs written before have no `calc`.
 - `loyaltyAccounts` lists loyalty accounts newest first (cursor paginated on `joinedAt`) with filters for owner type, status, account type and its tier (`none` = holds the type without a tier); `searchValue` is either a 10-digit account number or text matched against owners in core (customers, companies, users; at most 200 owners per type), built in `services/accountList.ts`. `LoyaltyAccount.owner` resolves the owner document.
 
 ## Architecture
@@ -131,6 +133,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-01` — Spend limit for paying screens
+
+- **Summary:** Paying screens can ask how much an order may pay with points instead of treating the point balance as money.
+- **Affected areas:** `modules/score/services/spendRules.ts` (+ tests), `db/models/ScoreCampaign.ts`, `graphql/{schemas,resolvers/queries}/scoreCampaign.ts`.
+- **Contracts changed:** Query `loyaltyScoreSpendLimit`, type `LoyaltyScoreSpendLimit`.
+
 ### `2026-09-30` — Per-owner voucher limit
 
 - **Summary:** Voucher campaigns can cap how many one owner receives per campaign, year or month, so a changed birth date cannot farm a second birthday coupon.
@@ -184,9 +192,3 @@
 - **Summary:** Earning rows are base or bonus; the former multiplier row is a bonus that multiplies the base, and every such bonus now adds (capped) instead of only the highest applying.
 - **Affected areas:** `services/earnTable.ts` (`evaluateEarnTable`, `normalizeEarnTable`), `@types/earnTable.ts`, earn table tests.
 - **Contracts changed:** Earning row `kind` is `base | bonus` (a `multiplier` row is saved as bonus `multiplier`); bonus `valueType` adds `multiplier`.
-
-### `2026-09-28` — Base rows as percent or multiplier
-
-- **Summary:** A base earning row may now give a percent of the amount (like bonus rows) or a multiplier of the rate's points; the value type decides.
-- **Affected areas:** `services/earnTable.ts` (`points`, `normalizeEarnTable`), `@types/earnTable.ts`, earn table tests.
-- **Contracts changed:** Earning row `valueType` adds `multiplier`; base rows read `percent` as a percent of the amount (previously ignored and always a multiplier).

@@ -4,6 +4,7 @@ import {
   AUTOMATION_SEGMENT_MEMBERSHIP_FOLKS,
   IAutomationTrigger,
   isSegmentMembershipTrigger,
+  segmentMembershipRunsEveryTime,
   TAutomationSegmentMembershipJob,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '../connectionResolver';
@@ -77,10 +78,10 @@ export const receiveSegmentMembership = async ({
 
           for (const subjectId of transition[folk]) {
             try {
-              // "Once per record": a record that already went through this
-              // trigger never starts it again, whichever way it crossed.
+              // Run once: a record that already went through this trigger
+              // never starts it again, whichever way it crossed.
               if (
-                trigger.config?.once &&
+                !segmentMembershipRunsEveryTime(trigger.config) &&
                 (await models.Executions.exists({
                   automationId: automation._id,
                   triggerId: trigger.id,
@@ -119,7 +120,9 @@ export const receiveSegmentMembership = async ({
               );
             } catch (error) {
               debugError(
-                `Segment membership run failed for automation ${automation._id}, subject ${subjectId}: ${
+                `Segment membership run failed for automation ${
+                  automation._id
+                }, subject ${subjectId}: ${
                   error instanceof Error ? error.message : String(error)
                 }`,
               );

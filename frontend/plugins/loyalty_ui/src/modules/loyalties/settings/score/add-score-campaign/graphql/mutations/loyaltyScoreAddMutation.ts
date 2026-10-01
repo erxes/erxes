@@ -11,7 +11,6 @@ export const CREATE_SCORE_CAMPAIGN = gql`
     $createdUserId: String
     $status: String
     $accountTypeId: String
-    $serviceName: String
     $additionalConfig: JSON
     $restrictions: JSON
   ) {
@@ -25,7 +24,6 @@ export const CREATE_SCORE_CAMPAIGN = gql`
       createdUserId: $createdUserId
       status: $status
       accountTypeId: $accountTypeId
-      serviceName: $serviceName
       additionalConfig: $additionalConfig
       restrictions: $restrictions
     )

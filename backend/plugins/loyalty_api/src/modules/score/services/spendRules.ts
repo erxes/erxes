@@ -64,9 +64,52 @@ export const checkSpendRules = ({
     throw new Error(`Points can pay at most ${rules.maxShare}% of an order`);
   }
 
-  if (points > balance) {
-    throw new Error('There has no enough score to subtract');
+  if (points > balance + 1e-9) {
+    throw new Error(
+      `Not enough points: ${fixScoreNumber(
+        balance,
+      )} available, ${points} needed`,
+    );
   }
 
   return points;
+};
+
+export type TSpendBlock = 'frozen' | 'belowMin' | 'empty';
+
+/**
+ * The most money points may pay on an order, by the same rules
+ * `checkSpendRules` enforces: whole steps of points, the order share, and a
+ * balance that has reached the minimum.
+ */
+export const maxSpendMoney = ({
+  rules,
+  orderTotal,
+  pointValue,
+  balance,
+}: {
+  rules: ISpendRules;
+  orderTotal: number;
+  pointValue: number;
+  balance: number;
+}): { maxAmount: number; blocked: TSpendBlock | null } => {
+  const value = pointValue > 0 ? pointValue : 1;
+
+  if (rules.minBalance && balance < rules.minBalance) {
+    return { maxAmount: 0, blocked: 'belowMin' };
+  }
+
+  let points = Math.max(0, balance);
+
+  if (rules.maxShare !== undefined) {
+    points = Math.min(points, (orderTotal * rules.maxShare) / 100 / value);
+  }
+
+  if (rules.step) {
+    points = Math.floor(points / rules.step + 1e-9) * rules.step;
+  }
+
+  const maxAmount = fixScoreNumber(points * value);
+
+  return { maxAmount, blocked: maxAmount > 0 ? null : 'empty' };
 };

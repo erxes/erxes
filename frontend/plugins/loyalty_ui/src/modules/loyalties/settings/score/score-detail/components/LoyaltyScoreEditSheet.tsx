@@ -40,7 +40,6 @@ export const LoyaltyScoreEditSheet = () => {
       description: '',
       order: undefined,
       conditions: {
-        serviceName: '',
         productCategoryIds: [],
         productIds: [],
         tagIds: [],
@@ -67,7 +66,6 @@ export const LoyaltyScoreEditSheet = () => {
         description: scoreDetail.description || '',
         order: scoreDetail.order,
         conditions: {
-          serviceName: scoreDetail.serviceName || '',
           productCategoryIds: parseIds(restrictions.productCategoryIds),
           productIds: parseIds(restrictions.productIds),
           tagIds: parseIds(restrictions.tagIds),

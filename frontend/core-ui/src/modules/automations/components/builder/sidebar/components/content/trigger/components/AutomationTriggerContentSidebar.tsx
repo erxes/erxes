@@ -5,6 +5,7 @@ import { AutomationTriggerContentProps } from '@/automations/components/builder/
 import { Separator } from 'erxes-ui';
 import React from 'react';
 import { AutomationDefaultTriggerHeader } from './AutomationDefaultTriggerHeader';
+import { AutomationTriggerEveryTime } from './AutomationTriggerEveryTime';
 import { SegmentMembershipTriggerContent } from './SegmentMembershipTriggerContent';
 
 export const AutomationTriggerContentSidebar =
@@ -25,6 +26,7 @@ export const AutomationTriggerContentSidebar =
     if (activeNode?.isCustom) {
       return (
         <div className={containerClasses}>
+          <AutomationTriggerEveryTime activeNode={activeNode} />
           <CustomTriggerContent key={activeNode?.id} activeNode={activeNode} />
         </div>
       );
