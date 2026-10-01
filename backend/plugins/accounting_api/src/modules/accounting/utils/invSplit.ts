@@ -264,12 +264,46 @@ export const buildInvSplitFollowDocs = (
 const reverseInvSplitTransactions = async (
   subdomain: string,
   transactions: ITransactionDocument[],
-) => {
-  for (const transaction of transactions) {
-    const multiplier =
-      transaction.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
-    await removeSyncProductsInventory(subdomain, transaction, multiplier);
-  }
+) =>
+  transactions.reduce<Promise<void>>(
+    (pending, transaction) =>
+      pending.then(() => {
+        const multiplier =
+          transaction.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
+        return removeSyncProductsInventory(subdomain, transaction, multiplier);
+      }),
+    Promise.resolve(),
+  );
+
+const saveAndSyncInvSplitFollowTr = async ({
+  subdomain,
+  models,
+  userId,
+  followDoc,
+  oldFollowTr,
+}: {
+  subdomain: string;
+  models: IModels;
+  userId: string;
+  followDoc: ITransaction;
+  oldFollowTr?: ITransactionDocument;
+}) => {
+  const savedFollowTr = await createOrUpdateTr(
+    models,
+    userId,
+    followDoc,
+    oldFollowTr,
+  );
+  const multiplier =
+    followDoc.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
+  await syncProductsInventory(
+    subdomain,
+    savedFollowTr,
+    oldFollowTr,
+    multiplier,
+  );
+
+  return savedFollowTr;
 };
 
 const selectCurrentFollowDocs = (transactions: ITransactionDocument[]) => {
@@ -324,29 +358,29 @@ export const syncInvSplitFollowTrs = async (
     ptrId,
     current,
   );
-  const savedFollowTrs: ITransactionDocument[] = [];
+  const savedFollowTrs = await followDocs.reduce<
+    Promise<ITransactionDocument[]>
+  >(
+    (pending, followDoc) =>
+      pending.then((savedTransactions) => {
+        const oldFollowTr =
+          followDoc.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT
+            ? current.out
+            : current.income;
 
-  for (const followDoc of followDocs) {
-    const oldFollowTr =
-      followDoc.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT
-        ? current.out
-        : current.income;
-    const savedFollowTr = await createOrUpdateTr(
-      models,
-      userId,
-      followDoc,
-      oldFollowTr,
-    );
-    const multiplier =
-      followDoc.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT ? -1 : 1;
-    await syncProductsInventory(
-      subdomain,
-      savedFollowTr,
-      oldFollowTr,
-      multiplier,
-    );
-    savedFollowTrs.push(savedFollowTr);
-  }
+        return saveAndSyncInvSplitFollowTr({
+          subdomain,
+          models,
+          userId,
+          followDoc,
+          oldFollowTr,
+        }).then((savedFollowTr) => [
+          ...savedTransactions,
+          savedFollowTr,
+        ]);
+      }),
+    Promise.resolve([]),
+  );
 
   const retainedTypes = new Set(followDocs.map((doc) => doc.originType));
   const removedFollowTrs = currentFollowTrs.filter(

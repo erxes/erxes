@@ -1,11 +1,17 @@
 /// <reference types="jest" />
 
 import { IModels } from '~/connectionResolvers';
-import { JOURNALS, TR_SIDES, TR_STATUSES } from '../../@types/constants';
+import {
+  JOURNALS,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+  TR_STATUSES,
+} from '../../@types/constants';
 import {
   activeCost,
   adjustRunning,
   fixRelatedMainJournal,
+  getInventoryOutAdjustment,
 } from '../inventories';
 
 const queryResult = <T>(value: T) => ({
@@ -19,6 +25,59 @@ const makeModels = (transactions: Record<string, unknown>[] = []) =>
       updateOne: jest.fn().mockResolvedValue(undefined),
     },
   } as unknown as IModels);
+
+describe('getInventoryOutAdjustment', () => {
+  const details = {
+    _id: 'detail-a',
+    accountId: 'inventory-account',
+    productId: 'product-a',
+    count: 2,
+    unitPrice: 120,
+    amount: 240,
+  };
+
+  it('preserves the transferred cost of a generated split out', () => {
+    expect(
+      getInventoryOutAdjustment(
+        {
+          originId: 'income-a',
+          originType: TR_FOLLOW_TYPES.INV_SPLIT_OUT,
+          details,
+        } as never,
+        80,
+      ),
+    ).toEqual({ preserveCost: true, cost: 240 });
+  });
+
+  it('uses active inventory cost for a regular inventory out', () => {
+    expect(
+      getInventoryOutAdjustment({ details } as never, 80),
+    ).toEqual({ preserveCost: false, cost: 160 });
+  });
+
+  it('requires both the split origin type and an origin transaction', () => {
+    expect(
+      getInventoryOutAdjustment(
+        {
+          originType: TR_FOLLOW_TYPES.INV_SPLIT_OUT,
+          details,
+        } as never,
+        80,
+      ),
+    ).toEqual({ preserveCost: false, cost: 160 });
+
+    expect(
+      getInventoryOutAdjustment(
+        {
+          originId: 'income-a',
+          originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
+          details,
+        } as never,
+        80,
+      ),
+    ).toEqual({ preserveCost: false, cost: 160 });
+  });
+});
 
 describe('activeCost', () => {
   it('adds active inventory movements after the latest published adjustment', async () => {
