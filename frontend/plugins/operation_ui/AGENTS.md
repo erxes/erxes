@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -32,6 +32,7 @@
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
 - The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
+- Imports plain Markdown descriptions from GitHub issues into editable task and triage blocks while retaining BlockNote JSON for locally edited descriptions.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
@@ -43,6 +44,7 @@
 | Dev server config    | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                               |
 | Plugin config        | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                              |
 | Property side panel  | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state. |
+| Description editor   | `frontend/plugins/operation_ui/src/modules/operation/hooks/useDescriptionEditor.ts`      | Loads BlockNote JSON or imports Markdown for task and triage details.                                       |
 | Operation modules    | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                            |
 | Pages                | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                       |
 | Relation widgets     | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                           |
@@ -68,6 +70,7 @@
 
 - Apollo Client owns server state where operation feature hooks use GraphQL.
 - React Hook Form and local React state own editable form and component-local state.
+- Task and triage descriptions remain in their existing API string field; GitHub Markdown is imported into the editor on display and edited content is saved as BlockNote JSON.
 - Widget state remains scoped to operation widget modules.
 - Task and project custom values are read from and submitted as `propertiesData` through their existing Apollo detail/update flows.
 
@@ -78,6 +81,7 @@
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Keep custom properties as a local panel in the existing task/project right-side `SideMenu`, separate from cross-record relation widget registration; do not duplicate the form in the main detail body.
 - The property side panel uses `SideMenu.Header` with a standard-size secondary Manage action to `/settings/properties/<contentType>` and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
+- Opening a Markdown description must not save or rewrite it until the user edits the description.
 - Dev watch ignores must not include plugin source directories required for hot reload.
 - `TaskDetails` carries neither padding nor side widgets. Every caller supplies both: `TaskDetailPage`, `TaskDetailSheet` and the My Inbox `NotificationTaskDetail`. Check all three whenever `TaskDetails`' layout contract changes; the inbox caller is easy to miss because it only renders through the `./notificationWidget` remote.
 - My Inbox task and triage details (`NotificationTaskDetail`) keep the task page's dimensions: `p-6` content, `xl:max-w-3xl` centered, and the Open task action in a `max-w-3xl px-6 pt-6` row. Project and team inbox details keep their own `max-w-3xl px-6` layouts; the four stay visually aligned.
@@ -85,6 +89,9 @@
 
 ## Validation
 
+- `pnpm nx lint operation_ui`
 - `pnpm nx build operation_ui`
+- `pnpm nx test operation_ui`
 - Smoke scenario: open operation projects, tasks, team, operation settings, relation widgets, and automation widget entry through the remote.
 - Inbox smoke: open a task, triage, project and team notification in My Inbox; the task detail is padded, shows side widgets, and its icon column stays put while scrolling.
+- Smoke scenario: open a GitHub issue triage with headings, bold text, and a fenced code block; accept it as a task and confirm the same formatting and editable content.

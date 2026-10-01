@@ -1,10 +1,20 @@
 import { Block } from '@blocknote/core';
 
+export const isMarkdownDescription = (description?: string | null): boolean => {
+  if (!description) return false;
+
+  try {
+    return !Array.isArray(JSON.parse(description));
+  } catch {
+    return true;
+  }
+};
+
 /**
  * Operation descriptions (task / triage / project) are normally BlockNote JSON
  * (a Block[]), but legacy or API/script-created records can hold plain text.
- * Parsing defensively keeps a non-JSON description from throwing during render
- * and crashing the page — the text is rendered as a single paragraph instead.
+ * Parsing defensively keeps a non-JSON description from crashing the page.
+ * The task and triage detail editors then import that text as Markdown.
  */
 export const parseDescriptionBlocks = (
   description?: string | null,
