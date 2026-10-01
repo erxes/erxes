@@ -50,6 +50,9 @@ export const AddDetailRowButton = ({
     productId,
     count: 1,
     unitPrice: 0,
+    followInfos: lastDetail?.followInfos
+      ? { ...lastDetail.followInfos, invSplit: undefined }
+      : undefined,
   });
 
   return (

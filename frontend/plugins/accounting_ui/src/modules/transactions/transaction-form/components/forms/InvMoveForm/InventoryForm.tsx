@@ -15,6 +15,7 @@ import {
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
+import { InventorySplitProvider } from '../InventorySplit';
 
 export const InventoryForm = ({
   form,
@@ -33,10 +34,10 @@ export const InventoryForm = ({
 
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    5;
+    8;
 
   return (
-    <>
+    <InventorySplitProvider form={form} journalIndex={journalIndex}>
       <RecordTableHotkeyProvider
         columnLength={columnsLength}
         rowLength={fields.length}
@@ -76,7 +77,7 @@ export const InventoryForm = ({
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
       </div>
-    </>
+    </InventorySplitProvider>
   );
 };
 
@@ -95,7 +96,8 @@ const InventoryTableHeader = ({
   return (
     <Table.Header>
       <Table.Row>
-        <Table.Head className="w-10">
+        <Table.Head className="w-8" />
+        <Table.Head className="w-8">
           <div className="flex items-center justify-center">
             <Checkbox
               checked={!trDoc.details.filter((d) => !d.checked).length}
@@ -112,6 +114,7 @@ const InventoryTableHeader = ({
         </Table.Head>
         <Table.Head>Данс</Table.Head>
         <Table.Head>Бараа</Table.Head>
+        <Table.Head>Үндсэн нэгж</Table.Head>
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
