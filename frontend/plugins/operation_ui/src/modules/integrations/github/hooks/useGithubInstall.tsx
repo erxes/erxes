@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useToast } from 'erxes-ui';
 
-const GITHUB_APP_SLUG = 'erxes-operation-github-dev-test';
+const GITHUB_APP_SLUG = 'erxes-operation-github';
 
 const GITHUB_INSTALL_URL = `https://github.com/apps/${GITHUB_APP_SLUG}/installations/new`;
 
