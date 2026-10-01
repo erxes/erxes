@@ -4,6 +4,8 @@
  * @type {import('@module-federation/sdk').moduleFederationPlugin.ModuleFederationPluginOptions}
  **/
 
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { ModuleFederationConfig } from '@nx/rspack/module-federation';
 
 const coreLibraries = new Set([
@@ -28,9 +30,9 @@ const config: ModuleFederationConfig = {
     return false;
   },
 
-  remotes: process.env.ENABLED_PLUGINS
-    ? process.env.ENABLED_PLUGINS.split(',').map((plugin) => `${plugin}_ui`)
-    : [],
+  remotes: (process.env.ENABLED_PLUGINS?.split(',') ?? [])
+    .map((plugin) => `${plugin}_ui`)
+    .filter((remote) => existsSync(join(__dirname, '../plugins', remote))),
 };
 
 /**
