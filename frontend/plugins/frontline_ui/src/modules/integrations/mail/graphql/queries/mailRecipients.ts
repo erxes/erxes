@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const MAIL_VERIFIED_CONTACTS_QUERY = gql`
   query frontlineMailVerifiedContacts($searchValue: String, $cursor: String) {
-    customers(searchValue: $searchValue, cursor: $cursor, limit: 100) {
+    customers: mailVerifiedContacts(searchValue: $searchValue, cursor: $cursor) {
       list {
         _id
         firstName

@@ -63,7 +63,7 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
       ? new DOMParser()
           .parseFromString(
             defaultBody
-              .replace(/<br\s*\/?\s*>/gi, '\n')
+              .replace(/<br\s*(?:\/\s*)?>/gi, '\n')
               .replace(/<\/(?:p|div|blockquote)>/gi, '\n'),
             'text/html',
           )

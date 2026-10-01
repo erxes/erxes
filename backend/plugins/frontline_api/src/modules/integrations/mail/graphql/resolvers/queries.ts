@@ -8,8 +8,21 @@ import { findPipelineIntegration } from '@/integrations/mail/utils/pipeline';
 import { readMailThread } from '@/integrations/mail/utils/thread';
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
 import { assertMailConversationAccess } from '@/integrations/mail/utils/access';
+import { readMailVerifiedContacts } from '@/integrations/mail/utils/recipients';
 
 export const mailQueries = {
+  async mailVerifiedContacts(
+    _root: undefined,
+    args: { searchValue?: string; cursor?: string },
+    { subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+    if (!user?._id) {
+      throw new Error('Authentication required');
+    }
+
+    return readMailVerifiedContacts(subdomain, args);
+  },
   async mailSenders(
     _root: undefined,
     _args: undefined,

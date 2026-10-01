@@ -1,4 +1,23 @@
 export const types = `
+  type MailVerifiedContact {
+    _id: String!
+    firstName: String
+    lastName: String
+    primaryEmail: String
+    emails: [String]
+    emailValidationStatus: String
+  }
+
+  type MailVerifiedContactsPageInfo {
+    endCursor: String!
+    hasNextPage: Boolean!
+  }
+
+  type MailVerifiedContacts {
+    list: [MailVerifiedContact!]!
+    pageInfo: MailVerifiedContactsPageInfo!
+  }
+
   type MailMessage {
     _id: String!
     mailData: JSON
@@ -129,6 +148,7 @@ export const types = `
 `;
 
 export const queries = `
+  mailVerifiedContacts(searchValue: String, cursor: String): MailVerifiedContacts!
   mailConversationDetail(
     conversationId: String!
     limit: Int

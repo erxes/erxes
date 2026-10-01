@@ -66,8 +66,11 @@ const VerifiedEmailSelect = ({
           });
       }
     }
-    return [...byEmail.values()].filter(({ email }) =>
-      email.toLowerCase().includes(search.toLowerCase()),
+    const normalizedSearch = search.trim().toLowerCase();
+    return [...byEmail.values()].filter(
+      ({ email, name }) =>
+        email.toLowerCase().includes(normalizedSearch) ||
+        Boolean(name?.toLowerCase().includes(normalizedSearch)),
     );
   }, [data, emails, search, targetCustomerId, value]);
 
@@ -168,7 +171,7 @@ const VerifiedEmailSelect = ({
       </Popover.Trigger>
       <Popover.Content
         align="start"
-        className="w-[min(24rem,calc(100vw-2rem))] p-0"
+        className="z-60 w-[min(24rem,calc(100vw-2rem))] p-0"
       >
         <Command shouldFilter={false}>
           <Command.Input

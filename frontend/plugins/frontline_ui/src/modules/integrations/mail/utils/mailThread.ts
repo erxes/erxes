@@ -16,7 +16,7 @@ export const mailMessagePreview = (message: MailMessage) => {
 
   const doc = new DOMParser().parseFromString(
     html
-      .replace(/<br\s*\/?\s*>/gi, ' ')
+      .replace(/<br\s*(?:\/\s*)?>/gi, ' ')
       .replace(/<\/(?:p|div|li|blockquote)>/gi, ' '),
     'text/html',
   );
