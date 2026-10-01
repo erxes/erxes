@@ -14,6 +14,8 @@ export type SegmentFieldQuery = {
   name: string;
   labelField: string;
   valueField?: string;
+  // Narrows the list, e.g. a tags lookup to the tags of one content type.
+  variables?: Record<string, string | boolean>;
 };
 
 export const DEFAULT_SEGMENT_VALUE_FIELD = '_id';

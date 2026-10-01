@@ -1,4 +1,14 @@
+# Changelog
 
+## [3.2.10](https://github.com/erxes/erxes/compare/3.2.9...3.2.10) (2026-10-01)
+
+
+### Features
+
+* **accounting:** inventory income journal with split products ([#9517](https://github.com/erxes/erxes/issues/9517)) ([85b4933](https://github.com/erxes/erxes/commit/85b4933dab2c719adf8723d23ee1e67e4c8b3a54))
+* **email:** implement dynamic email item tables for list outputs ([a6d84b1](https://github.com/erxes/erxes/commit/a6d84b1306e74acf8e65df5a7352582cfc1da071))
+* enhance tagIds lookups with variables for segment filtering across multiple modules ([15aef1b](https://github.com/erxes/erxes/commit/15aef1b92da209d22efd91acdb88fa84f8e430a7))
+* **help-center:**  sidebar tree nav and account UI ([35bd01d](https://github.com/erxes/erxes/commit/35bd01d492e89c8bb0f928af2d08197c099fdec6))
 
 ## [3.2.9](https://github.com/erxes/erxes/compare/3.2.8...3.2.9) (2026-09-30)
 
@@ -15,7 +25,7 @@
 * **frontline:** add Call Pro debug logging and fix recording player ([0f7f616](https://github.com/erxes/erxes/commit/0f7f616b72912303e0e00b0838e0bb8593d4f97a))
 * **saas-migrations:** add legacy integrations migration command ([72e90e7](https://github.com/erxes/erxes/commit/72e90e72d0ae00ffcffe40f4d323654aa5c44f8f))
 
-# Changelog
+
 
 ## [3.2.8](https://github.com/erxes/erxes/compare/3.2.7...3.2.8) (2026-09-30)
 

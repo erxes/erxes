@@ -142,7 +142,6 @@
   "sale-price": "Sale Price",
   "pos-amount": "POS Amount",
   "pos-sale": "POS Sale",
-  "available-score": "Available Score",
   "score-campaign": "Score Campaign",
   "product": "Product",
   "products": "Products",
@@ -728,10 +727,6 @@
   "show-checked-items": "Show checked items ({{count}})",
   "hide-completed-items": "Hide Completed Items",
   "none": "None",
-  "loyalty-score-refund-confirm": "This action will refund all loyalty scores used on this card and deduct any retrieved scores before processing the refund. Are you sure?",
-  "loyalty-score-refunded": "Loyalty Score refunded successfully",
-  "refunding": "Refunding…",
-  "refund-score": "Refund Score",
   "invalid-qr-code": "Invalid QR Code",
   "qr-code-mismatch": "The entered code does not match the customer ID.",
   "assign-service-before-saving": "Please assign a team member to the following service item(s) before saving: {{names}}.",
@@ -888,5 +883,14 @@
   "content-type": {
     "sales-pos-orders": "POS order",
     "sales-sales-deals": "Deal"
-  }
+  },
+  "stage-refund-points": "Refund loyalty points",
+  "stage-refund-points-hint": "When a deal enters this stage, the points it paid with are given back and the points it earned are taken away.",
+  "stage-refund-points-confirm-on": "Deals entering this stage will get back the points they paid with, and lose the points they earned. Turn it on?",
+  "stage-refund-points-confirm-off": "Deals entering this stage will keep their point movements: nothing is given back. Turn it off?",
+  "points-need-customer": "Add a customer to pay with points",
+  "points-available": "{{points}} points · up to {{amount}}",
+  "points-blocked-frozen": "The loyalty account is frozen",
+  "points-blocked-belowMin": "Points can be spent once the balance reaches the minimum",
+  "points-blocked-empty": "No points to spend on this deal"
 }

@@ -1,7 +1,6 @@
 import {
   IconBolt,
   IconBox,
-  IconPlugConnected,
   IconSettings,
 } from '@tabler/icons-react';
 import { UseFormReturn } from 'react-hook-form';
@@ -15,18 +14,12 @@ import { ScoreCampaignProvider } from '../contexts/ScoreCampaignContext';
 import { ScoreCampaignAutomations } from './ScoreCampaignAutomations';
 import { ScoreCampaignGeneralSection } from './ScoreCampaignGeneralSection';
 import { ScoreCampaignProductsSection } from './ScoreCampaignProductsSection';
-import { ScoreCampaignSourceSection } from './ScoreCampaignSourceSection';
 
 const SECTIONS = {
   general: {
     labelKey: 'score-campaign-section-general',
     icon: IconSettings,
     Content: ScoreCampaignGeneralSection,
-  },
-  source: {
-    labelKey: 'score-campaign-section-source',
-    icon: IconPlugConnected,
-    Content: ScoreCampaignSourceSection,
   },
   products: {
     labelKey: 'score-campaign-section-products',

@@ -51,14 +51,9 @@ export const useReEnrollmentRules = ({ contentId }: { contentId: string }) => {
     }));
   }, [segment?.root, fields]);
 
-  const getLabelByPropertyName = (propertyName: string) =>
-    reEnrollmentOptions.find((option) => option.propertyName === propertyName)
-      ?.label || propertyName;
-
   return {
     reEnrollmentOptions,
     loading: segmentLoading || fieldsLoading,
-    getLabelByPropertyName,
     hasSubSegmentConditions: reEnrollmentOptions.length > 0,
   };
 };

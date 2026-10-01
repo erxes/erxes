@@ -96,6 +96,7 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
       table,
       amount: Number(amount) || 0,
       ratio: Number(accountType?.currencyRatio) || 1,
+      pointValue: Number(accountType?.pointValue) || 1,
       tiers: (accountType?.tiers || []).filter(
         ({ deprecated }) => !deprecated,
       ),
@@ -170,6 +171,25 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
       ownerId,
       fieldId: campaign?.fieldId,
       owner,
+    });
+  },
+
+  async loyaltyScoreSpendLimit(
+    _root: undefined,
+    args: {
+      campaignId: string;
+      ownerType: string;
+      ownerId: string;
+      totalAmount?: number;
+      targetId?: string;
+    },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreLogView');
+
+    return models.ScoreCampaigns.spendLimit({
+      ...args,
+      totalAmount: args.totalAmount || 0,
     });
   },
 

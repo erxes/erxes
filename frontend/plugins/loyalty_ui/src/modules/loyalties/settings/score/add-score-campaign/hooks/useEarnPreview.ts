@@ -4,6 +4,7 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 import { SCORE_CAMPAIGN_EARN_PREVIEW } from '../../graphql/queries/scoreCampaignEarnPreviewQuery';
 import { toAddInput } from '../../utils/earnTableForm';
+import { TEarnBreakdownItem } from '@/loyalties/scores/types/earnCalc';
 
 const DEBOUNCE_MS = 300;
 
@@ -12,7 +13,7 @@ type TPreview = {
     tierKey: string | null;
     tierName: string | null;
     total: number;
-    breakdown: { rowKey: string }[];
+    breakdown: TEarnBreakdownItem[];
   }[];
 };
 

@@ -1,5 +1,6 @@
 import {
   IEarnBreakdownItem,
+  IEarnCalc,
   IEarnConditions,
   IEarnContext,
   IEarnRow,
@@ -76,16 +77,17 @@ const matches = (row: IEarnRow, ctx: IEarnContext) => !unmetCondition(row, ctx);
 const valueFor = (
   row: IEarnRow,
   tier?: string | null,
-): IEarnValue | undefined => {
+): (IEarnValue & { column: string }) | undefined => {
   const all = row.values?.[ALL_TIERS];
 
   if (all && Number.isFinite(all.value)) {
-    return all;
+    return { ...all, column: ALL_TIERS };
   }
 
-  const own = row.values?.[tier || NO_TIER];
+  const column = tier || NO_TIER;
+  const own = row.values?.[column];
 
-  return own && Number.isFinite(own.value) ? own : undefined;
+  return own && Number.isFinite(own.value) ? { ...own, column } : undefined;
 };
 
 // Rules count money; the account type's rate turns it into points.
@@ -136,14 +138,29 @@ export const evaluateEarnTable = ({
     .filter((row) => !activeRowKeys || activeRowKeys.includes(row.key))
     .map((row) => ({ row, value: valueFor(row, ctx.tier) }))
     .filter(
-      (item): item is { row: IEarnRow; value: IEarnValue } =>
+      (
+        item,
+      ): item is { row: IEarnRow; value: IEarnValue & { column: string } } =>
         !!item.value && matches(item.row, ctx),
     );
 
+  const calcOf = (
+    row: IEarnRow,
+    value: IEarnValue & { column: string },
+    extra: Partial<IEarnCalc>,
+  ): IEarnCalc => ({
+    valueType: row.valueType,
+    value: value.value,
+    column: value.column,
+    pointValue: ctx.pointValue,
+    ...extra,
+  });
+
   const breakdown: IEarnBreakdownItem[] = [];
   const base = matched.find(({ row }) => row.kind === 'base');
+  const baseAmountCounted = base ? rowAmount(table, base.row, ctx) : 0;
   const basePoints = base
-    ? points(base.row, base.value, rowAmount(table, base.row, ctx), ctx.ratio)
+    ? points(base.row, base.value, baseAmountCounted, ctx.ratio)
     : 0;
 
   if (base) {
@@ -151,22 +168,39 @@ export const evaluateEarnTable = ({
       rowKey: base.row.key,
       name: base.row.name,
       points: basePoints,
+      calc: calcOf(base.row, base.value, {
+        amount: baseAmountCounted,
+        ratio: ctx.ratio,
+      }),
     });
   }
 
   for (const { row, value } of matched.filter(
     ({ row }) => row.kind === 'bonus',
   )) {
+    const amount = rowAmount(table, row, ctx);
     // ×N on the base: the base already gave one of the N.
     const earned =
       row.valueType === 'multiplier'
         ? basePoints * Math.max(value.value - 1, 0)
-        : points(row, value, rowAmount(table, row, ctx), ctx.ratio);
+        : points(row, value, amount, ctx.ratio);
+    const kept = capped(earned, row.cap);
+
+    const counted: Partial<IEarnCalc> =
+      row.valueType === 'multiplier'
+        ? { basePoints: fixScoreNumber(basePoints) }
+        : row.valueType === 'fixed'
+        ? {}
+        : { amount, ratio: ctx.ratio };
 
     breakdown.push({
       rowKey: row.key,
       name: row.name,
-      points: capped(earned, row.cap),
+      points: kept,
+      calc: calcOf(row, value, {
+        ...counted,
+        ...(kept < earned && { cap: row.cap }),
+      }),
     });
   }
 
@@ -332,11 +366,13 @@ export const previewEarnTable = ({
   table,
   amount,
   ratio,
+  pointValue,
   tiers,
 }: {
   table: IEarnTable;
   amount: number;
   ratio: number;
+  pointValue?: number;
   tiers: { key: string; name: string }[];
 }) => {
   const rows = (table?.rows || [])
@@ -355,6 +391,7 @@ export const previewEarnTable = ({
       table: normalized,
       ctx: {
         ratio,
+        pointValue,
         tier: key,
         totalAmount: amount,
         paidAmount: amount,

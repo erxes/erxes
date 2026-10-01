@@ -45,7 +45,8 @@
 - The unscoped deal list uses a parent/order/id/status index for its default
   card ordering.
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
-  batch of them through the `evaluateFields` segment producer.
+  batch of them through the `evaluateFields` segment producer. The `tagIds`
+  lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
 
 ## Architecture
 
@@ -79,11 +80,25 @@
   (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
   POS orders map `totalAmount`, `paidAmount` (total minus point payments) and
   `purchaseItems`. Earning is decided by automations, never by sales.
-- Sales tells loyalty what a purchase paid with points and when it is undone:
-  deal edits and moves call `score.spend` for each point payment type whose
-  amount changed and `score.refund` when a deal enters a `Lost` stage
-  (`syncDealPoints`); POS order sync calls `score.spend` (`spendOrderPoints`,
-  also after `posOrderChangePayments`) and `score.refund` for returned orders.
+- Sales tells loyalty what a purchase paid with points and when it is undone
+  (`modules/sales/utils/dealPoints.ts`): `planDealPoints` decides per deal
+  create, edit or move (a new deal passes its `customerIds` and a pre-made
+  `_id`, since it has no relations yet), `checkDealPoints` asks loyalty's `score.checkSpend` before the
+  deal is saved (a point payment without a customer, or one loyalty refuses,
+  fails the save), and `syncDealPoints` records `score.spend` after it,
+  putting the deal's payments and stage back if that fails (a new deal is
+  removed instead). A copied deal drops its point payments
+  (`withoutPointPayments`): it is a new order, not a second payment. Entering a stage
+  that refunds calls `score.refund`; leaving one spends the point payments
+  again. A stage refunds when `refundPoints` is true, or when it is unset and
+  the stage is `Lost`. Removing deals refunds them (`Deals.removeDeals`). All
+  loyalty calls throw; with loyalty disabled they do nothing. POS order sync
+  calls `score.spend` (`spendOrderPoints`, also after `posOrderChangePayments`)
+  and `score.refund` for returned orders, still without throwing.
+- The deal automation output `productsData.*` resolves a field as all products
+  joined (`productsData.name`), one product by index (`productsData.0.name`,
+  names looked up in core per item), or the product count
+  (`productsData.$count`), so an email row written per item reads each product.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
 - POS order card conversion uses sales-owned deal model helpers directly,
   updates an existing `convertDealId` deal when present, and creates one only
@@ -369,6 +384,12 @@
 - **Affected areas:** `src/modules/pos/utils.ts`.
 - **Contracts changed:** None.
 
+### `2026-10-01` — Point payments checked first, refunds by stage
+
+- **Summary:** A deal's point payment is checked with loyalty before the deal is saved (created, edited or moved) and no longer fails silently; copies drop point payments; stages carry a `refundPoints` setting (unset = `Lost` refunds), leaving a refunding stage spends again, and removed deals are refunded.
+- **Affected areas:** `modules/sales/utils/dealPoints.ts`, `graphql/resolvers/mutations/{utils,loyaltyUtils}.ts`, `db/models/Deals.ts`, stage type, schema and GraphQL.
+- **Contracts changed:** `SalesStage.refundPoints`; deal creation, edits, moves and removals may now fail with loyalty's error.
+
 ### `2026-09-29` — Purchases handed to loyalty
 
 - **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
@@ -442,15 +463,3 @@
 - **Affected areas:** `src/modules/sales/documents/dealContent.ts`.
 - **Contracts changed:** None (`deal.replaceContent` still returns one entry
   per resolvable `replacerId`, now ordered).
-
-### `2026-09-01` — Deal document table attributes render again
-
-- **Summary:** Table and image attributes (`productsInfo`, `allProductsInfo`,
-  `productCategoryInfo`, `servicesInfo`) printed as nothing because the
-  document editor inserts attributes as _inline_ content, and the replaced
-  table block stayed inside the paragraph's inline array where Core's
-  `blocksToHtml` renders text only; `replaceBlocks` now hoists block-level
-  replacements out to the containing block list and drops the paragraph left
-  empty behind them.
-- **Affected areas:** `src/modules/sales/documents/replaceBlocks.ts`.
-- **Contracts changed:** None.

@@ -37,7 +37,7 @@ export const scoreCampaignSchema = schemaWrapper(
       serviceName: {
         type: String,
         label: 'Service Name',
-        required: true,
+        optional: true,
       },
       additionalConfig: {
         type: Schema.Types.Mixed,

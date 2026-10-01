@@ -413,6 +413,9 @@
   write — `HelpCenterConfig.getChannelFormIds` drops every id that does not
   belong to `formChannelId`, so a channel change cannot leave a stale form on
   the site.
+- Conversation and ticket segment `tagIds` lookups list their own tags
+  (`frontline:conversation`, `frontline:ticket`) plus workspace tags
+  (`query.variables`).
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company

@@ -9,6 +9,8 @@ export type TAutomationVariableDragPayload = {
   sourceNodeId: string;
   sourceNodeType: string;
   sourceNodeLabel: string;
+  /** Sub-fields of a list output, so it can be dropped as one row per item. */
+  fields?: { key: string; label: string }[];
 };
 
 export const setAutomationVariableDragData = (

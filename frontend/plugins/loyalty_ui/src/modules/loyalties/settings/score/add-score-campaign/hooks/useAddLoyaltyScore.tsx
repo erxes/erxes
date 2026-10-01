@@ -15,7 +15,6 @@ export interface AddScoreCampaignVariables {
   title: string;
   description?: string;
   order?: number;
-  serviceName: string;
   restrictions: {
     productCategoryIds?: string;
     excludeProductCategoryIds?: string;

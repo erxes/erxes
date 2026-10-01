@@ -21,6 +21,14 @@ export const types = `
     restrictions: JSON
   }
 
+  type LoyaltyScoreSpendLimit {
+    balance: Float
+    pointValue: Float
+    maxAmount: Float
+    step: Float
+    blocked: String
+  }
+
   type ScoreCampaignEarnPreview {
     tierKey: String
     tierName: String
@@ -49,6 +57,7 @@ export const queries = `
   scoreCampaignServices: JSON
   scoreCampaignEarnPreview(accountTypeId: String, table: JSON!, amount: Float!): [ScoreCampaignEarnPreview]
   checkOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
+  loyaltyScoreSpendLimit(campaignId: String!, ownerType: String!, ownerId: String!, totalAmount: Float, targetId: String): LoyaltyScoreSpendLimit
   cpCheckOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
 `;
 
