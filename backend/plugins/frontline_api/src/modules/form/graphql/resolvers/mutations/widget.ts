@@ -1,8 +1,4 @@
-import {
-  ICompany,
-  ICustomField,
-  Resolver,
-} from 'erxes-api-shared/core-types';
+import { ICompany, ICustomField, Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IContext, IModels } from '~/connectionResolvers';
