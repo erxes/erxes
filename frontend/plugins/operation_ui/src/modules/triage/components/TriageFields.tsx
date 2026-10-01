@@ -1,4 +1,11 @@
-import { Input, Separator, useBlockEditor, BlockEditor, Dialog, Button } from 'erxes-ui';
+import {
+  Input,
+  Separator,
+  BlockEditor,
+  Dialog,
+  Button,
+  Spinner,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
@@ -13,22 +20,18 @@ import { SelectStatus } from '@/operation/components/SelectStatus';
 import { useConvertTriage } from '../hooks/useConvertTriage';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const { t } = useTranslation('operation');
   const { _id: triageId, priority, status, name: _name } = triage || {};
 
-  const description = (triage as ITriage)?.description;
-  const initialDescriptionContent = parseDescriptionBlocks(description);
-
-  const [descriptionContent, setDescriptionContent] = useState<
-    Block[] | undefined
-  >(initialDescriptionContent);
-
-  const editor = useBlockEditor({
-    initialContent: descriptionContent,
-    placeholder: t('description-placeholder'),
-  });
+  const description = triage.description;
+  const [descriptionContent, setDescriptionContent] = useState<Block[]>();
+  const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
+    description,
+    t('description-placeholder'),
+  );
   const { updateTriage } = useUpdateTriage();
   const { convertTriageToTask } = useConvertTriage();
 
@@ -40,8 +43,17 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
+      const blocks = [...content];
+      const lastBlock = blocks[blocks.length - 1];
+      if (
+        blocks.length > 1 &&
+        lastBlock.type === 'paragraph' &&
+        Array.isArray(lastBlock.content) &&
+        lastBlock.content.length === 0
+      ) {
+        blocks.pop();
+      }
+      setDescriptionContent(blocks as Block[]);
     }
   };
 
@@ -120,11 +132,15 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          onChange={handleDescriptionChange}
-          className="min-h-full read-only"
-        />
+        {isDescriptionReady ? (
+          <BlockEditor
+            editor={editor}
+            onChange={handleDescriptionChange}
+            className="min-h-full read-only"
+          />
+        ) : (
+          <Spinner />
+        )}
       </div>
       <ActivityList contentId={triageId} contentDetail={triage} />
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -133,9 +149,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
             <Dialog.Title>{t('convert-to-task')}</Dialog.Title>
           </Dialog.Header>
           <div className="py-4">
-            <p>
-              {t('convert-triage-confirm')}
-            </p>
+            <p>{t('convert-triage-confirm')}</p>
           </div>
           <Dialog.Footer>
             <Dialog.Close asChild>
