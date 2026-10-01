@@ -90,6 +90,7 @@
 - Tenant-scoped Mongo collections are loaded through `generateModels(subdomain)` and plugin connection resolvers.
 - Score balance state is persisted in `score_logs` plus owner score/cache updates through `scoreLedger`; `score_logs` stays the source of truth and stamps `accountTypeId` when the campaign has one.
 - `loyalty_accounts` holds one account per owner (status `active` / `frozen` / `closed`, freeze time/user/reason) (`ownerType` + `ownerId` unique) with `balances.<accountTypeId>` holding the spendable `balance`, `pending`, `lots` (backed-by-lots flag), `tier`, `tierSince` and `resetAt` (start of the last period it was reset for); score logs stamp `accountId`.
+- `score_campaigns.serviceName` is optional and read by nothing but the campaign list filter: earning sources come from automation triggers, spending from the selling side; the campaign form no longer sends it.
 - `loyalty_lots` holds one row per earning (`amount`, `remaining`, `availableAt`, `expiresAt`, `sortAt`, `status` pending / available / closed, `sourceLogId`).
 - `loyalty_account_types` holds account type definitions; each owner's balance of a type lives on the owner record at `propertiesData.<accountType.fieldId>` (cpUser balances write the linked customer).
 - `score_logs.targetType` names the record type of `targetId` (e.g. `sales:sales.deals`); older logs have none.
