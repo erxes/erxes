@@ -4,12 +4,12 @@ import { MailSendError } from '@/integrations/mail/utils/transports/common';
 export const isValidMailReactionEmoji = (emoji: string) =>
   Boolean(
     emoji &&
-      Buffer.byteLength(emoji, 'utf8') <= 64 &&
-      [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(emoji)]
-        .length === 1 &&
-      (/\p{Extended_Pictographic}/u.test(emoji) ||
-        /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
-        /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
+    Buffer.byteLength(emoji, 'utf8') <= 64 &&
+    [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(emoji)]
+      .length === 1 &&
+    (/\p{Extended_Pictographic}/u.test(emoji) ||
+      /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
+      /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
   );
 
 const ADDRESS = /^[^\s<>@]+@[^\s<>@]+$/;

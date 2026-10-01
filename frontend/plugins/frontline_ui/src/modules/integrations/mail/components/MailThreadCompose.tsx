@@ -60,14 +60,14 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
   const [showBcc, setShowBcc] = useState(false);
   const [bodyText, setBodyText] = useState(() =>
     defaultBody
-      ? new DOMParser()
+      ? (new DOMParser()
           .parseFromString(
             defaultBody
               .replace(/<br\s*(?:\/\s*)?>/gi, '\n')
               .replace(/<\/(?:p|div|blockquote)>/gi, '\n'),
             'text/html',
           )
-          .body.textContent?.trim() ?? ''
+          .body.textContent?.trim() ?? '')
       : '',
   );
 
