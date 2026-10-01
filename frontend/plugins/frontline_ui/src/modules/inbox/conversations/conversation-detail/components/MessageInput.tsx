@@ -132,7 +132,13 @@ export const MessageInput = ({
     setIsInternalNoteCollapsed(false);
     setOnlyInternal(isLead || isMailIntegration);
     setIsInternalNote(isLead || isMailIntegration || draftInternalRef.current);
-  }, [conversationId, integration?.kind, setIsInternalNote, setIsInternalNoteCollapsed, setOnlyInternal]);
+  }, [
+    conversationId,
+    integration?.kind,
+    setIsInternalNote,
+    setIsInternalNoteCollapsed,
+    setOnlyInternal,
+  ]);
 
   useEffect(() => {
     if (replyTo && !onlyInternal) {

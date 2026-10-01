@@ -88,7 +88,7 @@ export const deriveSenderAddress = (messages: MailMessage[]) => {
 export const getReplyRecipients = (message: MailMessage, mode: ComposeMode) => {
   if (mode === 'forward') return [];
   const { type, from, to } = message.mailData;
-  return (type === 'SENT' ? to ?? [] : from ?? [])
+  return (type === 'SENT' ? (to ?? []) : (from ?? []))
     .map(({ email }) => email ?? '')
     .filter(Boolean);
 };

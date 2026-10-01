@@ -133,7 +133,9 @@ export const MailThread: React.FC<MailThreadProps> = ({
   const baseSubject = stripSubjectPrefix(
     visibleMessages[0]?.mailData.subject ?? messages[0]?.mailData.subject ?? '',
   );
-  const latestMessage = visibleMessages[visibleMessages.length - 1] ?? messages[messages.length - 1];
+  const latestMessage =
+    visibleMessages[visibleMessages.length - 1] ??
+    messages[messages.length - 1];
   const latestContactEmail =
     latestMessage.mailData.type === 'INBOX'
       ? latestMessage.mailData.from?.[0]?.email

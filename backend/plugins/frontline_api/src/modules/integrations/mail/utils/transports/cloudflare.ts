@@ -11,7 +11,10 @@ import {
 import { readAttachmentBytes } from '@/integrations/mail/utils/attachments';
 import { debugError } from '@/integrations/mail/debuggers';
 import { describeError } from '@/integrations/mail/utils/errors';
-import { sendEmail, sendRawEmail } from '@/integrations/mail/utils/cloudflare/api';
+import {
+  sendEmail,
+  sendRawEmail,
+} from '@/integrations/mail/utils/cloudflare/api';
 import { buildReactionMime } from '@/integrations/mail/utils/reactions';
 import {
   CloudflareError,

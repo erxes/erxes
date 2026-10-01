@@ -13,7 +13,10 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { MailDraft, MailDraftEdit } from '@/integrations/mail/types/mailDraft';
+import type {
+  MailDraft,
+  MailDraftEdit,
+} from '@/integrations/mail/types/mailDraft';
 import { EmailBody } from './EmailBody';
 import { MailDraftEditForm } from './MailDraftEditForm';
 import type { MailMessage } from '@/integrations/mail/types/mailThread';
