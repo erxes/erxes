@@ -27,10 +27,16 @@ const MIGRATIONS_DIR = __dirname;
 // migrated before plugin data that may reference it.
 const DOMAIN_ORDER = ['core'];
 
+const NESTED_SCRIPTS = ['core/products/migrateProducts.ts'];
+
 type Target = { domain: string; file: string; abs: string; rel: string };
 
 function discover(): Target[] {
-  const targets: Target[] = [];
+  const targets: Target[] = NESTED_SCRIPTS.map((rel) => {
+    const [domain] = rel.split('/');
+    const file = rel.slice(rel.lastIndexOf('/') + 1);
+    return { domain, file, abs: join(MIGRATIONS_DIR, rel), rel };
+  });
   for (const domain of readdirSync(MIGRATIONS_DIR)) {
     const domainDir = join(MIGRATIONS_DIR, domain);
     if (!statSync(domainDir).isDirectory()) continue;

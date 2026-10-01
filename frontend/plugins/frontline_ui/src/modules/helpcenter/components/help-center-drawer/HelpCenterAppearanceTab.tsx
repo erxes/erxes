@@ -10,6 +10,7 @@ import {
   StyleImageField,
 } from '@/helpcenter/components/help-center-drawer/HelpCenterStyleFields';
 import {
+  EMPTY_HELP_CENTER_FORM,
   HELP_CENTER_FORM_COLOR_FIELDS,
   HELP_CENTER_MAIN_COLOR_FIELDS,
   HELP_CENTER_TEXT_COLOR_FIELDS,
@@ -128,7 +129,12 @@ export function HelpCenterAppearanceTab({
       >
         <InfoCard.Content>
           <div className="grid gap-4 sm:grid-cols-2">
-            <TopicColorField control={control} name="color" t={t} />
+            <TopicColorField
+              control={control}
+              name="color"
+              t={t}
+              defaultValue={EMPTY_HELP_CENTER_FORM.color}
+            />
             <TopicBackgroundImageField
               control={control}
               name="backgroundImage"

@@ -4,6 +4,8 @@ import {
   articleEntries,
   sortByReadership,
 } from '@/modules/knowledge-base/utils/selectors';
+import { getT } from '@/modules/i18n/server';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
 import { getPortalSettings } from '@/modules/layout/api';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { TicketForm } from '@/modules/tickets/components/TicketForm';
@@ -11,22 +13,27 @@ import {
   TicketHelpAside,
   type TicketSuggestion,
 } from '@/modules/tickets/components/TicketHelpAside';
-import {
-  NEW_TICKET_REASON,
-  TICKETS_OFF_REASON,
-  TICKETS_OFF_TITLE,
-} from '@/modules/tickets/constants/guard';
+import { ticketsOffReason } from '@/modules/tickets/constants/guard';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 
 const SUGGESTION_COUNT = 4;
 
-export const metadata = { title: 'Submit a ticket' };
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.submit'),
+});
 
 export default async function NewTicketPage() {
-  const [settings, topic] = await Promise.all([
+  const [settings, topic, t] = await Promise.all([
     getPortalSettings(),
     getTopicArticleList(),
+    getT(),
   ]);
+
+  const crumbs = [
+    { label: t('nav.home'), href: '/' },
+    { label: t('tickets.crumb'), href: '/tickets' },
+    { label: t('tickets.submit') },
+  ];
 
   const suggestions: TicketSuggestion[] =
     topic.state === 'ready' && topic.data.knowledgeBaseEnabled
@@ -37,17 +44,13 @@ export default async function NewTicketPage() {
 
   if (!settings.ticketsEnabled) {
     return (
-      <PortalShell
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Support', href: '/tickets' },
-          { label: 'Submit a ticket' },
-        ]}
-        title="Submit a ticket"
-      >
+      <PortalShell breadcrumbs={crumbs} title={t('tickets.submit')}>
         <FeatureOff
-          title={TICKETS_OFF_TITLE}
-          description={TICKETS_OFF_REASON}
+          title={t('tickets.offTitle')}
+          description={ticketsOffReason(
+            knowledgeBaseName(settings.knowledgeBaseLabel, t),
+            t,
+          )}
         />
       </PortalShell>
     );
@@ -55,16 +58,12 @@ export default async function NewTicketPage() {
 
   return (
     <PortalShell
-      breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'Support', href: '/tickets' },
-        { label: 'Submit a ticket' },
-      ]}
-      title="Submit a ticket"
-      description="Once you submit the form you get a ticket number, and you can track its progress here."
+      breadcrumbs={crumbs}
+      title={t('tickets.submit')}
+      description={t('tickets.newText')}
     >
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
-        <RequireSession reason={NEW_TICKET_REASON}>
+        <RequireSession reason={t('tickets.signInReason')}>
           <TicketForm target={settings.ticketTarget} />
         </RequireSession>
 
