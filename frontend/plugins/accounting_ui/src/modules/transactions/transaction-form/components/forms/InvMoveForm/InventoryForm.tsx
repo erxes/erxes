@@ -1,13 +1,17 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
+  Label,
   RecordTableHotkeyProvider,
   ScrollArea,
+  Switch,
   Table,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
+import { showAdvancedViewState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvMoveJournal,
@@ -31,6 +35,9 @@ export const InventoryForm = ({
   const setHotkeyScope = useSetHotkeyScope();
 
   const tableRef = useRef<HTMLTableElement>(null);
+  const [showAdvancedView, setShowAdvancedView] = useAtom(
+    showAdvancedViewState,
+  );
 
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
@@ -76,6 +83,15 @@ export const InventoryForm = ({
           journalIndex={journalIndex}
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
+        <div>
+          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
+          <Switch
+            checked={showAdvancedView}
+            onCheckedChange={(checked) => {
+              setShowAdvancedView(checked);
+            }}
+          />
+        </div>
       </div>
     </InventorySplitProvider>
   );
@@ -92,6 +108,7 @@ const InventoryTableHeader = ({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as TInvMoveJournal;
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
 
   return (
     <Table.Header>
@@ -118,6 +135,14 @@ const InventoryTableHeader = ({
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
+        {showAdvancedView && (
+          <>
+            <Table.Head>Гарах салбар</Table.Head>
+            <Table.Head>Гарах хэлтэс</Table.Head>
+            <Table.Head>Орох салбар</Table.Head>
+            <Table.Head>Орох хэлтэс</Table.Head>
+          </>
+        )}
       </Table.Row>
     </Table.Header>
   );

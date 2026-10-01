@@ -208,6 +208,8 @@ export const invDetailSchema = z
     followInfos: undefed(
       z.object({
         invSplit: undefed(invSplitInfoSchema),
+        moveInBranchId: undefed(z.string()),
+        moveInDepartmentId: undefed(z.string()),
       }),
     ),
   });
