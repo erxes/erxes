@@ -211,7 +211,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
       <Sheet.Trigger asChild>
         <RecordTable.MoreButton
           type="button"
-          className="w-10 p-0"
+          className="w-8 p-0"
           disabled={!detail}
           aria-label="Эд хариуцагчийн бүртгэл"
           title="Эд хариуцагчийн бүртгэл"
@@ -289,7 +289,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 <Table.Head>Код</Table.Head>
                 <Table.Head>Тоо</Table.Head>
                 <Table.Head>Эд хариуцагч</Table.Head>
-                <Table.Head className="w-10" />
+                <Table.Head className="w-8" />
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -332,7 +332,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                       )}
                     />
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell className="w-8">
                     <Button
                       type="button"
                       variant="ghost"

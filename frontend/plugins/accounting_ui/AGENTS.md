@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -47,6 +47,7 @@
 - Safe remainder detail tables expose persistent user-controlled column order and subtly highlight editable counted quantity and total-cost inputs.
 - Safe remainder quantity and counted total cost are the editable census values; derived debit/credit and adjustment amounts are read-only previews, and detail actions disable together while any census mutation is running.
 - Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
+- Inventory income and internal-movement income rows keep the source unit of measure in the table and expose infrequent product-splitting fields from a leading row action sheet; the sheet persists canonical `hasSplit` in that row's `followInfos.invSplit`, requires the resulting product and a positive ratio only when enabled, displays the result unit, highlights enabled row action buttons in yellow, and previews the generated `invOut` plus `invIncome` rows in `TBalance` before save.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
 - Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
 - Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
@@ -73,6 +74,7 @@
 | Plugin config       | `src/config.tsx`                                                                | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                                                | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                                      | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
+| Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns split form context, row settings, batched unit lookup, ratio calculation, and unsaved follow previews.     |
 | Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm`     | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
 | Safe remainders     | `src/modules/inventories/safeRemainders/components/SafeRemainderDetail.tsx`     | Coordinates inventory count detail data, status actions, header, and extracted tab/import surfaces.             |
 | Census tables       | `src/modules/inventories/safeRemainders/components/SafeRemainderDetailTabs.tsx` | Owns declarative count/income/out/sale/adjustment table configuration, filtering, pagination, and hotkeys.      |
@@ -116,6 +118,7 @@
 - Closing adjustment contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
 - Core system currency settings through `configsByCode(codes)` for `dealCurrency` and `mainCurrency`.
 - Core product, branch, department, customer, company, and team member selectors through public `ui-modules` APIs.
+- Core product lookup for inventory split source/result units of measure through the accounting-prefixed `accountingInventorySplitProducts` operation.
 - UI primitives, form components, tables, sheets, comboboxes, filters, toasts, and currency inputs from `erxes-ui`.
 
 ## Data and State
@@ -123,6 +126,7 @@
 - Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
 - React Hook Form owns editable accounting transaction and adjustment form state.
 - Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
+- Inventory split form state is detail-level `details[].followInfos.invSplit`; generated preview transactions live only in `followTrDocsState` and are excluded from submitted root transaction documents. Loading a legacy root `followInfos.invSplitDetails` entry migrates it into the matching detail form state.
 - Inventory cost adjustment detail state stores `count: 0`, `unitPrice` as the absolute per-unit cost delta, and `amount` as delta multiplied by current remainder; quantity is display-only, while editing after-unit cost derives the delta and increase/decrease side from its difference against current unit cost.
 - Safe remainder blank counted cost defaults proportionally from active total cost; when quantity increases while active total is zero, the increased quantity uses `lastIncomePrice`. Explicit manual or CSV total cost, including zero, must bypass this fallback.
 - Safe remainder transaction labels and cost tabs must normalize adjustment differences from `-0.005` through `0.005` to zero, matching backend journal generation.
@@ -157,6 +161,11 @@
 - Inventory cost adjustment UI must remain in `forms/InvJustifyForm` as an independent journal form; `InvOutForm` must contain only inventory-out behavior and must not accept an adjustment-mode flag.
 - Inventory out and internal movement forms must not allow unit cost or cost amount edits; changing product, account, quantity, or source location must refresh active cost, and editing an existing movement must exclude both its source and generated destination transactions from that lookup.
 - Inventory move, sale, and sale-return follow details must retain each source detail `_id` as `originId`; quantity edits update only that source row's generated follow details, preserve every other row's fetched active cost, and ignore transient current-cost responses that do not contain the selected product.
+- Inventory split previews must create one `invOut` and one `invIncome` follow transaction per source transaction, keep both `originId` values pointed at the source transaction, give the pair one shared pointer distinct from the source transaction pointer, include only enabled split details, preserve total cost, derive converted count and unit price from the ratio, and use destination account/location for internal movements.
+- Inventory income and movement forms must batch all visible source/result product unit lookups through one `InventorySplitProvider`; preview transaction and detail ids remain stable while editing.
+- Inventory income and internal-movement tables must keep only the source unit of measure as a split-related column; split enablement, result product, ratio, and result unit belong in the leading row action sheet.
+- A detail must display its leading row action button with a yellow background only when `followInfos.invSplit.hasSplit` is true.
+- Inventory and fixed asset transaction tables, including their row-detail sheets, must keep icon-action and selection columns aligned at `w-8`; paired icon buttons remain `h-8 w-8` so these controls render square without widening the data table.
 - Inventory add actions must append count-one details; bulk add must calculate amount from the filled unit price, income must also initialize total weight, and quantity-neutral `invJustify` must remain count zero.
 - In-form balancing transaction creation must calculate debit, credit, and difference from watched `trDocs`, never from the structural `useFieldArray.fields` snapshot.
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
@@ -191,6 +200,7 @@
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload; in a sale row, change quantity repeatedly and verify both generated follow transactions keep the fetched active unit cost.
 - Smoke scenario: create inventory cost increase and decrease transactions, add multiple products, verify current remainder/current unit cost display, enter per-unit deltas, confirm after-unit cost and total amount recalculate, then save without changing quantity.
 - Smoke scenario: in inventory income, out, move, sale, and sale return, use "Олон бараа нэмэх" and verify one journal-specific bulk lookup fills every selected row with count one plus matching amount/weight/follow values; then change one row's product, including back to its initial product, and verify only that row's fill values refresh.
+- Smoke scenario: in inventory income and internal movement, verify only the source unit appears as a split-related table column, open each row's leading action sheet, enable "Задлах эсэх", select result products, enter ratios, verify result units appear in the sheet, confirm `TBalance` shows linked `invOut` and `invIncome` rows with unchanged total cost and converted count/unit price, then save, refetch, edit, disable one split, and verify follow rows update immediately.
 - Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
 - Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual value and `preDeprecation`, save, refetch, and verify the generated fixed asset plus optional owner records remain.
 - Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.

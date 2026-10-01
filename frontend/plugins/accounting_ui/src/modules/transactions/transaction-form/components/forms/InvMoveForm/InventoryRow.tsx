@@ -37,6 +37,7 @@ import {
 } from '~/modules/transactions/types/constants';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { followTrDocsState } from '../../../states/trStates';
+import { InventorySourceUom, InventorySplitSheet } from '../InventorySplit';
 
 const getFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
   details.find((detail) => detail.originId === originId);
@@ -168,8 +169,6 @@ export const InventoryRow = ({
 
     form.setValue(getFieldName('unitPrice'), nextUnitPrice);
     form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCostInfo, detail.productId, loading]);
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
@@ -199,12 +198,25 @@ export const InventoryRow = ({
         enableOnFormTags
       >
         <Table.Cell
-          className={cn({
+          className={cn('w-8', {
             'border-t': detailIndex === 0,
             'rounded-tl-lg': detailIndex === 0,
             'rounded-bl-lg': detailIndex === trDoc.details.length - 1,
           })}
         >
+          <InventorySplitSheet
+            detailIndex={detailIndex}
+            journalIndex={journalIndex}
+            form={form}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell className="w-8">
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}
@@ -286,6 +298,9 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
+      <Table.Cell>
+        <InventorySourceUom productId={detail.productId} />
+      </Table.Cell>
       <RecordTableHotKeyControl
         rowId={_id}
         rowIndex={detailIndex}
