@@ -50,7 +50,7 @@ const makeTransaction = (
       },
     ],
     ...overrides,
-  } as ITransactionDocument);
+  }) as ITransactionDocument;
 
 describe('inventory split follow transactions', () => {
   beforeEach(() => {
@@ -394,7 +394,7 @@ describe('inventory split follow transactions', () => {
       .mocked(createOrUpdateTr)
       .mockImplementation(
         async (_models, _userId, doc, oldTransaction) =>
-          ({ ...doc, _id: oldTransaction?._id || 'new-follow' } as never),
+          ({ ...doc, _id: oldTransaction?._id || 'new-follow' }) as never,
       );
 
     await syncInvSplitFollowTrs(

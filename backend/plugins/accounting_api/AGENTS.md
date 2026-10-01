@@ -68,7 +68,7 @@
 | Apollo integration  | `src/apollo`                                                 | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
 | Models              | `src/connectionResolvers.ts`                                 | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
 | Accounting domain   | `src/modules/accounting`                                     | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
-| Inventory splitting | `src/modules/accounting/utils/invSplit.ts`                   | Normalizes split inputs and synchronizes cost-neutral `invOut`/`invIncome` follow transactions.                        |
+| Inventory splitting | `src/modules/accounting/utils/invSplit.ts`                   | Normalizes split inputs and synchronizes cost-neutral `invOut`/`invIncome` follow transactions.                         |
 | Cost adjustment     | `src/modules/accounting/utils/invJustify.ts`                 | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
 | Safe remainders     | `src/modules/inventories`                                    | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.       |
 | Census calculation  | `src/modules/inventories/utils/safeRemainderTransactions.ts` | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.      |

@@ -132,7 +132,8 @@ export interface ITransactionCounter {
   updatedAt?: Date;
 }
 
-export interface ITransactionCounterDocument extends ITransactionCounter, Document {
+export interface ITransactionCounterDocument
+  extends ITransactionCounter, Document {
   _id: string;
 }
 

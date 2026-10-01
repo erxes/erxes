@@ -63,12 +63,12 @@ const getInventoryDetailFollowInfos = (
             : Boolean(currentInvSplit.productId),
       }
     : legacySplitInfo
-    ? {
-        hasSplit: true,
-        productId: legacySplitInfo.productId,
-        ratio: legacySplitInfo.ratio,
-      }
-    : undefined;
+      ? {
+          hasSplit: true,
+          productId: legacySplitInfo.productId,
+          ratio: legacySplitInfo.ratio,
+        }
+      : undefined;
 
   return invSplit
     ? {

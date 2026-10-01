@@ -74,7 +74,7 @@
 | Plugin config       | `src/config.tsx`                                                                | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                                                | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                                      | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
-| Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns split form context, row settings, batched unit lookup, ratio calculation, and unsaved follow previews.      |
+| Inventory splitting | `src/modules/transactions/transaction-form/components/forms/InventorySplit.tsx` | Owns split form context, row settings, batched unit lookup, ratio calculation, and unsaved follow previews.     |
 | Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm`     | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
 | Safe remainders     | `src/modules/inventories/safeRemainders/components/SafeRemainderDetail.tsx`     | Coordinates inventory count detail data, status actions, header, and extracted tab/import surfaces.             |
 | Census tables       | `src/modules/inventories/safeRemainders/components/SafeRemainderDetailTabs.tsx` | Owns declarative count/income/out/sale/adjustment table configuration, filtering, pagination, and hotkeys.      |

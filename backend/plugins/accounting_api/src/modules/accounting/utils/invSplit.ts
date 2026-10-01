@@ -374,10 +374,7 @@ export const syncInvSplitFollowTrs = async (
           userId,
           followDoc,
           oldFollowTr,
-        }).then((savedFollowTr) => [
-          ...savedTransactions,
-          savedFollowTr,
-        ]);
+        }).then((savedFollowTr) => [...savedTransactions, savedFollowTr]);
       }),
     Promise.resolve([]),
   );

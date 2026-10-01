@@ -286,7 +286,6 @@ describe('Erkhet migration inventory split details', () => {
       hasSplit: false,
     });
   });
-
 });
 
 describe('Erkhet migration fixed asset owner records', () => {

@@ -24,7 +24,7 @@ const makeModels = (transactions: Record<string, unknown>[] = []) =>
       find: jest.fn().mockReturnValue(queryResult(transactions)),
       updateOne: jest.fn().mockResolvedValue(undefined),
     },
-  } as unknown as IModels);
+  }) as unknown as IModels;
 
 describe('getInventoryOutAdjustment', () => {
   const details = {
@@ -50,9 +50,10 @@ describe('getInventoryOutAdjustment', () => {
   });
 
   it('uses active inventory cost for a regular inventory out', () => {
-    expect(
-      getInventoryOutAdjustment({ details } as never, 80),
-    ).toEqual({ preserveCost: false, cost: 160 });
+    expect(getInventoryOutAdjustment({ details } as never, 80)).toEqual({
+      preserveCost: false,
+      cost: 160,
+    });
   });
 
   it('requires both the split origin type and an origin transaction', () => {

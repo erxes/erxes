@@ -347,10 +347,7 @@ export const InventorySplitSync = ({
         (transaction) =>
           !(
             transaction.originId === originId &&
-            [
-              INV_SPLIT_OUT_ORIGIN_TYPE,
-              INV_SPLIT_INCOME_ORIGIN_TYPE,
-            ].includes(
+            [INV_SPLIT_OUT_ORIGIN_TYPE, INV_SPLIT_INCOME_ORIGIN_TYPE].includes(
               transaction.originType || '',
             )
           ),
