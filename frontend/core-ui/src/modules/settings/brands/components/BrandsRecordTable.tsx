@@ -37,7 +37,7 @@ export function BrandsRecordTable() {
           </RecordTable.Body>
         </RecordTable>
         {isEmpty && (
-          <Empty className="m-3 min-h-[20rem]">
+          <Empty className="m-3 min-h-80">
             <Empty.Header>
               <Empty.Media variant="icon">
                 {isFiltered ? <IconSearchOff /> : <IconChessKnightFilled />}

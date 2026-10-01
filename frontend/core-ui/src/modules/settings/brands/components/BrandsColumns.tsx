@@ -28,7 +28,7 @@ const BrandNameCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
   const [_name, setName] = useState<string>(name);
 
   const onSave = () => {
-    const trimmed = _name.trim();
+    const trimmed = (_name ?? '').trim();
     if (!trimmed) {
       setName(name);
       return;
@@ -52,7 +52,18 @@ const BrandNameCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
     >
       <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content className="min-w-72">
-        <Input value={_name} onChange={onChange} disabled={loading} />
+        <Input
+          value={_name}
+          onChange={onChange}
+          disabled={loading}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onSave();
+            }
+          }}
+        />
       </RecordTableInlineCell.Content>
     </Popover>
   );
@@ -64,7 +75,7 @@ const BrandDescriptionCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
   const [_description, setDescription] = useState<string>(description);
   const { handleEdit, loading } = useBrandsEdit();
   const onSave = () => {
-    const trimmed = _description.trim();
+    const trimmed = (_description ?? '').trim();
     if (!trimmed) {
       setDescription(description);
       return;
@@ -100,7 +111,20 @@ const BrandDescriptionCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
         <TextOverflowTooltip value={cell.getValue() as string} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
-        <Textarea value={_description} onChange={onChange} disabled={loading} />
+        <Textarea
+          value={_description}
+          onChange={onChange}
+          disabled={loading}
+          placeholder="Add brand description..."
+          maxLength={350}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onSave();
+            }
+          }}
+        />
       </RecordTableInlineCell.Content>
     </Popover>
   );

@@ -46,6 +46,8 @@ export const BrandsAddRow = () => {
 
   return (
     <Table.Row>
+      <Table.Cell />
+      <Table.Cell />
       <Table.Cell colSpan={6} className="h-cell">
         <div className="h-full flex items-center px-3">
           <input
@@ -65,7 +67,8 @@ export const BrandsAddRow = () => {
               }
             }}
             placeholder="Brand name"
-            className="w-full max-w-sm bg-transparent outline-none text-sm"
+            className="w-full max-w-xs bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
+            maxLength={288}
           />
         </div>
       </Table.Cell>
