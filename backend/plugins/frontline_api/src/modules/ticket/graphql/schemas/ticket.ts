@@ -69,6 +69,9 @@ export const types = `
     targetDateEndDate: Date
     statusChangedStartDate: Date
     statusChangedEndDate: Date
+    branchIds: [String]
+    departmentIds: [String]
+    propertiesData: String
     statusId: String
     priority: Int
     pipelineId: String

@@ -815,6 +815,24 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   applied only by `reportFacebookPosts`, never by the summary, activity, or bot
   queries. The term is escaped before it becomes a `RegExp`, so a user typing
   `a.b(c` searches for that literal string instead of crashing the resolver.
+- `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
+  list's branch and department filters. `generateFilter` turns a non-empty list
+  into `branchId` / `departmentId` `$in`, and the `ticketListChanged`
+  subscription drops tickets outside the same lists so live updates match the
+  query. They narrow on top of pipeline `isCheckBranch` / `isCheckDepartment`
+  visibility, never replace it.
+- `ITicketFilter.propertiesData: String` — the encoded property conditions
+  (`fieldId:operator:value;…`) the shared `PropertiesFilter` writes. Both
+  `generateFilter` and the `ticketListChanged` subscription build them with
+  `buildPropertyFilter` from `erxes-api-shared/core-modules`; never hand-parse
+  the string. The subscription checks a create/update through the
+  `ticket.matchesProperties` tRPC query (`Ticket.exists` with those conditions)
+  and lets deletes through so removals still reach the list.
+- `src/apollo/subscription.ts` is downloaded and executed by the gateway, not by
+  this service: it may import only packages the gateway resolves
+  (`erxes-api-shared/utils`, `graphql-subscriptions`), never `~/` or `@/` plugin
+  paths. Anything that needs models goes through a frontline tRPC procedure via
+  `sendTRPCMessage`.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
@@ -961,6 +979,21 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 ## Local Invariants
 
+- Pipeline `isCheckUser` / `isCheckDepartment` / `isCheckBranch` filter which
+  tickets a user sees; they never block opening a pipeline or creating a ticket
+  in it (v2 parity). `validatePipelineAccess` only enforces private-pipeline
+  membership. `buildVisibilityCondition` in
+  `src/modules/ticket/utils/ticketVisibility.ts` exempts `role: 'system'`,
+  `isOwner` and `excludeCheckUserIds` users; everyone else sees the OR of own
+  (`createdBy`), assigned (`assigneeId`), own-department / own-branch tickets,
+  and tickets of departments they supervise (core `departments.findWithChild`
+  by `supervisorId`, intersected with the pipeline's `departmentIds`).
+  `isCheckDate` stays an extra AND condition. `generateFilter` needs the
+  request `subdomain` to resolve supervised departments.
+- A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
+  `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
+  ticket's `channelId` and `pipelineId` with `ticketId`; without them the
+  tickets page falls back to the channel's first pipeline.
 - Ticket activity logging (`createActivity` in
   `src/modules/ticket/utils/ticket.ts`) receives the whole ticket as `newDoc`
   (`{ ...ticket.toObject(), ...rest }`), so every field is compared on every

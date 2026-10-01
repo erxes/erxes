@@ -376,6 +376,17 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- The inbox composer is note-only (Reply tab disabled, Internal Note selected)
+  for `lead`, `calls` and `callpro` conversations — those channels cannot carry
+  an outbound reply. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
+  `MessageInput.tsx`.
+- The ticket list/board filter offers Branch and Department multi-selects
+  (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
+  `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
+  as `ITicketFilter.branchIds` / `departmentIds`.
+- The same filter carries the shared `PropertiesFilter` from `ui-modules`
+  scoped to `frontline:ticket`; its `propertiesData` query param is sent
+  unchanged as `ITicketFilter.propertiesData`.
 - Ticket tag selection (board card, detail sheet, create form) shows a single
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
