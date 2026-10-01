@@ -18,12 +18,31 @@ import { SubmitHandler } from 'react-hook-form';
 import { useBranchAdd } from '../../hooks/useBranchActions';
 import { Can, usePermissionCheck } from 'ui-modules';
 
-export const CreateBranch = () => {
+export const CreateBranch = ({
+  trigger,
+  defaultParentId,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  trigger?: React.ReactNode;
+  defaultParentId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) => {
   const {
     methods,
     methods: { handleSubmit },
   } = useBranchForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const [innerOpen, setInnerOpen] = useState<boolean>(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : innerOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInnerOpen(value);
+    }
+  };
   const { handleAdd, loading } = useBranchAdd();
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
@@ -32,6 +51,9 @@ export const CreateBranch = () => {
   const canManageBranches = isLoaded && hasActionPermission('branchesManage');
 
   const onOpen = () => {
+    if (defaultParentId) {
+      methods.setValue('parentId', defaultParentId);
+    }
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(BranchHotKeyScope.BranchAddSheet);
   };
@@ -45,11 +67,38 @@ export const CreateBranch = () => {
     `c`,
     () => {
       if (!canManageBranches) return;
+      if (trigger || isControlled) return;
       onOpen();
     },
     BranchHotKeyScope.BranchSettingsPage,
   );
   useScopedHotkeys(`esc`, () => onClose(), BranchHotKeyScope.BranchAddSheet);
+
+  const prevOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      open &&
+      defaultParentId &&
+      methods.getValues('parentId') !== defaultParentId
+    ) {
+      methods.setValue('parentId', defaultParentId);
+    }
+    if (isControlled && open !== prevOpen.current) {
+      if (open) {
+        setHotkeyScopeAndMemorizePreviousScope(BranchHotKeyScope.BranchAddSheet);
+      } else {
+        setHotkeyScope(BranchHotKeyScope.BranchSettingsPage);
+      }
+    }
+    prevOpen.current = open;
+  }, [
+    open,
+    isControlled,
+    defaultParentId,
+    methods,
+    setHotkeyScopeAndMemorizePreviousScope,
+    setHotkeyScope,
+  ]);
 
   const submitHandler: SubmitHandler<TBranchForm> = React.useCallback(
     async (data) => {
@@ -76,14 +125,17 @@ export const CreateBranch = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Can action="branchesManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus /> Create Branch
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-      </Can>
+      {!isControlled && (
+        <Can action="branchesManage">
+          <Sheet.Trigger asChild>
+            {trigger ?? (
+              <Button>
+                <IconPlus /> Create Branch <Kbd>C</Kbd>
+              </Button>
+            )}
+          </Sheet.Trigger>
+        </Can>
+      )}
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

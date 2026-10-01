@@ -12,11 +12,11 @@ interface AddBranchResult {
 }
 
 export function useBranchAdd(
-  options?: MutationHookOptions<AddBranchResult, any>,
+  options?: MutationHookOptions<AddBranchResult, OperationVariables>,
 ) {
   const [handleAdd, { loading, error }] = useMutation(ADD_BRANCH, {
     ...options,
-    refetchQueries: ['Branches'],
+    refetchQueries: ['StructureChartBranches'],
   });
 
   return {
@@ -27,11 +27,11 @@ export function useBranchAdd(
 }
 
 export function useBranchEdit(
-  options?: MutationHookOptions<AddBranchResult, any>,
+  options?: MutationHookOptions<AddBranchResult, OperationVariables>,
 ) {
   const [handleEdit, { loading, error }] = useMutation(EDIT_BRANCH, {
     ...options,
-    refetchQueries: ['Branches'],
+    refetchQueries: ['StructureChartBranches'],
   });
 
   return {
@@ -46,7 +46,7 @@ export function useRemoveBranch() {
   const [handleRemove, { loading, error }] = useMutation(REMOVE_BRANCHES, {
     onCompleted: () =>
       toast({ title: 'Removed successfully!', variant: 'success' }),
-    refetchQueries: ['Branches'],
+    refetchQueries: ['StructureChartBranches'],
   });
 
   return {
@@ -66,7 +66,7 @@ export function useBranchInlineEdit() {
   ) => {
     const { variables } = operationVariables || {};
 
-    const fieldsToUpdate: Record<string, () => any> = {};
+    const fieldsToUpdate: Record<string, () => unknown> = {};
     fields.forEach((field) => {
       fieldsToUpdate[field] = () => variables[field];
     });
