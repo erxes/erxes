@@ -17,9 +17,9 @@ import {
   BlockEditor,
   Separator,
   Textarea,
-  useBlockEditor,
   Combobox,
   Button,
+  Spinner,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -30,6 +30,7 @@ import {
   IconTags,
 } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const { t } = useTranslation('operation');
@@ -51,26 +52,30 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     githubRepoName,
   } = task || {};
 
-  const startDate = (task as any)?.startDate;
-  const description = (task as any)?.description;
-  const initialDescriptionContent = parseDescriptionBlocks(description);
-
-  const [descriptionContent, setDescriptionContent] = useState<
-    Block[] | undefined
-  >(initialDescriptionContent);
-
-  const editor = useBlockEditor({
-    initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: t('description-placeholder'),
-  });
+  const startDate = task.startDate;
+  const description = task.description;
+  const [descriptionContent, setDescriptionContent] = useState<Block[]>();
+  const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
+    description,
+    t('description-placeholder'),
+  );
   const { updateTask } = useUpdateTask();
   const [name, setName] = useState(_name);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
+      const blocks = [...content];
+      const lastBlock = blocks[blocks.length - 1];
+      if (
+        blocks.length > 1 &&
+        lastBlock.type === 'paragraph' &&
+        Array.isArray(lastBlock.content) &&
+        lastBlock.content.length === 0
+      ) {
+        blocks.pop();
+      }
+      setDescriptionContent(blocks as Block[]);
     }
   };
 
@@ -216,11 +221,15 @@ export const TaskFields = ({ task }: { task: ITask }) => {
       </TagsSelect.Provider>
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          onChange={handleDescriptionChange}
-          className="min-h-full read-only"
-        />
+        {isDescriptionReady ? (
+          <BlockEditor
+            editor={editor}
+            onChange={handleDescriptionChange}
+            className="min-h-full read-only"
+          />
+        ) : (
+          <Spinner />
+        )}
       </div>
       <ActivityList contentId={taskId} contentDetail={task} />
     </div>
