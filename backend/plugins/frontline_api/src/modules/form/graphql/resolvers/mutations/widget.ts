@@ -72,6 +72,13 @@ function getFileUrl(value: unknown): string | undefined {
   return undefined;
 }
 
+function getFieldText(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number') return String(value);
+
+  return '';
+}
+
 function handleCoreCompanyField(
   fieldName: string,
   value: unknown,
@@ -83,7 +90,7 @@ function handleCoreCompanyField(
     return;
   }
 
-  const text = typeof value === 'string' ? value.trim() : String(value ?? '');
+  const text = getFieldText(value);
   if (!text) return;
 
   switch (fieldName) {
