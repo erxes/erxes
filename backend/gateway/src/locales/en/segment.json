@@ -10,6 +10,8 @@
   "count": "Count",
   "not-counted": "Not counted yet",
   "create-segment": "Create Segment",
+  "empty-title": "No segments yet",
+  "empty-description": "No segments are available for this type. Create a segment to group records using conditions.",
   "edit": "Edit",
   "create": "Create",
   "a-segment": "a segment",

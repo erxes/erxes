@@ -2,6 +2,7 @@ import { useSegments } from '@/segments/hooks/useSegments';
 import { RecordTable, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SegmentCommandBar } from './SegmentCommandBar';
+import { SegmentEmptyState } from './SegmentStates';
 import columns from './SegmentsColumns';
 
 export function SegmentsRecordTable() {
@@ -10,6 +11,10 @@ export function SegmentsRecordTable() {
 
   if (loading) {
     return <Spinner />;
+  }
+
+  if (segments.length === 0) {
+    return <SegmentEmptyState />;
   }
 
   return (
