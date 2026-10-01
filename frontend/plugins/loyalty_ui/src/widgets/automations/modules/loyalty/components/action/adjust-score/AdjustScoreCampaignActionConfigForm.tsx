@@ -9,14 +9,12 @@ import {
   TAdjustScoreActionConfigForm,
   adjustScoreActionConfigFormSchema,
 } from '../../../states/adjustScoreActionConfigFormDefinitions';
-import { Form, ToggleGroup } from 'erxes-ui';
-import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-// import { SelectScoreCampaign } from '@/loyalties/score/components/selects/SelectScoreCampaign';
-import { SCORE_ACTION_OPTIONS } from '../../../constants/adjustScoreAction';
 import { useAdjustScoreActionForm } from '../../../hooks/useAdjustScoreActionForm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectScoreCampaign } from '~/modules/loyalties/scores/components/selects/SelectScoreCampaign';
+import { EarnRowsField } from './EarnRowsField';
 
 export const AdjustScoreCampaignActionConfigForm = ({
   formRef,
@@ -79,7 +77,11 @@ export const AdjustScoreCampaignActionConfigForm = ({
               <Form.Label>{t('score-campaign')}</Form.Label>
               <SelectScoreCampaign.FormItem
                 value={field.value}
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  // Another campaign has other rows; start from all of them.
+                  form.setValue('earnRowKeys', undefined);
+                }}
                 placeholder={t('select-score-campaign')}
               />
               <Form.Message />
@@ -87,39 +89,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           )}
         />
 
-        <Form.Field
-          control={control}
-          name="action"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('score-change')}</Form.Label>
-              <Form.Control>
-                <ToggleGroup
-                  type="single"
-                  value={field.value}
-                  onValueChange={(value) => value && field.onChange(value)}
-                  className="grid grid-cols-2 gap-2"
-                >
-                  {SCORE_ACTION_OPTIONS.map((option) => {
-                    const Icon = option.value === 'add' ? IconPlus : IconMinus;
-
-                    return (
-                      <ToggleGroup.Item
-                        key={option.value}
-                        value={option.value}
-                        className="h-9 justify-center gap-2"
-                      >
-                        <Icon className="size-4" />
-                        <span>{option.label}</span>
-                      </ToggleGroup.Item>
-                    );
-                  })}
-                </ToggleGroup>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        <EarnRowsField form={form} />
       </div>
     </Form>
   );

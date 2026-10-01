@@ -65,6 +65,7 @@ export const generateAutomationsFilter = (params: IListArgs) => {
     createdAtTo,
     updatedAtFrom,
     updatedAtTo,
+    triggerSegmentId,
   } = params;
 
   const filter: any = {
@@ -91,6 +92,11 @@ export const generateAutomationsFilter = (params: IListArgs) => {
 
   if (actionTypes?.length) {
     filter['actions.type'] = { $in: actionTypes };
+  }
+
+  // Membership triggers name a real segment; ordinary ones own their copy.
+  if (triggerSegmentId) {
+    filter['triggers.config.segmentId'] = triggerSegmentId;
   }
 
   if (ids?.length) {

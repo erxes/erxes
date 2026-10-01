@@ -17,6 +17,34 @@ export const types = `
     error: String
   }
 
+  type MailDraft {
+    _id: String!
+    inboxIntegrationId: String
+    inboxConversationId: String
+    sourceMessageId: String
+    customerId: String
+    to: [String]
+    subject: String
+    body: String
+    shouldResolve: Boolean
+    senderMismatch: Boolean
+    status: String
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  type MailDraftChangedEvent {
+    _id: String!
+    conversationId: String!
+    status: String!
+  }
+
+  type MailInbox {
+    _id: String!
+    name: String
+    address: String
+  }
+
   type MailForwardVerification {
     from: String
     subject: String
@@ -102,6 +130,9 @@ export const queries = `
 
   mailSendingReadiness: MailSendingReadiness
 
+  mailConversationDrafts(conversationId: String!): [MailDraft]
+  mailInboxes: [MailInbox]
+
   mailPipelineIntegration(pipelineId: String!): MailPipelineIntegration
 
   mailCloudflareConnection: MailCloudflareConnection
@@ -145,6 +176,10 @@ export const mutations = `
   mailPipelineDisconnect(pipelineId: String!): Boolean
 
   mailMessageRetry(_id: String!): JSON
+
+  mailDraftSave(_id: String!, subject: String, body: String!): MailDraft
+  mailDraftApprove(_id: String!): JSON
+  mailDraftRemove(_id: String!): MailDraft
 
   mailCheckConnection: MailConnectionCheck
 

@@ -310,5 +310,20 @@
   "ownership-hand-over": "Өөр хүнд шилжүүлэх",
   "ownership-hand-over-description": "Шийдэх нь тэр хүн: зөвшөөрсний дараа л энэ automation-ий үүсгэх бичлэгүүд түүний нэр дээр очно.",
   "ownership-waiting": "хариуг нь хүлээж байна",
-  "ownership-offer-summary": "\"{{automation}}\"-ийн эзэн болох: үүсгэх бичлэгүүд нь {{person}}-ийн нэр дээр бүртгэгдэнэ."
+  "ownership-offer-summary": "\"{{automation}}\"-ийн эзэн болох: үүсгэх бичлэгүүд нь {{person}}-ийн нэр дээр бүртгэгдэнэ.",
+  "node-issue-no-segment": "Segment сонгоогүй: энэ trigger хэнийг ч оруулахгүй",
+  "node-issue-not-configured": "Одоогоор тохируулаагүй",
+  "node-issue-split-branch": "“{{label}}” салаа нөхцөлгүй",
+  "node-issue-split-no-options": "Салаа алга",
+  "activate-blocked-title": "Идэвхжүүлэх боломжгүй: {{count}} алхмын тохиргоо дутуу",
+  "node-issue-unreachable": "Trigger-тэй холбогдоогүй: энэ алхам хэзээ ч ажиллахгүй",
+  "node-issue-no-branch": "Аль ч гарц холбогдоогүй: энэ trigger юу ч эхлүүлэхгүй",
+  "segment-membership-joined": "Орох",
+  "segment-membership-left": "Гарах",
+  "segment-membership-segment": "Segment",
+  "segment-membership-runs": "Хэдэн удаа",
+  "segment-membership-runs-every": "Бичлэг орох эсвэл гарах бүрт",
+  "segment-membership-runs-once": "Бичлэг бүрт зөвхөн анх удаа",
+  "segment-membership-missing": "Segment олдсонгүй",
+  "segment-membership-hint": "Бичлэг энэ segment-д орох эсвэл гарах бүрт ажиллана. Segment-ийг өөрийнх нь хуудсанд засна, тэнд хийсэн өөрчлөлт үүнийг сонсож буй бүх automation-д нөлөөлнө."
 }

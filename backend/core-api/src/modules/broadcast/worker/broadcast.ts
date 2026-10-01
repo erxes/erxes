@@ -1,10 +1,11 @@
 import { Job } from 'bullmq';
+import { SegmentMaterializedPayload } from 'erxes-api-shared/core-modules';
 import { heartbeatRun } from './drain';
 import { handleEmailProcessor } from './email';
 import { handleMessengerProcessor } from './messenger';
 import { handleNotificationProcessor } from './notification';
 import { reconcileSchedules } from './reconcile';
-import { fireSchedule, ISchedulePayload } from './schedule';
+import { fireAfterSegment, fireSchedule, ISchedulePayload } from './schedule';
 import { handleWorkflowProcessor } from './workflow';
 
 type BroadcastMethod = 'email' | 'messenger' | 'notification' | 'workflow';
@@ -26,7 +27,11 @@ interface BroadcastJobData {
   method: BroadcastMethod;
   // An alarm addresses a campaign, a drain addresses a run: `kind` is what
   // tells them apart before either is read.
-  payload: BroadcastDrainPayload | ISchedulePayload | BroadcastReconcilePayload;
+  payload:
+    | BroadcastDrainPayload
+    | ISchedulePayload
+    | BroadcastReconcilePayload
+    | SegmentMaterializedPayload;
 }
 
 const PROCESS_HANDLERS: Record<
@@ -45,6 +50,11 @@ export const broadcastProcessor = async (job: Job<BroadcastJobData>) => {
   // An alarm going off, which opens the run the method lanes then drain.
   if (payload?.kind === 'start') {
     return await fireSchedule(payload);
+  }
+
+  // A followed segment finished its nightly run.
+  if (payload?.kind === 'segmentMaterialized') {
+    return await fireAfterSegment(payload);
   }
 
   // The sweep that puts back alarms the queue has lost.

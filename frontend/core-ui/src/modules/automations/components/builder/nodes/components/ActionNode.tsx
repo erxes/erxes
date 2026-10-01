@@ -5,6 +5,7 @@ import {
   NodeErrorDisplay,
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
+import { NodeWarningIndicator } from '@/automations/components/builder/nodes/components/NodeWarningIndicator';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
 import { useActionNodeSourceHandler } from '@/automations/components/builder/nodes/hooks/useActionNodeSourceHandler';
@@ -104,6 +105,7 @@ const ActionNodeHeader = ({
             <span className="font-medium">{data.label}</span>
           </div>
           {error && <NodeErrorIndicator error={error} />}
+          {!error && !data.readOnly && <NodeWarningIndicator nodeId={id} />}
           <ActionErrorPolicyBadge config={data.config} />
         </div>
 

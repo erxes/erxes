@@ -27,6 +27,7 @@ export const LoyaltyMainLayout = ({
     spins: 'spins',
     donates: 'donates',
     scores: 'scores',
+    accounts: 'loyalty-accounts',
     assignments: 'assignments',
     agents: 'agents',
     coupons: 'coupons',

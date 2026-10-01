@@ -1,3 +1,4 @@
+import { EmailPastedVariables } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailPastedVariables';
 import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
 import {
   createEmailOutputVariableDrop,
@@ -70,6 +71,8 @@ export const SendEmailMailyContentSheet = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [editor, setEditor] = useState<TiptapEditor | null>(null);
+  // Edits stay here until Save, so closing the sheet leaves the email as it was.
+  const [draft, setDraft] = useState<JSONContent | undefined>(contentJson);
   // An output variable becomes a field of the editor's own, so it is drawn
   // like every other one instead of as raw `{{ … }}` text.
   const [extraVariables, setExtraVariables] = useState<EmailEditorVariable[]>(
@@ -80,13 +83,13 @@ export const SendEmailMailyContentSheet = ({
 
   const variables = useMemo(
     () => [
-      ...writtenVariables(contentJson).filter(
+      ...writtenVariables(draft).filter(
         (written) =>
           !extraVariables.some((added) => added.name === written.name),
       ),
       ...extraVariables,
     ],
-    [contentJson, extraVariables],
+    [draft, extraVariables],
   );
 
   const insertVariable = useCallback(
@@ -129,19 +132,37 @@ export const SendEmailMailyContentSheet = ({
   insertRef.current = insertVariable;
 
   const extensions = useMemo(
-    () => [createEmailOutputVariableDrop((drop) => insertRef.current(drop))],
+    () => [
+      createEmailOutputVariableDrop((drop) => insertRef.current(drop)),
+      EmailPastedVariables,
+    ],
     [],
   );
 
+  const openSheet = () => {
+    setDraft(contentJson);
+    setIsOpen(true);
+  };
+
+  const onSave = () => {
+    if (draft) {
+      onChange(draft);
+    }
+
+    setIsOpen(false);
+  };
+
   return (
-    <>
+    <div className="flex flex-col gap-2">
+      <EmailTemplateSelector content={content} format="maily" />
+
       {/* The sidebar is too narrow to write an email in, so it only shows
           which email this is and opens the editor full width. */}
       <div
         className="group relative h-52 cursor-pointer overflow-hidden rounded-lg border bg-background p-4"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => setIsOpen(true)}
+        onClick={openSheet}
       >
         <p className="whitespace-pre-wrap text-sm text-muted-foreground">
           {teaser || 'Nothing written yet'}
@@ -155,7 +176,7 @@ export const SendEmailMailyContentSheet = ({
               className="gap-2"
               onClick={(event) => {
                 event.stopPropagation();
-                setIsOpen(true);
+                openSheet();
               }}
             >
               <IconEdit className="size-4" />
@@ -166,7 +187,7 @@ export const SendEmailMailyContentSheet = ({
       </div>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <Sheet.View className="flex flex-none flex-col gap-0 overflow-hidden sm:max-w-screen-2xl md:w-[calc(100vw-theme(spacing.4))]">
+        <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
           <Sheet.Header>
             <div className="space-y-1">
               <Sheet.Title>Edit Email Content</Sheet.Title>
@@ -179,44 +200,44 @@ export const SendEmailMailyContentSheet = ({
 
           <Sheet.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
             {/* What earlier steps produced, to drag into the email. */}
-            <aside className="min-h-0 overflow-y-auto border-r bg-muted/20">
-              <AutomationVariableBrowser
-                sourceNodes={variableSourceNodes}
-                onInsertVariable={(payload) =>
-                  editor && insertVariable({ payload, editor })
-                }
-                emptyState={{
-                  title: 'No variables available yet',
-                  description:
-                    'Add a trigger or an earlier action to this automation to insert variables into the email content.',
-                }}
-                sourceSectionTitle="Variable Sources"
-              />
+            <aside className="min-h-0 overflow-hidden border-r bg-muted/20">
+              <div className="h-full min-h-0 overflow-y-auto">
+                <AutomationVariableBrowser
+                  sourceNodes={variableSourceNodes}
+                  onInsertVariable={(payload) =>
+                    editor && insertVariable({ payload, editor })
+                  }
+                  emptyState={{
+                    title: 'No variables available yet',
+                    description:
+                      'Add a trigger or an earlier action to this automation to insert variables into the email content.',
+                  }}
+                  sourceSectionTitle="Variable Sources"
+                />
+              </div>
             </aside>
 
-            <div className="flex min-h-0 min-w-0 flex-col overflow-hidden bg-muted/40">
-              {/* Loading a template replaces the email, so it belongs beside
-                  the email rather than back in the step's settings. */}
-              <div className="flex-none border-b bg-background px-6 py-3">
-                <EmailTemplateSelector content={content} />
-              </div>
-
-              <div className="min-h-0 flex-1 overflow-y-auto p-6">
-                <div className="mx-auto min-h-full w-full max-w-[720px] rounded-lg border bg-white">
-                  <EmailContentEditor
-                    contentJson={contentJson}
-                    onChange={onChange}
-                    onCreate={setEditor}
-                    contentType={contentType}
-                    extensions={extensions}
-                    extraVariables={variables}
-                  />
-                </div>
+            <div className="min-h-0 min-w-0 overflow-y-auto bg-background p-6">
+              <div className="rounded-xl border bg-background p-4">
+                <EmailContentEditor
+                  contentJson={draft}
+                  onChange={setDraft}
+                  onCreate={setEditor}
+                  contentType={contentType}
+                  extensions={extensions}
+                  extraVariables={variables}
+                />
               </div>
             </div>
           </Sheet.Content>
+          <Sheet.Footer>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={onSave}>Save</Button>
+          </Sheet.Footer>
         </Sheet.View>
       </Sheet>
-    </>
+    </div>
   );
 };

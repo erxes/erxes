@@ -124,51 +124,86 @@ export const getBranchesUtil = async (
   });
 };
 
+// The record loyalty ties these points to.
+const POS_ORDER_TARGET_TYPE = 'sales:pos.orders';
+
+/**
+ * Tells loyalty what this order paid with points. Every point payment type of
+ * the POS is sent, so one taken off the order is recorded as nothing spent.
+ */
+export const spendOrderPoints = async (
+  subdomain: string,
+  models: IModels,
+  order: IPosOrder & { _id?: string },
+  userId?: string,
+) => {
+  if (!order.customerId || !order._id) {
+    return;
+  }
+
+  const pos = await models.Pos.findOne(
+    { token: order.posToken },
+    { paymentTypes: 1 },
+  ).lean();
+
+  for (const paymentType of pos?.paymentTypes || []) {
+    if (!paymentType.scoreCampaignId) {
+      continue;
+    }
+
+    const pointsPaymentAmount = (order.paidAmounts || [])
+      .filter(({ type }) => type === paymentType.type)
+      .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'spend',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: order.customerId,
+        campaignId: paymentType.scoreCampaignId,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        serviceName: 'pos',
+        pointsPaymentAmount,
+        totalAmount: Number(order.totalAmount) || 0,
+        actorId: userId || order.userId,
+      },
+    });
+  }
+};
+
+// A returned order takes back what it earned and gives back what it spent.
+export const refundOrderPoints = async (
+  subdomain: string,
+  order: IPosOrder & { _id?: string },
+) => {
+  if (!order._id) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'score',
+    action: 'refund',
+    input: {
+      targetId: order._id,
+      description: 'POS order returned',
+      actorId: order.userId,
+    },
+    defaultValue: null,
+  });
+};
+
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   const models = await generateModels(subdomain);
 
-  const pos = await models.Pos.findOne({
-    token: order.posToken,
-    paymentTypes: {
-      $elemMatch: {
-        type: { $in: (order?.paidAmounts || []).map(({ type }) => type) },
-        scoreCampaignId: { $exists: true },
-      },
-    },
-  });
-
-  if (pos) {
-    const { paymentTypes = [] } = pos;
-    for (const paymentType of paymentTypes) {
-      if (
-        paymentType.scoreCampaignId &&
-        (order?.paidAmounts || []).find(({ type }) => type === paymentType.type)
-      ) {
-        try {
-          await sendTRPCMessage({
-            subdomain,
-
-            pluginName: 'loyalty',
-            method: 'mutation',
-            module: 'score',
-            action: 'doScoreCampaign',
-            input: {
-              ownerType: order.customerType || 'customer',
-              ownerId: order.customerId,
-              campaignId: paymentType.scoreCampaignId,
-              target: order,
-              actionMethod: 'subtract',
-              serviceName: 'pos',
-              targetId: (order as any)?._id,
-            },
-          });
-        } catch (error) {
-          console.log(error);
-          throw new Error(error.message);
-        }
-      }
-    }
-  }
+  await spendOrderPoints(subdomain, models, order);
 
   const confirmItems = order.items || [];
 
@@ -205,45 +240,6 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     });
   } catch (e) {
     throw new Error(e.message);
-  }
-};
-
-const syncOrderScoreCampaigns = async ({
-  subdomain,
-  newOrder,
-  oldOrder,
-}: {
-  subdomain: string;
-  newOrder: IPosOrderDocument;
-  oldOrder?: IPosOrderDocument;
-}) => {
-  if (!newOrder.customerId) {
-    return;
-  }
-
-  try {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      method: 'mutation',
-      module: 'score',
-      action: 'consumeTargetChange',
-      input: {
-        contentType: 'sales:posOrder',
-        serviceName: 'sales',
-        targetId: newOrder._id,
-        target: newOrder,
-        oldTarget: oldOrder,
-        ownerHints: {
-          [newOrder.customerType || 'customer']: newOrder.customerId,
-          customer: newOrder.customerId,
-          user: newOrder.userId,
-        },
-      },
-      defaultValue: null,
-    });
-  } catch (error) {
-    console.log(subdomain, error.message);
   }
 };
 
@@ -695,12 +691,6 @@ export const syncOrderFromClient = async ({
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await checkServiceRunning('automations'))) {
       try {
-        await syncOrderScoreCampaigns({
-          subdomain,
-          newOrder,
-          oldOrder,
-        });
-
         sendAutomationTrigger(subdomain, {
           type: 'pos:posOrder',
           targets: [newOrder],
@@ -711,7 +701,11 @@ export const syncOrderFromClient = async ({
     }
 
     try {
-      await confirmLoyalties(subdomain, newOrder);
+      if (newOrder.status === 'return') {
+        await refundOrderPoints(subdomain, newOrder);
+      } else {
+        await confirmLoyalties(subdomain, newOrder);
+      }
     } catch (e) {
       console.log(subdomain, e.message);
     }

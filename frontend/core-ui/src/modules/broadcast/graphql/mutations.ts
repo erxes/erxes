@@ -165,11 +165,13 @@ export const BROADCAST_SET_SCHEDULE = gql`
     $_id: String!
     $dateTime: Date
     $recurrence: EngageRecurrenceInput
+    $afterSegment: EngageAfterSegmentInput
   ) {
     engageMessageSetSchedule(
       _id: $_id
       dateTime: $dateTime
       recurrence: $recurrence
+      afterSegment: $afterSegment
     ) {
       _id
       isDraft

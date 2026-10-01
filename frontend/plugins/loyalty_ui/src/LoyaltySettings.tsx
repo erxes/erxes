@@ -4,17 +4,15 @@ import { Navigate, Route, Routes } from 'react-router';
 import { LoyaltySettingsPaths } from './types/settingsPaths';
 import PricingSettings from './pages/pricing/PricingSettingsPage';
 
-export const LoyaltyGeneralConfigPage = lazy(() =>
-  import('~/pages/loyalties-config/LoyaltyGeneralConfigPage').then(
-    (module) => ({
-      default: module.LoyaltyGeneralConfig,
-    }),
-  ),
-);
-
 const LoyaltyScorePage = lazy(() =>
   import('~/pages/loyalties-config/LoyaltyScorePage').then((module) => ({
     default: module.LoyaltyScorePage,
+  })),
+);
+
+const LoyaltyAccountTypePage = lazy(() =>
+  import('~/pages/loyalties-config/LoyaltyAccountTypePage').then((module) => ({
+    default: module.LoyaltyAccountTypePage,
   })),
 );
 
@@ -61,7 +59,9 @@ const LoyaltySettings = () => {
         element={<Navigate to={LoyaltySettingsPaths.Config} replace />}
       />
       <Route path={LoyaltySettingsPaths.Config}>
-        <Route index element={<LoyaltyGeneralConfigPage />} />
+        {/* Wallets come first: every campaign writes to one */}
+        <Route index element={<Navigate to="account-type" replace />} />
+        <Route path="account-type" element={<LoyaltyAccountTypePage />} />
         <Route path="score" element={<LoyaltyScorePage />} />
         <Route path="voucher" element={<LoyaltyVoucherPage />} />
         <Route path="lottery" element={<LoyaltyLotteryPage />} />

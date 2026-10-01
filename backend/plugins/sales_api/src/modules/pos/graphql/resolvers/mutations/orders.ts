@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { spendOrderPoints } from '~/modules/pos/utils';
 
 const orderMutations = {
   async posOrderChangePayments(
@@ -14,7 +15,7 @@ const orderMutations = {
       mobileAmount: number;
       paidAmounts: { type: string; amount: number }[];
     },
-    { models, __, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderChangePayments');
     const order = await models.PosOrders.findOne({ _id }).lean();
@@ -42,7 +43,14 @@ const orderMutations = {
       { _id },
       { ...order, cashAmount, mobileAmount, paidAmounts },
     );
-    return models.PosOrders.findOne({ _id }).lean();
+    const updated = await models.PosOrders.findOne({ _id }).lean();
+
+    // A changed point payment changes what was spent.
+    if (updated) {
+      await spendOrderPoints(subdomain, models, updated, user?._id);
+    }
+
+    return updated;
   },
 };
 

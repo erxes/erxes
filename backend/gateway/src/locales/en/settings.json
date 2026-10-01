@@ -95,7 +95,19 @@
     "code": "Code",
     "date-created": "Date created",
     "brands": "Brands",
-    "brand-created-successfully": "Brand created successfully"
+    "brand-created-successfully": "Brand created successfully",
+    "no-brands-match": "No brands match",
+    "no-brands-yet": "No brands yet",
+    "no-brands-match-description": "Try a different search, or clear the filter.",
+    "no-brands-yet-description": "Brands help you organize inboxes and channels. Create your first brand to get started."
+  },
+  "client-portals": {
+    "no-client-portals-yet": "No client portals yet",
+    "no-client-portals-yet-description": "Create a client portal to give your customers a dedicated space to interact with your business."
+  },
+  "oauth-clients": {
+    "no-oauth-clients-yet": "No OAuth clients yet",
+    "no-oauth-clients-yet-description": "OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform."
   },
   "file-upload": {
     "_": "File Upload",
@@ -231,6 +243,8 @@
     "confirm-delete-group": "Are you sure you want to delete this field group?",
     "basic-information": "Basic information",
     "visible": "Visible",
-    "system-fields-hint": "Defined by the system. Only its settings can be changed."
+    "system-fields-hint": "Defined by the system. Only its settings can be changed.",
+    "owned-group-hint": "Managed by {{plugin}}: its fields and values come from the plugin; only the name and order can change here.",
+    "featured-field-toggle-locked": "Filled by its plugin, so it is never asked for"
   }
 }

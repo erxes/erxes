@@ -1,17 +1,11 @@
+import { toSubtractInput } from '../../utils/spendRulesForm';
+import { ScoreCampaignFormLayout } from '../../add-score-campaign/components/ScoreCampaignFormLayout';
+import { toAddInput } from '../../utils/earnTableForm';
 import { ApolloError, useMutation } from '@apollo/client';
-import {
-  Button,
-  Form,
-  ScrollArea,
-  Sheet,
-  useToast,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Form, Sheet, useToast, useQueryState } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
-import { LoyaltyScoreAddCoreFields } from '../../add-score-campaign/components/LoyaltyScoreAddCoreFields';
-import { LoyaltyScoreAddMoreFields } from '../../add-score-campaign/components/LoyaltyScoreAddMoreFields';
 import { UPDATE_SCORE_CAMPAIGN } from '../../graphql/mutations/editLoyaltyScoreMutation';
 import { useScoreDetailWithQuery } from '../hooks/useScoreDetailWithQuery';
 
@@ -54,15 +48,6 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
         excludeTagIds: (data.conditions.excludeTagIds || []).join(','),
       };
 
-      const cardBasedRule = (data.additionalConfig?.cardBasedRule || [])
-        .filter((rule) => rule.boardId && rule.pipelineId)
-        .map((rule) => ({
-          boardId: rule.boardId,
-          pipelineId: rule.pipelineId,
-          stageIds: rule.stageIds || [],
-          refundStageIds: rule.refundStageIds || [],
-        }));
-
       updateScore({
         variables: {
           _id: scoreDetail._id,
@@ -73,17 +58,10 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
           restrictions,
           additionalConfig: {
             discountCheck: data.additionalConfig?.discountCheck ?? false,
-            cardBasedRule,
           },
-          add: data.add,
-          subtract: data.subtract,
-          set: data.set,
-          ownerType: data.ownerType,
-          onlyClientPortal: data.onlyClientPortal,
-          fieldGroupId: data.fieldGroupId,
-          fieldOrigin: data.fieldOrigin,
-          fieldName: data.fieldName || '',
-          fieldId: data.fieldId || '',
+          add: toAddInput(data.add),
+          subtract: toSubtractInput(data.subtract),
+          accountTypeId: data.accountTypeId || '',
         },
         onCompleted: () => {
           toast({
@@ -116,16 +94,9 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
     <Form {...form}>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col h-full overflow-hidden"
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
       >
-        <Sheet.Content className="flex-auto overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <LoyaltyScoreAddCoreFields form={form} />
-              <LoyaltyScoreAddMoreFields form={form} />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
+        <ScoreCampaignFormLayout form={form} campaignId={scoreDetail?._id} />
 
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button

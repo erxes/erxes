@@ -90,6 +90,8 @@ export const ReceiveActionsInputData = z.object({
   action: AutomationActionInput,
   execution: AutomationExecutionInput,
   collectionType: z.string(),
+  // What the trigger declared it gives this action (see `actionInputs`).
+  inputs: z.record(z.any()).optional(),
 });
 export const ReceiveActionsInput = AutomationBaseInput.extend({
   data: ReceiveActionsInputData,

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -25,6 +25,8 @@
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
   and resend.
+- The mail conversation's AI draft cards: every pending draft an automation left
+  for the conversation, each with Send, Edit and Delete.
 - The mail channel's **Bring your own Cloudflare Email Routing & Sending** section
   in Integrations config: paste an API token,
   pick one of that account's domains, watch the fourteen provisioning steps, and
@@ -67,7 +69,7 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, mail, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
@@ -291,6 +293,22 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The mail module's `Email Received` trigger form filters by inbox (a checklist
+  of `mailInboxes`, which lists only inboxes in channels the user can see;
+  hidden inboxes already selected by someone else stay selected), sender addresses, subject keywords and body keywords, and
+  can opt in to unverified senders. `Send Email` and `Draft Email Reply` share
+  one reply form: an optional subject, the message as a `PlaceholderInput`
+  expression (typically an AI Agent output), and whether to resolve the
+  conversation once sent.
+- A mail conversation lists each AI draft under the thread, labelled with the
+  sender and time of the mail it answers. Send delivers it and reports the real
+  delivery outcome; Edit swaps the card for a subject field and an editable body
+  validated as non-empty; Delete asks for confirmation. Drafts appear and vanish
+  live through `mailDraftChanged`, and a skeleton stands in while the first
+  load is in flight. Draft mutations update the Apollo cache instead of
+  refetching the list (Save writes the returned subject, body and status;
+  Send and Delete evict the draft), so the subscription's refetch is the only
+  one.
 - The Facebook message trigger reads without opening anything: each condition
   card shows what it currently listens for, and the bot picker shows each bot's
   page and health, refusing a broken one.
@@ -377,61 +395,64 @@
 
 ## Architecture
 
-| Area                     | Path                                                                                                                                              | Responsibility                                                                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Host registration        | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
-| Federation               | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
-| Routes                   | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
-| Navigation groups        | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
-| Settings routes          | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
-| Channel picker           | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
-| Move to channel          | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
-| Move to channel mutation | `src/modules/channels/hooks/useChannelMoveResources.tsx`                                                                                          | `channelMoveResources` plus the per-resource list of queries a move refetches                                                                   |
-| Inbox nav trees          | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                  |
-| Channel nav row          | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                         | The shared selectable, collapsible channel row both inbox nav groups render                                                                     |
-| Nav group actions        | `src/modules/NavigationGroupActions.tsx`                                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                          |
-| Sidebar counts           | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                           |
-| Live unread              | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                    |
-| Channel settings         | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
-| Personal channel         | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
-| Inbox                    | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
-| Conversation convert     | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
-| Integrations             | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
-| Call Pro                 | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
-| Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
-| Forms                    | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
-| Help Center              | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
-| Surveys management       | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
-| Survey wizard            | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
-| Survey ticket automation | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
-| Survey wizard state      | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                          |
-| Surveys channel row      | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                         |
-| Surveys results          | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                       |
-| Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
-| Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
-| Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base routes    | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                          |
-| Knowledge base shell     | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel    |
-| Knowledge base topics    | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                          |
-| Knowledge base categories| `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
-| Knowledge base articles  | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
-| Knowledge base data      | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
-| Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
-| FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
-| FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
-| Call report filters      | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
-| Call report export       | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
-| Call report tables       | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
-| Reports board            | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
-| Saved charts             | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
-| Mail conversation        | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
-| Mail body                | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
-| Mail data                | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
-| Mail provider setup      | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
-| Mail add wizard          | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
-| Mail sending readiness   | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
-| Mail delivery check      | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
-| Notifications            | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
+| Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
+| Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
+| Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
+| Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
+| Settings routes           | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
+| Channel picker            | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
+| Move to channel           | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
+| Move to channel mutation  | `src/modules/channels/hooks/useChannelMoveResources.tsx`                                                                                          | `channelMoveResources` plus the per-resource list of queries a move refetches                                                                   |
+| Inbox nav trees           | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                  |
+| Channel nav row           | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                         | The shared selectable, collapsible channel row both inbox nav groups render                                                                     |
+| Nav group actions         | `src/modules/NavigationGroupActions.tsx`                                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                          |
+| Sidebar counts            | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                           |
+| Live unread               | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                    |
+| Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
+| Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
+| Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
+| Conversation convert      | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
+| Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
+| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
+| Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
+| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
+| Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
+| Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
+| Survey wizard state       | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                          |
+| Surveys channel row       | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                         |
+| Surveys results           | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                       |
+| Surveys data              | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
+| Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
+| Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                        |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel   |
+| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                         |
+| Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
+| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
+| Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
+| Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
+| Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
+| FB message action         | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
+| FB post composer          | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
+| Call report filters       | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
+| Call report export        | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
+| Call report tables        | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
+| Call SLA tab              | `src/modules/report/call/components/SlaSection/`, `hooks/useSlaReport.ts`, `slaExcel.ts`                                                          | Agent and callback-window selectors, SLA KPIs, missed reasons, trend, per-queue table, breach list, Excel export                                |
+| Reports board             | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
+| Saved charts              | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
+| Mail conversation         | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
+| Mail AI drafts            | `src/modules/integrations/mail/components/MailDraft{s,Card,EditForm}.tsx`, `src/modules/integrations/mail/hooks/useMailDrafts.tsx`                | Pending draft list under the thread, per-draft send/edit/delete, `mailDraftChanged` refetch                                                     |
+| Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
+| Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
+| Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
+| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
+| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
+| Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
 
 ## Contracts
 
@@ -590,6 +611,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   re-hosted. The chip therefore stays clickable and puts the reason in its
   tooltip; only an attachment with no link at all falls back to the dimmed state.
   `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
+  `mailDraftSave`, `mailDraftApprove` (returns the delivery outcome plus
+  `draftId`), `mailDraftRemove`, the subscription `mailDraftChanged`, and
+  `mailInboxes` for the trigger's inbox checklist.
 - `frontline_api` GraphQL `mailCloudflareConnection`, `mailCloudflareZones`,
   `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect` —
   the Cloudflare section. The token is sent to fetch the domain list and again to
@@ -700,6 +725,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- `TicketFields` must not save the description just because a ticket was
+  opened. Plain-text (legacy v2) descriptions are converted to blocks with a
+  fresh `crypto.randomUUID()` per block on every parse, so a re-parse never
+  equals the loaded content; the save effect skips while the debounced content
+  is still the loaded reference (`loadedDescriptionRef`) and only writes after a
+  real editor change.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
@@ -1180,6 +1211,11 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   `deliveryStatus`, and a `failed` message shows its error plus a resend action
   wired to `mailMessageRetry`. Never restore an unconditional "email sent"
   message.
+- A draft body is seeded into its editor through `DOMPurify.sanitize` and shown
+  read-only through `EmailBody`, never through raw `innerHTML`. Drafts are one per
+  inbound mail; the UI lists them all and never assumes a single draft per
+  conversation. `mailDraftApprove` resolving is not success either — its toast
+  reads the returned `deliveryStatus` through `useDeliveryToast`.
 - An inbound message whose `senderMismatch` is set renders an unverified-sender
   warning above its body. The server decides that flag from the SMTP envelope;
   the UI never re-derives it from the visible addresses.
@@ -1197,6 +1233,9 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
   single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
   both sheets are mounted. Do not fork a second form for edit.
+- The Call Pro recording player sets `src` on `<audio>` directly with no MIME
+  `type`. The PBX serves ogg/mp3/wav depending on the account, and a wrong
+  `<source type>` makes the browser skip the file silently.
 - Messenger `onlineHours` is persisted per concrete `Weekday` only. The
   `everyday` / `weekday` / `weekend` keys of `ScheduleDay` live in the same form
   record but are UI quick-selectors derived from the individual days, so they
@@ -1271,6 +1310,34 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
   metric. Both currently arrive as numbers from the CDR pipelines, so the dash
   is a fallback, not the common case.
+- The call report's `SLA` tab reads `callSlaReport`, never
+  `callKpiScorecard.serviceLevel`: the tab measures answered ÷ offered with no
+  answer-time threshold, so its number is expected to differ from the KPI
+  card. A missed call that we called back and the customer answered inside
+  the callback window counts as answered. Its settings are an agent select
+  (options come from `callSlaReport.agents`, which is never narrowed by the
+  selection) and the callback window, component state in `SlaSection`
+  defaulting to 60 min (`DEFAULT_CALLBACK_WINDOW_MINUTES`) with options Off,
+  15, 30, 60, 120, 240 and 1440 minutes. There is no target level and no
+  short-abandon selector: the 5 s short-abandon rule is fixed in the API and
+  echoed back as `shortAbandonSeconds`, and the service level is coloured with
+  the shared `rateColorVar` thresholds. **Export Excel** re-reads
+  `callSlaReport` lazily with `breachLimit` 5000 (`SLA_EXPORT_BREACH_LIMIT`,
+  refused with a toast when `breachCount` is larger) and `slaExcel.ts` writes
+  Summary, Daily, Missed reasons, Queues and Breaches sheets. The "Why calls
+  were missed" card (`SlaMissedReasons`) renders `missedReasons` as bars and
+  `missedByHour` as a stacked hourly bar chart; reason labels, hints and
+  colours live in `MISSED_REASON_META` and must stay in step with
+  `MISSED_REASONS` in `frontline_api`. The tab ignores the direction chip
+  because SLA is inbound-only.
+- Call report charts are recharts **bar** charts: `VolumeChart` groups
+  inbound / outbound / answered / no-answer bars per PBX day,
+  `CarrierBarChart` is a horizontal bar per carrier labelled with its share,
+  and `SlaTrendChart` draws one bar per day coloured by `rateColorVar`. The
+  heatmap stays a cell grid, not a chart.
+- The tab row, KPI row and tab content share one width container
+  (`CONTENT_WIDTH` in `CallReportsPage`, `max-w-[1440px] px-6`) so their left
+  and right edges line up; keep new blocks inside it.
 - The overview charts read `noAnswer` from `callVolumeSeries` and `callHeatmap`
   — every call in the bucket no human answered, both directions. It is not
   `abandoned` (inbound only) and not `total - answered` computed in the UI; ask
@@ -1587,6 +1654,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   from the message's own attachments renders straight away; that a link opens in
   a new tab; and that a reply which the server could not deliver shows the
   failure with a working resend instead of a success toast.
+- Smoke (mail drafts): build Email Received → AI Agent → Draft Email Reply,
+  mail the inbox twice, and confirm two draft cards appear without a reload,
+  each naming the mail it answers; edit one and save, send it and see it join
+  the thread, delete the other after confirming.
 - Smoke (mail sending): with a Cloudflare account connected, open Integrations
   config and confirm the card names the domain replies leave through and shows the
   quota underneath. Break it by revoking the token's Email Sending permission and
@@ -1614,167 +1685,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-29` — Colour defaults follow the rebuilt knowledge base
-
-- **Summary:** After merging main's knowledge base rebuild, the **Default**
-  colour action lives at `shared/components/ColorDefaultAction.tsx`, and the
-  shared `TopicColorField` renders it beside its label from an optional
-  `defaultValue`, which `TopicFormFields` fills with `EMPTY_TOPIC.color`.
-- **Affected areas:**
-  `src/modules/knowledgebase/shared/components/{ColorDefaultAction,TopicAppearanceFields}.tsx`,
-  `src/modules/knowledgebase/topics/components/TopicFormFields.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`;
-  deleted the pre-rebuild `src/modules/knowledgebase/components/`
-- **Contracts changed:** `None`
-
-### `2026-09-28` — Knowledge base screens share one set of building blocks
-
-- **Summary:** Topics, categories, articles and the help center list now build
-  their tables, empty/error states, row menus, bulk delete, search filters,
-  columns, form sheets and save/remove feedback from `knowledgebase/shared`;
-  the topic drawer and topic settings page render one `TopicFormFields`, and
-  the embed dialog and tab share `TopicEmbedScriptPanel`. Behaviour is
-  unchanged apart from the settings page gaining the drawer's field hints and
-  the embed dialog's copy button showing a copied state.
-- **Affected areas:** `src/modules/knowledgebase/shared/`,
-  `src/modules/knowledgebase/{topics,categories,articles,settings,constants}`,
-  `src/modules/helpcenter/components/{HelpCenterRecordTable,HelpCenterColumns}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`,
-  `src/modules/helpcenter/hooks/useHelpCenters.ts`
-- **Contracts changed:** None
-
-### `2026-09-25` — Main's topic embed tab merged into the rebuilt knowledge base
-
-- **Summary:** The help center drawer's Embed tab now renders
-  `shared/components/TopicEmbedTab.tsx`; the topic drawer from main is not
-  carried over, so a topic's script stays in the `kbsettings` embed dialog,
-  and both surfaces build the snippet with `utils/buildTopicEmbedScript.ts`.
-- **Affected areas:**
-  `src/modules/knowledgebase/shared/components/{TopicEmbedTab,TopicEmbedScriptDialog}.tsx`,
-  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-24` — Conversation properties tab on the inbox side widget
-
-- **Summary:** A conversation's custom properties (Core `frontline:conversation`
-  fields) are now viewable and editable from the inbox, mirroring how ticket
-  properties already work in this plugin. `ConversationSideWidget` gained a
-  static "Properties" tab, the same width as its dynamic relation-widget tabs,
-  rendering the new `ConversationProperties` component (a thin wrapper around
-  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
-  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
-  no variable remapping, because the mutation's argument and the
-  `Conversation` field are both named `propertiesData`, matching
-  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
-  other `use*CustomFieldEdit` hook in the platform
-  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.). Requires
-  the matching `frontline_api` fix (see its own `AGENTS.md`) — the field did
-  not persist before that. The Properties tab's icon (`IconHierarchy2`)
-  matches the one Settings uses for the same custom-properties surface, and
-  `ConversationProperties` forces a single-column layout so fields stay
-  readable in the widget's narrow width instead of squeezing into two.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
-  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
-  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
-  `src/modules/inbox/types/Conversation.ts`
-- **Contracts changed:** None — consumes the existing
-  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
-  field.
-
-### `2026-09-24` — Removing a form step no longer wipes remaining step names
-
-- **Summary:** `removeStep` rebuilt each remaining step's object from only
-  `fields` and `order`, dropping `name`/`description`. Deleting any step and
-  saving cleared every other step's name (unlike `setSteps`, which already
-  spread `...value[key]`). It now spreads `...value[step]` before overriding
-  `fields`/`order`, so names/descriptions survive a step removal.
-- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
-  (`removeStep`).
-- **Contracts changed:** `None`
-
-### `2026-09-24` — Every colour field can go back to its default
-
-- **Summary:** Colour fields in the help center appearance tab and the topic
-  drawers now show a **Default** button beside the label, with a swatch of the
-  colour it restores, hidden while the field already holds that value. The help
-  center derives each default from `DEFAULT_HELP_CENTER_STYLES` through
-  `defaultStyleColor`, and the topic colour receives the default of the drawer
-  it sits in.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/ColorDefaultAction.tsx` (new),
-  `src/modules/knowledgebase/components/TopicAppearanceFields.tsx`,
-  `src/modules/knowledgebase/components/TopicDrawer.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
-  `src/modules/helpcenter/constants/index.ts`
-- **Contracts changed:** `None` — `TopicColorField` takes an optional
-  `defaultValue`; no saved field or GraphQL document changed.
-
-### `2026-09-24` — The client portal picker stores an id
-
-- **Summary:** The picker's value became `clientPortalId` instead of the bare
-  domain, and a pick writes `clientPortalId`, `url` and `erxesAppToken`
-  together from the chosen portal. A config saved before the id existed still
-  shows its portal, matched by the stored `url`, and gets the id backfilled on
-  the next save. The popover also gained a footer that opens core's client
-  portal settings in a new tab and refetches its options on re-open.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterClientPortal.tsx`,
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`
-- **Contracts changed:** Reads and writes `clientPortalId` on
-  `HelpCenterConfig` / `HelpCenterConfigInput` (new in `frontline_api`).
-
-### `2026-09-24` — The help center's `Website` field is now `Client portal`
-
-- **Summary:** The drawer's General field and the record table's column header
-  both read `Client portal` instead of `Website`, matching what the picker
-  actually lists. The label uses the `common` namespace's existing
-  `sidebar.client-portal` key, so Mongolian reads `Харилцагчийн портал`
-  rather than falling back to English the way the unlisted `website` key did.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`
-- **Contracts changed:** `None` — the stored field is still `url`.
-
-### `2026-09-24` — A help center can publish several CMSes
-
-- **Summary:** The CMS card became a multi-select backed by the new
-  `cmsConfigs` list (`{ cmsId, cmsAppToken }` per CMS), matching the forms
-  multi-select's badges and toggling. Each pick still resolves its client
-  portal's app token, and a help center saved before the list existed opens
-  with its single CMS preselected.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterCms.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`
-- **Contracts changed:** Reads and writes `cmsConfigs` on `HelpCenterConfig` /
-  `HelpCenterConfigInput` (new in `frontline_api`).
-
-### `2026-09-24` — The CMS card disappears when the content plugin is off
-
-- **Summary:** `contentCMSList` is absent from the supergraph whenever the
-  optional content plugin is disabled, which left the help center drawer with a
-  CMS picker that could only report `Cannot query field "contentCMSList"`. The
-  new `useHelpCenterCmsOptions` hook classifies that validation error as
-  `unavailable` and the General tab drops the whole CMS card; the picker became
-  presentational and a saved `cmsId` is still written back untouched.
-- **Affected areas:**
-  `src/modules/helpcenter/hooks/useHelpCenterCmsOptions.ts`,
-  `src/modules/helpcenter/components/SelectHelpCenterCms.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/types/index.ts`
-- **Contracts changed:** `None`

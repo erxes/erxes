@@ -76,6 +76,9 @@ const FIELD_TO_MODULE: Record<string, Module> = {
 const toStr = (val: any): string | undefined =>
   val != null ? String(val) : undefined;
 
+const toTime = (val: unknown): number | undefined =>
+  val ? new Date(val as string | number | Date).getTime() : undefined;
+
 const getModule = (field: string): Module | null =>
   Module[field.toUpperCase() as keyof typeof Module] ??
   FIELD_TO_MODULE[field] ??
@@ -152,7 +155,7 @@ export const createActivity = async (args: {
 
     if (['startDate', 'targetDate'].includes(field)) {
       if (!oldValue && newValue) action = Action.CREATED;
-      else if (newValue !== oldValue)
+      else if (toTime(newValue) !== toTime(oldValue))
         action = newValue ? Action.CHANGED : Action.REMOVED;
     } else if (newValue !== oldValue) {
       action = Action.CHANGED;

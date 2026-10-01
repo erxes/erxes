@@ -68,30 +68,35 @@ const PropertiesGroupActions = ({
         className="min-w-48"
         onClick={(e) => e.stopPropagation()}
       >
-        <Can action="fieldsManage">
-          <DropdownMenu.Item asChild>
-            <Link to={`/settings/properties/${contentType}/${group._id}/add`}>
-              <IconPlus />
-              {t('add-field', 'Add field')}
-            </Link>
-          </DropdownMenu.Item>
-        </Can>
+        {/* A plugin's group holds only the fields that plugin puts there. */}
+        {!group.owner && (
+          <Can action="fieldsManage">
+            <DropdownMenu.Item asChild>
+              <Link to={`/settings/properties/${contentType}/${group._id}/add`}>
+                <IconPlus />
+                {t('add-field', 'Add field')}
+              </Link>
+            </DropdownMenu.Item>
+          </Can>
+        )}
         <Can action="fieldGroupsManage">
           <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
             <IconEdit />
             {t('edit', 'Edit')}
           </DropdownMenu.Item>
         </Can>
-        <Can action="fieldGroupsManage">
-          <DropdownMenu.Item
-            className="text-destructive"
-            disabled={loading}
-            onClick={handleDeleteFieldGroup}
-          >
-            {loading ? <Spinner size="sm" /> : <IconTrash />}
-            {t('delete', 'Delete')}
-          </DropdownMenu.Item>
-        </Can>
+        {!group.owner && (
+          <Can action="fieldGroupsManage">
+            <DropdownMenu.Item
+              className="text-destructive"
+              disabled={loading}
+              onClick={handleDeleteFieldGroup}
+            >
+              {loading ? <Spinner size="sm" /> : <IconTrash />}
+              {t('delete', 'Delete')}
+            </DropdownMenu.Item>
+          </Can>
+        )}
       </DropdownMenu.Content>
     </DropdownMenu>
   );
@@ -193,6 +198,19 @@ export const PropertiesGroupSection = ({
             <Badge variant="secondary" className="ml-1">
               {totalCount}
             </Badge>
+            {group.owner?.plugin && (
+              <Badge
+                variant="secondary"
+                className="ml-1"
+                title={t('owned-group-hint', {
+                  plugin: group.owner.plugin,
+                  defaultValue:
+                    'Managed by {{plugin}}: its fields and values come from the plugin; only the name and order can change here.',
+                })}
+              >
+                {group.owner.plugin}
+              </Badge>
+            )}
           </Button>
         </Collapsible.Trigger>
         <PropertiesGroupActions group={group} contentType={contentType} />
@@ -230,16 +248,20 @@ export const PropertiesGroupSection = ({
             </RecordTable.Scroll>
           </RecordTable.Provider>
         )}
-        <div className="flex items-center justify-end mt-2">
-          <Can action="fieldsManage">
-            <Button variant="secondary" asChild>
-              <Link to={`/settings/properties/${contentType}/${group._id}/add`}>
-                <IconPlus />
-                {t('add-field', 'Add field')}
-              </Link>
-            </Button>
-          </Can>
-        </div>
+        {!group.owner && (
+          <div className="flex items-center justify-end mt-2">
+            <Can action="fieldsManage">
+              <Button variant="secondary" asChild>
+                <Link
+                  to={`/settings/properties/${contentType}/${group._id}/add`}
+                >
+                  <IconPlus />
+                  {t('add-field', 'Add field')}
+                </Link>
+              </Button>
+            </Can>
+          </div>
+        )}
       </Collapsible.Content>
     </Collapsible>
   );

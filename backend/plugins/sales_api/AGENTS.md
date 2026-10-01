@@ -72,7 +72,18 @@
 - Sales record references provide deal display names, links, labels, product
   amount helpers, and `excludeLoyaltyAmount`.
 - `excludeLoyaltyAmount` returns the deal total amount minus payments made
-  through pipeline payment types that have a `scoreCampaignId`.
+  through pipeline payment types that have a `scoreCampaignId`
+  (`dealPaidAmount`).
+- Deal and POS order triggers give loyalty's Adjust score action a purchase
+  through `actionInputs`: deals map `totalAmount` → `unUsedTotalAmount`
+  (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
+  POS orders map `totalAmount`, `paidAmount` (total minus point payments) and
+  `purchaseItems`. Earning is decided by automations, never by sales.
+- Sales tells loyalty what a purchase paid with points and when it is undone:
+  deal edits and moves call `score.spend` for each point payment type whose
+  amount changed and `score.refund` when a deal enters a `Lost` stage
+  (`syncDealPoints`); POS order sync calls `score.spend` (`spendOrderPoints`,
+  also after `posOrderChangePayments`) and `score.refund` for returned orders.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
@@ -224,6 +235,8 @@
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Public platform contracts for products, customers, companies, users,
   branches, departments, and related records.
+- Loyalty tRPC `score.spend` / `score.refund` with loyalty-owned inputs; sales
+  never sends whole deals or orders to loyalty.
 - Mongolian `mnConfigs` values for `EBARIMT` and POS-specific
   `posInEbarimt` eBarimt settings.
 - Loyalty-facing sales deal payloads through published target/reference
@@ -339,11 +352,11 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-29` — POS eBarimt receipt toggles sync
+### `2026-09-29` — Purchases handed to loyalty
 
-- **Summary:** POS config sync now forwards eBarimt receipt toggles for copy printing, summary quantity display, and clean tax price display to POS client configs.
-- **Affected areas:** `src/modules/pos/routes.ts`
-- **Contracts changed:** POS sync payload `pos.ebarimtConfig` now includes `hasCopy`, `hasSumQty`, and `isCleanTaxPrice`.
+- **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
+- **Affected areas:** `src/modules/{sales,pos}/meta/automations/{purchase,constants}.ts`, `salesRefernceCustomResolvers.ts`, `mutations/{loyaltyUtils,utils}.ts`, `pos/utils.ts`, `pos/graphql/resolvers/mutations/orders.ts`.
+- **Contracts changed:** Deal and POS trigger outputs `paidAmount`, `purchaseItems`; trigger `actionInputs`.
 
 ### `2026-09-21` — The deal action says it needs someone to act for
 

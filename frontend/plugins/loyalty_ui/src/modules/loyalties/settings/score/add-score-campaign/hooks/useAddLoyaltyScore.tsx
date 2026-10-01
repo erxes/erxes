@@ -1,3 +1,5 @@
+import { toSubtractInput } from '../../utils/spendRulesForm';
+import { toAddInput } from '../../utils/earnTableForm';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -7,13 +9,6 @@ import { CREATE_SCORE_CAMPAIGN } from '../graphql/mutations/loyaltyScoreAddMutat
 
 export interface AddScoreCampaignResult {
   scoreCampaignAdd: any;
-}
-
-export interface CardBasedRuleVariable {
-  boardId?: string;
-  pipelineId?: string;
-  stageIds?: string[];
-  refundStageIds?: string[];
 }
 
 export interface AddScoreCampaignVariables {
@@ -31,17 +26,10 @@ export interface AddScoreCampaignVariables {
   };
   additionalConfig?: {
     discountCheck?: boolean;
-    cardBasedRule?: CardBasedRuleVariable[];
   };
-  add?: { placeholder?: string; currencyRatio?: string };
-  subtract?: { placeholder?: string; currencyRatio?: string };
-  set?: { placeholder?: string; currencyRatio?: string };
-  ownerType?: string;
-  onlyClientPortal?: boolean;
-  fieldGroupId?: string;
-  fieldOrigin?: string;
-  fieldName?: string;
-  fieldId?: string;
+  add?: ReturnType<typeof toAddInput>;
+  subtract?: ReturnType<typeof toSubtractInput>;
+  accountTypeId?: string;
 }
 export const SCORE_PER_PAGE = 30;
 

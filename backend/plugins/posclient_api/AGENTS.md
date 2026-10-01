@@ -87,17 +87,11 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-29` — `Persist receipt summary quantity config`
+### `2026-09-29` — Point payment check uses loyalty's contract
 
-- **Summary:** POS client configs now persist the synced eBarimt `hasSumQty` receipt toggle alongside `hasCopy` and `isCleanTaxPrice`.
-- **Affected areas:** `src/modules/posclient/{@types,db/definitions}/configs.ts`
-- **Contracts changed:** `EbarimtConfig.hasSumQty` is stored and exposed through the existing GraphQL field.
-
-### `2026-09-29` — `Fix remainder scheduler queue`
-
-- **Summary:** The hourly remainder scheduler now runs on the scheduler queue, dispatches tenant-scoped sync jobs, and rejects sync jobs without a `subdomain`; POS user email uses a single schema-level unique index.
-- **Affected areas:** `src/worker`, `src/modules/posclient/db/definitions/posUsers.ts`
-- **Contracts changed:** `None`
+- **Summary:** Paying with points is checked through loyalty `score.checkSpend` with the amount paid by that payment type and the order total, instead of sending the whole order.
+- **Affected areas:** `src/modules/posclient/utils/orderUtils.ts` (`checkScoreAviableSubtractScoreCampaign`).
+- **Contracts changed:** Calls loyalty `score.checkSpend` instead of `score.checkScoreAviableSubtract`.
 
 ### `2026-09-13` — `Discount info type cleanup`
 

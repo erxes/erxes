@@ -74,8 +74,7 @@ export const CallProConversationDetail = () => {
               </div>
             )}
             {callProAudio ? (
-              <audio controls className="w-full">
-                <source src={callProAudio} type="audio/wav" />
+              <audio controls className="w-full" src={callProAudio}>
                 {t('callpro-audio-unsupported')}
               </audio>
             ) : (
