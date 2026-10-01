@@ -65,7 +65,9 @@ export interface ITicketDocument extends ITicket, Document {
   updatedAt: Date;
 }
 
-export interface ITicketFilter extends IListParams, ITicket {
+export interface ITicketFilter
+  extends IListParams,
+    Omit<ITicket, 'propertiesData'> {
   segmentIds?: string[];
   createdStartDate?: Date;
   createdEndDate?: Date;
@@ -75,6 +77,9 @@ export interface ITicketFilter extends IListParams, ITicket {
   targetDateEndDate?: Date;
   statusChangedStartDate?: Date;
   statusChangedEndDate?: Date;
+  branchIds?: string[];
+  departmentIds?: string[];
+  propertiesData?: string;
   userId?: string;
   createdAt?: Date;
 }

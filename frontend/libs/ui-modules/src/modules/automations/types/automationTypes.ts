@@ -298,6 +298,10 @@ export type IAutomationsTriggerConfigConstants = {
   label: string;
   description: string;
   isCustom?: boolean;
+  // Every event re-runs it; the automation has nothing to choose.
+  reEnrollment?: boolean;
+  // Each event is its own occurrence, so "every time" may be chosen.
+  reEnrollable?: boolean;
   output?: {
     variables?: Array<{
       key: string;

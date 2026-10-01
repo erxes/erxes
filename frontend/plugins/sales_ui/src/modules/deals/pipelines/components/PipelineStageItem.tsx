@@ -15,6 +15,7 @@ import { Controller, type Control, useFormState } from 'react-hook-form';
 import { IStage } from '@/deals/types/stages';
 import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
+import { PipelineStageRefundPoints } from '@/deals/pipelines/components/PipelineStageRefundPoints';
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 
@@ -250,6 +251,7 @@ export const PipelineStageItem = (props: Props) => {
                 )}
               />
             </div>
+            <PipelineStageRefundPoints control={control} index={index} />
             {showExtraFields && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 <Form.Field

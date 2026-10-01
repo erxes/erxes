@@ -14,6 +14,7 @@ export const AutomationOutputVariableItem = ({
     variableKey: variable.key,
     label: variable.label,
     isLink: variable.isLink,
+    fields: variable.fields,
   });
   const {
     childFields,

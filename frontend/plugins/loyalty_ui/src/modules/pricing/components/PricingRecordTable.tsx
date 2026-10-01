@@ -44,6 +44,7 @@ export function PricingRecordTable() {
         hasNextPage={pageInfo.hasNextPage}
         hasPreviousPage={pageInfo.hasPreviousPage}
         dataLength={pricing?.length}
+        loading={loading}
         sessionKey="pricing_plans_cursor"
       >
         <RecordTable>

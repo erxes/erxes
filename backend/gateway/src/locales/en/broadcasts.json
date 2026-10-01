@@ -70,7 +70,8 @@
     "label": "Trigger",
     "manual": "Manual",
     "scheduled": "Scheduled",
-    "recurring": "Recurring"
+    "recurring": "Recurring",
+    "afterSegment": "After segment refresh"
   },
   "method": {
     "email": "Email",
@@ -281,7 +282,8 @@
       "day": "Daily",
       "week": "Weekly",
       "month": "Monthly",
-      "year": "Yearly"
+      "year": "Yearly",
+      "afterSegment": "Nightly"
     },
     "repeat": {
       "week": "Every {{weekday}} at {{time}}",
@@ -298,7 +300,10 @@
     "send-without-waiting": "Send without waiting",
     "dialog-body": "It goes out on its own, and stays editable in between.",
     "start-repeating": "Start repeating",
-    "confirm": "Schedule"
+    "confirm": "Schedule",
+    "after-segment-hint": "Goes out to the segment's members each night, once its refresh finishes. The first run is tonight's.",
+    "after-segment-summary": "After the segment refreshes each night",
+    "starts": "Starts:"
   },
   "calendar": {
     "previous-month": "Previous month",

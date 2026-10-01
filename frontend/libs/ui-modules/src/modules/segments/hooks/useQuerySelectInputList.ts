@@ -10,6 +10,7 @@ export const useQuerySelectInputList = (
   queryName: string,
   searchValue: string,
   skip?: boolean,
+  extraVariables?: Record<string, string | boolean>,
 ) => {
   const PER_PAGE = 30;
   const { cursor } = useRecordTableCursor({
@@ -17,6 +18,7 @@ export const useQuerySelectInputList = (
   });
   const { data, loading, fetchMore } = useQuery(query, {
     variables: {
+      ...extraVariables,
       limit: PER_PAGE,
       cursor,
       searchValue: searchValue ?? undefined,

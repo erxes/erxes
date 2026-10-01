@@ -8,9 +8,6 @@ export const debtReportRules: Record<string, IReportConfig> = {
       { code: 'customerAccount', title: 'Харилцагч-Данс' },
       { code: 'accountCustomer', title: 'Данс-Харилцагч' },
     ],
-    initParams: {
-      isMore: true,
-    },
     groups: {
       customerAccount: {
         group: 'customerId',

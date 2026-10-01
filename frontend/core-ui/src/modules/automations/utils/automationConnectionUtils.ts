@@ -4,7 +4,9 @@ import {
   ConnectionInfo,
   NodeData,
 } from '@/automations/types';
+import { folkKeyOfHandle } from '@/automations/utils/automationBuilderUtils/actionFolks';
 import { checkValidOptionalConnect } from '@/automations/utils/automationBuilderUtils/connectionUtils';
+import { resolveTriggerFolks } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { Connection, Edge, getOutgoers, Node } from '@xyflow/react';
 import type { IAutomationsActionConfigConstants } from 'ui-modules';
 
@@ -135,6 +137,16 @@ export const checkIsValidConnect = ({
   if (source.data.nodeType === AutomationNodeType.Trigger) {
     // disallow connecting a trigger to another trigger
     if (target.data.nodeType === AutomationNodeType.Trigger) {
+      return false;
+    }
+
+    const folkKey = folkKeyOfHandle(
+      connection.sourceHandle,
+      resolveTriggerFolks(source.data.config),
+    );
+
+    // Each exit leads to one step.
+    if (folkKey && source.data.config?.[folkKey]) {
       return false;
     }
 

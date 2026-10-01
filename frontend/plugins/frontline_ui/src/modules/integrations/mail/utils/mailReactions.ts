@@ -8,10 +8,7 @@ const REACTION_MIME_TYPE = 'text/vnd.google.email-reaction+json';
 const graphemes = (value: string): string[] => {
   const Segmenter = (
     Intl as typeof Intl & {
-      Segmenter: new (
-        locale: string,
-        options: { granularity: 'grapheme' },
-      ) => {
+      Segmenter: new (locale: string, options: { granularity: 'grapheme' }) => {
         segment: (input: string) => Iterable<{ segment: string }>;
       };
     }
@@ -45,24 +42,29 @@ export const mailReactionFromMessage = (
   message: MailMessage,
 ): MailReaction | null => {
   const { mailData } = message;
+  const targetMessageId = mailData.inReplyTo ?? mailData.references?.at(-1);
+  if (!targetMessageId) return null;
+
   const sentReaction =
     mailData.type === 'SENT' &&
     mailData.reactionEmoji &&
     ['sent', 'pending'].includes(mailData.deliveryStatus ?? '');
+  if (!sentReaction && mailData.type !== 'INBOX') return null;
+
   const hasReactionPart = mailData.attachments?.some(
     (attachment) => attachment.mimeType === REACTION_MIME_TYPE,
   );
-  const fallbackEmoji = reactionEmojiFromBody(mailData.body);
+  const fallbackEmoji =
+    !sentReaction && !hasReactionPart && !mailData.reactionEmoji
+      ? reactionEmojiFromBody(mailData.body)
+      : null;
   if (
     !sentReaction &&
-    (mailData.type !== 'INBOX' ||
-      (!hasReactionPart && !fallbackEmoji && !mailData.reactionEmoji))
-  ) {
+    !hasReactionPart &&
+    !fallbackEmoji &&
+    !mailData.reactionEmoji
+  )
     return null;
-  }
-
-  const targetMessageId = mailData.inReplyTo ?? mailData.references?.at(-1);
-  if (!targetMessageId) return null;
 
   const emoji =
     mailData.reactionEmoji ??
@@ -115,8 +117,12 @@ export const groupMailReactions = (messages: MailMessage[]) => {
       continue;
     }
 
-    const previous = reactionsByMessageId.get(targetMessageId) ?? [];
-    reactionsByMessageId.set(targetMessageId, [...previous, reaction]);
+    const previous = reactionsByMessageId.get(targetMessageId);
+    if (previous) {
+      previous.push(reaction);
+    } else {
+      reactionsByMessageId.set(targetMessageId, [reaction]);
+    }
   }
 
   return { visibleMessages, reactionsByMessageId, orphanReactions };

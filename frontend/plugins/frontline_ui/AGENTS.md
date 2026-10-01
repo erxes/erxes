@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -86,6 +86,12 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Every colour field in the help center drawer and the knowledge base topic
+  drawer carries a **Default** reset beside its label, showing the colour it
+  would return to and hidden while the field already holds it. The help center
+  reads each default from `DEFAULT_HELP_CENTER_STYLES`, so a colour changed by
+  hand is always one click from what a new help center ships with.
 
 - The automations widget answers built-in template prerequisites: the
   `templateRequirement` component type resolves `frontline:tickets.status` by
@@ -370,6 +376,17 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- The inbox composer is note-only (Reply tab disabled, Internal Note selected)
+  for `lead`, `calls` and `callpro` conversations — those channels cannot carry
+  an outbound reply. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
+  `MessageInput.tsx`.
+- The ticket list/board filter offers Branch and Department multi-selects
+  (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
+  `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
+  as `ITicketFilter.branchIds` / `departmentIds`.
+- The same filter carries the shared `PropertiesFilter` from `ui-modules`
+  scoped to `frontline:ticket`; its `propertiesData` query param is sent
+  unchanged as `ITicketFilter.propertiesData`.
 - Ticket tag selection (board card, detail sheet, create form) shows a single
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
@@ -386,6 +403,15 @@
   immediately and reopens with those filters restored. The default charts are a
   frontend constant and are never modified by saving; a saved card additionally
   carries a delete action.
+- The Ticket List report card's trailing settings icon is the
+  `RecordTable.ColumnSelector`: it toggles, reorders and pins columns for
+  name, number, created, status, state, priority, assigned, created by,
+  channel, pipeline, tags, branch, department, start date, due date, and one
+  read-only column per `frontline:ticket` property field. The choice persists
+  per browser under the `frontline_ticket_report_record_table` table id.
+- The Ticket List card's Excel download exports exactly the columns currently
+  visible in its table, in their on-screen order and with the same headers,
+  including property columns. It is disabled until the table has rendered.
 
 ## Architecture
 
@@ -435,6 +461,7 @@
 | Call report filters       | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
 | Call report export        | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
 | Call report tables        | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
+| Call SLA tab              | `src/modules/report/call/components/SlaSection/`, `hooks/useSlaReport.ts`, `slaExcel.ts`                                                          | Agent and callback-window selectors, SLA KPIs, missed reasons, trend, per-queue table, breach list, Excel export                                |
 | Reports board             | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
 | Saved charts              | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
 | Mail conversation         | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
@@ -718,6 +745,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- `TicketFields` must not save the description just because a ticket was
+  opened. Plain-text (legacy v2) descriptions are converted to blocks with a
+  fresh `crypto.randomUUID()` per block on every parse, so a re-parse never
+  equals the loaded content; the save effect skips while the debounced content
+  is still the loaded reference (`loadedDescriptionRef`) and only writes after a
+  real editor change.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
@@ -1050,7 +1083,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   family name; add a face there rather than to a field. Colours use `erxes-ui`'s
   `ColorPicker` — the palette the rest of the product picks from, whose popover
   already carries a hex field; never a native `<input type="color">` — add a style through those
-  rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
+  rather than hand-rolling a field. A colour field pairs the picker with
+  `shared/components/ColorDefaultAction.tsx`, which takes the default it resets to as a prop: the
+  style fields read theirs from `defaultStyleColor(name)` and the topic colour
+  takes the default of the surface it is edited on, because the help center
+  starts a topic colour at `#4f33af` and the topic drawer at `#4F46E5`
+  (`EMPTY_TOPIC.color`). Apollo runs with `addTypename: true`, so a
   cached block carries a `__typename` that `HelpCenterConfigStylesInput`
   rejects: `toHelpCenterConfigInput` strips it in `stripStylesTypename`, and
   every write path — drawer reset and inline edit alike — goes through it. Any
@@ -1215,6 +1253,9 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
   single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
   both sheets are mounted. Do not fork a second form for edit.
+- The Call Pro recording player sets `src` on `<audio>` directly with no MIME
+  `type`. The PBX serves ogg/mp3/wav depending on the account, and a wrong
+  `<source type>` makes the browser skip the file silently.
 - Messenger `onlineHours` is persisted per concrete `Weekday` only. The
   `everyday` / `weekday` / `weekend` keys of `ScheduleDay` live in the same form
   record but are UI quick-selectors derived from the individual days, so they
@@ -1289,6 +1330,34 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
   metric. Both currently arrive as numbers from the CDR pipelines, so the dash
   is a fallback, not the common case.
+- The call report's `SLA` tab reads `callSlaReport`, never
+  `callKpiScorecard.serviceLevel`: the tab measures answered ÷ offered with no
+  answer-time threshold, so its number is expected to differ from the KPI
+  card. A missed call that we called back and the customer answered inside
+  the callback window counts as answered. Its settings are an agent select
+  (options come from `callSlaReport.agents`, which is never narrowed by the
+  selection) and the callback window, component state in `SlaSection`
+  defaulting to 60 min (`DEFAULT_CALLBACK_WINDOW_MINUTES`) with options Off,
+  15, 30, 60, 120, 240 and 1440 minutes. There is no target level and no
+  short-abandon selector: the 5 s short-abandon rule is fixed in the API and
+  echoed back as `shortAbandonSeconds`, and the service level is coloured with
+  the shared `rateColorVar` thresholds. **Export Excel** re-reads
+  `callSlaReport` lazily with `breachLimit` 5000 (`SLA_EXPORT_BREACH_LIMIT`,
+  refused with a toast when `breachCount` is larger) and `slaExcel.ts` writes
+  Summary, Daily, Missed reasons, Queues and Breaches sheets. The "Why calls
+  were missed" card (`SlaMissedReasons`) renders `missedReasons` as bars and
+  `missedByHour` as a stacked hourly bar chart; reason labels, hints and
+  colours live in `MISSED_REASON_META` and must stay in step with
+  `MISSED_REASONS` in `frontline_api`. The tab ignores the direction chip
+  because SLA is inbound-only.
+- Call report charts are recharts **bar** charts: `VolumeChart` groups
+  inbound / outbound / answered / no-answer bars per PBX day,
+  `CarrierBarChart` is a horizontal bar per carrier labelled with its share,
+  and `SlaTrendChart` draws one bar per day coloured by `rateColorVar`. The
+  heatmap stays a cell grid, not a chart.
+- The tab row, KPI row and tab content share one width container
+  (`CONTENT_WIDTH` in `CallReportsPage`, `max-w-[1440px] px-6`) so their left
+  and right edges line up; keep new blocks inside it.
 - The overview charts read `noAnswer` from `callVolumeSeries` and `callHeatmap`
   — every call in the bucket no human answered, both directions. It is not
   `abandoned` (inbound only) and not `total - answered` computed in the UI; ask
@@ -1386,6 +1455,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   area or an attachment tile.
 - The message input ignores drops while a dialog is open, so a composer dialog
   keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
+- Ticket List report columns live in
+  `report/components/ticket-charts/TicketListColumns.tsx`. Only the columns in
+  `TICKET_LIST_DEFAULT_COLUMNS` start visible; `TicketListColumnDefaults` hides
+  every other column the first time it appears (no stored visibility key) and
+  keeps the `more` column last, because the shared provider appends newly
+  arrived column ids — property fields load asynchronously — after it. The
+  action column id must stay `more` so the selector never lists it, which would
+  let a user hide the selector itself. Property cells read
+  `propertiesData[field._id]` and resolve option labels; they never mutate.
+- Ticket List export columns are built by `useTicketExportColumns` from the
+  `{id, header}` list `TicketListColumnDefaults` reports upward. Each non-
+  property column id needs an entry in `TICKET_EXPORT_VALUES` reading the
+  `reportTicketExport` row, or it is silently left out of the file; property
+  columns reuse `toPropertyText` so the sheet matches the cell text.
 - The ticket KPI row derives its total by summing **every** row
   `reportTicketPriority` returns, including the `priority: 0` one, so it shows
   the real ticket count. Only rows with `priority > 0` become cards — the

@@ -20,6 +20,7 @@ export const types = `
     serviceName: String
     createdBy: String
     createdAt: Date
+    breakdown: JSON
 
     totalScore: Float
     owner: JSON

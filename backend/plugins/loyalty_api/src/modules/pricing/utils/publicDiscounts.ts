@@ -111,31 +111,81 @@ const getProducts = async (
   })) as CoreProduct[];
 };
 
+const getProductIdQuery = ({
+  includedIds,
+  excludedIds = [],
+  productId,
+}: {
+  includedIds?: string[];
+  excludedIds?: string[];
+  productId?: string;
+}): Record<string, unknown> | null => {
+  if (productId && excludedIds.includes(productId)) {
+    return null;
+  }
+
+  if (productId && includedIds && !includedIds.includes(productId)) {
+    return null;
+  }
+
+  return {
+    ...(includedIds ? { $in: productId ? [productId] : includedIds } : {}),
+    ...(productId && !includedIds ? { $eq: productId } : {}),
+    ...(excludedIds.length ? { $nin: excludedIds } : {}),
+  };
+};
+
 const getPlanProducts = async (
   subdomain: string,
   plan: IPricingPlanDocument,
+  productId?: string,
 ): Promise<CoreProduct[]> => {
   const excludedProductIds = plan.productsExcluded || [];
-  const excludedFilter = excludedProductIds.length
-    ? { _id: { $nin: excludedProductIds } }
+  const scopedProductIdQuery = getProductIdQuery({
+    excludedIds: excludedProductIds,
+    productId,
+  });
+
+  if (!scopedProductIdQuery) {
+    return [];
+  }
+
+  const scopedProductFilter = Object.keys(scopedProductIdQuery).length
+    ? { _id: scopedProductIdQuery }
     : {};
 
   switch (plan.applyType) {
-    case 'product':
-      return getProducts(subdomain, {
-        _id: {
-          $in: plan.products || [],
-          ...(excludedProductIds.length ? { $nin: excludedProductIds } : {}),
-        },
+    case 'product': {
+      const productIdQuery = getProductIdQuery({
+        includedIds: plan.products || [],
+        excludedIds: excludedProductIds,
+        productId,
       });
 
-    case 'bundle':
+      if (!productIdQuery) {
+        return [];
+      }
+
       return getProducts(subdomain, {
-        _id: {
-          $in: (plan.productsBundle || []).flat(),
-          ...(excludedProductIds.length ? { $nin: excludedProductIds } : {}),
-        },
+        _id: productIdQuery,
       });
+    }
+
+    case 'bundle': {
+      const productIdQuery = getProductIdQuery({
+        includedIds: (plan.productsBundle || []).flat(),
+        excludedIds: excludedProductIds,
+        productId,
+      });
+
+      if (!productIdQuery) {
+        return [];
+      }
+
+      return getProducts(subdomain, {
+        _id: productIdQuery,
+      });
+    }
 
     case 'segment': {
       let productIds: string[] = [];
@@ -153,18 +203,21 @@ const getPlanProducts = async (
         productIds = productIds.concat(ids);
       }
 
-      return getProducts(subdomain, {
-        _id: {
-          $in: productIds,
-          ...(excludedProductIds.length ? { $nin: excludedProductIds } : {}),
-        },
+      const productIdQuery = getProductIdQuery({
+        includedIds: productIds,
+        excludedIds: excludedProductIds,
+        productId,
       });
+
+      return productIdQuery
+        ? getProducts(subdomain, { _id: productIdQuery })
+        : [];
     }
 
     case 'vendor':
       return getProducts(subdomain, {
         vendorId: { $in: plan.vendors || [] },
-        ...excludedFilter,
+        ...scopedProductFilter,
       });
 
     case 'category': {
@@ -182,7 +235,7 @@ const getPlanProducts = async (
 
       return getProducts(subdomain, {
         categoryId: { $in: categoryIds },
-        ...excludedFilter,
+        ...scopedProductFilter,
       });
     }
 
@@ -198,7 +251,7 @@ const getPlanProducts = async (
 
       return getProducts(subdomain, {
         tagIds: { $in: tagIds },
-        ...excludedFilter,
+        ...scopedProductFilter,
       });
     }
 
@@ -562,4 +615,54 @@ export const recalculatePublicPricingPlanDiscounts = async ({
   });
 
   return productsInfo;
+};
+
+export const recalculateProductPricingPlanDiscounts = async ({
+  models,
+  subdomain,
+  productId,
+}: {
+  models: IModels;
+  subdomain: string;
+  productId: string;
+}): Promise<ProductDiscountInfo> => {
+  const plans = await models.PricingPlans.find({
+    status: 'active',
+    priority: { $in: [PRIORITY_TYPES.PUBLIC, PRIORITY_TYPES.PIPELINE_BASE] },
+  }).sort({ value: 1 });
+  const productInfo: ProductDiscountInfo = { productId, discounts: [] };
+
+  for (const plan of plans) {
+    const isBase = plan.priority === PRIORITY_TYPES.PIPELINE_BASE;
+
+    if (
+      isBase &&
+      !hasValues(plan.branchIds, plan.departmentIds, plan.pipelineId)
+    ) {
+      continue;
+    }
+
+    const products = await getPlanProducts(subdomain, plan, productId);
+
+    for (const product of products) {
+      productInfo.discounts.push(
+        ...buildProductDiscounts(plan, product, isBase ? true : null),
+      );
+    }
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'products',
+    action: 'updateProducts',
+    input: {
+      query: { _id: productId },
+      doc: { discounts: productInfo.discounts },
+    },
+    defaultValue: null,
+  });
+
+  return productInfo;
 };

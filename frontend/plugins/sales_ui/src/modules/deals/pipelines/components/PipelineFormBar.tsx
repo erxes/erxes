@@ -11,6 +11,7 @@ import { PipelineHotKeyScope } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 
 import { PipelineForm } from './PipelineForm';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +28,10 @@ export function PipelineFormBar() {
   const searchParams = new URLSearchParams(location.search);
   const pipelineId = searchParams.get('pipelineId');
   const boardId = searchParams.get('activeBoardId');
+  const { boards, loading: boardsLoading } = useBoards();
+  const isCreateDisabled =
+    !pipelineId &&
+    (boardsLoading || !boards?.some((board) => board._id === boardId));
 
   const {
     methods,
@@ -56,11 +61,13 @@ export function PipelineFormBar() {
   });
 
   const onOpen = useCallback(() => {
+    if (isCreateDisabled) return;
+
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PipelineHotKeyScope.PipelineAddSheet,
     );
-  }, [setHotkeyScopeAndMemorizePreviousScope]);
+  }, [isCreateDisabled, setHotkeyScopeAndMemorizePreviousScope]);
 
   const onClose = useCallback(() => {
     setHotkeyScope(PipelineHotKeyScope.PipelineSettingsPage);
@@ -104,7 +111,7 @@ export function PipelineFormBar() {
     <div className="ml-auto flex items-center gap-3">
       <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
         <Sheet.Trigger asChild>
-          <Button>
+          <Button disabled={isCreateDisabled}>
             <IconPlus /> {title}
           </Button>
         </Sheet.Trigger>
@@ -133,7 +140,10 @@ export function PipelineFormBar() {
                 <Button variant={'ghost'} onClick={onClose}>
                   {t('cancel')}
                 </Button>
-                <Button type="submit" disabled={submitLoading}>
+                <Button
+                  type="submit"
+                  disabled={submitLoading || isCreateDisabled}
+                >
                   {pipelineId ? t('update') : t('create')}
                 </Button>
               </Sheet.Footer>

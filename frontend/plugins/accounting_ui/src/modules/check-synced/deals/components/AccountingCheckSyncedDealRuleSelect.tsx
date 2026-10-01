@@ -9,7 +9,8 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 import i18n from 'i18next';
-import { ReactNode, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_DEAL_RULES_QUERY } from '../graphql/checkSyncedDeals';
@@ -18,7 +19,10 @@ import { AccountingDealRule } from '../types';
 type AccountingSyncDealRulesQueryResult = {
   saleRules?: AccountingDealRule[];
   returnRules?: AccountingDealRule[];
+  movementRules?: AccountingDealRule[];
 };
+
+export type AccountingCheckSyncedDealRuleScope = 'deal' | 'movement';
 
 const DEAL_RETURN_TYPE_LABELS = {
   delete: 'Устгах',
@@ -31,6 +35,10 @@ const getRuleLabel = (rule?: AccountingDealRule) =>
 
 const getRuleTypeLabel = (rule: AccountingDealRule) => {
   if (rule.code !== ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN) {
+    if (rule.code === ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT) {
+      return 'Хөдөлгөөн';
+    }
+
     return i18n.t('accounting:sale');
   }
 
@@ -48,9 +56,21 @@ const useAccountingCheckSyncedDealRules = () =>
       variables: {
         saleCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL,
         returnCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN,
+        movementCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT,
       },
     },
   );
+
+const getRulesByScope = (
+  data: AccountingSyncDealRulesQueryResult | undefined,
+  ruleScope: AccountingCheckSyncedDealRuleScope,
+) => {
+  if (ruleScope === 'movement') {
+    return data?.movementRules || [];
+  }
+
+  return [...(data?.saleRules || []), ...(data?.returnRules || [])];
+};
 
 const useApplyDealRuleFilter = () => {
   const [{ ruleId, boardId, pipelineId, stageId }, setQueries] =
@@ -63,27 +83,44 @@ const useApplyDealRuleFilter = () => {
 
   return {
     ruleId,
-    applyRule: (rule?: AccountingDealRule) => {
+    applyRule: useCallback(
+      (rule?: AccountingDealRule) => {
+        setQueries({
+          ruleId: rule?._id || null,
+          boardId: boardId || rule?.value?.boardId || null,
+          pipelineId: pipelineId || rule?.value?.pipelineId || null,
+          stageId: stageId || rule?.value?.stageId || rule?.subId || null,
+        });
+      },
+      [boardId, pipelineId, setQueries, stageId],
+    ),
+    clearRule: useCallback(() => {
       setQueries({
-        ruleId: rule?._id || null,
-        boardId: boardId || rule?.value?.boardId || null,
-        pipelineId: pipelineId || rule?.value?.pipelineId || null,
-        stageId: stageId || rule?.value?.stageId || rule?.subId || null,
+        ruleId: null,
       });
-    },
+    }, [setQueries]),
   };
 };
 
 const AccountingCheckSyncedDealRuleContent = ({
   onSelect,
+  ruleScope = 'deal',
 }: {
   onSelect?: () => void;
+  ruleScope?: AccountingCheckSyncedDealRuleScope;
 }) => {
   const { t } = useTranslation('accounting');
   const { data, loading } = useAccountingCheckSyncedDealRules();
-  const { ruleId, applyRule } = useApplyDealRuleFilter();
+  const { ruleId, applyRule, clearRule } = useApplyDealRuleFilter();
 
-  const rules = [...(data?.saleRules || []), ...(data?.returnRules || [])];
+  const rules = getRulesByScope(data, ruleScope);
+  const hasSelectedRule = rules.some((rule) => rule._id === ruleId);
+
+  useEffect(() => {
+    if (!loading && ruleId && !hasSelectedRule) {
+      clearRule();
+    }
+  }, [clearRule, hasSelectedRule, loading, ruleId]);
 
   if (loading) {
     return (
@@ -125,8 +162,10 @@ const AccountingCheckSyncedDealRuleContent = ({
 
 export const AccountingCheckSyncedDealRulePicker = ({
   children,
+  ruleScope = 'deal',
 }: {
   children: ReactNode;
+  ruleScope?: AccountingCheckSyncedDealRuleScope;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -134,7 +173,10 @@ export const AccountingCheckSyncedDealRulePicker = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
       <Combobox.Content>
-        <AccountingCheckSyncedDealRuleContent onSelect={() => setOpen(false)} />
+        <AccountingCheckSyncedDealRuleContent
+          onSelect={() => setOpen(false)}
+          ruleScope={ruleScope}
+        />
       </Combobox.Content>
     </Popover>
   );
@@ -150,23 +192,40 @@ export const AccountingCheckSyncedDealRuleFilterItem = () => {
   );
 };
 
-export const AccountingCheckSyncedDealRuleFilterView = () => {
+export const AccountingCheckSyncedDealRuleFilterView = ({
+  ruleScope = 'deal',
+}: {
+  ruleScope?: AccountingCheckSyncedDealRuleScope;
+}) => {
   const { resetFilterState } = useFilterContext();
 
   return (
     <Filter.View filterKey="ruleId">
-      <AccountingCheckSyncedDealRuleContent onSelect={resetFilterState} />
+      <AccountingCheckSyncedDealRuleContent
+        onSelect={resetFilterState}
+        ruleScope={ruleScope}
+      />
     </Filter.View>
   );
 };
 
-export const AccountingCheckSyncedDealRuleFilterBar = () => {
+export const AccountingCheckSyncedDealRuleFilterBar = ({
+  ruleScope = 'deal',
+}: {
+  ruleScope?: AccountingCheckSyncedDealRuleScope;
+}) => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
-  const { data } = useAccountingCheckSyncedDealRules();
-  const { ruleId } = useApplyDealRuleFilter();
-  const rules = [...(data?.saleRules || []), ...(data?.returnRules || [])];
+  const { data, loading } = useAccountingCheckSyncedDealRules();
+  const { ruleId, clearRule } = useApplyDealRuleFilter();
+  const rules = getRulesByScope(data, ruleScope);
   const rule = rules.find((item) => item._id === ruleId);
+
+  useEffect(() => {
+    if (!loading && ruleId && !rule) {
+      clearRule();
+    }
+  }, [clearRule, loading, rule, ruleId]);
 
   return (
     <Filter.BarItem queryKey="ruleId">
@@ -183,6 +242,7 @@ export const AccountingCheckSyncedDealRuleFilterBar = () => {
         <Combobox.Content>
           <AccountingCheckSyncedDealRuleContent
             onSelect={() => setOpen(false)}
+            ruleScope={ruleScope}
           />
         </Combobox.Content>
       </Popover>

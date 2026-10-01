@@ -4,6 +4,7 @@ import { GET_TICKET_LIST } from '@/report/graphql/queries/getTicketChart';
 export interface TicketListItem {
   _id: string;
   name: string;
+  number?: string;
   statusId: string;
   status?: {
     _id: string;
@@ -19,6 +20,11 @@ export interface TicketListItem {
   startDate?: string;
   tagIds?: string[];
   pipelineId?: string;
+  channelId?: string;
+  branchId?: string;
+  departmentId?: string;
+  createdBy?: string;
+  propertiesData?: Record<string, unknown>;
 }
 
 interface TicketListResult {

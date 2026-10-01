@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client';
 import { useCallback, useMemo } from 'react';
 import { EnumCursorDirection, useMultiQueryState } from 'erxes-ui';
 
-const PRICING_PER_PAGE = 30;
+const PRICING_PER_PAGE = 20;
 
 interface IPricingPlansQueryResult {
   pricingPlans: Array<{

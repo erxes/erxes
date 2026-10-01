@@ -148,24 +148,28 @@ const MailMessageReactionChips = ({
 }: {
   reactions: MailReaction[];
 }) => {
+  const reactionsByEmoji = new Map<string, string[]>();
+  for (const { emoji, sender } of reactions) {
+    const senders = reactionsByEmoji.get(emoji);
+    if (senders) {
+      senders.push(sender);
+    } else {
+      reactionsByEmoji.set(emoji, [sender]);
+    }
+  }
   return (
-    reactions.length > 0 && (
+    reactionsByEmoji.size > 0 && (
       <div className="flex flex-wrap gap-1.5 py-2">
-        {[...new Set(reactions.map(({ emoji }) => emoji))].map((emoji) => {
-          const matching = reactions.filter(
-            (reaction) => reaction.emoji === emoji,
-          );
-          return (
-            <span
-              key={emoji}
-              title={matching.map(({ sender }) => sender).join(', ')}
-              className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
-            >
-              <span>{emoji}</span>
-              <span>{matching.length}</span>
-            </span>
-          );
-        })}
+        {[...reactionsByEmoji].map(([emoji, senders]) => (
+          <span
+            key={emoji}
+            title={senders.join(', ')}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
+          >
+            <span>{emoji}</span>
+            <span>{senders.length}</span>
+          </span>
+        ))}
       </div>
     )
   );

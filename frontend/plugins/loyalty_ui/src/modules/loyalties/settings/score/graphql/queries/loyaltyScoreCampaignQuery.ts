@@ -21,19 +21,19 @@ export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
         order
         add
         subtract
-        set
         createdAt
         createdUserId
         status
         ownerType
-        fieldGroupId
-        fieldName
+        accountTypeId
+        accountType {
+          _id
+          name
+          status
+        }
         fieldId
-        fieldOrigin
-        serviceName
         additionalConfig
         restrictions
-        onlyClientPortal
       }
       totalCount
       pageInfo {

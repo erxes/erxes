@@ -23,7 +23,7 @@ export const readMailVerifiedContacts = async (
   const { searchValue, cursor } = recipientSearchSchema.parse(args);
   const skip = Number(cursor ?? 0);
   if (!Number.isSafeInteger(skip)) {
-    throw new Error('Invalid recipient cursor');
+    throw new TypeError('Invalid recipient cursor');
   }
 
   const search = searchValue

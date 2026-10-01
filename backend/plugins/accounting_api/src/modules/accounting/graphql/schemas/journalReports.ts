@@ -39,6 +39,7 @@ const trsQueryParams = `
   status: String,
   searchValue: String,
   number: String,
+  ptrId: String,
   ptrStatus: String,
 
   accountId: String,

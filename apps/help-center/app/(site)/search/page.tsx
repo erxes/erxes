@@ -14,6 +14,8 @@ import {
   searchArticles,
   sortByReadership,
 } from '@/modules/knowledge-base/utils/selectors';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
+import { getLocale, getT } from '@/modules/i18n/server';
 import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import { Badge, type BadgeTone } from '@/modules/ui/components/Badge';
@@ -28,7 +30,6 @@ import {
   Unpublished,
 } from '@/modules/ui/components/PortalState';
 import { Section } from '@/modules/ui/components/Section';
-import { plural } from '@/modules/ui/lib/plural';
 
 const POST_LIMIT = 20;
 const POPULAR_COUNT = 6;
@@ -38,7 +39,9 @@ const POPULAR_MINIMUM = 3;
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
-export const metadata = { title: 'Search' };
+export const generateMetadata = async () => ({
+  title: (await getT())('common.search'),
+});
 
 type ResultRow = {
   key: string;
@@ -92,9 +95,11 @@ const ResultList = ({ rows }: { rows: ResultRow[] }) => (
 );
 
 export default async function SearchPage({ searchParams }: Props) {
-  const [{ headline }, params] = await Promise.all([
+  const [{ headline }, params, t, locale] = await Promise.all([
     getPortalIdentity(),
     searchParams,
+    getT(),
+    getLocale(),
   ]);
 
   const raw = Array.isArray(params.q) ? params.q[0] : params.q;
@@ -122,6 +127,7 @@ export default async function SearchPage({ searchParams }: Props) {
     );
   }
 
+  const knowledgeBase = knowledgeBaseName(topic.data.knowledgeBaseLabel, t);
   const readMost = sortByReadership(articleEntries(topic.data));
   const suggestions = readMost
     .slice(0, SUGGESTION_COUNT)
@@ -137,19 +143,18 @@ export default async function SearchPage({ searchParams }: Props) {
 
         <Container className="py-10 lg:py-14">
           <h1 className="text-2xl font-semibold tracking-[-0.02em] text-ink">
-            Search the knowledge base
+            {t('search.title', { kb: knowledgeBase.inline })}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Type a keyword above — it looks through every article and
-            announcement. Or start from one of these.
+            {t('search.intro')}
           </p>
 
           <div className="mt-10 space-y-12 lg:space-y-14">
             {popular.length >= POPULAR_MINIMUM ? (
               <Section
                 icon="star"
-                title="Popular articles"
-                description="What other people opened most in this help center."
+                title={t('search.popular')}
+                description={t('search.popularText')}
               >
                 <PopularArticles entries={popular} />
               </Section>
@@ -158,15 +163,15 @@ export default async function SearchPage({ searchParams }: Props) {
             {categories.length ? (
               <Section
                 icon="book"
-                title="Browse by category"
-                description="Every answer, grouped by the part of the product it covers."
+                title={t('search.browse')}
+                description={t('search.browseText')}
                 action={
                   <ButtonLink
                     href="/knowledge-base"
                     size="sm"
                     variant="secondary"
                   >
-                    All categories
+                    {t('kb.allCategories')}
                     <Icon name="chevronRight" size={15} />
                   </ButtonLink>
                 }
@@ -193,11 +198,11 @@ export default async function SearchPage({ searchParams }: Props) {
     (article) => ({
       key: `kb-${article._id}`,
       href: `/knowledge-base/article/${article._id}`,
-      kind: 'Knowledge base',
+      kind: knowledgeBase.title,
       tone: 'brand',
       title: article.title,
       summary: article.summary,
-      meta: formatDate(article.modifiedAt),
+      meta: formatDate(article.modifiedAt, locale),
     }),
   );
 
@@ -207,11 +212,11 @@ export default async function SearchPage({ searchParams }: Props) {
   const postRows: ResultRow[] = posts.map((post) => ({
     key: `cms-${post._id}`,
     href: announcementHref(post),
-    kind: 'Announcement',
+    kind: t('nav.announcement'),
     tone: 'neutral',
-    title: post.title ?? 'Untitled announcement',
+    title: post.title ?? t('cms.untitled'),
     summary: post.excerpt ?? '',
-    meta: formatPostDate(post.publishedDate ?? post.createdAt),
+    meta: formatPostDate(post.publishedDate ?? post.createdAt, locale),
   }));
 
   const rows = [...articleRows, ...postRows];
@@ -222,33 +227,31 @@ export default async function SearchPage({ searchParams }: Props) {
 
       <Container className="py-10 lg:py-14">
         <h1 className="text-2xl font-semibold tracking-[-0.02em] text-ink">
-          “{term}” — {plural(rows.length, 'result')}
+          {t('search.results', { term, count: rows.length })}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {cmsReady
-            ? `Found ${plural(
-                articleRows.length,
-                'match',
-              )} in the knowledge base and ${plural(
-                postRows.length,
-                'match',
-              )} in announcements.`
-            : `Found ${plural(
-                articleRows.length,
-                'match',
-              )} in the knowledge base.`}
+            ? t('search.foundBoth', {
+                articles: t('search.matches', { count: articleRows.length }),
+                posts: t('search.matches', { count: postRows.length }),
+                kb: knowledgeBase.inline,
+              })
+            : t('search.foundKb', {
+                articles: t('search.matches', { count: articleRows.length }),
+                kb: knowledgeBase.inline,
+              })}
         </p>
 
         {announcements && !cmsReady ? (
           <p className="mt-4 flex items-start gap-2 rounded-lg bg-warning-soft px-4 py-3 text-[13px] text-warning">
             <Icon name="alert" size={15} className="mt-px shrink-0" />
             {announcements.state === 'error'
-              ? `Announcements could not be included in the search: ${announcements.message}`
+              ? t('search.cmsError', { message: announcements.message })
               : announcements.state === 'unpublished'
-              ? `Announcements are not included in the search — no help center is published at ${announcements.domain}.`
-              : `Announcements are not included in the search — ${announcements.missing.join(
-                  ', ',
-                )} is not configured.`}
+                ? t('search.cmsUnpublished', { domain: announcements.domain })
+                : t('search.cmsMissing', {
+                    missing: announcements.missing.join(', '),
+                  })}
           </p>
         ) : null}
 
@@ -258,11 +261,11 @@ export default async function SearchPage({ searchParams }: Props) {
           ) : (
             <EmptyState
               icon="search"
-              title="No results found"
-              description="Try a different keyword. If you cannot find an answer, raise a ticket with the support team."
+              title={t('search.noResults')}
+              description={t('search.noResultsText')}
               action={
                 <ButtonLink href="/tickets/new" size="sm">
-                  Create a ticket
+                  {t('tickets.create')}
                 </ButtonLink>
               }
             />

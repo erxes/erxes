@@ -5,6 +5,7 @@ import {
   graphqlPubsub,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
@@ -23,12 +24,12 @@ import {
   resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
+import { checkLoyalties, checkPricing, confirmLoyalties } from './loyaltyUtils';
 import {
-  checkLoyalties,
-  checkPricing,
-  confirmLoyalties,
-  doScoreCampaign,
-} from './loyaltyUtils';
+  checkDealPoints,
+  planDealPoints,
+  syncDealPoints,
+} from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 
 export const addDeal = async ({
@@ -70,7 +71,26 @@ export const addDeal = async ({
     });
   }
 
-  const deal = await models.Deals.createDeal(extendedDoc);
+  // Loyalty refuses before anything is saved, as on edits.
+  const dealId = nanoid();
+
+  await checkDealPoints(
+    subdomain,
+    dealId,
+    await planDealPoints({
+      subdomain,
+      models,
+      dealId,
+      deal: {
+        ...extendedDoc,
+        ...(await getTotalAmounts(extendedDoc.productsData || [])),
+      },
+      customerIds: doc.customerIds,
+    }),
+  );
+
+  const dealDoc = { ...extendedDoc, _id: dealId };
+  const deal = await models.Deals.createDeal(dealDoc);
 
   const stage = await models.Stages.getStage(deal.stageId);
 
@@ -79,6 +99,20 @@ export const addDeal = async ({
     companyIds: doc.companyIds,
     customerIds: doc.customerIds,
   });
+
+  try {
+    await syncDealPoints({
+      subdomain,
+      models,
+      dealId: deal._id,
+      deal,
+      userId: user?._id,
+    });
+  } catch (error) {
+    // Checked before the save, so only a race lands here.
+    await models.Deals.removeDeals([deal._id]);
+    throw error;
+  }
 
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
@@ -161,6 +195,9 @@ export const editDeal = async ({
     ...doc,
     modifiedAt: new Date(),
     modifiedBy: user._id,
+    // Moved through the detail as through the board: the move has its date.
+    ...(doc.stageId &&
+      doc.stageId !== oldDeal.stageId && { stageChangedDate: new Date() }),
   };
 
   const stage = await models.Stages.getStage(oldDeal.stageId);
@@ -196,6 +233,19 @@ export const editDeal = async ({
       defaultValue: {},
     });
   }
+
+  // Loyalty refuses before anything is saved, not after.
+  await checkDealPoints(
+    subdomain,
+    _id,
+    await planDealPoints({
+      subdomain,
+      models,
+      dealId: _id,
+      deal: { ...oldDeal.toObject(), ...extendedDoc },
+      oldDeal,
+    }),
+  );
 
   const updatedItem = await models.Deals.updateDeal(_id, extendedDoc);
   // labels should be copied to newly moved pipeline
@@ -261,7 +311,14 @@ export const editDeal = async ({
     });
   }
 
-  await doScoreCampaign(subdomain, models, _id, updatedItem, oldDeal);
+  await syncDealPoints({
+    subdomain,
+    models,
+    dealId: _id,
+    deal: updatedItem,
+    oldDeal,
+    userId: user._id,
+  });
   await confirmLoyalties(subdomain, _id, updatedItem);
 
   if (oldDeal.stageId === updatedItem.stageId) {
@@ -317,12 +374,31 @@ export const changeDeal = async (
     checkMovePermission(destinationStage, userId);
 
     extendedDoc.stageChangedDate = new Date();
+
+    await checkDealPoints(
+      subdomain,
+      itemId,
+      await planDealPoints({
+        subdomain,
+        models,
+        dealId: itemId,
+        deal: { ...item.toObject(), ...extendedDoc },
+        oldDeal: item,
+      }),
+    );
   }
 
   const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
   if (item.stageId !== destinationStageId) {
-    await doScoreCampaign(subdomain, models, item._id, updatedItem, item);
+    await syncDealPoints({
+      subdomain,
+      models,
+      dealId: item._id,
+      deal: updatedItem,
+      oldDeal: item,
+      userId,
+    });
     await confirmLoyalties(subdomain, item._id, updatedItem);
   }
 

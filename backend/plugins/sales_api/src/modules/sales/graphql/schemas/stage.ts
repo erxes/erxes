@@ -23,6 +23,7 @@ export const types = `
     formId: String
     age: Int
     defaultTick: Boolean
+    refundPoints: Boolean
     order: Int
     createdAt: Date
     type: String

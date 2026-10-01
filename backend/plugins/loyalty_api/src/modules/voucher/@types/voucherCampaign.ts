@@ -2,6 +2,14 @@ import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils/common';
 
+export type TVoucherOwnerLimitPeriod = 'campaign' | 'year' | 'month';
+
+/** At most `count` from this campaign to one owner within each period. */
+export interface IVoucherOwnerLimit {
+  count: number;
+  period: TVoucherOwnerLimitPeriod;
+}
+
 export interface IVoucherCampaign extends ICommonCampaignFields {
   buyScore: number;
 
@@ -28,10 +36,13 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
   kind: 'amount' | 'percent';
   value: number;
   restrictions: any;
+  perOwnerLimit?: IVoucherOwnerLimit | null;
 }
 
 export interface IVoucherCampaignDocument
-  extends IVoucherCampaign, ICommonCampaignDocument, Document {
+  extends IVoucherCampaign,
+    ICommonCampaignDocument,
+    Document {
   _id: string;
 }
 

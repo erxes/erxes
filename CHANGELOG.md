@@ -1,5 +1,102 @@
 
 
+## [3.2.11](https://github.com/erxes/erxes/compare/3.2.10...3.2.11) (2026-10-01)
+
+
+### Bug Fixes
+
+* **frontline:** link Call Pro conversations to their customer ([5d58d5b](https://github.com/erxes/erxes/commit/5d58d5bfee7cdd2e108954bd4c48ad46026fc5e8))
+* **frontline:** restore v2 department/branch ticket visibility ([fff105b](https://github.com/erxes/erxes/commit/fff105b00c6e4040dc09ab9e6cf7d321af6767d8))
+* posclient order to deal convert fix ([dec2256](https://github.com/erxes/erxes/commit/dec22560dd25b1a28c8fec8a148abe1f8a9c73e5))
+
+
+### Features
+
+* **frontline:** selectable Ticket List report columns with matching Excel export ([66bec10](https://github.com/erxes/erxes/commit/66bec100f2e0f1f82a14aab8ce3bd7f9a048d639))
+* **loyalty:** make serviceName optional in score campaigns and update documentation ([9525ce4](https://github.com/erxes/erxes/commit/9525ce4f2e2cfa4474bec37d8d2dccd3aa102934))
+
+# Changelog
+
+## [3.2.10](https://github.com/erxes/erxes/compare/3.2.9...3.2.10) (2026-10-01)
+
+
+### Features
+
+* **accounting:** inventory income journal with split products ([#9517](https://github.com/erxes/erxes/issues/9517)) ([85b4933](https://github.com/erxes/erxes/commit/85b4933dab2c719adf8723d23ee1e67e4c8b3a54))
+* **email:** implement dynamic email item tables for list outputs ([a6d84b1](https://github.com/erxes/erxes/commit/a6d84b1306e74acf8e65df5a7352582cfc1da071))
+* enhance tagIds lookups with variables for segment filtering across multiple modules ([15aef1b](https://github.com/erxes/erxes/commit/15aef1b92da209d22efd91acdb88fa84f8e430a7))
+* **help-center:**  sidebar tree nav and account UI ([35bd01d](https://github.com/erxes/erxes/commit/35bd01d492e89c8bb0f928af2d08197c099fdec6))
+
+## [3.2.9](https://github.com/erxes/erxes/compare/3.2.8...3.2.9) (2026-09-30)
+
+
+### Bug Fixes
+
+* **frontline:** migrate ticket priority, status type and properties correctly ([515e946](https://github.com/erxes/erxes/commit/515e9467d019f8d2622c3cae59d203ee2e7a5654))
+* **frontline:** show newly created tickets at the top of the board column ([b9ee7af](https://github.com/erxes/erxes/commit/b9ee7af8f8f3dc45807750f7efc72237ca662cda))
+* **frontline:** stop spurious ticket updates when opening a ticket ([9447207](https://github.com/erxes/erxes/commit/94472074d34c8d58cc31510185edf8f09e68d7e8))
+
+
+### Features
+
+* **frontline:** add Call Pro debug logging and fix recording player ([0f7f616](https://github.com/erxes/erxes/commit/0f7f616b72912303e0e00b0838e0bb8593d4f97a))
+* **saas-migrations:** add legacy integrations migration command ([72e90e7](https://github.com/erxes/erxes/commit/72e90e72d0ae00ffcffe40f4d323654aa5c44f8f))
+
+
+
+## [3.2.8](https://github.com/erxes/erxes/compare/3.2.7...3.2.8) (2026-09-30)
+
+
+### Features
+
+* **loyalty:** tiers, period runs, birthday coupons via nightly segment broadcasts ([#9514](https://github.com/erxes/erxes/issues/9514)) ([d23cfaf](https://github.com/erxes/erxes/commit/d23cfaf9fbf375d36f1c6153977e3bfb9703edbd))
+
+## [3.2.7](https://github.com/erxes/erxes/compare/3.2.6...3.2.7) (2026-09-30)
+
+
+### Bug Fixes
+
+* citytaxPercent ([4b25043](https://github.com/erxes/erxes/commit/4b25043f82b2a0167047fa3c2a08a60aa35d8171))
+* clientportal context ([#9508](https://github.com/erxes/erxes/issues/9508)) ([05e32a9](https://github.com/erxes/erxes/commit/05e32a96ea84a806c61e5989ffb1b8a1eafa5cf9))
+* forward client portal auth config ([4e1cf0a](https://github.com/erxes/erxes/commit/4e1cf0a29d2b829f9b6d6ad5b84614e457e72fdf))
+* **frontline:** guard null message content in forwarded check ([4ed7404](https://github.com/erxes/erxes/commit/4ed7404ef6dfb6d75b9911c0f41a2cb7e0e8bd8b))
+* **migrations:** port SaaS v2 migration fixes to backend commands  ([4a4cc83](https://github.com/erxes/erxes/commit/4a4cc839042e75d0d10183d649aaba7afe0f37a2))
+* **saas-migrations:** retype legacy tag types already copied to target ([af31f78](https://github.com/erxes/erxes/commit/af31f785719a349369bd2785fbd71ca24dd38405))
+
+
+### Features
+
+* add configurable confirm dialog content and button variants ([deba038](https://github.com/erxes/erxes/commit/deba038eba2970a079f0f7a8aeafa8b8885a2551))
+* **frontline:** add SLA tab and bar charts to call report ([f53bf17](https://github.com/erxes/erxes/commit/f53bf17471821f5ced3b5c0900584e437f04da29))
+
+
+
+## [3.2.6](https://github.com/erxes/erxes/compare/3.2.5...3.2.6) (2026-09-29)
+
+
+### Bug Fixes
+
+* accounting reports and some improve ([#9497](https://github.com/erxes/erxes/issues/9497)) ([147884f](https://github.com/erxes/erxes/commit/147884f91538c7dae82ad7d15ee02456d5cb1506))
+* add empty states to OAuth clients, client portals, and brands tables ([#9464](https://github.com/erxes/erxes/issues/9464)) ([d9175fd](https://github.com/erxes/erxes/commit/d9175fdedcb723e92d1042adf6c0bde21361277f))
+* **content:** publish CMS posts directly without Postiz access ([#9496](https://github.com/erxes/erxes/issues/9496)) ([9f409ff](https://github.com/erxes/erxes/commit/9f409ffc3d561cf31565fe9d7da7be84d70f32c6))
+* deal detail when has lot of stages ([#9479](https://github.com/erxes/erxes/issues/9479)) ([958f46b](https://github.com/erxes/erxes/commit/958f46bd25d0a2452c46744bfebb3074c05f6a4a))
+* **loyalty:** pricing plan list pagination ([4e9c603](https://github.com/erxes/erxes/commit/4e9c603fa3b4eed311983fae6b5f8eb4bed41c94))
+* **payment:** Khanbank payment ([#9483](https://github.com/erxes/erxes/issues/9483)) ([fdb2434](https://github.com/erxes/erxes/commit/fdb2434b28826b1f2eddb4f5b98114ab996b7471))
+* pricing plan pagination ([e269dbb](https://github.com/erxes/erxes/commit/e269dbb3d89517741eb64eee50045bf02e00a474))
+* products save then check pricing plan ([d39527a](https://github.com/erxes/erxes/commit/d39527ad290f9e442021fefcd563457a67bac370))
+* restore task and triage detail layout in My Inbox ([#9482](https://github.com/erxes/erxes/issues/9482)) ([97925e7](https://github.com/erxes/erxes/commit/97925e743b493a3abb59307e85e545f403a61868))
+* **saas-migrations:** accept shared-storage media and legacy attachment gaps in KB-to-CMS import ([6c45098](https://github.com/erxes/erxes/commit/6c450984cc3948680d23cbfc3829e246d950f791))
+* **saas-migrations:** support shared-storage media keys in KB-to-CMS import ([acfe5a6](https://github.com/erxes/erxes/commit/acfe5a60f351b8df28f11d70e336e8c328611667))
+* trim client portal header to prevent oversized request headers ([824d940](https://github.com/erxes/erxes/commit/824d94024541109321f8bf43ef2e8c274458b2b5))
+
+
+### Features
+
+* **core:** let a plugin announce its own UI remote entry  ([e31bdc6](https://github.com/erxes/erxes/commit/e31bdc621644bbc007ee0f0aa46ff1f50076596c))
+* enhance email content handling with new rendering and editor features ([5f77159](https://github.com/erxes/erxes/commit/5f77159f00dc9be1e85d5f7a66306b68c61ac891))
+* replace hard-coded values in DatePicker with optional props: ([f465fa7](https://github.com/erxes/erxes/commit/f465fa7416f392bf56981c9c080c0aa476a531ad))
+* **saas-migrations:** backfill customer search tokens across orgs ([312006e](https://github.com/erxes/erxes/commit/312006e8edea4a5762c50a01747e99c374bb04a4))
+
 ## [3.2.5](https://github.com/erxes/erxes/compare/3.2.4...3.2.5) (2026-09-28)
 
 
@@ -38,7 +135,7 @@
 * **saas-migrations:** convert legacy ebarimt/erkhet configs to mongolian_configs ([1715cbf](https://github.com/erxes/erxes/commit/1715cbfe92c7153f514ae049db5dc21c17cd7b63))
 * **saas-migrations:** run migrations across org pairs and protect target data  ([e997c26](https://github.com/erxes/erxes/commit/e997c2654f55a6590b11586a49c4d29674d382bf))
 
-# Changelog
+
 
 ## [3.2.4](https://github.com/erxes/erxes/compare/3.2.3...3.2.4) (2026-09-24)
 

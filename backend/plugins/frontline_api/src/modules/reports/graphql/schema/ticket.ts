@@ -104,6 +104,13 @@ export const types = `
     startDate: Date
     targetDate: Date
     updatedAt: Date
+    number: String
+    statusName: String
+    createdByName: String
+    channelName: String
+    branchName: String
+    departmentName: String
+    propertiesData: JSON
   }
 `;
 

@@ -1,12 +1,18 @@
+import { FolksActionSourceHandler } from '@/automations/components/builder/nodes/components/FolksActionSourceHandler';
 import { NodeDropdownActions } from '@/automations/components/builder/nodes/components/NodeDropdownActions';
 import {
   NodeErrorDisplay,
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
+import { NodeWarningIndicator } from '@/automations/components/builder/nodes/components/NodeWarningIndicator';
+import { NodeIssuesProvider } from '@/automations/components/builder/nodes/components/NodeIssuesProvider';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
+import { SegmentMembershipNodeContent } from '@/automations/components/builder/nodes/components/SegmentMembershipNodeContent';
 import { TriggerNodeConfigurationContent } from '@/automations/components/builder/nodes/components/TriggerNodeConfigurationContent';
 import { useNodeContent } from '@/automations/components/builder/nodes/hooks/useTriggerNodeContent';
+import { useTriggerNodeFolks } from '@/automations/components/builder/nodes/hooks/useTriggerNodeFolks';
+import { isSegmentMembershipTrigger } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { IconAdjustmentsAlt } from '@tabler/icons-react';
 import { Node, NodeProps } from '@xyflow/react';
@@ -52,11 +58,48 @@ const TriggerNodeContent = ({ data }: { data: NodeData }) => {
     return null;
   }
 
-  return <ConfigurationSection data={data} />;
+  return (
+    <NodeIssuesProvider nodeId={data.id} readOnly={data.readOnly}>
+      <ConfigurationSection data={data} />
+    </NodeIssuesProvider>
+  );
+};
+
+const TriggerNodeSourceHandler = ({
+  id,
+  data,
+}: {
+  id: string;
+  data: NodeData;
+}) => {
+  const { folks, hasFolks } = useTriggerNodeFolks(data.config);
+
+  if (hasFolks) {
+    return (
+      <FolksActionSourceHandler
+        nodeId={id}
+        config={data.config}
+        folks={folks}
+        flowDirection={data.flowDirection}
+        nodeType={AutomationNodeType.Trigger}
+      />
+    );
+  }
+
+  return (
+    <NodeOutputHandler
+      nodeType={AutomationNodeType.Trigger}
+      handlerId={id}
+      className="!bg-primary"
+      addButtonClassName="hover:border-primary hover:text-primary "
+      showAddButton={!data.actionId}
+      flowDirection={data.flowDirection}
+    />
+  );
 };
 
 const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
-  const { beforeTitleContent, actionId } = data;
+  const { beforeTitleContent } = data;
 
   return (
     <div className="flex flex-col ">
@@ -84,6 +127,9 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
               <p className="font-medium ">{data.label}</p>
             </div>
             {data?.error && <NodeErrorIndicator error={data.error} />}
+            {!data?.error && !data.readOnly && (
+              <NodeWarningIndicator nodeId={id} />
+            )}
           </div>
 
           {!data.readOnly && (
@@ -109,20 +155,17 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
             </div>
           )}
 
-          <TriggerNodeContent data={data} />
+          {isSegmentMembershipTrigger(data.config) ? (
+            <SegmentMembershipNodeContent segmentId={data.config?.segmentId} />
+          ) : (
+            <TriggerNodeContent data={{ ...data, id }} />
+          )}
         </div>
 
         {data.readOnly ? (
           <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
         ) : (
-          <NodeOutputHandler
-            nodeType={AutomationNodeType.Trigger}
-            handlerId={id}
-            className="!bg-primary"
-            addButtonClassName="hover:border-primary hover:text-primary "
-            showAddButton={!actionId}
-            flowDirection={data.flowDirection}
-          />
+          <TriggerNodeSourceHandler id={id} data={data} />
         )}
       </div>
     </div>

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -61,6 +61,63 @@
 
 ## Current Capabilities
 
+- A ticket raised from a help center tells the person who raised it what
+  happens to it: a confirmation when it is created, a notification when the
+  team posts a reply the portal can see, and one when the ticket moves to a
+  new status. Each is filed as a client portal notification against
+  `frontline:ticket`, so the help center can link straight back to the ticket.
+- `src/migrations/migrateForms.ts` copies a v2 form field into
+  `frontline_form_fields` when its `contentType` is `form` or its
+  `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
+  the exact value the `Form.fields` resolver reads. Re-running it overwrites
+  the target field with the source copy.
+- `src/migrations/migrateTickets.ts` migrates v2 `tickets_pipelines`,
+  `tickets_stages`, `tickets`, `ticket_comments` and checklists into the
+  frontline ticket collections. Pipelines and new tickets get `channelId` from
+  `STATIC_CHANNEL_ID` (default `9H8jJQrCbXdWb4FoX`), and it is a dry run unless
+  `DRY_RUN=false`. New tickets get `priority` from the v2 label
+  (`low`/`minor` 1, `normal`/`medium` 2, `high`/`major` 3, `critical`/`urgent`
+  4), `statusType` from the migrated status, all `assignedUserIds` as
+  `assignedMembers`, the first `departmentIds`/`branchIds` entry as
+  `departmentId`/`branchId`, and `propertiesData` parsed against
+  `properties_fields`/`properties_groups` by `_id` (option values lowercased to
+  match migrated options, `date` → `Date`, `number` → `Number`, multiple-group
+  rows under `toPropertyGroupKey`; free text keeps its case). Already-migrated
+  tickets are repaired in place: only empty `priority`/`statusType`/
+  `assignedMembers`/`departmentId`/`branchId` are filled, and `propertiesData`
+  is replaced only while it is empty or still the raw v2 copy, so values edited
+  in v3 are kept. It reports property field ids with no definition and fields
+  whose `contentType` is not `frontline:ticket` (the ticket detail only lists
+  `frontline:ticket` fields). Ticket↔customer/company links live in v2
+  `conformities` and are moved by core `migrateConformitiesToRelations`.
+- `src/migrations/migrateCallProConversationCustomers.ts` repairs Call Pro
+  conversations saved without `customerId`: it sets `callProPhone` from
+  `conversations_callpros.recipientPhoneNumber`, links the customer when exactly
+  one non-deleted core customer has that phone (and back-fills the empty
+  `customers_callpros.erxesApiId`), and fills `callProPotentialCustomerIds`
+  when several do. Customers are looked up in one `$in` query because
+  `customers` phone fields may be unindexed. It is a dry run unless
+  `DRY_RUN=false`, and backs up touched conversations into
+  `conversations_bak_callpro_customers` before writing.
+- `src/migrations/migrateLegacyIntegrations.ts` copies provider data from the
+  legacy v2 `erxes_facebook` (`LEGACY_FACEBOOK_DB`) and v1 `erxes_integrations`
+  (`LEGACY_INTEGRATIONS_DB`) databases into the frontline collections of the
+  `MONGO_URL` database. v2 Facebook data is copied first so it wins over v1 on
+  the `customers_facebooks.userId` and `conversations_facebooks`
+  (`senderId`, `recipientId`) unique indexes; duplicate-key rejections are
+  counted as `duplicates`, not failures. A provider integration is copied only
+  when its inbox integration exists and no provider integration already claims
+  that inbox. v1 `integrations` are split by `kind` into `facebook_integrations`
+  and `integrations_callpros` (`erxesApiId` becomes `inboxId`); `chatfuel` is
+  skipped. v1 `comments_facebooks` becomes `comment_conversations_facebooks`
+  (`commentId` → `comment_id`, `timestamp` → `createdAt`), comments/posts get
+  `integrationId` from the v1+v2 `facebook-post` page mapping, and v1 messages
+  are copied only when their conversation exists. v2
+  `facebook_messengers_bots` get the required `createdBy`/`updatedBy` from
+  `BOT_OWNER_USER_ID` or the owner user, string persistent-menu `_id`s, and an
+  unknown menu `type` becomes `button`. Legacy `_id`s are kept because
+  provider rows and automations link by `_id`. It is insert-only and safe to
+  re-run; it is a dry run unless `DRY_RUN=false`.
 - A ticket an automation creates records `createdVia` — what produced it, which
   run, and for whom — and is created as that actor when no conversation agent
   applies.
@@ -365,6 +422,9 @@
   write — `HelpCenterConfig.getChannelFormIds` drops every id that does not
   belong to `formChannelId`, so a channel change cannot leave a stale form on
   the site.
+- Conversation and ticket segment `tagIds` lookups list their own tags
+  (`frontline:conversation`, `frontline:ticket`) plus workspace tags
+  (`query.variables`).
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company
@@ -397,6 +457,7 @@
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
+| Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
@@ -668,10 +729,50 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
   day × hour** instead of day-of-week, for the spreadsheet export of the report.
   Only hours that carry calls produce a row; absent buckets mean zero.
+- GraphQL `callSlaReport(startDate, endDate, integrationId?, queueId?,
+agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
+  level built by `buildSlaReport` (`callSlaService.ts`): **answered ÷
+  offered**, with no answer-time threshold — how long an answered caller
+  waited never matters. A call is **offered** unless it was abandoned in under
+  5 s (`SLA_DEFAULT_SHORT_ABANDON_SECONDS`, fixed — the API does not take it).
+  A missed offered call **counts as answered** (it stays in the denominator,
+  joins `answeredCalls` and is counted in `calledBackCalls`) when it was
+  **called back**: an outbound call from the same inbox integrations to the
+  same number (compared through `normalizeSlaPhone`, which drops `976` and
+  leading zeros) that a human answered within `callbackWindowMinutes`
+  (default 60, `0` turns it off, max 1440) of the missed call's end. Only our
+  outbound calls count — the customer calling again does not. Outbound CDRs
+  are read up to `endDate` + the window. Every offered call that was neither
+  answered nor called back is a breach; one whose window is still open is
+  flagged `isPendingCallback`. `serviceLevel` is `null` when nothing was
+  offered. `breaches` holds the newest `breachLimit` (default 50, max 5000,
+  `SLA_MAX_BREACH_LIMIT`) and `breachCount` the full total. A call belongs to
+  the agent `foldLegsIntoCalls` assigns — the one who answered, else the first
+  extension it rang — using the scope's operator extensions as
+  `knownExtensions`. `agentExtension` narrows every figure to that agent, while
+  `agents` always lists every agent in the unfiltered range, named through the
+  core `users.find` tRPC query; breaches carry `agentName` the same way.
+  Every unanswered call gets a `missedReason` from `missedReasonOf`, in this
+  order: `SHORT_HANGUP`, `VOICEMAIL` (a `VM` leg answered), `BUSY` / `FAILED`,
+  `IVR` (no `Queue`/`Dial` leg), `NOT_PICKED_UP` (a known operator extension
+  rang) and `QUEUE_ABANDON`. With no known extensions any four-digit `dst`
+  counts as an agent, which also matches queue numbers. `missedReasons`
+  counts each reason and how many were called back; `missedByHour` buckets
+  them by PBX (`+08:00`) hour. There is no outside-business-hours reason
+  because the plugin has no business-hours setting. It shares
+  `resolveReportScope` with the other call reports, ignores `direction`, and
+  is a separate formula from `callKpiScorecard.serviceLevel` (answered-only
+  denominator, fixed 20 s), so the two numbers differ.
 - HTTP `POST /callpro/receive` — the Call Pro PBX pushes one call event
   (`numberTo`, `numberFrom`, `disp`, `callID`, `owner`). The route is only
   mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns 404. Public URL: `{DOMAIN}/gateway/pl:frontline/callpro/receive`
-  (`{DOMAIN}/pl:frontline/...` outside production).
+  (`{DOMAIN}/pl:frontline/...` outside production). Every step of the
+  webhook (raw body, integration lookup, customer/conversation get-or-create,
+  state change, inbox response, member notification) and integration
+  create/update/remove is written to stdout through
+  `callpro/debuggers.ts` with `[callpro]` / `[callpro:error]` prefixes, as is every
+  reason `Conversation.callProAudio` resolves to null (flag off, viewer not
+  owner/assignee, missing `recordUrl`, lookup failure).
 - GraphQL `callProConfig` — `{ enabled, webhookUrl }`. This is the only way the
   UI learns whether Call Pro is licensed; `webhookUrl` is null when it is not.
 - GraphQL `callProIntegrationDetail(integrationId)` — the `phoneNumber` and
@@ -696,6 +797,13 @@ direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
   something the report queries accept; the persisted subset is narrowed by
   `pickReportChartFilters`. Saving never touches the default charts — they are
   a frontend constant, not rows in this collection.
+- GraphQL `reportTicketExport(filters)` — every matching ticket, unpaged, with
+  ids resolved to display names (`assigneeName`, `createdByName`,
+  `pipelineName`, `statusName`, `channelName`, `branchName`, `departmentName`,
+  `tagNames`) plus raw `number` and `propertiesData`. Users, tags, branches and
+  departments resolve through core tRPC `find`; statuses and channels through
+  this plugin's models. Property values are returned raw; the UI maps option
+  labels.
 - GraphQL Facebook reports — `reportFacebookPages`, `reportFacebookSummary`,
   `reportFacebookActivity`, `reportFacebookPosts`, `reportFacebookBots`. All but
   the first take a `FacebookReportFilter` (`date`, `fromDate`, `toDate`,
@@ -723,6 +831,24 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   applied only by `reportFacebookPosts`, never by the summary, activity, or bot
   queries. The term is escaped before it becomes a `RegExp`, so a user typing
   `a.b(c` searches for that literal string instead of crashing the resolver.
+- `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
+  list's branch and department filters. `generateFilter` turns a non-empty list
+  into `branchId` / `departmentId` `$in`, and the `ticketListChanged`
+  subscription drops tickets outside the same lists so live updates match the
+  query. They narrow on top of pipeline `isCheckBranch` / `isCheckDepartment`
+  visibility, never replace it.
+- `ITicketFilter.propertiesData: String` — the encoded property conditions
+  (`fieldId:operator:value;…`) the shared `PropertiesFilter` writes. Both
+  `generateFilter` and the `ticketListChanged` subscription build them with
+  `buildPropertyFilter` from `erxes-api-shared/core-modules`; never hand-parse
+  the string. The subscription checks a create/update through the
+  `ticket.matchesProperties` tRPC query (`Ticket.exists` with those conditions)
+  and lets deletes through so removals still reach the list.
+- `src/apollo/subscription.ts` is downloaded and executed by the gateway, not by
+  this service: it may import only packages the gateway resolves
+  (`erxes-api-shared/utils`, `graphql-subscriptions`), never `~/` or `@/` plugin
+  paths. Anything that needs models goes through a frontline tRPC procedure via
+  `sendTRPCMessage`.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
@@ -855,11 +981,48 @@ isInternal)` is the agent-side list and requires `showTickets`.
   of `info | success | warning | error`, and `kind: 'system'` with
   `allowMultiple: true` keeps each review outcome a separate notification
   instead of overwriting the previous one for the same `contentTypeId`. The
-  `clientPortalId` comes from `cpUsers.get`, not from the survey.
+  `clientPortalId` comes from `cpUsers.get`, not from the survey. Ticket
+  events file the same way with `kind: 'user'` and no `allowMultiple`, which
+  upserts one live notification per `(contentType, contentTypeId, cpUser)` —
+  the newest ticket event replaces the previous unread one instead of stacking.
+  The portal account behind a ticket is resolved from its `cp:<id>` author with
+  `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
+  records whichever of the two the portal session carried.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
   typo here fails silently.
+
+## Local Invariants
+
+- Call Pro sends several webhooks per call, so `getOrCreateCustomer` in
+  `src/modules/integrations/callpro/controller.ts` must never trust a
+  `customers_callpros` row without `erxesApiId`: it links the core customer
+  (`get-create-update-customer`) before returning, reuses the row a concurrent
+  request inserted instead of failing, and deletes only a row it created
+  itself. Every new Call Pro conversation stores `callProPhone`, so the caller
+  number shows even when no customer is linked.
+- Pipeline `isCheckUser` / `isCheckDepartment` / `isCheckBranch` filter which
+  tickets a user sees; they never block opening a pipeline or creating a ticket
+  in it (v2 parity). `validatePipelineAccess` only enforces private-pipeline
+  membership. `buildVisibilityCondition` in
+  `src/modules/ticket/utils/ticketVisibility.ts` exempts `role: 'system'`,
+  `isOwner` and `excludeCheckUserIds` users; everyone else sees the OR of own
+  (`createdBy`), assigned (`assigneeId`), own-department / own-branch tickets,
+  and tickets of departments they supervise (core `departments.findWithChild`
+  by `supervisorId`, intersected with the pipeline's `departmentIds`).
+  `isCheckDate` stays an extra AND condition. `generateFilter` needs the
+  request `subdomain` to resolve supervised departments.
+- A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
+  `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
+  ticket's `channelId` and `pipelineId` with `ticketId`; without them the
+  tickets page falls back to the channel's first pipeline.
+- Ticket activity logging (`createActivity` in
+  `src/modules/ticket/utils/ticket.ts`) receives the whole ticket as `newDoc`
+  (`{ ...ticket.toObject(), ...rest }`), so every field is compared on every
+  update. `startDate`/`targetDate` must be compared by timestamp, never by
+  reference: `toObject()` returns new `Date` instances and a reference compare
+  logs a "changed start date X → X" activity on every unrelated edit.
 
 ## Validation
 

@@ -32,6 +32,7 @@ export const PropertyForm = ({
   defaultValues,
   isEdit,
   disableType,
+  locked,
   onCancel,
   contentType,
   fieldId,
@@ -41,6 +42,8 @@ export const PropertyForm = ({
   defaultValues: IPropertyForm;
   isEdit?: boolean;
   disableType?: boolean;
+  // Featured fields: a plugin owns them, so only presentation can change.
+  locked?: boolean;
   onCancel: () => void;
   contentType: string;
   fieldId?: string;
@@ -95,6 +98,14 @@ export const PropertyForm = ({
         <Sheet.Content className="overflow-y-auto">
           <ScrollArea className="flex-auto">
             <div className="flex flex-col px-5 py-4 gap-5">
+              {locked && (
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    'featured-field-edit-hint',
+                    'A plugin feature owns this field and fills its values: its type and options cannot change, but its name, icon and visibility can.',
+                  )}
+                </p>
+              )}
               <div className="flex gap-5">
                 <Form.Field
                   name="icon"
@@ -126,31 +137,41 @@ export const PropertyForm = ({
                   )}
                 />
               </div>
-              <Form.Field
-                name="code"
-                render={({ field }) => (
-                  <Form.Item className="flex-auto">
-                    <Form.Label>{t('code', 'Code')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="description"
-                render={({ field }) => (
-                  <Form.Item className="flex-auto">
-                    <Form.Label>{t('description', 'Description')}</Form.Label>
-                    <Form.Control>
-                      <Textarea {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <PropertyFormGroupField form={form} contentType={contentType} />
+              {/* A featured field keeps its plugin's code, group and rules. */}
+              {!locked && (
+                <>
+                  <Form.Field
+                    name="code"
+                    render={({ field }) => (
+                      <Form.Item className="flex-auto">
+                        <Form.Label>{t('code', 'Code')}</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    name="description"
+                    render={({ field }) => (
+                      <Form.Item className="flex-auto">
+                        <Form.Label>
+                          {t('description', 'Description')}
+                        </Form.Label>
+                        <Form.Control>
+                          <Textarea {...field} />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <PropertyFormGroupField
+                    form={form}
+                    contentType={contentType}
+                  />
+                </>
+              )}
               <Form.Field
                 name="type"
                 render={({ field }) => (
@@ -203,15 +224,23 @@ export const PropertyForm = ({
                   </Form.Item>
                 )}
               />
-              <PropertyFormValidation form={form} />
-              <PropertyFormSelectFields form={form} isEdit={isEdit} />
-              <PropertyFormObjectListFields form={form} isEdit={isEdit} />
-              <PropertySelectRelationType form={form} />
-              <PropertyFormLogicFields
+              {!locked && <PropertyFormValidation form={form} />}
+              <PropertyFormSelectFields
                 form={form}
-                contentType={contentType}
-                excludeFieldId={fieldId}
+                isEdit={isEdit}
+                locked={locked}
               />
+              {!locked && (
+                <>
+                  <PropertyFormObjectListFields form={form} isEdit={isEdit} />
+                  <PropertySelectRelationType form={form} />
+                  <PropertyFormLogicFields
+                    form={form}
+                    contentType={contentType}
+                    excludeFieldId={fieldId}
+                  />
+                </>
+              )}
             </div>
           </ScrollArea>
         </Sheet.Content>

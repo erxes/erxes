@@ -42,6 +42,8 @@ export const BROADCAST_MESSAGES = gql`
         notification
         email
         brandId
+        targetType
+        targetIds
         targetCount
         totalCustomersCount
         validCustomersCount

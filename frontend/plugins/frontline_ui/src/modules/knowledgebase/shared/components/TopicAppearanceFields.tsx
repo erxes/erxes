@@ -3,6 +3,7 @@ import { ColorPicker, Form, Upload } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode } from 'react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
+import { ColorDefaultAction } from '@/knowledgebase/shared/components/ColorDefaultAction';
 
 export function KbColorInput({
   value,
@@ -58,12 +59,17 @@ function KbControlField<T extends FieldValues>({
   name,
   label,
   required,
+  renderLabelAction,
   renderControl,
 }: Readonly<{
   control: Control<T>;
   name: Path<T>;
   label: string;
   required?: string;
+  renderLabelAction?: (
+    value: string,
+    onChange: (value: string) => void,
+  ) => ReactNode;
   renderControl: (
     value: string,
     onChange: (value: string) => void,
@@ -76,7 +82,10 @@ function KbControlField<T extends FieldValues>({
       rules={required ? { required } : undefined}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{label}</Form.Label>
+          <div className="flex items-center justify-between gap-2">
+            <Form.Label>{label}</Form.Label>
+            {renderLabelAction?.(field.value as string, field.onChange)}
+          </div>
           <Form.Control>
             {renderControl(field.value as string, field.onChange)}
           </Form.Control>
@@ -91,12 +100,21 @@ export const TopicColorField = <T extends FieldValues>({
   control,
   name,
   t,
-}: TTopicFieldProps<T>) => (
+  defaultValue,
+}: TTopicFieldProps<T> & Readonly<{ defaultValue?: string }>) => (
   <KbControlField
     control={control}
     name={name}
     label={t('kb-color-required')}
     required="Color is required"
+    renderLabelAction={(value, onChange) => (
+      <ColorDefaultAction
+        value={value}
+        defaultValue={defaultValue}
+        onReset={onChange}
+        t={t}
+      />
+    )}
     renderControl={(value, onChange) => (
       <KbColorInput value={value} onChange={onChange} />
     )}

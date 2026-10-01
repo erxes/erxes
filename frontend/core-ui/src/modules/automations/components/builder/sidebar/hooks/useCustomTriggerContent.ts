@@ -29,7 +29,11 @@ export const useCustomTriggerContent = (activeNode: NodeData) => {
     });
   };
 
-  const onSaveTriggerConfig = (config: any) => {
+  const onSaveTriggerConfig = (formConfig: any) => {
+    // A plugin's form knows only its own fields; re-enrollment is set beside it.
+    const { reEnrollment, reEnrollmentRules } = activeTrigger?.config || {};
+    const config = { ...formConfig, reEnrollment, reEnrollmentRules };
+
     setAutomationBuilderFormValue(
       `${AutomationNodesType.Triggers}.${activeNode.nodeIndex}.config`,
       config,

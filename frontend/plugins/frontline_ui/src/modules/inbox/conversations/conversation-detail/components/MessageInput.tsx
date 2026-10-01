@@ -40,6 +40,13 @@ import {
   parseConversationDraft,
 } from '@/inbox/conversations/conversation-detail/utils/messageInput';
 
+const NOTE_ONLY_INTEGRATION_KINDS: string[] = [
+  'lead',
+  IntegrationType.CALL,
+  IntegrationType.CALLPRO,
+  IntegrationType.MAIL,
+];
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -127,11 +134,12 @@ export const MessageInput = ({
   }, [draftKey, editor, resetAttachments, resetSuggestions, setIsInternalNote]);
 
   useEffect(() => {
-    const isLead = integration?.kind === 'lead';
-    const isMailIntegration = integration?.kind === IntegrationType.MAIL;
+    const isNoteOnly = NOTE_ONLY_INTEGRATION_KINDS.includes(
+      integration?.kind ?? '',
+    );
     setIsInternalNoteCollapsed(false);
-    setOnlyInternal(isLead || isMailIntegration);
-    setIsInternalNote(isLead || isMailIntegration || draftInternalRef.current);
+    setOnlyInternal(isNoteOnly);
+    setIsInternalNote(isNoteOnly || draftInternalRef.current);
   }, [
     conversationId,
     integration?.kind,
