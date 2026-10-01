@@ -344,19 +344,18 @@ export const FormFieldDetail = ({
                   />
                 )}
 
-                {draft.validator?.type &&
-                  draft.validator.type !== 'NONE' && (
-                    <Input
-                      value={draft.validator.errorMessage ?? ''}
-                      onChange={(e) =>
-                        handleChangeValidator({ errorMessage: e.target.value })
-                      }
-                      placeholder={t(
-                        'error-message-placeholder',
-                        'Error message shown to the user',
-                      )}
-                    />
-                  )}
+                {draft.validator?.type && draft.validator.type !== 'NONE' && (
+                  <Input
+                    value={draft.validator.errorMessage ?? ''}
+                    onChange={(e) =>
+                      handleChangeValidator({ errorMessage: e.target.value })
+                    }
+                    placeholder={t(
+                      'error-message-placeholder',
+                      'Error message shown to the user',
+                    )}
+                  />
+                )}
               </div>
             )}
 
