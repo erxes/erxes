@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -85,6 +85,10 @@
   (`syncDealPoints`); POS order sync calls `score.spend` (`spendOrderPoints`,
   also after `posOrderChangePayments`) and `score.refund` for returned orders.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
+- POS order card conversion uses sales-owned deal model helpers directly,
+  updates an existing `convertDealId` deal when present, and creates one only
+  when the order has no valid converted deal; copied descriptions combine the
+  order description with `deliveryInfo.description`.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
@@ -270,6 +274,9 @@
   the full total amount.
 - Deal amount fallbacks should preserve the existing `tickUsed` semantics used
   by sales totals.
+- POS order card conversion must not call the sales plugin through its own
+  tRPC route; use local deal model helpers and publish deal subscriptions
+  locally so completed POS-client orders keep one converted deal per order.
 - Product-level `discountInfos` records auto discounts by source
   (`pricing`, `voucher`, `score` when applicable) and keeps direct/manual
   discounts under `hand`; auto recalculation must not erase `hand`.
@@ -327,10 +334,8 @@
 
 ## Validation
 
-- `pnpm nx lint sales_api` (pre-existing errors in `modules/ecommerce/routes.ts`
-  are not from recent changes)
 - `pnpm nx build sales_api`
-- `pnpm nx test sales_api` (when `project.json` defines a test target)
+- `pnpm nx build:packageJson sales_api`
 - Smoke scenario: query deals by `stageId` and verify `totalCount` does not
   fetch deal documents.
 - Smoke scenario: query deals without a stage using default order and verify
@@ -347,10 +352,22 @@
 - Smoke scenario: `GET /agent-tools/manifest` on the sales service lists only
   the annotated procedures above; `deal.create`, `deal.updateOne`, and
   `deal.subscriptionWrapper` never appear.
+- Smoke scenario: complete and resync a POS client order with a matching
+  `cardsConfig` branch; the order keeps one `convertDealId`, and the second
+  sync updates that deal instead of creating another.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-01` — POS card conversion reuses deals
+
+- **Summary:** Completed POS client orders now create converted card deals
+  through local sales model helpers instead of the sales plugin's own tRPC
+  route, resyncing an order with `convertDealId` updates that deal, and copied
+  descriptions include both the order and delivery descriptions.
+- **Affected areas:** `src/modules/pos/utils.ts`.
+- **Contracts changed:** None.
 
 ### `2026-09-29` — Purchases handed to loyalty
 
@@ -414,8 +431,6 @@
 - **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
   The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
   `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
 
 ### `2026-09-01` — Deal document print order follows the selection
 
