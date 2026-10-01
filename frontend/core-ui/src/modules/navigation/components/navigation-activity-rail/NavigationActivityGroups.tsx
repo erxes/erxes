@@ -60,7 +60,7 @@ export const NavigationActivityGroups = ({
     const navigationGroup = navigationGroups[activity.id];
     const hasModules = Boolean(
       navigationGroup?.contents.length ||
-        (isMobile && navigationGroup?.subGroups.length),
+      (isMobile && navigationGroup?.subGroups.length),
     );
 
     return hasModules && getPlacement(activity.id) === 'inline';
