@@ -90,6 +90,15 @@
   whose `contentType` is not `frontline:ticket` (the ticket detail only lists
   `frontline:ticket` fields). Ticket↔customer/company links live in v2
   `conformities` and are moved by core `migrateConformitiesToRelations`.
+- `src/migrations/migrateCallProConversationCustomers.ts` repairs Call Pro
+  conversations saved without `customerId`: it sets `callProPhone` from
+  `conversations_callpros.recipientPhoneNumber`, links the customer when exactly
+  one non-deleted core customer has that phone (and back-fills the empty
+  `customers_callpros.erxesApiId`), and fills `callProPotentialCustomerIds`
+  when several do. Customers are looked up in one `$in` query because
+  `customers` phone fields may be unindexed. It is a dry run unless
+  `DRY_RUN=false`, and backs up touched conversations into
+  `conversations_bak_callpro_customers` before writing.
 - `src/migrations/migrateLegacyIntegrations.ts` copies provider data from the
   legacy v2 `erxes_facebook` (`LEGACY_FACEBOOK_DB`) and v1 `erxes_integrations`
   (`LEGACY_INTEGRATIONS_DB`) databases into the frontline collections of the
@@ -979,6 +988,13 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 ## Local Invariants
 
+- Call Pro sends several webhooks per call, so `getOrCreateCustomer` in
+  `src/modules/integrations/callpro/controller.ts` must never trust a
+  `customers_callpros` row without `erxesApiId`: it links the core customer
+  (`get-create-update-customer`) before returning, reuses the row a concurrent
+  request inserted instead of failing, and deletes only a row it created
+  itself. Every new Call Pro conversation stores `callProPhone`, so the caller
+  number shows even when no customer is linked.
 - Pipeline `isCheckUser` / `isCheckDepartment` / `isCheckBranch` filter which
   tickets a user sees; they never block opening a pipeline or creating a ticket
   in it (v2 parity). `validatePipelineAccess` only enforces private-pipeline
