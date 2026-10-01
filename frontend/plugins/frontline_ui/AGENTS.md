@@ -403,6 +403,15 @@
   immediately and reopens with those filters restored. The default charts are a
   frontend constant and are never modified by saving; a saved card additionally
   carries a delete action.
+- The Ticket List report card's trailing settings icon is the
+  `RecordTable.ColumnSelector`: it toggles, reorders and pins columns for
+  name, number, created, status, state, priority, assigned, created by,
+  channel, pipeline, tags, branch, department, start date, due date, and one
+  read-only column per `frontline:ticket` property field. The choice persists
+  per browser under the `frontline_ticket_report_record_table` table id.
+- The Ticket List card's Excel download exports exactly the columns currently
+  visible in its table, in their on-screen order and with the same headers,
+  including property columns. It is disabled until the table has rendered.
 
 ## Architecture
 
@@ -1446,6 +1455,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   area or an attachment tile.
 - The message input ignores drops while a dialog is open, so a composer dialog
   keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
+- Ticket List report columns live in
+  `report/components/ticket-charts/TicketListColumns.tsx`. Only the columns in
+  `TICKET_LIST_DEFAULT_COLUMNS` start visible; `TicketListColumnDefaults` hides
+  every other column the first time it appears (no stored visibility key) and
+  keeps the `more` column last, because the shared provider appends newly
+  arrived column ids — property fields load asynchronously — after it. The
+  action column id must stay `more` so the selector never lists it, which would
+  let a user hide the selector itself. Property cells read
+  `propertiesData[field._id]` and resolve option labels; they never mutate.
+- Ticket List export columns are built by `useTicketExportColumns` from the
+  `{id, header}` list `TicketListColumnDefaults` reports upward. Each non-
+  property column id needs an entry in `TICKET_EXPORT_VALUES` reading the
+  `reportTicketExport` row, or it is silently left out of the file; property
+  columns reuse `toPropertyText` so the sheet matches the cell text.
 - The ticket KPI row derives its total by summing **every** row
   `reportTicketPriority` returns, including the `priority: 0` one, so it shows
   the real ticket count. Only rows with `priority > 0` become cards — the

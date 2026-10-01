@@ -797,6 +797,13 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
   something the report queries accept; the persisted subset is narrowed by
   `pickReportChartFilters`. Saving never touches the default charts — they are
   a frontend constant, not rows in this collection.
+- GraphQL `reportTicketExport(filters)` — every matching ticket, unpaged, with
+  ids resolved to display names (`assigneeName`, `createdByName`,
+  `pipelineName`, `statusName`, `channelName`, `branchName`, `departmentName`,
+  `tagNames`) plus raw `number` and `propertiesData`. Users, tags, branches and
+  departments resolve through core tRPC `find`; statuses and channels through
+  this plugin's models. Property values are returned raw; the UI maps option
+  labels.
 - GraphQL Facebook reports — `reportFacebookPages`, `reportFacebookSummary`,
   `reportFacebookActivity`, `reportFacebookPosts`, `reportFacebookBots`. All but
   the first take a `FacebookReportFilter` (`date`, `fromDate`, `toDate`,
