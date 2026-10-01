@@ -18,7 +18,8 @@
       "phone-verification-status": "Phone verification status",
       "description": "Description",
       "subscribed": "Subscribed",
-      "success-message": "Customer added successfully"
+      "success-message": "Customer added successfully",
+      "birth-date": "Birth date"
     },
     "detail": {
       "add-tags": "Add tags",

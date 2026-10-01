@@ -13,22 +13,37 @@ import {
   TAwardSpinActionConfigForm,
   TIssueVoucherActionConfigForm,
 } from '../../states/campaignActionConfigFormDefinitions';
+import { TSetTierActionConfigForm } from '../../states/setTierActionConfigFormDefinitions';
 import {
   isAdjustScoreActionType,
   isAwardSpinActionType,
   isIssueVoucherActionType,
+  isSetTierActionType,
 } from '../../utils/loyaltyActionUtils';
+import { useLoyaltyActionNodeIssues } from '../../hooks/useLoyaltyActionNodeIssues';
+import { SetTierNodeContent } from './set-tier/SetTierNodeContent';
 
 type TLoyaltyActionNodeConfig =
   | TAdjustScoreActionConfigForm
   | TIssueVoucherActionConfigForm
-  | TAwardSpinActionConfigForm;
+  | TAwardSpinActionConfigForm
+  | TSetTierActionConfigForm;
 
 export const LoyaltyActionNodeContent = ({
   actionData,
   config,
 }: AutomationActionNodeConfigProps<TLoyaltyActionNodeConfig>) => {
   const { t } = useTranslation('loyalty');
+
+  useLoyaltyActionNodeIssues(actionData?.type, config);
+
+  if (isSetTierActionType(actionData?.type)) {
+    return (
+      <SetTierNodeContent
+        config={config as Partial<TSetTierActionConfigForm>}
+      />
+    );
+  }
 
   if (isIssueVoucherActionType(actionData?.type)) {
     const voucherCampaignId =
@@ -43,7 +58,9 @@ export const LoyaltyActionNodeContent = ({
         </span>
         <span>
           {t('issue-voucher-using')}{' '}
-          {voucherCampaignId ? t('voucher-campaign') : t('no-campaign-selected')}
+          {voucherCampaignId
+            ? t('voucher-campaign')
+            : t('no-campaign-selected')}
         </span>
       </div>
     );
@@ -70,7 +87,11 @@ export const LoyaltyActionNodeContent = ({
     return null;
   }
 
-  const action = config && 'action' in config ? config.action || 'add' : 'add';
+  // Older automations may still say subtract; the engine rejects them.
+  const action =
+    config && 'action' in config && String(config.action) === 'subtract'
+      ? 'subtract'
+      : 'add';
   const campaignId =
     config && 'campaignId' in config ? config.campaignId : undefined;
   const Icon = action === 'subtract' ? IconMinus : IconPlus;

@@ -4,6 +4,7 @@ export const BROADCAST_EVERY_VALUES = [
   'week',
   'month',
   'year',
+  'afterSegment',
 ] as const;
 
 export type TBroadcastEvery = (typeof BROADCAST_EVERY_VALUES)[number];
@@ -36,8 +37,14 @@ export const BROADCAST_EVERY_OPTIONS: {
   labelKey: `schedule.every.${value}`,
 }));
 
+/** Started by its segment's nightly refresh rather than by a clock. */
+export const isAfterSegmentForm = (schedule?: TBroadcastScheduleForm | null) =>
+  schedule?.every === 'afterSegment';
+
 export const isRecurringForm = (schedule?: TBroadcastScheduleForm | null) =>
-  !!schedule?.every && schedule.every !== 'once';
+  !!schedule?.every &&
+  schedule.every !== 'once' &&
+  !isAfterSegmentForm(schedule);
 
 /**
  * Whether this schedule is complete enough to be accepted.
@@ -45,6 +52,10 @@ export const isRecurringForm = (schedule?: TBroadcastScheduleForm | null) =>
  * A repeat needs somewhere to stop; nothing here is allowed to run forever.
  */
 export const isScheduleReady = (schedule?: TBroadcastScheduleForm | null) => {
+  if (isAfterSegmentForm(schedule)) {
+    return true;
+  }
+
   const at = schedule?.at;
 
   if (!(at instanceof Date)) {
@@ -66,6 +77,15 @@ export const isScheduleReady = (schedule?: TBroadcastScheduleForm | null) => {
  * One control set, read three ways, so there is nothing extra to fill in.
  */
 export const toScheduleVariables = (schedule: TBroadcastScheduleForm) => {
+  if (isAfterSegmentForm(schedule)) {
+    // The zone decides which day a night's refresh belongs to.
+    return {
+      afterSegment: {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+    };
+  }
+
   const at = schedule.at as Date;
 
   if (!isRecurringForm(schedule)) {
@@ -127,6 +147,7 @@ export const scheduleFromRange = (
 };
 
 export type TStoredSchedule = {
+  type?: string | null;
   dateTime?: string | null;
   // Read back from the server, so widened to what a string field can hold.
   every?: string | null;
@@ -151,6 +172,10 @@ export const scheduleToForm = (
 ): TBroadcastScheduleForm | undefined => {
   if (!stored) {
     return undefined;
+  }
+
+  if (stored.type === 'afterSegment') {
+    return { every: 'afterSegment' };
   }
 
   if (!stored.every) {

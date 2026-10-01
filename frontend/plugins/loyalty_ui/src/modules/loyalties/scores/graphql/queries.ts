@@ -48,6 +48,7 @@ export const SCORE_LOGS_QUERY = gql`
         change
         action
         description
+        breakdown
         campaignId
         campaign {
           _id

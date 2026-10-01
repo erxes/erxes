@@ -14,6 +14,7 @@ import {
 import { FieldBoolean } from './FieldBoolean';
 import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
+import { FeaturedFieldValue } from './FeaturedFieldValue';
 import { FieldEditor } from './FieldEditor';
 import { FieldFile } from './FieldFile';
 import { FieldLabel } from './FieldLabel';
@@ -120,7 +121,15 @@ export const Field = (props: FieldProps) => {
       value={props.value}
       error={error}
     >
-      {FieldComponent && <FieldComponent {...fieldProps} />}
+      {field.owner ? (
+        <FeaturedFieldValue
+          field={field}
+          value={props.value}
+          inCell={props.inCell}
+        />
+      ) : (
+        FieldComponent && <FieldComponent {...fieldProps} />
+      )}
     </FieldLabel>
   );
 };

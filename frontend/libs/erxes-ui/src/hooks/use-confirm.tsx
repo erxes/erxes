@@ -1,17 +1,28 @@
-import { useCallback } from 'react';
+import { ReactNode, useCallback } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { createRoot } from 'react-dom/client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { AlertDialog, Form, Input } from 'erxes-ui/components';
+import {
+  AlertDialog,
+  ButtonProps,
+  buttonVariants,
+  Form,
+  Input,
+} from 'erxes-ui/components';
 
 type OptionProps = {
   okLabel?: string;
   cancelLabel?: string;
   description?: string;
   confirmationValue?: string;
+  content?: ReactNode;
+  variants?: {
+    ok?: ButtonProps['variant'];
+    cancel?: ButtonProps['variant'];
+  };
 };
 
 type ConfirmDialogProp = {
@@ -42,6 +53,8 @@ const ConfirmDialog = ({
     cancelLabel = 'Cancel',
     description = '',
     confirmationValue = '',
+    content,
+    variants = {},
   } = options || ({} as OptionProps);
 
   const form = useForm<FormType>({
@@ -85,7 +98,7 @@ const ConfirmDialog = ({
         control={formInstance.control as any}
         render={({ field }: { field: any }) => (
           <Form.Item>
-            <Form.Label className="text-xs" variant="peer">
+            <Form.Label className="text-xs select-none" variant="peer">
               Type <span className="font-semibold">{confirmationValue}</span> in
               the field below to confirm.
             </Form.Label>
@@ -114,14 +127,32 @@ const ConfirmDialog = ({
               <AlertDialog.Description> {description} </AlertDialog.Description>
             )}
           </AlertDialog.Header>
+          {content}
           <form onSubmit={form.handleSubmit(proceed)}>
             {renderConfirm(form as any)}
             <br />
             <AlertDialog.Footer>
-              <AlertDialog.Cancel onClick={dismiss} type="button">
+              <AlertDialog.Cancel
+                onClick={dismiss}
+                type="button"
+                className={
+                  variants.cancel
+                    ? buttonVariants({ variant: variants.cancel })
+                    : undefined
+                }
+              >
                 {cancelLabel}
               </AlertDialog.Cancel>
-              <AlertDialog.Action type="submit">{okLabel}</AlertDialog.Action>
+              <AlertDialog.Action
+                type="submit"
+                className={
+                  variants.ok
+                    ? buttonVariants({ variant: variants.ok })
+                    : undefined
+                }
+              >
+                {okLabel}
+              </AlertDialog.Action>
             </AlertDialog.Footer>
           </form>
         </Form>

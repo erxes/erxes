@@ -15,7 +15,11 @@ export interface ChangeScoreVariables {
 }
 
 export const useChangeScore = (
-  refetchQueries: string[] = ['ScoreLogs', 'ScoreLogStatistics'],
+  refetchQueries: string[] = [
+    'ScoreLogs',
+    'ScoreLogStatistics',
+    'LoyaltyAccountOfOwner',
+  ],
 ) => {
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();
