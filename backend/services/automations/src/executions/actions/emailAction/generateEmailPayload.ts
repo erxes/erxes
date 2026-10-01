@@ -8,12 +8,17 @@ import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
 import {
   describeUnresolvedPlaceholders,
+  expandRepeatRows,
   findUnresolvedPlaceholders,
   recordPlaceholderResolver,
-  renderEmailContent,
+  renderEmailBody,
   replacePlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { documentResolver, outputResolver } from './placeholderResolvers';
+import {
+  documentResolver,
+  outputItemCounter,
+  outputResolver,
+} from './placeholderResolvers';
 import {
   filterOutSenderEmail,
   formatFromEmail,
@@ -75,6 +80,19 @@ export const generateEmailPayload = async ({
 
   await assertSenderAllowed(subdomain, fromUserEmail);
 
+  // The body is rendered first, a row reading `{{ list.$.field }}` written
+  // once per item, so every field the recipient gets is asked for below.
+  const countItems = outputItemCounter({ subdomain, execution, targetType });
+  const body = await renderEmailBody(
+    {
+      content: config?.content,
+      contentJson: config?.contentJson,
+      contentFormat: config?.contentFormat,
+    },
+    { countItems },
+  );
+  const bodyHtml = await expandRepeatRows(config?.html, countItems);
+
   // Fields are asked in order: an embedded document, then the execution's
   // outputs, then the record the action is running for.
   const resolvers = [
@@ -83,23 +101,16 @@ export const generateEmailPayload = async ({
       subdomain,
       execution,
       targetType,
-      texts: [config?.content, config?.html],
+      texts: [body, bodyHtml],
     }),
     recordPlaceholderResolver(target || {}),
   ];
 
-  const rendered = await renderEmailContent(
-    {
-      content: config?.content,
-      contentJson: config?.contentJson,
-      contentFormat: config?.contentFormat,
-    },
-    { resolvers },
-  );
+  const rendered = await replacePlaceholders(body, resolvers);
 
   // Raw html kept on the action stands in when there is nothing to render.
   const renderedContent =
-    rendered || (await replacePlaceholders(config?.html || '', resolvers));
+    rendered || (await replacePlaceholders(bodyHtml, resolvers));
 
   const replacedValues = await replaceOutputPlaceholders({
     subdomain,

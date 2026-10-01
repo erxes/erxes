@@ -95,6 +95,10 @@
   loyalty calls throw; with loyalty disabled they do nothing. POS order sync
   calls `score.spend` (`spendOrderPoints`, also after `posOrderChangePayments`)
   and `score.refund` for returned orders, still without throwing.
+- The deal automation output `productsData.*` resolves a field as all products
+  joined (`productsData.name`), one product by index (`productsData.0.name`,
+  names looked up in core per item), or the product count
+  (`productsData.$count`), so an email row written per item reads each product.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.

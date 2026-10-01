@@ -8,12 +8,12 @@ import {
   AutomationVariableBrowser,
   TAutomationVariableSourceNode,
 } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
+import { buildEmailItemTable } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailItemTable';
 import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
 import { IconEdit } from '@tabler/icons-react';
 import type { Editor as TiptapEditor } from '@tiptap/core';
 import { Button, EmailEditorVariable, JSONContent, Sheet } from 'erxes-ui';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { TAutomationVariableDragPayload } from 'ui-modules';
 
 /**
  * Output variables already written into this email.
@@ -94,6 +94,26 @@ export const SendEmailMailyContentSheet = ({
 
   const insertVariable = useCallback(
     ({ payload, editor: target, position }: TEmailVariableDrop) => {
+      // A list arrives as a table with a row per item, not one joined field.
+      if (payload.fields?.length) {
+        const { table, variables: columns } = buildEmailItemTable(payload);
+        const chain = target.chain().focus();
+
+        setExtraVariables((current) => [
+          ...current,
+          ...columns.filter(
+            (column) => !current.some((added) => added.name === column.name),
+          ),
+        ]);
+
+        (position === undefined
+          ? chain.insertContent(table)
+          : chain.insertContentAt(position, table)
+        ).run();
+
+        return;
+      }
+
       // The token is the field's name: rendering hands it back unchanged, and
       // the step that knows the earlier steps' output fills it in.
       const name = payload.token.trim();
