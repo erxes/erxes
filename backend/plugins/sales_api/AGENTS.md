@@ -45,7 +45,8 @@
 - The unscoped deal list uses a parent/order/id/status index for its default
   card ordering.
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
-  batch of them through the `evaluateFields` segment producer.
+  batch of them through the `evaluateFields` segment producer. The `tagIds`
+  lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
 
 ## Architecture
 

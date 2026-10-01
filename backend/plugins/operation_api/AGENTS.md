@@ -47,6 +47,8 @@
   customer. Both declare `operation:task.team` and `operation:task.status`
   requirements, the status scoped by the team.
 
+- Task segment `tagIds` lists `operation:task` tags plus workspace tags
+  (`query.variables`).
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
   team member (`user.assignedTasks`, `user.createdTasks`).

@@ -32,7 +32,11 @@ export const CONVERSATION_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
-    query: { name: 'tags', labelField: 'name' },
+    query: {
+      name: 'tags',
+      labelField: 'name',
+      variables: { type: 'frontline:conversation', includeWorkspaceTags: true },
+    },
   }),
 
   SegmentField.text({ key: 'integrationId', label: 'Integration' }),
