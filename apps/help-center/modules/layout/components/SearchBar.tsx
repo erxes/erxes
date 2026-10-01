@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Icon } from '@/modules/ui/components/Icon';
 import { cn } from '@/modules/ui/lib/cn';
-import { site } from '../constants/site';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 
 const ROTATE_MS = 3200;
 
@@ -127,6 +127,7 @@ export const SearchBar = ({
   suggestions?: string[];
 }) => {
   const router = useRouter();
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frame = useRef(0);
@@ -135,7 +136,7 @@ export const SearchBar = ({
   const [vanishing, setVanishing] = useState(false);
   const [slot, setSlot] = useState({ index: 0, previous: -1 });
 
-  const label = placeholder || site.searchPlaceholder;
+  const label = placeholder || t('site.searchPlaceholder');
   const rotating = [label, ...suggestions];
   const rotates = rotating.length > 1;
 
@@ -203,10 +204,10 @@ export const SearchBar = ({
                 query || vanishing
                   ? 'opacity-0'
                   : index === slot.index
-                  ? 'translate-y-0 opacity-100'
-                  : index === slot.previous
-                  ? '-translate-y-4 opacity-0'
-                  : 'translate-y-4 opacity-0',
+                    ? 'translate-y-0 opacity-100'
+                    : index === slot.previous
+                      ? '-translate-y-4 opacity-0'
+                      : 'translate-y-4 opacity-0',
               )}
             >
               <span className="min-w-0 truncate">{text}</span>
@@ -241,7 +242,7 @@ export const SearchBar = ({
         type="submit"
         className="absolute right-2 top-1/2 z-10 h-8 -translate-y-1/2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-shell transition-[background-color,transform] duration-300 ease-out-soft hover:scale-[1.03] hover:bg-white/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
       >
-        Search
+        {t('common.search')}
       </button>
     </form>
   );

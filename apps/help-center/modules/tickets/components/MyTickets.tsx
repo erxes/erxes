@@ -7,7 +7,10 @@ import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { LoadError } from '@/modules/ui/components/PortalState';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import type { MessageKey } from '@/modules/i18n/translate';
 import { cn } from '@/modules/ui/lib/cn';
+import { isFinishedStatus, TICKET_STATUS_TYPES } from '../constants/status';
 import { TICKET_PORTAL_LIST } from '../graphql/queries/tickets';
 import type { Ticket } from '../types';
 import { TicketListItem } from './TicketListItem';
@@ -16,21 +19,21 @@ type ListResponse = { cpGetTickets: Ticket[] | null };
 
 type FilterKey = 'all' | 'open' | 'progress' | 'done';
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'open', label: 'Open' },
-  { key: 'progress', label: 'In progress' },
-  { key: 'done', label: 'Resolved' },
+const FILTERS: { key: FilterKey; label: MessageKey }[] = [
+  { key: 'all', label: 'common.all' },
+  { key: 'open', label: 'tickets.filterOpen' },
+  { key: 'progress', label: 'tickets.filterProgress' },
+  { key: 'done', label: 'tickets.filterResolved' },
 ];
 
 const bucketOf = (ticket: Ticket): Exclude<FilterKey, 'all'> => {
   const type = ticket.status?.type ?? null;
 
-  if (type === 3) {
+  if (isFinishedStatus(type)) {
     return 'done';
   }
 
-  return type === 2 ? 'progress' : 'open';
+  return type === TICKET_STATUS_TYPES.IN_PROGRESS ? 'progress' : 'open';
 };
 
 const Skeleton = () => (
@@ -46,6 +49,7 @@ const Skeleton = () => (
 
 export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
   const { user, ready } = useSession();
+  const t = useT();
   const [filter, setFilter] = useState<FilterKey>('all');
 
   const requesterId = user?.customerId ?? user?.cpUserId;
@@ -75,11 +79,11 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
     return (
       <EmptyState
         icon="user"
-        title="Sign in to see your tickets"
-        description="Or check progress with your ticket number."
+        title={t('tickets.signInToSee')}
+        description={t('tickets.orTrack')}
         action={
           <ButtonLink href="/tickets/track" size="sm" variant="secondary">
-            Search by number
+            {t('tickets.searchByNumber')}
           </ButtonLink>
         }
       />
@@ -92,7 +96,7 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
 
   if (error) {
     return (
-      <LoadError title="Could not load your tickets" message={error.message} />
+      <LoadError title={t('tickets.loadFailed')} message={error.message} />
     );
   }
 
@@ -100,11 +104,11 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
     return (
       <EmptyState
         icon="ticket"
-        title="No tickets yet"
-        description="You have not created a support ticket yet."
+        title={t('tickets.noneYet')}
+        description={t('tickets.noneYetText')}
         action={
           <ButtonLink href="/tickets/new" size="sm">
-            Create a ticket
+            {t('tickets.create')}
           </ButtonLink>
         }
       />
@@ -135,7 +139,7 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
                   : 'text-muted-foreground hover:bg-subtle hover:text-ink',
               )}
             >
-              {entry.label}
+              {t(entry.label)}
               <span
                 className={cn(
                   'tabular-nums',
@@ -159,7 +163,7 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
         </Card>
       ) : (
         <p className="mt-4 rounded-2xl bg-white shadow-shell px-5 py-6 text-sm text-muted-foreground">
-          No tickets in this state.
+          {t('tickets.noneInState')}
         </p>
       )}
     </div>

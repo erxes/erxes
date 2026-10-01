@@ -87,6 +87,12 @@
 
 ## Current Capabilities
 
+- Every colour field in the help center drawer and the knowledge base topic
+  drawer carries a **Default** reset beside its label, showing the colour it
+  would return to and hidden while the field already holds it. The help center
+  reads each default from `DEFAULT_HELP_CENTER_STYLES`, so a colour changed by
+  hand is always one click from what a new help center ships with.
+
 - The automations widget answers built-in template prerequisites: the
   `templateRequirement` component type resolves `frontline:tickets.status` by
   reusing `TicketStatusPropertyInput`, which asks for the channel, pipeline and
@@ -1057,7 +1063,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   family name; add a face there rather than to a field. Colours use `erxes-ui`'s
   `ColorPicker` — the palette the rest of the product picks from, whose popover
   already carries a hex field; never a native `<input type="color">` — add a style through those
-  rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
+  rather than hand-rolling a field. A colour field pairs the picker with
+  `shared/components/ColorDefaultAction.tsx`, which takes the default it resets to as a prop: the
+  style fields read theirs from `defaultStyleColor(name)` and the topic colour
+  takes the default of the surface it is edited on, because the help center
+  starts a topic colour at `#4f33af` and the topic drawer at `#4F46E5`
+  (`EMPTY_TOPIC.color`). Apollo runs with `addTypename: true`, so a
   cached block carries a `__typename` that `HelpCenterConfigStylesInput`
   rejects: `toHelpCenterConfigInput` strips it in `stripStylesTypename`, and
   every write path — drawer reset and inline edit alike — goes through it. Any

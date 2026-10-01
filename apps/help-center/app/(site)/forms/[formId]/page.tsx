@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getPortalForm } from '@/modules/forms/api';
 import { FormView } from '@/modules/forms/components/FormView';
 import { formTitle } from '@/modules/forms/types';
+import { getT } from '@/modules/i18n/server';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import {
   LoadError,
@@ -16,16 +17,19 @@ export const generateMetadata = async ({
   params,
 }: Props): Promise<Metadata> => {
   const { formId } = await params;
-  const form = await getPortalForm(formId);
+  const [form, t] = await Promise.all([getPortalForm(formId), getT()]);
 
   return {
-    title: form.state === 'ready' && form.data ? formTitle(form.data) : 'Form',
+    title:
+      form.state === 'ready' && form.data
+        ? formTitle(form.data, t)
+        : t('nav.form'),
   };
 };
 
 export default async function FormPage({ params }: Props) {
   const { formId } = await params;
-  const form = await getPortalForm(formId);
+  const [form, t] = await Promise.all([getPortalForm(formId), getT()]);
 
   if (form.state === 'ready' && !form.data) {
     notFound();
@@ -34,11 +38,13 @@ export default async function FormPage({ params }: Props) {
   return (
     <PortalShell
       breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'Forms', href: '/forms' },
+        { label: t('nav.home'), href: '/' },
+        { label: t('nav.forms'), href: '/forms' },
         {
           label:
-            form.state === 'ready' && form.data ? formTitle(form.data) : 'Form',
+            form.state === 'ready' && form.data
+              ? formTitle(form.data, t)
+              : t('nav.form'),
         },
       ]}
     >
@@ -52,7 +58,7 @@ export default async function FormPage({ params }: Props) {
         </div>
       ) : form.state === 'error' ? (
         <div className="">
-          <LoadError title="Could not load the form" message={form.message} />
+          <LoadError title={t('forms.loadOneFailed')} message={form.message} />
         </div>
       ) : form.data ? (
         <div className="">

@@ -15,6 +15,8 @@ import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { TextareaInput } from '@/modules/ui/components/FormInput';
 import { Icon } from '@/modules/ui/components/Icon';
 import { LoadError } from '@/modules/ui/components/PortalState';
+import { useLocale, useT } from '@/modules/i18n/components/LocaleProvider';
+import type { Translate } from '@/modules/i18n/translate';
 import { cn } from '@/modules/ui/lib/cn';
 import { formatDateTime, splitTicketBody } from '../utils/format';
 import { TICKET_PORTAL_ADD_NOTE } from '../graphql/mutations/tickets';
@@ -24,18 +26,18 @@ import {
 } from '../graphql/queries/tickets';
 import type { Ticket, TicketNote } from '../types';
 import { PriorityBadge, StatusBadge } from './TicketBadges';
-import { plural } from '@/modules/ui/lib/plural';
 
 type DetailResponse = { cpGetTicket: Ticket | null };
 type NotesResponse = { cpTicketGetNotes: TicketNote[] | null };
 
-const replySchema = z.object({
-  content: z.string().refine((value) => value.trim().length >= 2, {
-    message: 'Please write your reply.',
-  }),
-});
+const replySchema = (t: Translate) =>
+  z.object({
+    content: z.string().refine((value) => value.trim().length >= 2, {
+      message: t('validation.reply'),
+    }),
+  });
 
-type ReplyValues = z.infer<typeof replySchema>;
+type ReplyValues = z.infer<ReturnType<typeof replySchema>>;
 
 const Skeleton = () => (
   <div className="grid animate-pulse items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
@@ -51,12 +53,10 @@ const Skeleton = () => (
   </div>
 );
 
-const TEAM_NAME = 'Support team';
-
-const authorOf = (createdBy: string | null, reporter: string) =>
+const authorOf = (createdBy: string | null, reporter: string, t: Translate) =>
   createdBy?.startsWith('cp:')
     ? { name: reporter, team: false }
-    : { name: TEAM_NAME, team: true };
+    : { name: t('tickets.team'), team: true };
 
 const Message = ({
   author,
@@ -70,32 +70,37 @@ const Message = ({
   at: string | null;
   body: string;
   origin?: boolean;
-}) => (
-  <li className={cn('flex gap-3.5 px-5 py-5', team && 'bg-subtle/60')}>
-    <Avatar
-      name={author}
-      size={34}
-      className={cn('mt-0.5 shrink-0', team && 'bg-ink text-white')}
-    />
-    <div className="min-w-0 flex-1">
-      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        <span className="text-sm font-semibold text-ink">{author}</span>
-        {origin ? (
-          <span className="text-[13px] text-muted-foreground">
-            created this ticket
-          </span>
-        ) : null}
-        <span className="ml-auto text-[13px] tabular-nums text-muted-foreground">
-          {formatDateTime(at)}
-        </span>
-      </div>
-      <BlockText
-        content={body}
-        className="mt-2 text-sm leading-relaxed text-ink-soft"
+}) => {
+  const t = useT();
+  const locale = useLocale();
+
+  return (
+    <li className={cn('flex gap-3.5 px-5 py-5', team && 'bg-subtle/60')}>
+      <Avatar
+        name={author}
+        size={34}
+        className={cn('mt-0.5 shrink-0', team && 'bg-ink text-white')}
       />
-    </div>
-  </li>
-);
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+          <span className="text-sm font-semibold text-ink">{author}</span>
+          {origin ? (
+            <span className="text-[13px] text-muted-foreground">
+              {t('tickets.createdThis')}
+            </span>
+          ) : null}
+          <span className="ml-auto text-[13px] tabular-nums text-muted-foreground">
+            {formatDateTime(at, locale)}
+          </span>
+        </div>
+        <BlockText
+          content={body}
+          className="mt-2 text-sm leading-relaxed text-ink-soft"
+        />
+      </div>
+    </li>
+  );
+};
 
 const RailLabel = ({ children }: { children: string }) => (
   <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -103,45 +108,51 @@ const RailLabel = ({ children }: { children: string }) => (
   </h2>
 );
 
-const CopyNumber = ({ number }: { number: string }) => (
-  <button
-    type="button"
-    onClick={() => {
-      navigator.clipboard
-        .writeText(number)
-        .then(() =>
-          toast({
-            variant: 'success',
-            title: 'Copied',
-            description: 'The ticket number was copied to your clipboard.',
-          }),
-        )
-        .catch(() =>
-          toast({
-            variant: 'destructive',
-            title: 'Could not copy',
-            description: 'Please select and copy the number manually.',
-          }),
-        );
-    }}
-    className="group flex w-full items-center gap-2 rounded-lg bg-subtle px-3 py-2.5 text-left outline-none transition-colors duration-300 ease-out-soft hover:bg-brand-soft focus-visible:bg-brand-soft"
-  >
-    <span className="min-w-0 flex-1 truncate text-[15px] font-semibold tabular-nums text-ink">
-      {number}
-    </span>
-    <Icon
-      name="paste"
-      size={15}
-      className="shrink-0 text-muted-foreground transition-colors group-hover:text-brand"
-    />
-  </button>
-);
+const CopyNumber = ({ number }: { number: string }) => {
+  const t = useT();
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard
+          .writeText(number)
+          .then(() =>
+            toast({
+              variant: 'success',
+              title: t('common.copied'),
+              description: t('tickets.numberCopied'),
+            }),
+          )
+          .catch(() =>
+            toast({
+              variant: 'destructive',
+              title: t('common.copyFailed'),
+              description: t('tickets.copyManually'),
+            }),
+          );
+      }}
+      className="group flex w-full items-center gap-2 rounded-lg bg-subtle px-3 py-2.5 text-left outline-none transition-colors duration-300 ease-out-soft hover:bg-brand-soft focus-visible:bg-brand-soft"
+    >
+      <span className="min-w-0 flex-1 truncate text-[15px] font-semibold tabular-nums text-ink">
+        {number}
+      </span>
+      <Icon
+        name="paste"
+        size={15}
+        className="shrink-0 text-muted-foreground transition-colors group-hover:text-brand"
+      />
+    </button>
+  );
+};
 
 export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
   const { user } = useSession();
+  const t = useT();
+  const locale = useLocale();
 
   const form = useForm<ReplyValues>({
-    resolver: zodResolver(replySchema),
+    resolver: zodResolver(replySchema(t)),
     defaultValues: { content: '' },
   });
 
@@ -168,7 +179,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
   if (error) {
     return (
-      <LoadError title="Could not load the ticket" message={error.message} />
+      <LoadError title={t('tickets.loadOneFailed')} message={error.message} />
     );
   }
 
@@ -178,8 +189,8 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
     return (
       <EmptyState
         icon="ticket"
-        title="Ticket not found"
-        description="This ticket was deleted, or you do not have permission to view it."
+        title={t('tickets.notFound')}
+        description={t('tickets.deletedOrHidden')}
       />
     );
   }
@@ -196,7 +207,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
         Boolean(part),
       );
 
-  const reporter = contactLines[0] ?? 'You';
+  const reporter = contactLines[0] ?? t('common.you');
 
   const onSubmit = async ({ content }: ReplyValues) => {
     const result = await addNote({
@@ -207,23 +218,25 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
       form.reset({ content: '' });
       toast({
         variant: 'success',
-        title: 'Sent',
-        description: 'Your message was added to the ticket.',
+        title: t('tickets.sent'),
+        description: t('tickets.sentText'),
       });
     }
   };
 
-  const created = formatDateTime(ticket.createdAt);
-  const updated = formatDateTime(ticket.updatedAt);
+  const created = formatDateTime(ticket.createdAt, locale);
+  const updated = formatDateTime(ticket.updatedAt, locale);
   const statusChanged = ticket.statusChangedDate
-    ? formatDateTime(ticket.statusChangedDate)
+    ? formatDateTime(ticket.statusChangedDate, locale)
     : null;
 
   const meta = [
-    { label: 'Created', value: created },
-    ...(updated !== created ? [{ label: 'Updated', value: updated }] : []),
+    { label: t('tickets.created'), value: created },
+    ...(updated !== created
+      ? [{ label: t('tickets.updated'), value: updated }]
+      : []),
     ...(statusChanged && statusChanged !== created
-      ? [{ label: 'Status changed', value: statusChanged }]
+      ? [{ label: t('tickets.statusChanged'), value: statusChanged }]
       : []),
   ];
 
@@ -234,10 +247,10 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 border-b border-line px-5 py-5">
             <div className="min-w-0">
               <h2 className="text-[18px] font-semibold leading-snug tracking-[-0.01em] text-ink">
-                {ticket.name ?? 'Untitled ticket'}
+                {ticket.name ?? t('tickets.untitled')}
               </h2>
               <p className="mt-1 text-[12px] text-muted-foreground">
-                {plural(thread.length + 1, 'message')}
+                {t('tickets.messages', { count: thread.length + 1 })}
               </p>
             </div>
 
@@ -252,12 +265,12 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
               author={reporter}
               team={false}
               at={ticket.createdAt}
-              body={message || 'No description was provided.'}
+              body={message || t('tickets.noDescription')}
               origin
             />
 
             {thread.map((note) => {
-              const { name, team } = authorOf(note.createdBy, reporter);
+              const { name, team } = authorOf(note.createdBy, reporter, t);
 
               return (
                 <Message
@@ -273,12 +286,12 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
           {notes.loading ? (
             <p className="border-t border-line-soft px-5 py-4 text-[13px] text-muted-foreground">
-              Loading the conversation…
+              {t('tickets.loadingConversation')}
             </p>
           ) : notes.error ? (
             <div className="border-t border-line-soft p-5">
               <LoadError
-                title="Could not load the conversation"
+                title={t('tickets.conversationFailed')}
                 message={notes.error.message}
               />
             </div>
@@ -301,13 +314,13 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Write a reply
+                      {t('tickets.writeReply')}
                     </Form.Label>
                     <Form.Control>
                       <TextareaInput
                         {...field}
                         rows={3}
-                        placeholder="Add more detail or ask a question"
+                        placeholder={t('tickets.replyPlaceholder')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -328,11 +341,11 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-subtle px-5 py-4">
               <p className="text-xs text-muted-foreground">
-                The support team sees your message right away.
+                {t('tickets.seenRightAway')}
               </p>
               <Button type="submit" disabled={sending}>
                 <Icon name="send" size={15} />
-                {sending ? 'Sending…' : 'Send'}
+                {sending ? t('tickets.sending') : t('tickets.send')}
               </Button>
             </div>
           </form>
@@ -341,9 +354,9 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
       <Card className="order-1 divide-y divide-line-soft lg:order-2 lg:sticky lg:top-6">
         <div className="p-5">
-          <RailLabel>Ticket number</RailLabel>
+          <RailLabel>{t('tickets.number')}</RailLabel>
           <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            Use this to check progress without signing in.
+            {t('tickets.numberHintDetail')}
           </p>
           <div className="mt-3">
             {ticket.number ? (
@@ -355,7 +368,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
         </div>
 
         <div className="p-5">
-          <RailLabel>Details</RailLabel>
+          <RailLabel>{t('tickets.detailsRail')}</RailLabel>
           <dl className="mt-3 space-y-2.5">
             {meta.map((item) => (
               <div key={item.label}>
@@ -372,7 +385,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
         {contactLines.length ? (
           <div className="p-5">
-            <RailLabel>Contact</RailLabel>
+            <RailLabel>{t('tickets.contact')}</RailLabel>
             <ul className="mt-3 space-y-1">
               {contactLines.map((part) => (
                 <li

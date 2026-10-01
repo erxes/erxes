@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { SessionLink } from '@/modules/auth/components/SessionLink';
-import {
-  NEW_TICKET_REASON,
-  NEW_TICKET_ROUTE,
-} from '@/modules/tickets/constants/guard';
+import { LanguageSwitcher } from '@/modules/i18n/components/LanguageSwitcher';
+import { getT } from '@/modules/i18n/server';
+import { savedLabel } from '@/modules/i18n/savedLabel';
+import type { Translate } from '@/modules/i18n/translate';
+import { NEW_TICKET_ROUTE } from '@/modules/tickets/constants/guard';
 import { Container } from '@/modules/ui/components/Container';
-import { Icon } from '@/modules/ui/components/Icon';
+import type { KnowledgeBaseName } from '@/modules/knowledge-base/utils/label';
 import type { PortalFooterView } from '../api';
 import { site } from '../constants/site';
 
@@ -13,46 +14,61 @@ type FooterLink = { href: string; label: string; reason?: string };
 
 type FooterColumn = { heading: string; links: FooterLink[] };
 
-const supportLinks: FooterLink[] = [
-  {
-    href: NEW_TICKET_ROUTE,
-    label: 'Submit a ticket',
-    reason: NEW_TICKET_REASON,
-  },
-  { href: '/tickets/track', label: 'Track a ticket' },
-  { href: '/tickets', label: 'My tickets' },
-  { href: '/forms', label: 'Fill in a form' },
-];
-
-const formOnlyLinks: FooterLink[] = [
-  { href: '/forms', label: 'Fill in a form' },
-];
-
-const knowledgeLinks: FooterLink[] = [
-  { href: '/knowledge-base', label: 'All categories' },
-  { href: '/search', label: 'Search' },
-  { href: '/announcements', label: 'Announcements' },
-];
-
-const accountLinks: FooterLink[] = [
-  { href: '/account', label: 'My account' },
-  { href: '/sign-in', label: 'Sign in' },
-  { href: '/sign-up', label: 'Sign up' },
-];
-
 const builtInColumns = (
   knowledgeBaseEnabled: boolean,
+  knowledgeBase: KnowledgeBaseName,
   ticketsEnabled: boolean,
+  t: Translate,
 ): FooterColumn[] => [
   {
-    heading: 'Support',
-    links: ticketsEnabled ? supportLinks : formOnlyLinks,
+    heading: t('footer.support'),
+    links: ticketsEnabled
+      ? [
+          {
+            href: NEW_TICKET_ROUTE,
+            label: t('tickets.submit'),
+            reason: t('tickets.signInReason'),
+          },
+          { href: '/tickets/track', label: t('tickets.track') },
+          { href: '/tickets', label: t('tickets.mine') },
+          { href: '/forms', label: t('forms.fillIn') },
+        ]
+      : [{ href: '/forms', label: t('forms.fillIn') }],
   },
   ...(knowledgeBaseEnabled
-    ? [{ heading: 'Knowledge base', links: knowledgeLinks }]
+    ? [
+        {
+          heading: knowledgeBase.title,
+          links: [
+            { href: '/knowledge-base', label: t('kb.allCategories') },
+            { href: '/search', label: t('common.search') },
+            { href: '/announcements', label: t('nav.announcements') },
+          ],
+        },
+      ]
     : []),
-  { heading: 'Account', links: accountLinks },
+  {
+    heading: t('footer.account'),
+    links: [
+      { href: '/account', label: t('account.mine') },
+      { href: '/account/notifications', label: t('account.notifications') },
+      { href: '/account/settings', label: t('account.settings') },
+      { href: '/sign-in', label: t('auth.signIn') },
+      { href: '/sign-up', label: t('auth.signUp') },
+    ],
+  },
 ];
+
+const DEFAULT_KNOWLEDGE_BASE_HEADING = 'knowledge base';
+
+const columnHeading = (
+  heading: string,
+  knowledgeBase: KnowledgeBaseName,
+  t: Translate,
+): string =>
+  heading.trim().toLowerCase() === DEFAULT_KNOWLEDGE_BASE_HEADING
+    ? knowledgeBase.title
+    : savedLabel(heading, t);
 
 const isExternal = (href: string): boolean =>
   /^[a-z][\w+.-]*:|^\/\//i.test(href);
@@ -96,36 +112,43 @@ const FooterColumnBlock = ({ heading, links }: FooterColumn) => (
   </div>
 );
 
-export const SiteFooter = ({
+export const SiteFooter = async ({
   title,
   knowledgeBaseEnabled,
+  knowledgeBase,
   ticketsEnabled,
   footer,
 }: {
   title: string;
   knowledgeBaseEnabled: boolean;
+  knowledgeBase: KnowledgeBaseName;
   ticketsEnabled: boolean;
   footer: PortalFooterView;
 }) => {
+  const t = await getT();
   const year = new Date().getFullYear();
 
   const columns: FooterColumn[] = footer.columns.length
     ? footer.columns.map((column) => ({
-        heading: column.heading,
+        heading: columnHeading(column.heading, knowledgeBase, t),
         links: column.links.map((link) => ({
           href: link.url,
-          label: link.label,
+          label: savedLabel(link.label, t),
         })),
       }))
-    : builtInColumns(knowledgeBaseEnabled, ticketsEnabled);
+    : builtInColumns(knowledgeBaseEnabled, knowledgeBase, ticketsEnabled, t);
 
   const description =
     footer.description ||
-    `${title} — the ${site.brand} support portal. Search the knowledge base for your answer, and reach out to the support team if you cannot find it.`;
+    t('footer.description', {
+      title,
+      brand: site.brand,
+      kb: knowledgeBase.inline,
+    });
 
   const copyright = footer.copyright
     ? footer.copyright.replaceAll('{year}', String(year))
-    : `© ${year} ${site.brand}. All rights reserved.`;
+    : t('footer.copyright', { year, brand: site.brand });
 
   return (
     <footer className="mt-auto border-t border-shell-line bg-shell text-white">
@@ -163,10 +186,7 @@ export const SiteFooter = ({
       <div className="border-t border-shell-line">
         <Container className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[13px] text-white/45">{copyright}</p>
-          <span className="inline-flex items-center gap-2 text-[13px] text-white/45">
-            <Icon name="language" size={15} />
-            {footer.languageLabel}
-          </span>
+          <LanguageSwitcher className="-mx-2 self-start sm:self-auto" />
         </Container>
       </div>
     </footer>
