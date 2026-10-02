@@ -2,7 +2,7 @@ import { visibleChannelsFilter } from '@/channel/utils';
 import { handleFacebookReaction } from '@/integrations/facebook/handleFacebookMessage';
 import { publishFacebookMessage } from '@/integrations/facebook/services/messageEvents';
 import { handleInstagramReaction } from '@/integrations/instagram/handleInstagramMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { publishInstagramMessage } from '@/integrations/instagram/services/messageEvents';
 import type { IContext } from '~/connectionResolvers';
 
 export interface IConversationReaction {
@@ -11,6 +11,22 @@ export interface IConversationReaction {
   reaction?: string | null;
   remove?: boolean | null;
 }
+
+const REACTION_HANDLERS = {
+  'facebook-messenger': {
+    react: handleFacebookReaction,
+    publish: publishFacebookMessage,
+  },
+  'instagram-messenger': {
+    react: handleInstagramReaction,
+    publish: publishInstagramMessage,
+  },
+} as const;
+
+const getReactionHandler = (kind: string) =>
+  Object.prototype.hasOwnProperty.call(REACTION_HANDLERS, kind)
+    ? REACTION_HANDLERS[kind as keyof typeof REACTION_HANDLERS]
+    : undefined;
 
 export const reactToConversationMessage = async (
   { conversationId, messageId, reaction, remove }: IConversationReaction,
@@ -42,14 +58,12 @@ export const reactToConversationMessage = async (
   ) {
     throw new Error('You do not have access to this conversation');
   }
-  if (!['facebook-messenger', 'instagram-messenger'].includes(integration.kind)) {
+  const handler = getReactionHandler(integration.kind);
+  if (!handler) {
     throw new Error('Reactions are not supported for this integration');
   }
 
-  const react = integration.kind === 'instagram-messenger'
-    ? handleInstagramReaction
-    : handleFacebookReaction;
-  const result = await react(models, {
+  const result = await handler.react(models, {
     integrationId: integration._id,
     conversationId,
     messageId,
@@ -58,12 +72,6 @@ export const reactToConversationMessage = async (
     userId: user._id,
   });
 
-  if (integration.kind === 'instagram-messenger') {
-    await graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
-      conversationMessageInserted: { ...result.data, conversationId },
-    });
-  } else {
-    await publishFacebookMessage(conversationId, result.data);
-  }
+  await handler.publish(conversationId, result.data);
   return true;
 };

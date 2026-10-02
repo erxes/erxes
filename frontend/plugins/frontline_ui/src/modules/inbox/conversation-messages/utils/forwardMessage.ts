@@ -1,6 +1,9 @@
 import { stripHtml, type IAttachment } from 'erxes-ui';
 import type { IMessage } from '@/inbox/types/Conversation';
 import { stripForwardedMarkers } from '@/inbox/conversation-messages/utils/messageActionText';
+import { ATTACHMENT_PLACEHOLDER_TEXTS } from '@/inbox/constants/messengerConstants';
+
+const SOCIAL_SHARE_TYPES = new Set(['share', 'ig_post', 'ig_reel']);
 
 const attachmentFallbackName = (type?: string) => {
   if (type === 'ig_post') return 'Instagram post';
@@ -39,19 +42,13 @@ export const buildForwardMessage = (
 ) => {
   const existingSnapshot = message.extraData?.forwardedSnapshot;
   const messageText = stripHtml(stripForwardedMarkers(message.content));
-  const hasSocialShare = message.attachments?.some(
-    (attachment: IAttachment) =>
-      attachment.type === 'share' ||
-      attachment.type === 'ig_post' ||
-      attachment.type === 'ig_reel',
+  const hasSocialShare = message.attachments?.some((attachment: IAttachment) =>
+    SOCIAL_SHARE_TYPES.has(attachment.type || ''),
   );
   const snapshot = {
     ...(existingSnapshot || {
       content:
-        hasSocialShare &&
-        ['This message has an attachment', 'Shared content'].includes(
-          messageText,
-        )
+        hasSocialShare && ATTACHMENT_PLACEHOLDER_TEXTS.has(messageText)
           ? undefined
           : messageText || undefined,
       embeds: message.extraData?.embeds,

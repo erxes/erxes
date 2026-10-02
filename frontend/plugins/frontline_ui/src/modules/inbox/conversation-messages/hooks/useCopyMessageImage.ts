@@ -1,41 +1,47 @@
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient, type ApolloClient } from '@apollo/client';
 import { useEffect, useRef, useState } from 'react';
 import { readImage, toast } from 'erxes-ui';
 import { FRONTLINE_INSTAGRAM_COPY_IMAGE } from '@/integrations/instagram/graphql/queries/copyInstagramImage';
+import { toPngBlob } from '@/inbox/conversation-messages/utils/copyAttachment';
 
-const pngBlob = async (blob: Blob): Promise<Blob> => {
-  if (blob.type === 'image/png') return blob;
-  const bitmap = await createImageBitmap(blob);
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    const context = canvas.getContext('2d');
-    if (!context) throw new Error('Could not copy image');
-    context.drawImage(bitmap, 0, 0);
-    return await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (result) =>
-          result ? resolve(result) : reject(new Error('Could not copy image')),
-        'image/png',
-      );
-    });
-  } finally {
-    bitmap.close();
-  }
-};
-
-export const useCopyMessageImage = ({
-  conversationId,
-  messageId,
-  url,
-  isInstagram,
-}: {
+type CopyMessageImageTarget = {
   conversationId: string;
   messageId: string;
   url: string;
-  isInstagram: boolean;
-}) => {
+};
+
+const IMAGE_DATA_URL_PATTERN =
+  /^data:(image\/(?:png|jpeg|webp|gif));base64,(.+)$/;
+
+const dataUrlToBlob = (dataUrl: string): Blob => {
+  const match = IMAGE_DATA_URL_PATTERN.exec(dataUrl);
+  if (!match) throw new Error('Image unavailable');
+  const bytes = Uint8Array.from(
+    atob(match[2]),
+    (char) => char.codePointAt(0) ?? 0,
+  );
+  return new Blob([bytes], { type: match[1] });
+};
+
+const fetchDirectImageBlob = async (url: string): Promise<Blob> => {
+  const response = await fetch(readImage(url));
+  if (!response.ok) throw new Error('Image unavailable');
+  return response.blob();
+};
+
+const fetchProxiedImageBlob = async (
+  client: ApolloClient<object>,
+  variables: CopyMessageImageTarget,
+): Promise<Blob> => {
+  const { data } = await client.query<{ frontlineInstagramCopyImage: string }>({
+    query: FRONTLINE_INSTAGRAM_COPY_IMAGE,
+    variables,
+    fetchPolicy: 'no-cache',
+  });
+  return dataUrlToBlob(data.frontlineInstagramCopyImage);
+};
+
+export const useCopyMessageImage = (target: CopyMessageImageTarget) => {
   const client = useApolloClient();
   const [copied, setCopied] = useState(false);
   const [copying, setCopying] = useState(false);
@@ -48,33 +54,9 @@ export const useCopyMessageImage = ({
     setCopied(false);
     clearTimeout(timer.current);
     try {
-      const image = (async () => {
-        let blob: Blob;
-        try {
-          const response = await fetch(readImage(url));
-          if (!response.ok) throw new Error('Image unavailable');
-          blob = await response.blob();
-        } catch (error) {
-          if (!isInstagram) throw error;
-          const { data } = await client.query<{
-            frontlineInstagramCopyImage: string;
-          }>({
-            query: FRONTLINE_INSTAGRAM_COPY_IMAGE,
-            variables: { conversationId, messageId, url },
-            fetchPolicy: 'no-cache',
-          });
-          const match = data.frontlineInstagramCopyImage.match(
-            /^data:(image\/(?:png|jpeg|webp|gif));base64,(.+)$/,
-          );
-          if (!match) throw new Error('Image unavailable');
-          const bytes = Uint8Array.from(
-            atob(match[2]),
-            (char) => char.codePointAt(0) ?? 0,
-          );
-          blob = new Blob([bytes], { type: match[1] });
-        }
-        return pngBlob(blob);
-      })();
+      const image = fetchDirectImageBlob(target.url)
+        .catch(() => fetchProxiedImageBlob(client, target))
+        .then(toPngBlob);
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': image }),
       ]);

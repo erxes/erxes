@@ -389,7 +389,6 @@ interface IInstagramReactionPayload {
   };
 }
 
-/** Sends a love reaction to Instagram and surfaces provider failures. */
 export const sendReaction = async (
   models: IModels,
   data: IInstagramReactionPayload,

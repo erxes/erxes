@@ -121,6 +121,76 @@ const ReplyPreview = ({
   );
 };
 
+const formatUploadedSize = (size: number) =>
+  `${Math.max(1, Math.round(size / 1024))} KB`;
+
+const PendingAttachmentItem = ({
+  file,
+  onRemove,
+}: {
+  file: PendingAttachment;
+  onRemove: (url: string) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { uploadedUrl } = file;
+
+  return (
+    <div className="flex min-w-48 items-center gap-2 rounded-xl border bg-muted/35 p-2">
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <button
+            type="button"
+            disabled={!uploadedUrl}
+            className="flex min-w-0 flex-1 items-center gap-2 text-left"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background text-muted-foreground">
+              <PendingAttachmentPreview file={file} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-xs font-medium">
+                {file.name}
+              </span>
+              <span className="block text-[11px] text-muted-foreground">
+                {uploadedUrl
+                  ? formatUploadedSize(file.size)
+                  : t('uploading', 'Uploading...')}
+              </span>
+            </span>
+          </button>
+        </Dialog.Trigger>
+        {uploadedUrl && (
+          <Dialog.Content className="max-w-3xl">
+            <Dialog.Header>
+              <Dialog.Title>{file.name}</Dialog.Title>
+            </Dialog.Header>
+            <AttachmentPreview
+              kind={getAttachmentKind({ ...file, url: uploadedUrl })}
+              source={file.previewUrl || readImage(uploadedUrl)}
+              label={file.name}
+            />
+          </Dialog.Content>
+        )}
+      </Dialog>
+      {uploadedUrl ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={t('remove-attachment', 'Remove {{name}}', {
+            name: file.name,
+          })}
+          onClick={() => onRemove(uploadedUrl)}
+          className="size-7 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+        >
+          <IconX className="size-3.5" />
+        </Button>
+      ) : (
+        <Spinner size="sm" />
+      )}
+    </div>
+  );
+};
+
 type ComposerPreviewsProps = {
   attachments: IAttachment[];
   blockAttachments: IAttachment[];
@@ -140,7 +210,6 @@ export const ComposerPreviews = ({
   onRemoveBlockAttachment,
   onCancelReply,
 }: ComposerPreviewsProps) => {
-  const { t } = useTranslation('frontline');
   const previewedUrls = new Set(
     pendingAttachments.flatMap(({ uploadedUrl }) =>
       uploadedUrl ? [uploadedUrl] : [],
@@ -162,69 +231,11 @@ export const ComposerPreviews = ({
         blockAttachments.length > 0) && (
         <div className="flex flex-wrap gap-2">
           {pendingAttachments.map((file) => (
-            <div
+            <PendingAttachmentItem
               key={file.id}
-              className="flex min-w-48 items-center gap-2 rounded-xl border bg-muted/35 p-2"
-            >
-              <Dialog>
-                <Dialog.Trigger asChild>
-                  <button
-                    type="button"
-                    disabled={!file.uploadedUrl}
-                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                  >
-                    <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background text-muted-foreground">
-                      <PendingAttachmentPreview file={file} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs font-medium">
-                        {file.name}
-                      </span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {file.uploadedUrl
-                          ? `${Math.max(1, Math.round(file.size / 1024))} KB`
-                          : t('uploading', 'Uploading...')}
-                      </span>
-                    </span>
-                  </button>
-                </Dialog.Trigger>
-                {file.uploadedUrl && (
-                  <Dialog.Content className="max-w-3xl">
-                    <Dialog.Header>
-                      <Dialog.Title>{file.name}</Dialog.Title>
-                    </Dialog.Header>
-                    <AttachmentPreview
-                      kind={getAttachmentKind({
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        url: file.uploadedUrl,
-                      })}
-                      source={file.previewUrl || readImage(file.uploadedUrl)}
-                      label={file.name}
-                    />
-                  </Dialog.Content>
-                )}
-              </Dialog>
-              {file.uploadedUrl ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('remove-attachment', 'Remove {{name}}', {
-                    name: file.name,
-                  })}
-                  onClick={() => {
-                    if (file.uploadedUrl) onRemove(file.uploadedUrl);
-                  }}
-                  className="size-7 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                >
-                  <IconX className="size-3.5" />
-                </Button>
-              ) : (
-                <Spinner size="sm" />
-              )}
-            </div>
+              file={file}
+              onRemove={onRemove}
+            />
           ))}
           {attachments
             .filter((attachment) => !previewedUrls.has(attachment.url))

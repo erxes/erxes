@@ -6,76 +6,69 @@ import type { IMessageData } from '@/integrations/instagram/@types/utils';
 
 const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
-/** Maps an Instagram attachment type to the shared inbox message kind. */
+const EXACT_ATTACHMENT_KINDS: Record<string, InstagramMessageKind> = {
+  story_mention: 'story_mention',
+  story_reply: 'story_reply',
+  sticker: 'sticker',
+  voice: 'voice',
+  share: 'share',
+  ig_post: 'share',
+  ig_reel: 'share',
+  fallback: 'unsupported',
+  file: 'file',
+};
+
+const MEDIA_KIND_PREFIXES: InstagramMessageKind[] = ['image', 'video', 'audio'];
+
+const PREVIEW_TEXT_BY_KIND: Partial<Record<InstagramMessageKind, string>> = {
+  image: 'Photo',
+  video: 'Video',
+  audio: 'Audio message',
+  file: 'File',
+  share: 'Shared content',
+  story_mention: 'Story mention',
+  story_reply: 'Story reply',
+  sticker: 'Sticker',
+  voice: 'Voice message',
+  deleted: 'Message deleted',
+  unsupported: 'Unsupported Instagram message',
+};
+
+const SHARE_TYPE_BY_ATTACHMENT: Record<string, 'post' | 'reel'> = {
+  ig_post: 'post',
+  ig_reel: 'reel',
+};
+
+const isStoryKind = (kind: InstagramMessageKind) =>
+  kind === 'story_mention' || kind === 'story_reply';
+
 const attachmentKind = (type?: string): InstagramMessageKind => {
   if (!type) return 'unsupported';
-  if (type === 'story_mention') return 'story_mention';
-  if (type === 'story_reply') return 'story_reply';
-  if (type === 'sticker') return 'sticker';
-  if (type === 'voice') return 'voice';
-  if (['share', 'ig_post', 'ig_reel'].includes(type)) {
-    return 'share';
+  if (Object.prototype.hasOwnProperty.call(EXACT_ATTACHMENT_KINDS, type)) {
+    return EXACT_ATTACHMENT_KINDS[type];
   }
-  if (type === 'fallback') {
-    return 'unsupported';
-  }
-  if (type.startsWith('image')) return 'image';
-  if (type.startsWith('video')) return 'video';
-  if (type.startsWith('audio')) return 'audio';
-  if (type === 'file') return 'file';
-  return 'unsupported';
+  return (
+    MEDIA_KIND_PREFIXES.find((prefix) => type.startsWith(prefix)) ||
+    'unsupported'
+  );
 };
 
-/** Supplies a readable preview when a message has no text. */
-const previewTextForKind = (kind: InstagramMessageKind) => {
-  const previews: Partial<Record<InstagramMessageKind, string>> = {
-    image: 'Photo',
-    video: 'Video',
-    audio: 'Audio message',
-    file: 'File',
-    share: 'Shared content',
-    story_mention: 'Story mention',
-    story_reply: 'Story reply',
-    sticker: 'Sticker',
-    voice: 'Voice message',
-    deleted: 'Message deleted',
-    unsupported: 'Unsupported Instagram message',
-  };
-
-  return previews[kind];
-};
-
-/** Keeps text messages readable when their attachment type is unsupported. */
 const resolveMessageKind = (
   attachmentType: string | undefined,
   hasText: boolean,
-) => {
+): InstagramMessageKind => {
   const kind = attachmentKind(attachmentType);
-
-  if (kind === 'story_mention' || kind === 'story_reply') return kind;
-  if (kind !== 'unsupported') return kind;
-  return hasText ? 'text' : kind;
+  return kind === 'unsupported' && hasText ? 'text' : kind;
 };
 
-/** Identifies Instagram post and reel shares for the inbox preview. */
-const shareTypeFor = (type?: string): 'post' | 'reel' | undefined => {
-  if (type === 'ig_post') return 'post';
-  if (type === 'ig_reel') return 'reel';
-  return undefined;
-};
-
-/** Explains why unsupported content cannot be shown. */
 const fallbackReasonFor = (kind: InstagramMessageKind) =>
-  kind === 'story_mention' || kind === 'story_reply'
-    ? 'Story unavailable'
-    : 'Unsupported Instagram message';
+  isStoryKind(kind) ? 'Story unavailable' : 'Unsupported Instagram message';
 
 type TNormalizedCore = Pick<
   IInstagramConversationMessage,
   'messageKind' | 'providerData' | 'expiresAt'
 >;
 
-/** Builds the common message metadata from Instagram's provider fields. */
 const buildCoreFields = ({
   messageId,
   attachmentType,
@@ -90,17 +83,18 @@ const buildCoreFields = ({
   timestampMs?: number;
 }): TNormalizedCore => {
   const messageKind = resolveMessageKind(attachmentType, hasContent);
-  const isStory =
-    messageKind === 'story_mention' || messageKind === 'story_reply';
+  const isStory = isStoryKind(messageKind);
 
   return {
     messageKind,
     providerData: {
       messageId,
       attachmentType,
-      previewText: previewTextForKind(messageKind),
+      previewText: PREVIEW_TEXT_BY_KIND[messageKind],
       previewUrl,
-      shareType: shareTypeFor(attachmentType),
+      shareType: attachmentType
+        ? SHARE_TYPE_BY_ATTACHMENT[attachmentType]
+        : undefined,
       storyUrl: isStory ? previewUrl : undefined,
       fallbackReason:
         !hasContent && !previewUrl ? fallbackReasonFor(messageKind) : undefined,
@@ -112,7 +106,6 @@ const buildCoreFields = ({
   };
 };
 
-/** Normalizes an incoming Instagram webhook message for persistence. */
 export const normalizeInstagramMessage = (
   activity: IMessageData,
 ): Pick<
@@ -152,7 +145,6 @@ export const normalizeInstagramMessage = (
   };
 };
 
-/** Adds provider metadata to legacy outbound records when it is absent. */
 export const normalizeStoredInstagramMessage = (
   message: IInstagramConversationMessage,
 ): IInstagramConversationMessage => {

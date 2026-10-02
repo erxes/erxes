@@ -5,6 +5,8 @@ import { useConversationMessageContext } from '@/inbox/conversations/conversatio
 import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
 import {
   aggregateReactions,
+  findOwnReaction,
+  getMessageReactions,
   getProviderMessageId,
   getReactionKey,
 } from '@/inbox/conversation-messages/utils/message';
@@ -17,15 +19,10 @@ export const useMessageReactions = () => {
   const { toggleReaction, loading } = useMessageReaction(
     integration?.kind === IntegrationType.INSTAGRAM_MESSENGER,
   );
-  const reactions = message.reactions?.length
-    ? message.reactions
-    : message.extraData?.reactions;
-  const ownReaction = reactions?.find(
-    (reaction) => reaction.senderId === currentUser?._id,
-  );
+  const ownReaction = findOwnReaction(message, currentUser?._id);
 
   return {
-    reactions: aggregateReactions(reactions),
+    reactions: aggregateReactions(getMessageReactions(message)),
     ownReactionKey: ownReaction ? getReactionKey(ownReaction) : undefined,
     providerMessageId: getProviderMessageId(message),
     conversationId,

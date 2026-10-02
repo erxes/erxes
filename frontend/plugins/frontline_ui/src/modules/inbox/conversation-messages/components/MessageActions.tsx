@@ -55,13 +55,16 @@ export const MessageActions = ({
   const showReply =
     kind !== 'lead' &&
     (kind !== IntegrationType.FACEBOOK_MESSENGER || Boolean(providerMessageId));
-  const canReply = showReply && !facebookReplyWindowExpired;
+  const canReply =
+    showReply &&
+    !facebookReplyWindowExpired &&
+    (!isInstagram || Boolean(providerMessageId));
   const canForward = kind !== 'lead' && kind !== IntegrationType.FACEBOOK_POST;
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
   const handleReply = () => {
-    if (!canReply || (isInstagram && !providerMessageId)) return;
+    if (!canReply) return;
     let authorName = 'Customer';
     if (message.userId) {
       authorName = 'You';
@@ -118,7 +121,7 @@ export const MessageActions = ({
                 ? 'Facebook reply window expired'
                 : 'Reply'
             }
-            disabled={!canReply || (isInstagram && !providerMessageId)}
+            disabled={!canReply}
             onClick={handleReply}
           >
             <IconArrowBackUp className="size-4" />

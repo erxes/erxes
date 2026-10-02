@@ -12,6 +12,7 @@ import {
   getErrorMessage,
   sanitizeMessageHtml,
 } from '@/integrations/utils';
+import { replaceSenderReaction } from '@/integrations/instagram/services/messageEvents';
 
 interface IMsg {
   action: string;
@@ -50,7 +51,6 @@ const UNSUPPORTED_REACTION_KINDS = new Set([
   'unsupported',
 ]);
 
-/** Sends a customer-message reaction and persists the accepted result. */
 export const handleInstagramReaction = async (
   models: IModels,
   doc: Pick<
@@ -97,22 +97,18 @@ export const handleInstagramReaction = async (
     integrationId,
   );
 
-  const reactions = (target.reactions || []).filter(
-    (item) => item.senderId !== userId,
+  target.reactions = replaceSenderReaction(
+    target.reactions,
+    userId,
+    remove
+      ? undefined
+      : { senderId: userId, reaction: INSTAGRAM_MESSAGE_REACTION },
   );
-  if (!remove) {
-    reactions.push({
-      senderId: userId,
-      reaction: INSTAGRAM_MESSAGE_REACTION,
-    });
-  }
-  target.reactions = reactions;
   await target.save();
 
   return { status: 'success', data: target.toObject() };
 };
 
-/** Sends a reply in an Instagram post-comment conversation. */
 const handleInstagramPostReply = async (
   models: IModels,
   doc: TInstagramRelayDoc,
@@ -193,7 +189,15 @@ const handleInstagramPostReply = async (
   }
 };
 
-/** Sends and stores an Instagram direct-message reply. */
+const FORWARDED_MARKER_LINE = '↪ Forwarded';
+
+const stripForwardedMarker = (content: string) =>
+  content
+    .split(/\r?\n/)
+    .filter((line) => line !== FORWARDED_MARKER_LINE)
+    .join('\n')
+    .trim();
+
 const handleInstagramMessengerReply = async (
   models: IModels,
   doc: TInstagramRelayDoc,
@@ -206,24 +210,15 @@ const handleInstagramMessengerReply = async (
     attachments = [],
     extraInfo,
     replyToMessageId,
+    userId,
   } = doc;
   const tag = extraInfo?.tag || '';
+  const forwardedFrom = extraInfo?.forwardedFrom;
   appendContentImages(content, attachments);
-  const providerContent = extraInfo?.forwardedFrom
-    ? content
-        .split(/\r?\n/)
-        .filter((line) => line !== '↪ Forwarded')
-        .join('\n')
-        .trim()
+  const providerContent = forwardedFrom
+    ? stripForwardedMarker(content)
     : content;
   const strippedContent = sanitizeMessageHtml(providerContent);
-  const forwardedData = extraInfo?.forwardedFrom
-    ? {
-        forwardedFrom: extraInfo.forwardedFrom,
-        forwardedNote: extraInfo.forwardedNote,
-        forwardedSnapshot: extraInfo.forwardedSnapshot,
-      }
-    : undefined;
   const conversation = await models.InstagramConversations.findOne({
     erxesApiId: conversationId,
   });
@@ -231,70 +226,48 @@ const handleInstagramMessengerReply = async (
     throw new Error('Conversation not found');
   }
 
+  const messageDoc = {
+    ...doc,
+    content: providerContent,
+    ...(forwardedFrom && {
+      extraData: {
+        forwardedFrom,
+        forwardedNote: extraInfo?.forwardedNote,
+        forwardedSnapshot: extraInfo?.forwardedSnapshot,
+      },
+    }),
+    conversationId: conversation._id,
+    integrationId: conversation.integrationId,
+    ...(replyToMessageId && { replyTo: { messageId: replyToMessageId } }),
+  };
+
+  const sendAndStore = async (message: object) => {
+    const response = await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: conversation.senderId },
+        message,
+        ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
+        messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
+        ...(tag && { tag }),
+      },
+      integrationId,
+    );
+    if (!response) return undefined;
+    return models.InstagramConversationMessages.addMessage(
+      { ...messageDoc, mid: response.message_id },
+      userId,
+    );
+  };
+
   let localMessage;
   try {
     if (strippedContent) {
-      const response = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: conversation.senderId },
-          message: { text: strippedContent },
-          ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
-          messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
-          ...(tag && { tag }),
-        },
-        integrationId,
-      );
-      if (response) {
-        const messageDoc = {
-          ...doc,
-          content: providerContent,
-          ...(forwardedData ? { extraData: forwardedData } : {}),
-          conversationId: conversation._id,
-          integrationId: conversation.integrationId,
-          mid: response.message_id,
-          ...(replyToMessageId && {
-            replyTo: { messageId: replyToMessageId },
-          }),
-        };
-        localMessage = await models.InstagramConversationMessages.addMessage(
-          messageDoc,
-          doc.userId,
-        );
-      }
+      localMessage = await sendAndStore({ text: strippedContent });
     }
-
     for (const message of generateAttachmentMessages(subdomain, attachments)) {
-      const response = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: conversation.senderId },
-          message,
-          ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
-          messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
-          ...(tag && { tag }),
-        },
-        integrationId,
-      );
-      if (response) {
-        const messageDoc = {
-          ...doc,
-          content: providerContent,
-          ...(forwardedData ? { extraData: forwardedData } : {}),
-          conversationId: conversation._id,
-          integrationId: conversation.integrationId,
-          mid: response.message_id,
-          ...(replyToMessageId && {
-            replyTo: { messageId: replyToMessageId },
-          }),
-        };
-        localMessage = await models.InstagramConversationMessages.addMessage(
-          messageDoc,
-          doc.userId,
-        );
-      }
+      localMessage = (await sendAndStore(message)) || localMessage;
     }
   } catch (error) {
     if (localMessage) {
@@ -315,7 +288,6 @@ const handleInstagramMessengerReply = async (
   };
 };
 
-/** Routes an Instagram relay action to its delivery handler. */
 export const handleInstagramMessage = (
   models: IModels,
   msg: IMsg,

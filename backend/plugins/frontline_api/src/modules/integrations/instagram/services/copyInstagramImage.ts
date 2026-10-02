@@ -10,11 +10,35 @@ export interface ICopyInstagramImageArgs {
 }
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const TRUSTED_META_HOSTS = [
+  'fbcdn.net',
+  'cdninstagram.com',
+  'instagram.com',
+  'fbsbx.com',
+];
+const COPYABLE_IMAGE_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif',
+];
+const UNCOPYABLE_SOURCE_ERROR = 'This image source cannot be copied';
+
+const isTrustedMetaUrl = (imageUrl: URL) => {
+  const hostname = imageUrl.hostname.toLowerCase();
+  return (
+    imageUrl.protocol === 'https:' &&
+    !imageUrl.port &&
+    TRUSTED_META_HOSTS.some(
+      (host) => hostname === host || hostname.endsWith(`.${host}`),
+    )
+  );
+};
 
 const resolveCopySource = (url: string, subdomain: string): URL => {
   const storedKey = !/^https?:\/\//i.test(url);
   if (storedKey && (url.startsWith('/') || url.includes('..'))) {
-    throw new Error('This image source cannot be copied');
+    throw new Error(UNCOPYABLE_SOURCE_ERROR);
   }
   const imageUrl = new URL(
     storedKey ? generateAttachmentUrl(subdomain, encodeURIComponent(url)) : url,
@@ -24,26 +48,12 @@ const resolveCopySource = (url: string, subdomain: string): URL => {
   const trustedStorageUrl =
     imageUrl.origin === storageDomain?.origin &&
     imageUrl.pathname.endsWith('/pl:core/read-file');
-  const allowedHosts = [
-    'fbcdn.net',
-    'cdninstagram.com',
-    'instagram.com',
-    'fbsbx.com',
-  ];
-  const trustedMetaHost =
-    imageUrl.protocol === 'https:' &&
-    !imageUrl.port &&
-    allowedHosts.some(
-      (host) =>
-        imageUrl.hostname.toLowerCase() === host ||
-        imageUrl.hostname.toLowerCase().endsWith(`.${host}`),
-    );
   if (
     imageUrl.username ||
     imageUrl.password ||
-    (!trustedStorageUrl && !trustedMetaHost)
+    (!trustedStorageUrl && !isTrustedMetaUrl(imageUrl))
   ) {
-    throw new Error('This image source cannot be copied');
+    throw new Error(UNCOPYABLE_SOURCE_ERROR);
   }
   return imageUrl;
 };
@@ -53,9 +63,7 @@ const readImageAsDataUrl = async (response: Response): Promise<string> => {
   if (
     !response.ok ||
     !contentType ||
-    !['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(
-      contentType,
-    )
+    !COPYABLE_IMAGE_TYPES.includes(contentType)
   ) {
     throw new Error('Could not load this image');
   }

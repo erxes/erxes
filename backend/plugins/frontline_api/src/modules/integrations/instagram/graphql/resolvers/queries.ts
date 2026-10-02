@@ -34,6 +34,14 @@ const buildSelector = async (conversationId: string, model: any) => {
   return query;
 };
 
+const toChronologicalMessages = (
+  messages: IInstagramConversationMessageDocument[],
+  isAscending: boolean,
+) =>
+  (isAscending ? messages : [...messages].reverse()).map((message) =>
+    normalizeStoredInstagramMessage(message.toObject()),
+  );
+
 export const instagramQueries = {
   async frontlineInstagramCopyImage(
     _root: unknown,
@@ -250,23 +258,14 @@ export const instagramQueries = {
           .skip(skip || 0)
           .limit(limit);
 
-        let orderedMessages = messages;
-        if (!getFirst) {
-          orderedMessages = [...messages].reverse();
-        }
-        return orderedMessages.map((message) =>
-          normalizeStoredInstagramMessage(message.toObject()),
-        );
+        return toChronologicalMessages(messages, Boolean(getFirst));
       }
 
       messages = await models.InstagramConversationMessages.find(query)
         .sort({ createdAt: -1 })
         .limit(50);
 
-      const reversedMessages = [...messages].reverse();
-      return reversedMessages.map((message) =>
-        normalizeStoredInstagramMessage(message.toObject()),
-      );
+      return toChronologicalMessages(messages, false);
     } else {
       let comment: any[] = [];
       const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };

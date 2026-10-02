@@ -7,7 +7,10 @@ import {
   REACTIONS,
   REACTION_KINDS,
 } from '@/inbox/conversation-messages/constants/messageActions';
-import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
+import {
+  findOwnReaction,
+  getProviderMessageId,
+} from '@/inbox/conversation-messages/utils/message';
 import { IntegrationType } from '@/types/Integration';
 
 export const useReactionTarget = () => {
@@ -22,9 +25,7 @@ export const useReactionTarget = () => {
     (!message.userId &&
       !message.fromBot &&
       INSTAGRAM_REACTION_MESSAGE_KINDS.has(message.messageKind || 'text'));
-  const selectedReaction = (
-    message.reactions?.length ? message.reactions : message.extraData?.reactions
-  )?.find((reaction) => reaction.senderId === currentUser?._id)?.reaction;
+  const selectedReaction = findOwnReaction(message, currentUser?._id)?.reaction;
 
   return {
     visible: REACTION_KINDS.has(kind) && supportedMessage,

@@ -1,34 +1,26 @@
-import { CopyText, DropdownMenu, stripHtml } from 'erxes-ui';
-import { IconCopy } from '@tabler/icons-react';
+import { stripHtml } from 'erxes-ui';
 import { CopyAttachmentAction } from '@/inbox/conversation-messages/components/CopyAttachmentAction';
+import { CopyTextAction } from '@/inbox/conversation-messages/components/CopyTextAction';
 import { MessageCopyAction } from '@/inbox/conversation-messages/components/MessageCopyAction';
-import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
+import { ATTACHMENT_PLACEHOLDER_TEXTS } from '@/inbox/constants/messengerConstants';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
+import { isImageAttachment } from '@/inbox/conversation-messages/utils/copyAttachment';
 import { IntegrationType } from '@/types/Integration';
 
 export const MessageCopyActions = ({ inline }: { inline: boolean }) => {
   const message = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
-  const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const contentText = stripHtml(message.content).trim();
-  const text =
-    contentText === HAS_ATTACHMENT || contentText === 'Shared content'
-      ? ''
-      : contentText;
+  const text = ATTACHMENT_PLACEHOLDER_TEXTS.has(contentText) ? '' : contentText;
 
-  if (isInstagram) {
-    const imageAttachment = message.attachments?.find(
-      (attachment) =>
-        attachment.type?.startsWith('image') || attachment.type === 'sticker',
-    );
+  if (integration?.kind === IntegrationType.INSTAGRAM_MESSENGER) {
     return (
       <MessageCopyAction
         text={text}
-        attachment={imageAttachment}
+        attachment={message.attachments?.find(isImageAttachment)}
         conversationId={conversationId}
         messageId={message._id}
-        isInstagram
         inline={inline}
       />
     );
@@ -43,23 +35,7 @@ export const MessageCopyActions = ({ inline }: { inline: boolean }) => {
           inline={inline}
         />
       ))}
-      {text &&
-        (inline ? (
-          <CopyText
-            value={text}
-            className="size-8 justify-center rounded-md text-muted-foreground hover:bg-muted [&>span]:gap-0 [&>span]:text-[0px]"
-          >
-            <IconCopy className="size-4" />
-            <span className="sr-only">Copy text</span>
-          </CopyText>
-        ) : (
-          <DropdownMenu.Item asChild className="rounded-lg">
-            <CopyText value={text} className="w-full">
-              <IconCopy className="size-4" />
-              Copy text
-            </CopyText>
-          </DropdownMenu.Item>
-        ))}
+      {text && <CopyTextAction text={text} inline={inline} />}
     </>
   );
 };

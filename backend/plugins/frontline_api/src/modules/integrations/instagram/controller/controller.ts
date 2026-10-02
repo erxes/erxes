@@ -9,7 +9,6 @@ import type { IModels } from '~/connectionResolvers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import { getErrorMessage } from '@/integrations/utils';
 
-/** Verifies the webhook body against Meta's SHA-256 signature. */
 const hasValidWebhookSignature = (
   rawBody: Buffer | string | undefined,
   signature: string | undefined,
@@ -132,10 +131,10 @@ export const instagramWebhook = async (req, res) => {
   }
 
   for (const entry of data.entry) {
-    for (const messageData of entry.messaging || []) {
-      await processIncomingMessage(models, subdomain, messageData);
-    }
-    for (const messageData of entry.standby || []) {
+    for (const messageData of [
+      ...(entry.messaging || []),
+      ...(entry.standby || []),
+    ]) {
       await processIncomingMessage(models, subdomain, messageData);
     }
 

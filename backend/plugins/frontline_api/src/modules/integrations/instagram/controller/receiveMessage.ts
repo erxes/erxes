@@ -6,13 +6,16 @@ import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { debugInstagram } from '@/integrations/instagram/debuggers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   checkIsBot,
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
 import { normalizeInstagramMessage } from '@/integrations/instagram/normalizeMessage';
 import type { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import {
+  publishInstagramMessage,
+  replaceSenderReaction,
+} from '@/integrations/instagram/services/messageEvents';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
@@ -30,12 +33,7 @@ const syncInboxMessageAndPublish = async (
 
   Object.assign(inboxMessage, update);
   await inboxMessage.save();
-  await graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
-    conversationMessageInserted: {
-      ...inboxMessage.toObject(),
-      conversationId,
-    },
-  });
+  await publishInstagramMessage(conversationId, inboxMessage.toObject());
 };
 
 const handleReactionEvent = async (models: IModels, activity: IMessageData) => {
@@ -46,20 +44,18 @@ const handleReactionEvent = async (models: IModels, activity: IMessageData) => {
   });
   if (!target) return true;
 
-  const reactionValue = activity.reaction.reaction || activity.reaction.emoji;
-  if (activity.reaction.action === 'react' && !reactionValue) return true;
+  const { action, emoji, mid } = activity.reaction;
+  const reactionValue = activity.reaction.reaction || emoji;
+  const isReact = action === 'react';
+  if (isReact && !reactionValue) return true;
 
-  const reactions = (target.reactions || []).filter(
-    (reaction) => reaction.senderId !== activity.sender.id,
+  const reactions = replaceSenderReaction(
+    target.reactions,
+    activity.sender.id,
+    isReact
+      ? { senderId: activity.sender.id, reaction: reactionValue, emoji }
+      : undefined,
   );
-  if (activity.reaction.action === 'react') {
-    reactions.push({
-      senderId: activity.sender.id,
-      reaction: reactionValue,
-      emoji: activity.reaction.emoji,
-    });
-  }
-
   target.reactions = reactions;
   await target.save();
 
@@ -67,12 +63,9 @@ const handleReactionEvent = async (models: IModels, activity: IMessageData) => {
     _id: target.conversationId,
   });
   if (conversation?.erxesApiId) {
-    await syncInboxMessageAndPublish(
-      models,
-      conversation.erxesApiId,
-      activity.reaction.mid,
-      { reactions },
-    );
+    await syncInboxMessageAndPublish(models, conversation.erxesApiId, mid, {
+      reactions,
+    });
   }
 
   return true;
@@ -93,19 +86,16 @@ const handleDeletedInstagramMessage = async ({
 }) => {
   if (!existingMessage) return false;
 
-  existingMessage.content = '';
-  existingMessage.attachments = [];
-  existingMessage.messageKind = 'deleted';
-  existingMessage.deliveryStatus = 'deleted';
-  existingMessage.providerData = providerData;
-  await existingMessage.save();
-  await syncInboxMessageAndPublish(models, conversationId, mid, {
+  const deletedFields = {
     content: '',
     attachments: [],
-    messageKind: 'deleted',
-    deliveryStatus: 'deleted',
+    messageKind: 'deleted' as const,
+    deliveryStatus: 'deleted' as const,
     providerData,
-  });
+  };
+  Object.assign(existingMessage, deletedFields);
+  await existingMessage.save();
+  await syncInboxMessageAndPublish(models, conversationId, mid, deletedFields);
 
   return true;
 };
@@ -353,11 +343,7 @@ export const receiveMessage = async (
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
         createdAt: new Date(timestamp),
-        messageKind: normalizedMessage.messageKind,
-        providerData: normalizedMessage.providerData,
-        replyTo: normalizedMessage.replyTo,
-        deliveryStatus: normalizedMessage.deliveryStatus,
-        expiresAt: normalizedMessage.expiresAt,
+        ...normalizedMessage,
       });
       inboxMessageId = inboxMessage._id;
 
