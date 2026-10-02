@@ -46,9 +46,8 @@ export const NavSidebar = ({
 }: NavSidebarProps) => {
   const { t } = useTranslation('mongolian');
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label={t(groupLabel)}>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t(groupLabel)}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {routes.map((route) => (
@@ -61,6 +60,6 @@ export const NavSidebar = ({
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

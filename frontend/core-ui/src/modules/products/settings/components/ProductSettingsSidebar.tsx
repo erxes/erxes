@@ -3,9 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 export function ProductSettingsSidebar() {
   const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { pathname } = useLocation();
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label={tSidebar('products')}>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -38,6 +39,6 @@ export function ProductSettingsSidebar() {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 }

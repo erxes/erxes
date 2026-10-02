@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -126,6 +126,14 @@
 
 ## Local Invariants
 
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
+  own open state (`sidebarPanelOpenState`), separate from the host's context
+  column. Never stack two headings: a menu without a heading passes one as
+  `label` (header row with the heading, optional `actions` and the collapse
+  toggle); a menu that starts with its own heading row (group label, collapsible
+  or accordion trigger) omits `label` and ends that row with
+  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
+  inside sheets and dialogs.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.

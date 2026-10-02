@@ -6,7 +6,7 @@ import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel
 import { AppPath } from '@/types/paths/AppPath';
 import { SettingsPath } from '@/types/paths/SettingsPath';
 import { IconChevronRight, IconSettings } from '@tabler/icons-react';
-import { Avatar, Button, cn, DropdownMenu, readImage } from 'erxes-ui';
+import { Avatar, Button, cn, DropdownMenu, readImage, Sidebar } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -20,20 +20,22 @@ export const NavigationSidebarFooter = ({
   isSettings: boolean;
 }) => {
   const currentUser = useAtomValue(currentUserState);
+  const { setOpen } = Sidebar.useSidebar();
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const userDetails = currentUser?.details;
   const userName = userDetails?.fullName || sidebarT('profile');
+  const collapsedInSettings = isSettings && !expanded;
 
   return (
-    <div className="flex flex-col items-stretch gap-1 pb-2">
+    <div className="mt-1 flex shrink-0 flex-col items-stretch gap-1 border-t pt-2 pb-2">
       <Button
         asChild
         className={cn(
           'h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
-          isSettings && 'bg-primary/10',
+          collapsedInSettings && 'bg-primary/10',
         )}
         size="default"
         variant="ghost"
@@ -41,11 +43,17 @@ export const NavigationSidebarFooter = ({
         <Link
           aria-label={organizationT('settings')}
           to={`/${AppPath.Settings}`}
+          onClick={(event) => {
+            if (collapsedInSettings) {
+              event.preventDefault();
+              setOpen(true);
+            }
+          }}
         >
           <IconSettings
             className={cn(
               'size-4 text-accent-foreground',
-              isSettings && 'text-primary',
+              collapsedInSettings && 'text-primary',
             )}
           />
           <NavigationRailLabel
@@ -54,6 +62,9 @@ export const NavigationSidebarFooter = ({
           >
             {organizationT('settings')}
           </NavigationRailLabel>
+          {expanded && !isSettings && (
+            <IconChevronRight className="ml-auto size-3.5! shrink-0 text-muted-foreground" />
+          )}
         </Link>
       </Button>
       <DropdownMenu>

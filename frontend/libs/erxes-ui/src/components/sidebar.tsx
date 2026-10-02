@@ -9,6 +9,9 @@ import { Sheet } from 'erxes-ui/components/sheet';
 import { Skeleton } from 'erxes-ui/components/skeleton';
 import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn } from 'erxes-ui/lib/utils';
+import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
+import { useAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from './tooltip';
 import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
@@ -219,6 +222,86 @@ const SidebarProvider = React.forwardRef<
   },
 );
 SidebarProvider.displayName = 'SidebarProvider';
+
+const SidebarPanelTrigger = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  React.ComponentProps<typeof Button>
+>(({ className, onClick, ...props }, ref) => {
+  const [open, setOpen] = useAtom(sidebarPanelOpenState);
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const toggleLabel = open
+    ? t('collapse-sidebar', 'Collapse sidebar')
+    : t('expand-sidebar', 'Expand sidebar');
+
+  return (
+    <Button
+      ref={ref}
+      aria-expanded={open}
+      aria-label={toggleLabel}
+      className={cn('size-6 shrink-0 rounded-md', className)}
+      size="icon"
+      title={toggleLabel}
+      variant="ghost"
+      onClick={(event) => {
+        onClick?.(event);
+        setOpen(!open);
+      }}
+      {...props}
+    >
+      {open ? <IconChevronsLeft /> : <IconChevronsRight />}
+    </Button>
+  );
+});
+SidebarPanelTrigger.displayName = 'SidebarPanelTrigger';
+
+const SidebarPanel = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<'div'> & {
+    label?: React.ReactNode;
+    actions?: React.ReactNode;
+  }
+>(({ className, children, label, actions, ...props }, ref) => {
+  const open = useAtomValue(sidebarPanelOpenState);
+
+  return (
+    <div
+      ref={ref}
+      data-sidebar="panel"
+      data-state={open ? 'expanded' : 'collapsed'}
+      className={cn(
+        'flex h-full w-60 flex-col overflow-hidden bg-sidebar text-foreground transition-[width] duration-200 ease-linear motion-reduce:transition-none',
+        className,
+        !open && 'w-12!',
+      )}
+      {...props}
+    >
+      {!open && (
+        <div className="flex shrink-0 justify-center pt-3">
+          <SidebarPanelTrigger />
+        </div>
+      )}
+      {open && label && (
+        <div className="flex shrink-0 items-center gap-1 pt-3 pr-3 pl-4">
+          <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs font-semibold uppercase text-accent-foreground">
+            {label}
+          </span>
+          {actions}
+          <SidebarPanelTrigger />
+        </div>
+      )}
+      <div
+        hidden={!open}
+        className={cn(
+          'flex min-h-0 flex-1 flex-col overflow-y-auto',
+          label && '[&>[data-sidebar=group]:first-child]:pt-0',
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  );
+});
+SidebarPanel.displayName = 'SidebarPanel';
 
 const SidebarRoot = React.forwardRef<
   HTMLDivElement,
@@ -839,6 +922,8 @@ export const Sidebar = Object.assign(SidebarRoot, {
   Header: SidebarHeader,
   Input: SidebarInput,
   Inset: SidebarInset,
+  Panel: SidebarPanel,
+  PanelTrigger: SidebarPanelTrigger,
   Menu: SidebarMenu,
   MenuAction: SidebarMenuAction,
   MenuBadge: SidebarMenuBadge,

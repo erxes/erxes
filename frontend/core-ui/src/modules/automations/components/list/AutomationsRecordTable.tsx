@@ -4,7 +4,6 @@ import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRec
 import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
-import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { AutomationsCardList } from '@/automations/components/list/AutomationsCardList';
 import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
@@ -78,7 +77,6 @@ export const AutomationsRecordTable = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <AutomationsViewToggle />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}
             icon="IconAffiliate"

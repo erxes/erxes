@@ -75,8 +75,8 @@ export function DocumentsTypes() {
   }
 
   return (
-    <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
-      <Sidebar.Group>
+    <Sidebar collapsible="none" className="w-full bg-transparent">
+      <Sidebar.Group className="pt-0">
         <Sidebar.GroupContent>
           <AllDocumentsMenu
             isActive={!contentType}

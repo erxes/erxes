@@ -4,6 +4,7 @@ import {
   PageContainer,
   Separator,
   ToggleGroup,
+  useIsMobile,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
@@ -18,40 +19,24 @@ import {
   ReportKpiDateFilter,
   TICKET_PRIORITY_DATE_FILTER_ID,
 } from '@/report/components/filter-popover/ReportKpiDateFilter';
-
-const ROUTES = {
-  overview: '/frontline/reports',
-  call: '/frontline/reports/call',
-  ticket: '/frontline/reports/ticket',
-  facebook: '/frontline/reports/facebook',
-} as const;
-
-type Section = keyof typeof ROUTES;
+import {
+  getReportSection,
+  getReportSections,
+  REPORT_SECTION_PATHS,
+} from '@/report/constants/reportSections';
 
 export default function ReportIndexPage() {
   const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const activeSection = getReportSection(location.pathname);
+  const sections = getReportSections(t);
 
-  let activeSection: Section = 'overview';
-
-  if (location.pathname.includes('/call')) {
-    activeSection = 'call';
-  } else if (location.pathname.includes('/ticket')) {
-    activeSection = 'ticket';
-  } else if (location.pathname.includes('/facebook')) {
-    activeSection = 'facebook';
-  }
-
-  let activeSectionLabel: string | undefined;
-
-  if (activeSection === 'call') {
-    activeSectionLabel = t('call-center', 'Call center');
-  } else if (activeSection === 'ticket') {
-    activeSectionLabel = t('ticket', 'Ticket');
-  } else if (activeSection === 'facebook') {
-    activeSectionLabel = t('facebook-reports', 'Facebook');
-  }
+  const activeSectionLabel =
+    activeSection === 'overview'
+      ? undefined
+      : sections.find(({ section }) => section === activeSection)?.label;
 
   let reportContent = <ReportsView />;
 
@@ -87,31 +72,45 @@ export default function ReportIndexPage() {
                   </Link>
                 </Button>
               </Breadcrumb.Item>
+              {!isMobile && activeSectionLabel && (
+                <>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link to={REPORT_SECTION_PATHS[activeSection]}>
+                        {activeSectionLabel}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
+                </>
+              )}
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <ToggleGroup
-            type="single"
-            value={activeSection}
-            onValueChange={(v) => {
-              if (!v) return;
-              navigate(ROUTES[v as Section]);
-            }}
-          >
-            <ToggleGroup.Item value="overview">
-              {t('frontline-overview', 'Frontline Overview')}
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">
-              {t('ticket', 'Ticket')}
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="facebook">
-              {t('facebook-reports', 'Facebook')}
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="call">
-              {t('call-center', 'Call center')}
-            </ToggleGroup.Item>
-          </ToggleGroup>
-          <Separator.Inline />
+          {isMobile && (
+            <>
+              <ToggleGroup
+                type="single"
+                value={activeSection}
+                onValueChange={(value) => {
+                  const target = sections.find(
+                    ({ section }) => section === value,
+                  );
+
+                  if (target) {
+                    navigate(REPORT_SECTION_PATHS[target.section]);
+                  }
+                }}
+              >
+                {sections.map(({ section, label }) => (
+                  <ToggleGroup.Item key={section} value={section}>
+                    {label}
+                  </ToggleGroup.Item>
+                ))}
+              </ToggleGroup>
+              <Separator.Inline />
+            </>
+          )}
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}
             icon="IconChartHistogram"

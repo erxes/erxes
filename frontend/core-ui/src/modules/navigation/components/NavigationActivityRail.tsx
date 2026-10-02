@@ -4,56 +4,61 @@ import { NavigationActivitySearchButton } from '@/navigation/components/navigati
 import { NavigationFavoritesSection } from '@/navigation/components/navigation-activity-rail/NavigationFavoritesSection';
 import { NavigationInboxButton } from '@/navigation/components/navigation-activity-rail/NavigationInboxButton';
 import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
+import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
+import { NavigationResizeHandle } from '@/navigation/components/NavigationResizeHandle';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
+import { navigationSidebarWidthState } from '@/navigation/states/navigationPanelState';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
+import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { cn, Sidebar } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { motion, useReducedMotion } from 'motion/react';
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
-export const NavigationActivityRail = ({
-  activities,
-  activeActivityId,
-  hiddenActivities,
-  isInboxActive,
-  isActivityPinned,
-  isSettings,
-  mobileExpanded,
-  onActivityPinnedChange,
-  onSearch,
-  onSelectInbox,
-  onSelectActivity,
-  visibleActivities,
-}: Readonly<{
+type TNavigationActivityRailProps = Readonly<{
   activities: INavigationActivity[];
   activeActivityId: string | null;
+  expandedActivityId: string | null;
   hiddenActivities: INavigationActivity[];
   isInboxActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
-  mobileExpanded: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
   onSelectInbox: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
+  onToggleActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
-}>) => {
-  const { isMobile, state } = Sidebar.useSidebar();
-  const expanded = isMobile ? mobileExpanded : state === 'expanded';
-  const hoverEnabled = !expanded && !isMobile;
+}>;
+
+const NavigationActivityRailMain = ({
+  activities,
+  activeActivityId,
+  expanded,
+  expandedActivityId,
+  hiddenActivities,
+  hoverEnabled,
+  isInboxActive,
+  isActivityPinned,
+  isSettings,
+  onActivityPinnedChange,
+  onSearch,
+  onSelectInbox,
+  onSelectActivity,
+  onToggleActivity,
+  visibleActivities,
+}: TNavigationActivityRailProps &
+  Readonly<{ expanded: boolean; hoverEnabled: boolean }>) => {
   const { promoted } = splitPromotedNavigationActivities(activities);
   const visibleRest = splitPromotedNavigationActivities(visibleActivities).rest;
   const hiddenRest = splitPromotedNavigationActivities(hiddenActivities).rest;
   const usePromotedRail = promoted.length > 0;
 
   return (
-    <aside
-      className={cn(
-        'flex w-full shrink-0 flex-col border-none bg-sidebar px-2 py-2',
-        !expanded && 'border-r!',
-        isMobile && !expanded && 'w-12',
-      )}
-    >
-      <NavigationRailLogo expanded={expanded} />
+    <>
       {usePromotedRail ? (
         <div className="mb-1 flex shrink-0 flex-col gap-1">
           <NavigationInboxButton
@@ -97,11 +102,13 @@ export const NavigationActivityRail = ({
           activeActivityId={activeActivityId}
           activities={usePromotedRail ? visibleRest : visibleActivities}
           expanded={expanded}
+          expandedActivityId={expandedActivityId}
           hoverEnabled={hoverEnabled}
           isActivityPinned={isActivityPinned}
           isSettings={isSettings}
           onActivityPinnedChange={onActivityPinnedChange}
           onSelectActivity={onSelectActivity}
+          onToggleActivity={onToggleActivity}
         />
         <NavigationActivityMore
           activities={usePromotedRail ? hiddenRest : hiddenActivities}
@@ -111,7 +118,74 @@ export const NavigationActivityRail = ({
           onSelect={onSelectActivity}
         />
       </div>
+    </>
+  );
+};
+
+export const NavigationActivityRail = (props: TNavigationActivityRailProps) => {
+  const { isSettings } = props;
+  const { isMobile, state } = Sidebar.useSidebar();
+  const expanded = isMobile || state === 'expanded';
+  const hoverEnabled = !expanded && !isMobile;
+  const reduceMotion = useReducedMotion();
+  const showSettings = isSettings && expanded;
+  const setSidebarWidth = useSetAtom(navigationSidebarWidthState);
+  const asideRef = useRef<HTMLElement>(null);
+  const isFirstRender = useRef(true);
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  useEffect(() => {
+    isFirstRender.current = false;
+  }, []);
+
+  return (
+    <aside
+      ref={asideRef}
+      className={cn(
+        'relative flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden border-none bg-sidebar px-2 py-2',
+        !expanded && 'border-r!',
+      )}
+    >
+      <NavigationRailLogo expanded={expanded} />
+      <motion.div
+        key={showSettings ? 'settings' : 'main'}
+        animate={{ opacity: 1, x: 0 }}
+        className={cn('flex min-h-0 flex-1 flex-col', showSettings && '-mx-2')}
+        initial={
+          isFirstRender.current
+            ? false
+            : { opacity: 0, x: showSettings ? 24 : -24 }
+        }
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : {
+                x: { duration: 0.26, ease: NAVIGATION_EASE },
+                opacity: { duration: 0.18, ease: 'easeOut' },
+              }
+        }
+      >
+        {showSettings ? (
+          <SettingsSidebar />
+        ) : (
+          <NavigationActivityRailMain
+            {...props}
+            expanded={expanded}
+            hoverEnabled={hoverEnabled}
+          />
+        )}
+      </motion.div>
       <NavigationSidebarFooter expanded={expanded} isSettings={isSettings} />
+      {expanded && !isMobile && (
+        <NavigationResizeHandle
+          label={t('resize-sidebar', 'Resize sidebar')}
+          panelRef={asideRef}
+          min={192}
+          max={384}
+          onResize={setSidebarWidth}
+          onReset={() => setSidebarWidth(null)}
+        />
+      )}
     </aside>
   );
 };

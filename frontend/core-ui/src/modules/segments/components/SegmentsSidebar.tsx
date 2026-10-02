@@ -14,9 +14,11 @@ export const SegmentListSidebar = ({ types, className }: Props) => {
   const { contentTypeLabel } = useSegmentLabels();
 
   return (
-    <Sidebar collapsible="none" className={cn('flex-none', className)}>
+    <Sidebar.Panel
+      className={cn('flex-none', className)}
+      label={t('segment-types')}
+    >
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('segment-types')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {types.map(({ description, contentType }) => (
@@ -34,6 +36,6 @@ export const SegmentListSidebar = ({ types, className }: Props) => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

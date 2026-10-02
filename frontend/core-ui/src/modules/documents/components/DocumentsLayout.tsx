@@ -1,3 +1,5 @@
+import { Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { ApprovalLockGuard } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
@@ -16,6 +18,8 @@ export const DocumentsLayout = ({
 
   const documentId = searchParams.get('documentId');
   const contentType = searchParams.get('contentType');
+  const showDocumentList = Boolean(contentType && documentId !== null);
+  const { t } = useTranslation('documents');
 
   const editor = documentId?.trim() ? (
     <ApprovalLockGuard
@@ -33,13 +37,12 @@ export const DocumentsLayout = ({
 
   return (
     <div className="flex min-h-0 flex-1 overflow-hidden">
-      <div className="w-(--sidebar-width) flex-none overflow-hidden">
-        {contentType && documentId !== null ? (
-          <Documents viewType="list" />
-        ) : (
-          <DocumentsTypes />
-        )}
-      </div>
+      <Sidebar.Panel
+        className="flex-none border-r bg-muted/20"
+        label={showDocumentList ? undefined : t('documents')}
+      >
+        {showDocumentList ? <Documents viewType="list" /> : <DocumentsTypes />}
+      </Sidebar.Panel>
       <div className="min-w-0 flex-1 overflow-hidden">
         {documentId !== null ? editor : <Documents viewType="grid" />}
       </div>
