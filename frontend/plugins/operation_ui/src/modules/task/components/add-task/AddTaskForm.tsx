@@ -52,10 +52,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-  const { project } = useGetProject({
-    variables: { _id: projectId || '' },
-    skip: !projectId,
-  });
+  const { project } = useGetProject(projectId);
 
   const [_teamId, _setTeamId] = useState<string | undefined>(
     teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,

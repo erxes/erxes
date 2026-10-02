@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_PROJECT = gql`
+export const GET_PROJECT = gql(`
   query getProject($_id: String!) {
     getProject(_id: $_id) {
       _id
@@ -22,4 +22,4 @@ export const GET_PROJECT = gql`
       propertiesData
     }
   }
-`;
+`);

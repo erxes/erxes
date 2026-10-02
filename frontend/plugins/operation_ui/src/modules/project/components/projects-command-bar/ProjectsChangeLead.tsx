@@ -38,7 +38,7 @@ export const ProjectsChangeLeadContent = ({
             updateProject({
               variables: {
                 _id: projectId,
-                leadId: value,
+                leadId: Array.isArray(value) ? undefined : value,
               },
             });
           }),

@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-02`
 
 ## Scope
 
@@ -88,7 +88,7 @@
 - `TRIAGE_ACCEPTANCE` activities use the activity's `createdBy` for the accepting member and the task's `createdBy` for the original creator; do not nest another timeline row inside the acceptance action.
 - My Inbox task and triage details (`NotificationTaskDetail`) keep the task page's dimensions: `p-6` content, `xl:max-w-3xl` centered, and the Open task action in a `max-w-3xl px-6 pt-6` row. Project and team inbox details keep their own `max-w-3xl px-6` layouts; the four stay visually aligned.
 - Core-ui's inbox ScrollArea is the only scroll and its viewport content is `min-h-dvh` with no fixed height, so the task side column is `sticky top-0` with its height measured from the enclosing `[data-radix-scroll-area-viewport]`'s `clientHeight`. A `dvh` height leaves sticky no room to move; a nested ScrollArea adds a second, dead outer scroll. If core stops using that ScrollArea, the side column silently does not render while the detail still works.
-- Task, triage and activity documents use `gql()` from `~/gql` (codegen's `gqlTagName`); their hooks take and return generated types. `ITask`/`ITriage` are the list item types and `ITaskDetail`/`ITriageDetail` the detail query types, all derived from `~/gql/graphql`. Do not reintroduce handwritten response interfaces for these documents.
+- Task, triage, activity, project and milestone documents use `gql()` from `~/gql` (codegen's `gqlTagName`); their hooks take and return generated types. `ITask`/`ITriage`/`IProject`/`IMilestone` are the list item types and `ITaskDetail`/`ITriageDetail`/`IProjectDetail` the detail query types, all derived from `~/gql/graphql`. Do not reintroduce handwritten response interfaces for these documents.
 - Query hooks take nullable ids (`string | null | undefined`) and guard with `skip`; callers never fabricate empty-string ids. Generated field types are honestly nullable, so components accept `T | null` rather than callers writing `?? undefined`/`?? ''`/`?? 0` at call sites. Remaining coalescing is limited to shared-library boundaries (`SelectMember.Provider`, `ISearchProvider` items) and genuine defaults (array index, form schema sentinels, `totalCount` arithmetic).
 - `@/operation/utils/cursorList` adapts generated list responses to the `erxes-ui` cursor helpers (`toCursorPageInfo`, `compactList`, `mergeCursorList`).
 - Real-time updates use `useSubscription`, not `subscribeToMore` inside `useEffect`. Detail subscriptions (`operationTaskChanged`) use `ignoreResults: true` and rely on the normalized cache (`__typename` + `_id` identity via `addTypename`, core-ui `InMemoryCache`) to merge changed fields — subscription payloads must not replace whole query results. List subscriptions (`operationTaskListChanged`, `operationActivityChanged`) use `onData`: `delete`/`removed` evicts the entity (`cache.evict` + `cache.gc`) and decrements `totalCount`; `create`/`created` prepends or appends through `cache.updateQuery` guarded by an `_id` presence check; `update`/`updated` needs no manual work. Progress hooks subscribe to `operationTaskListChanged` with a `filter` variable (`projectId` or `cycleId`) and `refetch` on each event. `useGetProject`/`useGetProjects` still use `subscribeToMore` because they watch project documents that are not part of the task/triage/activity set.

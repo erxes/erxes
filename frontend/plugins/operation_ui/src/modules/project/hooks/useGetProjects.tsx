@@ -5,13 +5,15 @@ import {
 } from '@/project/graphql/queries/getProjects';
 import { PROJECT_LIST_CHANGED } from '@/project/graphql/subscriptions/projectListChanged';
 import { projectTotalCountAtom } from '@/project/states/projectsTotalCount';
-import { IProject } from '@/project/types';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/operation/utils/cursorList';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
   isUndefinedOrNull,
-  mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
   useToast,
@@ -21,19 +23,18 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { currentUserState } from 'ui-modules';
-
-interface IProjectChanged {
-  operationProjectListChanged: {
-    type: string;
-    project: IProject;
-  };
-}
+import type {
+  GetProjectsInlineQuery,
+  GetProjectsQuery,
+  GetProjectsQueryVariables,
+  IProjectFilter,
+} from '~/gql/graphql';
 
 const PROJECTS_PER_PAGE = 30;
 
 export const useProjectsVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<IProject>>['variables'],
-) => {
+  variables?: IProjectFilter,
+): IProjectFilter => {
   const { cursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
   });
@@ -55,8 +56,8 @@ export const useProjectsVariables = (
     cursor,
     name: name || undefined,
 
-    priority: priority || undefined,
-    status: status || undefined,
+    priority: priority ? Number(priority) : undefined,
+    status: status ? Number(status) : undefined,
     leadId: lead || undefined,
     tagIds: tags || undefined,
     ...variables,
@@ -68,16 +69,16 @@ export const useProjectsVariables = (
 };
 
 export const useProjects = (
-  options?: QueryHookOptions<ICursorListResponse<IProject>>,
+  options?: QueryHookOptions<GetProjectsQuery, GetProjectsQueryVariables> & {
+    variables?: IProjectFilter;
+  },
 ) => {
   const { t } = useTranslation('operation');
   const setProjectTotalCount = useSetAtom(projectTotalCountAtom);
   const { toast } = useToast();
   const variables = useProjectsVariables(options?.variables);
 
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
-    ICursorListResponse<IProject>
-  >(GET_PROJECTS, {
+  const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_PROJECTS, {
     ...options,
     variables: { filter: variables },
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
@@ -90,42 +91,40 @@ export const useProjects = (
     },
   });
 
-  const { list: projects, pageInfo, totalCount } = data?.getProjects || {};
+  const projects = data?.getProjects?.list
+    ? compactList(data.getProjects.list)
+    : undefined;
+  const pageInfo = toCursorPageInfo(data?.getProjects?.pageInfo);
+  const totalCount = data?.getProjects?.totalCount;
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<IProjectChanged>({
+    const unsubscribe = subscribeToMore({
       document: PROJECT_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+        const event = subscriptionData.data?.operationProjectListChanged;
+        const project = event?.project;
+        if (!prev.getProjects || !project) return prev;
 
-        const { type, project } =
-          subscriptionData.data.operationProjectListChanged;
-        const currentList = prev?.getProjects?.list;
-
-        if (!currentList) return prev;
+        const currentList = compactList(prev.getProjects.list ?? []);
 
         let updatedList = currentList;
 
-        if (type === 'create') {
-          const exists = currentList.some(
-            (item: IProject) => item._id === project._id,
-          );
+        if (event.type === 'create') {
+          const exists = currentList.some((item) => item._id === project._id);
           if (!exists) {
             updatedList = [project, ...currentList];
           }
         }
 
-        if (type === 'update') {
-          updatedList = currentList.map((item: IProject) =>
+        if (event.type === 'update') {
+          updatedList = currentList.map((item) =>
             item._id === project._id ? { ...item, ...project } : item,
           );
         }
 
-        if (type === 'remove') {
-          updatedList = currentList.filter(
-            (item: IProject) => item._id !== project._id,
-          );
+        if (event.type === 'remove') {
+          updatedList = currentList.filter((item) => item._id !== project._id);
         }
 
         return {
@@ -133,12 +132,11 @@ export const useProjects = (
           getProjects: {
             ...prev.getProjects,
             list: updatedList,
-            pageInfo: prev.getProjects.pageInfo,
             totalCount:
-              type === 'create'
-                ? prev.getProjects.totalCount + 1
-                : type === 'remove'
-                  ? prev.getProjects.totalCount - 1
+              event.type === 'create'
+                ? (prev.getProjects.totalCount ?? 0) + 1
+                : event.type === 'remove'
+                  ? (prev.getProjects.totalCount ?? 0) - 1
                   : prev.getProjects.totalCount,
           },
         };
@@ -170,19 +168,21 @@ export const useProjects = (
               ? pageInfo?.endCursor
               : pageInfo?.startCursor,
           limit: PROJECTS_PER_PAGE,
-          direction,
+          direction:
+            direction === EnumCursorDirection.FORWARD ? 'forward' : 'backward',
         },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.getProjects || !prev.getProjects) return prev;
 
-        return Object.assign({}, prev, {
-          getProjects: mergeCursorData({
+        return {
+          ...prev,
+          getProjects: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.getProjects,
-            prevResult: prev.getProjects,
-          }),
-        });
+            prev.getProjects,
+            fetchMoreResult.getProjects,
+          ),
+        };
       },
     });
   };
@@ -195,28 +195,25 @@ export const useProjects = (
     totalCount,
   };
 };
+
 export const useProjectsInline = (
-  options?: QueryHookOptions<
-    ICursorListResponse<{
-      _id: string;
-      name: string;
-      status: number;
-    }>
-  >,
+  options?: QueryHookOptions<GetProjectsInlineQuery> & {
+    variables?: IProjectFilter;
+  },
 ) => {
   const variables = useProjectsVariables(options?.variables);
 
-  const { data, loading, fetchMore } = useQuery<
-    ICursorListResponse<{
-      _id: string;
-      name: string;
-      status: number;
-    }>
-  >(GET_PROJECTS_INLINE, {
+  const { data, loading, fetchMore } = useQuery(GET_PROJECTS_INLINE, {
     ...options,
     variables: { filter: variables },
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
   });
+
+  const projects = data?.getProjects?.list
+    ? compactList(data.getProjects.list)
+    : undefined;
+  const pageInfo = toCursorPageInfo(data?.getProjects?.pageInfo);
+  const totalCount = data?.getProjects?.totalCount;
 
   const handleFetchMore = (
     direction: EnumCursorDirection = EnumCursorDirection.FORWARD,
@@ -233,24 +230,24 @@ export const useProjectsInline = (
               ? pageInfo?.endCursor
               : pageInfo?.startCursor,
           limit: PROJECTS_PER_PAGE,
-          direction,
+          direction:
+            direction === EnumCursorDirection.FORWARD ? 'forward' : 'backward',
         },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.getProjects || !prev.getProjects) return prev;
 
-        return Object.assign({}, prev, {
-          getProjects: mergeCursorData({
+        return {
+          ...prev,
+          getProjects: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.getProjects,
-            prevResult: prev.getProjects,
-          }),
-        });
+            prev.getProjects,
+            fetchMoreResult.getProjects,
+          ),
+        };
       },
     });
   };
-
-  const { list: projects, pageInfo, totalCount } = data?.getProjects || {};
 
   return {
     loading,

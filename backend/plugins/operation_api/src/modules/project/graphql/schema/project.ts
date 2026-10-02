@@ -2,21 +2,21 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
 type Project {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
     icon: String
     description: String
     status: Int
     priority: Int
-    teamIds: [String]!
+    teamIds: [String!]!
     tagIds: [String]
     leadId: String
     memberIds: [String]
     startDate: Date
     targetDate: Date
     createdBy: String
-    createdAt: Date
-    updatedAt: Date
+    createdAt: Date!
+    updatedAt: Date!
     convertedFromId: String
     propertiesData: JSON
 }

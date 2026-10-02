@@ -1,23 +1,16 @@
 import { addProjectSchema } from '@/project/types/validations';
+import type {
+  GetMilestonesQuery,
+  GetProjectQuery,
+  GetProjectsQuery,
+} from '~/gql/graphql';
 import { z } from 'zod';
 
-export interface IProject {
-  _id: string;
-  name: string;
-  icon: string;
-  tagIds: string[];
-  createdAt: string;
-  createdBy?: string;
-  priority: number;
-  status: number;
-  targetDate: Date;
-  startDate: Date;
-  leadId: string;
-  memberIds?: string[];
-  teamIds: string[];
-  description: string;
-  propertiesData?: Record<string, unknown>;
-}
+export type IProject = NonNullable<
+  NonNullable<NonNullable<GetProjectsQuery['getProjects']>['list']>[number]
+>;
+
+export type IProjectDetail = NonNullable<GetProjectQuery['getProject']>;
 
 export enum ProjectPageTypes {
   All = 'all',
@@ -47,13 +40,9 @@ export interface IProjectProgressByTeam {
   totalCompletedScope: number;
 }
 
-export interface IMilestone {
-  _id: string;
-  name: string;
-  description: string;
-  targetDate: Date;
-  projectId: string;
-}
+export type IMilestone = NonNullable<
+  NonNullable<NonNullable<GetMilestonesQuery['milestones']>['list']>[number]
+>;
 
 export interface IMilestoneProgress {
   totalScope: number;
