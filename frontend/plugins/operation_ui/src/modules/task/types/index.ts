@@ -11,16 +11,6 @@ export type IEstimateChoice = NonNullable<
   NonNullable<EstimateChoisesQuery['getTeamEstimateChoises']>[number]
 >;
 
-export interface INote {
-  _id: string;
-  content: string;
-  createdAt: string;
-  createdBy: string;
-  contentId: string;
-  mentions: string[];
-  updatedAt: string;
-}
-
 export type ITask = NonNullable<
   NonNullable<NonNullable<GetTasksQuery['getTasks']>['list']>[number]
 >;
