@@ -64,7 +64,7 @@ export const MailThread: React.FC<MailThreadProps> = ({
 
   useEffect(() => {
     const thread = threadRef.current;
-    if (!thread || !newestId) return;
+    if (!thread || !newestId) return undefined;
 
     followLatestRef.current = true;
     const viewport = scrollViewportRef?.current;

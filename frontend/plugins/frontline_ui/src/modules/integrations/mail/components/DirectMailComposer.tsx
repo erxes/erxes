@@ -22,14 +22,10 @@ import {
 } from '@/integrations/mail/utils/directMailComposer';
 import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/constants/directMailComposer';
 import {
-  BodyField,
-  CcBccFields,
+  ComposerFields,
   ComposerFooter,
   ComposerHeader,
-  FromRow,
-  SubjectRow,
 } from './DirectMailComposerFields';
-import { ToRow } from './DirectMailRecipientField';
 
 export const DirectMailComposer = () => {
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
@@ -92,7 +88,7 @@ export const DirectMailComposer = () => {
 
       setTarget({ ...detail, emails });
       setRecipientCustomerId(detail.customerId);
-      setFailedDelivery(undefined);
+      setFailedDelivery(() => undefined);
       setShowCc(false);
       setShowBcc(false);
       reset({
@@ -131,7 +127,7 @@ export const DirectMailComposer = () => {
 
   const close = () => {
     setTarget(null);
-    setFailedDelivery(undefined);
+    setFailedDelivery(() => undefined);
     reset();
   };
 
@@ -175,23 +171,15 @@ export const DirectMailComposer = () => {
             className="flex min-h-0 flex-1 flex-col overflow-y-auto"
             onSubmit={handleSubmit(submit)}
           >
-            <fieldset
+            <ComposerFields
               disabled={sending || Boolean(failedDelivery)}
-              className="flex min-h-0 flex-1 flex-col"
-            >
-              <FromRow
-                sendersLoading={sendersLoading}
-                selectedSender={selectedSender}
-                sendersError={sendersError}
-                senders={senders}
-                disabled={sending || Boolean(failedDelivery)}
-                onRetry={handleRetry}
-              />
-              <ToRow onRecipientSelect={setRecipientCustomerId} />
-              <CcBccFields />
-              <SubjectRow />
-              <BodyField />
-            </fieldset>
+              sendersLoading={sendersLoading}
+              selectedSender={selectedSender}
+              sendersError={sendersError}
+              senders={senders}
+              onRetry={handleRetry}
+              onRecipientSelect={setRecipientCustomerId}
+            />
             {failedDelivery && (
               <p role="alert" className="px-4 py-3 text-sm text-destructive">
                 {failedDelivery.deliveryError || 'Email was not delivered.'}

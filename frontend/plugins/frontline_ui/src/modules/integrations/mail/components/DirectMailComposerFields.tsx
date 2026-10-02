@@ -1,12 +1,30 @@
 import { IconMail, IconSend, IconX } from '@tabler/icons-react';
 import { Button, Input, Select, Spinner, Textarea } from 'erxes-ui';
 import { Controller, useFormContext } from 'react-hook-form';
+import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDirectMailComposerFields } from '@/integrations/mail/hooks/useDirectMailComposerFields';
 import type {
   ComposeValues,
   MailSender,
 } from '@/integrations/mail/types/directMailComposer';
+import { ToRow } from './DirectMailRecipientField';
+
+export const ComposerFields = ({
+  disabled,
+  onRecipientSelect,
+  ...senderProps
+}: ComponentProps<typeof FromRow> & {
+  onRecipientSelect: (customerId?: string) => void;
+}) => (
+  <fieldset disabled={disabled} className="flex min-h-0 flex-1 flex-col">
+    <FromRow {...senderProps} disabled={disabled} />
+    <ToRow onRecipientSelect={onRecipientSelect} />
+    <CcBccFields />
+    <SubjectRow />
+    <BodyField />
+  </fieldset>
+);
 
 export const ComposerHeader = ({
   onClose,

@@ -200,8 +200,9 @@ export const mailMutations = {
       reactionFilter,
     ).sort({ createdAt: -1, _id: -1 });
     if (
-      previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.PENDING ||
-      previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.SENT
+      activeReactionFilter.deliveryStatus.$in.some(
+        (status) => status === previousReaction?.deliveryStatus,
+      )
     ) {
       throw alreadyReacted();
     }

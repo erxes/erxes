@@ -149,6 +149,51 @@ const MailMessageHeader = ({
   );
 };
 
+const MailMessageReactionChip = ({
+  emoji,
+  senders,
+  disabled,
+  onReact,
+}: {
+  emoji: string;
+  senders: MailReaction[];
+  disabled: boolean;
+  onReact: () => void;
+}) => {
+  const senderNames = senders
+    .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
+    .join(', ');
+
+  return (
+    <Tooltip>
+      <Tooltip.Trigger asChild>
+        <span
+          aria-label={`${senderNames} reacted with ${emoji}`}
+          className="inline-flex"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label={`React with ${emoji}`}
+            disabled={disabled}
+            className="h-auto gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
+            onClick={onReact}
+          >
+            <span>{emoji}</span>
+            <span>{senders.length}</span>
+          </Button>
+        </span>
+      </Tooltip.Trigger>
+      <Tooltip.Content className="max-w-72 rounded-xl px-4 py-3">
+        <span className="text-sm">
+          {senderNames} reacted with <strong>{emoji}</strong>
+        </span>
+      </Tooltip.Content>
+    </Tooltip>
+  );
+};
+
 const MailMessageReactionChips = ({
   reactions,
   message,
@@ -189,43 +234,19 @@ const MailMessageReactionChips = ({
     reactionsByEmoji.size > 0 && (
       <div className="flex flex-wrap gap-1.5 py-2">
         {[...reactionsByEmoji].map(([emoji, senders]) => (
-          <Tooltip key={emoji}>
-            <Tooltip.Trigger asChild>
-              <span
-                aria-label={`${senders
-                  .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
-                  .join(', ')} reacted with ${emoji}`}
-                className="inline-flex"
-              >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  aria-label={`React with ${emoji}`}
-                  disabled={!canReact || loading}
-                  className="h-auto gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
-                  onClick={() => {
-                    if (senders.some(({ isOwn }) => isOwn)) {
-                      toast({ title: `You've already reacted with ${emoji}` });
-                      return;
-                    }
-                    react(conversationId, message._id, emoji);
-                  }}
-                >
-                  <span>{emoji}</span>
-                  <span>{senders.length}</span>
-                </Button>
-              </span>
-            </Tooltip.Trigger>
-            <Tooltip.Content className="max-w-72 rounded-xl px-4 py-3">
-              <span className="text-sm">
-                {senders
-                  .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
-                  .join(', ')}{' '}
-                reacted with <strong>{emoji}</strong>
-              </span>
-            </Tooltip.Content>
-          </Tooltip>
+          <MailMessageReactionChip
+            key={emoji}
+            emoji={emoji}
+            senders={senders}
+            disabled={!canReact || loading}
+            onReact={() => {
+              if (senders.some(({ isOwn }) => isOwn)) {
+                toast({ title: `You've already reacted with ${emoji}` });
+                return;
+              }
+              react(conversationId, message._id, emoji);
+            }}
+          />
         ))}
       </div>
     )

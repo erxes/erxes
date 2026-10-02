@@ -51,10 +51,10 @@ export const MailInternalNotes = ({
         </span>
       </div>
       {loading && !notes.length && (
-        <div role="status" className="flex justify-center p-4">
+        <output className="flex justify-center p-4">
           <Spinner size="sm" />
           <span className="sr-only">{t('loading')}</span>
-        </div>
+        </output>
       )}
       {error && (
         <div

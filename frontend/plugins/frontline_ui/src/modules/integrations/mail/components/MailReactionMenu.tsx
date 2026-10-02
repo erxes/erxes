@@ -1,5 +1,5 @@
 import { IconLoader, IconMoodSmile, IconSearch } from '@tabler/icons-react';
-import { Button, Popover, Tooltip } from 'erxes-ui';
+import { Button, Popover, Tooltip, cn } from 'erxes-ui';
 import {
   EmojiPicker as EmojiPickerPrimitive,
   type EmojiPickerListCategoryHeaderProps,
@@ -99,6 +99,18 @@ const MailEmojiPicker = ({
   </EmojiPickerPrimitive.Root>
 );
 
+const getReactionUnavailableReason = ({
+  mailData,
+}: MailMessage): string | undefined => {
+  if (mailData.reactionEmoji) return "You can't react to an emoji reaction";
+  if (mailData.hasReplyTo)
+    return "You can't react to a message with a reply-to address";
+  if (mailData.type === 'SENT') return "You can't react to your own message";
+  if (mailData.senderMismatch || !mailData.messageId)
+    return 'This email cannot receive a reaction';
+  return undefined;
+};
+
 export const MailReactionMenu = ({
   conversationId,
   message,
@@ -111,29 +123,23 @@ export const MailReactionMenu = ({
   const [open, setOpen] = useState(false);
   const { react, loading } = useMailSendReaction();
 
-  const reason = message.mailData.reactionEmoji
-    ? "You can't react to an emoji reaction"
-    : message.mailData.hasReplyTo
-      ? "You can't react to a message with a reply-to address"
-      : message.mailData.type === 'SENT'
-        ? "You can't react to your own message"
-        : message.mailData.senderMismatch || !message.mailData.messageId
-          ? 'This email cannot receive a reaction'
-          : undefined;
+  const reason = getReactionUnavailableReason(message);
 
   const reactionButton = (
     <Button
       type="button"
       variant="ghost"
       size={compact ? 'icon' : 'sm'}
-      aria-label="Add email reaction"
+      aria-label={reason ?? 'Add email reaction'}
+      aria-disabled={Boolean(reason) || undefined}
       title={reason ? undefined : 'Add email reaction'}
-      disabled={loading || Boolean(reason)}
-      className={
+      disabled={loading && !reason}
+      className={cn(
         compact
           ? 'size-8 rounded-full'
-          : 'h-7 rounded-full border border-border px-3'
-      }
+          : 'h-7 rounded-full border border-border px-3',
+        'aria-disabled:cursor-default aria-disabled:opacity-50 aria-disabled:hover:bg-transparent',
+      )}
     >
       <IconMoodSmile className="size-4" />
       {!compact && <span>React</span>}
@@ -143,11 +149,7 @@ export const MailReactionMenu = ({
   if (reason) {
     return (
       <Tooltip>
-        <Tooltip.Trigger asChild>
-          <span tabIndex={0} aria-label={reason}>
-            {reactionButton}
-          </span>
-        </Tooltip.Trigger>
+        <Tooltip.Trigger asChild>{reactionButton}</Tooltip.Trigger>
         <Tooltip.Content className="max-w-60">{reason}</Tooltip.Content>
       </Tooltip>
     );

@@ -70,7 +70,7 @@ export const ConversationDetail = () => {
     if (!conversationId) {
       return;
     }
-    setExtraInfo(undefined);
+    setExtraInfo(() => undefined);
     setReplyTo(null);
   }, [conversationId, setExtraInfo, setReplyTo]);
 
