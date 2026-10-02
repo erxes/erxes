@@ -13,7 +13,9 @@ import { z } from 'zod';
 export type ICycle = NonNullable<GetCycleDetailQuery['getCycle']>;
 
 export type IActiveCycle = NonNullable<
-  NonNullable<NonNullable<GetActiveCyclesQuery['getCyclesActive']>['list']>[number]
+  NonNullable<
+    NonNullable<GetActiveCyclesQuery['getCyclesActive']>['list']
+  >[number]
 >;
 
 export type ICycleInput = CycleInput;
@@ -37,4 +39,3 @@ export type ICycleStatistics = NonNullable<
 export type ICycleProgress = NonNullable<
   GetCycleProgressQuery['getCycleProgress']
 >;
-
