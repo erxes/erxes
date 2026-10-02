@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -30,6 +30,8 @@
 - Runs as the `operation_ui` Module Federation remote on port `3006`.
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
+- Task activity rows show the accepting member's avatar and name with a triage-acceptance action; the action component supplies only the action text while the shared activity wrapper supplies the actor and timestamp.
+- The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
@@ -60,6 +62,7 @@
 
 - Public UI APIs from `erxes-ui` and `ui-modules`.
 - Operation API contracts through the plugin's local GraphQL documents and hooks.
+- The host i18next `operation` namespace, loaded from gateway English and Mongolian locale JSON files; acceptance activity uses `accepted-triage`.
 - Core property-field queries and the public `FieldsInDetail` renderer from `ui-modules` for `operation:task` and `operation:project`.
 - React Router host mounting contracts from core UI Module Federation.
 
@@ -78,8 +81,14 @@
 - Keep custom properties as a local panel in the existing task/project right-side `SideMenu`, separate from cross-record relation widget registration; do not duplicate the form in the main detail body.
 - The property side panel uses `SideMenu.Header` with a standard-size secondary Manage action to `/settings/properties/<contentType>` and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
 - Dev watch ignores must not include plugin source directories required for hot reload.
+- `TaskDetails` carries neither padding nor side widgets. Every caller supplies both: `TaskDetailPage`, `TaskDetailSheet` and the My Inbox `NotificationTaskDetail`. Check all three whenever `TaskDetails`' layout contract changes; the inbox caller is easy to miss because it only renders through the `./notificationWidget` remote.
+- `TRIAGE_ACCEPTANCE` activities use the activity's `createdBy` for the accepting member and the task's `createdBy` for the original creator; do not nest another timeline row inside the acceptance action.
+- My Inbox task and triage details (`NotificationTaskDetail`) keep the task page's dimensions: `p-6` content, `xl:max-w-3xl` centered, and the Open task action in a `max-w-3xl px-6 pt-6` row. Project and team inbox details keep their own `max-w-3xl px-6` layouts; the four stay visually aligned.
+- Core-ui's inbox ScrollArea is the only scroll and its viewport content is `min-h-dvh` with no fixed height, so the task side column is `sticky top-0` with its height measured from the enclosing `[data-radix-scroll-area-viewport]`'s `clientHeight`. A `dvh` height leaves sticky no room to move; a nested ScrollArea adds a second, dead outer scroll. If core stops using that ScrollArea, the side column silently does not render while the detail still works.
 
 ## Validation
 
 - `pnpm nx build operation_ui`
 - Smoke scenario: open operation projects, tasks, team, operation settings, relation widgets, and automation widget entry through the remote.
+- Inbox smoke: open a task, triage, project and team notification in My Inbox; the task detail is padded, shows side widgets, and its icon column stays put while scrolling.
+- Triage smoke: when a second member accepts a triage, the task timeline shows the original creator and a separate acceptance row with the second member's photo, name, and acceptance time.

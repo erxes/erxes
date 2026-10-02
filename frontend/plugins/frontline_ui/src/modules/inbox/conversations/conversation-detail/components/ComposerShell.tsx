@@ -2,30 +2,36 @@ import { Button, cn } from 'erxes-ui';
 import { IconChevronDown, IconChevronUp, IconLock } from '@tabler/icons-react';
 import type { DragEventHandler, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { ComposerModeTabs } from '@/inbox/conversations/conversation-detail/components/ComposerModeTabs';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import {
+  isInternalNoteCollapsedState,
+  isInternalState,
+  onlyInternalState,
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import { IntegrationType } from '@/types/Integration';
 
 type ComposerShellProps = {
   children: ReactNode;
-  collapsed: boolean;
   disabled: boolean;
-  isInternalNote: boolean;
-  onlyInternal: boolean;
-  onCollapsedChange: (collapsed: boolean) => void;
   onDrop: DragEventHandler<HTMLFormElement>;
   onInternalNoteChange: (internal: boolean) => void;
 };
 
 export const ComposerShell = ({
   children,
-  collapsed,
   disabled,
-  isInternalNote,
-  onlyInternal,
-  onCollapsedChange,
   onDrop,
   onInternalNoteChange,
 }: ComposerShellProps) => {
   const { t } = useTranslation('frontline');
+  const collapsed = useAtomValue(isInternalNoteCollapsedState);
+  const setCollapsed = useSetAtom(isInternalNoteCollapsedState);
+  const isInternalNote = useAtomValue(isInternalState);
+  const onlyInternal = useAtomValue(onlyInternalState);
+  const { integration } = useConversationContext();
+  const noteOnly = integration?.kind === IntegrationType.MAIL;
 
   if (isInternalNote && collapsed) {
     return (
@@ -34,7 +40,7 @@ export const ComposerShell = ({
           type="button"
           variant="outline"
           className="mx-auto flex h-11 w-full max-w-3xl justify-start rounded-xl border-warning/40 bg-warning/10 px-3 text-warning hover:bg-warning/20"
-          onClick={() => onCollapsedChange(false)}
+          onClick={() => setCollapsed(false)}
           aria-label={t(
             'expand-internal-note-composer',
             'Expand internal note composer',
@@ -65,12 +71,19 @@ export const ComposerShell = ({
         )}
       >
         <div className="flex flex-none items-center gap-3 border-b border-border/50 px-3 py-2">
-          <ComposerModeTabs
-            isInternalNote={isInternalNote}
-            disabled={disabled}
-            replyDisabled={onlyInternal}
-            onInternalNoteChange={onInternalNoteChange}
-          />
+          {noteOnly ? (
+            <div className="flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-warning">
+              <IconLock className="size-3.5" />
+              {t('internal-note', 'Internal Note')}
+            </div>
+          ) : (
+            <ComposerModeTabs
+              isInternalNote={isInternalNote}
+              disabled={disabled}
+              replyDisabled={onlyInternal}
+              onInternalNoteChange={onInternalNoteChange}
+            />
+          )}
           {isInternalNote && (
             <Button
               type="button"
@@ -81,7 +94,7 @@ export const ComposerShell = ({
                 'collapse-internal-note-composer',
                 'Collapse internal note composer',
               )}
-              onClick={() => onCollapsedChange(true)}
+              onClick={() => setCollapsed(true)}
             >
               <IconChevronDown className="size-4" />
             </Button>

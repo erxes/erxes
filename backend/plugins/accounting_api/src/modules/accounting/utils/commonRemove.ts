@@ -12,6 +12,7 @@ import {
   TFxaIncomeDetailRemoveOptions,
 } from './fixedAssets';
 import { removeInvJustify } from './invJustify';
+import { isInvSplitFollow, removeInvSplitFollowTrs } from './invSplit';
 
 export type TCommonRemoveOptions = TFxaIncomeDetailRemoveOptions;
 
@@ -81,13 +82,17 @@ async function handleNone(
 }
 
 async function handleInvIncome(
-  _models: IModels,
+  models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
   _followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
+  if (isInvSplitFollow(transaction)) {
+    return;
+  }
   await removeSyncProductsInventory(subdomain, transaction, 1);
+  await removeInvSplitFollowTrs(subdomain, models, transaction._id);
 }
 
 async function handleInvOut(
@@ -97,17 +102,21 @@ async function handleInvOut(
   _followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
+  if (isInvSplitFollow(transaction)) {
+    return;
+  }
   await removeSyncProductsInventory(subdomain, transaction, -1);
 }
 
 async function handleInvMove(
-  _models: IModels,
+  models: IModels,
   subdomain: string,
   transaction: ITransactionDocument,
   followTrs?: ITransactionDocument[],
   _options?: TCommonRemoveOptions,
 ) {
   await removeSyncProductsInventory(subdomain, transaction, -1);
+  await removeInvSplitFollowTrs(subdomain, models, transaction._id);
   const moveInTr = followTrs?.find(
     (ftr) =>
       ftr.originId === transaction._id &&

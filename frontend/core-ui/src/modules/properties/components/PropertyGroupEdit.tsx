@@ -60,6 +60,7 @@ export const PropertyGroupEditSheet = () => {
               isMultiple: !!activePropertyGroup.configs?.isMultiple,
             }}
             onCancel={() => setActivePropertyGroup(null)}
+            locked={!!activePropertyGroup.owner}
           />
         )}
       </Sheet.View>

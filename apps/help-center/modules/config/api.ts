@@ -146,12 +146,6 @@ const fetchConfig = async (
     return { state: 'error', message: 'This request carried no host header.' };
   }
 
-  /*
-   * The richest document goes first on every request. Remembering the one a
-   * gateway accepted would save the rejected round trips on an old backend,
-   * but would also keep the portal on the reduced document after that backend
-   * is upgraded.
-   */
   let mismatch = '';
 
   for (const lookup of LOOKUPS) {

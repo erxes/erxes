@@ -9,11 +9,15 @@ import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
+import { reconcileDeclaredFeaturedFields } from '~/modules/properties/utils/featuredFields';
 
 const generateFilter = async (
   models: IModels,
+  subdomain: string,
   params: Partial<IFieldParams>,
 ) => {
+  await reconcileDeclaredFeaturedFields(models, subdomain);
+
   const { contentType, contentTypeId, groupId } = params;
 
   const filter: FilterQuery<IField> = { contentType };
@@ -33,9 +37,9 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
   fields: async (
     _: undefined,
     { params }: { params: IFieldCursorParams },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
-    const filter = await generateFilter(models, params);
+    const filter = await generateFilter(models, subdomain, params);
 
     if (!params.orderBy) {
       params.orderBy = { order: 1 };
@@ -59,11 +63,11 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
   cpFields: async (
     _: undefined,
     { params }: { params: IFieldOffsetParams },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
     const { sortField = 'code', sortDirection = 1 } = params || {};
 
-    const filter = await generateFilter(models, params);
+    const filter = await generateFilter(models, subdomain, params);
 
     return await defaultPaginate(
       models.Fields.find(filter).sort({ [sortField]: sortDirection }),

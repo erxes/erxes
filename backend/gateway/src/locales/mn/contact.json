@@ -18,7 +18,8 @@
       "phone-verification-status": "Утас баталгаажуулалтын төлөв",
       "description": "Тайлбар",
       "subscribed": "Бүртгэлтэй",
-      "success-message": "Харилцагч амжилттай нэмэгдлээ"
+      "success-message": "Харилцагч амжилттай нэмэгдлээ",
+      "birth-date": "Төрсөн огноо"
     },
     "detail": {
       "add-tags": "Таг нэмэх",

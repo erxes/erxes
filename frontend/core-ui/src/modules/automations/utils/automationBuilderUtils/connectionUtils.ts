@@ -8,6 +8,7 @@ import {
   TAutomationBuilderActions,
   TAutomationBuilderForm,
 } from '@/automations/utils/automationFormDefinitions';
+import { resolveTriggerFolks } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { Node } from '@xyflow/react';
 import { TAutomationOptionalConnect } from 'ui-modules';
 
@@ -118,18 +119,19 @@ export const generateWorkflowConnection = (
  * Every named exit — an `if` branch, a find-object outcome, the error policy's
  * success/error pair — stores its target under the folk's own config key.
  */
-export const generateFolkConnection = (
-  sourceNode: TAutomationBuilderActions[number],
+export const generateFolkConnection = <
+  TNode extends { config?: Record<string, any> },
+>(
+  sourceNode: TNode,
   targetId: string,
   folkKey: string,
-) =>
-  ({
-    ...sourceNode,
-    config: {
-      ...(sourceNode.config || {}),
-      [folkKey]: targetId,
-    },
-  } as TAutomationBuilderActions[number]);
+): TNode => ({
+  ...sourceNode,
+  config: {
+    ...(sourceNode.config || {}),
+    [folkKey]: targetId,
+  },
+});
 export const generateStandarConnection = (
   sourceNode: any,
   targetId: string,
@@ -171,6 +173,13 @@ export const removeNodeReferences = ({
       ...trigger,
       actionId:
         trigger.actionId === removedNodeId ? undefined : trigger.actionId,
+      config: resolveTriggerFolks(trigger.config).reduce(
+        (config, { key }) =>
+          config?.[key] === removedNodeId
+            ? { ...config, [key]: undefined }
+            : config,
+        trigger.config,
+      ),
     }))
     .filter((trigger) => trigger.id !== removedNodeId);
 

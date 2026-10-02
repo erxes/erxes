@@ -136,7 +136,12 @@ export const TopicFormFields = ({
 
     <InfoCard title={t('appearance', 'Appearance')}>
       <InfoCard.Content>
-        <TopicColorField control={form.control} name="color" t={t} />
+        <TopicColorField
+          control={form.control}
+          name="color"
+          t={t}
+          defaultValue={EMPTY_TOPIC.color}
+        />
         <TopicBackgroundImageField
           control={form.control}
           name="backgroundImage"

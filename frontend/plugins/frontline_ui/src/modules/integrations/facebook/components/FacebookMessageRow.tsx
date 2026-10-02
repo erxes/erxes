@@ -17,7 +17,7 @@ export const FacebookMessageRow = ({
   const needsFacebookRenderer = Boolean(
     message.botData?.length || message.source || message.relatedMessage,
   );
-  const fbContextValue = useMemo(
+  const contextValue = useMemo(
     () => ({
       ...message,
       attachments: normalizeFacebookAttachments(message.attachments),
@@ -26,19 +26,9 @@ export const FacebookMessageRow = ({
     }),
     [message, nextMessage, previousMessage],
   );
-  const conversationContextValue = useMemo(
-    () => ({
-      ...message,
-      attachments: normalizeFacebookAttachments(message.attachments),
-      previousMessage,
-      nextMessage,
-    }),
-    [message, nextMessage, previousMessage],
-  );
-
   if (needsFacebookRenderer) {
     return (
-      <FbMessengerMessageContext.Provider value={fbContextValue}>
+      <FbMessengerMessageContext.Provider value={contextValue}>
         <MessageDaySeparator
           createdAt={message.createdAt}
           previousCreatedAt={previousMessage?.createdAt}
@@ -49,7 +39,7 @@ export const FacebookMessageRow = ({
   }
 
   return (
-    <ConversationMessageContext.Provider value={conversationContextValue}>
+    <ConversationMessageContext.Provider value={contextValue}>
       <MessageItem />
     </ConversationMessageContext.Provider>
   );

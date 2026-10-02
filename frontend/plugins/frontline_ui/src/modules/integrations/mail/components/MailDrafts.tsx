@@ -2,7 +2,7 @@ import React from 'react';
 import { Skeleton } from 'erxes-ui';
 import { useMailDrafts } from '../hooks/useMailDrafts';
 import { MailDraftCard } from './MailDraftCard';
-import { MailMessage } from './MailThread';
+import type { MailMessage } from '@/integrations/mail/types/mailThread';
 
 interface MailDraftsProps {
   conversationId?: string;

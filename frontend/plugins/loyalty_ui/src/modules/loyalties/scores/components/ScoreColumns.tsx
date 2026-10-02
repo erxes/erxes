@@ -3,6 +3,8 @@ import {
   IconChartBar,
   IconCoins,
   IconHash,
+  IconHourglass,
+  IconListDetails,
   IconLabelFilled,
   IconNote,
   IconRefresh,
@@ -16,12 +18,14 @@ import { TFunction } from 'i18next';
 import { useSetAtom } from 'jotai';
 import {
   Badge,
+  Button,
   fixNum,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { IScoreLog, IScoreOwner } from '../types/score';
+import { EarnCalcPopover } from './EarnCalcPopover';
 import { makeScoreMoreColumn } from './ScoreMoreColumn';
 import { scoreDetailRecordAtom } from '../states/scoreDetail';
 
@@ -56,6 +60,15 @@ const formatDate = (dateStr?: string) => {
 };
 
 const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
+
+const ACTION_VARIANTS: Record<
+  string,
+  'secondary' | 'success' | 'destructive' | 'warning'
+> = {
+  add: 'success',
+  subtract: 'destructive',
+  expire: 'warning',
+};
 
 const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   const setDetailRecord = useSetAtom(scoreDetailRecordAtom);
@@ -151,12 +164,10 @@ export const scoreLogColumns = (
             <span className="text-muted-foreground"></span>
           </RecordTableInlineCell>
         );
-      let variant: 'secondary' | 'success' | 'destructive' = 'secondary';
-      if (action === 'add') variant = 'success';
-      else if (action === 'subtract') variant = 'destructive';
+      const variant = ACTION_VARIANTS[action] || 'secondary';
       return (
         <RecordTableInlineCell>
-          <Badge variant={variant}>{action}</Badge>
+          <Badge variant={variant}>{t(`score-action-${action}`)}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -222,6 +233,64 @@ export const scoreLogColumns = (
         <RecordTableInlineCell className="text-right font-semibold text-violet-600">
           <TextOverflowTooltip value={formatScore(val)} />
         </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'pointsExpired',
+    accessorFn: (row) => (row.action === 'expire' ? row.change : undefined),
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconHourglass}
+        label={t('points-expired')}
+      />
+    ),
+    size: 130,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right font-semibold text-muted-foreground">
+          <TextOverflowTooltip value={formatScore(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'breakdown',
+    accessorFn: (row) =>
+      (row.breakdown || [])
+        .map(({ name, points }) => `${name} ${formatScore(points)}`)
+        .join(' · '),
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconListDetails}
+        label={t('score-breakdown')}
+      />
+    ),
+    size: 220,
+    cell: ({ cell, row }) => {
+      const { breakdown, change } = row.original;
+      const text = (cell.getValue() as string) || '';
+
+      if (!breakdown?.length) {
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={text} />
+          </RecordTableInlineCell>
+        );
+      }
+
+      return (
+        <EarnCalcPopover breakdown={breakdown} total={change || 0}>
+          <Button
+            variant="ghost"
+            className="h-full w-full min-w-0 justify-start rounded-none px-2 font-normal"
+          >
+            <span className="truncate underline decoration-dotted underline-offset-4">
+              {text}
+            </span>
+          </Button>
+        </EarnCalcPopover>
       );
     },
   },

@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { ATTACHMENT_GQL } from 'erxes-ui';
 
 export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
   query mailConversationDetail($conversationId: String!, $limit: Int) {
@@ -15,10 +16,38 @@ export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
   }
 `;
 
+export const MAIL_CONVERSATION_INTERNAL_NOTES_QUERY = gql`
+  query mailConversationInternalNotes($conversationId: String!, $notesSkip: Int, $notesLimit: Int) {
+    mailConversationInternalNotes(conversationId: $conversationId, skip: $notesSkip, limit: $notesLimit) {
+      _id
+      mid
+      conversationId
+      content
+      formWidgetData
+      extraData
+      ${ATTACHMENT_GQL}
+      createdAt
+      internal
+      fromBot
+      userId
+      customerId
+      botData
+      messageKind
+      providerData
+      replyTo
+      reactions
+      deliveryStatus
+      expiresAt
+    }
+    mailConversationInternalNotesCount(conversationId: $conversationId)
+  }
+`;
+
 export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
+      internal
     }
   }
 `;

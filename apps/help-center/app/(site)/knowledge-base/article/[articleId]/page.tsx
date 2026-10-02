@@ -8,6 +8,8 @@ import {
   findSectionOf,
   sortByRecency,
 } from '@/modules/knowledge-base/utils/selectors';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
+import { getT } from '@/modules/i18n/server';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { type Crumb } from '@/modules/ui/components/Breadcrumbs';
 import {
@@ -22,17 +24,18 @@ type Props = { params: Promise<{ articleId: string }> };
 
 export const generateMetadata = async ({ params }: Props) => {
   const { articleId } = await params;
-  const topic = await getTopicWithArticles();
+  const [topic, t] = await Promise.all([getTopicWithArticles(), getT()]);
   const article =
     topic.state === 'ready' ? findArticle(topic.data, articleId) : null;
 
-  return { title: article?.title ?? 'Article' };
+  return { title: article?.title ?? t('kb.article') };
 };
 
 export default async function ArticlePage({ params }: Props) {
-  const [{ articleId }, topic] = await Promise.all([
+  const [{ articleId }, topic, t] = await Promise.all([
     params,
     getTopicWithArticles(),
+    getT(),
   ]);
 
   if (topic.state !== 'ready') {
@@ -68,7 +71,10 @@ export default async function ArticlePage({ params }: Props) {
     : [];
 
   const crumbs: Crumb[] = [
-    { label: 'Knowledge base', href: '/knowledge-base' },
+    {
+      label: knowledgeBaseName(topic.data.knowledgeBaseLabel, t).title,
+      href: '/knowledge-base',
+    },
     ...(section && section._id !== category?._id
       ? [
           {

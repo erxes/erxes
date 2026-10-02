@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ITicketUpdate } from '~/modules/ticket/@types/ticket';
+import { notifyTicketOwner } from '@/ticket/utils/cpNotifications';
 
 export const cpTicketMutations: Record<string, Resolver> = {
   cpCreateTicket: async (
@@ -28,6 +29,23 @@ export const cpTicketMutations: Record<string, Resolver> = {
     graphqlPubsub.publish('ticketListChanged', {
       ticketListChanged: { type: 'create', ticket },
     });
+
+    if (ticket && cpUser?._id && cpUser?.clientPortalId) {
+      await notifyTicketOwner(subdomain, {
+        ticket,
+        owner: {
+          cpUserId: cpUser._id,
+          clientPortalId: cpUser.clientPortalId,
+        },
+        eventType: 'ticketCreated',
+        title: 'We received your ticket',
+        message: `${ticket.name || 'Your ticket'} — ticket number #${
+          ticket.number
+        }. The support team replies here.`,
+        type: 'success',
+        priority: 'low',
+      });
+    }
 
     if (ticket && userId) {
       await sendTRPCMessage({

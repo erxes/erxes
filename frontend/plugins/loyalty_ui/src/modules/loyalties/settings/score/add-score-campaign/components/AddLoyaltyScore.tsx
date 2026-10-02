@@ -1,13 +1,14 @@
+import { defaultSubtract, toSubtractInput } from '../../utils/spendRulesForm';
+import { ScoreCampaignFormLayout } from './ScoreCampaignFormLayout';
+import { defaultEarnTable, toAddInput } from '../../utils/earnTableForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, ScrollArea, Sheet, Form } from 'erxes-ui';
+import { Button, Sheet, Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   loyaltyScoreFormSchema,
   LoyaltyScoreFormValues,
 } from '../../constants/formSchema';
-import { LoyaltyScoreAddCoreFields } from './LoyaltyScoreAddCoreFields';
-import { LoyaltyScoreAddMoreFields } from './LoyaltyScoreAddMoreFields';
 import {
   AddScoreCampaignVariables,
   useAddScoreCampaign,
@@ -27,7 +28,6 @@ export function AddLoyaltyScoreForm({
       description: '',
       order: undefined,
       conditions: {
-        serviceName: '',
         productCategoryIds: [],
         productIds: [],
         tagIds: [],
@@ -37,35 +37,18 @@ export function AddLoyaltyScoreForm({
       },
       additionalConfig: {
         discountCheck: false,
-        cardBasedRule: [
-          { boardId: '', pipelineId: '', stageIds: [], refundStageIds: [] },
-        ],
       },
-      add: { placeholder: '', currencyRatio: '' },
-      subtract: { placeholder: '', currencyRatio: '' },
-      set: { placeholder: '', currencyRatio: '' },
-      ownerType: '',
-      onlyClientPortal: false,
-      fieldGroupId: '',
-      fieldOrigin: 'new' as const,
+      add: { table: defaultEarnTable() },
+      subtract: defaultSubtract(),
+      accountTypeId: '',
     },
   });
 
   async function onSubmit(data: LoyaltyScoreFormValues) {
-    const cardBasedRule = (data.additionalConfig?.cardBasedRule || [])
-      .filter((rule) => rule.boardId && rule.pipelineId)
-      .map((rule) => ({
-        boardId: rule.boardId,
-        pipelineId: rule.pipelineId,
-        stageIds: rule.stageIds || [],
-        refundStageIds: rule.refundStageIds || [],
-      }));
-
     const variables: AddScoreCampaignVariables = {
       title: data.title,
       description: data.description || '',
       order: data.order,
-      serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
         productIds: data.conditions.productIds?.join(','),
@@ -77,17 +60,10 @@ export function AddLoyaltyScoreForm({
       },
       additionalConfig: {
         discountCheck: data.additionalConfig?.discountCheck ?? false,
-        cardBasedRule,
       },
-      add: data.add,
-      subtract: data.subtract,
-      set: data.set,
-      ownerType: data.ownerType,
-      onlyClientPortal: data.onlyClientPortal,
-      fieldGroupId: data.fieldGroupId,
-      fieldOrigin: data.fieldOrigin,
-      fieldName: data.fieldName,
-      fieldId: data.fieldId,
+      add: toAddInput(data.add),
+      subtract: toSubtractInput(data.subtract),
+      accountTypeId: data.accountTypeId || '',
     };
 
     scoreCampaignAdd({
@@ -108,16 +84,9 @@ export function AddLoyaltyScoreForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full overflow-hidden"
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
       >
-        <Sheet.Content className="flex-auto overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <LoyaltyScoreAddCoreFields form={form} />
-              <LoyaltyScoreAddMoreFields form={form} />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
+        <ScoreCampaignFormLayout form={form} />
 
         <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button

@@ -7,9 +7,12 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 export const PropertyFormSelectFields = ({
   form,
   isEdit,
+  locked,
 }: {
   form: UseFormReturn<IPropertyForm>;
   isEdit?: boolean;
+  // A featured field's options belong to the plugin that owns it.
+  locked?: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
@@ -44,7 +47,7 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>{t('label', 'Label')}</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-label', 'Enter label')} />
+                      <Input {...field} placeholder={t('enter-label', 'Enter label')} disabled={locked} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -57,7 +60,7 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>{t('value', 'Value')}</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-value', 'Enter value')} disabled={isExisting} />
+                      <Input {...field} placeholder={t('enter-value', 'Enter value')} disabled={isExisting || locked} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -70,19 +73,21 @@ export const PropertyFormSelectFields = ({
                 variant="secondary"
                 size="icon"
                 className="mt-auto size-8"
-                disabled={isExisting}
+                disabled={isExisting || locked}
               >
                 <IconTrash />
               </Button>
             </div>
             );
           })}
-          <Button
-            onClick={() => setOptions([...options, { label: '', value: '' }])}
-            variant="secondary"
-          >
-            <IconPlus /> {t('add-option', 'Add option')}
-          </Button>
+          {!locked && (
+            <Button
+              onClick={() => setOptions([...options, { label: '', value: '' }])}
+              variant="secondary"
+            >
+              <IconPlus /> {t('add-option', 'Add option')}
+            </Button>
+          )}
         </div>
       </InfoCard.Content>
     </InfoCard>

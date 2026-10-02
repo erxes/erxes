@@ -147,8 +147,7 @@ export const InventoryRow = ({
       followTrDocs
         .find(
           (ftr) =>
-            ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleReturnOut',
+            ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut',
         )
         ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ??
       0,
@@ -270,7 +269,6 @@ export const InventoryRow = ({
     }
 
     setTaxAmounts(calcTaxAmounts(count, unitPrice));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
@@ -300,8 +298,6 @@ export const InventoryRow = ({
     if (costInfo === undefined) return;
 
     setUnitCost(fixNum(costInfo.unitCost ?? 0));
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCostInfo, detail.productId, loading]);
 
   const handleAmountChange = (
@@ -407,7 +403,7 @@ export const InventoryRow = ({
         enableOnFormTags
       >
         <Table.Cell
-          className={cn({
+          className={cn('w-8', {
             'border-t': detailIndex === 0,
             'rounded-tl-lg': detailIndex === 0,
             'rounded-bl-lg': detailIndex === trDoc.details.length - 1,

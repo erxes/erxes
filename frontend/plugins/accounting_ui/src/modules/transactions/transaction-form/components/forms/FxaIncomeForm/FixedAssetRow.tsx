@@ -175,7 +175,7 @@ export const FixedAssetRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell className="w-10">
+        <Table.Cell className="w-8">
           <FxaIncomeDetailOwnerRecordsSheet
             form={form}
             journalIndex={journalIndex}
@@ -188,7 +188,7 @@ export const FixedAssetRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell className="w-10">
+        <Table.Cell className="w-8">
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}

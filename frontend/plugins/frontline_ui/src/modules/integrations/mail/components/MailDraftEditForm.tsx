@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { MailDraftEdit } from '../hooks/useMailDrafts';
+import type { MailDraftEdit } from '@/integrations/mail/types/mailDraft';
 
 const hasText = (html: string) =>
   Boolean(

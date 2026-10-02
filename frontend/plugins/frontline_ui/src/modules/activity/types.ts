@@ -1,5 +1,5 @@
 import { IAttachment } from 'erxes-ui';
-import type { MailDeliveryStatus } from '@/integrations/mail/hooks/useMailConversationDetail';
+import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
 export interface IActivityFormField {
   label: string;
   value: unknown;

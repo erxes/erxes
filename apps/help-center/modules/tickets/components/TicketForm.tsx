@@ -14,6 +14,8 @@ import { Icon } from '@/modules/ui/components/Icon';
 import { Button, ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { SetupNotice } from '@/modules/ui/components/PortalState';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import type { Translate } from '@/modules/i18n/translate';
 import { contactErrorMessage } from '../utils/errors';
 import { TICKET_PORTAL_CREATE } from '../graphql/mutations/tickets';
 
@@ -24,34 +26,35 @@ const PHONE_MIN_DIGITS = 8;
 
 const digitsOf = (value: string) => value.replace(/\D/g, '');
 
-const ticketFormSchema = z.object({
-  subject: z
-    .string()
-    .max(SUBJECT_MAX)
-    .refine((value) => value.trim().length >= 5, {
-      message: 'The title must be at least 5 characters.',
+const ticketFormSchema = (t: Translate) =>
+  z.object({
+    subject: z
+      .string()
+      .max(SUBJECT_MAX)
+      .refine((value) => value.trim().length >= 5, {
+        message: t('validation.titleMin'),
+      }),
+    description: z
+      .string()
+      .max(DESCRIPTION_MAX)
+      .refine((value) => value.trim().length >= 20, {
+        message: t('validation.descriptionMin'),
+      }),
+    contactName: z.string().refine((value) => value.trim().length >= 2, {
+      message: t('validation.name'),
     }),
-  description: z
-    .string()
-    .max(DESCRIPTION_MAX)
-    .refine((value) => value.trim().length >= 20, {
-      message: 'Describe the issue in at least 20 characters.',
-    }),
-  contactName: z.string().refine((value) => value.trim().length >= 2, {
-    message: 'Please enter your name.',
-  }),
-  contactEmail: z.string().email('Please enter a valid email address.'),
-  contactPhone: z
-    .string()
-    .refine((value) => value.trim().length > 0, {
-      message: 'Please enter your phone number.',
-    })
-    .refine((value) => digitsOf(value).length >= PHONE_MIN_DIGITS, {
-      message: `The phone number must have at least ${PHONE_MIN_DIGITS} digits.`,
-    }),
-});
+    contactEmail: z.string().email(t('validation.emailRequired')),
+    contactPhone: z
+      .string()
+      .refine((value) => value.trim().length > 0, {
+        message: t('validation.phoneRequired'),
+      })
+      .refine((value) => digitsOf(value).length >= PHONE_MIN_DIGITS, {
+        message: t('validation.phoneDigits', { count: PHONE_MIN_DIGITS }),
+      }),
+  });
 
-type TicketFormValues = z.infer<typeof ticketFormSchema>;
+type TicketFormValues = z.infer<ReturnType<typeof ticketFormSchema>>;
 
 type CreatedTicket = {
   cpCreateTicket: {
@@ -78,6 +81,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
   const ticketEnv = target;
   const missing = missingTargetKeys(target);
   const { user, updateUser } = useSession();
+  const t = useT();
 
   const [editCustomer] = useMutation<CustomerEditResponse>(
     AUTH_PORTAL_CUSTOMER_EDIT,
@@ -85,6 +89,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
 
   const [createTicket, { data, loading, error, reset }] =
     useMutation<CreatedTicket>(TICKET_PORTAL_CREATE, {
+      refetchQueries: ['notificationPortalList'],
       update: (cache) => {
         cache.evict({ id: 'ROOT_QUERY', fieldName: 'cpGetTickets' });
         cache.gc();
@@ -92,7 +97,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
     });
 
   const form = useForm<TicketFormValues>({
-    resolver: zodResolver(ticketFormSchema),
+    resolver: zodResolver(ticketFormSchema(t)),
     defaultValues: {
       subject: '',
       description: '',
@@ -126,13 +131,13 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
       });
 
       if (!data?.clientPortalCustomerEdit) {
-        return 'No customer record was found.';
+        return t('tickets.noCustomer');
       }
 
       updateUser({ name, phone });
       return null;
     } catch (caught) {
-      return contactErrorMessage(caught);
+      return contactErrorMessage(caught, t);
     }
   };
 
@@ -152,32 +157,36 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
     if (submitted?.data && contactError) {
       toast({
         variant: 'warning',
-        title: 'Contact details were not saved',
-        description: `Your ticket was submitted. ${contactError}`,
+        title: t('tickets.contactNotSaved'),
+        description: t('tickets.contactNotSavedText', { reason: contactError }),
       });
     }
   };
 
   if (created) {
+    const [submittedBefore, submittedAfter] = t('tickets.submittedText').split(
+      '{number}',
+    );
+
     return (
       <Card className="p-7 text-center">
         <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-success-soft text-success">
           <Icon name="check" size={22} />
         </span>
         <h2 className="text-lg font-semibold text-ink">
-          Your ticket was submitted
+          {t('tickets.submitted')}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Your ticket number is{' '}
+          {submittedBefore}
           <span className="font-semibold text-ink">
             {created.number ?? created._id}
           </span>
-          . You can track progress with this number.
+          {submittedAfter}
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
           <ButtonLink href={`/tickets/${created._id}`}>
-            Open your ticket
+            {t('tickets.openYours')}
           </ButtonLink>
           <Button
             variant="secondary"
@@ -190,7 +199,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
               reset();
             }}
           >
-            Submit another ticket
+            {t('tickets.submitAnother')}
           </Button>
         </div>
       </Card>
@@ -205,9 +214,11 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
         className="overflow-hidden rounded-2xl bg-white shadow-shell"
       >
         <div className="border-b border-line px-6 py-5">
-          <h2 className="text-base font-semibold text-ink">Ticket details</h2>
+          <h2 className="text-base font-semibold text-ink">
+            {t('tickets.details')}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            The clearer your description, the faster it is resolved.
+            {t('tickets.detailsHint')}
           </p>
         </div>
 
@@ -222,7 +233,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                     className="text-[13px] font-medium text-ink"
                     variant="peer"
                   >
-                    Title
+                    {t('field.title')}
                   </Form.Label>
                   <span className="text-xs tabular-nums text-muted-foreground">
                     {field.value.length}/{SUBJECT_MAX}
@@ -232,7 +243,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                   <TextInput
                     {...field}
                     maxLength={SUBJECT_MAX}
-                    placeholder="Describe your issue in one sentence"
+                    placeholder={t('field.titlePlaceholder')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -250,7 +261,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                     className="text-[13px] font-medium text-ink"
                     variant="peer"
                   >
-                    Description
+                    {t('field.description')}
                   </Form.Label>
                   <span className="text-xs tabular-nums text-muted-foreground">
                     {field.value.length}/{DESCRIPTION_MAX}
@@ -261,12 +272,11 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                     {...field}
                     rows={5}
                     maxLength={DESCRIPTION_MAX}
-                    placeholder="A detailed description of the issue"
+                    placeholder={t('field.descriptionPlaceholder')}
                   />
                 </Form.Control>
                 <Form.Description>
-                  Tell us what happened, when it started, and the steps that
-                  reproduce it.
+                  {t('field.descriptionHint')}
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -275,11 +285,10 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
 
           <div className="border-t border-line pt-6">
             <h3 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-              Contact
+              {t('tickets.contact')}
             </h3>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-              The support team sees these beside your ticket. Editing your name
-              or phone number saves it to your record.
+              {t('tickets.contactHint')}
             </p>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -292,13 +301,13 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Name
+                      {t('field.name')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
                         {...field}
                         autoComplete="name"
-                        placeholder="Your name"
+                        placeholder={t('field.namePlaceholder')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -315,7 +324,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Phone
+                      {t('field.phone')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
@@ -339,7 +348,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Email
+                      {t('field.email')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
@@ -351,8 +360,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                       />
                     </Form.Control>
                     <Form.Description>
-                      The address on your account. Contact the support team to
-                      change it.
+                      {t('tickets.emailHint')}
                     </Form.Description>
                   </Form.Item>
                 )}
@@ -373,11 +381,11 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
 
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line bg-subtle px-6 py-4">
           <ButtonLink href="/tickets" variant="ghost">
-            Cancel
+            {t('common.cancel')}
           </ButtonLink>
           <Button type="submit" disabled={loading}>
             <Icon name="send" size={15} />
-            {loading ? 'Submitting…' : 'Submit ticket'}
+            {loading ? t('tickets.submitting') : t('tickets.submitButton')}
           </Button>
         </div>
       </form>

@@ -97,6 +97,7 @@
 
 ### UI Conventions
 
+- Published CMS posts check `agentPostizTenantEnabled` before offering the Postiz sheet. Disabled or unavailable Postiz access keeps the normal CMS publish path; enabled tenants retain the sharing sheet and its CMS-only action.
 - Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`.
 - Match existing CMS page structure: header, optional CMS sidebar, content area,
   and drawers.

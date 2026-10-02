@@ -226,7 +226,7 @@ export default async function userMiddleware(
 
       const clientPortal = await models.ClientPortals.findOne(
         { _id: clientPortalTokenDecoded.clientPortalId },
-        { _id: 1, name: 1, url: 1, domain: 1, token: 1 },
+        { _id: 1, name: 1, url: 1, domain: 1, token: 1, auth: 1 },
       );
 
       if (!clientPortal) {

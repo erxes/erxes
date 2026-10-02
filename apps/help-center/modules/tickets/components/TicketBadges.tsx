@@ -1,17 +1,24 @@
+'use client';
+
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { Badge, type BadgeTone } from '@/modules/ui/components/Badge';
 import { cn } from '@/modules/ui/lib/cn';
+import { TICKET_STATUS_TYPES } from '../constants/status';
 import { priorityLabel, type TicketStatusRef } from '../types';
 
 const toneForStatusType = (type: number | null): BadgeTone => {
-  if (type === 3) {
-    return 'success';
+  switch (type) {
+    case TICKET_STATUS_TYPES.IN_PROGRESS:
+      return 'warning';
+    case TICKET_STATUS_TYPES.RESOLVED:
+      return 'success';
+    case TICKET_STATUS_TYPES.CLOSED:
+      return 'neutral';
+    case TICKET_STATUS_TYPES.CANCELLED:
+      return 'danger';
+    default:
+      return 'brand';
   }
-
-  if (type === 2) {
-    return 'warning';
-  }
-
-  return 'brand';
 };
 
 const toneForPriority = (priority: number | null): BadgeTone => {
@@ -65,30 +72,41 @@ export const StatusDot = ({ tone }: { tone: BadgeTone }) => (
 );
 
 export const StatusText = ({ status }: { status: TicketStatusRef }) => {
+  const t = useT();
   const tone = statusTone(status);
 
   return (
     <span className="inline-flex items-center gap-1.5 font-medium text-ink-soft">
       <StatusDot tone={tone} />
-      {status?.name ?? 'No status'}
+      {status?.name ?? t('tickets.noStatus')}
     </span>
   );
 };
 
-export const PriorityText = ({ priority }: { priority: number | null }) =>
-  priority ? (
+export const PriorityText = ({ priority }: { priority: number | null }) => {
+  const t = useT();
+
+  return priority ? (
     <span className={cn('font-medium', toneText[toneForPriority(priority)])}>
-      {priorityLabel(priority)}
+      {priorityLabel(priority, t)}
     </span>
   ) : null;
+};
 
-export const StatusBadge = ({ status }: { status: TicketStatusRef }) => (
-  <Badge tone={toneForStatusType(status?.type ?? null)}>
-    {status?.name ?? 'No status'}
-  </Badge>
-);
+export const StatusBadge = ({ status }: { status: TicketStatusRef }) => {
+  const t = useT();
 
-export const PriorityBadge = ({ priority }: { priority: number | null }) =>
-  priority ? (
-    <Badge tone={toneForPriority(priority)}>{priorityLabel(priority)}</Badge>
+  return (
+    <Badge tone={toneForStatusType(status?.type ?? null)}>
+      {status?.name ?? t('tickets.noStatus')}
+    </Badge>
+  );
+};
+
+export const PriorityBadge = ({ priority }: { priority: number | null }) => {
+  const t = useT();
+
+  return priority ? (
+    <Badge tone={toneForPriority(priority)}>{priorityLabel(priority, t)}</Badge>
   ) : null;
+};

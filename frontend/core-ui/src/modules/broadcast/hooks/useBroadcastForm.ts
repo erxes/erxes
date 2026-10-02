@@ -7,6 +7,7 @@ import { IBroadcastMethodEnum } from '../types';
 import { scheduleFromRange } from '../utils/scheduleForm';
 import { useBroadcastContacts } from './useBroadcastContacts';
 import { useBroadcastScheduleRange } from './useBroadcastScheduleRange';
+import { useBroadcastSegmentSeed } from './useBroadcastSegmentSeed';
 
 export type IBroadcastFormData = z.infer<typeof broadcastSchema>;
 
@@ -101,6 +102,19 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
   // the campaign is created into them rather than scheduled afterwards. Only
   // on a new campaign: an existing one brought its own.
   const { range } = useBroadcastScheduleRange();
+  const { seedSegmentId } = useBroadcastSegmentSeed();
+
+  // Started from a segment the clock moves: it is the audience, and its
+  // nightly refresh is what sends.
+  const followed =
+    seedSegmentId && !initialValues
+      ? {
+          targetType: 'segment' as const,
+          targetIds: [seedSegmentId],
+          schedule: { every: 'afterSegment' as const },
+        }
+      : undefined;
+
   const planned =
     range && !initialValues
       ? { schedule: scheduleFromRange(range.start, range.end) }
@@ -110,6 +124,7 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
     () => ({
       ...getDefaultValues(method, contactIds),
       ...planned,
+      ...followed,
       ...initialValues,
     }),
     // `planned` is rebuilt every render, so the days behind it are what the
@@ -117,6 +132,7 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
     [
       method,
       contactIds.join(','),
+      seedSegmentId,
       initialValues,
       range?.start.getTime(),
       range?.end.getTime(),

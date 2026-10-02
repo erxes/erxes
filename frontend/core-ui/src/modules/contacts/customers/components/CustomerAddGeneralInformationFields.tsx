@@ -3,6 +3,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { CustomerFormType } from '@/contacts/customers/constants/formSchema';
 import {
   AvatarField,
+  BirthDateField,
   CodeField,
   DescriptionField,
   FirstNameField,
@@ -34,6 +35,7 @@ export const CustomerAddGeneralInformationFields = ({
         <PrimaryPhoneField control={form.control} />
         <PhoneValidationStatusField control={form.control} />
         <StateField control={form.control} />
+        <BirthDateField control={form.control} />
       </div>
       <DescriptionField control={form.control} />
       <IsSubscribedField control={form.control} />

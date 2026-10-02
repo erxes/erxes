@@ -1,4 +1,23 @@
 export const types = `
+  type MailVerifiedContact {
+    _id: String!
+    firstName: String
+    lastName: String
+    primaryEmail: String
+    emails: [String]
+    emailValidationStatus: String
+  }
+
+  type MailVerifiedContactsPageInfo {
+    endCursor: String!
+    hasNextPage: Boolean!
+  }
+
+  type MailVerifiedContacts {
+    list: [MailVerifiedContact!]!
+    pageInfo: MailVerifiedContactsPageInfo!
+  }
+
   type MailMessage {
     _id: String!
     mailData: JSON
@@ -143,13 +162,22 @@ export const types = `
     error: String
     connectedAt: Date
   }
+
+  type MailSender {
+    integrationId: String!
+    name: String!
+    address: String!
+  }
 `;
 
 export const queries = `
+  mailVerifiedContacts(searchValue: String, cursor: String): MailVerifiedContacts!
   mailConversationDetail(
     conversationId: String!
     limit: Int
   ): MailConversationMessages
+  mailConversationInternalNotes(conversationId: String!, skip: Int, limit: Int): [ConversationMessage!]!
+  mailConversationInternalNotesCount(conversationId: String!): Int!
 
   mailSendingReadiness: MailSendingReadiness
 
@@ -157,6 +185,7 @@ export const queries = `
   mailInboxes: [MailInbox]
 
   mailPipelineIntegration(pipelineId: String!): MailPipelineIntegration
+  mailSenders: [MailSender!]!
 
   mailTicketReplyTarget(ticketId: String!): MailTicketReplyTarget
 
@@ -181,6 +210,8 @@ export const mutations = `
     attachments: [JSON]
     customerId: String
   ): JSON
+
+  mailSendReaction(conversationId: String!, messageId: String!, emoji: String!): JSON
 
   mailPipelineConnect(
     pipelineId: String!

@@ -69,6 +69,7 @@ export const triageMutations = {
         priority: triage.priority || 0,
         status: statusId,
         triageId: _id,
+        createdBy: triage.createdBy,
         githubIssueNumber: triage.githubIssueNumber,
         githubIssueUrl: triage.githubIssueUrl,
         githubRepoName: triage.githubRepoName,
@@ -88,7 +89,18 @@ export const triageMutations = {
           subdomain,
         });
       }
-
+      if (status !== STATUS_TYPES.CANCELLED) {
+        await models.Activity.createActivity({
+          action: 'ACCEPTED',
+          contentId: task._id,
+          module: 'TRIAGE_ACCEPTANCE',
+          metadata: {
+            newValue: task._id.toString(),
+            previousValue: triage._id?.toString(),
+          },
+          createdBy: user._id,
+        });
+      }
       await models.Triage.deleteTriage(_id);
       return task;
     } else {

@@ -1,3 +1,4 @@
+import { useBroadcastFollowableSegment } from '@/broadcast/hooks/useBroadcastFollowableSegment';
 import { IBroadcastFormData } from '@/broadcast/hooks/useBroadcastForm';
 import { IconCalendarClock, IconX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
@@ -10,6 +11,7 @@ import {
 } from '../common/BroadcastScheduleFields';
 import {
   BROADCAST_EVERY_OPTIONS,
+  isAfterSegmentForm,
   isRecurringForm,
   isScheduleReady,
   TBroadcastScheduleForm,
@@ -19,6 +21,10 @@ const summary = (
   schedule: TBroadcastScheduleForm,
   t: (key: string) => string,
 ) => {
+  if (isAfterSegmentForm(schedule)) {
+    return t('schedule.every.afterSegment');
+  }
+
   if (!isRecurringForm(schedule)) {
     return dayjs(schedule.at).format('MMM D, HH:mm');
   }
@@ -46,6 +52,10 @@ export const BroadcastScheduleField = () => {
 
   const value = form.watch('schedule') as TBroadcastScheduleForm | undefined;
   const ready = isScheduleReady(value);
+  const { canFollowSegment } = useBroadcastFollowableSegment(
+    form.watch('targetType'),
+    form.watch('targetIds'),
+  );
 
   const set = (next?: TBroadcastScheduleForm) =>
     form.setValue('schedule', next, { shouldDirty: true });
@@ -78,6 +88,7 @@ export const BroadcastScheduleField = () => {
           <BroadcastScheduleFields
             value={value ?? emptySchedule()}
             onChange={set}
+            canFollowSegment={canFollowSegment}
           />
         </Popover.Content>
       </Popover>

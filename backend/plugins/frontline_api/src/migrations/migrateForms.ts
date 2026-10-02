@@ -197,11 +197,14 @@ const command = async () => {
   try {
     console.log('🚀 Started migrating form fields...');
 
-    const fields = OLD_FIELDS.find({ contentType: 'form' }).batchSize(
-      BATCH_SIZE,
-    );
+    const formIds = await OLD_FORMS.distinct('_id');
+
+    const fields = OLD_FIELDS.find({
+      $or: [{ contentType: 'form' }, { contentTypeId: { $in: formIds } }],
+    }).batchSize(BATCH_SIZE);
 
     let fields_bulk: any = [];
+    let migratedFieldCount = 0;
 
     for await (const field of fields) {
       if (!field) {
@@ -209,12 +212,15 @@ const command = async () => {
         continue;
       }
 
+      const { _id, ...rest } = field;
+
       fields_bulk.push({
         updateOne: {
-          filter: { _id: field._id },
+          filter: { _id },
           update: {
-            $setOnInsert: {
-              ...field,
+            $set: {
+              ...rest,
+              contentType: 'form',
               description: htmlToText(field.description || ''),
               pageNumber: field.pageNumber || 1,
             },
@@ -222,6 +228,8 @@ const command = async () => {
           upsert: true,
         },
       });
+
+      migratedFieldCount++;
 
       if (fields_bulk?.length >= BATCH_SIZE) {
         await NEW_FIELDS.bulkWrite(fields_bulk, {
@@ -238,7 +246,13 @@ const command = async () => {
       });
     }
 
-    console.log('✅ Finished migrating form fields...');
+    if (!migratedFieldCount) {
+      console.log(
+        `⚠️ No form fields found in "${OLD_FIELDS.collectionName}" for ${formIds.length} form(s).`,
+      );
+    }
+
+    console.log(`✅ Finished migrating ${migratedFieldCount} form field(s)...`);
   } catch (e) {
     console.log(`❌ Error occurred while migrating form fields: ${e.message}`);
   }

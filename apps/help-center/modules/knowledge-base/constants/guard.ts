@@ -1,4 +1,8 @@
-export const KB_OFF_TITLE = 'The knowledge base is not open';
+import type { Translate } from '@/modules/i18n/translate';
+import type { KnowledgeBaseName } from '../utils/label';
 
-export const KB_OFF_REASON =
-  'Knowledge base articles are turned off on this portal for now.';
+export const kbOffTitle = (name: KnowledgeBaseName, t: Translate): string =>
+  t('kb.offTitle', { name: name.title });
+
+export const kbOffReason = (name: KnowledgeBaseName, t: Translate): string =>
+  t('kb.offReason', { name: name.title });

@@ -20,7 +20,7 @@ import {
 } from '../../context/SelectVoucherCampaignContext';
 import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
-import { ValueChangeValueType } from '../../../general-config/types/loyaltyConfigTypes';
+import { ValueChangeValueType } from '../../../types/selectValue';
 
 export const SelectVoucherCampaignProvider = ({
   children,
@@ -75,7 +75,7 @@ export const SelectVoucherCampaignProvider = ({
   );
 
   const voucherCampaignId = useMemo(() => {
-    return Array.isArray(value) ? value : value && [value] || [];
+    return Array.isArray(value) ? value : (value && [value]) || [];
   }, [value]);
 
   const contextValue = useMemo(

@@ -31,6 +31,8 @@ export interface IMailMessage {
   messageId: string;
   subject?: string;
   body: string;
+  reactionEmoji?: string;
+  hasReplyTo?: boolean;
   from: IMailAddress[];
   to: IMailAddress[];
   cc: IMailAddress[];
@@ -74,6 +76,7 @@ export interface IMailComposeArgs {
   customerId?: string;
   subject: string;
   body?: string;
+  reactionEmoji?: string;
   to: string[];
   cc?: string[];
   bcc?: string[];

@@ -9,3 +9,5 @@ export * from './outputResolvers';
 export * from './workflowValidation';
 export * from './zodTypes';
 export * from './sendAutomationMessage';
+export * from './segmentMembership';
+export * from './reEnrollment';

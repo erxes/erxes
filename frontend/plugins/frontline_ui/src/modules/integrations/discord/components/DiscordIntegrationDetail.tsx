@@ -364,12 +364,6 @@ export const DiscordIntegrationDetail = () => {
                 <Sheet.Title>
                   {t('discord-add-bot', 'Add Discord bot')}
                 </Sheet.Title>
-                <Sheet.Description>
-                  {t(
-                    'discord-add-bot-description',
-                    'Connect a Discord bot to manage your Discord channel messages right from your Team Inbox.',
-                  )}
-                </Sheet.Description>
                 <Sheet.Close />
               </Sheet.Header>
 

@@ -18,6 +18,8 @@ export type TBroadcastCampaign = TCampaignSchedule & {
   method?: IBroadcastMethodEnum;
   isLive?: boolean;
   approvalLockState?: TCampaignLockState;
+  targetType?: string;
+  targetIds?: string[];
 };
 
 type TBroadcastActionQueryParams = {
@@ -168,6 +170,8 @@ export const useBroadcastCampaignActions = (
     open: scheduleOpen,
     onOpenChange: setScheduleOpen,
     initial: scheduleToForm(campaign?.scheduleDate),
+    targetType: campaign?.targetType,
+    targetIds: campaign?.targetIds,
     loading: scheduling,
     onConfirm: (schedule: TBroadcastScheduleForm) =>
       setSchedule(_id, schedule, {

@@ -48,6 +48,9 @@ export const useTicketsVariables = (
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
+    branchIds,
+    departmentIds,
+    propertiesData,
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -60,6 +63,9 @@ export const useTicketsVariables = (
     startDateStartDate: string;
     targetDateStartDate: string;
     statusChangedStartDate: string;
+    branchIds: string[];
+    departmentIds: string[];
+    propertiesData: string;
   }>([
     'searchValue',
     'assignee',
@@ -72,6 +78,9 @@ export const useTicketsVariables = (
     'startDateStartDate',
     'targetDateStartDate',
     'statusChangedStartDate',
+    'branchIds',
+    'departmentIds',
+    'propertiesData',
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
@@ -100,6 +109,9 @@ export const useTicketsVariables = (
     statusChangedStartDate: parseDateRangeFromString(statusChangedStartDate)
       ?.from,
     statusChangedEndDate: parseDateRangeFromString(statusChangedStartDate)?.to,
+    branchIds: branchIds || undefined,
+    departmentIds: departmentIds || undefined,
+    propertiesData: propertiesData || undefined,
     ...variables,
   };
 };
