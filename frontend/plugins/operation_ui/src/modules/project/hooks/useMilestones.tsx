@@ -6,7 +6,6 @@ import {
 } from '@/operation/utils/cursorList';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
 import type {
   GetMilestonesQuery,
   GetMilestonesQueryVariables,
@@ -21,13 +20,12 @@ export const useMilestones = (
     variables?: Omit<GetMilestonesQueryVariables, 'projectId'>;
   },
 ) => {
-  const { projectId: paramProjectId } = useParams<{ projectId: string }>();
-  const id = projectId ?? paramProjectId;
-
   const { data, loading, fetchMore } = useQuery(GET_MILESTONES_INLINE, {
     ...options,
-    skip: options?.skip || !id,
-    variables: id ? { ...options?.variables, projectId: id } : undefined,
+    skip: options?.skip || !projectId,
+    variables: projectId
+      ? { ...options?.variables, projectId }
+      : undefined,
   });
 
   const milestones = data?.milestones?.list
@@ -39,14 +37,14 @@ export const useMilestones = (
   const handleFetchMore = (
     direction: EnumCursorDirection = EnumCursorDirection.FORWARD,
   ) => {
-    if (!id || !validateFetchMore({ direction, pageInfo })) {
+    if (!projectId || !validateFetchMore({ direction, pageInfo })) {
       return;
     }
 
     fetchMore({
       variables: {
         ...options?.variables,
-        projectId: id,
+        projectId,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
