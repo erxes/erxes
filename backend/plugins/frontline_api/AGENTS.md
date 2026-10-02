@@ -24,7 +24,7 @@
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
 - Telegram bot credential validation, provider webhook status reads, and
-  tenant-scoped bot records.
+  tenant-scoped bot records and customer identity mappings.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -159,6 +159,9 @@
   is not yet mounted on a Telegram HTTP route.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
+- Registers `TelegramCustomers` on the tenant's database connection. Its
+  `getCustomer(selector)` method returns the matching customer mapping or throws
+  `Telegram customer not found`. No incoming-message handler uses it yet.
 - Saved Telegram bot metadata includes optional `erxesApiId`, the linked
   Frontline integration ID. It is nullable in GraphQL; unconnected bots omit it
   in storage.
@@ -250,6 +253,7 @@
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
 | Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison, internal creation adapter |
+| Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -346,6 +350,13 @@
   `ITelegramBotModel` and `loadTelegramBotClass(models)`. `src/connectionResolvers.ts`
   registers the loader as `models.TelegramBots` with model name `telegram_bots`.
   `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
+- `src/modules/integrations/telegram/@types/customers.ts`,
+  `db/definitions/customers.ts`, and `db/models/Customers.ts` define the customer
+  mapping document, schema, and `loadTelegramCustomerClass(models)`.
+  `src/connectionResolvers.ts` registers `TelegramCustomers` as
+  `customers_telegram`. Each mapping has a generated string `_id`, required
+  unique string `userId`, required `integrationId`, optional name and username,
+  and optional `erxesApiId` linking to the Core customer.
 - `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
   sorted by descending `createdAt`, retaining the default credential projection.
 - `attachIntegration` checks the destination through `models.Integrations`,
@@ -421,6 +432,10 @@
 - Keep Telegram bot model registration consistent with the other integrations:
   use the document interface, model interface, and class loader. The model
   loader imports the schema and uses the supplied tenant model container.
+- Telegram customer identity is unique by `userId` within each tenant, across
+  its integrations. Customer mappings use the supplied tenant model container;
+  their `erxesApiId` refers to a Core customer, while `integrationId` records the
+  originating Frontline integration. The mapping does not own the Core record.
 - Callers of `TelegramBots.createBot` must enforce permissions and supply
   `createdBy` from the authenticated user. Derive bot identity and capabilities
   from `getMe`; reject duplicate identities without replacing saved credentials.
@@ -435,6 +450,10 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram customer model checks: look up mappings by provider user ID and
+  erxes record ID, reject missing records and missing required IDs, and allow
+  an absent Core link. Verify that the unique user ID index rejects concurrent
+  duplicates within a tenant while separate tenant databases remain isolated.
 - Telegram message checks: accept private, group, channel-sender, and topic
   payloads, omitted optional fields, zero message IDs, and large safe IDs.
   Reject malformed metadata and unsafe or fractional IDs. Preserve unvalidated
@@ -507,6 +526,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-02` — Telegram customer identity model
+
+- **Summary:** Added tenant-scoped customer mappings with unique Telegram user IDs and typed lookup through the registered model.
+- **Affected areas:** `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/`, `src/connectionResolvers.ts`.
+- **Contracts changed:** Added internal `TelegramCustomers.getCustomer(selector)` and the `customers_telegram` model; public APIs and webhook routing are unchanged.
+
 ### `2026-10-02` — Telegram message payload validation
 
 - **Summary:** Added a typed validator for incoming message metadata while preserving optional and unvalidated provider fields.
@@ -560,9 +585,3 @@
 - **Summary:** Exposed saved-bot webhook status through a permission-checked query with camel-case fields and converted error timestamps.
 - **Affected areas:** `src/modules/integrations/telegram/@types/webhook.ts`, `src/modules/integrations/telegram/graphql/`.
 - **Contracts changed:** Added `TelegramWebhookInfo`, `telegramBotWebhookInfo(_id: String!): TelegramWebhookInfo!`, and internal response interface `ITelegramWebhook`.
-
-### `2026-09-29` — Telegram saved-bot webhook lookup
-
-- **Summary:** Added webhook status lookup by saved bot ID using the tenant's stored credential without modifying the bot or returning its credential fields.
-- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
-- **Contracts changed:** Added internal `ITelegramBotModel.getWebhookInfo(_id): Promise<TelegramWebhookInfo>`; public APIs unchanged.
