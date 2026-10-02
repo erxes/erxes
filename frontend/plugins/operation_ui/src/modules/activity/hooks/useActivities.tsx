@@ -1,22 +1,18 @@
 import { useQuery, useSubscription } from '@apollo/client';
 import { GET_ACTIVITIES } from '@/activity/graphql/queries/getActivityLogs';
-import { IActivity } from '@/activity/types';
-import { ICursorListResponse } from 'erxes-ui';
 import { ACTIVITY_CHANGED } from '@/activity/graphql/subsciptions/activityChanged';
+import {
+  compactList,
+  toCursorPageInfo,
+} from '@/operation/utils/cursorList';
 
 export const useActivities = (contentId: string) => {
-  const { data, loading, refetch } = useQuery<ICursorListResponse<IActivity>>(
-    GET_ACTIVITIES,
-    {
-      variables: { contentId },
-    },
-  );
+  const { data, loading, refetch } = useQuery(GET_ACTIVITIES, {
+    variables: { contentId },
+  });
 
-  const {
-    list: activities,
-    pageInfo,
-    totalCount,
-  } = data?.getOperationActivities || {};
+  const result = data?.getOperationActivities;
+  const activities = compactList(result?.list);
 
   useSubscription(ACTIVITY_CHANGED, {
     variables: { contentId },
@@ -27,7 +23,10 @@ export const useActivities = (contentId: string) => {
       if (!activity?._id) return;
 
       if (event?.type === 'removed') {
-        const cacheId = client.cache.identify(activity);
+        const cacheId = client.cache.identify({
+          __typename: 'OperationActivity',
+          _id: activity._id,
+        });
         if (cacheId) {
           client.cache.evict({ id: cacheId });
           client.cache.gc();
@@ -72,5 +71,11 @@ export const useActivities = (contentId: string) => {
     },
   });
 
-  return { activities, loading, refetch, pageInfo, totalCount };
+  return {
+    activities,
+    loading,
+    refetch,
+    pageInfo: toCursorPageInfo(result?.pageInfo),
+    totalCount: result?.totalCount,
+  };
 };

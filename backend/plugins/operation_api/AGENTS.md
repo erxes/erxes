@@ -186,6 +186,13 @@ propertiesData? } })`
   progress counters (`totalScope`, `totalStartedScope`,
   `totalCompletedScope`) are non-null ints because the aggregation always
   emits numbers.
+- `OperationTemplate` exposes `_id`, `name`, `teamId`, `createdAt` and
+  `updatedAt` as non-null (schema-required or timestamps), and
+  `operationTemplateDetail` takes `_id: String!`. `GithubConfig` fields are
+  all non-null (all required in the schema); `GithubConnection` is non-null
+  except `orgAvatarUrl`/`initiatedUserId`. `OperationActivity._id`, `action`,
+  `contentId`, `module` and timestamps are non-null; `metadata` and
+  `createdBy` stay nullable.
 - `Cycle._id` is non-null; its other fields stay nullable because nothing
   in the Mongoose schema requires them.
 - `getStatusesChoicesByTeam` and `getTeamEstimateChoises` return concrete

@@ -15,7 +15,7 @@ export function ConnectedOrgCard({ org }: { org: IGithubConnection }) {
     <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-3">
       <div className="flex items-center gap-3">
         <Avatar size="xl">
-          <Avatar.Image src={org.orgAvatarUrl} alt={org.orgName} />
+          <Avatar.Image src={org.orgAvatarUrl ?? undefined} alt={org.orgName} />
           <Avatar.Fallback>{org.orgName[0]?.toUpperCase()}</Avatar.Fallback>
         </Avatar>
         <div>
