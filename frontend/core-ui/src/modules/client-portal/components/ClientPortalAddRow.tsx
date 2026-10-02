@@ -51,7 +51,7 @@ export const ClientPortalAddRow = () => {
       <Table.Cell />
       <Table.Cell />
       <Table.Cell colSpan={6} className="h-cell">
-        <div className="h-full flex items-center px-3">
+        <div className="h-full max-w-[310px] w-full flex items-center px-3">
           <input
             ref={inputRef}
             disabled={loading}

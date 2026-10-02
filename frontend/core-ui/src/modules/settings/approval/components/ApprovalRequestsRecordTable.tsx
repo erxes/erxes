@@ -1,5 +1,5 @@
 import { IconArchiveOff } from '@tabler/icons-react';
-import { Label, PageSubHeader, RecordTable, Skeleton } from 'erxes-ui';
+import { PageSubHeader, RecordTable, Skeleton } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
