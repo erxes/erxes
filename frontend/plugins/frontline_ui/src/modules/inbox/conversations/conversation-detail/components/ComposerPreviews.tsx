@@ -146,7 +146,7 @@ export const ComposerPreviews = ({
     return null;
 
   return (
-    <div className="flex max-h-44 flex-none flex-col gap-2 overflow-y-auto border-b border-border/50 p-2 sm:px-3">
+    <div className="flex flex-none flex-col gap-2 border-b border-border/50 p-2 sm:px-3">
       {replyTo && <ReplyPreview replyTo={replyTo} onCancel={onCancelReply} />}
       {(pendingAttachments.length > 0 ||
         attachments.length > 0 ||
