@@ -8,6 +8,40 @@ module.exports = [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     // Override or add rules here
-    rules: {},
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'graphql-tag',
+              message:
+                "Use `import { gql } from '~/gql'` so codegen picks the document up.",
+            },
+            {
+              name: '@apollo/client',
+              importNames: ['gql'],
+              message:
+                "Use `import { gql } from '~/gql'` so codegen picks the document up.",
+            },
+          ],
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'CallExpression[callee.name=/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/][typeArguments]',
+          message:
+            'Do not pass type arguments to Apollo hooks; infer them from a document created with gql() from ~/gql.',
+        },
+        {
+          selector:
+            "CallExpression[callee.property.name='subscribeToMore'][typeArguments]",
+          message:
+            'Do not pass type arguments to subscribeToMore; infer them from a document created with gql() from ~/gql.',
+        },
+      ],
+    },
   },
 ];
