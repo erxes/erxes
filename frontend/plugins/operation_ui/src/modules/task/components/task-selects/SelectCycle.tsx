@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
-import { ICycle } from '@/cycle/types';
+import { IActiveCycle } from '@/cycle/types';
 import {
   SelectOperationContent,
   SelectTriggerOperation,
@@ -64,7 +64,7 @@ const CYCLE_FILTER_OPTIONS: ITaskCycle[] = [
 interface SelectCycleContextType {
   value?: string;
   onValueChange: (value: string) => void;
-  activeCycles: ICycle[];
+  activeCycles: IActiveCycle[];
   isCompleted?: boolean;
   isFilter?: boolean;
 }
@@ -150,7 +150,11 @@ const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-const SelectCycleCommandItem = ({ cycle }: { cycle: ICycle }) => {
+const SelectCycleCommandItem = ({
+  cycle,
+}: {
+  cycle: Pick<IActiveCycle, '_id' | 'name' | 'startDate' | 'endDate'>;
+}) => {
   const { onValueChange, value } = useSelectCycleContext();
 
   return (
@@ -180,7 +184,7 @@ const SelectCycleContent = () => {
       <Command.Empty>{t('no-cycle-found')}</Command.Empty>
       <Command.List>
         <SelectCycleCommandItem
-          cycle={{ _id: '', name: t('no-cycle') } as ICycle}
+          cycle={{ _id: '', name: t('no-cycle'), startDate: null, endDate: null }}
         />
         {activeCycles.map((cycle) => (
           <SelectCycleCommandItem key={cycle._id} cycle={cycle} />
@@ -212,7 +216,9 @@ const SelectCycleProvider = ({
 
   const selectedCycle = activeCycles?.find((c) => c._id === value);
 
-  const isCompleted = selectedCycle?.isCompleted && !selectedCycle?.isActive;
+  const isCompleted = Boolean(
+    selectedCycle?.isCompleted && !selectedCycle?.isActive,
+  );
 
   const handleValueChange = (cycleId: string) => {
     if (isCompleted) {
