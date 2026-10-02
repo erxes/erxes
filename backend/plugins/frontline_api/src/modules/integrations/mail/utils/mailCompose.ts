@@ -54,9 +54,8 @@ export const composeMailMessage = async (
   }
 
   const fromAddress = integration.address;
-  const senderName = await models.MailIntegrations.resolveSenderName(
-    integration,
-  );
+  const senderName =
+    await models.MailIntegrations.resolveSenderName(integration);
   const referenceChain = [
     ...new Set(
       [

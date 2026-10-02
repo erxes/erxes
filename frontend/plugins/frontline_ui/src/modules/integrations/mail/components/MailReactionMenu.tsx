@@ -114,12 +114,12 @@ export const MailReactionMenu = ({
   const reason = message.mailData.reactionEmoji
     ? "You can't react to an emoji reaction"
     : message.mailData.hasReplyTo
-    ? "You can't react to a message with a reply-to address"
-    : message.mailData.type === 'SENT'
-    ? "You can't react to your own message"
-    : message.mailData.senderMismatch || !message.mailData.messageId
-    ? 'This email cannot receive a reaction'
-    : undefined;
+      ? "You can't react to a message with a reply-to address"
+      : message.mailData.type === 'SENT'
+        ? "You can't react to your own message"
+        : message.mailData.senderMismatch || !message.mailData.messageId
+          ? 'This email cannot receive a reaction'
+          : undefined;
 
   const reactionButton = (
     <Button
