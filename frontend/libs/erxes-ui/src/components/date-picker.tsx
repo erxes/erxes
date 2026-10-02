@@ -1,12 +1,13 @@
 import { DateRange, Matcher } from 'react-day-picker';
 import { Calendar, CalendarProps } from './calendar';
-
 import { Button } from './button';
-import { Combobox } from './combobox';
 import { Popover } from './popover';
 import React from 'react';
 import { cn } from '../lib/utils';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 export type DatePickerProps = {
   value: Date | Date[] | DateRange | undefined;
@@ -28,6 +29,18 @@ export type DatePickerProps = {
 const defaultFormatMultiple = (count: number) =>
   `${count} ${count > 1 ? 'Days' : 'Day'}`;
 
+const formatDateMask = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+
+  if (digits.length <= 4) {
+    return digits;
+  }
+  if (digits.length <= 6) {
+    return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  }
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+};
+
 export const DatePicker = ({
   value,
   onChange,
@@ -38,7 +51,7 @@ export const DatePicker = ({
   disabled,
   className,
   mode = 'single',
-  format = 'MMM DD, YYYY',
+  format = 'YYYY-MM-DD',
   formatMultiple = defaultFormatMultiple,
   variant = 'outline',
   allowNull = false,
@@ -48,6 +61,17 @@ export const DatePicker = ({
   ...props
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [inputValue, setInputValue] = React.useState('');
+
+  const maxInputLength = 10;
+
+  React.useEffect(() => {
+    if (value && mode === 'single') {
+      setInputValue(dayjs(value as Date).format(format));
+    } else if (!value) {
+      setInputValue('');
+    }
+  }, [value, format, mode]);
 
   const minBound =
     minDate ?? (withPresent ? new Date('1900-01-01') : undefined);
@@ -59,34 +83,36 @@ export const DatePicker = ({
     ...(maxBound ? [{ after: maxBound }] : []),
   ];
 
-  const renderButtonContent = () => {
-    if (value) {
-      if (mode === 'single') {
-        return dayjs(new Date(value as Date)).format(format);
-      }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
 
-      if (mode === 'multiple' && Array.isArray(value)) {
-        const selectedDays = value?.length;
+    const formattedText =
+      format === 'YYYY-MM-DD'
+        ? formatDateMask(rawValue)
+        : rawValue.slice(0, maxInputLength);
 
-        if (selectedDays) {
-          return formatMultiple(selectedDays);
-        }
-      }
+    setInputValue(formattedText);
 
-      if (mode === 'range') {
-        const rangeValue = value as DateRange;
-        if (rangeValue?.from) {
-          if (rangeValue.to) {
-            return `${dayjs(rangeValue.from).format(format)} - ${dayjs(
-              rangeValue.to,
-            ).format(format)}`;
+    if (mode === 'single') {
+      if (formattedText.length === maxInputLength) {
+        const parsedDate = dayjs(formattedText, format, true);
+
+        if (parsedDate.isValid()) {
+          const dateObj = parsedDate.toDate();
+
+          const isBeforeMin =
+            minBound && parsedDate.isBefore(dayjs(minBound), 'day');
+          const isAfterMax =
+            maxBound && parsedDate.isAfter(dayjs(maxBound), 'day');
+
+          if (!isBeforeMin && !isAfterMax) {
+            onChange(dateObj);
           }
-          return dayjs(rangeValue.from).format(format);
         }
+      } else if (formattedText === '' && allowNull) {
+        onChange(undefined);
       }
     }
-
-    return placeholder;
   };
 
   const handleDateChange = (
@@ -96,7 +122,10 @@ export const DatePicker = ({
       return;
     }
 
-    if (mode !== 'range') {
+    if (
+      mode !== 'range' ||
+      (mode === 'range' && (selectedDate as DateRange)?.to)
+    ) {
       setIsOpen(false);
     }
 
@@ -114,6 +143,7 @@ export const DatePicker = ({
   };
 
   const handleClear = () => {
+    setInputValue('');
     onChange(undefined);
     setIsOpen(false);
   };
@@ -121,17 +151,40 @@ export const DatePicker = ({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild={true}>
-        <Combobox.Trigger
-          variant={variant}
-          disabled={disabled === true}
-          className={cn(
-            !value && 'text-accent-foreground',
-            disabled === true && 'cursor-not-allowed opacity-50',
-            className,
+        <div className="relative inline-block w-full">
+          {mode === 'single' ? (
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              maxLength={maxInputLength}
+              placeholder={placeholder}
+              disabled={disabled === true}
+              onClick={() => setIsOpen(true)}
+              className={cn(
+                'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                className,
+              )}
+            />
+          ) : (
+            <Button
+              variant={variant}
+              disabled={disabled === true}
+              className={cn(
+                'w-full justify-start text-left font-normal',
+                className,
+              )}
+            >
+              {renderButtonContent(
+                value,
+                mode,
+                format,
+                formatMultiple,
+                placeholder,
+              )}
+            </Button>
           )}
-        >
-          {renderButtonContent()}
-        </Combobox.Trigger>
+        </div>
       </Popover.Trigger>
       <Popover.Content
         align="start"
@@ -163,3 +216,28 @@ export const DatePicker = ({
     </Popover>
   );
 };
+
+function renderButtonContent(
+  value: Date | Date[] | DateRange | undefined,
+  mode: string,
+  format: string,
+  formatMultiple: (count: number) => string,
+  placeholder: string,
+) {
+  if (value) {
+    if (mode === 'multiple' && Array.isArray(value) && value.length) {
+      return formatMultiple(value.length);
+    }
+    if (mode === 'range') {
+      const rangeValue = value as DateRange;
+      if (rangeValue?.from) {
+        return rangeValue.to
+          ? `${dayjs(rangeValue.from).format(format)} - ${dayjs(
+              rangeValue.to,
+            ).format(format)}`
+          : dayjs(rangeValue.from).format(format);
+      }
+    }
+  }
+  return placeholder;
+}
