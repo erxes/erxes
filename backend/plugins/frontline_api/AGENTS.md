@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-02`
 
 ## Scope
 
@@ -145,6 +145,10 @@
 - `telegramUpdateSchema` validates incoming update envelopes with a nonnegative
   safe-integer `update_id` and preserves additional event fields. It does not
   validate those event fields or process deliveries.
+- `telegramMessageSchema` validates message identifiers, timestamp, chat,
+  optional user or chat sender, text, and topic metadata. It accepts signed chat
+  IDs and preserves additional fields as unknown. This is a standalone payload
+  validator; no incoming-message handler invokes it yet.
 - `TelegramBots.verifyWebhookSecret(_id, receivedSecret?)` checks the supplied
   secret against the saved bot in the tenant's database and returns a boolean.
   Missing inputs, unknown bots, and incorrect secrets return `false`.
@@ -384,6 +388,10 @@
   `utils/update.ts` defines the Zod envelope schema and inferred `TelegramUpdate`
   type. Treat preserved event fields as unknown until their handler validates
   them; envelope validation alone does not make an event safe to process.
+- `utils/message.ts` defines `telegramMessageSchema` and its inferred
+  `TelegramMessage` type. Keep provider payload validation separate from
+  persisted document types. Preserve optional senders/text and signed chat IDs;
+  accepting message metadata does not implement media or message delivery.
 - The `client.ts` types `TelegramBot` and `TelegramWebhookInfo` describe
   validated provider responses. Keep them separate from the saved-record types
   `ITelegramBot` and `ITelegramBotDocument` and the mapped query response
@@ -427,6 +435,10 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram message checks: accept private, group, channel-sender, and topic
+  payloads, omitted optional fields, zero message IDs, and large safe IDs.
+  Reject malformed metadata and unsafe or fractional IDs. Preserve unvalidated
+  extra fields on the message, chat, and sender without treating them as typed.
 - Telegram dispatch checks: the external integration mutation passes the tenant,
   new integration ID, and saved-bot ID to the adapter. A failed attachment rolls
   back only the integration created by that request; a successful attachment
@@ -495,6 +507,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-02` — Telegram message payload validation
+
+- **Summary:** Added a typed validator for incoming message metadata while preserving optional and unvalidated provider fields.
+- **Affected areas:** `src/modules/integrations/telegram/utils/message.ts`.
+- **Contracts changed:** Added internal `telegramMessageSchema` and inferred `TelegramMessage`; public APIs and webhook routing are unchanged.
+
 ### `2026-10-01` — Telegram external integration dispatch
 
 - **Summary:** Connected the saved-bot creation adapter to the existing external integration creation flow.
@@ -548,9 +566,3 @@
 - **Summary:** Added webhook status lookup by saved bot ID using the tenant's stored credential without modifying the bot or returning its credential fields.
 - **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
 - **Contracts changed:** Added internal `ITelegramBotModel.getWebhookInfo(_id): Promise<TelegramWebhookInfo>`; public APIs unchanged.
-
-### `2026-09-29` — Telegram webhook status client
-
-- **Summary:** Added a read-only webhook status client sharing token validation, timeout, and controlled request errors with bot identity validation.
-- **Affected areas:** `src/modules/integrations/telegram/client.ts`.
-- **Contracts changed:** Added internal `getTelegramWebhookInfo(token)`, `TelegramWebhookInfo`, and `getTelegramResponse(token, method)` exports; public APIs unchanged.
