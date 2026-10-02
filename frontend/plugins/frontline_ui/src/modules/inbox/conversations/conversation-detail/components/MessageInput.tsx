@@ -19,6 +19,7 @@ import {
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/ComposerShell';
 import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/ComposerEditor';
+import { ComposerGalleries } from '@/inbox/conversations/conversation-detail/components/ComposerGalleries';
 import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/ComposerPreviews';
 import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/ComposerToolbar';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
@@ -291,7 +292,9 @@ export const MessageInput = ({
     isUploading ||
     pendingAttachments.length > 0 ||
     (!content?.length && attachments.length === 0);
-  const blockAttachments = getBlockAttachments(content || []);
+  const blockAttachments = getBlockAttachments(
+    editor.document.filter((block) => block.type !== 'gallery'),
+  );
 
   return (
     <ComposerShell
@@ -303,46 +306,49 @@ export const MessageInput = ({
       onDrop={handleDrop}
       onInternalNoteChange={handleInternalNoteChange}
     >
-      <ComposerPreviews
-        attachments={attachments}
-        blockAttachments={blockAttachments}
-        pendingAttachments={pendingAttachments}
-        replyTo={isInternalNote ? null : replyTo}
-        onRemove={removeAttachment}
-        onRemoveBlockAttachment={removeBlockAttachment}
-        onCancelReply={() => setReplyTo(null)}
-      />
-
-      {showSuggestions && !isInternalNote && (
-        <ResponseTemplateDropdown
-          suggestions={suggestions}
-          selectedIndex={selectedIndex}
-          availableChannels={availableChannels}
-          loading={suggestionsLoading}
-          onSelect={selectTemplate}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <ComposerGalleries editor={editor} disabled={loading || isUploading} />
+        <ComposerPreviews
+          attachments={attachments}
+          blockAttachments={blockAttachments}
+          pendingAttachments={pendingAttachments}
+          replyTo={isInternalNote ? null : replyTo}
+          onRemove={removeAttachment}
+          onRemoveBlockAttachment={removeBlockAttachment}
+          onCancelReply={() => setReplyTo(null)}
         />
-      )}
 
-      <div
-        ref={editorRef}
-        data-composer-editor
-        className="flex min-h-0 min-w-0 flex-1 flex-col overscroll-contain [&_.bn-container]:h-full [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full [&_.bn-editor]:max-h-full [&_.bn-editor]:overflow-y-auto"
-      >
-        <ComposerEditor
-          editor={editor}
-          isDiscord={isDiscord}
-          isInternalNote={isInternalNote}
-          loading={loading}
-          discordMentionItems={discordMentionItems}
-          discordMentionNote={discordMentionNote}
-          searchDiscordMentionItems={searchDiscordMentionItems}
-          onChange={handleChange}
-          onFocus={setHotkeyScopeAndMemorizePreviousScope}
-          onBlur={() => {
-            goBackToPreviousHotkeyScope();
-            stopAgentTyping();
-          }}
-        />
+        {showSuggestions && !isInternalNote && (
+          <ResponseTemplateDropdown
+            suggestions={suggestions}
+            selectedIndex={selectedIndex}
+            availableChannels={availableChannels}
+            loading={suggestionsLoading}
+            onSelect={selectTemplate}
+          />
+        )}
+
+        <div
+          ref={editorRef}
+          data-composer-editor
+          className="min-h-12 min-w-0 [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full"
+        >
+          <ComposerEditor
+            editor={editor}
+            isDiscord={isDiscord}
+            isInternalNote={isInternalNote}
+            loading={loading}
+            discordMentionItems={discordMentionItems}
+            discordMentionNote={discordMentionNote}
+            searchDiscordMentionItems={searchDiscordMentionItems}
+            onChange={handleChange}
+            onFocus={setHotkeyScopeAndMemorizePreviousScope}
+            onBlur={() => {
+              goBackToPreviousHotkeyScope();
+              stopAgentTyping();
+            }}
+          />
+        </div>
       </div>
 
       <ComposerToolbar

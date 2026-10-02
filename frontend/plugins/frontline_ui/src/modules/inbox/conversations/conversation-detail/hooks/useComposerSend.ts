@@ -71,6 +71,7 @@ export const useComposerSend = ({
   }, [conversationId, draftKey]);
 
   const handleSubmit = useCallback(async () => {
+    if (document.querySelector('[data-composer-gallery-dialog]')) return;
     if (!conversationId || loading || isUploading || submittingRef.current)
       return;
     if (!content?.length && attachments.length === 0) return;

@@ -61,7 +61,14 @@ export const ComposerShell = ({
     <div className="flex h-full min-h-0 flex-col justify-end px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3 sm:pt-3 sm:pb-3">
       <form
         onSubmit={(event) => event.preventDefault()}
-        onDropCapture={onDrop}
+        onDropCapture={(event) => {
+          if (
+            event.target instanceof Element &&
+            event.target.closest('[role="dialog"]')
+          )
+            return;
+          onDrop(event);
+        }}
         onDragOverCapture={(event) => event.preventDefault()}
         className={cn(
           'mx-auto flex h-full min-h-0 min-w-0 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 pb-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
