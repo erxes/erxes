@@ -31,13 +31,11 @@ export interface ICycleInput {
 
 export type ICycleInputType = z.infer<typeof addCycleSchema>;
 
-export type ICycleProgressByMember = NonNullable<
-  GetCycleProgressByMemberQuery['getCycleProgressByMember']
->[number];
+export type ICycleProgressByMember =
+  GetCycleProgressByMemberQuery['getCycleProgressByMember'][number];
 
-export type ICycleProgressByProject = NonNullable<
-  GetCycleProgressByProjectQuery['getCycleProgressByProject']
->[number];
+export type ICycleProgressByProject =
+  GetCycleProgressByProjectQuery['getCycleProgressByProject'][number];
 
 export type ICycleProgressChart = NonNullable<
   GetCycleProgressChartQuery['getCycleProgressChart']

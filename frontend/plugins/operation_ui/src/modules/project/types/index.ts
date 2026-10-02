@@ -28,13 +28,11 @@ export type IProjectProgress = NonNullable<
   GetProjectProgressQuery['getProjectProgress']
 >;
 
-export type IProjectProgressByMember = NonNullable<
-  GetProjectProgressByMemberQuery['getProjectProgressByMember']
->[number];
+export type IProjectProgressByMember =
+  GetProjectProgressByMemberQuery['getProjectProgressByMember'][number];
 
-export type IProjectProgressByTeam = NonNullable<
-  GetProjectProgressByTeamQuery['getProjectProgressByTeam']
->[number];
+export type IProjectProgressByTeam =
+  GetProjectProgressByTeamQuery['getProjectProgressByTeam'][number];
 
 export type IMilestone = NonNullable<
   NonNullable<NonNullable<GetMilestonesQuery['milestones']>['list']>[number]
