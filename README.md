@@ -18,7 +18,7 @@
   <a href="https://erxes.io/changelog">Changelog</a>
   |
   <a href="https://discord.com/invite/aaGzy3gQK5">Discord</a>
-  </p>
+
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
   </a>
    <a href="https://explore.transifex.com/erxes-inc/erxesxos/">
-      <img alt="Transfix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
+      <img alt="Transfex" src="https://img.shields.io/badge/translations-contribute-brightgreen">
   </a>
 </p>
 
@@ -65,12 +65,12 @@ erxes (pronounced 'erk-sis') is a Mongolian word meaning “galaxy”. A galaxy 
 erxes - Improving everyday experiences can significantly enhance the quality of life. These small, incremental improvements can lead to substantial benefits and better living. Better living and happier people will have a contagious effect on everything they touch, eventually improving the universe. 
 
 ## What is erxes?
-erxes is a secure, self-hosted, and scalable source available experience management infrastructure that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business.
+erxes is a secure, self-hosted, and scalable source available experience management infrastructure that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of businesses.
 
 ## erxes Core & Plugins
 erxes is composed of 2 main components: **Core** & **Plugins**
 
-**Core:** It contains the core five modules which goes with all plugins - **My inbox**, **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
+**Core:** It contains the core five modules which go with all plugins - **My inbox**, **Contacts**, **Products**, **Segments**, **Automation**, **Documents**
 
 
 **Plugins:** erxes comes with a set of plugins that allow you to create unique business experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
