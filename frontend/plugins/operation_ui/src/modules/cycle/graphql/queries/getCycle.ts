@@ -11,7 +11,33 @@ export const GET_CYCLE_DETAIL = gql`
       isCompleted
       name
       startDate
-      statistics
+      statistics {
+        progress {
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        progressByMember {
+          assigneeId
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        progressByProject {
+          projectId
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        chartData {
+          totalScope
+          chartData {
+            date
+            started
+            completed
+          }
+        }
+      }
       teamId
       unFinishedTasks
     }

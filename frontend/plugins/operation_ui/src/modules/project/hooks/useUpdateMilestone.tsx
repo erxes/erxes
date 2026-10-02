@@ -5,7 +5,6 @@ import { useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '../graphql/queries/getProjectProgressByMilestone';
-import type { GetMilestoneProgressQuery } from '~/gql/graphql';
 
 export const useUpdateMilestone = () => {
   const { t } = useTranslation('operation');
@@ -68,7 +67,7 @@ export const useUpdateMilestone = () => {
 
       const removedId = removedMilestone._id;
 
-      const existingData = cache.readQuery<GetMilestoneProgressQuery>({
+      const existingData = cache.readQuery({
         query: GET_PROJECT_PROGRESS_BY_MILESTONE,
         variables: { projectId: removedMilestone.projectId },
       });

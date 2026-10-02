@@ -1,7 +1,14 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_CYCLE_PROGRESS_CHART = gql`
+export const GET_CYCLE_PROGRESS_CHART = gql(`
   query getCycleProgressChart($_id: String!, $assigneeId: String) {
-    getCycleProgressChart(_id: $_id, assigneeId: $assigneeId)
+    getCycleProgressChart(_id: $_id, assigneeId: $assigneeId) {
+      totalScope
+      chartData {
+        date
+        started
+        completed
+      }
+    }
   }
-`;
+`);

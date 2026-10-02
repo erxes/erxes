@@ -16,12 +16,12 @@ export const types = `
   }
 
   type MilestoneProgress {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
     targetDate: Date
-    totalScope: Int
-    totalStartedScope: Int
-    totalCompletedScope: Int
+    totalScope: Int!
+    totalStartedScope: Int!
+    totalCompletedScope: Int!
   }
 `;
 

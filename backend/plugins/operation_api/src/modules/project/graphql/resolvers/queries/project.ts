@@ -247,7 +247,13 @@ export const projectQueries: Record<string, Resolver> = {
       },
     ]);
 
-    return result?.[0] || {};
+    return (
+      result?.[0] || {
+        totalScope: 0,
+        totalStartedScope: 0,
+        totalCompletedScope: 0,
+      }
+    );
   },
 
   getProjectProgressByMember: async (
@@ -542,7 +548,7 @@ export const projectQueries: Record<string, Resolver> = {
     const project = await models.Project.findOne({ _id }).lean();
 
     if (!project) {
-      return [];
+      return { totalScope: 0, chartData: [] };
     }
 
     const [totalScopeResult] = await models.Task.aggregate([

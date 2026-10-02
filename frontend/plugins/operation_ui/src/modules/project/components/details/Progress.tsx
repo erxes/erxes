@@ -30,10 +30,7 @@ export const ProgressDot = ({
 
 export const Progress = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
-  const { projectProgress } = useGetProjectProgress({
-    variables: { _id: projectId },
-    skip: !projectId,
-  });
+  const { projectProgress } = useGetProjectProgress(projectId);
 
   return (
     <div className="flex justify-between w-full my-4">

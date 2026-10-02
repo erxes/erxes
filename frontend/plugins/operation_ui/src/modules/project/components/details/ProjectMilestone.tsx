@@ -8,6 +8,8 @@ import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { z } from 'zod';
 import { AddMilestone } from '../milestone/AddMilestone';
 import { EditMilestone } from '../milestone/EditMilestone';
+import { compactList } from '@/operation/utils/cursorList';
+import { IMilestoneProgress } from '@/project/types';
 
 const milestoneSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -27,12 +29,9 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
     },
   });
 
-  const { projectProgressByMilestone } = useGetProjectProgressByMilestone({
-    variables: { projectId },
-    skip: !projectId,
-  });
+  const { projectProgressByMilestone } = useGetProjectProgressByMilestone(projectId);
 
-  const getProgress = (item: any) => {
+  const getProgress = (item: IMilestoneProgress) => {
     if (!item.totalScope || item.totalScope === 0) return 0;
 
     return Math.round(
@@ -42,7 +41,7 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
     );
   };
 
-  const extraContent = (milestone: any) => {
+  const extraContent = (milestone: IMilestoneProgress) => {
     return (
       <>
         <ChartContainer
@@ -94,7 +93,7 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
         setActiveMilestone={setActiveMilestone}
       />
 
-      {projectProgressByMilestone?.map((milestone) => (
+      {compactList(projectProgressByMilestone).map((milestone) => (
         <HoverCard openDelay={150} closeDelay={150} key={milestone._id}>
           <HoverCard.Trigger asChild>
             <div>

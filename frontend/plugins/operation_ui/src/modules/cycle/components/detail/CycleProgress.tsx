@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { ICycleStatistics } from '@/cycle/types';
 import { useGetCycleProgress } from '@/cycle/hooks/useGetCycleProgress';
-import { IProjectProgressByMember } from '@/project/types';
+
 import { IconCircleFilled } from '@tabler/icons-react';
 import { cn, Tooltip, useQueryState } from 'erxes-ui';
 
@@ -36,25 +37,20 @@ export const CycleProgress = ({
 }: {
   cycleId: string;
   isCompleted: boolean;
-  statistics: any;
+  statistics?: ICycleStatistics;
 }) => {
   const { t } = useTranslation('operation');
   const [assignee] = useQueryState<string>('assignee');
 
-  const { cycleProgress } = useGetCycleProgress({
-    variables: { _id: cycleId },
-    skip: !cycleId || isCompleted,
-  });
+  const { cycleProgress } = useGetCycleProgress(isCompleted ? undefined : cycleId);
 
-  let progress = cycleProgress || statistics.progress;
+  let progress = cycleProgress || statistics?.progress;
 
   if (isCompleted && assignee) {
-    const progressByMember =
-      (statistics?.progressByMember as IProjectProgressByMember[]) ||
-      ([] as IProjectProgressByMember[]);
+    const progressByMember = statistics?.progressByMember ?? [];
 
     const progressByMemberFiltered = progressByMember.find(
-      (item: IProjectProgressByMember) => item.assigneeId === assignee,
+      (item) => item.assigneeId === assignee,
     );
 
     progress = progressByMemberFiltered;

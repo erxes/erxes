@@ -1,42 +1,30 @@
-import { QueryHookOptions, useQuery, useSubscription } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 import { GET_CYCLE_PROGRESS_CHART } from '@/cycle/graphql/queries/getCycleProgressChart';
 import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
 import { useQueryState } from 'erxes-ui';
-export interface IGetCycleProgressChart {
-  totalScope: number;
-  chartData: {
-    date: string;
-    started: number;
-    completed: number;
-  }[];
-}
 
-interface IGetCycleQueryResponse {
-  getCycleProgressChart: IGetCycleProgressChart;
-}
-
-export const useGetCycleProgressChart = (options: QueryHookOptions) => {
+export const useGetCycleProgressChart = (cycleId?: string | null) => {
   const [assignee] = useQueryState<string>('assignee');
 
-  const { data, loading, refetch } = useQuery<IGetCycleQueryResponse>(
-    GET_CYCLE_PROGRESS_CHART,
-    {
-      ...options,
-      variables: { ...options.variables, assigneeId: assignee },
-    },
-  );
-
-  const getCycleProgressChart = data?.getCycleProgressChart;
+  const { data, loading, refetch } = useQuery(GET_CYCLE_PROGRESS_CHART, {
+    variables: cycleId
+      ? { _id: cycleId, assigneeId: assignee || undefined }
+      : undefined,
+    skip: !cycleId,
+  });
 
   useSubscription(TASK_LIST_CHANGED, {
     variables: {
-      filter: { cycleId: options.variables?._id },
+      filter: { cycleId },
     },
+    skip: !cycleId,
     ignoreResults: true,
     onData: () => {
       refetch();
     },
   });
+
+  const getCycleProgressChart = data?.getCycleProgressChart;
 
   return { getCycleProgressChart, loading, refetch };
 };
