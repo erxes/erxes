@@ -37,7 +37,7 @@ module.exports = [
         },
         {
           selector:
-            "CallExpression[callee.property.name='subscribeToMore'][typeArguments]",
+            "CallExpression[typeArguments]:matches([callee.name='subscribeToMore'], [callee.property.name='subscribeToMore'])",
           message:
             'Do not pass type arguments to subscribeToMore; infer them from a document created with gql() from ~/gql.',
         },
