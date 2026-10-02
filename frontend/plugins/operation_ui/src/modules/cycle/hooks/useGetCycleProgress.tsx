@@ -1,35 +1,23 @@
-import { QueryHookOptions, useQuery, useSubscription } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
-import { IProjectProgress } from '@/project/types';
 import { GET_CYCLE_PROGRESS } from '@/cycle/graphql/queries/getCycleProgress';
 import { useQueryState } from 'erxes-ui';
 
-interface IGetCycleQueryResponse {
-  getCycleProgress: IProjectProgress;
-}
-
-interface IGetCycleQueryVariables {
-  _id?: string;
-  assigneeId?: string;
-}
-
-export const useGetCycleProgress = (
-  options: QueryHookOptions<IGetCycleQueryResponse, IGetCycleQueryVariables>,
-) => {
+export const useGetCycleProgress = (cycleId?: string | null) => {
   const [assignee] = useQueryState<string>('assignee');
 
-  const { data, loading, refetch } = useQuery<
-    IGetCycleQueryResponse,
-    IGetCycleQueryVariables
-  >(GET_CYCLE_PROGRESS, {
-    ...options,
-    variables: { ...options.variables, assigneeId: assignee || undefined },
+  const { data, loading, refetch } = useQuery(GET_CYCLE_PROGRESS, {
+    variables: cycleId
+      ? { _id: cycleId, assigneeId: assignee || undefined }
+      : undefined,
+    skip: !cycleId,
   });
 
   useSubscription(TASK_LIST_CHANGED, {
     variables: {
-      filter: { cycleId: options.variables?._id },
+      filter: { cycleId },
     },
+    skip: !cycleId,
     ignoreResults: true,
     onData: () => {
       refetch();

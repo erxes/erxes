@@ -1,6 +1,10 @@
 import { addProjectSchema } from '@/project/types/validations';
 import type {
+  GetMilestoneProgressQuery,
   GetMilestonesQuery,
+  GetProjectProgressByMemberQuery,
+  GetProjectProgressByTeamQuery,
+  GetProjectProgressQuery,
   GetProjectQuery,
   GetProjectsQuery,
 } from '~/gql/graphql';
@@ -20,32 +24,22 @@ export enum ProjectPageTypes {
 export type TAddProject = z.infer<typeof addProjectSchema>;
 export * from '@/project/types/validations';
 
-export interface IProjectProgress {
-  totalScope: number;
-  totalStartedScope: number;
-  totalCompletedScope: number;
-}
+export type IProjectProgress = NonNullable<
+  GetProjectProgressQuery['getProjectProgress']
+>;
 
-export interface IProjectProgressByMember {
-  assigneeId: string;
-  totalScope: number;
-  totalStartedScope: number;
-  totalCompletedScope: number;
-}
+export type IProjectProgressByMember = NonNullable<
+  GetProjectProgressByMemberQuery['getProjectProgressByMember']
+>[number];
 
-export interface IProjectProgressByTeam {
-  teamId: string;
-  totalScope: number;
-  totalStartedScope: number;
-  totalCompletedScope: number;
-}
+export type IProjectProgressByTeam = NonNullable<
+  GetProjectProgressByTeamQuery['getProjectProgressByTeam']
+>[number];
 
 export type IMilestone = NonNullable<
   NonNullable<NonNullable<GetMilestonesQuery['milestones']>['list']>[number]
 >;
 
-export interface IMilestoneProgress {
-  totalScope: number;
-  totalStartedScope: number;
-  totalCompletedScope: number;
-}
+export type IMilestoneProgress = NonNullable<
+  NonNullable<GetMilestoneProgressQuery['milestoneProgress']>[number]
+>;

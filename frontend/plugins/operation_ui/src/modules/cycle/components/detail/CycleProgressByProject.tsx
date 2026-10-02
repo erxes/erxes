@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { ProgressDot } from '@/cycle/components/detail/CycleProgress';
 import CycleProjectDetail from '@/cycle/components/detail/CycleProjectDetail';
 import { useGetCycleProgressByProject } from '@/cycle/hooks/useGetCycleProgressByProject';
-import { ICycleProgressByProject } from '@/cycle/types';
+import { ICycleProgressByProject, ICycleStatistics } from '@/cycle/types';
+
 import { Button, ChartConfig, ChartContainer, HoverCard } from 'erxes-ui';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 
@@ -13,17 +14,13 @@ export const CycleProgressByProject = ({
 }: {
   cycleId: string;
   isCompleted: boolean;
-  statistics: any;
+  statistics?: ICycleStatistics;
 }) => {
   const { t } = useTranslation('operation');
-  const { cycleProgressByProject } = useGetCycleProgressByProject({
-    variables: { _id: cycleId },
-    skip: !cycleId || isCompleted,
-  });
+  const { cycleProgressByProject } = useGetCycleProgressByProject(isCompleted ? undefined : cycleId);
 
   const progress =
-    cycleProgressByProject ||
-    (statistics.progressByProject as ICycleProgressByProject[]);
+    cycleProgressByProject || statistics?.progressByProject;
 
   if (!progress) {
     return null;
@@ -40,7 +37,11 @@ export const CycleProgressByProject = ({
   return (
     <div>
       {progress?.map((item) => (
-        <HoverCard openDelay={150} closeDelay={150} key={item.projectId}>
+        <HoverCard
+          openDelay={150}
+          closeDelay={150}
+          key={item.projectId ?? 'unassigned'}
+        >
           <HoverCard.Trigger asChild>
             <Button
               className="flex justify-start gap-2 items-center text-sm font-normal h-10 py-1"
