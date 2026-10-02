@@ -38,7 +38,6 @@ export interface IInstagramConversationMessage {
 }
 
 export interface IInstagramConversationMessageDocument
-  extends IInstagramConversationMessage,
-    Document {
+  extends IInstagramConversationMessage, Document {
   _id: string;
 }

@@ -149,10 +149,10 @@ export const getMessageDisplay = ({
       .trim();
   const snapshotHasContent = Boolean(
     forwardedSnapshot?.content ||
-      forwardedSnapshot?.attachments?.length ||
-      forwardedSnapshot?.stickers?.length ||
-      forwardedSnapshot?.embeds?.length ||
-      forwardedSnapshot?.poll,
+    forwardedSnapshot?.attachments?.length ||
+    forwardedSnapshot?.stickers?.length ||
+    forwardedSnapshot?.embeds?.length ||
+    forwardedSnapshot?.poll,
   );
   let displayContent: string | undefined = fallbackDisplayContent;
   if (

@@ -42,9 +42,8 @@ export const reactToConversationMessage = async (
     throw new Error('A reaction is required');
   }
 
-  const conversation = await models.Conversations.getConversation(
-    conversationId,
-  );
+  const conversation =
+    await models.Conversations.getConversation(conversationId);
   const integration = await models.Integrations.getIntegration({
     _id: conversation.integrationId,
   });

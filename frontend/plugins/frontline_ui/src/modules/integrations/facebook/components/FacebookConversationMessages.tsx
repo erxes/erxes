@@ -27,8 +27,8 @@ export const FacebookConversationMessages = () => {
     lastCustomerMessage?.createdAt || lastMessage?.createdAt;
   const replyWindowExpired = Boolean(
     referenceDate &&
-      differenceInHours(new Date(), new Date(referenceDate)) >=
-        FACEBOOK_HUMAN_AGENT_WINDOW_HOURS,
+    differenceInHours(new Date(), new Date(referenceDate)) >=
+      FACEBOOK_HUMAN_AGENT_WINDOW_HOURS,
   );
 
   return (

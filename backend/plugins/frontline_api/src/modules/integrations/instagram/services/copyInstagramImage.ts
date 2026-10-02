@@ -98,9 +98,8 @@ export const copyInstagramImage = async (
   if (!user?._id) throw new Error('Authentication required');
   await checkPermission('showConversations');
 
-  const conversation = await models.Conversations.getConversation(
-    conversationId,
-  );
+  const conversation =
+    await models.Conversations.getConversation(conversationId);
   const integration = await models.Integrations.getIntegration({
     _id: conversation.integrationId,
   });
