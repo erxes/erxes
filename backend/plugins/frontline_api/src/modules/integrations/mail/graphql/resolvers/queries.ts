@@ -6,6 +6,10 @@ import { readSendingQuota } from '@/integrations/mail/utils/cloudflare/sending';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
 import { findPipelineIntegration } from '@/integrations/mail/utils/pipeline';
 import { readMailThread } from '@/integrations/mail/utils/thread';
+import {
+  findViewableTicket,
+  resolveTicketRecipient,
+} from '@/integrations/mail/utils/tickets';
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
 import { assertMailConversationAccess } from '@/integrations/mail/utils/access';
 import { readMailVerifiedContacts } from '@/integrations/mail/utils/recipients';
@@ -134,6 +138,30 @@ export const mailQueries = {
     );
 
     return findPipelineIntegration(models, pipelineId);
+  },
+
+  async mailTicketReplyTarget(
+    _root: undefined,
+    { ticketId }: { ticketId: string },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('showTickets');
+
+    const ticket = await findViewableTicket(models, user, ticketId);
+
+    const integration = await findPipelineIntegration(
+      models,
+      ticket.pipelineId,
+    );
+
+    if (!integration) {
+      return null;
+    }
+
+    return {
+      from: integration.address,
+      to: (await resolveTicketRecipient(models, subdomain, ticket._id)) ?? null,
+    };
   },
 
   async mailConversationDetail(

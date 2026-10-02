@@ -88,6 +88,29 @@ export const types = `
     error: String
   }
 
+  type MailTicketReplyTarget {
+    from: String!
+    to: String
+  }
+
+  type TicketNoteMailDelivery {
+    status: String
+    error: String
+    to: [String]
+    bouncedRecipients: [String]
+    retryable: Boolean
+    canRetry: Boolean
+  }
+
+  type TicketNoteUnsavedAttachment {
+    name: String
+    url: String
+    type: String
+    size: Float
+    error: String
+    expiresAt: Date
+  }
+
   type MailCloudflareZone {
     id: String
     name: String
@@ -164,6 +187,8 @@ export const queries = `
   mailPipelineIntegration(pipelineId: String!): MailPipelineIntegration
   mailSenders: [MailSender!]!
 
+  mailTicketReplyTarget(ticketId: String!): MailTicketReplyTarget
+
   mailCloudflareConnection: MailCloudflareConnection
   mailCloudflareSendingQuota: MailCloudflareSendingQuota
   mailCloudflareZones(token: String!): [MailCloudflareZone]
@@ -205,6 +230,8 @@ export const mutations = `
   mailPipelineForwardVerified(pipelineId: String!): MailPipelineIntegration
 
   mailPipelineDisconnect(pipelineId: String!): Boolean
+
+  mailTicketNoteRetry(noteId: String!): TicketNote
 
   mailMessageRetry(_id: String!): JSON
 

@@ -24,6 +24,7 @@ interface MailDeliveryService {
     subdomain: string,
     message: IMailMessageDocument,
     integration: IMailIntegrationDocument,
+    attemptedAt?: Date,
   ): Promise<IMailMessageDocument>;
 }
 
@@ -56,12 +57,14 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
         }) as Promise<IMailMessageDocument>;
       }
 
+      const attemptedAt = new Date();
+
       const claimed = await models.MailMessages.updateOne(
         { _id, ...resendableFilter() },
         {
           $set: {
             deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
-            deliveryAttemptedAt: new Date(),
+            deliveryAttemptedAt: attemptedAt,
           },
           $unset: { deliveryError: '', deliveryRetryable: '' },
         },
@@ -73,14 +76,20 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
         );
       }
 
-      return mailDelivery.deliver(subdomain, message, integration);
+      return mailDelivery.deliver(subdomain, message, integration, attemptedAt);
     },
 
     async deliver(
       subdomain: string,
       message: IMailMessageDocument,
       integration: IMailIntegrationDocument,
+      attemptedAt = message.deliveryAttemptedAt,
     ) {
+      const attempt = {
+        _id: message._id,
+        ...(attemptedAt ? { deliveryAttemptedAt: attemptedAt } : {}),
+      };
+
       const replyToAddress = resolveReplyToAddress(
         integration,
         message.replyTag,
@@ -128,25 +137,27 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
       } catch (e) {
         const deliveryError = describeError(e);
 
-        await models.MailMessages.updateOne(
-          { _id: message._id },
-          {
-            $set: {
-              deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
-              deliveryError,
-              deliveryRetryable: isRetryableFailure(e),
-            },
+        const recorded = await models.MailMessages.updateOne(attempt, {
+          $set: {
+            deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
+            deliveryError,
+            deliveryRetryable: isRetryableFailure(e),
           },
-        );
+        });
 
-        await mailDelivery.settleIntegrationHealth(integration, deliveryError);
+        if (recorded.matchedCount) {
+          await mailDelivery.settleIntegrationHealth(
+            integration,
+            deliveryError,
+          );
+        }
       }
 
       if (result) {
         const bounced = result.bounced.length > 0;
 
-        await models.MailMessages.updateOne(
-          { _id: message._id },
+        const recorded = await models.MailMessages.updateOne(
+          attempt,
           bounced
             ? {
                 $set: {
@@ -169,15 +180,17 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
               },
         );
 
-        await mailDelivery.settleIntegrationHealth(integration);
+        if (recorded.matchedCount) {
+          await mailDelivery.settleIntegrationHealth(integration);
 
-        if (!bounced) {
-          await settleConversationStatus(models, message).catch((e) =>
-            debugError(
-              `Mail ${message._id} was delivered but its conversation status was not applied:`,
-              e,
-            ),
-          );
+          if (!bounced) {
+            await settleConversationStatus(models, message).catch((e) =>
+              debugError(
+                `Mail ${message._id} was delivered but its conversation status was not applied:`,
+                e,
+              ),
+            );
+          }
         }
       }
 

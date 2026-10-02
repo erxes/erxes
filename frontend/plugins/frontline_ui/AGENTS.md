@@ -377,9 +377,9 @@
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
 - The inbox composer is note-only (Reply tab disabled, Internal Note selected)
-  for `lead`, `calls` and `callpro` conversations — those channels cannot carry
-  an outbound reply. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
-  `MessageInput.tsx`.
+  for `lead`, `calls`, `callpro` and `mail` conversations — the first three
+  cannot carry an outbound reply, and mail replies go through the mail compose
+  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in `MessageInput.tsx`.
 - The ticket list/board filter offers Branch and Department multi-selects
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
@@ -403,6 +403,39 @@
   immediately and reopens with those filters restored. The default charts are a
   frontend constant and are never modified by saving; a saved card additionally
   carries a delete action.
+- The ticket note composer (`NoteInput`) opens with the inbox's own **Reply |
+  Internal Note** segment tabs (`ComposerModeTabs`) and starts on Internal Note.
+  A hint line under the tabs says who will read the message: internal notes are
+  "Only visible to your team"; a reply names the customer address and the
+  pipeline address it will be emailed from (`mailTicketReplyTarget`), warns when
+  the ticket has no customer email, and otherwise says the customer sees it in
+  the client portal. Internal mode tints the composer and its **Add note**
+  button with the warning colour; reply mode sends with **Send**. Each note in
+  the ticket timeline carries a badge from `getNoteKind`: Internal Note (warning
+  tint), Received by email, Sent from the client portal, Emailed to
+  `<recipient>`, or Visible to the customer. A mailed note shows its delivery
+  state beside that badge — Sending…, Not delivered with the transport error,
+  or Bounced with the rejected recipients — and a failed or bounced card gets
+  a destructive border; the composer also raises a destructive toast when the
+  reply it just saved was not delivered. When `mailDelivery.canRetry` is true —
+  a failed send, or one stuck sending for over ten minutes — the card offers
+  **Try again** (`useRetryTicketNoteMail` → `mailTicketNoteRetry`) with a hint
+  chosen from `retryable`; the mutation returns the note, so the card updates
+  from the Apollo cache. Bounced mail gets no retry, since the same address
+  would bounce again. A note with no text renders no text block, and the
+  composer sends an attachment-only note with empty `content` (never `"[]"`,
+  which the read-only editor printed literally); `hasNoteText` also hides the
+  `"[]"` of notes saved before. An inbound attachment the server could not
+  store is listed under the note from `unsavedAttachments` as a warning row:
+  it opens the mail worker's temporary link while `expiresAt` is in the future
+  ("Not saved · the link works for N more days") and otherwise shows the
+  translated `attachment-unavailable` text without a link. A note that came in
+  by email (`getNoteKind` → `emailReceived`) renders through the inbox's
+  sandboxed `EmailBody` iframe instead of `BlockEditorReadOnly`, so mail CSS
+  stays inside the frame, remote images and tracking pixels wait for "Show
+  images", links open in a new tab, and storage-key images resolve through
+  `readImage`; `storageImageSources` marks those keys, plus the note's
+  attachments, as trusted so a signature logo is not blocked.
 - The Ticket List report card's trailing settings icon is the
   `RecordTable.ColumnSelector`: it toggles, reorders and pins columns for
   name, number, created, status, state, priority, assigned, created by,
@@ -437,6 +470,8 @@
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
 | Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
+| Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
+| Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
 | Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
 | Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
@@ -633,6 +668,18 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   re-hosted. The chip therefore stays clickable and puts the reason in its
   tooltip; only an attachment with no link at all falls back to the dimmed state.
   `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailTicketReplyTarget(ticketId!)` — `{ from, to }`
+  for a ticket whose pipeline owns a mail address, `null` otherwise. `to` is
+  `null` when the ticket has no customer email. `useTicketReplyTarget` reads it
+  `cache-and-network` for the composer's hint line. `ticketGetNote` and
+  `ticketCreateNote` also select `mailMessageId`, which `getNoteKind` needs to
+  tell a mailed note from a portal-only one, and `mailDelivery { status, error,
+to, bouncedRecipients, retryable, canRetry }` for its delivery state;
+  `mailTicketNoteRetry(noteId!)` resends a failed or stuck one and returns the
+  note. `ticketGetNote` also selects `unsavedAttachments { name, url, type,
+  size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
+  when a reply cannot be mailed (no customer email, or the workspace cannot
+  send); `NoteInput` shows that message in a toast and keeps the draft.
 - `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
   `mailDraftSave`, `mailDraftApprove` (returns the delivery outcome plus
   `draftId`), `mailDraftRemove`, the subscription `mailDraftChanged`, and
@@ -679,7 +726,14 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
   the Convert menu's visibility; `useFields`, `PropertyFormField` and
   `isFieldVisibleByLogic` — convert-time properties.
-- `react-i18next` with the `frontline` namespace.
+- `react-i18next` with the `frontline` namespace. The ticket note surfaces use
+  keys the gateway locales do not carry yet, so they render their inline
+  English fallback: `write-a-message`, `add-note`, `ticket-reply-portal-only`,
+  `ticket-reply-no-recipient`, `ticket-reply-emailed`, `note-email-received`,
+  `note-portal-received`, `note-email-sent`, `note-customer-visible`,
+  `note-email-sent-to`, `ticket-reply-not-delivered`,
+  `email-delivery-stuck-hint`, `email-delivery-resent` and
+  `attachment-not-saved-days`.
 
 ## Data and State
 
@@ -747,6 +801,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- The inbox and ticket composers pick their mode through the one
+  `ComposerModeTabs`; a composer that separates a customer reply from an
+  internal note reuses it rather than a single toggle, and internal mode is
+  always drawn with the `warning` colour. The one exception is a mail
+  conversation: its replies go through the mail compose box, so `ComposerShell`
+  shows a static warning-coloured Internal Note label there instead of the tabs.
 - `TicketFields` must not save the description just because a ticket was
   opened. Plain-text (legacy v2) descriptions are converted to blocks with a
   fresh `crypto.randomUUID()` per block on every parse, so a re-parse never
