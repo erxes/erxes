@@ -1,26 +1,20 @@
-export interface IGithubConnection {
-  _id: string;
-  installationId: number;
-  orgName: string;
-  orgAvatarUrl?: string;
-  orgType: string;
-  createdAt: string;
-  isActive: boolean;
-}
+import {
+  OperationGithubConfigByTeamQuery,
+  OperationGithubConnectionsQuery,
+  OperationGithubRepositoriesQuery,
+} from '~/gql/graphql';
 
-export interface IGithubConfig {
-  _id: string;
-  teamId: string;
-  repoName: string;
-  installationId: number;
-  syncMode: 'oneWay' | 'twoWay';
-}
+export type IGithubConnection = NonNullable<
+  OperationGithubConnectionsQuery['getGithubConnections']
+>[number];
 
-export interface IGithubRepository {
-  fullName: string;
-  name: string;
-  isPrivate: boolean;
-}
+export type IGithubConfig = NonNullable<
+  OperationGithubConfigByTeamQuery['getAllGithubConfigs']
+>[number];
+
+export type IGithubRepository = NonNullable<
+  NonNullable<OperationGithubRepositoriesQuery['getGithubRepositories']>[number]
+>;
 
 export interface LinkRepoDialogProps {
   open: boolean;

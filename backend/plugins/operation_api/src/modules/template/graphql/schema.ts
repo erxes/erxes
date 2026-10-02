@@ -1,19 +1,19 @@
 
 export const types = `
   type OperationTemplate {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
     defaults: JSON
-    teamId: String
+    teamId: String!
     createdBy: String
-    createdAt: Date
-    updatedAt: Date
+    createdAt: Date!
+    updatedAt: Date!
   }
 `;
 
 export const queries = `
   operationTemplates(teamId: String): [OperationTemplate]
-  operationTemplateDetail(_id: String): OperationTemplate
+  operationTemplateDetail(_id: String!): OperationTemplate
 `;
 
 export const mutations = `

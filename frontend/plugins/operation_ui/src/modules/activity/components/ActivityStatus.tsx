@@ -27,25 +27,28 @@ export const ActivityStatus = ({
   metadata: IActivity['metadata'];
 }) => {
   const { t } = useTranslation('operation');
-  const { previousValue, newValue } = metadata;
+  const { previousValue, newValue } = metadata ?? {};
   const contentDetail = useActivityListContext();
 
   const { statuses } = useGetStatusByTeam({
-    variables: { teamId: isTask(contentDetail) ? contentDetail.teamId : '' },
-    skip: !isTask(contentDetail),
+    variables:
+      isTask(contentDetail) && contentDetail.teamId
+        ? { teamId: contentDetail.teamId }
+        : undefined,
+    skip: !isTask(contentDetail) || !contentDetail.teamId,
   });
 
-  const getTaskStatus = (value?: string) => {
+  const getTaskStatus = (value?: string | null) => {
     return statuses?.find((status) => status.value === value);
   };
 
-  const renderStatusBadge = (value?: string) => {
+  const renderStatusBadge = (value?: string | null) => {
     if (isTask(contentDetail)) {
       const status = getTaskStatus(value);
       return (
         <Badge variant="secondary" className="capitalize">
           <StatusInlineIcon
-            statusType={status?.type as number}
+            statusType={status?.type}
             color={status?.color}
           />
           {status?.label}

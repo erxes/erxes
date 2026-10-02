@@ -34,7 +34,7 @@ export const ActivityTeam = ({
     );
   };
 
-  const { previousValue, newValue } = metadata;
+  const { previousValue, newValue } = metadata ?? {};
 
   const previousTeam = teams?.find((team) => team._id === previousValue);
   const newTeam = teams?.find((team) => team._id === newValue);
@@ -44,7 +44,7 @@ export const ActivityTeam = ({
       {t('changed-team-to')}
       <Badge variant="secondary" className="flex-none">
         <IconComponent name={newTeam?.icon ?? undefined} className="size-4" />
-        {renderTeamValue([newValue])}
+        {renderTeamValue(newValue ? [newValue] : [])}
       </Badge>
       {t('from')}
       <Badge variant="secondary" className="flex-none">

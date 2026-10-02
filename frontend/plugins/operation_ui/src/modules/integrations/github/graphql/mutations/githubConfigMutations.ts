@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPSERT_GITHUB_CONFIG = gql`
+export const UPSERT_GITHUB_CONFIG = gql(`
   mutation operationGithubUpsertConfig(
     $teamId: String!
     $repoName: String!
@@ -20,12 +20,12 @@ export const UPSERT_GITHUB_CONFIG = gql`
       syncMode
     }
   }
-`;
+`);
 
-export const DISCONNECT_GITHUB_TEAM = gql`
+export const DISCONNECT_GITHUB_TEAM = gql(`
   mutation operationGithubDisconnectTeam($teamId: String!) {
     operationGithubDisconnectTeam(teamId: $teamId) {
       success
     }
   }
-`;
+`);

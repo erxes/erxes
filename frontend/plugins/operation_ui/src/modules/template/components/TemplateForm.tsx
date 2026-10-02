@@ -17,6 +17,8 @@ import {
 } from '../graphql/mutations';
 import { useState } from 'react';
 import { Block } from '@blocknote/core';
+import { IOperationTemplate } from '../types';
+import { isRecord } from '@/operation/utils/isRecord';
 
 export const TemplateForm = ({
   teamId,
@@ -25,18 +27,22 @@ export const TemplateForm = ({
   afterSave,
 }: {
   teamId?: string;
-  template?: any;
+  template?: Pick<IOperationTemplate, '_id' | 'name' | 'defaults'>;
   onCancel?: () => void;
   afterSave?: () => void;
 }) => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
   
-  const [descriptionContent, setDescriptionContent] = useState<Block[] | undefined>(
-    template?.defaults?.description
+  const initialDescription =
+    isRecord(template?.defaults) &&
+    typeof template.defaults.description === 'string'
       ? JSON.parse(template.defaults.description)
-      : undefined
-  );
+      : undefined;
+
+  const [descriptionContent, setDescriptionContent] = useState<
+    Block[] | undefined
+  >(initialDescription);
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
@@ -46,7 +52,10 @@ export const TemplateForm = ({
     defaultValues: {
       teamId: teamId || '',
       name: template?.name || '',
-      taskName: template?.defaults?.name || '',
+      taskName:
+        isRecord(template?.defaults) && typeof template.defaults.name === 'string'
+          ? template.defaults.name
+          : '',
     },
   });
 
@@ -64,7 +73,11 @@ export const TemplateForm = ({
     }
   };
 
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: {
+    name: string;
+    taskName: string;
+    teamId: string;
+  }) => {
     const { name, taskName } = values;
 
     const defaults = {
@@ -87,8 +100,8 @@ export const TemplateForm = ({
         .catch((e) => {
           toast({ title: t('error'), description: e.message, variant: 'destructive' });
         });
-    } else {
-      addMutation({ variables })
+    } else if (teamId) {
+      addMutation({ variables: { name, teamId, defaults } })
         .then(() => {
           toast({ title: t('template-created') });
           afterSave?.();
