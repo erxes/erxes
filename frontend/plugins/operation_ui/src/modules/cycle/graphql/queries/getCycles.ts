@@ -31,32 +31,32 @@ export const GET_CYCLES = gql`
         isCompleted
         isActive
         statistics {
-        progress {
-          totalScope
-          totalStartedScope
-          totalCompletedScope
-        }
-        progressByMember {
-          assigneeId
-          totalScope
-          totalStartedScope
-          totalCompletedScope
-        }
-        progressByProject {
-          projectId
-          totalScope
-          totalStartedScope
-          totalCompletedScope
-        }
-        chartData {
-          totalScope
+          progress {
+            totalScope
+            totalStartedScope
+            totalCompletedScope
+          }
+          progressByMember {
+            assigneeId
+            totalScope
+            totalStartedScope
+            totalCompletedScope
+          }
+          progressByProject {
+            projectId
+            totalScope
+            totalStartedScope
+            totalCompletedScope
+          }
           chartData {
-            date
-            started
-            completed
+            totalScope
+            chartData {
+              date
+              started
+              completed
+            }
           }
         }
-      }
         donePercent
         unFinishedTasks
       }

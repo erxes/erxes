@@ -42,7 +42,9 @@ export const CycleProgress = ({
   const { t } = useTranslation('operation');
   const [assignee] = useQueryState<string>('assignee');
 
-  const { cycleProgress } = useGetCycleProgress(isCompleted ? undefined : cycleId);
+  const { cycleProgress } = useGetCycleProgress(
+    isCompleted ? undefined : cycleId,
+  );
 
   let progress = cycleProgress || statistics?.progress;
 
@@ -61,14 +63,18 @@ export const CycleProgress = ({
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="total" />
-          <p className="text-xs font-medium text-muted-foreground">{t('total-colon')}</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t('total-colon')}
+          </p>
         </span>
         <p className="text-xs font-medium">{progress?.totalScope || 0}</p>
       </span>
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="started" />
-          <p className="text-xs font-medium text-muted-foreground">{t('started-colon')}</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t('started-colon')}
+          </p>
         </span>
         <p className="text-xs font-medium">
           {progress?.totalStartedScope || 0}
