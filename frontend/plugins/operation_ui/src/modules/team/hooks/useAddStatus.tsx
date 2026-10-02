@@ -8,16 +8,12 @@ import type {
   AddStatusMutationVariables,
 } from '~/gql/graphql';
 
-
 export const useAddStatus = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_addStatus, { loading, error }] = useMutation(ADD_STATUS);
   const addStatus = (
-    options: MutationHookOptions<
-      AddStatusMutation,
-      AddStatusMutationVariables
-    >,
+    options: MutationHookOptions<AddStatusMutation, AddStatusMutationVariables>,
   ) => {
     return _addStatus({
       update: (cache, { data }) => {

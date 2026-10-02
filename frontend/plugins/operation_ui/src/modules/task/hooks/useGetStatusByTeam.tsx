@@ -7,7 +7,10 @@ import {
 } from '~/gql/graphql';
 
 export const useGetStatusByTeam = (
-  options: QueryHookOptions<GetStatusByTeamQuery, GetStatusByTeamQueryVariables>,
+  options: QueryHookOptions<
+    GetStatusByTeamQuery,
+    GetStatusByTeamQueryVariables
+  >,
 ) => {
   const { data, loading, error } = useQuery(GET_STATUS_BY_TEAM, options);
 

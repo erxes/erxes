@@ -109,7 +109,10 @@ const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex gap-2 items-center">
         {selectedTeams.map((team) => (
           <Badge key={team._id} variant="secondary">
-            <IconComponent name={team.icon ?? undefined} className="size-4 shrink-0" />
+            <IconComponent
+              name={team.icon ?? undefined}
+              className="size-4 shrink-0"
+            />
             <TextOverflowTooltip value={team.name ?? ''} className="max-w-32" />
           </Badge>
         ))}

@@ -7,9 +7,15 @@ import {
 } from '~/gql/graphql';
 
 export const useGetEstimateChoiceByTeam = (
-  options: QueryHookOptions<EstimateChoisesQuery, EstimateChoisesQueryVariables>,
+  options: QueryHookOptions<
+    EstimateChoisesQuery,
+    EstimateChoisesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery(GET_ESTIMATE_CHOICE_BY_TEAM, options);
+  const { data, loading, error } = useQuery(
+    GET_ESTIMATE_CHOICE_BY_TEAM,
+    options,
+  );
 
   return {
     estimateChoices: compactList(data?.getTeamEstimateChoises),

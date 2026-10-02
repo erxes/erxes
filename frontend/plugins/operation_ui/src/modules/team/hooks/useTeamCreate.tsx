@@ -7,10 +7,7 @@ export const useTeamCreate = () => {
   const [addTeam, { loading, error }] = useMutation(ADD_TEAM);
 
   const handleAddTeam = (
-    options: MutationFunctionOptions<
-      TeamAddMutation,
-      TeamAddMutationVariables
-    >,
+    options: MutationFunctionOptions<TeamAddMutation, TeamAddMutationVariables>,
   ) => {
     addTeam({
       ...options,

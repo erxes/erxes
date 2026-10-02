@@ -1,4 +1,12 @@
-import { PopoverScoped, Combobox, Command, Filter, useQueryState, useFilterContext, cn } from 'erxes-ui';
+import {
+  PopoverScoped,
+  Combobox,
+  Command,
+  Filter,
+  useQueryState,
+  useFilterContext,
+  cn,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
 import { ICycle } from '@/cycle/types';
@@ -30,7 +38,6 @@ const CYCLE_FILTER_OPTIONS: ITaskCycle[] = [
   {
     value: 'noCycle',
     label: 'No Cycle',
-
   },
   {
     value: 'anyPastCycle',
@@ -230,14 +237,14 @@ const SelectCycleProvider = ({
   );
 };
 
-const SelectCycleRootContent = ({ 
-  open, 
-  setOpen, 
-  variant 
-}: { 
-  open: boolean; 
-  setOpen: (open: boolean) => void; 
-  variant: `${SelectTriggerVariant}`; 
+const SelectCycleRootContent = ({
+  open,
+  setOpen,
+  variant,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  variant: `${SelectTriggerVariant}`;
 }) => {
   const { isCompleted } = useSelectCycleContext();
 
@@ -284,11 +291,7 @@ const SelectCycleRoot = ({
       teamId={teamId}
       taskId={taskId}
     >
-      <SelectCycleRootContent 
-        open={open} 
-        setOpen={setOpen} 
-        variant={variant} 
-      />
+      <SelectCycleRootContent open={open} setOpen={setOpen} variant={variant} />
     </SelectCycleProvider>
   );
 };
@@ -331,7 +334,9 @@ const SelectCycleFilterValue = () => {
   const { t } = useTranslation('operation');
   const { value } = useSelectCycleContext();
 
-  const selectedOption = CYCLE_FILTER_OPTIONS.find((opt) => opt.value === value);
+  const selectedOption = CYCLE_FILTER_OPTIONS.find(
+    (opt) => opt.value === value,
+  );
 
   return (
     <div className="flex items-center gap-2">
@@ -344,7 +349,8 @@ const SelectCycleFilterValue = () => {
 };
 
 export const SelectCycleFilterView = () => {
-  const [cycleFilter, setCycleFilter] = useQueryState<CycleFilterType>('cycleFilter');
+  const [cycleFilter, setCycleFilter] =
+    useQueryState<CycleFilterType>('cycleFilter');
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -364,7 +370,8 @@ export const SelectCycleFilterView = () => {
 };
 
 export const SelectCycleFilterBar = () => {
-  const [cycleFilter, setCycleFilter] = useQueryState<CycleFilterType>('cycleFilter');
+  const [cycleFilter, setCycleFilter] =
+    useQueryState<CycleFilterType>('cycleFilter');
   const [open, setOpen] = useState(false);
 
   return (
