@@ -21,6 +21,7 @@ export interface ISendMailInput {
   bcc?: string[];
   subject: string;
   html: string;
+  reactionEmoji?: string;
   inReplyTo?: string;
   references?: string[];
   attachments?: ISendMailAttachment[];
