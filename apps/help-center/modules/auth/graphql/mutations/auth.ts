@@ -25,6 +25,39 @@ export const AUTH_PORTAL_REGISTER = gql`
   }
 `;
 
+export const AUTH_PORTAL_USER_EDIT = gql`
+  mutation authPortalUserEdit(
+    $firstName: String
+    $lastName: String
+    $username: String
+    $email: String
+    $phone: String
+    $avatar: String
+    $companyName: String
+  ) {
+    clientPortalUserEdit(
+      firstName: $firstName
+      lastName: $lastName
+      username: $username
+      email: $email
+      phone: $phone
+      avatar: $avatar
+      companyName: $companyName
+    ) {
+      _id
+      email
+      phone
+      firstName
+      lastName
+      username
+      avatar
+      companyName
+      isVerified
+      erxesCustomerId
+    }
+  }
+`;
+
 export const AUTH_PORTAL_CUSTOMER_EDIT = gql`
   mutation authPortalCustomerEdit(
     $firstName: String
@@ -41,6 +74,20 @@ export const AUTH_PORTAL_CUSTOMER_EDIT = gql`
       lastName
       primaryEmail
       primaryPhone
+    }
+  }
+`;
+
+export const AUTH_PORTAL_CHANGE_PASSWORD = gql`
+  mutation authPortalChangePassword(
+    $currentPassword: String!
+    $newPassword: String!
+  ) {
+    clientPortalUserChangePassword(
+      currentPassword: $currentPassword
+      newPassword: $newPassword
+    ) {
+      _id
     }
   }
 `;

@@ -1,7 +1,6 @@
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal, IProductData } from '~/modules/sales/@types';
-import { PROBABILITY } from '~/modules/sales/constants';
 import { getCompanyIds, getCustomerIds } from '~/modules/sales/utils';
 import {
   applyDiscountInfo,
@@ -12,15 +11,6 @@ import {
 const createBonusProductDataId = (productId: string) => {
   return `${productId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 };
-
-function toPlainDeal(deal: IDeal): IDeal;
-function toPlainDeal(deal?: IDeal): IDeal | undefined;
-function toPlainDeal(deal?: IDeal) {
-  const maybeDocument = deal as
-    | (IDeal & { toObject?: () => IDeal })
-    | undefined;
-  return maybeDocument?.toObject?.() || maybeDocument;
-}
 
 export const checkLoyalties = async (
   subdomain: string,
@@ -188,7 +178,7 @@ export const checkPricing = async (
         quantity: bonusProductsToAdd[bonusProductId].count,
         amount: 0,
         tickUsed: true,
-      }) as IProductData,
+      } as IProductData),
   );
 
   return [
@@ -230,106 +220,4 @@ export const confirmLoyalties = async (
     },
     defaultValue: null,
   });
-};
-
-// The record loyalty ties these points to.
-const DEAL_TARGET_TYPE = 'sales:sales.deals';
-
-const pointPaymentCampaigns = (pipeline?: { paymentTypes?: any[] } | null) =>
-  new Map<string, string>(
-    (pipeline?.paymentTypes || [])
-      .filter(({ scoreCampaignId }) => !!scoreCampaignId)
-      .map(({ type, scoreCampaignId }) => [type, scoreCampaignId]),
-  );
-
-/**
- * Tells loyalty what this deal paid with points, and takes everything back
- * when the deal is lost. Earning is not decided here: automations do it.
- */
-export const syncDealPoints = async ({
-  subdomain,
-  models,
-  dealId,
-  deal,
-  oldDeal,
-  userId,
-}: {
-  subdomain: string;
-  models: IModels;
-  dealId: string;
-  deal: IDeal;
-  oldDeal?: IDeal;
-  userId?: string;
-}) => {
-  if (!deal?.stageId) {
-    return;
-  }
-
-  const current = toPlainDeal(deal);
-  const previous = toPlainDeal(oldDeal);
-  const stage = await models.Stages.findOne({ _id: current.stageId }).lean();
-
-  if (
-    stage?.probability === PROBABILITY.LOST &&
-    previous?.stageId !== current.stageId
-  ) {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      method: 'mutation',
-      module: 'score',
-      action: 'refund',
-      input: { targetId: dealId, description: 'Deal lost', actorId: userId },
-      defaultValue: null,
-    });
-
-    return;
-  }
-
-  const pipeline = stage
-    ? await models.Pipelines.findOne({ _id: stage.pipelineId }).lean()
-    : null;
-  const campaigns = pointPaymentCampaigns(pipeline);
-
-  if (!campaigns.size) {
-    return;
-  }
-
-  const [customerId] = (await getCustomerIds(subdomain, dealId)) || [];
-
-  if (!customerId) {
-    return;
-  }
-
-  const amountOf = (target: IDeal | undefined, type: string) =>
-    Number(target?.paymentsData?.[type]?.amount) || 0;
-  const totalAmount = Number(current.totalAmount) || 0;
-
-  for (const [type, campaignId] of campaigns) {
-    const pointsPaymentAmount = amountOf(current, type);
-
-    // Unchanged payments were already recorded.
-    if (previous && pointsPaymentAmount === amountOf(previous, type)) {
-      continue;
-    }
-
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      method: 'mutation',
-      module: 'score',
-      action: 'spend',
-      input: {
-        ownerType: 'customer',
-        ownerId: customerId,
-        campaignId,
-        targetId: dealId,
-        targetType: DEAL_TARGET_TYPE,
-        serviceName: 'sales',
-        pointsPaymentAmount,
-        totalAmount,
-        actorId: userId,
-      },
-    });
-  }
 };

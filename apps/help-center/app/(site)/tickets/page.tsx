@@ -1,44 +1,52 @@
 import Link from 'next/link';
 import { SessionLink } from '@/modules/auth/components/SessionLink';
+import { getT } from '@/modules/i18n/server';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
 import { getPortalSettings } from '@/modules/layout/api';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { MyTickets } from '@/modules/tickets/components/MyTickets';
 import {
-  NEW_TICKET_REASON,
   NEW_TICKET_ROUTE,
-  TICKETS_OFF_REASON,
-  TICKETS_OFF_TITLE,
+  ticketsOffReason,
 } from '@/modules/tickets/constants/guard';
 import { buttonClass } from '@/modules/ui/components/Button';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { Icon } from '@/modules/ui/components/Icon';
 
-export const metadata = { title: 'Support portal' };
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.portalTitle'),
+});
 
 export default async function TicketsPage() {
-  const settings = await getPortalSettings();
+  const [settings, t] = await Promise.all([getPortalSettings(), getT()]);
 
   return (
     <PortalShell
-      breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Support' }]}
-      title="Support portal"
-      description="Raise a ticket, track an existing one and follow the replies."
+      breadcrumbs={[
+        { label: t('nav.home'), href: '/' },
+        { label: t('tickets.crumb') },
+      ]}
+      title={t('tickets.portalTitle')}
+      description={t('tickets.portalText')}
     >
       {!settings.ticketsEnabled ? (
         <FeatureOff
-          title={TICKETS_OFF_TITLE}
-          description={TICKETS_OFF_REASON}
+          title={t('tickets.offTitle')}
+          description={ticketsOffReason(
+            knowledgeBaseName(settings.knowledgeBaseLabel, t),
+            t,
+          )}
         />
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2.5 rounded-2xl bg-white px-4 py-3 shadow-shell">
             <SessionLink
               href={NEW_TICKET_ROUTE}
-              reason={NEW_TICKET_REASON}
+              reason={t('tickets.signInReason')}
               className={buttonClass({ size: 'sm' })}
             >
               <Icon name="plus" size={16} />
-              New ticket
+              {t('tickets.newShort')}
             </SessionLink>
 
             <Link
@@ -46,11 +54,11 @@ export default async function TicketsPage() {
               className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle hover:text-ink focus-visible:bg-subtle"
             >
               <Icon name="binoculars" size={16} />
-              Track by number
+              {t('tickets.trackByNumber')}
             </Link>
 
             <span className="ml-auto hidden text-[13px] text-muted-foreground sm:block">
-              Replies arrive by email and show up here.
+              {t('tickets.repliesByEmail')}
             </span>
           </div>
 
@@ -59,7 +67,7 @@ export default async function TicketsPage() {
               id="my-tickets"
               className="text-[17px] font-semibold tracking-[-0.01em] text-ink"
             >
-              My tickets
+              {t('tickets.mine')}
             </h2>
 
             <div className="mt-4">

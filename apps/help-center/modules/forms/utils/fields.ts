@@ -1,3 +1,4 @@
+import type { Translate } from '@/modules/i18n/translate';
 import { z } from 'zod';
 import type {
   FormAttachment,
@@ -60,8 +61,8 @@ const MULTI: FieldKind[] = ['check', 'multiSelect'];
 export const fieldOptions = (field: FormField): string[] =>
   (field.options ?? []).filter(Boolean);
 
-export const fieldLabel = (field: FormField): string =>
-  field.text?.trim() || 'Question';
+export const fieldLabel = (field: FormField, t: Translate): string =>
+  field.text?.trim() || t('forms.question');
 
 export const fieldDescription = (field: FormField): string =>
   field.description?.trim() ?? '';
@@ -93,7 +94,11 @@ const asList = (entry: FormValue): unknown[] =>
 const PHONE = /^\d{8,}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const issueFor = (field: FormField, entry: FormValue): string | null => {
+const issueFor = (
+  field: FormField,
+  entry: FormValue,
+  t: Translate,
+): string | null => {
   const kind = fieldKind(field);
   const empty =
     MULTI.includes(kind) || kind === 'file'
@@ -102,8 +107,8 @@ const issueFor = (field: FormField, entry: FormValue): string | null => {
 
   if (field.isRequired && empty) {
     return MULTI.includes(kind) || kind === 'file'
-      ? 'Please choose at least one option.'
-      : 'Please fill in this field.';
+      ? t('forms.chooseOne')
+      : t('forms.fillField');
   }
 
   if (empty) {
@@ -113,24 +118,24 @@ const issueFor = (field: FormField, entry: FormValue): string | null => {
   const text = asText(entry);
 
   if (kind === 'email' && !EMAIL.test(text)) {
-    return 'Please enter a valid email address.';
+    return t('validation.emailRequired');
   }
 
   if (kind === 'phone' && !PHONE.test(text.replace(/[\s()+-.]|ext/gi, ''))) {
-    return 'The phone number must have at least 8 digits.';
+    return t('forms.phoneDigits');
   }
 
   if (kind === 'number' && Number.isNaN(Number(text))) {
-    return 'Please enter digits only.';
+    return t('forms.digitsOnly');
   }
 
   return null;
 };
 
-export const formSchema = (fields: FormField[]) =>
+export const formSchema = (fields: FormField[], t: Translate) =>
   z.record(z.string(), value).superRefine((values, ctx) => {
     for (const field of fields.filter(isAnswerable)) {
-      const issue = issueFor(field, values[field._id] ?? '');
+      const issue = issueFor(field, values[field._id] ?? '', t);
 
       if (issue) {
         ctx.addIssue({

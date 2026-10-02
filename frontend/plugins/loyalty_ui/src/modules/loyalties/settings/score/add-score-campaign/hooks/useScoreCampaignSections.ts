@@ -4,13 +4,11 @@ import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 
 export type TScoreCampaignSection =
   | 'general'
-  | 'source'
   | 'products'
   | 'automations';
 
 export const SCORE_CAMPAIGN_SECTIONS: TScoreCampaignSection[] = [
   'general',
-  'source',
   'products',
   'automations',
 ];
@@ -30,8 +28,6 @@ const SECTION_HAS_ERROR: Record<
       errors.add ||
       errors.subtract
     ),
-  source: (errors) =>
-    !!(errors.conditions?.serviceName || errors.additionalConfig),
   products: (errors) =>
     !!(
       errors.conditions?.productCategoryIds ||
@@ -39,7 +35,8 @@ const SECTION_HAS_ERROR: Record<
       errors.conditions?.tagIds ||
       errors.conditions?.excludeProductCategoryIds ||
       errors.conditions?.excludeProductIds ||
-      errors.conditions?.excludeTagIds
+      errors.conditions?.excludeTagIds ||
+      errors.additionalConfig
     ),
   automations: () => false,
 };

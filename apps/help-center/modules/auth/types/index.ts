@@ -1,5 +1,7 @@
 import type { SessionUser } from '../utils/session';
 
+export type AuthMethod = 'EMAIL' | 'PHONE' | 'SOCIAL';
+
 export type CurrentUser = {
   _id: string;
   email: string | null;
@@ -7,12 +9,26 @@ export type CurrentUser = {
   firstName: string | null;
   lastName: string | null;
   username: string | null;
+  avatar: string | null;
+  companyName: string | null;
   isVerified: boolean;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  primaryAuthMethod: AuthMethod | null;
+  lastLoginAt: string | null;
   erxesCustomerId: string | null;
 };
 
 export type CurrentUserResponse = {
   clientPortalCurrentUser: CurrentUser | null;
+};
+
+export type UserEditResponse = {
+  clientPortalUserEdit: CurrentUser | null;
+};
+
+export type ChangePasswordResponse = {
+  clientPortalUserChangePassword: { _id: string } | null;
 };
 
 export type RegisterResponse = {
@@ -56,6 +72,7 @@ export const sessionFromCurrentUser = (
   name: displayName(user),
   email: user.email ?? fallbackEmail,
   ...(user.phone ? { phone: user.phone } : {}),
+  ...(user.avatar ? { avatar: user.avatar } : {}),
   ...(user.erxesCustomerId ? { customerId: user.erxesCustomerId } : {}),
   cpUserId: user._id,
 });

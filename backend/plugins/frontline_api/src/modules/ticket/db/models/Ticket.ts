@@ -11,6 +11,10 @@ import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
+import {
+  isClosingStatus,
+  notifyTicketOwner,
+} from '@/ticket/utils/cpNotifications';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface ITicketModel extends Model<ITicketDocument> {
@@ -172,10 +176,13 @@ export const loadTicketClass = (
         });
       }
 
+      let movedTo: { name: string; type: number } | null = null;
+
       if (doc.statusId && doc.statusId !== ticket.statusId) {
         rest.statusChangedDate = new Date();
         const status = await models.Status.getStatus(doc.statusId || '');
         rest.statusType = status.type;
+        movedTo = { name: status.name, type: status.type };
       }
 
       if (doc.pipelineId && doc.pipelineId !== ticket.pipelineId) {
@@ -264,6 +271,17 @@ export const loadTicketClass = (
           action: 'updated',
         });
       }
+      if (detail && movedTo) {
+        await notifyTicketOwner(subdomain, {
+          ticket,
+          eventType: 'ticketStatusChanged',
+          title: 'Your ticket was updated',
+          message: `${ticket.name || 'Your ticket'} is now ${movedTo.name}.`,
+          type: isClosingStatus(movedTo.type) ? 'success' : 'info',
+          actorId: userId,
+        });
+      }
+
       if (detail) {
         sendDbEventLog?.({
           action: 'update',

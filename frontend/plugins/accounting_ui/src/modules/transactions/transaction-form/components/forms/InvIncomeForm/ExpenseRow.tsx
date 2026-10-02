@@ -137,7 +137,7 @@ export const ExpenseRow = ({
       )}
     >
       <Table.Cell
-        className={cn('overflow-hidden', {
+        className={cn('w-8 overflow-hidden', {
           'rounded-tl-lg border-t': expenseIndex === 0,
           'rounded-bl-lg': expenseIndex === expenses.length - 1,
         })}

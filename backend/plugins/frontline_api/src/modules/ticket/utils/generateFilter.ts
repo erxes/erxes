@@ -4,69 +4,24 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
-
-const startOfToday = () => {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  return start;
-};
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
+import {
+  IVisibilityPipeline,
+  buildVisibilityCondition,
+  canSeeAllPipelineTickets,
+  getSupervisedDepartmentIds,
+  isPipelineRestricted,
+} from '@/ticket/utils/ticketVisibility';
 
 const isPipelineHidden = (pipeline: any, userId?: string) =>
   pipeline.visibility === 'private' &&
   !(!!userId && (pipeline.memberIds || []).includes(userId));
 
-const buildVisibilityCondition = (
-  pipeline: any,
-  user: IUserDocument | undefined,
-): FilterQuery<ITicketDocument> | null => {
-  const userId = user?._id;
-
-  if (!userId) {
-    return null;
-  }
-
-  const conditions: FilterQuery<ITicketDocument>[] = [];
-
-  if (
-    pipeline.isCheckUser &&
-    !(pipeline.excludeCheckUserIds || []).includes(userId)
-  ) {
-    conditions.push({
-      $or: [
-        { assigneeId: userId },
-        { createdBy: userId },
-        { subscribedUserIds: userId },
-        {
-          assigneeId: { $in: [null, ''] },
-          'subscribedUserIds.0': { $exists: false },
-        },
-      ],
-    });
-  }
-
-  if (pipeline.isCheckBranch) {
-    conditions.push({ branchId: { $in: user?.branchIds || [] } });
-  }
-
-  if (pipeline.isCheckDepartment) {
-    conditions.push({ departmentId: { $in: user?.departmentIds || [] } });
-  }
-
-  if (pipeline.isCheckDate) {
-    conditions.push({ createdAt: { $gte: startOfToday() } });
-  }
-
-  if (!conditions.length) {
-    return null;
-  }
-
-  return conditions.length === 1 ? conditions[0] : { $and: conditions };
-};
-
 export const generateFilter = async (
   filter: any,
   user: IUserDocument | undefined,
   models: IModels,
+  subdomain?: string,
 ) => {
   const {
     segmentIds,
@@ -87,6 +42,30 @@ export const generateFilter = async (
 
   const userId = user?._id;
 
+  let supervisedDepartmentIds: string[] | undefined;
+
+  const visibilityFor = async (pipeline: IVisibilityPipeline) => {
+    if (
+      subdomain &&
+      user &&
+      supervisedDepartmentIds === undefined &&
+      pipeline.isCheckDepartment &&
+      isPipelineRestricted(pipeline) &&
+      !canSeeAllPipelineTickets(pipeline, user)
+    ) {
+      supervisedDepartmentIds = await getSupervisedDepartmentIds(
+        subdomain,
+        user._id,
+      );
+    }
+
+    return buildVisibilityCondition(
+      pipeline,
+      user,
+      supervisedDepartmentIds || [],
+    );
+  };
+
   if (filter.pipelineId) {
     const pipeline = await models.Pipeline.findOne({
       _id: filter.pipelineId,
@@ -102,31 +81,7 @@ export const generateFilter = async (
       );
     }
 
-    if (pipeline.isCheckDepartment && pipeline.departmentIds?.length) {
-      const userDeptIds = user?.departmentIds || [];
-      const hasAccess = pipeline.departmentIds.some((id) =>
-        userDeptIds.includes(id),
-      );
-      if (!hasAccess) {
-        throw new Error(
-          'Access denied: You do not belong to the required department for this pipeline',
-        );
-      }
-    }
-
-    if (pipeline.isCheckBranch && pipeline.branchIds?.length) {
-      const userBranchIds = user?.branchIds || [];
-      const hasAccess = pipeline.branchIds.some((id) =>
-        userBranchIds.includes(id),
-      );
-      if (!hasAccess) {
-        throw new Error(
-          'Access denied: You do not belong to the required branch for this pipeline',
-        );
-      }
-    }
-
-    const visibilityCondition = buildVisibilityCondition(pipeline, user);
+    const visibilityCondition = await visibilityFor(pipeline);
 
     if (visibilityCondition) {
       andConditions.push(visibilityCondition);
@@ -146,7 +101,7 @@ export const generateFilter = async (
         continue;
       }
 
-      const visibilityCondition = buildVisibilityCondition(pipeline, user);
+      const visibilityCondition = await visibilityFor(pipeline);
 
       if (visibilityCondition) {
         restrictedPipelineIds.push(pipeline._id);
@@ -241,6 +196,18 @@ export const generateFilter = async (
 
   if (filter.assigneeId) {
     filterQuery.assigneeId = filter.assigneeId;
+  }
+
+  if (filter.branchIds?.length) {
+    filterQuery.branchId = { $in: filter.branchIds };
+  }
+
+  if (filter.departmentIds?.length) {
+    filterQuery.departmentId = { $in: filter.departmentIds };
+  }
+
+  if (filter.propertiesData) {
+    andConditions.push(...buildPropertyFilter(filter.propertiesData));
   }
 
   if (filter.channelId) filterQuery.channelId = filter.channelId;

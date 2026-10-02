@@ -87,6 +87,12 @@
 
 ## Current Capabilities
 
+- Every colour field in the help center drawer and the knowledge base topic
+  drawer carries a **Default** reset beside its label, showing the colour it
+  would return to and hidden while the field already holds it. The help center
+  reads each default from `DEFAULT_HELP_CENTER_STYLES`, so a colour changed by
+  hand is always one click from what a new help center ships with.
+
 - The automations widget answers built-in template prerequisites: the
   `templateRequirement` component type resolves `frontline:tickets.status` by
   reusing `TicketStatusPropertyInput`, which asks for the channel, pipeline and
@@ -370,6 +376,17 @@
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
+- The inbox composer is note-only (Reply tab disabled, Internal Note selected)
+  for `lead`, `calls` and `callpro` conversations — those channels cannot carry
+  an outbound reply. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
+  `MessageInput.tsx`.
+- The ticket list/board filter offers Branch and Department multi-selects
+  (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
+  `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
+  as `ITicketFilter.branchIds` / `departmentIds`.
+- The same filter carries the shared `PropertiesFilter` from `ui-modules`
+  scoped to `frontline:ticket`; its `propertiesData` query param is sent
+  unchanged as `ITicketFilter.propertiesData`.
 - Ticket tag selection (board card, detail sheet, create form) shows a single
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
@@ -386,6 +403,15 @@
   immediately and reopens with those filters restored. The default charts are a
   frontend constant and are never modified by saving; a saved card additionally
   carries a delete action.
+- The Ticket List report card's trailing settings icon is the
+  `RecordTable.ColumnSelector`: it toggles, reorders and pins columns for
+  name, number, created, status, state, priority, assigned, created by,
+  channel, pipeline, tags, branch, department, start date, due date, and one
+  read-only column per `frontline:ticket` property field. The choice persists
+  per browser under the `frontline_ticket_report_record_table` table id.
+- The Ticket List card's Excel download exports exactly the columns currently
+  visible in its table, in their on-screen order and with the same headers,
+  including property columns. It is disabled until the table has rendered.
 
 ## Architecture
 
@@ -1057,7 +1083,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   family name; add a face there rather than to a field. Colours use `erxes-ui`'s
   `ColorPicker` — the palette the rest of the product picks from, whose popover
   already carries a hex field; never a native `<input type="color">` — add a style through those
-  rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
+  rather than hand-rolling a field. A colour field pairs the picker with
+  `shared/components/ColorDefaultAction.tsx`, which takes the default it resets to as a prop: the
+  style fields read theirs from `defaultStyleColor(name)` and the topic colour
+  takes the default of the surface it is edited on, because the help center
+  starts a topic colour at `#4f33af` and the topic drawer at `#4F46E5`
+  (`EMPTY_TOPIC.color`). Apollo runs with `addTypename: true`, so a
   cached block carries a `__typename` that `HelpCenterConfigStylesInput`
   rejects: `toHelpCenterConfigInput` strips it in `stripStylesTypename`, and
   every write path — drawer reset and inline edit alike — goes through it. Any
@@ -1424,6 +1455,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   area or an attachment tile.
 - The message input ignores drops while a dialog is open, so a composer dialog
   keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
+- Ticket List report columns live in
+  `report/components/ticket-charts/TicketListColumns.tsx`. Only the columns in
+  `TICKET_LIST_DEFAULT_COLUMNS` start visible; `TicketListColumnDefaults` hides
+  every other column the first time it appears (no stored visibility key) and
+  keeps the `more` column last, because the shared provider appends newly
+  arrived column ids — property fields load asynchronously — after it. The
+  action column id must stay `more` so the selector never lists it, which would
+  let a user hide the selector itself. Property cells read
+  `propertiesData[field._id]` and resolve option labels; they never mutate.
+- Ticket List export columns are built by `useTicketExportColumns` from the
+  `{id, header}` list `TicketListColumnDefaults` reports upward. Each non-
+  property column id needs an entry in `TICKET_EXPORT_VALUES` reading the
+  `reportTicketExport` row, or it is silently left out of the file; property
+  columns reuse `toPropertyText` so the sheet matches the cell text.
 - The ticket KPI row derives its total by summing **every** row
   `reportTicketPriority` returns, including the `priority: 0` one, so it shows
   the real ticket count. Only rows with `priority > 0` become cards — the

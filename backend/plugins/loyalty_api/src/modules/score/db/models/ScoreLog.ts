@@ -78,9 +78,11 @@ const describeScoreChange = ({
     case SCORE_ACTION.SET:
       return `reset ${wallet} ${balance}`;
     default:
+      // A refund's sign tells what it undoes: a payment comes back, an
+      // earning is taken back.
       return change >= 0
-        ? `returned ${points} points to ${wallet} ${balance}`
-        : `took back ${points} points from ${wallet} ${balance}`;
+        ? `returned ${points} points paid with ${wallet} ${balance}`
+        : `took back ${points} points earned in ${wallet} ${balance}`;
   }
 };
 

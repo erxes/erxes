@@ -1,11 +1,11 @@
 import { Fragment, type ReactNode } from 'react';
 import { getPortalSettings } from '../api';
-import { site } from '../constants/site';
+import { getT } from '@/modules/i18n/server';
 import { HeroBand } from './HeroBand';
 import { SearchBar } from './SearchBar';
 
 export const Hero = async ({
-  headline = site.fallbackHeadline,
+  headline: headlineText,
   eyebrow,
   lede,
   searchQuery,
@@ -23,7 +23,8 @@ export const Hero = async ({
   meta?: ReactNode;
   children?: ReactNode;
 }) => {
-  const { header } = await getPortalSettings();
+  const [{ header }, t] = await Promise.all([getPortalSettings(), getT()]);
+  const headline = headlineText ?? t('site.fallbackHeadline');
 
   const words = headline.split(/\s+/).filter(Boolean);
 

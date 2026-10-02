@@ -32,7 +32,6 @@ export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
           status
         }
         fieldId
-        serviceName
         additionalConfig
         restrictions
       }

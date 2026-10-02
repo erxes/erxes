@@ -49,15 +49,35 @@ export interface IEarnTable {
   rows: IEarnRow[];
 }
 
+/** How a row's points came about, kept so they can be explained later. */
+export interface IEarnCalc {
+  valueType: TEarnValueType;
+  value: number;
+  // The tier column the value came from: `all`, a tier key, or `none`.
+  column: string;
+  // Money the row counted, and money per point.
+  amount?: number;
+  ratio?: number;
+  // What a multiplier bonus multiplied.
+  basePoints?: number;
+  // The cap that cut the row's points down.
+  cap?: number;
+  // What one point pays, to show the points as money.
+  pointValue?: number;
+}
+
 export interface IEarnBreakdownItem {
   rowKey: string;
   name: string;
   points: number;
+  calc?: IEarnCalc;
 }
 
 export interface IEarnContext {
   // Money per point of the account type the campaign earns into.
   ratio: number;
+  // Money one point pays, when known.
+  pointValue?: number;
   tier?: string | null;
   totalAmount: number;
   paidAmount: number;

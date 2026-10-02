@@ -7,6 +7,11 @@ import {
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { sendSms } from '../../utils/sms';
 
+const RELATION_CONTENT_TYPES: Record<string, string> = {
+  'sales:sales.deals': 'sales:deal',
+  'frontline:tickets.tickets': 'frontline:ticket',
+};
+
 const stripHtmlToText = (html: string) =>
   html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
@@ -38,8 +43,9 @@ export const executeMessageProAction = async (
       ? resolvedConfig.documentId
       : '';
 
-  const { target } = execution;
+  const { target, triggerType = '' } = execution;
   const itemId = target?._id;
+  const relationContentType = RELATION_CONTENT_TYPES[triggerType];
 
   if (!documentId || !itemId) {
     return buildSkippedAction('no-document-or-target', {
@@ -50,19 +56,21 @@ export const executeMessageProAction = async (
     });
   }
 
-  const customerIds: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: itemId,
-      relatedContentType: 'core:customer',
-    },
-    defaultValue: [],
-  });
+  const customerIds: string[] = relationContentType
+    ? await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'getRelationIds',
+        input: {
+          contentType: relationContentType,
+          contentId: itemId,
+          relatedContentType: 'core:customer',
+        },
+        defaultValue: [],
+      })
+    : [];
 
   let customerPhone = '';
 

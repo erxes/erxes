@@ -42,6 +42,7 @@ export const scoreLogSchema = schemaWrapper(
               rowKey: { type: String },
               name: { type: String },
               points: { type: Number },
+              calc: { type: Object },
             },
             { _id: false },
           ),

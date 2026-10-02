@@ -33,6 +33,32 @@ const logEvent = async (models: IModels, body: ICallProEvent) => {
   }
 };
 
+const createCallProCustomer = async (
+  models: IModels,
+  { integrationId, phoneNumber },
+): Promise<{ customer: ICallProCustomerDocument; created: boolean }> => {
+  try {
+    const customer = await models.CallProCustomers.create({
+      phoneNumber,
+      integrationId,
+    });
+
+    return { customer, created: true };
+  } catch (e) {
+    if (!isDuplicateError(e)) {
+      throw new Error(e.message);
+    }
+
+    const customer = await models.CallProCustomers.findOne({ phoneNumber });
+
+    if (!customer) {
+      throw new Error('Concurrent request: customer duplication');
+    }
+
+    return { customer, created: false };
+  }
+};
+
 const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -40,28 +66,25 @@ const getOrCreateCustomer = async (
 ): Promise<ICallProCustomerDocument> => {
   const existing = await models.CallProCustomers.findOne({ phoneNumber });
 
-  if (existing) {
+  if (existing?.erxesApiId) {
     debugCallPro(
       `Customer found phone=${phoneNumber} erxesApiId=${existing.erxesApiId}`,
     );
     return existing;
   }
 
-  debugCallPro(`Creating customer phone=${phoneNumber}`);
+  debugCallPro(
+    existing
+      ? `Linking core customer phone=${phoneNumber}`
+      : `Creating customer phone=${phoneNumber}`,
+  );
 
-  let customer: ICallProCustomerDocument;
+  const { customer, created } = existing
+    ? { customer: existing, created: false }
+    : await createCallProCustomer(models, { integrationId, phoneNumber });
 
-  try {
-    customer = await models.CallProCustomers.create({
-      phoneNumber,
-      integrationId,
-    });
-  } catch (e) {
-    throw new Error(
-      isDuplicateError(e)
-        ? 'Concurrent request: customer duplication'
-        : e.message,
-    );
+  if (customer.erxesApiId) {
+    return customer;
   }
 
   try {
@@ -83,10 +106,12 @@ const getOrCreateCustomer = async (
     await customer.save();
 
     debugCallPro(
-      `Customer created phone=${phoneNumber} erxesApiId=${customer.erxesApiId}`,
+      `Customer linked phone=${phoneNumber} erxesApiId=${customer.erxesApiId}`,
     );
   } catch (e) {
-    await models.CallProCustomers.deleteOne({ _id: customer._id });
+    if (created) {
+      await models.CallProCustomers.deleteOne({ _id: customer._id });
+    }
     debugCallProError('Failed to create or update customer on core', e.message);
     throw new Error(e.message);
   }
@@ -253,11 +278,11 @@ export const receiveCallProEvent = async (
       content: disp,
       integrationId: inboxIntegration._id,
       owner,
+      callProPhone: numberFrom,
     };
 
     if (hasMultipleCustomers) {
       payload.callProPotentialCustomerIds = potentialCustomerIds;
-      payload.callProPhone = numberFrom;
     } else {
       payload.customerId = customer.erxesApiId;
     }

@@ -6,11 +6,13 @@ import { FormList } from '@/modules/forms/components/FormList';
 import { getTopicArticleList } from '@/modules/knowledge-base/api';
 import type { PortalCategory } from '@/modules/knowledge-base/utils/normalize';
 import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
 import {
   articleEntries,
   sortByReadership,
 } from '@/modules/knowledge-base/utils/selectors';
-import { getPortalIdentity } from '@/modules/layout/api';
+import { getT } from '@/modules/i18n/server';
+import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import {
   HeroStats,
@@ -22,10 +24,7 @@ import {
   type QuickLink,
 } from '@/modules/layout/components/QuickLinks';
 import { MyTickets } from '@/modules/tickets/components/MyTickets';
-import {
-  NEW_TICKET_REASON,
-  NEW_TICKET_ROUTE,
-} from '@/modules/tickets/constants/guard';
+import { NEW_TICKET_ROUTE } from '@/modules/tickets/constants/guard';
 import { BackToTop } from '@/modules/ui/components/BackToTop';
 import { buttonClass, ButtonLink } from '@/modules/ui/components/Button';
 import { Container } from '@/modules/ui/components/Container';
@@ -44,12 +43,17 @@ const CATEGORY_PREVIEW = 5;
 const SUGGESTION_COUNT = 4;
 
 export default async function HomePage() {
-  const [{ title, headline }, topic, announcements, forms] = await Promise.all([
-    getPortalIdentity(),
-    getTopicArticleList(),
-    getAnnouncements(5),
-    getPortalForms(),
-  ]);
+  const [{ title, headline }, settings, topic, announcements, forms, t] =
+    await Promise.all([
+      getPortalIdentity(),
+      getPortalSettings(),
+      getTopicArticleList(),
+      getAnnouncements(5),
+      getPortalForms(),
+      getT(),
+    ]);
+
+  const knowledgeBase = knowledgeBaseName(settings.knowledgeBaseLabel, t);
 
   const knowledgeBaseEnabled =
     topic.state !== 'ready' || topic.data.knowledgeBaseEnabled;
@@ -83,9 +87,21 @@ export default async function HomePage() {
   );
 
   const allStats: HeroStat[] = [
-    { icon: 'book', value: articleCount, label: 'articles' },
-    { icon: 'grid', value: allCategories.length, label: 'categories' },
-    { icon: 'clipboard', value: portalForms.length, label: 'request forms' },
+    {
+      icon: 'book',
+      value: articleCount,
+      label: t('home.statArticles', { count: articleCount }),
+    },
+    {
+      icon: 'grid',
+      value: allCategories.length,
+      label: t('home.statCategories', { count: allCategories.length }),
+    },
+    {
+      icon: 'clipboard',
+      value: portalForms.length,
+      label: t('home.statForms', { count: portalForms.length }),
+    },
   ];
 
   const stats = allStats.filter((stat) => stat.value > 0);
@@ -95,8 +111,8 @@ export default async function HomePage() {
     .map(({ article }) => article.title);
 
   const lede = ticketsEnabled
-    ? 'Search the knowledge base for an answer, or send the support team the details and follow every reply from here.'
-    : 'Search the knowledge base for an answer, or fill in a form and the support team will pick it up from there.';
+    ? t('home.ledeTickets', { kb: knowledgeBase.inline })
+    : t('home.ledeForms', { kb: knowledgeBase.inline });
 
   const showAnnouncements =
     announcements.state !== 'ready' || announcements.data.length > 0;
@@ -106,14 +122,14 @@ export default async function HomePage() {
         {
           href: NEW_TICKET_ROUTE,
           icon: 'ticket' as const,
-          title: 'Submit a ticket',
-          sessionReason: NEW_TICKET_REASON,
+          title: t('tickets.submit'),
+          sessionReason: t('tickets.signInReason'),
           primary: true,
         },
         {
           href: '/tickets/track',
           icon: 'binoculars' as const,
-          title: 'Track a ticket',
+          title: t('tickets.track'),
         },
       ]
     : [];
@@ -137,8 +153,8 @@ export default async function HomePage() {
           {knowledgeBaseEnabled ? (
             <Section
               icon="book"
-              title="Knowledge base"
-              description="Browse answers to common questions, guides, and policies by category."
+              title={knowledgeBase.title}
+              description={t('home.kbDescription')}
               action={
                 topic.state === 'ready' && topic.data.sections.length ? (
                   <ButtonLink
@@ -146,7 +162,7 @@ export default async function HomePage() {
                     size="sm"
                     variant="secondary"
                   >
-                    All categories
+                    {t('kb.allCategories')}
                     <Icon name="chevronRight" size={15} />
                   </ButtonLink>
                 ) : null
@@ -176,15 +192,15 @@ export default async function HomePage() {
               ) : (
                 <EmptyState
                   icon="book"
-                  title="The knowledge base is empty"
-                  description="This topic has no published categories. Add one under Frontline → Knowledge Base."
+                  title={t('kb.empty', { name: knowledgeBase.title })}
+                  description={t('kb.emptyText')}
                   action={
                     <SessionLink
                       href={NEW_TICKET_ROUTE}
-                      reason={NEW_TICKET_REASON}
+                      reason={t('tickets.signInReason')}
                       className={buttonClass({ size: 'sm' })}
                     >
-                      Create a ticket
+                      {t('tickets.create')}
                     </SessionLink>
                   }
                 />
@@ -195,12 +211,12 @@ export default async function HomePage() {
           {portalForms.length ? (
             <Section
               icon="clipboard"
-              title="Forms"
-              description="Fill in a ready-made form to send details to the support team."
+              title={t('nav.forms')}
+              description={t('home.formsDescription')}
               action={
                 portalForms.length > 4 ? (
                   <ButtonLink href="/forms" size="sm" variant="secondary">
-                    All forms
+                    {t('home.allForms')}
                     <Icon name="chevronRight" size={15} />
                   </ButtonLink>
                 ) : null
@@ -213,8 +229,8 @@ export default async function HomePage() {
           {showAnnouncements ? (
             <Section
               icon="megaphone"
-              title="Announcements"
-              description="See the latest notices and updates."
+              title={t('nav.announcements')}
+              description={t('home.announcementsDescription')}
               action={
                 announcements.state === 'ready' && announcements.data.length ? (
                   <ButtonLink
@@ -222,7 +238,7 @@ export default async function HomePage() {
                     size="sm"
                     variant="secondary"
                   >
-                    All
+                    {t('common.all')}
                     <Icon name="chevronRight" size={15} />
                   </ButtonLink>
                 ) : null
@@ -242,11 +258,11 @@ export default async function HomePage() {
 
           <Section
             icon="ticket"
-            title="My tickets"
-            description="Progress and replies on tickets you have raised."
+            title={t('tickets.mine')}
+            description={t('home.ticketsDescription')}
             action={
               <ButtonLink href="/tickets" size="sm" variant="secondary">
-                All
+                {t('common.all')}
                 <Icon name="chevronRight" size={15} />
               </ButtonLink>
             }

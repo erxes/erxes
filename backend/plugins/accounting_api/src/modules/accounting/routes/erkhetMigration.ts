@@ -6,7 +6,11 @@ import {
   FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
 import { JOURNALS } from '../@types/constants';
-import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  IInvSplitDetailInfo,
+  ITransaction,
+  ITrDetail,
+} from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -78,6 +82,12 @@ type TInvIncomeExpense = {
   rule?: 'amount' | 'count' | 'weight';
   amount?: number;
   accountId?: string;
+};
+
+type TInvSplitMigrationInput = {
+  hasSplit?: boolean;
+  productId?: string;
+  ratio?: number;
 };
 
 type TContactResolution = {
@@ -261,6 +271,14 @@ const getCodeMap = (docs: ITransaction[]) => {
       if (detail.productId) {
         productCodes.push(normalizeIdentifierCode(detail.productId));
       }
+      if (
+        detail.followInfos?.invSplit?.hasSplit &&
+        detail.followInfos.invSplit.productId
+      ) {
+        productCodes.push(
+          normalizeIdentifierCode(detail.followInfos.invSplit.productId),
+        );
+      }
       if (detail.followInfos?.currencyDiffAccountId) {
         accountCodes.push(
           normalizeSourceCode(detail.followInfos.currencyDiffAccountId),
@@ -305,6 +323,50 @@ const resolveInvIncomeExpenses = (
   });
 
 export const resolveErkhetInvIncomeExpensesForTest = resolveInvIncomeExpenses;
+
+const resolveInvSplitInfo = (
+  detail: ITrDetail,
+  maps: TReferenceMaps,
+): IInvSplitDetailInfo | undefined => {
+  const value = detail.followInfos?.invSplit as unknown;
+
+  if (value == null) {
+    return undefined;
+  }
+
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Invalid inventory split detail');
+  }
+
+  const splitInfo = value as TInvSplitMigrationInput;
+  if (typeof splitInfo.hasSplit !== 'boolean') {
+    throw new Error('Invalid inventory split detail');
+  }
+  if (!splitInfo.hasSplit) {
+    return { hasSplit: false };
+  }
+
+  const productCode = normalizeIdentifierCode(splitInfo.productId);
+  const ratio = Number(splitInfo.ratio);
+
+  if (!productCode || !Number.isFinite(ratio) || ratio <= 0) {
+    throw new Error('Invalid inventory split detail');
+  }
+  if (normalizeIdentifierCode(detail.productId) === productCode) {
+    throw new Error('Split product must differ from the source product');
+  }
+  if (!maps.productsByCode[productCode]) {
+    throw new Error(`Product not found: ${productCode}`);
+  }
+
+  return {
+    hasSplit: true,
+    productId: maps.productsByCode[productCode],
+    ratio,
+  };
+};
+
+export const resolveErkhetInvSplitInfoForTest = resolveInvSplitInfo;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -675,6 +737,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const currencyDiffAccountCode = normalizeSourceCode(
     detail.followInfos?.currencyDiffAccountId,
   );
+  const invSplit = resolveInvSplitInfo(detail, maps);
 
   // Detail дээр байгаа account/product/fixedAsset/category/branch/department нь
   // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
@@ -734,6 +797,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       currencyDiffAccountId: currencyDiffAccountCode
         ? maps.accountsByCode[currencyDiffAccountCode]
         : detail.followInfos?.currencyDiffAccountId,
+      invSplit,
       accountCode,
       branchCode,
       productCode,
@@ -1000,6 +1064,7 @@ const resolveTransactionFollowInfos = (
   }
 
   const resolvedFollowInfos = { ...doc.followInfos };
+  delete resolvedFollowInfos.invSplitDetails;
   const resolveAccountId = (code: string, fallback?: string) =>
     code ? maps.accountsByCode[code] : fallback;
 

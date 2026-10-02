@@ -1,3 +1,4 @@
+import type { Translate } from '@/modules/i18n/translate';
 import { storedFileUrl } from '@/modules/apollo/utils/file';
 import type { PortalConfig } from '@/modules/config/types';
 import type { IconName } from '@/modules/ui/components/Icon';
@@ -65,18 +66,18 @@ export type PortalTopic = {
   theme: PortalTheme;
 };
 
-const UNKNOWN_AUTHOR = 'Unknown author';
-
 const normalizeArticle = (
   article: KbArticle,
   categoryId: string,
+  t: Translate,
 ): PortalArticle => ({
   _id: article._id,
   categoryId: article.categoryId ?? categoryId,
-  title: article.title?.trim() || 'Untitled article',
+  title: article.title?.trim() || t('kb.untitledArticle'),
   summary: article.summary?.trim() ?? '',
   content: article.content ?? '',
-  author: article.createdUser?.details?.fullName?.trim() || UNKNOWN_AUTHOR,
+  author:
+    article.createdUser?.details?.fullName?.trim() || t('kb.unknownAuthor'),
   modifiedAt:
     article.modifiedDate ?? article.publishedAt ?? article.createdDate,
   viewCount: article.viewCount ?? 0,
@@ -85,14 +86,17 @@ const normalizeArticle = (
 const isPublished = (article: KbArticle): boolean =>
   article.status === 'publish' && !article.isPrivate;
 
-const normalizeCategory = (category: KbCategory): PortalCategory => {
+const normalizeCategory = (
+  category: KbCategory,
+  t: Translate,
+): PortalCategory => {
   const articles = (category.articles ?? [])
     .filter(isPublished)
-    .map((article) => normalizeArticle(article, category._id));
+    .map((article) => normalizeArticle(article, category._id, t));
 
   return {
     _id: category._id,
-    title: category.title?.trim() || 'Untitled category',
+    title: category.title?.trim() || t('kb.untitledCategory'),
     description: category.description?.trim() ?? '',
     icon: resolveIcon(category.icon),
     articleCount: category.articles
@@ -103,9 +107,11 @@ const normalizeCategory = (category: KbCategory): PortalCategory => {
   };
 };
 
-const normalizeSection = (section: KbSection): PortalSection => ({
-  ...normalizeCategory(section),
-  children: (section.childrens ?? []).map(normalizeCategory),
+const normalizeSection = (section: KbSection, t: Translate): PortalSection => ({
+  ...normalizeCategory(section, t),
+  children: (section.childrens ?? []).map((child) =>
+    normalizeCategory(child, t),
+  ),
 });
 
 const text = (value: string | null | undefined): string | null => {
@@ -187,11 +193,14 @@ export const normalizeTheme = (topic: {
 export const normalizeTopic = (
   topic: KbTopic,
   config: PortalConfig,
+  t: Translate,
 ): PortalTopic => ({
   _id: topic._id,
   title: config.title || topic.title?.trim() || '',
   description: config.description || topic.description?.trim() || '',
-  sections: (topic.parentCategories ?? []).map(normalizeSection),
+  sections: (topic.parentCategories ?? []).map((section) =>
+    normalizeSection(section, t),
+  ),
   knowledgeBaseEnabled: config.knowledgeBaseEnabled,
   knowledgeBaseLabel: config.knowledgeBaseLabel,
   ticketsEnabled: config.ticketsEnabled,

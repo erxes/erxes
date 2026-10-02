@@ -1,5 +1,6 @@
 import {
   checkSpendRules,
+  maxSpendMoney,
   normalizeSpendRules,
 } from '@/score/services/spendRules';
 
@@ -18,7 +19,7 @@ describe('checkSpendRules', () => {
 
   it('rejects spending more than the balance', () => {
     expect(() => checkSpendRules({ ...base, pointValue: 1 })).toThrow(
-      'There has no enough score to subtract',
+      'Not enough points: 1000 available, 5000 needed',
     );
   });
 
@@ -55,5 +56,40 @@ describe('normalizeSpendRules', () => {
       step: undefined,
     });
     expect(() => normalizeSpendRules({ maxShare: 120 })).toThrow('100%');
+  });
+});
+
+describe('maxSpendMoney', () => {
+  const limit = { rules: {}, orderTotal: 10000, pointValue: 10, balance: 1000 };
+
+  it('is the balance in money when nothing else limits it', () => {
+    expect(maxSpendMoney(limit)).toEqual({ maxAmount: 10000, blocked: null });
+  });
+
+  it('keeps to the order share and whole steps', () => {
+    expect(maxSpendMoney({ ...limit, rules: { maxShare: 30 } }).maxAmount).toBe(
+      3000,
+    );
+    expect(
+      maxSpendMoney({ ...limit, balance: 1050, rules: { step: 100 } })
+        .maxAmount,
+    ).toBe(10000);
+  });
+
+  it('is blocked below the minimum balance or with nothing to spend', () => {
+    expect(maxSpendMoney({ ...limit, rules: { minBalance: 2000 } })).toEqual({
+      maxAmount: 0,
+      blocked: 'belowMin',
+    });
+    expect(maxSpendMoney({ ...limit, balance: 0 }).blocked).toBe('empty');
+  });
+
+  it('offers only what checkSpendRules accepts', () => {
+    const rules = { maxShare: 45, step: 7, minBalance: 100 };
+    const { maxAmount } = maxSpendMoney({ ...limit, rules });
+
+    expect(() =>
+      checkSpendRules({ ...limit, rules, paidMoney: maxAmount }),
+    ).not.toThrow();
   });
 });
