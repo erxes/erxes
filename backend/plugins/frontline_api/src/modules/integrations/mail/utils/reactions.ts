@@ -1,16 +1,65 @@
 import type { ISendMailInput } from '@/integrations/mail/utils/transports/types';
 import { MailSendError } from '@/integrations/mail/utils/transports/common';
+import {
+  readAttachmentBytes,
+  type IInboundAttachment,
+} from '@/integrations/mail/utils/attachments';
+
+const REACTION_MIME_TYPE = 'text/vnd.google.email-reaction+json';
+const MAX_REACTION_BYTES = 4096;
 
 export const isValidMailReactionEmoji = (emoji: string) =>
   Boolean(
     emoji &&
-    Buffer.byteLength(emoji, 'utf8') <= 64 &&
-    [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(emoji)]
-      .length === 1 &&
-    (/\p{Extended_Pictographic}/u.test(emoji) ||
-      /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
-      /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
+      Buffer.byteLength(emoji, 'utf8') <= 64 &&
+      [...new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(emoji)]
+        .length === 1 &&
+      (/\p{Extended_Pictographic}/u.test(emoji) ||
+        /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
+        /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
   );
+
+export const readInboundMailReaction = async (
+  subdomain: string,
+  attachments: IInboundAttachment[] = [],
+): Promise<string | undefined> => {
+  const part = attachments.find(
+    ({ mimeType, disposition }) =>
+      mimeType === REACTION_MIME_TYPE && disposition !== 'attachment',
+  );
+  if (!part || (part.size ?? 0) > MAX_REACTION_BYTES) return undefined;
+
+  try {
+    if (
+      part.content &&
+      part.content.length > Math.ceil(MAX_REACTION_BYTES / 3) * 4
+    )
+      return undefined;
+    const bytes = part.content
+      ? Buffer.from(part.content, 'base64')
+      : part.url
+      ? await readAttachmentBytes(subdomain, part.url)
+      : undefined;
+    if (!bytes || bytes.byteLength > MAX_REACTION_BYTES) return undefined;
+
+    const reaction: unknown = JSON.parse(bytes.toString('utf8'));
+    if (
+      typeof reaction === 'object' &&
+      reaction !== null &&
+      'version' in reaction &&
+      reaction.version === 1 &&
+      'emoji' in reaction &&
+      typeof reaction.emoji === 'string' &&
+      isValidMailReactionEmoji(reaction.emoji)
+    ) {
+      return reaction.emoji;
+    }
+  } catch {
+    // Invalid or unavailable reaction parts remain visible as regular emails.
+    return undefined;
+  }
+  return undefined;
+};
 
 const ADDRESS = /^[^\s<>@]+@[^\s<>@]+$/;
 const MESSAGE_ID = /^<[^<>\r\n]+>$/;

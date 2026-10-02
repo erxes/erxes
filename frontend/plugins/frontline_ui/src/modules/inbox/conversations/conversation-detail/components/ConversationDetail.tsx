@@ -101,7 +101,7 @@ export const ConversationDetail = () => {
               </MessageInputIntegrationWrapper>
             }
           >
-            {loading ? (
+            {loading && conversationDetail?._id !== conversationId ? (
               <InboxMessagesSkeleton />
             ) : (
               <>

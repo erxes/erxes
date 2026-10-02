@@ -1,5 +1,5 @@
 import { IconLoader, IconMoodSmile, IconSearch } from '@tabler/icons-react';
-import { Button, Popover } from 'erxes-ui';
+import { Button, Popover, Tooltip } from 'erxes-ui';
 import {
   EmojiPicker as EmojiPickerPrimitive,
   type EmojiPickerListCategoryHeaderProps,
@@ -111,34 +111,51 @@ export const MailReactionMenu = ({
   const [open, setOpen] = useState(false);
   const { react, loading } = useMailSendReaction();
 
-  if (
-    message.mailData.type !== 'INBOX' ||
-    message.mailData.senderMismatch ||
-    !message.mailData.messageId
-  ) {
-    return null;
+  const reason = message.mailData.reactionEmoji
+    ? "You can't react to an emoji reaction"
+    : message.mailData.hasReplyTo
+    ? "You can't react to a message with a reply-to address"
+    : message.mailData.type === 'SENT'
+    ? "You can't react to your own message"
+    : message.mailData.senderMismatch || !message.mailData.messageId
+    ? 'This email cannot receive a reaction'
+    : undefined;
+
+  const reactionButton = (
+    <Button
+      type="button"
+      variant="ghost"
+      size={compact ? 'icon' : 'sm'}
+      aria-label="Add email reaction"
+      title={reason ? undefined : 'Add email reaction'}
+      disabled={loading || Boolean(reason)}
+      className={
+        compact
+          ? 'size-8 rounded-full'
+          : 'h-7 rounded-full border border-border px-3'
+      }
+    >
+      <IconMoodSmile className="size-4" />
+      {!compact && <span>React</span>}
+    </Button>
+  );
+
+  if (reason) {
+    return (
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <span tabIndex={0} aria-label={reason}>
+            {reactionButton}
+          </span>
+        </Tooltip.Trigger>
+        <Tooltip.Content className="max-w-60">{reason}</Tooltip.Content>
+      </Tooltip>
+    );
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size={compact ? 'icon' : 'sm'}
-          aria-label="Add email reaction"
-          title="Add email reaction"
-          disabled={loading}
-          className={
-            compact
-              ? 'size-8 rounded-full'
-              : 'h-7 rounded-full border border-border px-3'
-          }
-        >
-          <IconMoodSmile className="size-4" />
-          {!compact && <span>React</span>}
-        </Button>
-      </Popover.Trigger>
+      <Popover.Trigger asChild>{reactionButton}</Popover.Trigger>
       <Popover.Content align="start" className="w-80 overflow-hidden p-0">
         <MailEmojiPicker
           onSelect={(emoji) => {

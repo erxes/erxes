@@ -21,26 +21,6 @@ const graphemes = (value: string): string[] => {
   ].map(({ segment }) => segment);
 };
 
-const reactionEmojiFromBody = (body?: string): string | null => {
-  if (!body) return null;
-
-  const doc = new DOMParser().parseFromString(body, 'text/html');
-  const text = doc.body.textContent?.trim() ?? '';
-  const candidate =
-    doc.querySelector('p')?.textContent?.trim() ?? graphemes(text)[0] ?? '';
-  const hasReactionFallback =
-    text === candidate ||
-    /^(?:.+\s)?reacted (?:to your email|via gmail)\.?$/i.test(
-      text.slice(candidate.length).trim(),
-    );
-  if (!hasReactionFallback) return null;
-
-  return graphemes(candidate).length === 1 &&
-    /\p{Extended_Pictographic}/u.test(candidate)
-    ? candidate
-    : null;
-};
-
 export const mailReactionFromMessage = (
   message: MailMessage,
 ): MailReaction | null => {
@@ -54,34 +34,28 @@ export const mailReactionFromMessage = (
     ['sent', 'pending'].includes(mailData.deliveryStatus ?? '');
   if (!sentReaction && mailData.type !== 'INBOX') return null;
 
-  const hasReactionPart = mailData.attachments?.some(
-    (attachment) => attachment.mimeType === REACTION_MIME_TYPE,
-  );
-  const fallbackEmoji =
-    !sentReaction && !hasReactionPart && !mailData.reactionEmoji
-      ? reactionEmojiFromBody(mailData.body)
-      : null;
+  if (!mailData.reactionEmoji) return null;
+
+  // A reaction chip cannot show a regular attachment. Keep the email visible
+  // whenever it also carries files that the user needs to open.
   if (
-    !sentReaction &&
-    !hasReactionPart &&
-    !fallbackEmoji &&
-    !mailData.reactionEmoji
+    mailData.attachments?.some(
+      ({ mimeType, disposition }) =>
+        mimeType !== REACTION_MIME_TYPE && disposition !== 'inline',
+    )
   )
     return null;
 
-  const emoji =
-    mailData.reactionEmoji ??
-    (hasReactionPart
-      ? new DOMParser()
-          .parseFromString(mailData.body ?? '', 'text/html')
-          .querySelector('p')
-          ?.textContent?.trim()
-      : fallbackEmoji) ??
-    '';
+  const emoji = mailData.reactionEmoji;
   if (
     !emoji ||
-    Array.from(emoji).length > 16 ||
-    !/\p{Extended_Pictographic}/u.test(emoji)
+    new TextEncoder().encode(emoji).length > 64 ||
+    graphemes(emoji).length !== 1 ||
+    !(
+      /\p{Extended_Pictographic}/u.test(emoji) ||
+      /^(?:[\u{1F1E6}-\u{1F1FF}]){2}$/u.test(emoji) ||
+      /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)
+    )
   ) {
     return null;
   }
@@ -90,6 +64,8 @@ export const mailReactionFromMessage = (
     messageId: message._id,
     emoji,
     sender: mailData.from?.[0]?.name || mailData.from?.[0]?.email || 'Someone',
+    senderAddress: mailData.from?.[0]?.email,
+    isOwn: mailData.type === 'SENT',
     targetMessageId,
   };
 };
@@ -97,7 +73,6 @@ export const mailReactionFromMessage = (
 export const groupMailReactions = (messages: MailMessage[]) => {
   const visibleMessages: MailMessage[] = [];
   const reactionsByMessageId = new Map<string, MailReaction[]>();
-  const orphanReactions: MailReaction[] = [];
   const messageIdByWireId = new Map<string, string>();
   for (const { mailData } of messages) {
     if (!mailData.messageId) continue;
@@ -115,10 +90,7 @@ export const groupMailReactions = (messages: MailMessage[]) => {
     }
 
     const targetMessageId = messageIdByWireId.get(reaction.targetMessageId);
-    if (!targetMessageId) {
-      orphanReactions.push(reaction);
-      continue;
-    }
+    if (!targetMessageId) continue;
 
     const previous = reactionsByMessageId.get(targetMessageId);
     if (previous) {
@@ -128,5 +100,5 @@ export const groupMailReactions = (messages: MailMessage[]) => {
     }
   }
 
-  return { visibleMessages, reactionsByMessageId, orphanReactions };
+  return { visibleMessages, reactionsByMessageId };
 };

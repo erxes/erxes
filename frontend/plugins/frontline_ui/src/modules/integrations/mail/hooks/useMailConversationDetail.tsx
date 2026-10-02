@@ -50,11 +50,13 @@ export const useMailSendMail = () => {
   const mailSendMail = (
     variables: MailSendMailVariables,
     onCompleted?: () => void,
+    onOutcome?: (outcome: MailDeliveryOutcome) => void,
   ) => {
     sendMailMutation({
       variables,
       onCompleted: (data) => {
         showDeliveryOutcome(data?.mailSendMail);
+        if (data.mailSendMail) onOutcome?.(data.mailSendMail);
         if (
           data.mailSendMail?.deliveryStatus === 'sent' ||
           data.mailSendMail?.deliveryStatus === 'pending'
@@ -88,11 +90,19 @@ export const useMailSendReaction = () => {
     sendReaction({
       variables: { conversationId, messageId, emoji },
       onCompleted: (data) => showDeliveryOutcome(data.mailSendReaction),
-      onError: (error) =>
+      onError: (error) => {
+        const existingReaction = error.graphQLErrors.find(
+          ({ extensions }) => extensions?.code === 'MAIL_REACTION_ALREADY_SENT',
+        );
+        if (existingReaction) {
+          toast({ title: existingReaction.message });
+          return;
+        }
         toast({
           title: t('failed-to-send-email', { message: error.message }),
           variant: 'destructive',
-        }),
+        });
+      },
       refetchQueries: ['mailConversationDetail', 'Conversations'],
     });
   };
@@ -107,11 +117,17 @@ export const useMailMessageRetry = () => {
     mailMessageRetry: MailDeliveryOutcome | null;
   }>(MAIL_MESSAGE_RETRY_MUTATION);
 
-  const mailMessageRetry = (_id: string) => {
+  const mailMessageRetry = (_id: string, onCompleted?: () => void) => {
     retryMutation({
       variables: { _id },
       onCompleted: (data) => {
         showDeliveryOutcome(data?.mailMessageRetry);
+        if (
+          data.mailMessageRetry?.deliveryStatus === 'sent' ||
+          data.mailMessageRetry?.deliveryStatus === 'pending'
+        ) {
+          onCompleted?.();
+        }
       },
       onError: (err) => {
         toast({

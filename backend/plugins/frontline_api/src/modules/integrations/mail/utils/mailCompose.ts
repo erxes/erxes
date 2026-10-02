@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { IModels } from '~/connectionResolvers';
 import type {
   IMailComposeArgs,
@@ -53,8 +54,9 @@ export const composeMailMessage = async (
   }
 
   const fromAddress = integration.address;
-  const senderName =
-    await models.MailIntegrations.resolveSenderName(integration);
+  const senderName = await models.MailIntegrations.resolveSenderName(
+    integration,
+  );
   const referenceChain = [
     ...new Set(
       [
@@ -63,9 +65,24 @@ export const composeMailMessage = async (
       ].filter(Boolean),
     ),
   ];
+  // The existing _id index arbitrates concurrent reactions without a new index.
+  const reactionId =
+    reactionEmoji && thread.inboxConversationId && replyToMessageId
+      ? `reaction-${createHash('sha256')
+          .update(
+            JSON.stringify([
+              scopeId,
+              thread.inboxConversationId,
+              replyToMessageId,
+              reactionEmoji,
+            ]),
+          )
+          .digest('hex')}`
+      : undefined;
 
   return models.MailMessages.create({
     ...thread,
+    ...(reactionId ? { _id: reactionId } : {}),
     inboxIntegrationId: scopeId,
     messageId: buildMessageId(fromAddress),
     inReplyTo: replyToMessageId,

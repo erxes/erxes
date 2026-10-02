@@ -5,11 +5,13 @@ export const IntegrationSteps = ({
   step,
   title,
   stepsLength,
+  description,
   className,
 }: {
   step: number;
   title: string;
   stepsLength: number;
+  description?: string;
   className?: string;
 }) => {
   const { t, i18n } = useTranslation('frontline');
@@ -44,6 +46,9 @@ export const IntegrationSteps = ({
           />
         ))}
       </div>
+      {description && (
+        <div className="text-xs text-accent-foreground">{description}</div>
+      )}
     </div>
   );
 };

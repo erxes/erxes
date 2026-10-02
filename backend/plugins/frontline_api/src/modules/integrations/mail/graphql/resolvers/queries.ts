@@ -9,6 +9,7 @@ import { readMailThread } from '@/integrations/mail/utils/thread';
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
 import { assertMailConversationAccess } from '@/integrations/mail/utils/access';
 import { readMailVerifiedContacts } from '@/integrations/mail/utils/recipients';
+import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
 
 export const mailQueries = {
   async mailVerifiedContacts(
@@ -65,7 +66,7 @@ export const mailQueries = {
     const mailIntegrations = await models.MailIntegrations.find({
       inboxId: { $in: inboxes.map(({ _id }) => _id) },
       disabledAt: null,
-      healthStatus: { $ne: 'unhealthy' },
+      healthStatus: { $ne: MAIL_HEALTH_STATUSES.UNHEALTHY },
     })
       .select(['inboxId', 'address'])
       .lean();
@@ -138,12 +139,13 @@ export const mailQueries = {
   async mailConversationDetail(
     _root: undefined,
     { conversationId, limit }: { conversationId: string; limit?: number },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('showConversations');
 
     return readMailThread(
       models,
+      subdomain,
       { inboxConversationId: conversationId },
       limit,
     );
@@ -187,7 +189,7 @@ export const mailQueries = {
       conversationId,
       internal: true,
     })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(Math.max(skip ?? 0, 0))
       .limit(Math.min(Math.max(limit ?? 20, 1), 100));
 

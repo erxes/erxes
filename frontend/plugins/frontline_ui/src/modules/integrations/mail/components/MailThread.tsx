@@ -36,11 +36,9 @@ import { MailThreadActionsContext } from '@/integrations/mail/hooks/useMailThrea
 export const MailThread: React.FC<MailThreadProps> = ({
   conversationId,
   messages,
-  hasMore,
   loading,
   sending,
   error,
-  onLoadMore,
   onSend,
   className,
   emptyLabel,
@@ -49,21 +47,48 @@ export const MailThread: React.FC<MailThreadProps> = ({
   readOnly,
   onNewEmail,
   beforeCompose,
+  scrollViewportRef,
 }) => {
   const { t } = useTranslation('frontline');
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
   const [composeTarget, setComposeTarget] = useState<MailMessage | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const followLatestRef = useRef(true);
 
-  const newestId = messages[messages.length - 1]?._id;
-  const { visibleMessages, reactionsByMessageId, orphanReactions } = useMemo(
+  const { visibleMessages, reactionsByMessageId } = useMemo(
     () => groupMailReactions(messages),
     [messages],
   );
+  const newestId = visibleMessages[visibleMessages.length - 1]?._id;
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [newestId]);
+    const thread = threadRef.current;
+    if (!thread || !newestId) return;
+
+    followLatestRef.current = true;
+    const viewport = scrollViewportRef?.current;
+    let previousTop = viewport?.scrollTop ?? 0;
+    const onScroll = () => {
+      if (!viewport) return;
+      if (viewport.scrollTop < previousTop) followLatestRef.current = false;
+      previousTop = viewport.scrollTop;
+    };
+    viewport?.addEventListener('scroll', onScroll, { passive: true });
+    const scrollToLatest = () => {
+      if (followLatestRef.current) {
+        bottomRef.current?.scrollIntoView({ block: 'end' });
+        previousTop = viewport?.scrollTop ?? previousTop;
+      }
+    };
+    scrollToLatest();
+    const observer = new ResizeObserver(scrollToLatest);
+    observer.observe(thread);
+    return () => {
+      observer.disconnect();
+      viewport?.removeEventListener('scroll', onScroll);
+    };
+  }, [newestId, scrollViewportRef]);
 
   const open = useCallback((msg: MailMessage, mode: ComposeMode) => {
     setComposeTarget(msg);
@@ -147,7 +172,16 @@ export const MailThread: React.FC<MailThreadProps> = ({
   };
 
   return (
-    <div className={cn('min-w-0 space-y-3', className)}>
+    <div
+      ref={threadRef}
+      className={cn('min-w-0 space-y-3', className)}
+      onPointerDownCapture={() => {
+        followLatestRef.current = false;
+      }}
+      onKeyDownCapture={() => {
+        followLatestRef.current = false;
+      }}
+    >
       <div className="flex min-h-12 flex-col items-stretch gap-2 border-b border-border px-1 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="min-w-0 truncate text-lg font-medium text-foreground">
           {baseSubject || t('no-subject', '(No subject)')}
@@ -212,20 +246,6 @@ export const MailThread: React.FC<MailThreadProps> = ({
         )}
       </div>
 
-      {hasMore && (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-full border border-[rgba(0,0,0,0.15)] px-3 py-1 text-[12px] font-medium text-[#3c4043] transition-colors hover:bg-background/[0.04] disabled:opacity-60 dark:border-[rgba(255,255,255,0.15)] dark:text-[#e8eaed]"
-            onClick={onLoadMore}
-            disabled={loading}
-          >
-            {loading && <Spinner size="sm" />}
-            {t('show-earlier-messages')}
-          </button>
-        </div>
-      )}
-
       <MailThreadActionsContext.Provider value={actions}>
         <div className="space-y-3">
           {visibleMessages.map((msg, idx) => (
@@ -236,14 +256,6 @@ export const MailThread: React.FC<MailThreadProps> = ({
               reactions={reactionsByMessageId.get(msg.mailData.messageId ?? '')}
               defaultExpanded={idx === visibleMessages.length - 1}
             />
-          ))}
-          {orphanReactions.map((reaction) => (
-            <div
-              key={reaction.messageId}
-              className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground"
-            >
-              {reaction.sender} reacted {reaction.emoji}
-            </div>
           ))}
         </div>
       </MailThreadActionsContext.Provider>

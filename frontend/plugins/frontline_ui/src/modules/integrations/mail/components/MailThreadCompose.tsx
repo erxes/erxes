@@ -8,6 +8,8 @@ import type {
 } from '@/integrations/mail/types/mailThread';
 import { stripSubjectPrefix } from '@/integrations/mail/utils/mailThread';
 import { toHtml } from '@/integrations/mail/utils/directMailComposer';
+import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
+import { useMailMessageRetry } from '@/integrations/mail/hooks/useMailConversationDetail';
 
 const COMPOSE_TITLE_KEYS: Record<ComposeMode, string> = {
   reply: 'reply',
@@ -26,7 +28,11 @@ interface ComposeProps {
   replyToMessageId?: string;
   references?: string[];
   sending: boolean;
-  onSend: (payload: MailComposePayload, onSent: () => void) => void;
+  onSend: (
+    payload: MailComposePayload,
+    onSent: () => void,
+    onOutcome?: (outcome: MailDeliveryOutcome) => void,
+  ) => void;
   onClose: () => void;
 }
 
@@ -44,6 +50,9 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation('frontline');
+  const [failedDelivery, setFailedDelivery] = useState<MailDeliveryOutcome>();
+  const { mailMessageRetry, loading: retrying } = useMailMessageRetry();
+  const busy = sending || retrying;
   const [to, setTo] = useState(defaultTo.join(', '));
   const [cc, setCc] = useState(defaultCc?.join(', ') ?? '');
   const [bcc, setBcc] = useState('');
@@ -60,14 +69,14 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
   const [showBcc, setShowBcc] = useState(false);
   const [bodyText, setBodyText] = useState(() =>
     defaultBody
-      ? (new DOMParser()
+      ? new DOMParser()
           .parseFromString(
             defaultBody
               .replace(/<br\s*(?:\/\s*)?>/gi, '\n')
               .replace(/<\/(?:p|div|blockquote)>/gi, '\n'),
             'text/html',
           )
-          .body.textContent?.trim() ?? '')
+          .body.textContent?.trim() ?? ''
       : '',
   );
 
@@ -78,6 +87,11 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
       .filter(Boolean);
 
   const send = () => {
+    if (busy) return;
+    if (failedDelivery) {
+      mailMessageRetry(failedDelivery._id, onClose);
+      return;
+    }
     const toList = split(to);
     if (!toList.length) {
       toast({
@@ -105,6 +119,9 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
         references: mode !== 'forward' ? references : undefined,
       },
       onClose,
+      (outcome) => {
+        if (outcome.deliveryStatus === 'failed') setFailedDelivery(outcome);
+      },
     );
   };
 
@@ -138,106 +155,117 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
         </button>
       </div>
 
-      <div className={row}>
-        <span className={lbl}>{t('from')}</span>
-        <span className="text-[13px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
-          {defaultFrom}
-        </span>
-      </div>
-      <div className={row}>
-        <span className={lbl}>{t('to')}</span>
-        <input
-          className={inp}
-          value={to}
-          onChange={(e) => setTo(e.target.value)}
-          onKeyDown={onKey}
-          placeholder={
-            mode === 'reply' || mode === 'replyAll' ? '' : t('recipients')
-          }
-        />
-        <div className="flex gap-3 flex-none text-[11px] text-[#5f6368]">
-          {!showCc && (
-            <button
-              type="button"
-              className="hover:text-foreground transition-colors"
-              onClick={() => setShowCc(true)}
-            >
-              {t('cc')}
-            </button>
-          )}
-          {!showBcc && (
-            <button
-              type="button"
-              className="hover:text-foreground transition-colors"
-              onClick={() => setShowBcc(true)}
-            >
-              {t('bcc')}
-            </button>
-          )}
-        </div>
-      </div>
-      {showCc && (
+      <fieldset disabled={busy || Boolean(failedDelivery)}>
         <div className={row}>
-          <span className={lbl}>{t('cc')}</span>
+          <span className={lbl}>{t('from')}</span>
+          <span className="text-[13px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
+            {defaultFrom}
+          </span>
+        </div>
+        <div className={row}>
+          <span className={lbl}>{t('to')}</span>
           <input
             className={inp}
-            value={cc}
-            onChange={(e) => setCc(e.target.value)}
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
             onKeyDown={onKey}
-            placeholder="cc@example.com"
+            placeholder={
+              mode === 'reply' || mode === 'replyAll' ? '' : t('recipients')
+            }
           />
-          <button
-            type="button"
-            className="flex-none text-[#5f6368] hover:text-foreground"
-            onClick={() => {
-              setShowCc(false);
-              setCc('');
-            }}
-          >
-            <IconX size={12} />
-          </button>
+          <div className="flex gap-3 flex-none text-[11px] text-[#5f6368]">
+            {!showCc && (
+              <button
+                type="button"
+                className="hover:text-foreground transition-colors"
+                onClick={() => setShowCc(true)}
+              >
+                {t('cc')}
+              </button>
+            )}
+            {!showBcc && (
+              <button
+                type="button"
+                className="hover:text-foreground transition-colors"
+                onClick={() => setShowBcc(true)}
+              >
+                {t('bcc')}
+              </button>
+            )}
+          </div>
         </div>
-      )}
-      {showBcc && (
+        {showCc && (
+          <div className={row}>
+            <span className={lbl}>{t('cc')}</span>
+            <input
+              className={inp}
+              value={cc}
+              onChange={(e) => setCc(e.target.value)}
+              onKeyDown={onKey}
+              placeholder="cc@example.com"
+            />
+            <button
+              type="button"
+              className="flex-none text-[#5f6368] hover:text-foreground"
+              onClick={() => {
+                setShowCc(false);
+                setCc('');
+              }}
+            >
+              <IconX size={12} />
+            </button>
+          </div>
+        )}
+        {showBcc && (
+          <div className={row}>
+            <span className={lbl}>{t('bcc')}</span>
+            <input
+              className={inp}
+              value={bcc}
+              onChange={(e) => setBcc(e.target.value)}
+              onKeyDown={onKey}
+              placeholder="bcc@example.com"
+            />
+            <button
+              type="button"
+              className="flex-none text-[#5f6368] hover:text-foreground"
+              onClick={() => {
+                setShowBcc(false);
+                setBcc('');
+              }}
+            >
+              <IconX size={12} />
+            </button>
+          </div>
+        )}
         <div className={row}>
-          <span className={lbl}>{t('bcc')}</span>
+          <span className={lbl}>{t('subject')}</span>
           <input
             className={inp}
-            value={bcc}
-            onChange={(e) => setBcc(e.target.value)}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
             onKeyDown={onKey}
-            placeholder="bcc@example.com"
           />
-          <button
-            type="button"
-            className="flex-none text-[#5f6368] hover:text-foreground"
-            onClick={() => {
-              setShowBcc(false);
-              setBcc('');
-            }}
-          >
-            <IconX size={12} />
-          </button>
         </div>
-      )}
-      <div className={row}>
-        <span className={lbl}>{t('subject')}</span>
-        <input
-          className={inp}
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          onKeyDown={onKey}
-        />
-      </div>
 
-      <textarea
-        className="min-h-[120px] max-h-[260px] w-full resize-y overflow-y-auto px-4 py-3 text-[14px] leading-relaxed focus:outline-none"
-        value={bodyText}
-        onChange={(event) => setBodyText(event.target.value)}
-        onKeyDown={onKey}
-        aria-label={t('email-body')}
-        placeholder={t('write-your-message')}
-      />
+        <textarea
+          className="min-h-[120px] max-h-[260px] w-full resize-y overflow-y-auto px-4 py-3 text-[14px] leading-relaxed focus:outline-none"
+          value={bodyText}
+          onChange={(event) => setBodyText(event.target.value)}
+          onKeyDown={onKey}
+          aria-label={t('email-body')}
+          placeholder={t('write-your-message')}
+        />
+      </fieldset>
+
+      {failedDelivery && (
+        <div role="alert" className="px-4 py-2 text-sm text-destructive">
+          {failedDelivery.deliveryError || t('email-not-delivered')}
+          <p>
+            Retry this message or close the composer to start another email.
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center justify-between px-4 py-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
         <span className="text-[11px] text-[#9aa0a6] select-none">
@@ -251,7 +279,7 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
             type="button"
             className="text-[12px] text-[#5f6368] hover:text-foreground px-2 py-1 rounded transition-colors"
             onClick={onClose}
-            disabled={sending}
+            disabled={busy}
           >
             {t('discard')}
           </button>
@@ -259,15 +287,15 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
             type="button"
             className={cn(
               'flex items-center gap-1.5 text-[13px] font-medium px-4 py-1.5 rounded-full transition-colors',
-              sending
+              busy
                 ? 'bg-info/50 text-foreground/60 cursor-not-allowed'
                 : 'bg-info text-foreground hover:bg-info/20',
             )}
             onClick={send}
-            disabled={sending}
+            disabled={busy}
           >
-            {sending ? <Spinner size="sm" /> : <IconSend size={13} />}
-            {t('send')}
+            {busy ? <Spinner size="sm" /> : <IconSend size={13} />}
+            {t(failedDelivery ? 'email-delivery-retry' : 'send')}
           </button>
         </div>
       </div>

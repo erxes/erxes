@@ -15,14 +15,20 @@ export const MailInternalNotes = ({
   notes,
   totalCount,
   onLoadMore,
+  loading,
+  error,
+  onRetry,
 }: {
   notes: IMessage[];
   totalCount: number;
   onLoadMore: () => Promise<unknown>;
+  loading: boolean;
+  error?: string;
+  onRetry: () => Promise<unknown>;
 }) => {
   const { t } = useTranslation('frontline');
   const [loadingMore, setLoadingMore] = useState(false);
-  if (!totalCount) return null;
+  if (!notes.length && !totalCount && !error) return null;
 
   const loadMore = async () => {
     setLoadingMore(true);
@@ -44,6 +50,38 @@ export const MailInternalNotes = ({
           {totalCount}
         </span>
       </div>
+      {loading && !notes.length && (
+        <div role="status" className="flex justify-center p-4">
+          <Spinner size="sm" />
+          <span className="sr-only">{t('loading')}</span>
+        </div>
+      )}
+      {error && (
+        <div
+          role="alert"
+          className="flex items-center gap-2 px-4 py-3 text-sm text-destructive"
+        >
+          <span>
+            {t('error-loading-data')}: {error}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={loading}
+            onClick={() =>
+              onRetry().catch(() => {
+                toast({
+                  title: t('error-loading-data'),
+                  variant: 'destructive',
+                });
+              })
+            }
+          >
+            {t('retry')}
+          </Button>
+        </div>
+      )}
       {notes.length < totalCount && (
         <div className="border-t border-warning/15 px-4 py-2">
           <Button

@@ -4,7 +4,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
-import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
+import {
+  useMailMessageRetry,
+  useMailSendMail,
+} from '@/integrations/mail/hooks/useMailConversationDetail';
+import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
 import { DirectMailComposerFieldsContext } from '@/integrations/mail/hooks/useDirectMailComposerFields';
 import type {
   ComposeEmailTarget,
@@ -32,6 +36,7 @@ export const DirectMailComposer = () => {
   const [recipientCustomerId, setRecipientCustomerId] = useState<string>();
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
+  const [failedDelivery, setFailedDelivery] = useState<MailDeliveryOutcome>();
   const {
     data,
     loading: sendersLoading,
@@ -41,6 +46,8 @@ export const DirectMailComposer = () => {
     mailSenders: MailSender[];
   }>(MAIL_SENDERS_QUERY, { skip: !target });
   const { mailSendMail, loading } = useMailSendMail();
+  const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
+  const sending = loading || retryLoading;
   const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
   const form = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
@@ -75,10 +82,7 @@ export const DirectMailComposer = () => {
   useEffect(() => {
     const handleComposeRequest = (event: Event) => {
       const detail = (event as CustomEvent<ComposeEmailTarget>).detail;
-      if (
-        (!detail?.customerId && !detail?.companyId) ||
-        !z.string().email().safeParse(detail.email).success
-      ) {
+      if (sending || !z.string().email().safeParse(detail?.email).success) {
         return;
       }
 
@@ -88,6 +92,7 @@ export const DirectMailComposer = () => {
 
       setTarget({ ...detail, emails });
       setRecipientCustomerId(detail.customerId);
+      setFailedDelivery(undefined);
       setShowCc(false);
       setShowBcc(false);
       reset({
@@ -103,11 +108,14 @@ export const DirectMailComposer = () => {
     window.addEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
     return () =>
       window.removeEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
-  }, [reset]);
+  }, [reset, sending]);
 
   useEffect(() => {
     if (target && !integrationId && senders.length) {
-      setValue('integrationId', senders[0].integrationId, {
+      const preferredSender = senders.find(
+        (sender) => sender.integrationId === target.integrationId,
+      );
+      setValue('integrationId', (preferredSender ?? senders[0]).integrationId, {
         shouldValidate: true,
       });
     }
@@ -123,10 +131,16 @@ export const DirectMailComposer = () => {
 
   const close = () => {
     setTarget(null);
+    setFailedDelivery(undefined);
     reset();
   };
 
   const submit = (values: ComposeValues) => {
+    if (sending) return;
+    if (failedDelivery) {
+      mailMessageRetry(failedDelivery._id, close);
+      return;
+    }
     mailSendMail(
       {
         integrationId: values.integrationId,
@@ -138,6 +152,9 @@ export const DirectMailComposer = () => {
         bcc: showBcc ? splitAddresses(values.bcc) : undefined,
       },
       close,
+      (outcome) => {
+        if (outcome.deliveryStatus === 'failed') setFailedDelivery(outcome);
+      },
     );
   };
 
@@ -151,32 +168,44 @@ export const DirectMailComposer = () => {
         aria-label="New email"
         className="fixed inset-x-2 bottom-2 z-50 flex max-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(40rem,calc(100vw-2rem))]"
       >
-        <ComposerHeader onClose={close} loading={loading} />
+        <ComposerHeader onClose={close} loading={sending} />
 
         <DirectMailComposerFieldsContext.Provider value={fieldActions}>
           <form
             className="flex min-h-0 flex-1 flex-col overflow-y-auto"
             onSubmit={handleSubmit(submit)}
           >
-            <FromRow
-              sendersLoading={sendersLoading}
-              selectedSender={selectedSender}
-              sendersError={sendersError}
-              hasSenders={senders.length > 0}
-              onRetry={handleRetry}
-            />
-            <ToRow onRecipientSelect={setRecipientCustomerId} />
-            <CcBccFields />
-            <SubjectRow />
-            <BodyField />
+            <fieldset
+              disabled={sending || Boolean(failedDelivery)}
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <FromRow
+                sendersLoading={sendersLoading}
+                selectedSender={selectedSender}
+                sendersError={sendersError}
+                senders={senders}
+                disabled={sending || Boolean(failedDelivery)}
+                onRetry={handleRetry}
+              />
+              <ToRow onRecipientSelect={setRecipientCustomerId} />
+              <CcBccFields />
+              <SubjectRow />
+              <BodyField />
+            </fieldset>
+            {failedDelivery && (
+              <p role="alert" className="px-4 py-3 text-sm text-destructive">
+                {failedDelivery.deliveryError || 'Email was not delivered.'}
+                {' Retry sending, or close this draft to start a new email.'}
+              </p>
+            )}
             <ComposerFooter
               disabled={
-                loading ||
-                sendersLoading ||
-                Boolean(sendersError) ||
-                !senders.length
+                sending ||
+                (!failedDelivery &&
+                  (sendersLoading || Boolean(sendersError) || !senders.length))
               }
-              loading={loading}
+              loading={sending}
+              retry={Boolean(failedDelivery)}
             />
           </form>
         </DirectMailComposerFieldsContext.Provider>

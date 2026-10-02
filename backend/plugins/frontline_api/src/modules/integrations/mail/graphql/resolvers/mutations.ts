@@ -1,4 +1,5 @@
 import type { IContext } from '~/connectionResolvers';
+import { GraphQLError } from 'graphql';
 import type {
   IMailMessageDocument,
   IMailSendArgs,
@@ -21,8 +22,15 @@ import {
 import { provisionCloudflare } from '@/integrations/mail/utils/cloudflare/provision';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
 import { assertMailSenderAccess } from '@/integrations/mail/utils/senderAccess';
-import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
-import { isValidMailReactionEmoji } from '@/integrations/mail/utils/reactions';
+import { isDuplicateKeyError } from '@/integrations/mail/utils/mongoErrors';
+import {
+  MAIL_DELIVERY_STATUSES,
+  MAIL_MESSAGE_TYPES,
+} from '@/integrations/mail/constants';
+import {
+  isValidMailReactionEmoji,
+  readInboundMailReaction,
+} from '@/integrations/mail/utils/reactions';
 import {
   assertMailConversationAccess,
   assertMailDraftAccess,
@@ -140,6 +148,16 @@ export const mailMutations = {
       type: MAIL_MESSAGE_TYPES.INBOX,
     });
     const recipient = target?.from[0]?.address?.trim();
+    if (
+      target &&
+      (target.reactionEmoji ||
+        (await readInboundMailReaction(subdomain, target.attachments)))
+    ) {
+      throw new Error("You can't react to an emoji reaction");
+    }
+    if (target?.hasReplyTo) {
+      throw new Error("You can't react to a message with a reply-to address");
+    }
     if (!target?.messageId || !recipient || target.senderMismatch) {
       throw new Error('This email cannot receive a reaction');
     }
@@ -158,23 +176,71 @@ export const mailMutations = {
       integrationId: conversation.integrationId,
     });
 
+    const reactionFilter = {
+      inboxConversationId: conversationId,
+      inboxIntegrationId: conversation.integrationId,
+      type: MAIL_MESSAGE_TYPES.SENT,
+      inReplyTo: target.messageId,
+      reactionEmoji: emoji,
+    };
+    const activeReactionFilter = {
+      ...reactionFilter,
+      deliveryStatus: {
+        $in: [MAIL_DELIVERY_STATUSES.PENDING, MAIL_DELIVERY_STATUSES.SENT],
+      },
+    };
+    const alreadyReacted = () =>
+      new GraphQLError(`You've already reacted with ${emoji}`, {
+        extensions: { code: 'MAIL_REACTION_ALREADY_SENT' },
+      });
+    if (await models.MailMessages.exists(activeReactionFilter)) {
+      throw alreadyReacted();
+    }
+    const previousReaction = await models.MailMessages.findOne(
+      reactionFilter,
+    ).sort({ createdAt: -1, _id: -1 });
+    if (
+      previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.PENDING ||
+      previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.SENT
+    ) {
+      throw alreadyReacted();
+    }
+    if (previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.BOUNCED) {
+      return toDeliveryOutcome(previousReaction);
+    }
+    const previousFailure =
+      previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.FAILED
+        ? previousReaction
+        : null;
     const subject = target.subject?.trim() || 'Your email';
     const replySubject = /^re:/i.test(subject) ? subject : `Re: ${subject}`;
-    const message = await models.MailMessages.createSendMail(
-      {
-        conversationId,
-        integrationId: conversation.integrationId,
-        subject: replySubject,
-        body: `<p>${emoji}</p><p>Reacted to your email.</p>`,
-        to: [recipient],
-        replyToMessageId: target.messageId,
-        references: [...(target.references ?? []), target.messageId],
-        reactionEmoji: emoji,
-      },
-      subdomain,
-    );
-
-    return toDeliveryOutcome(message);
+    try {
+      const message = previousFailure
+        ? await models.MailMessages.retrySend(previousFailure._id, subdomain)
+        : await models.MailMessages.createSendMail(
+            {
+              conversationId,
+              integrationId: conversation.integrationId,
+              subject: replySubject,
+              body: `<p>${emoji}</p><p>Reacted to your email.</p>`,
+              to: [recipient],
+              replyToMessageId: target.messageId,
+              references: [...(target.references ?? []), target.messageId],
+              reactionEmoji: emoji,
+            },
+            subdomain,
+          );
+      return toDeliveryOutcome(message);
+    } catch (error) {
+      if (
+        isDuplicateKeyError(error, '_id') ||
+        (previousFailure &&
+          (await models.MailMessages.exists(activeReactionFilter)))
+      ) {
+        throw alreadyReacted();
+      }
+      throw error;
+    }
   },
 
   async mailPipelineConnect(

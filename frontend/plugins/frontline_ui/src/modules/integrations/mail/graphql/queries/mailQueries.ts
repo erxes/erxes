@@ -47,6 +47,7 @@ export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
+      internal
     }
   }
 `;

@@ -32,6 +32,7 @@ export interface IMailMessage {
   subject?: string;
   body: string;
   reactionEmoji?: string;
+  hasReplyTo?: boolean;
   from: IMailAddress[];
   to: IMailAddress[];
   cc: IMailAddress[];

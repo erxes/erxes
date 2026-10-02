@@ -8,6 +8,7 @@ export interface MailSender {
 }
 
 export interface ComposeEmailTarget {
+  integrationId?: string;
   customerId?: string;
   companyId?: string;
   email: string;

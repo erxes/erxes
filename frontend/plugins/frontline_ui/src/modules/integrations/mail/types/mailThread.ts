@@ -1,5 +1,8 @@
-import type { ReactNode } from 'react';
-import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
+import type { ReactNode, RefObject } from 'react';
+import type {
+  MailDeliveryOutcome,
+  MailDeliveryStatus,
+} from '@/integrations/mail/types/mailDelivery';
 
 export interface MailComposePayload {
   subject: string;
@@ -39,6 +42,7 @@ export interface MailData {
   subject?: string;
   body?: string;
   reactionEmoji?: string;
+  hasReplyTo?: boolean;
   newContent?: string;
   replies?: string;
   attachments?: Attachment[];
@@ -62,18 +66,22 @@ export interface MailReaction {
   messageId: string;
   emoji: string;
   sender: string;
+  senderAddress?: string;
+  isOwn: boolean;
   targetMessageId: string;
 }
 
 export interface MailThreadProps {
   conversationId: string;
   messages: MailMessage[];
-  hasMore?: boolean;
   loading: boolean;
   sending: boolean;
   error?: string;
-  onLoadMore: () => void;
-  onSend: (payload: MailComposePayload, onSent: () => void) => void;
+  onSend: (
+    payload: MailComposePayload,
+    onSent: () => void,
+    onOutcome?: (outcome: MailDeliveryOutcome) => void,
+  ) => void;
   className?: string;
   emptyLabel?: string;
   startAddress?: string;
@@ -81,4 +89,5 @@ export interface MailThreadProps {
   readOnly?: boolean;
   onNewEmail?: (email: string) => void;
   beforeCompose?: ReactNode;
+  scrollViewportRef?: RefObject<HTMLDivElement>;
 }

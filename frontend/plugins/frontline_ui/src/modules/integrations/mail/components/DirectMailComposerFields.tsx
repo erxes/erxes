@@ -1,6 +1,6 @@
 import { IconMail, IconSend, IconX } from '@tabler/icons-react';
-import { Button, Input, Spinner, Textarea } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
+import { Button, Input, Select, Spinner, Textarea } from 'erxes-ui';
+import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDirectMailComposerFields } from '@/integrations/mail/hooks/useDirectMailComposerFields';
 import type {
@@ -40,17 +40,20 @@ export const FromRow = ({
   sendersLoading,
   selectedSender,
   sendersError,
-  hasSenders,
+  senders,
+  disabled,
   onRetry,
 }: {
   sendersLoading: boolean;
   selectedSender?: MailSender;
   sendersError?: unknown;
-  hasSenders: boolean;
+  senders: MailSender[];
+  disabled: boolean;
   onRetry: () => void;
 }) => {
   const { t } = useTranslation('frontline');
   const {
+    control,
     formState: { errors },
   } = useFormContext<ComposeValues>();
   const integrationError = errors.integrationId;
@@ -65,14 +68,39 @@ export const FromRow = ({
       );
     }
 
-    if (selectedSender) {
+    if (senders.length) {
       return (
-        <span className="truncate" title={selectedSender.address}>
-          {selectedSender.name}{' '}
-          <span className="text-muted-foreground">
-            &lt;{selectedSender.address}&gt;
-          </span>
-        </span>
+        <Controller
+          name="integrationId"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={disabled}
+            >
+              <Select.Trigger
+                aria-label="From"
+                className="h-9 min-w-0 border-0 px-0 shadow-none"
+              >
+                <Select.Value placeholder="Select sender">
+                  {selectedSender &&
+                    `${selectedSender.name} <${selectedSender.address}>`}
+                </Select.Value>
+              </Select.Trigger>
+              <Select.Content>
+                {senders.map((sender) => (
+                  <Select.Item
+                    key={sender.integrationId}
+                    value={sender.integrationId}
+                  >
+                    {sender.name} &lt;{sender.address}&gt;
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          )}
+        />
       );
     }
 
@@ -98,7 +126,7 @@ export const FromRow = ({
           </Button>
         </div>
       )}
-      {!sendersLoading && !sendersError && !hasSenders && (
+      {!sendersLoading && !sendersError && !senders.length && (
         <p className="col-start-2 text-xs text-destructive">
           {t('no-integration-found', { name: t('email') })}
         </p>
@@ -202,9 +230,11 @@ export const BodyField = () => {
 export const ComposerFooter = ({
   disabled,
   loading,
+  retry = false,
 }: {
   disabled: boolean;
   loading: boolean;
+  retry?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
 
@@ -212,7 +242,7 @@ export const ComposerFooter = ({
     <footer className="flex flex-none items-center justify-end border-t bg-muted/20 px-4 py-2.5">
       <Button type="submit" disabled={disabled}>
         {loading ? <Spinner size="sm" /> : <IconSend className="size-4" />}
-        {t('send')}
+        {t(retry ? 'email-delivery-retry' : 'send')}
       </Button>
     </footer>
   );

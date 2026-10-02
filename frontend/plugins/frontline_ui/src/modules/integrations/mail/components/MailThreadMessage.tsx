@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { formatDateISOStringToRelativeDate } from 'erxes-ui';
+import {
+  Button,
+  formatDateISOStringToRelativeDate,
+  toast,
+  Tooltip,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   IconArrowBackUp,
@@ -28,6 +33,7 @@ import {
 } from './MailThreadNotices';
 import { AttachmentChip, SenderContextMenu } from './MailMessageActions';
 import { MailReactionMenu } from './MailReactionMenu';
+import { useMailSendReaction } from '@/integrations/mail/hooks/useMailConversationDetail';
 
 const MailMessageAddresses = ({ mailData }: { mailData: MailData }) => {
   const isSent = mailData.type === 'SENT';
@@ -145,30 +151,81 @@ const MailMessageHeader = ({
 
 const MailMessageReactionChips = ({
   reactions,
+  message,
+  conversationId,
 }: {
   reactions: MailReaction[];
+  message: MailMessage;
+  conversationId: string;
 }) => {
-  const reactionsByEmoji = new Map<string, string[]>();
-  for (const { emoji, sender } of reactions) {
+  const { readOnly } = useMailThreadActions();
+  const { react, loading } = useMailSendReaction();
+  const { mailData } = message;
+  const canReact =
+    !readOnly &&
+    mailData.type === 'INBOX' &&
+    !mailData.senderMismatch &&
+    Boolean(mailData.messageId) &&
+    !mailData.reactionEmoji &&
+    !mailData.hasReplyTo;
+  const reactionsByEmoji = new Map<string, MailReaction[]>();
+  for (const reaction of reactions) {
+    const { emoji, sender, senderAddress } = reaction;
     const senders = reactionsByEmoji.get(emoji);
     if (senders) {
-      senders.push(sender);
+      if (
+        !senders.some(
+          (previous) =>
+            (previous.senderAddress || previous.sender).toLowerCase() ===
+            (senderAddress || sender).toLowerCase(),
+        )
+      )
+        senders.push(reaction);
     } else {
-      reactionsByEmoji.set(emoji, [sender]);
+      reactionsByEmoji.set(emoji, [reaction]);
     }
   }
   return (
     reactionsByEmoji.size > 0 && (
       <div className="flex flex-wrap gap-1.5 py-2">
         {[...reactionsByEmoji].map(([emoji, senders]) => (
-          <span
-            key={emoji}
-            title={senders.join(', ')}
-            className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
-          >
-            <span>{emoji}</span>
-            <span>{senders.length}</span>
-          </span>
+          <Tooltip key={emoji}>
+            <Tooltip.Trigger asChild>
+              <span
+                aria-label={`${senders
+                  .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
+                  .join(', ')} reacted with ${emoji}`}
+                className="inline-flex"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`React with ${emoji}`}
+                  disabled={!canReact || loading}
+                  className="h-auto gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
+                  onClick={() => {
+                    if (senders.some(({ isOwn }) => isOwn)) {
+                      toast({ title: `You've already reacted with ${emoji}` });
+                      return;
+                    }
+                    react(conversationId, message._id, emoji);
+                  }}
+                >
+                  <span>{emoji}</span>
+                  <span>{senders.length}</span>
+                </Button>
+              </span>
+            </Tooltip.Trigger>
+            <Tooltip.Content className="max-w-72 rounded-xl px-4 py-3">
+              <span className="text-sm">
+                {senders
+                  .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
+                  .join(', ')}{' '}
+                reacted with <strong>{emoji}</strong>
+              </span>
+            </Tooltip.Content>
+          </Tooltip>
         ))}
       </div>
     )
@@ -290,7 +347,11 @@ const MailMessageContent = ({
         </div>
       )}
 
-      <MailMessageReactionChips reactions={reactions} />
+      <MailMessageReactionChips
+        reactions={reactions}
+        message={message}
+        conversationId={conversationId}
+      />
       <MailMessageReplyActions
         message={message}
         conversationId={conversationId}
