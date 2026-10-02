@@ -1,10 +1,7 @@
 import { useQuery, useSubscription } from '@apollo/client';
 import { GET_ACTIVITIES } from '@/activity/graphql/queries/getActivityLogs';
 import { ACTIVITY_CHANGED } from '@/activity/graphql/subsciptions/activityChanged';
-import {
-  compactList,
-  toCursorPageInfo,
-} from '@/operation/utils/cursorList';
+import { compactList, toCursorPageInfo } from '@/operation/utils/cursorList';
 
 export const useActivities = (contentId: string) => {
   const { data, loading, refetch } = useQuery(GET_ACTIVITIES, {

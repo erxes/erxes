@@ -5,9 +5,7 @@ interface NoteInputReadOnlyProps {
   newValueId: string | null | undefined;
 }
 
-export const NoteInputReadOnly = ({
-  newValueId,
-}: NoteInputReadOnlyProps) => {
+export const NoteInputReadOnly = ({ newValueId }: NoteInputReadOnlyProps) => {
   const { note, loading } = useGetNote(newValueId);
 
   return (

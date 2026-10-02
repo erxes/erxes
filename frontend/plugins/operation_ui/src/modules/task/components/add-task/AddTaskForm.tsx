@@ -173,10 +173,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">{t('new-task')}</Sheet.Title>
           <div className="ml-auto">
-            <SelectTemplate
-              teamId={_teamId}
-              onSelect={onTemplateSelect}
-            />
+            <SelectTemplate teamId={_teamId} onSelect={onTemplateSelect} />
           </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
@@ -277,7 +274,9 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('estimate-point')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('estimate-point')}
+                  </Form.Label>
                   <SelectEstimatedPoint.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -326,7 +325,9 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('target-date')}
+                  </Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}

@@ -31,8 +31,7 @@ export function useGithubRepositories(
   skip?: boolean,
 ) {
   const { data, loading, error } = useQuery(GET_GITHUB_REPOSITORIES, {
-    variables:
-      installationId != null ? { installationId } : undefined,
+    variables: installationId != null ? { installationId } : undefined,
     skip: skip || !installationId,
   });
 

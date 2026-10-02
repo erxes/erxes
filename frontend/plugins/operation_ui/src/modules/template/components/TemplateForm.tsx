@@ -33,7 +33,7 @@ export const TemplateForm = ({
 }) => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
-  
+
   const initialDescription =
     isRecord(template?.defaults) &&
     typeof template.defaults.description === 'string'
@@ -53,7 +53,8 @@ export const TemplateForm = ({
       teamId: teamId || '',
       name: template?.name || '',
       taskName:
-        isRecord(template?.defaults) && typeof template.defaults.name === 'string'
+        isRecord(template?.defaults) &&
+        typeof template.defaults.name === 'string'
           ? template.defaults.name
           : '',
     },
@@ -98,7 +99,11 @@ export const TemplateForm = ({
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: t('error'), description: e.message, variant: 'destructive' });
+          toast({
+            title: t('error'),
+            description: e.message,
+            variant: 'destructive',
+          });
         });
     } else if (teamId) {
       addMutation({ variables: { name, teamId, defaults } })
@@ -107,7 +112,11 @@ export const TemplateForm = ({
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: t('error'), description: e.message, variant: 'destructive' });
+          toast({
+            title: t('error'),
+            description: e.message,
+            variant: 'destructive',
+          });
         });
     }
   };
@@ -115,16 +124,22 @@ export const TemplateForm = ({
   return (
     <div className="p-6 flex flex-col h-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col h-full">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 flex flex-col h-full"
+        >
           <div className="space-y-4 shrink-0">
-             <Form.Field
+            <Form.Field
               control={form.control}
               name="name"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('template-name')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="e.g., Bug Report, Feature Request" />
+                    <Input
+                      {...field}
+                      placeholder="e.g., Bug Report, Feature Request"
+                    />
                   </Form.Control>
                 </Form.Item>
               )}
@@ -134,30 +149,32 @@ export const TemplateForm = ({
           <Separator />
 
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-              <h3 className="font-semibold text-sm text-foreground/80">{t('task-content')}</h3>
-              <Form.Field
-                control={form.control}
-                name="taskName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('task-title')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder={t('default-task-title')} />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
+            <h3 className="font-semibold text-sm text-foreground/80">
+              {t('task-content')}
+            </h3>
+            <Form.Field
+              control={form.control}
+              name="taskName"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('task-title')}</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder={t('default-task-title')} />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
 
-              <div className="space-y-2">
-                 <Label>{t('task-description')}</Label>
-                 <div className="border rounded-md min-h-[150px] p-2">
-                    <BlockEditor
-                      editor={editor}
-                      onChange={handleDescriptionChange}
-                      className="min-h-full"
-                    />
-                 </div>
+            <div className="space-y-2">
+              <Label>{t('task-description')}</Label>
+              <div className="border rounded-md min-h-[150px] p-2">
+                <BlockEditor
+                  editor={editor}
+                  onChange={handleDescriptionChange}
+                  className="min-h-full"
+                />
               </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 shrink-0 pt-2 mt-auto">
