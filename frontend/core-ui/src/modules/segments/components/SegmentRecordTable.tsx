@@ -1,16 +1,29 @@
 import { useSegments } from '@/segments/hooks/useSegments';
-import { RecordTable, Spinner } from 'erxes-ui';
+import { RecordTable, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SegmentCommandBar } from './SegmentCommandBar';
-import { SegmentEmptyState } from './SegmentStates';
+import { SegmentEmptyState, SegmentErrorState } from './SegmentStates';
 import columns from './SegmentsColumns';
 
 export function SegmentsRecordTable() {
-  const { segments, loading } = useSegments();
+  const { segments, loading, error, refetch } = useSegments();
   const { t } = useTranslation('segment');
 
   if (loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return (
+      <SegmentErrorState
+        error={error}
+        onRetry={() =>
+          refetch().catch(() =>
+            toast({ title: t('error-description'), variant: 'destructive' }),
+          )
+        }
+      />
+    );
   }
 
   if (segments.length === 0) {
