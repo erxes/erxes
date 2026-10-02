@@ -252,6 +252,7 @@
   "reason-placeholder": "Reason...",
   "decline": "Decline",
   "accept-as-task": "Accept as Task",
+  "accepted-triage": "accepted this triage as a task",
   "triage-name": "Triage Name",
   "convert-to-task": "Convert to Task",
   "convert-triage-confirm": "Changing the status will convert the triage to a task. Are you sure you want to proceed?",

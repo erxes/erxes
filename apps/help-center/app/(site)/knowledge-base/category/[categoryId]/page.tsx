@@ -9,6 +9,8 @@ import {
   findSectionOf,
   sortByRecency,
 } from '@/modules/knowledge-base/utils/selectors';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
+import { getT } from '@/modules/i18n/server';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { type Crumb } from '@/modules/ui/components/Breadcrumbs';
 import { ButtonLink } from '@/modules/ui/components/Button';
@@ -26,19 +28,20 @@ type Props = { params: Promise<{ categoryId: string }> };
 
 export const generateMetadata = async ({ params }: Props) => {
   const { categoryId } = await params;
-  const topic = await getTopicArticleList();
+  const [topic, t] = await Promise.all([getTopicArticleList(), getT()]);
   const category =
     topic.state === 'ready' ? findCategory(topic.data, categoryId) : null;
 
-  return { title: category?.title ?? 'Category' };
+  return { title: category?.title ?? t('kb.category') };
 };
 
 export default async function CategoryPage({ params }: Props) {
   void getTopicWithArticles();
 
-  const [{ categoryId }, topic] = await Promise.all([
+  const [{ categoryId }, topic, t] = await Promise.all([
     params,
     getTopicArticleList(),
+    getT(),
   ]);
 
   if (topic.state !== 'ready') {
@@ -69,7 +72,10 @@ export default async function CategoryPage({ params }: Props) {
   const articles = sortByRecency(category.articles);
 
   const crumbs: Crumb[] = [
-    { label: 'Knowledge base', href: '/knowledge-base' },
+    {
+      label: knowledgeBaseName(topic.data.knowledgeBaseLabel, t).title,
+      href: '/knowledge-base',
+    },
     ...(section && section._id !== category._id
       ? [
           {
@@ -86,7 +92,12 @@ export default async function CategoryPage({ params }: Props) {
       breadcrumbs={crumbs}
       title={category.title}
       description={category.description || undefined}
-      meta={<CountBadge count={category.articleCount} label="articles" />}
+      meta={
+        <CountBadge
+          count={category.articleCount}
+          label={t('kb.articlesLabel', { count: category.articleCount })}
+        />
+      }
     >
       <div className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500">
         {articles.length ? (
@@ -108,26 +119,26 @@ export default async function CategoryPage({ params }: Props) {
                 <IconOrb name="smile" size="sm" />
                 <div className="min-w-0">
                   <h2 className="text-[15px] font-semibold text-ink">
-                    Did not find your answer?
+                    {t('kb.notFoundAnswer')}
                   </h2>
                   <p className="mt-0.5 text-[13px] text-muted-foreground">
-                    Raise a ticket and the support team will get back to you.
+                    {t('kb.stuckText')}
                   </p>
                 </div>
               </div>
               <ButtonLink href="/tickets/new" size="sm">
-                Submit a ticket
+                {t('tickets.submit')}
               </ButtonLink>
             </Card>
           </>
         ) : (
           <EmptyState
             icon="article"
-            title="No articles yet"
-            description="This category has no published articles. If you cannot find what you need, raise a ticket."
+            title={t('kb.noArticles')}
+            description={t('kb.noArticlesText')}
             action={
               <ButtonLink href="/tickets/new" size="sm">
-                Create a ticket
+                {t('tickets.create')}
               </ButtonLink>
             }
           />

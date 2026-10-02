@@ -1,3 +1,4 @@
+import type { Translate } from '@/modules/i18n/translate';
 import type { FormAttachment } from '../types';
 
 const MAX_BYTES = 20 * 1024 * 1024;
@@ -5,9 +6,10 @@ const MAX_BYTES = 20 * 1024 * 1024;
 export const uploadFormFile = async (
   file: File,
   apiUrl: string,
+  t: Translate,
 ): Promise<FormAttachment> => {
   if (file.size > MAX_BYTES) {
-    throw new Error('The file must be smaller than 20MB.');
+    throw new Error(t('upload.tooLarge'));
   }
 
   const body = new FormData();
@@ -22,7 +24,7 @@ export const uploadFormFile = async (
   const text = (await response.text()).trim();
 
   if (!response.ok || !text) {
-    throw new Error(text || 'Could not upload the file.');
+    throw new Error(text || t('upload.failed'));
   }
 
   return { name: file.name, url: text, size: file.size, type: file.type };

@@ -1,4 +1,4 @@
-import { Form } from 'erxes-ui';
+import { Checkbox, Form } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectCategory, SelectProduct, SelectTags } from 'ui-modules';
@@ -140,6 +140,28 @@ export const ScoreCampaignProductsSection = ({
           />
         </div>
       </div>
+      <Form.Field
+        control={form.control}
+        name="additionalConfig.discountCheck"
+        render={({ field }) => (
+          <Form.Item className="flex flex-row items-start gap-3">
+            <Form.Control>
+              <Checkbox
+                checked={field.value ?? false}
+                onCheckedChange={field.onChange}
+              />
+            </Form.Control>
+            <div className="flex flex-col gap-1">
+              <Form.Label className="mb-0">
+                {t('score-campaign-exclude-discounted')}
+              </Form.Label>
+              <Form.Description>
+                {t('score-campaign-exclude-discounted-hint')}
+              </Form.Description>
+            </div>
+          </Form.Item>
+        )}
+      />
     </div>
   );
 };

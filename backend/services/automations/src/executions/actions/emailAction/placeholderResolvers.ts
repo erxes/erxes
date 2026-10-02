@@ -1,10 +1,12 @@
 import {
+  AUTOMATION_OUTPUT_ITEM_COUNT,
   blocksToHtml,
   collectPlaceholderPaths,
   documentPlaceholderResolver,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
   TPlaceholderResolver,
+  TRepeatCounter,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { normalizeEmailActionPlaceholders } from './utils';
@@ -116,3 +118,28 @@ export const outputResolver = async ({
     return blocksValueToHtml(String(value)) || null;
   };
 };
+
+/** How many items a list output holds, for a row written once per item. */
+export const outputItemCounter =
+  ({
+    subdomain,
+    execution,
+    targetType,
+  }: {
+    subdomain: string;
+    execution: IAutomationExecutionDocument;
+    targetType: string;
+  }): TRepeatCounter =>
+  async (listPath) => {
+    const token = normalizeEmailActionPlaceholders(
+      `{{ ${listPath}.${AUTOMATION_OUTPUT_ITEM_COUNT} }}`,
+      targetType,
+    );
+    const { count } = await replaceOutputPlaceholders({
+      subdomain,
+      execution,
+      values: { count: token },
+    });
+
+    return Number(count) || 0;
+  };

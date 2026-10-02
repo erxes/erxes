@@ -54,7 +54,6 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
           title: data.title,
           description: data.description || '',
           order: data.order,
-          serviceName: data.conditions.serviceName,
           restrictions,
           additionalConfig: {
             discountCheck: data.additionalConfig?.discountCheck ?? false,

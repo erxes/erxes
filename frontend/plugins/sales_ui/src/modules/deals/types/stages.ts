@@ -20,6 +20,7 @@ export interface IStage {
   code?: string;
   age?: number;
   defaultTick?: boolean;
+  refundPoints?: boolean | null;
 }
 
 export interface ISelectStagesContext {

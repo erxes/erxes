@@ -147,7 +147,7 @@ export const buildEarnContext = async ({
     campaign.accountTypeId
       ? models.LoyaltyAccountTypes.findOne(
           { _id: campaign.accountTypeId },
-          { currencyRatio: 1 },
+          { currencyRatio: 1, pointValue: 1 },
         ).lean()
       : Promise.resolve(null),
     getTier({
@@ -170,6 +170,7 @@ export const buildEarnContext = async ({
 
   return {
     ratio: Number(accountType?.currencyRatio) || 1,
+    pointValue: Number(accountType?.pointValue) || 1,
     tier,
     totalAmount: Number(totalAmount) || 0,
     paidAmount: Number(paidAmount) || 0,

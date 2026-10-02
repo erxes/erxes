@@ -9,6 +9,7 @@ import { ActivityPriority } from '@/activity/components/ActivityPriority';
 import { ActivityStatus } from '@/activity/components/ActivityStatus';
 import { ActivityTeam } from '@/activity/components/ActivityTeam';
 import { Name } from '@/activity/components/Name';
+import { ActivityAccept } from '@/activity/components/ActivityAccept';
 import { ACTIVITY_MODULES } from '@/activity/constants';
 import { IActivity } from '@/activity/types';
 import {
@@ -56,6 +57,8 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
       return <ActivityMilestone metadata={metadata} action={action} />;
     case ACTIVITY_MODULES.CONVERT:
       return <ActivityConvertToProject metadata={metadata} action={action} />;
+    case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
+      return <ActivityAccept action={action} />;
     default:
       return <div>{t('unknown-module')}</div>;
   }

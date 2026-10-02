@@ -7,7 +7,7 @@ import type {
   PortalTheme,
   PortalTicketTarget,
 } from '@/modules/knowledge-base/utils/normalize';
-import { site } from './constants/site';
+import { getT } from '@/modules/i18n/server';
 
 export type PortalIdentity = {
   title: string;
@@ -15,12 +15,18 @@ export type PortalIdentity = {
 };
 
 export const getPortalIdentity = async (): Promise<PortalIdentity> => {
-  const [copy, config] = await Promise.all([getPortalCopy(), readConfig()]);
+  const [copy, config, t] = await Promise.all([
+    getPortalCopy(),
+    readConfig(),
+    getT(),
+  ]);
 
   return {
-    title: copy?.name?.trim() || config?.title || site.fallbackTitle,
+    title: copy?.name?.trim() || config?.title || t('site.fallbackTitle'),
     headline:
-      copy?.description?.trim() || config?.description || site.fallbackHeadline,
+      copy?.description?.trim() ||
+      config?.description ||
+      t('site.fallbackHeadline'),
   };
 };
 
@@ -29,7 +35,6 @@ export type PortalFooterView = {
   description: string;
   copyright: string;
   columns: PortalFooterColumn[];
-  languageLabel: string;
 };
 
 export type PortalSettings = {
@@ -62,21 +67,6 @@ const EMPTY_FOOTER: PortalFooterView = {
   description: '',
   copyright: '',
   columns: [],
-  languageLabel: site.fallbackLanguageLabel,
-};
-
-const languageLabel = (code: string): string => {
-  if (!code) {
-    return site.fallbackLanguageLabel;
-  }
-
-  try {
-    const label = new Intl.DisplayNames([code], { type: 'language' }).of(code);
-
-    return label ? label.charAt(0).toUpperCase() + label.slice(1) : code;
-  } catch {
-    return code;
-  }
 };
 
 export const getPortalSettings = async (): Promise<PortalSettings> => {
@@ -112,7 +102,6 @@ export const getPortalSettings = async (): Promise<PortalSettings> => {
       description: config.footer.description,
       copyright: config.footer.copyright,
       columns: config.footer.columns,
-      languageLabel: languageLabel(config.languageCode),
     },
   };
 };

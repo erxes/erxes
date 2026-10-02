@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-02`
 
 ## Scope
 
@@ -30,6 +30,11 @@
   to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
+- When the pipeline has a payment type with a score campaign, each stage shows
+  "Refund loyalty points" (`PipelineStageRefundPoints` /
+  `usePipelineStageRefundPoints`): checked by default on `Lost` stages while
+  `refundPoints` is unset, and every change asks for confirmation first.
+- In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.

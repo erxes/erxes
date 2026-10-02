@@ -771,6 +771,22 @@ const getErrorDesc = async (
   return result;
 };
 
+export const getInventoryOutAdjustment = (
+  transaction: ITransactionDocument & { details: ITrDetail },
+  unitCost: number,
+) => {
+  const preserveCost =
+    Boolean(transaction.originId) &&
+    transaction.originType === TR_FOLLOW_TYPES.INV_SPLIT_OUT;
+
+  return {
+    preserveCost,
+    cost: preserveCost
+      ? fixNum(transaction.details.amount ?? 0)
+      : fixNum((transaction.details.count ?? 0) * unitCost),
+  };
+};
+
 const fixOutTrs = async (
   subdomain: string,
   models: IModels,
@@ -832,12 +848,15 @@ const fixOutTrs = async (
     for (const rec of records) {
       const { details } = rec;
       const { count, amount } = details;
-      const newCost = fixNum((count ?? 0) * unitCost);
+      const { cost: newCost, preserveCost } = getInventoryOutAdjustment(
+        rec,
+        unitCost,
+      );
 
       remainder -= fixNum(count ?? 0);
       cost -= newCost;
 
-      if (newCost === amount) {
+      if (preserveCost || newCost === amount) {
         continue;
       }
 

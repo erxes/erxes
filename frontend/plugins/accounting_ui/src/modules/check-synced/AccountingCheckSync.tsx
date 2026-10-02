@@ -5,19 +5,27 @@ import { useTranslation } from 'react-i18next';
 import { AccountingHeader } from '~/modules/layout/components/Header';
 
 const AccountingCheckSyncedDealsPage = lazy(() =>
-  import('~/modules/check-synced/deals/components/AccountingCheckSyncedDealsPage').then(
-    (module) => ({
-      default: module.AccountingCheckSyncedDealsPage,
-    }),
-  ),
+  import(
+    '~/modules/check-synced/deals/components/AccountingCheckSyncedDealsPage'
+  ).then((module) => ({
+    default: module.AccountingCheckSyncedDealsPage,
+  })),
+);
+
+const AccountingCheckSyncedDealMovementsPage = lazy(() =>
+  import(
+    '~/modules/check-synced/deals/components/AccountingCheckSyncedDealsPage'
+  ).then((module) => ({
+    default: module.AccountingCheckSyncedDealMovementsPage,
+  })),
 );
 
 const AccountingCheckSyncedOrdersPage = lazy(() =>
-  import('~/modules/check-synced/orders/components/AccountingCheckSyncedOrdersPage').then(
-    (module) => ({
-      default: module.AccountingCheckSyncedOrdersPage,
-    }),
-  ),
+  import(
+    '~/modules/check-synced/orders/components/AccountingCheckSyncedOrdersPage'
+  ).then((module) => ({
+    default: module.AccountingCheckSyncedOrdersPage,
+  })),
 );
 
 export const AccountingCheckSync = () => {
@@ -43,6 +51,10 @@ export const AccountingCheckSync = () => {
               <Route
                 path="/deal"
                 element={<AccountingCheckSyncedDealsPage />}
+              />
+              <Route
+                path="/deal-movement"
+                element={<AccountingCheckSyncedDealMovementsPage />}
               />
               <Route
                 path="/order"

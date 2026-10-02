@@ -18,12 +18,14 @@ import { TFunction } from 'i18next';
 import { useSetAtom } from 'jotai';
 import {
   Badge,
+  Button,
   fixNum,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { IScoreLog, IScoreOwner } from '../types/score';
+import { EarnCalcPopover } from './EarnCalcPopover';
 import { makeScoreMoreColumn } from './ScoreMoreColumn';
 import { scoreDetailRecordAtom } from '../states/scoreDetail';
 
@@ -266,11 +268,31 @@ export const scoreLogColumns = (
       />
     ),
     size: 220,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell, row }) => {
+      const { breakdown, change } = row.original;
+      const text = (cell.getValue() as string) || '';
+
+      if (!breakdown?.length) {
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value={text} />
+          </RecordTableInlineCell>
+        );
+      }
+
+      return (
+        <EarnCalcPopover breakdown={breakdown} total={change || 0}>
+          <Button
+            variant="ghost"
+            className="h-full w-full min-w-0 justify-start rounded-none px-2 font-normal"
+          >
+            <span className="truncate underline decoration-dotted underline-offset-4">
+              {text}
+            </span>
+          </Button>
+        </EarnCalcPopover>
+      );
+    },
   },
   {
     id: 'campaign',

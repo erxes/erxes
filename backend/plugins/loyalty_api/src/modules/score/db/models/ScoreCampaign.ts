@@ -50,8 +50,24 @@ import {
 } from '@/score/services/earnTable';
 import {
   checkSpendRules,
+  maxSpendMoney,
   normalizeSpendRules,
+  TSpendBlock,
 } from '@/score/services/spendRules';
+
+type TSpendLimitInput = Pick<
+  ISpendInput,
+  'ownerType' | 'ownerId' | 'campaignId' | 'totalAmount' | 'targetId'
+>;
+
+/** What an order may pay with points, for the paying screen to show. */
+export type TSpendLimit = {
+  balance: number;
+  pointValue: number;
+  maxAmount: number;
+  step: number | null;
+  blocked: TSpendBlock | null;
+};
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocument>;
@@ -73,6 +89,7 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
     user: IUserDocument,
   ): Promise<IScoreCampaignDocument>;
   checkSpend(input: ISpendInput): Promise<boolean>;
+  spendLimit(input: TSpendLimitInput): Promise<TSpendLimit>;
   spend(input: ISpendInput): Promise<IScoreLogDocument | null>;
   earn(
     input: IEarnInput,
@@ -126,9 +143,66 @@ const withNormalizedModes = (doc: IScoreCampaign): IScoreCampaign => ({
     : {}),
 });
 
+/**
+ * Points a purchase earned into a wallet and still holds. A purchase never
+ * pays with them: refunding it would take them back from a payment that
+ * relied on them, and taking the payment again would need points that only
+ * come once the purchase is final.
+ */
+const earnedOnTarget = async ({
+  models,
+  targetId,
+  ownerType,
+  ownerId,
+  accountTypeId,
+}: {
+  models: IModels;
+  targetId?: string;
+  ownerType: string;
+  ownerId: string;
+  accountTypeId?: string;
+}) => {
+  if (!targetId) {
+    return 0;
+  }
+
+  const earned = await models.ScoreLogs.find(
+    {
+      targetId,
+      ownerType,
+      ownerId,
+      action: SCORE_ACTION.ADD,
+      accountTypeId: accountTypeId || { $exists: false },
+    },
+    { changeScore: 1 },
+  ).lean();
+
+  if (!earned.length) {
+    return 0;
+  }
+
+  const undone = await models.ScoreLogs.find(
+    {
+      targetId,
+      action: { $in: [SCORE_ACTION.REFUND, SCORE_ACTION.RETURN] },
+      sourceScoreLogId: { $in: earned.map(({ _id }) => _id) },
+    },
+    { changeScore: 1 },
+  ).lean();
+
+  return Math.max(
+    0,
+    [...earned, ...undone].reduce(
+      (sum, { changeScore }) => sum + (Number(changeScore) || 0),
+      0,
+    ),
+  );
+};
+
 // Points a payment with points costs under the campaign's spending rules,
 // as a negative change. `alreadySpent` is what this order took before, so a
-// recalculated order is checked against the balance it started from.
+// recalculated order is checked against the balance it started from; what
+// the order itself earned is not spendable on it.
 const spendByRules = async ({
   models,
   subdomain,
@@ -139,6 +213,7 @@ const spendByRules = async ({
   ownerType,
   ownerId,
   alreadySpent,
+  targetId,
 }: {
   models: IModels;
   subdomain: string;
@@ -149,8 +224,9 @@ const spendByRules = async ({
   ownerType: string;
   ownerId: string;
   alreadySpent: number;
+  targetId?: string;
 }) => {
-  const [accountType, balance] = await Promise.all([
+  const [accountType, balance, earnedHere] = await Promise.all([
     campaign.accountTypeId
       ? models.LoyaltyAccountTypes.findOne(
           { _id: campaign.accountTypeId },
@@ -165,6 +241,13 @@ const spendByRules = async ({
       fieldId: campaign.fieldId,
       owner,
     }),
+    earnedOnTarget({
+      models,
+      targetId,
+      ownerType,
+      ownerId,
+      accountTypeId: campaign.accountTypeId,
+    }),
   ]);
 
   return -checkSpendRules({
@@ -172,7 +255,7 @@ const spendByRules = async ({
     paidMoney: Number(pointsPaymentAmount) || 0,
     orderTotal: Number(totalAmount) || 0,
     pointValue: Number(accountType?.pointValue) || 1,
-    balance: balance + alreadySpent,
+    balance: Math.max(0, balance + alreadySpent - earnedHere),
   });
 };
 
@@ -538,9 +621,88 @@ export const loadScoreCampaignClass = (
         alreadySpent: activeScoreLog
           ? Math.abs(getLogChangeScore(activeScoreLog))
           : 0,
+        targetId: input.targetId,
       });
 
       return true;
+    }
+
+    /**
+     * The most this order may pay with points. What it already paid counts
+     * as available, so an order being edited can keep it.
+     */
+    public static async spendLimit(input: TSpendLimitInput) {
+      const { campaign, owner } = await loadCampaignOwner(input);
+      const [activeScoreLog, accountType, balance, account] = await Promise.all(
+        [
+          findActiveScoreLog({
+            models,
+            targetId: input.targetId,
+            ownerId: input.ownerId,
+            ownerType: input.ownerType,
+            campaignId: campaign._id,
+            action: 'subtract',
+          }),
+          campaign.accountTypeId
+            ? models.LoyaltyAccountTypes.findOne(
+                { _id: campaign.accountTypeId },
+                { pointValue: 1 },
+              ).lean()
+            : Promise.resolve(null),
+          getOwnerBalance({
+            models,
+            subdomain,
+            ownerType: input.ownerType,
+            ownerId: input.ownerId,
+            fieldId: campaign.fieldId,
+            owner,
+          }),
+          models.LoyaltyAccounts.findOne(
+            { ownerType: input.ownerType, ownerId: input.ownerId },
+            { status: 1 },
+          ).lean(),
+        ],
+      );
+
+      const earnedHere = await earnedOnTarget({
+        models,
+        targetId: input.targetId,
+        ownerType: input.ownerType,
+        ownerId: input.ownerId,
+        accountTypeId: campaign.accountTypeId,
+      });
+      const rules = campaign.subtract?.rules || {};
+      const pointValue = Number(accountType?.pointValue) || 1;
+      const available = Math.max(
+        0,
+        balance +
+          (activeScoreLog ? Math.abs(getLogChangeScore(activeScoreLog)) : 0) -
+          earnedHere,
+      );
+      const step = rules.step || null;
+
+      // Freezing always stops spending, whatever else the account type blocks.
+      if (account?.status === 'frozen') {
+        return {
+          balance: available,
+          pointValue,
+          maxAmount: 0,
+          step,
+          blocked: 'frozen' as const,
+        };
+      }
+
+      return {
+        balance: available,
+        pointValue,
+        step,
+        ...maxSpendMoney({
+          rules,
+          orderTotal: Number(input.totalAmount) || 0,
+          pointValue,
+          balance: available,
+        }),
+      };
     }
 
     /**
@@ -569,6 +731,7 @@ export const loadScoreCampaignClass = (
         alreadySpent: activeScoreLog
           ? Math.abs(getLogChangeScore(activeScoreLog))
           : 0,
+        targetId: input.targetId,
       });
 
       return writeCampaignChange({
@@ -709,7 +872,15 @@ export const loadScoreCampaignClass = (
       );
       const results: IScoreLogDocument[] = [];
 
-      for (const sourceLog of logs) {
+      // Points paid with go back first, so taking back what was earned never
+      // runs into a balance the payment had emptied.
+      const ordered = [...logs].sort(
+        (a, b) =>
+          Number(b.action === SCORE_ACTION.SUBTRACT) -
+          Number(a.action === SCORE_ACTION.SUBTRACT),
+      );
+
+      for (const sourceLog of ordered) {
         if (refunded.has(sourceLog._id) || !getLogChangeScore(sourceLog)) {
           continue;
         }

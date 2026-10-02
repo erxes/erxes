@@ -1,5 +1,17 @@
 import { Document } from 'mongoose';
 
+export type IInvSplitDetailInfo =
+  | {
+      hasSplit: false;
+      productId?: string;
+      ratio?: number;
+    }
+  | {
+      hasSplit: true;
+      productId: string;
+      ratio: number;
+    };
+
 export interface ITrDetail {
   _id?: string;
   accountId: string;
