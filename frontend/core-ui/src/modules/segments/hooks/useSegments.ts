@@ -1,4 +1,4 @@
-import {useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 import { useCallback } from 'react';
 import { ListQueryResponse, SEGMENTS } from 'ui-modules';
