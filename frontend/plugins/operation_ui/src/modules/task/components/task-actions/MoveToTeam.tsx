@@ -231,11 +231,11 @@ export const TaskMoveToTeamContent = ({
             {teams.map((team) => (
               <Command.Item
                 key={team._id}
-                onSelect={() => handleSelectTeam(team._id, team.name)}
+                onSelect={() => handleSelectTeam(team._id, team.name ?? '')}
                 className="cursor-pointer"
                 disabled={team._id === currentTeamId || loading}
               >
-                <IconComponent name={team.icon} className="size-4 mr-2" />
+                <IconComponent name={team.icon ?? undefined} className="size-4 mr-2" />
                 <div className="flex flex-col flex-1">
                   <span>{team.name}</span>
                   {team._id === currentTeamId && (

@@ -1,11 +1,15 @@
-import type { GetTaskQuery, GetTasksQuery } from '~/gql/graphql';
+import type {
+  EstimateChoisesQuery,
+  GetStatusByTeamQuery,
+  GetTaskQuery,
+  GetTasksQuery,
+} from '~/gql/graphql';
 import { addTaskSchema } from '@/task/types/validations';
 import { z } from 'zod';
 
-export interface IEstimateChoice {
-  label: string;
-  value: number;
-}
+export type IEstimateChoice = NonNullable<
+  NonNullable<EstimateChoisesQuery['getTeamEstimateChoises']>[number]
+>;
 
 export interface INote {
   _id: string;
@@ -23,12 +27,9 @@ export type ITask = NonNullable<
 
 export type ITaskDetail = NonNullable<GetTaskQuery['getTask']>;
 
-export interface ITaskStatus {
-  value: string;
-  label: string;
-  color: string;
-  type: number;
-}
+export type ITaskStatus = NonNullable<
+  NonNullable<GetStatusByTeamQuery['getStatusesChoicesByTeam']>[number]
+>;
 
 export type TAddTask = z.infer<typeof addTaskSchema>;
 export * from '@/task/types/validations';

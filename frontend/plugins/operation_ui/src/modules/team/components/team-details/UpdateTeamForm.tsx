@@ -13,9 +13,9 @@ export const UpdateTeamForm = ({ team }: { team: ITeam }) => {
 
   const form = useTeamForm({
     defaultValues: {
-      name: team.name,
-      description: team.description,
-      icon: team.icon,
+      name: team.name ?? '',
+      description: team.description ?? undefined,
+      icon: team.icon ?? 'IconBuildingSkyscraper',
     },
   });
 

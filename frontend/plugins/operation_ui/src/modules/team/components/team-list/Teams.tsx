@@ -41,9 +41,9 @@ export function Teams() {
                     <Table.Cell className="font-medium border-none pl-2 w-auto ">
                       <span className="w-full flex gap-2 text-base font-medium">
                         <span className="[1lh] flex items-center">
-                          <IconComponent name={team.icon} className="size-4" />
+                          <IconComponent name={team.icon ?? undefined} className="size-4" />
                         </span>
-                        <TextOverflowTooltip value={team.name} />
+                        <TextOverflowTooltip value={team.name ?? ''} />
                       </span>
                     </Table.Cell>
                     <Table.Cell className="border-none px-2 w-20">

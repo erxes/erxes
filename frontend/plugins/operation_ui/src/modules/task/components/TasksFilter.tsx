@@ -50,7 +50,7 @@ import { TeamEstimateTypes } from '@/team/types';
 const TasksFilterPopover = () => {
   const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams();
-  const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
+  const { team } = useGetTeam(teamId);
   const { project } = useGetProject(projectId, { skip: !!teamId });
   const resolvedTeamIds = teamId
     ? [teamId]
@@ -261,7 +261,7 @@ const TasksFilterPopover = () => {
 export const TasksFilter = () => {
   const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams();
-  const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
+  const { team } = useGetTeam(teamId);
   const { project } = useGetProject(projectId, { skip: !!teamId });
   const resolvedTeamIds = teamId
     ? [teamId]

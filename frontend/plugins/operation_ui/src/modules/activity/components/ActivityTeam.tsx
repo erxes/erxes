@@ -43,12 +43,12 @@ export const ActivityTeam = ({
     <div className="inline-flex items-center gap-1">
       {t('changed-team-to')}
       <Badge variant="secondary" className="flex-none">
-        <IconComponent name={newTeam?.icon} className="size-4" />
+        <IconComponent name={newTeam?.icon ?? undefined} className="size-4" />
         {renderTeamValue([newValue])}
       </Badge>
       {t('from')}
       <Badge variant="secondary" className="flex-none">
-        <IconComponent name={previousTeam?.icon} className="size-4" />
+        <IconComponent name={previousTeam?.icon ?? undefined} className="size-4" />
         {previousValue && renderTeamValue([previousValue])}
       </Badge>
     </div>

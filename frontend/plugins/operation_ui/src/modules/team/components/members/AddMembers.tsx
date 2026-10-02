@@ -46,8 +46,9 @@ export const AddMembers = () => {
 
   const submitHandler: SubmitHandler<TTeamMemberForm> = React.useCallback(
     async (data) => {
+      if (!teamId) return;
       addTeamMember({
-        variables: { ...data, teamId },
+        variables: { memberIds: data.memberIds ?? [], teamId },
         onCompleted: () => {
           toast({ title: t('success') });
           form.reset();
