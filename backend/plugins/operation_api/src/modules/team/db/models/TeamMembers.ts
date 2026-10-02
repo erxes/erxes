@@ -28,7 +28,9 @@ export const loadTeamMemberClass = (models: IModels) => {
       const existingIds = new Set(existing.map((member) => member.memberId));
       const wantedIds = new Set(memberIds);
 
-      const toAdd = memberIds.filter((memberId) => !existingIds.has(memberId));
+      const toAdd = [...wantedIds].filter(
+        (memberId) => !existingIds.has(memberId),
+      );
       const toRemove = existing
         .map((member) => member.memberId)
         .filter((memberId) => !wantedIds.has(memberId));
