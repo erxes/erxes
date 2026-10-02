@@ -13,8 +13,13 @@ export const useGetTeamMembers = ({
     }
     return { teamId: teamIds };
   };
+  const hasId = Array.isArray(teamIds)
+    ? teamIds.some(Boolean)
+    : Boolean(teamIds);
+
   const { data, loading, refetch } = useQuery(GET_TEAM_MEMBERS, {
     variables: getVariables(),
+    skip: !hasId,
   });
 
   const members = compactList(data?.getTeamMembers);
