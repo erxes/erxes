@@ -53,7 +53,7 @@ const NavigationContextPanelFrame = ({
       ref={asideRef}
       aria-label={title}
       initial={false}
-      animate={{ width: open ? width ?? 'auto' : COLLAPSED_WIDTH }}
+      animate={{ width: open ? (width ?? 'auto') : COLLAPSED_WIDTH }}
       transition={
         reduceMotion || resizing
           ? { duration: 0 }
@@ -129,8 +129,8 @@ export const NavigationContextPanel = () => {
     : undefined;
   const showModules = Boolean(
     pluginActivity &&
-      navigationGroup?.contents.length &&
-      getPlacement(pluginActivity.id) === 'context',
+    navigationGroup?.contents.length &&
+    getPlacement(pluginActivity.id) === 'context',
   );
   const showSubGroups = Boolean(navigationGroup?.subGroups.length);
 
