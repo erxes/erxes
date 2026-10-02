@@ -345,7 +345,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              }[character] || character),
+              })[character] || character,
           )}</blockquote>`
         : '';
 

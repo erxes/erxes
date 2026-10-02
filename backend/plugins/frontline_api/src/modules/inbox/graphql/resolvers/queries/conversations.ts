@@ -28,9 +28,8 @@ const authorizeConversationAccess = async (
     return;
   }
 
-  const conversation = await models.Conversations.getConversation(
-    conversationId,
-  );
+  const conversation =
+    await models.Conversations.getConversation(conversationId);
   const memberships = await models.ChannelMembers.find({
     memberId: user._id,
   }).lean();
