@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-02`
 
 ## Scope
 
@@ -447,6 +447,8 @@
 | Surveys results           | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                       |
 | Surveys data              | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
 | Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
+| Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
+| Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                        |
 | Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel   |
@@ -1618,6 +1620,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Category and article writes stay inside the topic in the URL: a category's
   `topicId` and an article's `categoryId` always come from the current route or
   the topic's own categories, never from an unrelated topic.
+- Message reactions are read through `getMessageReactions` /
+  `findOwnReaction` in `conversation-messages/utils/message.ts`
+  (`reactions`, falling back to `extraData.reactions`); do not re-derive the
+  fallback in components or hooks.
+- Image clipboard copies reuse `isImageAttachment`, `canCopyAttachment` and
+  `toPngBlob` from `conversation-messages/utils/copyAttachment.ts`; the
+  Instagram proxy path only adds the `frontlineInstagramCopyImage` fallback.
+- Instagram send/reaction toasts map provider errors through ordered
+  `InstagramErrorRule` lists; adding a case means adding a rule with its own
+  `instagram-*` i18n key, keeping existing keys and fallback copy unchanged.
 
 ## Validation
 

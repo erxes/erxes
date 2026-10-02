@@ -61,6 +61,7 @@ export const MessageInput = ({
   const { integration } = useConversationContext();
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
@@ -76,6 +77,7 @@ export const MessageInput = ({
     attachments,
     pendingAttachments,
     handleDrop,
+    handlePaste,
     handleFileInput,
     removeAttachment,
     resetAttachments,
@@ -235,6 +237,7 @@ export const MessageInput = ({
     attachments,
     mentionedUserIds,
     isDiscord,
+    isInstagram,
     isFacebook: integration?.kind === IntegrationType.FACEBOOK_MESSENGER,
     isInternalNote,
     isUploading,
@@ -287,10 +290,7 @@ export const MessageInput = ({
   if (hideInput) return null;
 
   const sendDisabled =
-    loading ||
-    isUploading ||
-    pendingAttachments.length > 0 ||
-    (!content?.length && attachments.length === 0);
+    loading || isUploading || (!content?.length && attachments.length === 0);
   const blockAttachments = getBlockAttachments(content || []);
 
   return (
@@ -326,6 +326,7 @@ export const MessageInput = ({
       <div
         ref={editorRef}
         data-composer-editor
+        onPasteCapture={handlePaste}
         className="flex min-h-0 min-w-0 flex-1 flex-col overscroll-contain [&_.bn-container]:h-full [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full [&_.bn-editor]:max-h-full [&_.bn-editor]:overflow-y-auto"
       >
         <ComposerEditor

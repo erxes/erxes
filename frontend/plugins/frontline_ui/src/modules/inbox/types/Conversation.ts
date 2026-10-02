@@ -163,6 +163,7 @@ export interface IMessage {
     stickers?: IMessageSticker[];
     voiceMessage?: boolean;
     forwardedSnapshot?: IMessageForwardedSnapshot;
+    forwardedNote?: string;
     discordMessageId?: string;
     discordDeletedAt?: string;
     discordEditedAt?: string;

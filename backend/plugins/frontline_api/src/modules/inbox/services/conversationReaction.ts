@@ -1,6 +1,8 @@
 import { visibleChannelsFilter } from '@/channel/utils';
 import { handleFacebookReaction } from '@/integrations/facebook/handleFacebookMessage';
 import { publishFacebookMessage } from '@/integrations/facebook/services/messageEvents';
+import { handleInstagramReaction } from '@/integrations/instagram/handleInstagramMessage';
+import { publishInstagramMessage } from '@/integrations/instagram/services/messageEvents';
 import type { IContext } from '~/connectionResolvers';
 
 export interface IConversationReaction {
@@ -9,6 +11,22 @@ export interface IConversationReaction {
   reaction?: string | null;
   remove?: boolean | null;
 }
+
+const REACTION_HANDLERS = {
+  'facebook-messenger': {
+    react: handleFacebookReaction,
+    publish: publishFacebookMessage,
+  },
+  'instagram-messenger': {
+    react: handleInstagramReaction,
+    publish: publishInstagramMessage,
+  },
+} as const;
+
+const getReactionHandler = (kind: string) =>
+  Object.prototype.hasOwnProperty.call(REACTION_HANDLERS, kind)
+    ? REACTION_HANDLERS[kind as keyof typeof REACTION_HANDLERS]
+    : undefined;
 
 export const reactToConversationMessage = async (
   { conversationId, messageId, reaction, remove }: IConversationReaction,
@@ -24,9 +42,8 @@ export const reactToConversationMessage = async (
     throw new Error('A reaction is required');
   }
 
-  const conversation = await models.Conversations.getConversation(
-    conversationId,
-  );
+  const conversation =
+    await models.Conversations.getConversation(conversationId);
   const integration = await models.Integrations.getIntegration({
     _id: conversation.integrationId,
   });
@@ -40,11 +57,12 @@ export const reactToConversationMessage = async (
   ) {
     throw new Error('You do not have access to this conversation');
   }
-  if (integration.kind !== 'facebook-messenger') {
+  const handler = getReactionHandler(integration.kind);
+  if (!handler) {
     throw new Error('Reactions are not supported for this integration');
   }
 
-  const result = await handleFacebookReaction(models, {
+  const result = await handler.react(models, {
     integrationId: integration._id,
     conversationId,
     messageId,
@@ -53,6 +71,6 @@ export const reactToConversationMessage = async (
     userId: user._id,
   });
 
-  await publishFacebookMessage(conversationId, result.data);
+  await handler.publish(conversationId, result.data);
   return true;
 };

@@ -142,11 +142,27 @@ export const getMessageDisplay = ({
   const contentWithoutForwardMarker = isForwardedMessage
     ? stripForwardedMarkers(contentWithoutQuotedReply)
     : contentWithoutQuotedReply;
-  const displayContent =
+  const fallbackDisplayContent =
     botText ||
     contentWithoutForwardMarker
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
+  const snapshotHasContent = Boolean(
+    forwardedSnapshot?.content ||
+    forwardedSnapshot?.attachments?.length ||
+    forwardedSnapshot?.stickers?.length ||
+    forwardedSnapshot?.embeds?.length ||
+    forwardedSnapshot?.poll,
+  );
+  let displayContent: string | undefined = fallbackDisplayContent;
+  if (
+    integrationKind === IntegrationType.INSTAGRAM_MESSENGER &&
+    forwardedSnapshot
+  ) {
+    displayContent =
+      extraData?.forwardedNote?.trim() ||
+      (snapshotHasContent ? undefined : fallbackDisplayContent);
+  }
   const postIntegrationKind = getPostIntegrationKind(integrationKind);
   const isPostConversation = Boolean(postIntegrationKind);
   const typedAttachments = isPostConversation

@@ -60,6 +60,9 @@ const storeDispatchedMessage = async ({
 
   const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
     ...doc,
+    ...(kind === 'instagram-messenger' && doc.extraInfo?.forwardedFrom
+      ? { content: content || '' }
+      : {}),
     ...(displayContent ? { content: displayContent } : {}),
     ...(kind === 'facebook-messenger' && extraData?.facebookDelivery
       ? { content: content || '', attachments: data.attachments || [] }
@@ -102,9 +105,8 @@ export const conversationMessageMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation = await models.Conversations.getConversation(
-        conversationId,
-      );
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
       if (!conversation?.integrationId) {
         return false;
       }
