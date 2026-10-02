@@ -31,7 +31,7 @@ module.exports = [
         'error',
         {
           selector:
-            'CallExpression[callee.name=/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/][typeArguments]',
+            'CallExpression[typeArguments]:matches([callee.name=/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/], [callee.property.name=/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/])',
           message:
             'Do not pass type arguments to Apollo hooks; infer them from a document created with gql() from ~/gql.',
         },
