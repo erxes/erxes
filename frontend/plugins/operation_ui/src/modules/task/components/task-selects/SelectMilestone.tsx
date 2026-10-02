@@ -192,9 +192,12 @@ const SelectMilestoneProvider = ({
 
   const [debouncedSearch] = useDebounce(search, 500);
 
-  const { milestones, handleFetchMore, totalCount, loading } = useMilestones(projectId, {
-    variables: { searchValue: debouncedSearch },
-  });
+  const { milestones, handleFetchMore, totalCount, loading } = useMilestones(
+    projectId,
+    {
+      variables: { searchValue: debouncedSearch },
+    },
+  );
 
   return (
     <SelectMilestoneContext.Provider

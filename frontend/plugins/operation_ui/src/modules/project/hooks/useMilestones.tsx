@@ -23,9 +23,7 @@ export const useMilestones = (
   const { data, loading, fetchMore } = useQuery(GET_MILESTONES_INLINE, {
     ...options,
     skip: options?.skip || !projectId,
-    variables: projectId
-      ? { ...options?.variables, projectId }
-      : undefined,
+    variables: projectId ? { ...options?.variables, projectId } : undefined,
   });
 
   const milestones = data?.milestones?.list

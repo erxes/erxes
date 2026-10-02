@@ -40,7 +40,8 @@ export const loadProjectClass = (
 
       if (
         doc.teamIds !== undefined &&
-        (!doc.teamIds || doc.teamIds.some((teamId) => !teamId || !teamId.trim()))
+        (!doc.teamIds ||
+          doc.teamIds.some((teamId) => !teamId || !teamId.trim()))
       ) {
         throw new Error('Project teamIds cannot contain empty values');
       }

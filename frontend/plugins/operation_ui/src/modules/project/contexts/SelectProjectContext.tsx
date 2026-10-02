@@ -2,7 +2,9 @@ import { createContext, useContext } from 'react';
 import type { GetProjectsInlineQuery } from '~/gql/graphql';
 
 export type IProjectOption = NonNullable<
-  NonNullable<NonNullable<GetProjectsInlineQuery['getProjects']>['list']>[number]
+  NonNullable<
+    NonNullable<GetProjectsInlineQuery['getProjects']>['list']
+  >[number]
 >;
 
 interface SelectProjectContextType {
