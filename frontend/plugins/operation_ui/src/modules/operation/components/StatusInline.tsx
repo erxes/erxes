@@ -62,9 +62,11 @@ export const StatusInlineIcon = ({
   className,
   color,
   ...props
-}: React.ComponentProps<Icon> & { statusType?: number | string }) => {
+}: React.ComponentProps<Icon> & {
+  statusType?: number | string | null;
+}) => {
   const numericType =
-    typeof statusType === 'string' ? parseInt(statusType, 10) : statusType;
+    typeof statusType === 'string' ? parseInt(statusType, 10) : (statusType ?? 0);
 
   const config = STATUS_CONFIG[numericType];
 
@@ -88,10 +90,10 @@ StatusInlineIcon.displayName = 'StatusInlineIcon';
 export const StatusInlineLabel = ({
   statusType = 1,
 }: {
-  statusType?: number | string;
+  statusType?: number | string | null;
 }) => {
   const numericType =
-    typeof statusType === 'string' ? parseInt(statusType, 10) : statusType;
+    typeof statusType === 'string' ? parseInt(statusType, 10) : (statusType ?? 1);
 
   const config = STATUS_CONFIG[numericType];
 

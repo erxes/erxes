@@ -1,13 +1,14 @@
 import { createContext, useContext } from 'react';
+import type { GetProjectsInlineQuery } from '~/gql/graphql';
+
+export type IProjectOption = NonNullable<
+  NonNullable<NonNullable<GetProjectsInlineQuery['getProjects']>['list']>[number]
+>;
 
 interface SelectProjectContextType {
   value?: string | null;
   onValueChange: (value: string) => void;
-  projects: {
-    _id: string;
-    name: string;
-    status: number;
-  }[];
+  projects: IProjectOption[];
   handleFetchMore: () => void;
   totalCount?: number;
   search?: string;

@@ -51,10 +51,7 @@ const TasksFilterPopover = () => {
   const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams();
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
-  const { project } = useGetProject({
-    variables: { _id: projectId },
-    skip: !projectId || !!teamId,
-  });
+  const { project } = useGetProject(projectId, { skip: !!teamId });
   const resolvedTeamIds = teamId
     ? [teamId]
     : project?.teamIds?.length
@@ -265,10 +262,7 @@ export const TasksFilter = () => {
   const { t } = useTranslation('operation');
   const { teamId, projectId } = useParams();
   const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
-  const { project } = useGetProject({
-    variables: { _id: projectId },
-    skip: !projectId || !!teamId,
-  });
+  const { project } = useGetProject(projectId, { skip: !!teamId });
   const resolvedTeamIds = teamId
     ? [teamId]
     : project?.teamIds?.length

@@ -6,13 +6,11 @@ import { forwardRef } from 'react';
 export const MilestoneInline = forwardRef<
   HTMLDivElement,
   {
-    milestoneId: string;
+    milestoneId: string | null | undefined;
     milestone?: IMilestone;
   } & React.HTMLAttributes<HTMLDivElement>
 >(({ milestoneId, milestone, className, ...props }, ref) => {
-  const { milestones } = useMilestones({
-    skip: Boolean(milestone),
-  });
+  const { milestones } = useMilestones(undefined, { skip: Boolean(milestone) });
 
   const name =
     milestones?.find((milestone: IMilestone) => milestone._id === milestoneId)

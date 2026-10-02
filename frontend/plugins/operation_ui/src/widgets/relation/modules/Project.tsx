@@ -1,4 +1,5 @@
 import { GET_PROJECTS } from '@/project/graphql/queries/getProjects';
+import { compactList } from '@/operation/utils/cursorList';
 import { IProject } from '@/project/types';
 import { IconClipboard } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
@@ -69,7 +70,7 @@ export const Project = ({
     createMultipleRelations(relations);
   };
 
-  const projects: IProject[] = data?.getProjects?.list ?? [];
+  const projects: IProject[] = compactList(data?.getProjects?.list);
 
   if (ownEntities.length === 0 || projects.length === 0) {
     return (
