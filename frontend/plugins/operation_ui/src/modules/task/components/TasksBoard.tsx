@@ -48,9 +48,7 @@ export function TasksBoard() {
   }, [teamId, setTaskCountByBoard, setTasks]);
 
   const { statuses, loading } = useGetStatusByTeam({
-    variables: {
-      teamId: teamId || undefined,
-    },
+    variables: teamId ? { teamId } : undefined,
     skip: !teamId,
   });
 

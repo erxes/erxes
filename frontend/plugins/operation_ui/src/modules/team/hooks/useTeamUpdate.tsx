@@ -1,21 +1,23 @@
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { UPDATE_TEAM } from '@/team/graphql/mutations/updateTeam';
-import { ITeam } from '@/team/types';
 import { GET_TEAM } from '@/team/graphql/queries/getTeam';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-interface UpdateTeamMutationResponse {
-  updateTeam: ITeam;
-}
+import {
+  TeamUpdateMutation,
+  TeamUpdateMutationVariables,
+} from '~/gql/graphql';
 
 export const useTeamUpdate = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
-  const [updateTeam, { loading, error }] =
-    useMutation<UpdateTeamMutationResponse>(UPDATE_TEAM);
+  const [updateTeam, { loading, error }] = useMutation(UPDATE_TEAM);
 
   const handleUpdateTeam = (
-    options: MutationFunctionOptions<UpdateTeamMutationResponse, any>,
+    options: MutationFunctionOptions<
+      TeamUpdateMutation,
+      TeamUpdateMutationVariables
+    >,
   ) => {
     updateTeam({
       ...options,

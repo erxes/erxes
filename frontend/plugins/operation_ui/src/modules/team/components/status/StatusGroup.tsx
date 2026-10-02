@@ -242,6 +242,7 @@ export const StatusForm = ({
         },
       });
     } else {
+      if (!teamId) return;
       addStatus({
         variables: { name, description, color, teamId, type: statusType },
         onCompleted: () => {

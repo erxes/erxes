@@ -1,9 +1,9 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const REMOVE_TEAM = gql`
+export const REMOVE_TEAM = gql(`
   mutation RemoveTeam($id: String!) {
     teamRemove(_id: $id) {
       _id
     }
   }
-`;
+`);

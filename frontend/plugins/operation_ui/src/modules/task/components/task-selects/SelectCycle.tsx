@@ -198,7 +198,7 @@ const SelectCycleProvider = ({
   taskId?: string;
   isFilter?: boolean;
 }) => {
-  const { team } = useGetTeam({ variables: { _id: teamId }, skip: !teamId });
+  const { team } = useGetTeam(teamId);
   const { activeCycles } = useGetActiveCycles(teamId, taskId);
 
   if (!team?.cycleEnabled && !isFilter) return null;
