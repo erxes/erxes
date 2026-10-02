@@ -163,6 +163,20 @@ const MailMessageReactionChip = ({
   const senderNames = senders
     .map(({ sender, isOwn }) => (isOwn ? 'You' : sender))
     .join(', ');
+  const reactionButton = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      aria-label={`React with ${emoji}`}
+      disabled={disabled}
+      className="h-auto gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
+      onClick={onReact}
+    >
+      <span>{emoji}</span>
+      <span>{senders.length}</span>
+    </Button>
+  );
 
   return (
     <Tooltip>
@@ -171,18 +185,7 @@ const MailMessageReactionChip = ({
           aria-label={`${senderNames} reacted with ${emoji}`}
           className="inline-flex"
         >
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label={`React with ${emoji}`}
-            disabled={disabled}
-            className="h-auto gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
-            onClick={onReact}
-          >
-            <span>{emoji}</span>
-            <span>{senders.length}</span>
-          </Button>
+          {reactionButton}
         </span>
       </Tooltip.Trigger>
       <Tooltip.Content className="max-w-72 rounded-xl px-4 py-3">

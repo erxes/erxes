@@ -3,6 +3,7 @@ import { GraphQLError } from 'graphql';
 import type {
   IMailMessageDocument,
   IMailSendArgs,
+  TMailDeliveryStatus,
 } from '@/integrations/mail/@types/message';
 import type { IMailDraftEdit } from '@/integrations/mail/@types/draft';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
@@ -42,6 +43,28 @@ const toDeliveryOutcome = (message: IMailMessageDocument) => ({
   deliveryError: message.deliveryError,
   bouncedRecipients: message.bouncedRecipients ?? [],
 });
+
+const assertMailReactionTarget = async (
+  subdomain: string,
+  target: IMailMessageDocument | null,
+): Promise<{ message: IMailMessageDocument; recipient: string }> => {
+  const recipient = target?.from[0]?.address?.trim();
+  if (
+    target &&
+    (target.reactionEmoji ||
+      (await readInboundMailReaction(subdomain, target.attachments)))
+  ) {
+    throw new Error("You can't react to an emoji reaction");
+  }
+  if (target?.hasReplyTo) {
+    throw new Error("You can't react to a message with a reply-to address");
+  }
+  if (!target?.messageId || !recipient || target.senderMismatch) {
+    throw new Error('This email cannot receive a reaction');
+  }
+
+  return { message: target, recipient };
+};
 
 export const mailMutations = {
   async mailCloudflareConnect(
@@ -142,25 +165,14 @@ export const mailMutations = {
       throw new Error('Unsupported email reaction');
     }
 
-    const target = await models.MailMessages.findOne({
-      _id: messageId,
-      inboxConversationId: conversationId,
-      type: MAIL_MESSAGE_TYPES.INBOX,
-    });
-    const recipient = target?.from[0]?.address?.trim();
-    if (
-      target &&
-      (target.reactionEmoji ||
-        (await readInboundMailReaction(subdomain, target.attachments)))
-    ) {
-      throw new Error("You can't react to an emoji reaction");
-    }
-    if (target?.hasReplyTo) {
-      throw new Error("You can't react to a message with a reply-to address");
-    }
-    if (!target?.messageId || !recipient || target.senderMismatch) {
-      throw new Error('This email cannot receive a reaction');
-    }
+    const { message: target, recipient } = await assertMailReactionTarget(
+      subdomain,
+      await models.MailMessages.findOne({
+        _id: messageId,
+        inboxConversationId: conversationId,
+        type: MAIL_MESSAGE_TYPES.INBOX,
+      }),
+    );
 
     const conversation = await models.Conversations.findOne({
       _id: conversationId,
@@ -183,10 +195,14 @@ export const mailMutations = {
       inReplyTo: target.messageId,
       reactionEmoji: emoji,
     };
+    const activeDeliveryStatuses: TMailDeliveryStatus[] = [
+      MAIL_DELIVERY_STATUSES.PENDING,
+      MAIL_DELIVERY_STATUSES.SENT,
+    ];
     const activeReactionFilter = {
       ...reactionFilter,
       deliveryStatus: {
-        $in: [MAIL_DELIVERY_STATUSES.PENDING, MAIL_DELIVERY_STATUSES.SENT],
+        $in: activeDeliveryStatuses,
       },
     };
     const alreadyReacted = () =>
@@ -199,11 +215,8 @@ export const mailMutations = {
     const previousReaction = await models.MailMessages.findOne(
       reactionFilter,
     ).sort({ createdAt: -1, _id: -1 });
-    if (
-      activeReactionFilter.deliveryStatus.$in.some(
-        (status) => status === previousReaction?.deliveryStatus,
-      )
-    ) {
+    const previousStatus = previousReaction?.deliveryStatus;
+    if (previousStatus && activeDeliveryStatuses.includes(previousStatus)) {
       throw alreadyReacted();
     }
     if (previousReaction?.deliveryStatus === MAIL_DELIVERY_STATUSES.BOUNCED) {

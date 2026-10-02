@@ -10,22 +10,6 @@ import type {
 } from '@/integrations/mail/types/directMailComposer';
 import { ToRow } from './DirectMailRecipientField';
 
-export const ComposerFields = ({
-  disabled,
-  onRecipientSelect,
-  ...senderProps
-}: ComponentProps<typeof FromRow> & {
-  onRecipientSelect: (customerId?: string) => void;
-}) => (
-  <fieldset disabled={disabled} className="flex min-h-0 flex-1 flex-col">
-    <FromRow {...senderProps} disabled={disabled} />
-    <ToRow onRecipientSelect={onRecipientSelect} />
-    <CcBccFields />
-    <SubjectRow />
-    <BodyField />
-  </fieldset>
-);
-
 export const ComposerHeader = ({
   onClose,
   loading,
@@ -244,6 +228,22 @@ export const BodyField = () => {
     </div>
   );
 };
+
+export const ComposerFields = ({
+  disabled,
+  onRecipientSelect,
+  ...senderProps
+}: ComponentProps<typeof FromRow> & {
+  onRecipientSelect: (customerId?: string) => void;
+}) => (
+  <fieldset disabled={disabled} className="flex min-h-0 flex-1 flex-col">
+    <FromRow {...senderProps} disabled={disabled} />
+    <ToRow onRecipientSelect={onRecipientSelect} />
+    <CcBccFields />
+    <SubjectRow />
+    <BodyField />
+  </fieldset>
+);
 
 export const ComposerFooter = ({
   disabled,
