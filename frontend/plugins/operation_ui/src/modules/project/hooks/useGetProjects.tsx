@@ -123,7 +123,7 @@ export const useProjects = (
           );
         }
 
-        if (event.type === 'remove') {
+        if (event.type === 'delete') {
           updatedList = currentList.filter((item) => item._id !== project._id);
         }
 
@@ -135,7 +135,7 @@ export const useProjects = (
             totalCount:
               event.type === 'create'
                 ? (prev.getProjects.totalCount ?? 0) + 1
-                : event.type === 'remove'
+                : event.type === 'delete'
                   ? (prev.getProjects.totalCount ?? 0) - 1
                   : prev.getProjects.totalCount,
           },
