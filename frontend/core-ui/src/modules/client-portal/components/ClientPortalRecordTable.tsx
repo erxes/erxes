@@ -4,31 +4,16 @@ import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
 import { clientPortalColumns } from '@/client-portal/components/ClientPortalColumns';
 import { ClientPortalCommandBar } from './client-portal-command-bar/ClientPortalCommandbar';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import { addingClientPortalAtom } from '../state';
+import { ClientPortalAddRow } from './ClientPortalAddRow';
 
 export function ClientPortalRecordTable() {
   const { clientPortals, loading, error } = useClientPortals();
+  const isAddingClientPortal = useAtomValue(addingClientPortalAtom);
   const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
 
-  if (!loading && !error && !clientPortals?.length) {
-    return (
-      <Empty className="m-3 min-h-[20rem]">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconBuilding />
-          </Empty.Media>
-          <Empty.Title>
-            {t('no-client-portals-yet', 'No client portals yet')}
-          </Empty.Title>
-          <Empty.Description>
-            {t(
-              'no-client-portals-yet-description',
-              'Create a client portal to give your customers a dedicated space to interact with your business.',
-            )}
-          </Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
-  }
+  const isEmpty = !loading && !error && !clientPortals?.length;
 
   return (
     <RecordTable.Provider
@@ -41,10 +26,30 @@ export function ClientPortalRecordTable() {
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
+            {isAddingClientPortal && <ClientPortalAddRow />}
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={30} />}
           </RecordTable.Body>
         </RecordTable>
+
+        {isEmpty && (
+          <Empty className="m-3 min-h-80">
+            <Empty.Header>
+              <Empty.Media variant="icon">
+                <IconBuilding />
+              </Empty.Media>
+              <Empty.Title>
+                {t('no-client-portals-yet', 'No client portals yet')}
+              </Empty.Title>
+              <Empty.Description>
+                {t(
+                  'no-client-portals-yet-description',
+                  'Create a client portal to give your customers a dedicated space to interact with your business.',
+                )}
+              </Empty.Description>
+            </Empty.Header>
+          </Empty>
+        )}
       </RecordTable.Scroll>
       <ClientPortalCommandBar />
     </RecordTable.Provider>

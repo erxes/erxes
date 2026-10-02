@@ -51,7 +51,10 @@ const BrandNameCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
       }}
     >
       <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="min-w-72">
+      <RecordTableInlineCell.Content
+        style={{ width: 'var(--radix-popover-trigger-width)' }}
+        className="min-w-0 max-w-full"
+      >
         <Input
           value={_name}
           onChange={onChange}
@@ -110,13 +113,17 @@ const BrandDescriptionCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
       <RecordTableInlineCell.Trigger>
         <TextOverflowTooltip value={cell.getValue() as string} />
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
+      <RecordTableInlineCell.Content
+        style={{ width: 'var(--radix-popover-trigger-width)' }}
+        className="min-w-0 max-w-full"
+      >
         <Textarea
           value={_description}
           onChange={onChange}
           disabled={loading}
           placeholder="Add brand description..."
           maxLength={350}
+          rows={1}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

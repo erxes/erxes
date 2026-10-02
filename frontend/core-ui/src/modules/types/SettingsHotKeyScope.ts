@@ -11,4 +11,5 @@ export enum SettingsHotKeyScope {
   UsersPage = 'settings-users-page',
   PermissionsPage = 'settings-permissions-page',
   BrandsPage = 'settings-brands-page',
+  ClientPortalsPage = 'settings-client-portals-page',
 }

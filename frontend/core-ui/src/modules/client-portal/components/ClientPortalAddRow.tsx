@@ -1,12 +1,14 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { isAddingAppAtom } from '../state';
-import { useAppsAdd } from '../hooks/useAppsAdd';
+import { addingClientPortalAtom } from '../state';
+import { useCreateClientPortal } from '../hooks/useCreateClientPortal';
+import { useNavigate } from 'react-router-dom';
 
-export const AppsAddRow = () => {
-  const setIsAddingApp = useSetAtom(isAddingAppAtom);
-  const { appsAdd, loading } = useAppsAdd();
+export const ClientPortalAddRow = () => {
+  const navigate = useNavigate();
+  const setIsAddingClientPortal = useSetAtom(addingClientPortalAtom);
+  const { clientPortalAdd, loading } = useCreateClientPortal();
   const { toast } = useToast();
   const [value, setValue] = useState('');
   const handledRef = useRef(false);
@@ -19,7 +21,7 @@ export const AppsAddRow = () => {
   const cancel = () => {
     if (handledRef.current) return;
     handledRef.current = true;
-    setIsAddingApp(false);
+    setIsAddingClientPortal(false);
   };
 
   const submit = () => {
@@ -30,16 +32,16 @@ export const AppsAddRow = () => {
       return;
     }
     handledRef.current = true;
-    appsAdd({
+    clientPortalAdd({
       variables: { name },
-      onCompleted: () => setIsAddingApp(false),
-      onError: (error) => {
-        handledRef.current = false;
+      onCompleted: (data) => {
+        setIsAddingClientPortal(false);
         toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
+          title: 'Success!',
+          variant: 'success',
+          description: 'Client portal created successfully',
         });
+        navigate(`${data.clientPortalAdd._id}`);
       },
     });
   };
@@ -53,7 +55,7 @@ export const AppsAddRow = () => {
           <input
             ref={inputRef}
             disabled={loading}
-            value={value}
+            value={value ?? ''}
             onChange={(e) => setValue(e.target.value)}
             onBlur={submit}
             onKeyDown={(e) => {
@@ -66,7 +68,7 @@ export const AppsAddRow = () => {
                 cancel();
               }
             }}
-            placeholder="My App"
+            placeholder="Create client portal"
             className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
           />
         </div>
