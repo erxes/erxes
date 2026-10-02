@@ -1,7 +1,10 @@
 import { ICustomField } from 'erxes-api-shared/core-types';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { isCallProEnabled } from '@/integrations/callpro/config';
-import { debugCallProError } from '@/integrations/callpro/debuggers';
+import {
+  debugCallPro,
+  debugCallProError,
+} from '@/integrations/callpro/debuggers';
 import { callProGetAudio } from '@/integrations/callpro/messageBroker';
 
 import { IContext } from '~/connectionResolvers';
@@ -21,7 +24,10 @@ function resolvePropertiesData(conversation: IConversationDocument) {
       ? rawConversation.toObject().customsData
       : rawConversation.customsData;
 
-  if (!Array.isArray(legacyCustomFieldsData) || !legacyCustomFieldsData.length) {
+  if (
+    !Array.isArray(legacyCustomFieldsData) ||
+    !legacyCustomFieldsData.length
+  ) {
     return conversation.propertiesData;
   }
 
@@ -122,6 +128,7 @@ export default {
     { models, subdomain, user }: IContext,
   ) {
     if (!isCallProEnabled()) {
+      debugCallPro(`Audio skipped conv=${conv._id}: CALLPRO_ENABLED is off`);
       return null;
     }
 
@@ -134,16 +141,26 @@ export default {
     }
 
     if (!user?.isOwner && user?._id !== conv.assignedUserId) {
+      debugCallPro(
+        `Audio hidden conv=${conv._id}: user=${user?._id} is not owner and not assignee (assignedUserId=${conv.assignedUserId})`,
+      );
       return null;
     }
 
     try {
-      return await callProGetAudio(subdomain, {
+      const audioUrl = await callProGetAudio(subdomain, {
         erxesApiId: conv._id,
         integrationId: integration._id,
       });
+
+      debugCallPro(`Audio resolved conv=${conv._id} url=${audioUrl}`);
+
+      return audioUrl;
     } catch (e) {
-      debugCallProError('Failed to resolve Call Pro audio', e.message);
+      debugCallProError(
+        `Failed to resolve Call Pro audio conv=${conv._id}`,
+        e.message,
+      );
       return null;
     }
   },

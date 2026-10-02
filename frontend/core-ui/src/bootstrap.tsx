@@ -1,7 +1,11 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
-import { init } from '@module-federation/enhanced/runtime';
+import {
+  getInstance,
+  init,
+  registerRemotes,
+} from '@module-federation/enhanced/runtime';
 
 import { NODE_ENV, REACT_APP_API_URL } from 'erxes-ui';
 
@@ -21,6 +25,25 @@ async function initFederation() {
   );
 
   if (NODE_ENV === 'development') {
+    // Nx serves monorepo plugins. A plugin outside the monorepo announces its
+    // UI entry to core-api, which is how production loads every plugin.
+    const localRemotes = new Set(
+      getInstance()?.options.remotes.map(({ name }) => name),
+    );
+    const remotes: Parameters<typeof registerRemotes>[0] = await fetch(
+      `${REACT_APP_API_URL}/get-frontend-plugins`,
+      { signal: AbortSignal.timeout(2000) },
+    )
+      .then((res) => (res.ok ? res.json() : []))
+      .catch(() => []);
+    const externalRemotes = remotes.filter(
+      ({ name }) => !localRemotes.has(name),
+    );
+
+    if (externalRemotes.length) {
+      registerRemotes(externalRemotes);
+    }
+
     root.render(
       <StrictMode>
         <App />

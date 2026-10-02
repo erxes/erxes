@@ -67,7 +67,7 @@ export const ExpenseForm = ({
             )
           }
         >
-          <ExpenseTableHeader form={form} journalIndex={journalIndex} />
+          <ExpenseTableHeader />
           <Table.Body className="overflow-hidden">
             {fields.map((expense, expenseIndex) => (
               <ExpenseRow
@@ -109,17 +109,11 @@ export const ExpenseForm = ({
   );
 };
 
-const ExpenseTableHeader = ({
-  form,
-  journalIndex,
-}: {
-  form: ITransactionGroupForm;
-  journalIndex: number;
-}) => {
+const ExpenseTableHeader = () => {
   return (
     <Table.Header>
       <Table.Row>
-        <Table.Head className="w-10"></Table.Head>
+        <Table.Head className="w-8"></Table.Head>
         <Table.Head>Зардал</Table.Head>
         <Table.Head>Дүрэм</Table.Head>
         <Table.Head>Дүн</Table.Head>

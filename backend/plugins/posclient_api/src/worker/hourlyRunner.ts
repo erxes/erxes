@@ -49,6 +49,10 @@ export const mainScheduler = async () => {
 export const runner = async (job: Job) => {
   const { subdomain, timezone = 'UTC' } = job?.data ?? {};
 
+  if (!subdomain) {
+    throw new Error('Subdomain is required to sync POS client remainders');
+  }
+
   const models = await generateModels(subdomain);
 
   const posConfigs = await models.Configs.find({

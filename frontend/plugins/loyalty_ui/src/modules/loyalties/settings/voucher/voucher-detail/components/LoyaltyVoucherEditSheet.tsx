@@ -72,18 +72,20 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
         tag: Array.isArray(restrictions.tag)
           ? restrictions.tag
           : restrictions.tag
-            ? [restrictions.tag]
-            : [],
+          ? [restrictions.tag]
+          : [],
         orExcludeTag: Array.isArray(restrictions.orExcludeTag)
           ? restrictions.orExcludeTag
           : restrictions.orExcludeTag
-            ? [restrictions.orExcludeTag]
-            : [],
+          ? [restrictions.orExcludeTag]
+          : [],
         bonusProduct: voucherDetail.bonusProductId ?? undefined,
         bonusCount: voucherDetail.bonusCount ?? undefined,
         spinCount: voucherDetail.spinCount ?? undefined,
         spinCampaignId: voucherDetail.spinCampaignId ?? undefined,
         lotteryCount: voucherDetail.lotteryCount ?? undefined,
+        ownerLimitCount: voucherDetail.perOwnerLimit?.count ?? undefined,
+        ownerLimitPeriod: voucherDetail.perOwnerLimit?.period ?? 'year',
       });
     }
   }, [voucherDetail, editVoucherId, form]);

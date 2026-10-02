@@ -72,12 +72,6 @@ const HelpCenter = lazy(() =>
   })),
 );
 
-const CustomDomain = lazy(() =>
-  import('~/pages/CustomDomainIndexPage').then((module) => ({
-    default: module.CustomDomainIndexPage,
-  })),
-);
-
 const Surveys = lazy(() =>
   import('~/pages/SurveysIndexPage').then((module) => ({
     default: module.SurveysIndexPage,
@@ -85,7 +79,7 @@ const Surveys = lazy(() =>
 );
 
 const KnowledgeBase = lazy(() =>
-  import('~/pages/knowledgebase/IndexPage').then((module) => ({
+  import('@/knowledgebase/Main').then((module) => ({
     default: module.default,
   })),
 );
@@ -131,9 +125,8 @@ const IntegrationsMain = () => {
         </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
         <Route path="/surveys" element={<Surveys />} />
-        <Route path="/knowledgebase" element={<KnowledgeBase />} />
+        <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
         <Route path="/helpcenter" element={<HelpCenter />} />
-        <Route path="/customdomain" element={<CustomDomain />} />
       </Routes>
     </Suspense>
   );

@@ -774,18 +774,24 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         continue;
       }
 
+      const pointsPaymentAmount = paidAmounts
+        .filter((paidAmount) => paidAmount.type === type)
+        .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
+
       await sendTRPCMessage({
         subdomain,
         pluginName: 'loyalty',
         module: 'score',
-        action: 'checkScoreAviableSubtract',
+        action: 'checkSpend',
         input: {
           ownerType: order.customerType || 'customer',
           ownerId: order.customerId,
           campaignId: scoreCampaignId,
-          actionMethod: 'subtract',
           targetId: order._id,
-          target: { ...order, paidAmounts },
+          targetType: 'sales:pos.orders',
+          serviceName: 'pos',
+          pointsPaymentAmount,
+          totalAmount: Number(order.totalAmount) || 0,
         },
         defaultValue: false,
       }).catch((error) => {

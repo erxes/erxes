@@ -1,3 +1,4 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { withFilter } from 'graphql-subscriptions';
 
 export default {
@@ -24,6 +25,7 @@ export default {
       cpConversationChanged(_id: String!): ConversationChangedResponse
       cpConversationMessageInserted(_id: String!): ConversationMessage
       cpConversationClientMessageInserted(userId: String!): ConversationMessage
+      mailDraftChanged(conversationId: String!): MailDraftChangedEvent
 
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -116,7 +118,7 @@ export default {
         resolve: (payload) => payload.ticketListChanged,
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('ticketListChanged'),
-          async (payload, variables) => {
+          async (payload, variables, context) => {
             const ticket = payload.ticketListChanged.ticket;
             const filter = variables.filter || {};
 
@@ -163,6 +165,16 @@ export default {
               return false;
             if (filter.channelId && ticket.channelId !== filter.channelId)
               return false;
+            if (
+              filter.branchIds?.length &&
+              !filter.branchIds.includes(ticket.branchId)
+            )
+              return false;
+            if (
+              filter.departmentIds?.length &&
+              !filter.departmentIds.includes(ticket.departmentId)
+            )
+              return false;
 
             if (
               filter.userId &&
@@ -171,6 +183,26 @@ export default {
               ticket.assigneeId !== filter.userId
             ) {
               return false;
+            }
+
+            if (
+              filter.propertiesData &&
+              payload.ticketListChanged.type !== 'delete'
+            ) {
+              const matched = await sendTRPCMessage({
+                subdomain: context.subdomain,
+                pluginName: 'frontline',
+                method: 'query',
+                module: 'ticket',
+                action: 'matchesProperties',
+                input: {
+                  ticketId: ticket._id,
+                  propertiesData: filter.propertiesData,
+                },
+                defaultValue: false,
+              });
+
+              if (!matched) return false;
             }
 
             return true;
@@ -407,6 +439,33 @@ export default {
             return !!conversationId && variables._id === conversationId;
           },
         ),
+      },
+
+      mailDraftChanged: {
+        resolve: (payload) => payload.mailDraftChanged,
+        subscribe: async (_, { conversationId }, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Login required');
+          }
+
+          const allowed = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'frontline',
+            method: 'query',
+            module: 'mail',
+            action: 'canViewConversation',
+            input: { conversationId, userId: user._id },
+            defaultValue: false,
+          });
+
+          if (!allowed) {
+            throw new Error('Forbidden');
+          }
+
+          return graphqlPubsub.asyncIterator(
+            getTenantTopics('mailDraftChanged', subdomain, conversationId),
+          );
+        },
       },
 
       cpConversationClientMessageInserted: {

@@ -2,7 +2,7 @@ import { useVolumeSeries } from '../../hooks/useVolumeSeries';
 import { useCarrierBreakdown } from '../../hooks/useCarrierBreakdown';
 import { useHeatmap } from '../../hooks/useHeatmap';
 import { VolumeChart } from './VolumeChart';
-import { CarrierDonut } from './CarrierDonut';
+import { CarrierBarChart } from './CarrierBarChart';
 import { HeatmapChart } from './HeatmapChart';
 import { SectionCard } from '../SectionCard';
 import { useTranslation } from 'react-i18next';
@@ -38,7 +38,7 @@ export function OverviewSection() {
           loading={carrierLoading}
           skeletonHeight="h-40"
         >
-          <CarrierDonut data={breakdown} />
+          <CarrierBarChart data={breakdown} />
         </SectionCard>
       </div>
 

@@ -2,11 +2,13 @@ import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
 import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
-const valueSchema = new Schema(
-  {
-    placeholder: { type: String, label: 'Placeholder' },
-    currencyRatio: { type: String, label: 'currencyRatio', default: 1 },
-  },
+const addSchema = new Schema(
+  { table: { type: Schema.Types.Mixed, label: 'Earning table' } },
+  { _id: false },
+);
+
+const subtractSchema = new Schema(
+  { rules: { type: Schema.Types.Mixed, label: 'Spending rules' } },
   { _id: false },
 );
 
@@ -16,14 +18,16 @@ export const scoreCampaignSchema = schemaWrapper(
       title: { type: String, label: 'Campaign Title' },
       description: { type: String, label: 'Campaign Description' },
       order: { type: Number, label: 'Sort Order', index: true },
-      add: { type: valueSchema, label: 'Add config' },
-      subtract: { type: valueSchema, label: 'Subtract config' },
-      set: { type: valueSchema, label: 'Set config' },
+      add: { type: addSchema, label: 'Earning' },
+      subtract: { type: subtractSchema, label: 'Spending' },
       createdAt: { type: Date, label: 'Created At', default: new Date() },
       createdUserId: { type: String, label: 'Created User Id' },
       ownerType: { type: String, label: 'Owner Type' },
-      fieldGroupId: { type: String, label: 'Field Group' },
-      fieldName: { type: String, label: 'Field Name', optional: true },
+      accountTypeId: {
+        type: String,
+        label: 'Loyalty account type',
+        index: true,
+      },
       fieldId: { type: String, label: 'Field Id' },
       status: {
         type: String,
@@ -33,7 +37,7 @@ export const scoreCampaignSchema = schemaWrapper(
       serviceName: {
         type: String,
         label: 'Service Name',
-        required: true,
+        optional: true,
       },
       additionalConfig: {
         type: Schema.Types.Mixed,
@@ -41,21 +45,10 @@ export const scoreCampaignSchema = schemaWrapper(
         optional: true,
       },
 
-      onlyClientPortal: {
-        type: Boolean,
-        label: 'Only Client Portal',
-        optional: true,
-      },
-
       restrictions: {
         type: Schema.Types.Mixed,
         label: 'Restrictions',
         optional: true,
-      },
-      fieldOrigin: {
-        type: String,
-        enum: ['exists', 'new'],
-        label: 'Field Origin',
       },
     },
     {

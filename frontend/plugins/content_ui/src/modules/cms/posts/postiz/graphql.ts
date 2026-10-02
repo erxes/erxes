@@ -38,6 +38,11 @@ const deliveryFields = gql`
     message
   }
 `;
+export const CMS_POSTIZ_TENANT_ENABLED = gql`
+  query CmsPostizTenantEnabled {
+    agentPostizTenantEnabled
+  }
+`;
 export const CMS_POSTIZ_OPTIONS = gql`
   query CmsSocialOptions($clientPortalId: String!, $language: String) {
     cmsPostizOptions(clientPortalId: $clientPortalId, language: $language) {

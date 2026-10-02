@@ -60,6 +60,12 @@ const SettingSyncDeal = lazy(() =>
   })),
 );
 
+const SettingSyncDealMovement = lazy(() =>
+  import('~/pages/syncConfigs/settingSyncDealMovementPage').then((module) => ({
+    default: module.SettingSyncDealMovementPage,
+  })),
+);
+
 const SettingSyncDealReturn = lazy(() =>
   import('~/pages/syncConfigs/settingSyncDealReturnPage').then((module) => ({
     default: module.SettingSyncDealReturnPage,
@@ -160,6 +166,10 @@ const AccountingSubSettings = () => {
               <Route path="/config/vat-rows" element={<VatRows />} />
               <Route path="/config/ctax-rows" element={<CTaxRows />} />
               <Route path="/config/sync-deal" element={<SettingSyncDeal />} />
+              <Route
+                path="/config/sync-deal-movement"
+                element={<SettingSyncDealMovement />}
+              />
               <Route
                 path="/config/sync-deal-return"
                 element={<SettingSyncDealReturn />}

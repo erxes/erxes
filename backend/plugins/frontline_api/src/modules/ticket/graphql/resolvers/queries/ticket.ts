@@ -34,12 +34,13 @@ export const ticketQueries = {
   getTickets: async (
     _parent: undefined,
     { filter }: { filter: ITicketFilter & ICursorPaginateParams },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const query: FilterQuery<ITicketDocument> = await generateFilter(
       filter,
       user,
       models,
+      subdomain,
     );
 
     return await cursorPaginate<ITicketDocument>({

@@ -60,6 +60,18 @@ export const types = `
 
   input ITicketFilter {
     _id: String
+    segmentIds: [String!]
+    createdStartDate: Date
+    createdEndDate: Date
+    startDateStartDate: Date
+    startDateEndDate: Date
+    targetDateStartDate: Date
+    targetDateEndDate: Date
+    statusChangedStartDate: Date
+    statusChangedEndDate: Date
+    branchIds: [String]
+    departmentIds: [String]
+    propertiesData: String
     statusId: String
     priority: Int
     pipelineId: String

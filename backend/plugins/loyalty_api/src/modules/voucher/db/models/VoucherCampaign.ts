@@ -35,6 +35,11 @@ const validVoucherCampaign = async (doc) => {
   if (doc.lotteryCampaignId && !doc.lotteryCount) {
     throw new Error('Must fill lottery count when choosed lottery campaign');
   }
+
+  // A score voucher leaves only a score log behind, with nothing to count.
+  if (doc.perOwnerLimit && doc.voucherType === 'score') {
+    throw new Error('A score voucher cannot be limited per owner');
+  }
 };
 
 export const loadVoucherCampaignClass = (
@@ -128,7 +133,10 @@ export const loadVoucherCampaignClass = (
         modifiedAt: new Date(),
       };
 
-      const result = await models.VoucherCampaigns.updateOne({ _id }, { $set: doc });
+      const result = await models.VoucherCampaigns.updateOne(
+        { _id },
+        { $set: doc },
+      );
 
       sendDbEventLog?.({
         action: 'update',

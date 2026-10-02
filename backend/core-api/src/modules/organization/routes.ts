@@ -68,13 +68,19 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
   const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
-  const getPluginVersion = async (pluginName: string): Promise<string> => {
-    try {
-      const pluginInfo = await getPlugin(pluginName);
-      return pluginInfo?.config?.releaseVersion || 'latest';
-    } catch {
-      return 'latest';
-    }
+  // A plugin that registered UI_ENTRY_URL serves its own remote; everything
+  // else loads from its release folder on the plugins CDN.
+  const getPluginEntry = async (pluginName: string) => {
+    const config = await getPlugin(pluginName)
+      .then((pluginInfo) => pluginInfo?.config)
+      .catch(() => undefined);
+
+    return (
+      config?.uiEntry ||
+      `https://plugins.erxes.io/${
+        config?.releaseVersion || 'latest'
+      }/${pluginName}_ui/remoteEntry.js`
+    );
   };
 
   // Module-federation container names cannot contain dashes — Nx builds
@@ -103,10 +109,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
         const pluginName = key.split(':')[0];
 
         if (enabledPluginsArray.includes(pluginName)) {
-          const version = await getPluginVersion(pluginName);
           remotes.push({
             name: remoteName(pluginName),
-            entry: `https://plugins.erxes.io/${version}/${pluginName}_ui/remoteEntry.js`,
+            entry: await getPluginEntry(pluginName),
           });
         }
       }
@@ -115,10 +120,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
     const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
 
     if (!hasAgentUi) {
-      const agentVersion = await getPluginVersion('agent');
       remotes.push({
         name: 'agent_ui',
-        entry: `https://plugins.erxes.io/${agentVersion}/agent_ui/remoteEntry.js`,
+        entry: await getPluginEntry('agent'),
       });
     }
 
@@ -128,10 +132,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
     if (ENABLED_PLUGINS) {
       for (const plugin of ENABLED_PLUGINS.split(',')) {
-        const version = await getPluginVersion(plugin);
         remotes.push({
           name: remoteName(plugin),
-          entry: `https://plugins.erxes.io/${version}/${plugin}_ui/remoteEntry.js`,
+          entry: await getPluginEntry(plugin),
         });
       }
     }

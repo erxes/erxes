@@ -1,18 +1,23 @@
 import { IconTrash } from '@tabler/icons-react';
-import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { Command, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useRemoveCustomers } from '@/contacts/customers/hooks/useRemoveCustomers';
 import { ApolloError } from '@apollo/client';
 
-export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
+export const CustomersDelete = ({
+  customerIds,
+  onCompleted,
+}: {
+  customerIds: string[];
+  onCompleted: () => void;
+}) => {
   const { confirm } = useConfirm();
   const { removeCustomers } = useRemoveCustomers();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   return (
-    <Button
-      variant="secondary"
+    <Command.Item
       className="text-destructive"
-      onClick={() =>
+      onSelect={() =>
         confirm({
           message: `Are you sure you want to delete the ${customerIds.length} selected customers?`,
         }).then(() => {
@@ -26,6 +31,7 @@ export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
             },
             onCompleted: () => {
               table.setRowSelection({});
+              onCompleted();
               toast({
                 title: 'Success',
                 variant: 'success',
@@ -38,6 +44,6 @@ export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
     >
       <IconTrash />
       Delete
-    </Button>
+    </Command.Item>
   );
 };

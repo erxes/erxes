@@ -15,6 +15,7 @@ export const CUSTOMERS_ADD = gql`
     $phoneValidationStatus: String
     $state: String
     $propertiesData: JSON
+    $birthDate: Date
   ) {
     customersAdd(
       avatar: $avatar
@@ -30,6 +31,7 @@ export const CUSTOMERS_ADD = gql`
       phoneValidationStatus: $phoneValidationStatus
       state: $state
       propertiesData: $propertiesData
+      birthDate: $birthDate
     ) {
       _id
     }

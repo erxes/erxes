@@ -35,6 +35,9 @@ export const AddDetailRowButton = ({
     count: 1,
     unitPrice: 0,
     weight: undefined,
+    followInfos: lastDetail?.followInfos
+      ? { ...lastDetail.followInfos, invSplit: undefined }
+      : undefined,
   });
 
   return (

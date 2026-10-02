@@ -71,6 +71,7 @@ export const PropertyEdit = () => {
               objectListConfigs: fieldDetail?.configs?.objectListConfigs ?? [],
             }}
             isEdit
+            locked={!!fieldDetail.owner}
             onCancel={handleClose}
             contentType={type || ''}
             fieldId={id}

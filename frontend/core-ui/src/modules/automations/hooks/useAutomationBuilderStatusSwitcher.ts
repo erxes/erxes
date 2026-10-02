@@ -1,8 +1,10 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodeIssues } from '@/automations/hooks/useAutomationNodeIssues';
 import {
   TAutomationBuilderForm,
   TAutomationBuilderSaveValues,
 } from '@/automations/utils/automationFormDefinitions';
+import { toast } from 'erxes-ui';
 import { useState } from 'react';
 import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +18,8 @@ export const useAutomationBuilderStatusSwitcher = ({
   onSave: (values: TAutomationBuilderSaveValues) => Promise<unknown>;
   onError: SubmitErrorHandler<TAutomationBuilderForm>;
 }) => {
-  const { isCreatePage, detail } = useAutomation();
+  const { isCreatePage, detail, reactFlowInstance } = useAutomation();
+  const { nodeIssues } = useAutomationNodeIssues();
 
   const {
     control,
@@ -33,6 +36,33 @@ export const useAutomationBuilderStatusSwitcher = ({
 
   const isUntouchedDuplicate = !!detail?.duplicatedFrom && !isDirty;
   const duplicatedFromName = detail?.duplicatedFromName;
+
+  // A flow with steps still missing configuration may be kept as a draft but
+  // never put live; the first such step is brought into view.
+  const requestStatus = (nextStatus: AutomationStatus) => {
+    if (nextStatus === getValues('status')) {
+      return;
+    }
+
+    if (nextStatus === 'active' && nodeIssues.length) {
+      const [first] = nodeIssues;
+
+      toast({
+        title: t('activate-blocked-title', { count: nodeIssues.length }),
+        description: `${first.label}: ${first.issues.join(', ')}`,
+        variant: 'destructive',
+      });
+
+      reactFlowInstance?.fitView({
+        nodes: [{ id: first.nodeId }],
+        duration: 800,
+      });
+
+      return;
+    }
+
+    setPendingStatus(nextStatus);
+  };
 
   const handleConfirm = () => {
     if (!pendingStatus) {
@@ -64,6 +94,7 @@ export const useAutomationBuilderStatusSwitcher = ({
     isCreatePage,
     pendingStatus,
     setPendingStatus,
+    requestStatus,
     handleConfirm,
     isUntouchedDuplicate,
     duplicatedFromName,

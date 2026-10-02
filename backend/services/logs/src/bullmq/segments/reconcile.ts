@@ -59,7 +59,11 @@ export const reconcileSegments = async ({
       if (segment.timeSensitive) {
         checked++;
         drifted.push(segment._id);
-        sendSegmentRebuild({ subdomain, segmentId: segment._id });
+        sendSegmentRebuild({
+          subdomain,
+          segmentId: segment._id,
+          source: 'reconcile',
+        });
         continue;
       }
 

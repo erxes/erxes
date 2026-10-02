@@ -5,6 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
+import { toOwnerLimit } from '../../utils/voucherOwnerLimit';
 import { useVoucherEdit } from '../hooks/useVoucherEdit';
 import { useVoucherDetailWithQuery } from '../hooks/useVoucherDetailWithQuery';
 
@@ -100,6 +101,8 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
           tag: data.tag || [],
           orExcludeTag: data.orExcludeTag || [],
         },
+
+        perOwnerLimit: toOwnerLimit(data),
 
         ...(data.bonusProduct && {
           bonusProductId: data.bonusProduct,

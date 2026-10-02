@@ -4,9 +4,18 @@ import { addBroadcastWorkerQueue, BROADCAST_QUEUES } from './worker';
 
 const QUEUE = BROADCAST_QUEUES.SCHEDULING;
 
-type TSchedule = TBroadcastRecurrence & { dateTime?: Date | string | null };
+type TSchedule = TBroadcastRecurrence & {
+  type?: string | null;
+  dateTime?: Date | string | null;
+};
 type TSchedulable = { scheduleDate?: TSchedule | null };
 type TScheduled = TSchedulable & { _id: string };
+
+export const AFTER_SEGMENT_SCHEDULE = 'afterSegment';
+
+/** A campaign started by its segment's nightly materialization, not a clock. */
+export const isAfterSegment = (campaign?: TSchedulable | null) =>
+  campaign?.scheduleDate?.type === AFTER_SEGMENT_SCHEDULE;
 
 /** A campaign that repeats, rather than one waiting for a single moment. */
 export const isRecurring = (campaign?: TSchedulable | null) =>

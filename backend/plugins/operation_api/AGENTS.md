@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -47,6 +47,8 @@
   customer. Both declare `operation:task.team` and `operation:task.status`
   requirements, the status scoped by the team.
 
+- Task segment `tagIds` lists `operation:task` tags plus workspace tags
+  (`query.variables`).
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
   team member (`user.assignedTasks`, `user.createdTasks`).
@@ -54,6 +56,7 @@
 - GraphQL subscriptions for live task and project updates.
 - Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
 - GitHub issue synchronisation for tasks.
+- Triage conversion preserves the triage creator on the task while recording a `TRIAGE_ACCEPTANCE` activity with action `ACCEPTED` by the acting user; other task creation paths continue to use their acting `userId` as creator. Conversion to a cancelled task does not record acceptance and can save a decline reason as a note.
 - Another service can create a task on a user's behalf from a status id
   (`task.createFromSource`) and check which of a list of ids are tasks
   (`task.findOne`); `frontline` uses both to convert a conversation into a task.
@@ -134,6 +137,8 @@ propertiesData? } })`
   collection.
 - Preserve tenant isolation by using the request `subdomain` for every model,
   resolver, worker and route access.
+- Decide whether triage conversion is a decline from the mutation's requested `status`, not the triage's stored status; only non-cancelled conversions create acceptance activity.
+- Only `createTask` calls carrying `triageId` may preserve `doc.createdBy`; automation, import, GraphQL, and tRPC task creation continue to assign `userId`.
 - Validate `propertiesData` whenever it is present on a GraphQL create or update; an empty object is a valid explicit clear and must not be treated as omitted.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
@@ -156,109 +161,3 @@ propertiesData? } })`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-21` — The task and project actions say they need someone to act for
-
-- **Summary:** `Create task` and `Create project` now declare
-  `requiresActor: true`. Both already take their owner from the run's
-  `createdVia.actorId` through `getAutomationUserId`; the declaration lets the
-  builder tell, before an automation goes live, whether its records will belong
-  to someone. Creation itself is unchanged.
-- **Affected areas:** `src/modules/automations/constants.ts`
-- **Contracts changed:** The action descriptor carries `requiresActor`, a field
-  `erxes-api-shared` added for every plugin to use.
-
-### `2026-09-14` — A task an automation opened records what produced it
-
-- **Summary:** Tasks and projects created by an automation now carry
-  `createdVia` — the configuration that produced them, the run that did it, and
-  whose configuration it was — and are created as that actor. Creation behind a
-  campaign had been failing with "requires a user to create task", because
-  neither the action config nor a customer target names a person.
-- **Affected areas:** `src/modules/automations/utils.ts`,
-  `src/modules/automations/actions/createTaskAction.ts`,
-  `src/modules/automations/actions/createProjectAction.ts`,
-  `src/modules/task/@types/task.ts`, `src/modules/project/@types/project.ts`
-- **Contracts changed:** Consumes the new `TCreatedVia` and
-  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
-  to every schema by `schemaWrapper`.
-
-### `2026-09-14` — Tasks ship two flows of their own
-
-- **Summary:** The plugin now provides built-in workflow templates through
-  `automations.constants.workflowTemplates`, naming the task the customer they
-  concern and declaring the team and status they need as requirements answered
-  while installing.
-- **Affected areas:** `src/modules/automations/workflowTemplates.ts`,
-  `src/meta/automations.ts`
-- **Contracts changed:** Consumes the new optional
-  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `task` and `project` property types now declare `systemFields`, shown
-  as the "Basic information" group in Settings → Properties.
-- **Affected areas:** `src/meta/properties.ts` (`task`, `project`), `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-17` — Tasks can be created from another service
-
-- **Summary:** Added the `task.createFromSource` and `task.findOne` tRPC
-  procedures so `frontline` can convert a conversation into a task and detect
-  an existing one; tasks can store `propertiesData`.
-- **Affected areas:** `src/modules/task/trpc/task.ts`,
-  `src/modules/task/db/definitions/task.ts`, `src/modules/task/@types/task.ts`
-- **Contracts changed:** New tRPC procedures `task.createFromSource` and
-  `task.findOne`; `operation_tasks` gains the optional `propertiesData` field.
-
-### `2026-09-05` — `Export repeating task properties by row`
-
-- **Summary:** Task and project import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, using the shared property import/export helpers.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/getTaskExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`, `src/meta/import-export/import/processTaskRows.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; `getExportHeaders`, `resolveExportHeaders`, `getCustomPropertyHeaders` and `getTaskCustomPropertyHeaders` take an optional `models` argument.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from the automations module handlers, taking both its
-  task and project branches; automation target matching now runs through the
-  segment engine, so the Elasticsearch-era selector round-trip has no caller
-  left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/automations/automationHandlers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the task and project modules
-  and from the plugin-level segment object; the plugin no longer makes any
-  plugin-to-plugin segment call, and no plugin-to-plugin RPC loop can form.
-  `projectsSegments` is now a declaration only - its content type and
-  dependent modules - and answers no producer.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/task/meta/segments/index.ts`,
-  `src/modules/project/meta/segments.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.
-
-### `2026-09-01` — Tasks became a real segment content type
-
-- **Summary:** `operation:task.tasks` is now declared with its event content
-  type, filterable on 19 user-facing fields, materialisable, and reachable
-  from a team-member segment; the module moved off the Elasticsearch-era
-  producers onto the shared evaluator.
-- **Affected areas:** `src/modules/task/meta/segments/` (was `segments.ts`,
-  now a directory with fields, collections, members, membership, evaluate and
-  relations); `src/meta/segments.ts`;
-  `src/modules/task/db/definitions/task.ts` (`segmentIds`, join indexes).
-- **Contracts changed:** Task content type now declares
-  `contentType: 'operation:task.tasks'`; new relations `user.assignedTasks`,
-  `user.createdTasks`.

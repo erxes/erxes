@@ -2,6 +2,16 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 import { commonCampaignInputs, commonCampaignTypes } from '~/utils/common';
 
 export const types = `
+  type VoucherOwnerLimit {
+    count: Int
+    period: String
+  }
+
+  input VoucherOwnerLimitInput {
+    count: Int!
+    period: String!
+  }
+
   type VoucherCampaign @key(fields: "_id") {
     _id: String,
     ${commonCampaignTypes}
@@ -33,6 +43,7 @@ export const types = `
     kind: Kind
     value: Float
     restrictions: JSON
+    perOwnerLimit: VoucherOwnerLimit
   }
 
   type VoucherCampaignListResponse {
@@ -85,6 +96,7 @@ const mutationParams = `
   kind: Kind
   value: Float
   restrictions: JSON
+  perOwnerLimit: VoucherOwnerLimitInput
 `;
 
 export const mutations = `
