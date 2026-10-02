@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_CYCLE = gql`
+export const UPDATE_CYCLE = gql(`
   mutation UpdateCycle($input: CycleInput!) {
     updateCycle(input: $input) {
       _id
@@ -42,4 +42,4 @@ export const UPDATE_CYCLE = gql`
       unFinishedTasks
     }
   }
-`;
+`);

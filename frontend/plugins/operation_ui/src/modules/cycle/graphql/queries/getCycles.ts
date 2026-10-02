@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CYCLES = gql`
+export const GET_CYCLES = gql(`
   query GetCyclesRecordTable(
     $teamId: String
     $orderBy: JSON
@@ -69,4 +69,4 @@ export const GET_CYCLES = gql`
       }
     }
   }
-`;
+`);
