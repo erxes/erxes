@@ -24,8 +24,8 @@ export const getOrCreateCustomer = async (
   kind: string,
 ) => {
   const integration = await models.InstagramIntegrations.findOne({
-    instagramPageId: pageId,
-    kind,
+    instagramPageId: { $eq: pageId },
+    kind: { $eq: kind },
   });
   if (!integration) {
     throw new Error('Instagram Integration not found ');
