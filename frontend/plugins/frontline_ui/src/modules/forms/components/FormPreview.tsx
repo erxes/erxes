@@ -271,164 +271,292 @@ export const FormPreviewContent = ({
           )}
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
-              {fields.filter((erxesField) => !!erxesField.id).map((erxesField) => {
-                return (
-                  <Form.Field
-                    key={erxesField.id}
-                    name={erxesField.id}
-                    control={form.control}
-                    render={({ field }) => {
-                      if (erxesField.type === 'number') {
-                        return (
-                          <ErxesFormItem span={erxesField.span}>
-                            <Form.Label>{erxesField.label}</Form.Label>
-                            <Input.Number
-                              value={field.value}
-                              onChange={(value) => field.onChange(value)}
-                              placeholder={erxesField.placeholder}
-                              thousandsSeparator=""
-                            />
-                            {erxesField.description && (
-                              <Form.Description
-                                dangerouslySetInnerHTML={{
-                                  __html: erxesField.description,
-                                }}
-                              />
-                            )}
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
-                      if (erxesField.type === 'boolean') {
-                        return (
-                          <ErxesFormItem
-                            span={erxesField.span}
-                            className="flex items-end gap-2 space-y-0"
-                          >
-                            <div className="flex items-center gap-2 h-8">
-                              <Form.Control>
-                                <Checkbox {...field} />
-                              </Form.Control>
-                              <Form.Label variant="peer">
-                                {erxesField.label}
-                              </Form.Label>
-                            </div>
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
-                      if (
-                        erxesField.type === 'textarea' ||
-                        erxesField.type === 'core:customer:description'
-                      ) {
-                        return (
-                          <ErxesFormItem span={erxesField.span}>
-                            <Form.Label>{erxesField.label}</Form.Label>
-                            <Textarea
-                              {...field}
-                              placeholder={erxesField.placeholder}
-                            />
-                            {erxesField.description && (
-                              <Form.Description
-                                dangerouslySetInnerHTML={{
-                                  __html: erxesField.description,
-                                }}
-                              />
-                            )}
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
-
-                      if (erxesField.type === 'select') {
-                        if (erxesField.allowSearch) {
+              {fields
+                .filter((erxesField) => !!erxesField.id)
+                .map((erxesField) => {
+                  return (
+                    <Form.Field
+                      key={erxesField.id}
+                      name={erxesField.id}
+                      control={form.control}
+                      render={({ field }) => {
+                        if (
+                          erxesField.type === 'number' ||
+                          erxesField.type === 'core:company:size'
+                        ) {
                           return (
-                            <ErxesFormComboboxField
-                              field={field}
-                              erxesField={erxesField}
-                            />
+                            <ErxesFormItem span={erxesField.span}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              <Input.Number
+                                value={field.value}
+                                onChange={(value) => field.onChange(value)}
+                                placeholder={erxesField.placeholder}
+                                thousandsSeparator=""
+                              />
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <Form.Message />
+                            </ErxesFormItem>
                           );
                         }
-                        return (
-                          <ErxesFormItem span={erxesField.span}>
-                            <Form.Label>{erxesField.label}</Form.Label>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
+                        if (erxesField.type === 'boolean') {
+                          return (
+                            <ErxesFormItem
+                              span={erxesField.span}
+                              className="flex items-end gap-2 space-y-0"
                             >
-                              <Form.Control>
-                                <Select.Trigger>
-                                  <Select.Value
-                                    placeholder={erxesField.placeholder}
-                                  />
-                                </Select.Trigger>
-                              </Form.Control>
-                              <Select.Content>
-                                {erxesField.options.map((option) => {
-                                  if (!option) return null;
-
-                                  return (
-                                    <Select.Item key={option} value={option}>
-                                      {option}
-                                    </Select.Item>
-                                  );
-                                })}
-                              </Select.Content>
-                            </Select>
-                            {erxesField.description && (
-                              <Form.Description
-                                dangerouslySetInnerHTML={{
-                                  __html: erxesField.description,
-                                }}
+                              <div className="flex items-center gap-2 h-8">
+                                <Form.Control>
+                                  <Checkbox {...field} />
+                                </Form.Control>
+                                <Form.Label variant="peer">
+                                  {erxesField.label}
+                                </Form.Label>
+                              </div>
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
+                        if (
+                          erxesField.type === 'textarea' ||
+                          erxesField.type === 'core:customer:description' ||
+                          erxesField.type === 'core:company:description'
+                        ) {
+                          return (
+                            <ErxesFormItem span={erxesField.span}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              <Textarea
+                                {...field}
+                                placeholder={erxesField.placeholder}
                               />
-                            )}
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
 
-                      if (
-                        erxesField.type === 'radio' ||
-                        erxesField.type === 'core:customer:sex'
-                      ) {
-                        return (
-                          <ErxesFormItem span={2}>
-                            <Form.Label>{erxesField.label}</Form.Label>
-                            {erxesField.description && (
-                              <Form.Description
-                                dangerouslySetInnerHTML={{
-                                  __html: erxesField.description,
-                                }}
+                        if (erxesField.type === 'select') {
+                          if (erxesField.allowSearch) {
+                            return (
+                              <ErxesFormComboboxField
+                                field={field}
+                                erxesField={erxesField}
                               />
-                            )}
-                            <Form.Control>
-                              <RadioGroup
+                            );
+                          }
+                          return (
+                            <ErxesFormItem span={erxesField.span}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
-                                className="grid-cols-2 gap-x-4"
                               >
+                                <Form.Control>
+                                  <Select.Trigger>
+                                    <Select.Value
+                                      placeholder={erxesField.placeholder}
+                                    />
+                                  </Select.Trigger>
+                                </Form.Control>
+                                <Select.Content>
+                                  {erxesField.options.map((option) => {
+                                    if (!option) return null;
+
+                                    return (
+                                      <Select.Item key={option} value={option}>
+                                        {option}
+                                      </Select.Item>
+                                    );
+                                  })}
+                                </Select.Content>
+                              </Select>
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
+
+                        if (
+                          erxesField.type === 'radio' ||
+                          erxesField.type === 'core:customer:sex'
+                        ) {
+                          return (
+                            <ErxesFormItem span={2}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <Form.Control>
+                                <RadioGroup
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  className="grid-cols-2 gap-x-4"
+                                >
+                                  {erxesField.options.map((option) => {
+                                    if (!option) return null;
+                                    return (
+                                      <label
+                                        key={option}
+                                        className="flex items-center gap-2 cursor-pointer"
+                                      >
+                                        <RadioGroup.Item value={option} />
+                                        <span className="text-sm">
+                                          {option}
+                                        </span>
+                                      </label>
+                                    );
+                                  })}
+                                </RadioGroup>
+                              </Form.Control>
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
+
+                        if (erxesField.type === 'check') {
+                          return (
+                            <ErxesFormItem span={2}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                                 {erxesField.options.map((option) => {
                                   if (!option) return null;
+                                  const checked = (
+                                    field.value as string[]
+                                  )?.includes(option);
                                   return (
                                     <label
                                       key={option}
                                       className="flex items-center gap-2 cursor-pointer"
                                     >
-                                      <RadioGroup.Item value={option} />
+                                      <Checkbox
+                                        checked={checked}
+                                        onCheckedChange={(isChecked) => {
+                                          const current =
+                                            (field.value as string[]) || [];
+                                          field.onChange(
+                                            isChecked
+                                              ? [...current, option]
+                                              : current.filter(
+                                                  (v) => v !== option,
+                                                ),
+                                          );
+                                        }}
+                                      />
                                       <span className="text-sm">{option}</span>
                                     </label>
                                   );
                                 })}
-                              </RadioGroup>
-                            </Form.Control>
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
+                              </div>
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
 
-                      if (erxesField.type === 'check') {
+                        if (
+                          erxesField.type === 'date' ||
+                          erxesField.type === 'core:customer:birthDate'
+                        ) {
+                          return (
+                            <ErxesFormItem span={erxesField.span}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              <DatePicker
+                                {...field}
+                                placeholder={erxesField.placeholder}
+                              />
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
+
+                        if (
+                          erxesField.type === 'file' ||
+                          erxesField.type === 'core:customer:avatar' ||
+                          erxesField.type === 'core:company:avatar'
+                        ) {
+                          const urls: string[] = Array.isArray(field.value)
+                            ? field.value
+                            : [];
+                          const displayValue = urls.join(', ');
+                          return (
+                            <ErxesFormItem span={erxesField.span}>
+                              <Form.Label>{erxesField.label}</Form.Label>
+                              <Form.Control>
+                                <Upload.Root
+                                  value={displayValue}
+                                  onChange={(e) => {
+                                    const value = (
+                                      e as unknown as React.ChangeEvent<HTMLInputElement>
+                                    ).target.value;
+                                    field.onChange(
+                                      value
+                                        ? value
+                                            .split(',')
+                                            .map((v: string) => v.trim())
+                                            .filter(Boolean)
+                                        : [],
+                                    );
+                                  }}
+                                >
+                                  <Upload.Preview />
+                                  <Upload.Button
+                                    type="button"
+                                    variant={'outline'}
+                                    size="sm"
+                                  >
+                                    {erxesField.placeholder ||
+                                      t('upload-file', 'Upload file')}
+                                  </Upload.Button>
+                                </Upload.Root>
+                              </Form.Control>
+                              {erxesField.description && (
+                                <Form.Description
+                                  dangerouslySetInnerHTML={{
+                                    __html: erxesField.description,
+                                  }}
+                                />
+                              )}
+                              <Form.Message />
+                            </ErxesFormItem>
+                          );
+                        }
+
                         return (
-                          <ErxesFormItem span={2}>
+                          <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -437,134 +565,17 @@ export const FormPreviewContent = ({
                                 }}
                               />
                             )}
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                              {erxesField.options.map((option) => {
-                                if (!option) return null;
-                                const checked = (
-                                  field.value as string[]
-                                )?.includes(option);
-                                return (
-                                  <label
-                                    key={option}
-                                    className="flex items-center gap-2 cursor-pointer"
-                                  >
-                                    <Checkbox
-                                      checked={checked}
-                                      onCheckedChange={(isChecked) => {
-                                        const current =
-                                          (field.value as string[]) || [];
-                                        field.onChange(
-                                          isChecked
-                                            ? [...current, option]
-                                            : current.filter(
-                                                (v) => v !== option,
-                                              ),
-                                        );
-                                      }}
-                                    />
-                                    <span className="text-sm">{option}</span>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
-
-                      if (
-                        erxesField.type === 'date' ||
-                        erxesField.type === 'core:customer:birthDate'
-                      ) {
-                        return (
-                          <ErxesFormItem span={erxesField.span}>
-                            <Form.Label>{erxesField.label}</Form.Label>
-                            <DatePicker
+                            <Input
                               {...field}
                               placeholder={erxesField.placeholder}
                             />
-                            {erxesField.description && (
-                              <Form.Description
-                                dangerouslySetInnerHTML={{
-                                  __html: erxesField.description,
-                                }}
-                              />
-                            )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
-                      }
-
-                      if (
-                        erxesField.type === 'file' ||
-                        erxesField.type === 'core:customer:avatar'
-                      ) {
-                        const urls: string[] = Array.isArray(field.value)
-                          ? field.value
-                          : [];
-                        const displayValue = urls.join(', ');
-                        return (
-                          <ErxesFormItem span={erxesField.span}>
-                            <Form.Label>{erxesField.label}</Form.Label>
-                            <Form.Control>
-                              <Upload.Root
-                                value={displayValue}
-                                onChange={(e) => {
-                                  const value = (e as any).target.value;
-                                  field.onChange(
-                                    value
-                                      ? value
-                                          .split(',')
-                                          .map((v: string) => v.trim())
-                                          .filter(Boolean)
-                                      : [],
-                                  );
-                                }}
-                              >
-                                <Upload.Preview />
-                                <Upload.Button
-                                  type="button"
-                                  variant={'outline'}
-                                  size="sm"
-                                >
-                                  {erxesField.placeholder ||
-                                    t('upload-file', 'Upload file')}
-                                </Upload.Button>
-                              </Upload.Root>
-                            </Form.Control>
-                            {erxesField.description && (
-                              <Form.Description
-                                dangerouslySetInnerHTML={{
-                                  __html: erxesField.description,
-                                }}
-                              />
-                            )}
-                            <Form.Message />
-                          </ErxesFormItem>
-                        );
-                      }
-
-                      return (
-                        <ErxesFormItem span={erxesField.span}>
-                          <Form.Label>{erxesField.label}</Form.Label>
-                          {erxesField.description && (
-                            <Form.Description
-                              dangerouslySetInnerHTML={{
-                                __html: erxesField.description,
-                              }}
-                            />
-                          )}
-                          <Input
-                            {...field}
-                            placeholder={erxesField.placeholder}
-                          />
-                          <Form.Message />
-                        </ErxesFormItem>
-                      );
-                    }}
-                  />
-                );
-              })}
+                      }}
+                    />
+                  );
+                })}
             </div>
           </InfoCard.Content>
           {stepsLength > 1 ? (

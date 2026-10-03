@@ -1,9 +1,11 @@
-import { ICustomField, Resolver } from 'erxes-api-shared/core-types';
+import { ICompany, ICustomField, Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IContext, IModels } from '~/connectionResolvers';
+import { ISubmission } from '~/modules/form/db/definitions/fields';
 import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
+import { findMessengerCompany } from '~/modules/inbox/graphql/resolvers/mutations/widget';
 import { createConversationAndMessage } from '~/modules/inbox/trpc/inbox';
 // helpers
 
@@ -49,17 +51,149 @@ function mapPronounToCode(pronoun: string): number {
   }
 }
 
-function handleCompanyFields(
-  submissionType: string,
-  value: any,
-  companyDoc: any,
-) {
-  if (submissionType === 'company_avatar' && value.length > 0) {
-    companyDoc.avatar = value[0].url;
-  } else {
-    const key = submissionType.split('_')[1];
-    companyDoc[key] = value;
+type CompanyFormDoc = Pick<
+  ICompany,
+  'primaryName' | 'avatar' | 'website' | 'size' | 'description'
+> & {
+  email?: string;
+  phone?: string;
+  industry?: string[];
+};
+
+function getFileUrl(value: unknown): string | undefined {
+  const file = Array.isArray(value) ? value[0] : value;
+
+  if (typeof file === 'string') return file;
+
+  if (file && typeof file === 'object' && 'url' in file) {
+    return typeof file.url === 'string' ? file.url : undefined;
   }
+
+  return undefined;
+}
+
+function getFieldText(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number') return String(value);
+
+  return '';
+}
+
+function handleCoreCompanyField(
+  fieldName: string,
+  value: unknown,
+  companyDoc: CompanyFormDoc,
+) {
+  if (fieldName === 'avatar') {
+    const url = getFileUrl(value);
+    if (url) companyDoc.avatar = url;
+    return;
+  }
+
+  const text = getFieldText(value);
+  if (!text) return;
+
+  switch (fieldName) {
+    case 'primaryName':
+      companyDoc.primaryName = text;
+      break;
+    case 'primaryEmail':
+      companyDoc.email = text;
+      break;
+    case 'primaryPhone':
+      companyDoc.phone = text;
+      break;
+    case 'website':
+      companyDoc.website = text;
+      break;
+    case 'industry':
+      companyDoc.industry = [text];
+      break;
+    case 'size': {
+      const size = Number(text);
+      if (!Number.isNaN(size)) companyDoc.size = size;
+      break;
+    }
+    case 'description':
+      companyDoc.description = text;
+      break;
+    default:
+      break;
+  }
+}
+
+async function saveFormCompany(
+  subdomain: string,
+  submissions: ISubmission[],
+  customerId: string,
+) {
+  const companyDoc: CompanyFormDoc = {};
+
+  for (const { type, value } of submissions) {
+    if (type?.startsWith('core:company:')) {
+      handleCoreCompanyField(
+        type.slice('core:company:'.length),
+        value,
+        companyDoc,
+      );
+    }
+  }
+
+  const { primaryName, email, phone } = companyDoc;
+
+  if (!primaryName && !email && !phone) return;
+
+  const company: { _id?: string } | null =
+    (await findMessengerCompany(subdomain, {
+      name: primaryName,
+      email,
+      phone,
+    })) ||
+    (await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'companies',
+      action: 'createCompany',
+      input: {
+        doc: { ...companyDoc, names: primaryName ? [primaryName] : [] },
+      },
+      defaultValue: null,
+    }));
+
+  if (!company?._id) return;
+
+  const relatedCompanyIds: string[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: 'core:customer',
+      contentId: customerId,
+      relatedContentType: 'core:company',
+    },
+    defaultValue: [],
+  });
+
+  if (relatedCompanyIds.includes(company._id)) return;
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'relation',
+    action: 'createRelation',
+    input: {
+      relation: {
+        entities: [
+          { contentType: 'core:customer', contentId: customerId },
+          { contentType: 'core:company', contentId: company._id },
+        ],
+      },
+    },
+  });
 }
 
 function handleCoreCustomerField(
@@ -273,32 +407,14 @@ export const widgetFormMutation: Record<
         collectionType: 'customer',
       },
     });
-    const companyfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'company',
-      },
-    });
-
     const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
       name: f.name,
       label: f.label || f.name,
     }));
 
     const customerDoc: any = {};
-    const companyDoc: any = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
-    const companyLinks: ILink = {};
     const submissionValues = {};
 
     for (const submission of submissions) {
@@ -308,8 +424,6 @@ export const widgetFormMutation: Record<
 
       if (submissionType.includes('customerLinks')) {
         customerLinks[getSocialLinkKey(submissionType)] = value;
-      } else if (submissionType.includes('companyLinks')) {
-        companyLinks[getSocialLinkKey(submissionType)] = value;
       }
 
       if (submissionType === 'pronoun') {
@@ -325,14 +439,6 @@ export const widgetFormMutation: Record<
         } else {
           customerDoc[submissionType] = value;
         }
-      }
-
-      if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      }
-
-      if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
       }
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
@@ -460,6 +566,8 @@ export const widgetFormMutation: Record<
       customer = updatedCustomer || customer;
     }
 
+    await saveFormCompany(subdomain, submissions, customer._id);
+
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
       integrationId: integration?._id,
@@ -536,32 +644,14 @@ export const widgetFormMutation: Record<
         collectionType: 'customer',
       },
     });
-    const companyfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'company',
-      },
-    });
-
     const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
       name: f.name,
       label: f.label || f.name,
     }));
 
     const customerDoc: any = {};
-    const companyDoc: any = {};
     const customFieldsData: ICustomField[] = [];
     const customerLinks: ILink = {};
-    const companyLinks: ILink = {};
     const submissionValues = {};
 
     for (const submission of submissions) {
@@ -571,8 +661,6 @@ export const widgetFormMutation: Record<
 
       if (submissionType.includes('customerLinks')) {
         customerLinks[getSocialLinkKey(submissionType)] = value;
-      } else if (submissionType.includes('companyLinks')) {
-        companyLinks[getSocialLinkKey(submissionType)] = value;
       }
 
       if (submissionType === 'pronoun') {
@@ -588,14 +676,6 @@ export const widgetFormMutation: Record<
         } else {
           customerDoc[submissionType] = value;
         }
-      }
-
-      if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      }
-
-      if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
       }
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
@@ -723,6 +803,8 @@ export const widgetFormMutation: Record<
       });
       customer = updatedCustomer || customer;
     }
+
+    await saveFormCompany(subdomain, submissions, customer._id);
 
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
