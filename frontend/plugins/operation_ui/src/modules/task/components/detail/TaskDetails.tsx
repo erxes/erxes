@@ -70,9 +70,17 @@ export const TaskDetails = ({
   }
 
   return (
-    <>
-      {task && <TaskFields task={task} />}
-      {triage && <TriageFields triage={triage} />}
-    </>
+    <div className="h-full w-full min-w-0 flex overflow-auto flex-1 lg:min-h-dvh">
+      <div className="w-full min-w-0 flex-1 xl:max-w-3xl mx-auto overflow-x-auto p-6">
+        {task && <TaskFields task={task} />}
+        {triage && <TriageFields triage={triage} />}
+      </div>
+      {task && (
+        <TaskSideWidgets
+          contentId={task._id}
+          propertiesData={task.propertiesData}
+        />
+      )}
+    </div>
   );
 };
