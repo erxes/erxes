@@ -186,6 +186,14 @@ propertiesData? } })`
   progress counters (`totalScope`, `totalStartedScope`,
   `totalCompletedScope`) are non-null ints because the aggregation always
   emits numbers.
+- `getStatusesChoicesByTeam` and `getTeamEstimateChoises` return concrete
+  `[StatusChoice]` and `[EstimateChoice]` types, not `JSON`. `Status` exposes
+  `color`, `order`, `type`, `createdAt` and `updatedAt` as non-null
+  (schema-required or timestamps). `Team._id`, `Team.createdAt`,
+  `Team.updatedAt` and `TeamMember._id` are non-null; other Team fields stay
+  nullable because the Mongoose schema does not require them and `.lean()`
+  does not apply defaults. `deleteStatus` still returns the `deleteOne`
+  result as `JSON`.
 - Any request-driven value (filter, params, variables, input, args,
   searchValue) that reaches a `$regex` or `new RegExp()` goes through
   `escapeRegExp` from `erxes-api-shared/utils` first. The plugin-local ESLint

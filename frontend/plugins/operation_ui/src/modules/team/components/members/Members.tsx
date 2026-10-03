@@ -34,7 +34,11 @@ export function Members() {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => removeHandler(member.teamId, member.memberId)}
+        onClick={() =>
+          member.teamId &&
+          member.memberId &&
+          removeHandler(member.teamId, member.memberId)
+        }
         className="hidden group-hover:flex "
       >
         <IconX className="size-4" />
@@ -67,7 +71,9 @@ export function Members() {
               : members?.map((member) => (
                   <Table.Row key={member._id} className="shadow-xs group ">
                     <Table.Cell className="font-medium border-none pl-2 w-auto">
-                      <MembersInline.Provider memberIds={[member.memberId]}>
+                      <MembersInline.Provider
+                        memberIds={member.memberId ? [member.memberId] : []}
+                      >
                         <span className="w-full flex gap-2 items-center">
                           <span className="[1lh] flex items-center">
                             <MembersInline.Avatar />
