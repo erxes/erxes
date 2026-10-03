@@ -2,7 +2,7 @@ import { Button, Popover, ToggleGroup } from 'erxes-ui';
 import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
 import { IconHelpOctagon } from '@tabler/icons-react';
 
-function PlaceholderInputHeaderComponent() {
+export function PlaceholderInputHeaderComponent() {
   const { inputVariant, onInputModeChange, suggestions } =
     usePlaceholderInputContext();
 

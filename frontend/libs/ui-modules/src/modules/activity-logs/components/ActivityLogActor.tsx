@@ -7,7 +7,7 @@ import {
   getActivityLogActorName,
 } from '../utils/activityLogActor';
 
-interface ActivityLogActorProps {
+export interface ActivityLogActorProps {
   activity: TActivityLog;
 }
 

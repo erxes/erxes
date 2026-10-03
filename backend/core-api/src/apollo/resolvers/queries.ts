@@ -38,6 +38,7 @@ import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
 import { globalSearchQueries } from '@/search/graphql/resolvers/queries/globalSearch';
 import { referenceQueries } from '~/meta/references/graphql/queries';
+import { marketplaceQueries } from '~/modules/marketplace/graphql/resolvers/queries';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -90,4 +91,5 @@ export const queries = {
   ...bundleQueries,
   ...templateQueries,
   ...globalSearchQueries,
+  ...marketplaceQueries,
 };

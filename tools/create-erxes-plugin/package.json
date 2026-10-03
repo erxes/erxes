@@ -1,0 +1,25 @@
+{
+  "name": "create-erxes-plugin",
+  "version": "3.0.0",
+  "description": "Scaffold a standalone erxes plugin repo (<name>_api + <name>_ui) that follows the erxes plugin contract",
+  "type": "module",
+  "bin": {
+    "create-erxes-plugin": "./index.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "index.mjs",
+    "template"
+  ],
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erxes/erxes.git",
+    "directory": "tools/create-erxes-plugin"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

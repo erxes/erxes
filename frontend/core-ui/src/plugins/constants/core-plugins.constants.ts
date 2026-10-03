@@ -7,6 +7,7 @@ import {
   IconChartPie,
   IconFile,
   IconMagnet,
+  IconPuzzle,
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
@@ -79,6 +80,11 @@ export const GET_CORE_MODULES = (
       name: t('documents'),
       icon: IconFile,
       path: 'documents',
+    },
+    {
+      name: t('marketplace'),
+      icon: IconPuzzle,
+      path: 'marketplace',
     },
   ];
 

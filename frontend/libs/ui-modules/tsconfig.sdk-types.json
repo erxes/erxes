@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig.lib.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "../../../dist/plugin-sdk/ui-modules",
+    "paths": {
+      "erxes-ui": [
+        "dist/plugin-sdk/ui/index.d.ts"
+      ],
+      "erxes-ui/*": [
+        "dist/plugin-sdk/ui/*"
+      ],
+      "ui-modules": [
+        "frontend/libs/ui-modules/src/index.ts"
+      ],
+      "ui-modules/*": [
+        "frontend/libs/ui-modules/src/*"
+      ]
+    }
+  },
+  "exclude": [
+    "jest.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.tsx",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "src/**/__stories__/**"
+  ]
+}

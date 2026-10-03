@@ -15,6 +15,7 @@ import { ComponentsRoutes } from '../components/ComponentsRoutes';
 
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
+import { MarketplaceRoutes } from '@/app/components/MarketplaceRoutes';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
@@ -143,6 +144,15 @@ export const useCreateAppRouter = () => {
                 element={
                   <PermissionRouteGuard module="broadcasts">
                     <BroadcastRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
+                path={AppPath.MarketplaceCatchAll}
+                element={
+                  <PermissionRouteGuard module="marketplace">
+                    <MarketplaceRoutes />
                   </PermissionRouteGuard>
                 }
               />

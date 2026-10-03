@@ -1,0 +1,86 @@
+{
+  "$schema": "./schema/registry.schema.json",
+  "version": 1,
+  "plugins": [
+    {
+      "name": "sales",
+      "version": "latest",
+      "description": "Deals, pipelines, POS and ecommerce",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-sales_api", "port": 3305, "hasSubscriptions": true },
+      "ui": { "remote": "sales_ui", "entry": "https://plugins.erxes.io/latest/sales_ui/remoteEntry.js" }
+    },
+    {
+      "name": "frontline",
+      "version": "latest",
+      "description": "Inbox, tickets and team communication",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-frontline_api", "port": 3306 },
+      "ui": { "remote": "frontline_ui", "entry": "https://plugins.erxes.io/latest/frontline_ui/remoteEntry.js" }
+    },
+    {
+      "name": "loyalty",
+      "version": "latest",
+      "description": "Loyalty programs, score campaigns and vouchers",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-loyalty_api", "port": 3307 },
+      "ui": { "remote": "loyalty_ui", "entry": "https://plugins.erxes.io/latest/loyalty_ui/remoteEntry.js" }
+    },
+    {
+      "name": "accounting",
+      "version": "latest",
+      "description": "Journals, transactions and accounting",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-accounting_api", "port": 3308 },
+      "ui": { "remote": "accounting_ui", "entry": "https://plugins.erxes.io/latest/accounting_ui/remoteEntry.js" }
+    },
+    {
+      "name": "content",
+      "version": "latest",
+      "description": "CMS pages, posts and knowledge base",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-content_api", "port": 3309 },
+      "ui": { "remote": "content_ui", "entry": "https://plugins.erxes.io/latest/content_ui/remoteEntry.js" }
+    },
+    {
+      "name": "operation",
+      "version": "latest",
+      "description": "Tasks, projects and operations",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-operation_api", "port": 3310 },
+      "ui": { "remote": "operation_ui", "entry": "https://plugins.erxes.io/latest/operation_ui/remoteEntry.js" }
+    },
+    {
+      "name": "payment",
+      "version": "latest",
+      "description": "Payment types and invoices",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-payment_api", "port": 3311 },
+      "ui": { "remote": "payment_ui", "entry": "https://plugins.erxes.io/latest/payment_ui/remoteEntry.js" }
+    },
+    {
+      "name": "insurance",
+      "version": "latest",
+      "description": "Insurance products and claims",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-insurance_api", "port": 3312 },
+      "ui": { "remote": "insurance_ui", "entry": "https://plugins.erxes.io/latest/insurance_ui/remoteEntry.js" }
+    },
+    {
+      "name": "tourism",
+      "version": "latest",
+      "description": "Tours, bookings and tourism",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-tourism_api", "port": 3313 },
+      "ui": { "remote": "tourism_ui", "entry": "https://plugins.erxes.io/latest/tourism_ui/remoteEntry.js" }
+    },
+    {
+      "name": "mongolian",
+      "version": "latest",
+      "description": "Mongolian integrations",
+      "source": "catalog",
+      "api": { "image": "erxes/erxes-next-mongolian_api", "port": 3314 },
+      "ui": { "remote": "mongolian_ui", "entry": "https://plugins.erxes.io/latest/mongolian_ui/remoteEntry.js" }
+    }
+  ]
+}

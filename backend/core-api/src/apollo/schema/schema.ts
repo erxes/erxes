@@ -90,6 +90,12 @@ import {
 
 import { queries as BeforeResolverQueries } from '@/beforeResolvers/graphql/schema';
 
+import {
+  mutations as MarketplaceMutations,
+  queries as MarketplaceQueries,
+  types as MarketplaceTypes,
+} from '~/modules/marketplace/graphql/schemas/pluginInstall';
+
 import { queries as FormQueries } from '~/modules/forms/graphql/schema';
 
 import {
@@ -276,6 +282,7 @@ export const types = `
     ${bundleTypes}
     ${templateTypes}
     ${searchTypes}
+    ${MarketplaceTypes}
   `;
 
 export const queries = `
@@ -320,6 +327,7 @@ export const queries = `
     ${bundleQueries}
     ${templateQueries}
     ${searchQueries}
+    ${MarketplaceQueries}
   `;
 
 export const mutations = `
@@ -359,6 +367,7 @@ export const mutations = `
     ${bundleMutations}
     ${templateMutations}
     ${LogsMutations}
+    ${MarketplaceMutations}
   `;
 
 export default { types, queries, mutations };

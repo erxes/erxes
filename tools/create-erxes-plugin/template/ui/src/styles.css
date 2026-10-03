@@ -1,0 +1,24 @@
+:root {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1f2937;
+}
+
+body {
+  margin: 0;
+}
+
+.changemodule-page {
+  padding: 1.5rem;
+}
+
+.changemodule-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.changemodule-table th,
+.changemodule-table td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}

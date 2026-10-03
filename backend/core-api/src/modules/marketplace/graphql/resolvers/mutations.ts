@@ -1,0 +1,113 @@
+import { IContext } from '~/connectionResolvers';
+import {
+  assertInstallableName,
+  fetchPluginManifest,
+  fetchRegistryCatalog,
+  IRegistryPlugin,
+  isGithubInstallEnabled,
+  registerPluginService,
+  registryEntryToInstall,
+  unregisterPluginService,
+} from '~/modules/marketplace/registry';
+
+export const marketplaceMutations = {
+  async marketplacePluginInstall(
+    _parent: undefined,
+    { name, repoUrl }: { name?: string; repoUrl?: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('marketplaceManage');
+
+    if (!name && !repoUrl) {
+      throw new Error('pluginInstall requires a name or a repoUrl');
+    }
+
+    let plugin: IRegistryPlugin | undefined;
+    let source: 'catalog' | 'github' = 'catalog';
+
+    if (repoUrl) {
+      if (!isGithubInstallEnabled()) {
+        throw new Error(
+          'Installing plugins from GitHub is disabled on this deployment',
+        );
+      }
+
+      plugin = await fetchPluginManifest(repoUrl);
+      source = 'github';
+
+      if (name && name !== plugin.name) {
+        throw new Error(
+          `Plugin name mismatch: manifest declares "${plugin.name}"`,
+        );
+      }
+    } else {
+      const catalog = await fetchRegistryCatalog();
+
+      plugin = catalog.find((p) => p.name === name);
+
+      if (!plugin) {
+        throw new Error(`Plugin "${name}" not found in the registry`);
+      }
+    }
+
+    assertInstallableName(plugin.name);
+
+    const priorInstall = await models.PluginInstalls.findOne({
+      name: plugin.name,
+    }).lean();
+
+    await registerPluginService(plugin);
+
+    try {
+      return await models.PluginInstalls.install(
+        registryEntryToInstall(plugin, source, repoUrl),
+      );
+    } catch (e) {
+      // Only roll back registration when this call introduced it — a prior
+      // install means the plugin was already registered.
+      if (!priorInstall) {
+        await unregisterPluginService(plugin.name);
+      }
+      throw e;
+    }
+  },
+
+  async marketplacePluginSetEnabled(
+    _parent: undefined,
+    { _id, enabled }: { _id: string; enabled: boolean },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('marketplaceManage');
+
+    const existing = await models.PluginInstalls.getInstall(_id);
+
+    if (enabled) {
+      await registerPluginService(existing);
+    } else {
+      await unregisterPluginService(existing.name);
+    }
+
+    const install = await models.PluginInstalls.setEnabled(_id, enabled);
+
+    if (!install) {
+      throw new Error('Plugin install not found');
+    }
+
+    return install;
+  },
+
+  async marketplacePluginUninstall(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('marketplaceManage');
+
+    const install = await models.PluginInstalls.getInstall(_id);
+
+    await unregisterPluginService(install.name);
+    await models.PluginInstalls.uninstall(_id);
+
+    return { removed: true, name: install.name };
+  },
+};
