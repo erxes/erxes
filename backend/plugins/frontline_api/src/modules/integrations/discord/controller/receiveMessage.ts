@@ -26,33 +26,15 @@ import { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/ty
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 
-/** Build a Discord CDN avatar URL, or undefined when the user has no avatar hash. */
 const avatarUrl = (userId: string, hash?: string | null) =>
   hash ? `https://cdn.discordapp.com/avatars/${userId}/${hash}.png` : undefined;
 
-/** Promise that resolves after `ms` milliseconds. */
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// How many find→create/wait rounds getOrCreateCustomer runs before treating a
-// still-unlinked row as abandoned and taking its core sync over. The sync is a
-// single in-process bridge call, so the backed-off waits (250ms × attempt,
-// ~2.5s total) are generous for a live peer.
 const CUSTOMER_CREATE_ATTEMPTS = 4;
 
-// How many backed-off re-reads a conversation-create-race loser gives the winner
-// to land the core `erxesApiId` link before syncing the adopted row itself.
-// Mirrors CUSTOMER_CREATE_ATTEMPTS (~2.5s total): syncing is a single in-process
-// bridge call, so this is generous for a live peer. Without the wait, both first
-// messages for a key would each mint (and orphan) a separate core conversation.
 const CONVERSATION_LINK_ATTEMPTS = 4;
 
-/**
- * Mints the canonical core customer for a Discord author and returns its id.
- * NOTE: every call CREATES a new core contact — the bridge dedupes only by
- * email/phone, which Discord never sends — so it must run at most once per
- * author. Never call it for a row a concurrent request is already syncing:
- * that would orphan a duplicate contact.
- */
 const syncCustomerToCore = async (
   subdomain: string,
   bot: IDiscordBotDocument,
@@ -76,13 +58,6 @@ const syncCustomerToCore = async (
   return (response.data as { _id: string })._id;
 };
 
-/**
- * One attempt of `getOrCreateCustomer`'s find→create→link round. Returns the
- * customer once it's fully linked, or `undefined` to retry (a concurrent
- * request is still creating/linking it, or lost the create race and should
- * re-read next pass). Split out of the loop so this branching isn't nested
- * inside the `for`, which is what pushed its cognitive complexity over budget.
- */
 const attemptGetOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -98,18 +73,10 @@ const attemptGetOrCreateCustomer = async (
   }
 
   if (existing) {
-    // A concurrent request created the row and is mid-sync (`erxesApiId`
-    // lands right after). Don't sync it ourselves — see syncCustomerToCore —
-    // wait for the creator instead. If its sync fails it deletes the row and
-    // the next pass recreates it; if it crashed and the row stays unlinked,
-    // the takeover after the loop self-heals it.
     await sleep(250 * attempt);
     return undefined;
   }
 
-  // No row yet — create it. Enrich with the Discord profile (username +
-  // avatar) first. Best-effort: a failure here shouldn't block conversation
-  // creation.
   let profile: Partial<APIUser> = {};
   try {
     profile = (await getDiscordUser(bot.token, userId)) || {};
@@ -130,18 +97,11 @@ const attemptGetOrCreateCustomer = async (
       integrationId: bot.erxesApiId,
     });
   } catch (e) {
-    // A concurrent message from the same author won the create race — loop
-    // back and adopt the winner's row instead of failing (which would drop
-    // this message for good).
     if (getErrorMessage(e).includes('duplicate')) {
       return undefined;
     }
     throw e;
   }
-
-  // Sync to the core customer record via the inbox bridge. Roll the mirror
-  // row back on failure so no permanently-unlinked row is left behind — a
-  // racer waiting on it sees it vanish and takes creation over itself.
   try {
     customer.erxesApiId = await syncCustomerToCore(subdomain, bot, firstName, avatar);
     await customer.save();
@@ -155,15 +115,6 @@ const attemptGetOrCreateCustomer = async (
   return customer;
 };
 
-/**
- * Finds or creates the Discord sender as a customer: a plugin-local mirror
- * (`DiscordCustomers`) plus the canonical core customer (via the inbox bridge),
- * linked by `erxesApiId`. Mirrors Facebook's `getOrCreateCustomer` — minus its
- * throw-on-duplicate: the gateway dispatches events concurrently and never
- * redelivers, so a burst of first messages from a new author used to keep only
- * the one that won the create race and lose the rest. Instead, losers adopt the
- * winner's row, the same way the conversation create race is handled below.
- */
 const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -187,20 +138,12 @@ const getOrCreateCustomer = async (
     }
   }
 
-  // Wait budget exhausted: the row exists but never got its core link, so its
-  // creator died mid-sync (a *failed* sync deletes the row). Without a takeover
-  // every future message from this author would wait out the loop and fail here
-  // forever. Sync the row ourselves, with the write guarded so a late-finishing
-  // creator can't be double-linked.
   const orphan = await models.DiscordCustomers.findOne({ userId });
 
   if (!orphan) {
-    // The row kept being created and rolled back across every attempt — the
-    // bridge is failing; there is nothing to adopt.
     throw new Error(`Discord customer ${userId} could not be created`);
   }
 
-  // The creator may have finished between the last loop pass and this re-read.
   if (orphan.erxesApiId) {
     return orphan;
   }
@@ -222,8 +165,6 @@ const getOrCreateCustomer = async (
     return claimed;
   }
 
-  // Lost the claim: the original creator finished after all — use its link.
-  // (The contact minted above stays orphaned; the rare cost of self-healing.)
   const winner = await models.DiscordCustomers.findOne({ userId });
 
   if (winner?.erxesApiId) {
@@ -235,11 +176,6 @@ const getOrCreateCustomer = async (
   );
 };
 
-// Best display-text fallback for a Discord message's inbox preview: its
-// (mention-resolved) text, else the poll question, else the first embed's
-// title, else a generic "Link" label — in that priority order. A
-// poll/embed-only message has no text `content`, so this is what the
-// conversation-list preview falls back to.
 const buildMessagePreview = (
   displayContent: string,
   poll?: DiscordPoll,
@@ -250,12 +186,7 @@ const buildMessagePreview = (
   embeds?.find((embed) => embed.title || embed.url)?.title ||
   (embeds?.length ? 'Link' : '');
 
-/**
- * Resolves a Discord channel id to its display name and, if it's a thread,
- * its parent channel's id/name — used when minting a new conversation so the
- * inbox can nest the thread under its parent. Best-effort: a lookup failure
- * must not block conversation creation, so failures are logged and swallowed.
- */
+
 const resolveDiscordChannelInfo = async (token: string, channelId: string) => {
   let channelName: string | undefined;
   let isThread = false;
@@ -287,15 +218,6 @@ const resolveDiscordChannelInfo = async (token: string, channelId: string) => {
   return { channelName, isThread, parentChannelId, parentChannelName };
 };
 
-/**
- * Finds the conversation mirror for a Discord channel (one per channel; a
- * thread keeps its own channelId, so each thread is its own conversation), or
- * creates it on the channel's first message. On a concurrent create race,
- * adopts the winner's row instead of failing so this message still lands —
- * mirrors `attemptGetOrCreateCustomer`'s race handling. `createdInThisCall`
- * tells the caller whether it created the row — the only case a later
- * sync-failure rollback may delete it.
- */
 const findOrCreateDiscordConversation = async (
   models: IModels,
   bot: IDiscordBotDocument,
@@ -312,11 +234,6 @@ const findOrCreateDiscordConversation = async (
     conversation.content = displayContent || '';
     return { conversation, createdInThisCall: false };
   }
-
-  // Resolve the channel id to its human name (e.g. 'general') for display in
-  // the inbox, and detect whether it's a thread so the inbox can nest it
-  // under its parent channel. The same `getChannel` call yields the thread's
-  // `type` and `parent_id`, so thread detection costs no extra request.
   const { channelName, isThread, parentChannelId, parentChannelName } =
     await resolveDiscordChannelInfo(bot.token, channelId);
 
@@ -335,10 +252,6 @@ const findOrCreateDiscordConversation = async (
     });
     return { conversation, createdInThisCall: true };
   } catch (e) {
-    // A concurrent message for the same channel won the create race — adopt
-    // the winner instead of failing so this message still lands. The
-    // winner's row is not ours: `createdInThisCall` stays false so a later
-    // sync failure here can't delete the row the winner is still linking.
     if (getErrorMessage(e).includes('duplicate')) {
       conversation = await models.DiscordConversations.findOne({
         channelId: { $eq: channelId },
@@ -351,19 +264,6 @@ const findOrCreateDiscordConversation = async (
   }
 };
 
-/**
- * Concurrency: two first messages for the same channel race in
- * `findOrCreateDiscordConversation` — the Gateway dispatches events without
- * awaiting, and backfill replays run alongside live traffic. The mirror-row
- * create race is resolved there by adopting the winner's row, but that row's
- * core link (`erxesApiId`) only lands a beat later, right after the winner's
- * own inbox sync returns. If we adopt the row while it's still unlinked and
- * then sync it ourselves, BOTH calls mint a separate core conversation; the
- * row binds to one and the other is orphaned (holding a single stray
- * message). So a call that did NOT create the row waits here for the creator
- * to land the link, re-reading the row, before syncing anything itself.
- * Mirrors the customer create-race wait.
- */
 const waitForConversationLink = async (
   models: IModels,
   conversation: IDiscordConversationDocument,
@@ -378,8 +278,6 @@ const waitForConversationLink = async (
     const refreshed = await models.DiscordConversations.findById(
       conversation._id,
     );
-    // Row gone → the creator's sync failed and rolled it back; stop waiting
-    // and (re)link it ourselves below. Linked → adopt the winner's link.
     if (!refreshed) {
       break;
     }
@@ -391,25 +289,6 @@ const waitForConversationLink = async (
   return conversation;
 };
 
-/**
- * Syncs the conversation to the inbox (mints or updates its core-side
- * conversation) and links the mirror row via `erxesApiId`. A channel
- * conversation isn't owned by a single customer, so the owner is set only
- * when first creating it (the initiating author) and never reassigned on
- * later updates — otherwise the inbox would flip the owner to whoever spoke
- * last; each message still carries its own author via
- * `create-conversation-message`. On the first sync for a row, guards the
- * claim so two concurrent first-messages for the same channel can't each bind
- * their own freshly-minted core conversation onto it (a blind save would let
- * the last writer win and orphan the other's conversation) — only the write
- * that finds the row still unlinked keeps its minted conversation; the loser
- * adopts the winner's link, or, if the row vanished (its creator rolled it
- * back on failure), re-attaches its own so the message isn't dropped. Rolls
- * back a row THIS call created if the sync itself fails; a pre-existing
- * conversation must survive a transient failure (deleting it would orphan its
- * mirrored messages and sever the inbox link) and is left in place to retry
- * on the next message.
- */
 const syncConversationToCore = async (
   models: IModels,
   subdomain: string,
@@ -422,13 +301,15 @@ const syncConversationToCore = async (
   timestamp: Date,
 ) => {
   const isFirstSync = !conversation.erxesApiId;
+  const owningIntegrationId =
+    conversation.integrationId || (isFirstSync ? bot.erxesApiId : undefined);
 
   try {
     const data = {
       action: 'create-or-update-conversation',
       payload: JSON.stringify({
         ...(isFirstSync ? { customerId: customer.erxesApiId } : {}),
-        integrationId: bot.erxesApiId,
+        ...(owningIntegrationId ? { integrationId: owningIntegrationId } : {}),
         content: previewContent,
         attachments: storedAttachments,
         conversationId: conversation.erxesApiId,
@@ -468,15 +349,10 @@ const syncConversationToCore = async (
     if (winner?.erxesApiId) {
       return winner;
     }
-
-    // The row vanished between the sync and the claim (its creator rolled it
-    // back on a failure): re-attach our minted link so the message still
-    // lands rather than being dropped.
     conversation.erxesApiId = mintedApiId;
     await conversation.save();
     return conversation;
   } catch (e) {
-    // Roll back only a row this call created — see the doc comment above.
     if (createdInThisCall) {
       await models.DiscordConversations.deleteOne({ _id: conversation._id });
     }
@@ -484,20 +360,6 @@ const syncConversationToCore = async (
   }
 };
 
-/**
- * Persists the mirror message row, syncs it into the inbox conversation
- * (store + realtime publish), and enrolls automations listening on inbound
- * Discord messages (AI Agent etc.) — skipped during history backfill so
- * replayed messages don't re-trigger them. The duplicate catch is the hard
- * idempotency guard against the live-dispatch race (the caller's earlier
- * existence check is a best-effort short-circuit, not a lock).
- *
- * Note: the "<bot> is typing…" indicator is intentionally NOT started here.
- * Starting it on every inbound message lights up channels/messages that no
- * automation ever answers. Instead it's started from the trigger match
- * (checkCustomTrigger), so it only shows when an automation actually matches
- * and is composing a reply — mirroring Facebook's behavior.
- */
 const persistAndDispatchMessage = async ({
   models,
   subdomain,
@@ -535,10 +397,6 @@ const persistAndDispatchMessage = async ({
       attachments: storedAttachments,
     });
 
-    // Persist the message into the inbox message store (so the conversation
-    // detail renders it) AND publish the real-time event. The
-    // `create-conversation-message` action does both; the publish-only
-    // `pConversationClientMessageInserted` left the detail thread empty.
     await receiveInboxMessage(subdomain, {
       action: 'create-conversation-message',
       metaInfo: 'replaceContent',
@@ -589,12 +447,6 @@ const persistAndDispatchMessage = async ({
   }
 };
 
-/**
- * Ingests one inbound Discord channel message: dual-writes a local mirror +
- * the canonical inbox conversation/message (linked by `erxesApiId`) and
- * publishes the real-time `conversationMessageInserted` event so it appears
- * live in the agent inbox. The Discord analogue of Facebook's `receiveMessage`.
- */
 export const receiveDiscordMessage = async ({
   models,
   subdomain,
@@ -606,15 +458,12 @@ export const receiveDiscordMessage = async ({
   subdomain: string;
   bot: IDiscordBotDocument;
   activity: DiscordActivity;
-  // History backfill replays old messages; it must not re-enroll automations
-  // (AI Agent, notifications) as if they just arrived.
   skipAutomation?: boolean;
 }) => {
   if (isIgnorableActivity(activity)) {
     return;
   }
 
-  // Without a linked inbox integration there is nowhere to route the message.
   if (!bot.erxesApiId) {
     debugError(
       `Discord bot ${bot._id} has no linked inbox integration (erxesApiId); skipping message ${activity.messageId}`,
@@ -624,23 +473,10 @@ export const receiveDiscordMessage = async ({
 
   const { messageId, content, attachments, poll, embeds } = activity;
 
-  // What we store + show in the inbox: `<@ID>` mentions rewritten to `@Name`.
-  // The raw `content` is still used for automation triggers so trigger matching
-  // keeps seeing exactly what Discord sent.
   const displayContent = resolveDiscordMentions(content, activity.mentions);
 
-  // Re-host inbound images to erxes storage so they survive Discord's ~24h CDN
-  // URL expiry; videos/files keep their CDN URL. Best-effort, never throws.
   const storedAttachments = await rehostImageAttachments(subdomain, attachments);
 
-  // Structured payloads (poll, embed preview cards) travel on the message's
-  // `extraData` and render as cards. The Discord message id is *always* stamped
-  // alongside so later events can find this inbox message back: a poll-vote event
-  // refreshes tallies, and — since Discord unfurls link/Tenor/Giphy previews a
-  // moment after the message and re-delivers it via MESSAGE_UPDATE — the edit
-  // handler attaches `embeds` then. Stamping unconditionally is essential for that
-  // last case: a plain link has no poll/embeds at create time, so a conditional
-  // stamp would leave the unfurl with no message to attach to.
   const extraData = {
     ...(poll && { poll }),
     ...(embeds?.length && { embeds }),
@@ -664,14 +500,7 @@ export const receiveDiscordMessage = async ({
       created.createdInThisCall,
     );
 
-    // Idempotency guard, ahead of the conversation sync: a re-run history
-    // backfill replays messages we've already ingested. The
-    // `create-or-update-conversation` sync below resets the inbox conversation to
-    // status OPEN with empty `readUserIds`, so running it for a message that adds
-    // nothing new would reopen and un-read a closed conversation. Bail out here
-    // instead — the Discord message id is globally unique, so an existing mirror
-    // row means this exact message was already stored (the create below is still
-    // the hard idempotency guard for the live-dispatch race).
+   
     const existingMessage = await models.DiscordConversationMessages.findOne({
       messageId: { $eq: messageId },
     });
