@@ -9,6 +9,7 @@ export * from './SelectCustomersBulk';
 export * from './SelectCompany';
 export * from './SelectCustomer';
 export * from './CompanyEmails';
+export * from './useEmailDoubleClick';
 export * from './CompanyPhones';
 export * from './CompanyName';
 export * from './CompanyOwner';
