@@ -10,8 +10,9 @@ import {
   readImage,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { currentUserState } from 'ui-modules/states';
 
 import {
@@ -72,33 +73,12 @@ export const MembersInlineProvider = ({
   allowUnassigned?: boolean;
 }) => {
   const [_members, _setMembers] = useState<IUser[]>(members || []);
-  const [inactiveMemberIds, setInactiveMemberIds] = useState<string[]>([]);
   const currentMembers = members || _members;
-  const activeMembers = currentMembers.filter(
-    ({ _id, isActive }) =>
-      isActive !== false && !inactiveMemberIds.includes(_id),
-  );
-  const handleMemberActiveChange = useCallback(
-    (memberId: string, isActive: boolean) => {
-      setInactiveMemberIds((currentIds) => {
-        if (isActive) {
-          return currentIds.includes(memberId)
-            ? currentIds.filter((id) => id !== memberId)
-            : currentIds;
-        }
-
-        return currentIds.includes(memberId)
-          ? currentIds
-          : [...currentIds, memberId];
-      });
-    },
-    [],
-  );
 
   return (
     <MembersInlineContext.Provider
       value={{
-        members: activeMembers,
+        members: currentMembers,
         loading: false,
         memberIds: memberIds,
         placeholder: isUndefinedOrNull(placeholder)
@@ -111,27 +91,17 @@ export const MembersInlineProvider = ({
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
       {memberIds?.map((memberId) => (
-        <MemberInlineEffectComponent
-          key={memberId}
-          memberId={memberId}
-          onActiveChange={handleMemberActiveChange}
-        />
+        <MemberInlineEffectComponent key={memberId} memberId={memberId} />
       ))}
     </MembersInlineContext.Provider>
   );
 };
 
-const MemberInlineEffectComponent = ({
-  memberId,
-  onActiveChange,
-}: {
-  memberId: string;
-  onActiveChange: (memberId: string, isActive: boolean) => void;
-}) => {
+const MemberInlineEffectComponent = ({ memberId }: { memberId: string }) => {
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { updateMembers } = useMembersInlineContext();
   const skip = !memberId || memberId === currentUser?._id;
-  const { userDetail } = useMemberInline({
+  const { userDetail, loading: memberLoading } = useMemberInline({
     variables: {
       _id: memberId,
     },
@@ -149,26 +119,40 @@ const MemberInlineEffectComponent = ({
     statusChangedUser?._id === memberId ? statusChangedUser : userDetail;
 
   useEffect(() => {
-    if (!updateMembers) return;
+    if (!updateMembers || skip) return;
 
-    if (resolvedUser?.isActive === false) {
-      onActiveChange(memberId, false);
-      updateMembers((prev) => prev.filter(({ _id }) => _id !== memberId));
-    } else if (resolvedUser) {
-      onActiveChange(memberId, true);
+    const upsert = (member: IUser) =>
       updateMembers((prev) => {
-        if (prev.some((m) => m._id === memberId)) return prev;
-        return [...prev, { ...resolvedUser, _id: memberId }];
+        const existingIndex = prev.findIndex((m) => m._id === memberId);
+        if (existingIndex === -1) return [...prev, member];
+        if (
+          prev[existingIndex].isActive === member.isActive &&
+          prev[existingIndex].isDeleted === member.isDeleted &&
+          prev[existingIndex].details?.fullName === member.details?.fullName
+        ) {
+          return prev;
+        }
+        const next = [...prev];
+        next[existingIndex] = member;
+        return next;
       });
+
+    if (resolvedUser) {
+      upsert({ ...resolvedUser, _id: memberId });
+    } else if (!memberLoading) {
+      // Query resolved with no matching user: the member was deleted.
+      upsert({ _id: memberId, isActive: false, isDeleted: true } as IUser);
     }
-    if (currentUser?._id === memberId) {
-      onActiveChange(memberId, true);
-      updateMembers((prev) => {
-        if (prev.some((m) => m._id === memberId)) return prev;
-        return [currentUser, ...prev];
-      });
-    }
-  }, [resolvedUser, currentUser, memberId, onActiveChange, updateMembers]);
+  }, [resolvedUser, memberLoading, memberId, updateMembers, skip]);
+
+  useEffect(() => {
+    if (!updateMembers || currentUser?._id !== memberId) return;
+
+    updateMembers((prev) => {
+      if (prev.some((m) => m._id === memberId)) return prev;
+      return [currentUser, ...prev];
+    });
+  }, [currentUser, memberId, updateMembers]);
 
   return null;
 };
@@ -184,11 +168,13 @@ export const MembersInlineAvatar = ({
     useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
 
-  const activeMembers = memberIds
+  const { t } = useTranslation('team-member');
+
+  const valueMembers = memberIds
     ? members.filter((m) => memberIds.includes(m._id))
     : members;
 
-  const sortedMembers = [...activeMembers].sort((a, b) => {
+  const sortedMembers = [...valueMembers].sort((a, b) => {
     if (a._id === currentUser?._id) return -1;
     if (b._id === currentUser?._id) return 1;
     return 0;
@@ -205,9 +191,45 @@ export const MembersInlineAvatar = ({
       </div>
     );
 
+  const getMemberLabel = (member: IUser) => {
+    if (member.isDeleted) {
+      return t('deleted-user', { defaultValue: 'Deleted user' });
+    }
+    if (member.isActive === false) {
+      const name =
+        member.details?.fullName || member.email || member.username || '';
+      return `${name} (${t('deactivated', { defaultValue: 'deactivated' })})`;
+    }
+    return member.details?.fullName;
+  };
+
+  const renderMemberLabel = (member: IUser) => {
+    if (member.isDeleted) {
+      return (
+        <span className="text-muted-foreground">
+          {t('deleted-user', { defaultValue: 'Deleted user' })}
+        </span>
+      );
+    }
+    if (member.isActive === false) {
+      const name =
+        member.details?.fullName || member.email || member.username || '';
+      return (
+        <>
+          {name}{' '}
+          <span className="text-muted-foreground">
+            ({t('deactivated', { defaultValue: 'deactivated' })})
+          </span>
+        </>
+      );
+    }
+    return member.details?.fullName;
+  };
+
   const renderAvatar = (member: IUser) => {
-    const { details } = member;
+    const { details, isDeleted, isActive } = member;
     const { avatar, fullName } = details || {};
+    const isInactiveOrDeleted = isDeleted || isActive === false;
 
     return (
       <Tooltip delayDuration={100} key={member._id}>
@@ -215,24 +237,33 @@ export const MembersInlineAvatar = ({
           <Avatar
             className={cn(
               'bg-background',
-              activeMembers.length > 1 && 'ring-2 ring-background',
+              valueMembers.length > 1 && 'ring-2 ring-background',
+              isInactiveOrDeleted && 'opacity-60 grayscale',
               className,
             )}
             size={size || 'lg'}
             {...props}
           >
-            <Avatar.Image src={readImage(avatar as string, 200)} />
-            <Avatar.Fallback>{fullName?.charAt(0) || ''}</Avatar.Fallback>
+            {!isDeleted && (
+              <Avatar.Image src={readImage(avatar as string, 200)} />
+            )}
+            <Avatar.Fallback>
+              {isDeleted ? (
+                <IconUserCancel className="size-3.5" />
+              ) : (
+                fullName?.charAt(0) || ''
+              )}
+            </Avatar.Fallback>
           </Avatar>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          <p>{fullName}</p>
+          <p>{renderMemberLabel(member)}</p>
         </Tooltip.Content>
       </Tooltip>
     );
   };
 
-  if (activeMembers.length === 0) {
+  if (valueMembers.length === 0) {
     if (allowUnassigned) {
       return (
         <IconUserCancel className="text-muted-foreground flex-none size-4" />
@@ -241,7 +272,7 @@ export const MembersInlineAvatar = ({
     return null;
   }
 
-  if (activeMembers.length === 1) return renderAvatar(activeMembers[0]);
+  if (valueMembers.length === 1) return renderAvatar(valueMembers[0]);
 
   const withAvatar = sortedMembers.slice(0, sortedMembers.length > 3 ? 2 : 3);
   const restMembers = sortedMembers.slice(withAvatar.length);
@@ -263,7 +294,7 @@ export const MembersInlineAvatar = ({
             </Avatar>
           </Tooltip.Trigger>
           <Tooltip.Content>
-            <p>{restMembers.map((m) => m.details?.fullName).join(', ')}</p>
+            <p>{restMembers.map((m) => getMemberLabel(m)).join(', ')}</p>
           </Tooltip.Content>
         </Tooltip>
       )}
@@ -280,14 +311,38 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
     memberIds,
   } = useMembersInlineContext();
   const currentUser = useAtomValue(currentUserState) as IUser;
+  const { t } = useTranslation('team-member');
 
-  const activeMembers = memberIds?.length
+  const valueMembers = memberIds?.length
     ? allMembers.filter((m) => memberIds.includes(m._id))
     : allMembers;
-  const isCurrentUser = activeMembers.some((m) => m._id === currentUser._id);
+  const isCurrentUser = valueMembers.some((m) => m._id === currentUser._id);
+
+  const renderMemberLabel = (member: IUser) => {
+    if (member.isDeleted) {
+      return (
+        <span className="text-muted-foreground">
+          {t('deleted-user', { defaultValue: 'Deleted user' })}
+        </span>
+      );
+    }
+    if (member.isActive === false) {
+      const name =
+        member.details?.fullName || member.email || member.username || '';
+      return (
+        <>
+          {name}{' '}
+          <span className="text-muted-foreground">
+            ({t('deactivated', { defaultValue: 'deactivated' })})
+          </span>
+        </>
+      );
+    }
+    return member.details?.fullName;
+  };
 
   const getDisplayValue = () => {
-    if (!activeMembers || activeMembers.length === 0) {
+    if (!valueMembers || valueMembers.length === 0) {
       if (allowUnassigned) {
         return (
           <span className="capitalize text-muted-foreground/80">
@@ -298,21 +353,25 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
       return undefined;
     }
 
-    if (activeMembers.length === 1) {
-      return activeMembers?.[0].details?.fullName;
+    if (valueMembers.length === 1) {
+      return renderMemberLabel(valueMembers[0]);
     }
 
     if (isCurrentUser) {
-      const otherMembersCount = activeMembers.length - 1;
+      const otherMembersCount = valueMembers.length - 1;
       if (otherMembersCount > 1) {
         return `You and ${otherMembersCount} others`;
       }
 
-      const otherMember = activeMembers.find((m) => m._id !== currentUser._id);
-      return `You and ${otherMember?.details?.fullName}`;
+      const otherMember = valueMembers.find((m) => m._id !== currentUser._id);
+      return otherMember ? (
+        <>You and {renderMemberLabel(otherMember)}</>
+      ) : (
+        'You and '
+      );
     }
 
-    return `${activeMembers.length} members`;
+    return `${valueMembers.length} members`;
   };
 
   return (

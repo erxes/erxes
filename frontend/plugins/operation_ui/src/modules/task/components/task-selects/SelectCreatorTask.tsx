@@ -28,7 +28,7 @@ const SelectCreatorContent = () => {
   const [debouncedSearch] = useDebounce(search, 500);
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { members } = useSelectMemberContext();
-  
+
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
@@ -37,6 +37,10 @@ const SelectCreatorContent = () => {
 
   const usersList = [currentUser, ...users].filter(
     (user) => !members.find((member) => member._id === user._id),
+  );
+
+  const selectableMembers = members.filter(
+    (member) => member.isActive !== false && !member.isDeleted,
   );
 
   return (
@@ -50,9 +54,9 @@ const SelectCreatorContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {selectableMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {selectableMembers.map((member) => (
               <SelectMember.CommandItem key={member._id} user={member} />
             ))}
             {!loading && usersList.length > 0 && (
@@ -78,7 +82,7 @@ const SelectCreatorContent = () => {
 const SelectCreatorFilterView = () => {
   const [createdBy, setCreatedBy] = useQueryState<string>('createdBy');
   const { resetFilterState } = useFilterContext();
-  
+
   return (
     <Filter.View filterKey="createdBy">
       <SelectCreatorProvider
@@ -98,7 +102,7 @@ const SelectCreatorFilterView = () => {
 export const SelectCreatorFilterBar = () => {
   const [createdBy, setCreatedBy] = useQueryState<string>('createdBy');
   const [open, setOpen] = useState(false);
-  
+
   return (
     <SelectCreatorProvider
       mode="single"
