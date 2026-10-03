@@ -1,12 +1,12 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { isAddingAppAtom } from '../state';
-import { useAppsAdd } from '../hooks/useAppsAdd';
+import { renderingBrandDetailAtom } from '../state';
+import { useBrandsAdd } from '../hooks/useBrandsAdd';
 
-export const AppsAddRow = () => {
-  const setIsAddingApp = useSetAtom(isAddingAppAtom);
-  const { appsAdd, loading } = useAppsAdd();
+export const BrandsAddRow = () => {
+  const setIsAddingBrand = useSetAtom(renderingBrandDetailAtom);
+  const { brandsAdd, loading } = useBrandsAdd();
   const { toast } = useToast();
   const [value, setValue] = useState('');
   const handledRef = useRef(false);
@@ -19,7 +19,7 @@ export const AppsAddRow = () => {
   const cancel = () => {
     if (handledRef.current) return;
     handledRef.current = true;
-    setIsAddingApp(false);
+    setIsAddingBrand(false);
   };
 
   const submit = () => {
@@ -30,9 +30,9 @@ export const AppsAddRow = () => {
       return;
     }
     handledRef.current = true;
-    appsAdd({
+    brandsAdd({
       variables: { name },
-      onCompleted: () => setIsAddingApp(false),
+      onCompleted: () => setIsAddingBrand(false),
       onError: (error) => {
         handledRef.current = false;
         toast({
@@ -49,7 +49,7 @@ export const AppsAddRow = () => {
       <Table.Cell />
       <Table.Cell />
       <Table.Cell colSpan={6} className="h-cell">
-        <div className="h-full w-full max-w-[310px] flex items-center px-3">
+        <div className="h-full flex items-center px-3">
           <input
             ref={inputRef}
             disabled={loading}
@@ -66,8 +66,9 @@ export const AppsAddRow = () => {
                 cancel();
               }
             }}
-            placeholder="My App"
-            className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
+            placeholder="Brand name"
+            className="w-full max-w-xs bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
+            maxLength={288}
           />
         </div>
       </Table.Cell>

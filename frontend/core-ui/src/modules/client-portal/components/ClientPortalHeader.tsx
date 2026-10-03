@@ -1,10 +1,25 @@
-import { Breadcrumb, Button } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { Breadcrumb, Button, Kbd, useScopedHotkeys } from 'erxes-ui';
+import { Can, PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
-import { IconTerminal2 } from '@tabler/icons-react';
-import { CreateClientPortalSheet } from '@/client-portal/components/ClientPortalAddSheet';
+import { IconPlus, IconTerminal2 } from '@tabler/icons-react';
+// import { CreateClientPortalSheet } from '@/client-portal/components/ClientPortalAddSheet';
+import { useAtom } from 'jotai';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import { addingClientPortalAtom } from '../state';
 
 export const ClientPortalHeader = () => {
+  const [isAddingClientPortal, setIsAddingClientPortal] = useAtom(
+    addingClientPortalAtom,
+  );
+
+  useScopedHotkeys(
+    'c',
+    () => {
+      setIsAddingClientPortal(true);
+    },
+    SettingsHotKeyScope.ClientPortalsPage,
+  );
+
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -22,7 +37,17 @@ export const ClientPortalHeader = () => {
         </Breadcrumb>
       </PageHeader.Start>
       <PageHeader.End>
-        <CreateClientPortalSheet />
+        {/* <CreateClientPortalSheet /> */}
+        <Can action="appsManage">
+          <Button
+            disabled={isAddingClientPortal}
+            onClick={() => setIsAddingClientPortal(true)}
+          >
+            <IconPlus />
+            Create Client Portal
+            <Kbd>C</Kbd>
+          </Button>
+        </Can>
       </PageHeader.End>
     </PageHeader>
   );
