@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 
 import { useState } from 'react';
-import { getStringArray } from '../propertyUtils';
+import { getPickableOptions, getStringArray } from '../propertyUtils';
 import { IField } from '../types/fieldsTypes';
 import { SpecificFieldProps } from './Field';
 
@@ -67,7 +67,7 @@ export const FieldSelectMultipleContent = ({
   value: string[];
   onChange: (value: string[]) => void;
 }) => {
-  const options = field.options || [];
+  const options = getPickableOptions(field, value);
   const handleSelect = (optionValue: string) => {
     if (value.includes(optionValue)) {
       onChange(value.filter((v) => v !== optionValue));

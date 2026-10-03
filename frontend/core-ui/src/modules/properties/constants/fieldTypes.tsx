@@ -42,3 +42,13 @@ export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce((acc, type) => {
   acc[type.value] = type;
   return acc;
 }, {} as Record<string, (typeof FIELD_TYPES)[number]>);
+
+// Mirrors core-api: types sharing a stored shape; any other change needs a new field.
+export const TYPE_FAMILIES = [
+  ['select', 'radio'],
+  ['multiSelect', 'check'],
+  ['text', 'textarea'],
+];
+
+export const getEditableTypes = (savedType: string) =>
+  TYPE_FAMILIES.find((family) => family.includes(savedType)) ?? [savedType];

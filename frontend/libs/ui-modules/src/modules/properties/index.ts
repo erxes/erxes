@@ -9,3 +9,4 @@ export * from './components/PropertiesFilter';
 export * from './components/PropertyFormField';
 export * from './constants/coreRelationTypes';
 export * from './propertyUtils';
+export * from './utils/groupLayout';

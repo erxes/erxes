@@ -10,7 +10,11 @@ import {
   Switch,
   Textarea,
 } from 'erxes-ui';
-import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
+import {
+  FIELD_TYPES,
+  FIELD_TYPES_OBJECT,
+  getEditableTypes,
+} from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 
 import { Can } from 'ui-modules';
@@ -53,6 +57,10 @@ export const PropertyForm = ({
     resolver: zodResolver(propertySchema),
     defaultValues,
   });
+
+  const allowedTypes = isEdit
+    ? getEditableTypes(defaultValues.type)
+    : FIELD_TYPES.map(({ value }) => value);
 
   const handleSubmit = (data: IPropertyForm) => {
     let sendData = data;
@@ -182,10 +190,14 @@ export const PropertyForm = ({
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
-                        form.setValue('options', []);
-                        form.setValue('objectListConfigs', []);
+                        if (!isEdit) {
+                          form.setValue('options', []);
+                          form.setValue('objectListConfigs', []);
+                        }
                       }}
-                      disabled={isEdit || disableType}
+                      disabled={
+                        locked || disableType || allowedTypes.length < 2
+                      }
                     >
                       <Form.Control>
                         <Select.Trigger>
@@ -195,7 +207,9 @@ export const PropertyForm = ({
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
-                        {FIELD_TYPES.map((type) => (
+                        {FIELD_TYPES.filter(({ value }) =>
+                          allowedTypes.includes(value),
+                        ).map((type) => (
                           <Select.Item key={type.value} value={type.value}>
                             <div className="flex items-center gap-2 [&_svg]:size-4">
                               <type.icon />

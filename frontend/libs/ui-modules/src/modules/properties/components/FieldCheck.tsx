@@ -1,5 +1,6 @@
 import { Badge, Checkbox, Label } from 'erxes-ui';
 import { useState } from 'react';
+import { getPickableOptions } from '../propertyUtils';
 import { SpecificFieldProps } from './Field';
 
 export const FieldCheck = (props: SpecificFieldProps) => {
@@ -16,7 +17,7 @@ export const FieldCheck = (props: SpecificFieldProps) => {
 
   return (
     <div className="flex flex-col gap-2">
-      {field.options?.map((option) => (
+      {getPickableOptions(field, currentValue).map((option) => (
         <div key={option.value} className="flex gap-2">
           <Checkbox
             id={`${id}_${option.value}`}

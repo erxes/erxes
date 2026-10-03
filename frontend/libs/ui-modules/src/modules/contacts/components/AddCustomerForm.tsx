@@ -24,6 +24,7 @@ import { useFieldGroups } from '../../properties/hooks/useFieldGroups';
 import { useFields } from '../../properties/hooks/useFields';
 import { IFieldGroup } from '../../properties/types/fieldsTypes';
 import { PropertyFormField } from '../../properties/components/PropertyFormField';
+import { GroupFieldRows } from '../../properties/components/GroupFieldRows';
 
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
@@ -453,12 +454,32 @@ function CustomerPropertiesSection({
   const { fieldGroups, loading } = useFieldGroups({
     contentType: 'core:customer',
   });
+  const { fields, loading: fieldsLoading } = useFields({
+    contentType: 'core:customer',
+  });
 
-  if (loading) {
+  if (loading || fieldsLoading) {
     return (
       <InfoCard title="Customer Properties">
         <InfoCard.Content>
           <Spinner containerClassName="py-6" />
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  // Properties exist, but none is asked for at creation.
+  if (
+    fieldGroups.length > 0 &&
+    !fields.some((field) => field.isVisibleToCreate)
+  ) {
+    return (
+      <InfoCard title="Customer Properties">
+        <InfoCard.Content>
+          <p className="text-sm text-muted-foreground py-4 text-center">
+            No properties are asked for at creation. Turn on "Visible to
+            create" in Settings.
+          </p>
         </InfoCard.Content>
       </InfoCard>
     );
@@ -503,10 +524,11 @@ function CustomerPropertyGroup({
   propertiesData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {
-  const { fields, loading } = useFields({
+  const { fields: groupFields, loading } = useFields({
     groupId: group._id,
     contentType: 'core:customer',
   });
+  const fields = groupFields.filter((field) => field.isVisibleToCreate);
 
   if (loading) return <Spinner containerClassName="py-6" />;
   if (fields.length === 0) return null;
@@ -520,16 +542,18 @@ function CustomerPropertyGroup({
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content className="pt-4">
-        <div className="grid grid-cols-2 gap-4">
-          {fields.map((field) => (
+        <GroupFieldRows
+          group={group}
+          fields={fields}
+          renderField={(field) => (
             <CustomerPropertyField
               key={field._id}
               field={field}
               value={propertiesData[field._id]}
               onFieldChange={onFieldChange}
             />
-          ))}
-        </div>
+          )}
+        />
       </Collapsible.Content>
     </Collapsible>
   );

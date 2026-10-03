@@ -14,6 +14,12 @@ import { ORDER_GAP } from '../../constants';
 // What a user may still change on a group a plugin owns.
 const OWNED_GROUP_EDITABLE = ['name', 'description', 'order'] as const;
 
+const isLayout = (value: unknown): value is string[][] =>
+  Array.isArray(value) &&
+  value.every(
+    (row) => Array.isArray(row) && row.every((id) => typeof id === 'string'),
+  );
+
 export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   getGroup({ _id }: { _id: string }): Promise<IFieldGroupDocument>;
   createGroup(
@@ -63,18 +69,34 @@ export const loadFieldGroupClass = (models: IModels) => {
     ) {
       await this.validateGroup(doc, _id);
 
+      const layout = doc.configs?.layout;
+
+      if (layout !== undefined && !isLayout(layout)) {
+        throw new Error('Layout must be rows of field ids');
+      }
+
       const group = await models.FieldsGroups.getGroup({ _id });
-      const $set = group.owner
+      const $set: Record<string, unknown> = group.owner
         ? Object.fromEntries(
             OWNED_GROUP_EDITABLE.filter((key) => doc[key] !== undefined).map(
               (key) => [key, doc[key]],
             ),
           )
-        : doc;
+        : { ...doc };
+
+      // A plugin owns its group's fields, but how they are laid out is presentation.
+      const clearOwnedLayout = group.owner && doc.configs && !layout;
+
+      if (group.owner && layout) {
+        $set['configs.layout'] = layout;
+      }
 
       return models.FieldsGroups.findOneAndUpdate(
         { _id },
-        { $set: { ...$set, updatedBy: user._id } },
+        {
+          $set: { ...$set, updatedBy: user._id },
+          ...(clearOwnedLayout && { $unset: { 'configs.layout': '' } }),
+        },
         { new: true },
       );
     }

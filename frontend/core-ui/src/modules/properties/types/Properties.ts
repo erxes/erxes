@@ -26,7 +26,7 @@ export interface IFieldGroup {
   contentType: string;
   order: number;
   logics?: Record<string, unknown>;
-  configs?: { isMultiple?: boolean };
+  configs?: { isMultiple?: boolean; layout?: string[][] };
   // Set when a plugin feature keeps its featured fields in this group.
   owner?: { plugin?: string; module?: string; status?: string } | null;
 }

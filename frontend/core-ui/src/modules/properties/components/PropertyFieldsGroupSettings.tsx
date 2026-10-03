@@ -27,6 +27,7 @@ import { PropertiesCommandBar } from './record/PropertiesCommandBar';
 import { PropertiesGroupSection } from './record/PropertiesGroupSection';
 import { PropertiesSystemFieldsSection } from './record/PropertiesSystemFieldsSection';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
+import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
 
 export const PropertyFieldsGroupSettings = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
@@ -73,6 +74,7 @@ export const PropertyFieldsGroupSettings = () => {
   return (
     <>
       <PropertyGroupEditSheet />
+      <PropertyGroupLayoutSheet />
       <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
         <PropertiesSystemFieldsSection contentType={contentType || ''} />
         {loading ? (

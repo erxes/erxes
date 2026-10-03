@@ -9,7 +9,7 @@ import { Document } from 'mongoose';
 export interface FieldOption {
   label: string;
   value: string;
-  // Kept on the field when its owner drops it, since records may still hold it.
+  // Archived rather than removed, since records may still hold it.
   deprecated?: boolean;
 }
 

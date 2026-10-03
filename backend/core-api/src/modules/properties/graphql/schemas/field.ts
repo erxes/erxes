@@ -5,12 +5,14 @@ export const types = `
     type FieldOption {
         label: String
         value: String
+        deprecated: Boolean
         coordinates: JSON
     }
 
     input FieldOptionInput {
         label: String
         value: String
+        deprecated: Boolean
         coordinates: JSON
     }
 

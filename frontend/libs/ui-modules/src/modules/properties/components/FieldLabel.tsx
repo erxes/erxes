@@ -1,6 +1,9 @@
-import { Label } from 'erxes-ui';
+import { IconComponent, Label } from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
 import { formatValidationLabel, hasFieldValue } from '../propertyUtils';
+
+// The property form's default icon, stored either way, i.e. none was picked.
+const DEFAULT_ICONS = new Set(['123', 'Icon123']);
 
 export const FieldLabel = ({
   field,
@@ -34,6 +37,12 @@ export const FieldLabel = ({
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id}>
+        {field.icon && !DEFAULT_ICONS.has(field.icon) && (
+          <IconComponent
+            name={field.icon}
+            className="mr-1 inline size-3.5 align-[-2px]"
+          />
+        )}
         {field.name}
         {isRequired && <span className="text-destructive"> *</span>}
         {formatLabel && (

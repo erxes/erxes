@@ -4,6 +4,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IField, useFields } from 'ui-modules';
 import { IPropertyForm } from '../types/Properties';
+import { PropertyLogicFieldSelect } from './PropertyLogicFieldSelect';
 
 type LogicRule = {
   field: string;
@@ -105,6 +106,7 @@ export const PropertyFormLogicFields = ({
                   key={index}
                   rule={rule}
                   availableFields={availableFields}
+                  contentType={contentType}
                   onChange={(key, value) => handleChangeRule(index, key, value)}
                   onRemove={() => handleRemoveRule(index)}
                 />
@@ -129,11 +131,13 @@ export const PropertyFormLogicFields = ({
 const LogicRuleRow = ({
   rule,
   availableFields,
+  contentType,
   onChange,
   onRemove,
 }: {
   rule: LogicRule;
   availableFields: IField[];
+  contentType: string;
   onChange: (key: 'field' | 'operator' | 'value', value: string) => void;
   onRemove: () => void;
 }) => {
@@ -143,23 +147,12 @@ const LogicRuleRow = ({
   return (
     <div className="flex flex-col gap-2 rounded-md border p-2">
       <div className="flex items-center gap-2">
-        <Select
+        <PropertyLogicFieldSelect
           value={rule.field}
           onValueChange={(value) => onChange('field', value)}
-        >
-          <Select.Trigger className="flex-1">
-            <Select.Value
-              placeholder={t('select-property', 'Select property')}
-            />
-          </Select.Trigger>
-          <Select.Content>
-            {availableFields.map((field) => (
-              <Select.Item key={field._id} value={field._id}>
-                {field.name}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
+          fields={availableFields}
+          contentType={contentType}
+        />
         <Button
           type="button"
           variant="ghost"

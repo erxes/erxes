@@ -1,5 +1,6 @@
 import { Badge, Label, RadioGroup } from 'erxes-ui';
 import { useState } from 'react';
+import { getPickableOptions } from '../propertyUtils';
 import { SpecificFieldProps } from './Field';
 
 export const FieldRadio = (props: SpecificFieldProps) => {
@@ -23,7 +24,7 @@ export const FieldRadio = (props: SpecificFieldProps) => {
         handleChange(value);
       }}
     >
-      {field.options?.map((option) => (
+      {getPickableOptions(field, [currentValue]).map((option) => (
         <div key={option.value} className="flex items-center gap-2">
           <RadioGroup.Item id={`${id}_${option.value}`} value={option.value} />
 

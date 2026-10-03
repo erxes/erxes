@@ -16,7 +16,7 @@ export interface IFieldGroup {
   order: number;
 
   logics: string;
-  configs?: { isMultiple?: boolean };
+  configs?: { isMultiple?: boolean; layout?: string[][] };
 
   owner?: IFeaturedFieldOwner & { key: string };
 }

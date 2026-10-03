@@ -28,7 +28,7 @@ export type IField = {
   _id: string;
   name: string;
   code: string;
-  options?: Array<{ label: string; value: string }>;
+  options?: Array<{ label: string; value: string; deprecated?: boolean }>;
   type: string;
   group?: string;
   groupId?: string;

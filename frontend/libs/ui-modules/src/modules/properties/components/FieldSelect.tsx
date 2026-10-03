@@ -5,6 +5,7 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { getPickableOptions } from '../propertyUtils';
 import { IField } from '../types/fieldsTypes';
 import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
@@ -52,7 +53,7 @@ export const FieldSelectContent = ({
   value: string;
   onChange: (value: string) => void;
 }) => {
-  const options = field.options || [];
+  const options = getPickableOptions(field, [value]);
   return (
     <Command shouldFilter={options.length > 7}>
       <Command.Input

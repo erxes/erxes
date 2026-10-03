@@ -117,6 +117,12 @@ export const validatePropertyValue = (
   return null;
 };
 
+// Archived options stay readable on records that hold them, but can't be picked anew.
+export const getPickableOptions = (field: IField, selected: string[] = []) =>
+  (field.options || []).filter(
+    (option) => !option.deprecated || selected.includes(option.value),
+  );
+
 export const getStringArray = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value.filter((val) => typeof val === 'string');

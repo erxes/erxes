@@ -17,7 +17,7 @@ import { nanoid } from 'nanoid';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
-import { IField, IFieldDocument } from '../../@types';
+import { FieldOption, IField, IFieldDocument } from '../../@types';
 import {
   buildFeaturedIndex,
   castFeaturedValue,
@@ -33,7 +33,7 @@ export interface IFieldValueValidationOptions {
   /** Also check the value against the shape its field type implies. */
   strict?: boolean;
 }
-import { ORDER_GAP } from '../../constants';
+import { ORDER_GAP, TYPE_FAMILIES } from '../../constants';
 
 // What a user may still change on a field a plugin owns.
 const OWNED_FIELD_EDITABLE = [
@@ -43,6 +43,34 @@ const OWNED_FIELD_EDITABLE = [
   'isVisible',
   'isVisibleInCard',
 ] as const;
+
+// Records may hold any stored value: a dropped option is archived, never erased.
+const reconcileOptions = (
+  stored: FieldOption[] = [],
+  incoming: FieldOption[] = [],
+): FieldOption[] => {
+  const incomingValues = new Set(incoming.map(({ value }) => value));
+
+  const archived = stored
+    .filter(({ value }) => !incomingValues.has(value))
+    .map((option) => ({ ...option, deprecated: true }));
+
+  return [...incoming, ...archived];
+};
+
+const assertTypeChangeAllowed = (from?: string, to?: string) => {
+  if (!to || from === to) {
+    return;
+  }
+
+  const sameFamily = TYPE_FAMILIES.some(
+    (family) => family.includes(from || '') && family.includes(to),
+  );
+
+  if (!sameFamily) {
+    throw new Error(`Type cannot change from ${from} to ${to}, use a new field`);
+  }
+};
 
 export type TrackedValue =
   | string
@@ -280,6 +308,14 @@ export const loadFieldClass = (models: IModels) => {
 
       if (!field.owner && doc.groupId && doc.groupId !== field.groupId) {
         await models.Fields.assertGroupAcceptsFields(doc.groupId);
+      }
+
+      if (!field.owner) {
+        assertTypeChangeAllowed(field.type, doc.type);
+
+        if (doc.options) {
+          doc.options = reconcileOptions(field.options, doc.options);
+        }
       }
 
       const $set = field.owner

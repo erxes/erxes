@@ -4,6 +4,7 @@ import {
   IconDots,
   IconEdit,
   IconGripVertical,
+  IconLayoutRows,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
@@ -26,6 +27,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Can, IField, useFields } from 'ui-modules';
 import { useFieldGroupRemove } from '../../hooks/useFieldGroupRemove';
 import { activePropertyState } from '../../states/activePropertyState';
+import { activeLayoutGroupState } from '../../states/activeLayoutGroupState';
 import { needsToRefreshState } from '../../states/needsToRefresh';
 import { IFieldGroup } from '../../types/Properties';
 import { propertiesColumns } from './PropertiesColumns';
@@ -41,6 +43,7 @@ const PropertiesGroupActions = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { removeFieldGroup, loading } = useFieldGroupRemove({ contentType });
   const setActivePropertyGroup = useSetAtom(activePropertyState);
+  const setLayoutGroup = useSetAtom(activeLayoutGroupState);
   const { confirm } = useConfirm();
 
   const handleDeleteFieldGroup = () => {
@@ -83,6 +86,10 @@ const PropertiesGroupActions = ({
           <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
             <IconEdit />
             {t('edit', 'Edit')}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onClick={() => setLayoutGroup(group)}>
+            <IconLayoutRows />
+            {t('layout', 'Layout')}
           </DropdownMenu.Item>
         </Can>
         {!group.owner && (

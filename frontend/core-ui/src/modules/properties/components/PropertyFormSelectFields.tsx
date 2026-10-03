@@ -1,8 +1,13 @@
-import { Button, Form, InfoCard, Input } from 'erxes-ui';
+import { Button, cn, Form, InfoCard, Input } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  IconArchive,
+  IconArchiveOff,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 
 export const PropertyFormSelectFields = ({
   form,
@@ -36,8 +41,9 @@ export const PropertyFormSelectFields = ({
     <InfoCard title={t('select-options', 'Select options')}>
       <InfoCard.Content>
         <div className="flex flex-col gap-3">
-          {options.map((_, index) => {
+          {options.map((option, index) => {
             const isExisting = index < savedOptionCount;
+            const { deprecated } = option;
             return (
             <div className="flex gap-2" key={index}>
               <Form.Field
@@ -47,7 +53,12 @@ export const PropertyFormSelectFields = ({
                   <Form.Item className="flex-auto">
                     {index === 0 && <Form.Label>{t('label', 'Label')}</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder={t('enter-label', 'Enter label')} disabled={locked} />
+                      <Input
+                        {...field}
+                        placeholder={t('enter-label', 'Enter label')}
+                        disabled={locked}
+                        className={cn(deprecated && 'line-through opacity-60')}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -66,17 +77,39 @@ export const PropertyFormSelectFields = ({
                   </Form.Item>
                 )}
               />
-              <Button
-                onClick={() =>
-                  setOptions(options.filter((_, i) => i !== index))
-                }
-                variant="secondary"
-                size="icon"
-                className="mt-auto size-8"
-                disabled={isExisting || locked}
-              >
-                <IconTrash />
-              </Button>
+              {/* Records may hold a saved option, so it is archived, not removed. */}
+              {isExisting ? (
+                <Button
+                  onClick={() =>
+                    form.setValue(`options.${index}.deprecated`, !deprecated, {
+                      shouldDirty: true,
+                    })
+                  }
+                  variant="secondary"
+                  size="icon"
+                  className="mt-auto size-8"
+                  disabled={locked}
+                  title={
+                    deprecated
+                      ? t('restore-option', 'Restore option')
+                      : t('archive-option', 'Archive option')
+                  }
+                >
+                  {deprecated ? <IconArchiveOff /> : <IconArchive />}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() =>
+                    setOptions(options.filter((_, i) => i !== index))
+                  }
+                  variant="secondary"
+                  size="icon"
+                  className="mt-auto size-8"
+                  disabled={locked}
+                >
+                  <IconTrash />
+                </Button>
+              )}
             </div>
             );
           })}
