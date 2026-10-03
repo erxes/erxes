@@ -17,6 +17,7 @@ export const PROPERTY_SYSTEM_FIELD_SELECTION = `
   requiredGroup
   alwaysFilled
   notOnCreate
+  outsideLayout
 `;
 
 export const PROPERTY_SYSTEM_FIELDS_QUERY = gql`

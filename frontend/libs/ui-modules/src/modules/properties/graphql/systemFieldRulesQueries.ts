@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 
-export const PROPERTY_CREATE_FIELD_RULES_QUERY = gql`
-  query PropertiesCreateFieldRules($contentType: String!) {
+export const PROPERTY_SYSTEM_FIELD_RULES_QUERY = gql`
+  query PropertiesSystemFieldRules($contentType: String!) {
     propertySystemFields(contentType: $contentType) {
       code
+      isVisible
       isVisibleToCreate
       isRequired
       requiredGroup

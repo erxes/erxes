@@ -1,6 +1,7 @@
 import {
   IPropertyMeta,
   IPropertySystemField,
+  IPropertyType,
 } from 'erxes-api-shared/core-modules';
 import { getPlugin } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
@@ -17,6 +18,12 @@ import { systemFieldSettingSchema } from '~/modules/properties/db/definitions/sy
 export interface ISystemFieldSettingModel
   extends Model<ISystemFieldSettingDocument> {
   getSystemFields(contentType: string): Promise<IResolvedSystemField[]>;
+  getSystemFieldsLayout(contentType: string): Promise<string[][] | null>;
+  saveSystemFieldsLayout(
+    contentType: string,
+    layout: string[][] | null,
+    userId: string,
+  ): Promise<string[][]>;
   updateSystemField(
     doc: ISystemFieldSetting,
     userId: string,
@@ -26,26 +33,31 @@ export interface ISystemFieldSettingModel
 const LOGIC_OPERATORS = ['is', 'isNot'];
 const LOGIC_ACTIONS = ['show', 'hide'];
 
-const getDeclaredSystemFields = async (
+const getDeclaredType = async (
   contentType: string,
-): Promise<IPropertySystemField[]> => {
+): Promise<IPropertyType | undefined> => {
   const [pluginName, type] = contentType.split(':');
 
   if (!pluginName || !type) {
-    return [];
+    return undefined;
   }
 
   const plugin = await getPlugin(pluginName);
   const meta: IPropertyMeta | undefined = plugin?.config?.meta?.properties;
 
-  return meta?.types.find((item) => item.type === type)?.systemFields || [];
+  return meta?.types.find((item) => item.type === type);
 };
+
+const getDeclaredSystemFields = async (
+  contentType: string,
+): Promise<IPropertySystemField[]> =>
+  (await getDeclaredType(contentType))?.systemFields || [];
 
 const toConfig = (
   field: IPropertySystemField,
   setting?: Partial<ISystemFieldConfig> | null,
 ): ISystemFieldConfig => ({
-  isVisible: setting?.isVisible ?? true,
+  isVisible: setting?.isVisible ?? !field.hiddenByDefault,
   isVisibleToCreate: field.notOnCreate
     ? false
     : setting?.isVisibleToCreate ?? !!field.visibleToCreateByDefault,
@@ -113,6 +125,63 @@ export const loadSystemFieldSettingClass = (models: IModels) => {
         ...field,
         ...toConfig(field, settingByCode.get(field.code)),
       }));
+    }
+
+    // Null when the content type has not opened Basic information to layouts.
+    public static async getSystemFieldsLayout(contentType: string) {
+      const type = await getDeclaredType(contentType);
+
+      if (!type?.systemFieldsLayout) {
+        return null;
+      }
+
+      const saved = await models.SystemFieldLayouts.findOne({
+        contentType,
+      }).lean();
+
+      return saved?.layout ?? type.systemFieldsLayout.defaultLayout;
+    }
+
+    // A null layout goes back to the one the content type declares.
+    public static async saveSystemFieldsLayout(
+      contentType: string,
+      layout: string[][] | null,
+      userId: string,
+    ) {
+      const type = await getDeclaredType(contentType);
+
+      if (!type?.systemFieldsLayout) {
+        throw new Error(
+          `${contentType} does not lay out its basic information`,
+        );
+      }
+
+      if (!layout) {
+        await models.SystemFieldLayouts.deleteOne({ contentType });
+
+        return type.systemFieldsLayout.defaultLayout;
+      }
+
+      const placeable = new Set(
+        (type.systemFields ?? [])
+          .filter((field) => !field.outsideLayout)
+          .map((field) => field.code),
+      );
+      const unknown = layout.flat().find((code) => !placeable.has(code));
+
+      if (unknown) {
+        throw new Error(`"${unknown}" cannot be placed in the layout`);
+      }
+
+      const rows = layout.filter((row) => row.length);
+
+      await models.SystemFieldLayouts.updateOne(
+        { contentType },
+        { $set: { layout: rows, updatedBy: userId } },
+        { upsert: true },
+      );
+
+      return rows;
     }
 
     public static async updateSystemField(

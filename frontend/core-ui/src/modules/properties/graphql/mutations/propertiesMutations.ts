@@ -177,3 +177,12 @@ export const PROPERTY_SYSTEM_FIELD_EDIT = gql`
     }
   }
 `;
+
+export const PROPERTY_SYSTEM_FIELDS_LAYOUT_SAVE = gql`
+  mutation PropertySystemFieldsLayoutSave(
+    $contentType: String!
+    $layout: [[String!]!]
+  ) {
+    propertySystemFieldsLayoutSave(contentType: $contentType, layout: $layout)
+  }
+`;

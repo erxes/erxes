@@ -267,8 +267,10 @@ import {
 import {
   IFieldDocument,
   IFieldGroupDocument,
+  ISystemFieldLayoutDocument,
   ISystemFieldSettingDocument,
 } from './modules/properties/@types';
+import { systemFieldLayoutSchema } from './modules/properties/db/definitions/systemFieldLayout';
 import {
   IFieldModel,
   loadFieldClass,
@@ -362,6 +364,7 @@ export interface IModels {
   Fields: IFieldModel;
   FieldsGroups: IFieldGroupModel;
   SystemFieldSettings: ISystemFieldSettingModel;
+  SystemFieldLayouts: Model<ISystemFieldLayoutDocument>;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
   Segments: ISegmentModel;
@@ -615,6 +618,11 @@ export const loadClasses = (
     ISystemFieldSettingDocument,
     ISystemFieldSettingModel
   >('properties_system_fields', loadSystemFieldSettingClass(models));
+
+  models.SystemFieldLayouts = db.model<ISystemFieldLayoutDocument>(
+    'properties_system_field_layouts',
+    systemFieldLayoutSchema,
+  );
 
   models.Forms = db.model<IForm, IFormModel>('forms', loadFormClass(models));
   models.FormSubmissions = db.model<

@@ -6,10 +6,6 @@ export const CUSTOMERS_ADD = gql`
     $firstName: String
     $lastName: String
     $middleName: String
-    $position: String
-    $department: String
-    $leadStatus: String
-    $hasAuthority: String
     $sex: Int
     $primaryEmail: String
     $primaryPhone: String
@@ -17,7 +13,6 @@ export const CUSTOMERS_ADD = gql`
     $description: String
     $isSubscribed: String
     $code: String
-    $emailValidationStatus: String
     $phoneValidationStatus: String
     $state: String
     $propertiesData: JSON
@@ -28,10 +23,6 @@ export const CUSTOMERS_ADD = gql`
       firstName: $firstName
       lastName: $lastName
       middleName: $middleName
-      position: $position
-      department: $department
-      leadStatus: $leadStatus
-      hasAuthority: $hasAuthority
       sex: $sex
       primaryEmail: $primaryEmail
       primaryPhone: $primaryPhone
@@ -39,7 +30,6 @@ export const CUSTOMERS_ADD = gql`
       description: $description
       isSubscribed: $isSubscribed
       code: $code
-      emailValidationStatus: $emailValidationStatus
       phoneValidationStatus: $phoneValidationStatus
       state: $state
       propertiesData: $propertiesData

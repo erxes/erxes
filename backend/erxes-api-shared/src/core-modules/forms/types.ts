@@ -20,8 +20,12 @@ export interface IPropertySystemField {
   alwaysFilled?: boolean;
   // Shown on the create form until an admin decides otherwise.
   visibleToCreateByDefault?: boolean;
+  // Off on records until an admin turns it on.
+  hiddenByDefault?: boolean;
   // The create flow cannot take this field, so it never shows there.
   notOnCreate?: boolean;
+  // Shown apart from the laid-out fields (e.g. tags above the form).
+  outsideLayout?: boolean;
 }
 
 // Featured fields: created at runtime by a plugin feature, stored in
@@ -67,6 +71,9 @@ export interface IPropertyType {
   type: string;
   description: string;
   systemFields?: IPropertySystemField[];
+  // Declared when a content type's forms render Basic information from field
+  // renderers; only then may it be laid out in Settings.
+  systemFieldsLayout?: { defaultLayout: string[][] };
 }
 
 export interface IPropertyMeta {

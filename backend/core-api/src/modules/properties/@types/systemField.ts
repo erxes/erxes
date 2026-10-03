@@ -29,3 +29,15 @@ export interface ISystemFieldSettingDocument
 }
 
 export type IResolvedSystemField = IPropertySystemField & ISystemFieldConfig;
+
+export interface ISystemFieldLayout {
+  contentType: string;
+  layout: string[][];
+}
+
+export interface ISystemFieldLayoutDocument
+  extends ISystemFieldLayout,
+    Document {
+  _id: string;
+  updatedBy?: string;
+}

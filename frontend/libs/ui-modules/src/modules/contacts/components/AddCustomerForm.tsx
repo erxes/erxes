@@ -2,110 +2,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Collapsible,
-  DatePicker,
-  Editor,
   Form,
   InfoCard,
-  Input,
   ScrollArea,
-  Select,
   Spinner,
-  Switch,
-  Upload,
   toast,
   useQueryState,
 } from 'erxes-ui';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { SelectMember } from '../../team-members/components/SelectMember';
 import { useAddCustomer } from '../hooks/useAddCustomer';
 import { useFieldGroups } from '../../properties/hooks/useFieldGroups';
 import { useFields } from '../../properties/hooks/useFields';
-import { IFieldGroup } from '../../properties/types/fieldsTypes';
+import { IField, IFieldGroup } from '../../properties/types/fieldsTypes';
 import { PropertyFormField } from '../../properties/components/PropertyFormField';
 import { GroupFieldRows } from '../../properties/components/GroupFieldRows';
+import { useSystemFieldRules } from '../../properties/hooks/useSystemFieldRules';
 import {
-  ICreateFieldRules,
-  useCreateFieldRules,
-} from '../../properties/hooks/useCreateFieldRules';
-import {
-  CUSTOMER_HAS_AUTHORITY_OPTIONS,
-  CUSTOMER_LEAD_STATUS_OPTIONS,
-  CUSTOMER_SEX_OPTIONS,
-} from '../constants/customerSelectOptions';
-
-const EMAIL_VALIDATION_STATUSES = [
-  { label: 'Valid', value: 'valid' },
-  { label: 'Invalid', value: 'invalid' },
-  { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
-  { label: 'Unknown', value: 'unknown' },
-  { label: 'Disposable', value: 'disposable' },
-  { label: 'Catch all', value: 'catchall' },
-  { label: 'Bad syntax', value: 'bad_syntax' },
-  { label: 'Not checked', value: 'not_checked' },
-];
-
-const PHONE_VALIDATION_STATUSES = [
-  { label: 'Valid', value: 'valid' },
-  { label: 'Invalid', value: 'invalid' },
-  { label: 'Unknown', value: 'unknown' },
-  { label: 'Unverifiable', value: 'unverifiable' },
-  { label: 'Mobile phone', value: 'mobile_phone' },
-];
-
-const SCHEMA = z.object({
-  avatar: z.string().optional(),
-  firstName: z.string().optional(),
-  middleName: z.string().optional(),
-  lastName: z.string().optional(),
-  code: z.string().optional(),
-  ownerId: z.string().optional(),
-  primaryEmail: z.string().email('Invalid email').optional().or(z.literal('')),
-  emailValidationStatus: z.string().optional(),
-  primaryPhone: z.string().optional(),
-  phoneValidationStatus: z.string().optional(),
-  position: z.string().optional(),
-  department: z.string().optional(),
-  leadStatus: z.string().optional(),
-  hasAuthority: z.string().optional(),
-  sex: z.string().optional(),
-  description: z.string().optional(),
-  isSubscribed: z.string().optional(),
-  birthDate: z.date().optional(),
-  propertiesData: z.record(z.unknown()).optional(),
-});
-
-type FormValues = z.infer<typeof SCHEMA>;
-
-type TFieldCode = Exclude<keyof FormValues, 'propertiesData'>;
+  buildCustomerSchema,
+  CUSTOMER_FORM_DEFAULTS,
+  ICustomerFormValues,
+} from '../customer-fields/customerFormSchema';
+import { CustomerSystemFields } from '../customer-fields/CustomerSystemFields';
 
 const hasValue = (value: unknown) =>
   value !== undefined && value !== null && String(value).trim() !== '';
-
-// Settings decide what the form asks for, so the schema follows them.
-const buildSchema = ({ isShown, isRequired, groups }: ICreateFieldRules) =>
-  SCHEMA.superRefine((values, ctx) => {
-    for (const code of Object.keys(SCHEMA.shape) as TFieldCode[]) {
-      if (isShown(code) && isRequired(code) && !hasValue(values[code])) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [code],
-          message: 'Required',
-        });
-      }
-    }
-
-    for (const codes of groups) {
-      if (!codes.some((code) => hasValue(values[code as TFieldCode]))) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [codes[0]],
-          message: 'Fill in a name, an e-mail or a phone',
-        });
-      }
-    }
-  });
 
 export function AddCustomerForm({
   onOpenChange,
@@ -118,61 +39,55 @@ export function AddCustomerForm({
 }>) {
   const { customersAdd, loading } = useAddCustomer();
   const [activeTab] = useQueryState<string>('tab');
-  const { rules, loading: rulesLoading } = useCreateFieldRules('core:customer');
+  const { rules, loading: rulesLoading } = useSystemFieldRules(
+    'core:customer',
+    'create',
+  );
+  const [propertiesData, setPropertiesData] = useState<Record<string, unknown>>(
+    {},
+  );
 
   // Rules arrive after the form mounts; validate against the latest ones.
-  const schemaRef = useRef(buildSchema(rules));
-  schemaRef.current = useMemo(() => buildSchema(rules), [rules]);
+  const schemaRef = useRef(buildCustomerSchema(rules));
+  schemaRef.current = useMemo(() => buildCustomerSchema(rules), [rules]);
 
-  const form = useForm<FormValues>({
+  const form = useForm<ICustomerFormValues>({
     resolver: (values, context, options) =>
       zodResolver(schemaRef.current)(values, context, options),
-    defaultValues: {
-      avatar: '',
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      code: '',
-      ownerId: '',
-      primaryEmail: '',
-      emailValidationStatus: 'unknown',
-      primaryPhone: '',
-      phoneValidationStatus: 'unknown',
-      position: '',
-      department: '',
-      leadStatus: '',
-      hasAuthority: 'No',
-      sex: '0',
-      description: '',
-      isSubscribed: 'Yes',
-      propertiesData: {},
-    },
+    defaultValues: CUSTOMER_FORM_DEFAULTS,
   });
 
   const updateCustomFieldValue = useCallback(
-    (fieldId: string, value: unknown) => {
-      const current = form.getValues('propertiesData') || {};
-      form.setValue('propertiesData', { ...current, [fieldId]: value });
-    },
-    [form],
+    (fieldId: string, value: unknown) =>
+      setPropertiesData((current) => ({ ...current, [fieldId]: value })),
+    [],
   );
 
-  function onSubmit({ propertiesData, sex, ...rest }: FormValues) {
-    const cleanPropertiesData =
-      propertiesData && Object.keys(propertiesData).length > 0
-        ? Object.fromEntries(
-            Object.entries(propertiesData).filter(
-              ([, v]) => v !== undefined && v !== null && v !== '',
-            ),
-          )
-        : undefined;
+  // Lists and links are edited after creation; the state comes from the opener.
+  function onSubmit(values: ICustomerFormValues) {
+    const cleanPropertiesData = Object.fromEntries(
+      Object.entries(propertiesData).filter(([, value]) => hasValue(value)),
+    );
 
     customersAdd({
       variables: {
-        ...rest,
-        sex: Number(sex ?? 0),
+        avatar: values.avatar ?? undefined,
+        firstName: values.firstName,
+        middleName: values.middleName,
+        lastName: values.lastName,
+        code: values.code,
+        ownerId: values.ownerId,
+        primaryEmail: values.primaryEmail,
+        primaryPhone: values.primaryPhone,
+        phoneValidationStatus: values.phoneValidationStatus,
+        sex: values.sex ?? 0,
+        birthDate: values.birthDate ?? undefined,
+        description: values.description,
+        isSubscribed: values.isSubscribed,
         state,
-        propertiesData: cleanPropertiesData,
+        propertiesData: Object.keys(cleanPropertiesData).length
+          ? cleanPropertiesData
+          : undefined,
       },
       onError: (e) => {
         toast({
@@ -192,12 +107,12 @@ export function AddCustomerForm({
           variant: 'success',
         });
         form.reset();
+        setPropertiesData({});
         onOpenChange(false);
       },
     });
   }
 
-  const propertiesData = form.watch('propertiesData') || {};
   const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
   const isPropertiesTab = activeTab === 'properties';
 
@@ -216,7 +131,15 @@ export function AddCustomerForm({
           ) : rulesLoading ? (
             <Spinner containerClassName="py-12" />
           ) : (
-            <GeneralTab form={form} rules={rules} />
+            <InfoCard title="Customer Information">
+              <InfoCard.Content>
+                <CustomerSystemFields
+                  control={form.control}
+                  isShown={rules.isShown}
+                  isRequired={rules.isRequired}
+                />
+              </InfoCard.Content>
+            </InfoCard>
           )}
         </ScrollArea>
 
@@ -234,382 +157,6 @@ export function AddCustomerForm({
         </div>
       </form>
     </Form>
-  );
-}
-
-const FieldLabel = ({
-  children,
-  required,
-}: {
-  children: React.ReactNode;
-  required: boolean;
-}) => (
-  <Form.Label>
-    {children}
-    {required && <span className="text-destructive"> *</span>}
-  </Form.Label>
-);
-
-function TextField({
-  form,
-  name,
-  label,
-  required,
-  placeholder,
-  type,
-}: Readonly<{
-  form: ReturnType<typeof useForm<FormValues>>;
-  name:
-    | 'firstName'
-    | 'middleName'
-    | 'lastName'
-    | 'code'
-    | 'primaryEmail'
-    | 'primaryPhone'
-    | 'position'
-    | 'department';
-  label: string;
-  required: boolean;
-  placeholder?: string;
-  type?: string;
-}>) {
-  return (
-    <Form.Field
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <Form.Item>
-          <FieldLabel required={required}>{label}</FieldLabel>
-          <Form.Control>
-            <Input type={type} placeholder={placeholder} {...field} />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  );
-}
-
-function SelectField({
-  form,
-  name,
-  label,
-  required,
-  options,
-}: Readonly<{
-  form: ReturnType<typeof useForm<FormValues>>;
-  name:
-    | 'emailValidationStatus'
-    | 'phoneValidationStatus'
-    | 'leadStatus'
-    | 'hasAuthority'
-    | 'sex';
-  label: string;
-  required: boolean;
-  options: { label: string; value: string }[];
-}>) {
-  return (
-    <Form.Field
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <Form.Item>
-          <FieldLabel required={required}>{label}</FieldLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
-            <Form.Control>
-              <Select.Trigger>
-                <Select.Value placeholder="Choose">
-                  {
-                    options.find((option) => option.value === field.value)
-                      ?.label
-                  }
-                </Select.Value>
-              </Select.Trigger>
-            </Form.Control>
-            <Select.Content>
-              <Select.Group>
-                {options.map((option) => (
-                  <Select.Item key={option.value} value={option.value}>
-                    {option.label}
-                  </Select.Item>
-                ))}
-              </Select.Group>
-            </Select.Content>
-          </Select>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  );
-}
-
-function GeneralTab({
-  form,
-  rules,
-}: Readonly<{
-  form: ReturnType<typeof useForm<FormValues>>;
-  rules: ICreateFieldRules;
-}>) {
-  const { isShown, isRequired } = rules;
-
-  return (
-    <InfoCard title="Customer Information">
-      <InfoCard.Content>
-        {isShown('avatar') && (
-          <Form.Field
-            name="avatar"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item className="mb-4">
-                <Form.Control>
-                  <Upload.Root
-                    {...field}
-                    value={field.value || ''}
-                    onChange={(fileInfo) => {
-                      if ('url' in fileInfo) {
-                        field.onChange(fileInfo.url);
-                      }
-                    }}
-                  >
-                    <Upload.Preview className="rounded-full" />
-                    <div className="flex flex-col justify-center gap-2">
-                      <div className="flex gap-4">
-                        <Upload.Button
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                        >
-                          Upload
-                        </Upload.Button>
-                        <Upload.RemoveButton
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                        />
-                      </div>
-                      <Form.Description>
-                        Upload an avatar for the customer
-                        {isRequired('avatar') && (
-                          <span className="text-destructive"> *</span>
-                        )}
-                      </Form.Description>
-                    </div>
-                  </Upload.Root>
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        )}
-
-        <div className="grid grid-cols-2 gap-4">
-          {isShown('firstName') && (
-            <TextField
-              form={form}
-              name="firstName"
-              label="First Name"
-              required={isRequired('firstName')}
-            />
-          )}
-          {isShown('middleName') && (
-            <TextField
-              form={form}
-              name="middleName"
-              label="Middle Name"
-              required={isRequired('middleName')}
-            />
-          )}
-          {isShown('lastName') && (
-            <TextField
-              form={form}
-              name="lastName"
-              label="Last Name"
-              required={isRequired('lastName')}
-            />
-          )}
-          {isShown('code') && (
-            <TextField
-              form={form}
-              name="code"
-              label="Code"
-              required={isRequired('code')}
-            />
-          )}
-
-          {isShown('ownerId') && (
-            <Form.Field
-              control={form.control}
-              name="ownerId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Owner</Form.Label>
-                  <Form.Control>
-                    <div className="w-full">
-                      <SelectMember.FormItem
-                        value={field.value || ''}
-                        onValueChange={field.onChange}
-                        placeholder="Select owner"
-                      />
-                    </div>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          )}
-
-          {isShown('primaryEmail') && (
-            <>
-              <TextField
-                form={form}
-                name="primaryEmail"
-                label="Email"
-                type="email"
-                placeholder="email@example.com"
-                required={isRequired('primaryEmail')}
-              />
-              <SelectField
-                form={form}
-                name="emailValidationStatus"
-                label="Email Verification Status"
-                required={false}
-                options={EMAIL_VALIDATION_STATUSES}
-              />
-            </>
-          )}
-
-          {isShown('primaryPhone') && (
-            <>
-              <TextField
-                form={form}
-                name="primaryPhone"
-                label="Phone"
-                placeholder="+1 234 567 8900"
-                required={isRequired('primaryPhone')}
-              />
-              <SelectField
-                form={form}
-                name="phoneValidationStatus"
-                label="Phone Verification Status"
-                required={false}
-                options={PHONE_VALIDATION_STATUSES}
-              />
-            </>
-          )}
-
-          {isShown('position') && (
-            <TextField
-              form={form}
-              name="position"
-              label="Position"
-              required={isRequired('position')}
-            />
-          )}
-          {isShown('department') && (
-            <TextField
-              form={form}
-              name="department"
-              label="Department"
-              required={isRequired('department')}
-            />
-          )}
-          {isShown('sex') && (
-            <SelectField
-              form={form}
-              name="sex"
-              label="Pronoun"
-              required={false}
-              options={CUSTOMER_SEX_OPTIONS}
-            />
-          )}
-          {isShown('leadStatus') && (
-            <SelectField
-              form={form}
-              name="leadStatus"
-              label="Lead Status"
-              required={isRequired('leadStatus')}
-              options={CUSTOMER_LEAD_STATUS_OPTIONS}
-            />
-          )}
-          {isShown('hasAuthority') && (
-            <SelectField
-              form={form}
-              name="hasAuthority"
-              label="Has Authority"
-              required={false}
-              options={CUSTOMER_HAS_AUTHORITY_OPTIONS}
-            />
-          )}
-
-          {isShown('birthDate') && (
-            <Form.Field
-              control={form.control}
-              name="birthDate"
-              render={({ field }) => (
-                <Form.Item>
-                  <FieldLabel required={isRequired('birthDate')}>
-                    Birth date
-                  </FieldLabel>
-                  <Form.Control>
-                    <DatePicker
-                      value={field.value}
-                      defaultMonth={field.value}
-                      onChange={(date) =>
-                        field.onChange(date instanceof Date ? date : undefined)
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          )}
-        </div>
-
-        {isShown('description') && (
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item className="mt-4">
-                <FieldLabel required={isRequired('description')}>
-                  Description
-                </FieldLabel>
-                <Form.Control>
-                  <Editor
-                    initialContent={field.value}
-                    onChange={field.onChange}
-                    scope="customer-add-description"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        )}
-
-        {isShown('isSubscribed') && (
-          <Form.Field
-            name="isSubscribed"
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
-                <Form.Control>
-                  <Switch
-                    checked={field.value === 'Yes'}
-                    onCheckedChange={(checked) =>
-                      field.onChange(checked ? 'Yes' : 'No')
-                    }
-                  />
-                </Form.Control>
-                <Form.Label variant="peer">Subscribed</Form.Label>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        )}
-      </InfoCard.Content>
-    </InfoCard>
   );
 }
 
@@ -733,7 +280,7 @@ function CustomerPropertyField({
   value,
   onFieldChange,
 }: Readonly<{
-  field: any;
+  field: IField;
   value: unknown;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {

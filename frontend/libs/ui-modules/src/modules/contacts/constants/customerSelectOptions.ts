@@ -18,16 +18,3 @@ export const CUSTOMER_SEX_OPTIONS = [
   { label: 've/vis', value: '21' },
   { label: 'xe/xem', value: '22' },
 ];
-
-export const CUSTOMER_LEAD_STATUS_OPTIONS = [
-  { label: 'New', value: 'new' },
-  { label: 'Contacted', value: 'attemptedToContact' },
-  { label: 'Working', value: 'inProgress' },
-  { label: 'Bad Timing', value: 'badTiming' },
-  { label: 'Unqualified', value: 'unqualified' },
-];
-
-export const CUSTOMER_HAS_AUTHORITY_OPTIONS = [
-  { label: 'Yes', value: 'Yes' },
-  { label: 'No', value: 'No' },
-];

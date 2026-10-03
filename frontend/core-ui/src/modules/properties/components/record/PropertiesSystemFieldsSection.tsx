@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { IconLock } from '@tabler/icons-react';
+import { IconLayoutRows, IconLock } from '@tabler/icons-react';
 import {
   Badge,
   Button,
@@ -13,12 +13,13 @@ import {
 import type { TFunction } from 'i18next';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Can } from 'ui-modules';
+import { Can, useSystemFieldsLayout } from 'ui-modules';
 import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
 import { useEditPropertySystemField } from '../../hooks/useEditPropertySystemField';
 import { usePropertySystemFields } from '../../hooks/usePropertySystemFields';
 import { IPropertySystemField } from '../../types/Properties';
 import { PropertySystemFieldLogicSheet } from '../PropertySystemFieldLogicSheet';
+import { SystemFieldsLayoutSheet } from '../SystemFieldsLayoutSheet';
 
 type TSystemFieldRow = IPropertySystemField & { _id: string };
 
@@ -219,7 +220,10 @@ export const PropertiesSystemFieldsSection = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { systemFields, loading } = usePropertySystemFields(contentType);
+  // Null unless this content type opened its basic information to layouts.
+  const { layout } = useSystemFieldsLayout(contentType);
   const [logicCode, setLogicCode] = useState<string | null>(null);
+  const [layoutOpen, setLayoutOpen] = useState(false);
 
   const columns = useMemo(
     () =>
@@ -273,6 +277,20 @@ export const PropertiesSystemFieldsSection = ({
             </Tooltip.Content>
           </Tooltip>
         </Tooltip.Provider>
+        {layout && (
+          <Can action="fieldsManage">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 shrink-0"
+              title={t('layout', 'Layout')}
+              aria-label={t('layout', 'Layout')}
+              onClick={() => setLayoutOpen(true)}
+            >
+              <IconLayoutRows />
+            </Button>
+          </Can>
+        )}
       </div>
       <Collapsible.Content className="pt-2">
         <RecordTable.Provider
@@ -295,6 +313,11 @@ export const PropertiesSystemFieldsSection = ({
         field={logicField}
         contentType={contentType}
         onClose={() => setLogicCode(null)}
+      />
+      <SystemFieldsLayoutSheet
+        contentType={contentType}
+        open={layoutOpen}
+        onClose={() => setLayoutOpen(false)}
       />
     </Collapsible>
   );

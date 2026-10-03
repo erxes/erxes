@@ -8,6 +8,17 @@ export const properties: IPropertyMeta = {
     {
       description: 'Customer',
       type: 'customer',
+      systemFieldsLayout: {
+        defaultLayout: [
+          ['avatar'],
+          ['firstName', 'lastName'],
+          ['code', 'ownerId'],
+          ['primaryEmail', 'primaryPhone'],
+          ['state', 'birthDate'],
+          ['description'],
+          ['isSubscribed'],
+        ],
+      },
       systemFields: [
         {
           code: 'avatar',
@@ -22,7 +33,12 @@ export const properties: IPropertyMeta = {
           requiredGroup: CUSTOMER_IDENTITY,
           visibleToCreateByDefault: true,
         },
-        { code: 'middleName', name: 'Middle name', type: 'text' },
+        {
+          code: 'middleName',
+          name: 'Middle name',
+          type: 'text',
+          hiddenByDefault: true,
+        },
         {
           code: 'lastName',
           name: 'Last name',
@@ -49,22 +65,19 @@ export const properties: IPropertyMeta = {
           requiredGroup: CUSTOMER_IDENTITY,
           visibleToCreateByDefault: true,
         },
-        { code: 'sex', name: 'Pronoun', type: 'select', alwaysFilled: true },
+        {
+          code: 'sex',
+          name: 'Pronoun',
+          type: 'select',
+          alwaysFilled: true,
+          hiddenByDefault: true,
+        },
         {
           code: 'birthDate',
           name: 'Birthday',
           type: 'date',
           visibleToCreateByDefault: true,
         },
-        { code: 'position', name: 'Position', type: 'text' },
-        { code: 'department', name: 'Department', type: 'text' },
-        {
-          code: 'hasAuthority',
-          name: 'Has authority',
-          type: 'select',
-          alwaysFilled: true,
-        },
-        { code: 'leadStatus', name: 'Lead status', type: 'select' },
         {
           code: 'isSubscribed',
           name: 'Subscribed',
@@ -79,8 +92,22 @@ export const properties: IPropertyMeta = {
           alwaysFilled: true,
           visibleToCreateByDefault: true,
         },
+        // The create form takes the state from where it was opened.
+        {
+          code: 'state',
+          name: 'Lifecycle state',
+          type: 'select',
+          alwaysFilled: true,
+          notOnCreate: true,
+        },
         // customersAdd takes no tags; they are added after the customer exists.
-        { code: 'tagIds', name: 'Tags', type: 'multiSelect', notOnCreate: true },
+        {
+          code: 'tagIds',
+          name: 'Tags',
+          type: 'multiSelect',
+          notOnCreate: true,
+          outsideLayout: true,
+        },
         {
           code: 'description',
           name: 'Description',

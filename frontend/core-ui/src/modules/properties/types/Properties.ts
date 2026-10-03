@@ -48,4 +48,5 @@ export interface IPropertySystemField extends IPropertySystemFieldConfig {
   requiredGroup?: string | null;
   alwaysFilled?: boolean | null;
   notOnCreate?: boolean | null;
+  outsideLayout?: boolean | null;
 }
