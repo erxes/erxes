@@ -174,6 +174,18 @@ propertiesData? } })`
   is gone from the SDL and the resolvers.
 - `Cycle.endCycle(_id, subdomain)` needs the tenant to resolve the timezone
   for the progress chart; the worker and the mutation both pass it.
+- Progress queries (`getProjectProgress*`, `getCycleProgress*`) return
+  concrete SDL object types (`OperationProgress`, `OperationProgressByMember`,
+  `OperationProgressByTeam`, `OperationProgressByProject`,
+  `OperationProgressChart`), not `JSON`. `Cycle.statistics` is a concrete
+  `CycleStatistics` type over the same progress types, and the
+  `Cycle.statistics` resolver fills missing totals with 0 so old documents
+  stored with `progress: {}` still satisfy the `Int!` fields. The aggregations can legitimately
+  produce no rows, so the resolvers return zero-valued objects or empty
+  arrays instead of `{}` when the aggregate result is missing. Milestone
+  progress counters (`totalScope`, `totalStartedScope`,
+  `totalCompletedScope`) are non-null ints because the aggregation always
+  emits numbers.
 - Any request-driven value (filter, params, variables, input, args,
   searchValue) that reaches a `$regex` or `new RegExp()` goes through
   `escapeRegExp` from `erxes-api-shared/utils` first. The plugin-local ESLint

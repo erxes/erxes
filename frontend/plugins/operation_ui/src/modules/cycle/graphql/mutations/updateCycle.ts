@@ -11,7 +11,33 @@ export const UPDATE_CYCLE = gql`
       teamId
       isCompleted
       isActive
-      statistics
+      statistics {
+        progress {
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        progressByMember {
+          assigneeId
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        progressByProject {
+          projectId
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        chartData {
+          totalScope
+          chartData {
+            date
+            started
+            completed
+          }
+        }
+      }
       donePercent
       unFinishedTasks
     }
