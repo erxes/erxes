@@ -1,5 +1,5 @@
 import { IconCertificate } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useProductRules } from '@/products/settings/hooks/useProductRules';
 import { productRuleColumns } from './productRuleColumns';
 import { ProductRuleCommandBar } from './ProductRuleCommandBar';
@@ -7,8 +7,17 @@ import { ProductRuleSheet } from './ProductRuleSheet';
 
 export const ProductRuleRecordTable = () => {
   const { productRules, loading } = useProductRules();
+  const [{ searchValue, categoryIds, productIds }] = useMultiQueryState<{
+    searchValue: string;
+    categoryIds: string[];
+    productIds: string[];
+  }>(['searchValue', 'categoryIds', 'productIds']);
 
-  if (!loading && (productRules?.length ?? 0) === 0) {
+  const isFiltered = Boolean(
+    searchValue || categoryIds?.length || productIds?.length,
+  );
+
+  if (!loading && (productRules?.length ?? 0) === 0 && !isFiltered) {
     return <EmptyStateRow />;
   }
 

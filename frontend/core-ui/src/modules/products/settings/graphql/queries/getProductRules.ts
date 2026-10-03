@@ -1,8 +1,16 @@
 import { gql } from '@apollo/client';
 
 export const PRODUCT_RULES = gql`
-  query productRules {
-    productRules {
+  query productRules(
+    $searchValue: String
+    $categoryIds: [String]
+    $productIds: [String]
+  ) {
+    productRules(
+      searchValue: $searchValue
+      categoryIds: $categoryIds
+      productIds: $productIds
+    ) {
       _id
       name
       categoryIds
