@@ -90,11 +90,13 @@
 - Core-ui's inbox ScrollArea is the only scroll and its viewport content is `min-h-dvh` with no fixed height, so the task side column is `sticky top-0` with its height measured from the enclosing `[data-radix-scroll-area-viewport]`'s `clientHeight`. A `dvh` height leaves sticky no room to move; a nested ScrollArea adds a second, dead outer scroll. If core stops using that ScrollArea, the side column silently does not render while the detail still works.
 - GraphQL documents are static strings with no `${...}` interpolation. Codegen drops interpolated text, so an interpolated selection would be sent at runtime but missing from the generated types.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the `codegen` target.
+- `tsconfig.json` maps both `ui-modules` and `ui-modules/*`. Without the wildcard, every `ui-modules` self-import fails to resolve and its component props silently become `any` in this plugin.
 
 ## Validation
 
 - `pnpm nx run operation_ui:codegen`
 - `pnpm nx build operation_ui`
+- `npx tsc --noEmit -p frontend/plugins/operation_ui/tsconfig.app.json` - no errors under `frontend/plugins/operation_ui`; errors reported inside `frontend/libs` are pre-existing and owned by those libraries.
 - Smoke scenario: open operation projects, tasks, team, operation settings, relation widgets, and automation widget entry through the remote.
 - Inbox smoke: open a task, triage, project and team notification in My Inbox; the task detail is padded, shows side widgets, and its icon column stays put while scrolling.
 - Triage smoke: when a second member accepts a triage, the task timeline shows the original creator and a separate acceptance row with the second member's photo, name, and acceptance time.

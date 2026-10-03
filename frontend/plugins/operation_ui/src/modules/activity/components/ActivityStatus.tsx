@@ -2,6 +2,7 @@ import { useActivityListContext } from '@/activity/context/ActivityListContext';
 import { IActivity } from '@/activity/types';
 import { ITask } from '@/task/types';
 import { IProject } from '@/project/types';
+import { ITriage } from '@/triage/types/triage';
 import { useGetStatusByTeam } from '@/task/hooks/useGetStatusByTeam';
 import { Badge } from 'erxes-ui';
 import {
@@ -10,8 +11,8 @@ import {
 } from '@/operation/components/StatusInline';
 import { useTranslation } from 'react-i18next';
 
-const isTask = (content: ITask | IProject): content is ITask => {
-  return 'teamId' in content;
+const isTask = (content: ITask | IProject | ITriage): content is ITask => {
+  return 'teamId' in content && typeof content.status === 'string';
 };
 
 export const ActivityStatus = ({
