@@ -1,6 +1,14 @@
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, useConfirm, useQueryState, useToast } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useQueryState,
+  useToast,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { Can } from 'ui-modules';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
@@ -45,7 +53,7 @@ export const BrandsMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Can action="brandsUpdate">
+            {/* <Can action="brandsUpdate">
               <Command.Item
                 value="edit"
                 onSelect={() => {
@@ -55,7 +63,7 @@ export const BrandsMoreColumnCell = ({
               >
                 <IconEdit /> Edit
               </Command.Item>
-            </Can>
+            </Can> */}
             <Can action="brandsDelete">
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash /> Delete
