@@ -46,6 +46,7 @@ export const posCommonFields = `
   deliveryConfig
   permissionConfig
   allowTypes
+  isShowRemainder
   isCheckRemainder
   checkExcludeCategoryIds
   saveRemainder

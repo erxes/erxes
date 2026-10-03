@@ -1,14 +1,15 @@
 import { toggleRemainderAtom, } from "@/store"
 import { Button } from "@/components/ui/button"
 import { useAtom, useAtomValue } from "jotai"
-import { saveRemainderAtom } from "@/store/config.store"
+import { isShowRemainderAtom, saveRemainderAtom } from "@/store/config.store"
 import { cn } from "@/lib/utils"
 
 const ToggleRemainder = () => {
   const saveRemainder = useAtomValue(saveRemainderAtom)
+  const isShowRemainder = useAtomValue(isShowRemainderAtom)
   const [toggleRemainder, setToggleRemainder] = useAtom(toggleRemainderAtom)
 
-  if (!saveRemainder) {
+  if (!isShowRemainder || !saveRemainder) {
     return null
   }
 

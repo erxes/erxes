@@ -43,6 +43,7 @@ export interface IConfig {
   ebarimtConfig?: IEbarimtConfig
   branchId: string
   departmentId: string
+  isShowRemainder?: boolean
   saveRemainder: boolean
 }
 

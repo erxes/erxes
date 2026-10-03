@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-03`
 
 ## Scope
 
@@ -31,6 +31,9 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- POS configuration exposes `isShowRemainder` for remainder display separately
+  from `isCheckRemainder` and validation category exclusions.
 
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
