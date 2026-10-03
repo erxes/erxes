@@ -68,7 +68,7 @@ type TMigrationUser = {
   username?: string;
 };
 
-type TErkhetContact = {
+export type TErkhetContact = {
   type?: string;
   code?: string;
   name?: string;
@@ -629,13 +629,16 @@ const buildContactQuery = (contact: TErkhetContact) => {
   if (contact?.code) {
     $or.push({ code: contact.code });
   }
-  if (contact?.phone) {
+  if (contact?.type === 'company' && contact?.name) {
+    $or.push({ primaryName: contact.name }, { names: { $in: [contact.name] } });
+  }
+  if (contact?.type !== 'company' && contact?.phone) {
     $or.push(
       { primaryPhone: contact.phone },
       { phones: { $in: [contact.phone] } },
     );
   }
-  if (contact?.email) {
+  if (contact?.type !== 'company' && contact?.email) {
     $or.push(
       { primaryEmail: contact.email },
       { emails: { $in: [contact.email] } },
@@ -649,14 +652,20 @@ const buildContactQuery = (contact: TErkhetContact) => {
   return { $or };
 };
 
-const findOrCreateContact = async ({
+export const buildErkhetContactQueryForTest = buildContactQuery;
+
+export const findOrCreateErkhetContact = async ({
   subdomain,
   userId,
   contact,
+  updateExisting = false,
+  dryRun = false,
 }: {
   subdomain: string;
   userId: string;
   contact: TErkhetContact;
+  updateExisting?: boolean;
+  dryRun?: boolean;
 }) => {
   if (!contact?.code && !contact?.phone && !contact?.email && !contact?.name) {
     return {};
@@ -669,7 +678,28 @@ const findOrCreateContact = async ({
   const findAction =
     type === 'company' ? 'findActiveCompanies' : 'findActiveCustomers';
   const createAction = type === 'company' ? 'createCompany' : 'createCustomer';
+  const updateAction = type === 'company' ? 'updateCompany' : 'updateCustomer';
   const query = buildContactQuery(contact);
+
+  const doc = Object.fromEntries(
+    Object.entries(
+      type === 'company'
+        ? {
+            code: contact.code,
+            primaryName: contact.name || contact.code || contact.phone,
+            primaryPhone: contact.phone,
+            phones: contact.phone ? [contact.phone] : undefined,
+          }
+        : {
+            code: contact.code,
+            firstName: contact.name || contact.code || contact.phone,
+            primaryPhone: contact.phone,
+            primaryEmail: contact.email,
+            phones: contact.phone ? [contact.phone] : undefined,
+            emails: contact.email ? [contact.email] : undefined,
+          },
+    ).filter(([, value]) => value !== undefined),
+  );
 
   const found = Object.keys(query).length
     ? await sendTRPCMessage({
@@ -688,28 +718,33 @@ const findOrCreateContact = async ({
     : [];
 
   if (found?.[0]?._id) {
-    return { type, _id: found[0]._id };
+    if (updateExisting && !dryRun) {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module,
+        action: updateAction,
+        input: { _id: found[0]._id, doc },
+        context: { userId },
+        defaultValue: {},
+      });
+    }
+
+    return {
+      type,
+      _id: found[0]._id,
+      action: updateExisting ? 'update' : 'skip',
+    };
   }
 
-  const doc =
-    type === 'company'
-      ? {
-          code: contact.code,
-          primaryName: contact.name || contact.code || contact.phone,
-          primaryPhone: contact.phone,
-          primaryEmail: contact.email,
-          phones: contact.phone ? [contact.phone] : [],
-          emails: contact.email ? [contact.email] : [],
-          scopeBrandIds: [],
-        }
-      : {
-          code: contact.code,
-          firstName: contact.name || contact.code || contact.phone,
-          primaryPhone: contact.phone,
-          primaryEmail: contact.email,
-          phones: contact.phone ? [contact.phone] : [],
-          emails: contact.email ? [contact.email] : [],
-        };
+  if (dryRun) {
+    return {
+      type,
+      _id: `dry-run:${type}:${contact.code || contact.name}`,
+      action: 'create',
+    };
+  }
 
   const created = await sendTRPCMessage({
     subdomain,
@@ -722,7 +757,7 @@ const findOrCreateContact = async ({
     defaultValue: {},
   });
 
-  return { type, _id: created?._id };
+  return { type, _id: created?._id, action: 'create' };
 };
 
 const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
@@ -1348,10 +1383,11 @@ const normalizeBatchDocs = async (
   for (const doc of batch.trDocs) {
     const contact = doc.extraData?.erkhetCustomer as TErkhetContact | undefined;
     if (contact?.code && !contactByCode[contact.code]) {
-      contactByCode[contact.code] = await findOrCreateContact({
+      contactByCode[contact.code] = await findOrCreateErkhetContact({
         subdomain,
         userId,
         contact,
+        updateExisting: contact.type === 'company',
       });
     }
   }
