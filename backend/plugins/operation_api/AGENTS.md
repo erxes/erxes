@@ -154,6 +154,17 @@ propertiesData? } })`
   the caller must enforce `taskCreate` for the acting user before calling it.
   It does not open a GitHub issue — that sync stays in the `createTask`
   resolver.
+- Mutation and query arguments the operation cannot run without are non-null
+  in the SDL (`_id`, `createCycle.input`, `updateCycle.input`,
+  `getTeamEstimateChoises.teamId`). Runtime guards that remain cover cases
+  GraphQL validation cannot: empty-string ids and `updateCycle.input._id`,
+  which stays nullable because `createCycle` sends the same `CycleInput`
+  without an `_id`.
+- An argument the operation cannot run without must fail with a clear error,
+  even when the SDL has to keep it nullable for a caller. `getTeamMembers`
+  and `getConvertedProject` throw on a missing id for this reason;
+  `getTeamMembers` requires `teamId` or `teamIds` and never runs an empty
+  `$match`.
 
 ## Validation
 
@@ -168,3 +179,19 @@ propertiesData? } })`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Required ids and filters
+
+- **Summary:** Mutations that act by id now declare it non-null, resolvers throw
+  actionable errors for missing ids, and list resolvers default a missing
+  `filter` to `{}` instead of crashing.
+- **Affected areas:** cycle/team GraphQL schemas, cycle model guards,
+  task/triage/project/team query resolvers.
+- **Contracts changed:** `removeCycle`, `endCycle`, `getCycle` take
+  `_id: String!`; `getTeamEstimateChoises` takes `teamId: String!`;
+  `createCycle`, `updateCycle` take `input: CycleInput!`; `teamAddMembers`
+  takes `memberIds: [String]!`.

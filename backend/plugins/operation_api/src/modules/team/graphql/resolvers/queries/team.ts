@@ -86,12 +86,16 @@ export const teamQueries = {
 
   getTeamMembers: async (
     _parent: undefined,
-    { teamId, teamIds }: { teamId: string; teamIds: string[] },
+    { teamId, teamIds }: { teamId?: string; teamIds?: string[] },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('teamRead');
 
-    const filter: any = {};
+    if (!teamId && !teamIds?.length) {
+      throw new Error('Either teamId or teamIds is required');
+    }
+
+    const filter: { teamId?: { $in: Types.ObjectId[] } } = {};
 
     if (teamIds?.length) {
       filter.teamId = { $in: teamIds.map((id) => new Types.ObjectId(id)) };
@@ -113,6 +117,10 @@ export const teamQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('teamRead');
+
+    if (!teamId) {
+      throw new Error('teamId is required');
+    }
 
     const team = await models.Team.getTeam(teamId);
 

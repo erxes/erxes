@@ -38,7 +38,7 @@ export const taskQueries = {
 
   getTasks: async (
     _parent: undefined,
-    { filter }: { filter: ITaskFilter },
+    { filter = {} }: { filter?: Partial<ITaskFilter> },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('taskRead');
