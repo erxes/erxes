@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CYCLE_DETAIL = gql`
+export const GET_CYCLE_DETAIL = gql(`
   query GetCycleDetail($_id: String!) {
     getCycle(_id: $_id) {
       _id
@@ -42,4 +42,4 @@ export const GET_CYCLE_DETAIL = gql`
       unFinishedTasks
     }
   }
-`;
+`);

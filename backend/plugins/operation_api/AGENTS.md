@@ -186,6 +186,8 @@ propertiesData? } })`
   progress counters (`totalScope`, `totalStartedScope`,
   `totalCompletedScope`) are non-null ints because the aggregation always
   emits numbers.
+- `Cycle._id` is non-null; its other fields stay nullable because nothing
+  in the Mongoose schema requires them.
 - `getStatusesChoicesByTeam` and `getTeamEstimateChoises` return concrete
   `[StatusChoice]` and `[EstimateChoice]` types, not `JSON`. `Status` exposes
   `color`, `order`, `type`, `createdAt` and `updatedAt` as non-null
