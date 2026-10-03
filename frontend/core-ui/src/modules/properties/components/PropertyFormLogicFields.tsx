@@ -6,6 +6,16 @@ import { IField, useFields } from 'ui-modules';
 import { IPropertyForm } from '../types/Properties';
 import { PropertyLogicFieldSelect } from './PropertyLogicFieldSelect';
 
+// "is / is not" means nothing for these, so they cannot drive logic.
+const NON_COMPARABLE_TYPES = new Set([
+  'date',
+  'file',
+  'relation',
+  'list',
+  'objectList',
+  'editor',
+]);
+
 type LogicRule = {
   field: string;
   operator: string;
@@ -32,7 +42,8 @@ export const PropertyFormLogicFields = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { fields: siblingFields } = useFields({ contentType });
   const availableFields = siblingFields.filter(
-    (field) => field._id !== excludeFieldId,
+    (field) =>
+      field._id !== excludeFieldId && !NON_COMPARABLE_TYPES.has(field.type),
   );
 
   const logics = (form.watch('logics') || []) as LogicRule[];
@@ -60,7 +71,16 @@ export const PropertyFormLogicFields = ({
     value: string,
   ) => {
     setLogics(
-      logics.map((rule, i) => (i === index ? { ...rule, [key]: value } : rule)),
+      logics.map((rule, i) => {
+        if (i !== index) {
+          return rule;
+        }
+
+        // A value means nothing once the rule points at another field.
+        return key === 'field'
+          ? { ...rule, field: value, value: '' }
+          : { ...rule, [key]: value };
+      }),
     );
   };
 
@@ -176,30 +196,82 @@ const LogicRuleRow = ({
             <Select.Item value="isNot">{t('is-not', 'is not')}</Select.Item>
           </Select.Content>
         </Select>
-        {targetField?.options?.length ? (
-          <Select
-            value={rule.value}
-            onValueChange={(value) => onChange('value', value)}
-          >
-            <Select.Trigger>
-              <Select.Value placeholder={t('value', 'Value')} />
-            </Select.Trigger>
-            <Select.Content>
-              {targetField.options.map((option) => (
-                <Select.Item key={option.value} value={option.value}>
-                  {option.label}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-        ) : (
-          <Input
-            value={rule.value}
-            onChange={(e) => onChange('value', e.target.value)}
-            placeholder={t('value', 'Value')}
-          />
-        )}
+        <LogicValueInput
+          field={targetField}
+          value={rule.value}
+          onChange={(value) => onChange('value', value)}
+        />
       </div>
     </div>
+  );
+};
+
+type TValueOption = { label: string; value: string };
+
+const ValueSelect = ({
+  options,
+  value,
+  onChange,
+}: {
+  options: TValueOption[];
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <Select.Trigger>
+        <Select.Value placeholder={t('value', 'Value')} />
+      </Select.Trigger>
+      <Select.Content>
+        {options.map((option) => (
+          <Select.Item key={option.value} value={option.value}>
+            {option.label}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
+};
+
+// Rules compare the string of what a field stores, so the editor writes exactly that.
+const LogicValueInput = ({
+  field,
+  value,
+  onChange,
+}: {
+  field?: IField;
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+
+  if (field?.options?.length) {
+    return (
+      <ValueSelect options={field.options} value={value} onChange={onChange} />
+    );
+  }
+
+  if (field?.type === 'boolean') {
+    return (
+      <ValueSelect
+        options={[
+          { label: t('true', 'True'), value: 'true' },
+          { label: t('false', 'False'), value: 'false' },
+        ]}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
+
+  return (
+    <Input
+      type={field?.type === 'number' ? 'number' : 'text'}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={t('value', 'Value')}
+    />
   );
 };

@@ -2,6 +2,8 @@ import { PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
 import { PhoneInput } from 'erxes-ui/modules/record-field';
 import { SpecificFieldProps } from './Field';
 import { useState } from 'react';
+import { useInlineCellEdit } from '../hooks/useInlineCellEdit';
+import { InlineEditHint } from './InlineEditHint';
 
 export const FieldPhone = (props: SpecificFieldProps) => {
   const { inCell } = props;
@@ -16,30 +18,21 @@ export const FieldPhone = (props: SpecificFieldProps) => {
 export const FieldPhoneInCell = (props: SpecificFieldProps) => {
   const { value, handleChange } = props;
 
-  const [currentValue, setCurrentValue] = useState<string>(value || '');
+  const { currentValue, setCurrentValue, onOpenChange, onEscapeKeyDown } =
+    useInlineCellEdit<string>(value || '', value, handleChange);
 
   return (
-    <PopoverScoped
-      closeOnEnter
-      scope={props.id}
-      onOpenChange={(open, reason) => {
-        if (!open) {
-          reason === 'close' && setCurrentValue(value);
-          if (reason === 'enter') {
-            currentValue !== value && handleChange(currentValue);
-          }
-        }
-      }}
-    >
+    <PopoverScoped closeOnEnter scope={props.id} onOpenChange={onOpenChange}>
       <RecordTableInlineCell.Trigger>
         {currentValue}
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
+      <RecordTableInlineCell.Content onEscapeKeyDown={onEscapeKeyDown}>
         <PhoneInput
           value={currentValue}
           onChange={(val) => setCurrentValue(val)}
           className="bg-background"
         />
+        <InlineEditHint />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );

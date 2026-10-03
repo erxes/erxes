@@ -131,6 +131,11 @@ export const getStringArray = (value: unknown): string[] => {
 };
 
 const valueMatches = (actual: unknown, expected: string): boolean => {
+  // An unset boolean reads as false wherever it shows, so it matches "false" too.
+  if (expected === 'false' && !hasFieldValue(actual)) {
+    return true;
+  }
+
   if (Array.isArray(actual)) {
     return actual.some((item) => String(item) === expected);
   }

@@ -1,4 +1,6 @@
-import { IconComponent, Label } from 'erxes-ui';
+import { IconCheck } from '@tabler/icons-react';
+import { IconComponent, Label, Spinner } from 'erxes-ui';
+import { TFieldSaveState } from '../hooks/useFieldSaveState';
 import { IField } from '../types/fieldsTypes';
 import { formatValidationLabel, hasFieldValue } from '../propertyUtils';
 
@@ -12,6 +14,7 @@ export const FieldLabel = ({
   inCell,
   value,
   error,
+  saveState = 'idle',
 }: {
   field: IField;
   children: React.ReactNode;
@@ -19,6 +22,7 @@ export const FieldLabel = ({
   inCell?: boolean;
   value?: unknown;
   error?: string | null;
+  saveState?: TFieldSaveState;
 }) => {
   if (inCell) {
     return children;
@@ -37,6 +41,7 @@ export const FieldLabel = ({
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id}>
+        <FieldSaveStatus state={saveState} />
         {field.icon && !DEFAULT_ICONS.has(field.icon) && (
           <IconComponent
             name={field.icon}
@@ -60,4 +65,25 @@ export const FieldLabel = ({
       {error && <span className="text-xs text-destructive">{error}</span>}
     </div>
   );
+};
+
+// Sits before the label so saving never shifts the field below it.
+const FieldSaveStatus = ({ state }: { state: TFieldSaveState }) => {
+  if (state === 'saving') {
+    return (
+      <span className="mr-1 inline-flex align-[-2px]" title="Saving…">
+        <Spinner size="sm" containerClassName="w-auto" />
+      </span>
+    );
+  }
+
+  if (state === 'saved') {
+    return (
+      <span title="Saved">
+        <IconCheck className="mr-1 inline size-3.5 align-[-2px] text-green-500" />
+      </span>
+    );
+  }
+
+  return null;
 };

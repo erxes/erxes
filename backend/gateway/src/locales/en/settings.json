@@ -230,6 +230,8 @@
     "layout": "Layout",
     "layout-description": "Drag fields between rows. Fields in a row share its width, up to 4.",
     "add-row": "Add row",
+    "true": "True",
+    "false": "False",
     "move-row": "Move row",
     "layout-hidden-hint": "Hidden where records show",
     "remove-row": "Remove row",
