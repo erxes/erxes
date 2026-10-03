@@ -18,12 +18,31 @@ import { TUnitForm, UnitHotKeyScope } from '../../types/unit';
 import { UnitForm } from './UnitForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
-export const CreateUnit = () => {
+export const CreateUnit = ({
+  trigger,
+  defaultParentId,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  trigger?: React.ReactNode;
+  defaultParentId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) => {
   const {
     methods,
     methods: { handleSubmit },
   } = useUnitForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const [innerOpen, setInnerOpen] = useState<boolean>(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : innerOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInnerOpen(value);
+    }
+  };
   const { handleAdd, loading } = useUnitAdd();
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
@@ -32,6 +51,9 @@ export const CreateUnit = () => {
   const canManageUnits = isLoaded && hasActionPermission('unitsManage');
 
   const onOpen = () => {
+    if (defaultParentId) {
+      methods.setValue('departmentId', defaultParentId);
+    }
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(UnitHotKeyScope.UnitAddSheet);
   };
@@ -45,11 +67,38 @@ export const CreateUnit = () => {
     `c`,
     () => {
       if (!canManageUnits) return;
+      if (trigger || isControlled) return;
       onOpen();
     },
     UnitHotKeyScope.UnitSettingsPage,
   );
   useScopedHotkeys(`esc`, () => onClose(), UnitHotKeyScope.UnitAddSheet);
+
+  const prevOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      open &&
+      defaultParentId &&
+      methods.getValues('departmentId') !== defaultParentId
+    ) {
+      methods.setValue('departmentId', defaultParentId);
+    }
+    if (isControlled && open !== prevOpen.current) {
+      if (open) {
+        setHotkeyScopeAndMemorizePreviousScope(UnitHotKeyScope.UnitAddSheet);
+      } else {
+        setHotkeyScope(UnitHotKeyScope.UnitSettingsPage);
+      }
+    }
+    prevOpen.current = open;
+  }, [
+    open,
+    isControlled,
+    defaultParentId,
+    methods,
+    setHotkeyScopeAndMemorizePreviousScope,
+    setHotkeyScope,
+  ]);
 
   const submitHandler: SubmitHandler<TUnitForm> = React.useCallback(
     async (data) => {
@@ -76,14 +125,17 @@ export const CreateUnit = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Can action="unitsManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus /> Create Unit
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-      </Can>
+      {!isControlled && (
+        <Can action="unitsManage">
+          <Sheet.Trigger asChild>
+            {trigger ?? (
+              <Button>
+                <IconPlus /> Create Unit <Kbd>C</Kbd>
+              </Button>
+            )}
+          </Sheet.Trigger>
+        </Can>
+      )}
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

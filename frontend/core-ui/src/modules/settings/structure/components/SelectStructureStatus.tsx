@@ -1,14 +1,5 @@
 import { useState } from 'react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  Form,
-  Popover,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
-import { IconFlag } from '@tabler/icons-react';
+import { Combobox, Command, Form, Popover } from 'erxes-ui';
 import { STRUCTURE_STATUS_OPTIONS } from '../constants/structure-status';
 
 const StructureStatusList = ({
@@ -50,66 +41,6 @@ const SelectStructureStatusValue = ({ value }: { value?: string }) => {
   return <span className="font-medium text-sm">{selected.label}</span>;
 };
 
-export const SelectStructureStatusFilterItem = () => {
-  return (
-    <Filter.Item value="status">
-      <IconFlag />
-      Status
-    </Filter.Item>
-  );
-};
-
-export const SelectStructureStatusFilterView = () => {
-  const [status, setStatus] = useQueryState<string>('status');
-  const { resetFilterState } = useFilterContext();
-
-  return (
-    <Filter.View filterKey="status">
-      <StructureStatusList
-        value={status || undefined}
-        onSelect={(value) => {
-          setStatus(value);
-          resetFilterState();
-        }}
-      />
-    </Filter.View>
-  );
-};
-
-export const SelectStructureStatusFilterBar = () => {
-  const [status, setStatus] = useQueryState<string>('status');
-  const [open, setOpen] = useState(false);
-
-  if (!status) {
-    return null;
-  }
-
-  return (
-    <Filter.BarItem queryKey="status">
-      <Filter.BarName>
-        <IconFlag />
-        Status
-      </Filter.BarName>
-      <Popover open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <Filter.BarButton filterKey="status">
-            <SelectStructureStatusValue value={status} />
-          </Filter.BarButton>
-        </Popover.Trigger>
-        <Combobox.Content>
-          <StructureStatusList
-            value={status}
-            onSelect={(value) => {
-              setStatus(value);
-              setOpen(false);
-            }}
-          />
-        </Combobox.Content>
-      </Popover>
-    </Filter.BarItem>
-  );
-};
-
 export const SelectStructureStatusFormItem = ({
   value,
   onValueChange,
@@ -140,8 +71,5 @@ export const SelectStructureStatusFormItem = ({
 };
 
 export const SelectStructureStatus = {
-  FilterItem: SelectStructureStatusFilterItem,
-  FilterView: SelectStructureStatusFilterView,
-  FilterBar: SelectStructureStatusFilterBar,
   FormItem: SelectStructureStatusFormItem,
 };

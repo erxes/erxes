@@ -1,5 +1,4 @@
 import { IWorkDay, WorkDay } from '@/settings/structure/types/workhours';
-import { parse } from 'date-fns';
 
 type Workhours = Partial<Record<WorkDay, IWorkDay>>;
 
