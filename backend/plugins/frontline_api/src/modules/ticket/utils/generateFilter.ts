@@ -23,6 +23,8 @@ export const generateFilter = async (
   models: IModels,
   subdomain?: string,
 ) => {
+  filter = filter ?? {};
+
   const {
     segmentIds,
     createdStartDate,
