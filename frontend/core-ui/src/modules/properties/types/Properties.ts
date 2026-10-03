@@ -44,4 +44,8 @@ export interface IPropertySystemField extends IPropertySystemFieldConfig {
   code: string;
   name: string;
   type: string;
+  // Declared by the owning content type; they lock the toggles below.
+  requiredGroup?: string | null;
+  alwaysFilled?: boolean | null;
+  notOnCreate?: boolean | null;
 }

@@ -15,7 +15,7 @@ import {
   toast,
   useQueryState,
 } from 'erxes-ui';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectMember } from '../../team-members/components/SelectMember';
@@ -25,6 +25,15 @@ import { useFields } from '../../properties/hooks/useFields';
 import { IFieldGroup } from '../../properties/types/fieldsTypes';
 import { PropertyFormField } from '../../properties/components/PropertyFormField';
 import { GroupFieldRows } from '../../properties/components/GroupFieldRows';
+import {
+  ICreateFieldRules,
+  useCreateFieldRules,
+} from '../../properties/hooks/useCreateFieldRules';
+import {
+  CUSTOMER_HAS_AUTHORITY_OPTIONS,
+  CUSTOMER_LEAD_STATUS_OPTIONS,
+  CUSTOMER_SEX_OPTIONS,
+} from '../constants/customerSelectOptions';
 
 const EMAIL_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
@@ -47,7 +56,8 @@ const PHONE_VALIDATION_STATUSES = [
 
 const SCHEMA = z.object({
   avatar: z.string().optional(),
-  firstName: z.string().min(1, 'First name is required'),
+  firstName: z.string().optional(),
+  middleName: z.string().optional(),
   lastName: z.string().optional(),
   code: z.string().optional(),
   ownerId: z.string().optional(),
@@ -55,6 +65,11 @@ const SCHEMA = z.object({
   emailValidationStatus: z.string().optional(),
   primaryPhone: z.string().optional(),
   phoneValidationStatus: z.string().optional(),
+  position: z.string().optional(),
+  department: z.string().optional(),
+  leadStatus: z.string().optional(),
+  hasAuthority: z.string().optional(),
+  sex: z.string().optional(),
   description: z.string().optional(),
   isSubscribed: z.string().optional(),
   birthDate: z.date().optional(),
@@ -62,6 +77,35 @@ const SCHEMA = z.object({
 });
 
 type FormValues = z.infer<typeof SCHEMA>;
+
+type TFieldCode = Exclude<keyof FormValues, 'propertiesData'>;
+
+const hasValue = (value: unknown) =>
+  value !== undefined && value !== null && String(value).trim() !== '';
+
+// Settings decide what the form asks for, so the schema follows them.
+const buildSchema = ({ isShown, isRequired, groups }: ICreateFieldRules) =>
+  SCHEMA.superRefine((values, ctx) => {
+    for (const code of Object.keys(SCHEMA.shape) as TFieldCode[]) {
+      if (isShown(code) && isRequired(code) && !hasValue(values[code])) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [code],
+          message: 'Required',
+        });
+      }
+    }
+
+    for (const codes of groups) {
+      if (!codes.some((code) => hasValue(values[code as TFieldCode]))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [codes[0]],
+          message: 'Fill in a name, an e-mail or a phone',
+        });
+      }
+    }
+  });
 
 export function AddCustomerForm({
   onOpenChange,
@@ -74,12 +118,19 @@ export function AddCustomerForm({
 }>) {
   const { customersAdd, loading } = useAddCustomer();
   const [activeTab] = useQueryState<string>('tab');
+  const { rules, loading: rulesLoading } = useCreateFieldRules('core:customer');
+
+  // Rules arrive after the form mounts; validate against the latest ones.
+  const schemaRef = useRef(buildSchema(rules));
+  schemaRef.current = useMemo(() => buildSchema(rules), [rules]);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(SCHEMA),
+    resolver: (values, context, options) =>
+      zodResolver(schemaRef.current)(values, context, options),
     defaultValues: {
       avatar: '',
       firstName: '',
+      middleName: '',
       lastName: '',
       code: '',
       ownerId: '',
@@ -87,6 +138,11 @@ export function AddCustomerForm({
       emailValidationStatus: 'unknown',
       primaryPhone: '',
       phoneValidationStatus: 'unknown',
+      position: '',
+      department: '',
+      leadStatus: '',
+      hasAuthority: 'No',
+      sex: '0',
       description: '',
       isSubscribed: 'Yes',
       propertiesData: {},
@@ -101,7 +157,7 @@ export function AddCustomerForm({
     [form],
   );
 
-  function onSubmit({ propertiesData, ...rest }: FormValues) {
+  function onSubmit({ propertiesData, sex, ...rest }: FormValues) {
     const cleanPropertiesData =
       propertiesData && Object.keys(propertiesData).length > 0
         ? Object.fromEntries(
@@ -112,7 +168,12 @@ export function AddCustomerForm({
         : undefined;
 
     customersAdd({
-      variables: { ...rest, state, propertiesData: cleanPropertiesData },
+      variables: {
+        ...rest,
+        sex: Number(sex ?? 0),
+        state,
+        propertiesData: cleanPropertiesData,
+      },
       onError: (e) => {
         toast({
           title: 'Error',
@@ -152,8 +213,10 @@ export function AddCustomerForm({
               propertiesData={propertiesData}
               onFieldChange={updateCustomFieldValue}
             />
+          ) : rulesLoading ? (
+            <Spinner containerClassName="py-12" />
           ) : (
-            <GeneralTab form={form} />
+            <GeneralTab form={form} rules={rules} />
           )}
         </ScrollArea>
 
@@ -165,7 +228,7 @@ export function AddCustomerForm({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading || rulesLoading}>
             {loading ? 'Creating...' : title}
           </Button>
         </div>
@@ -174,271 +237,377 @@ export function AddCustomerForm({
   );
 }
 
-function GeneralTab({
+const FieldLabel = ({
+  children,
+  required,
+}: {
+  children: React.ReactNode;
+  required: boolean;
+}) => (
+  <Form.Label>
+    {children}
+    {required && <span className="text-destructive"> *</span>}
+  </Form.Label>
+);
+
+function TextField({
   form,
+  name,
+  label,
+  required,
+  placeholder,
+  type,
 }: Readonly<{
   form: ReturnType<typeof useForm<FormValues>>;
+  name:
+    | 'firstName'
+    | 'middleName'
+    | 'lastName'
+    | 'code'
+    | 'primaryEmail'
+    | 'primaryPhone'
+    | 'position'
+    | 'department';
+  label: string;
+  required: boolean;
+  placeholder?: string;
+  type?: string;
 }>) {
+  return (
+    <Form.Field
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <FieldLabel required={required}>{label}</FieldLabel>
+          <Form.Control>
+            <Input type={type} placeholder={placeholder} {...field} />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+}
+
+function SelectField({
+  form,
+  name,
+  label,
+  required,
+  options,
+}: Readonly<{
+  form: ReturnType<typeof useForm<FormValues>>;
+  name:
+    | 'emailValidationStatus'
+    | 'phoneValidationStatus'
+    | 'leadStatus'
+    | 'hasAuthority'
+    | 'sex';
+  label: string;
+  required: boolean;
+  options: { label: string; value: string }[];
+}>) {
+  return (
+    <Form.Field
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <FieldLabel required={required}>{label}</FieldLabel>
+          <Select onValueChange={field.onChange} value={field.value}>
+            <Form.Control>
+              <Select.Trigger>
+                <Select.Value placeholder="Choose">
+                  {
+                    options.find((option) => option.value === field.value)
+                      ?.label
+                  }
+                </Select.Value>
+              </Select.Trigger>
+            </Form.Control>
+            <Select.Content>
+              <Select.Group>
+                {options.map((option) => (
+                  <Select.Item key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Item>
+                ))}
+              </Select.Group>
+            </Select.Content>
+          </Select>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+}
+
+function GeneralTab({
+  form,
+  rules,
+}: Readonly<{
+  form: ReturnType<typeof useForm<FormValues>>;
+  rules: ICreateFieldRules;
+}>) {
+  const { isShown, isRequired } = rules;
+
   return (
     <InfoCard title="Customer Information">
       <InfoCard.Content>
-        <Form.Field
-          name="avatar"
-          control={form.control}
-          render={({ field }) => (
-            <Form.Item className="mb-4">
-              <Form.Control>
-                <Upload.Root
-                  {...field}
-                  value={field.value || ''}
-                  onChange={(fileInfo) => {
-                    if ('url' in fileInfo) {
-                      field.onChange(fileInfo.url);
-                    }
-                  }}
-                >
-                  <Upload.Preview className="rounded-full" />
-                  <div className="flex flex-col justify-center gap-2">
-                    <div className="flex gap-4">
-                      <Upload.Button size="sm" variant="outline" type="button">
-                        Upload
-                      </Upload.Button>
-                      <Upload.RemoveButton
-                        size="sm"
-                        variant="outline"
-                        type="button"
-                      />
+        {isShown('avatar') && (
+          <Form.Field
+            name="avatar"
+            control={form.control}
+            render={({ field }) => (
+              <Form.Item className="mb-4">
+                <Form.Control>
+                  <Upload.Root
+                    {...field}
+                    value={field.value || ''}
+                    onChange={(fileInfo) => {
+                      if ('url' in fileInfo) {
+                        field.onChange(fileInfo.url);
+                      }
+                    }}
+                  >
+                    <Upload.Preview className="rounded-full" />
+                    <div className="flex flex-col justify-center gap-2">
+                      <div className="flex gap-4">
+                        <Upload.Button
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                        >
+                          Upload
+                        </Upload.Button>
+                        <Upload.RemoveButton
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                        />
+                      </div>
+                      <Form.Description>
+                        Upload an avatar for the customer
+                        {isRequired('avatar') && (
+                          <span className="text-destructive"> *</span>
+                        )}
+                      </Form.Description>
                     </div>
-                    <Form.Description>
-                      Upload an avatar for the customer
-                    </Form.Description>
-                  </div>
-                </Upload.Root>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+                  </Upload.Root>
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-4">
-          <Form.Field
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  First Name <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {isShown('firstName') && (
+            <TextField
+              form={form}
+              name="firstName"
+              label="First Name"
+              required={isRequired('firstName')}
+            />
+          )}
+          {isShown('middleName') && (
+            <TextField
+              form={form}
+              name="middleName"
+              label="Middle Name"
+              required={isRequired('middleName')}
+            />
+          )}
+          {isShown('lastName') && (
+            <TextField
+              form={form}
+              name="lastName"
+              label="Last Name"
+              required={isRequired('lastName')}
+            />
+          )}
+          {isShown('code') && (
+            <TextField
+              form={form}
+              name="code"
+              label="Code"
+              required={isRequired('code')}
+            />
+          )}
 
-          <Form.Field
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {isShown('ownerId') && (
+            <Form.Field
+              control={form.control}
+              name="ownerId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Owner</Form.Label>
+                  <Form.Control>
+                    <div className="w-full">
+                      <SelectMember.FormItem
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        placeholder="Select owner"
+                      />
+                    </div>
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          )}
 
-          <Form.Field
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Code</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {isShown('primaryEmail') && (
+            <>
+              <TextField
+                form={form}
+                name="primaryEmail"
+                label="Email"
+                type="email"
+                placeholder="email@example.com"
+                required={isRequired('primaryEmail')}
+              />
+              <SelectField
+                form={form}
+                name="emailValidationStatus"
+                label="Email Verification Status"
+                required={false}
+                options={EMAIL_VALIDATION_STATUSES}
+              />
+            </>
+          )}
 
-          <Form.Field
-            control={form.control}
-            name="ownerId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Owner</Form.Label>
-                <Form.Control>
-                  <div className="w-full">
-                    <SelectMember.FormItem
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                      placeholder="Select owner"
+          {isShown('primaryPhone') && (
+            <>
+              <TextField
+                form={form}
+                name="primaryPhone"
+                label="Phone"
+                placeholder="+1 234 567 8900"
+                required={isRequired('primaryPhone')}
+              />
+              <SelectField
+                form={form}
+                name="phoneValidationStatus"
+                label="Phone Verification Status"
+                required={false}
+                options={PHONE_VALIDATION_STATUSES}
+              />
+            </>
+          )}
+
+          {isShown('position') && (
+            <TextField
+              form={form}
+              name="position"
+              label="Position"
+              required={isRequired('position')}
+            />
+          )}
+          {isShown('department') && (
+            <TextField
+              form={form}
+              name="department"
+              label="Department"
+              required={isRequired('department')}
+            />
+          )}
+          {isShown('sex') && (
+            <SelectField
+              form={form}
+              name="sex"
+              label="Pronoun"
+              required={false}
+              options={CUSTOMER_SEX_OPTIONS}
+            />
+          )}
+          {isShown('leadStatus') && (
+            <SelectField
+              form={form}
+              name="leadStatus"
+              label="Lead Status"
+              required={isRequired('leadStatus')}
+              options={CUSTOMER_LEAD_STATUS_OPTIONS}
+            />
+          )}
+          {isShown('hasAuthority') && (
+            <SelectField
+              form={form}
+              name="hasAuthority"
+              label="Has Authority"
+              required={false}
+              options={CUSTOMER_HAS_AUTHORITY_OPTIONS}
+            />
+          )}
+
+          {isShown('birthDate') && (
+            <Form.Field
+              control={form.control}
+              name="birthDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <FieldLabel required={isRequired('birthDate')}>
+                    Birth date
+                  </FieldLabel>
+                  <Form.Control>
+                    <DatePicker
+                      value={field.value}
+                      defaultMonth={field.value}
+                      onChange={(date) =>
+                        field.onChange(date instanceof Date ? date : undefined)
+                      }
                     />
-                  </div>
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          )}
+        </div>
 
+        {isShown('description') && (
           <Form.Field
             control={form.control}
-            name="primaryEmail"
+            name="description"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Email</Form.Label>
+              <Form.Item className="mt-4">
+                <FieldLabel required={isRequired('description')}>
+                  Description
+                </FieldLabel>
                 <Form.Control>
-                  <Input
-                    type="email"
-                    placeholder="email@example.com"
-                    {...field}
+                  <Editor
+                    initialContent={field.value}
+                    onChange={field.onChange}
+                    scope="customer-add-description"
                   />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
             )}
           />
+        )}
 
+        {isShown('isSubscribed') && (
           <Form.Field
+            name="isSubscribed"
             control={form.control}
-            name="emailValidationStatus"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Email Verification Status</Form.Label>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Choose">
-                        {
-                          EMAIL_VALIDATION_STATUSES.find(
-                            (s) => s.value === field.value,
-                          )?.label
-                        }
-                      </Select.Value>
-                    </Select.Trigger>
-                  </Form.Control>
-                  <Select.Content>
-                    <Select.Group>
-                      {EMAIL_VALIDATION_STATUSES.map((s) => (
-                        <Select.Item key={s.value} value={s.value}>
-                          {s.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Group>
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="primaryPhone"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Phone</Form.Label>
+              <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
                 <Form.Control>
-                  <Input placeholder="+1 234 567 8900" {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="phoneValidationStatus"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Phone Verification Status</Form.Label>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Choose">
-                        {
-                          PHONE_VALIDATION_STATUSES.find(
-                            (s) => s.value === field.value,
-                          )?.label
-                        }
-                      </Select.Value>
-                    </Select.Trigger>
-                  </Form.Control>
-                  <Select.Content>
-                    <Select.Group>
-                      {PHONE_VALIDATION_STATUSES.map((s) => (
-                        <Select.Item key={s.value} value={s.value}>
-                          {s.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Group>
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="birthDate"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Birth date</Form.Label>
-                <Form.Control>
-                  <DatePicker
-                    value={field.value}
-                    defaultMonth={field.value}
-                    onChange={(date) =>
-                      field.onChange(date instanceof Date ? date : undefined)
+                  <Switch
+                    checked={field.value === 'Yes'}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked ? 'Yes' : 'No')
                     }
                   />
                 </Form.Control>
+                <Form.Label variant="peer">Subscribed</Form.Label>
                 <Form.Message />
               </Form.Item>
             )}
           />
-        </div>
-
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="mt-4">
-              <Form.Label>Description</Form.Label>
-              <Form.Control>
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="customer-add-description"
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        <Form.Field
-          name="isSubscribed"
-          control={form.control}
-          render={({ field }) => (
-            <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
-              <Form.Control>
-                <Switch
-                  checked={field.value === 'Yes'}
-                  onCheckedChange={(checked) =>
-                    field.onChange(checked ? 'Yes' : 'No')
-                  }
-                />
-              </Form.Control>
-              <Form.Label variant="peer">Subscribed</Form.Label>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        )}
       </InfoCard.Content>
     </InfoCard>
   );
@@ -477,8 +646,8 @@ function CustomerPropertiesSection({
       <InfoCard title="Customer Properties">
         <InfoCard.Content>
           <p className="text-sm text-muted-foreground py-4 text-center">
-            No properties are asked for at creation. Turn on "Visible to
-            create" in Settings.
+            No properties are asked for at creation. Turn on "Visible to create"
+            in Settings.
           </p>
         </InfoCard.Content>
       </InfoCard>

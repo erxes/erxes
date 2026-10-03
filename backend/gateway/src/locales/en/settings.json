@@ -231,6 +231,8 @@
     "layout-description": "Drag fields between rows. Fields in a row share its width, up to 4.",
     "add-row": "Add row",
     "remove-row": "Remove row",
+    "identity-group-hint": "At least one of first name, e-mail or phone is required",
+    "not-on-create-hint": "Set after the record is created",
     "reset-layout": "Reset",
     "layout-saved": "Layout saved",
     "validation-date": "Date",

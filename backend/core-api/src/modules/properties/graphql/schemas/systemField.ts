@@ -7,6 +7,9 @@ export const types = `
     isVisibleToCreate: Boolean!
     isRequired: Boolean!
     logics: JSON
+    requiredGroup: String
+    alwaysFilled: Boolean
+    notOnCreate: Boolean
   }
 
   input PropertySystemFieldLogicInput {

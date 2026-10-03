@@ -14,6 +14,14 @@ export interface IPropertySystemField {
   code: string;
   name: string;
   type: PropertySystemFieldType;
+  // Fields sharing a group: at least one must show on create and be filled in.
+  requiredGroup?: string;
+  // Always holds a value (a default, or set by the server), so "required" means nothing.
+  alwaysFilled?: boolean;
+  // Shown on the create form until an admin decides otherwise.
+  visibleToCreateByDefault?: boolean;
+  // The create flow cannot take this field, so it never shows there.
+  notOnCreate?: boolean;
 }
 
 // Featured fields: created at runtime by a plugin feature, stored in

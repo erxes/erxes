@@ -35,12 +35,33 @@ const SystemFieldToggleCell = ({
   toggleKey: TSystemFieldToggleKey;
   label: string;
 }) => {
-  const checked = field[toggleKey];
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { editSystemField, loading } = useEditPropertySystemField(contentType);
+
+  // Always holds a value, so there is nothing to require.
+  if (toggleKey === 'isRequired' && field.alwaysFilled) {
+    return (
+      <RecordTableInlineCell>
+        <span className="w-full text-center text-muted-foreground">—</span>
+      </RecordTableInlineCell>
+    );
+  }
+
+  const groupLocked = toggleKey === 'isRequired' && !!field.requiredGroup;
+  const createLocked = toggleKey === 'isVisibleToCreate' && !!field.notOnCreate;
+  const checked = groupLocked || (!createLocked && field[toggleKey]);
+  const title = groupLocked
+    ? t(
+        'identity-group-hint',
+        'At least one of first name, e-mail or phone is required',
+      )
+    : createLocked
+    ? t('not-on-create-hint', 'Set after the record is created')
+    : undefined;
 
   return (
     <RecordTableInlineCell>
-      <div className="flex w-full items-center justify-center">
+      <div className="flex w-full items-center justify-center" title={title}>
         <Can
           action="fieldsManage"
           fallback={
@@ -51,7 +72,7 @@ const SystemFieldToggleCell = ({
             size="sm"
             aria-label={label}
             checked={checked}
-            disabled={loading}
+            disabled={loading || groupLocked || createLocked}
             onCheckedChange={(value) =>
               editSystemField(field.code, { [toggleKey]: value })
             }

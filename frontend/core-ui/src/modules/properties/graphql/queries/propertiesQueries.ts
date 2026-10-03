@@ -14,6 +14,9 @@ export const PROPERTY_SYSTEM_FIELD_SELECTION = `
   isVisibleToCreate
   isRequired
   logics
+  requiredGroup
+  alwaysFilled
+  notOnCreate
 `;
 
 export const PROPERTY_SYSTEM_FIELDS_QUERY = gql`

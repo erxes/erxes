@@ -42,13 +42,33 @@ const getDeclaredSystemFields = async (
 };
 
 const toConfig = (
+  field: IPropertySystemField,
   setting?: Partial<ISystemFieldConfig> | null,
 ): ISystemFieldConfig => ({
   isVisible: setting?.isVisible ?? true,
-  isVisibleToCreate: setting?.isVisibleToCreate ?? false,
-  isRequired: setting?.isRequired ?? false,
+  isVisibleToCreate: field.notOnCreate
+    ? false
+    : setting?.isVisibleToCreate ?? !!field.visibleToCreateByDefault,
+  // A group or an always-filled field is never required on its own.
+  isRequired:
+    field.requiredGroup || field.alwaysFilled
+      ? false
+      : setting?.isRequired ?? false,
   logics: setting?.logics ?? [],
 });
+
+const assertTogglesAllowed = (
+  field: IPropertySystemField,
+  { isRequired, isVisibleToCreate }: Partial<ISystemFieldConfig>,
+) => {
+  if (isRequired !== undefined && (field.requiredGroup || field.alwaysFilled)) {
+    throw new Error(`"${field.name}" is not required on its own`);
+  }
+
+  if (isVisibleToCreate && field.notOnCreate) {
+    throw new Error(`"${field.name}" cannot be set when creating`);
+  }
+};
 
 const validateLogics = (logics?: ISystemFieldLogic[]) =>
   logics?.map(({ field, operator, value, action }) => {
@@ -91,7 +111,7 @@ export const loadSystemFieldSettingClass = (models: IModels) => {
 
       return systemFields.map((field) => ({
         ...field,
-        ...toConfig(settingByCode.get(field.code)),
+        ...toConfig(field, settingByCode.get(field.code)),
       }));
     }
 
@@ -106,6 +126,26 @@ export const loadSystemFieldSettingClass = (models: IModels) => {
         throw new Error(`System field "${code}" not found on ${contentType}`);
       }
 
+      assertTogglesAllowed(systemField, flags);
+
+      // The last field of a group on the create form keeps the group fillable.
+      if (systemField.requiredGroup && flags.isVisibleToCreate === false) {
+        const resolved =
+          await models.SystemFieldSettings.getSystemFields(contentType);
+        const othersShown = resolved.some(
+          (field) =>
+            field.requiredGroup === systemField.requiredGroup &&
+            field.code !== code &&
+            field.isVisibleToCreate,
+        );
+
+        if (!othersShown) {
+          throw new Error(
+            'At least one of these fields must stay on the create form',
+          );
+        }
+      }
+
       const setting = await models.SystemFieldSettings.findOneAndUpdate(
         { contentType, code },
         {
@@ -117,7 +157,7 @@ export const loadSystemFieldSettingClass = (models: IModels) => {
         { upsert: true, new: true },
       ).lean();
 
-      return { ...systemField, ...toConfig(setting) };
+      return { ...systemField, ...toConfig(systemField, setting) };
     }
   }
 
