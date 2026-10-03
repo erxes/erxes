@@ -1,4 +1,17 @@
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+
+/**
+ * Precomputed wildcard regex map for single-character similarity masks.
+ * Mirrors the safe pattern used in queries/product.ts so that user-controlled
+ * mask keys never reach a hand-rolled chained .replace() that could leak
+ * un-escaped backslashes into the constructed RegExp source.
+ */
+const WILDCARD_REGEX = new Map<string, RegExp>([
+  ['*', /^..*/giu],
+  ['.', /^\..*/giu],
+  ['_', /^..*/giu],
+]);
 
 export const configMutations = {
   /**
@@ -34,15 +47,9 @@ export const configMutations = {
         for (const mask of masks) {
           const maskValue = value[mask];
 
-          const codeRegex = ['*', '.', '_'].includes(mask)
-            ? new RegExp(
-                `^${mask
-                  .replace(/\./g, '\\.')
-                  .replace(/\*/g, '.')
-                  .replace(/_/g, '.')}.*`,
-                'igu',
-              )
-            : new RegExp(`.*${mask}.*`, 'igu');
+          const codeRegex =
+            WILDCARD_REGEX.get(mask) ??
+            new RegExp(`.*${escapeRegExp(mask)}.*`, 'igu');
 
           const fieldFilter = (maskValue.filterField || 'code').includes(
             'customFieldsData.',
