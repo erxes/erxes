@@ -19,11 +19,13 @@ export interface ITourCategoryModel extends Model<IOTATourCategoryDocument> {
 
 export const loadTourCategoryClass = (models: IModels) => {
   class TourCategories {
-    public static createTourCategory = async (data: IOTATourCategory) => {
+    public static readonly createTourCategory = async (
+      data: IOTATourCategory,
+    ) => {
       return models.TourCategories.create(data);
     };
 
-    public static updateTourCategory = async (
+    public static readonly updateTourCategory = async (
       _id: string,
       data: Partial<IOTATourCategory>,
     ) => {
@@ -34,7 +36,7 @@ export const loadTourCategoryClass = (models: IModels) => {
       );
     };
 
-    public static deleteTourCategory = async (_id: string) => {
+    public static readonly deleteTourCategory = async (_id: string) => {
       return models.TourCategories.findOneAndDelete({ _id });
     };
   }
