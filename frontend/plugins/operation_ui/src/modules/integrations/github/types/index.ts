@@ -27,7 +27,7 @@ export interface LinkRepoDialogProps {
   onClose: () => void;
   teamId: string;
   connections: IGithubConnection[];
-  currentConfig?: IGithubConfig;
+  currentConfig?: IGithubConfig | null;
   linkedRepoNames: string[];
   onSaved: () => void;
   onInstallOrganization: () => void;

@@ -1,3 +1,4 @@
+import { isRecord } from '@/operation/utils/isRecord';
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { useGetTask } from '@/task/hooks/useGetTask';
@@ -11,10 +12,7 @@ import { TaskDetailActions } from '@/task/components/task-actions/TaskDetailActi
 
 export const TaskDetailPage = () => {
   const { teamId, taskId } = useParams<{ teamId?: string; taskId: string }>();
-  const { task } = useGetTask({
-    variables: { _id: taskId },
-    skip: !taskId,
-  });
+  const { task } = useGetTask(taskId);
 
   if (!taskId) {
     return null;
@@ -52,7 +50,9 @@ export const TaskDetailPage = () => {
           <FocusSheet>
             <TaskSideWidgets
               contentId={task._id}
-              propertiesData={task.propertiesData}
+              propertiesData={
+                isRecord(task.propertiesData) ? task.propertiesData : undefined
+              }
             />
           </FocusSheet>
         )}

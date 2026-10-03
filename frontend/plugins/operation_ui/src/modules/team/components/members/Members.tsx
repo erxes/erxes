@@ -2,7 +2,6 @@ import { AddMembers } from '@/team/components/members/AddMembers';
 import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
 import { useTeamMemberRemove } from '@/team/hooks/useTeamMemberRemove';
 import { useTranslation } from 'react-i18next';
-// import { useTeamMemberUpdate } from '@/team/hooks/useTeamMemberUpdate';
 import { ITeamMember } from '@/team/types';
 import { IconX } from '@tabler/icons-react';
 import { Button, Skeleton, Table } from 'erxes-ui';
@@ -14,19 +13,7 @@ export function Members() {
   // const currentUser = useAtomValue(currentUserState);
   const { id: teamId } = useParams();
   const { members, loading } = useGetTeamMembers({ teamIds: teamId });
-  // const { updateTeamMember } = useTeamMemberUpdate();
   const { removeTeamMember } = useTeamMemberRemove();
-
-  //Deprecated
-
-  // const roleHandler = (value: string, _id: string) => {
-  //   updateTeamMember({
-  //     variables: {
-  //       _id,
-  //       role: value,
-  //     },
-  //   });
-  // };
 
   const removeHandler = (teamId: string, memberId: string) => {
     removeTeamMember({
@@ -65,7 +52,9 @@ export function Members() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="pl-2 w-auto">{t('member-header')}</Table.Head>
+              <Table.Head className="pl-2 w-auto">
+                {t('member-header')}
+              </Table.Head>
               {/* <Table.Head className="w-52">Role</Table.Head>   */}
               <Table.Head className="w-8" />
             </Table.Row>

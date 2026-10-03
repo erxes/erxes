@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { ITask } from '@/task/types';
 import { Command, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,7 @@ const formatDate = (dateStr?: string): string => {
   return format(new Date(dateStr), 'MMM dd, yyyy');
 };
 
-const parseDescription = (description?: string): string => {
+const parseDescription = (description?: string | null): string => {
   if (!description) return '';
   try {
     const blocks = JSON.parse(description);
@@ -96,7 +97,7 @@ export const CopyTaskMenu = ({
     skip: teamIds.length === 0,
   });
 
-  const getAssigneeName = (assigneeId: string): string => {
+  const getAssigneeName = (assigneeId?: string | null): string => {
     if (!assigneeId) return t('unassigned');
     const user = users?.find((u) => u._id === assigneeId);
     return user?.details?.fullName || assigneeId;
@@ -112,12 +113,14 @@ export const CopyTaskMenu = ({
 
   const getStatusLabel = (status: string): string => {
     return (
-      statuses?.find((s) => s.value === status)?.label || status || t('no-status')
+      statuses?.find((s) => s.value === status)?.label ||
+      status ||
+      t('no-status')
     );
   };
 
-  const getPriorityLabel = (priority: number): string => {
-    return t(PROJECT_PRIORITIES_OPTIONS[priority] || 'no-priority');
+  const getPriorityLabel = (priority?: number | null): string => {
+    return t(PROJECT_PRIORITIES_OPTIONS[priority ?? 0] || 'no-priority');
   };
 
   const generateMarkdown = (t: ITask): string => `**Name:** ${
@@ -128,7 +131,7 @@ export const CopyTaskMenu = ({
 **Status:** ${getStatusLabel(t.status)}
 **Priority:** ${getPriorityLabel(t.priority)}
 **Assign to:** ${getAssigneeName(t.assigneeId)}
-**Tag:** ${getTagNames(t.tagIds)}
+**Tag:** ${getTagNames(compactList(t.tagIds))}
 **Created:** ${formatDate(t.createdAt)}
 **Updated:** ${formatDate(t.updatedAt)}`;
 
