@@ -86,10 +86,7 @@ const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
 
   const selectedMilestone = milestones.find((p) => p._id === value);
 
-  const { milestone } = useGetMilestone({
-    variables: { _id: value },
-    skip: !!selectedMilestone || !value,
-  });
+  const { milestone } = useGetMilestone(value, { skip: !!selectedMilestone });
 
   const milestoneName =
     selectedMilestone?.name || milestone?.name || t('no-milestone');
@@ -162,7 +159,7 @@ const SelectMilestoneContent = () => {
       <Command.Empty>{t('no-milestone-found')}</Command.Empty>
       <Command.List>
         <SelectMilestoneCommandItem
-          milestone={{ _id: '', name: t('no-milestone') } as IMilestone}
+          milestone={{ _id: '', name: t('no-milestone'), targetDate: null }}
         />
         {milestones.map((milestone) => (
           <SelectMilestoneCommandItem
@@ -195,10 +192,12 @@ const SelectMilestoneProvider = ({
 
   const [debouncedSearch] = useDebounce(search, 500);
 
-  const { milestones, handleFetchMore, totalCount, loading } = useMilestones({
-    variables: { projectId, searchValue: debouncedSearch },
-    skip: !projectId,
-  });
+  const { milestones, handleFetchMore, totalCount, loading } = useMilestones(
+    projectId,
+    {
+      variables: { searchValue: debouncedSearch },
+    },
+  );
 
   return (
     <SelectMilestoneContext.Provider
@@ -209,7 +208,7 @@ const SelectMilestoneProvider = ({
         handleFetchMore,
         search,
         setSearch,
-        totalCount,
+        totalCount: totalCount ?? undefined,
         loading,
       }}
     >

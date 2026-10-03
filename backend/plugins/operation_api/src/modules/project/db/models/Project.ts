@@ -33,6 +33,20 @@ export const loadProjectClass = (
   { sendDbEventLog }: EventDispatcherReturn,
 ) => {
   class Project {
+    private static assertWritableProject(doc: Partial<IProject>) {
+      if (doc.name !== undefined && (!doc.name || !doc.name.trim())) {
+        throw new Error('Project name cannot be empty');
+      }
+
+      if (
+        doc.teamIds !== undefined &&
+        (!doc.teamIds ||
+          doc.teamIds.some((teamId) => !teamId || !teamId.trim()))
+      ) {
+        throw new Error('Project teamIds cannot contain empty values');
+      }
+    }
+
     public static async getProject(_id: string) {
       const Project = await models.Project.findOne({ _id }).lean();
 
@@ -53,6 +67,8 @@ export const loadProjectClass = (
       doc: IProject,
       user: IUserDocument,
     ): Promise<FlattenMaps<IProjectDocument> | Document> {
+      Project.assertWritableProject(doc);
+
       if (doc.convertedFromId) {
         const task = await models.Task.getTask(doc.convertedFromId);
 
@@ -98,6 +114,8 @@ export const loadProjectClass = (
       userId: string;
     }) {
       const { _id, ...rest } = doc;
+
+      Project.assertWritableProject(rest);
 
       const project = await models.Project.findOne({ _id });
 

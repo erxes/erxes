@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PROJECT_CHANGED = gql`
+export const PROJECT_CHANGED = gql(`
   subscription operationProjectChanged($_id: String!) {
     operationProjectChanged(_id: $_id) {
       type
@@ -12,7 +12,11 @@ export const PROJECT_CHANGED = gql`
         status
         priority
         teamIds
+        tagIds
         leadId
+        memberIds
+        createdBy
+        convertedFromId
         startDate
         targetDate
         createdAt
@@ -21,4 +25,4 @@ export const PROJECT_CHANGED = gql`
       }
     }
   }
-`;
+`);

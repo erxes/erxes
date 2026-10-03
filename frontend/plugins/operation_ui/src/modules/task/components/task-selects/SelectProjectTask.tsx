@@ -10,7 +10,7 @@ import {
 } from '@/project/contexts/SelectProjectContext';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { useProjectsInline } from '@/project/hooks/useGetProjects';
-import { IProject } from '@/project/types';
+import type { IProjectOption } from '@/project/contexts/SelectProjectContext';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { IconClipboard, IconChevronRight } from '@tabler/icons-react';
 import {
@@ -64,7 +64,7 @@ export const SelectProjectProvider = ({
         onValueChange,
         projects: projects || [],
         handleFetchMore,
-        totalCount,
+        totalCount: totalCount ?? undefined,
         search,
         setSearch,
         variant,
@@ -82,10 +82,7 @@ const SelectProjectValue = () => {
 
   const name = projects.find((p) => p._id === value)?.name;
 
-  const { project } = useGetProject({
-    variables: { _id: value },
-    skip: !!name || !value,
-  });
+  const { project } = useGetProject(value, { skip: !!name });
 
   const handleNavigateToProject = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -126,7 +123,7 @@ const SelectProjectValue = () => {
 const SelectProjectCommandItem = ({
   project,
 }: {
-  project: { _id: string; name: string; status: number };
+  project: Pick<IProjectOption, '_id' | 'name'> & { status?: number | null };
 }) => {
   const { onValueChange, value } = useSelectProjectContext();
 
@@ -166,7 +163,7 @@ const SelectProjectContent = () => {
       <Command.Empty>{t('no-project-found')}</Command.Empty>
       <Command.List>
         <SelectProjectCommandItem
-          project={{ _id: 'no-project', name: t('no-project') } as IProject}
+          project={{ _id: 'no-project', name: t('no-project'), status: null }}
         />
         {projects.map((project) => (
           <SelectProjectCommandItem key={project._id} project={project} />

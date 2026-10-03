@@ -4,6 +4,7 @@ import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '@/project/graphql/queries/get
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { GetMilestoneProgressQuery } from '~/gql/graphql';
 
 export const useCreateMilestone = () => {
   const { t } = useTranslation('operation');
@@ -31,6 +32,8 @@ export const useCreateMilestone = () => {
         });
       },
       update: (cache, { data }) => {
+        if (!data?.createMilestone) return;
+
         const newMilestone = {
           ...data.createMilestone,
           totalScope: 0,
@@ -38,19 +41,19 @@ export const useCreateMilestone = () => {
           totalCompletedScope: 0,
         };
 
-        const existingData = cache.readQuery<{ milestoneProgress: any[] }>({
+        const existingData = cache.readQuery<GetMilestoneProgressQuery>({
           query: GET_PROJECT_PROGRESS_BY_MILESTONE,
-          variables: { projectId: data?.createMilestone?.projectId },
+          variables: { projectId: data.createMilestone.projectId },
         });
         if (!existingData) return;
 
         cache.writeQuery({
           query: GET_PROJECT_PROGRESS_BY_MILESTONE,
-          variables: { projectId: data?.createMilestone?.projectId },
+          variables: { projectId: data.createMilestone.projectId },
           data: {
             milestoneProgress: [
               newMilestone,
-              ...existingData.milestoneProgress,
+              ...(existingData.milestoneProgress ?? []),
             ],
           },
         });

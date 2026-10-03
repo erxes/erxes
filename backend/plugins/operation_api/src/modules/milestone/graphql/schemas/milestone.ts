@@ -2,11 +2,11 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type Milestone {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
     description: String
     targetDate: Date
-    projectId: String
+    projectId: String!
   }
 
   type MilestoneListResponse {
