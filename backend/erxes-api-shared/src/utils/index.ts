@@ -11,6 +11,7 @@ export * from './random';
 export * from './redis';
 export * from './saas';
 export * from './sanitize';
+export * from './security';
 export * from './service-discovery';
 export * from './start-plugin';
 export * from './trpc';
