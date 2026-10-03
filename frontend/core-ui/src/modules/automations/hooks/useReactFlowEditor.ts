@@ -225,7 +225,7 @@ export const useReactFlowEditor = () => {
       setCanvasOver(true);
 
       if (dragOverTimeoutRef.current) {
-        window.clearTimeout(dragOverTimeoutRef.current);
+        globalThis.clearTimeout(dragOverTimeoutRef.current);
       }
 
       dragOverTimeoutRef.current = window.setTimeout(() => {
@@ -243,7 +243,7 @@ export const useReactFlowEditor = () => {
       event.stopPropagation();
 
       if (dragOverTimeoutRef.current) {
-        window.clearTimeout(dragOverTimeoutRef.current);
+        globalThis.clearTimeout(dragOverTimeoutRef.current);
       }
 
       const draggingNode = JSON.parse(
@@ -309,7 +309,7 @@ export const useReactFlowEditor = () => {
         setQueryParams({ activeNodeId: newNodeId });
       }
 
-      if (nodes.find((node) => node.type === 'scratch')) {
+      if (nodes.some((node) => node.type === 'scratch')) {
         setNodes((nodes) => nodes.filter((node) => node.type !== 'scratch'));
       }
       if (awaitingToConnectNodeId) {
@@ -332,7 +332,7 @@ export const useReactFlowEditor = () => {
   useEffect(() => {
     return () => {
       if (dragOverTimeoutRef.current) {
-        window.clearTimeout(dragOverTimeoutRef.current);
+        globalThis.clearTimeout(dragOverTimeoutRef.current);
       }
       if (dragCursorFrameRef.current) {
         window.cancelAnimationFrame(dragCursorFrameRef.current);
