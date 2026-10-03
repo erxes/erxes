@@ -1,21 +1,21 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_GITHUB_CONFIG_BY_TEAM } from '../graphql/queries/githubConfigQueries';
 import { GET_GITHUB_REPOSITORIES } from '../graphql/queries/githubConnectionQueries';
+import { compactList } from '@/operation/utils/cursorList';
 import {
   DISCONNECT_GITHUB_TEAM,
   UPSERT_GITHUB_CONFIG,
 } from '../graphql/mutations/githubConfigMutations';
-import { IGithubConfig, IGithubRepository } from '../types';
 
 export function useGithubConfigByTeam(teamId: string) {
-  const { data, loading, error, refetch } = useQuery<{
-    getGithubConfigByTeam: IGithubConfig | null;
-    getAllGithubConfigs: IGithubConfig[];
-  }>(GET_GITHUB_CONFIG_BY_TEAM, {
-    variables: { teamId },
-    fetchPolicy: 'network-only',
-    skip: !teamId,
-  });
+  const { data, loading, error, refetch } = useQuery(
+    GET_GITHUB_CONFIG_BY_TEAM,
+    {
+      variables: { teamId },
+      fetchPolicy: 'network-only',
+      skip: !teamId,
+    },
+  );
 
   return {
     config: data?.getGithubConfigByTeam,
@@ -26,15 +26,20 @@ export function useGithubConfigByTeam(teamId: string) {
   };
 }
 
-export function useGithubRepositories(installationId?: number, skip?: boolean) {
-  const { data, loading, error } = useQuery<{
-    getGithubRepositories: IGithubRepository[];
-  }>(GET_GITHUB_REPOSITORIES, {
-    variables: { installationId },
+export function useGithubRepositories(
+  installationId: number | undefined,
+  skip?: boolean,
+) {
+  const { data, loading, error } = useQuery(GET_GITHUB_REPOSITORIES, {
+    variables: installationId != null ? { installationId } : undefined,
     skip: skip || !installationId,
   });
 
-  return { data: data?.getGithubRepositories || [], loading, error };
+  return {
+    data: compactList(data?.getGithubRepositories),
+    loading,
+    error,
+  };
 }
 
 export function useUpsertGithubConfig(

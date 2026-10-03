@@ -1,3 +1,4 @@
+import { isRecord } from '@/operation/utils/isRecord';
 import { useTranslation } from 'react-i18next';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { useGetProject } from '@/project/hooks/useGetProject';
@@ -119,10 +120,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   };
 
   const onTemplateSelect = async (template: IOperationTemplate) => {
-    if (template.defaults) {
-      if (template.defaults.description) {
+    if (isRecord(template.defaults)) {
+      const defaults = template.defaults;
+      if (typeof defaults.description === 'string') {
         try {
-          const content = JSON.parse(template.defaults.description);
+          const content = JSON.parse(defaults.description);
           editor.replaceBlocks(editor.document, content);
           setDescriptionContent(content);
         } catch (e) {
@@ -130,13 +132,9 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
         }
       }
 
-      const ALLOWED_FIELDS = ['name'];
-
-      Object.keys(template.defaults).forEach((key) => {
-        if (ALLOWED_FIELDS.includes(key)) {
-          form.setValue(key as any, template.defaults[key]);
-        }
-      });
+      if (typeof defaults.name === 'string') {
+        form.setValue('name', defaults.name);
+      }
     }
   };
 
