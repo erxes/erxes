@@ -43,6 +43,7 @@ export interface ITicketPipelineDocument extends ITicketPipeline, Document {
 
 export interface TicketsPipelineFilter
   extends ICursorPaginateParams, IListParams, ITicketPipeline {
+  channelIds?: string[];
   userId?: string;
   createdAt?: Date;
   applyVisibilityFilter?: boolean;
