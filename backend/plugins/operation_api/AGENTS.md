@@ -165,6 +165,15 @@ propertiesData? } })`
   and `getConvertedProject` throw on a missing id for this reason;
   `getTeamMembers` requires `teamId` or `teamIds` and never runs an empty
   `$match`.
+- Every query or mutation declared in the SDL must have a resolver, and every
+  resolver must be declared. Template operations carry no dedicated
+  permission, so they reuse the `task*` actions they configure.
+- `teamUpdate(memberIds)` syncs `TeamMember` rows to the given list and
+  additionally requires `teamMemberManage`; omitting it leaves membership
+  untouched. Member roles are deprecated end to end, so `teamUpdateMember`
+  is gone from the SDL and the resolvers.
+- `Cycle.endCycle(_id, subdomain)` needs the tenant to resolve the timezone
+  for the progress chart; the worker and the mutation both pass it.
 
 ## Validation
 
@@ -183,6 +192,19 @@ propertiesData? } })`
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Resolver contracts and template permissions
+
+- **Summary:** `operationCancelTriage` now sets the triage status to cancelled,
+  dead `getMyTeams` and deprecated `teamUpdateMember` are gone, `teamUpdate`
+  syncs members when `memberIds` is sent, `createProject` persists `icon`,
+  `updateStatus` returns the updated document, `moveCycle` no longer rolls
+  over cancelled tasks, and every template operation checks a permission.
+- **Affected areas:** triage/team/project mutations and queries, cycle model
+  and worker, template resolvers, task filter handling.
+- **Contracts changed:** `ITaskFilter.estimate` and `teamUpdateMember`
+  removed (never read, no callers); `teamUpdate` honors `memberIds` with
+  `teamMemberManage`.
 
 ### `2026-09-29` — Required ids and filters
 

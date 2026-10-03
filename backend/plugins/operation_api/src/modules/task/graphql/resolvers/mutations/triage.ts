@@ -35,6 +35,21 @@ export const triageMutations = {
     return models.Triage.updateTriage(_id, input);
   },
 
+  operationCancelTriage: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('triageUpdate');
+
+    const triage = await models.Triage.getTriage(_id);
+    if (!triage) {
+      throw new Error('Triage not found');
+    }
+
+    return models.Triage.updateTriage(_id, { status: STATUS_TYPES.CANCELLED });
+  },
+
   operationConvertTriageToTask: async (
     _parent: undefined,
     { _id, status, reason }: { _id: string; status?: number; reason?: string },

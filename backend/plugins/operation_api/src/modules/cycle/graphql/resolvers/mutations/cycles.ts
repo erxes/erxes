@@ -39,10 +39,10 @@ export const cycleMutations = {
   endCycle: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('cycleEnd');
 
-    return models.Cycle.endCycle(_id);
+    return models.Cycle.endCycle(_id, subdomain);
   },
 };

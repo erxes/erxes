@@ -7,7 +7,8 @@ import {
   getCyclesProgress,
 } from '@/cycle/utils';
 import { format, isBefore, isSameDay } from 'date-fns';
-import { FilterQuery, Model } from 'mongoose';
+import { DeleteResult } from 'mongodb';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface ICycleModel extends Model<ICycleDocument> {
@@ -15,9 +16,16 @@ export interface ICycleModel extends Model<ICycleDocument> {
   getCycles(filter: FilterQuery<ICycleDocument>): Promise<ICycleDocument[]>;
   createCycle({ doc }: { doc: ICycle }): Promise<ICycleDocument>;
   updateCycle(doc: Partial<ICycle> & { _id: string }): Promise<ICycleDocument>;
-  removeCycle({ _id }: { _id: string }): Promise<{ ok: number }>;
-  startCycle(_id: string): Promise<ICycleDocument>;
-  endCycle(_id: string): Promise<ICycleDocument>;
+  removeCycle({ _id }: { _id: string }): Promise<DeleteResult>;
+  startCycle(_id: string): Promise<void>;
+  endCycle(
+    _id: string,
+    subdomain: string,
+  ): Promise<{
+    endedCycle: ICycleDocument | null;
+    nextCycle: ICycleDocument | null;
+    unFinishedTasks: Types.ObjectId[];
+  }>;
 }
 
 export const loadCycleClass = (models: IModels) => {
