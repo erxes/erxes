@@ -24,9 +24,11 @@ export const UserMoreInfoForm = ({
   const { toast } = useToast();
   const form = useForm<UserMoreInfoFormData>({
     resolver: zodResolver(formSchema),
+    // Prefill details already imported from global profile
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      firstName: currentUser?.details?.firstName || '',
+      lastName: currentUser?.details?.lastName || '',
+      avatar: currentUser?.details?.avatar || undefined,
     },
   });
 
