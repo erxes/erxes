@@ -24,7 +24,7 @@ describe('Erkhet product reference migration', () => {
     expect(
       buildErkhetProductDocForTest({
         product: {
-          code: ' INV 001 ',
+          code: ' INV_*001 ',
           name: 'Deleted inventory',
           status: 'deleted',
           vendor: 'Vendor company',

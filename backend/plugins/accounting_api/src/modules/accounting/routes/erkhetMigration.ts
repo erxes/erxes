@@ -139,7 +139,7 @@ const normalizeSourceCode = (value?: string) =>
   typeof value === 'string' ? value.trim() : value || '';
 
 const normalizeIdentifierCode = (value?: string) =>
-  normalizeSourceCode(value).replace(/\s+/g, '');
+  normalizeSourceCode(value).replace(/[\s*_]+/g, '');
 
 const uniq = (values: string[]) => [
   ...new Set(values.map((value) => normalizeSourceCode(value)).filter(Boolean)),
