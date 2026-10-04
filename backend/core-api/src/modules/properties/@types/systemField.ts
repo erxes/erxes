@@ -21,8 +21,7 @@ export interface ISystemFieldSetting extends Partial<ISystemFieldConfig> {
 }
 
 export interface ISystemFieldSettingDocument
-  extends ISystemFieldSetting,
-    Document {
+  extends ISystemFieldSetting, Document {
   _id: string;
 
   updatedBy?: string;
@@ -36,8 +35,7 @@ export interface ISystemFieldLayout {
 }
 
 export interface ISystemFieldLayoutDocument
-  extends ISystemFieldLayout,
-    Document {
+  extends ISystemFieldLayout, Document {
   _id: string;
   updatedBy?: string;
 }
