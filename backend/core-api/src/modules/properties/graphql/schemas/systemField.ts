@@ -7,6 +7,10 @@ export const types = `
     isVisibleToCreate: Boolean!
     isRequired: Boolean!
     logics: JSON
+    requiredGroup: String
+    alwaysFilled: Boolean
+    notOnCreate: Boolean
+    outsideLayout: Boolean
   }
 
   input PropertySystemFieldLogicInput {
@@ -19,9 +23,14 @@ export const types = `
 
 export const queries = `
   propertySystemFields(contentType: String!): [PropertySystemField!]!
+  propertySystemFieldsLayout(contentType: String!): [[String!]!]
 `;
 
 export const mutations = `
+  propertySystemFieldsLayoutSave(
+    contentType: String!
+    layout: [[String!]!]
+  ): [[String!]!]!
   propertySystemFieldEdit(
     contentType: String!
     code: String!

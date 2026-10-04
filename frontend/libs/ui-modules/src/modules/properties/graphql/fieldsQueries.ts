@@ -54,6 +54,7 @@ export const FIELDS_QUERY = gql`
         options {
           label
           value
+          deprecated
         }
       }
       totalCount
@@ -74,6 +75,7 @@ export const FIELD_DETAILS_QUERY = gql`
       options {
         label
         value
+        deprecated
       }
       validations
       logics

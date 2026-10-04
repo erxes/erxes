@@ -61,6 +61,7 @@ export const PropertyGroupEditSheet = () => {
             }}
             onCancel={() => setActivePropertyGroup(null)}
             locked={!!activePropertyGroup.owner}
+            isEdit
           />
         )}
       </Sheet.View>

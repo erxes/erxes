@@ -1,4 +1,25 @@
+# Changelog
 
+## [3.2.12](https://github.com/erxes/erxes/compare/3.2.11...3.2.12) (2026-10-04)
+
+
+### Bug Fixes
+
+* **accounting:** movement journal with details branch, department ([0229b02](https://github.com/erxes/erxes/commit/0229b020eedc2f3d37cfc0a9824b72d1da31fee8))
+* **automations:** send Message Pro SMS for ticket triggers ([f1c3232](https://github.com/erxes/erxes/commit/f1c3232f1c46b34e7570b72b506259136b812c18))
+* deal to accounting movement ([6e9e96e](https://github.com/erxes/erxes/commit/6e9e96edf6df4ad2a51bb308f687df88667641cf))
+* **frontline:** add mail conversation workflow over structured metadata  ([040e7aa](https://github.com/erxes/erxes/commit/040e7aa94bc09644d4a311a1fb4646b80d145da7))
+* **frontline:** normalize Instagram conversation messages  ([6085588](https://github.com/erxes/erxes/commit/60855880f0e45ac5c013140cd60c9d53c03b45b9))
+* **posclient:** checkRemainders with showRemainders ([8a2a27c](https://github.com/erxes/erxes/commit/8a2a27c48aa5ff8b6b9ef2a38ea176b9e8f6ad6d))
+* preserve original creator when triage is converted to task and add acceptance activity ([#9503](https://github.com/erxes/erxes/issues/9503)) ([1f4383b](https://github.com/erxes/erxes/commit/1f4383b920d47e047f4cdb49839eb4f897539a80))
+
+
+### Features
+
+* add hasPassword field and update user credential forms for better user experience ([c46ac8d](https://github.com/erxes/erxes/commit/c46ac8dc10f11f48bc7765de7a5c4c58ab79ea0b))
+* **core-ui:** load plugins from outside the monorepo in dev ([#9520](https://github.com/erxes/erxes/issues/9520)) ([6b76ce8](https://github.com/erxes/erxes/commit/6b76ce8f1e71d5bd0396b16aa851b96a2454fcb1))
+* **properties:** safe property edits, archive/restore, usage checks and layouts ([#9548](https://github.com/erxes/erxes/issues/9548)) ([c92ada9](https://github.com/erxes/erxes/commit/c92ada9f1617af32b1424c65a0c152249b71d991))
+* refactor node components to use NodeFrame for consistent styling and structure ([efb6394](https://github.com/erxes/erxes/commit/efb639488777834bdc608cf22739bd53e1f12c9a))
 
 ## [3.2.11](https://github.com/erxes/erxes/compare/3.2.10...3.2.11) (2026-10-01)
 
@@ -15,7 +36,7 @@
 * **frontline:** selectable Ticket List report columns with matching Excel export ([66bec10](https://github.com/erxes/erxes/commit/66bec100f2e0f1f82a14aab8ce3bd7f9a048d639))
 * **loyalty:** make serviceName optional in score campaigns and update documentation ([9525ce4](https://github.com/erxes/erxes/commit/9525ce4f2e2cfa4474bec37d8d2dccd3aa102934))
 
-# Changelog
+
 
 ## [3.2.10](https://github.com/erxes/erxes/compare/3.2.9...3.2.10) (2026-10-01)
 

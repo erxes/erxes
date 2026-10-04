@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+// A code is derived from Latin letters and digits only, so a name without any leaves it empty.
+const hasCode = (data: { code: string }) => data.code.length > 0;
+
+const CODE_REQUIRED = {
+  path: ['code'],
+  message: 'Code is required when the name has no Latin letters or digits',
+};
+
 export const propertyGroupSchema = z
   .object({
     name: z.string().min(1, 'Group name is required'),
@@ -19,11 +27,13 @@ export const propertyGroupSchema = z
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/^_+|_+$/g, ''),
-  }));
+  }))
+  .refine(hasCode, CODE_REQUIRED);
 
 export const optionSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   value: z.string().min(1, 'Value is required'),
+  deprecated: z.boolean().nullable().optional(),
 });
 
 export const objectListConfigSchema = z.object({
@@ -121,7 +131,10 @@ export const propertySchema = z
             if (firstIndex !== index && value) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Value must be unique',
+                // Reusing an archived value would relabel the records holding it.
+                message: options[firstIndex].deprecated
+                  ? 'An archived option uses this value: restore it and rename its label instead'
+                  : 'Value must be unique',
                 path: [index, 'value'],
               });
             }
@@ -139,6 +152,7 @@ export const propertySchema = z
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/^_+|_+$/g, ''),
   }))
+  .refine(hasCode, CODE_REQUIRED)
   .refine(
     (data) =>
       data.type !== 'relation' ||

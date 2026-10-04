@@ -1,22 +1,21 @@
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType } from '@/automations/types';
-import { cn } from 'erxes-ui';
 import { memo } from 'react';
 import { IAutomationsActionFolkConfig } from 'ui-modules';
 
 const AUTOMATION_FOLK_VARIABLES = {
   default: {
-    className: '!bg-muted-foreground',
+    className: '!border-muted-foreground',
     addButtonClassName:
       'hover:text-muted-foreground hover:border-muted-foreground',
   },
   success: {
-    className: '!bg-success',
+    className: '!border-success',
     addButtonClassName: 'hover:text-success hover:border-success',
   },
   error: {
-    className: '!bg-destructive',
+    className: '!border-destructive',
     addButtonClassName: 'hover:text-destructive hover:border-destructive',
   },
 };
@@ -71,18 +70,8 @@ export const FolksActionSourceHandler = memo(
               showAddButton={!config[key]}
               nodeType={nodeType}
               flowDirection={flowDirection}
-            >
-              <div
-                className={cn(
-                  'text-xs text-muted-foreground absolute whitespace-nowrap',
-                  isVertical
-                    ? 'top-full mt-11 left-1/2 -translate-x-1/2'
-                    : 'left-full ml-14 top-1/2 -translate-y-1/2',
-                )}
-              >
-                {displayLabel}
-              </div>
-            </NodeOutputHandler>
+              label={displayLabel}
+            />
           );
         })}
       </>

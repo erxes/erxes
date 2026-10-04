@@ -60,7 +60,7 @@ export const CustomerAddSheet = () => {
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
-      <FocusSheet.View className="w-[50%] md:w-[50%] lg:w-[50%]">
+      <FocusSheet.View className="w-full lg:w-1/2">
         <FocusSheet.Header title={title} />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>

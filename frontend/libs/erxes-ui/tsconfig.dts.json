@@ -1,0 +1,30 @@
+{
+  "//": "Self-contained config for emitting consumer-facing type declarations (dist/). Runs during `prepare` for git-dependency consumers and before npm publish; not used by Nx builds inside the monorepo (those resolve src/ via tsconfig paths). Emit is intentionally tolerant: declaration files are emitted even if type errors are reported, because consumers compile against these declarations with skipLibCheck. prepare therefore succeeds iff dist/index.d.ts exists.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": false,
+    "skipLibCheck": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "erxes-ui": ["./src/index.ts"],
+      "erxes-ui/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "src/**/__stories__/**",
+    "src/**/*.stories.*",
+    "src/**/*.spec.*",
+    "src/**/*.test.*"
+  ]
+}
