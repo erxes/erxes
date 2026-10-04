@@ -28,6 +28,7 @@ import {
 } from '~/modules/inbox/db/definitions/constants';
 import { trackViewPageEvent } from '~/modules/inbox/events';
 import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
+import { withLiveTicketOptions } from '~/modules/ticket/utils/ticketConfig';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
@@ -544,18 +545,27 @@ export const widgetMutations: Record<string, Resolver> = {
         { $set: { isConnected: true } },
       );
     }
-    let ticketConfigs = [];
-    if (integration.ticketConfigIds && integration.ticketConfigIds.length > 0) {
-      ticketConfigs = await models.TicketConfig.find({
-        _id: { $in: integration.ticketConfigIds },
-      });
-    }
+    const configs = integration.ticketConfigIds?.length
+      ? await models.TicketConfig.find({
+          _id: { $in: integration.ticketConfigIds },
+        }).lean()
+      : [];
+
+    const ticketConfigs = await Promise.all(
+      configs.map(async (config) => ({
+        ...config,
+        propertyFields: await withLiveTicketOptions(
+          subdomain,
+          config.propertyFields,
+        ),
+      })),
+    );
 
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketConfigs: ticketConfigs || [],
+      ticketConfigs,
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer?._id,
       visitorId: customer ? null : visitorId,

@@ -21,11 +21,21 @@ export interface ISystemFieldSetting extends Partial<ISystemFieldConfig> {
 }
 
 export interface ISystemFieldSettingDocument
-  extends ISystemFieldSetting,
-    Document {
+  extends ISystemFieldSetting, Document {
   _id: string;
 
   updatedBy?: string;
 }
 
 export type IResolvedSystemField = IPropertySystemField & ISystemFieldConfig;
+
+export interface ISystemFieldLayout {
+  contentType: string;
+  layout: string[][];
+}
+
+export interface ISystemFieldLayoutDocument
+  extends ISystemFieldLayout, Document {
+  _id: string;
+  updatedBy?: string;
+}

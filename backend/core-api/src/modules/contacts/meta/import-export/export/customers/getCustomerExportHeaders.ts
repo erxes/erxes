@@ -30,7 +30,9 @@ export async function getCustomerExportHeaders(
   ];
 
   const customFields = models
-    ? await getCustomPropertyHeaders(models, 'core:customer')
+    ? await getCustomPropertyHeaders(models, 'core:customer', {
+        includeArchived: true,
+      })
     : [];
 
   return [...systemFields, ...customFields];

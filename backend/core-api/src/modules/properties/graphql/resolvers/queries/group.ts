@@ -11,10 +11,11 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilter = async (params: Partial<IFieldGroupParams>) => {
-  const { contentType, contentTypeId, codes } = params;
+  const { contentType, contentTypeId, codes, archived } = params;
 
   const filter: FilterQuery<IFieldGroup> = {
     contentType,
+    archivedAt: { $exists: !!archived },
   };
 
   if (contentTypeId) {

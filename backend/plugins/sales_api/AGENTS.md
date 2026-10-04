@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-03`
+- **Last synchronized:** `2026-10-04`
 
 ## Scope
 
@@ -137,6 +137,12 @@
   the read-only "Basic information" group in Settings → Properties. A
   `code` must name a real field on the record; core-api reads this meta
   once per process, so a changed list shows after core-api restarts.
+- `properties.valueUsage` on `/properties` — answers which deals hold a
+  `sales:deal` property value through the shared `measurePropertyValueUsage`:
+  `part: 'samples'` (first deal names) or `part: 'counts'` (total and
+  per-option counts). Core uses it to decide whether a property's type,
+  options or the property itself can change freely; any other content type
+  answers `unknownValueUsage(part)`.
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
 - Sales-owned tRPC and record-reference contracts.
@@ -175,6 +181,8 @@
   parent/order/id/status compound index.
 - Deal amount calculations must preserve existing `tickUsed` semantics.
 - Pipeline property ids must belong to Core `sales:deal` fields.
+- `properties.valueUsage` runs only the query core hands it (`path`,
+  `optionValues`); the path is core's to resolve, never rebuilt here.
 - Segment content types use the `plugin:module.record` form the event
   dispatcher emits - `sales:sales.deals` - so a segment type and the event that
   moves it are the same string. `eventTypes` is declared only when they differ,
