@@ -130,7 +130,9 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
     const filter = await generateFilter(models, subdomain, params);
 
     const fields: IFieldDocument[] = await defaultPaginate(
-      models.Fields.find(filter).sort({ [sortField]: sortDirection }).lean(),
+      models.Fields.find(filter)
+        .sort({ [sortField]: sortDirection })
+        .lean(),
       params,
     );
 

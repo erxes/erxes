@@ -52,7 +52,9 @@ export const PropertyFormValidation = ({
                     delete rest[name];
                   }
 
-                  field.onChange(next === NONE ? rest : { ...rest, [next]: true });
+                  field.onChange(
+                    next === NONE ? rest : { ...rest, [next]: true },
+                  );
                 }}
                 className="w-full"
               >

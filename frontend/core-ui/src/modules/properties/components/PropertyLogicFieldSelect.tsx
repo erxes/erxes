@@ -34,7 +34,9 @@ export const PropertyLogicFieldSelect = ({
         {selected ? (
           <span className="truncate">{selected.name}</span>
         ) : (
-          <Combobox.Value placeholder={t('select-property', 'Select property')} />
+          <Combobox.Value
+            placeholder={t('select-property', 'Select property')}
+          />
         )}
       </Combobox.Trigger>
       <Combobox.Content>

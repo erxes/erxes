@@ -77,13 +77,13 @@ const PropertyUsageRecordList = ({
               count: usage.samples.length,
             })
           : counts.count > usage.samples.length
-          ? t('usage-records-first', 'First {{shown}} of {{total}} records', {
-              shown: usage.samples.length,
-              total: formatUsageTotal(counts),
-            })
-          : t('usage-records', '{{count}} records hold a value', {
-              count: counts.count,
-            })}
+            ? t('usage-records-first', 'First {{shown}} of {{total}} records', {
+                shown: usage.samples.length,
+                total: formatUsageTotal(counts),
+              })
+            : t('usage-records', '{{count}} records hold a value', {
+                count: counts.count,
+              })}
       </p>
       <div className="flex max-h-64 flex-col overflow-y-auto p-1">
         {usage.samples.map((record) =>

@@ -57,8 +57,8 @@ const SystemFieldToggleCell = ({
         'At least one of first name, e-mail or phone is required',
       )
     : createLocked
-    ? t('not-on-create-hint', 'Set after the record is created')
-    : undefined;
+      ? t('not-on-create-hint', 'Set after the record is created')
+      : undefined;
 
   return (
     <RecordTableInlineCell>

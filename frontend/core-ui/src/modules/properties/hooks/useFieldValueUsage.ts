@@ -48,8 +48,8 @@ export const useFieldValueUsage = (fieldId?: string, value?: string) => {
     // null until counted, or when the tally gave up.
     optionCount: (optionValue: string) =>
       counts?.byOption
-        ? counts.byOption.find((option) => option.value === optionValue)
-            ?.count ?? 0
+        ? (counts.byOption.find((option) => option.value === optionValue)
+            ?.count ?? 0)
         : null,
   };
 };

@@ -22,29 +22,29 @@ export const PropertyArchiveDialog = ({
   const description = checking
     ? t('remove-checking', 'Checking whether anything uses it…')
     : target?.archived && !removable
-    ? t(
-        'remove-archived-in-use',
-        'Records still hold values or rules depend on it, so it stays in Archived.',
-      )
-    : removable
-    ? t(
-        'remove-unused',
-        'Nothing uses it and no record holds a value, so it can be deleted.',
-      )
-    : usage?.hasValues
-    ? t(
-        'remove-has-values',
-        'Records hold values, so it can only be archived — the values stay and it can be restored any time.',
-      )
-    : usage?.hasValues === null
-    ? t(
-        'remove-unknown',
-        'Could not confirm that no record holds a value, so it can only be archived.',
-      )
-    : t(
-        'remove-has-dependents',
-        'Other rules depend on it, so it can only be archived.',
-      );
+      ? t(
+          'remove-archived-in-use',
+          'Records still hold values or rules depend on it, so it stays in Archived.',
+        )
+      : removable
+        ? t(
+            'remove-unused',
+            'Nothing uses it and no record holds a value, so it can be deleted.',
+          )
+        : usage?.hasValues
+          ? t(
+              'remove-has-values',
+              'Records hold values, so it can only be archived — the values stay and it can be restored any time.',
+            )
+          : usage?.hasValues === null
+            ? t(
+                'remove-unknown',
+                'Could not confirm that no record holds a value, so it can only be archived.',
+              )
+            : t(
+                'remove-has-dependents',
+                'Other rules depend on it, so it can only be archived.',
+              );
 
   return (
     <AlertDialog open={!!target} onOpenChange={(open) => !open && close()}>
@@ -54,10 +54,12 @@ export const PropertyArchiveDialog = ({
             {target?.archived
               ? t('delete-title', 'Delete {{label}}?', { label: target.label })
               : checking || removable
-              ? t('remove-title', 'Remove {{label}}?', { label: target?.label })
-              : t('archive-title', 'Archive {{label}}?', {
-                  label: target?.label,
-                })}
+                ? t('remove-title', 'Remove {{label}}?', {
+                    label: target?.label,
+                  })
+                : t('archive-title', 'Archive {{label}}?', {
+                    label: target?.label,
+                  })}
           </AlertDialog.Title>
           <AlertDialog.Description className="flex items-center gap-2">
             {checking && <Spinner size="sm" containerClassName="w-auto" />}

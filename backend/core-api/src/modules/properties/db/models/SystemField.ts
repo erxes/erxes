@@ -15,8 +15,7 @@ import {
 } from '~/modules/properties/@types';
 import { systemFieldSettingSchema } from '~/modules/properties/db/definitions/systemField';
 
-export interface ISystemFieldSettingModel
-  extends Model<ISystemFieldSettingDocument> {
+export interface ISystemFieldSettingModel extends Model<ISystemFieldSettingDocument> {
   getSystemFields(contentType: string): Promise<IResolvedSystemField[]>;
   getSystemFieldsLayout(contentType: string): Promise<string[][] | null>;
   saveSystemFieldsLayout(
@@ -60,12 +59,12 @@ const toConfig = (
   isVisible: setting?.isVisible ?? !field.hiddenByDefault,
   isVisibleToCreate: field.notOnCreate
     ? false
-    : setting?.isVisibleToCreate ?? !!field.visibleToCreateByDefault,
+    : (setting?.isVisibleToCreate ?? !!field.visibleToCreateByDefault),
   // A group or an always-filled field is never required on its own.
   isRequired:
     field.requiredGroup || field.alwaysFilled
       ? false
-      : setting?.isRequired ?? false,
+      : (setting?.isRequired ?? false),
   logics: setting?.logics ?? [],
 });
 
