@@ -333,7 +333,12 @@ const syncProductCategories = async ({
   categories: TErkhetProductCategory[];
 }) => {
   const rows: TReferenceRow[] = [];
-  const codes = uniq(categories.map((category) => category.code || ''));
+  const codes = uniq(
+    categories.reduce<string[]>((result, category) => {
+      result.push(category.code || '', category.parentCode || '');
+      return result;
+    }, []),
+  );
   // Эцэг category-г code-р нь зааж ирүүлдэг тул эхлээд batch дотор байгаа
   // болон өмнө sync хийгдсэн category-уудыг нэг map-д цуглуулна.
   const categoryIdsByCode = await fetchCoreCodeMap({
