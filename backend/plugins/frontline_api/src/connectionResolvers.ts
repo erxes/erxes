@@ -144,7 +144,6 @@ import {
 } from '@/integrations/discord/db/models/ConversationMessages';
 
 //Telegram imports
-
 import { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
 import {
   ITelegramBotModel,
@@ -160,6 +159,11 @@ import {
   ITelegramConversationModel,
   loadTelegramConversationClass,
 } from '@/integrations/telegram/db/models/Conversations';
+import { ITelegramConversationMessageDocument } from '@/integrations/telegram/@types/conversationMessages';
+import {
+  ITelegramConversationMessageModel,
+  loadTelegramConversationMessageClass,
+} from '@/integrations/telegram/db/models/ConversationMessages';
 
 //Callpro imports
 
@@ -418,6 +422,8 @@ export interface IModels {
   TelegramBots: ITelegramBotModel;
   TelegramCustomers: ITelegramCustomerModel;
   TelegramConversations: ITelegramConversationModel;
+  TelegramConversationMessages: ITelegramConversationMessageModel;
+
   // ticket
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
@@ -704,6 +710,14 @@ export const loadClasses = (
     ITelegramConversationDocument,
     ITelegramConversationModel
   >('conversations_telegram', loadTelegramConversationClass(models));
+
+  models.TelegramConversationMessages = db.model<
+    ITelegramConversationMessageDocument,
+    ITelegramConversationMessageModel
+  >(
+    'conversation_messages_telegram',
+    loadTelegramConversationMessageClass(models),
+  );
 
   models.CallProIntegrations = db.model<
     ICallProIntegrationDocument,

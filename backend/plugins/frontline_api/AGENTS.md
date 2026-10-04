@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-03`
+- **Last synchronized:** `2026-10-04`
 
 ## Scope
 
@@ -24,7 +24,8 @@
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
 - Telegram bot credential validation, provider webhook status reads, and
-  tenant-scoped bot records, customer identity mappings, and conversation mappings.
+  tenant-scoped bot records, customer identity mappings, conversation mappings,
+  and message mappings.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -166,6 +167,11 @@
   `getConversation(selector)` method returns the matching conversation mapping
   or throws `Telegram conversation not found`. Conversation identity combines
   the integration, chat, and topic; no incoming-message handler uses it yet.
+- Registers `TelegramConversationMessages` on the tenant's database connection.
+  Its `getMessage(selector)` method returns the matching message mapping or
+  throws `Telegram conversation message not found`. A unique compound index
+  rejects duplicate integration, chat, and message identities. No receiver or
+  reply handler writes these records yet.
 - Saved Telegram bot metadata includes optional `erxesApiId`, the linked
   Frontline integration ID. It is nullable in GraphQL; unconnected bots omit it
   in storage.
@@ -259,6 +265,7 @@
 | Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison, internal creation adapter |
 | Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
 | Telegram conversations | `src/modules/integrations/telegram/@types/conversations.ts`, `src/modules/integrations/telegram/db/` | Conversation mapping interface, schema, and model loader |
+| Telegram messages | `src/modules/integrations/telegram/@types/conversationMessages.ts`, `src/modules/integrations/telegram/db/` | Message mapping interface, schema, and model loader |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -372,6 +379,15 @@
   a nonnegative safe integer. Records also hold the chat type, optional title,
   required `timestamp`, content defaulting to an empty string, and optional
   `erxesApiId` linking to a Frontline inbox conversation.
+- `src/modules/integrations/telegram/@types/conversationMessages.ts`,
+  `src/modules/integrations/telegram/db/definitions/conversationMessages.ts`,
+  and `src/modules/integrations/telegram/db/models/ConversationMessages.ts`
+  define the message mapping and `loadTelegramConversationMessageClass(models)`.
+  `src/connectionResolvers.ts` registers `TelegramConversationMessages` as
+  `conversation_messages_telegram`. Records require string `integrationId`,
+  `chatId`, `messageId`, and `conversationId`, plus `createdAt`. Content defaults
+  to an empty string. Optional fields hold the inbox message link, edit time,
+  Core customer ID, staff user ID, and attachments using the shared schema.
 - `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
   sorted by descending `createdAt`, retaining the default credential projection.
 - `attachIntegration` checks the destination through `models.Integrations`,
@@ -457,6 +473,13 @@
   parameters. Conversation `erxesApiId` refers to the Frontline inbox
   conversation and may be absent until linked. Metadata storage does not imply
   that webhook delivery or group/topic handling is implemented.
+- Identify a Telegram message mapping by `integrationId`, `chatId`, and
+  `messageId` together within the supplied tenant. Its `conversationId` refers
+  to the local Telegram conversation mapping; its optional `erxesApiId` refers
+  to the Frontline inbox message. `customerId` is a Core customer ID and
+  `userId` is an erxes staff user ID. The unique index prevents duplicate local
+  mappings; it does not make later writes to inbox records atomic or implement
+  webhook retry handling.
 - Callers of `TelegramBots.createBot` must enforce permissions and supply
   `createdBy` from the authenticated user. Derive bot identity and capabilities
   from `getMe`; reject duplicate identities without replacing saved credentials.
@@ -471,6 +494,11 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram message model checks: verify saved defaults, required fields,
+  shared attachment validation, optional inbox/customer/staff links, and
+  `getMessage` lookups and missing-record errors. Reject duplicate identities,
+  including concurrent inserts and attempts under another local conversation;
+  allow different chats, integrations, messages, and tenant databases.
 - Telegram conversation model checks: verify lookups, missing-record errors,
   optional inbox links, required fields, and content/topic defaults. Reject
   negative, fractional, unsafe, or null thread IDs. Duplicate compound
@@ -553,6 +581,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-04` — Telegram message mapping model
+
+- **Summary:** Added tenant-scoped message mappings with typed lookup and unique integration, chat, and message identity.
+- **Affected areas:** `src/modules/integrations/telegram/@types/conversationMessages.ts`, `src/modules/integrations/telegram/db/`, `src/connectionResolvers.ts`.
+- **Contracts changed:** Added internal `TelegramConversationMessages.getMessage(selector)` and the `conversation_messages_telegram` model; public APIs and webhook routing are unchanged.
+
 ### `2026-10-03` — Telegram conversation mapping model
 
 - **Summary:** Added tenant-scoped conversation mappings with typed lookup and unique integration, chat, and topic identity.
@@ -606,9 +640,3 @@
 - **Summary:** Added tenant-scoped verification of a received secret against a saved bot without returning credentials or changing its record.
 - **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
 - **Contracts changed:** Added internal `ITelegramBotModel.verifyWebhookSecret(_id, receivedSecret?): Promise<boolean>`; public APIs unchanged.
-
-### `2026-09-29` — Telegram webhook secret comparison
-
-- **Summary:** Added a provider-local helper for exact webhook secret comparison with empty-value and byte-length guards.
-- **Affected areas:** `src/modules/integrations/telegram/utils/webhookAuth.ts`.
-- **Contracts changed:** Added internal `verifyTelegramWebhookSecret(expectedSecret, receivedSecret?)`; public APIs unchanged.
