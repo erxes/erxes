@@ -30,7 +30,7 @@ export const fieldMutations = {
     return await models.Fields.removeField(_id);
   },
   fieldsRemove: async (
-    _root: any,
+    _root: undefined,
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
   ) => {
@@ -41,7 +41,7 @@ export const fieldMutations = {
     return { removed: _ids.length };
   },
   fieldsArchive: async (
-    _root: any,
+    _root: undefined,
     { _ids }: { _ids: string[] },
     { models, user, checkPermission }: IContext,
   ) => {
@@ -52,7 +52,7 @@ export const fieldMutations = {
     return { archived: _ids.length };
   },
   fieldRestore: async (
-    _root: any,
+    _root: undefined,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {

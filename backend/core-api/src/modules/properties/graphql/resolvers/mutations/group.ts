@@ -40,7 +40,7 @@ export const groupMutations = {
     return await models.FieldsGroups.removeGroup(_id);
   },
   fieldGroupArchive: async (
-    _root: any,
+    _root: undefined,
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
@@ -49,7 +49,7 @@ export const groupMutations = {
     return await models.FieldsGroups.archiveGroup(_id, user);
   },
   fieldGroupRestore: async (
-    _root: any,
+    _root: undefined,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
