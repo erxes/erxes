@@ -163,6 +163,21 @@
 - Registers `TelegramCustomers` on the tenant's database connection. Its
   `getCustomer(selector)` method returns the matching customer mapping or throws
   `Telegram customer not found`. No incoming-message handler uses it yet.
+- The internal Telegram `createCoreCustomer` adapter forwards a validated
+  sender's first and last names and the linked integration ID through
+  `receiveInboxMessage` using the supplied subdomain. It returns a nonempty Core
+  customer ID and rejects bridge failures or malformed success data. It does
+  not look up or link Telegram customer mappings, and no receiver invokes it yet.
+- The internal `getOrCreateTelegramCustomer` helper inserts or reuses a local
+  mapping by the sender's string `userId`. It returns the mapping and whether
+  this invocation inserted it, preserves existing profile and Core-link fields,
+  and adopts a concurrent insert winner. It does not call Core or link records.
+- The internal Telegram `getOrCreateCustomer` coordinator returns a mapping
+  linked to a Core contact. It reuses an existing link, gives a competing
+  creator four bounded waits to finish, and attempts linking if the mapping
+  remains unlinked. A conditional write preserves a competing completed link;
+  failures propagate and leave existing mappings available for retry. No
+  incoming-message handler invokes the coordinator yet.
 - Registers `TelegramConversations` on the tenant's database connection. Its
   `getConversation(selector)` method returns the matching conversation mapping
   or throws `Telegram conversation not found`. Conversation identity combines
@@ -264,6 +279,7 @@
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
 | Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison, internal creation adapter |
 | Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
+| Telegram customer persistence | `src/modules/integrations/telegram/controller/store.ts` | Local identity insert/reuse, Core customer creation through the inbox bridge, and conditional linking with bounded waits |
 | Telegram conversations | `src/modules/integrations/telegram/@types/conversations.ts`, `src/modules/integrations/telegram/db/` | Conversation mapping interface, schema, and model loader |
 | Telegram messages | `src/modules/integrations/telegram/@types/conversationMessages.ts`, `src/modules/integrations/telegram/db/` | Message mapping interface, schema, and model loader |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
@@ -332,6 +348,10 @@
   syntax, limits requests to ten seconds, rejects redirects, and replaces raw
   transport and response errors with controlled messages. Each client validates
   its response with Zod; an empty webhook URL is a valid unconfigured state.
+- Telegram customer creation uses the Frontline-local `receiveInboxMessage`
+  action `get-create-update-customer`, which reaches Core through its published
+  customer procedures. The adapter passes the integration ID and sender names;
+  it does not supply an email or phone for matching existing Core customers.
 - `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
   `customers.createMessengerCustomer` / `updateMessengerCustomer`,
@@ -467,6 +487,23 @@
   its integrations. Customer mappings use the supplied tenant model container;
   their `erxesApiId` refers to a Core customer, while `integrationId` records the
   originating Frontline integration. The mapping does not own the Core record.
+- Local customer lookup uses `$setOnInsert` with the unique `userId` index;
+  repeated messages must not overwrite an existing profile, originating
+  integration, or Core link. `created` reports insertion by this invocation,
+  not whether a Core contact exists. Only a MongoDB duplicate-key error on
+  `userId` is handled as a concurrent insert; other database failures propagate.
+- `createCoreCustomer` requires an already-validated, present Telegram sender
+  and a linked Frontline integration ID. Forward the same request's subdomain
+  through the inbox bridge and validate its returned `_id` before using it.
+  This adapter creates a Core contact; it does not itself prevent repeated
+  calls from creating multiple contacts for the same Telegram sender.
+- `getOrCreateCustomer` must return only after observing a nonempty Core link.
+  Existing unlinked mappings are reread after 250, 500, 750, and 1000 ms before
+  attempting recovery. Write the link only while `erxesApiId` is null or absent,
+  and adopt a competing saved link when the conditional write loses. These
+  waits do not make Core creation idempotent: simultaneous recovery, slow Core
+  calls, or a failed link write can leave an extra Core contact. Do not claim
+  exactly-once contact creation or delete a mapping as generic error cleanup.
 - Identify a Telegram conversation from message metadata using the integration,
   chat, and topic together within the supplied tenant. Store an absent topic as
   `messageThreadId: 0`; keep this internal default separate from outbound API
@@ -494,6 +531,23 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram customer adapter checks: stub the inbox bridge, verify tenant and
+  profile forwarding, optional last names, a single call per invocation, and
+  a string ID result. Reject bridge errors and success data with a missing,
+  empty, or nonstring ID; propagate thrown failures without creating live contacts.
+- Telegram customer lookup checks: verify first insertion, repeat lookup,
+  preserved profile/integration/Core links, optional names, distinct senders,
+  tenant isolation, required fields, and exact string storage of large safe
+  provider IDs. Concurrent first messages must yield one mapping and one
+  `created: true`; only a duplicate on `userId` is recoverable. Stub the inbox
+  bridge to confirm lookup never calls Core; clean up isolated test databases.
+- Telegram customer linking checks: use isolated tenant databases and a stubbed
+  Core bridge to verify first linking, existing-link reuse across integrations,
+  concurrent first messages with a timely Core response, recovery of unlinked
+  and null-linked mappings, and adoption of a late competing link. Exercise
+  malformed Core data, transport errors, database failures, and missing rows;
+  assert that failures propagate and do not delete mappings. Verify the known
+  extra-contact risk during simultaneous recovery or after a failed link write.
 - Telegram message model checks: verify saved defaults, required fields,
   shared attachment validation, optional inbox/customer/staff links, and
   `getMessage` lookups and missing-record errors. Reject duplicate identities,
@@ -581,6 +635,24 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-04` — Telegram customer Core linking
+
+- **Summary:** Added customer lookup-and-link coordination with bounded waits, retryable unlinked mappings, and conditional link preservation.
+- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
+- **Contracts changed:** Added internal `getOrCreateCustomer(models, subdomain, integrationId, sender)`; no public API or webhook route invokes it yet.
+
+### `2026-10-04` — Telegram customer mapping lookup
+
+- **Summary:** Added atomic local customer insert/reuse with insertion ownership and handling for concurrent sender mappings.
+- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
+- **Contracts changed:** Added internal `getOrCreateTelegramCustomer(models, integrationId, sender)` returning `{ customer, created }`.
+
+### `2026-10-04` — Telegram Core customer adapter
+
+- **Summary:** Added a typed adapter that requests a Core customer through the existing inbox bridge and validates the returned ID.
+- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
+- **Contracts changed:** Added internal `createCoreCustomer(subdomain, integrationId, sender)`; no public API or webhook route invokes it yet.
+
 ### `2026-10-04` — Telegram message mapping model
 
 - **Summary:** Added tenant-scoped message mappings with typed lookup and unique integration, chat, and message identity.
@@ -622,21 +694,3 @@
 - **Summary:** Added optional integration metadata and conditional bot attachment that prevents conflicting connections within a tenant.
 - **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/`, `src/modules/integrations/telegram/graphql/schema/telegram.ts`.
 - **Contracts changed:** Added optional `ITelegramBot.erxesApiId`, nullable `TelegramBot.erxesApiId: String`, and internal `TelegramBots.attachIntegration(_id, integrationId)`; no public attachment operation is exposed yet.
-
-### `2026-09-29` — Telegram update validation and utilities
-
-- **Summary:** Added a typed update-envelope validator and grouped supporting utilities under `utils/`, preserving webhook secret verification behavior.
-- **Affected areas:** `src/modules/integrations/telegram/utils/`, `src/modules/integrations/telegram/db/models/Bots.ts`.
-- **Contracts changed:** Added internal `telegramUpdateSchema` and `TelegramUpdate`; moved the `verifyTelegramWebhookSecret` import to `utils/webhookAuth`; public APIs unchanged.
-
-### `2026-09-29` — Telegram webhook authentication middleware
-
-- **Summary:** Added tenant-aware HTTP authentication middleware that rejects invalid credentials and passes verified requests to the next handler.
-- **Affected areas:** `src/modules/integrations/telegram/middleware/authenticateWebhook.ts`.
-- **Contracts changed:** Added internal `authenticateTelegramWebhook(req, res, next): Promise<void>`; no HTTP route is mounted yet.
-
-### `2026-09-29` — Telegram saved-bot webhook verification
-
-- **Summary:** Added tenant-scoped verification of a received secret against a saved bot without returning credentials or changing its record.
-- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
-- **Contracts changed:** Added internal `ITelegramBotModel.verifyWebhookSecret(_id, receivedSecret?): Promise<boolean>`; public APIs unchanged.
