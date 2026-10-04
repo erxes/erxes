@@ -32,6 +32,9 @@
 
 ## Current Capabilities
 
+- POS configuration exposes `isShowRemainder` for remainder display separately
+  from `isCheckRemainder` and validation category exclusions.
+
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
   the target does not name one.

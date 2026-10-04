@@ -84,6 +84,7 @@ export interface IPos {
   kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   catProdMappings?: CatProdMapping[];
+  isShowRemainder?: boolean;
   isCheckRemainder?: boolean;
   checkExcludeCategoryIds?: string[];
   saveRemainder?: boolean;

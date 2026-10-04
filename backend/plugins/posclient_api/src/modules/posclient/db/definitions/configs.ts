@@ -118,6 +118,7 @@ export const configSchema = new Schema({
   }),
   permissionConfig: field({ type: Object, optional: true }),
   allowTypes: field({ type: [String], label: 'Allow Types' }),
+  isShowRemainder: field({ type: Boolean, optional: true }),
   isCheckRemainder: field({ type: Boolean, optional: true }),
   checkExcludeCategoryIds: field({ type: [String] }),
   saveRemainder: field({ type: Boolean, optional: true }),

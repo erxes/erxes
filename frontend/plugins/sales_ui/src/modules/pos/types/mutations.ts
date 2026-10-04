@@ -81,6 +81,7 @@ export interface PosData {
   deliveryConfig?: any;
   permissionConfig?: any;
   allowTypes?: string[];
+  isShowRemainder?: boolean;
   isCheckRemainder?: boolean;
   checkExcludeCategoryIds?: string[];
   saveRemainder?: boolean;
@@ -125,6 +126,7 @@ export interface AddPosDetailVariables {
   deliveryConfig?: any;
   permissionConfig?: any;
   allowTypes?: string[];
+  isShowRemainder?: boolean;
   isCheckRemainder?: boolean;
   checkExcludeCategoryIds?: string[];
   saveRemainder?: boolean;
