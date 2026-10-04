@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -202,6 +202,21 @@
   throws `Telegram conversation message not found`. A unique compound index
   rejects duplicate integration, chat, and message identities. No receiver or
   reply handler writes these records yet.
+- The internal `getOrCreateTelegramMessage` helper inserts or reuses a message
+  mapping by integration, chat, and provider message ID. It stores the local
+  conversation ID, Core customer ID, text, and source timestamp; existing
+  content and links remain unchanged. It reports local insertion ownership and
+  adopts a concurrent insert winner without creating an inbox message.
+- The internal `createInboxMessage` adapter forwards stored message content,
+  customer, timestamp, and attachments to the supplied inbox conversation via
+  `receiveInboxMessage`. It requests preview replacement and validates the
+  returned inbox message ID. It does not persist the link, coordinate retries,
+  or invoke Telegram; no receiver calls the adapter yet.
+- The internal `getOrCreateMessage` coordinator requires a linked customer and
+  conversation, reuses completed message links, and waits briefly before
+  recovering an unlinked mapping. It conditionally saves the created inbox
+  message ID and adopts a competing completed link. Failures propagate while
+  preserving mappings for retry; no receiver invokes the coordinator yet.
 - Saved Telegram bot metadata includes optional `erxesApiId`, the linked
   Frontline integration ID. It is nullable in GraphQL; unconnected bots omit it
   in storage.
@@ -294,7 +309,7 @@
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
 | Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison, internal creation adapter |
 | Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
-| Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Local customer and conversation insert/reuse, Core customer and inbox conversation creation through the bridge, and conditional customer/conversation linking with bounded waits |
+| Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Local customer, conversation, and message insert/reuse; Core customer and inbox conversation/message creation through the bridge; conditional linking with bounded waits |
 | Telegram conversations | `src/modules/integrations/telegram/@types/conversations.ts`, `src/modules/integrations/telegram/db/` | Conversation mapping interface, schema, and model loader |
 | Telegram messages | `src/modules/integrations/telegram/@types/conversationMessages.ts`, `src/modules/integrations/telegram/db/` | Message mapping interface, schema, and model loader |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
@@ -371,6 +386,10 @@
   `receiveInboxMessage` action `create-or-update-conversation` without an
   existing `conversationId`. The adapter supplies `createdAt` from the mapping's
   source timestamp; the inbox model uses it for both initial timestamps.
+- Telegram inbox message creation uses the Frontline-local `receiveInboxMessage`
+  action `create-conversation-message` with `metaInfo: 'replaceContent'`. This
+  action stores the inbox message, updates its conversation, and publishes the
+  existing inbox realtime events; the adapter returns its validated message ID.
 - `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
   `customers.createMessengerCustomer` / `updateMessengerCustomer`,
@@ -553,6 +572,25 @@
   `userId` is an erxes staff user ID. The unique index prevents duplicate local
   mappings; it does not make later writes to inbox records atomic or implement
   webhook retry handling.
+- `getOrCreateTelegramMessage` uses `$setOnInsert` and returns `{ message,
+  created }`. Preserve existing content, timestamps, customer/conversation IDs,
+  and inbox links during lookup. Recover only a MongoDB duplicate-key error
+  whose index pattern includes all three message identity fields; propagate
+  other write failures and failed rereads. A reused local message without an
+  inbox link must not be treated as successfully delivered.
+- `createInboxMessage` takes the Frontline inbox conversation ID separately
+  from the local message mapping. Do not forward the mapping's `conversationId`
+  as the inbox destination. Preserve stored content, Core customer ID, source
+  creation time, and attachments. The caller owns link persistence and retry
+  coordination; repeated creation calls can create additional inbox messages,
+  including when a bridge call fails after a partial write.
+- `getOrCreateMessage` requires nonempty customer and conversation links before
+  model access. It rereads existing unlinked mappings after 250, 500, 750, and
+  1000 ms before recovery, claims only null or absent message links, and returns
+  only after observing a saved inbox message ID. Do not delete mappings as
+  error cleanup. Bounded waits do not guarantee exactly-once inbox delivery:
+  slow creation, simultaneous recovery, partial bridge writes, or failed link
+  writes can create additional inbox messages even when one local link wins.
 - Callers of `TelegramBots.createBot` must enforce permissions and supply
   `createdBy` from the authenticated user. Derive bot identity and capabilities
   from `getMe`; reject duplicate identities without replacing saved credentials.
@@ -589,6 +627,26 @@
   `getMessage` lookups and missing-record errors. Reject duplicate identities,
   including concurrent inserts and attempts under another local conversation;
   allow different chats, integrations, messages, and tenant databases.
+- Telegram message lookup checks: verify initial field mapping, unchanged
+  records on repeat delivery, concurrent insertion ownership, and isolation
+  across chats, integrations, and tenant databases. Check signed safe chat
+  IDs and omitted text. Adopt only a duplicate on the expected compound index;
+  reject other indexes, incomplete index patterns, nonduplicate failures, and
+  missing winners. A failed reread must leave the insert available for retry.
+  Use isolated databases and confirm that lookup never calls the inbox bridge.
+- Telegram inbox message adapter checks: stub the bridge and verify exact
+  tenant, action, preview flag, supplied inbox conversation ID, and stored
+  message fields. Preserve empty text, omitted/empty attachments, and the local
+  mapping. Return only the validated message ID; reject structured or thrown
+  bridge failures and malformed success data without additional creation calls.
+  These checks must not create live inbox records or call Telegram.
+- Telegram message linking checks: use isolated tenant databases and a stubbed
+  inbox bridge. Reject missing prerequisite links before writes; verify first
+  linking, immediate reuse, concurrent first calls with a timely response,
+  null/absent-link recovery, final-wait completion, and late competing links.
+  Propagate bridge, response-validation, link-write, and missing-row failures
+  while retaining retryable mappings. Verify tenant isolation and reproduce
+  the extra-inbox-message risk during simultaneous recovery.
 - Telegram conversation model checks: verify lookups, missing-record errors,
   optional inbox links, required fields, and content/topic defaults. Reject
   negative, fractional, unsafe, or null thread IDs. Duplicate compound
@@ -691,6 +749,24 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-05` — Telegram message inbox linking
+
+- **Summary:** Added message lookup-and-link coordination with bounded waits, retryable unlinked mappings, and conditional link preservation.
+- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
+- **Contracts changed:** Added internal `getOrCreateMessage(models, subdomain, conversation, message, customer)`; no public API or webhook route invokes it yet.
+
+### `2026-10-04` — Telegram inbox message creation adapter
+
+- **Summary:** Added inbox message creation through the existing bridge, preserving stored message fields and validating the returned ID.
+- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
+- **Contracts changed:** Added internal `createInboxMessage(subdomain, inboxConversationId, message)`; link persistence and webhook routing remain separate.
+
+### `2026-10-04` — Telegram message mapping lookup
+
+- **Summary:** Added atomic message insert/reuse with insertion ownership and preservation of existing content and inbox links.
+- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
+- **Contracts changed:** Added internal `getOrCreateTelegramMessage(models, conversation, message, customerId)`; inbox delivery and webhook routing remain separate.
+
 ### `2026-10-04` — Telegram conversation inbox linking
 
 - **Summary:** Added conversation lookup-and-link coordination with bounded waits, retryable unlinked mappings, and conditional link preservation.
@@ -732,21 +808,3 @@
 - **Summary:** Added tenant-scoped message mappings with typed lookup and unique integration, chat, and message identity.
 - **Affected areas:** `src/modules/integrations/telegram/@types/conversationMessages.ts`, `src/modules/integrations/telegram/db/`, `src/connectionResolvers.ts`.
 - **Contracts changed:** Added internal `TelegramConversationMessages.getMessage(selector)` and the `conversation_messages_telegram` model; public APIs and webhook routing are unchanged.
-
-### `2026-10-03` — Telegram conversation mapping model
-
-- **Summary:** Added tenant-scoped conversation mappings with typed lookup and unique integration, chat, and topic identity.
-- **Affected areas:** `src/modules/integrations/telegram/@types/conversations.ts`, `src/modules/integrations/telegram/db/`, `src/connectionResolvers.ts`.
-- **Contracts changed:** Added internal `TelegramConversations.getConversation(selector)` and the `conversations_telegram` model; public APIs and webhook routing are unchanged.
-
-### `2026-10-02` — Telegram customer identity model
-
-- **Summary:** Added tenant-scoped customer mappings with unique Telegram user IDs and typed lookup through the registered model.
-- **Affected areas:** `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/`, `src/connectionResolvers.ts`.
-- **Contracts changed:** Added internal `TelegramCustomers.getCustomer(selector)` and the `customers_telegram` model; public APIs and webhook routing are unchanged.
-
-### `2026-10-02` — Telegram message payload validation
-
-- **Summary:** Added a typed validator for incoming message metadata while preserving optional and unvalidated provider fields.
-- **Affected areas:** `src/modules/integrations/telegram/utils/message.ts`.
-- **Contracts changed:** Added internal `telegramMessageSchema` and inferred `TelegramMessage`; public APIs and webhook routing are unchanged.

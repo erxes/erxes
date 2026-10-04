@@ -5,13 +5,15 @@ import { mongo } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { ITelegramCustomerDocument } from '@/integrations/telegram/@types/customers';
 import { ITelegramConversationDocument } from '@/integrations/telegram/@types/conversations';
+import { ITelegramConversationMessageDocument } from '@/integrations/telegram/@types/conversationMessages';
 
 const inboxEntityResponseSchema = z.object({
   _id: z.string().min(1),
 });
 
 const CUSTOMER_LINK_ATTEMPTS = 4;
-const CONVERSTAION_LINK_ATTEMPTS = 4;
+const CONVERSATION_LINK_ATTEMPTS = 4;
+const MESSAGE_LINK_ATTEMPTS = 4;
 
 export const createCoreCustomer = async (
   subdomain: string,
@@ -225,7 +227,7 @@ export const createInboxConversation = async (
   const inboxConversation = inboxEntityResponseSchema.safeParse(response.data);
 
   if (!inboxConversation.success) {
-    throw new Error('Inbox did not return a valid converstaion ID');
+    throw new Error('Inbox did not return a valid conversation ID');
   }
 
   return inboxConversation.data._id;
@@ -253,7 +255,7 @@ export const getOrCreateConversation = async (
   let conversation = result.conversation;
 
   if (!result.created) {
-    for (let attempt = 1; attempt <= CONVERSTAION_LINK_ATTEMPTS; attempt++) {
+    for (let attempt = 1; attempt <= CONVERSATION_LINK_ATTEMPTS; attempt++) {
       if (conversation.erxesApiId) {
         return conversation;
       }
@@ -300,4 +302,165 @@ export const getOrCreateConversation = async (
     );
   }
   return currentConversation;
+};
+
+export const getOrCreateTelegramMessage = async (
+  models: IModels,
+  conversation: ITelegramConversationDocument,
+  message: TelegramMessage,
+  customerId: string,
+): Promise<{
+  message: ITelegramConversationMessageDocument;
+  created: boolean;
+}> => {
+  const selector = {
+    integrationId: conversation.integrationId,
+    chatId: String(message.chat.id),
+    messageId: String(message.message_id),
+  };
+
+  let created = false;
+
+  try {
+    const result = await models.TelegramConversationMessages.updateOne(
+      selector,
+      {
+        $setOnInsert: {
+          ...selector,
+          conversationId: conversation._id,
+          customerId,
+          content: message.text ?? '',
+          createdAt: new Date(message.date * 1000),
+        },
+      },
+      {
+        upsert: true,
+        runValidators: true,
+        setDefaultsOnInsert: true,
+      },
+    );
+
+    created = result.upsertedCount === 1;
+  } catch (error: unknown) {
+    if (
+      !(
+        error instanceof mongo.MongoServerError &&
+        error.code === 11000 &&
+        error.keyPattern?.integrationId === 1 &&
+        error.keyPattern?.chatId === 1 &&
+        error.keyPattern?.messageId === 1
+      )
+    ) {
+      throw error;
+    }
+  }
+
+  return {
+    message: await models.TelegramConversationMessages.getMessage(selector),
+    created,
+  };
+};
+
+export const createInboxMessage = async (
+  subdomain: string,
+  inboxConversationId: string,
+  message: ITelegramConversationMessageDocument,
+): Promise<string> => {
+  const response = await receiveInboxMessage(subdomain, {
+    action: 'create-conversation-message',
+    metaInfo: 'replaceContent',
+    payload: JSON.stringify({
+      conversationId: inboxConversationId,
+      content: message.content,
+      customerId: message.customerId,
+      createdAt: message.createdAt,
+      attachments: message.attachments,
+    }),
+  });
+
+  if (response.status !== 'success') {
+    throw new Error(`Message creation failed: ${response.errorMessage}`);
+  }
+
+  const inboxMessage = inboxEntityResponseSchema.safeParse(response.data);
+
+  if (!inboxMessage.success) {
+    throw new Error('Inbox did not return a valid message ID');
+  }
+
+  return inboxMessage.data._id;
+};
+
+export const getOrCreateMessage = async (
+  models: IModels,
+  subdomain: string,
+  conversation: ITelegramConversationDocument,
+  message: TelegramMessage,
+  customer: ITelegramCustomerDocument,
+): Promise<ITelegramConversationMessageDocument> => {
+  const inboxConversationId = conversation.erxesApiId;
+  const customerId = customer.erxesApiId;
+
+  if (!inboxConversationId || !customerId) {
+    throw new Error(
+      'Customer and conversation must be linked before storing a Telegram message',
+    );
+  }
+
+  const result = await getOrCreateTelegramMessage(
+    models,
+    conversation,
+    message,
+    customerId,
+  );
+
+  let storedMessage = result.message;
+
+  if (!result.created) {
+    for (let attempt = 1; attempt <= MESSAGE_LINK_ATTEMPTS; attempt++) {
+      if (storedMessage.erxesApiId) {
+        return storedMessage;
+      }
+
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 250 * attempt);
+      });
+
+      storedMessage = await models.TelegramConversationMessages.getMessage({
+        _id: storedMessage._id,
+      });
+    }
+  }
+  if (storedMessage.erxesApiId) {
+    return storedMessage;
+  }
+
+  const erxesApiId = await createInboxMessage(
+    subdomain,
+    inboxConversationId,
+    storedMessage,
+  );
+
+  const linkedMessage =
+    await models.TelegramConversationMessages.findOneAndUpdate(
+      {
+        _id: storedMessage._id,
+        erxesApiId: null,
+      },
+      { $set: { erxesApiId } },
+      { new: true, runValidators: true },
+    );
+
+  if (linkedMessage) {
+    return linkedMessage;
+  }
+
+  const currentMessage = await models.TelegramConversationMessages.getMessage({
+    _id: storedMessage._id,
+  });
+
+  if (!currentMessage.erxesApiId) {
+    throw new Error('Telegram message could not be linked to an inbox message');
+  }
+  return currentMessage;
 };
