@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-02`
+- **Last synchronized:** `2026-10-04`
 
 ## Scope
 
@@ -61,6 +61,10 @@
 
 ## Current Capabilities
 
+- A messenger ticket form only offers live property options: the config keeps
+  the options it was saved with, and `widgetsMessengerConnect` re-reads them
+  from core (`withLiveTicketOptions`) so an option archived since stops
+  showing. Archived options are dropped when a config is saved, too.
 - A ticket raised from a help center tells the person who raised it what
   happens to it: a confirmation when it is created, a notification when the
   team posts a reply the portal can see, and one when the ticket moves to a
@@ -1063,6 +1067,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   typo here fails silently.
 
 ## Local Invariants
+
+- A ticket property option marked `deprecated` (archived) in core is never
+  sent to the widget; records that already hold it keep it.
 
 - Call Pro sends several webhooks per call, so `getOrCreateCustomer` in
   `src/modules/integrations/callpro/controller.ts` must never trust a

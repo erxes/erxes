@@ -32,6 +32,11 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
     user: IUserDocument,
   ): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<IFieldGroupDocument>;
+  archiveGroup(
+    _id: string,
+    user: IUserDocument,
+  ): Promise<IFieldGroupDocument | null>;
+  restoreGroup(_id: string): Promise<IFieldGroupDocument | null>;
   ensureFeaturedGroup(args: {
     owner: IFeaturedFieldOwner;
     contentType: string;
@@ -110,14 +115,58 @@ export const loadFieldGroupClass = (models: IModels) => {
         throw new Error(`Group is managed by ${group.owner.plugin}`);
       }
 
-      // Deleting fields that are associated with this group
       const fields = await models.Fields.find({ groupId: _id }).lean();
+      const ids = fields.map((field) => String(field._id));
 
-      for (const field of fields) {
-        await models.Fields.removeField(field._id.toString());
+      const usage = await models.Fields.getFieldUsage({
+        ids,
+        groupId: _id,
+        contentType: group.contentType,
+      });
+
+      if (!usage.removable) {
+        throw new Error('In use or could not be checked; archive it instead');
       }
 
+      await models.Fields.deleteMany({ _id: { $in: ids } });
+
       return models.FieldsGroups.findOneAndDelete({ _id });
+    }
+
+    // Its fields go with it; values stay on records.
+    public static async archiveGroup(_id: string, user: IUserDocument) {
+      const group = await models.FieldsGroups.getGroup({ _id });
+
+      if (group.owner) {
+        throw new Error(`Group is managed by ${group.owner.plugin}`);
+      }
+
+      const archivedAt = new Date();
+
+      await models.Fields.updateMany(
+        { groupId: _id, archivedAt: { $exists: false } },
+        { $set: { archivedAt, archivedBy: user._id, archivedWithGroup: true } },
+      );
+
+      return models.FieldsGroups.findOneAndUpdate(
+        { _id },
+        { $set: { archivedAt, archivedBy: user._id } },
+        { new: true },
+      );
+    }
+
+    // Fields archived on their own before the group stay archived.
+    public static async restoreGroup(_id: string) {
+      await models.Fields.updateMany(
+        { groupId: _id, archivedWithGroup: true },
+        { $unset: { archivedAt: '', archivedBy: '', archivedWithGroup: '' } },
+      );
+
+      return models.FieldsGroups.findOneAndUpdate(
+        { _id },
+        { $unset: { archivedAt: '', archivedBy: '' } },
+        { new: true },
+      );
     }
 
     public static async updateOrder(orders: IOrderInput[]) {

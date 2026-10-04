@@ -6,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { getPickableOptions } from '../propertyUtils';
+import { OptionLabel } from './OptionLabel';
 import { IField } from '../types/fieldsTypes';
 import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
@@ -16,6 +17,7 @@ export const FieldSelect = (props: SpecificFieldProps) => {
   const [currentValue, setCurrentValue] = useState<string>(
     typeof value === 'string' ? value : '',
   );
+  const selectedOption = field.options?.find((o) => o.value === currentValue);
 
   return (
     <PopoverScoped
@@ -27,7 +29,7 @@ export const FieldSelect = (props: SpecificFieldProps) => {
       <RecordTableInlineCell.Trigger
         className={cn(!inCell && 'shadow-xs rounded')}
       >
-        {field.options?.find((o) => o.value === currentValue)?.label}
+        {selectedOption && <OptionLabel option={selectedOption} />}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <FieldSelectContent
@@ -35,7 +37,9 @@ export const FieldSelect = (props: SpecificFieldProps) => {
           value={currentValue}
           onChange={(value) => {
             setCurrentValue(value as string);
-            value !== currentValue && handleChange(value);
+            if (value !== currentValue) {
+              handleChange(value);
+            }
             setIsOpen(false);
           }}
         />
@@ -68,7 +72,7 @@ export const FieldSelectContent = ({
             value={o.value as string}
             onSelect={() => onChange(o.value)}
           >
-            {o.label}
+            <OptionLabel option={o} />
             <Combobox.Check checked={value === o.value} />
           </Command.Item>
         ))}

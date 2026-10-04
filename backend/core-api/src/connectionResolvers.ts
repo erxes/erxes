@@ -606,7 +606,7 @@ export const loadClasses = (
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
     'properties_fields',
-    loadFieldClass(models),
+    loadFieldClass(models, subdomain),
   );
 
   models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(

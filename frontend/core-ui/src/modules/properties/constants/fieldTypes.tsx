@@ -50,5 +50,7 @@ export const TYPE_FAMILIES = [
   ['text', 'textarea'],
 ];
 
+export const OPTION_TYPES = ['select', 'multiSelect', 'radio', 'check'];
+
 export const getEditableTypes = (savedType: string) =>
   TYPE_FAMILIES.find((family) => family.includes(savedType)) ?? [savedType];

@@ -1033,14 +1033,17 @@ export const setProperty = async <TModels>({
         selector: baseSelector,
         modifier,
       });
+      const count = getUpdateResultCount(
+        updateResult,
+        getSelectorCountFallback(baseSelector),
+      );
+
       return buildSetPropertyResult({
         module,
         setPropertyTarget,
-        count: getUpdateResultCount(
-          updateResult,
-          getSelectorCountFallback(baseSelector),
-        ),
-        changes,
+        count,
+        // Nothing matched, so nothing was set; "updated" would hide a lost target.
+        changes: count ? changes : markChangesStatus(changes, 'skipped'),
       });
     } catch {
       return buildSetPropertyResult({
@@ -1056,6 +1059,22 @@ export const setProperty = async <TModels>({
     relatedItems.length || !fetchItems
       ? relatedItems
       : await fetchItems(baseSelector);
+
+  // No record to set means every rule was skipped, not that none were asked.
+  if (!items.length) {
+    const { changes } = await buildSetPropertyUpdatePayload({
+      subdomain,
+      rules,
+      execution,
+    });
+
+    return buildSetPropertyResult({
+      module,
+      setPropertyTarget,
+      count: 0,
+      changes: markChangesStatus(changes, 'skipped'),
+    });
+  }
 
   let updatedCount = 0;
   const changes: TAutomationSetPropertyChange[] = [];
@@ -1082,8 +1101,14 @@ export const setProperty = async <TModels>({
         modifier,
         item: relatedItem,
       });
-      updatedCount += getUpdateResultCount(updateResult, 1);
-      changes.push(...ruleUpdate.changes);
+      const itemCount = getUpdateResultCount(updateResult, 1);
+
+      updatedCount += itemCount;
+      changes.push(
+        ...(itemCount
+          ? ruleUpdate.changes
+          : markChangesStatus(ruleUpdate.changes, 'skipped')),
+      );
     } catch {
       changes.push(...markChangesStatus(ruleUpdate.changes, 'failed'));
       continue;

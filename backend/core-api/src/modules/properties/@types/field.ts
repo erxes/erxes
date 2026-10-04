@@ -3,7 +3,10 @@ import {
   IListParams,
   IOffsetPaginateParams,
 } from 'erxes-api-shared/core-types';
-import { IFeaturedFieldOwner } from 'erxes-api-shared/core-modules';
+import {
+  IFeaturedFieldOwner,
+  IPropertyValueSamples,
+} from 'erxes-api-shared/core-modules';
 import { Document } from 'mongoose';
 
 export interface FieldOption {
@@ -58,6 +61,10 @@ export interface IField {
 
   owner?: IFeaturedFieldOwnerRef;
   index?: IFeaturedFieldIndex;
+
+  archivedAt?: Date;
+  archivedBy?: string;
+  archivedWithGroup?: boolean;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -72,7 +79,28 @@ export interface IFieldParams extends IListParams {
   contentTypeId?: string;
   groupId?: string[];
   icon?: string;
+  archived?: boolean;
 }
 
-export interface IFieldCursorParams extends ICursorPaginateParams {}
+export interface IFieldCursorParams extends ICursorPaginateParams {
+  archived?: boolean;
+}
+
+export interface IFieldDependents {
+  fields: string[];
+  groups: string[];
+  systemFields: string[];
+}
+
+export interface IFieldUsage {
+  // Names of the fields, groups and system fields whose logic points here.
+  dependents: string[];
+  // null when it could not be checked (a plugin's records, or too slow).
+  hasValues: boolean | null;
+  removable: boolean;
+}
+export interface IFieldValueUsage extends IPropertyValueSamples {
+  dependents: string[];
+}
+
 export interface IFieldOffsetParams extends IOffsetPaginateParams {}

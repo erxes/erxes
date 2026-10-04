@@ -14,6 +14,7 @@ import {
   FIELD_TYPES,
   FIELD_TYPES_OBJECT,
   getEditableTypes,
+  OPTION_TYPES,
 } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 
@@ -25,6 +26,8 @@ import { PropertyFormObjectListFields } from './PropertyFormObjectListFields';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
+import { PropertyTypeUsageHint } from './PropertyTypeUsageHint';
+import { useFieldValueUsage } from '../hooks/useFieldValueUsage';
 import { propertySchema } from '../propertySchema';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -58,9 +61,13 @@ export const PropertyForm = ({
     defaultValues,
   });
 
-  const allowedTypes = isEdit
-    ? getEditableTypes(defaultValues.type)
-    : FIELD_TYPES.map(({ value }) => value);
+  const valueUsage = useFieldValueUsage(isEdit ? fieldId : undefined);
+
+  // An unused field can become anything; one in use keeps its stored shape.
+  const allowedTypes =
+    !isEdit || valueUsage.unused
+      ? FIELD_TYPES.map(({ value }) => value)
+      : getEditableTypes(defaultValues.type);
 
   const handleSubmit = (data: IPropertyForm) => {
     let sendData = data;
@@ -193,6 +200,8 @@ export const PropertyForm = ({
                         if (!isEdit) {
                           form.setValue('options', []);
                           form.setValue('objectListConfigs', []);
+                        } else if (!OPTION_TYPES.includes(value)) {
+                          form.setValue('options', []);
                         }
                       }}
                       disabled={
@@ -219,6 +228,13 @@ export const PropertyForm = ({
                         ))}
                       </Select.Content>
                     </Select>
+                    {isEdit && fieldId && !locked && !disableType && (
+                      <PropertyTypeUsageHint
+                        fieldId={fieldId}
+                        contentType={contentType}
+                        {...valueUsage}
+                      />
+                    )}
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -243,6 +259,9 @@ export const PropertyForm = ({
                 form={form}
                 isEdit={isEdit}
                 locked={locked}
+                fieldId={fieldId}
+                contentType={contentType}
+                optionCount={valueUsage.optionCount}
               />
               {!locked && (
                 <>

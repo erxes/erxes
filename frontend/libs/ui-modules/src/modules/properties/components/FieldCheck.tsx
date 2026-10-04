@@ -2,6 +2,7 @@ import { Badge, Checkbox, Label } from 'erxes-ui';
 import { useState } from 'react';
 import { getPickableOptions } from '../propertyUtils';
 import { SpecificFieldProps } from './Field';
+import { OptionLabel } from './OptionLabel';
 
 export const FieldCheck = (props: SpecificFieldProps) => {
   const { field, value, handleChange, id, inCell } = props;
@@ -32,7 +33,9 @@ export const FieldCheck = (props: SpecificFieldProps) => {
             }}
           />
 
-          <Label htmlFor={`${id}_${option.value}`}>{option.label}</Label>
+          <Label htmlFor={`${id}_${option.value}`}>
+            <OptionLabel option={option} />
+          </Label>
         </div>
       ))}
     </div>

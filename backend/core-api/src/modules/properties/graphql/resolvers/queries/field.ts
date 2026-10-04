@@ -18,9 +18,13 @@ const generateFilter = async (
 ) => {
   await reconcileDeclaredFeaturedFields(models, subdomain);
 
-  const { contentType, contentTypeId, groupId } = params;
+  const { contentType, contentTypeId, groupId, archived } = params;
 
-  const filter: FilterQuery<IField> = { contentType };
+  // Archived fields stay out of every form, table and filter unless asked for.
+  const filter: FilterQuery<IField> = {
+    contentType,
+    archivedAt: { $exists: !!archived },
+  };
 
   if (contentTypeId) {
     filter.contentTypeId = contentTypeId;
@@ -32,6 +36,12 @@ const generateFilter = async (
 
   return filter;
 };
+
+// External forms only offer what can still be picked; records keep the rest.
+const withLiveOptions = (field: IFieldDocument) => ({
+  ...field,
+  options: (field.options || []).filter((option) => !option.deprecated),
+});
 
 export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
   fields: async (
@@ -52,6 +62,56 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
     });
   },
 
+  // A group stands for all of its fields.
+  fieldUsage: async (
+    _: undefined,
+    {
+      fieldIds = [],
+      groupId,
+      contentType,
+    }: { fieldIds?: string[]; groupId?: string; contentType: string },
+    { models }: IContext,
+  ) => {
+    const ids = groupId
+      ? (await models.Fields.find({ groupId }, { _id: 1 }).lean()).map(
+          (field) => String(field._id),
+        )
+      : fieldIds;
+
+    return models.Fields.getFieldUsage({ ids, groupId, contentType });
+  },
+
+  // Lists record names, so only those who manage fields see it.
+  fieldValueUsage: async (
+    _: undefined,
+    { _id, value }: { _id: string; value?: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    return models.Fields.getFieldValueUsage(_id, value ?? undefined);
+  },
+
+  fieldValueCounts: async (
+    _: undefined,
+    { _id, value }: { _id: string; value?: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    return models.Fields.getFieldValueCounts(_id, value ?? undefined);
+  },
+
+  fieldOptionDependents: async (
+    _: undefined,
+    { _id, value }: { _id: string; value: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    return models.Fields.getOptionDependents(_id, value);
+  },
+
   fieldDetail: async (
     _: undefined,
     { _id }: { _id: string },
@@ -69,10 +129,12 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
 
     const filter = await generateFilter(models, subdomain, params);
 
-    return await defaultPaginate(
-      models.Fields.find(filter).sort({ [sortField]: sortDirection }),
+    const fields: IFieldDocument[] = await defaultPaginate(
+      models.Fields.find(filter).sort({ [sortField]: sortDirection }).lean(),
       params,
     );
+
+    return fields.map(withLiveOptions);
   },
 
   cpFieldDetail: async (
@@ -80,7 +142,7 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return await models.Fields.getField({ _id });
+    return withLiveOptions(await models.Fields.getField({ _id }));
   },
 };
 

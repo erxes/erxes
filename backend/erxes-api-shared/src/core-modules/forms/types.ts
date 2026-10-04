@@ -1,3 +1,5 @@
+import type { TPropertyValueUsageHandler } from '../properties/valueUsage';
+
 export type PropertySystemFieldType =
   | 'text'
   | 'textarea'
@@ -79,4 +81,6 @@ export interface IPropertyType {
 export interface IPropertyMeta {
   types: IPropertyType[];
   featuredFields?: IPropertyFeaturedFields[];
+  // Records live in the plugin, so only it can say which hold a value.
+  valueUsage?: TPropertyValueUsageHandler;
 }

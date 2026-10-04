@@ -15,6 +15,7 @@ export const types = `
         configs: JSON
         # Set on groups a plugin feature keeps its featured fields in.
         owner: FieldOwner
+        archivedAt: Date
         createdAt: Date!
         updatedAt: Date!
     }
@@ -28,6 +29,7 @@ export const types = `
     input FieldGroupParams {
         contentType: String!
         codes: [String]
+        archived: Boolean
 
         ${GQL_CURSOR_PARAM_DEFS}
     }
@@ -64,4 +66,6 @@ export const mutations = `
     fieldGroupEdit(_id: String!, order: Float, ${mutationParams}): FieldGroup
     fieldGroupsUpdateOrder(orders: [FieldGroupOrderItem!]!): [FieldGroup]
     fieldGroupRemove(_id: String!): FieldGroup
+    fieldGroupArchive(_id: String!): FieldGroup
+    fieldGroupRestore(_id: String!): FieldGroup
 `;

@@ -17,7 +17,6 @@ import {
   EnumCursorDirection,
   RecordTable,
   Spinner,
-  useConfirm,
 } from 'erxes-ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -25,9 +24,9 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Can, IField, useFields } from 'ui-modules';
-import { useFieldGroupRemove } from '../../hooks/useFieldGroupRemove';
 import { activePropertyState } from '../../states/activePropertyState';
 import { activeLayoutGroupState } from '../../states/activeLayoutGroupState';
+import { archiveTargetState } from '../../states/archiveTargetState';
 import { needsToRefreshState } from '../../states/needsToRefresh';
 import { IFieldGroup } from '../../types/Properties';
 import { propertiesColumns } from './PropertiesColumns';
@@ -41,19 +40,9 @@ const PropertiesGroupActions = ({
   contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { removeFieldGroup, loading } = useFieldGroupRemove({ contentType });
   const setActivePropertyGroup = useSetAtom(activePropertyState);
   const setLayoutGroup = useSetAtom(activeLayoutGroupState);
-  const { confirm } = useConfirm();
-
-  const handleDeleteFieldGroup = () => {
-    confirm({
-      message: t(
-        'confirm-delete-group',
-        'Are you sure you want to delete this field group?',
-      ),
-    }).then(() => removeFieldGroup(group._id));
-  };
+  const setArchiveTarget = useSetAtom(archiveTargetState);
 
   return (
     <DropdownMenu>
@@ -95,12 +84,16 @@ const PropertiesGroupActions = ({
         {!group.owner && (
           <Can action="fieldGroupsManage">
             <DropdownMenu.Item
-              className="text-destructive"
-              disabled={loading}
-              onClick={handleDeleteFieldGroup}
+              onClick={() =>
+                setArchiveTarget({
+                  kind: 'group',
+                  id: group._id,
+                  label: `"${group.name}"`,
+                })
+              }
             >
-              {loading ? <Spinner size="sm" /> : <IconTrash />}
-              {t('delete', 'Delete')}
+              <IconTrash />
+              {t('remove', 'Remove')}
             </DropdownMenu.Item>
           </Can>
         )}
