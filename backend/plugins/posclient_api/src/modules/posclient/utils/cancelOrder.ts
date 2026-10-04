@@ -19,7 +19,9 @@ export const cancelPosOrder = async (
     throw new Error('Returned orders must be retained');
   }
   if (order.paidDate) {
-    throw new Error('Paid orders cannot be cancelled. Return the order instead');
+    throw new Error(
+      'Paid orders cannot be cancelled. Return the order instead',
+    );
   }
 
   const receiptQuery = { contentType: 'pos', contentId: _id };

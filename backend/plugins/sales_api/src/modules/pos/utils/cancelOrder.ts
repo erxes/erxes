@@ -19,7 +19,9 @@ export const cancelSyncedPosOrder = async (
     throw new Error('Returned orders must be retained');
   }
   if (order?.paidDate) {
-    throw new Error('Paid orders cannot be cancelled. Return the order instead');
+    throw new Error(
+      'Paid orders cannot be cancelled. Return the order instead',
+    );
   }
   if (await isEnabled('mongolian')) {
     const receipts: { _id: string }[] | undefined = await sendTRPCMessage({
