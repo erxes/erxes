@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-03`
+- **Last synchronized:** `2026-10-04`
 
 ## Scope
 
@@ -32,6 +32,9 @@
 
 ## Current Capabilities
 
+- Internal POS cancellation removes token-owned unpaid synced POS orders without
+  successful/unresolved eBarimt receipts and refunds their loyalty points.
+  Returned orders are retained; missing orders allow idempotent retries.
 - POS configuration exposes `isShowRemainder` for remainder display separately
   from `isCheckRemainder` and validation category exclusions.
 
@@ -132,6 +135,8 @@
 
 ### Provides
 
+- Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
+  `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
   types, each with the `systemFields` (`code`, `name`, `type`) core lists as
   the read-only "Basic information" group in Settings → Properties. A
@@ -146,6 +151,9 @@
 
 ### Consumes
 
+- Mongolian `putResponses.find` verifies synced receipt state before POS
+  deletion when that optional plugin is enabled; failed/unconfirmed reads
+  block deletion. Loyalty `score.refund` reverses cancelled POS order points.
 - Core public contracts for fields, products, customers, companies, users,
   branches, departments, and related records.
 - Public `erxes-api-shared` utilities, types, and extension points.
@@ -165,6 +173,13 @@
 
 ## Local Invariants
 
+- POS cancellation requires matching `posId` and `posToken`; paid orders
+  (`paidDate` set), including internal/temporary receipts without eBarimt,
+  must be returned rather than cancelled. Returned orders
+  and orders with successful/unresolved synced receipts must not be deleted.
+- Receipt verification and loyalty failures propagate before order deletion.
+  Cancellation affects `PosOrders` (embedded items included), not independently
+  converted deals or Mongolian-owned receipt copies.
 - Preserve tenant isolation through the request `subdomain` for every model and
   service access.
 - Cross-service access must use published GraphQL, tRPC, HTTP, event, or
@@ -353,6 +368,12 @@
 ## Validation
 
 - `pnpm nx build sales_api`
+- `node --test backend/plugins/sales_api/src/modules/pos/utils/__tests__/cancelOrder.test.cjs`
+- POS cancellation smoke: token-owned unpaid order without successful eBarimt is
+  removed; receipt/loyalty service failures retain it, cross-POS and returned
+  orders are rejected, and a missing order is an idempotent successful retry.
+- Paid POS order smoke: `pos.cancelOrder` rejects an order with `paidDate`
+  before receipt/refund service calls or deletion, including `billType: '9'`.
 - `pnpm nx build:packageJson sales_api`
 - Smoke scenario: query deals by `stageId` and verify `totalCount` does not
   fetch deal documents.

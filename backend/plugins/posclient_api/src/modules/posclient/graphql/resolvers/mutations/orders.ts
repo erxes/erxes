@@ -31,7 +31,11 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
-import { IPaidAmount } from '~/modules/posclient/@types/orders';
+import { IOrder, IPaidAmount } from '~/modules/posclient/@types/orders';
+import {
+  ICartChangeLogInput,
+  IOrderChangeEntry,
+} from '~/modules/posclient/@types/orderChangeLogs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
@@ -39,6 +43,11 @@ import { IModels } from '~/connectionResolvers';
 import { prepareSettlePayment } from '~/modules/posclient/utils';
 import { debugError } from '~/modules/posclient/debugError';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
+import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
+import {
+  getOrderChangeSnapshot,
+  saveOrderChangeSnapshot,
+} from '~/modules/posclient/utils/orderChangeLogs';
 
 interface IPaymentBase {
   billType: string;
@@ -70,9 +79,82 @@ export interface IOrderChangeParams {
   _id: string;
   dueDate?: Date;
   branchId?: string;
-  deliveryInfo?: string;
+  deliveryInfo?: unknown;
   description?: string;
 }
+
+type EditableOrderChangeField =
+  | 'dueDate'
+  | 'branchId'
+  | 'deliveryInfo'
+  | 'description';
+
+const normalizeDateChangeValue = (value: unknown) => {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    return Number.isNaN(date.valueOf()) ? value : date.toISOString();
+  }
+
+  return value ?? null;
+};
+
+const normalizeChangeValue = (
+  field: EditableOrderChangeField,
+  value: unknown,
+) => (field === 'dueDate' ? normalizeDateChangeValue(value) : value ?? null);
+
+const valuesAreEqual = (
+  field: EditableOrderChangeField,
+  oldValue: unknown,
+  newValue: unknown,
+) =>
+  JSON.stringify(normalizeChangeValue(field, oldValue)) ===
+  JSON.stringify(normalizeChangeValue(field, newValue));
+
+const getOrderChangeValue = (
+  order: IOrder,
+  field: EditableOrderChangeField,
+  config: IConfigDocument,
+) => {
+  if (field === 'branchId') {
+    return config.branchId ? order.subBranchId : order.branchId;
+  }
+
+  return order[field];
+};
+
+const buildOrderChangeEntries = (
+  order: IOrder,
+  params: IOrderChangeParams,
+  config: IConfigDocument,
+): IOrderChangeEntry[] => {
+  const fields: EditableOrderChangeField[] = [
+    'dueDate',
+    'branchId',
+    'deliveryInfo',
+    'description',
+  ];
+
+  return fields.reduce<IOrderChangeEntry[]>((entries, field) => {
+    const newValue = params[field];
+
+    if (newValue === undefined) {
+      return entries;
+    }
+
+    const oldValue = getOrderChangeValue(order, field, config);
+
+    if (valuesAreEqual(field, oldValue, newValue)) {
+      return entries;
+    }
+
+    return [...entries, { field, oldValue, newValue }];
+  }, []);
+};
 
 const getTaxInfo = (config: IConfig) => {
   return {
@@ -296,6 +378,8 @@ export const ordersEdit = async (
 
   await validateOrder(subdomain, models, config, doc, order);
 
+  const before = await getOrderChangeSnapshot(models, doc._id);
+
   await cleanOrderItems(doc._id, doc.items, models);
 
   const preparedDoc = await prepareOrderDoc(
@@ -343,6 +427,14 @@ export const ordersEdit = async (
       voucherId: doc.voucherId,
     },
   });
+
+  await saveOrderChangeSnapshot(
+    models,
+    doc._id,
+    config.token,
+    posUser?._id,
+    before,
+  );
 
   await graphqlPubsub.publish('ordersOrdered', {
     ordersOrdered: {
@@ -484,39 +576,6 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-export async function cancelPosOrder(
-  models: IModels,
-  _id: string,
-): Promise<any> {
-  const order = await models.Orders.getOrder(_id);
-
-  checkOrderStatus(order);
-
-  if (
-    order.mobileAmount ||
-    (order.paidAmounts || []).filter(
-      (pa) => pa.info && Object.keys(pa.info).length,
-    ).length > 0
-  ) {
-    throw new Error('Card payment exists for this order');
-  }
-
-  if (
-    order.isPre &&
-    (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-  ) {
-    throw new Error('Cannot cancel cause PreOrder added payment');
-  }
-
-  if (order.synced === true) {
-    throw new Error('Order is already synced to erxes');
-  }
-
-  await models.OrderItems.deleteMany({ orderId: _id });
-
-  return models.Orders.deleteOne({ _id });
-}
-
 async function applyOrderSaleStatusChange(
   models: IModels,
   _id: string,
@@ -534,6 +593,20 @@ async function applyOrderSaleStatusChange(
 }
 
 const orderMutations: Record<string, Resolver> = {
+  async posclientCartChangeLogCreate(
+    _root,
+    { doc }: { doc: ICartChangeLogInput },
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+    if (!posUser) throw new Error('POS user required');
+    const log = await models.OrderChangeLogs.recordCartChange(
+      doc,
+      config.token,
+      posUser._id,
+    );
+    return log;
+  },
   async ordersAdd(
     _root,
     doc: IOrderInput,
@@ -598,6 +671,7 @@ const orderMutations: Record<string, Resolver> = {
     assertPosUser(posUser);
 
     const oldOrder = await models.Orders.getOrder(_id);
+    const before = await getOrderChangeSnapshot(models, _id);
 
     const order = await models.Orders.updateOrder(_id, {
       ...oldOrder,
@@ -618,6 +692,14 @@ const orderMutations: Record<string, Resolver> = {
         { $set: { status: ORDER_ITEM_STATUSES.DONE } },
       );
     }
+
+    await saveOrderChangeSnapshot(
+      models,
+      _id,
+      config.token,
+      posUser?._id,
+      before,
+    );
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
@@ -661,7 +743,17 @@ const orderMutations: Record<string, Resolver> = {
   ) {
     assertPosUser(posUser);
 
-    return applyOrderSaleStatusChange(models, _id, saleStatus);
+    const before = await getOrderChangeSnapshot(models, _id);
+    const order = await applyOrderSaleStatusChange(models, _id, saleStatus);
+    await saveOrderChangeSnapshot(
+      models,
+      _id,
+      config.token,
+      posUser?._id,
+      before,
+    );
+    await graphqlPubsub.publish('ordersOrdered', { ordersOrdered: order });
+    return order;
   },
 
   async cpOrderChangeSaleStatus(
@@ -675,7 +767,7 @@ const orderMutations: Record<string, Resolver> = {
   async ordersChange(
     _root,
     params: IOrderChangeParams,
-    { models, config, subdomain, posUser }: IContext,
+    { models, config, posUser }: IContext,
   ) {
     assertPosUser(posUser);
 
@@ -703,11 +795,13 @@ const orderMutations: Record<string, Resolver> = {
       }
     }
 
+    const changes = buildOrderChangeEntries(order, params, config);
+
     const doc = { ...order };
 
-    if (params.dueDate) doc.dueDate = params.dueDate;
+    if (params.dueDate !== undefined) doc.dueDate = params.dueDate;
 
-    if (params.branchId) {
+    if (params.branchId !== undefined) {
       if (config.branchId) {
         doc.subBranchId = params.branchId;
       } else {
@@ -716,33 +810,26 @@ const orderMutations: Record<string, Resolver> = {
       }
     }
 
-    if (params.deliveryInfo) doc.deliveryInfo = params.deliveryInfo;
-    if (params.description) doc.description = params.description;
+    if (params.deliveryInfo !== undefined)
+      doc.deliveryInfo = params.deliveryInfo;
+    if (params.description !== undefined) doc.description = params.description;
 
     const changedOrder = await models.Orders.updateOrder(params._id, doc);
 
-    if (changedOrder.paidDate || changedOrder.isPre) {
-      try {
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'sales',
-          module: 'pos',
-          action: 'createOrUpdateOrders',
-          input: {
-            posToken: config.token,
-            action: 'makePayment',
-            order,
-            items: await models.OrderItems.find({
-              orderId: params._id,
-            }).lean(),
-          },
-          defaultValue: {},
-        });
-      } catch (e) {
-        debugError(`Error occurred while sending data to erxes: ${e.message}`);
-      }
+    if (changes.length) {
+      await models.OrderChangeLogs.createLog({
+        orderId: params._id,
+        posToken: config.token,
+        userId: posUser?._id,
+        changes,
+      });
     }
+
+    await graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: changedOrder,
+    });
+
+    return changedOrder;
   },
 
   async orderItemChangeStatus(
@@ -753,8 +840,21 @@ const orderMutations: Record<string, Resolver> = {
     assertPosUser(posUser);
 
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
+    const orderId = oldOrderItem.orderId;
+    if (!orderId) {
+      throw new Error('Order item has no order');
+    }
+    const before = await getOrderChangeSnapshot(models, orderId);
 
     await models.OrderItems.updateOrderItem(_id, { ...oldOrderItem, status });
+
+    await saveOrderChangeSnapshot(
+      models,
+      orderId,
+      config.token,
+      posUser?._id,
+      before,
+    );
 
     await graphqlPubsub.publish('orderItemsOrdered', {
       orderItemsOrdered: {
@@ -1027,14 +1127,18 @@ const orderMutations: Record<string, Resolver> = {
     return newOrder;
   },
 
-  async ordersCancel(_root, { _id }, { models, posUser, config }: IContext) {
+  async ordersCancel(
+    _root,
+    { _id },
+    { models, posUser, config, subdomain }: IContext,
+  ) {
     assertPosUser(posUser);
 
-    return cancelPosOrder(models, _id);
+    return cancelPosOrder(models, _id, subdomain, config.token, posUser._id);
   },
 
-  async cpOrdersCancel(_root, { _id }, { models }: IContext) {
-    return cancelPosOrder(models, _id);
+  async cpOrdersCancel(_root, { _id }, { models, subdomain, user }: IContext) {
+    return cancelPosOrder(models, _id, subdomain, undefined, user?._id);
   },
 
   /**
@@ -1403,7 +1507,10 @@ const orderMutations: Record<string, Resolver> = {
 
     let order = await models.Orders.getOrder(_id);
 
-    if (order.returnInfo?.returnAt) {
+    if (order.posToken !== config.token && order.subToken !== config.token) {
+      throw new Error('Order does not belong to this POS');
+    }
+    if (order.status === ORDER_STATUSES.RETURN || order.returnInfo?.returnAt) {
       throw new Error('Order is already returned');
     }
 
@@ -1439,9 +1546,11 @@ const orderMutations: Record<string, Resolver> = {
       }
     }
 
-    const modifier: any = {
+    const before = await getOrderChangeSnapshot(models, _id);
+    const modifier = {
       $set: {
         status: ORDER_STATUSES.RETURN,
+        synced: false,
         returnInfo: {
           cashAmount,
           paidAmounts,
@@ -1458,27 +1567,39 @@ const orderMutations: Record<string, Resolver> = {
       },
     };
 
-    const ebarimtConfig = config.ebarimtConfig;
-
-    if (!ebarimtConfig) {
+    const receiptQuery = { contentId: _id, contentType: 'pos' };
+    if (
+      await models.PutResponses.exists({
+        ...receiptQuery,
+        $or: [{ status: { $exists: false } }, { status: null }, { status: '' }],
+      })
+    ) {
+      throw new Error(
+        'eBarimt request is unresolved. Check its result before returning',
+      );
+    }
+    const hasReceipt = await models.PutResponses.exists({
+      ...receiptQuery,
+      status: 'SUCCESS',
+    });
+    if (hasReceipt && !config.ebarimtConfig) {
       throw new Error('Please check ebarimt config');
     }
-
-    let returnResponses = (await models.PutResponses.returnBill(
-      {
-        contentId: _id,
-        contentType: 'pos',
-        number: order.number ?? '',
-      },
-      ebarimtConfig,
-      posUser,
-    )) as any;
-
-    if (returnResponses.error) {
-      returnResponses = [];
+    const returnResponses =
+      hasReceipt && config.ebarimtConfig
+        ? await models.PutResponses.returnBill(
+            { ...receiptQuery, number: order.number ?? '' },
+            config.ebarimtConfig,
+            posUser,
+          )
+        : [];
+    if (!Array.isArray(returnResponses)) {
+      throw new Error(returnResponses.error);
     }
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
+
+    await saveOrderChangeSnapshot(models, _id, config.token, posUser._id, before);
 
     order = await models.Orders.getOrder(_id);
 

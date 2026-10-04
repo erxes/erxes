@@ -22,12 +22,13 @@ import {
   OrderItem,
   PayByProductItem,
 } from "@/types/order.types"
+import { fixNum, getItemInputs } from "@/lib/utils"
 
 import { customerSearchAtom, selectedTabAtom } from "."
 import { cartAtom, cartChangedAtom, totalAmountAtom } from "./cart.store"
+import { draftCartIdAtom } from "./cartAudit.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
-import { fixNum, getItemInputs } from "@/lib/utils"
 
 // order
 export const activeOrderIdAtom = atomWithStorage<string | null>(
@@ -180,6 +181,7 @@ export const setInitialAtom = atom(
   (get, set) => {
     set(mobileTabAtom, "products")
     set(cartAtom, [])
+    set(draftCartIdAtom, null)
     set(cartChangedAtom, false)
     set(customerAtom, null)
     set(customerTypeAtom, "")

@@ -159,6 +159,55 @@ export const types = `
     ${orderTypeFields}
   }
 
+  type OrderChangeEntry {
+    field: String
+    oldValue: JSON
+    newValue: JSON
+  }
+
+  type OrderChangeLog {
+    _id: String!
+    orderId: String
+    cartId: String
+    eventId: String
+    source: String
+    occurredAt: Date
+    posToken: String
+    userId: String
+    createdAt: Date
+    changes: [OrderChangeEntry]
+    user: PosUser
+  }
+
+  input PosclientCartLogItemInput {
+    _id: String!
+    productId: String!
+    productName: String
+    count: Float!
+    unitPrice: Float!
+    discountAmount: Float
+    discountPercent: Float
+    discountInfos: JSON
+    isTake: Boolean
+    isPackage: Boolean
+    manufacturedDate: String
+    attachment: JSON
+    productImgUrl: String
+    categoryId: String
+    status: String
+    description: String
+  }
+
+  input PosclientCartChangeLogInput {
+    eventId: String!
+    cartId: String!
+    orderId: String
+    actorId: String!
+    occurredAt: Date!
+    beforeItems: [PosclientCartLogItemInput!]!
+    afterItems: [PosclientCartLogItemInput!]!
+  }
+
   type OrderDetail {
     ${orderTypeFields}
     deal: JSON
@@ -213,6 +262,7 @@ export const ordersQueryParams = `
 `;
 
 export const mutations = `
+  posclientCartChangeLogCreate(doc: PosclientCartChangeLogInput!): OrderChangeLog
   ordersAdd(${addEditParams}): Order
   ordersEdit(_id: String!, ${addEditParams}): Order
   ordersMakePayment(_id: String!, doc: OrderPaymentInput): PosPutResponse
@@ -245,6 +295,7 @@ export const queries = `
   orderDetail(_id: String, customerId: String): OrderDetail
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON
+  orderChangeLogs(orderId: String, orderNumber: String, source: String, userId: String, startDate: Date, endDate: Date, page: Int, perPage: Int): [OrderChangeLog]
   fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
   convertedDealLink(_id: String!): JSON
 
