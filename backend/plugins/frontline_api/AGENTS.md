@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -61,6 +61,11 @@
 
 ## Current Capabilities
 
+- The Erxes Messenger Message trigger (`frontline:inbox.messages`) can be
+  scoped to one messenger through `config.integrationId`. The widget puts the
+  message's `integrationId` on the trigger target; `checkCustomTrigger` rejects
+  other messengers. An empty `integrationId` fires for every messenger — keep
+  that, existing automations rely on it.
 - A messenger ticket form only offers live property options: the config keeps
   the options it was saved with, and `widgetsMessengerConnect` re-reads them
   from core (`withLiveTicketOptions`) so an option archived since stops

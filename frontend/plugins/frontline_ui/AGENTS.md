@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-02`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -87,6 +87,10 @@
 
 ## Current Capabilities
 
+- The Erxes Messenger Message trigger form has an optional messenger picker
+  (`SelectErxesMessenger`, saved as `config.integrationId`); empty means every
+  messenger. The trigger node shows the chosen messenger or "All erxes
+  messengers".
 - Every colour field in the help center drawer and the knowledge base topic
   drawer carries a **Default** reset beside its label, showing the colour it
   would return to and hidden while the field already holds it. The help center
