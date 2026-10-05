@@ -146,10 +146,7 @@ export class SwiftApi extends BaseApi {
    *
    * POST /transfer/swift/charges
    */
-  async charges(input: {
-    currency: string;
-    countryCode: string;
-  }) {
+  async charges(input: { currency: string; countryCode: string }) {
     return this.request<TdbSwiftCharge[]>({
       method: 'POST',
       path: 'transfer/swift/charges',
@@ -191,9 +188,7 @@ export class SwiftApi extends BaseApi {
     return this.request<TdbSwiftSubPurpose[]>({
       method: 'GET',
       path: 'transfer/swift/subpurpose',
-      params: categoryCode
-        ? { categoryCode }
-        : undefined,
+      params: categoryCode ? { categoryCode } : undefined,
     });
   }
 
@@ -232,10 +227,7 @@ export class SwiftApi extends BaseApi {
    * BaseApi currently sends JSON, so this method needs
    * special multipart handling.
    */
-  async attachFile(
-    transactionNumber: string,
-    file: unknown,
-  ) {
+  async attachFile(transactionNumber: string, file: unknown) {
     // Implement separately once multipart handling
     // is added to BaseApi.
     throw new Error(

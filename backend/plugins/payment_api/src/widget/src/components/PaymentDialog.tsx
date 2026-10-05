@@ -41,7 +41,7 @@ const Content = () => {
       case 'khanbank':
         return <KhanbankForm />;
       case 'tdb_cgw':
-      return <TdbCGWForm />;
+        return <TdbCGWForm />;
       default:
         return (
           <>

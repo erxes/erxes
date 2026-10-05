@@ -38,10 +38,7 @@ export const loadTdbConfigClass = (models: IModels) => {
         throw new Error('Config exists with same credentials');
       }
 
-      await models.TdbConfigs.updateOne(
-        { _id },
-        { $set: doc },
-      );
+      await models.TdbConfigs.updateOne({ _id }, { $set: doc });
 
       return models.TdbConfigs.getConfig({ _id });
     }

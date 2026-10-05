@@ -164,8 +164,8 @@ export const TdbConfigForm = ({
           {submitting
             ? t('saving')
             : config
-            ? t('edit-config')
-            : t('add-config')}
+              ? t('edit-config')
+              : t('add-config')}
         </Button>
       </Sheet.Footer>
     </form>

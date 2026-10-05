@@ -93,7 +93,7 @@ export const tdbColumns = (actions: Actions): ColumnDef<ITdbConfig>[] => [
     accessorKey: 'clientId',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('client-id')} icon={IconKey}/>;
+      return <RecordTable.InlineHead label={t('client-id')} icon={IconKey} />;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

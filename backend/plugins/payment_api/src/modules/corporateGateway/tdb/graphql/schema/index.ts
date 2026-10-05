@@ -4,10 +4,7 @@ import {
   mutations as ConfigMutations,
 } from './configs';
 
-import {
-  types as AccountTypes,
-  queries as AccountQueries,
-} from './accounts';
+import { types as AccountTypes, queries as AccountQueries } from './accounts';
 
 import {
   types as TransferTypes,

@@ -12,11 +12,7 @@ export class TdbCgwAPI {
   private models: IModels;
   private domain: string;
 
-  constructor(
-    config: ITdbCgwPaymentConfig,
-    models: IModels,
-    domain: string,
-  ) {
+  constructor(config: ITdbCgwPaymentConfig, models: IModels, domain: string) {
     if (!config?.configId) {
       throw new Error('TDB CGW configId is required');
     }
@@ -32,9 +28,7 @@ export class TdbCgwAPI {
     });
 
     if (!config) {
-      throw new Error(
-        `TDB CGW config not found: ${this.config.configId}`,
-      );
+      throw new Error(`TDB CGW config not found: ${this.config.configId}`);
     }
 
     return new OrdersApi({
@@ -47,8 +41,7 @@ export class TdbCgwAPI {
   async createInvoice(transaction: ITransactionDocument) {
     const ordersApi = await this.getOrdersApi();
 
-    const hppRedirectUrl =
-      `${this.domain}/pl:payment/callback/tdb_cgw?transactionId=${transaction._id}`;
+    const hppRedirectUrl = `${this.domain}/pl:payment/callback/tdb_cgw?transactionId=${transaction._id}`;
 
     return ordersApi.create({
       amount: transaction.amount,

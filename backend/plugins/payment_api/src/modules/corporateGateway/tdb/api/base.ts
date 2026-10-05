@@ -26,33 +26,24 @@ export class BaseApi {
    * 5 minutes.
    */
   protected async getAccessToken(): Promise<string> {
-    if (
-      this.accessToken &&
-      Date.now() < this.tokenExpiresAt
-    ) {
+    if (this.accessToken && Date.now() < this.tokenExpiresAt) {
       return this.accessToken;
     }
     console.log('[TDB CGW] apiUrl:', this.config.apiUrl);
-console.log(
-  '[TDB CGW] token URL:',
-  `${this.config.apiUrl}/oauth2/token`,
-);
+    console.log('[TDB CGW] token URL:', `${this.config.apiUrl}/oauth2/token`);
 
-    const response = await fetch(
-      `${this.config.apiUrl}/oauth2/token`,
-      {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          grant_type: 'client_credentials',
-          client_id: this.config.clientId,
-          client_secret: this.config.clientSecret,
-        }),
+    const response = await fetch(`${this.config.apiUrl}/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+      }),
+    });
 
     const responseText = await response.text();
 
@@ -61,9 +52,7 @@ console.log(
     try {
       result = JSON.parse(responseText);
     } catch {
-      throw new Error(
-        `TDB token response is not valid JSON: ${responseText}`,
-      );
+      throw new Error(`TDB token response is not valid JSON: ${responseText}`);
     }
 
     if (!response.ok || !result.success || !result.token) {
@@ -111,10 +100,10 @@ console.log(
       Authorization: `Bearer ${token}`,
     };
     console.log('[TDB CGW] REQUEST:', {
-  method: args.method,
-  url,
-  data: args.data,
-});
+      method: args.method,
+      url,
+      data: args.data,
+    });
 
     const requestOptions: RequestInit = {
       method: args.method,
@@ -137,9 +126,7 @@ console.log(
     try {
       result = JSON.parse(responseText);
     } catch {
-      throw new Error(
-        `TDB API returned invalid JSON: ${responseText}`,
-      );
+      throw new Error(`TDB API returned invalid JSON: ${responseText}`);
     }
 
     if (!response.ok) {
@@ -152,9 +139,7 @@ console.log(
 
     if (result?.success === false) {
       throw new Error(
-        result?.msg ||
-          result?.message ||
-          'TDB API request failed',
+        result?.msg || result?.message || 'TDB API request failed',
       );
     }
 

@@ -25,10 +25,7 @@ export class OrdersApi extends BaseApi {
     });
   }
 
-  async get(
-    orderId: number,
-    password: string,
-  ): Promise<TdbOrderDetail> {
+  async get(orderId: number, password: string): Promise<TdbOrderDetail> {
     return this.request({
       method: 'GET',
       path: `${orderId}`,
@@ -37,20 +34,12 @@ export class OrdersApi extends BaseApi {
   }
 
   static isSuccessfulStatus(status: string): boolean {
-    const successfulStatuses = [
-      'FULLYPAID',
-      'PARTPAID',
-      'AUTHORIZED',
-      'PAID',
-    ];
+    const successfulStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
 
     return successfulStatuses.includes(status.toUpperCase());
   }
 
-  async getWithStatus(
-    orderId: number,
-    password: string,
-  ) {
+  async getWithStatus(orderId: number, password: string) {
     const detail = await this.get(orderId, password);
 
     return {

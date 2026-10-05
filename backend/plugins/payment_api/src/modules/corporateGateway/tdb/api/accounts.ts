@@ -28,14 +28,10 @@ export class AccountsApi extends BaseApi {
    *
    * GET /accounts/{acntno}/balance
    */
-  async getBalance(
-    accountNumberOrIban: string,
-  ): Promise<TdbBalanceResponse> {
+  async getBalance(accountNumberOrIban: string): Promise<TdbBalanceResponse> {
     return this.request<TdbBalanceResponse>({
       method: 'GET',
-      path: `accounts/${encodeURIComponent(
-        accountNumberOrIban,
-      )}/balance`,
+      path: `accounts/${encodeURIComponent(accountNumberOrIban)}/balance`,
     });
   }
 
