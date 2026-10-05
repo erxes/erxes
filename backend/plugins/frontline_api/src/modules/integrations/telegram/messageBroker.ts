@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import { generateModels } from '~/connectionResolvers';
+import {
+  sendTelegramReply,
+  type ITelegramReplyResult,
+} from '@/integrations/telegram/controller/sendMessage';
 
 const telegramIntegrationDataSchema = z
   .object({
@@ -44,4 +48,74 @@ export const telegramCreateIntegrations = async ({
   );
 
   return { status: 'success' };
+};
+
+const telegramReplyEnvelopeSchema = z
+  .object({
+    integrationId: z.string().min(1),
+  })
+  .passthrough();
+
+type TelegramIntegrationResponse =
+  | {
+      status: 'success';
+      data: ITelegramReplyResult;
+    }
+  | {
+      status: 'error';
+      errorMessage: string;
+    };
+
+export const handleTelegramIntegration = async ({
+  subdomain,
+  data,
+}: {
+  subdomain: string;
+  data: {
+    type: string;
+    action: string;
+    payload: string;
+    integrationId: string;
+  };
+}): Promise<TelegramIntegrationResponse> => {
+  try {
+    if (data.type !== 'telegram' || data.action !== 'reply-messenger') {
+      throw new Error('Unsupported Telegram integration action');
+    }
+
+    let payload: unknown;
+
+    try {
+      payload = JSON.parse(data.payload);
+    } catch {
+      throw new Error('Invalid Telegram reply JSON');
+    }
+
+    const parsed = telegramReplyEnvelopeSchema.safeParse(payload);
+
+    if (!parsed.success || parsed.data.integrationId !== data.integrationId) {
+      throw new Error(
+        'Telegram reply integration does not match its destination',
+      );
+    }
+
+    const models = await generateModels(subdomain);
+    const reply = await sendTelegramReply({
+      models,
+      payload: parsed.data,
+    });
+
+    return {
+      status: 'success',
+      data: reply,
+    };
+  } catch (error: unknown) {
+    return {
+      status: 'error',
+      errorMessage:
+        error instanceof Error
+          ? error.message
+          : 'Could not process the Telegram reply',
+    };
+  }
 };

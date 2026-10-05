@@ -24,7 +24,7 @@
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
 - Telegram bot credential validation, provider webhook status and registration,
-  an internal plain-text sending client and reply handler, and tenant-scoped
+  inbox delivery of private plain-text replies, and tenant-scoped
   bot records, customer identity mappings, conversation mappings, and message mappings.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
@@ -148,13 +148,18 @@
 - The internal `sendTelegramMessage(token, chatId, text)` client posts plain
   text to a numeric chat ID and returns a validated provider `TelegramMessage`.
   It rejects invalid chat IDs, blank text, and text exceeding 4096 Unicode code
-  points before requesting Telegram. It is not connected to inbox reply dispatch.
+  points before requesting Telegram. The inbox reply handler invokes it.
 - The internal `sendTelegramReply({ models, payload })` handler validates an
   inbox reply, resolves its saved bot and ordinary private-chat mapping, strips
   editor HTML, and sends text through the provider client. After acceptance it
   saves the Telegram message mapping with the staff sender, then returns the
-  inbox conversation ID, text preview, and original display content. Inbox
-  dispatch does not invoke it yet.
+  inbox conversation ID, text preview, and original display content.
+- `handleTelegramIntegration` accepts `telegram` / `reply-messenger`, validates
+  the JSON envelope and matching integration ID before resolving tenant models,
+  and wraps the reply handler's result for the existing inbox dispatcher.
+  `conversationMessageAdd` creates the canonical inbox reply, updates its preview,
+  and publishes subscription events after Telegram acceptance and mapping storage.
+  Internal notes retain the existing local-only path.
 - The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
   unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
   It lives in `src/modules/integrations/telegram/utils/webhookAuth.ts`.
@@ -344,6 +349,7 @@
 | Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Local customer, conversation, and message insert/reuse; Core customer and inbox conversation/message creation through the bridge; conditional linking with bounded waits |
 | Telegram receiver | `src/modules/integrations/telegram/controller/receiveMessage.ts` | Validates and filters provider messages, then resolves the customer, conversation, and inbox message in order |
 | Telegram replies | `src/modules/integrations/telegram/controller/sendMessage.ts` | Validates private text replies, resolves the saved bot and conversation, sends through the client, and saves the provider message mapping |
+| Telegram reply dispatch | `src/modules/integrations/telegram/messageBroker.ts`, `src/modules/inbox/graphql/resolvers/mutations/conversations.ts` | Validates the reply envelope, resolves tenant models, routes Telegram replies, and reuses canonical inbox storage and publishing |
 | Telegram webhook | `src/modules/integrations/telegram/routes.ts`, `src/modules/integrations/telegram/controller/webhook.ts` | Authenticated HTTP ingestion, update dispatch, and acknowledgment after processing |
 | Telegram conversations | `src/modules/integrations/telegram/@types/conversations.ts`, `src/modules/integrations/telegram/db/` | Conversation mapping interface, schema, and model loader |
 | Telegram messages | `src/modules/integrations/telegram/@types/conversationMessages.ts`, `src/modules/integrations/telegram/db/` | Message mapping interface, schema, and model loader |
@@ -375,7 +381,15 @@
 - Internal `sendTelegramReply({ models, payload }): Promise<ITelegramReplyResult>`
   returns `{ status: 'success', data: { conversationId, content, displayContent } }`
   after provider acceptance and local persistence. Validation and delivery
-  failures throw; no public mutation or broker currently invokes the handler.
+  failures throw; the Telegram broker invokes the handler.
+- Internal `handleTelegramIntegration({ subdomain, data })` returns
+  `{ status: 'success', data: ITelegramReplyResult }` or
+  `{ status: 'error', errorMessage }`. It accepts only `telegram` /
+  `reply-messenger` with matching envelope and destination integration IDs.
+- The existing `conversationMessageAdd` mutation routes `telegram-messenger`
+  replies through this broker; its GraphQL schema is unchanged. The resolver
+  supplies the authenticated staff ID and owns canonical message creation,
+  preview updates, and subscription publishing.
 - `POST /telegram/receive/:_id` — the route parameter is the tenant's saved bot
   record ID. Requires the matching `X-Telegram-Bot-Api-Secret-Token` header;
   responds with `401` for rejected credentials, `400` for Zod validation
@@ -553,6 +567,14 @@
   that Telegram accepted the message. Do not retry automatically or create the
   canonical inbox message in this handler; provider and database writes are not
   atomic, so manually retrying after a save failure can duplicate delivery.
+- The Telegram broker must validate its action, JSON payload, and matching
+  integration IDs before generating models from the supplied subdomain. Keep
+  the outer result wrapper: the inbox resolver consumes `response.data.data`.
+  Return handler failures through `status: 'error'` so accepted-but-unsaved
+  errors retain their meaning without an inaccurate delivery-failure prefix.
+- Keep canonical inbox writes in `conversationMessageAdd`, after a successful
+  broker result. Derive the staff sender from request context and keep internal
+  notes on the existing branch that bypasses provider dispatch.
 - Webhook registration requires a full HTTPS callback URL without surrounding
   whitespace and a secret of 1–256 characters from `A-Z`, `a-z`, `0-9`, `_`, or
   `-`. Send `allowed_updates: ['message']` and `drop_pending_updates: false`;
@@ -853,6 +875,18 @@
   persistence. Verify awaited send/save ordering, controlled save failures,
   no retries, and forwarding through the supplied tenant models. Do not send
   live messages or write live records during these checks.
+- Telegram reply dispatch checks: exercise the actual broker, dispatcher,
+  `conversationMessageAdd`, reply handler/client, and message publisher with
+  database, HTTP, tRPC, notification, and pubsub stubs. Verify the nested result,
+  tenant and staff forwarding, awaited mapping storage, one canonical message,
+  preview updates, and per-conversation and channel-member subscription events.
+  Internal notes must bypass Telegram; rejected sends must prevent inbox writes.
+  Preserve accepted-but-unsaved errors without retries and check existing
+  provider dispatch and Telegram setup attachment behavior.
+- Telegram reply smoke scenario: send a unique plain-text reply from an existing
+  private Telegram inbox conversation with Internal Note off. Confirm one bot
+  message in Telegram and one agent message in the inbox without refreshing.
+  An internal note must appear only in erxes. Mock checks do not prove live delivery.
 - Telegram model checks: successful creation returns provider-derived metadata
   without credentials; duplicate creation preserves the original record;
   missing creators and rejected tokens prevent writes; storage errors do not
@@ -892,6 +926,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-05` — Telegram inbox reply dispatch
+
+- **Summary:** Connected private text replies to Telegram through the existing inbox mutation, preserving local internal notes and canonical message updates.
+- **Affected areas:** `src/modules/integrations/telegram/messageBroker.ts`, `src/modules/inbox/graphql/resolvers/mutations/conversations.ts`.
+- **Contracts changed:** Added internal `handleTelegramIntegration`; existing `conversationMessageAdd` now dispatches `telegram-messenger` replies with no GraphQL schema change.
 
 ### `2026-10-05` — Telegram private text reply handler
 
@@ -946,9 +986,3 @@
 - **Summary:** Added inbox message creation through the existing bridge, preserving stored message fields and validating the returned ID.
 - **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
 - **Contracts changed:** Added internal `createInboxMessage(subdomain, inboxConversationId, message)`; link persistence and webhook routing remain separate.
-
-### `2026-10-04` — Telegram message mapping lookup
-
-- **Summary:** Added atomic message insert/reuse with insertion ownership and preservation of existing content and inbox links.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `getOrCreateTelegramMessage(models, conversation, message, customerId)`; inbox delivery and webhook routing remain separate.

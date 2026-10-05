@@ -14,6 +14,7 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
+import { handleTelegramIntegration } from '@/integrations/telegram/messageBroker';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { convertConversation } from '@/inbox/services/conversationConvert';
@@ -99,6 +100,9 @@ export const dispatchConversationToService = async (
 
       case 'discord':
         return await handleDiscordIntegration({ subdomain, data });
+
+      case 'telegram':
+        return await handleTelegramIntegration({ subdomain, data });
 
       case 'calls':
         break;
