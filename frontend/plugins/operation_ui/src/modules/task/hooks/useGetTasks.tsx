@@ -1,3 +1,7 @@
+import {
+  getTaskDateFilterVariables,
+  TASK_DATE_RANGE_KEYS,
+} from '@/task/utils/dateFilters';
 import { GET_TASKS } from '@/task/graphql/queries/getTasks';
 import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
 import { ITask } from '@/task/types';
@@ -41,11 +45,11 @@ export const useTasksVariables = (
     cycleFilter,
     createdBy,
     estimatePoint,
-    targetDate,
-    createdDate,
-    updatedDate,
-    startDate,
-    completedDate,
+    targetDateStartDate,
+    createdStartDate,
+    updatedStartDate,
+    startDateStartDate,
+    completedStartDate,
     project,
     projectStatus,
     projectPriority,
@@ -62,11 +66,11 @@ export const useTasksVariables = (
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
-    targetDate: string;
-    createdDate: string;
-    updatedDate: string;
-    startDate: string;
-    completedDate: string;
+    targetDateStartDate: string;
+    createdStartDate: string;
+    updatedStartDate: string;
+    startDateStartDate: string;
+    completedStartDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -83,11 +87,11 @@ export const useTasksVariables = (
     'cycleFilter',
     'createdBy',
     'estimatePoint',
-    'targetDate',
-    'createdDate',
-    'updatedDate',
-    'startDate',
-    'completedDate',
+    'targetDateStartDate',
+    'createdStartDate',
+    'updatedStartDate',
+    'startDateStartDate',
+    'completedStartDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -111,11 +115,13 @@ export const useTasksVariables = (
     tagIds: tags,
     cycleFilter: cycleFilter,
     estimatePoint: estimatePoint,
-    targetDate: targetDate,
-    createdDate: createdDate,
-    updatedDate: updatedDate,
-    startDate: startDate,
-    completedDate: completedDate,
+    ...getTaskDateFilterVariables({
+      targetDateStartDate,
+      createdStartDate,
+      updatedStartDate,
+      startDateStartDate,
+      completedStartDate,
+    }),
     projectId: project,
     projectStatus: projectStatus ? Number(projectStatus) : undefined,
     projectPriority: projectPriority ? Number(projectPriority) : undefined,
@@ -144,7 +150,7 @@ export const useTasks = (
     [JSON.stringify(rawVariables)],
   );
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
+  const { data, loading, fetchMore, subscribeToMore, refetch } = useQuery<
     ICursorListResponse<ITask>
   >(GET_TASKS, {
     ...options,
@@ -168,6 +174,12 @@ export const useTasks = (
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
+
+        // Recheck date membership when a task enters or leaves the selected range.
+        if (TASK_DATE_RANGE_KEYS.some((key) => variables[key] != null)) {
+          void refetch();
+          return prev;
+        }
 
         const { type, task } = subscriptionData.data.operationTaskListChanged;
         const currentList = prev?.getTasks?.list;

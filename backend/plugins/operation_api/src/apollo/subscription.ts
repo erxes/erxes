@@ -53,24 +53,6 @@ export default {
             if (filter.priority && task.priority !== filter.priority)
               return false;
 
-            if (
-              filter.startDate &&
-              new Date(task.startDate) < new Date(filter.startDate)
-            )
-              return false;
-
-            if (
-              filter.targetDate &&
-              new Date(task.targetDate) < new Date(filter.targetDate)
-            )
-              return false;
-
-            if (
-              filter.createdAt &&
-              new Date(task.createdAt) < new Date(filter.createdAt)
-            )
-              return false;
-
             if (filter.teamId && task.teamId !== filter.teamId) return false;
             if (filter.createdBy && task.createdBy !== filter.createdBy)
               return false;

@@ -305,7 +305,7 @@ export const tasksColumns = (
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('due-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

@@ -1,3 +1,4 @@
+import { buildTaskDateRangeQuery } from '@/task/utils/dateFilters';
 import {
   GetExportData,
   IImportExportContext,
@@ -6,56 +7,7 @@ import {
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTaskExportRow } from './buildTaskExportRow';
-import { stringifyId, buildIdNameMap, buildUserMap, safeString } from '../utils';
-
-/**
- * Parses date ranges for date query filters.
- *
- * @param range The raw date range object.
- * @returns A MongoDB-compatible date range query object, or undefined.
- */
-function buildDateRange(range: unknown): Record<string, Date> | undefined {
-  if (!range || typeof range !== 'object') return undefined;
-  const rangeObj = range as Record<string, unknown>;
-  const result: Record<string, Date> = {};
-  if (rangeObj.from) {
-    const parsedDate = new Date(safeString(rangeObj.from));
-    if (!Number.isNaN(parsedDate.getTime())) result.$gte = parsedDate;
-  }
-  if (rangeObj.to) {
-    const parsedDate = new Date(safeString(rangeObj.to));
-    if (!Number.isNaN(parsedDate.getTime())) result.$lte = parsedDate;
-  }
-  return Object.keys(result).length ? result : undefined;
-}
-
-/**
- * Adds date range query filters to the query object based on the filters.
- *
- * @param query The destination query object.
- * @param filters The active filters containing date parameters.
- */
-function addDateRangeFilters(query: Record<string, unknown>, filters: Record<string, unknown>): void {
-  const startRange = buildDateRange(filters.startDate);
-  if (startRange) {
-    query.startDate = startRange;
-  }
-
-  const targetRange = buildDateRange(filters.targetDate);
-  if (targetRange) {
-    query.targetDate = targetRange;
-  }
-
-  const createdRange = buildDateRange(filters.createdDate);
-  if (createdRange) {
-    query.createdAt = createdRange;
-  }
-
-  const updatedRange = buildDateRange(filters.updatedDate);
-  if (updatedRange) {
-    query.updatedAt = updatedRange;
-  }
-}
+import { stringifyId, buildIdNameMap, buildUserMap } from '../utils';
 
 /**
  * Builds the task query object based on active filters.
@@ -97,7 +49,7 @@ function buildTaskQuery(filters?: Record<string, unknown>): Record<string, unkno
     query.tagIds = { $in: filters.tagIds };
   }
 
-  addDateRangeFilters(query, filters);
+  Object.assign(query, buildTaskDateRangeQuery(filters));
 
   return query;
 }

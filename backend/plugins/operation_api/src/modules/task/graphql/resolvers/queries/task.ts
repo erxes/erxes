@@ -1,29 +1,10 @@
+import { buildTaskDateRangeQuery } from '@/task/utils/dateFilters';
+import { IProjectDocument } from '@/project/@types/project';
 import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { STATUS_TYPES } from '@/status/constants/types';
 import { taskCursorPaginateByStatus } from '@/task/graphql/resolvers/utils';
-
-const handleDateFilter = (
-  filterQuery: FilterQuery<ITaskDocument>,
-  fieldName: string,
-  value: string | Date,
-) => {
-  if (value === 'no-date') {
-    filterQuery[fieldName] = { $exists: false };
-    return;
-  }
-
-  if (value === 'in-past') {
-    filterQuery[fieldName] = { $lt: new Date() };
-    return;
-  }
-
-  const stringValue = value instanceof Date ? value.toISOString() : value;
-
-  filterQuery[fieldName] = { $lte: new Date(stringValue) };
-};
 
 export const taskQueries = {
   getTask: async (
@@ -60,26 +41,7 @@ export const taskQueries = {
       filterQuery.priority = filter.priority;
     }
 
-    if (filter.startDate) {
-      handleDateFilter(filterQuery, 'startDate', filter.startDate);
-    }
-
-    if (filter.targetDate) {
-      handleDateFilter(filterQuery, 'targetDate', filter.targetDate);
-    }
-
-    if (filter.createdDate) {
-      handleDateFilter(filterQuery, 'createdAt', filter.createdDate);
-    }
-
-    if (filter.updatedDate) {
-      handleDateFilter(filterQuery, 'updatedAt', filter.updatedDate);
-    }
-
-    if (filter.completedDate) {
-      filterQuery.statusType = STATUS_TYPES.COMPLETED;
-      handleDateFilter(filterQuery, 'statusChangedDate', filter.completedDate);
-    }
+    Object.assign(filterQuery, buildTaskDateRangeQuery(filter));
 
     if (filter.teamId) {
       filterQuery.teamId = filter.teamId;
@@ -196,7 +158,7 @@ export const taskQueries = {
         filter.projectPriority ||
         filter.projectLeadId
       ) {
-        const projectFilter: FilterQuery<any> = {};
+        const projectFilter: FilterQuery<IProjectDocument> = {};
 
         if (filter.projectStatus) {
           projectFilter.status = filter.projectStatus;
@@ -214,8 +176,9 @@ export const taskQueries = {
           projectFilter._id = { $in: projectIds };
         }
 
-        const matchingProjects =
-          await models.Project.find(projectFilter).distinct('_id');
+        const matchingProjects = await models.Project.find(
+          projectFilter,
+        ).distinct('_id');
 
         if (matchingProjects.length === 0) {
           return { list: [], totalCount: 0, pageInfo: null };

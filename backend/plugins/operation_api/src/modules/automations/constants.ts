@@ -158,7 +158,7 @@ const TASK_OUTPUT: TAutomationRuntimeOutputDefinition<TOperationTaskAutomationTa
       { key: 'tagIds', label: 'Tags', exposure: 'reference' },
       { key: 'estimatePoint', label: 'Estimate point' },
       { key: 'startDate', label: 'Start date' },
-      { key: 'targetDate', label: 'Target date' },
+      { key: 'targetDate', label: 'Due date' },
       { key: 'statusChangedDate', label: 'Status changed date' },
       { key: 'link', label: 'Task link', isLink: true },
       { key: 'createdAt', label: 'Created at' },

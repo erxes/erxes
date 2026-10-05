@@ -331,11 +331,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">{t('due-date')}</Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
-                    placeholder={t('target-date')}
+                    placeholder={t('due-date')}
                   />
                 </Form.Item>
               )}
