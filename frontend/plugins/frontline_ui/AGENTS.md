@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -73,6 +73,9 @@
 
 ## Current Capabilities
 
+- Telegram private-text conversations render saved messages through the standard
+  `ConversationMessages` component. Its existing subscription appends incoming
+  messages to the open conversation without a manual refresh.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -403,6 +406,9 @@
 
 ### Consumes
 
+- Telegram conversation display reuses `conversationMessages`,
+  `conversationMessagesTotalCount`, and `conversationMessageInserted` from
+  `frontline_api`, addressed by the erxes conversation ID.
 - `frontline_api` GraphQL: `GetMyChannels`, `GetChannels`, `GetChannel`,
   `GetPersonalChannel` (get-or-create — reading it provisions the channel),
   `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this
@@ -581,6 +587,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- `ConversationDetail.tsx` includes `telegram-messenger` alongside `messenger`,
+  `lead`, and `discord-messenger` when mounting `ConversationMessages`. Telegram
+  uses the standard inbox message query and subscription, not a separate message
+  renderer or a provider chat ID as the query's `conversationId`.
 - `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
   Inbox, and renders nothing when it is missing.
@@ -1240,11 +1250,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Validation
 
 - `pnpm nx build frontline_ui`
-- `npx eslint src/...` on touched files — the project carries pre-existing lint
-  errors and TypeScript errors elsewhere, so lint and typecheck the files you
-  changed rather than the whole project.
+- `pnpm nx lint frontline_ui` (Nx's inferred ESLint target).
+- `pnpm exec eslint frontend/plugins/frontline_ui/src/...` on touched files.
+  The project has existing lint and TypeScript errors elsewhere; report those
+  separately from diagnostics on the changed files.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
+- Smoke (Telegram): open a private-text conversation and confirm saved messages
+  load. Keep it open while sending another message to the bot; it must appear in
+  the same conversation without refreshing.
 - Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
   `…a deal` and `…a task`; each save shows a success toast, the entry turns
   into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
@@ -1308,6 +1322,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-05` — Telegram inbox message display
+
+- **Summary:** Telegram conversations use the standard inbox message list for
+  saved messages and live incoming updates.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/ConversationDetail.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-09-21` — Tracked data returns to the conversation rail
 
@@ -1412,16 +1434,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
 - **Contracts changed:** None. The `topicId` and `categoryId` query parameters
   keep their meaning; neither is now set without a user action.
-
-### `2026-09-10` — Polls became surveys
-
-- **Summary:** `src/modules/poll` became `src/modules/survey` and every
-  component, hook, state, route (`/surveys`) and GraphQL document followed the
-  API's rename. Discord's poll renderer stayed behind as `MessagePoll`; erxes
-  surveys render through the new `MessageSurvey`.
-- **Affected areas:** `src/modules/survey/**`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/channels/**`, `src/modules/inbox/**`,
-  `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
-- **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
-  operations; the `frontline/polls` route is now `frontline/surveys`.

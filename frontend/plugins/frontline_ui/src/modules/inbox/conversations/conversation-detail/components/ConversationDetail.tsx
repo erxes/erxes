@@ -103,9 +103,12 @@ export const ConversationDetail = () => {
             ) : (
               <>
                 {integration?.kind &&
-                  ['messenger', 'lead', 'discord-messenger'].includes(
-                    integration.kind,
-                  ) && (
+                  [
+                    'messenger',
+                    'lead',
+                    'discord-messenger',
+                    'telegram-messenger',
+                  ].includes(integration.kind) && (
                     <ConversationMessages
                       conversationId={conversationId || ''}
                     />
