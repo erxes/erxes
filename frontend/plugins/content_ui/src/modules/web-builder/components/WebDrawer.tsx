@@ -20,6 +20,8 @@ import { IWebInput } from '../types';
 import { TEMPLATE_TYPES } from '../constants';
 import { TemplateSelect } from './TemplateSelect';
 import { WebCustomDomain } from './WebCustomDomain';
+import { Uploader } from '@/cms/settings/components/Uploader';
+import { IconPhoto } from '@tabler/icons-react';
 
 interface SelectOption {
   value: string;
@@ -88,6 +90,7 @@ export const WebDrawer = () => {
       templateType: '',
       templateId: '',
       clientPortalId: '',
+      thumbnail: null,
     },
   });
 
@@ -100,13 +103,30 @@ export const WebDrawer = () => {
         templateType: drawer.editingWeb?.templateType || '',
         templateId: drawer.editingWeb?.templateId || '',
         clientPortalId: drawer.editingWeb?.clientPortalId || '',
+        thumbnail: drawer.editingWeb?.thumbnail?.url
+          ? drawer.editingWeb.thumbnail
+          : null,
       });
     }
   }, [drawer.open, drawer.editingWeb, form]);
 
   const onClose = () => setDrawer({ open: false, editingWeb: null });
 
-  const onSubmit = async (data: IWebInput) => {
+  const onSubmit = async ({ thumbnail, ...rest }: IWebInput) => {
+    const data: IWebInput = {
+      ...rest,
+      // strip __typename from the queried attachment before sending as input
+      thumbnail: thumbnail?.url
+        ? {
+            url: thumbnail.url,
+            name: thumbnail.name,
+            type: thumbnail.type,
+            size: thumbnail.size,
+            duration: thumbnail.duration,
+          }
+        : null,
+    };
+
     if (isEditing && drawer.editingWeb) {
       await editWeb({ variables: { id: drawer.editingWeb._id, doc: data } });
     } else {
@@ -239,6 +259,34 @@ export const WebDrawer = () => {
                     <TemplateSelect
                       type={selectedType || ''}
                       value={field.value || ''}
+                      onChange={field.onChange}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="thumbnail"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('thumbnail')}</Form.Label>
+                    <Uploader
+                      icon={IconPhoto}
+                      label={t('thumbnail')}
+                      hint={t('thumbnail-hint', {
+                        defaultValue: 'Shown on the web project card',
+                      })}
+                      value={
+                        field.value?.url
+                          ? {
+                              ...field.value,
+                              url: field.value.url,
+                              name: field.value.name || '',
+                            }
+                          : null
+                      }
                       onChange={field.onChange}
                     />
                     <Form.Message />
