@@ -122,5 +122,6 @@ export interface MessengerSetupPayload {
     backgroundColor?: string;
     heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
     navigationVariant?: 'pill' | 'fluid';
+    isSupportInAppView?: boolean;
   };
 }

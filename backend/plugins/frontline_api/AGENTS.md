@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -61,6 +61,10 @@
 
 ## Current Capabilities
 
+- Messenger `uiOptions` stores the appearance step: logo pair, colours,
+  `heroStyleVariant`, `navigationVariant`, and the `isSupportInAppView` flag.
+  `saveMessengerAppearanceData` lists every field explicitly — a new
+  `uiOptions` field must be added there or it is silently dropped.
 - A messenger ticket form only offers live property options: the config keeps
   the options it was saved with, and `widgetsMessengerConnect` re-reads them
   from core (`withLiveTicketOptions`) so an option archived since stops

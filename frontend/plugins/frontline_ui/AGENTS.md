@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-02`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -250,6 +250,9 @@
   `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
   and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
   must exist for the save to succeed.
+- The erxes messenger Appearance step (`EMAppearance.tsx`) edits `uiOptions`:
+  colours, logos, hero style, navigation bar, and an `isSupportInAppView`
+  switch (default off).
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - The conversation header carries a **Convert** menu. Each entry opens

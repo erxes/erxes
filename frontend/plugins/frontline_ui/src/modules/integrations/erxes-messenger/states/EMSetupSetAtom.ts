@@ -43,6 +43,7 @@ export const erxesMessengerSetSetupAtom = atom(
           payload?.uiOptions?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
         heroStyleVariant: payload?.uiOptions?.heroStyleVariant,
         navigationVariant: payload?.uiOptions?.navigationVariant,
+        isSupportInAppView: payload?.uiOptions?.isSupportInAppView ?? false,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
