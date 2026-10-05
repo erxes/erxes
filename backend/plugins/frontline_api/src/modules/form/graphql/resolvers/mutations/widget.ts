@@ -63,8 +63,6 @@ type CompanyFormDoc = Pick<
 function getFileUrl(value: unknown): string | undefined {
   const file = Array.isArray(value) ? value[0] : value;
 
-  if (typeof file === 'string') return file;
-
   if (file && typeof file === 'object' && 'url' in file) {
     return typeof file.url === 'string' ? file.url : undefined;
   }

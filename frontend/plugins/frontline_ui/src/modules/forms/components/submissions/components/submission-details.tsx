@@ -55,7 +55,9 @@ const SubmissionFieldDisplay = ({
     return (
       <Avatar size="xl">
         <Avatar.Image
-          src={readImage(decodeURIComponent(String(value ?? '')))}
+          src={readImage(
+            decodeURIComponent(parseFilesAsAttachments(value)[0]?.url ?? ''),
+          )}
           alt="avatar"
         />
         <Avatar.Fallback>C</Avatar.Fallback>

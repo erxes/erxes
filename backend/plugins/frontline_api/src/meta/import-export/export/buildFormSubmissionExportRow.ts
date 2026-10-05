@@ -23,6 +23,9 @@ const formatValue = (v: unknown): string => {
   if (v instanceof Date) {
     return isFinite(v.getTime()) ? v.toISOString() : '';
   }
+  if (!Array.isArray(v) && typeof v === 'object' && 'url' in v) {
+    return typeof v.url === 'string' ? v.url : '';
+  }
   if (typeof v === 'object' || Array.isArray(v)) {
     try {
       return JSON.stringify(v);

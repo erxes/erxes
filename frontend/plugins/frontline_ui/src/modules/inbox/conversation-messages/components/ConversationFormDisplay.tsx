@@ -18,6 +18,7 @@ import {
   Textarea,
   Upload,
   cn,
+  parseFilesAsAttachments,
   readImage,
 } from 'erxes-ui';
 
@@ -176,7 +177,9 @@ export const ConversationFormDisplay = ({
                 item.type === 'core:company:avatar') && (
                 <Avatar size={'xl'}>
                   <Avatar.Image
-                    src={readImage(String(item.value))}
+                    src={readImage(
+                      parseFilesAsAttachments(item.value)[0]?.url ?? '',
+                    )}
                     alt="avatar"
                   />
                   <Avatar.Fallback>C</Avatar.Fallback>

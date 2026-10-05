@@ -124,7 +124,11 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
           <RecordTableInlineCell>
             <Avatar size={'lg'}>
               <Avatar.Image
-                src={readImage(decodeURIComponent(String(value ?? '')))}
+                src={readImage(
+                  decodeURIComponent(
+                    parseFilesAsAttachments(value)[0]?.url ?? '',
+                  ),
+                )}
                 alt="avatar"
               />
               <Avatar.Fallback>C</Avatar.Fallback>

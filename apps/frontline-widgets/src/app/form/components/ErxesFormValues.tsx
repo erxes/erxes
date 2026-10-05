@@ -90,7 +90,10 @@ export const ErxesFormValues = ({
         : z.array(z.string());
       return;
     }
-    if (field.type === 'core:customer:avatar') {
+    if (
+      field.type === 'core:customer:avatar' ||
+      field.type === 'core:company:avatar'
+    ) {
       formSchema[field._id] = field.isRequired
         ? z.any({ message: 'Please upload a avatar picture.' })
         : z.any();
@@ -141,7 +144,10 @@ export const ErxesFormValues = ({
       defaultValues[field._id] = '';
     } else if (field.type === 'file') {
       defaultValues[field._id] = [];
-    } else if (field.type === 'core:customer:avatar') {
+    } else if (
+      field.type === 'core:customer:avatar' ||
+      field.type === 'core:company:avatar'
+    ) {
       defaultValues[field._id] = null;
     } else if (field.type === 'check') {
       defaultValues[field._id] = [];
