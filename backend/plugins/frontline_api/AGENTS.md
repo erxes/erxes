@@ -61,6 +61,15 @@
 
 ## Current Capabilities
 
+- Messenger `uiOptions` stores the appearance step: logo pair, colours,
+  `heroStyleVariant`, `navigationVariant`, and the `isSupportInAppView` flag.
+  `saveMessengerAppearanceData` lists every field explicitly — a new
+  `uiOptions` field must be added there or it is silently dropped.
+- The Erxes Messenger Message trigger (`frontline:inbox.messages`) can be
+  scoped to one messenger through `config.integrationId`. The widget puts the
+  message's `integrationId` on the trigger target; `checkCustomTrigger` rejects
+  other messengers. An empty `integrationId` fires for every messenger — keep
+  that, existing automations rely on it.
 - A messenger ticket form only offers live property options: the config keeps
   the options it was saved with, and `widgetsMessengerConnect` re-reads them
   from core (`withLiveTicketOptions`) so an option archived since stops
