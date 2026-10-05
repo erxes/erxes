@@ -499,8 +499,8 @@ export const ErxesForm = ({
                           <Upload.Root
                             value={
                               Array.isArray(field.value)
-                                ? field.value[field.value.length - 1] ?? ''
-                                : field.value ?? ''
+                                ? (field.value[field.value.length - 1] ?? '')
+                                : (field.value ?? '')
                             }
                             onChange={(fileInfo) => {
                               if (typeof fileInfo === 'string') {

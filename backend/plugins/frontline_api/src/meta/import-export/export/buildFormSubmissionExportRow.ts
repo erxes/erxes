@@ -51,7 +51,9 @@ export const buildFormSubmissionExportRow = (
     customerId: formatValue(row.customerId),
     formId: formatValue(row.formId),
     contentTypeId: formatValue(row.contentTypeId),
-    submittedAt: formatValue(row.submittedAt ? new Date(row.submittedAt) : null),
+    submittedAt: formatValue(
+      row.submittedAt ? new Date(row.submittedAt) : null,
+    ),
   };
 
   // One column per form field, keyed as field_<fieldId>
