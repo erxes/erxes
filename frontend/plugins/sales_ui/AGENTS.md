@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-03`
 
 ## Scope
 
@@ -24,6 +24,9 @@
   plugin routes.
 
 ## Current Capabilities
+
+- POS product settings independently persist `isShowRemainder` for display and
+  `isCheckRemainder` for preventing negative stock, with category exclusions.
 
 - Runs as the sales Module Federation remote.
 - Development Rspack serving ignores generated dependency/cache/output folders

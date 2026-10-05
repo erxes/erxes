@@ -1,57 +1,43 @@
-import { CopyAttachmentAction } from '@/inbox/conversation-messages/components/CopyAttachmentAction';
 import { useMutation } from '@apollo/client';
-import {
-  Button,
-  CopyText,
-  DropdownMenu,
-  Tooltip,
-  stripHtml,
-  toast,
-} from 'erxes-ui';
+import { Button, DropdownMenu, Tooltip, toast } from 'erxes-ui';
 import {
   IconArrowBackUp,
-  IconCopy,
   IconDots,
   IconPin,
   IconPinnedOff,
   IconShare3,
 } from '@tabler/icons-react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useContext, useState } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
-import type { IMessage, IMessageReaction } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
-import { currentUserState } from 'ui-modules';
 import { ForwardMessageDialog } from '@/inbox/conversation-messages/components/ForwardMessageDialog';
 import {
   INLINE_ACTION_KINDS,
-  INSTAGRAM_REACTION_MESSAGE_KINDS,
   NATIVE_REPLY_KINDS,
-  REACTIONS,
-  REACTION_KINDS,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
 import { ReactionMenu } from '@/inbox/conversation-messages/components/MessageReactionMenu';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 import { FacebookReplyWindowContext } from '@/integrations/facebook/contexts/FacebookReplyWindowContext';
+import { MessageCopyActions } from '@/inbox/conversation-messages/components/MessageCopyActions';
 
 export const MessageActions = ({
-  message,
   additionalActions,
   onReply,
 }: {
-  message: IMessage;
   additionalActions?: React.ReactNode;
   onReply?: () => void;
 }) => {
+  const message = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
   const kind = integration?.kind || '';
   const providerMessageId = getProviderMessageId(message);
   const setReply = useSetAtom(messageReplyState);
-  const currentUser = useAtomValue(currentUserState);
   const facebookReplyWindowExpired = useContext(FacebookReplyWindowContext);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
@@ -64,31 +50,15 @@ export const MessageActions = ({
     },
   );
   const preview = previewOf(message);
-  const messageText = stripHtml(message.content).trim();
   const isInstagram = kind === IntegrationType.INSTAGRAM_MESSENGER;
-  const isInstagramReactionTarget =
-    !isInstagram ||
-    (!message.userId &&
-      !message.fromBot &&
-      INSTAGRAM_REACTION_MESSAGE_KINDS.has(message.messageKind || 'text'));
-  const canReact =
-    REACTION_KINDS.has(kind) &&
-    Boolean(providerMessageId) &&
-    isInstagramReactionTarget;
-  const availableReactions =
-    kind === IntegrationType.INSTAGRAM_MESSENGER
-      ? REACTIONS.slice(0, 1)
-      : REACTIONS;
-  const ownReaction = (
-    message.reactions?.length ? message.reactions : message.extraData?.reactions
-  )?.find(
-    (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
-  )?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
   const showReply =
     kind !== 'lead' &&
     (kind !== IntegrationType.FACEBOOK_MESSENGER || Boolean(providerMessageId));
-  const canReply = showReply && !facebookReplyWindowExpired;
+  const canReply =
+    showReply &&
+    !facebookReplyWindowExpired &&
+    (!isInstagram || Boolean(providerMessageId));
   const canForward = kind !== 'lead' && kind !== IntegrationType.FACEBOOK_POST;
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
@@ -143,20 +113,7 @@ export const MessageActions = ({
   return (
     <Tooltip.Provider delayDuration={0}>
       <div className="flex items-center gap-0.5">
-        {REACTION_KINDS.has(kind) && isInstagramReactionTarget && (
-          <ReactionMenu
-            conversationId={conversationId}
-            messageId={providerMessageId || ''}
-            disabled={!canReact}
-            disabledReason={
-              !providerMessageId
-                ? 'This message has no provider ID to react to'
-                : 'Reactions are not supported by this channel'
-            }
-            selectedReaction={ownReaction}
-            reactions={availableReactions}
-          />
-        )}
+        <ReactionMenu />
         {showReply && (
           <ActionButton
             label={
@@ -181,22 +138,7 @@ export const MessageActions = ({
                 <IconShare3 className="size-4" />
               </ActionButton>
             )}
-            {message.attachments?.map((attachment, index) => (
-              <CopyAttachmentAction
-                key={`${attachment.url}-${index}`}
-                attachment={attachment}
-                inline
-              />
-            ))}
-            {messageText && (
-              <CopyText
-                value={messageText}
-                className="size-8 justify-center rounded-md text-muted-foreground hover:bg-muted [&>span]:gap-0 [&>span]:text-[0px]"
-              >
-                <IconCopy className="size-4" />
-                <span className="sr-only">Copy text</span>
-              </CopyText>
-            )}
+            <MessageCopyActions inline />
           </>
         ) : (
           <div className="ml-0.5 border-l border-border/70 pl-0.5">
@@ -226,21 +168,7 @@ export const MessageActions = ({
                     Forward
                   </DropdownMenu.Item>
                 )}
-                {message.attachments?.map((attachment, index) => (
-                  <CopyAttachmentAction
-                    key={`${attachment.url}-${index}`}
-                    attachment={attachment}
-                    inline={false}
-                  />
-                ))}
-                {messageText && (
-                  <DropdownMenu.Item asChild className="rounded-lg">
-                    <CopyText value={messageText} className="w-full">
-                      <IconCopy className="size-4" />
-                      Copy text
-                    </CopyText>
-                  </DropdownMenu.Item>
-                )}
+                <MessageCopyActions inline={false} />
                 {isDiscord && (
                   <DropdownMenu.Item
                     className="rounded-lg"
@@ -264,9 +192,6 @@ export const MessageActions = ({
         <ForwardMessageDialog
           open={forwardOpen}
           onOpenChange={setForwardOpen}
-          sourceConversationId={conversationId}
-          message={message}
-          preview={preview}
         />
       )}
     </Tooltip.Provider>

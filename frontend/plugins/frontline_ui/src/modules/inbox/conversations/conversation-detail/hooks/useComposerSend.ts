@@ -1,4 +1,5 @@
 import type { Block } from '@blocknote/core';
+import { getInstagramSendError } from '@/integrations/instagram/utils/instagramSendError';
 import {
   getBlockAttachments,
   toast,
@@ -34,6 +35,7 @@ type ComposerSendOptions = {
   attachments: IAttachment[];
   mentionedUserIds: string[];
   isDiscord: boolean;
+  isInstagram: boolean;
   isFacebook: boolean;
   isInternalNote: boolean;
   isUploading: boolean;
@@ -50,6 +52,7 @@ export const useComposerSend = ({
   attachments,
   mentionedUserIds,
   isDiscord,
+  isInstagram,
   isFacebook,
   isInternalNote,
   isUploading,
@@ -163,9 +166,19 @@ export const useComposerSend = ({
         },
         refetchQueries: [
           ...REFETCH_AFTER_SEND,
+          ...(isInstagram ? ['InstagramConversationMessages'] : []),
           ...(isFacebook ? ['FacebookConversationMessages'] : []),
         ],
         onError: (error) => {
+          if (isInstagram && !isInternalNote) {
+            const feedback = getInstagramSendError(error);
+            toast({
+              title: t('instagram-send-error-title', 'Could not send message'),
+              description: t(feedback.key, feedback.description),
+              variant: 'destructive',
+            });
+            return;
+          }
           const windowExpired =
             isFacebook &&
             /outside of (?:the )?allowed window/i.test(error.message);
@@ -194,6 +207,7 @@ export const useComposerSend = ({
     draftKey,
     editor,
     isDiscord,
+    isInstagram,
     isFacebook,
     isInternalNote,
     isUploading,

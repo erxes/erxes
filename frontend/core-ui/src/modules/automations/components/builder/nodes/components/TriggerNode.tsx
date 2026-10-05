@@ -5,6 +5,7 @@ import {
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
 import { NodeWarningIndicator } from '@/automations/components/builder/nodes/components/NodeWarningIndicator';
+import { NodeFrame } from '@/automations/components/builder/nodes/components/NodeFrame';
 import { NodeIssuesProvider } from '@/automations/components/builder/nodes/components/NodeIssuesProvider';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
@@ -14,18 +15,9 @@ import { useNodeContent } from '@/automations/components/builder/nodes/hooks/use
 import { useTriggerNodeFolks } from '@/automations/components/builder/nodes/hooks/useTriggerNodeFolks';
 import { isSegmentMembershipTrigger } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { AutomationNodeType, NodeData } from '@/automations/types';
-import { IconAdjustmentsAlt } from '@tabler/icons-react';
 import { Node, NodeProps } from '@xyflow/react';
 import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
-
-// Configuration header component
-const ConfigurationHeader = () => (
-  <div className="flex items-center gap-2 text-primary/90 pb-2">
-    <IconAdjustmentsAlt className="size-4" />
-    <p className="text-sm font-semibold">Configuration</p>
-  </div>
-);
 
 // Configuration content wrapper
 const ConfigurationContent = ({
@@ -43,7 +35,6 @@ const ConfigurationContent = ({
 // Main configuration section
 const ConfigurationSection = ({ data }: { data: NodeData }) => (
   <div className="p-3">
-    <ConfigurationHeader />
     <ConfigurationContent type={data.type || ''} config={data.config} />
   </div>
 );
@@ -90,7 +81,7 @@ const TriggerNodeSourceHandler = ({
     <NodeOutputHandler
       nodeType={AutomationNodeType.Trigger}
       handlerId={id}
-      className="!bg-primary"
+      className="!border-primary"
       addButtonClassName="hover:border-primary hover:text-primary "
       showAddButton={!data.actionId}
       flowDirection={data.flowDirection}
@@ -102,73 +93,59 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
   const { beforeTitleContent } = data;
 
   return (
-    <div className="flex flex-col ">
-      <div className="w-1/4 ml-1 bg-primary/10 text-primary text-center px-2 py-1 rounded-t-md">
-        <p className="font-medium font-bold">Trigger</p>
-      </div>
-      <div
-        className={cn(
-          'rounded-md shadow-md bg-background w-[280px] relative font-mono transition-all duration-200',
-          {
-            'ring-2 ring-primary': selected,
-            'ring-2 ring-destructive': data?.error,
-          },
-        )}
-      >
-        <div className="p-3 flex items-center justify-between border-b border-slate-200 gap-8">
-          <div className="flex items-center gap-2 text-primary">
-            {beforeTitleContent?.(id, AutomationNodeType.Trigger)}
-            <div
-              className={`size-6 rounded-full flex items-center justify-center`}
-            >
-              <IconComponent className="size-4" name={data.icon} />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium ">{data.label}</p>
-            </div>
-            {data?.error && <NodeErrorIndicator error={data.error} />}
-            {!data?.error && !data.readOnly && (
-              <NodeWarningIndicator nodeId={id} />
-            )}
+    <NodeFrame
+      label="Trigger"
+      actions={!data.readOnly && <NodeDropdownActions id={id} data={data} />}
+      className={cn({
+        'ring-2 ring-primary': selected,
+        'ring-2 ring-destructive': data?.error,
+      })}
+    >
+      <div className="p-3 flex items-center justify-between border-b gap-8">
+        <div className="flex items-center gap-2">
+          {beforeTitleContent?.(id, AutomationNodeType.Trigger)}
+          <div className="size-7 shrink-0 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+            <IconComponent className="size-4" name={data.icon} />
           </div>
-
-          {!data.readOnly && (
-            <div className="flex items-center gap-1">
-              <NodeDropdownActions id={id} data={data} />
-            </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold">{data.label}</p>
+          </div>
+          {data?.error && <NodeErrorIndicator error={data.error} />}
+          {!data?.error && !data.readOnly && (
+            <NodeWarningIndicator nodeId={id} />
           )}
         </div>
-        <div className="p-3">
-          <span className="text-xs text-accent-foreground ">
-            {data.description}
-          </span>
+      </div>
+      <div className="p-3">
+        <span className="text-xs text-accent-foreground ">
+          {data.description}
+        </span>
 
-          {data?.error && (
-            <div className="mt-2">
-              <NodeErrorDisplay
-                error={data.error}
-                nodeId={id}
-                onClearError={(nodeId) => {
-                  // Clear error logic can be added here
-                }}
-              />
-            </div>
-          )}
+        {data?.error && (
+          <div className="mt-2">
+            <NodeErrorDisplay
+              error={data.error}
+              nodeId={id}
+              onClearError={(nodeId) => {
+                // Clear error logic can be added here
+              }}
+            />
+          </div>
+        )}
 
-          {isSegmentMembershipTrigger(data.config) ? (
-            <SegmentMembershipNodeContent segmentId={data.config?.segmentId} />
-          ) : (
-            <TriggerNodeContent data={{ ...data, id }} />
-          )}
-        </div>
-
-        {data.readOnly ? (
-          <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
+        {isSegmentMembershipTrigger(data.config) ? (
+          <SegmentMembershipNodeContent segmentId={data.config?.segmentId} />
         ) : (
-          <TriggerNodeSourceHandler id={id} data={data} />
+          <TriggerNodeContent data={{ ...data, id }} />
         )}
       </div>
-    </div>
+
+      {data.readOnly ? (
+        <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
+      ) : (
+        <TriggerNodeSourceHandler id={id} data={data} />
+      )}
+    </NodeFrame>
   );
 };
 

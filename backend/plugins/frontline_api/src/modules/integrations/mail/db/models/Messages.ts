@@ -1,31 +1,19 @@
-import { Model } from 'mongoose';
+import type { Model } from 'mongoose';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
+import type { IModels } from '~/connectionResolvers';
 import { mailMessageSchema } from '@/integrations/mail/db/definitions/messages';
-import {
-  IMailComposeArgs,
+import type {
   IMailMessageDocument,
   IMailSendArgs,
   IMailTicketMailArgs,
-  TMailConversationStatusOnSent,
 } from '@/integrations/mail/@types/message';
-import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
-import {
-  MAIL_CONVERSATION_STATUSES_ON_SENT,
-  MAIL_DELIVERY_STATUSES,
-  MAIL_MESSAGE_TYPES,
-} from '@/integrations/mail/constants';
+import type { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import { createReplyTag } from '@/integrations/mail/utils/address';
-import { resendableFilter } from '@/integrations/mail/utils/delivery';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
-import { describeError } from '@/integrations/mail/utils/errors';
-import { debugError } from '@/integrations/mail/debuggers';
-import {
-  buildMessageId,
-  isRetryableFailure,
-  resolveReplyToAddress,
-  sendMail,
-} from '@/integrations/mail/utils/transports';
+import { createMailDelivery } from '@/integrations/mail/utils/mailDelivery';
+import { toConversationStatusOnSent } from '@/integrations/mail/utils/mailConversationStatus';
+import { composeMailMessage } from '@/integrations/mail/utils/mailCompose';
+import { assertCustomerRecipient } from '@/integrations/mail/utils/mailRecipient';
 
 export interface IMailMessageModel extends Model<IMailMessageDocument> {
   findRelatedThread(
@@ -54,13 +42,12 @@ export interface IMailMessageModel extends Model<IMailMessageDocument> {
   retrySend(_id: string, subdomain: string): Promise<IMailMessageDocument>;
 }
 
-const toAddresses = (emails: string[] = []) =>
-  emails.map((address) => ({ name: address, address }));
-
 export const loadMailMessageClass = (models: IModels) => {
+  const mailDelivery = createMailDelivery(models);
+
   // skipcq: JS-0327
   class Message {
-    public static async findRelatedThread(
+    public static findRelatedThread(
       scopeId: string,
       messageId: string,
       inReplyTo?: string,
@@ -83,22 +70,24 @@ export const loadMailMessageClass = (models: IModels) => {
       return models.MailMessages.findOne({
         inboxIntegrationId: scopeId,
         $or,
-      });
+      }).exec();
     }
 
-    public static async findByReplyTag(scopeId: string, tag: string) {
+    public static findByReplyTag(scopeId: string, tag: string) {
       return models.MailMessages.findOne({
         inboxIntegrationId: scopeId,
         replyTag: tag,
-      });
+      }).exec();
     }
 
-    public static async findLatestFromSender(scopeId: string, address: string) {
+    public static findLatestFromSender(scopeId: string, address: string) {
       return models.MailMessages.findOne({
         inboxIntegrationId: scopeId,
         ticketId: { $exists: true, $ne: null },
         'from.address': address,
-      }).sort({ createdAt: -1, _id: -1 });
+      })
+        .sort({ createdAt: -1, _id: -1 })
+        .exec();
     }
 
     public static async createSendMail(args: IMailSendArgs, subdomain: string) {
@@ -112,47 +101,91 @@ export const loadMailMessageClass = (models: IModels) => {
         ...compose
       } = args;
 
-      if (!conversationId) {
-        throw new Error(
-          'A mail reply needs the conversation it belongs to — send it from the inbox thread',
-        );
-      }
-
       const integration = await Message.resolveIntegration(
         integrationId,
         conversationId,
       );
 
-      const message = await Message.compose(subdomain, integration, compose, {
-        inboxConversationId: conversationId,
-        replyTag: await Message.resolveReplyTag({
-          inboxConversationId: conversationId,
-        }),
-        conversationStatusOnSent: Message.toConversationStatusOnSent(
-          shouldResolve,
-          shouldOpen,
-        ),
-        draftId,
-        sourceMessageId,
-      });
+      const scopeId = mailScopeId(integration);
 
-      await models.Conversations.updateConversation(conversationId, {
+      let targetConversationId = conversationId;
+      let effectiveCustomerId = compose.customerId;
+      if (!targetConversationId) {
+        const [firstRecipient] = compose.to ?? [];
+
+        if (!firstRecipient?.trim()) {
+          throw new Error(
+            'Starting an email conversation requires a recipient',
+          );
+        }
+
+        if (effectiveCustomerId) {
+          await assertCustomerRecipient(
+            subdomain,
+            effectiveCustomerId,
+            firstRecipient,
+          );
+        }
+
+        if (!effectiveCustomerId && firstRecipient) {
+          effectiveCustomerId = await models.MailCustomers.findOrCreate(
+            subdomain,
+            firstRecipient.trim().toLowerCase(),
+            scopeId,
+          );
+        }
+
+        if (!effectiveCustomerId) {
+          throw new Error('Starting an email conversation requires a customer');
+        }
+
+        const conversation = await models.Conversations.createConversation({
+          integrationId: integration.inboxId,
+          customerId: effectiveCustomerId,
+          content: compose.subject,
+        });
+        targetConversationId = conversation._id;
+      }
+
+      const message = await composeMailMessage(
+        models,
+        subdomain,
+        integration,
+        {
+          ...compose,
+          customerId: effectiveCustomerId,
+        },
+        {
+          inboxConversationId: targetConversationId,
+          replyTag: await Message.resolveReplyTag({
+            inboxConversationId: targetConversationId,
+          }),
+          conversationStatusOnSent: toConversationStatusOnSent(
+            shouldResolve,
+            shouldOpen,
+          ),
+          draftId,
+          sourceMessageId,
+        },
+      );
+
+      await models.Conversations.updateConversation(targetConversationId, {
         content: compose.subject,
         updatedAt: message.createdAt,
       });
 
       await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversationId}`,
+        `conversationMessageInserted:${targetConversationId}`,
         {
           conversationMessageInserted: {
             _id: String(message._id),
             content: message.body ?? '',
-            conversationId,
+            conversationId: targetConversationId,
           },
         },
       );
 
-      return Message.deliver(subdomain, message, integration);
+      return mailDelivery.deliver(subdomain, message, integration);
     }
 
     public static async createTicketMail(
@@ -162,341 +195,22 @@ export const loadMailMessageClass = (models: IModels) => {
     ) {
       const { ticketId, ...compose } = args;
 
-      const message = await Message.compose(subdomain, integration, compose, {
-        ticketId,
-        replyTag: await Message.resolveReplyTag({ ticketId }),
-      });
-
-      return Message.deliver(subdomain, message, integration);
-    }
-
-    private static async compose(
-      subdomain: string,
-      integration: IMailIntegrationDocument,
-      args: IMailComposeArgs,
-      thread: {
-        inboxConversationId?: string;
-        ticketId?: string;
-        replyTag: string;
-        conversationStatusOnSent?: TMailConversationStatusOnSent;
-        draftId?: string;
-        sourceMessageId?: string;
-      },
-    ) {
-      const {
-        customerId,
-        subject,
-        body,
-        to,
-        cc,
-        bcc,
-        attachments,
-        replyToMessageId,
-        references,
-        automated,
-      } = args;
-
-      const scopeId = mailScopeId(integration);
-
-      await Message.ensureCustomer(subdomain, customerId, to, scopeId);
-
-      const fromAddress = integration.address;
-
-      const senderName = await models.MailIntegrations.resolveSenderName(
+      const message = await composeMailMessage(
+        models,
+        subdomain,
         integration,
-      );
-
-      const referenceChain = [
-        ...new Set(
-          [
-            ...(references ?? []),
-            ...(replyToMessageId ? [replyToMessageId] : []),
-          ].filter(Boolean),
-        ),
-      ];
-
-      return models.MailMessages.create({
-        ...thread,
-        inboxIntegrationId: scopeId,
-        messageId: buildMessageId(fromAddress),
-        inReplyTo: replyToMessageId,
-        references: referenceChain,
-        subject,
-        body: body ?? '',
-        from: [{ name: senderName || fromAddress, address: fromAddress }],
-        to: toAddresses(to),
-        cc: toAddresses(cc),
-        bcc: toAddresses(bcc),
-        attachments: (attachments ?? []).map(
-          ({ name, type, size, url, contentId, disposition }) => ({
-            filename: name,
-            mimeType: type,
-            type,
-            size,
-            url,
-            contentId,
-            disposition,
-          }),
-        ),
-        automated: Boolean(automated),
-        type: MAIL_MESSAGE_TYPES.SENT,
-        deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
-        deliveryAttemptedAt: new Date(),
-        createdAt: new Date(),
-      });
-    }
-
-    public static async retrySend(_id: string, subdomain: string) {
-      const message = await models.MailMessages.findOne({ _id });
-
-      if (!message) {
-        throw new Error('Message not found');
-      }
-
-      if (message.type !== MAIL_MESSAGE_TYPES.SENT) {
-        throw new Error('Only outbound messages can be resent');
-      }
-
-      const integration = await models.MailIntegrations.findByScope(
-        message.inboxIntegrationId,
-      );
-
-      if (!integration) {
-        throw new Error('Mail integration not found');
-      }
-
-      if (Message.awaitsConversationStatus(message)) {
-        await Message.settleConversationStatus(message);
-
-        return models.MailMessages.findOne({
-          _id,
-        }) as Promise<IMailMessageDocument>;
-      }
-
-      const claimed = await models.MailMessages.updateOne(
-        { _id, ...resendableFilter() },
+        compose,
         {
-          $set: {
-            deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
-            deliveryAttemptedAt: new Date(),
-          },
-          $unset: { deliveryError: '', deliveryRetryable: '' },
+          ticketId,
+          replyTag: await Message.resolveReplyTag({ ticketId }),
         },
       );
 
-      if (!claimed.modifiedCount) {
-        throw new Error(
-          'Only a failed message, or one stuck sending for more than 10 minutes, can be resent',
-        );
-      }
-
-      return Message.deliver(subdomain, message, integration);
+      return mailDelivery.deliver(subdomain, message, integration);
     }
 
-    private static async deliver(
-      subdomain: string,
-      message: IMailMessageDocument,
-      integration: IMailIntegrationDocument,
-    ) {
-      const replyToAddress = resolveReplyToAddress(
-        integration,
-        message.replyTag,
-      );
-
-      const senderName = await models.MailIntegrations.resolveSenderName(
-        integration,
-      );
-
-      const [inReplyTo] = await Message.toWireReferences(
-        message.inboxIntegrationId,
-        message.inReplyTo ? [message.inReplyTo] : [],
-      );
-
-      const references = await Message.toWireReferences(
-        message.inboxIntegrationId,
-        message.references ?? [],
-      );
-
-      let result: Awaited<ReturnType<typeof sendMail>> | undefined;
-
-      try {
-        result = await sendMail(subdomain, {
-          messageId: message.messageId,
-          from: integration.address,
-          fromName: senderName || undefined,
-          replyTo: replyToAddress,
-          to: message.to.map((entry) => entry.address),
-          cc: message.cc.map((entry) => entry.address),
-          bcc: message.bcc.map((entry) => entry.address),
-          subject: message.subject ?? '',
-          html: message.body ?? '',
-          inReplyTo,
-          references,
-          automated: Boolean(message.automated),
-          attachments: (message.attachments ?? []).map((attachment) => ({
-            name: attachment.filename,
-            url: attachment.url,
-            type: attachment.type,
-            size: attachment.size,
-            contentId: attachment.contentId,
-            disposition: attachment.disposition,
-          })),
-        });
-      } catch (e) {
-        const deliveryError = describeError(e);
-
-        await models.MailMessages.updateOne(
-          { _id: message._id },
-          {
-            $set: {
-              deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
-              deliveryError,
-              deliveryRetryable: isRetryableFailure(e),
-            },
-          },
-        );
-
-        await Message.settleIntegrationHealth(integration, deliveryError);
-      }
-
-      if (result) {
-        const bounced = result.bounced.length > 0;
-
-        await models.MailMessages.updateOne(
-          { _id: message._id },
-          bounced
-            ? {
-                $set: {
-                  deliveryStatus: MAIL_DELIVERY_STATUSES.BOUNCED,
-                  bouncedRecipients: result.bounced,
-                  providerMessageId: result.providerMessageId,
-                },
-                $unset: { deliveryError: '', deliveryRetryable: '' },
-              }
-            : {
-                $set: {
-                  deliveryStatus: MAIL_DELIVERY_STATUSES.SENT,
-                  providerMessageId: result.providerMessageId,
-                },
-                $unset: {
-                  bouncedRecipients: '',
-                  deliveryError: '',
-                  deliveryRetryable: '',
-                },
-              },
-        );
-
-        await Message.settleIntegrationHealth(integration);
-
-        if (!bounced) {
-          await Message.settleConversationStatus(message).catch((e) =>
-            debugError(
-              `Mail ${message._id} was delivered but its conversation status was not applied:`,
-              e,
-            ),
-          );
-        }
-      }
-
-      return models.MailMessages.findOne({
-        _id: message._id,
-      }) as Promise<IMailMessageDocument>;
-    }
-
-    private static async settleIntegrationHealth(
-      integration: IMailIntegrationDocument,
-      deliveryError?: string,
-    ) {
-      try {
-        if (deliveryError) {
-          await models.MailIntegrations.markUnhealthy(
-            integration._id,
-            deliveryError,
-          );
-        } else {
-          await models.MailIntegrations.markHealthy(integration._id);
-        }
-      } catch (e) {
-        debugError(
-          `Could not record the health of mail integration ${integration._id}:`,
-          e,
-        );
-      }
-    }
-
-    private static awaitsConversationStatus(message: IMailMessageDocument) {
-      return (
-        message.deliveryStatus === MAIL_DELIVERY_STATUSES.SENT &&
-        Boolean(message.conversationStatusOnSent) &&
-        !message.conversationStatusAppliedAt
-      );
-    }
-
-    private static async settleConversationStatus(
-      message: IMailMessageDocument,
-    ) {
-      if (!message.conversationStatusOnSent) {
-        return;
-      }
-
-      await Message.applyConversationStatusOnSent(message);
-
-      await models.MailMessages.updateOne(
-        { _id: message._id },
-        { $set: { conversationStatusAppliedAt: new Date() } },
-      );
-    }
-
-    private static toConversationStatusOnSent(
-      shouldResolve?: boolean,
-      shouldOpen?: boolean,
-    ): TMailConversationStatusOnSent | undefined {
-      if (shouldResolve) {
-        return MAIL_CONVERSATION_STATUSES_ON_SENT.CLOSED;
-      }
-
-      return shouldOpen ? MAIL_CONVERSATION_STATUSES_ON_SENT.NEW : undefined;
-    }
-
-    private static async applyConversationStatusOnSent(
-      message: IMailMessageDocument,
-    ) {
-      const conversationId = message.inboxConversationId;
-      const status = message.conversationStatusOnSent;
-
-      if (!conversationId || !status) {
-        return;
-      }
-
-      const closing = status === MAIL_CONVERSATION_STATUSES_ON_SENT.CLOSED;
-
-      if (closing && (await Message.receivedNewerMail(message))) {
-        return;
-      }
-
-      await models.Conversations.updateConversation(conversationId, {
-        status,
-        ...(closing ? { closedAt: new Date() } : {}),
-      });
-
-      await graphqlPubsub.publish(`conversationChanged:${conversationId}`, {
-        conversationChanged: { conversationId, type: status },
-      });
-    }
-
-    private static async receivedNewerMail(message: IMailMessageDocument) {
-      const answered = message.sourceMessageId
-        ? await models.MailMessages.findOne(
-            { _id: message.sourceMessageId },
-            { createdAt: 1 },
-          ).lean()
-        : null;
-
-      return models.MailMessages.exists({
-        inboxConversationId: message.inboxConversationId,
-        type: MAIL_MESSAGE_TYPES.INBOX,
-        createdAt: { $gt: answered?.createdAt ?? message.createdAt },
-      });
+    public static retrySend(_id: string, subdomain: string) {
+      return mailDelivery.retrySend(_id, subdomain);
     }
 
     private static async resolveReplyTag(thread: {
@@ -511,43 +225,27 @@ export const loadMailMessageClass = (models: IModels) => {
       return tagged?.replyTag ?? createReplyTag();
     }
 
-    private static async toWireReferences(
-      inboxIntegrationId: string,
-      chain: string[],
-    ) {
-      if (!chain.length) {
-        return chain;
-      }
-
-      const ours = await models.MailMessages.find(
-        {
-          inboxIntegrationId,
-          type: MAIL_MESSAGE_TYPES.SENT,
-          messageId: { $in: chain },
-        },
-        { messageId: 1, providerMessageId: 1 },
-      ).lean();
-
-      if (!ours.length) {
-        return chain;
-      }
-
-      const onTheWire = new Map<string, string>(
-        ours.map((entry) => [entry.messageId, entry.providerMessageId ?? '']),
-      );
-
-      return chain
-        .map((id) => (onTheWire.has(id) ? (onTheWire.get(id) as string) : id))
-        .filter(Boolean);
-    }
-
     private static async resolveIntegration(
       integrationId?: string,
       conversationId?: string,
     ) {
+      if (conversationId) {
+        const conversation = await models.Conversations.findOne({
+          _id: conversationId,
+        });
+        if (
+          !conversation?.integrationId ||
+          (integrationId && integrationId !== conversation.integrationId)
+        ) {
+          throw new Error('Mail conversation and sender do not match');
+        }
+        integrationId = conversation.integrationId;
+      }
+
       if (integrationId) {
         const byInbox = await models.MailIntegrations.findOne({
           inboxId: integrationId,
+          disabledAt: null,
         });
 
         if (byInbox) {
@@ -555,42 +253,7 @@ export const loadMailMessageClass = (models: IModels) => {
         }
       }
 
-      if (conversationId) {
-        const conversation = await models.Conversations.findOne({
-          _id: conversationId,
-        });
-
-        if (conversation?.integrationId) {
-          const byConversation = await models.MailIntegrations.findOne({
-            inboxId: conversation.integrationId,
-          });
-
-          if (byConversation) {
-            return byConversation;
-          }
-        }
-      }
-
       throw new Error('Mail integration not found');
-    }
-
-    private static async ensureCustomer(
-      subdomain: string,
-      customerId: string | undefined,
-      to: string[],
-      inboxIntegrationId: string,
-    ) {
-      const [primaryEmail] = to;
-
-      if (customerId || !primaryEmail) {
-        return;
-      }
-
-      await models.MailCustomers.findOrCreate(
-        subdomain,
-        primaryEmail.trim().toLowerCase(),
-        inboxIntegrationId,
-      );
     }
   }
 

@@ -1,6 +1,8 @@
 import { Resizable } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useComposerPanelResize } from '@/inbox/conversations/conversation-detail/hooks/useComposerPanelResize';
+import { isInternalNoteCollapsedState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
 export const ConversationDetailLayout = ({
   children,
@@ -10,6 +12,7 @@ export const ConversationDetailLayout = ({
   input: React.ReactNode;
 }) => {
   const { t } = useTranslation('frontline');
+  const collapsed = useAtomValue(isInternalNoteCollapsedState);
   const {
     panelGroupRef,
     inputPanelRef,
@@ -36,17 +39,22 @@ export const ConversationDetailLayout = ({
         {input && (
           <>
             <Resizable.Handle
-              withHandle
+              withHandle={!collapsed}
+              disabled={collapsed}
               aria-label={t('resize-composer', 'Resize composer')}
-              className="z-30 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm"
-              onPointerDown={resetAutoResize}
-              onKeyDown={resetAutoResize}
+              className={
+                collapsed
+                  ? 'z-30 bg-border/60 after:hidden'
+                  : 'z-30 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm'
+              }
+              onPointerDown={collapsed ? undefined : resetAutoResize}
+              onKeyDown={collapsed ? undefined : resetAutoResize}
             />
             <Resizable.Panel
               ref={inputPanelRef}
               className="overflow-visible!"
               defaultSize={30}
-              minSize={minSize}
+              minSize={collapsed ? 0 : minSize}
               maxSize={100}
             >
               <div className="relative z-20 h-full min-h-0 border-t border-border/60 bg-background/95 backdrop-blur">

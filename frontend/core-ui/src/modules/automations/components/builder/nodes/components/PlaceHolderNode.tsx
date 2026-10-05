@@ -1,3 +1,4 @@
+import { NodeFrame } from '@/automations/components/builder/nodes/components/NodeFrame';
 import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { IconBolt, IconPlus } from '@tabler/icons-react';
@@ -20,18 +21,11 @@ export const PlaceHolderNode = memo(
     }, [id, reactFlowInstance]);
 
     return (
-      <div className="flex flex-col">
-        <div className="ml-1 w-fit rounded-t-md bg-primary/10 px-3 py-1 text-primary">
-          <p className="text-sm font-semibold">{t('start')}</p>
-        </div>
-        <Card
-          className={cn(
-            'relative w-[280px] border border-primary/15 bg-background shadow-md transition-all duration-200',
-            {
-              'ring-2 ring-primary': selected,
-            },
-          )}
-        >
+      <NodeFrame
+        label={t('start')}
+        className={cn({ 'ring-2 ring-primary': selected })}
+      >
+        <Card className="border-0 bg-transparent shadow-none">
           <Card.Header className="p-4 pb-3">
             <div className="flex items-center gap-3">
               <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -66,7 +60,7 @@ export const PlaceHolderNode = memo(
             <div className="size-5 rounded-full border-4 border-background bg-primary shadow-sm" />
           </div>
         </Card>
-      </div>
+      </NodeFrame>
     );
   },
 );

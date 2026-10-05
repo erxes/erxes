@@ -122,15 +122,20 @@ const describeFieldFormat = (field: {
   };
 };
 
+// Exports keep archived fields so their values can still be taken out; imports
+// never write into them.
 export const getCustomPropertyHeaders = async (
   models: IModels,
   contentType?: string,
+  { includeArchived = false }: { includeArchived?: boolean } = {},
 ): Promise<ImportHeaderDefinition[]> => {
   if (!contentType) {
     return [];
   }
 
-  const customFields = await getCustomFields(models, contentType);
+  const customFields = (await getCustomFields(models, contentType)).filter(
+    (field) => includeArchived || !field.archivedAt,
+  );
   const groupIds = customFields
     .map((field) => field.groupId)
     .filter(Boolean)
@@ -167,8 +172,10 @@ export const getCustomPropertyHeaders = async (
           : field.code
         : '';
 
+      const shownLabel = field.archivedAt ? `${label} (archived)` : label;
+
       return {
-        label: taggedCode ? `${label} [${taggedCode}]` : label,
+        label: taggedCode ? `${shownLabel} [${taggedCode}]` : shownLabel,
         key,
         aliases: [
           label,

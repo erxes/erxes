@@ -1,58 +1,69 @@
-import { useQuery, useSubscription } from '@apollo/client';
 import { ScrollArea } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { useSetAtom } from 'jotai';
-
-import {
-  MAIL_CONVERSATION_DETAIL_QUERY,
-  MAIL_MESSAGE_INSERTED_SUBSCRIPTION,
-} from '../graphql/queries/mailQueries';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
-import { hideMessageInputState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { useMailSendMail } from '../hooks/useMailConversationDetail';
+import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
+import { useMailThreadData } from '@/integrations/mail/hooks/useMailThreadData';
+import type { MailThreadProps } from '@/integrations/mail/types/mailThread';
+import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/constants/directMailComposer';
+import { MailThread } from './MailThread';
 import { MailDrafts } from './MailDrafts';
-import { MailComposePayload, MailMessage, MailThread } from './MailThread';
-
-const PAGE_SIZE = 20;
-
-interface MailConversationDetailResponse {
-  mailConversationDetail: {
-    messages: MailMessage[];
-    hasMore: boolean;
-  } | null;
-}
+import { MailInternalNotes } from './MailInternalNotes';
 
 export const MailConversationDetail = () => {
-  const { _id: conversationId, integration } = useConversationContext();
-  const setHideInput = useSetAtom(hideMessageInputState);
-  const [limit, setLimit] = useState(PAGE_SIZE);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const paginationRef = useRef<{ height: number; top: number } | null>(null);
+  const {
+    _id: conversationId,
+    integration,
+    customerId,
+    customer,
+  } = useConversationContext();
   const { mailSendMail, loading: sending } = useMailSendMail();
+  const {
+    messages,
+    internalNotes,
+    notesCount,
+    loadMoreNotes,
+    notesLoading,
+    notesError,
+    refetchNotes,
+    hasMore,
+    loading,
+    error,
+    loadMore,
+  } = useMailThreadData(conversationId);
+
+  const loadEarlier = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || loading || error || !hasMore || paginationRef.current)
+      return;
+    paginationRef.current = {
+      height: viewport.scrollHeight,
+      top: viewport.scrollTop,
+    };
+    loadMore();
+  }, [loading, error, hasMore, loadMore]);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const previous = paginationRef.current;
+    if (!viewport || !previous || loading) return;
+    viewport.scrollTop = previous.top + viewport.scrollHeight - previous.height;
+    paginationRef.current = null;
+  }, [loading, messages, error]);
 
   useEffect(() => {
-    setHideInput(true);
-    return () => setHideInput(false);
-  }, [setHideInput]);
+    const viewport = viewportRef.current;
+    if (
+      viewport &&
+      messages.length &&
+      viewport.scrollHeight <= viewport.clientHeight
+    ) {
+      loadEarlier();
+    }
+  }, [messages, loadEarlier]);
 
-  const { data, previousData, loading, error, refetch } =
-    useQuery<MailConversationDetailResponse>(MAIL_CONVERSATION_DETAIL_QUERY, {
-      variables: { conversationId, limit },
-      skip: !conversationId,
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
-    });
-
-  useSubscription(MAIL_MESSAGE_INSERTED_SUBSCRIPTION, {
-    variables: { _id: conversationId },
-    skip: !conversationId,
-    onData: () => refetch(),
-  });
-
-  const detail =
-    data?.mailConversationDetail ?? previousData?.mailConversationDetail;
-
-  const messages = detail?.messages ?? [];
-
-  const onSend = (payload: MailComposePayload, onSent: () => void) =>
+  const onSend: MailThreadProps['onSend'] = (payload, onSent, onOutcome) =>
     mailSendMail(
       {
         ...payload,
@@ -60,24 +71,60 @@ export const MailConversationDetail = () => {
         conversationId: conversationId ?? '',
       },
       onSent,
+      onOutcome,
     );
 
+  const startNewEmail = (email: string) => {
+    window.dispatchEvent(
+      new CustomEvent(COMPOSE_EMAIL_EVENT, {
+        detail: {
+          customerId:
+            customer?.primaryEmail?.trim().toLowerCase() ===
+            email.trim().toLowerCase()
+              ? customerId
+              : undefined,
+          integrationId: integration?._id,
+          email,
+          emails: [email],
+        },
+      }),
+    );
+  };
+
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 pb-8">
-        <MailThread
-          messages={messages}
-          hasMore={detail?.hasMore}
-          loading={loading}
-          sending={sending}
-          error={error?.message}
-          onLoadMore={() => setLimit((value) => value + PAGE_SIZE)}
-          onSend={onSend}
-          beforeCompose={
-            <MailDrafts conversationId={conversationId} messages={messages} />
-          }
-        />
-      </div>
-    </ScrollArea>
+    <ScrollArea.Root className="@container h-full">
+      <ScrollArea.Viewport
+        ref={viewportRef}
+        onScroll={() => {
+          if (viewportRef.current && viewportRef.current.scrollTop <= 60)
+            loadEarlier();
+        }}
+      >
+        <div className="w-[100cqw] min-w-0 space-y-3 p-4 pb-8">
+          <MailThread
+            conversationId={conversationId ?? ''}
+            messages={messages}
+            loading={loading}
+            sending={sending}
+            error={error?.message}
+            onSend={onSend}
+            onNewEmail={startNewEmail}
+            beforeCompose={
+              <MailDrafts conversationId={conversationId} messages={messages} />
+            }
+            scrollViewportRef={viewportRef}
+          />
+          <MailInternalNotes
+            notes={internalNotes}
+            totalCount={notesCount}
+            onLoadMore={loadMoreNotes}
+            loading={notesLoading}
+            error={notesError?.message}
+            onRetry={refetchNotes}
+          />
+        </div>
+      </ScrollArea.Viewport>
+      <ScrollArea.Bar />
+    </ScrollArea.Root>
   );
 };

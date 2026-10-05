@@ -70,7 +70,7 @@ export const ConversationDetail = () => {
     if (!conversationId) {
       return;
     }
-    setExtraInfo(undefined);
+    setExtraInfo(() => undefined);
     setReplyTo(null);
   }, [conversationId, setExtraInfo, setReplyTo]);
 
@@ -101,7 +101,7 @@ export const ConversationDetail = () => {
               </MessageInputIntegrationWrapper>
             }
           >
-            {loading ? (
+            {loading && conversationDetail?._id !== conversationId ? (
               <InboxMessagesSkeleton />
             ) : (
               <>

@@ -26,10 +26,16 @@ import {
   getSmoothStepPath,
   getStraightPath,
 } from '@xyflow/react';
-import { Button } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+
+const FOLK_PILL_CLASS: Record<string, string> = {
+  success: 'border-success/40 bg-success/10 text-success',
+  error: 'border-destructive/40 bg-destructive/10 text-destructive',
+};
 
 // Where the insert button sits relative to the cut point: a little further
 // along the flow, and clear of the edge across it.
@@ -73,6 +79,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     selected,
     data,
   } = edge;
+  const { t } = useTranslation('automations');
   const { onDisconnect } = useNodeConnect();
   const { isReadOnly } = useAutomation();
   const { draggingNode } = useDnDMetaState();
@@ -87,6 +94,8 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
   };
 
   const edgeType = data?.edgeType || 'default';
+  const folkLabel = typeof data?.folkLabel === 'string' ? data.folkLabel : '';
+  const folkType = typeof data?.folkType === 'string' ? data.folkType : '';
   const [edgePath, labelX, labelY] = getEdgePath(edgeType, {
     sourceX,
     sourceY,
@@ -165,6 +174,19 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
           }}
         >
+          {folkLabel && !showEdgeActions && !isNodeHoveringHere && (
+            // Opaque base: the tint alone lets the edge show through
+            <span className="block rounded-full bg-background">
+              <span
+                className={cn(
+                  'block whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground',
+                  FOLK_PILL_CLASS[folkType],
+                )}
+              >
+                {t(folkLabel)}
+              </span>
+            </span>
+          )}
           <AnimatePresence>
             {isNodeHoveringHere && (
               <EdgeInsertIndicator

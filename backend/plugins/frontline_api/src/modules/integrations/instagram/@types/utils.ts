@@ -96,7 +96,22 @@ export interface IMessageData {
     mid?: string;
     text?: string;
     is_deleted?: boolean;
+    reply_to?: {
+      mid?: string;
+      story?: {
+        id?: string;
+        url?: string;
+      };
+    };
   };
+  reaction?: {
+    mid: string;
+    action: 'react' | 'unreact';
+    reaction?: string;
+    emoji?: string;
+  };
+  read?: { mid?: string; watermark?: number };
+  delivery?: { mids?: string[]; watermark?: number };
   postback?: {
     title: string;
     mid?: string;

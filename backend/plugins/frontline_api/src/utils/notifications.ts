@@ -30,6 +30,8 @@ const getMessage = (contentType: string, notificationType: string) => {
       return `You have been mentioned in ${contentType}'s conversation`;
     case 'updateTicket':
       return `Ticket updated`;
+    case 'ticketCustomerReply':
+      return 'New message from the customer';
     case 'note':
       return `You have been mentioned in ${contentType}'s note`;
     case 'channel':

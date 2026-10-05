@@ -5,13 +5,11 @@ import {
   IconComponent,
   RecordTable,
   RecordTableInlineCell,
-  Spinner,
   Switch,
-  useConfirm,
 } from 'erxes-ui';
 import { CORE_RELATION_TYPES, Can, IField } from 'ui-modules';
 import type { Cell, ColumnDef } from '@tanstack/react-table';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconTrash, IconEdit } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 
 import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
@@ -20,7 +18,7 @@ import React from 'react';
 import type { TFunction } from 'i18next';
 import { selectedFieldIdsState } from '../../states/selectedFieldsState';
 import { useEditProperty } from '../../hooks/useEditProperty';
-import { useFieldRemove } from '../../hooks/useFieldRemove';
+import { archiveTargetState } from '../../states/archiveTargetState';
 import { useTranslation } from 'react-i18next';
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
@@ -99,25 +97,17 @@ const PropertiesMoreColumnCell = ({
   contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { _id, groupId, owner } = cell.row.original;
-  const { confirm } = useConfirm();
-  const { removeField, loading } = useFieldRemove();
+  const { _id, groupId, owner, name } = cell.row.original;
+  const setArchiveTarget = useSetAtom(archiveTargetState);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
 
-  const handleDelete = () => {
-    confirm({
-      message: t(
-        'confirm-delete-field',
-        'Are you sure you want to delete this field?',
-      ),
-    }).then(() => {
-      removeField({ variables: { id: _id } });
-      setSelectedFieldIds((prev) => {
-        if (!prev[_id]) return prev;
-        const next = { ...prev };
-        delete next[_id];
-        return next;
-      });
+  const handleRemove = () => {
+    setArchiveTarget({ kind: 'fields', ids: [_id], label: `"${name}"` });
+    setSelectedFieldIds((prev) => {
+      if (!prev[_id]) return prev;
+      const next = { ...prev };
+      delete next[_id];
+      return next;
     });
   };
 
@@ -143,13 +133,9 @@ const PropertiesMoreColumnCell = ({
           {/* The owning plugin releases a featured field; people cannot. */}
           {!owner && (
             <Can action="fieldsManage">
-              <DropdownMenu.Item
-                className="text-destructive"
-                disabled={loading}
-                onClick={handleDelete}
-              >
-                {loading ? <Spinner size="sm" /> : <IconTrash />}
-                {t('delete', 'Delete')}
+              <DropdownMenu.Item onClick={handleRemove}>
+                <IconTrash />
+                {t('remove', 'Remove')}
               </DropdownMenu.Item>
             </Can>
           )}

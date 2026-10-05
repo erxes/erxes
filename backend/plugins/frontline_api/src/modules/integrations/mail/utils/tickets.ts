@@ -1,6 +1,8 @@
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { ITicketDocument } from '@/ticket/@types/ticket';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import {
   IMailMessageDocument,
@@ -150,6 +152,24 @@ export const createTicketFromMail = async ({
   return ticket;
 };
 
+export const findViewableTicket = async (
+  models: IModels,
+  user: IUserDocument,
+  ticketId: string,
+): Promise<ITicketDocument> => {
+  const ticket = await models.Ticket.getTicket(ticketId);
+
+  const { canViewTicket } = await createPermissionValidator(
+    models,
+  ).getTicketPermissions(ticket.pipelineId, ticket.statusId, user);
+
+  if (!canViewTicket) {
+    throw new Error('You cannot view this ticket');
+  }
+
+  return ticket;
+};
+
 export const isTicketOpen = async (models: IModels, ticketId: string) => {
   const ticket = await models.Ticket.findOne({ _id: ticketId }).lean();
 
@@ -210,6 +230,14 @@ const relatedCustomerEmail = async (
   return undefined;
 };
 
+export const resolveTicketRecipient = async (
+  models: IModels,
+  subdomain: string,
+  ticketId: string,
+): Promise<string | undefined> =>
+  (await lastInboundSender(models, ticketId)) ??
+  (await relatedCustomerEmail(subdomain, ticketId));
+
 export const sendTicketMail = async (
   models: IModels,
   subdomain: string,
@@ -220,10 +248,7 @@ export const sendTicketMail = async (
 
   const recipients = args.to?.length
     ? args.to
-    : [
-        (await lastInboundSender(models, ticket._id)) ??
-          (await relatedCustomerEmail(subdomain, ticket._id)),
-      ];
+    : [await resolveTicketRecipient(models, subdomain, ticket._id)];
 
   const to = recipients
     .filter((address): address is string => Boolean(address?.trim()))

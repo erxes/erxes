@@ -45,3 +45,11 @@ export const getProviderMessageId = (message: IMessage) =>
   message.providerData?.messageId ||
   message.extraData?.discordMessageId ||
   message.mid;
+
+export const getMessageReactions = (message: IMessage) =>
+  message.reactions?.length ? message.reactions : message.extraData?.reactions;
+
+export const findOwnReaction = (message: IMessage, userId?: string) =>
+  getMessageReactions(message)?.find(
+    (reaction) => reaction.senderId === userId,
+  );

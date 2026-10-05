@@ -95,6 +95,7 @@ export interface IConfig {
   allowBranchIds?: string[];
   permissionConfig?: any;
   allowTypes: string[];
+  isShowRemainder?: boolean;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
