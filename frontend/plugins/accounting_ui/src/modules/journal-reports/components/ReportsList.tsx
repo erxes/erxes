@@ -1,4 +1,4 @@
-import { IconCaretRightFilled, IconReport } from '@tabler/icons-react';
+import { IconChevronRight, IconReport } from '@tabler/icons-react';
 import { Collapsible, IconComponent, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { activeReportState } from '../states/renderingReportsStates';
@@ -19,7 +19,9 @@ export const ReportsList = () => {
             <div className="flex items-center">
               <Sidebar.GroupLabel asChild className="min-w-0 flex-1">
                 <Collapsible.Trigger className="flex items-center gap-2">
-                  <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/report-list:rotate-90" />
+                  <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/report-list:rotate-90 motion-reduce:transition-none">
+                    <IconChevronRight className="size-3.5" />
+                  </span>
                   <span>{group.label}</span>
                 </Collapsible.Trigger>
               </Sidebar.GroupLabel>

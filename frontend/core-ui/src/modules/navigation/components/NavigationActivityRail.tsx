@@ -88,8 +88,8 @@ const NavigationActivityRailMain = ({
       )}
       <div
         className={cn(
-          'flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-x-hidden overflow-y-auto',
-          !expanded && 'hide-scroll',
+          'flex min-h-0 flex-1 flex-col items-stretch overflow-x-hidden overflow-y-auto',
+          expanded ? 'gap-5' : 'hide-scroll gap-1',
         )}
       >
         <NavigationFavoritesSection

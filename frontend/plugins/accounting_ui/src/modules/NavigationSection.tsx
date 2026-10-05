@@ -41,7 +41,7 @@ export const NavigationSection = ({
       asChild
       open={open}
       onOpenChange={setOpen}
-      className="group/navigation-section"
+      className="group/accounting-nav-section"
     >
       <Sidebar.MenuItem>
         <Collapsible.Trigger asChild>
@@ -53,7 +53,9 @@ export const NavigationSection = ({
               )}
             />
             <span className="min-w-0 flex-1 truncate">{name}</span>
-            <IconChevronRight className="size-3.5! text-muted-foreground transition-transform duration-200 group-data-[state=open]/navigation-section:rotate-90" />
+            <span className="flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/accounting-nav-section:rotate-90 motion-reduce:transition-none">
+              <IconChevronRight className="size-3.5!" />
+            </span>
           </Sidebar.MenuButton>
         </Collapsible.Trigger>
         <Collapsible.Content

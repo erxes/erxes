@@ -35,7 +35,7 @@ export const NavigationSidebarFooter = ({
         className={cn(
           'h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
-          collapsedInSettings && 'bg-primary/10',
+          collapsedInSettings && 'bg-foreground/5',
         )}
         size="default"
         variant="ghost"
@@ -62,9 +62,6 @@ export const NavigationSidebarFooter = ({
           >
             {organizationT('settings')}
           </NavigationRailLabel>
-          {expanded && !isSettings && (
-            <IconChevronRight className="ml-auto size-3.5! shrink-0 text-muted-foreground" />
-          )}
         </Link>
       </Button>
       <DropdownMenu>

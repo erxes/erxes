@@ -41,7 +41,7 @@ export const NavigationActivityButton = ({
           'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           showPinButton && !expandable && 'pr-8',
-          active && 'bg-primary/10 text-primary hover:bg-primary/10',
+          active && 'bg-foreground/5 text-foreground hover:bg-foreground/5',
         )}
         onClick={onSelect}
         size="default"
@@ -60,8 +60,9 @@ export const NavigationActivityButton = ({
         )}
         <Icon
           className={cn(
-            'size-4 text-accent-foreground',
-            active && 'text-primary',
+            'size-4 text-accent-foreground transition-transform group-active/activity:scale-90',
+            active &&
+              'animate-icon-pop text-primary motion-reduce:animate-none',
           )}
         />
         <NavigationRailLabel

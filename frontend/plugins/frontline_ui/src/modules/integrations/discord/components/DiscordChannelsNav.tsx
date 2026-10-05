@@ -3,8 +3,8 @@ import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import {
   IconBrandDiscord,
-  IconCaretRightFilled,
   IconCheck,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -231,8 +231,8 @@ const DiscordServerItem = ({
                   {totalCount}
                 </Badge>
               )}
-              <span className="ml-auto shrink-0">
-                <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
+              <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
+                <IconChevronRight className="size-3.5!" />
               </span>
             </Button>
           </div>
@@ -309,7 +309,9 @@ const DiscordCategoryItem = ({
             className="shrink-0 size-6 p-0 ml-4"
             aria-label={open ? 'Collapse channels' : 'Expand channels'}
           >
-            <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/category:rotate-90 text-accent-foreground" />
+            <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/category:rotate-90 motion-reduce:transition-none text-muted-foreground">
+              <IconChevronRight className="size-3.5!" />
+            </span>
           </Button>
         </Collapsible.Trigger>
         <Button

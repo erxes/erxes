@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -78,6 +78,7 @@
 
 ## Local Invariants
 
+- Expandable navigation rows end in the host sidebar's chevron: `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar.
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
 - Module Federation exposes, route paths, widget names, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.

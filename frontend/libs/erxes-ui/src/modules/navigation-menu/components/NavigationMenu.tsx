@@ -1,7 +1,7 @@
 import { Collapsible, Sidebar } from 'erxes-ui/components';
 import { Link, useLocation } from 'react-router-dom';
 
-import { IconCaretRightFilled } from '@tabler/icons-react';
+import { IconChevronRight } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
 import { forwardRef } from 'react';
 
@@ -141,13 +141,15 @@ export const NavigationMenuGroup = forwardRef<
         >
           <Sidebar.Group
             {...props}
-            className={cn('group/navigation-menu', className)}
+            className={cn('group/navigation-menu py-4', className)}
             ref={ref}
           >
             <Sidebar.GroupLabel asChild>
               <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
-                <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                <span className="font-sans text-xs font-semibold normal-case">
+                <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible-menu:rotate-90 motion-reduce:transition-none">
+                  <IconChevronRight className="size-3.5" />
+                </span>
+                <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {name}
                 </span>
                 {actions && (

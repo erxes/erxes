@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-02`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -802,6 +802,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Expandable navigation rows end in the host sidebar's chevron:
+  `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
+  open, never a filled caret, so the rotation stays on the compositor and
+  matches the main sidebar.
+- The Team Inbox unread `NotificationCount` badge in `FrontlineNavigation.tsx`
+  stays the same compact size as the host's My inbox count
+  (`h-5 min-w-5 px-1 text-[11px] tabular-nums`).
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
   own open state (`sidebarPanelOpenState`), separate from the host's context
   column. Never stack two headings: a menu without a heading passes one as
@@ -1274,11 +1281,12 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   want the sidebar filters applied must not pass `variables` at all.
 - Both inbox nav groups render channels through `ChannelNavItem`, so `Me` and
   `Team inbox` stay structurally identical: the row itself selects the whole
-  channel (`channelId` set, `integrationType` cleared) and the caret expands the
+  channel (`channelId` set, `integrationType` cleared) and the chevron (the same
+  `IconChevronRight` the host sidebar uses for expandable rows) expands the
   integration types inside it, each of which narrows the same channel by source.
   A `NavigationMenuGroup` header is itself a collapse control, so a group that
   holds exactly one channel renders that channel with `collapsible={false}`:
-  the personal row therefore has no caret of its own, since a second caret there
+  the personal row therefore has no chevron of its own, since a second one there
   would collapse the very rows the group header already collapses. Do not turn a
   group header into a selection control to work around this.
 - The personal channel row is labelled `personal-channel` ("Personal channel"),

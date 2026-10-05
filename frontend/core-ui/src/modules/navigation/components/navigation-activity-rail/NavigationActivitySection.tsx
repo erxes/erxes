@@ -1,4 +1,4 @@
-import { IconCaretRightFilled } from '@tabler/icons-react';
+import { IconChevronRight } from '@tabler/icons-react';
 import { cn, Collapsible, Separator } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
@@ -17,14 +17,14 @@ export const NavigationActivitySection = ({
   return (
     <section className="w-full shrink-0">
       <Collapsible
-        className="group/navigation-section"
+        className="group/navigation-rail-section"
         open={!expanded || open}
         onOpenChange={setOpen}
       >
         <div className="relative h-6 w-full shrink-0">
           <Collapsible.Trigger
             className={cn(
-              'absolute inset-0 flex w-full items-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-2 text-left font-sans text-xs font-semibold text-accent-foreground transition-opacity duration-100 ease-linear hover:bg-accent motion-reduce:transition-none',
+              'absolute inset-0 flex w-full items-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-2 text-left font-sans text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-opacity duration-100 ease-linear hover:bg-accent motion-reduce:transition-none',
               expanded
                 ? 'delay-100 opacity-100'
                 : 'pointer-events-none delay-0 opacity-0',
@@ -32,7 +32,9 @@ export const NavigationActivitySection = ({
             disabled={!expanded}
             tabIndex={expanded ? 0 : -1}
           >
-            <IconCaretRightFilled className="size-3.5 shrink-0 transition-transform group-data-[state=open]/navigation-section:rotate-90" />
+            <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/navigation-rail-section:rotate-90 motion-reduce:transition-none">
+              <IconChevronRight className="size-3.5" />
+            </span>
             <span className="truncate">{label}</span>
           </Collapsible.Trigger>
           <div
@@ -47,7 +49,7 @@ export const NavigationActivitySection = ({
             <Separator className="w-8" />
           </div>
         </div>
-        <Collapsible.Content className="flex flex-col gap-1">
+        <Collapsible.Content className="flex flex-col gap-1 pt-1">
           {children}
         </Collapsible.Content>
       </Collapsible>

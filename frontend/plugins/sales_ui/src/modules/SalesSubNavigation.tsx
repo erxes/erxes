@@ -12,10 +12,10 @@ import {
   useToast,
 } from 'erxes-ui';
 import {
-  IconCaretRightFilled,
   IconDotsVertical,
   IconLink,
   IconSettings,
+  IconChevronRight,
 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -103,13 +103,13 @@ function BoardItem({ board }: { board: IBoard }) {
                 className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
                 value={board.name}
               />
-              <span className="ml-auto">
-                <IconCaretRightFilled
-                  className={cn(
-                    'size-3 transition-transform group-data-[state=open]/collapsible:rotate-90',
-                    isActive ? 'text-primary' : 'text-accent-foreground',
-                  )}
-                />
+              <span
+                className={cn(
+                  'ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none',
+                  isActive ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                <IconChevronRight className="size-3.5!" />
               </span>
             </Button>
           </div>

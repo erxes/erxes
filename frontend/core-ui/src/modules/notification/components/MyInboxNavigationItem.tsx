@@ -27,7 +27,7 @@ export const NotificationCount = () => {
   }
 
   return (
-    <Badge className="ml-auto text-xs min-w-6 px-1 justify-center">
+    <Badge className="ml-auto h-5 min-w-5 justify-center px-1 text-[11px] tabular-nums">
       {unreadNotificationsCount}
     </Badge>
   );
