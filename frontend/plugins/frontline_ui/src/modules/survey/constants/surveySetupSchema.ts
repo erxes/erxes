@@ -8,6 +8,13 @@ import {
 export const SURVEY_GENERAL_SCHEMA = z.object({
   title: z.string().trim().min(1, 'Title is required').max(150),
   brandId: z.string().nullable(),
+  channelId: z.string().optional(),
+});
+
+export const SURVEY_GENERAL_CREATE_SCHEMA = SURVEY_GENERAL_SCHEMA.extend({
+  channelId: z
+    .string({ required_error: 'Channel is required' })
+    .min(1, 'Channel is required'),
 });
 
 const SURVEY_STEP_OPTION_SCHEMA = z
