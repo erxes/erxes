@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/erxes/erxes/main/plugin-registry/schema/registry.schema.json",
+  "title": "erxes plugin registry",
+  "type": "object",
+  "required": ["version", "plugins"],
+  "properties": {
+    "version": { "type": "integer" },
+    "plugins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "source"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "version": { "type": "string" },
+          "description": { "type": "string" },
+          "icon": { "type": "string" },
+          "source": { "type": "string", "enum": ["catalog", "github"], "description": "catalog = erxes-hosted build; github = third-party repo" },
+          "repoUrl": { "type": "string", "description": "GitHub repository URL (required for source=github)" },
+          "api": {
+            "type": "object",
+            "properties": {
+              "image": { "type": "string" },
+              "address": { "type": "string" },
+              "port": { "type": "integer" },
+              "health": { "type": "string" },
+              "env": { "type": "array", "items": { "type": "string" } },
+              "hasSubscriptions": { "type": "boolean" }
+            }
+          },
+          "ui": {
+            "type": "object",
+            "properties": {
+              "remote": { "type": "string" },
+              "entry": { "type": "string" },
+              "exposes": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

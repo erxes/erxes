@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/erxes/erxes/main/plugin-registry/schema/plugin-manifest.schema.json",
+  "title": "erxes plugin manifest (plugin.json)",
+  "type": "object",
+  "required": ["name", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Plugin name. API service is <name>_api, UI remote is <name>_ui (dashes become underscores)."
+    },
+    "version": { "type": "string", "description": "Semver release version matching published artifacts." },
+    "description": { "type": "string" },
+    "icon": { "type": "string", "description": "@tabler/icons-react export name shown in the marketplace." },
+    "homepage": { "type": "string" },
+    "license": { "type": "string" },
+    "api": {
+      "type": "object",
+      "anyOf": [{ "required": ["image"] }, { "required": ["address"] }],
+      "additionalProperties": false,
+      "properties": {
+        "image": { "type": "string", "description": "Pullable OCI image for the <name>_api service." },
+        "address": { "type": "string", "description": "Pre-registered service URL (skips image; plugin API already runs at this address)." },
+        "port": { "type": "integer" },
+        "health": { "type": "string", "default": "/health" },
+        "env": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Env var names the operator must provide (never values)."
+        },
+        "hasSubscriptions": { "type": "boolean", "default": false }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "required": ["remote", "entry"],
+      "additionalProperties": false,
+      "properties": {
+        "remote": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Module Federation remote name, <name>_ui." },
+        "entry": { "type": "string", "description": "Fetchable remoteEntry.js URL, versioned per release. Must be https in production." },
+        "exposes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Exposed module paths; must include ./config."
+        }
+      }
+    }
+  },
+  "anyOf": [{ "required": ["api"] }, { "required": ["ui"] }]
+}

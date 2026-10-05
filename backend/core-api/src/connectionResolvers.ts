@@ -1,4 +1,9 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
+import {
+  IPluginInstallDocument,
+  IPluginInstallModel,
+  loadPluginInstallClass,
+} from '~/modules/marketplace/db/models/PluginInstalls';
 import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
 import {
   IOAuthClientAppModel,
@@ -417,6 +422,8 @@ export interface IModels {
   TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
+
+  PluginInstalls: IPluginInstallModel;
 }
 
 export interface IContext extends IMainContext {
@@ -874,6 +881,11 @@ export const loadClasses = (
     IOAuthRefreshTokenDocument,
     Model<IOAuthRefreshTokenDocument>
   >('oauth_refresh_tokens', oauthRefreshTokenSchema);
+
+  models.PluginInstalls = db.model<
+    IPluginInstallDocument,
+    IPluginInstallModel
+  >('plugin_installs', loadPluginInstallClass(models));
 
   const db_name = db.name;
 

@@ -1,0 +1,18 @@
+{
+  "name": "changeme",
+  "version": "0.1.0",
+  "description": "Changeme plugin for erxes",
+  "icon": "IconPuzzle",
+  "api": {
+    "image": "ghcr.io/__GITHUB_OWNER__/plugin-changeme-api",
+    "port": __API_PORT__,
+    "health": "/health",
+    "env": ["MONGO_URL", "REDIS_HOST", "REDIS_PORT"],
+    "hasSubscriptions": false
+  },
+  "ui": {
+    "remote": "changeme_ui",
+    "entry": "https://__GITHUB_OWNER__.github.io/changeme-plugin/dist/latest/changeme_ui/remoteEntry.js",
+    "exposes": ["./config", "./changemodule"]
+  }
+}
