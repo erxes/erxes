@@ -87,6 +87,10 @@
 
 ## Current Capabilities
 
+- The Erxes Messenger Message trigger form has an optional messenger picker
+  (`SelectErxesMessenger`, saved as `config.integrationId`); empty means every
+  messenger. The trigger node shows the chosen messenger or "All erxes
+  messengers".
 - Every colour field in the help center drawer and the knowledge base topic
   drawer carries a **Default** reset beside its label, showing the colour it
   would return to and hidden while the field already holds it. The help center
@@ -244,6 +248,15 @@
 - A messenger integration attaches **several** ticket configs. The erxes
   messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
   a multi-select over the selected channel's `ticketConfigs`.
+- The erxes messenger setup wizard's Settings step (`EMSettings.tsx`) carries
+  an **In-app view** switch bound to `isSupportInAppView` in
+  `EM_SETTINGS_SCHEMA`. `EMStateValues.ts` emits it on
+  `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
+  and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
+  must exist for the save to succeed.
+- The erxes messenger Appearance step (`EMAppearance.tsx`) edits `uiOptions`:
+  colours, logos, hero style, navigation bar, and an `isSupportInAppView`
+  switch (default off).
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - The conversation header carries a **Convert** menu. Each entry opens

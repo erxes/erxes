@@ -1,21 +1,23 @@
+import { Sidebar, cn } from 'erxes-ui';
+import { motion, useReducedMotion } from 'motion/react';
+import { useEffect, useRef } from 'react';
+
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
 import { NavigationActivityButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityButton';
 import { NavigationActivityGroups } from '@/navigation/components/navigation-activity-rail/NavigationActivityGroups';
+import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
 import { NavigationActivitySearchButton } from '@/navigation/components/navigation-activity-rail/NavigationActivitySearchButton';
 import { NavigationFavoritesSection } from '@/navigation/components/navigation-activity-rail/NavigationFavoritesSection';
 import { NavigationInboxButton } from '@/navigation/components/navigation-activity-rail/NavigationInboxButton';
-import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
-import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationResizeHandle } from '@/navigation/components/NavigationResizeHandle';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
-import { navigationSidebarWidthState } from '@/navigation/states/navigationPanelState';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
+import { NavigationWelcomeButton } from '@/navigation/components/navigation-activity-rail/NavigationWelcomeButton';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
-import { cn, Sidebar } from 'erxes-ui';
+import { navigationSidebarWidthState } from '@/navigation/states/navigationPanelState';
+import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
 import { useSetAtom } from 'jotai';
-import { motion, useReducedMotion } from 'motion/react';
-import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type TNavigationActivityRailProps = Readonly<{
@@ -24,11 +26,13 @@ type TNavigationActivityRailProps = Readonly<{
   expandedActivityId: string | null;
   hiddenActivities: INavigationActivity[];
   isInboxActive: boolean;
+  isWelcomeActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
   onSelectInbox: () => void;
+  onSelectWelcome: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
   onToggleActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
@@ -42,11 +46,13 @@ const NavigationActivityRailMain = ({
   hiddenActivities,
   hoverEnabled,
   isInboxActive,
+  isWelcomeActive,
   isActivityPinned,
   isSettings,
   onActivityPinnedChange,
   onSearch,
   onSelectInbox,
+  onSelectWelcome,
   onSelectActivity,
   onToggleActivity,
   visibleActivities,
@@ -59,6 +65,11 @@ const NavigationActivityRailMain = ({
 
   return (
     <>
+      <NavigationWelcomeButton
+        expanded={expanded}
+        isWelcomeActive={isWelcomeActive}
+        onSelectWelcome={onSelectWelcome}
+      />
       {usePromotedRail ? (
         <div className="mb-1 flex shrink-0 flex-col gap-1">
           <NavigationInboxButton

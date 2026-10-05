@@ -1,16 +1,17 @@
-import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
-import { NavigationItemCountProbe } from '@/navigation/components/NavigationPlugins';
-import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
-import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
-import { expandedNavigationActivityState } from '@/navigation/states/navigationPanelState';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
-import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { AppPath } from '@/types/paths/AppPath';
-import { activePluginState } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { AppPath } from '@/types/paths/AppPath';
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
+import { NavigationItemCountProbe } from '@/navigation/components/NavigationPlugins';
+import { activePluginState } from 'erxes-ui';
+import { expandedNavigationActivityState } from '@/navigation/states/navigationPanelState';
+import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
+import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
+import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
 
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
@@ -27,6 +28,7 @@ export const MainNavigationBar = () => {
   const isInboxActive =
     pathname === `/${AppPath.MyInbox}` ||
     pathname.startsWith(`/${AppPath.MyInbox}/`);
+  const isWelcomeActive = pathname === AppPath.WelcomeHome;
   const routeActivity = findNavigationActivityByPath(activities, pathname);
   const activeActivity =
     routeActivity ||
@@ -98,13 +100,20 @@ export const MainNavigationBar = () => {
     navigate(`/${AppPath.MyInbox}`);
   };
 
+  const handleSelectWelcome = () => {
+    navigate(AppPath.WelcomeHome);
+  };
+
   return (
     <>
       <NavigationItemCountProbe activities={activities} />
       <NavigationActivityRail
         activities={activities}
-        activeActivityId={isInboxActive ? null : activeActivity?.id || null}
+        activeActivityId={
+          isInboxActive || isWelcomeActive ? null : activeActivity?.id || null
+        }
         isInboxActive={isInboxActive}
+        isWelcomeActive={isWelcomeActive}
         hiddenActivities={unlistedActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
@@ -112,6 +121,7 @@ export const MainNavigationBar = () => {
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}
+        onSelectWelcome={handleSelectWelcome}
         onSelectActivity={handleSelectActivity}
         onToggleActivity={handleToggleActivity}
         visibleActivities={listedActivities}

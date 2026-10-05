@@ -13,27 +13,35 @@
   "types": "dist/erxes-api-shared.cjs.d.ts",
   "exports": {
     ".": {
-      "module": "./dist/erxes-api-shared.esm.js",
+      "types": "./dist/erxes-api-shared.cjs.d.ts",
+      "import": "./dist/erxes-api-shared.esm.js",
+      "require": "./dist/erxes-api-shared.cjs.js",
       "default": "./dist/erxes-api-shared.cjs.js"
     },
     "./utils": {
-      "module": "./utils/dist/erxes-api-shared-utils.esm.js",
+      "types": "./utils/dist/erxes-api-shared-utils.cjs.d.ts",
+      "import": "./utils/dist/erxes-api-shared-utils.esm.js",
+      "require": "./utils/dist/erxes-api-shared-utils.cjs.js",
       "default": "./utils/dist/erxes-api-shared-utils.cjs.js"
     },
     "./core-types": {
-      "module": "./core-types/dist/erxes-api-shared-core-types.esm.js",
+      "types": "./core-types/dist/erxes-api-shared-core-types.cjs.d.ts",
+      "import": "./core-types/dist/erxes-api-shared-core-types.esm.js",
+      "require": "./core-types/dist/erxes-api-shared-core-types.cjs.js",
       "default": "./core-types/dist/erxes-api-shared-core-types.cjs.js"
     },
     "./core-modules": {
-      "module": "./core-modules/dist/erxes-api-shared-core-modules.esm.js",
+      "types": "./core-modules/dist/erxes-api-shared-core-modules.cjs.d.ts",
+      "import": "./core-modules/dist/erxes-api-shared-core-modules.esm.js",
+      "require": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js",
       "default": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js"
     },
-    "./package.json": "./package.json",
     "./src": "./src/index.ts",
     "./src/*": [
       "./src/*.ts",
       "./src/*/index.ts"
-    ]
+    ],
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "preconstruct build",
@@ -97,16 +105,6 @@
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",
-    "exports": {
-      "extra": {
-        "./src": "./src/index.ts",
-        "./src/*": [
-          "./src/*.ts",
-          "./src/*/index.ts"
-        ],
-        "./package.json": "./package.json"
-      }
-    },
     "entrypoints": [
       "./index.ts",
       "./utils/index.ts",
