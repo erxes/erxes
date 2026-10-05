@@ -14,6 +14,7 @@ import { IntegrationType } from '@/types/Integration';
 
 type ComposerShellProps = {
   children: ReactNode;
+  replyPreview?: ReactNode;
   disabled: boolean;
   onDrop: DragEventHandler<HTMLFormElement>;
   onInternalNoteChange: (internal: boolean) => void;
@@ -21,6 +22,7 @@ type ComposerShellProps = {
 
 export const ComposerShell = ({
   children,
+  replyPreview,
   disabled,
   onDrop,
   onInternalNoteChange,
@@ -62,6 +64,7 @@ export const ComposerShell = ({
   return (
     <div className="flex h-full min-h-0 flex-col justify-end px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3 sm:pt-3 sm:pb-3">
       <form
+        data-composer-form
         onSubmit={(event) => event.preventDefault()}
         onDropCapture={(event) => {
           if (
@@ -77,19 +80,27 @@ export const ComposerShell = ({
           isInternalNote && 'border-warning/50 bg-warning/20',
         )}
       >
-        <div className="flex flex-none items-center gap-3 border-b border-border/50 px-3 py-2">
+        <div
+          data-composer-header
+          className="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/50 px-3 py-2"
+        >
           {noteOnly ? (
             <div className="flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-warning">
               <IconLock className="size-3.5" />
               {t('internal-note', 'Internal Note')}
             </div>
           ) : (
-            <ComposerModeTabs
-              isInternalNote={isInternalNote}
-              disabled={disabled}
-              replyDisabled={onlyInternal}
-              onInternalNoteChange={onInternalNoteChange}
-            />
+            <div className="w-full min-w-0 shrink-0 sm:w-80">
+              <ComposerModeTabs
+                isInternalNote={isInternalNote}
+                disabled={disabled}
+                replyDisabled={onlyInternal}
+                onInternalNoteChange={onInternalNoteChange}
+              />
+            </div>
+          )}
+          {replyPreview && (
+            <div className="min-w-0 flex-1 basis-48">{replyPreview}</div>
           )}
           {isInternalNote && (
             <Button

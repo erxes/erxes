@@ -20,7 +20,10 @@ import {
 import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/ComposerShell';
 import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/ComposerEditor';
 import { ComposerGalleries } from '@/inbox/conversations/conversation-detail/components/ComposerGalleries';
-import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/ComposerPreviews';
+import {
+  ComposerPreviews,
+  ComposerReplyPreview,
+} from '@/inbox/conversations/conversation-detail/components/ComposerPreviews';
 import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/ComposerToolbar';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
@@ -64,6 +67,20 @@ export const MessageInput = ({
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
+  const [uploadingGalleries, setUploadingGalleries] = useState<Set<string>>(
+    new Set(),
+  );
+  const onGalleryUploadingChange = useCallback(
+    (id: string, uploading: boolean) => {
+      setUploadingGalleries((current) => {
+        const next = new Set(current);
+        if (uploading) next.add(id);
+        else next.delete(id);
+        return next;
+      });
+    },
+    [],
+  );
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const setIsInternalNoteCollapsed = useSetAtom(isInternalNoteCollapsedState);
@@ -248,7 +265,7 @@ export const MessageInput = ({
     isInstagram,
     isFacebook: integration?.kind === IntegrationType.FACEBOOK_MESSENGER,
     isInternalNote,
-    isUploading,
+    isUploading: isUploading || uploadingGalleries.size > 0,
     responseTemplateId,
     resetComposer,
     onPartialDelivery: handlePartialDelivery,
@@ -274,9 +291,10 @@ export const MessageInput = ({
   );
 
   const editorRef = useComposerEditorKeyDown({
+    editor,
     isInternalNote,
     isSlashMenuOpen,
-    isUploading,
+    isUploading: isUploading || uploadingGalleries.size > 0,
     loading,
     onlyInternal,
     showSuggestions,
@@ -296,29 +314,49 @@ export const MessageInput = ({
   }, [editor, setIsSlashMenuOpen]);
 
   const sendDisabled =
-    loading || isUploading || (!content?.length && attachments.length === 0);
+    loading ||
+    isUploading ||
+    uploadingGalleries.size > 0 ||
+    (!content?.length && attachments.length === 0);
   const blockAttachments = getBlockAttachments(
     editor.document.filter((block) => block.type !== 'gallery'),
   );
 
   return (
     <ComposerShell
-      disabled={loading || isUploading}
       onDrop={handleDrop}
+      disabled={loading || isUploading || uploadingGalleries.size > 0}
       onInternalNoteChange={handleInternalNoteChange}
+      replyPreview={
+        !isInternalNote && replyTo ? (
+          <ComposerReplyPreview
+            replyTo={replyTo}
+            onCancel={() => setReplyTo(null)}
+          />
+        ) : null
+      }
     >
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <ComposerGalleries editor={editor} disabled={loading || isUploading} />
+      <div
+        data-composer-previews
+        className="max-h-24 shrink-0 overflow-y-auto overscroll-contain"
+      >
+        <ComposerGalleries
+          editor={editor}
+          disabled={loading || isUploading}
+          onUploadingChange={onGalleryUploadingChange}
+        />
         <ComposerPreviews
           attachments={attachments}
           blockAttachments={blockAttachments}
           pendingAttachments={pendingAttachments}
-          replyTo={isInternalNote ? null : replyTo}
           onRemove={removeAttachment}
           onRemoveBlockAttachment={removeBlockAttachment}
-          onCancelReply={() => setReplyTo(null)}
         />
-
+      </div>
+      <div
+        data-composer-scroll
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+      >
         {showSuggestions && !isInternalNote && (
           <ResponseTemplateDropdown
             suggestions={suggestions}
@@ -359,7 +397,7 @@ export const MessageInput = ({
         isDiscord={isDiscord}
         isMessenger={isMessenger}
         isInternalNote={isInternalNote}
-        isUploading={isUploading}
+        isUploading={isUploading || uploadingGalleries.size > 0}
         loading={loading}
         sendDisabled={sendDisabled}
         onFilesSelected={handleFileInput}

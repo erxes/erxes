@@ -77,7 +77,7 @@ const ReplyAttachmentPreview = ({
   return <IconFile className="size-4" />;
 };
 
-const ReplyPreview = ({
+export const ComposerReplyPreview = ({
   replyTo,
   onCancel,
 }: {
@@ -87,33 +87,32 @@ const ReplyPreview = ({
   const { t } = useTranslation('frontline');
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/55 px-3 py-2 text-sm">
-      <div className="flex min-w-0 items-center gap-2.5 text-muted-foreground">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <IconArrowBackUp className="size-4" />
+    <div className="flex h-8 min-w-0 items-center gap-2 border-l border-border/60 pl-3 text-xs text-muted-foreground">
+      <IconArrowBackUp className="size-3.5 shrink-0" aria-hidden="true" />
+      {replyTo.attachment?.url && (
+        <span className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded">
+          <ReplyAttachmentPreview replyTo={replyTo} />
         </span>
-        {replyTo.attachment?.url && (
-          <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-background">
-            <ReplyAttachmentPreview replyTo={replyTo} />
-          </span>
-        )}
-        <span className="min-w-0">
-          <span className="block truncate text-xs font-semibold text-foreground">
-            {replyTo.nativeReply
-              ? t('replying-to', 'Replying to:')
-              : t('quoting', 'Quoting')}{' '}
-            {replyTo.authorName || t('message', 'message')}
-          </span>
-          <span className="block truncate text-xs">{replyTo.preview}</span>
-        </span>
-      </div>
+      )}
+      <span
+        className="max-w-[45%] shrink-0 truncate font-medium text-foreground/80"
+        title={replyTo.authorName || t('message', 'message')}
+      >
+        {replyTo.nativeReply
+          ? t('replying-to', 'Replying to:')
+          : t('quoting', 'Quoting')}{' '}
+        {replyTo.authorName || t('message', 'message')}
+      </span>
+      <span className="min-w-0 flex-1 truncate" title={replyTo.preview}>
+        {replyTo.preview}
+      </span>
       <Button
         type="button"
         variant="ghost"
         size="icon"
         aria-label={t('cancel-reply', 'Cancel reply')}
         onClick={onCancel}
-        className="size-7 shrink-0 rounded-full text-muted-foreground"
+        className="size-6 shrink-0 rounded-full text-muted-foreground"
       >
         <IconX className="size-4" aria-hidden="true" />
       </Button>
@@ -195,20 +194,16 @@ type ComposerPreviewsProps = {
   attachments: IAttachment[];
   blockAttachments: IAttachment[];
   pendingAttachments: PendingAttachment[];
-  replyTo: MessageReplyTarget | null;
   onRemove: (url: string) => void;
   onRemoveBlockAttachment: (url: string) => void;
-  onCancelReply: () => void;
 };
 
 export const ComposerPreviews = ({
   attachments,
   blockAttachments,
   pendingAttachments,
-  replyTo,
   onRemove,
   onRemoveBlockAttachment,
-  onCancelReply,
 }: ComposerPreviewsProps) => {
   const previewedUrls = new Set(
     pendingAttachments.flatMap(({ uploadedUrl }) =>
@@ -216,7 +211,6 @@ export const ComposerPreviews = ({
     ),
   );
   if (
-    !replyTo &&
     !attachments.length &&
     !blockAttachments.length &&
     !pendingAttachments.length
@@ -225,7 +219,6 @@ export const ComposerPreviews = ({
 
   return (
     <div className="flex flex-none flex-col gap-2 border-b border-border/50 p-2 sm:px-3">
-      {replyTo && <ReplyPreview replyTo={replyTo} onCancel={onCancelReply} />}
       {(pendingAttachments.length > 0 ||
         attachments.length > 0 ||
         blockAttachments.length > 0) && (

@@ -11,8 +11,10 @@ import {
   useBlockEditor,
   useErxesUpload,
   type IAttachment,
+  type FileWithPreview,
 } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
@@ -47,16 +49,24 @@ const ComposerGallery = ({
   block,
   editor,
   disabled,
+  onUploadingChange,
 }: {
   block: GalleryBlock;
   editor: ComposerBlockEditor;
   disabled: boolean;
+  onUploadingChange: (id: string, uploading: boolean) => void;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(
     () => !getGalleryImages(block.props.images).length,
   );
   const [uploading, setUploading] = useState(false);
+  const uploadingRef = useRef(false);
+  const attemptedFiles = useRef(new WeakSet<File>());
+  useEffect(
+    () => () => onUploadingChange(block.id, false),
+    [block.id, onUploadingChange],
+  );
   const images = useMemo(
     () => getGalleryImages(block.props.images),
     [block.props.images],
@@ -89,53 +99,92 @@ const ComposerGallery = ({
     toast({ title: t('attachment-removed', 'Attachment removed') });
   };
 
-  const handleUpload = async (): Promise<void> => {
-    const uploadFile = editor.uploadFile;
-    if (!uploadFile || uploading || disabled || !upload.files.length) return;
-    const files = upload.files;
-    if (files.some((file) => file.errors.length)) return;
+  const { files: pendingFiles, setFiles } = upload;
+  const handleUpload = useCallback(
+    async (files: FileWithPreview[]): Promise<void> => {
+      const uploadFile = editor.uploadFile;
+      if (!uploadFile || uploadingRef.current || disabled || !files.length)
+        return;
+      if (files.some((file) => file.errors.length) || pendingFiles.length > 20)
+        return;
 
-    setUploading(true);
-    try {
-      const results = await Promise.allSettled(
-        files.map(async (file) => {
-          const result = await uploadFile(file);
-          const url = typeof result === 'string' ? result : result.props?.url;
-          if (typeof url !== 'string' || !url) throw new Error(file.name);
-          return { url };
-        }),
-      );
-      const added = results.flatMap((result) =>
-        result.status === 'fulfilled' ? [result.value] : [],
-      );
-      const currentBlock = editor.getBlock(block.id);
-      if (added.length && currentBlock?.type === 'gallery') {
-        editor.updateBlock(currentBlock, {
-          props: {
-            images: JSON.stringify([
-              ...getGalleryImages(currentBlock.props.images),
-              ...added,
-            ]),
-          },
-        });
+      files.forEach((file) => attemptedFiles.current.add(file));
+      uploadingRef.current = true;
+      setUploading(true);
+      onUploadingChange(block.id, true);
+      try {
+        const results = await Promise.allSettled(
+          files.map(async (file) => {
+            const result = await uploadFile(file);
+            const url = typeof result === 'string' ? result : result.props?.url;
+            if (typeof url !== 'string' || !url) throw new Error(file.name);
+            return { url };
+          }),
+        );
+        const added = results.flatMap((result) =>
+          result.status === 'fulfilled' ? [result.value] : [],
+        );
+        const currentBlock = editor.getBlock(block.id);
+        if (added.length && currentBlock?.type === 'gallery') {
+          editor.updateBlock(currentBlock, {
+            props: {
+              images: JSON.stringify([
+                ...getGalleryImages(currentBlock.props.images),
+                ...added,
+              ]),
+            },
+          });
+        }
+        const failed = files.filter(
+          (_, index) => results[index].status === 'rejected',
+        );
+        setFiles((current) =>
+          current.filter(
+            (file) => !files.includes(file) || failed.includes(file),
+          ),
+        );
+        files
+          .filter((file) => !failed.includes(file))
+          .forEach((file) => {
+            if (file.preview) URL.revokeObjectURL(file.preview);
+          });
+        if (failed.length) {
+          toast({
+            title: t(
+              'gallery-upload-failed',
+              'Failed to upload gallery images',
+            ),
+            description: failed.map((file) => file.name).join(', '),
+            variant: 'destructive',
+          });
+        } else if (added.length) {
+          toast({
+            title: t('gallery-images-added', 'Images added to gallery'),
+          });
+        }
+      } finally {
+        uploadingRef.current = false;
+        setUploading(false);
+        onUploadingChange(block.id, false);
       }
-      const failed = files.filter(
-        (_, index) => results[index].status === 'rejected',
-      );
-      upload.setFiles(failed);
-      if (failed.length) {
-        toast({
-          title: t('gallery-upload-failed', 'Failed to upload gallery images'),
-          description: failed.map((file) => file.name).join(', '),
-          variant: 'destructive',
-        });
-      } else if (added.length) {
-        toast({ title: t('gallery-images-added', 'Images added to gallery') });
-      }
-    } finally {
-      setUploading(false);
-    }
-  };
+    },
+    [
+      block.id,
+      disabled,
+      editor,
+      onUploadingChange,
+      pendingFiles.length,
+      setFiles,
+      t,
+    ],
+  );
+
+  useEffect(() => {
+    const added = pendingFiles.filter(
+      (file) => !file.errors.length && !attemptedFiles.current.has(file),
+    );
+    if (!uploading && added.length) void handleUpload(added);
+  }, [handleUpload, pendingFiles, uploading]);
 
   const removeGallery = (): void => {
     editor.removeBlocks([block]);
@@ -149,22 +198,26 @@ const ComposerGallery = ({
         if (!uploading) setOpen(value);
       }}
     >
-      <div className="flex min-w-0 items-center gap-2 rounded-lg border bg-muted/35 p-2">
+      <div className="flex min-w-0 max-w-full items-center gap-2 rounded-xl border bg-muted/35 p-1.5 pr-2 shadow-xs">
         <Dialog.Trigger asChild>
           <Button
             type="button"
             variant="ghost"
             disabled={disabled}
-            className="h-auto min-w-0 flex-1 justify-start gap-2 py-1"
+            className="h-auto min-w-0 justify-start gap-2 p-0"
           >
-            <IconPhoto className="size-5 shrink-0 text-muted-foreground" />
-            <span className="text-sm font-medium">
-              {t('gallery', 'Gallery')}
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground">
+              <IconPhoto className="size-4" />
             </span>
-            <span className="text-xs text-muted-foreground">
-              {t('gallery-image-count', '{{count}} images', {
-                count: images.length,
-              })}
+            <span className="min-w-0 max-w-40 text-left">
+              <span className="block truncate text-xs font-medium">
+                {t('gallery', 'Gallery')}
+              </span>
+              <span className="block text-[11px] text-muted-foreground">
+                {t('gallery-image-count', '{{count}} images', {
+                  count: images.length,
+                })}
+              </span>
             </span>
           </Button>
         </Dialog.Trigger>
@@ -215,9 +268,31 @@ const ComposerGallery = ({
           )}
           <Dropzone
             {...upload}
-            className={cn(uploading && 'pointer-events-none opacity-50')}
+            className={cn(
+              'cursor-pointer',
+              (uploading || disabled) && 'pointer-events-none opacity-50',
+            )}
             loading={uploading || disabled}
-            onUpload={handleUpload}
+            getRootProps={(props) => {
+              const rootProps = upload.getRootProps(props);
+              return {
+                ...rootProps,
+                onClick: (event: MouseEvent<HTMLElement>) => {
+                  rootProps.onClick?.(event);
+                  if (
+                    uploading ||
+                    disabled ||
+                    !(event.target instanceof Element)
+                  )
+                    return;
+                  if (event.target.closest('button, input, .underline')) return;
+                  upload.open();
+                },
+              };
+            }}
+            onUpload={() =>
+              handleUpload(pendingFiles.filter((file) => !file.errors.length))
+            }
           >
             <DropzoneEmptyState />
             <DropzoneContent />
@@ -269,9 +344,11 @@ const ComposerGallery = ({
 export const ComposerGalleries = ({
   editor,
   disabled,
+  onUploadingChange,
 }: {
   editor: ComposerBlockEditor;
   disabled: boolean;
+  onUploadingChange: (id: string, uploading: boolean) => void;
 }) => {
   const [galleries, setGalleries] = useState<GalleryBlock[]>([]);
 
@@ -290,13 +367,14 @@ export const ComposerGalleries = ({
   if (!galleries.length) return null;
 
   return (
-    <div className="flex flex-col gap-2 border-b border-border/50 p-2 sm:px-3">
+    <div className="flex flex-wrap gap-2 border-b border-border/50 p-2 sm:px-3">
       {galleries.map((block) => (
         <ComposerGallery
           key={block.id}
           block={block}
           editor={editor}
           disabled={disabled}
+          onUploadingChange={onUploadingChange}
         />
       ))}
     </div>

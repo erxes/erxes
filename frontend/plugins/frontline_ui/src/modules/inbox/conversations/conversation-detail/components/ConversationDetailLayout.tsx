@@ -47,12 +47,12 @@ export const ConversationDetailLayout = ({
                   ? 'z-30 bg-border/60 after:hidden'
                   : 'z-30 bg-border/60 hover:bg-border [&>div]:h-9 [&>div]:w-4 [&>div]:rounded-md [&>div]:border-border [&>div]:bg-background [&>div]:text-muted-foreground [&>div]:shadow-sm'
               }
-              onPointerDown={collapsed ? undefined : resetAutoResize}
-              onKeyDown={collapsed ? undefined : resetAutoResize}
+              onDragging={resetAutoResize}
+              onKeyUp={collapsed ? undefined : resetAutoResize}
             />
             <Resizable.Panel
               ref={inputPanelRef}
-              className="overflow-visible!"
+              className="min-h-0 overflow-visible!"
               defaultSize={30}
               minSize={collapsed ? 0 : minSize}
               maxSize={100}
