@@ -3,7 +3,7 @@ import {
   DEFAULT_COMPOSER_HEIGHT,
   MIN_COMPOSER_HEIGHT,
   MIN_EDITOR_HEIGHT,
-} from '../constants/composer';
+} from '@/inbox/conversations/conversation-detail/constants/composer';
 
 const GALLERY_IMAGES_SCHEMA = z.array(
   z.object({ url: z.string().min(1), caption: z.string().optional() }),
@@ -32,7 +32,11 @@ export const getMinimumComposerHeight = (group: HTMLElement): number => {
   const shellStyle = getComputedStyle(shell);
   const pixels = (value: string): number => Number.parseFloat(value) || 0;
   const controlsHeight = Array.from(form.children).reduce((height, child) => {
-    if (child.hasAttribute('data-composer-scroll')) return height;
+    if (
+      child instanceof HTMLElement &&
+      child.dataset.composerScroll !== undefined
+    )
+      return height;
     const style = getComputedStyle(child);
     return (
       height +

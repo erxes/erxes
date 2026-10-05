@@ -1,6 +1,6 @@
-import { ComposerGallery } from './ComposerGallery';
-import { useComposerGalleries } from '../../hooks/composer/useComposerGallery';
-import type { ComposerGalleriesProps } from '../../types/composer';
+import { ComposerGallery } from '@/inbox/conversations/conversation-detail/components/composer/ComposerGallery';
+import { useComposerGalleries } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerGallery';
+import type { ComposerGalleriesProps } from '@/inbox/conversations/conversation-detail/types/composer';
 
 export const ComposerGalleries = ({
   editor,

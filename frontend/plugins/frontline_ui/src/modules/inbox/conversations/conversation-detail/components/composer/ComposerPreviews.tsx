@@ -1,6 +1,6 @@
-import { ComposerAttachment } from '../ComposerAttachment';
-import { PendingAttachmentItem } from './PendingAttachmentItem';
-import type { ComposerPreviewsProps } from '../../types/composerAttachments';
+import { ComposerAttachment } from '@/inbox/conversations/conversation-detail/components/ComposerAttachment';
+import { PendingAttachmentItem } from '@/inbox/conversations/conversation-detail/components/composer/PendingAttachmentItem';
+import type { ComposerPreviewsProps } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
 
 export const ComposerPreviews = ({
   attachments,
@@ -35,9 +35,13 @@ export const ComposerPreviews = ({
             onRemove={() => onRemove(attachment.url)}
           />
         ))}
-      {blockAttachments.map((attachment, index) => (
+      {Array.from(
+        new Map(
+          blockAttachments.map((attachment) => [attachment.url, attachment]),
+        ).values(),
+      ).map((attachment) => (
         <ComposerAttachment
-          key={`block-${attachment.url}-${index}`}
+          key={`block-${attachment.url}`}
           attachment={attachment}
           onRemove={() => onRemoveBlockAttachment(attachment.url)}
         />

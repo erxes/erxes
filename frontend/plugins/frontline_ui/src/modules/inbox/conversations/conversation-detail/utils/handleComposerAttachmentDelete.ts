@@ -1,7 +1,7 @@
 import { TextSelection } from '@tiptap/pm/state';
 
-import type { ComposerBlockEditor } from '../types/composer';
-import { PREVIEW_BLOCK_TYPES } from '../constants/composer';
+import type { ComposerBlockEditor } from '@/inbox/conversations/conversation-detail/types/composer';
+import { PREVIEW_BLOCK_TYPES } from '@/inbox/conversations/conversation-detail/constants/composer';
 
 export const handleComposerAttachmentDelete = (
   editor: ComposerBlockEditor,
@@ -32,7 +32,8 @@ export const handleComposerAttachmentDelete = (
     event.stopPropagation();
     // Clear selected text without removing the hidden attachment blocks.
     editor.transact((transaction) => {
-      for (const { from, to } of textRanges.reverse()) {
+      textRanges.reverse();
+      for (const { from, to } of textRanges) {
         transaction.delete(from, to);
       }
       const cursor = transaction.doc.resolve(
@@ -45,6 +46,8 @@ export const handleComposerAttachmentDelete = (
     });
     return true;
   }
+
+  if (event.isComposing) return false;
 
   const { block, prevBlock, nextBlock } = editor.getTextCursorPosition();
   const { $from } = selection;

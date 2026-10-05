@@ -14,8 +14,8 @@ import {
 import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/composer/ComposerShell';
 import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/composer/ComposerEditor';
 import { ComposerGalleries } from '@/inbox/conversations/conversation-detail/components/composer/ComposerGalleries';
-import { ComposerPreviews } from './composer/ComposerPreviews';
-import { ComposerReplyPreview } from './composer/ComposerReplyPreview';
+import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/composer/ComposerPreviews';
+import { ComposerReplyPreview } from '@/inbox/conversations/conversation-detail/components/composer/ComposerReplyPreview';
 import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/composer/ComposerToolbar';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
@@ -27,8 +27,8 @@ import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversati
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { IntegrationType } from '@/types/Integration';
-import { useComposerDraft } from '../hooks/composer/useComposerDraft';
-import { useComposerAttachments } from '../hooks/composer/useComposerAttachments';
+import { useComposerDraft } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerDraft';
+import { useComposerAttachments } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerAttachments';
 
 export const MessageInput = ({
   conversationId,

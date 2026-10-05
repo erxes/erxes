@@ -1,8 +1,11 @@
 import { IconArrowBackUp, IconFile, IconX } from '@tabler/icons-react';
 import { Button, readImage } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import type { MessageReplyTarget } from '../../states/messageReplyState';
-import { PendingImage, PendingVideo } from './PendingAttachmentItem';
+import type { MessageReplyTarget } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
+import {
+  PendingImage,
+  PendingVideo,
+} from '@/inbox/conversations/conversation-detail/components/composer/PendingAttachmentItem';
 
 const ReplyAttachmentPreview = ({
   replyTo,

@@ -1,12 +1,12 @@
 import { IconX, IconFile, IconMovie, IconPhoto } from '@tabler/icons-react';
 import { Button, Dialog, Spinner, readImage } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { AttachmentPreview } from '../ComposerAttachment';
+import { AttachmentPreview } from '@/inbox/conversations/conversation-detail/components/ComposerAttachment';
 import {
   getAttachmentKind,
   formatUploadedSize,
-} from '../../utils/composerAttachment';
-import type { PendingAttachment } from '../../types/composerAttachments';
+} from '@/inbox/conversations/conversation-detail/utils/composerAttachment';
+import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
 
 export const PendingAttachmentItem = ({
   file,

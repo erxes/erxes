@@ -6,8 +6,11 @@ import { isInternalNoteCollapsedState } from '@/inbox/conversations/conversation
 import {
   COLLAPSED_COMPOSER_HEIGHT,
   MAX_AUTO_COMPOSER_SIZE,
-} from '../../constants/composer';
-import { getDefaultSize, getMinimumComposerHeight } from '../../utils/composer';
+} from '@/inbox/conversations/conversation-detail/constants/composer';
+import {
+  getDefaultSize,
+  getMinimumComposerHeight,
+} from '@/inbox/conversations/conversation-detail/utils/composer';
 
 export const useComposerPanelResize = () => {
   const collapsed = useAtomValue(isInternalNoteCollapsedState);

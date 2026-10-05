@@ -12,19 +12,19 @@ import {
   isInternalState,
   isInternalNoteCollapsedState,
   onlyInternalState,
-} from '../../states/isInternalState';
-import { messageReplyState } from '../../states/messageReplyState';
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import {
   clearLegacyConversationDrafts,
   composerStorage,
   getConversationDraftKey,
   parseConversationDraft,
-} from '../../utils/messageInput';
-import { NOTE_ONLY_INTEGRATION_KINDS } from '../../constants/composer';
+} from '@/inbox/conversations/conversation-detail/utils/messageInput';
+import { NOTE_ONLY_INTEGRATION_KINDS } from '@/inbox/conversations/conversation-detail/constants/composer';
 import type {
   ComposerDraftOptions,
   ComposerDraftResult,
-} from '../../types/composer';
+} from '@/inbox/conversations/conversation-detail/types/composer';
 
 export const useComposerDraft = ({
   conversationId,

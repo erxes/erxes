@@ -1,11 +1,11 @@
 import { getBlockAttachments, toast } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MEDIA_BLOCK_TYPES } from '../../constants/composer';
+import { MEDIA_BLOCK_TYPES } from '@/inbox/conversations/conversation-detail/constants/composer';
 import type {
   ComposerBlockEditor,
   ComposerAttachmentsResult,
-} from '../../types/composer';
+} from '@/inbox/conversations/conversation-detail/types/composer';
 
 export const useComposerAttachments = (
   editor: ComposerBlockEditor,

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { useBlockEditor } from 'erxes-ui';
-import { handleComposerAttachmentDelete } from '../../utils/handleComposerAttachmentDelete';
+import { handleComposerAttachmentDelete } from '@/inbox/conversations/conversation-detail/utils/handleComposerAttachmentDelete';
 
 type ComposerEditorKeyDownOptions = {
   editor: ReturnType<typeof useBlockEditor>;
