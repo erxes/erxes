@@ -1,7 +1,7 @@
 import { Resizable } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useComposerPanelResize } from '@/inbox/conversations/conversation-detail/hooks/useComposerPanelResize';
+import { useComposerPanelResize } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerPanelResize';
 import { isInternalNoteCollapsedState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
 export const ConversationDetailLayout = ({

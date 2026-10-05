@@ -1,18 +1,10 @@
-import type { useBlockEditor } from 'erxes-ui';
 import { TextSelection } from '@tiptap/pm/state';
 
-type ComposerEditor = ReturnType<typeof useBlockEditor>;
-
-const PREVIEW_BLOCK_TYPES = new Set([
-  'gallery',
-  'image',
-  'video',
-  'audio',
-  'file',
-]);
+import type { ComposerBlockEditor } from '../types/composer';
+import { PREVIEW_BLOCK_TYPES } from '../constants/composer';
 
 export const handleComposerAttachmentDelete = (
-  editor: ComposerEditor,
+  editor: ComposerBlockEditor,
   event: KeyboardEvent,
 ): boolean => {
   if (event.key !== 'Backspace' && event.key !== 'Delete') return false;

@@ -3,49 +3,11 @@ import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { useAtomValue } from 'jotai';
 import { isInternalNoteCollapsedState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
-const MIN_COMPOSER_HEIGHT = 160;
-const DEFAULT_COMPOSER_HEIGHT = 240;
-const MIN_EDITOR_HEIGHT = 72;
-const COLLAPSED_COMPOSER_HEIGHT = 64;
-const MAX_AUTO_COMPOSER_SIZE = 50;
-
-const getDefaultSize = (height: number) =>
-  Math.min(75, Math.max(30, (DEFAULT_COMPOSER_HEIGHT / height) * 100));
-
-const getMinimumComposerHeight = (group: HTMLElement): number => {
-  const form = group.querySelector<HTMLElement>('[data-composer-form]');
-  const shell = form?.parentElement;
-  if (!form || !shell) return MIN_COMPOSER_HEIGHT;
-
-  const formStyle = getComputedStyle(form);
-  const shellStyle = getComputedStyle(shell);
-  const pixels = (value: string): number => Number.parseFloat(value) || 0;
-  const controlsHeight = Array.from(form.children).reduce((height, child) => {
-    if (child.hasAttribute('data-composer-scroll')) return height;
-    const style = getComputedStyle(child);
-    return (
-      height +
-      child.getBoundingClientRect().height +
-      pixels(style.marginTop) +
-      pixels(style.marginBottom)
-    );
-  }, 0);
-
-  return Math.max(
-    MIN_COMPOSER_HEIGHT,
-    Math.ceil(
-      MIN_EDITOR_HEIGHT +
-        controlsHeight +
-        pixels(shellStyle.paddingTop) +
-        pixels(shellStyle.paddingBottom) +
-        pixels(formStyle.paddingTop) +
-        pixels(formStyle.paddingBottom) +
-        pixels(formStyle.borderTopWidth) +
-        pixels(formStyle.borderBottomWidth) +
-        pixels(formStyle.rowGap) * Math.max(0, form.children.length - 1),
-    ),
-  );
-};
+import {
+  COLLAPSED_COMPOSER_HEIGHT,
+  MAX_AUTO_COMPOSER_SIZE,
+} from '../../constants/composer';
+import { getDefaultSize, getMinimumComposerHeight } from '../../utils/composer';
 
 export const useComposerPanelResize = () => {
   const collapsed = useAtomValue(isInternalNoteCollapsedState);
