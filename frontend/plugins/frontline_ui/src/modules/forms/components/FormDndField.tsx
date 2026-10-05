@@ -27,7 +27,7 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
@@ -44,9 +44,17 @@ export const FormDndField = ({
     useSortable({
       id: field,
     });
-  const { getFieldValue, handleChangeField } = useFormDnd();
+  const { getFieldValue, handleChangeField, newFieldId, clearNewFieldId } =
+    useFormDnd();
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
+
+  useEffect(() => {
+    if (newFieldId !== field) return;
+
+    setOpen(true);
+    clearNewFieldId();
+  }, [newFieldId, field, clearNewFieldId]);
 
   const mountedWhileDragging = isDragging && !mounted;
 
