@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  telegramMessageSchema,
+  type TelegramMessage,
+} from '@/integrations/telegram/utils/message';
 
 const telegramBotSchema = z.object({
   id: z.number().int().positive().safe(),
@@ -18,7 +22,7 @@ export type TelegramBot = z.infer<typeof telegramBotSchema>;
 
 export const getTelegramResponse = async (
   token: string,
-  method: 'getMe' | 'getWebhookInfo' | 'setWebhook',
+  method: 'getMe' | 'getWebhookInfo' | 'setWebhook' | 'sendMessage',
   params?: Record<string, unknown>,
 ): Promise<unknown> => {
   if (token !== token.trim() || !/^[0-9]+:[A-Za-z0-9_-]+$/.test(token)) {
@@ -139,6 +143,42 @@ export const setTelegramWebhook = async (
   if (!parsed.success) {
     throw new Error(
       'Telegram returned an unsuccessful or invalid webhook registration response.',
+    );
+  }
+
+  return parsed.data.result;
+};
+
+const telegramSendMessageResponseSchema = z.object({
+  ok: z.literal(true),
+  result: telegramMessageSchema,
+});
+
+export const sendTelegramMessage = async (
+  token: string,
+  chatId: string,
+  text: string,
+): Promise<TelegramMessage> => {
+  if (!/^-?[1-9]\d*$/.test(chatId) || !Number.isSafeInteger(Number(chatId))) {
+    throw new Error('A valid Telegram chat ID is required.');
+  }
+
+  if (!text.trim() || Array.from(text).length > 4096) {
+    throw new Error(
+      'Enter a non-empty Telegram message of at most 4096 characters.',
+    );
+  }
+
+  const body = await getTelegramResponse(token, 'sendMessage', {
+    chat_id: chatId,
+    text,
+  });
+
+  const parsed = telegramSendMessageResponseSchema.safeParse(body);
+
+  if (!parsed.success) {
+    throw new Error(
+      'Telegram returned an unsuccessful or invalid send-message response.',
     );
   }
 

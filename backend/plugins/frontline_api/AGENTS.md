@@ -23,9 +23,9 @@
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
-- Telegram bot credential validation, provider webhook status and registration, and
-  tenant-scoped bot records, customer identity mappings, conversation mappings,
-  and message mappings.
+- Telegram bot credential validation, provider webhook status and registration,
+  an internal plain-text sending client, and tenant-scoped bot records,
+  customer identity mappings, conversation mappings, and message mappings.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -145,6 +145,10 @@
   message updates while preserving pending updates. It requires an explicit
   successful provider response. `TelegramBots.setWebhook(_id, url)` invokes it
   using the saved bot's credentials through the `telegramSetWebhook` mutation.
+- The internal `sendTelegramMessage(token, chatId, text)` client posts plain
+  text to a numeric chat ID and returns a validated provider `TelegramMessage`.
+  It rejects invalid chat IDs, blank text, and text exceeding 4096 Unicode code
+  points before requesting Telegram. It is not connected to inbox reply dispatch.
 - The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
   unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
   It lives in `src/modules/integrations/telegram/utils/webhookAuth.ts`.
@@ -329,7 +333,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity, webhook status and registration, permission-checked validation and saved-bot queries, creation and webhook registration mutations, bot schema and model, webhook secret comparison, internal creation adapter |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity, webhook status and registration, and plain-text sending; permission-checked validation and saved-bot queries, creation and webhook registration mutations, bot schema and model, webhook secret comparison, internal creation adapter |
 | Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
 | Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Local customer, conversation, and message insert/reuse; Core customer and inbox conversation/message creation through the bridge; conditional linking with bounded waits |
 | Telegram receiver | `src/modules/integrations/telegram/controller/receiveMessage.ts` | Validates and filters provider messages, then resolves the customer, conversation, and inbox message in order |
@@ -408,7 +412,8 @@
 ### Consumes
 
 - Telegram Bot API `GET /bot<token>/getMe`,
-  `GET /bot<token>/getWebhookInfo`, and JSON `POST /bot<token>/setWebhook` — a
+  `GET /bot<token>/getWebhookInfo`, and JSON `POST /bot<token>/setWebhook` and
+  `POST /bot<token>/sendMessage` — a
   shared request helper validates token syntax, limits requests to ten seconds,
   rejects redirects, and replaces raw transport and response errors with
   controlled messages. Each client validates its response with Zod; an empty
@@ -516,6 +521,11 @@
   Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
+- The text-sending client accepts nonzero signed decimal safe-integer chat IDs
+  stored as strings. Check text emptiness without rewriting the submitted text,
+  enforce the 4096-code-point limit, and omit `parse_mode`. Reuse
+  `telegramMessageSchema` to validate the successful provider response. The
+  client does not load credentials, persist messages, or automatically retry.
 - Webhook registration requires a full HTTPS callback URL without surrounding
   whitespace and a secret of 1–256 characters from `A-Z`, `a-z`, `0-9`, `_`, or
   `-`. Send `allowed_updates: ['message']` and `drop_pending_updates: false`;
@@ -802,6 +812,12 @@
   redirect rejection. Reject invalid URLs, secrets, and tokens before a request;
   reject unsuccessful or malformed responses. Verify existing read methods
   remain GET requests. These isolated checks must not register a live webhook.
+- Telegram sending client checks: stub `fetch` to verify the exact JSON POST,
+  unchanged text, numeric chat ID, timeout signal, and redirect rejection.
+  Check blank text, Unicode length boundaries, invalid IDs and tokens,
+  malformed provider messages, and controlled transport, HTTP, and JSON errors.
+  Verify no automatic retries and preserve existing identity and webhook
+  clients. These isolated checks must not send a live message.
 - Telegram model checks: successful creation returns provider-derived metadata
   without credentials; duplicate creation preserves the original record;
   missing creators and rejected tokens prevent writes; storage errors do not
@@ -841,6 +857,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-05` — Telegram text-sending client
+
+- **Summary:** Added validated plain-text sending with numeric chat IDs, a 4096-code-point limit, and controlled provider errors.
+- **Affected areas:** `src/modules/integrations/telegram/client.ts`.
+- **Contracts changed:** Added internal `sendTelegramMessage(token, chatId, text): Promise<TelegramMessage>`; no public API change or inbox reply wiring.
 
 ### `2026-10-05` — Telegram webhook registration mutation
 
@@ -895,9 +917,3 @@
 - **Summary:** Added conversation lookup-and-link coordination with bounded waits, retryable unlinked mappings, and conditional link preservation.
 - **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
 - **Contracts changed:** Added internal `getOrCreateConversation(models, subdomain, integrationId, message, customer)`; no public API or webhook route invokes it yet.
-
-### `2026-10-04` — Telegram inbox conversation creation adapter
-
-- **Summary:** Added typed inbox conversation creation through the existing bridge, preserving source time and validating the returned ID.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `createInboxConversation(subdomain, conversation, customerId)`; no public API or webhook route invokes it yet.
