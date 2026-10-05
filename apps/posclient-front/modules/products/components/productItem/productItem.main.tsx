@@ -2,6 +2,7 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import { mobileTabAtom, modeAtom } from "@/store"
 import { addToCartAtom } from "@/store/cart.store"
+import { isShowRemainderAtom } from "@/store/config.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import { IProduct } from "@/types/product.types"
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/tooltip"
 import { toast } from "@/components/ui/use-toast"
 
-const ChooseBulkSimilarity: any = dynamic(
+const ChooseBulkSimilarity = dynamic(
   () => import("../ChooseFromBulkSimilarity"),
   {
     loading: () => <div style={{ height: "350px" }}></div>,
@@ -43,6 +44,7 @@ const ProductItem = (props: IProduct) => {
   const [open, setOpen] = useState(false)
   const addToCart = useSetAtom(addToCartAtom)
   const mode = useAtomValue(modeAtom)
+  const isShowRemainder = useAtomValue(isShowRemainderAtom)
   const setTab = useSetAtom(mobileTabAtom)
 
   return (
@@ -50,7 +52,7 @@ const ProductItem = (props: IProduct) => {
       <div
         className={cn(
           "relative rounded-lg border p-3 text-center",
-          isCheckRem && !remainder && "opacity-70"
+          isShowRemainder && isCheckRem && remainder === 0 && "opacity-70"
         )}
         onClick={() => {
           if (hasSimilarity) {
@@ -95,7 +97,7 @@ const ProductItem = (props: IProduct) => {
         <div className="flex items-center justify-between gap-2 text-left">
           <p className="font-extrabold">
             {formatNum(unitPrice)}₮{" "}
-            {typeof remainder === "number" &&
+            {isShowRemainder && typeof remainder === "number" &&
               (remainders && remainders?.length > 1 ? (
                 <HoverCard>
                   <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>

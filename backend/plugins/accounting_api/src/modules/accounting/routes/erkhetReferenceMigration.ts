@@ -5,6 +5,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
+import { findOrCreateErkhetContact, TErkhetContact } from './erkhetMigration';
 
 type TCodeMap = Record<string, string>;
 
@@ -29,6 +30,13 @@ type TErkhetProduct = {
   unitPrice?: number;
   weight?: number;
   barcodes?: string[];
+  status?: 'active' | 'deleted';
+  vendor?: string;
+  customFieldsData?: Array<{
+    field: string;
+    value: unknown;
+    stringValue?: string;
+  }>;
 };
 
 type TErkhetFixedAssetCategory = {
@@ -65,6 +73,7 @@ type TErkhetReferencesRequest = {
   dryRun?: boolean;
   productCategories?: TErkhetProductCategory[];
   products?: TErkhetProduct[];
+  companies?: TErkhetContact[];
   fixedAssetCategories?: TErkhetFixedAssetCategory[];
   workers?: TErkhetWorker[];
   exchangeRates?: TErkhetExchangeRate[];
@@ -84,10 +93,13 @@ const normalizeSourceCode = (value?: string) =>
   typeof value === 'string' ? value.trim() : value || '';
 
 const normalizeIdentifierCode = (value?: string) =>
-  normalizeSourceCode(value).replace(/\s+/g, '');
+  normalizeSourceCode(value).replace(/[\s*_]+/g, '');
 
 const normalizeEmail = (value?: string) =>
   normalizeSourceCode(value).toLowerCase();
+
+const normalizeName = (value?: string) =>
+  normalizeSourceCode(value).toLocaleLowerCase();
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
@@ -188,6 +200,127 @@ const fetchUsersByEmail = async (subdomain: string, emails: string[]) => {
   );
 };
 
+const fetchCompanyIdsByName = async (subdomain: string, names: string[]) => {
+  if (!names.length) {
+    return {};
+  }
+
+  const companies = (await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'companies',
+    action: 'findActiveCompanies',
+    input: {
+      query: {
+        $or: [{ primaryName: { $in: names } }, { names: { $in: names } }],
+      },
+      fields: { _id: 1, primaryName: 1, names: 1 },
+    },
+    defaultValue: [],
+  })) as Array<{ _id: string; primaryName?: string; names?: string[] }>;
+
+  return companies.reduce<TCodeMap>((byName, company) => {
+    for (const name of [company.primaryName, ...(company.names || [])]) {
+      if (name) {
+        byName[normalizeName(name)] = company._id;
+      }
+    }
+    return byName;
+  }, {});
+};
+
+const buildProductDoc = ({
+  product,
+  categoryId,
+  vendorId,
+}: {
+  product: TErkhetProduct;
+  categoryId: string;
+  vendorId?: string;
+}) =>
+  cleanDoc({
+    code: normalizeIdentifierCode(product.code),
+    name: product.name,
+    shortName: product.shortName,
+    categoryId,
+    uom: product.uom,
+    subUoms: product.subUoms || [],
+    unitPrice: product.unitPrice,
+    weight: product.weight,
+    barcodes: product.barcodes || [],
+    type: 'product',
+    status: product.status === 'deleted' ? 'deleted' : 'active',
+    vendorId,
+    customFieldsData: product.customFieldsData,
+  });
+
+export const buildErkhetProductDocForTest = buildProductDoc;
+
+const syncCompanies = async ({
+  subdomain,
+  userId,
+  dryRun,
+  companies,
+}: {
+  subdomain: string;
+  userId?: string;
+  dryRun: boolean;
+  companies: TErkhetContact[];
+}) => {
+  const rows: TReferenceRow[] = [];
+  const uniqueCompanies = Array.from(
+    new Map(
+      companies
+        .filter(
+          ({ code, name }) =>
+            normalizeSourceCode(code) || normalizeSourceCode(name),
+        )
+        .map((company) => [
+          normalizeSourceCode(company.code) || normalizeName(company.name),
+          company,
+        ]),
+    ).values(),
+  );
+  const companyIdsByName: TCodeMap = {};
+
+  for (const company of uniqueCompanies) {
+    const name = normalizeSourceCode(company.name);
+    const code = normalizeSourceCode(company.code) || name;
+
+    try {
+      const resolved = await findOrCreateErkhetContact({
+        subdomain,
+        userId: userId || '',
+        contact: { ...company, type: 'company', name },
+        updateExisting: true,
+        dryRun,
+      });
+      if (!resolved._id) {
+        throw new Error(`Company was not synchronized: ${code}`);
+      }
+      if (name) {
+        companyIdsByName[normalizeName(name)] = resolved._id;
+      }
+
+      rows.push({
+        type: 'company',
+        code,
+        action: resolved.action === 'update' ? 'update' : 'create',
+        _id: resolved._id,
+      });
+    } catch (error) {
+      rows.push({
+        type: 'company',
+        code,
+        action: 'error',
+        error: getErrorMessage(error, 'Company sync failed'),
+      });
+    }
+  }
+
+  return { rows, companyIdsByName };
+};
+
 const syncProductCategories = async ({
   subdomain,
   userId,
@@ -200,7 +333,12 @@ const syncProductCategories = async ({
   categories: TErkhetProductCategory[];
 }) => {
   const rows: TReferenceRow[] = [];
-  const codes = uniq(categories.map((category) => category.code || ''));
+  const codes = uniq(
+    categories.reduce<string[]>((result, category) => {
+      result.push(category.code || '', category.parentCode || '');
+      return result;
+    }, []),
+  );
   // Эцэг category-г code-р нь зааж ирүүлдэг тул эхлээд batch дотор байгаа
   // болон өмнө sync хийгдсэн category-уудыг нэг map-д цуглуулна.
   const categoryIdsByCode = await fetchCoreCodeMap({
@@ -282,12 +420,14 @@ const syncProducts = async ({
   dryRun,
   products,
   categoryIdsByCode,
+  companyIdsByName,
 }: {
   subdomain: string;
   userId?: string;
   dryRun: boolean;
   products: TErkhetProduct[];
   categoryIdsByCode: TCodeMap;
+  companyIdsByName: TCodeMap;
 }) => {
   const rows: TReferenceRow[] = [];
   const productCodes = products.reduce<string[]>((codes, product) => {
@@ -308,6 +448,13 @@ const syncProducts = async ({
     module: 'products',
     codes: uniq(productCodes.map((code) => normalizeSourceCode(code))),
   });
+  const vendorNames = uniq(
+    products.map(({ vendor }) => normalizeSourceCode(vendor)).filter(Boolean),
+  );
+  const vendorIdsByName = {
+    ...(await fetchCompanyIdsByName(subdomain, vendorNames)),
+    ...companyIdsByName,
+  };
 
   for (const product of products) {
     try {
@@ -325,18 +472,18 @@ const syncProducts = async ({
         throw new Error(`Product category not found: ${product.categoryCode}`);
       }
 
-      const doc = cleanDoc({
-        code,
-        name: product.name,
-        shortName: product.shortName,
+      const vendorName = normalizeSourceCode(product.vendor);
+      const vendorId = vendorName
+        ? vendorIdsByName[normalizeName(vendorName)]
+        : undefined;
+      if (vendorName && !vendorId) {
+        throw new Error(`Vendor company not found: ${vendorName}`);
+      }
+
+      const doc = buildProductDoc({
+        product,
         categoryId,
-        uom: product.uom,
-        subUoms: product.subUoms || [],
-        unitPrice: product.unitPrice,
-        weight: product.weight,
-        barcodes: product.barcodes || [],
-        type: 'product',
-        status: 'active',
+        vendorId,
       });
       const existingId = productIdsByCode[code];
       const action = existingId ? 'update' : 'create';
@@ -701,6 +848,14 @@ export const importErkhetReferences = async (req: Request, res: Response) => {
     })),
   };
 
+  const companyResult = await syncCompanies({
+    subdomain,
+    userId: body.userId,
+    dryRun,
+    companies: body.companies || [],
+  });
+  rows.push(...companyResult.rows);
+
   rows.push(
     ...(await syncProducts({
       subdomain,
@@ -708,6 +863,7 @@ export const importErkhetReferences = async (req: Request, res: Response) => {
       dryRun,
       products: body.products || [],
       categoryIdsByCode: productCategoryIdsByCode,
+      companyIdsByName: companyResult.companyIdsByName,
     })),
   );
 

@@ -1,35 +1,62 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
+import { useAtomValue } from 'jotai';
+import { isInternalNoteCollapsedState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
 const MIN_COMPOSER_HEIGHT = 160;
 const DEFAULT_COMPOSER_HEIGHT = 240;
+const COLLAPSED_COMPOSER_HEIGHT = 64;
 
 const getDefaultSize = (height: number) =>
   Math.min(75, Math.max(30, (DEFAULT_COMPOSER_HEIGHT / height) * 100));
 
 export const useComposerPanelResize = () => {
+  const collapsed = useAtomValue(isInternalNoteCollapsedState);
+  const collapsedRef = useRef(collapsed);
+  collapsedRef.current = collapsed;
   const panelGroupRef = useRef<HTMLDivElement>(null);
   const inputPanelRef = useRef<ImperativePanelHandle>(null);
   const contentHeightRef = useRef(0);
   const autoResizeStartRef = useRef<number | null>(null);
   const initialSizeSetRef = useRef(false);
   const manuallyResizedRef = useRef(false);
+  const wasCollapsedRef = useRef(false);
+  const expandedSizeRef = useRef<number | null>(null);
   const [minSize, setMinSize] = useState(20);
 
   useLayoutEffect(() => {
     const group = panelGroupRef.current;
-    if (!group) return;
+    if (!group) return undefined;
+
+    if (collapsed && !wasCollapsedRef.current) {
+      expandedSizeRef.current = inputPanelRef.current?.getSize() ?? null;
+    }
+    let restoreSize =
+      !collapsed && wasCollapsedRef.current ? expandedSizeRef.current : null;
+    wasCollapsedRef.current = collapsed;
 
     const updatePanelSize = () => {
       const panel = inputPanelRef.current;
       if (!panel || !group.clientHeight) return;
 
       const height = group.clientHeight;
+      if (collapsed) {
+        panel.resize(Math.min(100, (COLLAPSED_COMPOSER_HEIGHT / height) * 100));
+        return;
+      }
+
       const nextMinSize = Math.min(
         70,
         Math.max(20, (MIN_COMPOSER_HEIGHT / height) * 100),
       );
       setMinSize(nextMinSize);
+
+      if (restoreSize !== null) {
+        panel.resize(Math.max(nextMinSize, restoreSize));
+        restoreSize = null;
+        initialSizeSetRef.current = true;
+        return;
+      }
 
       if (
         !initialSizeSetRef.current ||
@@ -47,7 +74,7 @@ export const useComposerPanelResize = () => {
     updatePanelSize();
 
     return () => observer.disconnect();
-  }, []);
+  }, [collapsed]);
 
   const getEditor = (target: EventTarget) =>
     target instanceof Element
@@ -61,11 +88,13 @@ export const useComposerPanelResize = () => {
   };
 
   const resizeForContent = (target: EventTarget) => {
+    if (collapsedRef.current) return;
     const editor = getEditor(target);
     const group = editor?.closest<HTMLElement>('[data-panel-group]');
     if (!editor || !group) return;
 
     requestAnimationFrame(() => {
+      if (collapsedRef.current) return;
       const panel = inputPanelRef.current;
       const contentHeight =
         editor.querySelector<HTMLElement>('.bn-editor')?.scrollHeight ?? 0;

@@ -81,6 +81,7 @@ export const posSchema = schemaWrapper(
       label: 'Permission',
     },
     allowTypes: { type: [String], label: 'Allow Types' },
+    isShowRemainder: { type: Boolean, label: 'Show Remainder' },
     isCheckRemainder: { type: Boolean, label: 'is Check Remainder' },
     checkExcludeCategoryIds: {
       type: [String],

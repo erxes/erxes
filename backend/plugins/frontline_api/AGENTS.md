@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-04`
 
 ## Scope
 
@@ -61,6 +61,10 @@
 
 ## Current Capabilities
 
+- A messenger ticket form only offers live property options: the config keeps
+  the options it was saved with, and `widgetsMessengerConnect` re-reads them
+  from core (`withLiveTicketOptions`) so an option archived since stops
+  showing. Archived options are dropped when a config is saved, too.
 - A ticket raised from a help center tells the person who raised it what
   happens to it: a confirmation when it is created, a notification when the
   team posts a reply the portal can see, and one when the ticket moves to a
@@ -307,7 +311,15 @@
   with a per-conversation tagged `Reply-To`; delivery is recorded per message (`pending` →
   `sent` / `bounced` / `failed`) and a failed message — or one left `pending`
   for more than ten minutes after its last attempt (`deliveryAttemptedAt`,
-  `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`. Once a mail
+  `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`, or from a
+  ticket with `mailTicketNoteRetry`. `retrySend` claims the message atomically
+  (`resendableFilter`), so two clicks never send it twice. Each attempt owns
+  the message through its `deliveryAttemptedAt`: `deliver` writes the outcome
+  only while that value is unchanged, so an attempt a retry has superseded can
+  never overwrite the retry's status, integration health or conversation
+  status. Nothing cancels a transport call already in flight, so attachment
+  downloads time out after two minutes to keep an attempt well inside the
+  ten-minute window. Once a mail
   is marked delivered, `deliver` never rejects: integration health and the
   requested conversation status are best-effort and logged on failure. A
   delivered reply whose conversation status was not applied keeps no
@@ -451,7 +463,7 @@
 | Integrations             | `src/modules/integrations/<kind>/`                                                                                                                               | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                                |
 | Mail integration         | `src/modules/integrations/mail/`                                                                                                                                 | Inbound webhook, threading, outbound send/retry                                                                                                                                                                        |
 | Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,allocate,settings,scope}.ts`                                                                                      | Gives a ticket pipeline an address of its own, and keeps the two mail lanes apart                                                                                                                                      |
-| Note ↔ mail              | `src/modules/integrations/mail/utils/{notes,tickets,thread,noteContent}.ts`                                                                                      | Mails an agent's note from the pipeline address as a reply on the requester's thread, and turns an inbound reply back into a note                                                                                      |
+| Note ↔ mail              | `src/modules/integrations/mail/utils/{note*,tickets,thread}.ts`                                                                                                  | Mails an agent's note from the pipeline address as a reply on the requester's thread, and turns an inbound reply back into a note that carries the mail's attachments                                                  |
 | Mail transports          | `src/modules/integrations/mail/utils/transports/`                                                                                                                | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport`                 |
 | Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                                                                                                                | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                                   |
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
@@ -462,6 +474,7 @@
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
+| IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
@@ -495,6 +508,7 @@
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
+| IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
 | Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`                                                                                                    | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                                         |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
@@ -901,10 +915,69 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   requires `showIntegrations` and pipeline access, and answers `null` for a
   pipeline with no address or a disconnected one.
 - GraphQL: a note that is not `isInternal` on a pipeline that owns a mail
-  address is also sent to the requester, and the note carries the
-  `mailMessageId` of the message it produced. An `isInternal` note stays inside
-  the team's ticket detail and is never mailed. `ticketGetNotes(contentId!,
-isInternal)` is the agent-side list and requires `showTickets`.
+  address is also sent to the requester. `ticketCreateNote` runs
+  `prepareTicketNoteMail` first: when the workspace cannot send
+  (`assertSendableIntegration`) or the ticket has no customer email
+  (`resolveTicketRecipient`), the mutation throws and no note is written. It
+  then creates the note, mails it with `sendTicketNoteMail` and links the
+  returned `mailMessageId` onto the note, so a failed note write can never
+  leave a mail behind for the composer's retry to send again. If the send
+  itself throws, the note is removed and the error rethrown, so a retry starts
+  clean. A transport failure or bounce does not throw: `deliver` records it
+  on the message and the note keeps its `mailMessageId`. An `isInternal` note
+  stays inside the team's ticket detail and is never mailed.
+  `ticketGetNotes(contentId!, isInternal)` is the agent-side list and requires
+  `showTickets`.
+- GraphQL: `mailTicketNoteRetry(noteId!): TicketNote` — requires
+  `showTickets` and view access to the note's ticket (`findViewableTicket`),
+  resends the note's outbound message through `retrySend` and returns the
+  note so `mailDelivery` comes back fresh. `TicketNoteMailDelivery.retryable`
+  says whether the failure looked temporary and `canRetry` (`canResend`) says
+  whether the resend would be accepted now.
+- GraphQL: `TicketNote.mailDelivery: TicketNoteMailDelivery` —
+  `{ status, error, to, bouncedRecipients }` read from the outbound message
+  behind `mailMessageId`. It is `null` for a note that was not mailed, for one
+  created from inbound mail, and for a client portal caller, so a delivery
+  error never reaches the requester.
+- GraphQL: `mailTicketReplyTarget(ticketId!): MailTicketReplyTarget` —
+  requires `showTickets` and view access to the ticket's pipeline and status,
+  answers `null` when the ticket's pipeline has no connected mail address, and
+  otherwise returns `{ from, to }`: the pipeline address and the address a
+  non-internal note would be mailed to. `to` comes from
+  `resolveTicketRecipient` (the latest inbound sender, else the related
+  customer's `primaryEmail`), the same function `sendTicketMail` uses, and is
+  `null` when neither exists.
+- A mailed note sends every uploaded attachment with it (`toMailAttachments`
+  passes each `{ name, url, type, size }` that has a `url`; the transport reads
+  a storage key back itself). Cloudflare needs an HTML or text part, so a note
+  with attachments but no text is mailed with `attachmentListToHtml` — a plain
+  list of the file names — as its body. A note with neither is not mailed.
+  An image the note shows by storage key (anything not starting with a URL
+  scheme or `/`) is rewritten to `cid:<uuid>@erxes` and sent as an inline
+  attachment (`inlineStorageImages`), so the requester sees it inside the
+  mail; a key that cannot be read back fails the whole delivery, which then
+  shows as Not delivered with the reason.
+- A ticket note written by a customer — a `cp:` author, which covers inbound
+  mail and `cpTicketCreateNote` — raises one `ticketCustomerReply`
+  notification ("New message from the customer") for the ticket's assignee,
+  assigned members and subscribers (`findCustomerReplyRecipients`, `cp:` ids
+  dropped), or for the pipeline owner when nobody follows the ticket. Users
+  the note @-mentions get only their mention notification. An agent's note
+  notifies only the users it mentions. Messenger widget comments store a bare
+  customer id, not a `cp:` author, so they raise no notification.
+- An inbound mail on a pipeline ticket becomes a customer-authored note
+  (`createdBy: cp:<customerId>`, `mailMessageId` set). `toNoteAttachments`
+  copies every attachment that reached storage into `TicketNote.attachments`
+  as `{ name, url, type, size }`, except an inline image whose `cid:` the body
+  already shows. One that failed to store stays out of `attachments` and is
+  served instead by `TicketNote.unsavedAttachments` (`toUnsavedAttachments`):
+  `{ name, url, type, size, error, expiresAt }`, where `url` is the mail
+  worker's signed link (or `null` when there is none) and `expiresAt` is the
+  message's `createdAt` plus `MAIL_RETENTION_DAYS` (the R2 lifecycle that
+  deletes it); client portal callers get an empty list. A mail with no text
+  but a stored or unsaved attachment still becomes a note, because a note's
+  `content` is required only when it carries neither attachments nor a
+  `mailMessageId`.
 - `channelMoveResources(resourceType: ChannelResourceType!, resourceIds: [String!]!, sourceChannelId: String!, targetChannelId: String!): ChannelMoveResourcesResult`
   — moves channel-owned resources between channels. `ChannelResourceType` is
   `integration | pipeline | form | survey | responseTemplate`;
@@ -995,6 +1068,9 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 ## Local Invariants
 
+- A ticket property option marked `deprecated` (archived) in core is never
+  sent to the widget; records that already hold it keep it.
+
 - Call Pro sends several webhooks per call, so `getOrCreateCustomer` in
   `src/modules/integrations/callpro/controller.ts` must never trust a
   `customers_callpros` row without `erxesApiId`: it links the core customer
@@ -1023,6 +1099,15 @@ isInternal)` is the agent-side list and requires `showTickets`.
   update. `startDate`/`targetDate` must be compared by timestamp, never by
   reference: `toObject()` returns new `Date` instances and a reference compare
   logs a "changed start date X → X" activity on every unrelated edit.
+- Instagram message state changes (reactions, deletions, read/delivery
+  receipts) are written to both `instagram_conversation_messages` and the inbox
+  `conversation_messages` row matched by `providerData.messageId`/`mid`, then
+  published with `publishInstagramMessage`; updating only one side leaves the
+  open timeline stale. Sender reactions are replaced through
+  `replaceSenderReaction` so each sender keeps at most one reaction.
+- `reactToConversationMessage` routes by integration kind through its
+  `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
+  added there, never as another `if` branch.
 
 ## Validation
 
@@ -1044,6 +1129,13 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
   `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
   before `cmsConfigs` existed still returns its single CMS as a one-entry list.
+- Mail a pipeline address a message with a PDF and an inline image, and a
+  second message with only an attachment. Confirm the ticket's first note
+  lists the PDF but not the inline image, and the second message still becomes
+  a note that lists its file.
+- On that ticket, post a non-internal note with a PDF and text, then one with
+  only a PDF. Confirm the requester receives both mails with the PDF attached,
+  and that the second one's body lists the file name.
 - Save a conversation's properties through `conversationEditCustomFields` and
   confirm the value round-trips on `Conversation.propertiesData`, a validation
   rejection throws instead of silently keeping the unvalidated input, and

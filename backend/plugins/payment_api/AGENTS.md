@@ -19,6 +19,10 @@
   job, optional sales-deal job, QR ticket email).
 - Ticket codes issued per paid invoice, plus their scan/redeem state.
 - The embeddable payment widget served from `/pl:payment/widget/`.
+  Its `package.json` declares `graphql-ws@^6` because `createClient` feeds
+  `@apollo/client`'s `GraphQLWsLink`, whose types resolve against the
+  graphql-ws version pnpm picks for the peer; an undeclared import resolved
+  to v5 and broke the widget build when v6 entered the workspace.
 
 ### Does not own
 

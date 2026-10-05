@@ -103,7 +103,7 @@ const buildFolksEdges = (
   config: Record<string, any>,
   folks: IAutomationsActionFolkConfig[] = [],
 ): Edge[] =>
-  folks.flatMap(({ key }) =>
+  folks.flatMap(({ key, label, type }) =>
     config?.[key]
       ? [
           {
@@ -114,7 +114,7 @@ const buildFolksEdges = (
             target: config[key],
             style: COMMON_EDGE_STYLES,
             type: 'primary',
-            data: { type: nodeType },
+            data: { type: nodeType, folkLabel: label, folkType: type },
           },
         ]
       : [],

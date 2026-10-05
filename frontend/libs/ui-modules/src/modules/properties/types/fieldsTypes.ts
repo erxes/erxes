@@ -28,7 +28,7 @@ export type IField = {
   _id: string;
   name: string;
   code: string;
-  options?: Array<{ label: string; value: string }>;
+  options?: Array<{ label: string; value: string; deprecated?: boolean }>;
   type: string;
   group?: string;
   groupId?: string;
@@ -72,8 +72,15 @@ export interface IFieldGroup {
   configs?: Record<string, unknown>;
 }
 
+export interface IMutateCallbacks {
+  onCompleted?: () => void;
+  onError?: () => void;
+}
+
+// Callbacks are optional so hooks that do not report back keep working.
 export type mutateFunction = (
   variables: { _id: string } & Record<string, unknown>,
+  callbacks?: IMutateCallbacks,
 ) => void;
 
 export interface FieldColumnProps {

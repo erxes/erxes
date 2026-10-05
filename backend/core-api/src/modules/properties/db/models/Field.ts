@@ -5,6 +5,17 @@ import {
   IFeaturedFieldOwner,
   propertyGroupIdFromKey,
   isPropertyGroupKey,
+  reconcilePropertyOptions,
+  segmentFiltersByOption,
+  IPropertyValueCounts,
+  IPropertyValueSamples,
+  measurePropertyValueCounts,
+  measurePropertyValueSamples,
+  toPropertyGroupKey,
+  TPropertyProducers,
+  TPropertyValueUsageInput,
+  UNKNOWN_VALUE_COUNTS,
+  UNKNOWN_VALUE_SAMPLES,
 } from 'erxes-api-shared/core-modules';
 import {
   ICustomField,
@@ -12,12 +23,19 @@ import {
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
+import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import { Model, mongo } from 'mongoose';
 import { nanoid } from 'nanoid';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
-import { IField, IFieldDocument } from '../../@types';
+import {
+  IField,
+  IFieldDependents,
+  IFieldDocument,
+  IFieldUsage,
+  IFieldValueUsage,
+} from '../../@types';
 import {
   buildFeaturedIndex,
   castFeaturedValue,
@@ -33,7 +51,7 @@ export interface IFieldValueValidationOptions {
   /** Also check the value against the shape its field type implies. */
   strict?: boolean;
 }
-import { ORDER_GAP } from '../../constants';
+import { ORDER_GAP, TYPE_FAMILIES } from '../../constants';
 
 // What a user may still change on a field a plugin owns.
 const OWNED_FIELD_EDITABLE = [
@@ -43,6 +61,39 @@ const OWNED_FIELD_EDITABLE = [
   'isVisible',
   'isVisibleInCard',
 ] as const;
+
+const assertTypeChangeAllowed = (from?: string, to?: string) => {
+  if (!to || from === to) {
+    return;
+  }
+
+  const sameFamily = TYPE_FAMILIES.some(
+    (family) => family.includes(from || '') && family.includes(to),
+  );
+
+  if (!sameFamily) {
+    throw new Error(
+      `Type cannot change from ${from} to ${to}, use a new field`,
+    );
+  }
+};
+
+const text = (value: unknown) => (typeof value === 'string' ? value : '');
+
+// How a sampled record is named in the usage list.
+const CORE_RECORD_LABELS: Record<
+  string,
+  (doc: Record<string, unknown>) => string
+> = {
+  'core:customer': (doc) =>
+    [text(doc.firstName), text(doc.lastName)].filter(Boolean).join(' ') ||
+    text(doc.primaryEmail) ||
+    text(doc.primaryPhone),
+  'core:company': (doc) => text(doc.primaryName),
+  'core:user': (doc) =>
+    text((doc.details as Record<string, unknown> | undefined)?.fullName) ||
+    text(doc.email),
+};
 
 export type TrackedValue =
   | string
@@ -158,6 +209,27 @@ export interface IFieldModel extends Model<IFieldDocument> {
     user: IUserDocument,
   ): Promise<IFieldDocument>;
   removeField(_id: string): Promise<IFieldDocument>;
+  archiveFields(ids: string[], user: IUserDocument): Promise<void>;
+  restoreField(_id: string): Promise<IFieldDocument | null>;
+  getFieldDependents(
+    ids: string[],
+    contentType: string,
+  ): Promise<IFieldDependents>;
+  getFieldUsage(params: {
+    ids: string[];
+    groupId?: string;
+    contentType: string;
+  }): Promise<IFieldUsage>;
+  getFieldValueUsage(_id: string, value?: string): Promise<IFieldValueUsage>;
+  getOptionDependents(
+    _id: string,
+    value: string,
+  ): Promise<{ logics: string[]; segments: string[] }>;
+  getFieldValueCounts(
+    _id: string,
+    value?: string,
+  ): Promise<IPropertyValueCounts>;
+  removeFields(ids: string[]): Promise<void>;
 
   ensureFeaturedFields(args: {
     owner: IFeaturedFieldOwner;
@@ -225,7 +297,59 @@ export interface IFieldModel extends Model<IFieldDocument> {
   }>;
 }
 
-export const loadFieldClass = (models: IModels) => {
+export const loadFieldClass = (models: IModels, subdomain: string) => {
+  type TUsageQuery = Omit<TPropertyValueUsageInput, 'part'>;
+
+  // The records' owner answers: core reads its own, a plugin is asked.
+  const askPlugin = (input: TPropertyValueUsageInput, defaultValue: unknown) =>
+    sendCoreModuleProducer({
+      subdomain,
+      moduleName: 'properties',
+      pluginName: input.contentType.split(':')[0],
+      producerName: TPropertyProducers.VALUE_USAGE,
+      method: 'query',
+      input,
+      defaultValue,
+    });
+
+  const measureSamples = (
+    query: TUsageQuery,
+  ): Promise<IPropertyValueSamples> => {
+    const input = { ...query, part: 'samples' as const };
+    const content = getFeaturedContent(models, input.contentType);
+
+    return content
+      ? measurePropertyValueSamples(
+          content.collection,
+          input,
+          CORE_RECORD_LABELS[input.contentType] ?? (() => ''),
+        )
+      : askPlugin(input, UNKNOWN_VALUE_SAMPLES);
+  };
+
+  const measureCounts = (query: TUsageQuery): Promise<IPropertyValueCounts> => {
+    const input = { ...query, part: 'counts' as const };
+    const content = getFeaturedContent(models, input.contentType);
+
+    return content
+      ? measurePropertyValueCounts(content.collection, input)
+      : askPlugin(input, UNKNOWN_VALUE_COUNTS);
+  };
+
+  // A field inside a multi-entry group keeps its values on the group's rows.
+  const fieldValuePath = async (field: IFieldDocument) => {
+    const group = field.groupId
+      ? await models.FieldsGroups.findOne(
+          { _id: field.groupId },
+          { configs: 1 },
+        ).lean()
+      : null;
+
+    return group?.configs?.isMultiple
+      ? `propertiesData.${toPropertyGroupKey(field.groupId)}.${field._id}`
+      : `propertiesData.${field._id}`;
+  };
+
   class Field {
     public static async getField({ _id }: { _id: string }) {
       const field = await models.Fields.findOne({ _id }).lean();
@@ -282,6 +406,37 @@ export const loadFieldClass = (models: IModels) => {
         await models.Fields.assertGroupAcceptsFields(doc.groupId);
       }
 
+      if (!field.owner) {
+        if (doc.type && doc.type !== field.type) {
+          const usage = await models.Fields.getFieldValueUsage(_id);
+
+          // Nothing holds a value or depends on it, so any type fits.
+          const unused =
+            usage.known && !usage.samples.length && !usage.dependents.length;
+
+          if (!unused) {
+            assertTypeChangeAllowed(field.type, doc.type);
+          }
+        }
+
+        if (doc.options) {
+          const kept = new Set(doc.options.map(({ value }) => value));
+          // Only dropping a saved option needs the slow per-option count.
+          const dropsSaved = (field.options || []).some(
+            ({ value }) => !kept.has(value),
+          );
+          const counts = dropsSaved
+            ? await models.Fields.getFieldValueCounts(_id)
+            : null;
+
+          doc.options = reconcilePropertyOptions(
+            field.options,
+            doc.options,
+            counts ? counts.byOption : [],
+          );
+        }
+      }
+
       const $set = field.owner
         ? Object.fromEntries(
             OWNED_FIELD_EDITABLE.filter((key) => doc[key] !== undefined).map(
@@ -302,16 +457,223 @@ export const loadFieldClass = (models: IModels) => {
 
       const field = await models.Fields.getField({ _id });
 
-      if (field.owner) {
-        throw new Error(`Field is managed by ${field.owner.plugin}`);
+      await models.Fields.removeFields([_id]);
+
+      return field;
+    }
+
+    // Only a field nothing uses can go; anything else is archived instead.
+    public static async removeFields(ids: string[]) {
+      const fields = await models.Fields.find({ _id: { $in: ids } }).lean();
+
+      if (fields.some((field) => field.owner)) {
+        throw new Error('A plugin manages one of these fields');
       }
 
+      const contentTypes = [...new Set(fields.map((f) => f.contentType))];
+
+      for (const contentType of contentTypes) {
+        const usage = await models.Fields.getFieldUsage({
+          ids: fields
+            .filter((field) => field.contentType === contentType)
+            .map((field) => String(field._id)),
+          contentType,
+        });
+
+        if (!usage.removable) {
+          throw new Error('In use or could not be checked; archive it instead');
+        }
+      }
+
+      // v2 kept values here; nothing reads them, but they should not outlive the field.
       await models.Customers.updateMany(
-        { 'customFieldsData.field': _id },
-        { $pull: { customFieldsData: { field: _id } } },
+        { 'customFieldsData.field': { $in: ids } },
+        { $pull: { customFieldsData: { field: { $in: ids } } } },
       );
 
-      return await models.Fields.findOneAndDelete({ _id });
+      await models.Fields.deleteMany({ _id: { $in: ids } });
+    }
+
+    // Quick: stops at the first records, which is all a type change needs.
+    public static async getFieldValueUsage(
+      _id: string,
+      value?: string,
+    ): Promise<IFieldValueUsage> {
+      const field = await models.Fields.getField({ _id });
+
+      const [usage, dependents] = await Promise.all([
+        measureSamples({
+          contentType: field.contentType,
+          path: await fieldValuePath(field),
+          value,
+        }),
+        models.Fields.getFieldDependents([_id], field.contentType),
+      ]);
+
+      return {
+        ...usage,
+        dependents: [
+          ...dependents.fields,
+          ...dependents.groups,
+          ...dependents.systemFields,
+        ],
+      };
+    }
+
+    // What may still rely on one option; shown before it is archived.
+    public static async getOptionDependents(_id: string, value: string) {
+      const field = await models.Fields.getField({ _id });
+      const usesOption = {
+        contentType: field.contentType,
+        logics: { $elemMatch: { field: _id, value } },
+      };
+
+      const [fields, groups, systemFields, segments] = await Promise.all([
+        models.Fields.find(
+          { ...usesOption, archivedAt: { $exists: false } },
+          { name: 1 },
+        ).lean(),
+        models.FieldsGroups.find(
+          { ...usesOption, archivedAt: { $exists: false } },
+          { name: 1 },
+        ).lean(),
+        models.SystemFieldSettings.find(usesOption, { code: 1 }).lean(),
+        // Conditions nest freely, so segments are walked rather than queried.
+        // Segments carried over from v2 may have no condition tree at all.
+        models.Segments.find(
+          { root: { $exists: true } },
+          { name: 1, root: 1 },
+        ).lean(),
+      ]);
+
+      return {
+        logics: [
+          ...fields.map((item) => item.name),
+          ...groups.map((item) => item.name),
+          ...systemFields.map((item) => item.code),
+        ],
+        segments: segments
+          .filter((segment) => segmentFiltersByOption(segment.root, _id, value))
+          .map((segment) => segment.name || String(segment._id)),
+      };
+    }
+
+    // Slow: may scan every record, so it is asked for on its own.
+    public static async getFieldValueCounts(_id: string, value?: string) {
+      const field = await models.Fields.getField({ _id });
+
+      return measureCounts({
+        contentType: field.contentType,
+        path: await fieldValuePath(field),
+        optionValues: (field.options || []).map((option) => option.value),
+        value,
+      });
+    }
+
+    public static async getFieldUsage({
+      ids,
+      groupId,
+      contentType,
+    }: {
+      ids: string[];
+      groupId?: string;
+      contentType: string;
+    }) {
+      const dependents = await models.Fields.getFieldDependents(
+        ids,
+        contentType,
+      );
+      const names = [
+        ...dependents.fields,
+        ...dependents.groups,
+        ...dependents.systemFields,
+      ];
+
+      const fields = await models.Fields.find(
+        { _id: { $in: ids } },
+        { groupId: 1 },
+      ).lean();
+      const paths = [
+        ...(await Promise.all(fields.map(fieldValuePath))),
+        ...(groupId ? [`propertiesData.${toPropertyGroupKey(groupId)}`] : []),
+      ];
+
+      const usages = await Promise.all(
+        paths.map((path) => measureSamples({ contentType, path })),
+      );
+
+      const hasValues = usages.some((usage) => usage.samples.length > 0)
+        ? true
+        : usages.every((usage) => usage.known)
+          ? false
+          : null;
+
+      return {
+        dependents: names,
+        hasValues,
+        removable: !names.length && hasValues === false,
+      };
+    }
+
+    // Values stay on records; archiving only stops showing the field.
+    public static async archiveFields(ids: string[], user: IUserDocument) {
+      const owned = await models.Fields.exists({
+        _id: { $in: ids },
+        owner: { $exists: true },
+      });
+
+      if (owned) {
+        throw new Error('A plugin manages one of these fields');
+      }
+
+      await models.Fields.updateMany(
+        { _id: { $in: ids }, archivedAt: { $exists: false } },
+        { $set: { archivedAt: new Date(), archivedBy: user._id } },
+      );
+    }
+
+    public static async restoreField(_id: string) {
+      const field = await models.Fields.getField({ _id });
+      const group = await models.FieldsGroups.findOne({
+        _id: field.groupId,
+      }).lean();
+
+      if (group?.archivedAt) {
+        throw new Error('Restore its group first');
+      }
+
+      return models.Fields.findOneAndUpdate(
+        { _id },
+        { $unset: { archivedAt: '', archivedBy: '', archivedWithGroup: '' } },
+        { new: true },
+      );
+    }
+
+    // What stops working while these fields are out of view.
+    public static async getFieldDependents(ids: string[], contentType: string) {
+      const usesField = { contentType, 'logics.field': { $in: ids } };
+
+      const [fields, groups, systemFields] = await Promise.all([
+        models.Fields.find(
+          {
+            ...usesField,
+            _id: { $nin: ids },
+            archivedAt: { $exists: false },
+          },
+          { name: 1 },
+        ).lean(),
+        models.FieldsGroups.find(
+          { ...usesField, archivedAt: { $exists: false } },
+          { name: 1 },
+        ).lean(),
+        models.SystemFieldSettings.find(usesField, { code: 1 }).lean(),
+      ]);
+
+      return {
+        fields: fields.map((field) => field.name),
+        groups: groups.map((group) => group.name),
+        systemFields: systemFields.map((setting) => setting.code),
+      };
     }
 
     public static async ensureFeaturedFields({

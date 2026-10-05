@@ -12,8 +12,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Block } from '@blocknote/core';
 
 import {
-  hideMessageInputState,
   isInternalState,
+  isInternalNoteCollapsedState,
   isSlashMenuOpenState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
@@ -44,6 +44,7 @@ const NOTE_ONLY_INTEGRATION_KINDS: string[] = [
   'lead',
   IntegrationType.CALL,
   IntegrationType.CALLPRO,
+  IntegrationType.MAIL,
 ];
 
 export const MessageInput = ({
@@ -56,15 +57,15 @@ export const MessageInput = ({
   const [isSlashMenuOpen, setIsSlashMenuOpen] = useAtom(isSlashMenuOpenState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
-  const hideInput = useAtomValue(hideMessageInputState);
   const currentUserId = useAtomValue(currentUserState)?._id;
   const { integration } = useConversationContext();
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [isInternalNoteCollapsed, setIsInternalNoteCollapsed] = useState(false);
+  const setIsInternalNoteCollapsed = useSetAtom(isInternalNoteCollapsedState);
   const editor = useBlockEditor();
   const draftInternalRef = useRef(false);
   const restoredDraftKeyRef = useRef<string>();
@@ -76,6 +77,7 @@ export const MessageInput = ({
     attachments,
     pendingAttachments,
     handleDrop,
+    handlePaste,
     handleFileInput,
     removeAttachment,
     resetAttachments,
@@ -140,14 +142,20 @@ export const MessageInput = ({
     setIsInternalNoteCollapsed(false);
     setOnlyInternal(isNoteOnly);
     setIsInternalNote(isNoteOnly || draftInternalRef.current);
-  }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
+  }, [
+    conversationId,
+    integration?.kind,
+    setIsInternalNote,
+    setIsInternalNoteCollapsed,
+    setOnlyInternal,
+  ]);
 
   useEffect(() => {
     if (replyTo && !onlyInternal) {
       setIsInternalNote(false);
       setIsInternalNoteCollapsed(false);
     }
-  }, [replyTo, onlyInternal, setIsInternalNote]);
+  }, [replyTo, onlyInternal, setIsInternalNote, setIsInternalNoteCollapsed]);
 
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -172,6 +180,7 @@ export const MessageInput = ({
       draftKey,
       resetSuggestions,
       setIsInternalNote,
+      setIsInternalNoteCollapsed,
       setResponseTemplateId,
     ],
   );
@@ -235,6 +244,7 @@ export const MessageInput = ({
     attachments,
     mentionedUserIds,
     isDiscord,
+    isInstagram,
     isFacebook: integration?.kind === IntegrationType.FACEBOOK_MESSENGER,
     isInternalNote,
     isUploading,
@@ -284,22 +294,13 @@ export const MessageInput = ({
     };
   }, [editor, setIsSlashMenuOpen]);
 
-  if (hideInput) return null;
-
   const sendDisabled =
-    loading ||
-    isUploading ||
-    pendingAttachments.length > 0 ||
-    (!content?.length && attachments.length === 0);
+    loading || isUploading || (!content?.length && attachments.length === 0);
   const blockAttachments = getBlockAttachments(content || []);
 
   return (
     <ComposerShell
-      collapsed={isInternalNoteCollapsed}
       disabled={loading || isUploading}
-      isInternalNote={isInternalNote}
-      onlyInternal={onlyInternal}
-      onCollapsedChange={setIsInternalNoteCollapsed}
       onDrop={handleDrop}
       onInternalNoteChange={handleInternalNoteChange}
     >
@@ -326,6 +327,7 @@ export const MessageInput = ({
       <div
         ref={editorRef}
         data-composer-editor
+        onPasteCapture={handlePaste}
         className="flex min-h-0 min-w-0 flex-1 flex-col overscroll-contain [&_.bn-container]:h-full [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full [&_.bn-editor]:max-h-full [&_.bn-editor]:overflow-y-auto"
       >
         <ComposerEditor

@@ -175,6 +175,7 @@ export const validateOrder = async (
         config,
         checkProducts,
         doc.branchId || config.branchId,
+        true,
       );
 
       const errors: string[] = [];

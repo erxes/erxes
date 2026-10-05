@@ -1,6 +1,7 @@
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { NodeFrame } from '@/automations/components/builder/nodes/components/NodeFrame';
 import { WorkflowActionMapper } from '@/automations/components/builder/nodes/components/WorkflowActionMapper';
 import {
   WorkflowInputBindings,
@@ -18,7 +19,7 @@ import {
   IconArrowBackUp,
   IconArrowsMaximize,
   IconArrowsSplit2,
-  IconDotsVertical,
+  IconDots,
   IconEdit,
   IconTemplate,
   IconTrash,
@@ -64,135 +65,128 @@ const WorkflowNodeContent = ({
   }, [unconvertWorkflow, id, setOpenRemoveAlert]);
 
   return (
-    <div className="flex flex-col animate-in fade-in zoom-in-95 duration-200">
-      <div className="w-2/5 ml-1 bg-info/10 text-info text-center px-2 py-1 rounded-t-md">
-        <p className="font-medium font-bold">Workflow</p>
-      </div>
-      <div
-        className={cn(
-          'rounded-md shadow-md bg-background w-[280px] relative font-mono transition-all duration-200',
-          {
-            'ring-2 ring-info': selected,
-            'ring-2 ring-destructive ring-offset-2': data?.error,
-          },
-        )}
-      >
-        <div className="p-3 flex items-center justify-between border-b border-slate-200 gap-8">
-          <div className="flex min-w-0 items-center gap-2 text-info">
-            <div className="size-6 shrink-0 rounded-full flex items-center justify-center">
-              {data.icon ? (
-                <IconComponent name={data.icon} />
-              ) : (
-                <IconArrowsSplit2 />
-              )}
-            </div>
-            <p className="break-words font-medium">{data.label}</p>
-            <WorkflowInputsBadge />
-          </div>
-
-          <div className="flex items-center gap-1">
-            {data.automationId ? (
-              <WorkflowActionSelectorSheet data={data} />
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-                onClick={() => setEditingWorkflowId(id)}
-              >
-                <IconArrowsMaximize className="size-4" />
-              </Button>
-            )}
-            <DropdownMenu open={isOpenDropDown} onOpenChange={setOpenDropDown}>
-              <DropdownMenu.Trigger asChild>
-                <Button variant="ghost">
-                  <IconDotsVertical className="size-4" />
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content className="w-42">
-                <DropdownMenu.Item onSelect={() => setOpenDialog(true)}>
-                  <IconEdit className="size-4" />
-                  Edit
-                </DropdownMenu.Item>
-                {!data.automationId && hasMemberActions && (
-                  <>
-                    <DropdownMenu.Item onSelect={() => unconvertWorkflow(id)}>
-                      <IconArrowBackUp className="size-4" />
-                      Convert back to actions
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item onSelect={() => saveAsTemplate(id)}>
-                      <IconTemplate className="size-4" />
-                      Save as template
-                    </DropdownMenu.Item>
-                  </>
-                )}
-                <DropdownMenu.Item
-                  className="text-destructive"
-                  onSelect={() => setOpenRemoveAlert(true)}
-                >
-                  <IconTrash className="size-4" />
-                  Delete
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu>
-
-            <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
-              <NodeEditMetaDataForm
-                id={id}
-                data={data}
-                callback={() => setOpenDialog(false)}
-              />
-            </Dialog>
-            <AlertDialog
-              open={isOpenRemoveAlert}
-              onOpenChange={setOpenRemoveAlert}
+    <NodeFrame
+      label="Workflow"
+      actions={
+        <>
+          {data.automationId ? (
+            <WorkflowActionSelectorSheet data={data} />
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setEditingWorkflowId(id)}
             >
-              <AlertDialog.Content>
-                <AlertDialog.Header>
-                  <AlertDialog.Title>Delete workflow?</AlertDialog.Title>
-                  <AlertDialog.Description>
-                    Delete the workflow together with its member actions, or
-                    unconvert it to keep the member actions on the canvas.
-                  </AlertDialog.Description>
-                </AlertDialog.Header>
-                <AlertDialog.Footer>
-                  <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                  <AlertDialog.Action onClick={handleUnconvertAndRemove}>
-                    Unconvert, keep actions
-                  </AlertDialog.Action>
-                  <AlertDialog.Action
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    onClick={onRemoveNode}
-                  >
-                    Delete workflow & actions
-                  </AlertDialog.Action>
-                </AlertDialog.Footer>
-              </AlertDialog.Content>
-            </AlertDialog>
+              <IconArrowsMaximize className="size-4" />
+            </Button>
+          )}
+          <DropdownMenu open={isOpenDropDown} onOpenChange={setOpenDropDown}>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="ghost" size="icon">
+                <IconDots className="size-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content className="w-42">
+              <DropdownMenu.Item onSelect={() => setOpenDialog(true)}>
+                <IconEdit className="size-4" />
+                Edit
+              </DropdownMenu.Item>
+              {!data.automationId && hasMemberActions && (
+                <>
+                  <DropdownMenu.Item onSelect={() => unconvertWorkflow(id)}>
+                    <IconArrowBackUp className="size-4" />
+                    Convert back to actions
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => saveAsTemplate(id)}>
+                    <IconTemplate className="size-4" />
+                    Save as template
+                  </DropdownMenu.Item>
+                </>
+              )}
+              <DropdownMenu.Item
+                className="text-destructive"
+                onSelect={() => setOpenRemoveAlert(true)}
+              >
+                <IconTrash className="size-4" />
+                Delete
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+
+          <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
+            <NodeEditMetaDataForm
+              id={id}
+              data={data}
+              callback={() => setOpenDialog(false)}
+            />
+          </Dialog>
+          <AlertDialog
+            open={isOpenRemoveAlert}
+            onOpenChange={setOpenRemoveAlert}
+          >
+            <AlertDialog.Content>
+              <AlertDialog.Header>
+                <AlertDialog.Title>Delete workflow?</AlertDialog.Title>
+                <AlertDialog.Description>
+                  Delete the workflow together with its member actions, or
+                  unconvert it to keep the member actions on the canvas.
+                </AlertDialog.Description>
+              </AlertDialog.Header>
+              <AlertDialog.Footer>
+                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                <AlertDialog.Action onClick={handleUnconvertAndRemove}>
+                  Unconvert, keep actions
+                </AlertDialog.Action>
+                <AlertDialog.Action
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={onRemoveNode}
+                >
+                  Delete workflow & actions
+                </AlertDialog.Action>
+              </AlertDialog.Footer>
+            </AlertDialog.Content>
+          </AlertDialog>
+        </>
+      }
+      className={cn('animate-in fade-in zoom-in-95', {
+        'ring-2 ring-info': selected,
+        'ring-2 ring-destructive ring-offset-2': data?.error,
+      })}
+    >
+      <div className="p-3 flex items-center border-b">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="size-7 shrink-0 rounded-md bg-info/10 text-info flex items-center justify-center">
+            {data.icon ? (
+              <IconComponent className="size-4" name={data.icon} />
+            ) : (
+              <IconArrowsSplit2 className="size-4" />
+            )}
           </div>
+          <p className="break-words text-sm font-semibold">{data.label}</p>
+          <WorkflowInputsBadge />
         </div>
-        <div className="p-3">
-          <span className="line-clamp-2 break-words text-xs text-accent-foreground">
-            {data.description}
-          </span>
-          <WorkflowMemberSummary />
-          <WorkflowInputBindings />
-          {!!data.automationId && <WorkflowSelectedNodes {...data} />}
-        </div>
-        <Handle
-          key="left"
-          id="left"
-          type="target"
-          position={
-            data.flowDirection === 'vertical' ? Position.Top : Position.Left
-          }
-          className={cn('!size-4 -z-10 !bg-info', {
-            '!left-1/2 !top-0 -translate-x-1/2':
-              data.flowDirection === 'vertical',
-          })}
-        />
       </div>
-    </div>
+      <div className="p-3">
+        <span className="line-clamp-2 break-words text-xs text-accent-foreground">
+          {data.description}
+        </span>
+        <WorkflowMemberSummary />
+        <WorkflowInputBindings />
+        {!!data.automationId && <WorkflowSelectedNodes {...data} />}
+      </div>
+      <Handle
+        key="left"
+        id="left"
+        type="target"
+        position={
+          data.flowDirection === 'vertical' ? Position.Top : Position.Left
+        }
+        className={cn('!size-3 !border-2 !border-info !bg-background', {
+          '!left-1/2 !top-0 -translate-x-1/2':
+            data.flowDirection === 'vertical',
+        })}
+      />
+    </NodeFrame>
   );
 };
 
@@ -251,7 +245,7 @@ const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <Button variant="ghost" size="sm" className="w-full justify-start">
+        <Button variant="ghost" size="icon">
           <IconArrowsMaximize className="size-4" />
         </Button>
       </Sheet.Trigger>

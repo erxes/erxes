@@ -9,23 +9,28 @@ import { currentUserState } from 'ui-modules';
 import { useAtom } from 'jotai';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 
-const userCredentialFormSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, 'At least 8 characters long')
-      .regex(/\d/, 'At least one number')
-      .regex(/[a-z]/, 'At least one lowercase letter')
-      .regex(/[A-Z]/, 'At least one uppercase letter'),
-    passwordConfirmation: z.string(),
-    username: z.string().min(1, 'Username is required'),
-  })
-  .refine((data) => data.password === data.passwordConfirmation, {
-    message: "Passwords don't match",
-    path: ['passwordConfirmation'],
-  });
+const passwordSchema = z
+  .string()
+  .min(8, 'At least 8 characters long')
+  .regex(/\d/, 'At least one number')
+  .regex(/[a-z]/, 'At least one lowercase letter')
+  .regex(/[A-Z]/, 'At least one uppercase letter');
 
-type UserCredentialFormType = z.infer<typeof userCredentialFormSchema>;
+const getUserCredentialFormSchema = (requirePassword: boolean) =>
+  z
+    .object({
+      password: requirePassword ? passwordSchema : z.string(),
+      passwordConfirmation: z.string(),
+      username: z.string().min(1, 'Username is required'),
+    })
+    .refine((data) => data.password === data.passwordConfirmation, {
+      message: "Passwords don't match",
+      path: ['passwordConfirmation'],
+    });
+
+type UserCredentialFormType = z.infer<
+  ReturnType<typeof getUserCredentialFormSchema>
+>;
 
 export const UserCredentialSection = ({
   onContinue,
@@ -33,12 +38,14 @@ export const UserCredentialSection = ({
   onContinue: () => void;
 }) => {
   const [currentUser] = useAtom(currentUserState);
+  // Users arriving with a password (e.g. from global profile) must not overwrite it here
+  const hasPassword = !!currentUser?.hasPassword;
   const form = useForm<UserCredentialFormType>({
-    resolver: zodResolver(userCredentialFormSchema),
+    resolver: zodResolver(getUserCredentialFormSchema(!hasPassword)),
     defaultValues: {
       password: '',
       passwordConfirmation: '',
-      username: '',
+      username: currentUser?.username || '',
     },
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -49,8 +56,8 @@ export const UserCredentialSection = ({
     usersEdit({
       variables: {
         _id: currentUser?._id,
-        password: data.password,
         username: data.username,
+        ...(!hasPassword && { password: data.password }),
       },
       onCompleted: () => {
         onContinue();
@@ -77,7 +84,9 @@ export const UserCredentialSection = ({
           Set up your account
         </h2>
         <p className="text-sm text-muted-foreground">
-          Create your username and password to get started
+          {hasPassword
+            ? 'Choose your username to get started'
+            : 'Create your username and password to get started'}
         </p>
       </motion.div>
       <motion.div
@@ -108,73 +117,81 @@ export const UserCredentialSection = ({
               )}
             />
 
-            <Form.Field
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter password"
-                        className="peer"
-                        {...field}
-                      />
-                      <Button
-                        onClick={() => setShowPassword(!showPassword)}
-                        size="icon"
-                        variant="ghost"
-                        tabIndex={-1}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 peer-focus:opacity-100 peer-hover:opacity-100 hover:opacity-100 opacity-0"
-                      >
-                        {showPassword ? (
-                          <IconEyeClosed className="text-accent-foreground/70 size-4" />
-                        ) : (
-                          <IconEye className="text-accent-foreground/70 size-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            {!hasPassword && (
+              <>
+                <Form.Field
+                  name="password"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Enter password"
+                            className="peer"
+                            {...field}
+                          />
+                          <Button
+                            onClick={() => setShowPassword(!showPassword)}
+                            size="icon"
+                            variant="ghost"
+                            tabIndex={-1}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 peer-focus:opacity-100 peer-hover:opacity-100 hover:opacity-100 opacity-0"
+                          >
+                            {showPassword ? (
+                              <IconEyeClosed className="text-accent-foreground/70 size-4" />
+                            ) : (
+                              <IconEye className="text-accent-foreground/70 size-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
-            <Form.Field
-              name="passwordConfirmation"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <div className="relative">
-                      <Input
-                        type={showPasswordConfirmation ? 'text' : 'password'}
-                        placeholder="Confirm password"
-                        className="peer"
-                        {...field}
-                      />
-                      <Button
-                        onClick={() =>
-                          setShowPasswordConfirmation(!showPasswordConfirmation)
-                        }
-                        variant="ghost"
-                        size="icon"
-                        tabIndex={-1}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 peer-focus:opacity-100 peer-hover:opacity-100 hover:opacity-100 opacity-0"
-                      >
-                        {showPasswordConfirmation ? (
-                          <IconEyeClosed className="text-accent-foreground/70 size-4" />
-                        ) : (
-                          <IconEye className="text-accent-foreground/70 size-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+                <Form.Field
+                  name="passwordConfirmation"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <div className="relative">
+                          <Input
+                            type={
+                              showPasswordConfirmation ? 'text' : 'password'
+                            }
+                            placeholder="Confirm password"
+                            className="peer"
+                            {...field}
+                          />
+                          <Button
+                            onClick={() =>
+                              setShowPasswordConfirmation(
+                                !showPasswordConfirmation,
+                              )
+                            }
+                            variant="ghost"
+                            size="icon"
+                            tabIndex={-1}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 peer-focus:opacity-100 peer-hover:opacity-100 hover:opacity-100 opacity-0"
+                          >
+                            {showPasswordConfirmation ? (
+                              <IconEyeClosed className="text-accent-foreground/70 size-4" />
+                            ) : (
+                              <IconEye className="text-accent-foreground/70 size-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </>
+            )}
 
             <Button type="submit" className="w-full cursor-pointer" size="lg">
               Continue

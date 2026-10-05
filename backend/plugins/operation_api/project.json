@@ -52,6 +52,22 @@
         "build"
       ],
       "command": "docker build -f backend/plugins/operation_api/Dockerfile . -t erxes/erxes-next-operation_api"
+    },
+    "schema:print": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/print-schema.ts",
+        "{projectRoot}/src/**/*.ts",
+        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
+      ],
+      "outputs": [
+        "{projectRoot}/generated"
+      ],
+      "options": {
+        "cwd": "backend/plugins/operation_api",
+        "command": "pnpm schema:print"
+      }
     }
   }
 }

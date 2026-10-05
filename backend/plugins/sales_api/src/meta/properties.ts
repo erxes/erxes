@@ -1,4 +1,9 @@
-import { IPropertyMeta } from 'erxes-api-shared/core-modules';
+import {
+  IPropertyMeta,
+  measurePropertyValueUsage,
+  unknownValueUsage,
+} from 'erxes-api-shared/core-modules';
+import { generateModels } from '~/connectionResolvers';
 
 export const properties: IPropertyMeta = {
   types: [
@@ -24,4 +29,15 @@ export const properties: IPropertyMeta = {
       ],
     },
   ],
+  valueUsage: async ({ subdomain, data }) => {
+    if (data.contentType !== 'sales:deal') {
+      return unknownValueUsage(data.part);
+    }
+
+    const models = await generateModels(subdomain);
+
+    return measurePropertyValueUsage(models.Deals.collection, data, (doc) =>
+      typeof doc.name === 'string' ? doc.name : '',
+    );
+  },
 };

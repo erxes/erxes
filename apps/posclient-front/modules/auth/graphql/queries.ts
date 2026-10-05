@@ -58,6 +58,7 @@ const currentConfig = gql`
         hasSumQty
         isCleanTaxPrice
       }
+      isShowRemainder
       saveRemainder
       serviceCharge
       serviceChargeApplicableProductId

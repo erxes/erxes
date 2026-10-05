@@ -313,6 +313,7 @@ export const extractConfig = async (subdomain, doc) => {
     allowBranchIds: doc.allowBranchIds,
     permissionConfig: doc.permissionConfig,
     allowTypes: doc.allowTypes,
+    isShowRemainder: doc.isShowRemainder ?? false,
     isCheckRemainder: doc.isCheckRemainder,
     checkExcludeCategoryIds: doc.checkExcludeCategoryIds,
     saveRemainder: doc.saveRemainder,

@@ -7,6 +7,44 @@ import { createNotifications } from '~/utils/notifications';
 const isClientPortalAuthor = (userId: string) =>
   Boolean(userId) && userId.startsWith('cp:');
 
+const isTeamMemberId = (id?: string | null): id is string =>
+  typeof id === 'string' && id.length > 0 && !isClientPortalAuthor(id);
+
+export const findCustomerReplyRecipients = async (
+  models: IModels,
+  ticketId: string,
+): Promise<string[]> => {
+  const ticket = await models.Ticket.findOne(
+    { _id: ticketId },
+    { assigneeId: 1, assignedMembers: 1, subscribedUserIds: 1, pipelineId: 1 },
+  ).lean();
+
+  if (!ticket) {
+    return [];
+  }
+
+  const recipients = new Set(
+    [
+      ticket.assigneeId,
+      ...(ticket.assignedMembers ?? []),
+      ...(ticket.subscribedUserIds ?? []),
+    ].filter(isTeamMemberId),
+  );
+
+  if (recipients.size) {
+    return Array.from(recipients);
+  }
+
+  const pipeline = await models.Pipeline.findOne(
+    { _id: ticket.pipelineId },
+    { userId: 1 },
+  ).lean();
+
+  const ownerId = pipeline?.userId;
+
+  return isTeamMemberId(ownerId) ? [ownerId] : [];
+};
+
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
@@ -80,7 +118,6 @@ export const loadNoteClass = (models: IModels) => {
       });
 
       const mentionUserIds = new Set<string>();
-      const subscriberUserIds = new Set<string>();
 
       if (doc.mentions?.length) {
         doc.mentions
@@ -96,8 +133,6 @@ export const loadNoteClass = (models: IModels) => {
         );
       }
 
-      mentionUserIds.forEach((id) => subscriberUserIds.delete(id));
-
       if (mentionUserIds.size > 0) {
         await createNotifications({
           contentType: 'ticket',
@@ -110,16 +145,22 @@ export const loadNoteClass = (models: IModels) => {
         });
       }
 
-      if (subscriberUserIds.size > 0) {
-        await createNotifications({
-          contentType: 'ticket',
-          contentTypeId: note.contentId,
-          fromUserId: userId,
-          subdomain,
-          notificationType: 'updateTicket',
-          userIds: Array.from(subscriberUserIds),
-          action: 'updated',
-        });
+      if (note.contentId && isClientPortalAuthor(userId)) {
+        const recipients = (
+          await findCustomerReplyRecipients(models, note.contentId)
+        ).filter((id) => !mentionUserIds.has(id));
+
+        if (recipients.length > 0) {
+          await createNotifications({
+            contentType: 'ticket',
+            contentTypeId: note.contentId,
+            fromUserId: userId,
+            subdomain,
+            notificationType: 'ticketCustomerReply',
+            userIds: recipients,
+            action: 'replied',
+          });
+        }
       }
 
       return note;

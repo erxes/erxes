@@ -1,7 +1,8 @@
 import { forwardRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { addToCartAtom } from "@/store/cart.store"
-import { useSetAtom } from "jotai"
+import { isShowRemainderAtom } from "@/store/config.store"
+import { useAtomValue, useSetAtom } from "jotai"
 import {
   HoverCard,
   HoverCardContent,
@@ -15,7 +16,7 @@ import { CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 
-const ChooseSimilarities: any = dynamic(
+const ChooseSimilarities = dynamic(
   () => import("../ChooseFromBulkSimilarity"),
   {
     loading: () => <div style={{ height: "350px" }}></div>,
@@ -158,11 +159,12 @@ export const ProductItemPriceWithWrapper = ({
   remainder?: number
   remainders?: { location: string; remainder: number }[]
 }) => {
+  const isShowRemainder = useAtomValue(isShowRemainderAtom)
   return (
     <div className={cn("flex items-center justify-between", className)}>
       <div className="font-black text-base">
         {(unitPrice || 0).toLocaleString()}₮{" "}
-        {typeof remainder === "number" &&
+        {isShowRemainder && typeof remainder === "number" &&
           (remainders && remainders?.length > 1 ? (
             <HoverCard>
               <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>

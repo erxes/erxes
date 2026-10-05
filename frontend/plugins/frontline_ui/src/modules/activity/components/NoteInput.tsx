@@ -12,10 +12,16 @@ import { useEffect, useRef, useState } from 'react';
 import { AssignMemberInEditor } from 'ui-modules';
 import type { Block } from '@blocknote/core';
 import { NoteAttachments } from '@/activity/components/NoteAttachments';
+import { NoteAudienceHint } from '@/activity/components/NoteAudienceHint';
 import { NoteInputToolbar } from '@/activity/components/NoteInputToolbar';
+import { ComposerModeTabs } from '@/inbox/conversations/conversation-detail/components/ComposerModeTabs';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
-import { trimEmptyBlocks } from '@/activity/utils/noteBlocks';
+import {
+  serializeNoteBlocks,
+  trimEmptyBlocks,
+} from '@/activity/utils/noteBlocks';
+import { ITicketNoteMailDelivery } from '@/activity/types';
 import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useNoteAttachments } from '@/activity/hooks/useNoteAttachments';
@@ -25,7 +31,7 @@ import { useTranslation } from 'react-i18next';
 export const NoteInput = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('frontline');
   const editor = useBlockEditor({
-    placeholder: t('leave-a-note', 'Leave a note...'),
+    placeholder: t('write-a-message', 'Write a message...'),
   });
   const { createTicketNote, loading } = useCreateTicketNote();
   const [isInternalNote, setIsInternalNote] = useState(true);
@@ -65,13 +71,35 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
     uploadFiles(e.dataTransfer.files);
   };
 
+  const notifyDeliveryIssue = (delivery?: ITicketNoteMailDelivery | null) => {
+    if (delivery?.status !== 'failed' && delivery?.status !== 'bounced') {
+      return;
+    }
+
+    toast({
+      title: t(
+        'ticket-reply-not-delivered',
+        'The reply was saved, but the email was not delivered',
+      ),
+      description:
+        delivery.status === 'bounced'
+          ? t(
+              'email-bounced-for',
+              'The receiving server rejected {{recipients}}',
+              { recipients: (delivery.bouncedRecipients ?? []).join(', ') },
+            )
+          : (delivery.error ?? undefined),
+      variant: 'destructive',
+    });
+  };
+
   const onSend = () => {
     const trimmedContent = trimEmptyBlocks((editor?.document || []) as Block[]);
     if (trimmedContent.length === 0 && attachments.length === 0) return;
 
     createTicketNote({
       variables: {
-        content: JSON.stringify(trimmedContent),
+        content: serializeNoteBlocks(trimmedContent),
         contentId,
         mentions: getMentionedUserIds(
           trimmedContent as Parameters<typeof getMentionedUserIds>[0],
@@ -81,10 +109,11 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           .map(({ name, url, type, size }) => ({ name, url, type, size })),
         isInternal: isInternalNote,
       },
-      onCompleted: () => {
+      onCompleted: ({ ticketCreateNote }) => {
         editor.replaceBlocks(editor.topLevelBlocks, []);
         resetAttachments();
         resetSuggestions();
+        notifyDeliveryIssue(ticketCreateNote?.mailDelivery);
       },
       onError: (err) =>
         toast({
@@ -122,11 +151,21 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
       className={cn(
         'relative flex flex-col overflow-hidden border rounded-lg px-4 py-3 gap-1',
         'transition-colors duration-150',
-        'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px]',
-        'before:transition-colors before:duration-150',
-        isInternalNote ? 'before:bg-primary' : 'before:bg-transparent',
+        isInternalNote && 'border-warning/50 bg-warning/20',
       )}
     >
+      <div className="flex flex-col gap-1.5 border-b border-border/50 pb-2 mb-1">
+        <ComposerModeTabs
+          isInternalNote={isInternalNote}
+          disabled={loading}
+          onInternalNoteChange={handleInternalNoteChange}
+        />
+        <NoteAudienceHint
+          ticketId={contentId}
+          isInternalNote={isInternalNote}
+        />
+      </div>
+
       {showSuggestions && !isInternalNote && (
         <ResponseTemplateDropdown
           suggestions={suggestions}
@@ -158,7 +197,6 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
 
       <NoteInputToolbar
         isInternalNote={isInternalNote}
-        onInternalNoteChange={handleInternalNoteChange}
         onTemplateSelect={selectTemplate}
         onFilesSelected={uploadFiles}
         onSend={onSend}

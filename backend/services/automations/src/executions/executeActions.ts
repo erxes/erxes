@@ -26,6 +26,7 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
   resolveActionBranchTarget,
+  getTriggerTargetType,
   resolveActionOutcome,
   splitType,
 } from 'erxes-api-shared/core-modules';
@@ -49,7 +50,7 @@ export const getTargetType = (
     const [type] = targetAction.type.split('.');
     return type;
   }
-  return triggerType;
+  return getTriggerTargetType(triggerType);
 };
 
 /**

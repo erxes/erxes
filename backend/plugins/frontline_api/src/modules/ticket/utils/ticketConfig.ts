@@ -6,6 +6,44 @@ import {
 
 export const TICKET_PROPERTY_CONTENT_TYPE = 'frontline:ticket';
 
+type TPropertyFieldOption = ITicketPropertyFieldOption & {
+  deprecated?: boolean | null;
+};
+
+// An archived option can't be picked anew, so the widget never offers it.
+const liveOptions = (options: TPropertyFieldOption[] = []) =>
+  options
+    .filter((option) => !option.deprecated)
+    .map(({ label, value }) => ({ label, value }));
+
+const findTicketProperties = (
+  subdomain: string,
+  fieldIds: string[],
+): Promise<
+  {
+    _id: string;
+    groupId?: string;
+    type?: string;
+    options?: TPropertyFieldOption[];
+  }[]
+> =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'fields',
+    action: 'find',
+    input: {
+      query: {
+        _id: { $in: fieldIds },
+        contentType: TICKET_PROPERTY_CONTENT_TYPE,
+      },
+      projection: null,
+      sort: { order: 1 },
+    },
+    defaultValue: [],
+  });
+
 /**
  * Validates the property fields chosen in a messenger ticket form configuration:
  * every entry must reference an existing ticket property field, duplicates are
@@ -32,27 +70,10 @@ export const validateTicketPropertyFields = async (
     }
   }
 
-  const fields: {
-    _id: string;
-    groupId?: string;
-    type?: string;
-    options?: ITicketPropertyFieldOption[];
-  }[] = await sendTRPCMessage({
+  const fields = await findTicketProperties(
     subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'fields',
-    action: 'find',
-    input: {
-      query: {
-        _id: { $in: uniqueFields.map((f) => f.fieldId) },
-        contentType: TICKET_PROPERTY_CONTENT_TYPE,
-      },
-      projection: null,
-      sort: { order: 1 },
-    },
-    defaultValue: [],
-  });
+    uniqueFields.map((f) => f.fieldId),
+  );
 
   const fieldById = new Map(fields.map((field) => [String(field._id), field]));
 
@@ -84,10 +105,34 @@ export const validateTicketPropertyFields = async (
       order: index + 1,
       // type and options always mirror the current property definition
       type: field?.type || undefined,
-      options: (field?.options || []).map(({ label, value }) => ({
-        label,
-        value,
-      })),
+      options: liveOptions(field?.options),
     };
+  });
+};
+
+/**
+ * A saved configuration keeps the options it was saved with; reading them
+ * from the property again means an option archived since stops showing.
+ */
+export const withLiveTicketOptions = async (
+  subdomain: string,
+  propertyFields: ITicketPropertyField[] = [],
+): Promise<ITicketPropertyField[]> => {
+  if (!propertyFields.length) {
+    return propertyFields;
+  }
+
+  const fields = await findTicketProperties(
+    subdomain,
+    propertyFields.map((f) => f.fieldId),
+  );
+  const fieldById = new Map(fields.map((field) => [String(field._id), field]));
+
+  return propertyFields.map((propertyField) => {
+    const field = fieldById.get(propertyField.fieldId);
+
+    return field
+      ? { ...propertyField, options: liveOptions(field.options) }
+      : propertyField;
   });
 };
