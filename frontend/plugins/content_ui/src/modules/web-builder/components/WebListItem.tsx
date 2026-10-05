@@ -1,6 +1,7 @@
 import { IconEdit, IconTrash, IconWorldPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+import { readImage } from 'erxes-ui/utils/core';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { webDrawerState } from '../states/webBuilderState';
@@ -20,7 +21,9 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
   const { confirm } = useConfirm();
 
   const gradient = THUMBNAIL_GRADIENTS[index % THUMBNAIL_GRADIENTS.length];
-  const thumbnailUrl = web.thumbnail?.url;
+  const thumbnailUrl = web.thumbnail?.url
+    ? readImage(web.thumbnail.url, 200)
+    : undefined;
 
   const handleEdit = () => setDrawer({ open: true, editingWeb: web });
 
