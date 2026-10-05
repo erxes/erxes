@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Button, ColorPicker, Form, Label, Upload } from 'erxes-ui';
+import { Button, ColorPicker, Form, Label, Switch, Upload } from 'erxes-ui';
 import {
   HeroStyleRadioGroup,
   NavigationVariantRadioGroup,
@@ -32,6 +32,7 @@ export const EMAppearance = () => {
         foreground: '#fff',
       },
       navigationVariant: 'pill',
+      isSupportInAppView: false,
     },
   });
 
@@ -223,6 +224,25 @@ export const EMAppearance = () => {
                       onChange={field.onChange}
                     />
                   </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="isSupportInAppView"
+              render={({ field }) => (
+                <Form.Item>
+                  <div className="flex items-center gap-3">
+                    <Form.Control>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Form.Label variant="peer" className="leading-6">
+                      {t('support-in-app-view')}
+                    </Form.Label>
+                  </div>
                   <Form.Message />
                 </Form.Item>
               )}

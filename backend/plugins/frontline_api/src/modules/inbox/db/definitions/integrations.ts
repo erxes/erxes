@@ -292,6 +292,7 @@ const uiOptionsSchema = new Schema(
     backgroundColor: { type: String },
     heroStyleVariant: { type: String },
     navigationVariant: { type: String },
+    isSupportInAppView: { type: Boolean },
   },
   { _id: false },
 );

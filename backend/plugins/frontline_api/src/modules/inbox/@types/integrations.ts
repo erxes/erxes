@@ -180,6 +180,7 @@ export interface IUiOptions {
   backgroundColor?: string;
   heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
   navigationVariant?: string;
+  isSupportInAppView?: boolean;
 }
 
 // subdocument schema for messenger UiOptions

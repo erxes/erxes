@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-02`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -244,6 +244,9 @@
 - A messenger integration attaches **several** ticket configs. The erxes
   messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
   a multi-select over the selected channel's `ticketConfigs`.
+- The erxes messenger Appearance step (`EMAppearance.tsx`) edits `uiOptions`:
+  colours, logos, hero style, navigation bar, and an `isSupportInAppView`
+  switch (default off).
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - The conversation header carries a **Convert** menu. Each entry opens

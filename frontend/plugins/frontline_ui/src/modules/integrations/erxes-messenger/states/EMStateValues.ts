@@ -99,6 +99,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       backgroundColor: appearance?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
       heroStyleVariant: appearance?.heroStyleVariant || 'glossy',
       navigationVariant: appearance?.navigationVariant || 'pill',
+      isSupportInAppView: appearance?.isSupportInAppView ?? false,
     },
   });
 });
