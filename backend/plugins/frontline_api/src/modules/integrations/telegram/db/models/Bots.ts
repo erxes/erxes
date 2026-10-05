@@ -9,6 +9,7 @@ import { telegramBotSchema } from '@/integrations/telegram/db/definitions/bots';
 import {
   getTelegramBot,
   getTelegramWebhookInfo,
+  setTelegramWebhook,
   type TelegramWebhookInfo,
 } from '@/integrations/telegram/client';
 import { verifyTelegramWebhookSecret } from '@/integrations/telegram/utils/webhookAuth';
@@ -16,6 +17,7 @@ import { verifyTelegramWebhookSecret } from '@/integrations/telegram/utils/webho
 export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   getBot(_id: string): Promise<ITelegramBotDocument>;
   getWebhookInfo(_id: string): Promise<TelegramWebhookInfo>;
+  setWebhook(_id: string, url: string): Promise<boolean>;
   getBots(
     filter: FilterQuery<ITelegramBotDocument>,
   ): Promise<ITelegramBotDocument[]>;
@@ -47,6 +49,23 @@ export const loadTelegramBotClass = (models: IModels) => {
         throw new Error('Telegram bot not found');
       }
       return getTelegramWebhookInfo(bot.token);
+    }
+    public static async setWebhook(_id: string, url: string): Promise<boolean> {
+      const bot = await models.TelegramBots.findOne({ _id }).select(
+        '+token +webhookSecret',
+      );
+
+      if (!bot) {
+        throw new Error('Telegram bot not found');
+      }
+
+      if (!bot.erxesApiId) {
+        throw new Error(
+          'Connect this Telegram bot to an inbox integration first',
+        );
+      }
+
+      return setTelegramWebhook(bot.token, url, bot.webhookSecret);
     }
     public static getBots(
       filter: FilterQuery<ITelegramBotDocument>,

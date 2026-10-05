@@ -23,7 +23,7 @@
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
-- Telegram bot credential validation, provider webhook status reads, and
+- Telegram bot credential validation, provider webhook status and registration, and
   tenant-scoped bot records, customer identity mappings, conversation mappings,
   and message mappings.
 - Response templates.
@@ -140,6 +140,11 @@
 - The internal `getTelegramWebhookInfo(token)` client reads the provider's
   current webhook URL, pending update count, and optional delivery details. It
   validates the response with Zod and does not change webhook configuration.
+- The internal `setTelegramWebhook(token, url, webhookSecret)` client validates
+  an HTTPS callback URL and provider-compatible secret, then registers new
+  message updates while preserving pending updates. It requires an explicit
+  successful provider response. `TelegramBots.setWebhook(_id, url)` invokes it
+  using the saved bot's credentials through the `telegramSetWebhook` mutation.
 - The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
   unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
   It lives in `src/modules/integrations/telegram/utils/webhookAuth.ts`.
@@ -244,6 +249,12 @@
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
   token. It returns provider information without changing the bot record or
   webhook configuration.
+- `TelegramBots.setWebhook(_id, url)` registers a callback using the tenant's
+  saved token and webhook secret. It rejects missing bots and bots without an
+  inbox integration link, returns a boolean, and leaves the bot record unchanged.
+- `telegramSetWebhook(_id, url)` exposes registration after checking
+  `integrationsEdit`. It accepts only the saved bot ID and callback URL, returns
+  `true` on provider success, and propagates failures as GraphQL errors.
 - `telegramBotWebhookInfo(_id)` exposes that status after checking
   `integrationsEdit`. It returns camel-case fields and converts provider error
   timestamps from Unix seconds into GraphQL `Date` values.
@@ -258,8 +269,8 @@
   checks `integrationsAdd` and takes `createdBy` from the authenticated user.
   Creation saves the bot record. The external integration mutation can link
   that saved bot to an inbox integration. The HTTP receiving route is mounted;
-  provider webhook registration and a Telegram connection UI are not implemented
-  yet.
+  saved-bot webhook registration is available through GraphQL. A Telegram
+  connection UI is not implemented yet.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -318,7 +329,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison, internal creation adapter |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity, webhook status and registration, permission-checked validation and saved-bot queries, creation and webhook registration mutations, bot schema and model, webhook secret comparison, internal creation adapter |
 | Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
 | Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Local customer, conversation, and message insert/reuse; Core customer and inbox conversation/message creation through the bridge; conditional linking with bounded waits |
 | Telegram receiver | `src/modules/integrations/telegram/controller/receiveMessage.ts` | Validates and filters provider messages, then resolves the customer, conversation, and inbox message in order |
@@ -383,6 +394,11 @@
   error dates/message, connection limit, and allowed update kinds. Absent optional
   fields become `null`; permission, missing-bot, and provider failures are GraphQL
   errors. The token and webhook secret are not fields of this response type.
+- `telegramSetWebhook(_id: String!, url: String!): Boolean!` — registers the
+  supplied full HTTPS callback URL for the tenant's saved, linked bot after
+  checking `integrationsEdit`. Success returns `true`; permission, missing-bot,
+  missing-link, validation, database, and provider failures are GraphQL errors.
+  The operation accepts and returns no bot credentials.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -391,11 +407,12 @@
 
 ### Consumes
 
-- Telegram Bot API `GET /bot<token>/getMe` and
-  `GET /bot<token>/getWebhookInfo` — a shared request helper validates token
-  syntax, limits requests to ten seconds, rejects redirects, and replaces raw
-  transport and response errors with controlled messages. Each client validates
-  its response with Zod; an empty webhook URL is a valid unconfigured state.
+- Telegram Bot API `GET /bot<token>/getMe`,
+  `GET /bot<token>/getWebhookInfo`, and JSON `POST /bot<token>/setWebhook` — a
+  shared request helper validates token syntax, limits requests to ten seconds,
+  rejects redirects, and replaces raw transport and response errors with
+  controlled messages. Each client validates its response with Zod; an empty
+  webhook URL is a valid unconfigured state when reading status.
 - Telegram customer creation uses the Frontline-local `receiveInboxMessage`
   action `get-create-update-customer`, which reaches Core through its published
   customer procedures. The adapter passes the integration ID and sender names;
@@ -478,6 +495,10 @@
   bot model and passes it to the provider client. A missing bot throws before
   any provider request; the return value contains webhook information rather
   than the credential-bearing database document.
+- `setWebhook(_id, url)` explicitly selects `+token +webhookSecret` from the
+  supplied tenant's bot model. It requires a present `erxesApiId` before calling
+  the registration client, returns no credential-bearing document, and does not
+  persist the callback URL or change verification timestamps.
 - `src/modules/integrations/telegram/@types/webhook.ts` defines
   `ITelegramWebhook`, the camel-case query response with optional `Date` values.
   It is a plain interface, not a persisted model or Mongoose document.
@@ -495,6 +516,11 @@
   Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
+- Webhook registration requires a full HTTPS callback URL without surrounding
+  whitespace and a secret of 1–256 characters from `A-Z`, `a-z`, `0-9`, `_`, or
+  `-`. Send `allowed_updates: ['message']` and `drop_pending_updates: false`;
+  accept success only when both `ok` and `result` are literal `true`. The
+  receiver still filters supported private text from incoming message updates.
 - Telegram webhook secret comparison must reject empty values and check byte
   lengths before calling `timingSafeEqual`; compare the received value exactly
   without trimming or normalizing it.
@@ -545,6 +571,13 @@
 - Callers of `TelegramBots.getWebhookInfo` must enforce integration permissions
   before loading credentials. The method must use the supplied tenant model,
   preserve stored verification timestamps, and return only provider information.
+- Callers of `TelegramBots.setWebhook` must enforce integration permissions
+  before loading credentials. Use the supplied tenant model and full callback
+  URL; require an inbox link before contacting Telegram, await registration,
+  and propagate database and provider failures to the caller.
+- `telegramSetWebhook` must await `integrationsEdit` permission before invoking
+  the model. Keep the public arguments limited to `_id` and `url`, obtain
+  credentials from the tenant's saved bot, and return only a boolean.
 - `telegramBotWebhookInfo` must check `integrationsEdit` before invoking the
   model. Map optional Unix timestamps by testing for `undefined`, so a zero
   timestamp remains valid, and expose the update list as `allowedUpdates`.
@@ -764,6 +797,11 @@
   pending updates, preserves optional delivery details, and rejects negative or
   fractional counts. Read a test bot's identity and webhook status without
   printing credentials, changing its webhook, or consuming pending updates.
+- Telegram registration client checks: stub `fetch` to verify the exact JSON
+  POST, secret, message subscription, preserved pending updates, timeout, and
+  redirect rejection. Reject invalid URLs, secrets, and tokens before a request;
+  reject unsuccessful or malformed responses. Verify existing read methods
+  remain GET requests. These isolated checks must not register a live webhook.
 - Telegram model checks: successful creation returns provider-derived metadata
   without credentials; duplicate creation preserves the original record;
   missing creators and rejected tokens prevent writes; storage errors do not
@@ -771,6 +809,20 @@
 - Saved-bot webhook checks: `getWebhookInfo` uses the stored token while ordinary
   reads still exclude credentials; a missing bot prevents the provider call,
   provider errors remain controlled, and saved timestamps remain unchanged.
+- Saved-bot registration checks: stub the database and provider to verify saved
+  credential selection, exact callback forwarding, rejection of missing or
+  unlinked bots before a provider call, tenant separation, awaited registration,
+  and propagated failures. Registration must not modify the bot record.
+- Registration GraphQL checks: execute the real Telegram schema, resolver,
+  model method, and client with database and HTTP stubs. Verify required string
+  arguments, rejection of credential arguments and result selections, permission
+  denial and deferred permission before model access, successful registration,
+  and propagated validation, database, and controlled provider failures.
+- Registration smoke scenario: ensure the running subgraph and gateway expose
+  `telegramSetWebhook`, then call it as a signed-in user with `integrationsEdit`
+  using a linked test bot and reachable callback URL. Read
+  `telegramBotWebhookInfo` to confirm registration; separately send private text
+  to the test bot and verify HTTP acknowledgment and inbox persistence.
 - Webhook query smoke scenario: a signed-in user with `integrationsEdit` calls
   `telegramBotWebhookInfo` through the gateway using the saved bot's erxes ID.
   Verify empty URLs, false/zero values, optional `null` fields, update lists, and
@@ -789,6 +841,24 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-05` — Telegram webhook registration mutation
+
+- **Summary:** Exposed saved-bot webhook registration through a permission-checked GraphQL mutation.
+- **Affected areas:** `src/modules/integrations/telegram/graphql/schema/telegram.ts`, `src/modules/integrations/telegram/graphql/resolvers/mutations.ts`.
+- **Contracts changed:** Added `telegramSetWebhook(_id: String!, url: String!): Boolean!` with an `integrationsEdit` permission check.
+
+### `2026-10-05` — Saved-bot webhook registration
+
+- **Summary:** Connected provider registration to saved tenant credentials and required an inbox integration link before activation.
+- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
+- **Contracts changed:** Added internal `TelegramBots.setWebhook(_id, url): Promise<boolean>`; no public API change.
+
+### `2026-10-05` — Telegram webhook registration client
+
+- **Summary:** Added validated provider webhook registration with preserved pending updates and controlled failure messages.
+- **Affected areas:** `src/modules/integrations/telegram/client.ts`.
+- **Contracts changed:** Added internal `setTelegramWebhook(token, url, webhookSecret)`; the request helper accepts optional JSON parameters. No public API change.
 
 ### `2026-10-05` — Telegram webhook route
 
@@ -831,21 +901,3 @@
 - **Summary:** Added typed inbox conversation creation through the existing bridge, preserving source time and validating the returned ID.
 - **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
 - **Contracts changed:** Added internal `createInboxConversation(subdomain, conversation, customerId)`; no public API or webhook route invokes it yet.
-
-### `2026-10-04` — Telegram conversation mapping lookup
-
-- **Summary:** Added atomic local conversation insert/reuse using integration, chat, and topic identity while preserving existing metadata and inbox links.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `getOrCreateTelegramConversation(models, integrationId, message)` returning `{ conversation, created }`; inbox creation and webhook delivery remain separate.
-
-### `2026-10-04` — Telegram customer Core linking
-
-- **Summary:** Added customer lookup-and-link coordination with bounded waits, retryable unlinked mappings, and conditional link preservation.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `getOrCreateCustomer(models, subdomain, integrationId, sender)`; no public API or webhook route invokes it yet.
-
-### `2026-10-04` — Telegram customer mapping lookup
-
-- **Summary:** Added atomic local customer insert/reuse with insertion ownership and handling for concurrent sender mappings.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `getOrCreateTelegramCustomer(models, integrationId, sender)` returning `{ customer, created }`.

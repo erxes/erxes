@@ -18,7 +18,8 @@ export type TelegramBot = z.infer<typeof telegramBotSchema>;
 
 export const getTelegramResponse = async (
   token: string,
-  method: 'getMe' | 'getWebhookInfo',
+  method: 'getMe' | 'getWebhookInfo' | 'setWebhook',
+  params?: Record<string, unknown>,
 ): Promise<unknown> => {
   if (token !== token.trim() || !/^[0-9]+:[A-Za-z0-9_-]+$/.test(token)) {
     throw new Error('Enter the bot token exactly as provided by BotFather.');
@@ -28,7 +29,9 @@ export const getTelegramResponse = async (
 
   try {
     response = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: 'GET',
+      method: params ? 'POST' : 'GET',
+      headers: params ? { 'Content-Type': 'application/json' } : undefined,
+      body: params ? JSON.stringify(params) : undefined,
       signal: AbortSignal.timeout(10_000),
       redirect: 'error',
     });
@@ -53,6 +56,7 @@ export const getTelegramResponse = async (
   } catch {
     throw new Error('Could not read the Telegram response. Please try again.');
   }
+
   return body;
 };
 
@@ -97,6 +101,44 @@ export const getTelegramWebhookInfo = async (
   if (!parsed.success) {
     throw new Error(
       'Telegram returned an unsuccessful or invalid webhook response.',
+    );
+  }
+
+  return parsed.data.result;
+};
+
+const telegramSetWebhookResponseSchema = z.object({
+  ok: z.literal(true),
+  result: z.literal(true),
+});
+
+export const setTelegramWebhook = async (
+  token: string,
+  url: string,
+  webhookSecret: string,
+): Promise<boolean> => {
+  const parsedUrl = z.string().url().startsWith('https://').safeParse(url);
+
+  if (url !== url.trim() || !parsedUrl.success) {
+    throw new Error('Enter a valid HTTPS webhook URL.');
+  }
+
+  if (!/^[A-Za-z0-9_-]{1,256}$/.test(webhookSecret)) {
+    throw new Error('A valid Telegram webhook secret is required.');
+  }
+
+  const body = await getTelegramResponse(token, 'setWebhook', {
+    url: parsedUrl.data,
+    secret_token: webhookSecret,
+    allowed_updates: ['message'],
+    drop_pending_updates: false,
+  });
+
+  const parsed = telegramSetWebhookResponseSchema.safeParse(body);
+
+  if (!parsed.success) {
+    throw new Error(
+      'Telegram returned an unsuccessful or invalid webhook registration response.',
     );
   }
 

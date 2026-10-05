@@ -14,4 +14,13 @@ export const telegramMutations = {
       createdBy: user._id,
     });
   },
+  async telegramSetWebhook(
+    _root: undefined,
+    { _id, url }: { _id: string; url: string },
+    { models, checkPermission }: IContext,
+  ): Promise<boolean> {
+    await checkPermission('integrationsEdit');
+
+    return models.TelegramBots.setWebhook(_id, url);
+  },
 };

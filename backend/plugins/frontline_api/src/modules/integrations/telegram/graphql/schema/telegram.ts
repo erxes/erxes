@@ -45,4 +45,5 @@ export const queries = `
 
 export const mutations = `
   telegramAddBot(token: String!): TelegramBot!
+  telegramSetWebhook(_id: String!, url: String!): Boolean!
 `;
