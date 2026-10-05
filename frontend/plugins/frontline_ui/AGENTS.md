@@ -1205,8 +1205,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   General step's channel select, required by `SURVEY_GENERAL_CREATE_SCHEMA`.
   `useSurveyMutate`, `SurveyMutateLayout`'s cancel and
   `SurveyOptionTicketConfig`'s pipeline select all read the channel and the
-  return path from that hook. Editing, archiving, and removing a survey still
-  live only under a channel's settings page.
+  return path from that hook. Changing that channel select clears every
+  option's `ticketPipelineId` and `ticketStatusId` in `surveySetupContentAtom`,
+  because pipelines belong to a channel and the API does not check that a
+  survey's pipeline matches its channel. Editing, archiving, and removing a
+  survey still live only under a channel's settings page.
 - The wizard keeps one step's values per Jotai `atomWithStorage` atom
   (`surveySetupGeneralAtom`, `surveySetupContentAtom`, `surveySetupConfirmationAtom`),
   synced by the shared `FormValueEffectComponent`, exactly as the form builder

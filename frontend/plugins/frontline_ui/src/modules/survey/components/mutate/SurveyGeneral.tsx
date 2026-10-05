@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
@@ -14,7 +15,10 @@ import {
   TSurveyGeneral,
 } from '@/survey/constants/surveySetupSchema';
 import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
-import { surveySetupGeneralAtom } from '@/survey/states/surveySetupStates';
+import {
+  surveySetupContentAtom,
+  surveySetupGeneralAtom,
+} from '@/survey/states/surveySetupStates';
 
 export const SurveyGeneral = () => {
   const { t } = useTranslation('frontline');
@@ -27,6 +31,20 @@ export const SurveyGeneral = () => {
     ),
     defaultValues: SURVEY_GENERAL_DEFAULT_VALUES,
   });
+  const setSurveyContent = useSetAtom(surveySetupContentAtom);
+
+  // Ticket pipelines belong to a channel, so a channel change invalidates them.
+  const clearTicketTargets = () =>
+    setSurveyContent((content) => ({
+      steps: content.steps.map((step) => ({
+        ...step,
+        options: step.options.map((option) => ({
+          ...option,
+          ticketPipelineId: null,
+          ticketStatusId: null,
+        })),
+      })),
+    }));
 
   return (
     <SurveyMutateLayout
@@ -88,7 +106,17 @@ export const SurveyGeneral = () => {
                 <SelectChannel.FormItem
                   value={field.value ?? ''}
                   mode="single"
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    const channelId = Array.isArray(value)
+                      ? value[0] ?? ''
+                      : value;
+
+                    if (channelId !== field.value) {
+                      clearTicketTargets();
+                    }
+
+                    field.onChange(channelId);
+                  }}
                 />
                 <Form.Message />
               </Form.Item>
