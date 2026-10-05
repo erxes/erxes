@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import { Button, Popover, ToggleGroup } from 'erxes-ui';
 import { usePlaceholderInputContext } from '../../contexts/PlaceholderInputContext';
 import { IconHelpOctagon } from '@tabler/icons-react';
@@ -53,4 +54,5 @@ function PlaceholderInputHeaderComponent() {
 
 PlaceholderInputHeaderComponent.displayName = 'PlaceholderInput.Header';
 
-export const PlaceholderInputHeader = PlaceholderInputHeaderComponent;
+export const PlaceholderInputHeader: ComponentType =
+  PlaceholderInputHeaderComponent;
