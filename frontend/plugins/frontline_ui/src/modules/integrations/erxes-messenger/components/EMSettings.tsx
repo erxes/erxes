@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   Collapsible,
@@ -7,21 +6,23 @@ import {
   LanguageSelect,
   Switch,
 } from 'erxes-ui';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { EM_SETTINGS_SCHEMA } from '../constants/emSettingsSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   erxesMessengerSetupSettingsAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useFieldArray, useForm } from 'react-hook-form';
+
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
+import { EM_SETTINGS_SCHEMA } from '../constants/emSettingsSchema';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 type EMSettingsFormValues = z.infer<typeof EM_SETTINGS_SCHEMA>;
 
@@ -38,6 +39,7 @@ export const EMSettings = () => {
       forceLogoutWhenResolve: false,
       notifyCustomer: false,
       showVideoCallRequest: false,
+      isSupportInAppView: false,
       websiteApps: [],
     },
   });
@@ -156,6 +158,29 @@ export const EMSettings = () => {
                   </div>
                   <Form.Description>
                     {t('show-launcher-description')}
+                  </Form.Description>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="isSupportInAppView"
+              render={({ field }) => (
+                <Form.Item>
+                  <div className="flex items-center gap-3">
+                    <Form.Control>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+
+                    <Form.Label variant="peer" className="leading-6">
+                      {t('in-app-view')}
+                    </Form.Label>
+                  </div>
+                  <Form.Description>
+                    {t('in-app-view-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

@@ -1,5 +1,5 @@
-import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
 import { ScheduleDay } from '../constants/emHoursSchema';
+import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
 
 export interface EMLink {
   url: string;
@@ -72,6 +72,7 @@ export interface MessengerSetupPayload {
     hideWhenOffline?: boolean;
     forceLogoutWhenResolve?: boolean;
     showVideoCallRequest?: boolean;
+    isSupportInAppView?: boolean;
     links?: { [key: string]: string };
     externalLinks?: { url: string }[];
     knowledgeBaseTopicId?: string;

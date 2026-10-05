@@ -1,3 +1,4 @@
+import { currentUserState, useVersion } from 'ui-modules';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo } from 'react';
 
@@ -10,7 +11,6 @@ import { OnboardingStepper } from '@/onboarding/components/OnboardingStepper';
 import { ProfileSection } from '@/onboarding/components/ProfileSection';
 import { ThemeSection } from '@/onboarding/components/ThemeSection';
 import { WelcomeSection } from '@/onboarding/components/WelcomeSection';
-import { currentUserState } from 'ui-modules';
 import { getOnboardingSteps } from '@/onboarding/components/onboardingSteps';
 import { motion } from 'framer-motion';
 import { onboardingStepState } from '@/onboarding/state/onboardingStepState';
@@ -29,11 +29,14 @@ export const MainOnboarding = () => {
   useEffect(() => {
     setHotkeyScopeAndMemorizePreviousScope('welcome');
   }, [setHotkeyScopeAndMemorizePreviousScope]);
+  const isSaas = useVersion('saas');
   useEffect(() => {
     if (currentUser?.isOnboarded) {
-      navigate(AppPath.Index, { replace: true });
+      navigate(!isSaas ? AppPath.WelcomeHome : AppPath.Index, {
+        replace: true,
+      });
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, isSaas]);
   useEffect(() => {
     if (currentStep < 1 || currentStep > steps.length) {
       setCurrentStep(1);

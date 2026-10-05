@@ -3,6 +3,11 @@ import {
   DEFAULT_LANGUAGE,
 } from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
 import {
+  createDefaultOnlineHours,
+  processGreetingLinks,
+  processOnlineHours,
+} from '@/integrations/erxes-messenger/utils/emStateUtils';
+import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
@@ -12,13 +17,9 @@ import {
   erxesMessengerSetupStepAtom,
   settedIntegrationDetailAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { MessengerSetupPayload } from '@/integrations/erxes-messenger/types/EMStateTypes';
+
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
-import {
-  createDefaultOnlineHours,
-  processGreetingLinks,
-  processOnlineHours,
-} from '@/integrations/erxes-messenger/utils/emStateUtils';
+import { MessengerSetupPayload } from '@/integrations/erxes-messenger/types/EMStateTypes';
 import { atom } from 'jotai';
 
 /**
@@ -147,6 +148,8 @@ export const erxesMessengerSetSetupAtom = atom(
         notifyCustomer: payload?.messengerData?.notifyCustomer ?? false,
         showVideoCallRequest:
           payload?.messengerData?.showVideoCallRequest ?? false,
+        isSupportInAppView:
+          payload?.messengerData?.isSupportInAppView ?? false,
         websiteApps: (payload?.websiteMessengerApps ?? []).map((app) => ({
           _id: app._id,
           kind: app.kind ?? 'webstite',

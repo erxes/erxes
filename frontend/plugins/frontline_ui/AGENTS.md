@@ -244,6 +244,12 @@
 - A messenger integration attaches **several** ticket configs. The erxes
   messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
   a multi-select over the selected channel's `ticketConfigs`.
+- The erxes messenger setup wizard's Settings step (`EMSettings.tsx`) carries
+  an **In-app view** switch bound to `isSupportInAppView` in
+  `EM_SETTINGS_SCHEMA`. `EMStateValues.ts` emits it on
+  `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
+  and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
+  must exist for the save to succeed.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - The conversation header carries a **Convert** menu. Each entry opens
