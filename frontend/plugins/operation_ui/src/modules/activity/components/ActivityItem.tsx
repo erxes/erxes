@@ -14,6 +14,17 @@ import { ACTIVITY_MODULES } from '@/activity/constants';
 import { IActivity } from '@/activity/types';
 import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
 import { useTranslation } from 'react-i18next';
+import { ActivityActor } from '@/activity/components/ActivityActor';
+import {
+  IconAlertSquareRounded,
+  IconCalendar,
+  IconLabel,
+  IconNote,
+  IconProgressCheck,
+  IconQuestionMark,
+  IconSquareRotated,
+  IconUsersGroup,
+} from '@tabler/icons-react';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
   const { t } = useTranslation('operation');
@@ -50,5 +61,39 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
       return <ActivityAccept action={action} />;
     default:
       return <div>{t('unknown-module')}</div>;
+  }
+};
+
+export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
+  switch (activity.module) {
+    case ACTIVITY_MODULES.NAME:
+      return <IconLabel className="size-4 text-accent-foreground" />;
+    case ACTIVITY_MODULES.STATUS:
+      return <IconProgressCheck className="size-4 text-accent-foreground" />;
+
+    case ACTIVITY_MODULES.PRIORITY:
+      return (
+        <IconAlertSquareRounded className="size-4 text-accent-foreground" />
+      );
+    case ACTIVITY_MODULES.TEAM:
+      return <IconUsersGroup className="size-4 text-accent-foreground" />;
+    case ACTIVITY_MODULES.START_DATE:
+      return <IconCalendar className="size-4 text-accent-foreground" />;
+    case ACTIVITY_MODULES.END_DATE:
+      return <IconCalendar className="size-4 text-accent-foreground" />;
+    case ACTIVITY_MODULES.ASSIGNEE:
+    case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
+      return <ActivityActor.Avatar />;
+    case ACTIVITY_MODULES.NOTE:
+      return <IconNote className="size-4 text-accent-foreground" />;
+
+    case ACTIVITY_MODULES.ESTIMATE_POINT:
+      return (
+        <IconAlertSquareRounded className="size-4 text-accent-foreground" />
+      );
+    case ACTIVITY_MODULES.MILESTONE:
+      return <IconSquareRotated className="size-4 text-accent-foreground" />;
+    default:
+      return <IconQuestionMark className="size-4 text-accent-foreground" />;
   }
 };

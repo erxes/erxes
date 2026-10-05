@@ -1,5 +1,8 @@
 import { IActivity } from '@/activity/types';
-import { ActivityItem as ActivityItemContent } from '@/activity/components/ActivityItem';
+import {
+  ActivityIcon,
+  ActivityItem as ActivityItemContent,
+} from '@/activity/components/ActivityItem';
 import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem';
 import { ActivityActor } from '@/activity/components/ActivityActor';
 
@@ -11,7 +14,7 @@ export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
   return (
     <ActivityActor.Provider actorId={activity.createdBy}>
       <ActivityTimelineItem
-        avatar={<ActivityActor.Avatar />}
+        avatar={<ActivityIcon activity={activity} />}
         createdAt={activity.createdAt?.toLocaleString()}
         id={activity._id}
       >
