@@ -8,7 +8,8 @@ import {
 } from '../../@types/template';
 import { operationTemplateSchema } from '../definitions/template';
 
-export interface IOperationTemplateModel extends Model<IOperationTemplateDocument> {
+export interface IOperationTemplateModel
+  extends Model<IOperationTemplateDocument> {
   getTemplate(_id: string): Promise<IOperationTemplateDocument>;
   addTemplate(
     doc: IOperationTemplateAdd,
