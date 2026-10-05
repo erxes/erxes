@@ -5,21 +5,27 @@ import {
   useBoardEdit,
 } from '@/deals/boards/hooks/useBoards';
 import { TBoardForm } from '@/deals/types/boards';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Input, Sheet, Skeleton, Spinner, toast, useQueryState } from 'erxes-ui';
+import { IconX } from '@tabler/icons-react';
+import { Button, Form, Input, Skeleton, toast, useQueryState } from 'erxes-ui';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-export const BoardForm = () => {
-  const [boardId, setBoardId] = useQueryState('boardId');
+interface BoardFormProps {
+  open: boolean;
+  setOpen: (value: boolean) => void;
+}
 
+export const BoardForm = ({ open, setOpen }: BoardFormProps) => {
+  const [boardId, setBoardId] = useQueryState('boardId');
   const { methods } = useAddBoardForm();
   const { handleSubmit, reset } = methods;
 
-  const [open, setOpen] = React.useState<boolean>(false);
+  const { t } = useTranslation('sales');
 
   const { boardDetail, loading: boardDetailLoading } = useBoardDetail();
+  const { addBoard, loading: addLoading } = useBoardAdd();
+  const { editBoard, loading: editLoading } = useBoardEdit();
 
   React.useEffect(() => {
     setOpen(!!boardId);
@@ -30,15 +36,15 @@ export const BoardForm = () => {
     setOpen(false);
     setBoardId(null);
     reset();
-  }, [reset, setBoardId]);
-
-  const { addBoard, loading: addLoading } = useBoardAdd();
-  const { editBoard, loading: editLoading } = useBoardEdit();
-
-  const { t } = useTranslation('sales');
+  }, [reset, setBoardId, setOpen]);
 
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
     async (data) => {
+      if (!data.name?.trim()) {
+        handleClose();
+        return;
+      }
+
       const manageBoard = boardId ? editBoard : addBoard;
       const successTitle = boardId ? t('board-updated') : t('board-created');
 
@@ -55,74 +61,62 @@ export const BoardForm = () => {
     [addBoard, editBoard, boardId, handleClose, t],
   );
 
+  if (!open) return null;
+
+  if (boardDetailLoading) {
+    return <Skeleton className="w-full h-8 my-1" />;
+  }
+
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(isOpen) =>
-        boardId ? !isOpen && handleClose() : setOpen(isOpen)
-      }
-    >
-      <Sheet.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="text-xs font-semibold text-accent-foreground"
-        >
-          <IconPlus />
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View
-        className="p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
+    <Form {...methods}>
+      <form
+        onSubmit={handleSubmit(submitHandler)}
+        className="flex items-center gap-1 p-1 my-1"
       >
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
-          >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                {boardId ? t('edit-board') : t('add-board')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-3">
-              {boardDetailLoading ? (
-                <Skeleton className="w-full h-4 my-1" />
-              ) : (
-                <Form.Field
-                  control={methods.control}
-                  name="name"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('board-name')}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          type="text"
-                          placeholder={t('enter-board-name')}
-                          className="input"
-                          value={field.value || boardDetail?.name || ''}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
+        <Form.Field
+          control={methods.control}
+          name="name"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Control>
+                <Input
+                  {...field}
+                  type="text"
+                  placeholder={t('enter-board-name')}
+                  className="input"
+                  value={field.value || boardDetail?.name || ''}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      handleClose();
+                    }
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSubmit(submitHandler)();
+                    }
+                  }}
+                  ref={field.ref}
+                  onBlur={(e) => {
+                    field.onBlur();
+                    handleSubmit(submitHandler)();
+                  }}
                 />
-              )}
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={handleClose}>
-                {t('cancel')}
-              </Button>
-              <Button type="submit" disabled={addLoading || editLoading}>
-                {addLoading || editLoading ? <Spinner /> : t('save')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="h-4 w-4 p-0"
+          disabled={addLoading || editLoading}
+          onClick={handleClose}
+        >
+          <IconX className="w-4 h-4" />
+        </Button>
+      </form>
+    </Form>
   );
 };

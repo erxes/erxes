@@ -1,12 +1,12 @@
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
+import { Button, Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
 import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { BoardForm } from './BoardForm';
 import { IBoard } from '@/deals/types/boards';
 import { useTranslation } from 'react-i18next';
+import { BoardForm } from '@/deals/boards/components/settings/BoardForm';
 
 export const BoardsList = () => {
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ export const BoardsList = () => {
   const activeBoardId = searchParams.get('activeBoardId');
 
   const { boards, loading } = useBoards();
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!loading && boards && boards.length > 0 && !activeBoardId) {
@@ -38,9 +39,16 @@ export const BoardsList = () => {
           <Sidebar.GroupLabel>
             {t('boards')} ({boards?.length || 0})
           </Sidebar.GroupLabel>
-          <BoardForm />
+          <Button
+            variant="ghost"
+            className="text-xs font-semibold text-accent-foreground"
+            onClick={() => setOpen(true)}
+          >
+            <IconPlus />
+          </Button>
         </div>
         <Sidebar.GroupContent>
+          <BoardForm open={open} setOpen={setOpen} />
           <Sidebar.Menu>
             {boards?.map((board) => (
               <Sidebar.MenuItem key={board._id}>

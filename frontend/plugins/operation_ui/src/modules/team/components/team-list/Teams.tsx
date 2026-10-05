@@ -14,7 +14,7 @@ export function Teams() {
     navigate(`/settings/operation/team/details/${teamId}`);
   };
   return (
-    <div className="overflow-auto h-full px-8 pb-4">
+    <div className="overflow-auto h-full p-4 pb-4">
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <Table>
           <Table.Header>
@@ -68,7 +68,9 @@ export function Teams() {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-team-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-team-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
                     {t('get-started-creating-team')}
                   </p>
