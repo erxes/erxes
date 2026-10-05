@@ -94,9 +94,13 @@ export const ErxesFormValues = ({
       field.type === 'core:customer:avatar' ||
       field.type === 'core:company:avatar'
     ) {
+      const avatarSchema = z.object(
+        { url: z.string().min(1) },
+        { message: 'Please upload an avatar picture.' },
+      );
       formSchema[field._id] = field.isRequired
-        ? z.any({ message: 'Please upload a avatar picture.' })
-        : z.any();
+        ? avatarSchema
+        : avatarSchema.nullable();
       return;
     }
     if (field.type === 'radio' || field.type === 'core:customer:sex') {
