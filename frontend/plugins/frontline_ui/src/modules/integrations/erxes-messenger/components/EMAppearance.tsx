@@ -1,5 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { Button, ColorPicker, Form, Label, Switch, Upload } from 'erxes-ui';
+import { Button, ColorPicker, Form, Label, Upload } from 'erxes-ui';
+import {
+  EMLayout,
+  EMLayoutPreviousStepButton,
+} from '@/integrations/erxes-messenger/components/EMLayout';
 import {
   HeroStyleRadioGroup,
   NavigationVariantRadioGroup,
@@ -8,17 +11,15 @@ import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { EMAPPEARANCE_SCHEMA } from '@/integrations/erxes-messenger/constants/emAppearanceSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  EMLayout,
-  EMLayoutPreviousStepButton,
-} from '@/integrations/erxes-messenger/components/EMLayout';
 import { useAtomValue, useSetAtom } from 'jotai';
+
+import { EMAPPEARANCE_SCHEMA } from '@/integrations/erxes-messenger/constants/emAppearanceSchema';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { IconUpload } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EMAppearance = () => {
   const { t } = useTranslation('frontline');
@@ -32,7 +33,6 @@ export const EMAppearance = () => {
         foreground: '#fff',
       },
       navigationVariant: 'pill',
-      isSupportInAppView: false,
     },
   });
 
@@ -222,25 +222,6 @@ export const EMAppearance = () => {
                       onChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="isSupportInAppView"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('support-in-app-view')}
-                    </Form.Label>
-                  </div>
                   <Form.Message />
                 </Form.Item>
               )}

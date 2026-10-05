@@ -13,5 +13,4 @@ export const EMAPPEARANCE_SCHEMA = z.object({
   backgroundColor: z.string().optional(),
   heroStyleVariant: z.enum(['glossy', 'aurora', 'mesh', 'flat']).optional(),
   navigationVariant: z.enum(['pill', 'fluid']).optional(),
-  isSupportInAppView: z.boolean().optional(),
 });

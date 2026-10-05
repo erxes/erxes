@@ -43,7 +43,6 @@ export const erxesMessengerSetSetupAtom = atom(
           payload?.uiOptions?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
         heroStyleVariant: payload?.uiOptions?.heroStyleVariant,
         navigationVariant: payload?.uiOptions?.navigationVariant,
-        isSupportInAppView: payload?.uiOptions?.isSupportInAppView ?? false,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
@@ -149,8 +148,7 @@ export const erxesMessengerSetSetupAtom = atom(
         notifyCustomer: payload?.messengerData?.notifyCustomer ?? false,
         showVideoCallRequest:
           payload?.messengerData?.showVideoCallRequest ?? false,
-        isSupportInAppView:
-          payload?.messengerData?.isSupportInAppView ?? false,
+        isSupportInAppView: payload?.uiOptions?.isSupportInAppView ?? false,
         websiteApps: (payload?.websiteMessengerApps ?? []).map((app) => ({
           _id: app._id,
           kind: app.kind ?? 'webstite',
