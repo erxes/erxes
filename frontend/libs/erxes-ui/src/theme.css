@@ -91,6 +91,12 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-spinner: spinner 0.96s linear infinite;
 
+  --animate-first: move-vertical 30s ease infinite;
+  --animate-second: move-in-circle 20s reverse infinite;
+  --animate-third: move-in-circle 40s linear infinite;
+  --animate-fourth: move-horizontal 40s ease infinite;
+  --animate-fifth: move-in-circle 20s ease infinite;
+
   --shadow-focus: 0px 0px 0px 4px rgba(79, 70, 229, 0.25),
     0px 0px 0px 1px var(--primary);
   --shadow-subtle: 0px 0px 0px 1px var(--primary);
@@ -131,6 +137,40 @@
     }
     to {
       opacity: 0.15;
+    }
+  }
+
+  @keyframes move-vertical {
+    0% {
+      transform: translateY(-50%);
+    }
+    50% {
+      transform: translateY(50%);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+  @keyframes move-in-circle {
+    0% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes move-horizontal {
+    0% {
+      transform: translateX(-50%) translateY(-10%);
+    }
+    50% {
+      transform: translateX(50%) translateY(10%);
+    }
+    100% {
+      transform: translateX(-50%) translateY(-10%);
     }
   }
 }

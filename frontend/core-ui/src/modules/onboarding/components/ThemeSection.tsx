@@ -1,6 +1,14 @@
-import { themeState, cn, Button } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { Button, cn, themeState } from 'erxes-ui';
+
+import type { ThemeOption } from 'erxes-ui';
 import { motion } from 'framer-motion';
+import { useAtom } from 'jotai';
+
+const THEME_OPTIONS: { value: ThemeOption; label: string; src: string }[] = [
+  { value: 'system', label: 'System', src: '/assets/ui-system.webp' },
+  { value: 'light', label: 'Light', src: '/assets/ui-light.webp' },
+  { value: 'dark', label: 'Dark', src: '/assets/ui-dark.webp' },
+];
 
 export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
   const [theme, setTheme] = useAtom(themeState);
@@ -20,7 +28,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
         duration: 0.6,
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
-      className="flex flex-col gap-10 sm:-translate-y-10 md:-translate-y-10 px-4"
+      className="flex w-full flex-col gap-10 px-4 sm:-translate-y-10"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -36,94 +44,44 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
         </p>
       </motion.div>
       <motion.div
-        className="flex gap-4 md:gap-6 flex-wrap justify-center"
+        className="grid w-full grid-cols-3 gap-3 sm:gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.4 }}
       >
-        <div className="flex flex-col gap-2 items-center">
-          <img
-            role="button"
-            tabIndex={0}
-            src={'/assets/ui-light.webp'}
-            alt="Light Theme"
-            onClick={() => setTheme('light')}
-            onKeyDown={(e) => handleKeyDown(e, () => setTheme('light'))}
-            draggable={false}
-            aria-pressed={theme === 'light'}
-            className={cn(
-              'rounded-lg cursor-pointer transition-all w-full max-sm:max-w-[100px] sm:max-w-none sm:w-auto select-none',
-              theme === 'light'
-                ? 'shadow-focus ring-2 ring-primary'
-                : 'hover:shadow-md',
-            )}
-          />
-          <span
-            className={cn(
-              'text-sm font-medium transition-colors',
-              theme === 'light' ? 'text-primary' : 'text-muted-foreground',
-            )}
-            aria-hidden="true"
-          >
-            Light
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-2 items-center">
-          <img
-            role="button"
-            tabIndex={0}
-            src={'/assets/ui-dark.webp'}
-            alt="Dark Theme"
-            onClick={() => setTheme('dark')}
-            onKeyDown={(e) => handleKeyDown(e, () => setTheme('dark'))}
-            draggable={false}
-            aria-pressed={theme === 'dark'}
-            className={cn(
-              'rounded-lg cursor-pointer transition-all w-full max-sm:max-w-[100px] sm:max-w-none sm:w-auto select-none ',
-              theme === 'dark'
-                ? 'shadow-focus ring-2 ring-primary'
-                : 'hover:shadow-md',
-            )}
-          />
-          <span
-            className={cn(
-              'text-sm font-medium transition-colors',
-              theme === 'dark' ? 'text-primary' : 'text-muted-foreground',
-            )}
-            aria-hidden="true"
-          >
-            Dark
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-2 items-center">
-          <img
-            role="button"
-            tabIndex={0}
-            src={'/assets/ui-system.webp'}
-            alt="System Theme"
-            onClick={() => setTheme('system')}
-            onKeyDown={(e) => handleKeyDown(e, () => setTheme('system'))}
-            draggable={false}
-            aria-pressed={theme === 'system'}
-            className={cn(
-              'rounded-lg cursor-pointer transition-all w-full max-sm:max-w-[100px] sm:max-w-none sm:w-auto select-none',
-              theme === 'system'
-                ? 'shadow-focus ring-2 ring-primary'
-                : 'hover:shadow-md',
-            )}
-          />
-          <span
-            className={cn(
-              'text-sm font-medium transition-colors',
-              theme === 'system' ? 'text-primary' : 'text-muted-foreground',
-            )}
-            aria-hidden="true"
-          >
-            System
-          </span>
-        </div>
+        {THEME_OPTIONS.map(({ value, label, src }) => (
+          <div key={value} className="flex flex-col gap-2 items-center">
+            <div
+              className={cn(
+                'aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-lg bg-muted transition-all',
+                theme === value
+                  ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                  : 'hover:shadow-md',
+              )}
+            >
+              <img
+                role="button"
+                tabIndex={0}
+                src={src}
+                alt={`${label} Theme`}
+                onClick={() => setTheme(value)}
+                onKeyDown={(e) => handleKeyDown(e, () => setTheme(value))}
+                draggable={false}
+                aria-pressed={theme === value}
+                className="h-full w-full cursor-pointer select-none rounded-lg object-cover"
+              />
+            </div>
+            <span
+              className={cn(
+                'text-sm font-medium transition-colors',
+                theme === value ? 'text-primary' : 'text-muted-foreground',
+              )}
+              aria-hidden="true"
+            >
+              {label}
+            </span>
+          </div>
+        ))}
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}

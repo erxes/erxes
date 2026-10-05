@@ -4,33 +4,32 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from 'react-router-dom';
+import { currentUserState, useVersion } from 'ui-modules';
 
-import { AutomationRoutes } from '@/app/components/AutomationRoutes';
-import { ContactsRoutes } from '@/app/components/ContactsRoutes';
-import { LogRoutes } from '@/app/components/LogRoutes';
-import { DefaultLayout } from '@/app/components/MainLayout';
 import { AppPath } from '@/types/paths/AppPath';
-import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
-import { ComponentsRoutes } from '../components/ComponentsRoutes';
-
+import { AutomationRoutes } from '@/app/components/AutomationRoutes';
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { ComponentsRoutes } from '../components/ComponentsRoutes';
+import { ContactsRoutes } from '@/app/components/ContactsRoutes';
+import { DefaultLayout } from '@/app/components/MainLayout';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
+import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
+import { ImportExportRoutes } from '../components/ImportExportRoutes';
+import { LogRoutes } from '@/app/components/LogRoutes';
+import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
+import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 import { NotificationsRoutes } from '@/app/components/NotificationsRoutes';
+import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
+import { Providers } from '~/providers';
+import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundary';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
-import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
-import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
-import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundary';
-import { UserProvider } from '@/auth/providers/UserProvider';
-import { OrganizationProvider } from '@/organization/providers/OrganizationProvider';
-import { useAtomValue } from 'jotai';
-import { lazy } from 'react';
-import { currentUserState, useVersion } from 'ui-modules';
-import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
-import { MainOnboardingPage } from '~/pages/onboarding/MainOnboardingPage';
-import { Providers } from '~/providers';
-import { ImportExportRoutes } from '../components/ImportExportRoutes';
 import { TemplateRoutes } from '../components/TemplateRoutes';
+import { UserProvider } from '@/auth/providers/UserProvider';
+import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
+import { lazy } from 'react';
+import { useAtomValue } from 'jotai';
 
 const UserConfirmInvitationPage = lazy(
   () => import('~/pages/auth/UserConfirmInvitationPage'),
