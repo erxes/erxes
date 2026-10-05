@@ -77,7 +77,9 @@ export const useGetCycles = (
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (!validateFetchMore({ direction, pageInfo: toCursorPageInfo(pageInfo) })) {
+    if (
+      !validateFetchMore({ direction, pageInfo: toCursorPageInfo(pageInfo) })
+    ) {
       return;
     }
 

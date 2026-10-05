@@ -24,9 +24,7 @@ export const useUpdateCycle = () => {
   const updateCycle = (options: UpdateCycleOptions) => {
     return _updateCycle({
       ...options,
-      variables: options.variables
-        ? { input: options.variables }
-        : undefined,
+      variables: options.variables ? { input: options.variables } : undefined,
       update: (cache, { data }) => {
         if (data?.updateCycle) {
           const updatedCycle = data.updateCycle;

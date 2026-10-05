@@ -184,7 +184,12 @@ const SelectCycleContent = () => {
       <Command.Empty>{t('no-cycle-found')}</Command.Empty>
       <Command.List>
         <SelectCycleCommandItem
-          cycle={{ _id: '', name: t('no-cycle'), startDate: null, endDate: null }}
+          cycle={{
+            _id: '',
+            name: t('no-cycle'),
+            startDate: null,
+            endDate: null,
+          }}
         />
         {activeCycles.map((cycle) => (
           <SelectCycleCommandItem key={cycle._id} cycle={cycle} />
