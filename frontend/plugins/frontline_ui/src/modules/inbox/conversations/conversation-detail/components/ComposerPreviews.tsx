@@ -218,36 +218,26 @@ export const ComposerPreviews = ({
     return null;
 
   return (
-    <div className="flex flex-none flex-col gap-2 border-b border-border/50 p-2 sm:px-3">
-      {(pendingAttachments.length > 0 ||
-        attachments.length > 0 ||
-        blockAttachments.length > 0) && (
-        <div className="flex flex-wrap gap-2">
-          {pendingAttachments.map((file) => (
-            <PendingAttachmentItem
-              key={file.id}
-              file={file}
-              onRemove={onRemove}
-            />
-          ))}
-          {attachments
-            .filter((attachment) => !previewedUrls.has(attachment.url))
-            .map((attachment) => (
-              <ComposerAttachment
-                key={attachment.url}
-                attachment={attachment}
-                onRemove={() => onRemove(attachment.url)}
-              />
-            ))}
-          {blockAttachments.map((attachment, index) => (
-            <ComposerAttachment
-              key={`block-${attachment.url}-${index}`}
-              attachment={attachment}
-              onRemove={() => onRemoveBlockAttachment(attachment.url)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    <>
+      {pendingAttachments.map((file) => (
+        <PendingAttachmentItem key={file.id} file={file} onRemove={onRemove} />
+      ))}
+      {attachments
+        .filter((attachment) => !previewedUrls.has(attachment.url))
+        .map((attachment) => (
+          <ComposerAttachment
+            key={attachment.url}
+            attachment={attachment}
+            onRemove={() => onRemove(attachment.url)}
+          />
+        ))}
+      {blockAttachments.map((attachment, index) => (
+        <ComposerAttachment
+          key={`block-${attachment.url}-${index}`}
+          attachment={attachment}
+          onRemove={() => onRemoveBlockAttachment(attachment.url)}
+        />
+      ))}
+    </>
   );
 };

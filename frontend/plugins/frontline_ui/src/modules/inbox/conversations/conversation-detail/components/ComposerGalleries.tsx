@@ -367,7 +367,7 @@ export const ComposerGalleries = ({
   if (!galleries.length) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 border-b border-border/50 p-2 sm:px-3">
+    <>
       {galleries.map((block) => (
         <ComposerGallery
           key={block.id}
@@ -377,6 +377,6 @@ export const ComposerGalleries = ({
           onUploadingChange={onUploadingChange}
         />
       ))}
-    </div>
+    </>
   );
 };

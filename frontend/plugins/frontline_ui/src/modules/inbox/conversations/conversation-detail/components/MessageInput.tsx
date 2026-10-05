@@ -338,7 +338,7 @@ export const MessageInput = ({
     >
       <div
         data-composer-previews
-        className="max-h-24 shrink-0 overflow-y-auto overscroll-contain"
+        className="flex max-h-24 shrink-0 flex-wrap items-center gap-2 overflow-y-auto overscroll-contain border-b border-border/50 p-2 empty:hidden sm:px-3"
       >
         <ComposerGalleries
           editor={editor}
