@@ -149,9 +149,7 @@ export const EMAppearance = () => {
                       </Upload.Root>
                     </Form.Control>
                     <Form.Message />
-                    <Form.Description>
-                      {t('logo-description')}
-                    </Form.Description>
+                    <Form.Description>{t('logo-description')}</Form.Description>
                   </Form.Item>
                 )}
               />
