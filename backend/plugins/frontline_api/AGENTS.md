@@ -1094,6 +1094,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   by `supervisorId`, intersected with the pipeline's `departmentIds`).
   `isCheckDate` stays an extra AND condition. `generateFilter` needs the
   request `subdomain` to resolve supervised departments.
+- Staff pipeline rules (private-pipeline hiding and `isCheck*` visibility) never
+  apply to client portal reads scoped by `createdBy`: `cpGetTickets` and
+  `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
+  a customer sees their own `cp:<id>` tickets in private pipelines. Without
+  `createdBy` the staff rules still apply.
 - A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
   `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
   ticket's `channelId` and `pipelineId` with `ticketId`; without them the
