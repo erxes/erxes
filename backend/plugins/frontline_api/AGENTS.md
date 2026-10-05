@@ -1120,6 +1120,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `reactToConversationMessage` routes by integration kind through its
   `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
   added there, never as another `if` branch.
+
 ## Data and State
 
 - `channel_members` indexes `(channelId, memberId)` uniquely; current
