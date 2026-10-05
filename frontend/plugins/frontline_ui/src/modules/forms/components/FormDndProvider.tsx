@@ -127,7 +127,7 @@ export function FormDndProvider({
         step,
         {
           order: index + 1,
-          name: `Step ${step}`,
+          name: `Step ${index + 1}`,
           description: '',
         },
       ],
