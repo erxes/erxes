@@ -9,10 +9,13 @@ import {
 } from '@/helpcenter/graphql/mutations/customDomain';
 import { ICustomDomain } from '@/helpcenter/types';
 
-export const useCustomDomain = () => {
+export const useCustomDomain = (helpCenterId: string) => {
   const { data, loading, error, refetch } = useQuery<{
     frontlineCustomDomain: ICustomDomain | null;
-  }>(GET_CUSTOM_DOMAIN, { fetchPolicy: 'cache-and-network' });
+  }>(GET_CUSTOM_DOMAIN, {
+    variables: { helpCenterId },
+    fetchPolicy: 'cache-and-network',
+  });
 
   return {
     customDomain: data?.frontlineCustomDomain ?? null,
@@ -26,18 +29,21 @@ export const useCustomDomain = () => {
 // query keeps the page current without a second round trip.
 const updateView = (
   cache: ApolloCache<unknown>,
+  helpCenterId: string,
   view?: ICustomDomain | null,
 ) => {
   if (view) {
     cache.writeQuery({
       query: GET_CUSTOM_DOMAIN,
+      variables: { helpCenterId },
       data: { frontlineCustomDomain: view },
     });
   }
 };
 
-export const useCustomDomainActions = () => {
+export const useCustomDomainActions = (helpCenterId: string) => {
   const { t } = useTranslation('frontline');
+  const variables = { helpCenterId };
 
   const onError = (error: Error) =>
     toast({
@@ -48,7 +54,7 @@ export const useCustomDomainActions = () => {
 
   const [save, { loading: saving }] = useMutation(SAVE_CUSTOM_DOMAIN, {
     update: (cache, { data }) =>
-      updateView(cache, data?.frontlineCustomDomainSave),
+      updateView(cache, helpCenterId, data?.frontlineCustomDomainSave),
     onError,
   });
 
@@ -56,21 +62,21 @@ export const useCustomDomainActions = () => {
     REFRESH_CUSTOM_DOMAIN,
     {
       update: (cache, { data }) =>
-        updateView(cache, data?.frontlineCustomDomainRefresh),
+        updateView(cache, helpCenterId, data?.frontlineCustomDomainRefresh),
       onError,
     },
   );
 
   const [reset, { loading: resetting }] = useMutation(RESET_CUSTOM_DOMAIN, {
     update: (cache, { data }) =>
-      updateView(cache, data?.frontlineCustomDomainReset),
+      updateView(cache, helpCenterId, data?.frontlineCustomDomainReset),
     onError,
   });
 
   return {
     saveDomain: (hostname: string) =>
       save({
-        variables: { hostname },
+        variables: { ...variables, hostname },
         onCompleted: () =>
           toast({
             title: t('customdomain-saved', 'Domain added'),
@@ -83,6 +89,7 @@ export const useCustomDomainActions = () => {
       }),
     refreshDomain: () =>
       refresh({
+        variables,
         onCompleted: () =>
           toast({
             title: t('customdomain-refreshed', 'Status updated'),
@@ -91,6 +98,7 @@ export const useCustomDomainActions = () => {
       }),
     resetDomain: () =>
       reset({
+        variables,
         onCompleted: () =>
           toast({
             title: t('customdomain-reset-done', 'Domain disconnected'),
