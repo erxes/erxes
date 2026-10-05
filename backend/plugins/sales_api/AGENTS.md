@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-04`
 
 ## Scope
 
@@ -32,6 +32,9 @@
 
 ## Current Capabilities
 
+- POS configuration exposes `isShowRemainder` for remainder display separately
+  from `isCheckRemainder` and validation category exclusions.
+
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
   the target does not name one.
@@ -45,7 +48,8 @@
 - The unscoped deal list uses a parent/order/id/status index for its default
   card ordering.
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
-  batch of them through the `evaluateFields` segment producer.
+  batch of them through the `evaluateFields` segment producer. The `tagIds`
+  lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
 
 ## Architecture
 
@@ -72,8 +76,37 @@
 - Sales record references provide deal display names, links, labels, product
   amount helpers, and `excludeLoyaltyAmount`.
 - `excludeLoyaltyAmount` returns the deal total amount minus payments made
-  through pipeline payment types that have a `scoreCampaignId`.
+  through pipeline payment types that have a `scoreCampaignId`
+  (`dealPaidAmount`).
+- Deal and POS order triggers give loyalty's Adjust score action a purchase
+  through `actionInputs`: deals map `totalAmount` → `unUsedTotalAmount`
+  (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
+  POS orders map `totalAmount`, `paidAmount` (total minus point payments) and
+  `purchaseItems`. Earning is decided by automations, never by sales.
+- Sales tells loyalty what a purchase paid with points and when it is undone
+  (`modules/sales/utils/dealPoints.ts`): `planDealPoints` decides per deal
+  create, edit or move (a new deal passes its `customerIds` and a pre-made
+  `_id`, since it has no relations yet), `checkDealPoints` asks loyalty's `score.checkSpend` before the
+  deal is saved (a point payment without a customer, or one loyalty refuses,
+  fails the save), and `syncDealPoints` records `score.spend` after it,
+  putting the deal's payments and stage back if that fails (a new deal is
+  removed instead). A copied deal drops its point payments
+  (`withoutPointPayments`): it is a new order, not a second payment. Entering a stage
+  that refunds calls `score.refund`; leaving one spends the point payments
+  again. A stage refunds when `refundPoints` is true, or when it is unset and
+  the stage is `Lost`. Removing deals refunds them (`Deals.removeDeals`). All
+  loyalty calls throw; with loyalty disabled they do nothing. POS order sync
+  calls `score.spend` (`spendOrderPoints`, also after `posOrderChangePayments`)
+  and `score.refund` for returned orders, still without throwing.
+- The deal automation output `productsData.*` resolves a field as all products
+  joined (`productsData.name`), one product by index (`productsData.0.name`,
+  names looked up in core per item), or the product count
+  (`productsData.$count`), so an email row written per item reads each product.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
+- POS order card conversion uses sales-owned deal model helpers directly,
+  updates an existing `convertDealId` deal when present, and creates one only
+  when the order has no valid converted deal; copied descriptions combine the
+  order description with `deliveryInfo.description`.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
@@ -104,6 +137,12 @@
   the read-only "Basic information" group in Settings → Properties. A
   `code` must name a real field on the record; core-api reads this meta
   once per process, so a changed list shows after core-api restarts.
+- `properties.valueUsage` on `/properties` — answers which deals hold a
+  `sales:deal` property value through the shared `measurePropertyValueUsage`:
+  `part: 'samples'` (first deal names) or `part: 'counts'` (total and
+  per-option counts). Core uses it to decide whether a property's type,
+  options or the property itself can change freely; any other content type
+  answers `unknownValueUsage(part)`.
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
 - Sales-owned tRPC and record-reference contracts.
@@ -142,6 +181,8 @@
   parent/order/id/status compound index.
 - Deal amount calculations must preserve existing `tickUsed` semantics.
 - Pipeline property ids must belong to Core `sales:deal` fields.
+- `properties.valueUsage` runs only the query core hands it (`path`,
+  `optionValues`); the path is core's to resolve, never rebuilt here.
 - Segment content types use the `plugin:module.record` form the event
   dispatcher emits - `sales:sales.deals` - so a segment type and the event that
   moves it are the same string. `eventTypes` is declared only when they differ,
@@ -224,6 +265,8 @@
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Public platform contracts for products, customers, companies, users,
   branches, departments, and related records.
+- Loyalty tRPC `score.spend` / `score.refund` with loyalty-owned inputs; sales
+  never sends whole deals or orders to loyalty.
 - Mongolian `mnConfigs` values for `EBARIMT` and POS-specific
   `posInEbarimt` eBarimt settings.
 - Loyalty-facing sales deal payloads through published target/reference
@@ -257,6 +300,9 @@
   the full total amount.
 - Deal amount fallbacks should preserve the existing `tickUsed` semantics used
   by sales totals.
+- POS order card conversion must not call the sales plugin through its own
+  tRPC route; use local deal model helpers and publish deal subscriptions
+  locally so completed POS-client orders keep one converted deal per order.
 - Product-level `discountInfos` records auto discounts by source
   (`pricing`, `voucher`, `score` when applicable) and keeps direct/manual
   discounts under `hand`; auto recalculation must not erase `hand`.
@@ -314,10 +360,8 @@
 
 ## Validation
 
-- `pnpm nx lint sales_api` (pre-existing errors in `modules/ecommerce/routes.ts`
-  are not from recent changes)
 - `pnpm nx build sales_api`
-- `pnpm nx test sales_api` (when `project.json` defines a test target)
+- `pnpm nx build:packageJson sales_api`
 - Smoke scenario: query deals by `stageId` and verify `totalCount` does not
   fetch deal documents.
 - Smoke scenario: query deals without a stage using default order and verify
@@ -334,3 +378,99 @@
 - Smoke scenario: `GET /agent-tools/manifest` on the sales service lists only
   the annotated procedures above; `deal.create`, `deal.updateOne`, and
   `deal.subscriptionWrapper` never appear.
+- Smoke scenario: complete and resync a POS client order with a matching
+  `cardsConfig` branch; the order keeps one `convertDealId`, and the second
+  sync updates that deal instead of creating another.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-01` — POS card conversion reuses deals
+
+- **Summary:** Completed POS client orders now create converted card deals
+  through local sales model helpers instead of the sales plugin's own tRPC
+  route, resyncing an order with `convertDealId` updates that deal, and copied
+  descriptions include both the order and delivery descriptions.
+- **Affected areas:** `src/modules/pos/utils.ts`.
+- **Contracts changed:** None.
+
+### `2026-10-01` — Point payments checked first, refunds by stage
+
+- **Summary:** A deal's point payment is checked with loyalty before the deal is saved (created, edited or moved) and no longer fails silently; copies drop point payments; stages carry a `refundPoints` setting (unset = `Lost` refunds), leaving a refunding stage spends again, and removed deals are refunded.
+- **Affected areas:** `modules/sales/utils/dealPoints.ts`, `graphql/resolvers/mutations/{utils,loyaltyUtils}.ts`, `db/models/Deals.ts`, stage type, schema and GraphQL.
+- **Contracts changed:** `SalesStage.refundPoints`; deal creation, edits, moves and removals may now fail with loyalty's error.
+
+### `2026-09-29` — Purchases handed to loyalty
+
+- **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
+- **Affected areas:** `src/modules/{sales,pos}/meta/automations/{purchase,constants}.ts`, `salesRefernceCustomResolvers.ts`, `mutations/{loyaltyUtils,utils}.ts`, `pos/utils.ts`, `pos/graphql/resolvers/mutations/orders.ts`.
+- **Contracts changed:** Deal and POS trigger outputs `paidAmount`, `purchaseItems`; trigger `actionInputs`.
+
+### `2026-09-21` — The deal action says it needs someone to act for
+
+- **Summary:** `Create deal` now declares `requiresActor: true` on its action
+  descriptor. The deal it opens takes an owner from the run's
+  `createdVia.actorId`, and the builder reads this declaration to decide
+  whether putting an automation live is worth saying whose name its records
+  will carry. Nothing about how the deal is created changed.
+- **Affected areas:** `src/modules/sales/meta/automations/constants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
+### `2026-09-14` — A deal an automation opened records what produced it
+
+- **Summary:** Deals created by an automation now carry `createdVia` — the
+  configuration that produced them, the run that did it, and whose
+  configuration it was — and take that actor as `userId` when the execution
+  target carries none, instead of being left ownerless.
+- **Affected areas:**
+  `src/modules/sales/meta/automations/action/createDealAction.ts`,
+  `src/modules/sales/@types/deal.ts`
+- **Contracts changed:** Consumes the new `TCreatedVia` and
+  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
+  to every schema by `schemaWrapper`.
+
+### `2026-09-17` — Property types declare system fields
+
+- **Summary:** The `deal` property types now declare `systemFields`, shown
+  as the "Basic information" group in Settings → Properties.
+- **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
+- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
+
+### `2026-09-13` — Discount info type cleanup
+
+- **Summary:** Deal product discount info types now use a plain string with
+  documented known values to avoid redundant literal-union Sonar warnings.
+- **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-12` — Deal product discount breakdowns
+
+- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
+- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
+- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
+
+### `2026-09-01` — `checkTargetMatch` producer removed
+
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from both the sales and POS module handlers; automation
+  target matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/sales/meta/automations/automationHandlers.ts`,
+  `src/modules/pos/meta/automations/automationHandlers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
+
+### `2026-09-01` — Deal document print order follows the selection
+
+- **Summary:** Printing multiple deals emitted pages in Mongo natural order
+  instead of the order the deals were selected in, so the deal in the first
+  row of the print table could land many pages in (verified locally: row 1
+  `min min` printed as page 13); `replaceDealContent` now reindexes the loaded
+  deals by `replacerIds` before processing.
+- **Affected areas:** `src/modules/sales/documents/dealContent.ts`.
+- **Contracts changed:** None (`deal.replaceContent` still returns one entry
+  per resolvable `replacerId`, now ordered).

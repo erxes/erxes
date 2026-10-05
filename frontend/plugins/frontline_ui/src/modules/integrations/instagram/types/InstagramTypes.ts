@@ -1,4 +1,5 @@
 import { IAttachment } from 'erxes-ui';
+import { IMessage } from '@/inbox/types/Conversation';
 
 export interface IInstagramPost {
   _id: string;
@@ -7,14 +8,7 @@ export interface IInstagramPost {
   attachments: IAttachment[];
 }
 
-export interface IInstagramConversationMessage {
-  _id: string;
-  content: string;
-  createdAt: string;
-  attachments: IAttachment[];
-  customerId?: string;
-  userId?: string;
-  internal?: boolean;
+export interface IInstagramConversationMessage extends IMessage {
   mid?: string;
 }
 

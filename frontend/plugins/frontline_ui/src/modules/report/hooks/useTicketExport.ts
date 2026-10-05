@@ -14,6 +14,13 @@ export interface TicketExportItem {
   startDate?: string;
   targetDate?: string;
   updatedAt?: string;
+  number?: string;
+  statusName?: string;
+  createdByName?: string;
+  channelName?: string;
+  branchName?: string;
+  departmentName?: string;
+  propertiesData?: Record<string, unknown>;
 }
 
 interface TicketExportResponse {

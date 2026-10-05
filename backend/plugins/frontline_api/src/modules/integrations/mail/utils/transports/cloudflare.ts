@@ -11,7 +11,11 @@ import {
 import { readAttachmentBytes } from '@/integrations/mail/utils/attachments';
 import { debugError } from '@/integrations/mail/debuggers';
 import { describeError } from '@/integrations/mail/utils/errors';
-import { sendEmail } from '@/integrations/mail/utils/cloudflare/api';
+import {
+  sendEmail,
+  sendRawEmail,
+} from '@/integrations/mail/utils/cloudflare/api';
+import { buildReactionMime } from '@/integrations/mail/utils/reactions';
 import {
   CloudflareError,
   describeCloudflareError,
@@ -186,6 +190,27 @@ export const createCloudflareTransport = (
   domain: account.domain,
 
   async send(input: ISendMailInput): Promise<IMailTransportOutcome> {
+    if (input.reactionEmoji) {
+      try {
+        const result = await sendRawEmail(
+          account.apiToken,
+          account.accountId,
+          input.from,
+          input.to[0],
+          buildReactionMime(input),
+        );
+
+        return {
+          providerMessageId: result?.message_id || undefined,
+          delivered: result?.delivered ?? [],
+          bounced: result?.permanent_bounces ?? [],
+          queued: result?.queued ?? [],
+        };
+      } catch (error) {
+        throw toSendFailure(error);
+      }
+    }
+
     const text = toPlainText(input.html);
 
     assertDeclaredWithinLimits(input, text);

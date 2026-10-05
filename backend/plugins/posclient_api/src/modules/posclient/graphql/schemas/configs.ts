@@ -21,7 +21,7 @@ export const types = `
     companyRD: String
     defaultUnitedCode: String
     vatPercent: Int
-    cityTaxPercent: Int
+    citytaxPercent: Int
     footerText: String
     headerText: String
     hasCopy: Boolean
@@ -93,6 +93,7 @@ export const types = `
     departmentId: String
     permissionConfig: JSON
     allowTypes: [String]
+    isShowRemainder: Boolean
     isCheckRemainder: Boolean
     checkExcludeCategoryIds: [String]
     saveRemainder: Boolean

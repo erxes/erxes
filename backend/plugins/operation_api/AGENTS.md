@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -47,13 +47,17 @@
   customer. Both declare `operation:task.team` and `operation:task.status`
   requirements, the status scoped by the team.
 
+- Task segment `tagIds` lists `operation:task` tags plus workspace tags
+  (`query.variables`).
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
   team member (`user.assignedTasks`, `user.createdTasks`).
 - Task import/export through the platform's import-export producers.
 - GraphQL subscriptions for live task and project updates.
+- `pnpm schema:print` writes the full subgraph schema, including the subscription fields from `src/apollo/subscription.ts`, to `generated/schema.graphql` without Redis, Mongo or a running service.
 - Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
 - GitHub issue synchronisation for tasks.
+- Triage conversion preserves the triage creator on the task while recording a `TRIAGE_ACCEPTANCE` activity with action `ACCEPTED` by the acting user; other task creation paths continue to use their acting `userId` as creator. Conversion to a cancelled task does not record acceptance and can save a decline reason as a note.
 - Another service can create a task on a user's behalf from a status id
   (`task.createFromSource`) and check which of a list of ids are tasks
   (`task.findOne`); `frontline` uses both to convert a conversation into a task.
@@ -68,6 +72,7 @@
 | Task segment contract | `src/modules/task/meta/segments/`              | Fields, collections, members, membership, evaluation, relations       |
 | Plugin segment meta   | `src/meta/segments.ts`                         | Routes segment producers to the module that owns the content type     |
 | Import/export         | `src/meta/import-export/`                      | Task import and export handlers                                       |
+| Schema print          | `print-schema.ts`                              | Prints the subgraph schema for codegen (`generated/`, gitignored)     |
 | GitHub integration    | `src/modules/githubIntegration/`, `src/utils/` | Issue sync, repository configuration                                  |
 
 ## Contracts
@@ -86,6 +91,7 @@
   `applyMembership`.
 - Segment relations `user.assignedTasks` and `user.createdTasks`.
 - Import/export producers for the `task` module.
+- Nx target `schema:print` (cached, output `generated/schema.graphql`), consumed by `operation_ui:codegen`.
 - tRPC procedures under `src/trpc/` and `src/modules/task/trpc/task.ts`:
   `task.tag`; `task.findOne({ _ids })` returns the first task among the ids
   (`{ _id, name, teamId }`) or `null`, skipping ids that are not ObjectIds;
@@ -118,6 +124,7 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- `print-schema.ts` must exit the process itself: `erxes-api-shared/utils` opens a Redis client on import that would otherwise keep it alive.
 - A task's `_id` stays an `ObjectId`. `schemaWrapper` must never be applied to
   `taskSchema`: it would make `_id` a generated string and orphan every
   existing task and reference. `segmentIds` is therefore declared by hand.
@@ -134,6 +141,8 @@ propertiesData? } })`
   collection.
 - Preserve tenant isolation by using the request `subdomain` for every model,
   resolver, worker and route access.
+- Decide whether triage conversion is a decline from the mutation's requested `status`, not the triage's stored status; only non-cancelled conversions create acceptance activity.
+- Only `createTask` calls carrying `triageId` may preserve `doc.createdBy`; automation, import, GraphQL, and tRPC task creation continue to assign `userId`.
 - Validate `propertiesData` whenever it is present on a GraphQL create or update; an empty object is a valid explicit clear and must not be treated as omitted.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
@@ -146,6 +155,7 @@ propertiesData? } })`
 
 ## Validation
 
+- `pnpm nx run operation_api:schema:print` - writes `generated/schema.graphql`.
 - `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
   no errors.
 - `pnpm nx build operation_api` - its type-declaration step can exhaust the

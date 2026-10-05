@@ -5,6 +5,8 @@ import {
   NodeErrorDisplay,
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
+import { NodeWarningIndicator } from '@/automations/components/builder/nodes/components/NodeWarningIndicator';
+import { NodeFrame } from '@/automations/components/builder/nodes/components/NodeFrame';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
 import { useActionNodeSourceHandler } from '@/automations/components/builder/nodes/hooks/useActionNodeSourceHandler';
@@ -47,7 +49,7 @@ const ActionNodeSourceHandler = ({
 
   return (
     <NodeOutputHandler
-      className="!bg-success"
+      className="!border-success"
       handlerId={id}
       addButtonClassName="hover:text-success  hover:border-success"
       showAddButton={!nextActionId && !workflowId}
@@ -91,45 +93,40 @@ const ActionNodeHeader = ({
 }) => {
   return (
     <>
-      <div className="p-3 flex items-center justify-between border-b border-muted">
-        <div className="flex items-center gap-2 text-success/90">
+      <div className="p-3 flex items-center justify-between border-b">
+        <div className="flex items-center gap-2">
           {beforeTitleContent?.(id, AutomationNodeType.Action)}
 
-          <div
-            className={`size-6 rounded-full bg-success/10  flex items-center justify-center`}
-          >
+          <div className="size-7 shrink-0 rounded-md bg-success/10 text-success flex items-center justify-center">
             <IconComponent className="size-4" name={data.icon} />
           </div>
           <div className="flex-1">
-            <span className="font-medium">{data.label}</span>
+            <span className="text-sm font-semibold">{data.label}</span>
           </div>
           {error && <NodeErrorIndicator error={error} />}
+          {!error && !data.readOnly && <NodeWarningIndicator nodeId={id} />}
           <ActionErrorPolicyBadge config={data.config} />
         </div>
-
-        {!data.readOnly && (
-          <div className="flex items-center gap-1">
-            <NodeDropdownActions id={id} data={data} />
-          </div>
-        )}
       </div>
-      <div className="p-3 border-b border-muted">
-        <span className="text-xs text-accent-foreground font-medium">
-          {data.description}
-        </span>
+      {(data.description || error) && (
+        <div className="p-3 border-b">
+          <span className="text-xs text-muted-foreground">
+            {data.description}
+          </span>
 
-        {error && (
-          <div className="mt-2">
-            <NodeErrorDisplay
-              error={error}
-              nodeId={id}
-              onClearError={(nodeId) => {
-                // Clear error logic can be added here
-              }}
-            />
-          </div>
-        )}
-      </div>
+          {error && (
+            <div className="mt-2">
+              <NodeErrorDisplay
+                error={error}
+                nodeId={id}
+                onClearError={(nodeId) => {
+                  // Clear error logic can be added here
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 };
@@ -139,57 +136,49 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
   const isVertical = data.flowDirection === 'vertical';
 
   return (
-    <div
-      className="flex flex-col animate-in fade-in zoom-in-95 duration-200"
+    <NodeFrame
       key={id}
+      label="Action"
+      actions={!data.readOnly && <NodeDropdownActions id={id} data={data} />}
+      className={cn('animate-in fade-in zoom-in-95', {
+        'ring-2 ring-success': selected,
+        'ring-2 ring-destructive': error,
+      })}
     >
-      <div className="w-1/4 ml-1 bg-success/10 text-success text-center px-2 py-1 rounded-t-md">
-        <p className="font-medium font-bold">Action</p>
-      </div>
-      <div
-        className={cn(
-          'relative rounded-md shadow-md bg-background border border-muted w-[280px] font-mono transition-all duration-200',
-          {
-            'ring-2 ring-success': selected,
-            'ring-2 ring-destructive': error,
-          },
-        )}
-      >
-        <ActionNodeHeader
-          data={data}
-          beforeTitleContent={beforeTitleContent}
-          error={error}
-          id={id}
-        />
+      <ActionNodeHeader
+        data={data}
+        beforeTitleContent={beforeTitleContent}
+        error={error}
+        id={id}
+      />
 
-        <ActionNodeConfigurationContent data={{ ...data, id }} />
+      <ActionNodeConfigurationContent data={{ ...data, id }} />
 
-        {data.readOnly ? (
-          <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
-        ) : (
-          <>
-            <Handle
-              key="left"
-              id="left"
-              type="target"
-              position={isVertical ? Position.Top : Position.Left}
-              className={cn('!size-4 -z-10 !bg-success', {
-                '!left-1/2 !top-0 -translate-x-1/2': isVertical,
-              })}
-            />
+      {data.readOnly ? (
+        <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
+      ) : (
+        <>
+          <Handle
+            key="left"
+            id="left"
+            type="target"
+            position={isVertical ? Position.Top : Position.Left}
+            className={cn('!size-3 !border-2 !border-success !bg-background', {
+              '!left-1/2 !top-0 -translate-x-1/2': isVertical,
+            })}
+          />
 
-            <ActionNodeSourceHandler
-              id={id}
-              type={data.type}
-              nextActionId={nextActionId}
-              workflowId={workflowId}
-              config={config}
-              flowDirection={data.flowDirection}
-            />
-          </>
-        )}
-      </div>
-    </div>
+          <ActionNodeSourceHandler
+            id={id}
+            type={data.type}
+            nextActionId={nextActionId}
+            workflowId={workflowId}
+            config={config}
+            flowDirection={data.flowDirection}
+          />
+        </>
+      )}
+    </NodeFrame>
   );
 };
 

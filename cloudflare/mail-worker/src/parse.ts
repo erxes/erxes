@@ -18,6 +18,7 @@ const FORWARDED_HEADERS = new Set([
   'auto-submitted',
   'delivered-to',
   'precedence',
+  'reply-to',
   'return-path',
   'x-autoreply',
   'x-autorespond',

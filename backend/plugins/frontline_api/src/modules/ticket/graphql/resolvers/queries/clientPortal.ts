@@ -8,11 +8,11 @@ export const cpTicketQueries = {
   cpGetTickets: async (
     _root: undefined,
     { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const { page, perPage, createdBy } = filter || {};
 
-    const query = await generateFilter(filter, user, models);
+    const query = await generateFilter(filter, user, models, subdomain);
 
     if (createdBy) {
       query.createdBy = `cp:${createdBy}`;
@@ -31,11 +31,11 @@ export const cpTicketQueries = {
   cpGetTicketTotalCount: async (
     _root: undefined,
     { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const { createdBy } = filter || {};
 
-    const query = await generateFilter(filter, user, models);
+    const query = await generateFilter(filter, user, models, subdomain);
 
     if (createdBy) {
       query.createdBy = `cp:${createdBy}`;

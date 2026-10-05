@@ -133,3 +133,67 @@ export const CALL_CALLBACK_STATS = `
     }
   }
 `;
+
+export const CALL_SLA_REPORT = `
+  query CallSlaReport($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $agentExtension: String, $callbackWindowMinutes: Int, $breachLimit: Int) {
+    callSlaReport(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, agentExtension: $agentExtension, callbackWindowMinutes: $callbackWindowMinutes, breachLimit: $breachLimit) {
+      shortAbandonSeconds
+      callbackWindowMinutes
+      agents {
+        extension
+        name
+      }
+      missedReasons {
+        reason
+        count
+        calledBack
+      }
+      missedByHour {
+        hour
+        reason
+        count
+      }
+      summary {
+        totalCalls
+        offeredCalls
+        answeredCalls
+        abandonedCalls
+        shortAbandonedCalls
+        calledBackCalls
+        pendingCallbacks
+        breachedCalls
+        serviceLevel
+      }
+      series {
+        day
+        offeredCalls
+        answeredCalls
+        breachedCalls
+        serviceLevel
+      }
+      queues {
+        queue
+        totalCalls
+        offeredCalls
+        answeredCalls
+        abandonedCalls
+        shortAbandonedCalls
+        calledBackCalls
+        pendingCallbacks
+        breachedCalls
+        serviceLevel
+      }
+      breachCount
+      breaches {
+        uniqueid
+        startedAt
+        customerPhone
+        queue
+        agent
+        agentName
+        waitTime
+        isPendingCallback
+      }
+    }
+  }
+`;

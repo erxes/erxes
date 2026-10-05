@@ -1,14 +1,16 @@
-import { Form, Switch } from 'erxes-ui';
+import { Form, ToggleGroup } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 
 // Only the formats the server actually enforces are offered.
 const VALIDATIONS = [
-  { name: 'number', label: 'Number', fallback: 'Must be a number' },
-  { name: 'email', label: 'Email', fallback: 'Must be a valid email' },
-  { name: 'date', label: 'Date', fallback: 'Must be a valid date' },
+  { name: 'number', label: 'Number' },
+  { name: 'email', label: 'Email' },
+  { name: 'date', label: 'Date' },
 ] as const;
+
+const NONE = 'none';
 
 export const PropertyFormValidation = ({
   form,
@@ -23,44 +25,53 @@ export const PropertyFormValidation = ({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <Form.Label>{t('validation', 'Validation')}</Form.Label>
+    <Form.Field
+      control={form.control}
+      name="validations"
+      render={({ field }) => {
+        const current =
+          VALIDATIONS.find(({ name }) => field.value?.[name])?.name ?? NONE;
 
-      {VALIDATIONS.map(({ name, label, fallback }) => (
-        <Form.Field
-          key={name}
-          name={`validations.${name}`}
-          render={({ field }) => (
-            <Form.Item className="flex-auto flex flex-row items-center justify-between space-y-0">
-              <Form.Label variant="peer">
-                {t(`validation-${name}`, label)}
-              </Form.Label>
-              <Form.Control>
-                <Switch
-                  checked={!!field.value}
-                  onCheckedChange={(checked) => {
-                    // formats are exclusive; rules this form does not own stay
-                    const next = { ...form.getValues('validations') };
+        return (
+          <Form.Item className="flex flex-col gap-3">
+            <Form.Label>{t('validation', 'Validation')}</Form.Label>
+            <Form.Control>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={current}
+                onValueChange={(next) => {
+                  if (!next) {
+                    return;
+                  }
 
-                    for (const { name: key } of VALIDATIONS) {
-                      delete next[key];
-                    }
+                  // Formats are exclusive; rules this form does not own stay.
+                  const rest = { ...field.value };
 
-                    if (checked) {
-                      next[name] = true;
-                    }
+                  for (const { name } of VALIDATIONS) {
+                    delete rest[name];
+                  }
 
-                    form.setValue('validations', next);
-                  }}
-                />
-              </Form.Control>
-              <Form.Description className="sr-only">
-                {t(`validation-${name}-description`, fallback)}
-              </Form.Description>
-            </Form.Item>
-          )}
-        />
-      ))}
-    </div>
+                  field.onChange(
+                    next === NONE ? rest : { ...rest, [next]: true },
+                  );
+                }}
+                className="w-full"
+              >
+                <ToggleGroup.Item value={NONE} className="flex-1">
+                  {t('validation-none', 'None')}
+                </ToggleGroup.Item>
+                {VALIDATIONS.map(({ name, label }) => (
+                  <ToggleGroup.Item key={name} value={name} className="flex-1">
+                    {t(`validation-${name}`, label)}
+                  </ToggleGroup.Item>
+                ))}
+              </ToggleGroup>
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        );
+      }}
+    />
   );
 };

@@ -69,7 +69,11 @@ export const CONTACT_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
-    query: { name: 'tags', labelField: 'name' },
+    query: {
+      name: 'tags',
+      labelField: 'name',
+      variables: { type: 'core:customer', includeWorkspaceTags: true },
+    },
   }),
   SegmentField.lookup({
     key: 'ownerId',

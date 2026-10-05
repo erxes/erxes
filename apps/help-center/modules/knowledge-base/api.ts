@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { query } from '@/modules/apollo/apolloClient';
 import { getPortalConfig } from '@/modules/config/api';
+import { getT } from '@/modules/i18n/server';
 import {
   errorBodyMatches,
   errorMessage,
@@ -104,7 +105,10 @@ const fetchTopic = async (
       return { state: 'error', message: topic.error };
     }
 
-    return { state: 'ready', data: normalizeTopic(topic, config) };
+    return {
+      state: 'ready',
+      data: normalizeTopic(topic, config, await getT()),
+    };
   } catch (caught) {
     return { state: 'error', message: errorMessage(caught) };
   }

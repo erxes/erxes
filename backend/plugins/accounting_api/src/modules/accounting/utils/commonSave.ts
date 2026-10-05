@@ -25,6 +25,10 @@ import {
 import { activeCost } from './inventories';
 import { saveInvJustify } from './invJustify';
 import {
+  normalizeInvSplitTransaction,
+  syncInvSplitFollowTrs,
+} from './invSplit';
+import {
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
@@ -40,14 +44,15 @@ export const commonSave = async (
     throw new Error('Journal cannot be changed');
   }
 
-  const handler = getJournalHandler(doc.journal);
+  const normalizedDoc = normalizeInvSplitTransaction(doc);
+  const handler = getJournalHandler(normalizedDoc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
 
   const { mainTr, otherTrs } = await handler(
     subdomain,
     models,
     userId,
-    doc,
+    normalizedDoc,
     oldTr,
   );
 
@@ -248,6 +253,13 @@ async function handleInvIncome(
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await InvIncomeExpenseTrs(models, userId, transaction))),
+    ...(await syncInvSplitFollowTrs(
+      subdomain,
+      models,
+      userId,
+      transaction,
+      transaction,
+    )),
   ];
 
   return { mainTr: transaction, otherTrs };
@@ -309,7 +321,18 @@ async function handleInvMove(
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);
 
-  return { mainTr: transaction, otherTrs: [invMoveInTr] };
+  const splitFollowTrs = await syncInvSplitFollowTrs(
+    subdomain,
+    models,
+    userId,
+    transaction,
+    invMoveInTr,
+  );
+
+  return {
+    mainTr: transaction,
+    otherTrs: [invMoveInTr, ...splitFollowTrs],
+  };
 }
 
 async function handleInvSale(

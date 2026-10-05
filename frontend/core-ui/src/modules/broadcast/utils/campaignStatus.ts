@@ -4,6 +4,7 @@ import {
   BROADCAST_MESSAGE_STATUS_MAP,
 } from '../constants';
 import {
+  isAfterSegment,
   isRecurring,
   isScheduled,
   scheduledAt,
@@ -37,6 +38,10 @@ export const campaignStatus = (
   // a moment in the past with nothing sent is worth saying out loud, because
   // only a person can start it now.
   if (isScheduled(row)) {
+    if (isAfterSegment(row)) {
+      return { labelKey: 'trigger.afterSegment', style: 'info' };
+    }
+
     if (isRecurring(row)) {
       return { labelKey: 'trigger.recurring', style: 'info' };
     }

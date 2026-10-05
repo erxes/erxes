@@ -24,6 +24,10 @@ import {
   TApprovalChangeProducers,
   TApprovalChangeProducersInput,
 } from '../../core-modules/approval/types';
+import {
+  TPropertyProducers,
+  TPropertyProducersInput,
+} from '../../core-modules/properties/valueUsage';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -45,6 +49,9 @@ type TModuleProducerInputMap = {
   };
   approval: {
     [K in TApprovalChangeProducers]: TApprovalChangeProducersInput[K];
+  };
+  properties: {
+    [K in TPropertyProducers]: TPropertyProducersInput[K];
   };
 };
 

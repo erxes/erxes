@@ -3,6 +3,9 @@ import {
   IScoreCampaignParams,
 } from '@/score/@types/scoreCampaign';
 import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
+import { IEarnTable } from '@/score/@types/earnTable';
+import { previewEarnTable } from '@/score/services/earnTable';
+import { getOwnerBalance } from '@/score/services/scoreLedger';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
@@ -14,11 +17,6 @@ import {
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
-
-export interface IScoreCampaignAttribute {
-  name: string;
-  label: string;
-}
 
 export interface IScoreCampaignService {
   name: string;
@@ -77,34 +75,32 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
     return models.ScoreCampaigns.getScoreCampaign(_id);
   },
 
-  scoreCampaignAttributes: async (
+  // What the earning table being edited gives for a sample purchase, so the
+  // form shows the same numbers the ledger will.
+  async scoreCampaignEarnPreview(
     _root: undefined,
-    { serviceName }: { serviceName: string },
-    { subdomain, checkPermission }: IContext,
-  ) => {
+    {
+      accountTypeId,
+      table,
+      amount,
+    }: { accountTypeId?: string; table: IEarnTable; amount: number },
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('loyaltyCampaignView');
-    let attributes: IScoreCampaignAttribute[] = [];
 
-    const service = await getPlugin(serviceName);
-    const meta = service.config?.meta || {};
+    const accountType = accountTypeId
+      ? await models.LoyaltyAccountTypes.findOne({ _id: accountTypeId }).lean()
+      : null;
 
-    if (meta?.loyalties?.aviableAttributes) {
-      const serviceAttributes = await sendTRPCMessage({
-        subdomain,
-        pluginName: serviceName,
-        method: 'query',
-        module: 'fields',
-        action: 'getScoreCampaingAttributes',
-        input: {},
-        defaultValue: [],
-      });
-
-      if (Array.isArray(serviceAttributes)) {
-        attributes = [...attributes, ...serviceAttributes];
-      }
-    }
-
-    return attributes;
+    return previewEarnTable({
+      table,
+      amount: Number(amount) || 0,
+      ratio: Number(accountType?.currencyRatio) || 1,
+      pointValue: Number(accountType?.pointValue) || 1,
+      tiers: (accountType?.tiers || []).filter(
+        ({ deprecated }) => !deprecated,
+      ),
+    });
   },
 
   async scoreCampaignServices(
@@ -160,24 +156,41 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
       throw new Error('Owner not found');
     }
 
-    if (!campaignId) {
-      return owner?.score || 0;
-    }
+    const campaign = campaignId
+      ? await models.ScoreCampaigns.findOne({ _id: campaignId }).lean()
+      : null;
 
-    const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
-
-    if (!campaign) {
+    if (campaignId && !campaign) {
       throw new Error('Campaign not found');
     }
 
-    const value =
-      owner?.propertiesData?.[campaign?.fieldId] ??
-      (owner?.customFieldsData || []).find(
-        ({ field }) => field === campaign?.fieldId,
-      )?.value ??
-      0;
+    return getOwnerBalance({
+      models,
+      subdomain,
+      ownerType,
+      ownerId,
+      fieldId: campaign?.fieldId,
+      owner,
+    });
+  },
 
-    return value;
+  async loyaltyScoreSpendLimit(
+    _root: undefined,
+    args: {
+      campaignId: string;
+      ownerType: string;
+      ownerId: string;
+      totalAmount?: number;
+      targetId?: string;
+    },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreLogView');
+
+    return models.ScoreCampaigns.spendLimit({
+      ...args,
+      totalAmount: args.totalAmount || 0,
+    });
   },
 
   async cpCheckOwnerScore(

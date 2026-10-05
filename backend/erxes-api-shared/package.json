@@ -1,10 +1,43 @@
 {
   "name": "erxes-api-shared",
   "version": "0.50.0-canary",
+  "description": "Shared platform utilities for erxes backend plugins: plugin startup, tenant-scoped models, service discovery, messaging and core types.",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erxes/erxes.git",
+    "directory": "backend/erxes-api-shared"
+  },
   "main": "dist/erxes-api-shared.cjs.js",
   "module": "dist/erxes-api-shared.esm.js",
+  "types": "dist/erxes-api-shared.cjs.d.ts",
+  "exports": {
+    ".": {
+      "module": "./dist/erxes-api-shared.esm.js",
+      "default": "./dist/erxes-api-shared.cjs.js"
+    },
+    "./utils": {
+      "module": "./utils/dist/erxes-api-shared-utils.esm.js",
+      "default": "./utils/dist/erxes-api-shared-utils.cjs.js"
+    },
+    "./core-types": {
+      "module": "./core-types/dist/erxes-api-shared-core-types.esm.js",
+      "default": "./core-types/dist/erxes-api-shared-core-types.cjs.js"
+    },
+    "./core-modules": {
+      "module": "./core-modules/dist/erxes-api-shared-core-modules.esm.js",
+      "default": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js"
+    },
+    "./package.json": "./package.json",
+    "./src": "./src/index.ts",
+    "./src/*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
   "scripts": {
-    "build": "preconstruct build"
+    "build": "preconstruct build",
+    "prepare": "preconstruct build"
   },
   "engines": {
     "pnpm": ">=8",
@@ -22,7 +55,8 @@
     "@types/nodemailer": "^6.4.17",
     "babel-plugin-module-resolver": "^5.0.2",
     "glob": "^11.0.1",
-    "tsx": "^4.19.3"
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
@@ -63,6 +97,16 @@
   },
   "preconstruct": {
     "tsconfig": "tsconfig.lib.json",
+    "exports": {
+      "extra": {
+        "./src": "./src/index.ts",
+        "./src/*": [
+          "./src/*.ts",
+          "./src/*/index.ts"
+        ],
+        "./package.json": "./package.json"
+      }
+    },
     "entrypoints": [
       "./index.ts",
       "./utils/index.ts",
@@ -74,6 +118,7 @@
     "dist",
     "core-types",
     "utils",
-    "core-modules"
+    "core-modules",
+    "src"
   ]
 }

@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 const ACTION_OPTIONS = [
   { value: 'add', label: 'add' },
   { value: 'subtract', label: 'subtract' },
+  { value: 'expire', label: 'score-action-expire' },
   { value: 'hasDescription', label: 'has-a-description' },
 ];
 

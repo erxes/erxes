@@ -80,7 +80,11 @@ export const ACCOUNTING_SALES_STAGES_QUERY = gql`
 `;
 
 export const ACCOUNTING_SYNC_DEAL_RULES_QUERY = gql`
-  query AccountingSyncDealRules($saleCode: String!, $returnCode: String!) {
+  query AccountingSyncDealRules(
+    $saleCode: String!
+    $returnCode: String!
+    $movementCode: String!
+  ) {
     saleRules: accountingsConfigs(code: $saleCode) {
       _id
       code
@@ -88,6 +92,12 @@ export const ACCOUNTING_SYNC_DEAL_RULES_QUERY = gql`
       value
     }
     returnRules: accountingsConfigs(code: $returnCode) {
+      _id
+      code
+      subId
+      value
+    }
+    movementRules: accountingsConfigs(code: $movementCode) {
       _id
       code
       subId

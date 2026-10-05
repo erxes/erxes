@@ -5,20 +5,19 @@ import {
   InstagramIntegrationFormSteps,
   InstagramIntegrationFormLayout,
 } from './InstagramIntegrationForm';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeInstagramFormStepAtom,
   resetInstagramAddStateAtom,
+  selectedInstagramAccountAtom,
   selectedInstagramPageAtom,
-} from '../states/instagramStates';
+} from '@/integrations/instagram/states/instagramStates';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { INSTAGRAM_INTEGRATION_SCHEMA } from '../constants/IgMessengerSchema';
+import { INSTAGRAM_INTEGRATION_SCHEMA } from '@/integrations/instagram/constants/IgMessengerSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
-import { useAtomValue } from 'jotai';
-import { selectedInstagramAccountAtom } from '../states/instagramStates';
-import { useIgIntegrationContext } from '../context/IgIntegrationContext';
+import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 import { useParams } from 'react-router';
 
 const INTEGRATION_KINDS = {
@@ -84,7 +83,6 @@ export const InstagramIntegrationSetup = () => {
           <InstagramIntegrationFormSteps
             title={t('integration-setup')}
             step={3}
-            description=""
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
             <Form.Field

@@ -1,29 +1,30 @@
 import {
-  DoCampaignTypes,
   IScoreCampaign,
   IScoreCampaignDocument,
 } from '@/score/@types/scoreCampaign';
-import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
-import { scoreCampaignSchema } from '@/score/db/definitions/scoreCampaign';
 import {
-  handleOnCreateCampaignScoreField,
-  handleOnUpdateCampaignScoreField,
-  resolvePlaceholderValue,
-  safeEvalMath,
-} from '@/score/utils';
+  IEarnInput,
+  ILoyaltyPurchaseItem,
+  ILoyaltyScoreSource,
+  ISpendInput,
+} from '@/score/@types/purchase';
+import { IScoreLogDocument } from '@/score/@types/scoreLog';
+import { SCORE_ACTION, SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
+import { scoreCampaignSchema } from '@/score/db/definitions/scoreCampaign';
+import { bindCampaignAccountType } from '@/score/utils';
 import {
   applyScoreChange,
+  changeBalance,
+  getOwnerBalance,
   fixScoreNumber,
-  getOwnerScoreUpdate,
-  getOwnerScoreValue,
   getLogChangeScore,
   prepareScoreLogChange,
   refundScoreChange,
   getScoreValueBeforeLog,
+  ScoreOwner,
   updateOwnerScoreCache,
 } from '@/score/services/scoreLedger';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
@@ -32,6 +33,41 @@ import {
   generateTargetTotalAmountDeal,
   getAllowedProductIdsByRestrictions,
 } from '~/utils/utils';
+import {
+  IEarnBreakdownItem,
+  IEarnTable,
+  TScoreSkip,
+} from '@/score/@types/earnTable';
+import { heldPastReset } from '@/score/services/earnWindow';
+import {
+  buildEarnContext,
+  TEarnProductScope,
+} from '@/score/services/earnContext';
+import {
+  evaluateEarnTable,
+  explainEmptyEarn,
+  normalizeEarnTable,
+} from '@/score/services/earnTable';
+import {
+  checkSpendRules,
+  maxSpendMoney,
+  normalizeSpendRules,
+  TSpendBlock,
+} from '@/score/services/spendRules';
+
+type TSpendLimitInput = Pick<
+  ISpendInput,
+  'ownerType' | 'ownerId' | 'campaignId' | 'totalAmount' | 'targetId'
+>;
+
+/** What an order may pay with points, for the paying screen to show. */
+export type TSpendLimit = {
+  balance: number;
+  pointValue: number;
+  maxAmount: number;
+  step: number | null;
+  blocked: TSpendBlock | null;
+};
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocument>;
@@ -52,19 +88,20 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
     _ids: string[],
     user: IUserDocument,
   ): Promise<IScoreCampaignDocument>;
-  doCampaign(data: DoCampaignTypes): Promise<any>;
-  checkScoreAviableSubtract(data: {
-    ownerType: string;
-    ownerId: string;
-    campaignId: string;
-    target: any;
-  }): Promise<boolean>;
-
-  refundLoyaltyScore(
-    targetId: string,
-    ownerType: string,
-    ownerId: string,
-  ): Promise<boolean>;
+  checkSpend(input: ISpendInput): Promise<boolean>;
+  spendLimit(input: TSpendLimitInput): Promise<TSpendLimit>;
+  spend(input: ISpendInput): Promise<IScoreLogDocument | null>;
+  earn(
+    input: IEarnInput,
+    onSkip?: (skips: TScoreSkip[]) => void,
+  ): Promise<IScoreLogDocument | null>;
+  refundTarget(args: {
+    targetId: string;
+    ownerType?: string;
+    ownerId?: string;
+    actorId?: string;
+    description?: string;
+  }): Promise<IScoreLogDocument[]>;
   updateOwnerScore(args: {
     ownerId: string;
     ownerType: string;
@@ -73,104 +110,154 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   }): Promise<any>;
 }
 
-export const getOwnerFieldScore = (owner: any, fieldId?: string) => {
-  return getOwnerScoreValue(owner, fieldId);
-};
-
-const resolveExpression = async ({
-  subdomain,
-  target,
-  placeholder,
-}: {
-  subdomain: string;
-  target: any;
-  placeholder: string;
-}) => {
-  const regex = /\{\{\s*([^}]+)\s*\}\}/g;
-  const matches = [...placeholder.matchAll(regex)];
-
-  const resolvedValues = await Promise.all(
-    matches.map(async (match) => {
-      const value = await resolvePlaceholderValue(
-        subdomain,
-        target,
-        String(match[1]).trim(),
-      );
-
-      return {
-        raw: match[0],
-        value: String(value ?? 0),
-      };
-    }),
-  );
-
-  return resolvedValues.reduce(
-    (expression, { raw, value }) => expression.replace(raw, value),
-    placeholder,
-  );
-};
-const calculateCampaignChangeScore = async (
-  subdomain: string,
-  {
-    campaign,
-    actionMethod,
-    target,
-  }: {
-    campaign: any;
-    actionMethod: 'add' | 'subtract' | 'set';
-    target: any;
-  },
+// Deal stages no longer grant or refund points (automations and the selling
+// side do), so an old client's stage rules are not stored again.
+const withoutStageRules = (
+  additionalConfig: IScoreCampaign['additionalConfig'],
 ) => {
-  const { currencyRatio = 1 } = campaign[actionMethod] || {};
-  const placeholder = campaign[actionMethod]?.placeholder || '';
-
-  if (!placeholder.trim() && actionMethod === 'subtract') {
-    return -Math.abs(Number(target?.paymentAmount) || 0);
+  if (!additionalConfig || typeof additionalConfig !== 'object') {
+    return additionalConfig;
   }
 
-  const expression = await resolveExpression({
-    subdomain,
-    target,
-    placeholder,
+  return Object.fromEntries(
+    Object.entries(additionalConfig).filter(([key]) => key !== 'cardBasedRule'),
+  );
+};
+
+const withNormalizedModes = (doc: IScoreCampaign): IScoreCampaign => ({
+  ...doc,
+  ...(doc.additionalConfig
+    ? { additionalConfig: withoutStageRules(doc.additionalConfig) }
+    : {}),
+  ...(doc.add
+    ? {
+        add: {
+          table: normalizeEarnTable(
+            (doc.add.table || { rows: [] }) as IEarnTable,
+          ),
+        },
+      }
+    : {}),
+  ...(doc.subtract
+    ? { subtract: { rules: normalizeSpendRules(doc.subtract.rules) } }
+    : {}),
+});
+
+/**
+ * Points a purchase earned into a wallet and still holds. A purchase never
+ * pays with them: refunding it would take them back from a payment that
+ * relied on them, and taking the payment again would need points that only
+ * come once the purchase is final.
+ */
+const earnedOnTarget = async ({
+  models,
+  targetId,
+  ownerType,
+  ownerId,
+  accountTypeId,
+}: {
+  models: IModels;
+  targetId?: string;
+  ownerType: string;
+  ownerId: string;
+  accountTypeId?: string;
+}) => {
+  if (!targetId) {
+    return 0;
+  }
+
+  const earned = await models.ScoreLogs.find(
+    {
+      targetId,
+      ownerType,
+      ownerId,
+      action: SCORE_ACTION.ADD,
+      accountTypeId: accountTypeId || { $exists: false },
+    },
+    { changeScore: 1 },
+  ).lean();
+
+  if (!earned.length) {
+    return 0;
+  }
+
+  const undone = await models.ScoreLogs.find(
+    {
+      targetId,
+      action: { $in: [SCORE_ACTION.REFUND, SCORE_ACTION.RETURN] },
+      sourceScoreLogId: { $in: earned.map(({ _id }) => _id) },
+    },
+    { changeScore: 1 },
+  ).lean();
+
+  return Math.max(
+    0,
+    [...earned, ...undone].reduce(
+      (sum, { changeScore }) => sum + (Number(changeScore) || 0),
+      0,
+    ),
+  );
+};
+
+// Points a payment with points costs under the campaign's spending rules,
+// as a negative change. `alreadySpent` is what this order took before, so a
+// recalculated order is checked against the balance it started from; what
+// the order itself earned is not spendable on it.
+const spendByRules = async ({
+  models,
+  subdomain,
+  campaign,
+  pointsPaymentAmount,
+  totalAmount,
+  owner,
+  ownerType,
+  ownerId,
+  alreadySpent,
+  targetId,
+}: {
+  models: IModels;
+  subdomain: string;
+  campaign: IScoreCampaignDocument;
+  pointsPaymentAmount: number;
+  totalAmount: number;
+  owner: ScoreOwner;
+  ownerType: string;
+  ownerId: string;
+  alreadySpent: number;
+  targetId?: string;
+}) => {
+  const [accountType, balance, earnedHere] = await Promise.all([
+    campaign.accountTypeId
+      ? models.LoyaltyAccountTypes.findOne(
+          { _id: campaign.accountTypeId },
+          { pointValue: 1 },
+        ).lean()
+      : Promise.resolve(null),
+    getOwnerBalance({
+      models,
+      subdomain,
+      ownerType,
+      ownerId,
+      fieldId: campaign.fieldId,
+      owner,
+    }),
+    earnedOnTarget({
+      models,
+      targetId,
+      ownerType,
+      ownerId,
+      accountTypeId: campaign.accountTypeId,
+    }),
+  ]);
+
+  return -checkSpendRules({
+    rules: campaign.subtract?.rules || {},
+    paidMoney: Number(pointsPaymentAmount) || 0,
+    orderTotal: Number(totalAmount) || 0,
+    pointValue: Number(accountType?.pointValue) || 1,
+    balance: Math.max(0, balance + alreadySpent - earnedHere),
   });
-  const changeScore = fixScoreNumber(
-    (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0,
-  );
-
-  if (actionMethod === 'subtract' && target?.paymentAmount !== undefined) {
-    return -Math.abs(changeScore);
-  }
-
-  return changeScore;
 };
-
-const getCampaignStageStatus = (campaign: any, stageId?: string) => {
-  if (!stageId) {
-    return undefined;
-  }
-
-  const rules = campaign?.additionalConfig?.cardBasedRule || [];
-  const stageIds = rules.flatMap((rule: any) => rule.stageIds || []);
-  const refundStageIds = rules.flatMap(
-    (rule: any) => rule.refundStageIds || [],
-  );
-
-  if (stageIds.includes(stageId)) {
-    return 'stage';
-  }
-
-  if (refundStageIds.includes(stageId)) {
-    return 'refund';
-  }
-
-  return undefined;
-};
-
-const hasCampaignStageRules = (campaign: any) =>
-  (campaign?.additionalConfig?.cardBasedRule || []).some(
-    (rule: any) =>
-      (rule.stageIds || []).length || (rule.refundStageIds || []).length,
-  );
 
 const findActiveScoreLog = async ({
   models,
@@ -185,7 +272,7 @@ const findActiveScoreLog = async ({
   ownerId: string;
   ownerType: string;
   campaignId: string;
-  action: 'add' | 'subtract' | 'set';
+  action: 'add' | 'subtract';
 }) => {
   if (!targetId) {
     return null;
@@ -217,67 +304,192 @@ const findActiveScoreLog = async ({
   return null;
 };
 
-const cleanupRefundedScoreLogs = async ({
-  models,
-  targetId,
-  ownerId,
-  ownerType,
-  campaignId,
-  action,
-}: {
-  models: IModels;
-  targetId?: string;
-  ownerId: string;
-  ownerType: string;
-  campaignId: string;
-  action: 'add' | 'subtract' | 'set';
-}) => {
-  if (!targetId) {
-    return;
-  }
-
-  const scoreLogs = await models.ScoreLogs.find({
-    targetId,
-    ownerId,
-    ownerType,
-    campaignId,
-    action,
-  }).select('_id');
-
-  if (!scoreLogs.length) {
-    return;
-  }
-
-  const scoreLogIds = scoreLogs.map((scoreLog) => scoreLog._id);
-  const refundLogs = await models.ScoreLogs.find({
-    targetId,
-    ownerId,
-    ownerType,
-    campaignId,
-    action: { $in: ['refund', 'return'] },
-    sourceScoreLogId: { $in: scoreLogIds },
-  }).select('_id sourceScoreLogId');
-
-  if (!refundLogs.length) {
-    return;
-  }
-
-  const refundedSourceLogIds = refundLogs.map(
-    (refundLog) => refundLog.sourceScoreLogId,
-  );
-  const refundLogIds = refundLogs.map((refundLog) => refundLog._id);
-
-  await models.ScoreLogs.deleteMany({
-    _id: { $in: [...refundedSourceLogIds, ...refundLogIds] },
-  });
-};
-
 export const loadScoreCampaignClass = (
   models: IModels,
   subdomain: string,
   dispatcher: EventDispatcherReturn,
 ) => {
   const { sendDbEventLog } = dispatcher;
+
+  // The published campaign a change is made under, and the owner it is for.
+  const loadCampaignOwner = async ({
+    ownerType,
+    ownerId,
+    campaignId,
+  }: {
+    ownerType: string;
+    ownerId: string;
+    campaignId: string;
+  }) => {
+    if (!ownerType || !ownerId) {
+      throw new Error('You must provide a owner');
+    }
+
+    const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+
+    if (!owner) {
+      throw new Error('Owner not found');
+    }
+
+    const campaign = await models.ScoreCampaigns.findOne({
+      _id: campaignId,
+      status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+    });
+
+    if (!campaign) {
+      throw new Error('Campaign not found');
+    }
+
+    if (campaign.ownerType !== ownerType) {
+      throw new Error(
+        'Owner type is not the same as the owner type of the campaign',
+      );
+    }
+
+    return { campaign, owner };
+  };
+
+  // The items a campaign's own product restrictions let count.
+  const buildPurchaseProductScope = async (
+    campaign: IScoreCampaignDocument,
+    items: ILoyaltyPurchaseItem[],
+  ): Promise<TEarnProductScope> => {
+    const rows = items.map(({ productId, amount, discounted }) => ({
+      productId,
+      amount: Number(amount) || 0,
+      discount: discounted ? 1 : 0,
+    }));
+
+    return {
+      rows,
+      allowedProductIds: await getAllowedProductIdsByRestrictions({
+        subdomain,
+        restrictions: campaign.restrictions,
+        productsData: rows,
+      }),
+      discountCheck: campaign.additionalConfig?.discountCheck === true,
+      requireTickUsed: false,
+    };
+  };
+
+  /**
+   * One campaign's standing entry on a purchase: written the first time,
+   * moved by the difference when the purchase is recalculated, taken back
+   * when it comes to nothing.
+   */
+  const writeCampaignChange = async ({
+    campaign,
+    owner,
+    input,
+    action,
+    changeScore,
+    breakdown,
+    activeScoreLog,
+  }: {
+    campaign: IScoreCampaignDocument;
+    owner: ScoreOwner;
+    input: ILoyaltyScoreSource & { ownerType: string; ownerId: string };
+    action: 'add' | 'subtract';
+    changeScore: number;
+    breakdown?: IEarnBreakdownItem[];
+    activeScoreLog: IScoreLogDocument | null;
+  }) => {
+    const { ownerType, ownerId, targetId } = input;
+
+    if (!changeScore) {
+      if (!activeScoreLog) {
+        return null;
+      }
+
+      const { log } = await refundScoreChange({
+        models,
+        subdomain,
+        doc: {
+          targetId,
+          ownerType,
+          ownerId,
+          sourceScoreLogId: activeScoreLog._id,
+          netTargetAddsForSubtract: false,
+          createdBy: input.actorId,
+          description: 'Purchase no longer earns from this campaign',
+        },
+      });
+
+      return log;
+    }
+
+    if (!activeScoreLog) {
+      const { log } = await applyScoreChange({
+        models,
+        subdomain,
+        doc: {
+          owner,
+          ownerId,
+          ownerType,
+          campaignId: campaign._id,
+          fieldId: campaign.fieldId,
+          serviceName: input.serviceName,
+          targetId,
+          targetType: input.targetType,
+          action,
+          changeScore,
+          breakdown,
+          createdBy: input.actorId,
+          createdVia: input.createdVia,
+        },
+      });
+
+      return log;
+    }
+
+    if (changeScore === Number(activeScoreLog.changeScore)) {
+      return activeScoreLog;
+    }
+
+    const currentChangeScore = getLogChangeScore(activeScoreLog);
+    const next = prepareScoreLogChange({ action, changeScore });
+    const difference = fixScoreNumber(next.changeScore - currentChangeScore);
+    // Only the difference to the log's current amount moves the balance.
+    const balance = await changeBalance({
+      models,
+      subdomain,
+      ownerType,
+      ownerId,
+      owner,
+      fieldId: campaign.fieldId,
+      change: difference,
+      absolute: false,
+      // The change belongs to this earning: its lots grow or shrink.
+      logId: activeScoreLog._id,
+      sourceLogId: activeScoreLog._id,
+      purchaseEarn: action === SCORE_ACTION.ADD && !!targetId,
+      // A smaller purchase takes back points that may be spent already.
+      preventNegativeBalance: action !== SCORE_ACTION.ADD,
+    });
+
+    activeScoreLog.changeScore = next.changeScore;
+    if (breakdown) {
+      activeScoreLog.breakdown = breakdown;
+    }
+    if (activeScoreLog.preScore === undefined) {
+      activeScoreLog.preScore = await getScoreValueBeforeLog(
+        models,
+        activeScoreLog,
+      );
+    }
+    await activeScoreLog.save();
+
+    await models.ScoreLogs.recordActivity({
+      log: activeScoreLog,
+      actorId: input.actorId,
+      changeScore: difference,
+      previousScore: balance.previous,
+      newScore: balance.next,
+      walletName: balance.accountType?.name,
+    });
+
+    return activeScoreLog;
+  };
 
   class ScoreCampaign {
     public static async getScoreCampaign(_id: string) {
@@ -294,7 +506,7 @@ export const loadScoreCampaignClass = (
       doc: IScoreCampaign,
       user: IUserDocument,
     ) {
-      doc = await handleOnCreateCampaignScoreField({ doc, subdomain });
+      doc = withNormalizedModes(await bindCampaignAccountType({ models, doc }));
 
       const created = await models.ScoreCampaigns.create({
         ...doc,
@@ -318,22 +530,13 @@ export const loadScoreCampaignClass = (
       const prevDoc = await models.ScoreCampaigns.findOne({ _id }).lean();
       const scoreCampaign = await this.getScoreCampaign(_id);
 
-      if (
-        !!scoreCampaign?.fieldId &&
-        !!scoreCampaign?.ownerType &&
-        !!doc.ownerType &&
-        scoreCampaign.ownerType !== doc.ownerType
-      ) {
-        throw new Error(
-          'You cannot modify the ownership type of the score field.',
-        );
-      }
-
-      doc = await handleOnUpdateCampaignScoreField({
-        doc,
-        subdomain,
-        scoreCampaign,
-      });
+      doc = withNormalizedModes(
+        await bindCampaignAccountType({
+          models,
+          doc,
+          campaign: scoreCampaign,
+        }),
+      );
 
       const result = await models.ScoreCampaigns.updateOne(
         { _id },
@@ -395,168 +598,291 @@ export const loadScoreCampaignClass = (
       return result;
     }
 
-    public static async checkScoreAviableSubtract(data) {
-      const { ownerType, ownerId, campaignId, target, targetId } = data;
-
-      if (!ownerType || !ownerId) {
-        throw new Error('You must provide a owner');
-      }
-
-      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-      if (!owner) {
-        throw new Error('Owner not found');
-      }
-
-      const campaign = await models.ScoreCampaigns.findOne({
-        _id: campaignId,
-        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+    public static async checkSpend(input: ISpendInput) {
+      const { campaign, owner } = await loadCampaignOwner(input);
+      const activeScoreLog = await findActiveScoreLog({
+        models,
+        targetId: input.targetId,
+        ownerId: input.ownerId,
+        ownerType: input.ownerType,
+        campaignId: campaign._id,
+        action: 'subtract',
       });
 
-      if (!campaign) {
-        throw new Error('Campaign not found');
-      }
-
-      if (campaign.ownerType !== ownerType) {
-        throw new Error(
-          'Owner type is not the same as the owner type of the campaign',
-        );
-      }
-
-      let changeScore = await calculateCampaignChangeScore(subdomain, {
+      await spendByRules({
+        models,
+        subdomain,
         campaign,
-        actionMethod: 'subtract',
-        target,
+        pointsPaymentAmount: input.pointsPaymentAmount,
+        totalAmount: input.totalAmount,
+        owner,
+        ownerType: input.ownerType,
+        ownerId: input.ownerId,
+        alreadySpent: activeScoreLog
+          ? Math.abs(getLogChangeScore(activeScoreLog))
+          : 0,
+        targetId: input.targetId,
       });
-
-      let oldScore = Number(owner?.score) || 0;
-
-      if (campaign.fieldId) {
-        oldScore = getOwnerFieldScore(owner, campaign.fieldId);
-        const scoreLog = await models.ScoreLogs.findOne({
-          ownerId,
-          ownerType,
-          targetId,
-          action: 'subtract',
-        });
-
-        if (scoreLog) {
-          changeScore = fixScoreNumber(
-            changeScore - getLogChangeScore(scoreLog),
-          );
-        }
-      }
-
-      const newScore = fixScoreNumber(oldScore + changeScore);
-
-      if (newScore < 0) {
-        throw new Error('There has no enough score to subtract');
-      }
 
       return true;
     }
 
-    public static async doCampaign(data: DoCampaignTypes) {
-      const {
-        ownerType,
-        ownerId,
-        campaignId,
-        target,
-        oldTarget,
-        actionMethod,
-        serviceName,
-        targetId,
-      } = data;
+    /**
+     * The most this order may pay with points. What it already paid counts
+     * as available, so an order being edited can keep it.
+     */
+    public static async spendLimit(input: TSpendLimitInput) {
+      const { campaign, owner } = await loadCampaignOwner(input);
+      const [activeScoreLog, accountType, balance, account] = await Promise.all(
+        [
+          findActiveScoreLog({
+            models,
+            targetId: input.targetId,
+            ownerId: input.ownerId,
+            ownerType: input.ownerType,
+            campaignId: campaign._id,
+            action: 'subtract',
+          }),
+          campaign.accountTypeId
+            ? models.LoyaltyAccountTypes.findOne(
+                { _id: campaign.accountTypeId },
+                { pointValue: 1 },
+              ).lean()
+            : Promise.resolve(null),
+          getOwnerBalance({
+            models,
+            subdomain,
+            ownerType: input.ownerType,
+            ownerId: input.ownerId,
+            fieldId: campaign.fieldId,
+            owner,
+          }),
+          models.LoyaltyAccounts.findOne(
+            { ownerType: input.ownerType, ownerId: input.ownerId },
+            { status: 1 },
+          ).lean(),
+        ],
+      );
 
-      if (!ownerType || !ownerId) {
-        throw new Error('You must provide a owner');
-      }
-
-      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-      if (!owner) {
-        throw new Error('Owner not found');
-      }
-
-      const campaign = await models.ScoreCampaigns.findOne({
-        _id: campaignId,
-        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+      const earnedHere = await earnedOnTarget({
+        models,
+        targetId: input.targetId,
+        ownerType: input.ownerType,
+        ownerId: input.ownerId,
+        accountTypeId: campaign.accountTypeId,
       });
+      const rules = campaign.subtract?.rules || {};
+      const pointValue = Number(accountType?.pointValue) || 1;
+      const available = Math.max(
+        0,
+        balance +
+          (activeScoreLog ? Math.abs(getLogChangeScore(activeScoreLog)) : 0) -
+          earnedHere,
+      );
+      const step = rules.step || null;
 
-      if (!campaign) {
-        throw new Error('Campaign not found');
+      // Freezing always stops spending, whatever else the account type blocks.
+      if (account?.status === 'frozen') {
+        return {
+          balance: available,
+          pointValue,
+          maxAmount: 0,
+          step,
+          blocked: 'frozen' as const,
+        };
       }
 
-      if (campaign.ownerType !== ownerType) {
-        throw new Error(
-          'Owner type is not the same as the owner type of the campaign',
-        );
-      }
-
-      const calculationTarget = {
-        ...target,
-        [ownerType]: owner,
+      return {
+        balance: available,
+        pointValue,
+        step,
+        ...maxSpendMoney({
+          rules,
+          orderTotal: Number(input.totalAmount) || 0,
+          pointValue,
+          balance: available,
+        }),
       };
+    }
 
-      const productRows = Array.isArray(target?.productsData)
-        ? target.productsData
-        : Array.isArray(target?.items)
-          ? target.items
-          : undefined;
-
-      if (productRows) {
-        const isPosOrderTarget = Array.isArray(target?.items);
-        const allowedProductIds = await getAllowedProductIdsByRestrictions({
-          subdomain,
-          restrictions: campaign.restrictions,
-          productsData: productRows,
-        });
-
-        calculationTarget.totalAmount = generateTargetTotalAmountDeal(
-          productRows,
-          {
-            allowedProductIds,
-            discountCheck:
-              !isPosOrderTarget &&
-              campaign.additionalConfig?.discountCheck === true,
-            requireTickUsed: !isPosOrderTarget,
-          },
-        );
-      }
-
-      const oldStageStatus = getCampaignStageStatus(
-        campaign,
-        oldTarget?.stageId,
-      );
-      const newStageStatus = getCampaignStageStatus(
-        campaign,
-        calculationTarget?.stageId,
-      );
-
-      if (newStageStatus === 'stage') {
-        await cleanupRefundedScoreLogs({
-          models,
-          targetId,
-          ownerId,
-          ownerType,
-          campaignId: campaign._id,
-          action: actionMethod,
-        });
-      }
-
+    /**
+     * Records what a purchase paid with points. The amount is the whole of
+     * it, so sending it again after an edit moves only the difference.
+     */
+    public static async spend(input: ISpendInput) {
+      const { campaign, owner } = await loadCampaignOwner(input);
       const activeScoreLog = await findActiveScoreLog({
         models,
-        targetId,
-        ownerId,
-        ownerType,
+        targetId: input.targetId,
+        ownerId: input.ownerId,
+        ownerType: input.ownerType,
         campaignId: campaign._id,
-        action: actionMethod,
+        action: 'subtract',
       });
-      const hasStageRules = hasCampaignStageRules(campaign);
+      const changeScore = await spendByRules({
+        models,
+        subdomain,
+        campaign,
+        pointsPaymentAmount: input.pointsPaymentAmount,
+        totalAmount: input.totalAmount,
+        owner,
+        ownerType: input.ownerType,
+        ownerId: input.ownerId,
+        alreadySpent: activeScoreLog
+          ? Math.abs(getLogChangeScore(activeScoreLog))
+          : 0,
+        targetId: input.targetId,
+      });
 
-      if (hasStageRules && newStageStatus !== 'stage') {
-        if (!activeScoreLog) {
-          return;
+      return writeCampaignChange({
+        campaign,
+        owner,
+        input,
+        action: 'subtract',
+        changeScore,
+        activeScoreLog,
+      });
+    }
+
+    /** Points a purchase earns under the campaign's earning table. */
+    public static async earn(
+      input: IEarnInput,
+      onSkip?: (skips: TScoreSkip[]) => void,
+    ) {
+      const { campaign, owner } = await loadCampaignOwner(input);
+      const earnTable = campaign.add?.table;
+
+      if (!earnTable?.rows?.length) {
+        throw new Error('Set up the earning table of this campaign first');
+      }
+
+      const { purchase } = input;
+      const productScope = purchase.items?.length
+        ? await buildPurchaseProductScope(campaign, purchase.items)
+        : undefined;
+      const activeScoreLog = await findActiveScoreLog({
+        models,
+        targetId: input.targetId,
+        ownerId: input.ownerId,
+        ownerType: input.ownerType,
+        campaignId: campaign._id,
+        action: 'add',
+      });
+      const earnCtx = await buildEarnContext({
+        models,
+        subdomain,
+        campaign,
+        ownerType: input.ownerType,
+        ownerId: input.ownerId,
+        targetId: input.targetId,
+        serviceName: input.serviceName,
+        table: earnTable,
+        totalAmount: productScope
+          ? generateTargetTotalAmountDeal(productScope.rows, productScope)
+          : Number(purchase.totalAmount) || 0,
+        paidAmount: Number(purchase.paidAmount) || 0,
+        productScope,
+      });
+      const earned = evaluateEarnTable({
+        table: earnTable,
+        ctx: earnCtx,
+        activeRowKeys: input.earnRowKeys,
+      });
+
+      if (!earned.total && !activeScoreLog) {
+        onSkip?.(
+          explainEmptyEarn({
+            table: earnTable,
+            ctx: earnCtx,
+            activeRowKeys: input.earnRowKeys,
+          }),
+        );
+
+        return null;
+      }
+
+      // Held back past the next reset, the points would be cleared before
+      // they could ever be spent; the purchase is recorded as giving none.
+      const held =
+        earned.total && !activeScoreLog && input.targetId
+          ? await heldPastReset({
+              models,
+              subdomain,
+              accountTypeId: campaign.accountTypeId,
+            })
+          : null;
+
+      if (held) {
+        onSkip?.([
+          {
+            reason: 'held-past-reset',
+            availableAt: held.availableAt.toISOString(),
+            resetsAt: held.resetsAt.toISOString(),
+          },
+        ]);
+
+        return null;
+      }
+
+      return writeCampaignChange({
+        campaign,
+        owner,
+        input,
+        action: 'add',
+        changeScore: earned.total,
+        breakdown: earned.breakdown,
+        activeScoreLog,
+      });
+    }
+
+    /**
+     * Undoes every earning and spending still standing on a record: its points
+     * are taken back and the points paid with are returned. The selling side
+     * decides when a purchase is undone; loyalty only follows.
+     */
+    public static async refundTarget({
+      targetId,
+      ownerType,
+      ownerId,
+      actorId,
+      description,
+    }: {
+      targetId: string;
+      ownerType?: string;
+      ownerId?: string;
+      actorId?: string;
+      description?: string;
+    }) {
+      const logs = await models.ScoreLogs.find({
+        targetId,
+        ...(ownerType && ownerId ? { ownerType, ownerId } : {}),
+        action: { $in: [SCORE_ACTION.ADD, SCORE_ACTION.SUBTRACT] },
+      });
+      const refunded = new Set(
+        (
+          await models.ScoreLogs.find(
+            {
+              targetId,
+              action: { $in: [SCORE_ACTION.REFUND, SCORE_ACTION.RETURN] },
+              sourceScoreLogId: { $in: logs.map(({ _id }) => _id) },
+            },
+            { sourceScoreLogId: 1 },
+          ).lean()
+        ).map(({ sourceScoreLogId }) => sourceScoreLogId),
+      );
+      const results: IScoreLogDocument[] = [];
+
+      // Points paid with go back first, so taking back what was earned never
+      // runs into a balance the payment had emptied.
+      const ordered = [...logs].sort(
+        (a, b) =>
+          Number(b.action === SCORE_ACTION.SUBTRACT) -
+          Number(a.action === SCORE_ACTION.SUBTRACT),
+      );
+
+      for (const sourceLog of ordered) {
+        if (refunded.has(sourceLog._id) || !getLogChangeScore(sourceLog)) {
+          continue;
         }
 
         const { log } = await refundScoreChange({
@@ -564,162 +890,19 @@ export const loadScoreCampaignClass = (
           subdomain,
           doc: {
             targetId,
-            ownerType,
-            ownerId,
-            sourceScoreLogId: activeScoreLog._id,
+            ownerType: sourceLog.ownerType || '',
+            ownerId: sourceLog.ownerId || '',
+            sourceScoreLogId: sourceLog._id,
             netTargetAddsForSubtract: false,
-            description:
-              newStageStatus === 'refund'
-                ? 'Refund score campaign'
-                : `Clear score campaign from ${
-                    oldStageStatus || 'undefined'
-                  } stage`,
+            createdBy: actorId,
+            description: description || 'Purchase refunded',
           },
         });
 
-        return log;
+        results.push(log);
       }
 
-      if (campaign.onlyClientPortal && ownerType === 'customer') {
-        const cpUser = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'cpUsers',
-          action: 'get',
-          input: { erxesCustomerId: owner._id },
-          defaultValue: null,
-        });
-
-        if (!cpUser) {
-          throw new Error(
-            'This campaign is only available to client portal users.',
-          );
-        }
-      }
-
-      const changeScore = await calculateCampaignChangeScore(subdomain, {
-        campaign,
-        actionMethod,
-        target: calculationTarget,
-      });
-      if (!changeScore && actionMethod !== 'set') {
-        if (activeScoreLog) {
-          const { log } = await refundScoreChange({
-            models,
-            subdomain,
-            doc: {
-              targetId,
-              ownerType,
-              ownerId,
-              sourceScoreLogId: activeScoreLog._id,
-              netTargetAddsForSubtract: false,
-              description: 'Clear zero score campaign',
-            },
-          });
-
-          return log;
-        }
-
-        return;
-      }
-
-      let oldScore = Number(owner?.score) || 0;
-
-      if (campaign.fieldId) {
-        oldScore = getOwnerFieldScore(owner, campaign.fieldId);
-      }
-
-      if (actionMethod === 'set') {
-        if (changeScore === oldScore) {
-          return activeScoreLog || undefined;
-        }
-      }
-
-      const scoreLog = activeScoreLog;
-
-      if (!changeScore && actionMethod !== 'set') {
-        return scoreLog || undefined;
-      }
-
-      if (scoreLog) {
-        const prevChangeScore = Number(scoreLog.changeScore) || 0;
-
-        if (actionMethod !== 'set' && changeScore === prevChangeScore) {
-          return scoreLog;
-        }
-
-        const currentChangeScore = getLogChangeScore(scoreLog);
-        const nextPreparedChange = prepareScoreLogChange({
-          action: actionMethod,
-          changeScore,
-        });
-        const recalculatedScore =
-          actionMethod === 'set'
-            ? fixScoreNumber(changeScore)
-            : fixScoreNumber(
-                oldScore + nextPreparedChange.changeScore - currentChangeScore,
-              );
-
-        if (recalculatedScore < 0) {
-          throw new Error('There has no enough score to subtract');
-        }
-
-        await updateOwnerScoreCache({
-          subdomain,
-          ownerId,
-          ownerType,
-          ...getOwnerScoreUpdate({
-            owner,
-            fieldId: campaign.fieldId,
-            newScore: recalculatedScore,
-          }),
-        });
-
-        scoreLog.changeScore = nextPreparedChange.changeScore;
-        if (scoreLog.preScore === undefined) {
-          scoreLog.preScore = await getScoreValueBeforeLog(models, scoreLog);
-        }
-        await scoreLog.save();
-
-        return scoreLog;
-      }
-
-      const { log } = await applyScoreChange({
-        models,
-        subdomain,
-        doc: {
-          owner,
-          ownerId,
-          ownerType,
-          campaignId: campaign._id,
-          fieldId: campaign.fieldId,
-          serviceName,
-          targetId,
-          action: actionMethod,
-          changeScore,
-        },
-      });
-
-      return log;
-    }
-
-    public static async refundLoyaltyScore(
-      targetId: string,
-      ownerType: string,
-      ownerId: string,
-    ) {
-      const { log } = await refundScoreChange({
-        models,
-        subdomain,
-        doc: {
-          targetId,
-          ownerType,
-          ownerId,
-        },
-      });
-
-      return log;
+      return results;
     }
 
     static async updateOwnerScore({
@@ -734,6 +917,7 @@ export const loadScoreCampaignClass = (
       updatedScore?: number;
     }) {
       return await updateOwnerScoreCache({
+        models,
         subdomain,
         ownerId,
         ownerType,

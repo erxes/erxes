@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-03`
 
 ## Scope
 
@@ -20,6 +20,7 @@
 
 ## Current Capabilities
 
+- Syncs and exposes `isShowRemainder` independently from stock validation.
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
 - Persists synced eBarimt receipt toggles, including `hasCopy`, `hasSumQty`,
@@ -50,6 +51,10 @@
 
 ### Consumes
 
+- Synced `isShowRemainder`, `isCheckRemainder`, and `checkExcludeCategoryIds`
+  from sales POS configuration.
+- Loyalty `score.checkSpend` validates point payment amounts against the order
+  total before payment completion.
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
 - Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
   `isCleanTaxPrice`.
@@ -69,6 +74,11 @@
 
 ## Local Invariants
 
+- `isShowRemainder` controls display remainder fetching and Erkhet remainder
+  requests; `isCheckRemainder` controls order validation using synced per-token
+  `isCheckRems` flags, which include category exclusions. Validation can fetch
+  Core inventory balances with display disabled. `saveRemainder` controls
+  remainder persistence and the existing hourly sync.
 - POS client report queries must require a logged-in POS user.
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
 - `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
@@ -80,5 +90,8 @@
 ## Validation
 
 - `pnpm nx build posclient_api`
+- POS remainder smoke scenario: show-only loads stock without blocking orders;
+  check-only validates Core balances with display disabled; category-excluded
+  products bypass validation; enabling `saveRemainder` persists fetched stock.
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.

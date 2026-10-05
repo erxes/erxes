@@ -33,4 +33,6 @@ export interface IScore {
   };
   conditions: any;
   kind: string;
+  accountTypeId?: string;
+  accountType?: { _id: string; name: string; status: string } | null;
 }

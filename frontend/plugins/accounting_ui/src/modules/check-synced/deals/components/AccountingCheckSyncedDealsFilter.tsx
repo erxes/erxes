@@ -15,6 +15,7 @@ import {
   AccountingCheckSyncedDealRuleFilterItem,
   AccountingCheckSyncedDealRuleFilterView,
 } from './AccountingCheckSyncedDealRuleSelect';
+import type { AccountingCheckSyncedDealRuleScope } from './AccountingCheckSyncedDealRuleSelect';
 import { AccountingCheckSyncedDealsTotalCount } from './AccountingCheckSyncedDealsTotalCount';
 import {
   AccountingDealBoardFilterBar,
@@ -31,7 +32,11 @@ import {
   AccountingDealStageFilterView,
 } from './AccountingCheckSyncedDealSelects';
 
-export const AccountingCheckSyncedDealsFilterPopover = () => {
+export const AccountingCheckSyncedDealsFilterPopover = ({
+  ruleScope = 'deal',
+}: {
+  ruleScope?: AccountingCheckSyncedDealRuleScope;
+}) => {
   const { t } = useTranslation('accounting');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
@@ -83,7 +88,10 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
                 <AccountingDealBoardFilterItem />
                 <AccountingDealPipelineFilterItem />
                 <AccountingDealStageFilterItem />
-                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
+                <SelectMember.FilterItem
+                  value="user"
+                  label={t('assigned-to')}
+                />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
@@ -121,7 +129,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
               <SelectMember.Content />
             </SelectMember.Provider>
           </Filter.View>
-          <AccountingCheckSyncedDealRuleFilterView />
+          <AccountingCheckSyncedDealRuleFilterView ruleScope={ruleScope} />
           <AccountingDealBoardFilterView />
           <AccountingDealPipelineFilterView boardId={boardId || undefined} />
           <AccountingDealStageFilterView pipelineId={pipelineId || undefined} />
@@ -158,7 +166,13 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
   );
 };
 
-export const AccountingCheckSyncedDealsFilter = () => {
+export const AccountingCheckSyncedDealsFilter = ({
+  filterId = 'accounting-check-synced-deals-filter',
+  ruleScope = 'deal',
+}: {
+  filterId?: string;
+  ruleScope?: AccountingCheckSyncedDealRuleScope;
+}) => {
   const { t } = useTranslation('accounting');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
@@ -166,10 +180,10 @@ export const AccountingCheckSyncedDealsFilter = () => {
   const [number] = useFilterQueryState<string>('number');
 
   return (
-    <Filter id="accounting-check-synced-deals-filter">
+    <Filter id={filterId}>
       <Filter.Bar>
-        <AccountingCheckSyncedDealsFilterPopover />
-        <AccountingCheckSyncedDealRuleFilterBar />
+        <AccountingCheckSyncedDealsFilterPopover ruleScope={ruleScope} />
+        <AccountingCheckSyncedDealRuleFilterBar ruleScope={ruleScope} />
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />

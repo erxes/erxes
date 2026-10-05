@@ -21,6 +21,7 @@ type Props = {
   onSelect: (optionId: TQuerySelectValue) => void;
   value?: TQuerySelectValue;
   multi?: boolean;
+  variables?: Record<string, string | boolean>;
 };
 
 export const QuerySelectInput = ({
@@ -32,6 +33,7 @@ export const QuerySelectInput = ({
   onSelect,
   value,
   multi,
+  variables,
 }: Props) => {
   const [search, setSearch] = useState('');
   const [selectedOptions, setSelectedOptions] = useState<
@@ -43,7 +45,13 @@ export const QuerySelectInput = ({
     list = [],
     totalCount = 0,
     handleFetchMore,
-  } = useQuerySelectInputList(query, queryName, debouncedSearch);
+  } = useQuerySelectInputList(
+    query,
+    queryName,
+    debouncedSearch,
+    false,
+    variables,
+  );
 
   const items = useMemo<TQuerySelectOption[]>(
     () =>

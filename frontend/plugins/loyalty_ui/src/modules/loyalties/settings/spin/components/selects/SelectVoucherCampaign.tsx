@@ -13,7 +13,7 @@ import {
 import React, { useCallback, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-import { ValueChangeValueType } from '../../../general-config/types/loyaltyConfigTypes';
+import { ValueChangeValueType } from '../../../types/selectValue';
 import {
   SelectVoucherCampaignContext,
   useSelectVoucherCampaignContext,
@@ -35,9 +35,9 @@ export const SelectVoucherCampaignProvider = ({
   onValueChange: (value: ValueChangeValueType) => void;
   voucherCampaigns?: IVoucherCampaign[];
 }) => {
-  const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<IVoucherCampaign[]>(
-    voucherCampaigns || [],
-  );
+  const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<
+    IVoucherCampaign[]
+  >(voucherCampaigns || []);
   const isSingleMode = mode === 'single';
 
   const onSelect = useCallback(
@@ -49,7 +49,9 @@ export const SelectVoucherCampaignProvider = ({
         return onValueChange(voucherCampaign._id);
       }
 
-      const arrayValue = Array.isArray(value) ? value : value && [value] || [];
+      const arrayValue = Array.isArray(value)
+        ? value
+        : (value && [value]) || [];
       const isVoucherCampaignSelected = arrayValue.includes(
         voucherCampaign._id,
       );
@@ -72,10 +74,9 @@ export const SelectVoucherCampaignProvider = ({
     <SelectVoucherCampaignContext.Provider
       value={{
         voucherCampaigns: selectedVoucherCampaigns,
-        voucherCampaignId:
-          Array.isArray(value)
-            ? value
-            : value && [value] || [],
+        voucherCampaignId: Array.isArray(value)
+          ? value
+          : (value && [value]) || [],
         onSelect,
         setVoucherCampaigns: setSelectedVoucherCampaigns,
         loading: false,
@@ -209,9 +210,8 @@ export const SelectVoucherCampaignFilterView = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
-  const [voucherCampaign, setVoucherCampaign] = useQueryState<
-    ValueChangeValueType
-  >(queryKey || 'voucherCampaign');
+  const [voucherCampaign, setVoucherCampaign] =
+    useQueryState<ValueChangeValueType>(queryKey || 'voucherCampaign');
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -243,9 +243,8 @@ export const SelectVoucherCampaignFilterBar = ({
   mode?: 'single' | 'multiple';
 }) => {
   const { t } = useTranslation('loyalty');
-  const [voucherCampaign, setVoucherCampaign] = useQueryState<
-    ValueChangeValueType
-  >(queryKey || 'voucherCampaign');
+  const [voucherCampaign, setVoucherCampaign] =
+    useQueryState<ValueChangeValueType>(queryKey || 'voucherCampaign');
   const [open, setOpen] = useState(false);
 
   return (
@@ -354,9 +353,9 @@ SelectVoucherCampaignFormItem.displayName = 'SelectVoucherCampaignFormItem';
 const SelectVoucherCampaignRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectVoucherCampaignProvider>, 'children'> &
-  React.ComponentProps<typeof Combobox.Trigger> & {
-    placeholder?: string;
-  }
+    React.ComponentProps<typeof Combobox.Trigger> & {
+      placeholder?: string;
+    }
 >(({ onValueChange, className, mode, value, placeholder, ...props }, ref) => {
   const [open, setOpen] = useState(false);
 

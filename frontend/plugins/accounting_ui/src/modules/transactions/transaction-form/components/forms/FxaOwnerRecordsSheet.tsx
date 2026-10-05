@@ -178,7 +178,7 @@ export const FxaOwnerRecordsSheet = ({
       <Sheet.Trigger asChild>
         <RecordTable.MoreButton
           type="button"
-          className="w-10 p-0"
+          className="w-8 p-0"
           disabled={!detail?.fixedAssetId || detailCount <= 0}
           aria-label="Эд хариуцагч сонгох"
           title="Эд хариуцагч сонгох"
@@ -201,7 +201,7 @@ export const FxaOwnerRecordsSheet = ({
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head className="w-10" />
+                <Table.Head className="w-8" />
                 <Table.Head>Код</Table.Head>
                 <Table.Head>Боломжит тоо</Table.Head>
                 <Table.Head>Сонгох тоо</Table.Head>
@@ -217,7 +217,7 @@ export const FxaOwnerRecordsSheet = ({
 
                 return (
                   <Table.Row key={record._id}>
-                    <Table.Cell>
+                    <Table.Cell className="w-8">
                       <div className="flex items-center justify-center">
                         <Checkbox
                           checked={selected}

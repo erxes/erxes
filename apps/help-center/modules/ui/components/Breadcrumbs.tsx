@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { Fragment } from 'react';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
 import { Icon } from './Icon';
 
@@ -32,10 +35,11 @@ export const Breadcrumbs = ({
   items: Crumb[];
   tone?: BreadcrumbTone;
 }) => {
+  const t = useT();
   const styles = tones[tone];
 
   return (
-    <nav aria-label="Breadcrumb">
+    <nav aria-label={t('common.breadcrumb')}>
       <ol
         className={cn(
           'flex flex-wrap items-center gap-1.5 text-[13px]',

@@ -1,9 +1,14 @@
 import { Schema } from 'mongoose';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
+import { INote } from '@/ticket/@types/note';
+
+function requiresContent(this: INote) {
+  return !this.attachments?.length && !this.mailMessageId;
+}
 
 export const noteSchema = new Schema(
   {
-    content: { type: String, required: true },
+    content: { type: String, required: requiresContent },
     contentId: { type: String, required: true },
     createdBy: { type: String, required: true },
     mentions: { type: [String], default: [] },

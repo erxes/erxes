@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { Icon } from '@/modules/ui/components/Icon';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
 import { FORM_PORTAL_SUBMIT } from '../graphql/mutations/forms';
 import { formTitle, type PortalForm, type SaveLeadResponse } from '../types';
@@ -86,40 +87,47 @@ const FormCardActions = ({ children }: { children: ReactNode }) => (
   <div className="mb-2 mr-2 mt-4 flex justify-end gap-2">{children}</div>
 );
 
-const StepHeader = ({ steps, index }: { steps: FormStep[]; index: number }) => (
-  <div className="m-2 mb-0 flex flex-none flex-col gap-3">
-    <div className="flex items-center gap-2">
-      <Badge className="rounded-xl font-mono text-xs">STEP {index + 1}</Badge>
-      <h2 className="text-base font-semibold text-primary">
-        {steps[index].name}
-      </h2>
-    </div>
-    <div className="flex items-center gap-1">
-      {steps.map((step, position) => (
-        <div
-          key={step.key}
-          className={cn(
-            'h-1 flex-1 rounded-full bg-border',
-            position === index && 'bg-primary',
-          )}
-        />
-      ))}
-    </div>
-    {steps[index].description ? (
-      <div className="text-xs text-accent-foreground">
-        {steps[index].description}
+const StepHeader = ({ steps, index }: { steps: FormStep[]; index: number }) => {
+  const t = useT();
+
+  return (
+    <div className="m-2 mb-0 flex flex-none flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <Badge className="rounded-xl font-mono text-xs">
+          {t('forms.step', { number: index + 1 })}
+        </Badge>
+        <h2 className="text-base font-semibold text-primary">
+          {steps[index].name}
+        </h2>
       </div>
-    ) : null}
-  </div>
-);
+      <div className="flex items-center gap-1">
+        {steps.map((step, position) => (
+          <div
+            key={step.key}
+            className={cn(
+              'h-1 flex-1 rounded-full bg-border',
+              position === index && 'bg-primary',
+            )}
+          />
+        ))}
+      </div>
+      {steps[index].description ? (
+        <div className="text-xs text-accent-foreground">
+          {steps[index].description}
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 export const FormView = ({ form: definition }: { form: PortalForm }) => {
+  const t = useT();
   const steps = formSteps(definition);
   const answerable = steps.flatMap((step) => step.fields.filter(isAnswerable));
-  const title = formTitle(definition);
+  const title = formTitle(definition, t);
   const description = definition.description?.trim() ?? '';
   const primaryColor = formPrimaryColor(definition);
-  const submitLabel = definition.buttonText?.trim() || 'Send';
+  const submitLabel = definition.buttonText?.trim() || t('forms.send');
 
   const [stepIndex, setStepIndex] = useState(0);
   const step = steps[stepIndex];
@@ -129,7 +137,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
     useMutation<SaveLeadResponse>(FORM_PORTAL_SUBMIT);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema(answerable)),
+    resolver: zodResolver(formSchema(answerable, t)),
     defaultValues: defaultValues(answerable),
   });
 
@@ -169,8 +177,8 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
     if (saved?.status === 'ok') {
       toast({
         variant: 'success',
-        title: 'Received',
-        description: 'Your completed form was saved.',
+        title: t('forms.received'),
+        description: t('forms.receivedText'),
       });
       return;
     }
@@ -179,7 +187,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
 
     for (const issue of issues) {
       form.setError(issue.fieldId as string, {
-        message: issue.text ?? 'That value is not valid.',
+        message: issue.text ?? t('forms.invalidValue'),
       });
     }
 
@@ -199,18 +207,17 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
   if (result?.status === 'ok') {
     return (
       <FormCard
-        title={definition.leadData?.thankTitle?.trim() || 'Form received'}
+        title={definition.leadData?.thankTitle?.trim() || t('forms.thankTitle')}
         primaryColor={primaryColor}
       >
         <FormCardContent>
           <p className="text-sm text-muted-foreground">
-            {definition.leadData?.thankContent?.trim() ||
-              'Thank you. The support team has received the details you submitted.'}
+            {definition.leadData?.thankContent?.trim() || t('forms.thankText')}
           </p>
         </FormCardContent>
         <FormCardActions>
           <Button variant="secondary" asChild>
-            <Link href="/forms">Other forms</Link>
+            <Link href="/forms">{t('forms.other')}</Link>
           </Button>
           <Button
             type="button"
@@ -220,7 +227,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
               reset();
             }}
           >
-            Fill it in again
+            {t('forms.again')}
           </Button>
         </FormCardActions>
       </FormCard>
@@ -235,9 +242,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
         primaryColor={primaryColor}
       >
         <FormCardContent>
-          <p className="text-sm text-muted-foreground">
-            This form has no fields to fill in.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('forms.noFields')}</p>
         </FormCardContent>
       </FormCard>
     );
@@ -289,8 +294,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                       )}
                     >
                       <Icon name="alert" size={15} className="mt-px shrink-0" />
-                      The “{fieldLabel(field)}” field cannot be filled in from
-                      the portal yet — please contact the support team.
+                      {t('forms.unsupported', { label: fieldLabel(field, t) })}
                     </p>
                   );
                 }
@@ -304,7 +308,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                     name={field._id}
                     render={({ field: control }) => (
                       <Form.Item className={fieldSpanClass(field)}>
-                        <Form.Label>{fieldLabel(field)}</Form.Label>
+                        <Form.Label>{fieldLabel(field, t)}</Form.Label>
                         {hint ? (
                           <Form.Description>{hint}</Form.Description>
                         ) : null}
@@ -328,7 +332,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                   className="flex items-start gap-2 rounded-lg bg-danger-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-danger sm:col-span-2"
                 >
                   <Icon name="alert" size={15} className="mt-px shrink-0" />
-                  Something went wrong submitting the form: {error.message}
+                  {t('forms.submitError', { message: error.message })}
                 </p>
               ) : null}
             </div>
@@ -342,11 +346,15 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                 disabled={stepIndex === 0 || loading}
                 onClick={() => setStepIndex((current) => current - 1)}
               >
-                Previous
+                {t('forms.previous')}
               </Button>
             ) : null}
             <Button type="submit" disabled={loading}>
-              {isLastStep ? (loading ? 'Submitting…' : submitLabel) : 'Next'}
+              {isLastStep
+                ? loading
+                  ? t('tickets.submitting')
+                  : submitLabel
+                : t('forms.next')}
             </Button>
           </FormCardActions>
         </FormCard>
