@@ -65,12 +65,16 @@ export const types = `
     projectPriority: Int
     projectLeadId: String
     projectMilestoneName: String
-    startDate: Date
-    targetDate: Date
-    createdDate: Date
-    updatedDate: Date
-    completedDate: Date
-
+    startDateStartDate: Date
+    startDateEndDate: Date
+    targetDateStartDate: Date
+    targetDateEndDate: Date
+    createdStartDate: Date
+    createdEndDate: Date
+    updatedStartDate: Date
+    updatedEndDate: Date
+    completedStartDate: Date
+    completedEndDate: Date
     ${GQL_CURSOR_PARAM_DEFS}
   }
 

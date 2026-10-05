@@ -70,11 +70,11 @@ const TasksFilterPopover = () => {
     milestone: string;
     cycleFilter: string;
     estimatePoint: number;
-    targetDate: string;
-    createdDate: string;
-    updatedDate: string;
-    startDate: string;
-    completedDate: string;
+    targetDateStartDate: string;
+    createdStartDate: string;
+    updatedStartDate: string;
+    startDateStartDate: string;
+    completedStartDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -90,11 +90,11 @@ const TasksFilterPopover = () => {
     'cycleFilter',
     'createdBy',
     'estimatePoint',
-    'targetDate',
-    'createdDate',
-    'updatedDate',
-    'startDate',
-    'completedDate',
+    'targetDateStartDate',
+    'createdStartDate',
+    'updatedStartDate',
+    'startDateStartDate',
+    'completedStartDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -171,23 +171,23 @@ const TasksFilterPopover = () => {
                 )}
                 <Command.Separator className="my-1" />
                 <Command.Group heading={t('dates')}>
-                  <Filter.Item value="targetDate">
+                  <Filter.Item value="targetDateStartDate">
                     <IconCalendarEvent />
                     {t('due-date')}
                   </Filter.Item>
-                  <Filter.Item value="createdDate">
+                  <Filter.Item value="createdStartDate">
                     <IconCalendarPlus />
                     {t('created-date')}
                   </Filter.Item>
-                  <Filter.Item value="updatedDate">
+                  <Filter.Item value="updatedStartDate">
                     <IconCalendar />
                     {t('updated-date')}
                   </Filter.Item>
-                  <Filter.Item value="startDate">
+                  <Filter.Item value="startDateStartDate">
                     <IconCalendarTime />
                     {t('started-date')}
                   </Filter.Item>
-                  <Filter.Item value="completedDate">
+                  <Filter.Item value="completedStartDate">
                     <IconCalendarX />
                     {t('completed-date')}
                   </Filter.Item>
@@ -252,6 +252,11 @@ const TasksFilterPopover = () => {
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
+        <SelectDueDateFilter.FilterDialog />
+        <SelectCreatedDateFilter.FilterDialog />
+        <SelectUpdatedDateFilter.FilterDialog />
+        <SelectStartedDateFilter.FilterDialog />
+        <SelectCompletedDateFilter.FilterDialog />
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
@@ -285,11 +290,11 @@ export const TasksFilter = () => {
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
-    targetDate: string;
-    createdDate: string;
-    updatedDate: string;
-    startDate: string;
-    completedDate: string;
+    targetDateStartDate: string;
+    createdStartDate: string;
+    updatedStartDate: string;
+    startDateStartDate: string;
+    completedStartDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -306,11 +311,11 @@ export const TasksFilter = () => {
     'createdBy',
     'cycleFilter',
     'estimatePoint',
-    'targetDate',
-    'createdDate',
-    'updatedDate',
-    'startDate',
-    'completedDate',
+    'targetDateStartDate',
+    'createdStartDate',
+    'updatedStartDate',
+    'startDateStartDate',
+    'completedStartDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -444,35 +449,35 @@ export const TasksFilter = () => {
           </Filter.BarName>
           <SelectCreatorTask.FilterBar />
         </Filter.BarItem>
-        <Filter.BarItem queryKey="targetDate">
+        <Filter.BarItem queryKey="targetDateStartDate">
           <Filter.BarName>
             <IconCalendarEvent />
             {t('due-date')}
           </Filter.BarName>
           <SelectDueDateFilter.FilterBar />
         </Filter.BarItem>
-        <Filter.BarItem queryKey="createdDate">
+        <Filter.BarItem queryKey="createdStartDate">
           <Filter.BarName>
             <IconCalendarPlus />
             {t('created')}
           </Filter.BarName>
           <SelectCreatedDateFilter.FilterBar />
         </Filter.BarItem>
-        <Filter.BarItem queryKey="updatedDate">
+        <Filter.BarItem queryKey="updatedStartDate">
           <Filter.BarName>
             <IconCalendar />
             {t('updated')}
           </Filter.BarName>
           <SelectUpdatedDateFilter.FilterBar />
         </Filter.BarItem>
-        <Filter.BarItem queryKey="startDate">
+        <Filter.BarItem queryKey="startDateStartDate">
           <Filter.BarName>
             <IconCalendarTime />
             {t('started')}
           </Filter.BarName>
           <SelectStartedDateFilter.FilterBar />
         </Filter.BarItem>
-        <Filter.BarItem queryKey="completedDate">
+        <Filter.BarItem queryKey="completedStartDate">
           <Filter.BarName>
             <IconCalendarX />
             {t('completed')}

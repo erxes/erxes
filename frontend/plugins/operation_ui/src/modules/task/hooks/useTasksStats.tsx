@@ -1,3 +1,4 @@
+import { getTaskDateFilterVariables } from '@/task/utils/dateFilters';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/operation/constants/priorityLabels';
 import { useProjects } from '@/project/hooks/useGetProjects';
 import { IProject } from '@/project/types';
@@ -51,11 +52,11 @@ export const useTasksStats = ({
     cycleFilter,
     createdBy,
     estimatePoint,
-    targetDate,
-    createdDate,
-    updatedDate,
-    startDate,
-    completedDate,
+    targetDateStartDate,
+    createdStartDate,
+    updatedStartDate,
+    startDateStartDate,
+    completedStartDate,
     project,
     projectStatus,
     projectPriority,
@@ -72,11 +73,11 @@ export const useTasksStats = ({
     tags: string[];
     cycleFilter: string;
     estimatePoint: number;
-    targetDate: string;
-    createdDate: string;
-    updatedDate: string;
-    startDate: string;
-    completedDate: string;
+    targetDateStartDate: string;
+    createdStartDate: string;
+    updatedStartDate: string;
+    startDateStartDate: string;
+    completedStartDate: string;
     project: string;
     projectStatus: string;
     projectPriority: string;
@@ -93,11 +94,11 @@ export const useTasksStats = ({
     'cycleFilter',
     'createdBy',
     'estimatePoint',
-    'targetDate',
-    'createdDate',
-    'updatedDate',
-    'startDate',
-    'completedDate',
+    'targetDateStartDate',
+    'createdStartDate',
+    'updatedStartDate',
+    'startDateStartDate',
+    'completedStartDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -123,11 +124,13 @@ export const useTasksStats = ({
         milestoneId: milestone || undefined,
         tagIds: tags || undefined,
         estimatePoint: estimatePoint || undefined,
-        targetDate: targetDate || undefined,
-        createdDate: createdDate || undefined,
-        updatedDate: updatedDate || undefined,
-        startDate: startDate || undefined,
-        completedDate: completedDate || undefined,
+        ...getTaskDateFilterVariables({
+          targetDateStartDate,
+          createdStartDate,
+          updatedStartDate,
+          startDateStartDate,
+          completedStartDate,
+        }),
         projectId: project || undefined,
         projectStatus: projectStatus ? Number(projectStatus) : undefined,
         projectPriority: projectPriority ? Number(projectPriority) : undefined,
@@ -160,7 +163,7 @@ export const useTasksStats = ({
     },
     skip: projectIds.length === 0,
   });
-  
+
   const projects: IProject[] = useMemo(() => {
     return projectsList || [];
   }, [projectsList]);
@@ -268,7 +271,9 @@ export const useTasksStats = ({
           id: projectId,
           name:
             project?.name ||
-            (projectId === 'no-project' ? t('no-project-label') : t('unknown-project')),
+            (projectId === 'no-project'
+              ? t('no-project-label')
+              : t('unknown-project')),
           totalTasks: stats.total,
           completedTasks: stats.completed,
           startedTasks: stats.started,
@@ -302,7 +307,7 @@ export const useTasksStats = ({
       projectStats,
       tagStats,
     };
-  }, [tasks, projects, tagsData]);
+  }, [tasks, projects, tagsData, t]);
 
   return {
     tasks,

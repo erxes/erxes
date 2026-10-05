@@ -308,7 +308,7 @@ export const CreateTaskActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="targetDate"
-          label="Target date"
+          label="Due date"
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Date]}
         />

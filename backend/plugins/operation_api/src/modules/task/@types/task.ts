@@ -58,14 +58,25 @@ export interface ITaskDocument extends ITask, Document {
   updatedAt: Date;
 }
 
-export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
+export interface ITaskFilter
+  extends
+    ICursorPaginateParams,
+    IListParams,
+    Omit<ITask, 'startDate' | 'targetDate'> {
   userId?: string;
   cycleFilter?: CycleFilterType;
   projectStatus?: number;
   projectPriority?: number;
   projectLeadId?: string;
   projectMilestoneName?: string;
-  createdDate?: string;
-  updatedDate?: string;
-  completedDate?: string;
+  startDateStartDate?: Date | string;
+  startDateEndDate?: Date | string;
+  targetDateStartDate?: Date | string;
+  targetDateEndDate?: Date | string;
+  createdStartDate?: Date | string;
+  createdEndDate?: Date | string;
+  updatedStartDate?: Date | string;
+  updatedEndDate?: Date | string;
+  completedStartDate?: Date | string;
+  completedEndDate?: Date | string;
 }

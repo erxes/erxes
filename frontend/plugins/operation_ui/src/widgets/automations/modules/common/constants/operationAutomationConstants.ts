@@ -20,7 +20,7 @@ export const TASK_ACTION_LABELS: Record<string, string> = {
   projectId: 'Project ID',
   milestoneId: 'Milestone ID',
   startDate: 'Start date',
-  targetDate: 'Target date',
+  targetDate: 'Due date',
   tagIds: 'Tags',
 };
 

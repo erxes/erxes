@@ -148,7 +148,7 @@ export const TasksSetDueDateTrigger = ({
   return (
     <Command.Item onSelect={() => setCurrentContent('setTargetDate')}>
       <IconCalendarEvent className="size-4" />
-      <div className="flex items-center">{t('set-target-date')}</div>
+      <div className="flex items-center">{t('due-date')}</div>
     </Command.Item>
   );
 };
