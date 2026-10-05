@@ -1,15 +1,16 @@
+import { Sidebar, activePluginState } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { AppPath } from '@/types/paths/AppPath';
 import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
+import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
+import { useEffect } from 'react';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
-import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
-import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { AppPath } from '@/types/paths/AppPath';
-import { activePluginState, Sidebar } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
@@ -29,6 +30,7 @@ export const MainNavigationBar = () => {
   const isInboxActive =
     pathname === `/${AppPath.MyInbox}` ||
     pathname.startsWith(`/${AppPath.MyInbox}/`);
+  const isWelcomeActive = pathname === AppPath.WelcomeHome;
   const routeActivity = findNavigationActivityByPath(activities, pathname);
   const activeActivity =
     routeActivity ||
@@ -77,12 +79,19 @@ export const MainNavigationBar = () => {
     navigate(`/${AppPath.MyInbox}`);
   };
 
+  const handleSelectWelcome = () => {
+    navigate(AppPath.WelcomeHome);
+  };
+
   return (
     <div className="flex h-full min-w-0">
       <NavigationActivityRail
         activities={activities}
-        activeActivityId={isInboxActive ? null : activeActivity?.id || null}
+        activeActivityId={
+          isInboxActive || isWelcomeActive ? null : activeActivity?.id || null
+        }
         isInboxActive={isInboxActive}
+        isWelcomeActive={isWelcomeActive}
         hiddenActivities={hiddenActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
@@ -90,6 +99,7 @@ export const MainNavigationBar = () => {
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}
+        onSelectWelcome={handleSelectWelcome}
         onSelectActivity={handleSelectActivity}
         visibleActivities={visibleActivities}
       />
