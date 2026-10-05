@@ -2,10 +2,7 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_PROJECT } from '@/project/graphql/queries/getProject';
 import { useEffect } from 'react';
 import { PROJECT_CHANGED } from '@/project/graphql/subscriptions/projectChanged';
-import type {
-  GetProjectQuery,
-  GetProjectQueryVariables,
-} from '~/gql/graphql';
+import type { GetProjectQuery, GetProjectQueryVariables } from '~/gql/graphql';
 
 export const useGetProject = (
   projectId?: string | null,

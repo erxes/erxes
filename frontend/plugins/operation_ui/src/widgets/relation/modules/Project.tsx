@@ -38,7 +38,8 @@ export const Project = ({
 
   const { createMultipleRelations } = useCreateMultipleRelations();
 
-  const loading = loadingRelations || (projectIds.length > 0 && loadingProjects);
+  const loading =
+    loadingRelations || (projectIds.length > 0 && loadingProjects);
 
   if (loading) {
     return <Spinner containerClassName="py-20" />;

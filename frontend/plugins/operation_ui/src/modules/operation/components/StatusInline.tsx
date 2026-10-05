@@ -66,7 +66,9 @@ export const StatusInlineIcon = ({
   statusType?: number | string | null;
 }) => {
   const numericType =
-    typeof statusType === 'string' ? parseInt(statusType, 10) : (statusType ?? 0);
+    typeof statusType === 'string'
+      ? parseInt(statusType, 10)
+      : (statusType ?? 0);
 
   const config = STATUS_CONFIG[numericType];
 
@@ -93,7 +95,9 @@ export const StatusInlineLabel = ({
   statusType?: number | string | null;
 }) => {
   const numericType =
-    typeof statusType === 'string' ? parseInt(statusType, 10) : (statusType ?? 1);
+    typeof statusType === 'string'
+      ? parseInt(statusType, 10)
+      : (statusType ?? 1);
 
   const config = STATUS_CONFIG[numericType];
 
