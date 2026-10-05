@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -54,6 +54,9 @@
   floating widget and opens printable receipt HTML for the current user.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- Registers a product remainder provider that lets shared product choosers
+  overlay Erkhet remainders when a `remainderConfig` exists for the active
+  sales pipeline.
 - Prints deal eBarimt responses in a popup receipt template that supports
   configured `headerText`, `footerText`, and optional receipt logo images.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
@@ -73,6 +76,7 @@
 | eBarimt           | `frontend/plugins/mongolian_ui/src/modules/ebarimt`               | eBarimt put responses, filters, tables, and settings UI.         |
 | eBarimt print     | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`     | Popup receipt HTML for deal eBarimt responses.                   |
 | Erkhet sync       | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`           | Erkhet checking, sync, and settings UI.                          |
+| Product remainders | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync/product-remainders` | Provides the Module Federation product chooser remainder provider. |
 | MS Dynamic        | `frontend/plugins/mongolian_ui/src/modules/msdynamic`             | MS Dynamic checking, sync history, and settings UI.              |
 | Product places    | `frontend/plugins/mongolian_ui/src/modules/productplaces`         | Product place settings and UI.                                   |
 | Exchange rates    | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`         | Exchange rate list and related UI.                               |
@@ -93,6 +97,7 @@
 - Floating product-places response widget that listens for
   `productPlacesResponded` and prints the JSON receipt content returned by the
   backend.
+- Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
@@ -110,6 +115,7 @@
   segment and assignee selection.
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
+- Shared `ui-modules` product chooser remainder provider contract.
 - React Router host mounting contracts from core UI Module Federation.
 - Translation namespace `mongolian`.
 
@@ -117,6 +123,8 @@
 
 - Apollo Client owns server state for queries and mutations in each feature's
   `graphql` folder.
+- Product chooser remainder overlays are fetched on demand through Apollo
+  queries and are not stored in plugin-local Jotai state.
 - Jotai atoms are used only for plugin-local shared UI state such as detail
   rendering flags and table total counts.
 - URL query state powers filters, detail sheets, and cursor controls through
@@ -138,6 +146,8 @@
   definitions must stay aligned.
 - Do not modify backend contracts or shared libraries from a frontend-only
   Mongolian UI task.
+- The product remainder provider must no-op when no sales `pipelineId` or no
+  `remainderConfig` exists for that pipeline.
 
 ## Validation
 
