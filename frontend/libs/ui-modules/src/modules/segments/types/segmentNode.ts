@@ -1,4 +1,4 @@
-export type TSegmentValue = string | number | boolean | string[];
+export type TSegmentValue = string | number | boolean | string[] | Date;
 
 export type TSegmentGroupNode = {
   kind: 'group';
