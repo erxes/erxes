@@ -22,6 +22,7 @@ export const generateFilter = async (
   user: IUserDocument | undefined,
   models: IModels,
   subdomain?: string,
+  skipPipelineVisibility = false,
 ) => {
   const {
     segmentIds,
@@ -66,7 +67,7 @@ export const generateFilter = async (
     );
   };
 
-  if (filter.pipelineId) {
+  if (filter.pipelineId && !skipPipelineVisibility) {
     const pipeline = await models.Pipeline.findOne({
       _id: filter.pipelineId,
     });
@@ -86,7 +87,7 @@ export const generateFilter = async (
     if (visibilityCondition) {
       andConditions.push(visibilityCondition);
     }
-  } else {
+  } else if (!skipPipelineVisibility) {
     const pipelines = await models.Pipeline.find(
       filter.channelId ? { channelId: filter.channelId } : {},
     ).lean();

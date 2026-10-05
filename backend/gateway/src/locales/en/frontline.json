@@ -1768,7 +1768,7 @@
   "field-is-required": "This field is required",
   "custom-domain": "Custom Domain",
   "customdomain-title": "Custom Domain",
-  "customdomain-description": "Serve your help center from your own domain. Visitors stay on your domain while seeing the help center at {{target}}.",
+  "customdomain-description": "Serve this help center from your own domain, such as help.yourcompany.com. Each help center can have its own domain, and visitors stay on it.",
   "customdomain-label": "Custom domain",
   "customdomain-hint": "Use a subdomain such as help.yourcompany.com. Root domains need a DNS provider that supports CNAME flattening.",
   "customdomain-live": "Your help center is live on this domain.",
