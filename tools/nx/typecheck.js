@@ -17,7 +17,7 @@ module.exports = {
         const projectJson = JSON.parse(
           readFileSync(join(context.workspaceRoot, configFile), 'utf-8'),
         );
-        if (projectJson.targets && projectJson.targets.typecheck) {
+        if (projectJson.targets?.typecheck) {
           return [configFile, {}];
         }
         const tsconfig = TSCONFIG_CANDIDATES.find((file) =>
