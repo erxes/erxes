@@ -108,7 +108,7 @@ export const SurveyGeneral = () => {
                   mode="single"
                   onValueChange={(value) => {
                     const channelId = Array.isArray(value)
-                      ? value[0] ?? ''
+                      ? (value[0] ?? '')
                       : value;
 
                     if (channelId !== field.value) {
