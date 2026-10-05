@@ -24,6 +24,7 @@ import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
 import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
+import TdbCGWForm from '~/modules/settings/payment/components/TdbCGWForm';
 import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
 
 type Props = {
@@ -84,6 +85,12 @@ const khanbankSchema = z.object({
   configId: z.string().min(1, 'Configuration is required'),
   accountNumber: z.string().min(1, 'Account is required'),
   ibanAcctNo: z.string().optional(),
+});
+const tdbCgwSchema = z.object({
+  kind: z.string().min(1, 'Payment method is required'),
+  name: z.string().min(1, 'Name is required'),
+  status: z.enum(['active', 'inactive']),
+  configId: z.string().min(1, 'Configuration is required'),
 });
 
 // Dynamic schema generator based on payment kind
@@ -153,6 +160,9 @@ const createPaymentSchema = (selectedKind: string) => {
   }
   if (selectedKind === PaymentKind.KHANBANK) {
     return khanbankSchema.extend(settingsFields);
+  }
+  if (selectedKind === PaymentKind.TDB_CGW) {
+    return tdbCgwSchema.extend(settingsFields);
   }
   return baseSchema.extend(dynamicFields).extend(settingsFields);
 };
@@ -344,6 +354,13 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
 
     return <KhanbankForm payment={payment} form={form} />;
+  };
+  const renderTdbCgw = () => {
+    if (selectedKind !== PaymentKind.TDB_CGW) {
+      return null;
+    }
+
+    return <TdbCGWForm payment={payment} form={form} />;
   };
 
   return (
@@ -550,6 +567,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
 
               {renderQuickQr()}
               {renderKhanbank()}
+              {renderTdbCgw()}
             </div>
           </ScrollArea>
         </Sheet.Content>

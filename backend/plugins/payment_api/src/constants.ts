@@ -158,6 +158,13 @@ export const PAYMENTS = {
       getOrderDetail: '/order/:orderId',
     },
   },
+  tdb_cgw: {
+    kind: 'tdb_cgw',
+    name: 'TDB Corporate Gateway',
+    description: 'connect-tdb-corporate-gateway',
+    type: 'gateway',
+    acceptedCurrencies: ['MNT'],
+  },
 
   ALL: [
     'qpay',
@@ -174,6 +181,7 @@ export const PAYMENTS = {
     'khanbank',
     'toki',
     'tdb',
+    'tdb_cgw',
   ],
 };
 

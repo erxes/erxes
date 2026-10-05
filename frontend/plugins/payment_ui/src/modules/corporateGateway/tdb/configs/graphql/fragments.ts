@@ -3,6 +3,6 @@ export const configFields = `
   name
   description
   apiUrl
-  username
+  clientId
   testMode
 `;

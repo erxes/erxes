@@ -3,12 +3,9 @@ import {
   TdbOrderInput,
   TdbOrderCreateResponse,
   TdbOrderDetail,
-} from '../@types/tdb';
+} from '@/corporateGateway/tdb/@types/tdb';
 
 export class OrdersApi extends BaseApi {
-  /**
-   * Create a payment order
-   */
   async create(input: TdbOrderInput): Promise<TdbOrderCreateResponse> {
     const data = {
       order: {
@@ -23,42 +20,39 @@ export class OrdersApi extends BaseApi {
 
     return this.request({
       method: 'POST',
+      path: 'order',
       data,
-      useBasicAuth: true,
     });
   }
 
-  /**
-   * Get order details by order ID and password
-   */
-  async get(orderId: number, password: string): Promise<TdbOrderDetail> {
+  async get(
+    orderId: number,
+    password: string,
+  ): Promise<TdbOrderDetail> {
     return this.request({
       method: 'GET',
-      params: { password },
       path: `${orderId}`,
-      useBasicAuth: false,
+      params: { password },
     });
   }
 
-  /**
-   * Check if order status indicates successful payment
-   */
   static isSuccessfulStatus(status: string): boolean {
-    const successfulStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
+    const successfulStatuses = [
+      'FULLYPAID',
+      'PARTPAID',
+      'AUTHORIZED',
+      'PAID',
+    ];
+
     return successfulStatuses.includes(status.toUpperCase());
   }
 
-  /**
-   * Get order with parsed success flag
-   */
   async getWithStatus(
     orderId: number,
     password: string,
-  ): Promise<{
-    order: TdbOrderDetail['order'];
-    isSuccessful: boolean;
-  }> {
+  ) {
     const detail = await this.get(orderId, password);
+
     return {
       order: detail.order,
       isSuccessful: OrdersApi.isSuccessfulStatus(detail.order.status),

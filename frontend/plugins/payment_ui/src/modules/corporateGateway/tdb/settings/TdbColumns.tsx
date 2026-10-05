@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/table-core';
-import { IconEdit, IconHash, IconTrash, IconUser } from '@tabler/icons-react';
+import { IconEdit, IconHash, IconKey, IconTrash } from '@tabler/icons-react';
 import {
   Badge,
   Combobox,
@@ -89,11 +89,11 @@ export const tdbColumns = (actions: Actions): ColumnDef<ITdbConfig>[] => [
     ),
   },
   {
-    id: 'username',
-    accessorKey: 'username',
+    id: 'clientId',
+    accessorKey: 'clientId',
     header: () => {
       const { t } = useTranslation('payment');
-      return <RecordTable.InlineHead label={t('username')} icon={IconUser} />;
+      return <RecordTable.InlineHead label={t('client-id')} icon={IconKey}/>;
     },
     cell: ({ cell }) => (
       <RecordTableInlineCell>

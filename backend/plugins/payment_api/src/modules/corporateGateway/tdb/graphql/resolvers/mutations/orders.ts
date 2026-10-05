@@ -5,23 +5,23 @@ import { TdbOrderInput } from '../../../@types/tdb';
 const mutations = {
   async tdbCreateOrder(
     _root,
-    args: { configId: string; input: TdbOrderInput },
+    args: {
+      configId: string;
+      input: TdbOrderInput;
+    },
     { models }: IContext,
   ) {
-    const config = await models.TdbConfigs.getConfig({ _id: args.configId });
+    const config = await models.TdbConfigs.getConfig({
+      _id: args.configId,
+    });
 
     const ordersApi = new OrdersApi({
       apiUrl: config.apiUrl,
-      username: config.username,
-      password: config.password,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
     });
 
-    try {
-      const response = await ordersApi.create(args.input);
-      return response;
-    } catch (e) {
-      throw new Error(`Failed to create TDB order: ${e.message}`);
-    }
+    return ordersApi.create(args.input);
   },
 };
 

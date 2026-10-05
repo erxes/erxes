@@ -16,6 +16,7 @@ import StorePay from './payments/StorePay';
 import Stripe from './payments/Stripe';
 import KhanbankForm from './payments/KhanbankForm';
 import GolomtForm from './payments/GolomtForm';
+import TdbCGWForm from './payments/TdbCGWForm';
 
 const Content = () => {
   const isMobile = useIsMobile();
@@ -39,6 +40,8 @@ const Content = () => {
         return <Stripe />;
       case 'khanbank':
         return <KhanbankForm />;
+      case 'tdb_cgw':
+      return <TdbCGWForm />;
       default:
         return (
           <>
