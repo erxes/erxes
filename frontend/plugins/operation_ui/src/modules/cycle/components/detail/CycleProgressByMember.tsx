@@ -20,7 +20,9 @@ export const CycleProgressByMember = ({
   const { t } = useTranslation('operation');
   const [assignee, setAssignee] = useQueryState<string | null>('assignee');
 
-  const { cycleProgressByMember } = useGetCycleProgressByMember(isCompleted ? undefined : cycleId);
+  const { cycleProgressByMember } = useGetCycleProgressByMember(
+    isCompleted ? undefined : cycleId,
+  );
 
   let progress = cycleProgressByMember || statistics?.progressByMember;
 

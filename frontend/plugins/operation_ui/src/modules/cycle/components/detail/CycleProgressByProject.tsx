@@ -17,10 +17,11 @@ export const CycleProgressByProject = ({
   statistics?: ICycleStatistics;
 }) => {
   const { t } = useTranslation('operation');
-  const { cycleProgressByProject } = useGetCycleProgressByProject(isCompleted ? undefined : cycleId);
+  const { cycleProgressByProject } = useGetCycleProgressByProject(
+    isCompleted ? undefined : cycleId,
+  );
 
-  const progress =
-    cycleProgressByProject || statistics?.progressByProject;
+  const progress = cycleProgressByProject || statistics?.progressByProject;
 
   if (!progress) {
     return null;

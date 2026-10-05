@@ -29,7 +29,8 @@ const ProjectMilestone = ({ projectId }: { projectId: string }) => {
     },
   });
 
-  const { projectProgressByMilestone } = useGetProjectProgressByMilestone(projectId);
+  const { projectProgressByMilestone } =
+    useGetProjectProgressByMilestone(projectId);
 
   const getProgress = (item: IMilestoneProgress) => {
     if (!item.totalScope || item.totalScope === 0) return 0;

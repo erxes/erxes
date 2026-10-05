@@ -15,7 +15,9 @@ export const CycleProgressChart = ({
   isCompleted: boolean;
   statistics?: ICycleStatistics;
 }) => {
-  const { getCycleProgressChart } = useGetCycleProgressChart(isCompleted ? undefined : cycleId);
+  const { getCycleProgressChart } = useGetCycleProgressChart(
+    isCompleted ? undefined : cycleId,
+  );
 
   const progress = getCycleProgressChart || statistics?.chartData;
 
