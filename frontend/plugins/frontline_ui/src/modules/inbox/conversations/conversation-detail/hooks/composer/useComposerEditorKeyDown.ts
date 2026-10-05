@@ -29,7 +29,7 @@ export const useComposerEditorKeyDown = ({
 
   useEffect(() => {
     const node = editorRef.current;
-    if (!node) return;
+    if (!node) return undefined;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (

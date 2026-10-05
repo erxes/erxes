@@ -22,38 +22,25 @@ import type {
   ComposerGalleryResult,
 } from '@/inbox/conversations/conversation-detail/types/composer';
 
-export const ComposerGallery = (props: ComposerGalleryProps) => {
-  const { block, editor, disabled } = props;
-  const gallery = useComposerGallery(props);
-  const { open, onOpenChange, uploading, images, removeGallery } = gallery;
+const ComposerGalleryIcon = () => (
+  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground">
+    <IconPhoto className="size-4" />
+  </span>
+);
 
+const ComposerGalleryLabel = ({ imageCount }: { imageCount: number }) => {
+  const { t } = useTranslation('frontline');
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <ComposerGallerySummary
-        imageCount={images.length}
-        disabled={disabled || uploading}
-        onRemove={removeGallery}
-      />
-      <Dialog.Content
-        data-composer-gallery-dialog
-        className="flex max-h-[85dvh] w-[calc(100%-2rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0"
-      >
-        <ComposerGalleryHeader />
-        <ComposerGalleryContent
-          columns={block.props.columns}
-          disabled={disabled}
-          gallery={gallery}
-        />
-        <Dialog.Footer className="shrink-0 items-center border-t px-6 py-4 sm:justify-between">
-          <ComposerGalleryColumns
-            block={block}
-            editor={editor}
-            disabled={uploading || disabled}
-          />
-          <ComposerGalleryDone disabled={uploading} />
-        </Dialog.Footer>
-      </Dialog.Content>
-    </Dialog>
+    <span className="min-w-0 max-w-40 text-left">
+      <span className="block truncate text-xs font-medium">
+        {t('gallery', 'Gallery')}
+      </span>
+      <span className="block text-[11px] text-muted-foreground">
+        {t('gallery-image-count', '{{count}} images', {
+          count: imageCount,
+        })}
+      </span>
+    </span>
   );
 };
 
@@ -230,22 +217,6 @@ const ComposerGalleryColumns = ({
   );
 };
 
-const ComposerGalleryLabel = ({ imageCount }: { imageCount: number }) => {
-  const { t } = useTranslation('frontline');
-  return (
-    <span className="min-w-0 max-w-40 text-left">
-      <span className="block truncate text-xs font-medium">
-        {t('gallery', 'Gallery')}
-      </span>
-      <span className="block text-[11px] text-muted-foreground">
-        {t('gallery-image-count', '{{count}} images', {
-          count: imageCount,
-        })}
-      </span>
-    </span>
-  );
-};
-
 const ComposerGalleryHeader = () => {
   const { t } = useTranslation('frontline');
   return (
@@ -275,8 +246,37 @@ const ComposerGalleryDone = ({ disabled }: { disabled: boolean }) => {
   );
 };
 
-const ComposerGalleryIcon = () => (
-  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground">
-    <IconPhoto className="size-4" />
-  </span>
-);
+export const ComposerGallery = (props: ComposerGalleryProps) => {
+  const { block, editor, disabled } = props;
+  const gallery = useComposerGallery(props);
+  const { open, onOpenChange, uploading, images, removeGallery } = gallery;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <ComposerGallerySummary
+        imageCount={images.length}
+        disabled={disabled || uploading}
+        onRemove={removeGallery}
+      />
+      <Dialog.Content
+        data-composer-gallery-dialog
+        className="flex max-h-[85dvh] w-[calc(100%-2rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0"
+      >
+        <ComposerGalleryHeader />
+        <ComposerGalleryContent
+          columns={block.props.columns}
+          disabled={disabled}
+          gallery={gallery}
+        />
+        <Dialog.Footer className="shrink-0 items-center border-t px-6 py-4 sm:justify-between">
+          <ComposerGalleryColumns
+            block={block}
+            editor={editor}
+            disabled={uploading || disabled}
+          />
+          <ComposerGalleryDone disabled={uploading} />
+        </Dialog.Footer>
+      </Dialog.Content>
+    </Dialog>
+  );
+};
