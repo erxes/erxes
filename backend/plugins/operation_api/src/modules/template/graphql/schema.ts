@@ -1,4 +1,3 @@
-
 export const types = `
   type OperationTemplate {
     _id: String!
