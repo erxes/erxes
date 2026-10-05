@@ -3,10 +3,7 @@ import { UPDATE_TEAM } from '@/team/graphql/mutations/updateTeam';
 import { GET_TEAM } from '@/team/graphql/queries/getTeam';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  TeamUpdateMutation,
-  TeamUpdateMutationVariables,
-} from '~/gql/graphql';
+import { TeamUpdateMutation, TeamUpdateMutationVariables } from '~/gql/graphql';
 
 export const useTeamUpdate = () => {
   const { t } = useTranslation('operation');

@@ -41,7 +41,10 @@ export function Teams() {
                     <Table.Cell className="font-medium border-none pl-2 w-auto ">
                       <span className="w-full flex gap-2 text-base font-medium">
                         <span className="[1lh] flex items-center">
-                          <IconComponent name={team.icon ?? undefined} className="size-4" />
+                          <IconComponent
+                            name={team.icon ?? undefined}
+                            className="size-4"
+                          />
                         </span>
                         <TextOverflowTooltip value={team.name ?? ''} />
                       </span>
@@ -68,7 +71,9 @@ export function Teams() {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{t('no-team-yet')}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-team-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
                     {t('get-started-creating-team')}
                   </p>

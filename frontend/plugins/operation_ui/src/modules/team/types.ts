@@ -22,9 +22,7 @@ export enum TeamEstimateTypes {
   EXPONENTIAL = '4',
 }
 
-export type ITeam = NonNullable<
-  NonNullable<GetTeamsQuery['getTeams']>[number]
->;
+export type ITeam = NonNullable<NonNullable<GetTeamsQuery['getTeams']>[number]>;
 
 export type ITeamMember = NonNullable<
   NonNullable<GetTeamMembersQuery['getTeamMembers']>[number]

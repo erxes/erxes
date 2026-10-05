@@ -317,7 +317,11 @@ export const StatusForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Control>
-                      <Input placeholder={t('name')} {...field} className="w-full" />
+                      <Input
+                        placeholder={t('name')}
+                        {...field}
+                        className="w-full"
+                      />
                     </Form.Control>
                   </Form.Item>
                 )}

@@ -11,7 +11,8 @@ import {
 export const useTeamMemberRemove = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
-  const [removeTeamMember, { loading, error }] = useMutation(REMOVE_TEAM_MEMBER);
+  const [removeTeamMember, { loading, error }] =
+    useMutation(REMOVE_TEAM_MEMBER);
 
   const handleRemoveTeamMember = (
     options: MutationFunctionOptions<
