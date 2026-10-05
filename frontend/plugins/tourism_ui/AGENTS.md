@@ -27,17 +27,17 @@
 
 ## Architecture
 
-| Area              | Path                                           | Responsibility                                      |
-| ----------------- | ---------------------------------------------- | --------------------------------------------------- |
-| Runtime           | `frontend/plugins/tourism_ui/src/main.ts`      | Starts the tourism UI remote.                       |
+| Area              | Path                                                      | Responsibility                                                 |
+| ----------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
+| Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                 | Starts the tourism UI remote.                                  |
 | Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, settings, and tourism route entries. |
-| Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts` | Module Federation development serving and watch ignore rules. |
-| Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`   | Registers navigation, modules, and search providers. |
-| PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`  | Owns PMS route composition and UI.                  |
-| TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`  | Owns TMS route composition and UI.                  |
-| Main module       | `frontend/plugins/tourism_ui/src/modules/main` | Owns shared tourism route composition.              |
-| Pages             | `frontend/plugins/tourism_ui/src/pages`        | Provides route-level PMS and TMS pages.             |
-| Widgets           | `frontend/plugins/tourism_ui/src/widgets`      | Provides plugin widget exports.                     |
+| Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.  |
+| Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`              | Registers navigation, modules, and search providers.           |
+| PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`             | Owns PMS route composition and UI.                             |
+| TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns TMS route composition and UI.                             |
+| Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                         |
+| Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                        |
+| Widgets           | `frontend/plugins/tourism_ui/src/widgets`                 | Provides plugin widget exports.                                |
 
 ## Contracts
 

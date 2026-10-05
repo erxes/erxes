@@ -13,7 +13,11 @@ export const EBarimtSidebar = () => {
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
               <EBarimtSidebarItem
                 key={path}
-                to={path ? `/settings/mongolian/ebarimt/${path}` : '/settings/mongolian/ebarimt'}
+                to={
+                  path
+                    ? `/settings/mongolian/ebarimt/${path}`
+                    : '/settings/mongolian/ebarimt'
+                }
               >
                 {t(label)}
               </EBarimtSidebarItem>

@@ -9,7 +9,6 @@ import { useLastBoard } from '@/deals/boards/hooks/useLastBoard';
 import { useTranslation } from 'react-i18next';
 
 export const SalesLeftSidebar = () => {
-
   const { t } = useTranslation('sales');
 
   const navigate = useNavigate();
