@@ -165,7 +165,11 @@ export const WebDrawer = () => {
                   <Form.Item>
                     <Form.Label>{t('name')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('my-website')} required />
+                      <Input
+                        {...field}
+                        placeholder={t('my-website')}
+                        required
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -179,7 +183,8 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('client-portal')} <span className="text-destructive">*</span>
+                      {t('client-portal')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <FormComboSelect
                       options={portalOptions}
@@ -231,7 +236,8 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('template-type')} <span className="text-destructive">*</span>
+                      {t('template-type')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <FormComboSelect
                       options={TEMPLATE_TYPES}
@@ -254,7 +260,8 @@ export const WebDrawer = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('template')} <span className="text-destructive">*</span>
+                      {t('template')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <TemplateSelect
                       type={selectedType || ''}
