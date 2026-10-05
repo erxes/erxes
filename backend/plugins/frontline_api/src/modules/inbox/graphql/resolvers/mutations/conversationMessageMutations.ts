@@ -3,6 +3,8 @@ import type {
   IMessage,
 } from '@/inbox/@types/conversationMessages';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
+import { authorizeConversationAccess } from '@/inbox/conversationUtils';
+import { resolveForwardedSnapshotForMessage } from '@/inbox/forwardedMessage';
 import { pConversationClientMessageInserted } from './widget';
 import {
   reactToConversationMessage,
@@ -24,7 +26,10 @@ type DispatchedMessageData = {
   displayContent?: string;
   extraData?: Record<string, unknown>;
   attachments?: IConversationMessageAdd['attachments'];
-};
+} & Pick<
+  IMessage,
+  'messageKind' | 'providerData' | 'replyTo' | 'deliveryStatus'
+>;
 
 const storeDispatchedMessage = async ({
   data,
@@ -35,6 +40,7 @@ const storeDispatchedMessage = async ({
   userId,
   models,
   subdomain,
+  forwardedSnapshot,
 }: {
   data: DispatchedMessageData;
   doc: IConversationMessageAdd;
@@ -44,12 +50,17 @@ const storeDispatchedMessage = async ({
   userId: string;
   models: IContext['models'];
   subdomain: string;
+  forwardedSnapshot?: Record<string, unknown>;
 }) => {
   const {
     conversationId: responseConversationId,
     content,
     displayContent,
     extraData,
+    messageKind,
+    providerData,
+    replyTo,
+    deliveryStatus,
   } = data;
   if (responseConversationId && content) {
     await models.Conversations.updateConversation(responseConversationId, {
@@ -67,7 +78,24 @@ const storeDispatchedMessage = async ({
     ...(kind === 'facebook-messenger' && extraData?.facebookDelivery
       ? { content: content || '', attachments: data.attachments || [] }
       : {}),
-    ...(extraData ? { extraData } : {}),
+    ...(forwardedSnapshot
+      ? { content: doc.extraInfo?.forwardedNote || '' }
+      : {}),
+    ...(extraData || forwardedSnapshot
+      ? {
+          extraData: {
+            ...extraData,
+            ...(forwardedSnapshot && {
+              forwardedSnapshot,
+              forwardedFrom: doc.extraInfo?.forwardedFrom,
+            }),
+          },
+        }
+      : {}),
+    ...(messageKind ? { messageKind } : {}),
+    ...(providerData ? { providerData } : {}),
+    ...(replyTo ? { replyTo } : {}),
+    ...(deliveryStatus ? { deliveryStatus } : {}),
   };
 
   const message = await models.ConversationMessages.addMessage(
@@ -88,6 +116,47 @@ const storeDispatchedMessage = async ({
 };
 
 export const conversationMessageMutations = {
+  async conversationMessagePin(
+    _root: unknown,
+    {
+      conversationId,
+      messageId,
+      remove,
+    }: {
+      conversationId: string;
+      messageId: string;
+      remove?: boolean;
+    },
+    { user, models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+    await authorizeConversationAccess(models, user, conversationId);
+    const conversation = await models.Conversations.getConversation(
+      conversationId,
+    );
+    const integration = await models.Integrations.getIntegration({
+      _id: conversation.integrationId,
+    });
+    if (integration.kind !== 'discord-messenger') {
+      throw new Error('Pinning messages is not supported by this channel');
+    }
+    const response = await dispatchConversationToService(subdomain, 'discord', {
+      action: 'pin-messenger',
+      type: 'discord',
+      payload: JSON.stringify({
+        integrationId: integration._id,
+        conversationId,
+        messageId,
+        remove,
+      }),
+      integrationId: integration._id,
+    });
+    if (response?.status === 'error') {
+      throw new Error(response.errorMessage || 'Failed to update message pin');
+    }
+    return response?.data || { status: 'success' };
+  },
+
   async conversationMessageReact(
     _root: unknown,
     args: IConversationReaction,
@@ -105,8 +174,9 @@ export const conversationMessageMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation =
-        await models.Conversations.getConversation(conversationId);
+      const conversation = await models.Conversations.getConversation(
+        conversationId,
+      );
       if (!conversation?.integrationId) {
         return false;
       }
@@ -161,6 +231,10 @@ export const conversationMessageMutations = {
         replyToMessageId,
       } = doc;
       const { _id: userId } = user;
+      const forwardedSnapshot =
+        !internal && integration.kind === 'discord-messenger'
+          ? await resolveForwardedSnapshotForMessage(models, user, extraInfo)
+          : undefined;
 
       await sendNotifications(subdomain, {
         user,
@@ -281,6 +355,7 @@ export const conversationMessageMutations = {
           userId,
           models,
           subdomain,
+          forwardedSnapshot,
         });
       }
 

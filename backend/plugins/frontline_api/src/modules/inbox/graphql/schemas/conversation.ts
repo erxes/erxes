@@ -285,6 +285,11 @@ export const mutations = `
     poll: ConversationPollInput
     replyToMessageId: String
   ): ConversationMessage
+  conversationMessagePin(
+    conversationId: String!
+    messageId: String!
+    remove: Boolean
+  ): JSON
   conversationMessageEdit(
     _id: String!,
     content: String,

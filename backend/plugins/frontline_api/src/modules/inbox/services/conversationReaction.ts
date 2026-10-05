@@ -3,6 +3,8 @@ import { handleFacebookReaction } from '@/integrations/facebook/handleFacebookMe
 import { publishFacebookMessage } from '@/integrations/facebook/services/messageEvents';
 import { handleInstagramReaction } from '@/integrations/instagram/handleInstagramMessage';
 import { publishInstagramMessage } from '@/integrations/instagram/services/messageEvents';
+import { handleDiscordReaction } from '@/integrations/discord/handleDiscordMessage';
+import { publishDiscordMessage } from '@/integrations/discord/messageEvents';
 import type { IContext } from '~/connectionResolvers';
 
 export interface IConversationReaction {
@@ -13,6 +15,10 @@ export interface IConversationReaction {
 }
 
 const REACTION_HANDLERS = {
+  'discord-messenger': {
+    react: handleDiscordReaction,
+    publish: publishDiscordMessage,
+  },
   'facebook-messenger': {
     react: handleFacebookReaction,
     publish: publishFacebookMessage,
@@ -42,8 +48,9 @@ export const reactToConversationMessage = async (
     throw new Error('A reaction is required');
   }
 
-  const conversation =
-    await models.Conversations.getConversation(conversationId);
+  const conversation = await models.Conversations.getConversation(
+    conversationId,
+  );
   const integration = await models.Integrations.getIntegration({
     _id: conversation.integrationId,
   });
