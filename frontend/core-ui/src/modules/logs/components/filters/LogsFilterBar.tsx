@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   IconCalendarPlus,
   IconHash,
+  IconStack2,
   IconProgressCheck,
   IconSourceCode,
   IconTag,
@@ -14,6 +15,7 @@ import { LogActionsFilter } from './LogActionFilter';
 import { LogContentTypeFilter } from './LogContentTypeFilter';
 import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
+import { LogsRefetchButton } from '../LogsRefetchButton';
 import { LogsTotalCount } from '../LogsTotalCount';
 
 const LogStatusBarItem = () => {
@@ -115,6 +117,7 @@ const LogContentTypeBarItem = () => {
 export const LogsFilterBar = () => {
   const [source] = useFilterQueryState<string>('source');
   const [docId] = useFilterQueryState<string>('docId');
+  const [processId] = useFilterQueryState<string>('processId');
 
   return (
     <>
@@ -134,6 +137,16 @@ export const LogsFilterBar = () => {
         </Filter.BarButton>
       </Filter.BarItem>
 
+      <Filter.BarItem queryKey="processId">
+        <Filter.BarName>
+          <IconStack2 />
+          Process ID
+        </Filter.BarName>
+        <Filter.BarButton filterKey="processId" inDialog>
+          {processId ? 'Selected process' : 'Set value'}
+        </Filter.BarButton>
+      </Filter.BarItem>
+
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
@@ -143,6 +156,7 @@ export const LogsFilterBar = () => {
       </Filter.BarItem>
 
       <LogsTotalCount />
+      <LogsRefetchButton />
     </>
   );
 };

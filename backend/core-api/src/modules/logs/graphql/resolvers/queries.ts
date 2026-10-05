@@ -39,6 +39,7 @@ type LogsQueryParams = {
   action?: string;
   contentType?: string;
   documentId?: string;
+  processId?: string;
   userIds?: string[];
   createdAtFrom?: string | Date;
   createdAtTo?: string | Date;
@@ -55,6 +56,9 @@ type LogsQueryFilter = Record<string, unknown> & {
     $in: string[];
   };
 };
+
+// processId is on the Mongoose schema but not on the shared ILogDocument type.
+type ILogListDocument = ILogDocument & { processId?: string };
 
 type LeanLogDetail = Record<string, unknown> & {
   _id: string;
@@ -152,6 +156,10 @@ const generateBuiltInFilters = (params: LogsQueryParams) => {
     filter.docId = params.documentId;
   }
 
+  if (params.processId) {
+    filter.processId = params.processId;
+  }
+
   if (params.userIds?.length) {
     filter.userId = { $in: params.userIds };
   }
@@ -169,6 +177,26 @@ const generateBuiltInFilters = (params: LogsQueryParams) => {
   }
 
   return filter;
+};
+
+// One grouped count per page, so the "View history (N)" labels cost two queries, not 2×rows.
+const countLogsByField = async (
+  models: IContext['models'],
+  field: 'docId' | 'processId',
+  values: Array<string | undefined>,
+) => {
+  const ids = [...new Set(values.filter((value): value is string => !!value))];
+
+  if (!ids.length) {
+    return new Map<string, number>();
+  }
+
+  const groups = await models.Logs.aggregate<{ _id: string; count: number }>([
+    { $match: { [field]: { $in: ids } } },
+    { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+  ]);
+
+  return new Map(groups.map(({ _id, count }) => [_id, count]));
 };
 
 const generateFilters = (params) => ({
@@ -249,17 +277,37 @@ export const logQueries = {
 
     const filter = generateFilters(args);
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<ILogDocument>({
-      model: models.Logs,
-      params: {
-        ...args,
-        orderBy: { createdAt: -1 },
-      },
-      query: filter,
-    });
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ILogListDocument>({
+        model: models.Logs,
+        params: {
+          ...args,
+          orderBy: { createdAt: -1 },
+        },
+        query: filter,
+      });
+
+    const [docCounts, processCounts] = await Promise.all([
+      countLogsByField(
+        models,
+        'docId',
+        list.map((log) => log.docId),
+      ),
+      countLogsByField(
+        models,
+        'processId',
+        list.map((log) => log.processId),
+      ),
+    ]);
 
     return {
-      list,
+      list: list.map((log) => ({
+        ...log,
+        docLogCount: log.docId ? docCounts.get(log.docId) : undefined,
+        processLogCount: log.processId
+          ? processCounts.get(log.processId)
+          : undefined,
+      })),
       totalCount,
       pageInfo,
     };

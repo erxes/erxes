@@ -93,6 +93,7 @@ export const LOG_FILTER_BAR_OPERATORS = {
   createdAt: [...COMMON_FILTER_BAR_OPERATORS],
   contentType: [...COMMON_FILTER_BAR_OPERATORS],
   docId: [...COMMON_FILTER_BAR_OPERATORS],
+  processId: [...COMMON_FILTER_BAR_OPERATORS],
 };
 
 export const LOGS_COMMON_FILTER_FIELD_NAMES = [
@@ -103,6 +104,7 @@ export const LOGS_COMMON_FILTER_FIELD_NAMES = [
   'createdAt',
   'contentType',
   'docId',
+  'processId',
   'statusOperator',
   'sourceOperator',
   'actionOperator',
@@ -110,6 +112,7 @@ export const LOGS_COMMON_FILTER_FIELD_NAMES = [
   'createdAtOperator',
   'contentTypeOperator',
   'docIdOperator',
+  'processIdOperator',
   'logId',
 ];
 

@@ -109,6 +109,10 @@ const generateVariables = (searchParams: URLSearchParams) => {
       typeof queryParams.docId === 'string'
         ? queryParams.docId.trim() || undefined
         : undefined,
+    processId:
+      typeof queryParams.processId === 'string'
+        ? queryParams.processId.trim() || undefined
+        : undefined,
     createdAtFrom: createdAtRange?.from,
     createdAtTo: createdAtRange?.to,
     filters: generatePayloadFilters(searchParams),
@@ -121,7 +125,7 @@ export const useLogs = () => {
     sessionKey: LOGS_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, error, fetchMore } =
+  const { data, loading, error, fetchMore, refetch } =
     useQuery<LogsMainListQueryResponse>(LOGS_MAIN_LIST, {
       variables: {
         cursor: cursor ?? undefined,
@@ -170,6 +174,7 @@ export const useLogs = () => {
     totalCount,
     error,
     handleFetchMore,
+    refetch,
     hasNextPage,
     hasPreviousPage,
   };

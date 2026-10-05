@@ -29,6 +29,7 @@ query LogsMainList(
   $userIds: [String],
   $contentType: String,
   $documentId: String,
+  $processId: String,
   $createdAtFrom: Date,
   $createdAtTo: Date,
   $filters: JSON
@@ -45,6 +46,7 @@ query LogsMainList(
     userIds: $userIds,
     contentType: $contentType,
     documentId: $documentId,
+    processId: $processId,
     createdAtFrom: $createdAtFrom,
     createdAtTo: $createdAtTo,
     filters: $filters
@@ -57,6 +59,10 @@ query LogsMainList(
       name
       status
       userId
+      docId
+      processId
+      docLogCount
+      processLogCount
       cursor
       user {
         _id

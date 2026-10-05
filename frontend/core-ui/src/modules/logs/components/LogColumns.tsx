@@ -3,11 +3,13 @@ import { ILogDoc } from '@/logs/types';
 import {
   IconCalendarTime,
   IconCode,
+  IconHash,
   IconInfoCircle,
   IconProgressCheck,
   IconProgressX,
   IconSettings,
   IconSourceCode,
+  IconStack2,
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
@@ -30,6 +32,38 @@ const statusInfos = {
     variant: 'destructive',
     Icon: IconProgressX,
   },
+};
+
+// Clicking an id narrows the list to that object's history or that request's cascade.
+const LogIdFilterCell = ({
+  value,
+  queryKey,
+  label,
+  count,
+}: {
+  value?: string;
+  queryKey: 'docId' | 'processId';
+  label: string;
+  count?: number;
+}) => {
+  const [, setFilter] = useQueryState<string>(queryKey);
+
+  if (!value) {
+    return (
+      <RecordTableInlineCell>
+        <span className="text-muted-foreground">-</span>
+      </RecordTableInlineCell>
+    );
+  }
+
+  return (
+    <RecordTableInlineCell onClick={() => setFilter(value)}>
+      <span className="text-sm text-primary hover:underline cursor-pointer">
+        {label}
+        {count ? ` (${count})` : ''}
+      </span>
+    </RecordTableInlineCell>
+  );
 };
 
 const generateUserName = (user: IUser | undefined) => {
@@ -115,6 +149,32 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
         </RecordTableInlineCell>
       );
     },
+  },
+  {
+    id: 'docId',
+    accessorKey: 'docId',
+    header: () => <RecordTable.InlineHead icon={IconHash} label="Object" />,
+    cell: ({ cell }) => (
+      <LogIdFilterCell
+        value={cell.getValue() as string | undefined}
+        queryKey="docId"
+        label="View history"
+        count={cell.row.original.docLogCount}
+      />
+    ),
+  },
+  {
+    id: 'processId',
+    accessorKey: 'processId',
+    header: () => <RecordTable.InlineHead icon={IconStack2} label="Process" />,
+    cell: ({ cell }) => (
+      <LogIdFilterCell
+        value={cell.getValue() as string | undefined}
+        queryKey="processId"
+        label="View process"
+        count={cell.row.original.processLogCount}
+      />
+    ),
   },
   {
     id: 'userId',

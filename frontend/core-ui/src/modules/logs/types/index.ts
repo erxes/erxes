@@ -26,7 +26,10 @@ export interface ILogDoc {
   };
   createdAt: string;
   status?: ILogStatusType;
+  docId?: string;
   processId?: string;
+  docLogCount?: number;
+  processLogCount?: number;
   contentType?: string;
   /** Exact operation name — GraphQL mutation/query field, or affected entity. */
   name?: string;

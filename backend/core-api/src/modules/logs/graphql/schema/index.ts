@@ -8,7 +8,10 @@ export const types = `
       status:String,
       userId:String,
       cursor:String,
+      docId:String,
       processId:String,
+      docLogCount:Int,
+      processLogCount:Int,
       contentType:String,
       name:String,
 
@@ -75,6 +78,7 @@ const commonQueryParams = `
     userIds: [String]
     contentType: String
     documentId: String
+    processId: String
     createdAtFrom: Date
     createdAtTo: Date
     filters:JSON

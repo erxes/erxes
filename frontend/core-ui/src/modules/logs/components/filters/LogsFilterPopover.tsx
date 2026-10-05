@@ -3,6 +3,7 @@ import {
   IconHash,
   IconProgressCheck,
   IconSourceCode,
+  IconStack2,
   IconTag,
   IconUser,
 } from '@tabler/icons-react';
@@ -29,6 +30,7 @@ export const LogsFilterPopover = () => {
     createdAt: string;
     contentType: string;
     docId: string;
+    processId: string;
   }>([
     'status',
     'source',
@@ -37,6 +39,7 @@ export const LogsFilterPopover = () => {
     'createdAt',
     'contentType',
     'docId',
+    'processId',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -82,6 +85,10 @@ export const LogsFilterPopover = () => {
                   <IconHash />
                   Document ID
                 </Filter.Item>
+                <Filter.Item value="processId" inDialog>
+                  <IconStack2 />
+                  Process ID
+                </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdAt">
                   <IconCalendarPlus />
@@ -116,6 +123,9 @@ export const LogsFilterPopover = () => {
       <Filter.Dialog>
         <Filter.View filterKey="docId" inDialog>
           <Filter.DialogStringView filterKey="docId" />
+        </Filter.View>
+        <Filter.View filterKey="processId" inDialog>
+          <Filter.DialogStringView filterKey="processId" />
         </Filter.View>
         <Filter.View filterKey="status" inDialog>
           <LogStatusFilter />
