@@ -16,7 +16,8 @@ export const useProductsWithPluginRemainders = ({
 }: UseProductsWithPluginRemaindersParams) => {
   const client = useApolloClient();
   const pluginsConfig = useAtomValue(pluginsConfigState);
-  const [resolvedProducts, setResolvedProducts] = useState<IProduct[]>(products);
+  const [resolvedProducts, setResolvedProducts] =
+    useState<IProduct[]>(products);
 
   const providers = useMemo(
     () =>
