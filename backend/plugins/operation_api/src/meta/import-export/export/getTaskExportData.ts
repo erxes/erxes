@@ -15,7 +15,9 @@ import { stringifyId, buildIdNameMap, buildUserMap } from '../utils';
  * @param filters Optional active filters parameters.
  * @returns The MongoDB query object.
  */
-function buildTaskQuery(filters?: Record<string, unknown>): Record<string, unknown> {
+function buildTaskQuery(
+  filters?: Record<string, unknown>,
+): Record<string, unknown> {
   const query: Record<string, unknown> = {};
   if (!filters || Object.keys(filters).length === 0) {
     return query;

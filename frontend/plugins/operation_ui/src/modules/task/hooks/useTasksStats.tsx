@@ -163,7 +163,7 @@ export const useTasksStats = ({
     },
     skip: projectIds.length === 0,
   });
-  
+
   const projects: IProject[] = useMemo(() => {
     return projectsList || [];
   }, [projectsList]);
@@ -271,7 +271,9 @@ export const useTasksStats = ({
           id: projectId,
           name:
             project?.name ||
-            (projectId === 'no-project' ? t('no-project-label') : t('unknown-project')),
+            (projectId === 'no-project'
+              ? t('no-project-label')
+              : t('unknown-project')),
           totalTasks: stats.total,
           completedTasks: stats.completed,
           startedTasks: stats.started,
