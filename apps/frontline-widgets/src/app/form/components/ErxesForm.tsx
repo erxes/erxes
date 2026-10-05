@@ -331,6 +331,7 @@ export const ErxesForm = ({
 
                   if (
                     erxesField.type === 'select' ||
+                    erxesField.type === 'core:company:industry' ||
                     erxesField.allowSearch === true
                   ) {
                     if (erxesField.allowSearch) {

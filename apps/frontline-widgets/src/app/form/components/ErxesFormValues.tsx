@@ -124,7 +124,8 @@ export const ErxesFormValues = ({
       field.type === 'text' ||
       field.type === 'textarea' ||
       field.type === 'email' ||
-      field.type === 'select'
+      field.type === 'select' ||
+      field.type === 'core:company:industry'
     ) {
       defaultValues[field._id] = '';
     } else if (field.type === 'number') {
