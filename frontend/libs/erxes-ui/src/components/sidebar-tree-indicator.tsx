@@ -1,10 +1,16 @@
-import { cn } from 'erxes-ui';
-import { RefObject, useEffect, useRef, useState } from 'react';
-
-const ACTIVE_ITEM_SELECTOR =
-  '[data-sidebar=menu-button][data-active=true], [data-sidebar=menu-sub-button][data-active=true]';
+import * as React from 'react';
+import { cn } from 'erxes-ui/lib/utils';
 
 type TIndicatorPosition = { top: number; height: number };
+
+export type TFindActiveTreeItem = (
+  container: HTMLElement,
+) => HTMLElement | null;
+
+export const findActiveSubItem: TFindActiveTreeItem = (container) =>
+  container.querySelector<HTMLElement>(
+    ':scope > li > [data-sidebar=menu-sub-button][data-active=true]',
+  );
 
 const getOffsetWithin = (element: HTMLElement, container: HTMLElement) => {
   let top = 0;
@@ -18,8 +24,11 @@ const getOffsetWithin = (element: HTMLElement, container: HTMLElement) => {
   return current === container ? top : null;
 };
 
-const measure = (container: HTMLElement): TIndicatorPosition | null => {
-  const active = container.querySelector<HTMLElement>(ACTIVE_ITEM_SELECTOR);
+const measure = (
+  container: HTMLElement,
+  findActive: TFindActiveTreeItem,
+): TIndicatorPosition | null => {
+  const active = findActive(container);
 
   if (!active || active.offsetHeight === 0) {
     return null;
@@ -36,14 +45,22 @@ const measure = (container: HTMLElement): TIndicatorPosition | null => {
   return top === null ? null : { top, height: active.offsetHeight };
 };
 
-export const NavigationTreeIndicator = ({
+export const SidebarTreeIndicator = ({
+  as: Element = 'span',
   containerRef,
-}: Readonly<{ containerRef: RefObject<HTMLElement | null> }>) => {
-  const [position, setPosition] = useState<TIndicatorPosition | null>(null);
-  const [animate, setAnimate] = useState(false);
-  const visibleRef = useRef(false);
+  findActive = findActiveSubItem,
+}: Readonly<{
+  as?: 'li' | 'span';
+  containerRef: React.RefObject<HTMLElement | null>;
+  findActive?: TFindActiveTreeItem;
+}>) => {
+  const [position, setPosition] = React.useState<TIndicatorPosition | null>(
+    null,
+  );
+  const [animate, setAnimate] = React.useState(false);
+  const visibleRef = React.useRef(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const container = containerRef.current;
 
     if (!container) {
@@ -55,7 +72,7 @@ export const NavigationTreeIndicator = ({
     const update = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const next = measure(container);
+        const next = measure(container, findActive);
 
         setAnimate(visibleRef.current && next !== null);
         visibleRef.current = next !== null;
@@ -85,17 +102,17 @@ export const NavigationTreeIndicator = ({
       mutationObserver.disconnect();
       resizeObserver.disconnect();
     };
-  }, [containerRef]);
+  }, [containerRef, findActive]);
 
   if (!position) {
     return null;
   }
 
   return (
-    <span
+    <Element
       aria-hidden
       className={cn(
-        'pointer-events-none absolute top-0 -left-[1.5px] w-0.5 rounded-full bg-primary will-change-transform',
+        'pointer-events-none absolute top-0 -left-[1.5px] w-0.5 list-none rounded-full bg-primary will-change-transform',
         animate &&
           'transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
       )}

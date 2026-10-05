@@ -38,6 +38,7 @@ export const PageHeaderStart = React.forwardRef<
       className={cn('flex items-center gap-2 flex-none pr-8', className)}
       {...props}
     >
+      <span data-sidebar-panel-slot="" className="contents" />
       {children}
     </div>
   );

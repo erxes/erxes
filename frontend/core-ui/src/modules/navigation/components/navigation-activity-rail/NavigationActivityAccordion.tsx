@@ -5,10 +5,22 @@ import {
   NavigationPluginContextContent,
   NavigationPluginPanelContent,
 } from '@/navigation/components/NavigationPlugins';
-import { NavigationTreeIndicator } from '@/navigation/components/navigation-activity-rail/NavigationTreeIndicator';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { cn, Sidebar } from 'erxes-ui';
 import { useRef } from 'react';
+
+const findActiveRailItem = (container: HTMLElement) =>
+  Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '[data-sidebar=menu-button][data-active=true]',
+    ),
+  ).find(
+    (button) =>
+      !button.closest('[data-sidebar=menu-sub]') &&
+      !button
+        .closest('[data-sidebar=menu-item]')
+        ?.querySelector('[data-sidebar=menu-sub]'),
+  ) ?? null;
 
 export const NavigationActivityAccordion = ({
   activity,
@@ -49,7 +61,10 @@ export const NavigationActivityAccordion = ({
             '[&_[data-sidebar=menu-button]:not([data-active=true]):not(:hover)]:text-muted-foreground',
           )}
         >
-          <NavigationTreeIndicator containerRef={treeRef} />
+          <Sidebar.TreeIndicator
+            containerRef={treeRef}
+            findActive={findActiveRailItem}
+          />
           {activity.kind === 'plugin' ? (
             <>
               <NavigationPluginPanelContent activityId={activity.id} />

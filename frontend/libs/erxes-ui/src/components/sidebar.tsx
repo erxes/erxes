@@ -11,6 +11,7 @@ import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn } from 'erxes-ui/lib/utils';
 import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
 import { useAtom, useAtomValue } from 'jotai';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { Tooltip } from './tooltip';
@@ -19,6 +20,7 @@ import { Key } from 'erxes-ui/types/Key';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
 import { ScrollArea } from './scroll-area';
+import { SidebarTreeIndicator } from './sidebar-tree-indicator';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
 const SIDEBAR_COLLAPSE_COOKIE_NAME = 'sidebar:collapse';
@@ -254,6 +256,83 @@ const SidebarPanelTrigger = React.forwardRef<
 });
 SidebarPanelTrigger.displayName = 'SidebarPanelTrigger';
 
+const useComposedRef = <T extends HTMLElement>(
+  forwardedRef: React.ForwardedRef<T>,
+) => {
+  const innerRef = React.useRef<T | null>(null);
+  const setRef = React.useCallback(
+    (node: T | null) => {
+      innerRef.current = node;
+
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(node);
+      } else if (forwardedRef) {
+        forwardedRef.current = node;
+      }
+    },
+    [forwardedRef],
+  );
+
+  return [innerRef, setRef] as const;
+};
+
+const SIDEBAR_PANEL_SLOT = '[data-sidebar-panel-slot]';
+
+const findSidebarPanelSlot = (panel: HTMLElement | null) => {
+  let node = panel?.parentElement ?? null;
+
+  while (node) {
+    const slot = node.querySelector<HTMLElement>(SIDEBAR_PANEL_SLOT);
+
+    if (slot) {
+      return slot;
+    }
+
+    node = node.parentElement;
+  }
+
+  return null;
+};
+
+const useSidebarPanelSlot = (
+  panelRef: React.RefObject<HTMLDivElement | null>,
+  open: boolean,
+) => {
+  const [slot, setSlot] = React.useState<HTMLElement | null>(null);
+  const [claimed, setClaimed] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    if (open) {
+      return;
+    }
+
+    const found = findSidebarPanelSlot(panelRef.current);
+
+    if (!found) {
+      setSlot(null);
+      setClaimed(false);
+      return;
+    }
+
+    const owner = found.dataset.sidebarPanelSlot === '';
+
+    if (owner) {
+      found.dataset.sidebarPanelSlot = 'claimed';
+    }
+
+    setSlot(found);
+    setClaimed(owner);
+
+    return () => {
+      if (owner) {
+        found.dataset.sidebarPanelSlot = '';
+      }
+    };
+  }, [open, panelRef]);
+
+  return { slot: open ? null : slot, claimed };
+};
+
 const SidebarPanel = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
@@ -262,22 +341,33 @@ const SidebarPanel = React.forwardRef<
   }
 >(({ className, children, label, actions, ...props }, ref) => {
   const open = useAtomValue(sidebarPanelOpenState);
+  const [panelRef, setRefs] = useComposedRef(ref);
+  const { slot, claimed } = useSidebarPanelSlot(panelRef, open);
 
   return (
     <div
-      ref={ref}
+      ref={setRefs}
       data-sidebar="panel"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
-        'flex h-full w-60 flex-col overflow-hidden bg-sidebar text-foreground transition-[width] duration-200 ease-linear motion-reduce:transition-none',
+        'relative flex h-full w-60 flex-col overflow-hidden bg-sidebar text-foreground transition-[width] duration-200 ease-linear motion-reduce:transition-none',
         className,
-        !open && 'w-12!',
+        !open && 'w-0! overflow-visible border-0!',
       )}
       {...props}
     >
-      {!open && (
-        <div className="flex shrink-0 justify-center pt-3">
-          <SidebarPanelTrigger />
+      {slot &&
+        claimed &&
+        createPortal(
+          <>
+            <SidebarPanelTrigger className="size-7" />
+            <Separator.Inline />
+          </>,
+          slot,
+        )}
+      {!open && !slot && (
+        <div className="absolute top-2 left-2 z-20">
+          <SidebarPanelTrigger className="size-7 border bg-background shadow-xs" />
         </div>
       )}
       {open && label && (
@@ -685,7 +775,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left font-medium outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:[&>svg]:text-primary data-[active=true]:[&>svg]:animate-icon-pop motion-reduce:[&>svg]:animate-none [&>svg]:transition-transform active:[&>svg]:scale-90 data-[state=open]:hover:bg-accent data-[state=active]:bg-primary/10 data-[state=active]:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+  'peer/menu-button flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left font-medium outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:[&>svg]:text-primary data-[active=true]:[&>svg]:animate-icon-pop motion-reduce:[&>svg]:animate-none [&>svg]:transition-transform active:[&>svg]:scale-90 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:bg-foreground/5 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:text-foreground group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:[&>svg]:text-foreground data-[state=open]:hover:bg-accent data-[state=active]:bg-primary/10 data-[state=active]:text-primary group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -862,18 +952,25 @@ SidebarMenuSkeleton.displayName = 'SidebarMenuSkeleton';
 const SidebarMenuSub = React.forwardRef<
   HTMLUListElement,
   React.ComponentProps<'ul'>
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    data-sidebar="menu-sub"
-    className={cn(
-      'ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
-      'group-data-[collapsible=icon]:hidden',
-      className,
-    )}
-    {...props}
-  />
-));
+>(({ className, children, ...props }, ref) => {
+  const [subRef, setRefs] = useComposedRef(ref);
+
+  return (
+    <ul
+      ref={setRefs}
+      data-sidebar="menu-sub"
+      className={cn(
+        'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
+        'group-data-[collapsible=icon]:hidden',
+        className,
+      )}
+      {...props}
+    >
+      <SidebarTreeIndicator as="li" containerRef={subRef} />
+      {children}
+    </ul>
+  );
+});
 SidebarMenuSub.displayName = 'SidebarMenuSub';
 
 const SidebarMenuSubItem = React.forwardRef<
@@ -931,6 +1028,7 @@ export const Sidebar = Object.assign(SidebarRoot, {
   MenuItem: SidebarMenuItem,
   MenuSkeleton: SidebarMenuSkeleton,
   Sub: SidebarMenuSub,
+  TreeIndicator: SidebarTreeIndicator,
   SubButton: SidebarMenuSubButton,
   SubItem: SidebarMenuSubItem,
   Provider: SidebarProvider,
