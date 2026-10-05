@@ -131,9 +131,8 @@ export const conversationMessageMutations = {
   ) {
     await checkPermission('conversationMessageAdd');
     await authorizeConversationAccess(models, user, conversationId);
-    const conversation = await models.Conversations.getConversation(
-      conversationId,
-    );
+    const conversation =
+      await models.Conversations.getConversation(conversationId);
     const integration = await models.Integrations.getIntegration({
       _id: conversation.integrationId,
     });
@@ -174,9 +173,8 @@ export const conversationMessageMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation = await models.Conversations.getConversation(
-        conversationId,
-      );
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
       if (!conversation?.integrationId) {
         return false;
       }
