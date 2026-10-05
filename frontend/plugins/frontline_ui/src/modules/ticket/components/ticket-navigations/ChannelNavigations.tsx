@@ -37,7 +37,7 @@ function ChannelItem({ channel }: ChannelItemProps) {
             <div className="w-full flex items-center justify-between">
               <Button
                 variant="ghost"
-                className="px-2 flex min-w-0 justify-start"
+                className="px-2 flex min-w-0 justify-start rounded-lg"
                 disabled={channel.pipelineCount === 0}
               >
                 <IconComponent

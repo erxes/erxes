@@ -34,7 +34,7 @@ const NavigationActivityMoreGroup = ({
 
           return (
             <div
-              className="flex h-7 min-w-0 items-center rounded-md hover:bg-accent"
+              className="flex h-7 min-w-0 items-center rounded-lg hover:bg-accent"
               key={activity.id}
             >
               <Button
@@ -98,7 +98,7 @@ export const NavigationActivityMore = ({
         <Button
           aria-label={t('more-activities')}
           className={cn(
-            'h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+            'h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
             expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           )}
           size="default"
@@ -107,7 +107,7 @@ export const NavigationActivityMore = ({
         >
           <IconDots className="size-4 text-accent-foreground" />
           <NavigationRailLabel
-            className="truncate font-medium"
+            className="truncate font-normal"
             expanded={expanded}
           >
             {t('more')}

@@ -94,8 +94,9 @@ function BoardItem({ board }: { board: IBoard }) {
             <Button
               variant="ghost"
               className={cn(
-                'px-2 flex min-w-0 flex-1 justify-start',
-                isActive && 'bg-primary/10 text-primary hover:bg-primary/10',
+                'px-2 flex min-w-0 flex-1 justify-start rounded-lg',
+                isActive &&
+                  'bg-foreground/5 text-foreground hover:bg-foreground/5',
               )}
               onClick={handleBoardClick}
             >
@@ -103,12 +104,7 @@ function BoardItem({ board }: { board: IBoard }) {
                 className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
                 value={board.name}
               />
-              <span
-                className={cn(
-                  'ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none',
-                  isActive ? 'text-primary' : 'text-muted-foreground',
-                )}
-              >
+              <span className="ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
                 <IconChevronRight className="size-3.5!" />
               </span>
             </Button>

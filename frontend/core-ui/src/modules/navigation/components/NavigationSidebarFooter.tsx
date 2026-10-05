@@ -33,7 +33,7 @@ export const NavigationSidebarFooter = ({
       <Button
         asChild
         className={cn(
-          'h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+          'h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           collapsedInSettings && 'bg-foreground/5',
         )}
@@ -53,11 +53,11 @@ export const NavigationSidebarFooter = ({
           <IconSettings
             className={cn(
               'size-4 text-accent-foreground',
-              collapsedInSettings && 'text-primary',
+              collapsedInSettings && 'text-foreground',
             )}
           />
           <NavigationRailLabel
-            className="truncate font-medium"
+            className="truncate font-normal"
             expanded={expanded}
           >
             {organizationT('settings')}
@@ -69,7 +69,7 @@ export const NavigationSidebarFooter = ({
           <Button
             aria-label={sidebarT('profile')}
             className={cn(
-              'h-10 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear',
+              'h-10 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear',
               expanded ? 'w-full px-1' : 'ml-0.5 w-7 gap-0 px-0.5',
             )}
             size="default"

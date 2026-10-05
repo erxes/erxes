@@ -104,6 +104,9 @@
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
   open, never a filled caret, so the rotation stays on the compositor and
   matches the main sidebar.
+- Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
+  gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
+  the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.

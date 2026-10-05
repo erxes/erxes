@@ -5,8 +5,10 @@ import {
   NavigationPluginContextContent,
   NavigationPluginPanelContent,
 } from '@/navigation/components/NavigationPlugins';
+import { NavigationTreeIndicator } from '@/navigation/components/navigation-activity-rail/NavigationTreeIndicator';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { Sidebar } from 'erxes-ui';
+import { cn, Sidebar } from 'erxes-ui';
+import { useRef } from 'react';
 
 export const NavigationActivityAccordion = ({
   activity,
@@ -24,6 +26,7 @@ export const NavigationActivityAccordion = ({
   onToggle: () => void;
 }>) => {
   const { isMobile } = Sidebar.useSidebar();
+  const treeRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="flex w-full shrink-0 flex-col">
@@ -37,7 +40,16 @@ export const NavigationActivityAccordion = ({
         onSelect={onToggle}
       />
       <NavigationDisclosure open={open}>
-        <div className="ml-3.5 border-l pl-1.5 **:data-[sidebar=group]:px-0">
+        <div
+          ref={treeRef}
+          className={cn(
+            'relative ml-3.5 border-l pl-3 **:data-[sidebar=group]:px-0',
+            '[&_[data-sidebar=menu-button]>svg:first-child]:hidden [&_[data-sidebar=menu-sub-button]>svg:first-child]:hidden',
+            '[&_[data-sidebar=menu-button]]:font-normal [&_[data-sidebar=menu-sub-button]]:font-normal [&_[data-sidebar=menu-button][data-active=true]]:font-medium [&_[data-sidebar=menu-sub-button][data-active=true]]:font-medium',
+            '[&_[data-sidebar=menu-button]:not([data-active=true]):not(:hover)]:text-muted-foreground',
+          )}
+        >
+          <NavigationTreeIndicator containerRef={treeRef} />
           {activity.kind === 'plugin' ? (
             <>
               <NavigationPluginPanelContent activityId={activity.id} />

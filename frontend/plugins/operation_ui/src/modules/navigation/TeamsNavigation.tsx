@@ -58,7 +58,7 @@ function TeamItem({ team }: TeamItemProps) {
             <div className="w-full flex items-center justify-between">
               <Button
                 variant="ghost"
-                className="px-2 flex min-w-0 justify-start"
+                className="px-2 flex min-w-0 justify-start rounded-lg"
               >
                 <IconComponent
                   name={team.icon}

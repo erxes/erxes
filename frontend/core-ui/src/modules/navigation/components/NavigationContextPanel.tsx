@@ -20,14 +20,18 @@ import { findNavigationActivityByPath } from '@/navigation/utils/navigationActiv
 import { SettingsContextNavigation } from '@/settings/components/SettingsContextNavigation';
 import { AppPath } from '@/types/paths/AppPath';
 import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Button, cn, Separator } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { motion, useReducedMotion } from 'motion/react';
-import { type ReactNode, type RefObject, useRef } from 'react';
+import {
+  type ReactNode,
+  type RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-
-const COLLAPSED_WIDTH = 48;
 
 const NavigationContextPanelFrame = ({
   bodyRef,
@@ -44,72 +48,111 @@ const NavigationContextPanelFrame = ({
   const resizing = useAtomValue(navigationResizingState);
   const reduceMotion = useReducedMotion();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const [hasContent, setHasContent] = useState(true);
   const toggleLabel = open
     ? t('collapse-sidebar', 'Collapse sidebar')
     : t('expand-sidebar', 'Expand sidebar');
 
+  useLayoutEffect(() => {
+    const body = bodyRef.current;
+
+    if (!body) {
+      return;
+    }
+
+    const update = () => setHasContent(body.hasChildNodes());
+    const observer = new MutationObserver(update);
+
+    update();
+    observer.observe(body, { childList: true });
+
+    return () => observer.disconnect();
+  }, [bodyRef]);
+
   return (
-    <motion.aside
-      ref={asideRef}
-      aria-label={title}
-      initial={false}
-      animate={{ width: open ? (width ?? 'auto') : COLLAPSED_WIDTH }}
-      transition={
-        reduceMotion || resizing
-          ? { duration: 0 }
-          : { duration: 0.2, ease: 'linear' }
-      }
-      className={cn(
-        'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar has-[>[data-navigation-context]:empty]:hidden',
-        !width && 'max-w-80',
-      )}
-    >
-      <div className="flex h-13 shrink-0 items-center px-2">
-        <div
-          className={cn(
-            'min-w-0 flex-1 overflow-hidden transition-opacity duration-200 ease-linear',
-            !open && 'opacity-0',
-          )}
-        >
-          <span className="block truncate px-2 text-sm font-medium">
-            {title}
-          </span>
-        </div>
-        <Button
-          aria-expanded={open}
-          aria-label={toggleLabel}
-          className="size-8 shrink-0 rounded-md"
-          size="icon"
-          title={toggleLabel}
-          variant="ghost"
-          onClick={() => setOpen(!open)}
-        >
-          {open ? <IconChevronsLeft /> : <IconChevronsRight />}
-        </Button>
-      </div>
-      <div
-        ref={bodyRef}
-        data-navigation-context
+    <>
+      <motion.aside
+        ref={asideRef}
+        aria-label={title}
+        initial={false}
+        animate={{ width: open ? (width ?? 'auto') : 0 }}
+        transition={
+          reduceMotion || resizing
+            ? { duration: 0 }
+            : { duration: 0.2, ease: 'linear' }
+        }
         className={cn(
-          'styled-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1 transition-[opacity,visibility] duration-200 ease-linear [&>[data-sidebar=separator]:first-child]:hidden',
-          !width && 'min-w-56',
-          !open && 'invisible opacity-0',
+          'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar has-[>[data-navigation-context]:empty]:hidden',
+          !width && 'max-w-80',
+          !open && 'border-r-0',
         )}
-        style={width ? { minWidth: width } : undefined}
       >
-        {children}
-      </div>
-      {open && (
-        <NavigationResizeHandle
-          label={t('resize-sidebar', 'Resize sidebar')}
-          panelRef={asideRef}
-          min={180}
-          max={480}
-          onResize={setWidth}
-          onReset={() => setWidth(null)}
-        />
+        <div className="flex h-13 shrink-0 items-center px-2">
+          <div
+            className={cn(
+              'min-w-0 flex-1 overflow-hidden transition-opacity duration-200 ease-linear',
+              !open && 'opacity-0',
+            )}
+          >
+            <span className="block truncate px-2 text-sm font-medium">
+              {title}
+            </span>
+          </div>
+          <Button
+            aria-expanded={open}
+            aria-label={toggleLabel}
+            className="size-8 shrink-0 rounded-md"
+            size="icon"
+            title={toggleLabel}
+            variant="ghost"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <IconChevronsLeft /> : <IconChevronsRight />}
+          </Button>
+        </div>
+        <div
+          ref={bodyRef}
+          data-navigation-context
+          className={cn(
+            'styled-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1 transition-[opacity,visibility] duration-200 ease-linear [&>[data-sidebar=separator]:first-child]:hidden',
+            !width && 'min-w-56',
+            !open && 'invisible opacity-0',
+          )}
+          style={width ? { minWidth: width } : undefined}
+        >
+          {children}
+        </div>
+        {open && (
+          <NavigationResizeHandle
+            label={t('resize-sidebar', 'Resize sidebar')}
+            panelRef={asideRef}
+            min={180}
+            max={480}
+            onResize={setWidth}
+            onReset={() => setWidth(null)}
+          />
+        )}
+      </motion.aside>
+      {!open && hasContent && (
+        <div
+          data-navigation-context-toggle
+          className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-sidebar pt-1"
+        >
+          <Button
+            aria-expanded={false}
+            aria-label={toggleLabel}
+            className="size-8 shrink-0"
+            size="icon"
+            title={toggleLabel}
+            variant="ghost"
+            onClick={() => setOpen(true)}
+          >
+            <IconChevronsRight />
+          </Button>
+          <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
+        </div>
       )}
-    </motion.aside>
+    </>
   );
 };
 

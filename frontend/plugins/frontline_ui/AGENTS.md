@@ -805,10 +805,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 - Expandable navigation rows end in the host sidebar's chevron:
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
   open, never a filled caret, so the rotation stays on the compositor and
-  matches the main sidebar.
+  matches the main sidebar. Expandable group trigger buttons use `rounded-lg`
+  like `Sidebar.MenuButton`.
 - The Team Inbox unread `NotificationCount` badge in `FrontlineNavigation.tsx`
   stays the same compact size as the host's My inbox count
-  (`h-5 min-w-5 px-1 text-[11px] tabular-nums`).
+  (`h-5 min-w-5 rounded-full px-1.5 text-[11px] tabular-nums`).
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
   own open state (`sidebarPanelOpenState`), separate from the host's context
   column. Never stack two headings: a menu without a heading passes one as

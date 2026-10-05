@@ -3,7 +3,6 @@ import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { IconApps, IconChevronRight } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
-import { motion, useReducedMotion } from 'motion/react';
 import type { ReactNode } from 'react';
 
 export const NavigationActivityButton = ({
@@ -26,7 +25,6 @@ export const NavigationActivityButton = ({
   onSelect: () => void;
 }>) => {
   const Icon = activity.icon || IconApps;
-  const reduceMotion = useReducedMotion();
   const expandable = open !== undefined;
   const showPinButton = Boolean(
     expanded && onPinnedChange && pinned !== undefined,
@@ -38,7 +36,7 @@ export const NavigationActivityButton = ({
         aria-expanded={expandable ? open : undefined}
         aria-label={activity.label}
         className={cn(
-          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           showPinButton && !expandable && 'pr-8',
           active && 'bg-foreground/5 text-foreground hover:bg-foreground/5',
@@ -47,27 +45,17 @@ export const NavigationActivityButton = ({
         size="default"
         variant="ghost"
       >
-        {active && (
-          <motion.span
-            layoutId="navigation-activity-indicator"
-            className="absolute -left-1 top-2 bottom-2 w-0.5 rounded-full bg-primary"
-            transition={
-              reduceMotion
-                ? { duration: 0 }
-                : { type: 'spring', stiffness: 520, damping: 40 }
-            }
-          />
-        )}
         <Icon
           className={cn(
             'size-4 text-accent-foreground transition-transform group-active/activity:scale-90',
             active &&
-              'animate-icon-pop text-primary motion-reduce:animate-none',
+              'animate-icon-pop text-foreground motion-reduce:animate-none',
           )}
         />
         <NavigationRailLabel
           className={cn(
-            'truncate text-left font-medium',
+            'truncate text-left',
+            active ? 'font-medium' : 'font-normal',
             showPinButton &&
               expandable &&
               'group-focus-within/activity:mr-6 group-hover/activity:mr-6',
@@ -76,7 +64,7 @@ export const NavigationActivityButton = ({
         >
           {activity.label}
         </NavigationRailLabel>
-        {expanded && indicator}
+        {indicator}
         {expanded && expandable && (
           <span
             className={cn(
