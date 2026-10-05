@@ -95,26 +95,35 @@ export const useComposerGallery = ({
       setUploading(true);
       onUploadingChange(block.id, true);
       try {
-        const results: PromiseSettledResult<{ url: string }>[] = [];
-        for (
-          let offset = 0;
-          offset < files.length;
-          offset += MAX_GALLERY_UPLOAD_FILES
-        ) {
-          if (!mountedRef.current) return;
-          const batch = files.slice(offset, offset + MAX_GALLERY_UPLOAD_FILES);
-          results.push(
-            ...(await Promise.allSettled(
-              batch.map(async (file) => {
-                const result = await uploadFile(file);
-                const url =
-                  typeof result === 'string' ? result : result.props?.url;
-                if (typeof url !== 'string' || !url) throw new Error(file.name);
-                return { url };
-              }),
-            )),
-          );
-        }
+        const batches = Array.from(
+          { length: Math.ceil(files.length / MAX_GALLERY_UPLOAD_FILES) },
+          (_, index) =>
+            files.slice(
+              index * MAX_GALLERY_UPLOAD_FILES,
+              (index + 1) * MAX_GALLERY_UPLOAD_FILES,
+            ),
+        );
+        const results = await batches.reduce<
+          Promise<PromiseSettledResult<{ url: string }>[]>
+        >(
+          (previous, batch) =>
+            previous.then(async (completed) => {
+              if (!mountedRef.current) return completed;
+              const uploaded = await Promise.allSettled(
+                batch.map(async (file) => {
+                  const result = await uploadFile(file);
+                  const url =
+                    typeof result === 'string' ? result : result.props?.url;
+                  if (typeof url !== 'string' || !url)
+                    throw new Error(file.name);
+                  return { url };
+                }),
+              );
+              completed.push(...uploaded);
+              return completed;
+            }),
+          Promise.resolve([]),
+        );
         if (!mountedRef.current) return;
         const added = results.flatMap((result) =>
           result.status === 'fulfilled' ? [result.value] : [],
