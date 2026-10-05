@@ -44,7 +44,6 @@ export const createSurveyContentStep = (): TSurveyContentStep => ({
 export const SURVEY_GENERAL_DEFAULT_VALUES: TSurveyGeneral = {
   title: '',
   brandId: null,
-  channelId: '',
 };
 
 export const SURVEY_CONFIRMATION_DEFAULT_VALUES: TSurveyConfirmation = {

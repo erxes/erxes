@@ -8,7 +8,6 @@ import {
   SURVEY_SETUP_STEPS,
   SURVEY_SETUP_STEPS_LENGTH,
 } from '@/survey/constants/surveySetupDefaultValues';
-import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
 import {
   surveySetupStepAtom,
   resetSurveySetupAtom,
@@ -31,14 +30,13 @@ export const SurveyMutateLayout = <TValues extends FieldValues>({
 }) => {
   const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(surveySetupStepAtom);
-  const { surveyId } = useParams<{ surveyId: string }>();
-  const { returnPath } = useSurveySetupChannel();
+  const { id, surveyId } = useParams<{ id: string; surveyId: string }>();
   const resetSurveySetup = useSetAtom(resetSurveySetupAtom);
   const navigate = useNavigate();
 
   const handleCancel = () => {
     resetSurveySetup();
-    navigate(returnPath);
+    navigate(`/settings/frontline/channels/${id}/surveys`);
   };
 
   return (

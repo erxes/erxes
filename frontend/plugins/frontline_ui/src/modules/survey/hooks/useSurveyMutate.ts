@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { TSurveyConfirmation } from '@/survey/constants/surveySetupSchema';
 import { useSurveyAdd, useSurveyEdit } from '@/survey/hooks/useSurveyMutations';
-import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
 import {
   surveySetupValuesAtom,
   resetSurveySetupAtom,
@@ -12,8 +11,10 @@ import {
 
 export const useSurveyMutate = () => {
   const { t } = useTranslation('frontline');
-  const { surveyId } = useParams<{ surveyId: string }>();
-  const { channelId, returnPath } = useSurveySetupChannel();
+  const { id: channelId, surveyId } = useParams<{
+    id: string;
+    surveyId: string;
+  }>();
   const navigate = useNavigate();
   const surveySetupValues = useAtomValue(surveySetupValuesAtom);
   const resetSurveySetup = useSetAtom(resetSurveySetupAtom);
@@ -31,7 +32,7 @@ export const useSurveyMutate = () => {
           : t('survey-created', 'Survey created'),
       });
       resetSurveySetup();
-      navigate(returnPath);
+      navigate(`/settings/frontline/channels/${channelId}/surveys`);
     };
 
     const onError = (error: Error) =>

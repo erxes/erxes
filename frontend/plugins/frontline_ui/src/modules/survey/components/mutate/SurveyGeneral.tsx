@@ -2,29 +2,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
 import { SelectBrands } from 'ui-modules';
 import { FormValueEffectComponent } from '@/forms/components/FormValueEffectComponent';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { SurveyMutateLayout } from '@/survey/components/mutate/SurveyMutateLayout';
 import { SURVEY_GENERAL_DEFAULT_VALUES } from '@/survey/constants/surveySetupDefaultValues';
 import {
-  SURVEY_GENERAL_CREATE_SCHEMA,
   SURVEY_GENERAL_SCHEMA,
   TSurveyGeneral,
 } from '@/survey/constants/surveySetupSchema';
-import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
 import { surveySetupGeneralAtom } from '@/survey/states/surveySetupStates';
 
 export const SurveyGeneral = () => {
   const { t } = useTranslation('frontline');
-  const { surveyId } = useParams<{ surveyId: string }>();
-  const { isChannelRoute } = useSurveySetupChannel();
-  const showChannelSelect = !isChannelRoute && !surveyId;
   const form = useForm<TSurveyGeneral>({
-    resolver: zodResolver(
-      showChannelSelect ? SURVEY_GENERAL_CREATE_SCHEMA : SURVEY_GENERAL_SCHEMA,
-    ),
+    resolver: zodResolver(SURVEY_GENERAL_SCHEMA),
     defaultValues: SURVEY_GENERAL_DEFAULT_VALUES,
   });
 
@@ -78,23 +69,6 @@ export const SurveyGeneral = () => {
             </Form.Item>
           )}
         />
-        {showChannelSelect && (
-          <Form.Field
-            control={form.control}
-            name="channelId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
-                <SelectChannel.FormItem
-                  value={field.value ?? ''}
-                  mode="single"
-                  onValueChange={field.onChange}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        )}
       </div>
     </SurveyMutateLayout>
   );

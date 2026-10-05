@@ -72,21 +72,9 @@ const HelpCenter = lazy(() =>
   })),
 );
 
-const SurveysView = lazy(() =>
-  import('@/survey/components/survey-page/SurveyView').then((module) => ({
-    default: module.SurveyView,
-  })),
-);
-
 const Surveys = lazy(() =>
   import('~/pages/SurveysIndexPage').then((module) => ({
     default: module.SurveysIndexPage,
-  })),
-);
-
-const SurveyCreatePage = lazy(() =>
-  import('~/pages/SurveyCreatePage').then((module) => ({
-    default: module.SurveyCreatePage,
   })),
 );
 
@@ -136,10 +124,7 @@ const IntegrationsMain = () => {
           />
         </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
-        <Route path="/surveys" element={<SurveysView />}>
-          <Route index element={<Surveys />} />
-          <Route path="create" element={<SurveyCreatePage />} />
-        </Route>
+        <Route path="/surveys" element={<Surveys />} />
         <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
         <Route path="/helpcenter" element={<HelpCenter />} />
       </Routes>

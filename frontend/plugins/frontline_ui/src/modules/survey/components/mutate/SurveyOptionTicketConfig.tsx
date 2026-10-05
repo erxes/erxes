@@ -11,10 +11,10 @@ import {
 } from 'erxes-ui';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { TSurveyContent } from '@/survey/constants/surveySetupSchema';
-import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
 
 const TicketStatusSelect = ({
   pipelineId,
@@ -67,7 +67,7 @@ export const SurveyOptionTicketConfig = ({
   optionIndex: number;
 }) => {
   const { t } = useTranslation('frontline');
-  const { channelId } = useSurveySetupChannel();
+  const { id: channelId } = useParams<{ id: string }>();
   const path = `steps.${stepIndex}.options.${optionIndex}` as const;
 
   const option = useWatch({ control: form.control, name: path });
