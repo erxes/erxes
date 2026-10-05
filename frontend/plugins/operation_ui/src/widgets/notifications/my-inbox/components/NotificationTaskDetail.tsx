@@ -23,9 +23,7 @@ const useScrollViewportHeight = () => {
       return;
     }
 
-    const observer = new ResizeObserver(() =>
-      setHeight(viewport.clientHeight),
-    );
+    const observer = new ResizeObserver(() => setHeight(viewport.clientHeight));
 
     observer.observe(viewport);
 
@@ -69,7 +67,10 @@ export const NotificationTaskDetail = ({
         </div>
       </div>
       {sideContentId && !!height && (
-        <div className="sticky top-0 flex shrink-0 self-start" style={{ height }}>
+        <div
+          className="sticky top-0 flex shrink-0 self-start"
+          style={{ height }}
+        >
           <FocusSheet>
             <TaskSideWidgets
               contentId={sideContentId}
