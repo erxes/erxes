@@ -483,9 +483,6 @@ documents, state, translations, and user feedback.
   build a competing UI system.
 - Keep GraphQL documents next to the feature and prefix operation names with
   the plugin or module.
-- To move a plugin onto schema-generated GraphQL types (codegen, `gql()` from
-  `~/gql`, `schema:print`), follow
-  `.agents/skills/graphql-codegen-migration/SKILL.md`.
 - Use Apollo Client for server state, Jotai only for plugin-wide client state,
   and local React state for component-local behavior.
 - Use React Hook Form with Zod validation for forms.
