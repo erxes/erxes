@@ -1,11 +1,15 @@
 import {
   getSaasOrganizationByHelpCenterDomain,
-  getSaasOrganizationHelpCenterDomain,
+  getSaasOrganizationHelpCenterDomains,
   getSaasOrganizationsWithPendingHelpCenterDomain,
+  helpCenterDomainsOf,
   ISaasHelpCenterDomain,
   redis,
-  setSaasOrganizationHelpCenterDomain,
+  removeSaasOrganizationHelpCenterDomain,
+  saveSaasOrganizationHelpCenterDomain,
 } from 'erxes-api-shared/utils';
+import { normalizeHelpCenterUrl } from '@/helpcenter/utils/helpCenterConfig';
+import { IModels } from '~/connectionResolvers';
 import {
   AUTO_CHECK_DAYS,
   cnameTargetFor,
@@ -39,8 +43,13 @@ const DUPLICATE_HOSTNAME = 1406;
 const resolveCacheKey = (hostname: string) =>
   `frontline:customdomain:${hostname}`;
 
+const helpCenterCacheKey = (hostname: string) =>
+  `frontline:customdomain:helpcenter:${hostname}`;
+
 const forgetResolved = (hostname?: string) =>
-  hostname ? redis.del(resolveCacheKey(hostname)) : undefined;
+  hostname
+    ? redis.del(resolveCacheKey(hostname), helpCenterCacheKey(hostname))
+    : undefined;
 
 const asStatus = (value?: string) => value || DOMAIN_STATUS.PENDING;
 
@@ -73,6 +82,7 @@ const fromCloudflare = (
 
   return {
     hostname: result.hostname,
+    helpCenterId: previous?.helpCenterId,
     cloudflareId: result.id,
     status,
     sslStatus: asStatus(ssl.status),
@@ -127,8 +137,71 @@ const assertAvailable = () => {
   }
 };
 
-const currentDomain = (subdomain: string) =>
-  getSaasOrganizationHelpCenterDomain(subdomain);
+/*
+ * Each help center has at most one domain. A domain connected before domains
+ * were per help center carries no helpCenterId; it is bound to the help center
+ * it already serves (the one whose url is the domain, else the one on the
+ * workspace's help center address, else the oldest), so it shows up on that
+ * help center's tab and keeps serving the same pages.
+ */
+const bindLegacyDomains = async (
+  models: IModels,
+  subdomain: string,
+  domains: ISaasHelpCenterDomain[],
+) => {
+  const unbound = domains.filter((domain) => !domain.helpCenterId);
+
+  if (!unbound.length) {
+    return domains;
+  }
+
+  const configs = await models.HelpCenterConfigs.find({}, { _id: 1, url: 1 })
+    .sort({ createdAt: 1 })
+    .lean();
+
+  const byOrigin = (origin: string) =>
+    configs.find(
+      (config) =>
+        normalizeHelpCenterUrl(config.url).toLowerCase() ===
+        origin.toLowerCase(),
+    );
+
+  const taken = new Set(domains.map((domain) => domain.helpCenterId));
+
+  for (const domain of unbound) {
+    const config =
+      byOrigin(`https://${domain.hostname}`) ||
+      byOrigin(`https://${cnameTargetFor(subdomain)}`) ||
+      configs[0];
+
+    if (!config || taken.has(config._id)) {
+      continue;
+    }
+
+    domain.helpCenterId = config._id;
+    taken.add(config._id);
+
+    await saveSaasOrganizationHelpCenterDomain(subdomain, domain);
+  }
+
+  return domains;
+};
+
+const domainsOf = async (models: IModels, subdomain: string) =>
+  bindLegacyDomains(
+    models,
+    subdomain,
+    await getSaasOrganizationHelpCenterDomains(subdomain),
+  );
+
+const currentDomain = async (
+  models: IModels,
+  subdomain: string,
+  helpCenterId: string,
+) =>
+  (await domainsOf(models, subdomain)).find(
+    (domain) => domain.helpCenterId === helpCenterId,
+  );
 
 // Everything the tenant sees except the check time, so a check that finds
 // nothing new does not write (each write clears the organizations cache).
@@ -149,7 +222,11 @@ export interface ICustomDomainRecord {
   status: string;
 }
 
-export const getCustomDomainView = async (subdomain: string) => {
+export const getCustomDomainView = async (
+  models: IModels,
+  subdomain: string,
+  helpCenterId: string,
+) => {
   const available = isCustomDomainAvailable();
   const cnameTarget = cnameTargetFor(subdomain);
 
@@ -157,7 +234,7 @@ export const getCustomDomainView = async (subdomain: string) => {
     return { isAvailable: false, cnameTarget, isActive: false, records: [] };
   }
 
-  const domain = await currentDomain(subdomain);
+  const domain = await currentDomain(models, subdomain, helpCenterId);
 
   if (!domain?.hostname) {
     return { isAvailable: true, cnameTarget, isActive: false, records: [] };
@@ -240,7 +317,7 @@ const syncFromCloudflare = async (
     return domain;
   }
 
-  await setSaasOrganizationHelpCenterDomain(subdomain, next);
+  await saveSaasOrganizationHelpCenterDomain(subdomain, next);
 
   if (isDomainActive(next) !== isDomainActive(domain)) {
     await forgetResolved(domain.hostname);
@@ -253,7 +330,12 @@ const syncFromCloudflare = async (
   return next;
 };
 
-export const saveCustomDomain = async (subdomain: string, input: string) => {
+export const saveCustomDomain = async (
+  models: IModels,
+  subdomain: string,
+  helpCenterId: string,
+  input: string,
+) => {
   assertAvailable();
 
   const hostname = normalizeHostname(input);
@@ -263,7 +345,7 @@ export const saveCustomDomain = async (subdomain: string, input: string) => {
     throw new Error(invalid);
   }
 
-  const existing = await currentDomain(subdomain);
+  const existing = await currentDomain(models, subdomain, helpCenterId);
 
   if (existing?.hostname && existing.hostname !== hostname) {
     throw new Error(
@@ -275,6 +357,10 @@ export const saveCustomDomain = async (subdomain: string, input: string) => {
 
   if (owner && owner.subdomain !== subdomain) {
     throw new Error(`${hostname} is already connected to another workspace`);
+  }
+
+  if (owner && owner.domain.helpCenterId !== helpCenterId) {
+    throw new Error(`${hostname} is already connected to another help center`);
   }
 
   if (existing?.hostname === hostname) {
@@ -293,21 +379,29 @@ export const saveCustomDomain = async (subdomain: string, input: string) => {
     throw new Error(describeCloudflareError(e));
   }
 
-  const domain = withCheckWindow(
-    fromCloudflare(result, await pointsTo(hostname, cnameTargetFor(subdomain))),
-  );
+  const domain = withCheckWindow({
+    ...fromCloudflare(
+      result,
+      await pointsTo(hostname, cnameTargetFor(subdomain)),
+    ),
+    helpCenterId,
+  });
 
-  await setSaasOrganizationHelpCenterDomain(subdomain, domain);
+  await saveSaasOrganizationHelpCenterDomain(subdomain, domain);
   await forgetResolved(hostname);
   await scheduleIfPending(domain);
 
   return domain;
 };
 
-export const refreshCustomDomain = async (subdomain: string) => {
+export const refreshCustomDomain = async (
+  models: IModels,
+  subdomain: string,
+  helpCenterId: string,
+) => {
   assertAvailable();
 
-  const domain = await currentDomain(subdomain);
+  const domain = await currentDomain(models, subdomain, helpCenterId);
 
   if (!domain?.hostname) {
     throw new Error('No custom domain is connected');
@@ -328,19 +422,23 @@ export const refreshCustomDomain = async (subdomain: string) => {
  * still shows up. Pending domains are left to the background check and the
  * Refresh button. A failed check leaves the stored status on screen.
  */
-export const checkActiveDomainOnOpen = async (subdomain: string) => {
+export const checkActiveDomainOnOpen = async (
+  models: IModels,
+  subdomain: string,
+  helpCenterId: string,
+) => {
   if (!isCustomDomainAvailable()) {
     return;
   }
 
-  const domain = await currentDomain(subdomain);
+  const domain = await currentDomain(models, subdomain, helpCenterId);
 
   if (!isDomainActive(domain)) {
     return;
   }
 
   const firstOpen = await redis.set(
-    `frontline:customdomain:opened:${subdomain}`,
+    `frontline:customdomain:opened:${subdomain}:${helpCenterId}`,
     '1',
     'EX',
     OPEN_CHECK_THROTTLE_SECONDS,
@@ -364,10 +462,14 @@ export const checkActiveDomainOnOpen = async (subdomain: string) => {
   }
 };
 
-export const resetCustomDomain = async (subdomain: string) => {
+export const resetCustomDomain = async (
+  models: IModels,
+  subdomain: string,
+  helpCenterId: string,
+) => {
   assertAvailable();
 
-  const domain = await currentDomain(subdomain);
+  const domain = await currentDomain(models, subdomain, helpCenterId);
 
   if (!domain?.hostname) {
     return null;
@@ -381,10 +483,55 @@ export const resetCustomDomain = async (subdomain: string) => {
     }
   }
 
-  await setSaasOrganizationHelpCenterDomain(subdomain, null);
+  await removeSaasOrganizationHelpCenterDomain(subdomain, domain.hostname);
   await forgetResolved(domain.hostname);
 
   return null;
+};
+
+/**
+ * The help center an active custom domain of this workspace is connected to,
+ * or null. Lets the help center app find a help center by its domain without
+ * its url having to be that domain.
+ */
+export const helpCenterIdForHost = async (
+  subdomain: string,
+  host: string,
+): Promise<string | null> => {
+  if (!isCustomDomainAvailable()) {
+    return null;
+  }
+
+  const hostname = normalizeHostname(host);
+
+  if (!hostname || validateHostname(hostname)) {
+    return null;
+  }
+
+  const key = helpCenterCacheKey(hostname);
+  const cached = await redis.get(key);
+
+  if (cached !== null) {
+    const [owner, helpCenterId] = cached.split(':');
+
+    return owner === subdomain && helpCenterId ? helpCenterId : null;
+  }
+
+  const owner = await getSaasOrganizationByHelpCenterDomain(hostname);
+
+  const helpCenterId =
+    owner && isDomainActive(owner.domain)
+      ? owner.domain.helpCenterId || ''
+      : '';
+
+  await redis.set(
+    key,
+    `${owner?.subdomain || ''}:${helpCenterId}`,
+    'EX',
+    helpCenterId ? RESOLVE_CACHE_SECONDS : RESOLVE_MISS_CACHE_SECONDS,
+  );
+
+  return owner?.subdomain === subdomain && helpCenterId ? helpCenterId : null;
 };
 
 /**
@@ -408,12 +555,10 @@ export const resolveCustomDomain = async (
     return cached || null;
   }
 
-  const organization = await getSaasOrganizationByHelpCenterDomain(hostname);
+  const owner = await getSaasOrganizationByHelpCenterDomain(hostname);
 
   const subdomain =
-    organization && isDomainActive(organization.helpCenterDomain)
-      ? organization.subdomain
-      : '';
+    owner && isDomainActive(owner.domain) ? owner.subdomain : '';
 
   await redis.set(
     key,
@@ -425,8 +570,22 @@ export const resolveCustomDomain = async (
   return subdomain || null;
 };
 
+const pendingDomainsOf = (
+  organization: Parameters<typeof helpCenterDomainsOf>[0],
+) =>
+  helpCenterDomainsOf(organization).filter(
+    (domain) =>
+      domain.hostname &&
+      domain.autoCheckUntil &&
+      new Date(domain.autoCheckUntil) > new Date() &&
+      !isDomainActive(domain),
+  );
+
 export const countPendingCustomDomains = async () =>
-  (await getSaasOrganizationsWithPendingHelpCenterDomain()).length;
+  (await getSaasOrganizationsWithPendingHelpCenterDomain()).reduce(
+    (count, organization) => count + pendingDomainsOf(organization).length,
+    0,
+  );
 
 /**
  * Re-reads the pending domains from Cloudflare and DNS, so they turn active
@@ -442,26 +601,26 @@ export const checkPendingCustomDomains = async (): Promise<number> => {
 
   let stillPending = 0;
 
-  for (const { subdomain, helpCenterDomain } of organizations) {
-    if (!helpCenterDomain?.hostname) {
-      continue;
-    }
+  for (const organization of organizations) {
+    const { subdomain } = organization;
 
-    try {
-      const next = await syncFromCloudflare(subdomain, helpCenterDomain, {
-        onlyIfChanged: true,
-      });
+    for (const domain of pendingDomainsOf(organization)) {
+      try {
+        const next = await syncFromCloudflare(subdomain, domain, {
+          onlyIfChanged: true,
+        });
 
-      if (!isDomainActive(next)) {
+        if (!isDomainActive(next)) {
+          stillPending++;
+        }
+      } catch (e) {
         stillPending++;
-      }
-    } catch (e) {
-      stillPending++;
 
-      console.error(
-        `[customdomain] check failed for ${subdomain} (${helpCenterDomain.hostname}):`,
-        describeCloudflareError(e),
-      );
+        console.error(
+          `[customdomain] check failed for ${subdomain} (${domain.hostname}):`,
+          describeCloudflareError(e),
+        );
+      }
     }
   }
 

@@ -1,26 +1,30 @@
+import { Sidebar, cn } from 'erxes-ui';
+
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationActivityButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityButton';
 import { NavigationActivityGroups } from '@/navigation/components/navigation-activity-rail/NavigationActivityGroups';
+import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
 import { NavigationActivitySearchButton } from '@/navigation/components/navigation-activity-rail/NavigationActivitySearchButton';
 import { NavigationFavoritesSection } from '@/navigation/components/navigation-activity-rail/NavigationFavoritesSection';
 import { NavigationInboxButton } from '@/navigation/components/navigation-activity-rail/NavigationInboxButton';
-import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { NavigationWelcomeButton } from '@/navigation/components/navigation-activity-rail/NavigationWelcomeButton';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
-import { cn, Sidebar } from 'erxes-ui';
 
 export const NavigationActivityRail = ({
   activities,
   activeActivityId,
   hiddenActivities,
   isInboxActive,
+  isWelcomeActive,
   isActivityPinned,
   isSettings,
   mobileExpanded,
   onActivityPinnedChange,
   onSearch,
   onSelectInbox,
+  onSelectWelcome,
   onSelectActivity,
   visibleActivities,
 }: Readonly<{
@@ -28,12 +32,14 @@ export const NavigationActivityRail = ({
   activeActivityId: string | null;
   hiddenActivities: INavigationActivity[];
   isInboxActive: boolean;
+  isWelcomeActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
   mobileExpanded: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
   onSelectInbox: () => void;
+  onSelectWelcome: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
 }>) => {
@@ -54,6 +60,11 @@ export const NavigationActivityRail = ({
       )}
     >
       <NavigationRailLogo expanded={expanded} />
+      <NavigationWelcomeButton
+        expanded={expanded}
+        isWelcomeActive={isWelcomeActive}
+        onSelectWelcome={onSelectWelcome}
+      />
       {usePromotedRail ? (
         <div className="mb-1 flex shrink-0 flex-col gap-1">
           <NavigationInboxButton
