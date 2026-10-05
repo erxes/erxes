@@ -44,14 +44,12 @@ Done when every SDL change has the matching resolver change, and `npx tsc --noEm
 
 Convert one module per layer, largest first. In each module:
 
-- Every document is `gql(\`...\`)` imported from `~/gql`, written as a function call with no `${}` interpolation.
+- Every document is `gql(\`...\`)`imported from`~/gql`, written as a function call with no `${}` interpolation.
 - Every Apollo hook infers from its document: `useQuery(GET_X)`, never `useQuery<XResponse>(GET_X)`.
 - Every handwritten response interface is a type derived from the generated query type:
 
   ```ts
-  export type IDeal = NonNullable<
-    NonNullable<NonNullable<GetDealsQuery['getDeals']>['list']>[number]
-  >;
+  export type IDeal = NonNullable<NonNullable<NonNullable<GetDealsQuery['getDeals']>['list']>[number]>;
   ```
 
 - Every `subscribeToMore` and `updateQuery` takes its types from the generated subscription and query types.
