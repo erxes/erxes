@@ -29,6 +29,7 @@ export const FORM_GENERAL_SCHEMA = z.object({
   description: z.string(),
   buttonText: z.string(),
   channelId: z.string(),
+  saveAsCustomer: z.boolean().optional(),
 });
 
 export const FORM_GENERAL_CREATE_SCHEMA = FORM_GENERAL_SCHEMA.extend({

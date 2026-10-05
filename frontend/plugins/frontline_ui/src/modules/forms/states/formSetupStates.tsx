@@ -67,6 +67,7 @@ export const formSetupValuesAtom = atom((get) => {
       leadData: {
         appearance: general.appearance,
         loadType: general.loadType,
+        saveAsCustomer: general.saveAsCustomer ?? false,
         callout: {
           title: callout.title,
           body: callout.body,
@@ -149,6 +150,7 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
     primaryColor: payload.leadData.primaryColor ?? '',
     appearance: payload.leadData.appearance ?? 'iframe',
     loadType: payload.leadData.loadType ?? 'embedded',
+    saveAsCustomer: payload.leadData.saveAsCustomer ?? false,
   };
 
   const callout = {

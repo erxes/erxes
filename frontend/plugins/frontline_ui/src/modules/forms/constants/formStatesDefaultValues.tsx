@@ -24,6 +24,7 @@ export const FORM_STATES_DEFAULT_VALUES = {
     title: 'title',
     description: '',
     buttonText: '',
+    saveAsCustomer: false,
   },
   CALLOUT: {
     title: '',
