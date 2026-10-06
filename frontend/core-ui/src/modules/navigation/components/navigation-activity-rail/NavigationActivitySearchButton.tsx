@@ -17,7 +17,7 @@ export const NavigationActivitySearchButton = ({
       aria-label={t('search')}
       aria-keyshortcuts="Control+M Meta+M"
       className={cn(
-        'mb-1 h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+        'mb-1 h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [&>svg]:size-4!',
         expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
       )}
       onClick={onSearch}

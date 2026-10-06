@@ -1,8 +1,9 @@
+import { Button, cn } from 'erxes-ui';
+import { IconApps, IconChevronRight } from '@tabler/icons-react';
+
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
 import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { IconApps, IconChevronRight } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
 import type { ReactNode } from 'react';
 
 export const NavigationActivityButton = ({
@@ -36,10 +37,13 @@ export const NavigationActivityButton = ({
         aria-expanded={expandable ? open : undefined}
         aria-label={activity.label}
         className={cn(
-          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding,color,background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] motion-reduce:active:scale-100 [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           showPinButton && !expandable && 'pr-8',
-          active && 'bg-foreground/5 text-foreground hover:bg-foreground/5',
+          active && expandable && 'text-primary hover:text-primary',
+          active &&
+            !expandable &&
+            'bg-background text-primary shadow-[inset_0_0_0_1px_var(--border)] hover:bg-background hover:text-primary',
         )}
         onClick={onSelect}
         size="default"
@@ -49,7 +53,7 @@ export const NavigationActivityButton = ({
           className={cn(
             'size-4 text-accent-foreground transition-transform group-active/activity:scale-90',
             active &&
-              'animate-icon-pop text-foreground motion-reduce:animate-none',
+              'animate-icon-pop text-primary motion-reduce:animate-none',
           )}
         />
         <NavigationRailLabel
@@ -69,6 +73,7 @@ export const NavigationActivityButton = ({
           <span
             className={cn(
               'ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+              active && 'text-primary',
               open && 'rotate-90',
             )}
           >

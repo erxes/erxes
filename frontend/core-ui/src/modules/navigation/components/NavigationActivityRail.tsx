@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 type TNavigationActivityRailProps = Readonly<{
   activities: INavigationActivity[];
   activeActivityId: string | null;
-  expandedActivityId: string | null;
+  expandedActivityIds: string[];
   hiddenActivities: INavigationActivity[];
   isInboxActive: boolean;
   isWelcomeActive: boolean;
@@ -42,7 +42,7 @@ const NavigationActivityRailMain = ({
   activities,
   activeActivityId,
   expanded,
-  expandedActivityId,
+  expandedActivityIds,
   hiddenActivities,
   hoverEnabled,
   isInboxActive,
@@ -70,18 +70,18 @@ const NavigationActivityRailMain = ({
         isWelcomeActive={isWelcomeActive}
         onSelectWelcome={onSelectWelcome}
       />
-      {usePromotedRail ? (
-        <div className="mb-1 flex shrink-0 flex-col gap-1">
-          <NavigationInboxButton
-            expanded={expanded}
-            isInboxActive={isInboxActive}
-            onSelectInbox={onSelectInbox}
-          />
-          <NavigationActivitySearchButton
-            expanded={expanded}
-            onSearch={onSearch}
-          />
-          {promoted.map((activity) => (
+      <div className="mb-1 flex shrink-0 flex-col gap-1">
+        <NavigationInboxButton
+          expanded={expanded}
+          isInboxActive={isInboxActive}
+          onSelectInbox={onSelectInbox}
+        />
+        <NavigationActivitySearchButton
+          expanded={expanded}
+          onSearch={onSearch}
+        />
+        {usePromotedRail &&
+          promoted.map((activity) => (
             <NavigationActivityButton
               key={activity.id}
               activity={activity}
@@ -90,30 +90,19 @@ const NavigationActivityRailMain = ({
               onSelect={() => onSelectActivity(activity)}
             />
           ))}
-        </div>
-      ) : (
-        <NavigationActivitySearchButton
-          expanded={expanded}
-          onSearch={onSearch}
-        />
-      )}
+      </div>
       <div
         className={cn(
-          'flex min-h-0 flex-1 flex-col items-stretch overflow-x-hidden overflow-y-auto',
-          expanded ? 'gap-5' : 'hide-scroll gap-1',
+          'flex flex-col items-stretch',
+          expanded ? 'gap-2' : 'gap-1',
         )}
       >
-        <NavigationFavoritesSection
-          expanded={expanded}
-          isInboxActive={isInboxActive}
-          onSelectInbox={onSelectInbox}
-          showInbox={!usePromotedRail}
-        />
+        <NavigationFavoritesSection expanded={expanded} />
         <NavigationActivityGroups
           activeActivityId={activeActivityId}
           activities={usePromotedRail ? visibleRest : visibleActivities}
           expanded={expanded}
-          expandedActivityId={expandedActivityId}
+          expandedActivityIds={expandedActivityIds}
           hoverEnabled={hoverEnabled}
           isActivityPinned={isActivityPinned}
           isSettings={isSettings}
@@ -158,35 +147,47 @@ export const NavigationActivityRail = (props: TNavigationActivityRailProps) => {
       )}
     >
       <NavigationRailLogo expanded={expanded} />
-      <motion.div
-        key={showSettings ? 'settings' : 'main'}
-        animate={{ opacity: 1, x: 0 }}
-        className={cn('flex min-h-0 flex-1 flex-col', showSettings && '-mx-2')}
-        initial={
-          isFirstRender.current
-            ? false
-            : { opacity: 0, x: showSettings ? 24 : -24 }
-        }
-        transition={
-          reduceMotion
-            ? { duration: 0 }
-            : {
-                x: { duration: 0.26, ease: NAVIGATION_EASE },
-                opacity: { duration: 0.18, ease: 'easeOut' },
-              }
-        }
-      >
-        {showSettings ? (
-          <SettingsSidebar />
-        ) : (
-          <NavigationActivityRailMain
-            {...props}
-            expanded={expanded}
-            hoverEnabled={hoverEnabled}
-          />
+      <div
+        className={cn(
+          'min-h-0 flex-1 overflow-x-hidden overflow-y-auto',
+          !expanded && 'hide-scroll',
         )}
-      </motion.div>
-      <NavigationSidebarFooter expanded={expanded} isSettings={isSettings} />
+      >
+        <div className="flex min-h-full flex-col">
+          <motion.div
+            key={showSettings ? 'settings' : 'main'}
+            animate={{ opacity: 1, x: 0 }}
+            className={cn('flex flex-1 flex-col', showSettings && '-mx-2')}
+            initial={
+              isFirstRender.current
+                ? false
+                : { opacity: 0, x: showSettings ? 24 : -24 }
+            }
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : {
+                    x: { duration: 0.26, ease: NAVIGATION_EASE },
+                    opacity: { duration: 0.18, ease: 'easeOut' },
+                  }
+            }
+          >
+            {showSettings ? (
+              <SettingsSidebar />
+            ) : (
+              <NavigationActivityRailMain
+                {...props}
+                expanded={expanded}
+                hoverEnabled={hoverEnabled}
+              />
+            )}
+          </motion.div>
+          <NavigationSidebarFooter
+            expanded={expanded}
+            isSettings={isSettings}
+          />
+        </div>
+      </div>
       {expanded && !isMobile && (
         <NavigationResizeHandle
           label={t('resize-sidebar', 'Resize sidebar')}

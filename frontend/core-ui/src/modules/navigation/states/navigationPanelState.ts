@@ -10,9 +10,9 @@ export const navigationSidebarOpenState = atomWithStorage<boolean>(
   },
 );
 
-export const expandedNavigationActivityState = atomWithStorage<string | null>(
-  'navigation:expanded-activity',
-  null,
+export const expandedNavigationActivityState = atomWithStorage<string[]>(
+  'navigation:expanded-activities',
+  [],
   undefined,
   {
     getOnInit: true,

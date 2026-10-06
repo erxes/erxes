@@ -18,7 +18,7 @@ export const MainNavigationBar = () => {
   const { isActivityPinned, setActivityPinned, visibleActivities } =
     usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
-  const [expandedActivityId, setExpandedActivityId] = useAtom(
+  const [expandedActivityIds, setExpandedActivityIds] = useAtom(
     expandedNavigationActivityState,
   );
   const setSearchOpen = useSetAtom(globalSearchOpenState);
@@ -52,8 +52,12 @@ export const MainNavigationBar = () => {
     }
 
     unfoldedRouteActivityId.current = routeActivityId;
-    setExpandedActivityId(routeActivityId);
-  }, [routeActivityId, setExpandedActivityId]);
+    setExpandedActivityIds((current) =>
+      current.includes(routeActivityId)
+        ? current
+        : [...current, routeActivityId],
+    );
+  }, [routeActivityId, setExpandedActivityIds]);
 
   useEffect(() => {
     if (isSettings) {
@@ -80,18 +84,20 @@ export const MainNavigationBar = () => {
   ]);
 
   const handleSelectActivity = (activity: INavigationActivity) => {
+    setActiveActivityId(activity.id);
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };
 
   const handleToggleActivity = (activity: INavigationActivity) => {
-    if (expandedActivityId === activity.id) {
-      setExpandedActivityId(null);
-      return;
-    }
+    const isOpen = expandedActivityIds.includes(activity.id);
 
-    setExpandedActivityId(activity.id);
+    setExpandedActivityIds((current) =>
+      isOpen
+        ? current.filter((id) => id !== activity.id)
+        : [...current, activity.id],
+    );
 
-    if (routeActivityId !== activity.id) {
+    if (!isOpen && routeActivityId !== activity.id) {
       handleSelectActivity(activity);
     }
   };
@@ -117,7 +123,7 @@ export const MainNavigationBar = () => {
         hiddenActivities={unlistedActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
-        expandedActivityId={expandedActivityId}
+        expandedActivityIds={expandedActivityIds}
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}

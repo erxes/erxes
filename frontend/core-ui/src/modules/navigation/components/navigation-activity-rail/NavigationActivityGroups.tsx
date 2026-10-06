@@ -1,19 +1,20 @@
+import { useEffect, useState } from 'react';
+
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationActivityAccordion } from '@/navigation/components/navigation-activity-rail/NavigationActivityAccordion';
 import { NavigationActivityButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityButton';
 import { NavigationActivityHover } from '@/navigation/components/navigation-activity-rail/NavigationActivityHover';
 import { NavigationActivitySection } from '@/navigation/components/navigation-activity-rail/NavigationActivitySection';
+import { Sidebar } from 'erxes-ui';
 import { useNavigationPlacement } from '@/navigation/hooks/useNavigationPlacement';
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { Sidebar } from 'erxes-ui';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const NavigationActivityGroups = ({
   activeActivityId,
   activities,
   expanded,
-  expandedActivityId,
+  expandedActivityIds,
   hoverEnabled,
   isActivityPinned,
   isSettings,
@@ -24,7 +25,7 @@ export const NavigationActivityGroups = ({
   activeActivityId: string | null;
   activities: INavigationActivity[];
   expanded: boolean;
-  expandedActivityId: string | null;
+  expandedActivityIds: string[];
   hoverEnabled: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
@@ -60,7 +61,7 @@ export const NavigationActivityGroups = ({
     const navigationGroup = navigationGroups[activity.id];
     const hasModules = Boolean(
       navigationGroup?.contents.length ||
-      (isMobile && navigationGroup?.subGroups.length),
+        (isMobile && navigationGroup?.subGroups.length),
     );
 
     return hasModules && getPlacement(activity.id) === 'inline';
@@ -79,7 +80,7 @@ export const NavigationActivityGroups = ({
           key={activity.id}
           activity={activity}
           active={active}
-          open={activity.id === expandedActivityId}
+          open={expandedActivityIds.includes(activity.id)}
           pinned={pinned}
           onPinnedChange={handlePinnedChange}
           onToggle={() => onToggleActivity(activity)}

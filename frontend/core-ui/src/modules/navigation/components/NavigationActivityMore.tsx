@@ -98,7 +98,7 @@ export const NavigationActivityMore = ({
         <Button
           aria-label={t('more-activities')}
           className={cn(
-            'h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+            'h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [&>svg]:size-4!',
             expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           )}
           size="default"

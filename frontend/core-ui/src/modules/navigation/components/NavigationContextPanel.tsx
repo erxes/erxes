@@ -16,10 +16,15 @@ import {
   navigationContextWidthState,
   navigationResizingState,
 } from '@/navigation/states/navigationPanelState';
+import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { SettingsContextNavigation } from '@/settings/components/SettingsContextNavigation';
 import { AppPath } from '@/types/paths/AppPath';
-import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
+import {
+  IconChevronsRight,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
+} from '@tabler/icons-react';
 import { Button, cn, Separator } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { motion, useReducedMotion } from 'motion/react';
@@ -75,14 +80,14 @@ const NavigationContextPanelFrame = ({
         ref={asideRef}
         aria-label={title}
         initial={false}
-        animate={{ width: open ? (width ?? 'auto') : 0 }}
+        animate={{ width: open ? width ?? 'auto' : 0 }}
         transition={
           reduceMotion || resizing
             ? { duration: 0 }
-            : { duration: 0.2, ease: 'linear' }
+            : { duration: 0.3, ease: NAVIGATION_EASE }
         }
         className={cn(
-          'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar has-[>[data-navigation-context]:empty]:hidden',
+          'relative flex shrink-0 flex-col overflow-hidden border-r bg-background has-[>[data-navigation-context]:empty]:hidden',
           !width && 'max-w-80',
           !open && 'border-r-0',
         )}
@@ -94,7 +99,7 @@ const NavigationContextPanelFrame = ({
               !open && 'opacity-0',
             )}
           >
-            <span className="block truncate px-2 text-sm font-medium">
+            <span className="block truncate px-2 text-base font-semibold">
               {title}
             </span>
           </div>
@@ -107,7 +112,11 @@ const NavigationContextPanelFrame = ({
             variant="ghost"
             onClick={() => setOpen(!open)}
           >
-            {open ? <IconChevronsLeft /> : <IconChevronsRight />}
+            {open ? (
+              <IconLayoutSidebarLeftCollapse />
+            ) : (
+              <IconLayoutSidebarLeftExpand />
+            )}
           </Button>
         </div>
         <div
@@ -136,7 +145,7 @@ const NavigationContextPanelFrame = ({
       {!open && hasContent && (
         <div
           data-navigation-context-toggle
-          className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-sidebar pt-1"
+          className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-background pt-1"
         >
           <Button
             aria-expanded={false}
@@ -172,8 +181,8 @@ export const NavigationContextPanel = () => {
     : undefined;
   const showModules = Boolean(
     pluginActivity &&
-    navigationGroup?.contents.length &&
-    getPlacement(pluginActivity.id) === 'context',
+      navigationGroup?.contents.length &&
+      getPlacement(pluginActivity.id) === 'context',
   );
   const showSubGroups = Boolean(navigationGroup?.subGroups.length);
 
