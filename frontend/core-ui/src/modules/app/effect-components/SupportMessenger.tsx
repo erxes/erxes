@@ -36,8 +36,8 @@ const getSubdomain = () => window.location.hostname.split('.')[0];
 
 const getSupportMessengerConfig = () => {
   const domainFormat =
-    window.env?.REACT_APP_WIDGETS_URL ||
-    process.env.REACT_APP_WIDGETS_URL ||
+    window.env?.REACT_SUPPORT_WIDGETS_URL ||
+    process.env.REACT_SUPPORT_WIDGETS_URL ||
     DEFAULT_WIDGETS_URL;
 
   return {
