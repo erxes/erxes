@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -49,6 +49,7 @@
 | Property side panel  | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state. |
 | Operation modules    | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                            |
 | Activity timeline    | `frontend/plugins/operation_ui/src/modules/activity/components`                          | Renders activity actors and field changes for task, project, and triage details.                            |
+| GitHub triage detection | `frontend/plugins/operation_ui/src/modules/operation/utils/isGithubTriage.ts` | Shared type guard for GitHub source links and creator attribution in triage details, creation timelines, and relation cards. |
 | Pages                | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                       |
 | GraphQL codegen      | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/plugins/operation_api/generated/schema.graphql`.            |
 | Relation widgets     | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                           |
@@ -83,7 +84,8 @@
 ## Local Invariants
 
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
-- Attribute a triage to a GitHub issue only when its creator is `system` and the issue URL and number are present; other records keep their normal creator display.
+- Use `isGithubTriage` for GitHub triage attribution and source-link visibility: require a `system` creator, numeric triage status, non-empty issue URL, and numeric issue number. Tasks, projects without issue metadata, and other triages retain normal creator attribution.
+- `CreatorInfo` uses one `ActivityTimelineItem` for both GitHub and member creation attribution; only the avatar and attribution content vary, with `ActivityActor.Provider` supplying member context and skipping member lookup for `system` creators.
 - `ActivityIcon` is rendered inside `ActivityActor.Provider`. Assignee-change and triage-acceptance avatars, their hover labels, and every actor name resolve from `activity.createdBy`; never use `metadata.newValue` for the actor. Other modules retain action-specific icons, and changed field values belong in the entry body.
 - Module Federation exposes, route paths, widget names, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
