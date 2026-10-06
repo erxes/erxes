@@ -17,7 +17,7 @@ export function BrandsRecordTable() {
   const [queries] = useMultiQueryState<{ searchValue: string }>([
     'searchValue',
   ]);
-  const isFiltered = !!queries?.searchValue;
+  const isFiltered = Boolean(queries?.searchValue);
   const isEmpty = !loading && !error && !brands?.length;
 
   return (

@@ -14,73 +14,71 @@ export function Teams() {
     navigate(`/settings/operation/team/details/${teamId}`);
   };
   return (
-    <div className="overflow-auto h-full p-4 pb-4">
-      <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
-        <Table>
-          <Table.Header>
-            <Table.Row className="rounded-t-md">
-              <Table.Head className="w-auto rounded-tl-md pl-2">
-                {t('title')}
-              </Table.Head>
-              <Table.Head className="w-20">{t('members')}</Table.Head>
-              <Table.Head className="w-20">{t('tasks')}</Table.Head>
-              <Table.Head className="w-32">{t('created-at')}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body className="">
-            {loading
-              ? Array.from({ length: 3 }).map((_, index) => (
-                  <TableRowSkeleton key={index} />
-                ))
-              : teams?.map((team) => (
-                  <Table.Row
-                    key={team._id}
-                    onClick={() => onClick(team._id)}
-                    className="hover:cursor-pointer shadow-xs "
-                  >
-                    <Table.Cell className="font-medium border-none pl-2 w-auto ">
-                      <span className="w-full flex gap-2 text-base font-medium">
-                        <span className="[1lh] flex items-center">
-                          <IconComponent name={team.icon} className="size-4" />
-                        </span>
-                        <TextOverflowTooltip value={team.name} />
+    <div className="overflow-auto h-full p-4">
+      <Table className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
+        <Table.Header>
+          <Table.Row className="rounded-t-md">
+            <Table.Head className="w-auto rounded-tl-md pl-2">
+              {t('title')}
+            </Table.Head>
+            <Table.Head className="w-20">{t('members')}</Table.Head>
+            <Table.Head className="w-20">{t('tasks')}</Table.Head>
+            <Table.Head className="w-32">{t('created-at')}</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body className="">
+          {loading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <TableRowSkeleton key={index} />
+              ))
+            : teams?.map((team) => (
+                <Table.Row
+                  key={team._id}
+                  onClick={() => onClick(team._id)}
+                  className="hover:cursor-pointer shadow-xs "
+                >
+                  <Table.Cell className="font-medium border-none pl-2 w-auto ">
+                    <span className="w-full flex gap-2 text-base font-medium">
+                      <span className="[1lh] flex items-center">
+                        <IconComponent name={team.icon} className="size-4" />
                       </span>
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-20">
-                      {team.memberCount}
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-20">
-                      {team.taskCount}
-                    </Table.Cell>
-                    <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                      {format(team.createdAt, 'MMM d, yyyy')}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-          </Table.Body>
-        </Table>
-        {!loading && teams?.length === 0 && (
-          <div>
-            <div className=" h-full w-full px-8 flex justify-center">
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="mb-6">
-                  <IconUserX
-                    size={64}
-                    className="text-muted-foreground mx-auto mb-4"
-                  />
-                  <h3 className="text-xl font-semibold mb-2">
-                    {t('no-team-yet')}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    {t('get-started-creating-team')}
-                  </p>
-                </div>
-                <CreateTeam />
+                      <TextOverflowTooltip value={team.name} />
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell className="border-none px-2 w-20">
+                    {team.memberCount}
+                  </Table.Cell>
+                  <Table.Cell className="border-none px-2 w-20">
+                    {team.taskCount}
+                  </Table.Cell>
+                  <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
+                    {format(team.createdAt, 'MMM d, yyyy')}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+        </Table.Body>
+      </Table>
+      {!loading && teams?.length === 0 && (
+        <div>
+          <div className=" h-full w-full px-8 flex justify-center">
+            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+              <div className="mb-6">
+                <IconUserX
+                  size={64}
+                  className="text-muted-foreground mx-auto mb-4"
+                />
+                <h3 className="text-xl font-semibold mb-2">
+                  {t('no-team-yet')}
+                </h3>
+                <p className="text-muted-foreground max-w-md">
+                  {t('get-started-creating-team')}
+                </p>
               </div>
+              <CreateTeam />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,7 +11,7 @@ dayjs.extend(customParseFormat);
 
 export type DatePickerProps = {
   value: Date | Date[] | DateRange | undefined;
-  onChange: (date: Date | Date[] | DateRange | undefined) => void;
+  onChange: (date?: Date | Date[] | DateRange | undefined) => void;
   placeholder?: string;
   withPresent?: boolean;
   minDate?: Date;
@@ -115,7 +115,7 @@ export const DatePicker = ({
     setInputValue(formattedText);
     if (mode !== 'single') return;
     if (!formattedText && allowNull) {
-      onChange(undefined);
+      onChange();
       return;
     }
     if (formattedText.length !== maxInputLength) return;
@@ -157,7 +157,7 @@ export const DatePicker = ({
 
   const handleClear = () => {
     setInputValue('');
-    onChange(undefined);
+    onChange();
     setIsOpen(false);
   };
 
@@ -230,12 +230,14 @@ export const DatePicker = ({
         className={cn('w-auto p-0', popoverContentProps?.className)}
       >
         <Calendar
-          {...props}
-          disabled={calendarDisabled}
-          mode={mode}
-          selected={value as any}
-          onSelect={handleDateChange as any}
-          className={cn('text-foreground', calendarClassName)}
+          {...({
+            ...props,
+            disabled: calendarDisabled,
+            mode,
+            selected: value,
+            onSelect: handleDateChange,
+            className: cn('text-foreground', calendarClassName),
+          } as React.ComponentProps<typeof Calendar>)}
         />
         {allowNull && value && (
           <div className="border-t p-1">

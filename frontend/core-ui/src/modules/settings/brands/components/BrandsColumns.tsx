@@ -100,7 +100,7 @@ const BrandDescriptionCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
         {
           variables: {
             id: _id,
-            name: name,
+            name,
             description: trimmed,
           },
         },

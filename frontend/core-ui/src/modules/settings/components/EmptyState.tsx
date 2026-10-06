@@ -14,7 +14,7 @@ export function EmptyState({
   title,
   description,
   className = '',
-}: EmptyStateProps) {
+}: Readonly<EmptyStateProps>) {
   return (
     <div
       className={`flex flex-col items-center justify-center p-6 text-center h-[60vh] ${className}`}

@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { Teams } from '@/team/components/team-list/Teams';
 
 export const TeamsSettingsPage = () => {

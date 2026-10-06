@@ -39,7 +39,7 @@ export const BoardForm = ({ open, setOpen }: BoardFormProps) => {
   }, [reset, setBoardId, setOpen]);
 
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
-    async (data) => {
+    (data) => {
       if (!data.name?.trim()) {
         handleClose();
         return;
@@ -96,7 +96,7 @@ export const BoardForm = ({ open, setOpen }: BoardFormProps) => {
                     }
                   }}
                   ref={field.ref}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     field.onBlur();
                     handleSubmit(submitHandler)();
                   }}

@@ -85,7 +85,7 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
 const TokenCell = ({ token }: { token: string }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-  const masked = token.slice(0, 6) + '••••••••••••••••••••';
+  const masked = `${token.slice(0, 6)}...................`;
 
   const handleCopy = async () => {
     try {

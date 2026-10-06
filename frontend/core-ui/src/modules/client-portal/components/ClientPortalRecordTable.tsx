@@ -2,11 +2,11 @@ import { IconBuilding } from '@tabler/icons-react';
 import { Empty, RecordTable } from 'erxes-ui';
 import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
 import { clientPortalColumns } from '@/client-portal/components/ClientPortalColumns';
-import { ClientPortalCommandBar } from './client-portal-command-bar/ClientPortalCommandbar';
+import { ClientPortalCommandBar } from '@/client-portal/components/client-portal-command-bar/ClientPortalCommandbar';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { addingClientPortalAtom } from '../state';
-import { ClientPortalAddRow } from './ClientPortalAddRow';
+import { addingClientPortalAtom } from '@/client-portal/state';
+import { ClientPortalAddRow } from '@/client-portal/components/ClientPortalAddRow';
 
 export function ClientPortalRecordTable() {
   const { clientPortals, loading, error } = useClientPortals();
