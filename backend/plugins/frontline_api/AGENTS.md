@@ -1116,6 +1116,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   storage and never expose token-bearing file URLs. Unsupported content gets
   a visible fallback. Transient ingestion failures remain retryable; uncertain
   outbound delivery must not be retried automatically.
+- Absolute attachment URLs always use the bounded public HTTPS downloader,
+  including URLs whose path is `/read-file`. Only relative `/read-file?key=`
+  references and validated storage keys use workspace storage.
+- A group upgrade stores `migratedToChatId` even when its service message is
+  the first message seen for that group. Subsequent supergroup messages reuse
+  the existing history, and replies target the new provider ID.
 - Telegram text chunks contain at most 4096 code points; the first media caption
   contains at most 1024. Never truncate remaining text or trim chunk boundaries.
   Store every provider ID in one inbox message's `extraData.telegram.messageIds`;
@@ -1213,6 +1219,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram group upgrades and attachment URLs
+
+- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
+- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
+- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
 
 ### `2026-10-06` — Telegram previews and review hygiene
 

@@ -196,6 +196,9 @@ export const getOrCreateTelegramConversation = async (
   const chatFields = {
     chatTitle: message.new_chat_title ?? message.chat.title,
     chatType: message.migrate_to_chat_id ? 'supergroup' : message.chat.type,
+    ...(message.migrate_to_chat_id
+      ? { migratedToChatId: String(message.migrate_to_chat_id) }
+      : {}),
     ...(topicName !== undefined ? { topicName } : {}),
   };
 

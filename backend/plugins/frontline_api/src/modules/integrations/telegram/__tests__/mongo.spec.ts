@@ -13,7 +13,11 @@ import { loadTelegramConversationMessageClass } from '../db/models/ConversationM
 import { loadTelegramConversationClass } from '../db/models/Conversations';
 import { loadTelegramCustomerClass } from '../db/models/Customers';
 import { loadTelegramReactionClass } from '../db/models/Reactions';
-import { getOrCreateMessage, getOrCreateCustomer } from '../controller/store';
+import {
+  getOrCreateMessage,
+  getOrCreateCustomer,
+  getOrCreateTelegramConversation,
+} from '../controller/store';
 import { receiveTelegramReaction } from '../controller/reactions';
 import { receiveTelegramPoll } from '../controller/polls';
 import { telegramMessageSchema } from '../utils/message';
@@ -184,6 +188,32 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
       timestamp: new Date(),
       content: '',
     });
+
+  test('a first-seen group upgrade stores its reply target and reuses the history for the supergroup', async () => {
+    const scoped = await generateModels('test');
+    const first = await getOrCreateTelegramConversation(
+      scoped,
+      'integration',
+      payload({
+        chat: { id: -123, type: 'group', title: 'Team' },
+        migrate_to_chat_id: -100123,
+        text: undefined,
+      }),
+    );
+    expect(first.created).toBe(true);
+    expect(first.conversation.chatId).toBe('-123');
+    expect(first.conversation.migratedToChatId).toBe('-100123');
+    expect(first.conversation.chatType).toBe('supergroup');
+    const next = await getOrCreateTelegramConversation(
+      scoped,
+      'integration',
+      payload({ chat: { id: -100123, type: 'supergroup', title: 'Team' } }),
+    );
+    expect(next.created).toBe(false);
+    expect(next.conversation._id).toBe(first.conversation._id);
+    expect(next.conversation.migratedToChatId).toBe('-100123');
+    expect(await scoped.TelegramConversations.countDocuments()).toBe(1);
+  });
 
   test('concurrent delivery inserts once; retries repair losers; edits replace in place and reject stale versions', async () => {
     const scoped = await generateModels('test');

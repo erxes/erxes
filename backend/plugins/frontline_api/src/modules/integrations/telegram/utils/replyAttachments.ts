@@ -117,12 +117,13 @@ const readAttachment = async (
   location: string,
   limit: number,
 ): Promise<Buffer> => {
+  if (/^https?:\/\//i.test(location)) {
+    return readPublicFile(new URL(location), limit);
+  }
   let key = location;
-  if (/^https?:\/\//i.test(location) || location.startsWith('/read-file?')) {
+  if (location.startsWith('/read-file?')) {
     const url = new URL(location, 'https://workspace.invalid');
-    if (url.pathname === '/read-file' && url.searchParams.get('key')) {
-      key = url.searchParams.get('key') || '';
-    } else return readPublicFile(url, limit);
+    key = url.searchParams.get('key') || '';
   }
   if (
     !key ||
