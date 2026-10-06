@@ -109,7 +109,13 @@ export const getCyclesProgress = async (
     },
   ]);
 
-  return result?.[0] || {};
+  return (
+    result?.[0] || {
+      totalScope: 0,
+      totalStartedScope: 0,
+      totalCompletedScope: 0,
+    }
+  );
 };
 
 export const getCycleProgressChart = async (

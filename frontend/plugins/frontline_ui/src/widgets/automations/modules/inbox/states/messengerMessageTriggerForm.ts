@@ -14,6 +14,7 @@ const messengerEventConditionSchema = z.object({
 
 export const messengerMessageTriggerFormSchema = z
   .object({
+    integrationId: z.string().optional(),
     conditions: z.array(messengerEventConditionSchema),
   })
   .superRefine(({ conditions }, context) => {

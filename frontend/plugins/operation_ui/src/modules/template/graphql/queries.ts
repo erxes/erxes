@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const templatesQuery = gql`
+export const templatesQuery = gql(`
   query operationTemplates($teamId: String) {
     operationTemplates(teamId: $teamId) {
       _id
@@ -12,9 +12,9 @@ export const templatesQuery = gql`
       createdBy
     }
   }
-`;
+`);
 
-export const templateDetailQuery = gql`
+export const templateDetailQuery = gql(`
   query operationTemplateDetail($_id: String!) {
     operationTemplateDetail(_id: $_id) {
       _id
@@ -25,4 +25,4 @@ export const templateDetailQuery = gql`
       updatedAt
     }
   }
-`;
+`);

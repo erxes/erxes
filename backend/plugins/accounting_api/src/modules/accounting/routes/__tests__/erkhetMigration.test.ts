@@ -209,13 +209,13 @@ describe('Erkhet migration inventory split details', () => {
       {
         _id: 'erkhet-record-10',
         accountId: '151001',
-        productId: 'SOURCE001',
+        productId: 'SOURCE_001*',
         count: 2,
         amount: 240,
         followInfos: {
           invSplit: {
             hasSplit: true,
-            productId: 'SPLIT 001',
+            productId: 'SPLIT_ 001*',
             ratio: 12,
           },
         },

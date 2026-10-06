@@ -4,11 +4,11 @@ export const types = `
         name: String!
         teamId: String!
         description: String
-        color: String,
-        order: Int
-        type: Int
-        createdAt: Date
-        updatedAt: Date
+        color: String!,
+        order: Int!
+        type: Int!
+        createdAt: Date!
+        updatedAt: Date!
     }
 
     input StatusInput {
@@ -20,11 +20,23 @@ export const types = `
         type: Int
         order: Int
     }
+
+    type StatusChoice {
+        label: String!
+        value: String!
+        color: String!
+        type: Int!
+    }
+
+    type EstimateChoice {
+        value: Int!
+        label: String!
+    }
 `;
 
 export const queries = `
    getStatus(_id: String!): Status
-   getStatusesChoicesByTeam(teamId: String!): JSON
+   getStatusesChoicesByTeam(teamId: String!): [StatusChoice]
    getStatusesByType(type: Int!, teamId: String!): [Status]
 `;
 

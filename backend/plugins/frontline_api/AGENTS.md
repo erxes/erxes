@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -61,6 +61,15 @@
 
 ## Current Capabilities
 
+- Messenger `uiOptions` stores the appearance step: logo pair, colours,
+  `heroStyleVariant`, `navigationVariant`, and the `isSupportInAppView` flag.
+  `saveMessengerAppearanceData` lists every field explicitly — a new
+  `uiOptions` field must be added there or it is silently dropped.
+- The Erxes Messenger Message trigger (`frontline:inbox.messages`) can be
+  scoped to one messenger through `config.integrationId`. The widget puts the
+  message's `integrationId` on the trigger target; `checkCustomTrigger` rejects
+  other messengers. An empty `integrationId` fires for every messenger — keep
+  that, existing automations rely on it.
 - A messenger ticket form only offers live property options: the config keeps
   the options it was saved with, and `widgetsMessengerConnect` re-reads them
   from core (`withLiveTicketOptions`) so an option archived since stops
@@ -1089,6 +1098,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   by `supervisorId`, intersected with the pipeline's `departmentIds`).
   `isCheckDate` stays an extra AND condition. `generateFilter` needs the
   request `subdomain` to resolve supervised departments.
+- Staff pipeline rules (private-pipeline hiding and `isCheck*` visibility) never
+  apply to client portal reads scoped by `createdBy`: `cpGetTickets` and
+  `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
+  a customer sees their own `cp:<id>` tickets in private pipelines. Without
+  `createdBy` the staff rules still apply.
 - A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
   `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
   ticket's `channelId` and `pipelineId` with `ticketId`; without them the

@@ -353,6 +353,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         backgroundColor,
         heroStyleVariant,
         navigationVariant,
+        isSupportInAppView,
       }: IUiOptions,
     ) {
       await models.Integrations.updateOne(
@@ -366,6 +367,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
               backgroundColor,
               heroStyleVariant,
               navigationVariant,
+              isSupportInAppView,
             },
           },
         },

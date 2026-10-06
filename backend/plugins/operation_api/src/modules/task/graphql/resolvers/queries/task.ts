@@ -38,12 +38,16 @@ export const taskQueries = {
 
   getTasks: async (
     _parent: undefined,
-    { filter }: { filter: ITaskFilter },
+    { filter = {} }: { filter?: Partial<ITaskFilter> },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('taskRead');
 
     const filterQuery: FilterQuery<ITaskDocument> = {};
+
+    if (filter._id) {
+      filterQuery._id = filter._id;
+    }
 
     if (filter.name) {
       filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
@@ -181,7 +185,10 @@ export const taskQueries = {
 
       if (filter.projectMilestoneName) {
         const matchingMilestones = await models.Milestone.find({
-          name: { $regex: filter.projectMilestoneName, $options: 'i' },
+          name: {
+            $regex: escapeRegExp(filter.projectMilestoneName),
+            $options: 'i',
+          },
         }).distinct('projectId');
 
         if (matchingMilestones.length === 0) {
@@ -245,6 +252,10 @@ export const taskQueries = {
 
     if (filter.tagIds && filter.tagIds.length > 0) {
       filterQuery.tagIds = { $in: filter.tagIds };
+    }
+
+    if (filter.labelIds && filter.labelIds.length > 0) {
+      filterQuery.labelIds = { $in: filter.labelIds };
     }
 
     if (

@@ -1,13 +1,8 @@
-import { GQL_PAGE_INFO } from 'erxes-ui';
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_PROJECTS = gql`
-  query GetProjects(
-    $filter: IProjectFilter
-  ) {
-    getProjects(
-      filter: $filter
-    ) {
+export const GET_PROJECTS = gql(`
+  query GetProjects($filter: IProjectFilter) {
+    getProjects(filter: $filter) {
       list {
         _id
         name
@@ -23,13 +18,19 @@ export const GET_PROJECTS = gql`
         createdBy
         createdAt
         updatedAt
-      } 
-      ${GQL_PAGE_INFO}
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);
 
-export const GET_PROJECTS_INLINE = gql`
+export const GET_PROJECTS_INLINE = gql(`
   query GetProjectsInline($filter: IProjectFilter) {
     getProjects(filter: $filter) {
       list {
@@ -37,7 +38,13 @@ export const GET_PROJECTS_INLINE = gql`
         name
         status
       }
-       ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);

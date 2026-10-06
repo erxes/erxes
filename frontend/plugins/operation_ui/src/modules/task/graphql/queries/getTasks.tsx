@@ -1,13 +1,8 @@
-import { GQL_PAGE_INFO } from 'erxes-ui';
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_TASKS = gql`
-  query GetTasks(
-    $filter: ITaskFilter
-  ) {
-    getTasks(
-      filter: $filter
-    ) {
+export const GET_TASKS = gql(`
+  query GetTasks($filter: ITaskFilter) {
+    getTasks(filter: $filter) {
       list {
         _id
         name
@@ -22,14 +17,19 @@ export const GET_TASKS = gql`
         targetDate
         createdAt
         updatedAt
-        createdBy 
+        createdBy
         cycleId
         projectId
         estimatePoint
         milestoneId
-      } 
-      ${GQL_PAGE_INFO}
+      }
       totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
-`;
+`);

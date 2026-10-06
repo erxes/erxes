@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_CYCLE = gql`
-  mutation UpdateCycle($input: CycleInput) {
+export const UPDATE_CYCLE = gql(`
+  mutation UpdateCycle($input: CycleInput!) {
     updateCycle(input: $input) {
       _id
       name
@@ -11,9 +11,35 @@ export const UPDATE_CYCLE = gql`
       teamId
       isCompleted
       isActive
-      statistics
+      statistics {
+        progress {
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        progressByMember {
+          assigneeId
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        progressByProject {
+          projectId
+          totalScope
+          totalStartedScope
+          totalCompletedScope
+        }
+        chartData {
+          totalScope
+          chartData {
+            date
+            started
+            completed
+          }
+        }
+      }
       donePercent
       unFinishedTasks
     }
   }
-`;
+`);

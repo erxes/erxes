@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_GITHUB_CONFIG_BY_TEAM = gql`
+export const GET_GITHUB_CONFIG_BY_TEAM = gql(`
   query operationGithubConfigByTeam($teamId: String!) {
     getGithubConfigByTeam(teamId: $teamId) {
       _id
@@ -17,4 +17,4 @@ export const GET_GITHUB_CONFIG_BY_TEAM = gql`
       syncMode
     }
   }
-`;
+`);
