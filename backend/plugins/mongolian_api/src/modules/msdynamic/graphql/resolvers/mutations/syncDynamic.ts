@@ -1,5 +1,6 @@
+import fetch from 'node-fetch';
 import { IContext, generateModels } from '~/connectionResolvers';
-import { consumeInventory, orderToDynamic } from '../../../utils';
+import { consumeInventory, orderToDynamic, consumeCategory, } from '../../../utils';
 import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
@@ -30,7 +31,92 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
 
   return config;
 };
+const syncMsdPrice = async (
+  price: any,
+  config: any,
+  subdomain: string,
+  brandId: string,
+): Promise<boolean> => {
+  try {
+    if (!price._id) {
+      const response = await fetch(
+        `${config.itemApi}?$filter=No eq '${price.Item_No}'`,
+        {
+          timeout: 180000,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${config.username}:${config.password}`,
+            ).toString('base64')}`,
+          },
+        },
+      );
 
+      if (!response.ok) {
+        throw new Error(
+          `MS Dynamic product request failed: ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+      const doc = data?.value?.[0];
+
+      if (!doc) {
+        console.error(`MS Dynamic product not found: ${price.Item_No}`);
+        return false;
+      }
+
+      const document = {
+        name: doc.Description || 'default',
+        shortName: doc.Description_2 || '',
+        type: doc.Type === 'Inventory' ? 'product' : 'service',
+        unitPrice: Number(price.Unit_Price) || 0,
+        code: doc.No,
+        uom: doc.Base_Unit_of_Measure || 'PCS',
+        categoryId: null,
+        scopeBrandIds: [brandId],
+        status: 'active',
+      };
+
+      const result = await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module: 'products',
+        action: 'createProduct',
+        input: { doc: document },
+        defaultValue: null,
+      });
+
+      return !!result;
+    }
+
+    const result = await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'updateProduct',
+      input: {
+        _id: price._id,
+        doc: {
+          unitPrice: Number(price.Unit_Price) || 0,
+          currency: 'MNT',
+        },
+      },
+      defaultValue: null,
+    });
+
+    return !!result;
+  } catch (e: any) {
+    console.error(
+      `Failed to sync MS Dynamic price for ${price.Item_No}`,
+      e?.message,
+    );
+
+    return false;
+  }
+};
 /**
  * ============================
  * MS Dynamic Sync Mutations
@@ -97,7 +183,42 @@ export const msdynamicSyncMutations = {
 
     return { status: 'success' };
   },
+  async toSyncMsdProductCategories(
+    _root,
+    {
+      brandId,
+      categoryId,
+      action,
+      categories,
+    }: {
+      brandId: string;
+      categoryId?: string;
+      action: string;
+      categories: any[];
+    },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
 
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    for (const category of categories || []) {
+      try {
+        await consumeCategory(
+          subdomain,
+          config,
+          categoryId,
+          category,
+          action.toLowerCase(),
+        );
+      } catch (e: any) {
+        console.error('toSyncMsdProductCategories error:', e?.message);
+      }
+    }
+
+    return { status: 'success' };
+  },
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
@@ -188,5 +309,33 @@ export const msdynamicSyncMutations = {
     }
 
     return results;
+  },
+  async toSyncMsdPrices(
+    _root,
+    { prices = [], brandId }: { prices: any[]; brandId: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.itemApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not valid.');
+    }
+
+    let hasFailed = false;
+
+    for (const price of prices) {
+      const success = await syncMsdPrice(price, config, subdomain, brandId);
+
+      if (!success) {
+        hasFailed = true;
+      }
+    }
+
+    return {
+      status: hasFailed ? 'failed' : 'success',
+    };
   },
 };

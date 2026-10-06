@@ -21,6 +21,8 @@ export interface IDeliveryReports {
   status: string;
   customerId: string;
   email?: string;
+  /** When the provider told us, which is what orders the timeline. */
+  createdAt?: Date;
 }
 
 export interface IDeliveryReportsDocument extends IDeliveryReports, Document {

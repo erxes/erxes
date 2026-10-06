@@ -32,7 +32,7 @@ const ebarimtConfigSchema = new Schema(
       label: 'Default inventory code',
     }),
     vatPercent: field({ type: Number, optional: true, label: 'Vat percent' }),
-    cityTaxPercent: {
+    citytaxPercent: {
       type: Number,
       optional: true,
       label: 'UB city tax percent',
@@ -50,6 +50,7 @@ const ebarimtConfigSchema = new Schema(
     headerText: field({ type: String, optional: true, label: 'Footer text' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
+    hasSumQty: field({ type: Boolean, optional: true }),
     isCleanTaxPrice: field({ type: Boolean, optional: true }),
   },
   { _id: false },
@@ -117,6 +118,7 @@ export const configSchema = new Schema({
   }),
   permissionConfig: field({ type: Object, optional: true }),
   allowTypes: field({ type: [String], label: 'Allow Types' }),
+  isShowRemainder: field({ type: Boolean, optional: true }),
   isCheckRemainder: field({ type: Boolean, optional: true }),
   checkExcludeCategoryIds: field({ type: [String] }),
   saveRemainder: field({ type: Boolean, optional: true }),

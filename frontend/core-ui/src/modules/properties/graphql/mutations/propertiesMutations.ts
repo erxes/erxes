@@ -56,14 +56,6 @@ export const FIELD_GROUPS_UPDATE_ORDER = gql`
   }
 `;
 
-export const FIELD_GROUP_REMOVE = gql`
-  mutation FieldGroupRemove($id: String!) {
-    fieldGroupRemove(_id: $id) {
-      _id
-    }
-  }
-`;
-
 export const FIELD_ADD = gql`
   mutation FieldAdd(
     $name: String
@@ -74,6 +66,7 @@ export const FIELD_ADD = gql`
     $options: [FieldOptionInput]
     $validations: JSON
     $logics: JSON
+    $configs: JSON
     $icon: String
     $isVisible: Boolean
     $isVisibleToCreate: Boolean
@@ -89,6 +82,7 @@ export const FIELD_ADD = gql`
       options: $options
       validations: $validations
       logics: $logics
+      configs: $configs
       icon: $icon
       isVisible: $isVisible
       isVisibleToCreate: $isVisibleToCreate
@@ -112,6 +106,7 @@ export const FIELD_EDIT = gql`
     $options: [FieldOptionInput]
     $validations: JSON
     $logics: JSON
+    $configs: JSON
     $icon: String
     $isVisible: Boolean
     $isVisibleToCreate: Boolean
@@ -129,6 +124,7 @@ export const FIELD_EDIT = gql`
       options: $options
       validations: $validations
       logics: $logics
+      configs: $configs
       icon: $icon
       isVisible: $isVisible
       isVisibleToCreate: $isVisibleToCreate
@@ -140,14 +136,6 @@ export const FIELD_EDIT = gql`
       isVisibleToCreate
       isRequired
       isVisibleInCard
-    }
-  }
-`;
-
-export const FIELD_REMOVE = gql`
-  mutation FieldRemove($id: String!) {
-    fieldRemove(_id: $id) {
-      _id
     }
   }
 `;
@@ -170,6 +158,62 @@ export const PROPERTY_SYSTEM_FIELD_EDIT = gql`
       logics: $logics
     ) {
       ${PROPERTY_SYSTEM_FIELD_SELECTION}
+    }
+  }
+`;
+
+export const PROPERTY_SYSTEM_FIELDS_LAYOUT_SAVE = gql`
+  mutation PropertySystemFieldsLayoutSave(
+    $contentType: String!
+    $layout: [[String!]!]
+  ) {
+    propertySystemFieldsLayoutSave(contentType: $contentType, layout: $layout)
+  }
+`;
+
+export const FIELDS_ARCHIVE = gql`
+  mutation FieldsArchive($ids: [String!]!) {
+    fieldsArchive(_ids: $ids)
+  }
+`;
+
+export const FIELD_RESTORE = gql`
+  mutation FieldRestore($id: String!) {
+    fieldRestore(_id: $id) {
+      _id
+      archivedAt
+    }
+  }
+`;
+
+export const FIELD_GROUP_ARCHIVE = gql`
+  mutation FieldGroupArchive($id: String!) {
+    fieldGroupArchive(_id: $id) {
+      _id
+      archivedAt
+    }
+  }
+`;
+
+export const FIELD_GROUP_RESTORE = gql`
+  mutation FieldGroupRestore($id: String!) {
+    fieldGroupRestore(_id: $id) {
+      _id
+      archivedAt
+    }
+  }
+`;
+
+export const FIELDS_REMOVE = gql`
+  mutation FieldsRemove($ids: [String!]!) {
+    fieldsRemove(_ids: $ids)
+  }
+`;
+
+export const FIELD_GROUP_REMOVE = gql`
+  mutation FieldGroupRemove($id: String!) {
+    fieldGroupRemove(_id: $id) {
+      _id
     }
   }
 `;

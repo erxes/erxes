@@ -3,7 +3,7 @@ import { useGetTask } from '@/task/hooks/useGetTask';
 import { Spinner } from 'erxes-ui';
 
 export const TaskDetail = ({ taskId }: { taskId: string }) => {
-  const { loading, task } = useGetTask({ variables: { _id: taskId } });
+  const { loading, task } = useGetTask(taskId);
 
   if (loading) {
     return <Spinner containerClassName="py-20" />;

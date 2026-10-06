@@ -1,72 +1,37 @@
 import { useCallback, useState } from 'react';
-import type { ComponentType } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useSetAtom } from 'jotai';
 import {
   Button,
   Dialog,
   Spinner,
   Textarea,
   Tooltip,
-  cn,
   toast,
   useConfirm,
+  stripHtml,
 } from 'erxes-ui';
-import {
-  IconArrowBackUp,
-  IconCopy,
-  IconHash,
-  IconLink,
-  IconPencil,
-  IconTrash,
-} from '@tabler/icons-react';
-import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
+import { IconLink, IconPencil, IconTrash } from '@tabler/icons-react';
+import { DISCORD_CONVERSATION_CHANNEL } from '@/integrations/discord/graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
   DISCORD_EDIT_MESSAGE,
-} from '../graphql/mutations';
-import {
-  DiscordReplyTarget,
-  discordReplyToState,
-} from '../states/discordReplyToState';
+} from '@/integrations/discord/graphql/mutations';
+import type {
+  MessageActionButtonProps,
+  OwnMessageActionsProps,
+  EditMessageDialogActionsProps,
+  EditMessageDialogProps,
+  DiscordConversationChannel,
+} from '@/integrations/discord/types/messageActions';
+import { copyToClipboard } from '@/integrations/discord/utils/messageActions';
 
-const PREVIEW_LENGTH = 80;
-
-const stripToText = (html?: string): string => {
-  if (!html) {
-    return '';
-  }
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return (doc.body.textContent || '').trim();
-};
-
-const copyToClipboard = async (value: string, success: string) => {
-  try {
-    await navigator.clipboard.writeText(value);
-    toast({ title: success, variant: 'default' });
-  } catch {
-    toast({ title: 'Failed to copy', variant: 'destructive' });
-  }
-};
-
-type DiscordConversationChannel = {
-  channelId?: string;
-  guildId?: string;
-};
-
-const DiscordMessageAction = ({
+const MessageActionButton = ({
   label,
-  icon: Icon,
-  disabled,
-  destructive,
+  tooltip,
+  icon,
   onClick,
-}: {
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  disabled?: boolean;
-  destructive?: boolean;
-  onClick: () => void;
-}) => (
+  destructive,
+}: MessageActionButtonProps) => (
   <Tooltip>
     <Tooltip.Trigger asChild>
       <Button
@@ -74,20 +39,84 @@ const DiscordMessageAction = ({
         variant="ghost"
         size="icon"
         aria-label={label}
-        disabled={disabled}
         onClick={onClick}
-        className={cn(
-          'size-6 rounded-sm p-0 text-muted-foreground hover:bg-accent hover:text-foreground',
-          destructive && 'hover:bg-destructive/10 hover:text-destructive',
-        )}
+        className={`size-8 rounded-md text-muted-foreground ${
+          destructive
+            ? 'hover:bg-destructive/10 hover:text-destructive'
+            : 'hover:bg-muted hover:text-foreground'
+        }`}
       >
-        <Icon className="size-4" />
+        {icon}
       </Button>
     </Tooltip.Trigger>
-    <Tooltip.Content side="top" sideOffset={4}>
-      {label}
-    </Tooltip.Content>
+    <Tooltip.Content>{tooltip}</Tooltip.Content>
   </Tooltip>
+);
+
+const OwnMessageActions = ({ onEdit, onDelete }: OwnMessageActionsProps) => (
+  <>
+    <MessageActionButton
+      label="Edit Discord message"
+      tooltip="Edit message"
+      icon={<IconPencil className="size-4" />}
+      onClick={onEdit}
+    />
+    <MessageActionButton
+      label="Delete Discord message"
+      tooltip="Delete message"
+      icon={<IconTrash className="size-4" />}
+      onClick={onDelete}
+      destructive
+    />
+  </>
+);
+
+const EditMessageDialogActions = ({
+  editing,
+  saveDisabled,
+  onSave,
+}: EditMessageDialogActionsProps) => (
+  <Dialog.Footer>
+    <Dialog.Close asChild>
+      <Button variant="ghost" type="button">
+        Cancel
+      </Button>
+    </Dialog.Close>
+    <Button type="button" disabled={saveDisabled} onClick={onSave}>
+      {editing && <Spinner size="sm" />}
+      Save
+    </Button>
+  </Dialog.Footer>
+);
+
+const EditMessageDialog = ({
+  open,
+  draft,
+  editing,
+  onOpenChange,
+  onDraftChange,
+  onSave,
+}: EditMessageDialogProps) => (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog.Content className="max-w-lg">
+      <Dialog.Header>
+        <Dialog.Title>Edit message</Dialog.Title>
+        <Dialog.Description>
+          The message is updated in Discord and marked as edited there.
+        </Dialog.Description>
+      </Dialog.Header>
+      <Textarea
+        value={draft}
+        onChange={(event) => onDraftChange(event.target.value)}
+        rows={5}
+      />
+      <EditMessageDialogActions
+        editing={editing}
+        saveDisabled={editing || !draft.trim()}
+        onSave={onSave}
+      />
+    </Dialog.Content>
+  </Dialog>
 );
 
 export const DiscordMessageActions = ({
@@ -101,9 +130,8 @@ export const DiscordMessageActions = ({
   content?: string;
   isOwnMessage?: boolean;
 }) => {
-  const setReplyTo = useSetAtom(discordReplyToState);
   const { confirm } = useConfirm();
-  const text = stripToText(content);
+  const text = stripHtml(content);
 
   const [editOpen, setEditOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -117,11 +145,6 @@ export const DiscordMessageActions = ({
 
   const [editMessage, { loading: editing }] = useMutation(DISCORD_EDIT_MESSAGE);
   const [deleteMessage] = useMutation(DISCORD_DELETE_MESSAGE);
-
-  const handleReply = useCallback(() => {
-    const preview = text.slice(0, PREVIEW_LENGTH) || 'message';
-    setReplyTo({ messageId, preview } as DiscordReplyTarget);
-  }, [setReplyTo, messageId, text]);
 
   const handleCopyLink = useCallback(async () => {
     const { data } = await loadChannel();
@@ -185,77 +208,24 @@ export const DiscordMessageActions = ({
   }, [confirm, deleteMessage, conversationId, messageId]);
 
   return (
-    <Tooltip.Provider delayDuration={0}>
-      <div className="flex h-8 shrink-0 items-center gap-px rounded-md border bg-background p-0.5 opacity-0 shadow-xs transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-        <DiscordMessageAction
-          label="Reply"
-          icon={IconArrowBackUp}
-          onClick={handleReply}
-        />
-        <DiscordMessageAction
-          label="Copy text"
-          icon={IconCopy}
-          disabled={!text}
-          onClick={() => copyToClipboard(text, 'Text copied')}
-        />
-        <DiscordMessageAction
-          label="Copy message link"
-          icon={IconLink}
-          onClick={handleCopyLink}
-        />
-        <DiscordMessageAction
-          label="Copy message ID"
-          icon={IconHash}
-          onClick={() => copyToClipboard(messageId, 'Message ID copied')}
-        />
-        {isOwnMessage && (
-          <>
-            <DiscordMessageAction
-              label="Edit message"
-              icon={IconPencil}
-              onClick={handleOpenEdit}
-            />
-            <DiscordMessageAction
-              label="Delete message"
-              icon={IconTrash}
-              destructive
-              onClick={handleDelete}
-            />
-          </>
-        )}
-      </div>
-
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <Dialog.Content className="max-w-lg">
-          <Dialog.Header>
-            <Dialog.Title>Edit message</Dialog.Title>
-            <Dialog.Description>
-              The message is updated in Discord and marked as edited there.
-            </Dialog.Description>
-          </Dialog.Header>
-          <Textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={5}
-            autoFocus
-          />
-          <Dialog.Footer>
-            <Dialog.Close asChild>
-              <Button variant="ghost" type="button">
-                Cancel
-              </Button>
-            </Dialog.Close>
-            <Button
-              type="button"
-              disabled={editing || !draft.trim()}
-              onClick={handleSaveEdit}
-            >
-              {editing && <Spinner size="sm" />}
-              Save
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
-    </Tooltip.Provider>
+    <>
+      <MessageActionButton
+        label="Copy Discord message link"
+        tooltip="Copy message link"
+        icon={<IconLink className="size-4" />}
+        onClick={handleCopyLink}
+      />
+      {isOwnMessage && (
+        <OwnMessageActions onEdit={handleOpenEdit} onDelete={handleDelete} />
+      )}
+      <EditMessageDialog
+        open={editOpen}
+        draft={draft}
+        editing={editing}
+        onOpenChange={setEditOpen}
+        onDraftChange={setDraft}
+        onSave={handleSaveEdit}
+      />
+    </>
   );
 };

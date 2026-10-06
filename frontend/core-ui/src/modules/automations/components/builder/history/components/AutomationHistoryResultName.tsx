@@ -33,8 +33,10 @@ export const AutomationHistoryResultName = ({
   }
 
   if (pluginName === 'core') {
+    const collection =
+      collectionType || CORE_TRIGGER_COLLECTIONS[triggerType] || '';
     const { getName, getLink } =
-      coreHistoryName[collectionType as keyof typeof coreHistoryName] || {};
+      coreHistoryName[collection as keyof typeof coreHistoryName] || {};
     const name = getName?.(target);
     const link = getLink?.(target);
     return (
@@ -49,12 +51,23 @@ export const AutomationHistoryResultName = ({
   return 'Empty';
 };
 
+/**
+ * Trigger types that name no collection of their own.
+ *
+ * A campaign's trigger says where the run came from, not what it ran against —
+ * it is `core:broadcast` because broadcast owns it. What it enrolls is always
+ * a customer, so its runs are named the way a customer is.
+ */
+const CORE_TRIGGER_COLLECTIONS: Record<string, string> = {
+  'core:broadcast': 'customers',
+};
+
 const coreHistoryName = {
   customers: {
     getLink: (target: ICustomer) =>
       `/contacts/customers?contactId=${target._id}`,
     getName: (target: ICustomer) =>
-      `${target?.firstName || ''}${target?.lastName || ''}` ||
+      [target?.firstName, target?.lastName].filter(Boolean).join(' ') ||
       target.primaryEmail,
   },
   companies: {

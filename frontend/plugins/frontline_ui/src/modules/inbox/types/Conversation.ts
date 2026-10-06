@@ -1,7 +1,7 @@
-import { IAttachment } from 'erxes-ui';
-import { ICustomerInline, IUser } from 'ui-modules';
-import { IIntegration } from '@/integrations/types/Integration';
-import { IFormWidgetItem } from './FormWidget';
+import type { IAttachment } from 'erxes-ui';
+import type { ICustomerInline, IUser } from 'ui-modules';
+import type { IIntegration } from '@/integrations/types/Integration';
+import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
 
 export interface IConversation {
   _id: string;
@@ -21,6 +21,7 @@ export interface IConversation {
   callProAudio?: string | null;
   callProPotentialCustomerIds?: string[];
   callProPhone?: string | null;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface IAutomatedReplyControl {
@@ -47,11 +48,19 @@ export interface IMessagePoll {
   results?: IMessageTally;
 }
 
+export interface IMessageSurveyAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
 export interface IMessageSurveyStep {
   stepId: string;
   name?: string;
   description?: string;
   question: string;
+  attachments?: IMessageSurveyAttachment[];
   answers: IMessageAnswer[];
   allowMultiselect?: boolean;
 }
@@ -82,6 +91,61 @@ export interface IMessageEmbed {
   timestamp?: string;
 }
 
+export type MessageKind =
+  | 'text'
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'file'
+  | 'share'
+  | 'story_mention'
+  | 'story_reply'
+  | 'sticker'
+  | 'voice'
+  | 'forwarded'
+  | 'deleted'
+  | 'unsupported';
+
+export interface IMessageProviderData {
+  attachmentType?: string;
+  fallbackReason?: string;
+  previewText?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
+  storyUrl?: string;
+  messageId?: string;
+}
+
+export interface IMessageReplyTo {
+  messageId: string;
+  content?: string;
+  authorName?: string;
+}
+
+export interface IMessageReaction {
+  senderId: string;
+  emoji?: string;
+  reaction?: string;
+}
+
+export interface IMessageSticker {
+  id: string;
+  name: string;
+  formatType?: number;
+  url?: string;
+}
+
+export interface IMessageForwardedSnapshot {
+  content?: string;
+  attachments?: IAttachment[];
+  embeds?: IMessageEmbed[];
+  stickers?: IMessageSticker[];
+  poll?: IMessagePoll;
+  createdAt?: string;
+}
+
+export type MessageDeliveryStatus = 'sent' | 'delivered' | 'read' | 'deleted';
+
 export interface ITelegramMessageData {
   senderName?: string;
   messageId?: string;
@@ -102,6 +166,7 @@ export interface ITelegramMessageData {
 
 export interface IMessage {
   _id: string;
+  mid?: string;
   conversationId?: string;
   userId?: string;
   customerId?: string;
@@ -115,12 +180,33 @@ export interface IMessage {
     poll?: IMessagePoll;
     survey?: IMessageSurvey;
     embeds?: IMessageEmbed[];
+    stickers?: IMessageSticker[];
+    voiceMessage?: boolean;
+    forwardedSnapshot?: IMessageForwardedSnapshot;
+    forwardedNote?: string;
     discordMessageId?: string;
     discordDeletedAt?: string;
+    discordEditedAt?: string;
+    discordPinned?: boolean;
+    reactions?: Array<{
+      senderId: string;
+      emoji?: string;
+      reaction?: string;
+    }>;
+    forwardedFrom?: {
+      conversationId: string;
+      messageId: string;
+    };
   };
   internal?: boolean;
   botData?: unknown[];
   fromBot?: boolean;
+  messageKind?: MessageKind;
+  providerData?: IMessageProviderData;
+  replyTo?: IMessageReplyTo;
+  reactions?: IMessageReaction[];
+  deliveryStatus?: MessageDeliveryStatus;
+  expiresAt?: string;
 }
 
 export enum ConversationStatus {

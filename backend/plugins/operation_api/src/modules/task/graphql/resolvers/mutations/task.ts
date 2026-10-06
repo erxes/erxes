@@ -1,4 +1,5 @@
 import { ITask, ITaskUpdate } from '@/task/@types/task';
+import { validatePropertiesData } from '@/fields/validatePropertiesData';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -16,6 +17,13 @@ export const taskMutations = {
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('taskCreate');
+
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
 
     const task = await models.Task.createTask({
       doc: params,
@@ -116,6 +124,13 @@ export const taskMutations = {
   ) => {
     await checkPermission('taskUpdate');
 
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
+
     const updatedTask = await models.Task.updateTask({
       doc: params,
       userId: user._id,
@@ -200,7 +215,9 @@ export const taskMutations = {
   ) => {
     await checkPermission('taskRemove');
 
-    const deletedTask = await models.Task.removeTask(_id);
+    const deletedTask = await models.Task.getTask(_id);
+
+    await models.Task.removeTask([_id]);
 
     graphqlPubsub.publish(`operationTaskChanged:${_id}`, {
       operationTaskChanged: {

@@ -1,11 +1,21 @@
 import {
+  AUTOMATION_OUTPUT_ITEM_COUNT,
   TAutomationFindObjectTargetDefinition,
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
+  TAutomationTriggerActionInputs,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
 import { generateTotalAmount } from './action/generateTotalAmount';
+import {
+  dealPaidAmount,
+  dealPurchaseItems,
+  LOYALTY_ADJUST_SCORE_ACTION,
+} from './purchase';
 import { IDeal, IProductData } from '../../@types';
+import { buildDealAmountAttributes } from '../../documents/dealContent';
+import { generateProducts } from '../../utils';
 
 type TAutomationProductData = IProductData & { maxQuantity?: number };
 
@@ -73,13 +83,14 @@ const joinProductsDataValues = (values: unknown[]) => {
 
 /**
  * Deal products data stores only productId (name is rarely denormalized), so
- * resolve product names via a core lookup for the ones that miss it.
+ * resolve product names via a core lookup for the ones that miss it. One
+ * entry per item, in order, so an item's name can be read by its index.
  */
-const resolveProductsDataNames = async (subdomain: string, source: IDeal) => {
+const productsDataNames = async (subdomain: string, source: IDeal) => {
   const productsData = source.productsData || [];
 
   if (!productsData.length) {
-    return undefined;
+    return [];
   }
 
   const namesByProductId = new Map<string, string>();
@@ -105,11 +116,35 @@ const resolveProductsDataNames = async (subdomain: string, source: IDeal) => {
     }
   }
 
-  const names = productsData
-    .map((item) => item.name || namesByProductId.get(item.productId))
-    .filter(Boolean);
+  return productsData.map(
+    (item) => item.name || namesByProductId.get(item.productId),
+  );
+};
+
+const resolveProductsDataNames = async (subdomain: string, source: IDeal) => {
+  const names = (await productsDataNames(subdomain, source)).filter(Boolean);
 
   return names.length ? names.join(', ') : undefined;
+};
+
+// `productsData.<index>.<field>`: one product's field, for a row per product.
+const resolveProductsDataItem = async (
+  subdomain: string,
+  source: IDeal,
+  index: number,
+  field: string,
+) => {
+  if (field === 'name') {
+    return (await productsDataNames(subdomain, source))[index];
+  }
+
+  const product: TAutomationProductData | undefined = (source.productsData ||
+    [])[index];
+  const fieldResolver = PRODUCTS_DATA_FIELD_RESOLVERS[field];
+
+  return product && fieldResolver
+    ? formatProductsDataValue(fieldResolver(product))
+    : undefined;
 };
 
 const resolveProductsDataPath = (
@@ -128,6 +163,21 @@ const resolveProductsDataPath = (
     return resolveProductsDataNames(subdomain, source);
   }
 
+  if (field === AUTOMATION_OUTPUT_ITEM_COUNT) {
+    return productsData.length;
+  }
+
+  const [indexPart, ...itemParts] = field.split('.');
+
+  if (/^\d+$/.test(indexPart) && itemParts.length) {
+    return resolveProductsDataItem(
+      subdomain,
+      source,
+      Number(indexPart),
+      itemParts.join('.'),
+    );
+  }
+
   const fieldResolver = PRODUCTS_DATA_FIELD_RESOLVERS[field];
 
   if (!fieldResolver) {
@@ -136,6 +186,46 @@ const resolveProductsDataPath = (
 
   return joinProductsDataValues(productsData.map(fieldResolver));
 };
+
+const DEAL_DOCUMENT_AMOUNT_VARIABLES = [
+  { key: 'productTotalAmount', label: 'Products total amount' },
+  { key: 'servicesTotalAmount', label: 'Services total amount' },
+  { key: 'totalAmountVat', label: 'Total amount vat' },
+  { key: 'totalAmountAfterTaxVat', label: 'Total amount after tax and vat' },
+  { key: 'totalAmountWithoutVat', label: 'Total amount without vat' },
+  { key: 'discount', label: 'Discount' },
+  { key: 'discountType', label: 'Discount type' },
+  { key: 'paymentCash', label: 'Payment cash' },
+  { key: 'paymentNonCash', label: 'Payment non cash' },
+];
+
+// Only the product/service split needs each product's type from core.
+const PRODUCT_TYPE_AMOUNT_KEYS = ['productTotalAmount', 'servicesTotalAmount'];
+
+/**
+ * The same amounts the sales document prints, formatted the same way, so an
+ * automation fills them exactly as the document does.
+ */
+const resolveDealDocumentAmount = async (
+  subdomain: string,
+  source: IDeal,
+  key: string,
+) => {
+  const productsData = source.productsData || [];
+  const items = PRODUCT_TYPE_AMOUNT_KEYS.includes(key)
+    ? await generateProducts(subdomain, productsData)
+    : productsData;
+
+  return buildDealAmountAttributes(items, source.paymentsData)[key];
+};
+
+const DEAL_DOCUMENT_AMOUNT_RESOLVERS = Object.fromEntries(
+  DEAL_DOCUMENT_AMOUNT_VARIABLES.map(({ key }) => [
+    key,
+    ({ subdomain, source }: { subdomain: string; source: IDeal }) =>
+      resolveDealDocumentAmount(subdomain, source, key),
+  ]),
+);
 
 export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
 
@@ -211,6 +301,7 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     { key: 'totalAmount', label: 'Total amount' },
     { key: 'unUsedTotalAmount', label: 'Unused total amount' },
     { key: 'bothTotalAmount', label: 'Both total amount' },
+    ...DEAL_DOCUMENT_AMOUNT_VARIABLES,
     {
       key: 'userId',
       label: 'Created by',
@@ -279,6 +370,16 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
         { key: 'uom', label: 'Unit of measure' },
       ],
     },
+    { key: 'paidAmount', label: 'Paid amount (without points)' },
+    {
+      key: 'purchaseItems',
+      label: 'Purchased items',
+      fields: [
+        { key: 'productId', label: 'Product ID' },
+        { key: 'amount', label: 'Amount' },
+        { key: 'discounted', label: 'Discounted' },
+      ],
+    },
     { key: 'link', label: 'Deal link' },
     { key: 'pipelineLabels', label: 'Pipeline labels' },
     { key: 'createdAt', label: 'Created at' },
@@ -290,11 +391,15 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     propertyType: 'sales:deal',
   },
   resolvers: {
+    ...DEAL_DOCUMENT_AMOUNT_RESOLVERS,
     productsData: ({ subdomain, source }) =>
       resolveProductsDataNames(subdomain, source),
     'productsData.*': ({ subdomain, source, path }) =>
       resolveProductsDataPath(subdomain, source, path),
     totalAmount: ({ source }) => generateTotalAmount(source.productsData),
+    paidAmount: async ({ subdomain, source }) =>
+      dealPaidAmount(await generateModels(subdomain), source),
+    purchaseItems: ({ source }) => dealPurchaseItems(source),
     unUsedTotalAmount: ({ source }) => {
       let totalAmount = 0;
 
@@ -331,6 +436,16 @@ const SALES_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
   },
 ];
 
+// A deal handed to loyalty as a purchase: the ticked products are what was
+// bought, and point payments are not money paid.
+const DEAL_ACTION_INPUTS: TAutomationTriggerActionInputs = {
+  [LOYALTY_ADJUST_SCORE_ACTION]: {
+    totalAmount: 'unUsedTotalAmount',
+    paidAmount: 'paidAmount',
+    items: 'purchaseItems',
+  },
+};
+
 export const salesAutomationContants = {
   triggers: [
     {
@@ -341,6 +456,7 @@ export const salesAutomationContants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off sales pipeline item',
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
@@ -352,7 +468,9 @@ export const salesAutomationContants = {
       description:
         'Start this workflow when a deal moves to a stage with the selected probability.',
       isCustom: true,
+      reEnrollable: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
@@ -364,7 +482,9 @@ export const salesAutomationContants = {
       description:
         'Start this workflow when a deal moves from one stage to another.',
       isCustom: true,
+      reEnrollable: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      actionInputs: DEAL_ACTION_INPUTS,
       setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
   ],
@@ -376,6 +496,8 @@ export const salesAutomationContants = {
       icon: 'IconPigMoney',
       label: 'Create deal',
       description: 'Create deal',
+      // The deal it creates gets an owner, so the run needs someone to act for.
+      requiresActor: true,
       isTargetSource: true,
       targetSourceType: 'sales:sales.deal',
       allowTargetFromActions: true,

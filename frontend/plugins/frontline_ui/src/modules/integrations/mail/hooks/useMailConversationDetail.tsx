@@ -3,47 +3,21 @@ import { toast } from 'erxes-ui';
 import {
   MAIL_MESSAGE_RETRY_MUTATION,
   MAIL_SEND_MAIL_MUTATION,
-} from '../graphql/mutations/mailMutations';
+  MAIL_SEND_REACTION_MUTATION,
+} from '@/integrations/mail/graphql/mutations/mailMutations';
 import { useTranslation } from 'react-i18next';
+import type {
+  MailDeliveryOutcome,
+  MailSendMailVariables,
+} from '@/integrations/mail/types/mailDelivery';
 
-export type MailDeliveryStatus = 'pending' | 'sent' | 'bounced' | 'failed';
-
-interface MailAttachmentInput {
-  name?: string;
-  url?: string;
-  type?: string;
-  size?: number;
-  contentId?: string;
-  disposition?: 'attachment' | 'inline';
-}
-
-interface MailSendMailVariables {
-  integrationId?: string;
-  conversationId?: string;
-  subject: string;
-  body?: string;
-  to: string[];
-  cc?: string[];
-  bcc?: string[];
-  shouldResolve?: boolean;
-  shouldOpen?: boolean;
-  replyToMessageId?: string;
-  references?: string[];
-  attachments?: MailAttachmentInput[];
-  customerId?: string;
-}
-
-interface MailDeliveryOutcome {
-  _id: string;
-  deliveryStatus?: MailDeliveryStatus;
-  deliveryError?: string;
-  bouncedRecipients?: string[];
-}
-
-const useDeliveryToast = () => {
+export const useDeliveryToast = () => {
   const { t } = useTranslation('frontline');
 
   return (outcome?: MailDeliveryOutcome | null) => {
+    if (!outcome) {
+      return toast({ title: t('error'), variant: 'destructive' });
+    }
     if (outcome?.deliveryStatus === 'bounced') {
       return toast({
         title: t('email-bounced-for', {
@@ -76,12 +50,19 @@ export const useMailSendMail = () => {
   const mailSendMail = (
     variables: MailSendMailVariables,
     onCompleted?: () => void,
+    onOutcome?: (outcome: MailDeliveryOutcome) => void,
   ) => {
     sendMailMutation({
       variables,
       onCompleted: (data) => {
         showDeliveryOutcome(data?.mailSendMail);
-        onCompleted?.();
+        if (data.mailSendMail) onOutcome?.(data.mailSendMail);
+        if (
+          data.mailSendMail?.deliveryStatus === 'sent' ||
+          data.mailSendMail?.deliveryStatus === 'pending'
+        ) {
+          onCompleted?.();
+        }
       },
       onError: (err) => {
         toast({
@@ -89,11 +70,44 @@ export const useMailSendMail = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['mailConversationDetail', 'Conversations'],
+      refetchQueries: variables.conversationId
+        ? ['mailConversationDetail', 'Conversations']
+        : ['Conversations'],
     });
   };
 
   return { mailSendMail, loading };
+};
+
+export const useMailSendReaction = () => {
+  const { t } = useTranslation('frontline');
+  const showDeliveryOutcome = useDeliveryToast();
+  const [sendReaction, { loading }] = useMutation<{
+    mailSendReaction: MailDeliveryOutcome | null;
+  }>(MAIL_SEND_REACTION_MUTATION);
+
+  const react = (conversationId: string, messageId: string, emoji: string) => {
+    sendReaction({
+      variables: { conversationId, messageId, emoji },
+      onCompleted: (data) => showDeliveryOutcome(data.mailSendReaction),
+      onError: (error) => {
+        const existingReaction = error.graphQLErrors.find(
+          ({ extensions }) => extensions?.code === 'MAIL_REACTION_ALREADY_SENT',
+        );
+        if (existingReaction) {
+          toast({ title: existingReaction.message });
+          return;
+        }
+        toast({
+          title: t('failed-to-send-email', { message: error.message }),
+          variant: 'destructive',
+        });
+      },
+      refetchQueries: ['mailConversationDetail', 'Conversations'],
+    });
+  };
+
+  return { react, loading };
 };
 
 export const useMailMessageRetry = () => {
@@ -103,11 +117,17 @@ export const useMailMessageRetry = () => {
     mailMessageRetry: MailDeliveryOutcome | null;
   }>(MAIL_MESSAGE_RETRY_MUTATION);
 
-  const mailMessageRetry = (_id: string) => {
+  const mailMessageRetry = (_id: string, onCompleted?: () => void) => {
     retryMutation({
       variables: { _id },
       onCompleted: (data) => {
         showDeliveryOutcome(data?.mailMessageRetry);
+        if (
+          data.mailMessageRetry?.deliveryStatus === 'sent' ||
+          data.mailMessageRetry?.deliveryStatus === 'pending'
+        ) {
+          onCompleted?.();
+        }
       },
       onError: (err) => {
         toast({

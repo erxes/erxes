@@ -1,0 +1,245 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast, useUpload, type IAttachment } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+
+import { composerStorage } from '@/inbox/conversations/conversation-detail/utils/messageInput';
+import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
+
+const MAX_ATTACHMENTS = 10;
+const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
+const DISCORD_MAXIMUM_BYTES = 10 * 1024 * 1024;
+const TELEGRAM_MAXIMUM_BYTES = 50 * 1024 * 1024;
+
+export const useMessageAttachments = (
+  isDiscord: boolean,
+  isTelegram = false,
+) => {
+  const { t } = useTranslation('frontline');
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [pendingAttachments, setPendingAttachments] = useState<
+    PendingAttachment[]
+  >([]);
+  const pendingAttachmentsRef = useRef<PendingAttachment[]>([]);
+  const pendingCountRef = useRef(0);
+  const uploadGenerationRef = useRef(0);
+  const { upload } = useUpload();
+
+  useEffect(() => {
+    pendingAttachmentsRef.current = pendingAttachments;
+  }, [pendingAttachments]);
+
+  useEffect(
+    () => () => {
+      pendingAttachmentsRef.current.forEach(({ previewUrl }) => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      });
+    },
+    [],
+  );
+
+  const uploadFiles = useCallback(
+    (files: FileList) => {
+      if (!files.length) return;
+
+      const selectedFiles = Array.from(files);
+      const providerMaximumBytes = isTelegram
+        ? TELEGRAM_MAXIMUM_BYTES
+        : isDiscord
+        ? DISCORD_MAXIMUM_BYTES
+        : DEFAULT_MAXIMUM_BYTES;
+      const configuredMaximumBytes =
+        Number.parseInt(
+          composerStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
+            '',
+          10,
+        ) || (isTelegram ? TELEGRAM_MAXIMUM_BYTES : DEFAULT_MAXIMUM_BYTES);
+      const maximumBytes = Math.min(
+        configuredMaximumBytes,
+        providerMaximumBytes,
+      );
+      const oversizedFile = selectedFiles.find(
+        (file) => file.size > maximumBytes,
+      );
+
+      if (oversizedFile) {
+        toast({
+          title: t(
+            'attachment-too-large',
+            '{{name}} exceeds the {{size}} MB attachment limit',
+            {
+              name: oversizedFile.name,
+              size: maximumBytes / 1024 / 1024,
+            },
+          ),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (
+        attachments.length + pendingCountRef.current + selectedFiles.length >
+        MAX_ATTACHMENTS
+      ) {
+        toast({
+          title: t(
+            'attachment-limit-reached',
+            'You can attach up to 10 files to one message',
+          ),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setPendingAttachments((current) => [
+        ...current,
+        ...selectedFiles.map((file) => ({
+          id: crypto.randomUUID(),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          previewUrl:
+            file.type.startsWith('image/') || file.type.startsWith('video/')
+              ? URL.createObjectURL(file)
+              : undefined,
+        })),
+      ]);
+      pendingCountRef.current += selectedFiles.length;
+      const uploadGeneration = uploadGenerationRef.current;
+
+      upload({
+        files,
+        afterUpload: ({ status, response, fileInfo }) => {
+          if (uploadGeneration !== uploadGenerationRef.current) return;
+
+          pendingCountRef.current = Math.max(0, pendingCountRef.current - 1);
+          setPendingAttachments((current) => {
+            const index = current.findIndex(
+              (file) =>
+                !file.uploadedUrl &&
+                file.name === fileInfo.name &&
+                file.size === fileInfo.size,
+            );
+
+            if (index < 0) return current;
+
+            if (status !== 'ok') {
+              const previewUrl = current[index].previewUrl;
+              if (previewUrl) URL.revokeObjectURL(previewUrl);
+              return current.filter(
+                (_, currentIndex) => currentIndex !== index,
+              );
+            }
+
+            return current.map((file, currentIndex) =>
+              currentIndex === index
+                ? { ...file, uploadedUrl: response }
+                : file,
+            );
+          });
+
+          if (status !== 'ok') {
+            toast({
+              title: t('upload-failed', 'Upload failed'),
+              variant: 'destructive',
+            });
+            return;
+          }
+
+          setAttachments((current) => [
+            ...current,
+            { ...fileInfo, url: response },
+          ]);
+          toast({
+            title: t(
+              'file-uploaded-successfully',
+              'File uploaded successfully!',
+            ),
+          });
+        },
+      });
+    },
+    [attachments.length, isDiscord, isTelegram, t, upload],
+  );
+
+  const handleFileInput = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!event.target.files) return;
+      uploadFiles(event.target.files);
+      event.target.value = '';
+    },
+    [uploadFiles],
+  );
+
+  const handleDrop = useCallback(
+    (event: React.DragEvent<HTMLFormElement>) => {
+      if (!event.dataTransfer.files.length) return;
+      event.preventDefault();
+      event.stopPropagation();
+      uploadFiles(event.dataTransfer.files);
+    },
+    [uploadFiles],
+  );
+
+  const handlePaste = useCallback(
+    (event: React.ClipboardEvent<HTMLDivElement>) => {
+      const files = event.clipboardData.files;
+      if (
+        !files.length ||
+        !Array.from(files).some((file) => file.type.startsWith('image/'))
+      )
+        return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      uploadFiles(files);
+    },
+    [uploadFiles],
+  );
+
+  const removeAttachment = useCallback(
+    (url: string) => {
+      setAttachments((current) =>
+        current.filter((attachment) => attachment.url !== url),
+      );
+      setPendingAttachments((current) =>
+        current.filter((file) => {
+          if (file.uploadedUrl !== url) return true;
+          if (file.previewUrl) URL.revokeObjectURL(file.previewUrl);
+          return false;
+        }),
+      );
+      toast({
+        title: t('attachment-removed', 'Attachment removed'),
+      });
+    },
+    [t],
+  );
+
+  const resetAttachments = useCallback(() => {
+    uploadGenerationRef.current += 1;
+    pendingCountRef.current = 0;
+    setAttachments([]);
+    setPendingAttachments((current) => {
+      current.forEach(({ previewUrl }) => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      });
+      return [];
+    });
+  }, []);
+
+  const retainAttachments = useCallback((remaining: IAttachment[]) => {
+    setAttachments(remaining);
+  }, []);
+
+  return {
+    attachments,
+    pendingAttachments,
+    handleDrop,
+    handlePaste,
+    handleFileInput,
+    removeAttachment,
+    resetAttachments,
+    retainAttachments,
+    isUploading: pendingAttachments.some((file) => !file.uploadedUrl),
+  };
+};

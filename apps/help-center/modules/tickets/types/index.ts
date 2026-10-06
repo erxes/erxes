@@ -1,3 +1,5 @@
+import type { MessageKey, Translate } from '@/modules/i18n/translate';
+
 export type TicketStatusRef = {
   _id: string;
   name: string | null;
@@ -24,12 +26,12 @@ export type TicketNote = {
   createdBy: string | null;
 };
 
-export const priorityLabels: Record<number, string> = {
-  4: 'Urgent',
-  3: 'High',
-  2: 'Medium',
-  1: 'Low',
+const PRIORITY_KEYS: Record<number, MessageKey> = {
+  4: 'priority.urgent',
+  3: 'priority.high',
+  2: 'priority.medium',
+  1: 'priority.low',
 };
 
-export const priorityLabel = (priority: number | null): string =>
-  priorityLabels[priority ?? 0] ?? 'Unknown';
+export const priorityLabel = (priority: number | null, t: Translate): string =>
+  t(PRIORITY_KEYS[priority ?? 0] ?? 'priority.unknown');

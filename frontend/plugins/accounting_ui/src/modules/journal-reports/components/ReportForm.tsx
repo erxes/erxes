@@ -53,6 +53,7 @@ interface ReportFormValues {
   assignedUserId?: string;
   isTemp?: boolean;
   isOutBalance?: boolean;
+  isMore?: boolean;
   unhideZero?: boolean;
   groupKey?: string;
   trKind?: string;

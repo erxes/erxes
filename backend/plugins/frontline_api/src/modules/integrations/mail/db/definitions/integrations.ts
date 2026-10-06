@@ -28,6 +28,11 @@ export const mailIntegrationSchema = new Schema({
     sparse: true,
     label: 'Ticket pipeline id, set only on pipeline addresses',
   },
+  statusId: {
+    type: String,
+    label:
+      "Status a new mail ticket opens in, empty means the pipeline's first status",
+  },
   name: {
     type: String,
     label: 'Display name of a pipeline address',

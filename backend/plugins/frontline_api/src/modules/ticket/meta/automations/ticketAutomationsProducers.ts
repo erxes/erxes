@@ -1,4 +1,6 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   getSetPropertySelector,
   setProperty,
   TCoreModuleProducerContext,
@@ -22,7 +24,10 @@ export const ticketAutomationProducers = {
       });
     }
 
-    return { result: null };
+    return buildFailedAction(
+      `Ticket automations do not handle "${input.collectionType}"`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
   },
 
   checkCustomTrigger: async () => false,

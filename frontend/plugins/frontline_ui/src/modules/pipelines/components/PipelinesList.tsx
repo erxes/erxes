@@ -1,6 +1,7 @@
 import { usePipelineRemove } from '@/pipelines/hooks/usePipelineRemove';
 import { IPipeline } from '@/pipelines/types';
 import {
+  IconArrowBarToRight,
   IconCalendarPlus,
   IconCalendarUp,
   IconGitBranch,
@@ -25,7 +26,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
 import { useSetAtom } from 'jotai';
+import { useState } from 'react';
 
 type PipelineCellProps = {
   cell: Cell<IPipeline, unknown>;
@@ -70,7 +74,7 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
       ),
       options: { confirmationValue: 'delete' },
     }).then(() => {
-      removePipeline({ variables: { id: pipelineId } });
+      removePipeline({ variables: { id: pipelineId } }).catch(() => undefined);
     });
   };
 
@@ -87,26 +91,44 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
   );
 };
 
-const PipelineMoreMenu = ({ pipelineId }: { pipelineId: string }) => (
-  <Command shouldFilter={false}>
-    <Command.List>
-      <PipelineDeleteItem pipelineId={pipelineId} />
-    </Command.List>
-  </Command>
-);
-
 const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
-  const { _id } = cell.row.original;
+  const { t } = useTranslation('frontline');
+  const { _id, channelId } = cell.row.original;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="size-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <PipelineMoreMenu pipelineId={_id} />
-      </Combobox.Content>
-    </Popover>
+    <>
+      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="size-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item
+                value="move"
+                onSelect={() => {
+                  setMenuOpen(false);
+                  setMoveOpen(true);
+                }}
+              >
+                <IconArrowBarToRight />
+                {t('move-to-channel', 'Move to Channel')}
+              </Command.Item>
+              <PipelineDeleteItem pipelineId={_id} />
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      <MoveToChannelDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        resourceType={ChannelResourceType.PIPELINE}
+        resourceIds={[_id]}
+        sourceChannelId={channelId}
+      />
+    </>
   );
 };
 

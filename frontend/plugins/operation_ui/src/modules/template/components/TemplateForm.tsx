@@ -17,6 +17,8 @@ import {
 } from '../graphql/mutations';
 import { useState } from 'react';
 import { Block } from '@blocknote/core';
+import { IOperationTemplate } from '../types';
+import { isRecord } from '@/operation/utils/isRecord';
 
 export const TemplateForm = ({
   teamId,
@@ -25,18 +27,22 @@ export const TemplateForm = ({
   afterSave,
 }: {
   teamId?: string;
-  template?: any;
+  template?: Pick<IOperationTemplate, '_id' | 'name' | 'defaults'>;
   onCancel?: () => void;
   afterSave?: () => void;
 }) => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
-  
-  const [descriptionContent, setDescriptionContent] = useState<Block[] | undefined>(
-    template?.defaults?.description
+
+  const initialDescription =
+    isRecord(template?.defaults) &&
+    typeof template.defaults.description === 'string'
       ? JSON.parse(template.defaults.description)
-      : undefined
-  );
+      : undefined;
+
+  const [descriptionContent, setDescriptionContent] = useState<
+    Block[] | undefined
+  >(initialDescription);
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
@@ -46,7 +52,11 @@ export const TemplateForm = ({
     defaultValues: {
       teamId: teamId || '',
       name: template?.name || '',
-      taskName: template?.defaults?.name || '',
+      taskName:
+        isRecord(template?.defaults) &&
+        typeof template.defaults.name === 'string'
+          ? template.defaults.name
+          : '',
     },
   });
 
@@ -64,7 +74,11 @@ export const TemplateForm = ({
     }
   };
 
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: {
+    name: string;
+    taskName: string;
+    teamId: string;
+  }) => {
     const { name, taskName } = values;
 
     const defaults = {
@@ -85,16 +99,24 @@ export const TemplateForm = ({
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: t('error'), description: e.message, variant: 'destructive' });
+          toast({
+            title: t('error'),
+            description: e.message,
+            variant: 'destructive',
+          });
         });
-    } else {
-      addMutation({ variables })
+    } else if (teamId) {
+      addMutation({ variables: { name, teamId, defaults } })
         .then(() => {
           toast({ title: t('template-created') });
           afterSave?.();
         })
         .catch((e) => {
-          toast({ title: t('error'), description: e.message, variant: 'destructive' });
+          toast({
+            title: t('error'),
+            description: e.message,
+            variant: 'destructive',
+          });
         });
     }
   };
@@ -102,16 +124,22 @@ export const TemplateForm = ({
   return (
     <div className="p-6 flex flex-col h-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col h-full">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 flex flex-col h-full"
+        >
           <div className="space-y-4 shrink-0">
-             <Form.Field
+            <Form.Field
               control={form.control}
               name="name"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('template-name')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="e.g., Bug Report, Feature Request" />
+                    <Input
+                      {...field}
+                      placeholder="e.g., Bug Report, Feature Request"
+                    />
                   </Form.Control>
                 </Form.Item>
               )}
@@ -121,30 +149,32 @@ export const TemplateForm = ({
           <Separator />
 
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-              <h3 className="font-semibold text-sm text-foreground/80">{t('task-content')}</h3>
-              <Form.Field
-                control={form.control}
-                name="taskName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('task-title')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder={t('default-task-title')} />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
+            <h3 className="font-semibold text-sm text-foreground/80">
+              {t('task-content')}
+            </h3>
+            <Form.Field
+              control={form.control}
+              name="taskName"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('task-title')}</Form.Label>
+                  <Form.Control>
+                    <Input {...field} placeholder={t('default-task-title')} />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
 
-              <div className="space-y-2">
-                 <Label>{t('task-description')}</Label>
-                 <div className="border rounded-md min-h-[150px] p-2">
-                    <BlockEditor
-                      editor={editor}
-                      onChange={handleDescriptionChange}
-                      className="min-h-full"
-                    />
-                 </div>
+            <div className="space-y-2">
+              <Label>{t('task-description')}</Label>
+              <div className="border rounded-md min-h-[150px] p-2">
+                <BlockEditor
+                  editor={editor}
+                  onChange={handleDescriptionChange}
+                  className="min-h-full"
+                />
               </div>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 shrink-0 pt-2 mt-auto">

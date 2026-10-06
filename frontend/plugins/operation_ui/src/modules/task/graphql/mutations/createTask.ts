@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_TASK_MUTATION = gql`
+export const CREATE_TASK_MUTATION = gql(`
   mutation CreateTask(
     $name: String!
     $teamId: String!
@@ -34,4 +34,4 @@ export const CREATE_TASK_MUTATION = gql`
       _id
     }
   }
-`;
+`);

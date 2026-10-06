@@ -39,6 +39,8 @@ export const getFieldTypeLabel = (fieldType?: string) => {
       return 'Relation';
     case 'file':
       return 'File';
+    case 'objectList':
+      return 'Object List';
     default:
       return 'Text';
   }
@@ -184,7 +186,8 @@ export const normalizePropertyValue = (
   if (
     baseFieldType === 'relation' ||
     baseFieldType === 'file' ||
-    baseFieldType === 'list'
+    baseFieldType === 'list' ||
+    baseFieldType === 'objectList'
   ) {
     const values = Array.isArray(value) ? value : [value];
 

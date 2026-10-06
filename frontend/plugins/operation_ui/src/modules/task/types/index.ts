@@ -1,52 +1,25 @@
+import type {
+  EstimateChoisesQuery,
+  GetStatusByTeamQuery,
+  GetTaskQuery,
+  GetTasksQuery,
+} from '~/gql/graphql';
 import { addTaskSchema } from '@/task/types/validations';
 import { z } from 'zod';
 
-export interface IEstimateChoice {
-  label: string;
-  value: number;
-}
+export type IEstimateChoice = NonNullable<
+  NonNullable<EstimateChoisesQuery['getTeamEstimateChoises']>[number]
+>;
 
-export interface INote {
-  _id: string;
-  content: string;
-  createdAt: string;
-  createdBy: string;
-  contentId: string;
-  mentions: string[];
-  updatedAt: string;
-}
+export type ITask = NonNullable<
+  NonNullable<NonNullable<GetTasksQuery['getTasks']>['list']>[number]
+>;
 
-export interface ITask {
-  _id: string;
-  name: string;
-  description?: string;
-  number: string;
-  tagIds: string[];
-  createdAt: string;
-  createdBy?: string;
-  priority: number;
-  status: string;
-  startDate?: string;
-  targetDate?: string;
-  assigneeId: string;
-  teamId: string;
-  projectId: string;
-  estimatePoint: number;
-  updatedAt: string;
-  cycleId?: string;
-  milestoneId?: string;
-  convertedFromId?: string;
-  githubIssueNumber?: number;
-  githubIssueUrl?: string;
-  githubRepoName?: string;
-}
+export type ITaskDetail = NonNullable<GetTaskQuery['getTask']>;
 
-export interface ITaskStatus {
-  value: string;
-  label: string;
-  color: string;
-  type: number;
-}
+export type ITaskStatus = NonNullable<
+  NonNullable<GetStatusByTeamQuery['getStatusesChoicesByTeam']>[number]
+>;
 
 export type TAddTask = z.infer<typeof addTaskSchema>;
 export * from '@/task/types/validations';

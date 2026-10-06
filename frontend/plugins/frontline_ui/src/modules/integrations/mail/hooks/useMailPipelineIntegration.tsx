@@ -24,6 +24,7 @@ export interface IMailForwardVerification {
 export interface IMailPipelineIntegration {
   _id: string;
   pipelineId: string;
+  statusId?: string | null;
   name?: string | null;
   address: string;
   senderName?: string | null;
@@ -38,6 +39,7 @@ export interface IMailPipelineIntegration {
 export interface IMailPipelineSettings {
   senderName?: string;
   forwardFrom?: string;
+  statusId?: string;
 }
 
 const refetchIntegration = (pipelineId: string) => [

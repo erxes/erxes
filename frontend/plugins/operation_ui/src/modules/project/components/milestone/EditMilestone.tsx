@@ -1,5 +1,5 @@
 import { useUpdateMilestone } from '@/project/hooks/useUpdateMilestone';
-import { IMilestone, IMilestoneProgress } from '@/project/types';
+import { IMilestoneProgress } from '@/project/types';
 import { IconTrash } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { useFormContext } from 'react-hook-form';
@@ -8,7 +8,7 @@ import { MilestoneInline } from './MilestoneInline';
 import { useQueryState } from 'erxes-ui';
 
 type Props = {
-  milestone: IMilestone & IMilestoneProgress;
+  milestone: IMilestoneProgress;
   extraContent?: React.ReactNode;
   isActive: boolean;
   setActiveMilestone: (milestoneId: string | null) => void;

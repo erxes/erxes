@@ -2,6 +2,8 @@ import type { Job } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
 import { actionHandlerWorker } from './actionHandlerWorker';
+import { runForTargetWorker } from './runForTargetWorker';
+import { segmentMembershipWorker } from './segmentMembershipWorker';
 import { triggerHandlerWorker } from './triggerWorker';
 import { debugInfo } from '../debugger';
 import { aiWorker } from './aiWorker';
@@ -37,8 +39,10 @@ export const initMQWorkers = async (redis: Redis) => {
 
   await Promise.all([
     generateMQWorker(redis, 'trigger', triggerHandlerWorker),
+    generateMQWorker(redis, 'runForTarget', runForTargetWorker),
     generateMQWorker(redis, 'action', actionHandlerWorker),
     generateMQWorker(redis, 'aiAgent', aiWorker),
+    generateMQWorker(redis, 'segmentMembership', segmentMembershipWorker),
   ]);
 
   debugInfo('All workers initialized');

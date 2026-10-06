@@ -45,7 +45,10 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
           />
         );
       case 'participants':
-        if (pricingDetail?.priority === 'posBase') {
+        if (
+          pricingDetail?.priority === 'posBase' ||
+          pricingDetail?.priority === 'pipelineBase'
+        ) {
           return (
             <GeneralInfo
               pricingId={pricingId}

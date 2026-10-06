@@ -1,10 +1,13 @@
+import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 export const SURVEY_STATUSES = {
+  PENDING: 'pending',
   ACTIVE: 'active',
+  REJECTED: 'rejected',
   ARCHIVED: 'archived',
-  ALL: ['active', 'archived'],
+  ALL: ['pending', 'active', 'rejected', 'archived'],
 };
 
 const surveyOptionSchema = new Schema(
@@ -50,6 +53,11 @@ const surveyStepSchema = new Schema(
     description: { type: String, label: 'Step description' },
     order: { type: Number, default: 0, label: 'Order' },
     question: { type: String, required: true, label: 'Question' },
+    attachments: {
+      type: [attachmentSchema],
+      default: [],
+      label: 'Question attachments',
+    },
     options: { type: [surveyOptionSchema], default: [], label: 'Options' },
     allowMultiselect: {
       type: Boolean,
@@ -83,8 +91,14 @@ export const surveySchema = new Schema(
       index: true,
       label: 'Status',
     },
+    rejectionReason: { type: String, label: 'Rejection reason' },
     sentCount: { type: Number, default: 0, label: 'Sent count' },
     createdUserId: { type: String, label: 'Created user' },
+    createdCpUserId: {
+      type: String,
+      index: true,
+      label: 'Created client portal user',
+    },
   },
   { timestamps: true },
 );

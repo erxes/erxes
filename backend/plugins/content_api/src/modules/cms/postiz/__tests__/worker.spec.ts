@@ -1,5 +1,10 @@
 import { generateModels } from '~/connectionResolvers';
-import { getSaasOrganizations, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  coreModelOrganizations,
+  getSaasCoreConnection,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import mongoose from 'mongoose';
 import { postizBridge } from '../bridge';
 import { requireSharePost } from '../service';
 import { runCmsDeliveries, startCmsDeliveryWorker } from '../worker';
@@ -7,7 +12,8 @@ import { runCmsDeliveries, startCmsDeliveryWorker } from '../worker';
 jest.mock('~/connectionResolvers', () => ({ generateModels: jest.fn() }));
 jest.mock('erxes-api-shared/utils', () => ({
   sendTRPCMessage: jest.fn(),
-  getSaasOrganizations: jest.fn(),
+  getSaasCoreConnection: jest.fn(),
+  coreModelOrganizations: { find: jest.fn() },
 }));
 jest.mock('../bridge', () => ({
   ...jest.requireActual('../bridge'),
@@ -270,15 +276,31 @@ describe('worker startup authentication configuration', () => {
 
   test('JWT alone starts the worker and preserves separate tenant sweeps', async () => {
     setup();
+    const due = jest.fn().mockResolvedValue({ _id: 'jobA' });
+    const collection = jest.fn(() => ({ findOne: due }));
+    const db = jest.fn(() => ({ collection }));
     jest
-      .mocked(getSaasOrganizations)
-      .mockResolvedValue([
-        { subdomain: 'tenantA' },
-        { subdomain: 'tenantB' },
-      ] as Awaited<ReturnType<typeof getSaasOrganizations>>);
+      .spyOn(mongoose.connection, 'asPromise')
+      .mockResolvedValue(mongoose.connection);
+    jest
+      .spyOn(mongoose.connection, 'getClient')
+      .mockReturnValue({ db } as never);
+    jest.mocked(coreModelOrganizations.find).mockReturnValue({
+      select: () => ({
+        lean: () => ({
+          cursor: async function* () {
+            yield { _id: 'orgA', subdomain: 'tenantA' };
+            yield { _id: 'orgB', subdomain: 'tenantB' };
+          },
+        }),
+      }),
+    });
     startCmsDeliveryWorker();
     expect(jest.getTimerCount()).toBe(2);
     await jest.advanceTimersByTimeAsync(1000);
+    expect(getSaasCoreConnection).toHaveBeenCalled();
+    expect(db).toHaveBeenCalledWith('erxes_orgA');
+    expect(db).toHaveBeenCalledWith('erxes_orgB');
     expect(generateModels).toHaveBeenCalledWith('tenantA');
     expect(generateModels).toHaveBeenCalledWith('tenantB');
     expect(postizBridge).toHaveBeenCalledWith(
@@ -287,6 +309,31 @@ describe('worker startup authentication configuration', () => {
       'publish',
       expect.anything(),
     );
+    await jest.advanceTimersByTimeAsync(15000);
+    expect(generateModels).toHaveBeenCalledTimes(2);
+  });
+
+  test('tenants without due deliveries do not create cached models', async () => {
+    const findOne = jest.fn().mockResolvedValue(null);
+    jest
+      .spyOn(mongoose.connection, 'asPromise')
+      .mockResolvedValue(mongoose.connection);
+    jest.spyOn(mongoose.connection, 'getClient').mockReturnValue({
+      db: () => ({ collection: () => ({ findOne }) }),
+    } as never);
+    jest.mocked(coreModelOrganizations.find).mockReturnValue({
+      select: () => ({
+        lean: () => ({
+          cursor: async function* () {
+            yield { _id: 'idleOrg', subdomain: 'idleTenant' };
+          },
+        }),
+      }),
+    });
+    startCmsDeliveryWorker();
+    await jest.advanceTimersByTimeAsync(16000);
+    expect(findOne).toHaveBeenCalledTimes(2);
+    expect(generateModels).not.toHaveBeenCalled();
   });
 
   test.each(['os', 'enterprise', undefined])(
@@ -298,7 +345,7 @@ describe('worker startup authentication configuration', () => {
       setup({ subdomain: 'another-enterprise' });
       startCmsDeliveryWorker();
       await jest.advanceTimersByTimeAsync(1000);
-      expect(getSaasOrganizations).not.toHaveBeenCalled();
+      expect(getSaasCoreConnection).not.toHaveBeenCalled();
       expect(postizBridge).toHaveBeenCalledWith(
         'another-enterprise',
         'userA',

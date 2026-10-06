@@ -1,9 +1,8 @@
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { TBranchForm } from '../../types/branch';
-import { ControllerRenderProps, Path, useFormContext } from 'react-hook-form';
-import { Collapsible, Form, Input, Skeleton, Textarea } from 'erxes-ui';
+import { ControllerRenderProps, useFormContext } from 'react-hook-form';
+import { Collapsible, Form, Input, PhoneInput, Textarea } from 'erxes-ui';
 import { SelectBranches, SelectMember } from 'ui-modules';
-import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
 import { IconChevronDown } from '@tabler/icons-react';
 import {
   TitleField,
@@ -13,8 +12,10 @@ import {
 
 export const BranchForm = () => {
   const { control, formState } = useFormContext<TBranchForm>();
-  // show the status field only when the record was originally deleted, so the
-  // field stays visible while the user switches it back to active
+  const [linksOpen, setLinksOpen] = useState(false);
+  useEffect(() => {
+    if (formState.errors.links) setLinksOpen(true);
+  }, [formState.errors.links, formState.submitCount]);
   const wasDeleted = formState.defaultValues?.status === 'deleted';
 
   return (
@@ -59,8 +60,8 @@ export const BranchForm = () => {
           <Form.Item>
             <Form.Label>{'Parent'}</Form.Label>
             <SelectBranches.FormItem
-              value={field.value as string}
-              onValueChange={field.onChange}
+              value={field.value ?? ''}
+              onValueChange={(value) => field.onChange(value ?? null)}
             />
             <Form.Message />
           </Form.Item>
@@ -88,7 +89,7 @@ export const BranchForm = () => {
           <Form.Item>
             <Form.Label>{'Phone number'}</Form.Label>
             <Form.Control>
-              <PhoneInput {...field} value={field.value as string} />
+              <PhoneInput {...field} value={field.value ?? ''} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -103,7 +104,7 @@ export const BranchForm = () => {
             <Form.Control>
               <Input
                 {...field}
-                value={field.value as string}
+                value={field.value ?? ''}
                 type="email"
                 placeholder="example@erxes.io"
               />
@@ -112,7 +113,11 @@ export const BranchForm = () => {
           </Form.Item>
         )}
       />
-      <Collapsible className="col-span-2">
+      <Collapsible
+        className="col-span-2"
+        open={linksOpen}
+        onOpenChange={setLinksOpen}
+      >
         <Collapsible.Trigger className="flex items-center justify-between w-full py-3">
           <Form.Label>Links</Form.Label>
           <IconChevronDown size={16} className="text-accent-foreground" />
@@ -129,7 +134,7 @@ export const BranchForm = () => {
             <Form.Label>{field.name}</Form.Label>
             <Form.Control>
               <Input
-                value={field.value as number}
+                value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(
                     e.currentTarget.value === ''
@@ -180,38 +185,27 @@ export const BranchForm = () => {
         )}
       />
       {wasDeleted && <DeletedStatusField control={control} />}
-      {/* <Form.Field
-        control={control}
-        name="image"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>{'image'}</Form.Label>
-            <Form.Control>
-              <Upload.Root
-                {...field}
-                value={field.value?.url as string}
-                onChange={(value: any) => field.onChange(value?.url)}
-              >
-                <Upload.Preview />
-                <Upload.RemoveButton />
-              </Upload.Root>
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      /> */}
     </div>
   );
 };
+
+const LINK_NAMES = [
+  'website',
+  'facebook',
+  'whatsapp',
+  'twitter',
+  'youtube',
+] as const;
 
 const LinkFields = () => {
   const { control } = useFormContext<TBranchForm>();
   return (
     <div className="col-span-2 grid grid-cols-2 gap-2">
-      {['website', 'facebook', 'whatsapp', 'twitter', 'youtube'].map((link) => (
+      {LINK_NAMES.map((link) => (
         <Form.Field
           control={control}
-          name={`links.${link}` as Path<TBranchForm>}
+          key={link}
+          name={`links.${link}`}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>{link}</Form.Label>
@@ -228,7 +222,10 @@ const LinkFields = () => {
 };
 
 type LinkFieldProps = {
-  field: ControllerRenderProps<TBranchForm, any>;
+  field: ControllerRenderProps<
+    TBranchForm,
+    `links.${(typeof LINK_NAMES)[number]}`
+  >;
   link: string;
 };
 
@@ -241,7 +238,7 @@ const LinkField = ({ field, link }: LinkFieldProps) => {
           id={id}
           className="peer ps-16"
           {...field}
-          value={field.value as string}
+          value={field.value ?? ''}
           placeholder={`${link}.com`}
         />
         <span className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-sm peer-disabled:opacity-50">

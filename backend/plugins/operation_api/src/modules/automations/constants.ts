@@ -177,7 +177,10 @@ const TASK_OUTPUT: TAutomationRuntimeOutputDefinition<TOperationTaskAutomationTa
           return '';
         }
 
-        return `${getEnv({ name: 'DOMAIN', subdomain })}/operation/tasks/${taskId}`;
+        return `${getEnv({
+          name: 'DOMAIN',
+          subdomain,
+        })}/operation/tasks/${taskId}`;
       },
     },
   };
@@ -357,6 +360,8 @@ export const operationAutomationConstants: AutomationConstants = {
       icon: 'IconCheckbox',
       label: 'Create task',
       description: 'Create an operation task with required task fields.',
+      // The task it creates has an owner.
+      requiresActor: true,
       isTargetSource: true,
       targetSourceType: OPERATION_TASK_TARGET_TYPE,
       allowTargetFromActions: true,
@@ -370,6 +375,8 @@ export const operationAutomationConstants: AutomationConstants = {
       icon: 'IconFolderPlus',
       label: 'Create project',
       description: 'Create an operation project with required project fields.',
+      // The project it creates has an owner.
+      requiresActor: true,
       isTargetSource: true,
       targetSourceType: OPERATION_PROJECT_TARGET_TYPE,
       allowTargetFromActions: true,

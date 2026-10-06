@@ -13,26 +13,15 @@ import {
   readImage,
   useRemoveFile,
   useUploadChunked,
+  parseVideoEmbedUrl,
+  getCloudflareStreamBase,
+  type VideoEmbedInfo,
 } from 'erxes-ui';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { parseVideoEmbedUrl, type VideoEmbedInfo } from '../utils/videoEmbed';
 import type { ProductAttachmentItem } from './ProductImageUploads';
 
 const PRODUCT_VIDEO_MAX_FILE_SIZE = 200 * 1024 * 1024;
 export const PRODUCT_VIDEO_LIMIT = 5;
-
-/**
- * Cloudflare Stream returns an HLS playback URL like
- * `https://customer-xxx.cloudflarestream.com/{uid}/manifest/video.m3u8`.
- * Extract the base so we can build a thumbnail (`/thumbnails/thumbnail.jpg`).
- */
-const CLOUDFLARE_STREAM_BASE_PATTERN =
-  /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/;
-
-const getCloudflareStreamBase = (url: string): string | null => {
-  const match = CLOUDFLARE_STREAM_BASE_PATTERN.exec(url);
-  return match ? match[1] : null;
-};
 
 const VIDEO_UPLOAD_CONFIG_QUERY = gql`
   query ConfigsFileUploadInfo {

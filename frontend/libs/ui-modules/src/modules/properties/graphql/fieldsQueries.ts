@@ -14,6 +14,11 @@ export const FIELD_GROUPS_QUERY = gql`
         order
         updatedAt
         configs
+        owner {
+          plugin
+          module
+          status
+        }
       }
       ${GQL_PAGE_INFO}
     }
@@ -39,9 +44,17 @@ export const FIELDS_QUERY = gql`
         isVisibleToCreate
         isRequired
         isVisibleInCard
+        owner {
+          plugin
+          module
+          key
+          status
+        }
+        configs
         options {
           label
           value
+          deprecated
         }
       }
       totalCount
@@ -62,14 +75,22 @@ export const FIELD_DETAILS_QUERY = gql`
       options {
         label
         value
+        deprecated
       }
       validations
       logics
+      configs
       icon
       isVisible
       isVisibleToCreate
       isRequired
       isVisibleInCard
+      owner {
+        plugin
+        module
+        key
+        status
+      }
       createdAt
       updatedAt
     }

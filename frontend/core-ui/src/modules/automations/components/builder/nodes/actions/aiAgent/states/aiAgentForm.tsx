@@ -12,13 +12,56 @@ const aiAgentTopicSchema = z.object({
   prompt: z.string(),
 });
 
-const aiAgentObjectFieldSchema = z.object({
-  id: z.string(),
-  fieldName: z.string().min(1),
+const aiAgentFieldOptionSchema = z.object({
+  value: z.string().trim().min(1, 'Value is required'),
   prompt: z.string(),
-  dataType: z.enum(['string', 'number', 'boolean', 'object', 'array']),
-  validation: z.string(),
 });
+
+const aiAgentObjectFieldSchema = z
+  .object({
+    id: z.string(),
+    fieldName: z.string().min(1),
+    prompt: z.string(),
+    dataType: z.enum([
+      'string',
+      'number',
+      'boolean',
+      'object',
+      'array',
+      'option',
+    ]),
+    validation: z.string(),
+    options: z.array(aiAgentFieldOptionSchema).default([]),
+  })
+  .superRefine((field, ctx) => {
+    if (field.dataType !== 'option') {
+      return;
+    }
+
+    if (!field.options.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['options'],
+        message: 'Add at least one value',
+      });
+    }
+
+    const seen = new Set<string>();
+
+    field.options.forEach(({ value }, index) => {
+      const key = value.trim();
+
+      if (seen.has(key)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['options', index, 'value'],
+          message: 'Value must be unique',
+        });
+      }
+
+      seen.add(key);
+    });
+  });
 
 const aiActionMemoryReadSchema = z.object({
   enabled: z.boolean().default(false),

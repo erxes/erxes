@@ -1,6 +1,7 @@
 import { generateModels } from '~/connectionResolvers';
 import { withErrorHandling } from '~/shared/utils';
 import { isCallProEnabled } from '@/integrations/callpro/config';
+import { debugCallPro } from '@/integrations/callpro/debuggers';
 
 const assertEnabled = () => {
   if (!isCallProEnabled()) {
@@ -33,6 +34,10 @@ export const callProCreateIntegration = withErrorHandling(
       );
     }
 
+    debugCallPro(
+      `Creating integration inboxId=${integrationId} phone=${phoneNumber}`,
+    );
+
     return models.CallProIntegrations.create({
       inboxId: integrationId,
       phoneNumber,
@@ -62,6 +67,12 @@ export const callProUpdateIntegration = withErrorHandling(
       }
     }
 
+    debugCallPro(
+      `Updating integration inboxId=${data.integrationId} phone=${
+        phoneNumber || ''
+      }`,
+    );
+
     return models.CallProIntegrations.updateOne(
       { inboxId: data.integrationId },
       { $set: { ...(phoneNumber && { phoneNumber }), recordUrl } },
@@ -78,6 +89,10 @@ export const callProRemoveIntegration = withErrorHandling(
     const integration = await models.CallProIntegrations.findOne({
       inboxId: integrationId,
     }).lean();
+
+    debugCallPro(
+      `Removing integration inboxId=${integrationId} found=${!!integration}`,
+    );
 
     if (integration) {
       const selector = { integrationId: integration._id };
@@ -128,6 +143,9 @@ export const callProGetAudio = async (
   }
 
   if (!integration.recordUrl) {
+    debugCallPro(
+      `No recordUrl on Call Pro integration phone=${integration.phoneNumber}`,
+    );
     return '';
   }
 

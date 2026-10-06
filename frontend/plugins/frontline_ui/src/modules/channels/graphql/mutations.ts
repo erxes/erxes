@@ -129,6 +129,28 @@ const UPDATE_CHANNEL_MEMBER = gql`
   }
 `;
 
+const MOVE_CHANNEL_RESOURCES = gql`
+  mutation ChannelMoveResources(
+    $resourceType: ChannelResourceType!
+    $resourceIds: [String!]!
+    $sourceChannelId: String!
+    $targetChannelId: String!
+  ) {
+    channelMoveResources(
+      resourceType: $resourceType
+      resourceIds: $resourceIds
+      sourceChannelId: $sourceChannelId
+      targetChannelId: $targetChannelId
+    ) {
+      movedIds
+      movedCount
+      sourceChannelId
+      targetChannelId
+      targetChannelName
+    }
+  }
+`;
+
 export {
   ADD_CHANNEL,
   UPDATE_CHANNEL,
@@ -137,4 +159,5 @@ export {
   REMOVE_CHANNEL_MEMBER,
   UPDATE_CHANNEL_MEMBER,
   REMOVE_CHANNEL_MEMBERS,
+  MOVE_CHANNEL_RESOURCES,
 };

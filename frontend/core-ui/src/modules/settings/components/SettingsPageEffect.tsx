@@ -19,6 +19,12 @@ export const SettingsPageEffect = () => {
       case isMatchingLocation(SettingsWorkspacePath.Tags):
         setHotkeyScope(SettingsHotKeyScope.TagsPage);
         break;
+      case isMatchingLocation(SettingsWorkspacePath.AppTokens):
+        setHotkeyScope(SettingsHotKeyScope.AppsPage);
+        break;
+      case isMatchingLocation(SettingsWorkspacePath.EmailTemplates):
+        setHotkeyScope(SettingsHotKeyScope.EmailTemplatesPage);
+        break;
     }
   }, [isMatchingLocation, tagType]);
 

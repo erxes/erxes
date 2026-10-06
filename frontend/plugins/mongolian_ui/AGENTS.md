@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-11`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -29,6 +29,8 @@
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
+- POS-in eBarimt settings include receipt behavior toggles for copy printing,
+  summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
   filter configuration screens under `settings/mongolian/product-places/*`.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
@@ -52,6 +54,9 @@
   floating widget and opens printable receipt HTML for the current user.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- Registers a product remainder provider that lets shared product choosers
+  overlay Erkhet remainders when a `remainderConfig` exists for the active
+  sales pipeline.
 - Prints deal eBarimt responses in a popup receipt template that supports
   configured `headerText`, `footerText`, and optional receipt logo images.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
@@ -61,21 +66,22 @@
 
 ## Architecture
 
-| Area              | Path                                                              | Responsibility                                                   |
-| ----------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Module Federation | `frontend/plugins/mongolian_ui/module-federation.config.ts`       | Public exposes for config, routes, widgets, and floating widget. |
-| Dev server config | `frontend/plugins/mongolian_ui/rspack.config.ts`                  | Module Federation development serving and watch ignore rules.    |
-| Navigation config | `frontend/plugins/mongolian_ui/src/config.tsx`                    | Plugin navigation groups and module paths.                       |
-| Main routes       | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`     | Route tree mounted under `/mongolian`.                           |
-| Settings routes   | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx` | Settings route tree mounted in the core settings shell.          |
-| eBarimt           | `frontend/plugins/mongolian_ui/src/modules/ebarimt`               | eBarimt put responses, filters, tables, and settings UI.         |
-| eBarimt print     | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`     | Popup receipt HTML for deal eBarimt responses.                   |
-| Erkhet sync       | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`           | Erkhet checking, sync, and settings UI.                          |
-| MS Dynamic        | `frontend/plugins/mongolian_ui/src/modules/msdynamic`             | MS Dynamic checking, sync history, and settings UI.              |
-| Product places    | `frontend/plugins/mongolian_ui/src/modules/productplaces`         | Product place settings and UI.                                   |
-| Exchange rates    | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`         | Exchange rate list and related UI.                               |
-| Pages             | `frontend/plugins/mongolian_ui/src/pages`                         | Route-level page composition.                                    |
-| Widgets           | `frontend/plugins/mongolian_ui/src/widgets`                       | Plugin widget exports only.                                      |
+| Area               | Path                                                                       | Responsibility                                                     |
+| ------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Module Federation  | `frontend/plugins/mongolian_ui/module-federation.config.ts`                | Public exposes for config, routes, widgets, and floating widget.   |
+| Dev server config  | `frontend/plugins/mongolian_ui/rspack.config.ts`                           | Module Federation development serving and watch ignore rules.      |
+| Navigation config  | `frontend/plugins/mongolian_ui/src/config.tsx`                             | Plugin navigation groups and module paths.                         |
+| Main routes        | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`              | Route tree mounted under `/mongolian`.                             |
+| Settings routes    | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx`          | Settings route tree mounted in the core settings shell.            |
+| eBarimt            | `frontend/plugins/mongolian_ui/src/modules/ebarimt`                        | eBarimt put responses, filters, tables, and settings UI.           |
+| eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML for deal eBarimt responses.                     |
+| Erkhet sync        | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`                    | Erkhet checking, sync, and settings UI.                            |
+| Product remainders | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync/product-remainders` | Provides the Module Federation product chooser remainder provider. |
+| MS Dynamic         | `frontend/plugins/mongolian_ui/src/modules/msdynamic`                      | MS Dynamic checking, sync history, and settings UI.                |
+| Product places     | `frontend/plugins/mongolian_ui/src/modules/productplaces`                  | Product place settings and UI.                                     |
+| Exchange rates     | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`                  | Exchange rate list and related UI.                                 |
+| Pages              | `frontend/plugins/mongolian_ui/src/pages`                                  | Route-level page composition.                                      |
+| Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only.                                        |
 
 ## Contracts
 
@@ -91,9 +97,12 @@
 - Floating product-places response widget that listens for
   `productPlacesResponded` and prints the JSON receipt content returned by the
   backend.
+- Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
+- POS-in eBarimt config values may include `hasCopy`, `hasSumQty`, and
+  `isCleanTaxPrice` booleans for POS receipt behavior.
 
 ### Consumes
 
@@ -106,6 +115,7 @@
   segment and assignee selection.
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
+- Shared `ui-modules` product chooser remainder provider contract.
 - React Router host mounting contracts from core UI Module Federation.
 - Translation namespace `mongolian`.
 
@@ -113,6 +123,8 @@
 
 - Apollo Client owns server state for queries and mutations in each feature's
   `graphql` folder.
+- Product chooser remainder overlays are fetched on demand through Apollo
+  queries and are not stored in plugin-local Jotai state.
 - Jotai atoms are used only for plugin-local shared UI state such as detail
   rendering flags and table total counts.
 - URL query state powers filters, detail sheets, and cursor controls through
@@ -134,6 +146,8 @@
   definitions must stay aligned.
 - Do not modify backend contracts or shared libraries from a frontend-only
   Mongolian UI task.
+- The product remainder provider must no-op when no sales `pipelineId` or no
+  `remainderConfig` exists for that pipeline.
 
 ## Validation
 
@@ -152,74 +166,3 @@
 - Deal eBarimt print smoke scenario: receive an `ebarimtResponded`
   subscription payload with `headerText`, `footerText`, and optional
   `receiptIcon`; the popup waits for receipt images before opening print.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-11` - Shared product-place condition selectors
-
-- **Summary:** Product-place condition and split forms now use shared `ui-modules` product, tag, branch, and department selectors, and duplicate plugin-local selector files were removed.
-- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, `src/modules/productplaces/components/PerConditions.tsx`, `src/modules/productplaces/components/PerPrintConditions.tsx`, removed product-place local selector files.
-- **Contracts changed:** None.
-
-### `2026-09-11` - Shared product-place stage selectors
-
-- **Summary:** Product-place config forms and tables now use shared `ui-modules` board, pipeline, and stage selectors, and duplicate plugin-local sales selectors were removed.
-- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, removed `src/modules/productplaces/selects/SelectSalesBoard.tsx`, `src/modules/productplaces/selects/SelectPipeline.tsx`, `src/modules/productplaces/selects/SelectStage.tsx`, `src/modules/productplaces/selects/SelectShared.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-11` - Product places stage display
-
-- **Summary:** Product places place, split, and print config rows now render board, pipeline, and stage names in the table instead of raw ids, and the old route-disconnected config UI was removed.
-- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, `src/modules/productplaces/types.ts`, removed legacy product-place config components, hooks, and helpers.
-- **Contracts changed:** None.
-
-### `2026-09-11` - Product filter user display
-
-- **Summary:** Product places default-filter config rows now render the selected user through the shared member display instead of showing the raw user id.
-- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-10` - Product places config tables
-
-- **Summary:** Product places place, split, print, and default-filter settings now list all configs by code and manage add/edit/delete through a shared right-side sheet; default filters store one user-to-segments config per row.
-- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, `src/modules/productplaces/selects/SelectShared.tsx`, `src/pages/productplaces`.
-- **Contracts changed:** `dealsProductsDefaultFilter` now stores one config per user with `subId` set to the user id and `value.segmentIds` as the default product segments.
-
-### `2026-09-10` - Multi product-place segments
-
-- **Summary:** Product-place place, split, and default-filter settings now support multiple product segments through shared `SelectSegment`, and default filters use shared member selection.
-- **Affected areas:** `src/modules/productplaces/components`, `src/modules/productplaces/types`.
-- **Contracts changed:** `dealsProductsDefaultFilter` entries now persist `segmentIds` arrays, while legacy `segmentId` entries remain readable.
-
-### `2026-09-10` - Use shared segment selector
-
-- **Summary:** Product places segment fields now use the shared `ui-modules` `SelectSegment` component, the default-filter page passes through `dealsProductsDefaultFilter` configs correctly, and the plugin-local segment selector was removed.
-- **Affected areas:** `src/modules/productplaces/components`, `src/modules/productplaces/containers`, `src/modules/productplaces/graphql`, `src/modules/productplaces/selects`.
-- **Contracts changed:** None.
-
-### `2026-09-09` - Restore product places printing
-
-- **Summary:** Product places subscription printing now consumes the full JSON receipt payload, uses typed receipt data, removes the stale mock-user container, and fixes product-place select/condition compile issues.
-- **Affected areas:** `src/pages/productplaces/ProductPlacesRespondedPage.tsx`, `src/modules/productplaces`.
-- **Contracts changed:** `productPlacesResponded` now requests `content` as JSON instead of a narrowed nested selection.
-
-### `2026-09-09` - Bound dev watchers
-
-- **Summary:** Mongolian UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
-- **Affected areas:** `rspack.config.ts`
-- **Contracts changed:** None
-
-### `2026-09-02` - Harden deal eBarimt print logo
-
-- **Summary:** Deal eBarimt popup receipts now render configured header text near the logo, support an optional receipt icon, and wait for images before printing.
-- **Affected areas:** `src/pages/EbarimtRespondedPage.tsx`, `src/modules/ebarimt/responded/components/PerResponse.tsx`, `src/modules/ebarimt/responded/components/Response.tsx`
-- **Contracts changed:** None
-
-### `2026-08-27` - Guard put response dates
-
-- **Summary:** Put response list date cells now avoid `Invalid time value` when
-  bill `date` is missing by falling back to `createdAt` or rendering `-`.
-- **Affected areas:** `src/modules/ebarimt/put-response/components/PutResponseColumn.tsx`
-- **Contracts changed:** None

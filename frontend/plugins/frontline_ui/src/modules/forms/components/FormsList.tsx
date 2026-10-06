@@ -1,5 +1,6 @@
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 import {
+  IconArrowBarToRight,
   IconCalendarEvent,
   IconCircles,
   IconEdit,
@@ -33,6 +34,8 @@ import { FormsCreateButton } from './form-page/forms-create';
 import { OpenLiveForm } from './actions/open-live-form';
 import { OpenSubmissionsAction } from './actions/open-submissions';
 import { DownloadResponsesAction } from './actions/download-responses';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
 
 export const FormsList = () => {
   const { t } = useTranslation('frontline');
@@ -120,6 +123,7 @@ export const FormsMoreColumnCell = ({
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   return (
     <DownloadResponsesAction formId={_id} formName={name}>
@@ -147,8 +151,24 @@ export const FormsMoreColumnCell = ({
             <OpenSubmissionsAction formId={_id} />
             {downloadResponsesAction}
             <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+            <DropdownMenu.Item
+              onSelect={() => {
+                setOpen(false);
+                setMoveOpen(true);
+              }}
+            >
+              <IconArrowBarToRight />
+              {t('move-to-channel', 'Move to Channel')}
+            </DropdownMenu.Item>
             <RemoveForm formId={_id} title={cell.row.original.name} />
           </DropdownMenu.Content>
+          <MoveToChannelDialog
+            open={moveOpen}
+            onOpenChange={setMoveOpen}
+            resourceType={ChannelResourceType.FORM}
+            resourceIds={[_id]}
+            sourceChannelId={channelId as string}
+          />
         </DropdownMenu>
       )}
     </DownloadResponsesAction>

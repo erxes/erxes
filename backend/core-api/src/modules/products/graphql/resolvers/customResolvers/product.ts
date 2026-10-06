@@ -11,6 +11,7 @@ type ProductDiscount = {
   discountPercent: number;
   prefixes: string[];
   conditions: DiscountConditions;
+  base?: boolean | null;
 };
 
 const inventoryKey = (id?: string) => id || '_';
@@ -129,13 +130,47 @@ const conditionMatches = (expected: unknown, actual: unknown) => {
   return expected === actual;
 };
 
-const getDiscount = (discounts: unknown, conditions: DiscountConditions) => {
+export const getMatchingDiscount = (
+  discounts: unknown,
+  conditions: DiscountConditions,
+  base = false,
+) => {
   return ((Array.isArray(discounts) ? discounts : []) as ProductDiscount[])
-    .filter((discount) =>
-      (discount.prefixes || []).every((prefix) =>
-        conditionMatches(discount.conditions?.[prefix], conditions[prefix]),
-      ),
+    .filter(
+      (discount) =>
+        (discount.base === true) === base &&
+        (discount.prefixes || []).every((prefix) =>
+          conditionMatches(discount.conditions?.[prefix], conditions[prefix]),
+        ),
     )
+    .sort((a, b) => b.discount - a.discount)[0];
+};
+
+const BASE_SCOPE_FIELDS = ['branchId', 'departmentId', 'pipelineId'] as const;
+
+export const getMatchingBaseDiscount = (
+  discounts: unknown,
+  conditions: DiscountConditions,
+) => {
+  return ((Array.isArray(discounts) ? discounts : []) as ProductDiscount[])
+    .filter((discount) => {
+      if (discount.base !== true) {
+        return false;
+      }
+
+      const comparableFields = BASE_SCOPE_FIELDS.filter(
+        (field) =>
+          discount.conditions?.[field] !== undefined &&
+          conditions[field] !== undefined,
+      );
+
+      return (
+        comparableFields.length > 0 &&
+        comparableFields.every((field) =>
+          conditionMatches(discount.conditions?.[field], conditions[field]),
+        )
+      );
+    })
     .sort((a, b) => b.discount - a.discount)[0];
 };
 
@@ -230,7 +265,7 @@ export default {
     _context: IContext,
     info: any,
   ) => {
-    return getDiscount(
+    return getMatchingDiscount(
       product.discounts,
       getDiscountConditions({
         ...info?.variableValues,

@@ -142,7 +142,6 @@
   "sale-price": "Борлуулалтын үнэ",
   "pos-amount": "ПОС дүн",
   "pos-sale": "ПОС борлуулалт",
-  "available-score": "Боломжтой оноо",
   "score-campaign": "Оноо кампани",
   "product": "Бүтээгдэхүүн",
   "products": "Бүтээгдэхүүнүүд",
@@ -728,10 +727,6 @@
   "show-checked-items": "Тэмдэглэсэн мөрүүдийг харах ({{count}})",
   "hide-completed-items": "Дууссан мөрүүдийг нуух",
   "none": "Байхгүй",
-  "loyalty-score-refund-confirm": "Энэ үйлдэл нь энэхүү карт дээр ашигласан бүх лояалти оноог буцаан олгож, буцаан татагдсан оноонуудыг хасаж, буцаан олголтыг боловсруулахаас өмнө гүйцэтгэнэ. Та итгэлтэй байна уу?",
-  "loyalty-score-refunded": "Лояалти оноо амжилттай буцаан олгогдлоо",
-  "refunding": "Буцаан олгож байна…",
-  "refund-score": "Оноо буцаан олгох",
   "invalid-qr-code": "Буруу QR код",
   "qr-code-mismatch": "Оруулсан код харилцагчийн ID-тай таарахгүй байна.",
   "assign-service-before-saving": "Хадгалахын өмнө дараах үйлчилгээний зүйл(үүд)-д багийн гишүүн хариуцуулна уу: {{names}}.",
@@ -888,5 +883,14 @@
   "content-type": {
     "sales-pos-orders": "Кассын захиалга",
     "sales-sales-deals": "Гүйлгээ"
-  }
+  },
+  "stage-refund-points": "Loyalty оноог буцаах",
+  "stage-refund-points-hint": "Deal энэ stage-д ороход оноогоор төлсөн дүн буцаж, энэ deal-ээс олсон оноо хасагдана.",
+  "stage-refund-points-confirm-on": "Энэ stage-д орсон deal-ийн оноогоор төлсөн дүн хэрэглэгчид буцаж, олсон оноо нь хасагдана. Асаах уу?",
+  "stage-refund-points-confirm-off": "Энэ stage-д орсон deal-ийн оноо буцаагдахгүй болно. Унтраах уу?",
+  "points-need-customer": "Оноогоор төлөхийн тулд customer нэмнэ үү",
+  "points-available": "{{points}} оноо · дээд тал нь {{amount}}",
+  "points-blocked-frozen": "Лоялти данс царцсан байна",
+  "points-blocked-belowMin": "Үлдэгдэл доод хэмжээнд хүрээгүй тул оноо зарцуулах боломжгүй",
+  "points-blocked-empty": "Энэ deal-д зарцуулах оноо алга"
 }

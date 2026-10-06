@@ -5,7 +5,6 @@ import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
   cn,
-  CurrencyField,
   Form,
   InputNumber,
   RecordTableInlineCell,
@@ -13,13 +12,15 @@ import {
   PopoverScoped,
   Table,
 } from 'erxes-ui';
-import { useWatch } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
+import { FieldPath, useWatch } from 'react-hook-form';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import {
   ITransactionGroupForm,
+  TAddTransactionGroup,
+  TInvDetail,
   TInvMoveJournal,
 } from '../../../types/JournalForms';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import {
   DUPLICATE_PRODUCT_CELL_CLASS,
   fixSumDtCt,
@@ -34,37 +35,44 @@ import {
   TR_SIDES,
   TrJournalEnum,
 } from '~/modules/transactions/types/constants';
-import { useSetAtom } from 'jotai';
-import { followTrDocsState } from '../../../states/trStates';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  followTrDocsState,
+  showAdvancedViewState,
+} from '../../../states/trStates';
+import { InventorySourceUom, InventorySplitSheet } from '../InventorySplit';
 
 const getFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
   details.find((detail) => detail.originId === originId);
 
 const buildInvMoveInDetails = ({
   currIn,
-  detail,
   trDoc,
 }: {
   currIn?: ITransaction;
-  detail: ITrDetail;
   trDoc: TInvMoveJournal;
 }) =>
   (trDoc.details || []).map((moveDetail) => {
     const curInDetail = getFollowDetail(currIn?.details, moveDetail._id);
 
-    if (curInDetail && moveDetail._id !== detail._id) {
-      return curInDetail;
-    }
-
     return {
       ...moveDetail,
       ...curInDetail,
+      originId: moveDetail._id,
       productId: moveDetail.productId,
       account: trDoc.followExtras?.moveInAccount,
       accountId: trDoc.followInfos?.moveInAccountId,
       count: moveDetail.count,
       unitPrice: moveDetail.unitPrice,
       amount: moveDetail.amount,
+      branchId:
+        moveDetail.followInfos?.moveInBranchId ||
+        curInDetail?.branchId ||
+        trDoc.followInfos?.moveInBranchId,
+      departmentId:
+        moveDetail.followInfos?.moveInDepartmentId ||
+        curInDetail?.departmentId ||
+        trDoc.followInfos?.moveInDepartmentId,
     } as ITrDetail;
   });
 
@@ -92,32 +100,32 @@ export const InventoryRow = ({
   );
 
   const { unitPrice, count, _id } = detail;
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
 
-  const initProductId = useRef(detail.productId);
-  const initAccountId = useRef(detail.accountId);
-  const initBranchId = useRef(trDoc.branchId);
-  const initDepartmentId = useRef(trDoc.departmentId);
-
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
+  const getFieldName = (name: keyof TInvDetail) => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as FieldPath<TAddTransactionGroup>;
   };
+
+  const followTrDocs = useAtomValue(followTrDocsState);
+  const moveInTransaction = followTrDocs.find(
+    (transaction) =>
+      transaction.originId === trDoc._id &&
+      transaction.originType === TrJournalEnum.INV_MOVE_IN,
+  );
+  const moveInDetail = getFollowDetail(moveInTransaction?.details, detail._id);
+  const excludedTransactionIds = [trDoc._id, moveInTransaction?._id].filter(
+    (transactionId): transactionId is string => Boolean(transactionId),
+  );
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
       accountId: detail.accountId,
-      branchId: trDoc.branchId,
-      departmentId: trDoc.departmentId,
+      branchId: detail.branchId || trDoc.branchId,
+      departmentId: detail.departmentId || trDoc.departmentId,
       productIds: [detail.productId],
+      excludedTransactionIds,
     },
-    skip:
-      !detail.productId ||
-      !detail.accountId ||
-      (initProductId.current &&
-        detail.productId === initProductId.current &&
-        trDoc.branchId === initBranchId.current &&
-        trDoc.departmentId === initDepartmentId.current &&
-        initAccountId.current &&
-        detail.accountId === initAccountId.current),
+    skip: !detail.productId || !detail.accountId,
   });
 
   const setFollowTrDocs = useSetAtom(followTrDocsState);
@@ -141,7 +149,6 @@ export const InventoryRow = ({
         departmentId: trDoc.followInfos.moveInDepartmentId,
         details: buildInvMoveInDetails({
           currIn,
-          detail: detail as ITrDetail,
           trDoc,
         }),
       });
@@ -167,7 +174,6 @@ export const InventoryRow = ({
     setFollowTrDocs,
   ]);
 
-  // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
     if (loading || !currentCostInfo) return;
 
@@ -176,18 +182,7 @@ export const InventoryRow = ({
 
     form.setValue(getFieldName('unitPrice'), nextUnitPrice);
     form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.productId, loading]);
-
-  const handleAmountChange = (
-    value: number,
-    onChange: (value: number) => void,
-  ) => {
-    onChange(value);
-    const newUnitPrice = count ? value / count : 0;
-    form.setValue(getFieldName('unitPrice'), newUnitPrice);
-  };
+  }, [currentCostInfo, detail.productId, loading]);
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
     const newAmount = (pCount ?? 0) * (pUnitPrice ?? 0);
@@ -200,21 +195,6 @@ export const InventoryRow = ({
   ) => {
     calcAmount(value, unitPrice ?? 0);
     onChange(value);
-  };
-
-  const handleUnitPriceChange = (
-    value: number,
-    onChange: (value: number) => void,
-  ) => {
-    calcAmount(count ?? 0, value);
-    onChange(value);
-  };
-
-  const handleProduct = (
-    productId: string,
-    onChange: (productId: string) => void,
-  ) => {
-    onChange(productId);
   };
 
   return (
@@ -231,12 +211,25 @@ export const InventoryRow = ({
         enableOnFormTags
       >
         <Table.Cell
-          className={cn({
+          className={cn('w-8', {
             'border-t': detailIndex === 0,
             'rounded-tl-lg': detailIndex === 0,
             'rounded-bl-lg': detailIndex === trDoc.details.length - 1,
           })}
         >
+          <InventorySplitSheet
+            detailIndex={detailIndex}
+            journalIndex={journalIndex}
+            form={form}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell className="w-8">
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}
@@ -304,9 +297,9 @@ export const InventoryRow = ({
                   <Form.Control>
                     <SelectProduct
                       value={field.value || ''}
-                      onValueChange={(productId) => {
-                        handleProduct(productId as string, field.onChange);
-                      }}
+                      onValueChange={(productId) =>
+                        field.onChange(productId as string)
+                      }
                       variant="ghost"
                       scope={AccountingHotkeyScope.TransactionFormPage}
                     />
@@ -318,6 +311,9 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
+      <Table.Cell>
+        <InventorySourceUom productId={detail.productId} />
+      </Table.Cell>
       <RecordTableHotKeyControl
         rowId={_id}
         rowIndex={detailIndex}
@@ -351,70 +347,126 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl
-        rowId={_id}
-        rowIndex={detailIndex}
-        enableOnFormTags
-      >
-        <Table.Cell>
-          <Form.Field
-            control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <CurrencyField.ValueInput
-                    value={field.value || 0}
-                    onChange={(value) =>
-                      handleUnitPriceChange(value || 0, field.onChange)
-                    }
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
-        </Table.Cell>
-      </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl
-        rowId={_id}
-        rowIndex={detailIndex}
-        enableOnFormTags
-      >
-        <Table.Cell>
-          <Form.Field
-            control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <CurrencyField.ValueInput
-                    value={field.value || 0}
-                    onChange={(value) =>
-                      handleAmountChange(value || 0, field.onChange)
-                    }
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
-        </Table.Cell>
-      </RecordTableHotKeyControl>
+      <Table.Cell>{(unitPrice ?? 0).toLocaleString()}</Table.Cell>
+      <Table.Cell>{(detail.amount ?? 0).toLocaleString()}</Table.Cell>
+      {showAdvancedView && (
+        <>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectBranches.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(branch) => field.onChange(branch)}
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectDepartments.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.moveInBranchId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectBranches.InlineCell
+                          mode="single"
+                          value={field.value ?? moveInDetail?.branchId ?? ''}
+                          onValueChange={(branch) => field.onChange(branch)}
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.moveInDepartmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectDepartments.InlineCell
+                          mode="single"
+                          value={
+                            field.value ?? moveInDetail?.departmentId ?? ''
+                          }
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+        </>
+      )}
     </Table.Row>
   );
 };

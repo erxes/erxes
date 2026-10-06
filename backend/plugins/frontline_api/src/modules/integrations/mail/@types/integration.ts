@@ -12,6 +12,7 @@ export interface IMailForwardVerification {
 export interface IMailIntegration {
   inboxId?: string;
   pipelineId?: string;
+  statusId?: string;
   name?: string;
   address: string;
   forwardFrom?: string;

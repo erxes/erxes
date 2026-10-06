@@ -13,6 +13,9 @@ export const CORE_RELATIONS = [
     icon: IconBuilding,
     label: 'Companies',
   },
+];
+
+export const CORE_TRAILING_RELATIONS = [
   {
     pluginName: 'core',
     name: 'trackedData',

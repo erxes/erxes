@@ -24,13 +24,14 @@ export const GeneralDateField = ({
         <Form.Label>{label}</Form.Label>
         <Form.Control>
           <DatePicker
+            allowNull
             value={parseDateValue(field.value)}
             placeholder={placeholder}
-            onChange={(value) => {
+            onChange={(value) =>
               field.onChange(
                 value instanceof Date ? formatDateValue(value) : null,
-              );
-            }}
+              )
+            }
           />
         </Form.Control>
         <Form.Message />

@@ -10,10 +10,21 @@
   "count": "Тоо",
   "not-counted": "Хараахан тоолоогүй",
   "create-segment": "Сегмент үүсгэх",
+  "empty-title": "Сегмент хараахан алга",
+  "empty-description": "Энэ төрөлд сегмент байхгүй байна. Нөхцөлөөр бичлэгүүдийг бүлэглэхийн тулд сегмент үүсгэнэ үү.",
+  "error-title": "Сегментүүдийг ачаалж чадсангүй",
+  "error-description": "Сегментүүдийг ачаалахад алдаа гарлаа. Дахин оролдоно уу.",
+  "retry": "Дахин оролдох",
   "edit": "Засах",
   "create": "Үүсгэх",
   "a-segment": "сегмент",
   "detail": {
+    "automations": "Automation",
+    "automations-title": "Орох, гарах automation",
+    "automations-hint": "Бичлэг энэ segment-д орох эсвэл гарах үед эхэлдэг automation-ууд.",
+    "automations-empty": "Энэ segment-ийг сонсож буй automation алга.",
+    "automations-create": "Automation үүсгэх",
+    "automations-unsupported": "Энэ төрлийн бичлэгт automation trigger байхгүй.",
     "add-condition": "Нөхцөл нэмэх",
     "add-group": "Бүлэг нэмэх",
     "all-conditions": "Бүх нөхцөл",
@@ -75,11 +86,14 @@
     "visibility": "Хэн харах вэ",
     "visibility-hint": "Энэ segment-ийг хэн жагсаалтаасаа олохыг заана. Тохирсон бичлэгүүдийг хэн харахыг өөрчлөхгүй.",
     "visible-to-everyone": "Байгууллагын бүх хүн",
-    "visible-to-me": "Зөвхөн би"
+    "visible-to-me": "Зөвхөн би",
+    "broadcast-create": "Шөнө бүрийн broadcast"
   },
   "filter": {
     "segments": "Сегмент",
     "search-segments": "Сегмент хайх",
+    "show-all-segments": "Бүх сегментийг харах",
+    "segment-settings": "Сегментийн тохиргоо",
     "building": "Барьж байна"
   },
   "analytics": {

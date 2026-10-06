@@ -1,3 +1,4 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { ISurveyDocument } from '@/survey/@types/survey';
 import { getSurveySteps } from '@/survey/utils';
 import { IContext } from '~/connectionResolvers';
@@ -9,6 +10,39 @@ export const Survey = {
     }
 
     return { __typename: 'User', _id: survey.createdUserId };
+  },
+
+  async createdCpUser(
+    survey: ISurveyDocument,
+    _params,
+    { subdomain }: IContext,
+  ) {
+    if (!survey.createdCpUserId) {
+      return null;
+    }
+
+    const cpUser = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: { id: survey.createdCpUserId },
+      defaultValue: null,
+    });
+
+    if (!cpUser) {
+      return null;
+    }
+
+    return {
+      _id: cpUser._id,
+      firstName: cpUser.firstName,
+      lastName: cpUser.lastName,
+      email: cpUser.email,
+      phone: cpUser.phone,
+      avatar: cpUser.avatar,
+    };
   },
 
   async channel(survey: ISurveyDocument, _params, { models }: IContext) {

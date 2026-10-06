@@ -9,6 +9,8 @@ export const types = `
         isInternal: Boolean
         statusId: String
         mailMessageId: String
+        mailDelivery: TicketNoteMailDelivery
+        unsavedAttachments: [TicketNoteUnsavedAttachment]
 
         createdAt: String
         updatedAt: String

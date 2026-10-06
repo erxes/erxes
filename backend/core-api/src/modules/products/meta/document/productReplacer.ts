@@ -2,7 +2,7 @@ import { dateToShortStr, getEnv } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
 import { IModels } from '~/connectionResolvers';
 import { generateBarcodeSvg } from '~/modules/documents/barcode';
-import { blocksToHtml } from '~/modules/documents/blocksToHtml';
+import { blocksToHtml } from 'erxes-api-shared/core-modules';
 
 const readFileUrl = (key: string, subdomain: string) => {
   if (key.startsWith('http://') || key.startsWith('https://')) {

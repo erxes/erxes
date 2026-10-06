@@ -1,10 +1,22 @@
 import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { IconShieldCog } from '@tabler/icons-react';
-import { CreateApp } from './CreateApp';
+import { IconPlus, IconShieldCog } from '@tabler/icons-react';
+import { useAtom } from 'jotai';
+import { isAddingAppAtom } from '../state';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 
 export function AppsHeader() {
+  const [isAddingApp, setIsAddingApp] = useAtom(isAddingAppAtom);
+
+  useScopedHotkeys(
+    'c',
+    () => {
+      setIsAddingApp(true);
+    },
+    SettingsHotKeyScope.AppsPage,
+  );
+
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -23,7 +35,11 @@ export function AppsHeader() {
       </PageHeaderStart>
       <PageHeaderEnd>
         <Can action="appsManage">
-          <CreateApp />
+          <Button disabled={isAddingApp} onClick={() => setIsAddingApp(true)}>
+            <IconPlus />
+            Create App
+            <Kbd>C</Kbd>
+          </Button>
         </Can>
       </PageHeaderEnd>
     </PageHeader>

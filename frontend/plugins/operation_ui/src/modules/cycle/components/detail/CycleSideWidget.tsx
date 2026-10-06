@@ -13,6 +13,7 @@ import { CycleProgressChart } from '@/cycle/components/detail/CycleProgressChart
 import { CycleProgress } from '@/cycle/components/detail/CycleProgress';
 import { CycleProgressByMember } from '@/cycle/components/detail/CycleProgressByMember';
 import { CycleProgressByProject } from '@/cycle/components/detail/CycleProgressByProject';
+
 import { useState } from 'react';
 import { useGetCycle } from '@/cycle/hooks/useGetCycle';
 
@@ -25,7 +26,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
   const { t } = useTranslation('operation');
   const { cycleDetail, loading } = useGetCycle(cycleId);
 
-  const statistics = cycleDetail?.statistics || {};
+  const statistics = cycleDetail?.statistics ?? undefined;
   const isCompleted = cycleDetail?.isCompleted || false;
 
   if (loading) {

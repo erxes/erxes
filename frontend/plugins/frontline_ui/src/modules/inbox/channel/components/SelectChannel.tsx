@@ -94,8 +94,10 @@ const SelectChannelsValue = ({ placeholder }: { placeholder?: string }) => {
 
 export const SelectChannelsContent = ({
   myChannelsOnly = false,
+  excludeChannelIds,
 }: {
   myChannelsOnly?: boolean;
+  excludeChannelIds?: string[];
 }) => {
   const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
@@ -111,7 +113,13 @@ export const SelectChannelsContent = ({
     skip: !myChannelsOnly,
   });
 
-  const channelsData = myChannelsOnly ? myChannels : allChannels;
+  const excluded = excludeChannelIds || [];
+  const channelsData = (myChannelsOnly ? myChannels : allChannels)?.filter(
+    (channel: IChannel) => !excluded.includes(channel._id),
+  );
+  const selectedChannels = channels.filter(
+    (channel) => !excluded.includes(channel._id),
+  );
 
   const channelsTotalCount = channelsData?.length || 0;
 
@@ -125,9 +133,9 @@ export const SelectChannelsContent = ({
         onValueChange={setSearch}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
-        {channels.length > 0 && (
+        {selectedChannels.length > 0 && (
           <>
-            {channels.map((channel) => (
+            {selectedChannels.map((channel) => (
               <Command.Item
                 key={channel._id}
                 value={channel._id}
@@ -145,7 +153,7 @@ export const SelectChannelsContent = ({
             {channelsData
               .filter(
                 (channel: IChannel) =>
-                  !channels.some((c) => c._id === channel._id),
+                  !selectedChannels.some((c) => c._id === channel._id),
               )
               .map((channel: IChannel) => (
                 <Command.Item

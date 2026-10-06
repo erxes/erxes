@@ -106,20 +106,23 @@ override the build argument and bake that machine's app token into the image.
 
 ## Routes
 
-| Route                              | Source                                                                             |
-| ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `/`                                | Support portal landing — ticket actions, announcements and knowledge base sections |
-| `/knowledge-base`                  | `cpKnowledgeBaseTopicDetail` — full category browse                                |
-| `/search?q=`                       | Knowledge base articles + CMS announcements, labelled by type                      |
-| `/knowledge-base/category/[id]`    | category header, sidebar and article list                                          |
-| `/knowledge-base/article/[id]`     | article body, author, related articles                                             |
-| `/tickets`                         | portal home + `cpGetTickets` for the signed-in portal user                         |
-| `/tickets/new`                     | `cpCreateTicket`                                                                   |
-| `/tickets/track`                   | `cpGetTickets` by ticket number                                                    |
-| `/tickets/[id]`                    | `cpGetTicket` + `cpTicketGetNotes` / `cpTicketCreateNote`                          |
-| `/announcements`                   | `cpPostList` (CMS)                                                                 |
-| `/announcements/[slug]`            | `cpPost` (CMS)                                                                     |
-| `/account`, `/sign-in`, `/sign-up` | session surfaces                                                                   |
+| Route                           | Source                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
+| `/`                             | Support portal landing — hero search, knowledge base, forms, announcements and tickets |
+| `/knowledge-base`               | `cpKnowledgeBaseTopicDetail` — full category browse                                    |
+| `/search?q=`                    | Knowledge base articles + CMS announcements, labelled by type                          |
+| `/knowledge-base/category/[id]` | category header, sidebar and article list                                              |
+| `/knowledge-base/article/[id]`  | article body, author, related articles                                                 |
+| `/tickets`                      | portal home + `cpGetTickets` for the signed-in portal user                             |
+| `/tickets/new`                  | `cpCreateTicket`                                                                       |
+| `/tickets/track`                | `cpGetTickets` by ticket number                                                        |
+| `/tickets/[id]`                 | `cpGetTicket` + `cpTicketGetNotes` / `cpTicketCreateNote`                              |
+| `/announcements`                | `cpPostList` (CMS)                                                                     |
+| `/announcements/[slug]`         | `cpPost` (CMS)                                                                         |
+| `/account`                      | `clientPortalCurrentUser` + `clientPortalUserEdit` — editable profile and avatar       |
+| `/account/notifications`        | `clientPortalNotifications` + mark-as-read — ticket, announcement and portal alerts    |
+| `/account/settings`             | `clientPortalUserChangePassword` — password and sign-in details                        |
+| `/sign-in`, `/sign-up`          | session surfaces                                                                       |
 
 ## Structure
 
@@ -133,9 +136,17 @@ modules/
   cms/                   CMS queries for announcements and portal copy
   knowledge-base/        queries, normalization, selectors, components
   layout/                header, footer, hero, search bar, portal identity
+  notifications/         portal notification bell, feed and content links
   tickets/               ticket queries/mutations and components
   ui/                    Button, Card, Badge, Field, Avatar, Icon, EmptyState…
 ```
+
+The sidebar is section-scoped. `SiteShell` builds one `NavGroup` per browsable
+part of the portal (knowledge base, forms, announcements, tickets) with that
+section's own contents, and `AppNav` shows the group whose href prefixes the
+current path — so a knowledge base page lists categories only, an announcements
+page lists posts only. "All sections" steps back to the portal-wide list, and
+any navigation returns the sidebar to the page it is on.
 
 ## Data flow
 
@@ -164,3 +175,9 @@ would prerender the content once at build time.
 Colors, fonts and article typography are defined once in `app/globals.css`
 (`@theme`). Components use the token utilities (`bg-hero`, `text-ink`,
 `border-line`, `text-muted`, `bg-brand-soft`) rather than raw hex values.
+
+Motion lives in the same place: the `--animate-*` tokens (`animate-aurora`,
+`animate-aurora-slow`, `animate-blink`) drive the drifting hero glows and the
+eyebrow dot, while `.tile` gives every card its hover hairline and the glow
+that follows the pointer. Scroll-triggered entrances come from `Reveal` /
+`CardReveal`, and all of it is switched off under `prefers-reduced-motion`.

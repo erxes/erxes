@@ -10,12 +10,20 @@ export interface ISurveyOption {
   ticketId?: string;
 }
 
+export interface ISurveyAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
 export interface ISurveyStep {
   _id: string;
   name?: string;
   description?: string;
   order: number;
   question: string;
+  attachments?: ISurveyAttachment[];
   options: ISurveyOption[];
   allowMultiselect?: boolean;
 }
@@ -50,6 +58,15 @@ export interface ISurveyCreatedUser {
   };
 }
 
+export interface ISurveyCpRequester {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+}
+
 export interface ISurvey {
   _id: string;
   title: string;
@@ -62,10 +79,13 @@ export interface ISurvey {
   allowMultiselect?: boolean;
   durationHours?: number | null;
   status: string;
+  rejectionReason?: string;
   sentCount?: number;
   createdAt?: string;
   createdUserId?: string;
   createdUser?: ISurveyCreatedUser;
+  createdCpUserId?: string;
+  createdCpUser?: ISurveyCpRequester;
   results?: ISurveyResults;
 }
 
@@ -74,9 +94,22 @@ export enum SurveysPageHotKeyScope {
 }
 
 export const SURVEY_STATUS = {
+  PENDING: 'pending',
   ACTIVE: 'active',
+  REJECTED: 'rejected',
   ARCHIVED: 'archived',
 } as const;
+
+export const SURVEY_STATUSES = [
+  SURVEY_STATUS.PENDING,
+  SURVEY_STATUS.ACTIVE,
+  SURVEY_STATUS.REJECTED,
+  SURVEY_STATUS.ARCHIVED,
+];
+
+export const MAX_REJECTION_REASON_LENGTH = 500;
+
+export const MAX_SURVEY_ATTACHMENTS = 5;
 
 export const MAX_SURVEY_OPTIONS = 10;
 

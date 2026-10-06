@@ -23,21 +23,6 @@ export const teamQueries = {
     return models.Team.getTeam(_id);
   },
 
-  getMyTeams: async (
-    _parent: undefined,
-    _params: undefined,
-    { models, user, checkPermission }: IContext,
-  ) => {
-    await checkPermission('teamRead');
-
-    const userId = user._id;
-    const teamIds = await models.TeamMember.find({ memberId: userId }).distinct(
-      'teamId',
-    );
-
-    return models.Team.find({ _id: { $in: teamIds } });
-  },
-
   getTeams: async (
     _parent: undefined,
     params: ITeamFilter,
@@ -86,12 +71,16 @@ export const teamQueries = {
 
   getTeamMembers: async (
     _parent: undefined,
-    { teamId, teamIds }: { teamId: string; teamIds: string[] },
+    { teamId, teamIds }: { teamId?: string; teamIds?: string[] },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('teamRead');
 
-    const filter: any = {};
+    if (!teamId && !teamIds?.length) {
+      throw new Error('Either teamId or teamIds is required');
+    }
+
+    const filter: { teamId?: { $in: Types.ObjectId[] } } = {};
 
     if (teamIds?.length) {
       filter.teamId = { $in: teamIds.map((id) => new Types.ObjectId(id)) };
@@ -113,6 +102,10 @@ export const teamQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('teamRead');
+
+    if (!teamId) {
+      throw new Error('teamId is required');
+    }
 
     const team = await models.Team.getTeam(teamId);
 

@@ -182,6 +182,19 @@ export const transactionTaxSchema = z.object({
 // #endregion Single trs
 
 // #region Inventories
+const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
+  z.object({
+    hasSplit: z.literal(false),
+    productId: undefed(z.string()),
+    ratio: undefed(z.number()),
+  }),
+  z.object({
+    hasSplit: z.literal(true),
+    productId: z.string().min(1, 'Задрах бараа сонгоно уу'),
+    ratio: z.number().gt(0, 'Задрах харьцаа 0-ээс их байна'),
+  }),
+]);
+
 export const invDetailSchema = z
   .object({
     ...baseTrDetailSchema.shape,
@@ -192,6 +205,13 @@ export const invDetailSchema = z
       .refine((val) => val?.length, { message: 'Must fill product' }),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
+    followInfos: undefed(
+      z.object({
+        invSplit: undefed(invSplitInfoSchema),
+        moveInBranchId: undefed(z.string()),
+        moveInDepartmentId: undefed(z.string()),
+      }),
+    ),
   });
 
 export const transactionInvIncomeSchema = z
@@ -244,6 +264,27 @@ export const transactionInvOutSchema = z
     ),
   });
 // #endregion invOut
+// #region invJustify
+const invJustifyDetailSchema = invDetailSchema.extend({
+  count: z.number().min(0).max(0),
+});
+
+export const transactionInvJustifySchema = z
+  .object({
+    journal: z.literal(TrJournalEnum.INV_JUSTIFY),
+    ...baseTransactionSchema.shape,
+  })
+  .extend({
+    customerId: undefed(z.string()),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
+    details: z.array(
+      z.object({
+        ...invJustifyDetailSchema.shape,
+      }),
+    ),
+  });
+// #endregion invJustify
 // #region invMove
 export const transactionInvMoveSchema = z
   .object({
@@ -532,6 +573,7 @@ export const trDocSchema = z
 
     transactionInvIncomeSchema,
     transactionInvOutSchema,
+    transactionInvJustifySchema,
     transactionInvMoveSchema,
     transactionInvSaleSchema,
     transactionInvSaleReturnSchema,

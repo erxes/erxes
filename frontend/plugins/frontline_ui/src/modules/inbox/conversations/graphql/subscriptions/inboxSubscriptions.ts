@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
-import messageFields from '@/inbox/conversations/graphql/subscriptions/messageFields';
+import messageFields, {
+  STRUCTURED_MESSAGE_FIELDS,
+} from '@/inbox/conversations/graphql/subscriptions/messageFields';
 
 export const conversationChanged = gql`
   subscription conversationChanged($_id: String!) {
@@ -29,6 +31,7 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
   subscription FrontlineConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
+      ${STRUCTURED_MESSAGE_FIELDS}
       conversationId
       content
       formWidgetData
@@ -43,7 +46,6 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       botData
       source
       relatedMessage
-      mid
       fromBot
     }
   }

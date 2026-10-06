@@ -44,6 +44,10 @@ export const safeRemainderFields = `
   outTrId
   saleRule
   saleTrId
+  costIncreaseRule
+  costDecreaseRule
+  costIncreaseTrId
+  costDecreaseTrId
 `;
 
 export const safeRemainderItemFields = `
@@ -55,7 +59,10 @@ export const safeRemainderItemFields = `
   count
   status
   remainderId
+  createdAt
+  createdBy
   modifiedAt
+  modifiedBy
   order
 
   product {

@@ -1,6 +1,7 @@
-import { DateRange } from 'react-day-picker';
+import { DateRange, Matcher } from 'react-day-picker';
 import { Calendar, CalendarProps } from './calendar';
 
+import { Button } from './button';
 import { Combobox } from './combobox';
 import { Popover } from './popover';
 import React from 'react';
@@ -12,24 +13,51 @@ export type DatePickerProps = {
   onChange: (date: Date | Date[] | DateRange | undefined) => void;
   placeholder?: string;
   withPresent?: boolean;
+  minDate?: Date;
+  maxDate?: Date;
   mode?: 'single' | 'multiple' | 'range';
   format?: string;
+  formatMultiple?: (count: number) => string;
   variant?: 'outline' | 'default' | 'ghost';
+  allowNull?: boolean;
+  clearLabel?: string;
+  calendarClassName?: string;
+  popoverContentProps?: React.ComponentPropsWithoutRef<typeof Popover.Content>;
 } & Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'>;
+
+const defaultFormatMultiple = (count: number) =>
+  `${count} ${count > 1 ? 'Days' : 'Day'}`;
 
 export const DatePicker = ({
   value,
   onChange,
   placeholder = 'Pick a date',
   withPresent = false,
+  minDate,
+  maxDate,
   disabled,
   className,
   mode = 'single',
   format = 'MMM DD, YYYY',
+  formatMultiple = defaultFormatMultiple,
   variant = 'outline',
+  allowNull = false,
+  clearLabel = 'Clear',
+  calendarClassName,
+  popoverContentProps,
   ...props
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  
+  const minBound = minDate ?? (withPresent ? new Date('1900-01-01') : undefined);
+  const maxBound = maxDate ?? (withPresent ? new Date() : undefined);
+  
+  const calendarDisabled: Matcher[] = [
+    ...(disabled === undefined ? [] : [disabled].flat()),
+    ...(minBound ? [{ before: minBound }] : []),
+    ...(maxBound ? [{ after: maxBound }] : []),
+  ];
+
   const renderButtonContent = () => {
     if (value) {
       if (mode === 'single') {
@@ -40,7 +68,7 @@ export const DatePicker = ({
         const selectedDays = value?.length;
 
         if (selectedDays) {
-          return `${selectedDays} ${selectedDays > 1 ? 'Days' : 'Day'}`;
+          return formatMultiple(selectedDays);
         }
       }
 
@@ -78,11 +106,15 @@ export const DatePicker = ({
       }
     }
 
-    onChange && onChange(selectedDate);
     if (mode === 'single') {
       setIsOpen(false);
     }
     onChange?.(selectedDate);
+  };
+
+  const handleClear = () => {
+    onChange(undefined);
+    setIsOpen(false);
   };
 
   return (
@@ -90,41 +122,42 @@ export const DatePicker = ({
       <Popover.Trigger asChild={true}>
         <Combobox.Trigger
           variant={variant}
-          disabled={typeof disabled === 'boolean' ? disabled : false}
+          disabled={disabled === true}
           className={cn(
             !value && 'text-accent-foreground',
-            typeof disabled === 'boolean' &&
-              disabled &&
-              'cursor-not-allowed opacity-50',
+            disabled === true && 'cursor-not-allowed opacity-50',
             className,
           )}
         >
           {renderButtonContent()}
         </Combobox.Trigger>
       </Popover.Trigger>
-      <Popover.Content className="w-auto p-0" align="start">
+      <Popover.Content
+        align="start"
+        {...popoverContentProps}
+        className={cn('w-auto p-0', popoverContentProps?.className)}
+      >
         <Calendar
           {...props}
-          disabled={(date: Date) =>
-            withPresent
-              ? date > new Date() || date < new Date('1900-01-01')
-              : Boolean(disabled)
-          }
-          mode={mode as any}
-          disabled={(date: Date) => {
-            if (withPresent) {
-              return date > new Date() || date < new Date('1900-01-01');
-            }
-            if (typeof disabled === 'function') {
-              return disabled(date);
-            }
-            return Boolean(disabled);
-          }}
+          disabled={calendarDisabled}
           mode={mode}
           selected={value as any}
           onSelect={handleDateChange as any}
-          className="text-foreground"
+          className={cn('text-foreground', calendarClassName)}
         />
+        {allowNull && value && (
+          <div className="border-t p-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+              onClick={handleClear}
+            >
+              {clearLabel}
+            </Button>
+          </div>
+        )}
       </Popover.Content>
     </Popover>
   );

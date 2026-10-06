@@ -35,6 +35,21 @@ export const triageMutations = {
     return models.Triage.updateTriage(_id, input);
   },
 
+  operationCancelTriage: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('triageUpdate');
+
+    const triage = await models.Triage.getTriage(_id);
+    if (!triage) {
+      throw new Error('Triage not found');
+    }
+
+    return models.Triage.updateTriage(_id, { status: STATUS_TYPES.CANCELLED });
+  },
+
   operationConvertTriageToTask: async (
     _parent: undefined,
     { _id, status, reason }: { _id: string; status?: number; reason?: string },
@@ -69,6 +84,7 @@ export const triageMutations = {
         priority: triage.priority || 0,
         status: statusId,
         triageId: _id,
+        createdBy: triage.createdBy,
         githubIssueNumber: triage.githubIssueNumber,
         githubIssueUrl: triage.githubIssueUrl,
         githubRepoName: triage.githubRepoName,
@@ -88,7 +104,18 @@ export const triageMutations = {
           subdomain,
         });
       }
-
+      if (status !== STATUS_TYPES.CANCELLED) {
+        await models.Activity.createActivity({
+          action: 'ACCEPTED',
+          contentId: task._id,
+          module: 'TRIAGE_ACCEPTANCE',
+          metadata: {
+            newValue: task._id.toString(),
+            previousValue: triage._id?.toString(),
+          },
+          createdBy: user._id,
+        });
+      }
       await models.Triage.deleteTriage(_id);
       return task;
     } else {

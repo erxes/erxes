@@ -1,3 +1,4 @@
+/* eslint-disable */
 const esmDependencies =
   'string-strip-html|codsen-utils|lodash-es|ranges-apply|ranges-merge|ranges-push|ranges-sort|string-collapse-leading-whitespace|string-trim-spaces-only|string-left-right';
 
@@ -8,20 +9,23 @@ export default {
   transform: {
     '^.+\\.[tj]s$': [
       'ts-jest',
-      { tsconfig: '<rootDir>/tsconfig.spec.json', diagnostics: false },
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        diagnostics: false,
+      },
     ],
   },
-  // The reply adapter uses string-strip-html and its ESM-only dependencies.
-  transformIgnorePatterns: [
-    `node_modules/(?!\\.pnpm/|(?:${esmDependencies})/)`,
-    `node_modules/\\.pnpm/(?!(?:${esmDependencies})@)`,
-  ],
-  moduleFileExtensions: ['ts', 'js'],
+  moduleFileExtensions: ['ts', 'js', 'html'],
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
     '^@/(.*)$': '<rootDir>/src/modules/$1',
     '^erxes-api-shared/(.*)$': '<rootDir>/../../erxes-api-shared/src/$1',
   },
-  testMatch: ['<rootDir>/src/**/__tests__/*.spec.ts'],
+  testMatch: ['<rootDir>/src/**/*.test.ts', '<rootDir>/src/**/*.spec.ts'],
+  transformIgnorePatterns: [
+    `node_modules/(?!\\.pnpm/|(?:${esmDependencies})/)`,
+    `node_modules/\\.pnpm/(?!(?:${esmDependencies})@)`,
+  ],
+  forceExit: true,
   coverageDirectory: '../../../coverage/backend/plugins/frontline_api',
 };

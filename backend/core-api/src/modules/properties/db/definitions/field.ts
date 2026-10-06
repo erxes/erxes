@@ -1,4 +1,7 @@
-import { logicSchema } from '@/properties/db/definitions/common';
+import {
+  featuredOwnerSchema,
+  logicSchema,
+} from '@/properties/db/definitions/common';
 import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
@@ -6,6 +9,7 @@ const fieldOptionSchema = new Schema(
   {
     label: { type: String, required: true },
     value: { type: String, required: true },
+    deprecated: { type: Boolean },
     coordinates: {
       lat: Number,
       lng: Number,
@@ -56,9 +60,34 @@ export const fieldSchema = schemaWrapper(
         default: false,
       },
 
+      owner: { type: featuredOwnerSchema, label: 'Featured field owner' },
+
+      // Archived fields are hidden everywhere; their values stay on records.
+      archivedAt: { type: Date, label: 'Archived at' },
+      archivedBy: { type: String, label: 'Archived by' },
+      // Archived along with its group, so restoring the group brings it back.
+      archivedWithGroup: { type: Boolean, label: 'Archived with group' },
+      index: {
+        type: new Schema(
+          {
+            enabled: { type: Boolean },
+            unique: { type: Boolean },
+            status: { type: String, enum: ['building', 'ready', 'failed'] },
+          },
+          { _id: false },
+        ),
+        label: 'Featured field index',
+      },
+
       createdBy: { type: String, label: 'Created By' },
       updatedBy: { type: String, label: 'Updated By' },
     },
     { timestamps: true },
   ),
+);
+
+// Makes ensure idempotent: one field per owner and key.
+fieldSchema.index(
+  { 'owner.plugin': 1, 'owner.module': 1, 'owner.refId': 1, 'owner.key': 1 },
+  { unique: true, partialFilterExpression: { owner: { $exists: true } } },
 );

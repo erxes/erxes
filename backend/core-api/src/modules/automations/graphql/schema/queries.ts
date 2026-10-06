@@ -18,6 +18,7 @@ const queryParams = `
   updatedAtTo: Date
   triggerTypes: [String]
   actionTypes: [String]
+  triggerSegmentId: String
 `;
 
 const historiesParams = `
@@ -39,14 +40,6 @@ const historiesParams = `
   waitingActionIds: [String]
 `;
 
-const emailTemplateParams = `
-  page: Int
-  perPage: Int
-  searchValue: String
-  sortField: String
-  sortDirection: Int
-`;
-
 const listParams = `
   ${queryParams}
   ${GQL_CURSOR_PARAM_DEFS}
@@ -57,7 +50,6 @@ const queries = `
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   cpAutomationDetail(_id: String!): Automation
-  automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
   automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats
@@ -75,8 +67,6 @@ const queries = `
   automationsAiAgentKnowledgeSourceStatuses(agentId: String!): JSON
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory
-  automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse
-  automationEmailTemplateDetail(_id: String!): AutomationEmailTemplate
   automationWorkflowTemplates(searchValue: String): [AutomationWorkflowTemplate]
 `;
 

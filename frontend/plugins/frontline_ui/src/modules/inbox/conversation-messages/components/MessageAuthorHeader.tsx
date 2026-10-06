@@ -1,0 +1,34 @@
+import { IconSparkles } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { CustomersInline } from 'ui-modules';
+
+export const MessageAuthorHeader = ({
+  customerId,
+  authorName,
+  showBotName,
+}: {
+  customerId?: string;
+  authorName?: string;
+  showBotName: boolean;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <>
+      {(authorName || customerId) && (
+        <div className="pl-11 pt-4 pb-0.5 text-xs font-medium text-muted-foreground">
+          {authorName ||
+            (customerId && (
+              <CustomersInline customerIds={[customerId]} hideAvatar />
+            ))}
+        </div>
+      )}
+      {showBotName && (
+        <div className="pl-11 pt-4 pb-0.5 flex items-center gap-1 text-xs font-medium text-primary">
+          <IconSparkles className="size-3.5" />
+          {t('ai-agent', 'AI Agent')}
+        </div>
+      )}
+    </>
+  );
+};

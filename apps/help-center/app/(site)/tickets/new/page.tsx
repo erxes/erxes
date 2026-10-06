@@ -1,58 +1,74 @@
 import { RequireSession } from '@/modules/auth/components/RequireSession';
-import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
-import { Hero } from '@/modules/layout/components/Hero';
+import { getTopicArticleList } from '@/modules/knowledge-base/api';
+import {
+  articleEntries,
+  sortByReadership,
+} from '@/modules/knowledge-base/utils/selectors';
+import { getT } from '@/modules/i18n/server';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
+import { getPortalSettings } from '@/modules/layout/api';
+import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { TicketForm } from '@/modules/tickets/components/TicketForm';
 import {
-  NEW_TICKET_REASON,
-  TICKETS_OFF_REASON,
-  TICKETS_OFF_TITLE,
-} from '@/modules/tickets/constants/guard';
-import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
-import { Container } from '@/modules/ui/components/Container';
+  TicketHelpAside,
+  type TicketSuggestion,
+} from '@/modules/tickets/components/TicketHelpAside';
+import { ticketsOffReason } from '@/modules/tickets/constants/guard';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 
-export const metadata = { title: 'Submit a ticket' };
+const SUGGESTION_COUNT = 4;
+
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.submit'),
+});
 
 export default async function NewTicketPage() {
-  const [{ headline }, settings] = await Promise.all([
-    getPortalIdentity(),
+  const [settings, topic, t] = await Promise.all([
     getPortalSettings(),
+    getTopicArticleList(),
+    getT(),
   ]);
 
-  return (
-    <>
-      <Hero headline={headline} />
+  const crumbs = [
+    { label: t('nav.home'), href: '/' },
+    { label: t('tickets.crumb'), href: '/tickets' },
+    { label: t('tickets.submit') },
+  ];
 
-      <Container column="text" className="py-10 lg:py-14">
-        <Breadcrumbs
-          items={[
-            { label: 'Knowledge base', href: '/' },
-            { label: 'Support', href: '/tickets' },
-            { label: 'Submit a ticket' },
-          ]}
-        />
+  const suggestions: TicketSuggestion[] =
+    topic.state === 'ready' && topic.data.knowledgeBaseEnabled
+      ? sortByReadership(articleEntries(topic.data))
+          .slice(0, SUGGESTION_COUNT)
+          .map(({ article }) => ({ _id: article._id, title: article.title }))
+      : [];
 
-        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
-          Submit a ticket
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Once you submit the form you get a ticket number, and you can track
-          its progress here.
-        </p>
-
-        <div className="mt-7">
-          {settings.ticketsEnabled ? (
-            <RequireSession reason={NEW_TICKET_REASON}>
-              <TicketForm target={settings.ticketTarget} />
-            </RequireSession>
-          ) : (
-            <FeatureOff
-              title={TICKETS_OFF_TITLE}
-              description={TICKETS_OFF_REASON}
-            />
+  if (!settings.ticketsEnabled) {
+    return (
+      <PortalShell breadcrumbs={crumbs} title={t('tickets.submit')}>
+        <FeatureOff
+          title={t('tickets.offTitle')}
+          description={ticketsOffReason(
+            knowledgeBaseName(settings.knowledgeBaseLabel, t),
+            t,
           )}
-        </div>
-      </Container>
-    </>
+        />
+      </PortalShell>
+    );
+  }
+
+  return (
+    <PortalShell
+      breadcrumbs={crumbs}
+      title={t('tickets.submit')}
+      description={t('tickets.newText')}
+    >
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
+        <RequireSession reason={t('tickets.signInReason')}>
+          <TicketForm target={settings.ticketTarget} />
+        </RequireSession>
+
+        <TicketHelpAside suggestions={suggestions} />
+      </div>
+    </PortalShell>
   );
 }

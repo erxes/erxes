@@ -1,3 +1,4 @@
+import { isSegmentMembershipTrigger } from 'erxes-api-shared/core-modules';
 import { IModels } from '../connectionResolver';
 import { calculateExecution } from './calculateExecutions';
 import { executeActions } from './executeActions';
@@ -41,6 +42,8 @@ export const receiveTrigger = async ({
   // recordType check will be done in the loop for non-custom triggers only
   const automations = await models.Automations.find({
     status: 'active',
+    // Owned automations are started by their owner, never by an event.
+    ownedBy: { $exists: false },
     ...(excludeAutomationIds.length
       ? { _id: { $nin: excludeAutomationIds } }
       : {}),
@@ -53,6 +56,7 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
+
   if (!automations.length) {
     return;
   }
@@ -64,7 +68,12 @@ export const receiveTrigger = async ({
 
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
-        if (!matchesTriggerType(trigger.type, type)) {
+        // Started by the segment worker when a record crosses, not by the
+        // record's own events.
+        if (
+          !matchesTriggerType(trigger.type, type) ||
+          isSegmentMembershipTrigger(trigger)
+        ) {
           continue;
         }
 
@@ -82,7 +91,7 @@ export const receiveTrigger = async ({
         const execution = await calculateExecution({
           models,
           subdomain,
-          automationId: automation._id,
+          automation,
           trigger,
           target,
           eventUpdateDescription,

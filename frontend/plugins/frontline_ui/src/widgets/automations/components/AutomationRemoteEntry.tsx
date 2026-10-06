@@ -43,6 +43,12 @@ const DiscordRemoteEntry = lazy(() =>
   })),
 );
 
+const MailRemoteEntry = lazy(() =>
+  import('../modules/mail/components/MailRemoteEntry').then((module) => ({
+    default: module.MailRemoteEntry,
+  })),
+);
+
 const KnowledgebaseRemoteEntry = lazy(() =>
   import('../modules/knowledgebase/components/KnowledgebaseRemoteEntry').then(
     (module) => ({
@@ -60,6 +66,7 @@ const Remotes: Record<
   tickets: TicketRemoteEntry,
   inbox: InboxRemoteEntry,
   discord: DiscordRemoteEntry,
+  mail: MailRemoteEntry,
   knowledgebase: KnowledgebaseRemoteEntry,
 };
 

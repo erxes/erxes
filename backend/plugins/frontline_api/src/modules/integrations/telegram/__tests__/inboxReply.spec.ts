@@ -1,13 +1,25 @@
 import type { IContext } from '~/connectionResolvers';
 import { conversationMutations } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { handleTelegramIntegration } from '../messageBroker';
+import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
+import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
+import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 
-jest.mock('@/integrations/facebook/messageBroker', () => ({}));
+jest.mock('@/integrations/facebook/messageBroker', () => ({
+  handleFacebookIntegration: jest.fn(),
+}));
 jest.mock('@/integrations/facebook/utils', () => ({}));
-jest.mock('@/integrations/instagram/messageBroker', () => ({}));
-jest.mock('@/integrations/discord/messageBroker', () => ({}));
+jest.mock('@/integrations/instagram/messageBroker', () => ({
+  handleInstagramIntegration: jest.fn(),
+}));
+jest.mock('@/integrations/discord/messageBroker', () => ({
+  handleDiscordIntegration: jest.fn(),
+}));
+jest.mock('@/inbox/services/conversationReaction', () => ({
+  reactToConversationMessage: jest.fn(),
+}));
 jest.mock('../messageBroker', () => ({ handleTelegramIntegration: jest.fn() }));
 jest.mock('@/inbox/graphql/resolvers/mutations/widget', () => ({
   pConversationClientMessageInserted: jest.fn(),
@@ -45,6 +57,7 @@ const context = {
     Conversations: {
       getConversation,
       updateConversation: jest.fn(),
+      setAutomatedReplyControl: jest.fn(),
     },
     Integrations: { getIntegration },
     ConversationMessages: {
@@ -56,6 +69,7 @@ const context = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(sendTRPCMessage).mockResolvedValue(null);
   getConversation.mockResolvedValue(conversation);
   getIntegration.mockResolvedValue({
     _id: conversation.integrationId,
@@ -74,6 +88,131 @@ beforeEach(() => {
       },
     },
   });
+});
+
+test.each([
+  ['facebook', handleFacebookIntegration],
+  ['instagram', handleInstagramIntegration],
+  ['discord', handleDiscordIntegration],
+] as const)(
+  'preserves %s dispatch, rich history, subscriptions and operator handoff',
+  async (service, handler) => {
+    getConversation.mockResolvedValue({
+      ...conversation,
+      customerId: 'customer',
+      automatedReplyControl: { status: 'active' },
+    });
+    getIntegration.mockResolvedValue({
+      _id: conversation.integrationId,
+      kind: `${service}-messenger`,
+    });
+    jest.mocked(sendTRPCMessage).mockResolvedValue({ _id: 'customer' });
+    jest.mocked(handler).mockResolvedValue({
+      status: 'success',
+      data: {
+        status: 'success',
+        data: {
+          conversationId: conversation._id,
+          content: 'Plain preview',
+          displayContent: '<p>Rich reply</p>',
+          extraData: { providerReceipt: 'receipt' },
+        },
+      },
+    });
+    await expect(
+      conversationMutations.conversationMessageAdd(null, doc, context),
+    ).resolves.toEqual(saved);
+    expect(handler).toHaveBeenCalledWith({
+      subdomain: 'test-tenant',
+      data: expect.objectContaining({
+        type: service,
+        action: 'reply-messenger',
+      }),
+    });
+    expect(handleTelegramIntegration).not.toHaveBeenCalled();
+    expect(addMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: '<p>Rich reply</p>',
+        extraData: { providerReceipt: 'receipt' },
+      }),
+      'staff',
+    );
+    expect(
+      context.models.Conversations.updateConversation,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      context.models.Conversations.setAutomatedReplyControl,
+    ).toHaveBeenCalledWith(
+      conversation._id,
+      expect.objectContaining({
+        status: 'human_active',
+        reason: 'operator_reply',
+        updatedBy: 'staff',
+      }),
+    );
+    expect(pConversationClientMessageInserted).toHaveBeenCalledWith(
+      'test-tenant',
+      saved,
+    );
+  },
+);
+
+test('preserves Facebook partial delivery receipts and saves only accepted attachments', async () => {
+  getConversation.mockResolvedValue({
+    ...conversation,
+    customerId: 'customer',
+  });
+  getIntegration.mockResolvedValue({
+    _id: conversation.integrationId,
+    kind: 'facebook-messenger',
+  });
+  jest.mocked(sendTRPCMessage).mockResolvedValue({ _id: 'customer' });
+  const delivered = {
+    url: 'sent.png',
+    name: 'sent.png',
+    type: 'image/png',
+    size: 10,
+  };
+  const pending = { ...delivered, url: 'pending.png' };
+  const extraData = {
+    facebookDelivery: { status: 'partial', sentAttachmentUrls: ['sent.png'] },
+  };
+  jest.mocked(handleFacebookIntegration).mockResolvedValue({
+    status: 'success',
+    data: {
+      status: 'success',
+      data: {
+        conversationId: conversation._id,
+        content: 'Accepted text',
+        attachments: [delivered],
+        extraData,
+      },
+    },
+  });
+  await conversationMutations.conversationMessageAdd(
+    null,
+    { ...doc, attachments: [delivered, pending] },
+    context,
+  );
+  expect(addMessage).toHaveBeenCalledWith(
+    expect.objectContaining({
+      content: 'Accepted text',
+      attachments: [delivered],
+      extraData,
+    }),
+    'staff',
+  );
+});
+
+test('provider failure does not save a successful-looking Telegram message or publish it', async () => {
+  jest
+    .mocked(handleTelegramIntegration)
+    .mockRejectedValue(new Error('Telegram rejected reply'));
+  await expect(
+    conversationMutations.conversationMessageAdd(null, doc, context),
+  ).rejects.toThrow('Telegram rejected reply');
+  expect(addMessage).not.toHaveBeenCalled();
+  expect(pConversationClientMessageInserted).not.toHaveBeenCalled();
 });
 
 test('dispatches and publishes a Telegram chat reply without a conversation customer', async () => {

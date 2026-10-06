@@ -52,6 +52,11 @@ export const CONFIG: IUIConfig = {
       icon: IconAward,
     },
     {
+      name: 'accounts',
+      path: 'loyalty/accounts',
+      icon: IconAward,
+    },
+    {
       name: 'assignments',
       path: 'loyalty/assignments',
       icon: IconAward,

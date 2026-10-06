@@ -45,9 +45,11 @@ export const Reveal = ({
       data-reveal=""
       style={shown && delay ? { transitionDelay: `${delay}ms` } : undefined}
       className={cn(
-        'transition-[opacity,transform] duration-700 ease-out',
-        shown ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-        'motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+        'transition-[opacity,transform,filter] duration-700 ease-out-soft',
+        shown
+          ? 'translate-y-0 opacity-100 blur-none'
+          : 'translate-y-4 opacity-0 blur-[3px]',
+        'motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:blur-none motion-reduce:transition-none',
         className,
       )}
     >

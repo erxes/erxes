@@ -12,6 +12,7 @@ import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/que
 import { mailQueries } from '@/integrations/mail/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
 import { helpCenterConfigQueries } from '@/helpcenter/graphql/resolvers/queries/helpCenterConfig';
+import { customDomainQueries } from '@/customdomain/graphql/resolvers/queries';
 import { reportCallQueries } from '@/reports/graphql/resolvers/callQueries';
 import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
 import { reportFacebookQueries } from '@/reports/graphql/resolvers/facebookQueries';
@@ -50,4 +51,5 @@ export const queries = {
   ...reportCallQueries,
   ...knowledgeBaseQueries,
   ...helpCenterConfigQueries,
+  ...customDomainQueries,
 };

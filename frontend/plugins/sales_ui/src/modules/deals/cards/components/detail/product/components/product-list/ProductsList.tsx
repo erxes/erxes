@@ -7,6 +7,7 @@ import { ProductFooter } from '../ProductFooter';
 import { ProductsListHeader } from './ProductsListHeader';
 import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import { Dialog } from 'erxes-ui';
 import {
   onLocalChangeAtom,
   productRowActionsAtom,
@@ -27,12 +28,14 @@ export const ProductsList = ({
   products,
   productsData,
   dealId,
+  pipelineId,
   refetch,
   tickUsed,
 }: {
   products: IProduct[];
   productsData: IProductData[];
   dealId: string;
+  pipelineId?: string;
   refetch: () => void;
   tickUsed: boolean;
 }) => {
@@ -69,6 +72,7 @@ export const ProductsList = ({
   });
   const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [showTaxView, setShowTaxView] = useState(false);
+  const [showExpandedView, setShowExpandedView] = useState(false);
   const [editingProduct, setEditingProduct] = useState<IProductData | null>(
     null,
   );
@@ -230,8 +234,8 @@ export const ProductsList = ({
     Array.isArray(value) ? value.length > 0 : Boolean(value),
   );
 
-  return (
-    <div className="flex h-full min-h-0 flex-col">
+  const productWorkspace = (
+    <>
       <ProductsListHeader
         filters={filters}
         onFiltersChange={setFilters}
@@ -244,6 +248,8 @@ export const ProductsList = ({
         onShowAdvancedViewChange={setShowAdvancedView}
         showTaxView={showTaxView}
         onShowTaxViewChange={setShowTaxView}
+        showExpandedView={showExpandedView}
+        onShowExpandedViewChange={setShowExpandedView}
       />
 
       <div className="min-h-0 flex-1 py-4">
@@ -256,16 +262,6 @@ export const ProductsList = ({
         />
       </div>
 
-      <ProductEditSheet
-        productData={editingProduct}
-        open={Boolean(editingProduct)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingProduct(null);
-          }
-        }}
-      />
-
       <ProductFooter
         productsCount={localProductsData.length}
         total={total}
@@ -276,10 +272,41 @@ export const ProductsList = ({
         showAdvancedView={showAdvancedView}
         showTaxView={showTaxView}
         productsData={localProductsData}
+        pipelineId={pipelineId}
         onChangeProductsData={setLocalProductsData}
         updateTotal={updateTotal}
         onAddProducts={addProducts}
         onSave={handleSave}
+      />
+    </>
+  );
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      {showExpandedView ? (
+        <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
+          <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
+            <Dialog.Header className="sr-only">
+              <Dialog.Title>Products</Dialog.Title>
+              <Dialog.Description>
+                Expanded product management view
+              </Dialog.Description>
+            </Dialog.Header>
+            {productWorkspace}
+          </Dialog.Content>
+        </Dialog>
+      ) : (
+        productWorkspace
+      )}
+
+      <ProductEditSheet
+        productData={editingProduct}
+        open={Boolean(editingProduct)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingProduct(null);
+          }
+        }}
       />
     </div>
   );

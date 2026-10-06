@@ -59,6 +59,7 @@ export const GET_TICKET_LIST = gql`
       list {
         _id
         name
+        number
         statusId
         status {
           _id
@@ -74,6 +75,11 @@ export const GET_TICKET_LIST = gql`
         startDate
         tagIds
         pipelineId
+        channelId
+        branchId
+        departmentId
+        createdBy
+        propertiesData
       }
       page
       totalCount
@@ -129,6 +135,13 @@ export const GET_TICKET_EXPORT = gql`
       startDate
       targetDate
       updatedAt
+      number
+      statusName
+      createdByName
+      channelName
+      branchName
+      departmentName
+      propertiesData
     }
   }
 `;

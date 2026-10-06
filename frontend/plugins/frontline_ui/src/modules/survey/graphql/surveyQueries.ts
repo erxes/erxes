@@ -26,6 +26,12 @@ const SURVEY_FIELDS = gql`
       order
       question
       allowMultiselect
+      attachments {
+        url
+        name
+        type
+        size
+      }
       options {
         _id
         text
@@ -41,6 +47,7 @@ const SURVEY_FIELDS = gql`
     allowMultiselect
     durationHours
     status
+    rejectionReason
     sentCount
     createdAt
     createdUserId
@@ -50,6 +57,14 @@ const SURVEY_FIELDS = gql`
         fullName
         avatar
       }
+    }
+    createdCpUserId
+    createdCpUser {
+      _id
+      firstName
+      lastName
+      email
+      phone
     }
   }
 `;

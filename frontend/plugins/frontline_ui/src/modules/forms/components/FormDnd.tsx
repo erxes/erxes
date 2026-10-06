@@ -104,6 +104,8 @@ export function FormDnd() {
 
       const newSteps = arrayMove(steps, activeIndex, overIndex);
       setSteps(newSteps);
+      setActiveId(null);
+      return;
     }
 
     const activeContainer = findContainer(active.id);

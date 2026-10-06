@@ -14,7 +14,9 @@ export const PricingEdit = ({ id, onSaveActionChange }: PricingEditProps) => {
   const { pricingDetail, loading, error } = usePricingDetail(id);
 
   const requestedActiveTab = searchParams.get('activeTab') || 'general';
-  const shouldHideParticipants = pricingDetail?.priority === 'posBase';
+  const shouldHideParticipants =
+    pricingDetail?.priority === 'posBase' ||
+    pricingDetail?.priority === 'pipelineBase';
   const activeTab =
     shouldHideParticipants && requestedActiveTab === 'participants'
       ? 'general'
@@ -34,7 +36,8 @@ export const PricingEdit = ({ id, onSaveActionChange }: PricingEditProps) => {
     }
 
     if (
-      pricingDetail?.priority === 'posBase' &&
+      (pricingDetail?.priority === 'posBase' ||
+        pricingDetail?.priority === 'pipelineBase') &&
       activeTabParam === 'participants'
     ) {
       setSearchParams(

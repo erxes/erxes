@@ -1,6 +1,8 @@
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { ITicketDocument } from '@/ticket/@types/ticket';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import {
   IMailMessageDocument,
@@ -27,6 +29,7 @@ interface ICreateTicketFromMailInput {
   models: IModels;
   subdomain: string;
   pipelineId: string;
+  statusId?: string;
   customerId: string;
   subject?: string;
   body: string;
@@ -75,10 +78,26 @@ const toDescription = (body: string) => {
     : text;
 };
 
+const findOpeningStatus = async (
+  models: IModels,
+  pipelineId: string,
+  statusId?: string,
+) => {
+  const chosen = statusId
+    ? await models.Status.findOne({ _id: statusId, pipelineId }).lean()
+    : null;
+
+  return (
+    chosen ??
+    models.Status.findOne({ pipelineId }).sort({ type: 1, order: 1 }).lean()
+  );
+};
+
 export const createTicketFromMail = async ({
   models,
   subdomain,
   pipelineId,
+  statusId,
   customerId,
   subject,
   body,
@@ -89,9 +108,7 @@ export const createTicketFromMail = async ({
     throw new Error(`Ticket pipeline ${pipelineId} no longer exists`);
   }
 
-  const status = await models.Status.findOne({ pipelineId })
-    .sort({ order: 1 })
-    .lean();
+  const status = await findOpeningStatus(models, pipelineId, statusId);
 
   if (!status) {
     throw new Error(
@@ -131,6 +148,24 @@ export const createTicketFromMail = async ({
   await graphqlPubsub.publish('ticketListChanged', {
     ticketListChanged: { type: 'create', ticket },
   });
+
+  return ticket;
+};
+
+export const findViewableTicket = async (
+  models: IModels,
+  user: IUserDocument,
+  ticketId: string,
+): Promise<ITicketDocument> => {
+  const ticket = await models.Ticket.getTicket(ticketId);
+
+  const { canViewTicket } = await createPermissionValidator(
+    models,
+  ).getTicketPermissions(ticket.pipelineId, ticket.statusId, user);
+
+  if (!canViewTicket) {
+    throw new Error('You cannot view this ticket');
+  }
 
   return ticket;
 };
@@ -195,6 +230,14 @@ const relatedCustomerEmail = async (
   return undefined;
 };
 
+export const resolveTicketRecipient = async (
+  models: IModels,
+  subdomain: string,
+  ticketId: string,
+): Promise<string | undefined> =>
+  (await lastInboundSender(models, ticketId)) ??
+  (await relatedCustomerEmail(subdomain, ticketId));
+
 export const sendTicketMail = async (
   models: IModels,
   subdomain: string,
@@ -205,10 +248,7 @@ export const sendTicketMail = async (
 
   const recipients = args.to?.length
     ? args.to
-    : [
-        (await lastInboundSender(models, ticket._id)) ??
-          (await relatedCustomerEmail(subdomain, ticket._id)),
-      ];
+    : [await resolveTicketRecipient(models, subdomain, ticket._id)];
 
   const to = recipients
     .filter((address): address is string => Boolean(address?.trim()))

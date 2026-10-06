@@ -1,50 +1,59 @@
-import dayjs from 'dayjs';
-import * as _ from 'lodash';
-import { generateModels, IModels } from '~/connectionResolvers';
-import { blocksToHtml } from '~/modules/documents/blocksToHtml';
-import { replaceContent } from '~/modules/documents/utils';
+import { IBroadcastRecipientDocument } from '@/broadcast/db/models/BroadcastRecipients';
+import { IBroadcastRunDocument } from '@/broadcast/db/models/BroadcastRuns';
 import { deliverEmail, normalizeEmail } from 'erxes-api-shared/utils';
+import { ICustomerDocument } from 'erxes-api-shared/core-types';
+import { generateModels, IModels } from '~/connectionResolvers';
 import {
-  formatPostalAddress,
-  getPostalAddress,
-} from '~/utils/email/postalAddress';
-import { unsubscribeUrl } from '~/utils/email/links';
-import { claim } from '~/utils/email/ramp';
+  describeUnresolvedPlaceholders,
+  findUnresolvedPlaceholders,
+  TEmailFieldOutcome,
+} from 'erxes-api-shared/core-modules';
 import {
   createDeliveryLogPort,
   createSuppressionPort,
 } from '~/utils/email/ports';
-import { addBroadcastWorkerQueue } from '../utils/worker';
-import { prepareEmailParams, readFileUrl } from '../utils';
+import { claim } from '~/utils/email/ramp';
+import {
+  formatPostalAddress,
+  getPostalAddress,
+} from '~/utils/email/postalAddress';
+import { prepareEmailParams } from '../utils';
+import { renderBroadcastEmail } from '../utils/renderEmail';
 import {
   getBroadcastAlignedFrom,
   getBroadcastCacheKey,
   getBroadcastEmailConfig,
   toOutboundEmail,
 } from '../utils/outboundEmail';
+import {
+  clearStrikes,
+  coolDownRemaining,
+  describeCoolDown,
+  isBackoff,
+  startCoolDown,
+} from '../utils/backoff';
+import { drainRun, TDrainDeliver } from './drain';
 
-const CHUNK_SIZE = 50; // Send 50 emails at a time
-const CHUNK_DELAY = 2000; // 2 second delay between each chunk
-const FAILURE_THRESHOLD = 0.8; // Mark as failed if 80% of emails fail
-
-const listUnsubscribed = async (models: IModels, chunk: any[]) => {
-  const ids = await models.Customers.find({
-    _id: { $in: chunk.map((customer) => customer._id) },
-    isSubscribed: { $exists: true, $ne: 'Yes' },
-  }).distinct('_id');
-
-  return new Set(ids.map(String));
-};
-
-const claimChunk = async (models: IModels, chunk: any[]) => {
+/**
+ * How much of a claimed block may be sent today.
+ *
+ * A proven address costs nothing against the allowance; an unproven one is
+ * rationed by the ramp, which is what protects the sending reputation. This is
+ * a different question from the manifest's own claim — that one only decides
+ * who holds a row — and both have to be asked.
+ */
+const grantSendingAllowance = async (
+  models: IModels,
+  customers: ICustomerDocument[],
+) => {
   const proven = await models.EmailAddresses.listProven(
-    chunk.map((customer) => customer.primaryEmail),
+    customers.map((customer) => customer.primaryEmail || ''),
   );
 
   const allowed = new Set<string>();
-  const unproven: any[] = [];
+  const unproven: ICustomerDocument[] = [];
 
-  for (const customer of chunk) {
+  for (const customer of customers) {
     if (proven.has(normalizeEmail(customer.primaryEmail || ''))) {
       allowed.add(String(customer._id));
     } else {
@@ -58,46 +67,174 @@ const claimChunk = async (models: IModels, chunk: any[]) => {
     allowed.add(String(customer._id));
   }
 
-  return allowed;
+  return { allowed, exhausted: granted < unproven.length };
 };
 
-const untilTomorrow = () => {
-  const next = new Date();
+/**
+ * What the run froze, as a plain object.
+ *
+ * `run` is a mongoose document, so `run.email` is a sub-document: spreading
+ * one copies its internals rather than its fields, and everything but the
+ * body — subject, sender, reply-to — would quietly vanish on the way to the
+ * provider.
+ */
+const frozenEmail = (run: IBroadcastRunDocument): Record<string, any> => {
+  const email = run.email as
+    | (Record<string, any> & { toObject?: () => Record<string, any> })
+    | undefined;
 
-  next.setUTCHours(24, 0, 0, 0);
-
-  return next.getTime() - Date.now();
+  return email?.toObject?.() ?? email ?? {};
 };
 
-const isStillCurrent = async (
-  models: IModels,
-  engageMessageId: string,
-  queuedRun?: number,
-) => {
-  if (queuedRun === undefined) {
-    return true;
+type TFieldCounts = Map<string, { filled: number; missing: number }>;
+
+const countFields = (counts: TFieldCounts, fields: TEmailFieldOutcome[]) => {
+  for (const { id, filled } of fields) {
+    const entry = counts.get(id) || { filled: 0, missing: 0 };
+
+    entry[filled ? 'filled' : 'missing']++;
+    counts.set(id, entry);
   }
-
-  const campaign = await models.EngageMessages.findOne({
-    _id: engageMessageId,
-  });
-
-  return !!campaign && campaign.runCount === queuedRun;
 };
 
-export const handleEmailProcessor = async (payload) => {
-  const { subdomain, customers, engageMessage, fromEmail, configSet } =
-    payload ?? {};
-
-  const models = await generateModels(subdomain);
-
-  if (!(await isStillCurrent(models, engageMessage._id, payload.queuedRun))) {
-    console.log(
-      `Skipped a deferred batch for ${engageMessage._id}: the campaign has moved on`,
-    );
-
+/**
+ * How often each field the email asks for was answered, kept on the run.
+ *
+ * This is what tells a campaign that went out looking wrong apart: a field
+ * missing for a hundred of ten thousand people is those people's data, and
+ * one missing for all ten thousand was never connected to anything.
+ */
+const recordFieldStats = async (
+  models: IModels,
+  run: IBroadcastRunDocument,
+  counts: TFieldCounts,
+) => {
+  if (!counts.size) {
     return;
   }
+
+  await models.BroadcastRuns.bulkWrite(
+    [...counts].flatMap(([id, { filled, missing }]) => [
+      {
+        updateOne: {
+          filter: { _id: run._id, 'fieldStats.id': { $ne: id } },
+          update: { $push: { fieldStats: { id, filled: 0, missing: 0 } } },
+        },
+      },
+      {
+        updateOne: {
+          filter: { _id: run._id, 'fieldStats.id': id },
+          update: {
+            $inc: {
+              'fieldStats.$.filled': filled,
+              'fieldStats.$.missing': missing,
+            },
+          },
+        },
+      },
+    ]),
+  );
+};
+
+/**
+ * The first body a run produces, kept so the campaign can be asked afterwards
+ * what it actually sent. Written once — later recipients leave it alone.
+ */
+const keepSample = async (
+  models: IModels,
+  run: IBroadcastRunDocument,
+  to: string,
+  html: string,
+) => {
+  await models.BroadcastRuns.updateOne(
+    { _id: run._id, sample: { $exists: false } },
+    { $set: { sample: { to, html, renderedAt: new Date() } } },
+  );
+};
+
+const deliverEmails: TDrainDeliver = async ({
+  models,
+  subdomain,
+  run,
+  recipients,
+}) => {
+  // Asked before anything is decided about this block, so a block met during
+  // a pause goes back whole rather than half-marked.
+  const waiting = await coolDownRemaining(subdomain);
+
+  if (waiting) {
+    await models.BroadcastRecipients.release(recipients.map(({ _id }) => _id));
+
+    return {
+      exhausted: true,
+      resumeIn: waiting,
+      reason: `Sending paused: waiting ${describeCoolDown(
+        waiting,
+      )} for the email provider.`,
+    };
+  }
+
+  const customers = await models.Customers.find({
+    _id: { $in: recipients.map(({ customerId }) => customerId) },
+  }).lean();
+
+  const byId = new Map(customers.map((customer) => [customer._id, customer]));
+
+  const sendable: {
+    recipient: IBroadcastRecipientDocument;
+    customer: ICustomerDocument;
+  }[] = [];
+
+  for (const recipient of recipients) {
+    const customer = byId.get(recipient.customerId);
+
+    if (!customer) {
+      await models.BroadcastRecipients.finish(
+        recipient._id,
+        'missing',
+        'customer no longer exists',
+      );
+      continue;
+    }
+
+    // Frozen at enrolment is who was targeted, never whether they may still be
+    // reached: someone who unsubscribed while the run was paused is decided
+    // here.
+    if (customer.isSubscribed && customer.isSubscribed !== 'Yes') {
+      await models.BroadcastRecipients.finish(
+        recipient._id,
+        'skipped',
+        'unsubscribed',
+      );
+      continue;
+    }
+
+    if (!customer.primaryEmail) {
+      await models.BroadcastRecipients.finish(
+        recipient._id,
+        'skipped',
+        'no email address',
+      );
+      continue;
+    }
+
+    sendable.push({ recipient, customer });
+  }
+
+  if (!sendable.length) {
+    return {};
+  }
+
+  const { allowed, exhausted } = await grantSendingAllowance(
+    models,
+    sendable.map(({ customer }) => customer),
+  );
+
+  const deferred = sendable
+    .filter(({ customer }) => !allowed.has(String(customer._id)))
+    .map(({ recipient }) => recipient._id);
+
+  await models.BroadcastRecipients.release(deferred);
 
   const providerConfig = await getBroadcastEmailConfig(models);
   const cacheKey = getBroadcastCacheKey(models);
@@ -106,226 +243,161 @@ export const handleEmailProcessor = async (payload) => {
   const postalAddress = formatPostalAddress(await getPostalAddress(models));
   const alignedFrom = await getBroadcastAlignedFrom(models);
 
-  await models.Stats.findOneAndUpdate(
-    { engageMessageId: engageMessage._id },
-    { engageMessageId: engageMessage._id },
-    { upsert: true },
-  );
+  let sent = 0;
+  const fieldCounts: TFieldCounts = new Map();
+  const email = frozenEmail(run);
 
-  const STATS = { validCustomersCount: 0, failureCount: 0 };
-  const deferred: any[] = [];
+  for (let index = 0; index < sendable.length; index++) {
+    const { recipient, customer } = sendable[index];
 
-  try {
-    for (let i = 0; i < customers.length; i += CHUNK_SIZE) {
-      const chunk = customers.slice(i, i + CHUNK_SIZE);
-      const unsubscribed = await listUnsubscribed(models, chunk);
-      const allowed = await claimChunk(
+    if (!allowed.has(String(customer._id))) {
+      continue;
+    }
+
+    try {
+      const { link, htmlContent } = await renderBroadcastEmail({
         models,
-        chunk.filter((customer) => !unsubscribed.has(String(customer._id))),
-      );
-
-      for (const customer of chunk) {
-        if (unsubscribed.has(String(customer._id))) {
-          await models.BroadcastTraces.createTrace(
-            engageMessage._id,
-            'regular',
-            `Skipped customer ${customer._id}: unsubscribed after the campaign started`,
-          );
-
-          continue;
-        }
-
-        if (!allowed.has(String(customer._id))) {
-          deferred.push(customer);
-
-          continue;
-        }
-
-        try {
-          const replacedContent = await replaceContent({
-            replacer: customer,
-            content: engageMessage.email.content,
-            replacement: (replacer, path) => {
-              const value = _.get(replacer, path);
-
-              if (typeof value === 'number') {
-                return value.toString();
-              }
-
-              if (value instanceof Date) {
-                return dayjs(value).format('YYYY-MM-DD');
-              }
-
-              return value?.toString() || '-';
-            },
-          });
-
-          const link = unsubscribeUrl(subdomain, { cid: customer._id });
-
-          const htmlContent = blocksToHtml(replacedContent, {
-            wrapper: { email: true, unsubscribeUrl: link, postalAddress },
-            resolveImageUrl: (url) => readFileUrl(url, subdomain),
-          });
-
-          const outcome = await deliverEmail({
-            cacheKey,
-            config: providerConfig,
-            message: toOutboundEmail(
-              prepareEmailParams(
-                subdomain,
-                customer,
-                {
-                  ...engageMessage,
-                  email: { ...engageMessage.email, content: htmlContent },
-                },
-                fromEmail,
-                configSet,
-              ),
-              { unsubscribeUrl: link, alignedFrom },
-            ),
-            log,
-            suppression,
-            meta: {
-              source: 'broadcast',
-              sourceId: engageMessage._id,
-              subdomain,
-            },
-          });
-
-          if (outcome.skipped) {
-            await models.BroadcastTraces.createTrace(
-              engageMessage._id,
-              'regular',
-              `Skipped customer ${customer._id}: ${outcome.suppressed?.join(
-                ', ',
-              )} is suppressed`,
-            );
-
-            continue;
-          }
-
-          STATS.validCustomersCount++;
-
-          await models.Stats.updateOne(
-            { engageMessageId: engageMessage._id },
-            { $inc: { total: 1 } },
-          );
-
-          await models.BroadcastTraces.createTrace(
-            engageMessage._id,
-            'success',
-            `Sent email to: ${customer.primaryEmail}`,
-          );
-        } catch (error) {
-          STATS.failureCount++;
-
-          await models.BroadcastTraces.createTrace(
-            engageMessage._id,
-            'failure',
-            `Error occurred while sending email to ${customer.primaryEmail}: ${error.message}`,
-          );
-        }
-      }
-
-      if (i + CHUNK_SIZE < customers.length) {
-        await new Promise((resolve) => setTimeout(resolve, CHUNK_DELAY));
-      }
-    }
-
-    if (deferred.length) {
-      await models.EngageMessages.updateOne(
-        { _id: engageMessage._id },
-        { $inc: { 'progress.totalBatches': 1 } },
-      );
-
-      const campaign = await models.EngageMessages.findOne({
-        _id: engageMessage._id,
+        subdomain,
+        email,
+        customer,
+        postalAddress,
+        onFields: (fields) => countFields(fieldCounts, fields),
       });
 
-      const resumeCount = (payload.resumeCount || 0) + 1;
+      // No provider accepts an email without a subject, and the one that
+      // refuses it reports it as its own error rather than ours.
+      if (!String(email.subject || '').trim()) {
+        await models.BroadcastRecipients.finish(
+          recipient._id,
+          'failed',
+          'email subject is empty',
+        );
 
-      await addBroadcastWorkerQueue({
-        queueName: 'broadcast_processor',
-        data: {
-          method: 'email',
-          payload: {
-            ...payload,
-            customers: deferred,
-            resumeCount,
-            queuedRun: campaign?.runCount ?? payload.queuedRun,
-          },
+        continue;
+      }
+
+      // The subject is checked with the body: a marker in it reaches the
+      // inbox list, where it is the first thing anyone sees.
+      const unresolved = [
+        ...findUnresolvedPlaceholders(htmlContent),
+        ...findUnresolvedPlaceholders(String(email.subject || '')),
+      ];
+
+      // Nobody is sent an email with a marker still in it. A record with
+      // nothing for a field renders its default instead, so this can only be
+      // something that was never wired up.
+      if (unresolved.length) {
+        await models.BroadcastRecipients.finish(
+          recipient._id,
+          'failed',
+          describeUnresolvedPlaceholders(unresolved),
+        );
+
+        continue;
+      }
+
+      await keepSample(models, run, customer.primaryEmail || '', htmlContent);
+
+      const outcome = await deliverEmail({
+        cacheKey,
+        config: providerConfig,
+        message: toOutboundEmail(
+          prepareEmailParams(
+            subdomain,
+            customer as any,
+            {
+              _id: run.engageMessageId,
+              email: { ...email, content: htmlContent },
+            } as any,
+            run.fromEmail || '',
+            run.configSet,
+          ),
+          { unsubscribeUrl: link, alignedFrom },
+        ),
+        log,
+        suppression,
+        meta: {
+          source: 'broadcast',
+          sourceId: run.engageMessageId,
+          subdomain,
         },
-        jobId: `${engageMessage._id}_run${campaign?.runCount ?? 0}_batch${
-          payload.batchIndex ?? 0
-        }_resume${resumeCount}`,
-        delay: untilTomorrow(),
       });
 
-      await models.BroadcastTraces.createTrace(
-        engageMessage._id,
-        'regular',
-        `Deferred ${deferred.length} recipients to tomorrow: today's sending allowance is spent`,
-      );
-    }
-
-    await models.EngageMessages.updateOne(
-      { _id: engageMessage._id },
-      {
-        $inc: {
-          validCustomersCount: STATS.validCustomersCount,
-          'progress.processedBatches': 1,
-          'progress.successCount': STATS.validCustomersCount,
-          'progress.failureCount': STATS.failureCount,
-        },
-        $set: {
-          'progress.lastUpdated': new Date(),
-        },
-      },
-    );
-
-    const message = await models.EngageMessages.findOne({
-      _id: engageMessage._id,
-    });
-
-    if (message) {
-      const totalProcessed = STATS.validCustomersCount + STATS.failureCount;
-      const failureRate =
-        totalProcessed > 0 ? STATS.failureCount / totalProcessed : 0;
-
-      if (message.progress.processedBatches >= message.progress.totalBatches) {
-        const finalStatus =
-          failureRate >= FAILURE_THRESHOLD ? 'failed' : 'completed';
-
-        await models.EngageMessages.updateOne(
-          { _id: engageMessage._id, status: { $eq: 'sending' } },
-          { $set: { status: finalStatus } },
+      if (outcome.skipped) {
+        await models.BroadcastRecipients.finish(
+          recipient._id,
+          'skipped',
+          `suppressed: ${outcome.suppressed?.join(', ')}`,
         );
-
-        await models.BroadcastTraces.createTrace(
-          engageMessage._id,
-          finalStatus === 'failed' ? 'failure' : 'success',
-          `Campaign ${finalStatus}. Sent: ${STATS.validCustomersCount}, Failed: ${STATS.failureCount}`,
-        );
+        continue;
       }
+
+      await models.Stats.updateOne(
+        { engageMessageId: run.engageMessageId },
+        { $inc: { total: 1 } },
+      );
+
+      await models.BroadcastRecipients.finish(recipient._id, 'sent');
+      sent++;
+    } catch (error: any) {
+      if (!isBackoff(error)) {
+        await models.BroadcastRecipients.finish(
+          recipient._id,
+          'failed',
+          error.message,
+        );
+
+        continue;
+      }
+
+      // The provider turned this attempt down. This person and everyone left
+      // in the block go back in the manifest untouched: they were never the
+      // problem, and marking them unreachable would lose them for good.
+      const wait = await startCoolDown(subdomain);
+
+      await models.BroadcastRecipients.release(
+        sendable.slice(index).map(({ recipient: held }) => held._id),
+      );
+
+      await recordFieldStats(models, run, fieldCounts);
+
+      return {
+        exhausted: true,
+        resumeIn: wait,
+        reason: `Sending paused for ${describeCoolDown(
+          wait,
+        )}: the email provider asked us to slow down (${error.message}).`,
+      };
     }
-  } catch (error) {
-    console.error('Critical error in email processor:', error);
+  }
 
-    await models.EngageMessages.updateOne(
-      { _id: engageMessage._id },
-      {
-        $set: { status: 'failed' },
-        $inc: {
-          'progress.processedBatches': 1,
-          'progress.failureCount': customers.length - STATS.validCustomersCount,
-        },
-      },
-    );
+  await recordFieldStats(models, run, fieldCounts);
 
-    await models.BroadcastTraces.createTrace(
-      engageMessage._id,
-      'failure',
-      `Critical error in email processor: ${error.message}`,
+  // A block that got through ends the spell, so the next refusal starts from
+  // a minute again rather than from where the last one left off.
+  if (sent) {
+    await clearStrikes(subdomain);
+  }
+
+  return { exhausted };
+};
+
+export const handleEmailProcessor = async (payload: unknown) => {
+  const { subdomain, runId } = (payload || {}) as {
+    subdomain: string;
+    runId: string;
+  };
+
+  const models = await generateModels(subdomain);
+  const run = await models.BroadcastRuns.findOne({ _id: runId }).lean();
+
+  if (run) {
+    await models.Stats.findOneAndUpdate(
+      { engageMessageId: run.engageMessageId },
+      { engageMessageId: run.engageMessageId },
+      { upsert: true },
     );
   }
+
+  return drainRun(payload, deliverEmails);
 };

@@ -44,6 +44,7 @@ export const types = `
     participatorCount: Int
 
 
+    propertiesData: JSON
     customFieldsData: JSON
     cursor: String
   }
@@ -84,6 +85,12 @@ export const types = `
     mailData: MailData
     contentType: String
     mid: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
   }
 
   type Email {
@@ -195,6 +202,7 @@ const mutationFilterParams = `
   unread: String
   awaitingResponse: String
   withSurvey: String
+  withPoll: String
   automationStatus: String
   starred: String
   startDate: String
@@ -259,6 +267,12 @@ export const queries = `
 `;
 
 export const mutations = `
+  conversationMessageReact(
+    conversationId: String!
+    messageId: String!
+    reaction: String
+    remove: Boolean
+  ): Boolean!
   conversationMessageAdd(
     conversationId: String,
     responseTemplateId: String,
@@ -294,5 +308,5 @@ export const mutations = `
   ): Conversation
   conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
-  conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
+  conversationEditCustomFields(_id: String!, propertiesData: JSON, customFieldsData: JSON): Conversation
 `;

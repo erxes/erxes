@@ -1,5 +1,6 @@
 import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
 import { AutomationBuilderPrimarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderPrimarySidebar';
+import { useAutomationBuilderSecondaryPanels } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSecondaryPanels';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import {
@@ -25,13 +26,12 @@ export const AutomationBuilderSidebar = () => {
 
   const {
     isOpenSideBar,
-    isSecondarySidebarOpen,
     activeNode,
     handleBack,
     handleClose,
-    toggleSecondarySidebarOpen,
     toggleSideBarOpen,
   } = useAutomationBuilderSidebarHooks();
+  const { activePanel, closePanel } = useAutomationBuilderSecondaryPanels();
 
   useEffect(() => {
     if (!isOpenSideBar && awaitingToConnectNodeId) {
@@ -103,11 +103,12 @@ export const AutomationBuilderSidebar = () => {
                 />
               </div>
 
-              {isSecondarySidebarOpen && canShowSecondarySidebar ? (
+              {activePanel && canShowSecondarySidebar ? (
                 <div className="absolute inset-x-0 bottom-0 z-20 h-1/3 min-h-72 animate-in overflow-hidden rounded-t-xl border-t bg-sidebar shadow-xl slide-in-from-bottom-4 mx-2">
                   <AutomationBuilderSecondarySidebar
+                    panel={activePanel}
                     className="h-full w-full border-l-0"
-                    handleClose={toggleSecondarySidebarOpen}
+                    handleClose={closePanel}
                   />
                 </div>
               ) : null}
@@ -125,8 +126,8 @@ export const AutomationBuilderSidebar = () => {
           key="sidebar"
           className="flex h-full min-h-0 max-w-full shrink-0 flex-row overflow-hidden"
         >
-          {isSecondarySidebarOpen && canShowSecondarySidebar ? (
-            <AutomationBuilderSecondarySidebar />
+          {activePanel && canShowSecondarySidebar ? (
+            <AutomationBuilderSecondarySidebar panel={activePanel} />
           ) : null}
 
           <AutomationBuilderPrimarySidebar

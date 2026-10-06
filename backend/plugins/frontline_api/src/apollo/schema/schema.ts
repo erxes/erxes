@@ -127,6 +127,12 @@ import {
 } from '@/helpcenter/graphql/schemas/helpCenterConfig';
 
 import {
+  queries as CustomDomainQueries,
+  mutations as CustomDomainMutations,
+  types as CustomDomainTypes,
+} from '@/customdomain/graphql/schemas/customDomain';
+
+import {
   mutations as TicketMutations,
   queries as TicketQuery,
   types as TicketTypes,
@@ -162,6 +168,7 @@ export const types = `
     ${SurveyTypes}
     ${KnowledgeBaseTypes}
     ${HelpCenterConfigTypes}
+    ${CustomDomainTypes}
   `;
 
 export const queries = `
@@ -188,6 +195,7 @@ export const queries = `
     ${SurveyQueries}
     ${KnowledgeBaseQueries}
     ${HelpCenterConfigQueries}
+    ${CustomDomainQueries}
     ${CpInboxQueries}
   `;
 
@@ -210,6 +218,7 @@ export const mutations = `
    ${SurveyMutations}
    ${KnowledgeBaseMutations}
    ${HelpCenterConfigMutations}
+   ${CustomDomainMutations}
    ${CpInboxMutations}
    ${ReportChartMutations}
    ${ReportFacebookMutations}

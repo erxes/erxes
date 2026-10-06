@@ -6,7 +6,11 @@ import {
   FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
 import { JOURNALS } from '../@types/constants';
-import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  IInvSplitDetailInfo,
+  ITransaction,
+  ITrDetail,
+} from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -64,7 +68,7 @@ type TMigrationUser = {
   username?: string;
 };
 
-type TErkhetContact = {
+export type TErkhetContact = {
   type?: string;
   code?: string;
   name?: string;
@@ -78,6 +82,12 @@ type TInvIncomeExpense = {
   rule?: 'amount' | 'count' | 'weight';
   amount?: number;
   accountId?: string;
+};
+
+type TInvSplitMigrationInput = {
+  hasSplit?: boolean;
+  productId?: string;
+  ratio?: number;
 };
 
 type TContactResolution = {
@@ -129,7 +139,7 @@ const normalizeSourceCode = (value?: string) =>
   typeof value === 'string' ? value.trim() : value || '';
 
 const normalizeIdentifierCode = (value?: string) =>
-  normalizeSourceCode(value).replace(/\s+/g, '');
+  normalizeSourceCode(value).replace(/[\s*_]+/g, '');
 
 const uniq = (values: string[]) => [
   ...new Set(values.map((value) => normalizeSourceCode(value)).filter(Boolean)),
@@ -261,6 +271,14 @@ const getCodeMap = (docs: ITransaction[]) => {
       if (detail.productId) {
         productCodes.push(normalizeIdentifierCode(detail.productId));
       }
+      if (
+        detail.followInfos?.invSplit?.hasSplit &&
+        detail.followInfos.invSplit.productId
+      ) {
+        productCodes.push(
+          normalizeIdentifierCode(detail.followInfos.invSplit.productId),
+        );
+      }
       if (detail.followInfos?.currencyDiffAccountId) {
         accountCodes.push(
           normalizeSourceCode(detail.followInfos.currencyDiffAccountId),
@@ -305,6 +323,50 @@ const resolveInvIncomeExpenses = (
   });
 
 export const resolveErkhetInvIncomeExpensesForTest = resolveInvIncomeExpenses;
+
+const resolveInvSplitInfo = (
+  detail: ITrDetail,
+  maps: TReferenceMaps,
+): IInvSplitDetailInfo | undefined => {
+  const value = detail.followInfos?.invSplit as unknown;
+
+  if (value == null) {
+    return undefined;
+  }
+
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Invalid inventory split detail');
+  }
+
+  const splitInfo = value as TInvSplitMigrationInput;
+  if (typeof splitInfo.hasSplit !== 'boolean') {
+    throw new Error('Invalid inventory split detail');
+  }
+  if (!splitInfo.hasSplit) {
+    return { hasSplit: false };
+  }
+
+  const productCode = normalizeIdentifierCode(splitInfo.productId);
+  const ratio = Number(splitInfo.ratio);
+
+  if (!productCode || !Number.isFinite(ratio) || ratio <= 0) {
+    throw new Error('Invalid inventory split detail');
+  }
+  if (normalizeIdentifierCode(detail.productId) === productCode) {
+    throw new Error('Split product must differ from the source product');
+  }
+  if (!maps.productsByCode[productCode]) {
+    throw new Error(`Product not found: ${productCode}`);
+  }
+
+  return {
+    hasSplit: true,
+    productId: maps.productsByCode[productCode],
+    ratio,
+  };
+};
+
+export const resolveErkhetInvSplitInfoForTest = resolveInvSplitInfo;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -567,13 +629,16 @@ const buildContactQuery = (contact: TErkhetContact) => {
   if (contact?.code) {
     $or.push({ code: contact.code });
   }
-  if (contact?.phone) {
+  if (contact?.type === 'company' && contact?.name) {
+    $or.push({ primaryName: contact.name }, { names: { $in: [contact.name] } });
+  }
+  if (contact?.type !== 'company' && contact?.phone) {
     $or.push(
       { primaryPhone: contact.phone },
       { phones: { $in: [contact.phone] } },
     );
   }
-  if (contact?.email) {
+  if (contact?.type !== 'company' && contact?.email) {
     $or.push(
       { primaryEmail: contact.email },
       { emails: { $in: [contact.email] } },
@@ -587,14 +652,20 @@ const buildContactQuery = (contact: TErkhetContact) => {
   return { $or };
 };
 
-const findOrCreateContact = async ({
+export const buildErkhetContactQueryForTest = buildContactQuery;
+
+export const findOrCreateErkhetContact = async ({
   subdomain,
   userId,
   contact,
+  updateExisting = false,
+  dryRun = false,
 }: {
   subdomain: string;
   userId: string;
   contact: TErkhetContact;
+  updateExisting?: boolean;
+  dryRun?: boolean;
 }) => {
   if (!contact?.code && !contact?.phone && !contact?.email && !contact?.name) {
     return {};
@@ -607,7 +678,28 @@ const findOrCreateContact = async ({
   const findAction =
     type === 'company' ? 'findActiveCompanies' : 'findActiveCustomers';
   const createAction = type === 'company' ? 'createCompany' : 'createCustomer';
+  const updateAction = type === 'company' ? 'updateCompany' : 'updateCustomer';
   const query = buildContactQuery(contact);
+
+  const doc = Object.fromEntries(
+    Object.entries(
+      type === 'company'
+        ? {
+            code: contact.code,
+            primaryName: contact.name || contact.code || contact.phone,
+            primaryPhone: contact.phone,
+            phones: contact.phone ? [contact.phone] : undefined,
+          }
+        : {
+            code: contact.code,
+            firstName: contact.name || contact.code || contact.phone,
+            primaryPhone: contact.phone,
+            primaryEmail: contact.email,
+            phones: contact.phone ? [contact.phone] : undefined,
+            emails: contact.email ? [contact.email] : undefined,
+          },
+    ).filter(([, value]) => value !== undefined),
+  );
 
   const found = Object.keys(query).length
     ? await sendTRPCMessage({
@@ -626,28 +718,33 @@ const findOrCreateContact = async ({
     : [];
 
   if (found?.[0]?._id) {
-    return { type, _id: found[0]._id };
+    if (updateExisting && !dryRun) {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module,
+        action: updateAction,
+        input: { _id: found[0]._id, doc },
+        context: { userId },
+        defaultValue: {},
+      });
+    }
+
+    return {
+      type,
+      _id: found[0]._id,
+      action: updateExisting ? 'update' : 'skip',
+    };
   }
 
-  const doc =
-    type === 'company'
-      ? {
-          code: contact.code,
-          primaryName: contact.name || contact.code || contact.phone,
-          primaryPhone: contact.phone,
-          primaryEmail: contact.email,
-          phones: contact.phone ? [contact.phone] : [],
-          emails: contact.email ? [contact.email] : [],
-          scopeBrandIds: [],
-        }
-      : {
-          code: contact.code,
-          firstName: contact.name || contact.code || contact.phone,
-          primaryPhone: contact.phone,
-          primaryEmail: contact.email,
-          phones: contact.phone ? [contact.phone] : [],
-          emails: contact.email ? [contact.email] : [],
-        };
+  if (dryRun) {
+    return {
+      type,
+      _id: `dry-run:${type}:${contact.code || contact.name}`,
+      action: 'create',
+    };
+  }
 
   const created = await sendTRPCMessage({
     subdomain,
@@ -660,7 +757,7 @@ const findOrCreateContact = async ({
     defaultValue: {},
   });
 
-  return { type, _id: created?._id };
+  return { type, _id: created?._id, action: 'create' };
 };
 
 const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
@@ -675,6 +772,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const currencyDiffAccountCode = normalizeSourceCode(
     detail.followInfos?.currencyDiffAccountId,
   );
+  const invSplit = resolveInvSplitInfo(detail, maps);
 
   // Detail дээр байгаа account/product/fixedAsset/category/branch/department нь
   // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
@@ -734,6 +832,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       currencyDiffAccountId: currencyDiffAccountCode
         ? maps.accountsByCode[currencyDiffAccountCode]
         : detail.followInfos?.currencyDiffAccountId,
+      invSplit,
       accountCode,
       branchCode,
       productCode,
@@ -1000,6 +1099,7 @@ const resolveTransactionFollowInfos = (
   }
 
   const resolvedFollowInfos = { ...doc.followInfos };
+  delete resolvedFollowInfos.invSplitDetails;
   const resolveAccountId = (code: string, fallback?: string) =>
     code ? maps.accountsByCode[code] : fallback;
 
@@ -1283,10 +1383,11 @@ const normalizeBatchDocs = async (
   for (const doc of batch.trDocs) {
     const contact = doc.extraData?.erkhetCustomer as TErkhetContact | undefined;
     if (contact?.code && !contactByCode[contact.code]) {
-      contactByCode[contact.code] = await findOrCreateContact({
+      contactByCode[contact.code] = await findOrCreateErkhetContact({
         subdomain,
         userId,
         contact,
+        updateExisting: contact.type === 'company',
       });
     }
   }

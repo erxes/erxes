@@ -1,3 +1,9 @@
+import type {
+  ApolloQueryResult,
+  OperationVariables,
+  QueryOptions,
+} from '@apollo/client';
+
 export type TSearchPayload = Readonly<Record<string, unknown>>;
 
 export type TSearchResultItem = {
@@ -81,6 +87,35 @@ export type TActivityRowProps = {
   };
 };
 
+export type TProductRemainderProduct = {
+  _id: string;
+  code: string;
+  remainder?: TProductRemainderValue | null;
+};
+
+export type TProductRemainderValue = {
+  remainder?: number;
+  remainders?: unknown[];
+};
+
+export type TProductRemainderPatch = {
+  _id: string;
+  remainder: TProductRemainderValue;
+};
+
+export type TProductRemainderQuery = <
+  TData,
+  TVariables extends OperationVariables = OperationVariables,
+>(
+  options: QueryOptions<TVariables, TData>,
+) => Promise<ApolloQueryResult<TData>>;
+
+export type TProductRemainderProvider = (params: {
+  products: TProductRemainderProduct[];
+  pipelineId?: string;
+  query: TProductRemainderQuery;
+}) => Promise<TProductRemainderPatch[]>;
+
 export type TPropertyInputProps = {
   value: string;
   onValueChange: (value: string) => void;
@@ -122,6 +157,7 @@ export type IUIConfig = {
     }[];
     propertyInputs?: Record<string, React.ComponentType<TPropertyInputProps>>;
     activityRows?: Record<string, React.ComponentType<TActivityRowProps>>;
+    productRemainderProviders?: TProductRemainderProvider[];
   };
   modules?: {
     name: string;

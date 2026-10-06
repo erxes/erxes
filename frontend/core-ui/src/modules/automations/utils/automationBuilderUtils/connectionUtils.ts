@@ -8,6 +8,7 @@ import {
   TAutomationBuilderActions,
   TAutomationBuilderForm,
 } from '@/automations/utils/automationFormDefinitions';
+import { resolveTriggerFolks } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { Node } from '@xyflow/react';
 import { TAutomationOptionalConnect } from 'ui-modules';
 
@@ -114,56 +115,23 @@ export const generateWorkflowConnection = (
   return { sourceAction, workFlow };
 };
 
-export const generateBranchConnection = (
-  sourceNode: TAutomationBuilderActions[number],
+/**
+ * Every named exit — an `if` branch, a find-object outcome, the error policy's
+ * success/error pair — stores its target under the folk's own config key.
+ */
+export const generateFolkConnection = <
+  TNode extends { config?: Record<string, any> },
+>(
+  sourceNode: TNode,
   targetId: string,
-  sourceHandle: string,
-) => {
-  const config = sourceNode.config || {};
-  const [sourceHandleType] = sourceHandle.split('-');
-  return {
-    ...sourceNode,
-    config: {
-      ...config,
-      [sourceHandleType]: targetId,
-    },
-  } as TAutomationBuilderActions[number];
-};
-
-export const generateFindObjectConnection = (
-  sourceNode: TAutomationBuilderActions[number],
-  targetId: string,
-  sourceHandle: string,
-) => {
-  const config = sourceNode.config || {};
-  const [sourceHandleType] = sourceHandle.split('-');
-  return {
-    ...sourceNode,
-    config: {
-      ...config,
-      [sourceHandleType]: targetId,
-    },
-  } as TAutomationBuilderActions[number];
-};
-
-export const generateFolksConnection = (
-  sourceNode: TAutomationBuilderActions[number],
-  targetId: string,
-  sourceHandle: string,
-) => {
-  const config = sourceNode.config || {};
-  // Extract the folk key from sourceHandle format: "nodeId__folkKey"
-  const parts = sourceHandle.split('__');
-  const folkKey = parts[parts.length - 1]; // Get the folk key (last part)
-
-  return {
-    ...sourceNode,
-    config: {
-      ...config,
-      [folkKey]: targetId,
-    },
-  } as TAutomationBuilderActions[number];
-};
+  folkKey: string,
+): TNode => ({
+  ...sourceNode,
+  config: {
+    ...(sourceNode.config || {}),
+    [folkKey]: targetId,
+  },
+});
 export const generateStandarConnection = (
   sourceNode: any,
   targetId: string,
@@ -205,6 +173,13 @@ export const removeNodeReferences = ({
       ...trigger,
       actionId:
         trigger.actionId === removedNodeId ? undefined : trigger.actionId,
+      config: resolveTriggerFolks(trigger.config).reduce(
+        (config, { key }) =>
+          config?.[key] === removedNodeId
+            ? { ...config, [key]: undefined }
+            : config,
+        trigger.config,
+      ),
     }))
     .filter((trigger) => trigger.id !== removedNodeId);
 

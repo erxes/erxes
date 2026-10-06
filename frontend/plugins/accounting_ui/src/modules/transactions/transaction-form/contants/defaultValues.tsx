@@ -10,6 +10,7 @@ import {
   TFxaOutJournal,
   TFxaSaleJournal,
   TInvIncomeJournal,
+  TInvJustifyJournal,
   TInvMoveJournal,
   TInvOutJournal,
   TInvSaleJournal,
@@ -40,6 +41,45 @@ const trDetailWrapper = (detail?: ITrDetail) => {
     amount: detail?.amount ?? 0,
     checked: false,
   };
+};
+
+const getInventoryDetailFollowInfos = (
+  detail: ITrDetail,
+  doc?: Partial<ITransaction>,
+) => {
+  const legacySplitInfos = Array.isArray(doc?.followInfos?.invSplitDetails)
+    ? doc.followInfos.invSplitDetails
+    : [];
+  const legacySplitInfo = legacySplitInfos.find(
+    (splitInfo: { detailId?: string }) => splitInfo.detailId === detail._id,
+  );
+  const currentInvSplit = detail.followInfos?.invSplit;
+  const invSplit = currentInvSplit
+    ? {
+        ...currentInvSplit,
+        hasSplit:
+          typeof currentInvSplit.hasSplit === 'boolean'
+            ? currentInvSplit.hasSplit
+            : Boolean(currentInvSplit.productId),
+      }
+    : legacySplitInfo
+      ? {
+          hasSplit: true,
+          productId: legacySplitInfo.productId,
+          ratio: legacySplitInfo.ratio,
+        }
+      : undefined;
+
+  return invSplit
+    ? {
+        ...detail.followInfos,
+        invSplit: {
+          hasSplit: invSplit.hasSplit,
+          productId: invSplit.productId,
+          ratio: invSplit.ratio,
+        },
+      }
+    : detail.followInfos;
 };
 
 const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
@@ -172,6 +212,7 @@ const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
           count: det.count ?? 0,
           unitPrice: det.unitPrice ?? 0,
           amount: det.amount ?? 0,
+          followInfos: getInventoryDetailFollowInfos(det, doc),
         }))
       : [
           {
@@ -213,6 +254,37 @@ const INV_OUT_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
+const invJustifyDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
+  doc?.details?.length
+    ? doc.details.map((det) => ({
+        ...trDetailWrapper(det),
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      }))
+    : [
+        {
+          ...trDetailWrapper(),
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ];
+
+const INV_JUSTIFY_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TInvJustifyJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.INV_JUSTIFY,
+    side: doc?.side || TR_SIDES.DEBIT,
+    details: invJustifyDetailsDefaultValues(doc),
+  };
+};
+
 const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TInvMoveJournal> => {
@@ -228,6 +300,7 @@ const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
           count: det.count ?? 0,
           unitPrice: det.unitPrice ?? 0,
           amount: det.amount ?? 0,
+          followInfos: getInventoryDetailFollowInfos(det, doc),
         }))
       : [
           {
@@ -455,6 +528,10 @@ export const JOURNALS_BY_JOURNAL = (
 
     case TrJournalEnum.INV_OUT:
       result = INV_OUT_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.INV_JUSTIFY:
+      result = INV_JUSTIFY_JOURNAL_DEFAULT_VALUES(doc);
       break;
 
     case TrJournalEnum.INV_MOVE:

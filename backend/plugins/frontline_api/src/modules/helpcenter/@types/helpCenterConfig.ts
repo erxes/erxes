@@ -51,11 +51,17 @@ export interface IHelpCenterFooter {
   columns?: IHelpCenterFooterColumn[];
 }
 
+export interface IHelpCenterCmsConfig {
+  cmsId?: string;
+  cmsAppToken?: string;
+}
+
 export interface IHelpCenterConfig {
   title?: string;
   description?: string;
   url?: string;
   erxesAppToken?: string;
+  clientPortalId?: string;
   brandId?: string;
   languageCode?: string;
 
@@ -68,6 +74,13 @@ export interface IHelpCenterConfig {
   ticketChannelId?: string;
   ticketPipelineId?: string;
   ticketStatusId?: string;
+
+  formChannelId?: string;
+  formIds?: string[];
+
+  cmsId?: string;
+  cmsAppToken?: string;
+  cmsConfigs?: IHelpCenterCmsConfig[];
 
   color?: string;
   backgroundImage?: string;

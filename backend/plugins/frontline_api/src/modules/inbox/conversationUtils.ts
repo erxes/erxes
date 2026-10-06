@@ -445,9 +445,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
     }
   }
 
-  /*
-   * Run queries
-   */
   /**
    * The counts were read from an Elasticsearch `conversations` index this
    * deployment never had - the call already resolved to nothing, so every

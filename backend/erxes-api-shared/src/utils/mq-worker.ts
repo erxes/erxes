@@ -8,6 +8,10 @@ import type {
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { redis } from './redis';
+// Kept in its own module so it can be tested without opening a connection.
+import { toSerializablePayload } from './serializablePayload';
+
+export { toSerializablePayload };
 
 const queueMap = new Map<string, Queue>();
 const queueEventsMap = new Map<string, QueueEvents>();
@@ -15,29 +19,6 @@ const queueEventsMap = new Map<string, QueueEvents>();
 export const DEFAULT_JOB_OPTIONS: DefaultJobOptions = {
   removeOnComplete: true,
   removeOnFail: { count: 5000, age: 24 * 3600 },
-};
-
-export const toSerializablePayload = <T>(payload: T): T => {
-  if (typeof payload === 'undefined') {
-    return payload;
-  }
-
-  const seen = new WeakSet<object>();
-
-  return JSON.parse(
-    JSON.stringify(payload, (_key, value) => {
-      if (typeof value !== 'object' || value === null) {
-        return value;
-      }
-
-      if (seen.has(value)) {
-        return undefined;
-      }
-
-      seen.add(value);
-      return value;
-    }),
-  );
 };
 
 const makeQueueSerializable = (queue: Queue) => {

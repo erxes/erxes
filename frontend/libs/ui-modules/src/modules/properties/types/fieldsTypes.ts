@@ -1,9 +1,16 @@
+export type TObjectListFieldConfig = {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea';
+};
+
 export type TFieldSelectionConfig = {
   queryName?: string;
   labelField?: string;
   valueField?: string;
   multi?: boolean;
   component?: string;
+  objectListConfigs?: TObjectListFieldConfig[];
   [key: string]: unknown;
 };
 
@@ -21,7 +28,7 @@ export type IField = {
   _id: string;
   name: string;
   code: string;
-  options?: Array<{ label: string; value: string }>;
+  options?: Array<{ label: string; value: string; deprecated?: boolean }>;
   type: string;
   group?: string;
   groupId?: string;
@@ -38,7 +45,17 @@ export type IField = {
   isVisibleToCreate?: boolean;
   isRequired?: boolean;
   isVisibleInCard?: boolean;
+  // A featured field: a plugin feature owns it and writes its values.
+  owner?: IFieldOwner | null;
 };
+
+export interface IFieldOwner {
+  plugin: string;
+  module: string;
+  refId?: string | null;
+  key: string;
+  status?: 'active' | 'orphaned' | 'archived' | null;
+}
 
 export interface IPropertyRow extends Record<string, unknown> {
   _id: string;
@@ -55,8 +72,15 @@ export interface IFieldGroup {
   configs?: Record<string, unknown>;
 }
 
+export interface IMutateCallbacks {
+  onCompleted?: () => void;
+  onError?: () => void;
+}
+
+// Callbacks are optional so hooks that do not report back keep working.
 export type mutateFunction = (
   variables: { _id: string } & Record<string, unknown>,
+  callbacks?: IMutateCallbacks,
 ) => void;
 
 export interface FieldColumnProps {

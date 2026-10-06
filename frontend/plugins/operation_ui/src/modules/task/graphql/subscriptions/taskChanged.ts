@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const TASK_CHANGED = gql`
+export const TASK_CHANGED = gql(`
   subscription operationTaskChanged($_id: String!) {
     operationTaskChanged(_id: $_id) {
       type
@@ -12,6 +12,7 @@ export const TASK_CHANGED = gql`
         priority
         teamId
         number
+        tagIds
         assigneeId
         startDate
         targetDate
@@ -22,7 +23,11 @@ export const TASK_CHANGED = gql`
         projectId
         estimatePoint
         milestoneId
+        githubIssueNumber
+        githubIssueUrl
+        githubRepoName
+        propertiesData
       }
     }
   }
-`;
+`);

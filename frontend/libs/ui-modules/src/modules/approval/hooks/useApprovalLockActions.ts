@@ -9,6 +9,7 @@ import {
 } from '../graphql/mutations';
 import {
   ApprovalApproverScope,
+  ApprovalChange,
   ApprovalLock,
   ApprovalMode,
   ApprovalRequest,
@@ -27,6 +28,9 @@ type RequestCreateInput = {
   contentType: string;
   contentId: string;
   reason?: string;
+  /** Naming a change makes this a change request rather than an access one. */
+  change?: ApprovalChange;
+  approverIds?: string[];
 };
 
 export const useApprovalLockActions = () => {

@@ -1,28 +1,119 @@
 import { IPropertyMeta } from 'erxes-api-shared/core-modules';
 
+// A customer is told apart by at least one of these.
+const CUSTOMER_IDENTITY = 'identity';
+
 export const properties: IPropertyMeta = {
   types: [
     {
       description: 'Customer',
       type: 'customer',
+      systemFieldsLayout: {
+        defaultLayout: [
+          ['avatar'],
+          ['firstName', 'lastName'],
+          ['code', 'ownerId'],
+          ['primaryEmail', 'primaryPhone'],
+          ['state', 'birthDate'],
+          ['description'],
+          ['isSubscribed'],
+        ],
+      },
       systemFields: [
-        { code: 'avatar', name: 'Avatar', type: 'file' },
-        { code: 'firstName', name: 'First name', type: 'text' },
-        { code: 'middleName', name: 'Middle name', type: 'text' },
-        { code: 'lastName', name: 'Last name', type: 'text' },
-        { code: 'code', name: 'Code', type: 'text' },
-        { code: 'primaryEmail', name: 'Primary e-mail', type: 'text' },
-        { code: 'primaryPhone', name: 'Primary phone', type: 'phone' },
-        { code: 'sex', name: 'Pronoun', type: 'select' },
-        { code: 'birthDate', name: 'Birthday', type: 'date' },
-        { code: 'position', name: 'Position', type: 'text' },
-        { code: 'department', name: 'Department', type: 'text' },
-        { code: 'hasAuthority', name: 'Has authority', type: 'select' },
-        { code: 'leadStatus', name: 'Lead status', type: 'select' },
-        { code: 'isSubscribed', name: 'Subscribed', type: 'select' },
-        { code: 'ownerId', name: 'Owner', type: 'relation' },
-        { code: 'tagIds', name: 'Tags', type: 'multiSelect' },
-        { code: 'description', name: 'Description', type: 'textarea' },
+        {
+          code: 'avatar',
+          name: 'Avatar',
+          type: 'file',
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'firstName',
+          name: 'First name',
+          type: 'text',
+          requiredGroup: CUSTOMER_IDENTITY,
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'middleName',
+          name: 'Middle name',
+          type: 'text',
+          hiddenByDefault: true,
+        },
+        {
+          code: 'lastName',
+          name: 'Last name',
+          type: 'text',
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'code',
+          name: 'Code',
+          type: 'text',
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'primaryEmail',
+          name: 'Primary e-mail',
+          type: 'text',
+          requiredGroup: CUSTOMER_IDENTITY,
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'primaryPhone',
+          name: 'Primary phone',
+          type: 'phone',
+          requiredGroup: CUSTOMER_IDENTITY,
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'sex',
+          name: 'Pronoun',
+          type: 'select',
+          alwaysFilled: true,
+          hiddenByDefault: true,
+        },
+        {
+          code: 'birthDate',
+          name: 'Birthday',
+          type: 'date',
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'isSubscribed',
+          name: 'Subscribed',
+          type: 'select',
+          alwaysFilled: true,
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'ownerId',
+          name: 'Owner',
+          type: 'relation',
+          alwaysFilled: true,
+          visibleToCreateByDefault: true,
+        },
+        // The create form takes the state from where it was opened.
+        {
+          code: 'state',
+          name: 'Lifecycle state',
+          type: 'select',
+          alwaysFilled: true,
+          notOnCreate: true,
+        },
+        // customersAdd takes no tags; they are added after the customer exists.
+        {
+          code: 'tagIds',
+          name: 'Tags',
+          type: 'multiSelect',
+          notOnCreate: true,
+          outsideLayout: true,
+        },
+        {
+          code: 'description',
+          name: 'Description',
+          type: 'textarea',
+          visibleToCreateByDefault: true,
+        },
       ],
     },
     {

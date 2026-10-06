@@ -1,34 +1,33 @@
 import { GET_TASKS } from '@/task/graphql/queries/getTasks';
 import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
-import { ITask } from '@/task/types';
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/operation/utils/cursorList';
+import { QueryHookOptions, useQuery, useSubscription } from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
   isUndefinedOrNull,
-  mergeCursorData,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
+import type {
+  CycleFilterType,
+  GetTasksQuery,
+  GetTasksQueryVariables,
+  ITaskFilter,
+} from '~/gql/graphql';
 
 const TASKS_PER_PAGE = 30;
 
-interface ITaskChanged {
-  operationTaskListChanged: {
-    type: string;
-    task: ITask;
-  };
-}
-
-export const useTasksVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<ITask>>['variables'],
-) => {
+export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
   const { teamId } = useParams();
   const {
     searchValue,
@@ -56,11 +55,11 @@ export const useTasksVariables = (
     assignee: string;
     createdBy: string;
     team: string;
-    priority: string;
-    status: string;
+    priority: number;
+    status: string | number;
     milestone: string;
     tags: string[];
-    cycleFilter: string;
+    cycleFilter: CycleFilterType;
     estimatePoint: number;
     targetDate: string;
     createdDate: string;
@@ -68,8 +67,8 @@ export const useTasksVariables = (
     startDate: string;
     completedDate: string;
     project: string;
-    projectStatus: string;
-    projectPriority: string;
+    projectStatus: number;
+    projectPriority: number;
     projectLeadId: string;
     projectMilestoneName: string;
   }>([
@@ -105,8 +104,8 @@ export const useTasksVariables = (
     createdBy: createdBy,
     teamId: teamId || team,
     priority: priority,
-    status: teamId ? status : undefined,
-    statusType: teamId ? undefined : status,
+    status: teamId && typeof status === 'string' ? status : undefined,
+    statusType: !teamId && typeof status === 'number' ? status : undefined,
     milestoneId: milestone,
     tagIds: tags,
     cycleFilter: cycleFilter,
@@ -117,8 +116,8 @@ export const useTasksVariables = (
     startDate: startDate,
     completedDate: completedDate,
     projectId: project,
-    projectStatus: projectStatus ? Number(projectStatus) : undefined,
-    projectPriority: projectPriority ? Number(projectPriority) : undefined,
+    projectStatus: projectStatus,
+    projectPriority: projectPriority,
     projectLeadId: projectLeadId,
     projectMilestoneName: projectMilestoneName,
     ...variables,
@@ -133,7 +132,9 @@ export const useTasksVariables = (
 };
 
 export const useTasks = (
-  options?: QueryHookOptions<ICursorListResponse<ITask>>,
+  options?: QueryHookOptions<GetTasksQuery, GetTasksQueryVariables> & {
+    variables?: ITaskFilter;
+  },
 ) => {
   const { t } = useTranslation('operation');
   const rawVariables = useTasksVariables(options?.variables);
@@ -144,9 +145,7 @@ export const useTasks = (
     [JSON.stringify(rawVariables)],
   );
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
-    ICursorListResponse<ITask>
-  >(GET_TASKS, {
+  const { data, loading, fetchMore } = useQuery(GET_TASKS, {
     ...options,
     variables: { filter: variables },
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
@@ -160,63 +159,65 @@ export const useTasks = (
     },
   });
 
-  const { list: tasks, pageInfo, totalCount } = data?.getTasks || {};
+  const tasks = data?.getTasks?.list
+    ? compactList(data.getTasks.list)
+    : undefined;
+  const pageInfo = toCursorPageInfo(data?.getTasks?.pageInfo);
+  const totalCount = data?.getTasks?.totalCount;
 
-  useEffect(() => {
-    const unsubscribe = subscribeToMore<ITaskChanged>({
-      document: TASK_LIST_CHANGED,
-      variables: { filter: variables },
-      updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+  useSubscription(TASK_LIST_CHANGED, {
+    variables: { filter: variables },
+    ignoreResults: true,
+    onData: ({ client, data: subData }) => {
+      const event = subData.data?.operationTaskListChanged;
+      const task = event?.task;
+      if (!task) return;
 
-        const { type, task } = subscriptionData.data.operationTaskListChanged;
-        const currentList = prev?.getTasks?.list;
-
-        if (!currentList) return prev;
-
-        let updatedList = currentList;
-
-        if (type === 'create') {
-          const exists = currentList.some(
-            (item: ITask) => item._id === task._id,
-          );
-          if (!exists) {
-            updatedList = [task, ...currentList];
-          }
+      if (event?.type === 'delete') {
+        const cacheId = client.cache.identify(task);
+        if (cacheId) {
+          client.cache.evict({ id: cacheId });
+          client.cache.gc();
         }
-
-        if (type === 'update') {
-          updatedList = currentList.map((item: ITask) =>
-            item._id === task._id ? { ...item, ...task } : item,
-          );
-        }
-
-        if (type === 'remove') {
-          updatedList = currentList.filter(
-            (item: ITask) => item._id !== task._id,
-          );
-        }
-
-        return {
-          ...prev,
-          getTasks: {
-            ...prev.getTasks,
-            list: updatedList,
-            pageInfo: prev.getTasks.pageInfo,
-            totalCount:
-              type === 'create'
-                ? prev.getTasks.totalCount + 1
-                : type === 'remove'
-                  ? prev.getTasks.totalCount - 1
-                  : prev.getTasks.totalCount,
+        client.cache.updateQuery(
+          { query: GET_TASKS, variables: { filter: variables } },
+          (prev) => {
+            const getTasks = prev?.getTasks;
+            if (!getTasks) return;
+            return {
+              ...prev,
+              getTasks: {
+                ...getTasks,
+                totalCount: (getTasks.totalCount ?? 0) - 1,
+              },
+            };
           },
-        };
-      },
-    });
+        );
+        return;
+      }
 
-    return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variables]);
+      if (event?.type === 'create') {
+        client.cache.updateQuery(
+          { query: GET_TASKS, variables: { filter: variables } },
+          (prev) => {
+            const getTasks = prev?.getTasks;
+            if (!getTasks?.list) return;
+            if (getTasks.list.some((item) => item?._id === task._id)) {
+              return prev;
+            }
+            return {
+              ...prev,
+              getTasks: {
+                ...getTasks,
+                list: [task, ...getTasks.list],
+                totalCount: (getTasks.totalCount ?? 0) + 1,
+              },
+            };
+          },
+        );
+      }
+    },
+  });
 
   const handleFetchMore = ({
     direction,
@@ -241,15 +242,16 @@ export const useTasks = (
         },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.getTasks || !prev.getTasks) return prev;
 
-        return Object.assign({}, prev, {
-          getTasks: mergeCursorData({
+        return {
+          ...prev,
+          getTasks: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.getTasks,
-            prevResult: prev.getTasks,
-          }),
-        });
+            prev.getTasks,
+            fetchMoreResult.getTasks,
+          ),
+        };
       },
     });
   };

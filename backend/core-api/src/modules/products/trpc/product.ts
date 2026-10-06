@@ -15,6 +15,7 @@ const discountValueSchema = z.object({
   discountPercent: z.number(),
   prefixes: z.array(z.string()),
   conditions: z.record(z.any()),
+  base: z.boolean().nullable(),
 });
 
 const discountsSchema = z.array(discountValueSchema);

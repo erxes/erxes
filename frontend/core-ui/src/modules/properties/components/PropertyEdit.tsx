@@ -68,8 +68,10 @@ export const PropertyEdit = () => {
               icon: fieldDetail?.icon ?? '123',
               type: fieldType,
               relationType: relationType.join(':'),
+              objectListConfigs: fieldDetail?.configs?.objectListConfigs ?? [],
             }}
             isEdit
+            locked={!!fieldDetail.owner}
             onCancel={handleClose}
             contentType={type || ''}
             fieldId={id}

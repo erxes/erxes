@@ -11,9 +11,12 @@ import {
   NodeData,
 } from '@/automations/types';
 import {
-  generateBranchConnection,
-  generateFindObjectConnection,
-  generateFolksConnection,
+  folkKeyOfHandle,
+  resolveActionFolks,
+} from '@/automations/utils/automationBuilderUtils/actionFolks';
+import { resolveTriggerFolks } from '@/automations/utils/automationBuilderUtils/triggerFolks';
+import {
+  generateFolkConnection,
   generateOptionalConnection,
   generateStandarConnection,
   generateWorkflowConnection,
@@ -108,30 +111,16 @@ export const useNodeConnect = () => {
     // Action-specific flows
     if (sourceType === AutomationNodeType.Action) {
       const actionNode = sourceNode as TAutomationBuilderActions[number];
-      if (actionNode.type === 'if' && sourceHandle) {
-        const updated = generateBranchConnection(
-          actionNode,
-          targetId,
-          sourceHandle,
-        );
-        return applyConnectionUpdate(updated, sourceType, sourceIndex);
-      }
 
-      if (actionNode.type === 'findObject' && sourceHandle) {
-        const updated = generateFindObjectConnection(
-          actionNode,
-          targetId,
-          sourceHandle,
-        );
-        return applyConnectionUpdate(updated, sourceType, sourceIndex);
-      }
+      // The handle says which exit was dragged, so branches belong to whoever
+      // declares that folk rather than to a list of action type names.
+      const folkKey = folkKeyOfHandle(
+        sourceHandle,
+        resolveActionFolks(actionNode.type, actionNode.config, actionFolks),
+      );
 
-      if (connectType === 'folks' && sourceHandle) {
-        const updated = generateFolksConnection(
-          actionNode,
-          targetId,
-          sourceHandle,
-        );
+      if (folkKey) {
+        const updated = generateFolkConnection(actionNode, targetId, folkKey);
         return applyConnectionUpdate(updated, sourceType, sourceIndex);
       }
 
@@ -154,6 +143,18 @@ export const useNodeConnect = () => {
           setAutomationBuilderFormValue('workflows', [...workflows, workFlow]);
           return applyConnectionUpdate(sourceAction, sourceType, sourceIndex);
         }
+      }
+    }
+
+    if (sourceType === AutomationNodeType.Trigger) {
+      const folkKey = folkKeyOfHandle(
+        sourceHandle,
+        resolveTriggerFolks(sourceNode.config),
+      );
+
+      if (folkKey) {
+        const updated = generateFolkConnection(sourceNode, targetId, folkKey);
+        return applyConnectionUpdate(updated, sourceType, sourceIndex);
       }
     }
 

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_TASK_MUTATION = gql`
+export const UPDATE_TASK_MUTATION = gql(`
   mutation UpdateTask(
     $_id: String!
     $name: String
@@ -16,6 +16,7 @@ export const UPDATE_TASK_MUTATION = gql`
     $cycleId: String
     $milestoneId: String
     $tagIds: [String]
+    $propertiesData: JSON
   ) {
     updateTask(
       _id: $_id
@@ -32,10 +33,12 @@ export const UPDATE_TASK_MUTATION = gql`
       cycleId: $cycleId
       milestoneId: $milestoneId
       tagIds: $tagIds
+      propertiesData: $propertiesData
     ) {
       _id
       tagIds
       status
+      propertiesData
     }
   }
-`;
+`);

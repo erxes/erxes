@@ -6,11 +6,13 @@ export const MAIL_PIPELINE_CONNECT_MUTATION = gql`
     $pipelineId: String!
     $senderName: String
     $forwardFrom: String
+    $statusId: String
   ) {
     mailPipelineConnect(
       pipelineId: $pipelineId
       senderName: $senderName
       forwardFrom: $forwardFrom
+      statusId: $statusId
     ) {
       ${PIPELINE_INTEGRATION_FIELDS}
     }
@@ -22,11 +24,13 @@ export const MAIL_PIPELINE_UPDATE_MUTATION = gql`
     $pipelineId: String!
     $senderName: String
     $forwardFrom: String
+    $statusId: String
   ) {
     mailPipelineUpdate(
       pipelineId: $pipelineId
       senderName: $senderName
       forwardFrom: $forwardFrom
+      statusId: $statusId
     ) {
       ${PIPELINE_INTEGRATION_FIELDS}
     }

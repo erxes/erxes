@@ -1,4 +1,5 @@
 import {
+  IconBlocks,
   IconCalendarEvent,
   IconCheck,
   IconChevronDown,
@@ -6,6 +7,7 @@ import {
   IconCircleCheck,
   IconFile,
   IconList,
+  IconListDetails,
   IconNumbers,
   IconPhone,
   IconRelationManyToMany,
@@ -18,6 +20,8 @@ export const FIELD_TYPES = [
   { value: 'text', label: 'Text', icon: IconTextSize },
   { value: 'textarea', label: 'Textarea', icon: IconTextScan2 },
   { value: 'list', label: 'String List', icon: IconList },
+  { value: 'editor', label: 'Editor', icon: IconBlocks },
+  { value: 'objectList', label: 'Object List', icon: IconListDetails },
   { value: 'number', label: 'Number', icon: IconNumbers },
   { value: 'boolean', label: 'True/False', icon: IconCheck },
   { value: 'date', label: 'Date', icon: IconCalendarEvent },
@@ -41,3 +45,15 @@ export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(
   },
   {} as Record<string, (typeof FIELD_TYPES)[number]>,
 );
+
+// Mirrors core-api: types sharing a stored shape; any other change needs a new field.
+export const TYPE_FAMILIES = [
+  ['select', 'radio'],
+  ['multiSelect', 'check'],
+  ['text', 'textarea'],
+];
+
+export const OPTION_TYPES = ['select', 'multiSelect', 'radio', 'check'];
+
+export const getEditableTypes = (savedType: string) =>
+  TYPE_FAMILIES.find((family) => family.includes(savedType)) ?? [savedType];

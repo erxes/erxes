@@ -5,6 +5,7 @@ import {
   getErkhetTransactionCodeMapForTest,
   normalizeOpeningFixedAssetBalances,
   resolveErkhetInvIncomeExpensesForTest,
+  resolveErkhetInvSplitInfoForTest,
   resolveErkhetFxaOwnerRecordSourcesForTest,
   resolveErkhetFxaOwnerRecordsForTest,
   resolveErkhetTransactionFollowInfosForTest,
@@ -197,6 +198,93 @@ describe('Erkhet migration inventory income expenses', () => {
         maps,
       ),
     ).toThrow('Account not found: missing');
+  });
+});
+
+describe('Erkhet migration inventory split details', () => {
+  const transaction = {
+    date: new Date('2026-01-01T00:00:00.000Z'),
+    journal: JOURNALS.INV_INCOME,
+    details: [
+      {
+        _id: 'erkhet-record-10',
+        accountId: '151001',
+        productId: 'SOURCE_001*',
+        count: 2,
+        amount: 240,
+        followInfos: {
+          invSplit: {
+            hasSplit: true,
+            productId: 'SPLIT_ 001*',
+            ratio: 12,
+          },
+        },
+      },
+    ],
+  };
+  const maps = {
+    accountsByCode: {},
+    vatRowsByNumber: {},
+    ctaxRowsByNumber: {},
+    branchesByCode: {},
+    departmentsByCode: {},
+    customersByCode: {},
+    productsByCode: {
+      SOURCE001: 'source-product-id',
+      SPLIT001: 'split-product-id',
+    },
+    fixedAssetCategoriesByCode: {},
+    fixedAssetsByCode: {},
+    usersByRef: {},
+  };
+
+  it('collects and resolves the split product code', () => {
+    expect(getErkhetTransactionCodeMapForTest([transaction])).toEqual(
+      expect.objectContaining({
+        productCodes: expect.arrayContaining(['SOURCE001', 'SPLIT001']),
+      }),
+    );
+
+    expect(
+      resolveErkhetInvSplitInfoForTest(transaction.details[0], maps),
+    ).toEqual({
+      hasSplit: true,
+      productId: 'split-product-id',
+      ratio: 12,
+    });
+  });
+
+  it('rejects a split into the same source product', () => {
+    expect(() =>
+      resolveErkhetInvSplitInfoForTest(
+        {
+          ...transaction.details[0],
+          followInfos: {
+            invSplit: {
+              hasSplit: true,
+              productId: 'SOURCE001',
+              ratio: 12,
+            },
+          },
+        },
+        maps,
+      ),
+    ).toThrow('Split product must differ from the source product');
+  });
+
+  it('does not resolve a product when splitting is disabled', () => {
+    const detail = {
+      ...transaction.details[0],
+      followInfos: {
+        invSplit: {
+          hasSplit: false,
+        },
+      },
+    };
+
+    expect(resolveErkhetInvSplitInfoForTest(detail, maps)).toEqual({
+      hasSplit: false,
+    });
   });
 });
 

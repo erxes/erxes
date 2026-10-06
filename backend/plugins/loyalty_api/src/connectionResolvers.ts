@@ -1,4 +1,21 @@
 import { IAgentDocument } from '@/agent/@types';
+import { ILoyaltyAccountDocument } from '@/score/@types/account';
+import { ILoyaltyLotDocument } from '@/score/@types/lot';
+import { ILoyaltyLotModel, loadLoyaltyLotClass } from '@/score/db/models/Lot';
+import { ILoyaltyPeriodRunDocument } from '@/score/@types/periodRun';
+import {
+  ILoyaltyPeriodRunModel,
+  loadLoyaltyPeriodRunClass,
+} from '@/score/db/models/PeriodRun';
+import { ILoyaltyAccountTypeDocument } from '@/score/@types/accountType';
+import {
+  ILoyaltyAccountModel,
+  loadLoyaltyAccountClass,
+} from '@/score/db/models/Account';
+import {
+  ILoyaltyAccountTypeModel,
+  loadLoyaltyAccountTypeClass,
+} from '@/score/db/models/AccountType';
 import { IAgentModel, loadAgentClass } from '@/agent/db/models/Agent';
 import { IAssignmentDocument } from '@/assignment/@types/assignment';
 import { IAssignmentCampaignDocument } from '@/assignment/@types/assignmentCampaign';
@@ -85,6 +102,10 @@ export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
   PricingPlans: IPricingPlanModel;
   ScoreCampaigns: IScoreCampaignModel;
+  LoyaltyAccountTypes: ILoyaltyAccountTypeModel;
+  LoyaltyAccounts: ILoyaltyAccountModel;
+  LoyaltyLots: ILoyaltyLotModel;
+  LoyaltyPeriodRuns: ILoyaltyPeriodRunModel;
   ScoreLogs: IScoreLogModel;
   Spins: ISpinModel;
   SpinCampaigns: ISpinCampaignModel;
@@ -118,6 +139,11 @@ export const loadClasses = (
   );
   const spinDispatcher = loyaltyEventHandlers('spin', 'spin_campaigns');
   const scoreDispatcher = loyaltyEventHandlers('score', 'score_campaigns');
+  const accountDispatcher = loyaltyEventHandlers('score', 'loyalty_accounts');
+  const accountTypeDispatcher = loyaltyEventHandlers(
+    'score',
+    'loyalty_account_types',
+  );
   const lotteryDispatcher = loyaltyEventHandlers(
     'lottery',
     'lottery_campaigns',
@@ -186,9 +212,36 @@ export const loadClasses = (
     loadScoreCampaignClass(models, subdomain, scoreDispatcher),
   );
 
+  models.LoyaltyAccountTypes = db.model<
+    ILoyaltyAccountTypeDocument,
+    ILoyaltyAccountTypeModel
+  >(
+    'loyalty_account_types',
+    loadLoyaltyAccountTypeClass(models, subdomain, accountTypeDispatcher),
+  );
+
+  models.LoyaltyAccounts = db.model<
+    ILoyaltyAccountDocument,
+    ILoyaltyAccountModel
+  >('loyalty_accounts', loadLoyaltyAccountClass(models, accountDispatcher));
+
+  models.LoyaltyLots = db.model<ILoyaltyLotDocument, ILoyaltyLotModel>(
+    'loyalty_lots',
+    loadLoyaltyLotClass(models),
+  );
+
+  models.LoyaltyPeriodRuns = db.model<
+    ILoyaltyPeriodRunDocument,
+    ILoyaltyPeriodRunModel
+  >('loyalty_period_runs', loadLoyaltyPeriodRunClass(models));
+
   models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>(
     'score_logs',
-    loadScoreLogClass(models, subdomain),
+    loadScoreLogClass(
+      models,
+      subdomain,
+      loyaltyEventHandlers('score', 'score_logs'),
+    ),
   );
 
   models.Spins = db.model<ISpinDocument, ISpinModel>(

@@ -29,4 +29,35 @@ export const fieldMutations = {
 
     return await models.Fields.removeField(_id);
   },
+  fieldsRemove: async (
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    await models.Fields.removeFields(_ids);
+
+    return { removed: _ids.length };
+  },
+  fieldsArchive: async (
+    _root: undefined,
+    { _ids }: { _ids: string[] },
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    await models.Fields.archiveFields(_ids, user);
+
+    return { archived: _ids.length };
+  },
+  fieldRestore: async (
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    return await models.Fields.restoreField(_id);
+  },
 };
