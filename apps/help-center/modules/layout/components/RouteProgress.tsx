@@ -83,18 +83,20 @@ const Bar = () => {
   }, []);
 
   useEffect(() => {
-    if (phase !== 'loading') {
-      return;
-    }
+    const loading = phase === 'loading';
 
-    const trickle = window.setInterval(() => {
-      setProgress((current) => current + (90 - current) * 0.12);
-    }, TRICKLE_MS);
+    const trickle = loading
+      ? window.setInterval(() => {
+          setProgress((current) => current + (90 - current) * 0.12);
+        }, TRICKLE_MS)
+      : undefined;
 
-    const giveUp = window.setTimeout(() => {
-      setPhase('done');
-      setProgress(100);
-    }, GIVE_UP_MS);
+    const giveUp = loading
+      ? window.setTimeout(() => {
+          setPhase('done');
+          setProgress(100);
+        }, GIVE_UP_MS)
+      : undefined;
 
     return () => {
       window.clearInterval(trickle);
@@ -103,16 +105,17 @@ const Bar = () => {
   }, [phase]);
 
   useEffect(() => {
-    if (phase !== 'done') {
-      return;
-    }
+    const reset =
+      phase === 'done'
+        ? window.setTimeout(() => {
+            setPhase('idle');
+            setProgress(0);
+          }, FINISH_MS)
+        : undefined;
 
-    const reset = window.setTimeout(() => {
-      setPhase('idle');
-      setProgress(0);
-    }, FINISH_MS);
-
-    return () => window.clearTimeout(reset);
+    return () => {
+      window.clearTimeout(reset);
+    };
   }, [phase]);
 
   return (

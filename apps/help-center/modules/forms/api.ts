@@ -26,11 +26,11 @@ const pickPublishedForms = (
 
   return formIds
     .map((formId) => forms.find((form) => form._id === formId))
-    .filter((form): form is FormSummary => !!form);
+    .filter((form): form is FormSummary => Boolean(form));
 };
 
 const isPublishedForm = (form: PortalForm, config: PortalConfig): boolean =>
-  !!config.formChannelId &&
+  Boolean(config.formChannelId) &&
   form.channelId === config.formChannelId &&
   form.status === 'active' &&
   (!config.formIds.length || config.formIds.includes(form._id));

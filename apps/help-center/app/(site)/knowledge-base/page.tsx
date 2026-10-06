@@ -103,13 +103,17 @@ export default async function KnowledgeBasePage() {
       ) : browse.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {browse.map(({ category, group, anchor }, index) => (
-            <CategoryCard
+            <div
               key={category._id}
               id={anchor ?? undefined}
-              category={category}
-              eyebrow={group ?? undefined}
-              index={index}
-            />
+              className="scroll-mt-20"
+            >
+              <CategoryCard
+                category={category}
+                eyebrow={group ?? undefined}
+                index={index}
+              />
+            </div>
           ))}
         </div>
       ) : (
