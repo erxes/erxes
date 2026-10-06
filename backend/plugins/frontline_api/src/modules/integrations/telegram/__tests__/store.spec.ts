@@ -260,9 +260,8 @@ test('a file limit discovered during download is shown in the inbox instead of b
 });
 
 test('an upgraded group reuses the old history through its alias without rewriting unique chat keys', async () => {
-  const { getOrCreateTelegramConversation } = await import(
-    '../controller/store'
-  );
+  const { getOrCreateTelegramConversation } =
+    await import('../controller/store');
   const old = { ...conversation, chatId: '-123', migratedToChatId: '-100123' };
   const find = jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce(old);
   const update = jest.fn().mockResolvedValue(old);
@@ -292,9 +291,8 @@ test('an upgraded group reuses the old history through its alias without rewriti
   );
 });
 test('a conversation already created at the upgraded ID wins without merging separate histories', async () => {
-  const { getOrCreateTelegramConversation } = await import(
-    '../controller/store'
-  );
+  const { getOrCreateTelegramConversation } =
+    await import('../controller/store');
   const existing = { ...conversation, _id: 'new-history', chatId: '-100123' };
   const find = jest.fn().mockResolvedValue(existing);
   const scopedModels = {

@@ -3,8 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { ITelegramCustomerDocument } from '@/integrations/telegram/@types/customers';
 import { telegramCustomerSchema } from '@/integrations/telegram/db/definitions/customers';
 
-export interface ITelegramCustomerModel
-  extends Model<ITelegramCustomerDocument> {
+export interface ITelegramCustomerModel extends Model<ITelegramCustomerDocument> {
   getCustomer(
     selector: FilterQuery<ITelegramCustomerDocument>,
   ): Promise<ITelegramCustomerDocument>;
