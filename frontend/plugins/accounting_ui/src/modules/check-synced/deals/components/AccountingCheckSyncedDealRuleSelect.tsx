@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { useQuery } from '@apollo/client';
 import { IconSettings } from '@tabler/icons-react';
 import {
@@ -8,7 +9,6 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import i18n from 'i18next';
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,28 +25,31 @@ type AccountingSyncDealRulesQueryResult = {
 export type AccountingCheckSyncedDealRuleScope = 'deal' | 'movement';
 
 const DEAL_RETURN_TYPE_LABELS = {
-  delete: 'Устгах',
-  fullTr: 'Бүтэн гүйлгээ',
-  onlySale: 'Зөвхөн борлуулалт',
+  delete: 'delete',
+  fullTr: 'full-tr',
+  onlySale: 'only-sale',
 };
 
-const getRuleLabel = (rule?: AccountingDealRule) =>
-  rule?.value?.title || rule?.subId || rule?._id || 'Select rule';
+const getRuleLabel = (t: TFunction<'accounting'>, rule?: AccountingDealRule) =>
+  rule?.value?.title || rule?.subId || rule?._id || t('select-rule');
 
-const getRuleTypeLabel = (rule: AccountingDealRule) => {
+const getRuleTypeLabel = (
+  rule: AccountingDealRule,
+  t: TFunction<'accounting'>,
+) => {
   if (rule.code !== ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN) {
     if (rule.code === ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT) {
-      return 'Хөдөлгөөн';
+      return t('transfer');
     }
 
-    return i18n.t('accounting:sale');
+    return t('sale');
   }
 
   const returnType = rule.value?.returnType;
 
   return returnType
-    ? `${i18n.t('accounting:return')} / ${DEAL_RETURN_TYPE_LABELS[returnType]}`
-    : i18n.t('accounting:return');
+    ? `${t('return')} / ${t(DEAL_RETURN_TYPE_LABELS[returnType])}`
+    : t('return');
 };
 
 const useAccountingCheckSyncedDealRules = () =>
@@ -147,9 +150,9 @@ const AccountingCheckSyncedDealRuleContent = ({
             }}
           >
             <span className="flex flex-col">
-              <span className="font-medium">{getRuleLabel(rule)}</span>
+              <span className="font-medium">{getRuleLabel(t, rule)}</span>
               <span className="text-xs text-muted-foreground">
-                {getRuleTypeLabel(rule)}
+                {getRuleTypeLabel(rule, t)}
               </span>
             </span>
             <Combobox.Check checked={ruleId === rule._id} />
@@ -236,7 +239,7 @@ export const AccountingCheckSyncedDealRuleFilterBar = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="ruleId">
-            {getRuleLabel(rule)}
+            {getRuleLabel(t, rule)}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

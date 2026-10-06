@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { ColumnDef, Row } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -68,7 +69,7 @@ export const syncBaseColumns: ColumnDef<IConfig>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <HeaderCell labelKey="code" />,
     cell: ({ cell }) => (
       <SyncLinkCell row={cell.row} renderVal={cell.row.original?.code} />
     ),
@@ -77,7 +78,7 @@ export const syncBaseColumns: ColumnDef<IConfig>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Гарчиг" />,
+    header: () => <HeaderCell labelKey="title" />,
     cell: ({ cell }) => (
       <SyncLinkCell
         row={cell.row}

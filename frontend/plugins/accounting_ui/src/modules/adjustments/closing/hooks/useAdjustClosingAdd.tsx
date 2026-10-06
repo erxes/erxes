@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router';
 import { ADJUST_CLOSING_ADD } from '../graphql/adjustClosingAdd';
@@ -6,6 +7,8 @@ import { ADJUST_CLOSING_QUERY } from '../graphql/adjustClosingQueries';
 import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
 
 export const useAdjustClosingAdd = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
+
   const navigate = useNavigate();
 
   const [_addAdjustClosing, { loading }] = useMutation(
@@ -18,7 +21,7 @@ export const useAdjustClosingAdd = (options?: OperationVariables) => {
       ...mutationOptions,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -26,8 +29,8 @@ export const useAdjustClosingAdd = (options?: OperationVariables) => {
       },
       onCompleted: (data: any) => {
         toast({
-          title: 'Success',
-          description: 'Adjust Closing created successfully',
+          title: t('success'),
+          description: t('closing-adjustment-created-successfully'),
         });
 
         const newId = data?.adjustClosingAdd?._id;

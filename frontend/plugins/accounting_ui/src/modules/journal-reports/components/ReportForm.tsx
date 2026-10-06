@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import {
   Button,
@@ -95,6 +96,8 @@ const ReportFormField = ({
   form: UseFormReturn<ReportFormValues>;
   reportConfig: IReportConfig;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { field, label } = definition;
 
   if (field === 'accountCategoryId') {
@@ -328,12 +331,12 @@ const ReportFormField = ({
             <Form.Label>{label}</Form.Label>
             <Select value={control.value} onValueChange={control.onChange}>
               <Select.Trigger>
-                <Select.Value placeholder="Бүгд" />
+                <Select.Value placeholder={t('global-search.all')} />
               </Select.Trigger>
               <Select.Content>
                 {ERKHET_TRANSACTION_TYPE_CHOICES.map((choice) => (
                   <Select.Item key={choice.code} value={choice.code}>
-                    {choice.title}
+                    {t(choice.title)}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -354,12 +357,12 @@ const ReportFormField = ({
             <Form.Label>{label}</Form.Label>
             <Select value={control.value} onValueChange={control.onChange}>
               <Select.Trigger>
-                <Select.Value placeholder="Бүлэглэх хэлбэр" />
+                <Select.Value placeholder={t('grouping-method')} />
               </Select.Trigger>
               <Select.Content>
                 {(reportConfig.choices || []).map((choice) => (
                   <Select.Item key={choice.code} value={choice.code}>
-                    {choice.title}
+                    {t(choice.title)}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -408,6 +411,8 @@ const ReportFormField = ({
 };
 
 export const ReportForm = () => {
+  const { t } = useTranslation('accounting');
+
   const activeReport = useAtomValue(activeReportState);
   const reportConfig = useMemo(
     () => ReportRules[activeReport] || ({} as IReportConfig),
@@ -453,12 +458,12 @@ export const ReportForm = () => {
   };
 
   if (!activeReport) {
-    return 'Тайлан сонгоно уу';
+    return t('select-a-report');
   }
 
   return (
     <div className="mx-auto overflow-auto p-3 pt-8">
-      <h2 className="text-base font-semibold">{reportConfig.title}</h2>
+      <h2 className="text-base font-semibold">{t(reportConfig.title)}</h2>
       <Separator className="mt-3" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="py-4">
@@ -488,7 +493,7 @@ export const ReportForm = () => {
           })}
           <Dialog.Footer className="mt-4">
             <Button type="submit" size="lg" disabled={!allowedFields.size}>
-              Тайлан харах
+              {t('view-report')}
             </Button>
           </Dialog.Footer>
         </form>

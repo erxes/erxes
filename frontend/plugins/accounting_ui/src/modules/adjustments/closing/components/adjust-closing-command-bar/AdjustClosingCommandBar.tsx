@@ -1,8 +1,10 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, useToast } from 'erxes-ui';
 import { IAdjustClosing } from '../../types/AdjustClosing';
 import { AdjustClosingDelete } from './AdjustClosingDelete';
-import { ApolloError } from '@apollo/client';
+import { ApolloCache, ApolloError } from '@apollo/client';
 import { TagsSelect } from 'ui-modules';
 
 const intersection = (arrays: string[][]): string[] => {
@@ -17,8 +19,9 @@ const buildTagSelectOptions = (
   adjustClosingIds: string[],
   newSelectedTagIds: string[],
   toast: ReturnType<typeof useToast>['toast'],
+  t: TFunction<'accounting'>,
 ) => ({
-  update: (cache: any) => {
+  update: (cache: ApolloCache<unknown>) => {
     adjustClosingIds.forEach((id) => {
       cache.modify({
         id: cache.identify({ __typename: 'AdjustClosing', _id: id }),
@@ -30,7 +33,7 @@ const buildTagSelectOptions = (
   },
   onError: (e: ApolloError) => {
     toast({
-      title: 'Error',
+      title: t('error'),
       description: e.message,
       variant: 'destructive',
     });
@@ -38,6 +41,8 @@ const buildTagSelectOptions = (
 });
 
 export const AdjustClosingCommandBar = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
 
@@ -54,7 +59,9 @@ export const AdjustClosingCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {selectedRows.length} {t('selected-4')}
+        </CommandBar.Value>
         <Separator.Inline />
         <TagsSelect
           type="core:adjustClosing"
@@ -64,7 +71,7 @@ export const AdjustClosingCommandBar = () => {
           value={commonTagIds}
           targetIds={adjustClosingIds}
           options={(newSelectedTagIds) =>
-            buildTagSelectOptions(adjustClosingIds, newSelectedTagIds, toast)
+            buildTagSelectOptions(adjustClosingIds, newSelectedTagIds, toast, t)
           }
         />
         <Separator.Inline />

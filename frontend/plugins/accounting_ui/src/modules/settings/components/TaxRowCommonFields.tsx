@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import { Form, Input, Select } from 'erxes-ui';
 
@@ -16,6 +17,8 @@ export const TaxRowCommonFields = <T extends FieldValues>({
   statusLabels: Record<string, string>;
   statusColSpan?: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <>
       <Form.Field
@@ -23,7 +26,7 @@ export const TaxRowCommonFields = <T extends FieldValues>({
         name={'number' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Дугаар</Form.Label>
+            <Form.Label>{t('number')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -36,7 +39,7 @@ export const TaxRowCommonFields = <T extends FieldValues>({
         name={'name' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Нэр</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -49,11 +52,11 @@ export const TaxRowCommonFields = <T extends FieldValues>({
         name={'kind' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Төрөл</Form.Label>
+            <Form.Label>{t('type')}</Form.Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Төрөл сонгох" />
+                  <Select.Value placeholder={t('select-type')} />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
@@ -73,7 +76,7 @@ export const TaxRowCommonFields = <T extends FieldValues>({
         name={'percent' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Хувь</Form.Label>
+            <Form.Label>{t('percentage')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
@@ -92,11 +95,11 @@ export const TaxRowCommonFields = <T extends FieldValues>({
         name={'status' as FieldPath<T>}
         render={({ field }) => (
           <Form.Item className={statusColSpan ? 'col-span-2' : undefined}>
-            <Form.Label>Төлөв</Form.Label>
+            <Form.Label>{t('status')}</Form.Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Төлөв сонгох" />
+                  <Select.Value placeholder={t('select-a-status')} />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
@@ -106,7 +109,7 @@ export const TaxRowCommonFields = <T extends FieldValues>({
                     value={status}
                     className="capitalize"
                   >
-                    {statusLabels[status]}
+                    {t(statusLabels[status])}
                   </Select.Item>
                 ))}
               </Select.Content>

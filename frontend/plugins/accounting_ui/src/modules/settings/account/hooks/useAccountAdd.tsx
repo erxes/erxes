@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { recordTableCursorAtomFamily, toast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
@@ -5,6 +6,8 @@ import { ACCOUNTS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { ACCOUNTS_ADD } from '../graphql/mutations/accounts';
 
 export const useAccountAdd = () => {
+  const { t } = useTranslation('accounting');
+
   const setCursor = useSetAtom(
     recordTableCursorAtomFamily(ACCOUNTS_CURSOR_SESSION_KEY),
   );
@@ -16,7 +19,7 @@ export const useAccountAdd = () => {
       ...options,
       onError: (error) => {
         toast({
-          title: 'Алдаа',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

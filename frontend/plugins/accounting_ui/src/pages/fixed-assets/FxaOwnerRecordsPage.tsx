@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { AccountingHeader } from '~/modules/layout/components/Header';
 import { AccountingLayout } from '~/modules/layout/components/Layout';
@@ -6,11 +7,13 @@ import { FxaOwnerRecordFilters } from '~/modules/fixedAssets/ownerRecords/compon
 import { FxaOwnerRecordsTable } from '~/modules/fixedAssets/ownerRecords/components/FxaOwnerRecordsTable';
 
 export const FxaOwnerRecordsPage = () => {
+  const { t } = useTranslation('accounting');
+
   return (
     <AccountingLayout>
       <AccountingHeader
         returnLink="/accounting/fixed-assets/owner-records"
-        returnText="Эд хариуцагч"
+        returnText={t('asset-custodian')}
         skipSettings={true}
       >
         <FxaOwnerRecordActions />

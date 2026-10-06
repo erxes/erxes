@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   CommandBar,
@@ -10,12 +11,14 @@ import { useAccountCategoriesRemove } from '../hooks/useAccountCategoriesRemove'
 import { IconTrash } from '@tabler/icons-react';
 
 export const AccountCategoriesCommandbar = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <AccountCategoriesDelete />
@@ -25,16 +28,20 @@ export const AccountCategoriesCommandbar = () => {
 };
 
 export const AccountCategoriesDelete = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeAccountCategories, loading } = useAccountCategoriesRemove();
 
   const handleDelete = () => {
     confirm({
-      message: 'Эдгээр дансны ангиллыг устгахдаа итгэлтэй байна уу?',
+      message: t(
+        'are-you-sure-you-want-to-delete-the-selected-account-categories',
+      ),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       const accountCategoryIds = table
@@ -45,7 +52,7 @@ export const AccountCategoriesDelete = () => {
           variables: { _id: accountCategoryId },
           onError: (error: Error) => {
             toast({
-              title: 'Алдаа',
+              title: t('error'),
               description: error.message,
               variant: 'destructive',
             });
@@ -53,8 +60,8 @@ export const AccountCategoriesDelete = () => {
           onCompleted: () => {
             table.setRowSelection({});
             toast({
-              title: 'Амжилттай',
-              description: 'Дансны ангиллыг устгалаа',
+              title: t('success'),
+              description: t('account-categories-deleted-successfully'),
             });
           },
         });
@@ -65,7 +72,7 @@ export const AccountCategoriesDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };

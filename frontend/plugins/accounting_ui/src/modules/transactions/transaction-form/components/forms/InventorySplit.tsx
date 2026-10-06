@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import {
   Checkbox,
@@ -19,7 +20,7 @@ import {
   useEffect,
   useMemo,
 } from 'react';
-import { Path, useWatch } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
 import { ITransaction, ITrDetail } from '../../../types/Transaction';
 import { TR_SIDES, TrJournalEnum } from '../../../types/constants';
@@ -27,7 +28,6 @@ import { ACCOUNTING_INVENTORY_SPLIT_PRODUCTS } from '../../graphql/queries/invSp
 import { followTrDocsState } from '../../states/trStates';
 import {
   ITransactionGroupForm,
-  TAddTransactionGroup,
   TInvIncomeJournal,
   TInvMoveJournal,
 } from '../../types/JournalForms';
@@ -109,6 +109,8 @@ export const InventorySplitSheet = ({
   journalIndex: number;
   form: ITransactionGroupForm;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -117,10 +119,9 @@ export const InventorySplitSheet = ({
   const splitInfo = detail.followInfos?.invSplit;
   const hasSplit = splitInfo?.hasSplit === true;
   const splitPath =
-    `trDocs.${journalIndex}.details.${detailIndex}.followInfos.invSplit` as Path<TAddTransactionGroup>;
-  const splitProductPath =
-    `${splitPath}.productId` as Path<TAddTransactionGroup>;
-  const splitRatioPath = `${splitPath}.ratio` as Path<TAddTransactionGroup>;
+    `trDocs.${journalIndex}.details.${detailIndex}.followInfos.invSplit` as const;
+  const splitProductPath = `${splitPath}.productId` as const;
+  const splitRatioPath = `${splitPath}.ratio` as const;
   const uomByProductId = useContext(InventorySplitUomContext);
 
   const setSplitInfo = (nextSplitInfo?: TSplitInfo) => {
@@ -157,21 +158,25 @@ export const InventorySplitSheet = ({
               'bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-500/10 dark:hover:bg-yellow-500/20',
           )}
           disabled={!detail}
-          aria-label="Бараа задлах тохиргоо"
-          title="Бараа задлах тохиргоо"
+          aria-label={t('product-split-settings')}
+          title={t('product-split-settings')}
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none sm:max-w-lg">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
           <div className="min-w-0 flex-1">
-            <Sheet.Title>Бараа задлах</Sheet.Title>
-            <Sheet.Description>Задрах барааны тохиргоо</Sheet.Description>
+            <Sheet.Title>{t('split-product')}</Sheet.Title>
+            <Sheet.Description>
+              {t('resulting-product-settings')}
+            </Sheet.Description>
           </div>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto space-y-4">
           <div className="flex items-center justify-between gap-4 rounded-md border p-3">
-            <Label htmlFor={`inventory-split-${detail._id}`}>Задлах эсэх</Label>
+            <Label htmlFor={`inventory-split-${detail._id}`}>
+              {t('enable-product-split')}
+            </Label>
             <Checkbox
               id={`inventory-split-${detail._id}`}
               checked={hasSplit}
@@ -188,17 +193,19 @@ export const InventorySplitSheet = ({
                 name={splitProductPath}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Задрах бараа</Form.Label>
+                    <Form.Label>{t('resulting-product')}</Form.Label>
                     <Form.Control>
                       <SelectProduct
                         value={field.value || ''}
-                        onValueChange={(productId) =>
-                          form.setValue(splitProductPath, productId, {
-                            shouldDirty: true,
-                            shouldTouch: true,
-                            shouldValidate: true,
-                          })
-                        }
+                        onValueChange={(productId) => {
+                          if (typeof productId === 'string') {
+                            form.setValue(splitProductPath, productId, {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                              shouldValidate: true,
+                            });
+                          }
+                        }}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -211,7 +218,7 @@ export const InventorySplitSheet = ({
                 name={splitRatioPath}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Задрах харьцаа</Form.Label>
+                    <Form.Label>{t('split-ratio')}</Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value ?? 0}
@@ -230,7 +237,7 @@ export const InventorySplitSheet = ({
               />
 
               <div className="space-y-2">
-                <Label>Задрах барааны хэмжих нэгж</Label>
+                <Label>{t('resulting-product-unit-of-measure')}</Label>
                 <Input
                   value={uomByProductId.get(splitInfo.productId) || '-'}
                   readOnly

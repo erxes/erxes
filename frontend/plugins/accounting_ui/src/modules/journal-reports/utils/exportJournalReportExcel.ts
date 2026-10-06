@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import ExcelJS from 'exceljs';
 
 interface IReportExportMetadata {
@@ -124,10 +125,11 @@ const downloadWorkbook = async (
 export const exportJournalReportExcel = async (
   container: HTMLElement,
   metadata: IReportExportMetadata,
+  t: TFunction<'accounting'>,
 ) => {
   const table = container.querySelector('table[data-slot="table"]');
   if (!(table instanceof HTMLTableElement)) {
-    throw new Error('Тайлангийн хүснэгт олдсонгүй');
+    throw new Error(t('the-report-table-could-not-be-found'));
   }
 
   const rows = extractTableRows(table);
@@ -136,7 +138,7 @@ export const exportJournalReportExcel = async (
       row.some((cell) => !cell.isHeader && !cell.isTotal && cell.value !== ''),
     )
   ) {
-    throw new Error('Татах тайлангийн мэдээлэл алга');
+    throw new Error(t('no-report-data-is-available-to-download'));
   }
 
   const workbook = new ExcelJS.Workbook();

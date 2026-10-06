@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ADJUST_FUND_RATE_ADD } from '../graphql/adjustFundRateAdd';
 import { toast } from 'erxes-ui';
@@ -5,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { ADJUST_FUND_RATE_QUERY } from '../graphql/adjustFundRateQueries';
 
 export const useAdjustFundRateAdd = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
+
   const navigate = useNavigate();
 
   const [_addAdjustFundRate, { loading }] = useMutation(
@@ -17,7 +20,7 @@ export const useAdjustFundRateAdd = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -25,8 +28,10 @@ export const useAdjustFundRateAdd = (options?: OperationVariables) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Fund Rate Adjustment created successfully',
+          title: t('success'),
+          description: t(
+            'cash-and-bank-currency-revaluation-created-successfully',
+          ),
         });
         options?.onCompleted?.();
       },

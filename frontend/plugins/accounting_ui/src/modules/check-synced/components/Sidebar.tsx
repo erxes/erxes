@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Separator, Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
 import { ACC_TR_CHECK_ROUTES } from '../constants/settingsRoutes';
 
 export const AccTrCheckSidebar = () => {
+  const { t } = useTranslation('accounting');
   return (
     <Sidebar collapsible="none" className="border-r flex-none">
       <Sidebar.Group>
@@ -10,7 +12,7 @@ export const AccTrCheckSidebar = () => {
           <Sidebar.Menu>
             {Object.entries(ACC_TR_CHECK_ROUTES).map(([path, label]) => (
               <AccTrCheckSidebarItem key={path} to={path}>
-                {label}
+                {t(label)}
               </AccTrCheckSidebarItem>
             ))}
           </Sidebar.Menu>

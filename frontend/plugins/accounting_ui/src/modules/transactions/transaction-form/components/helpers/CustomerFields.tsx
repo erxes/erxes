@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Form, Select } from 'erxes-ui';
 import { ITransactionGroupForm } from '../../types/JournalForms';
 import {
@@ -8,9 +9,9 @@ import {
 } from 'ui-modules';
 
 const CUSTOMER_TYPE_LABELS = {
-  [CustomerType.CUSTOMER]: 'Харилцагч',
-  [CustomerType.COMPANY]: 'Байгууллага',
-  [CustomerType.USER]: 'Ажилтан',
+  [CustomerType.CUSTOMER]: 'contact',
+  [CustomerType.COMPANY]: 'organization-3',
+  [CustomerType.USER]: 'employee',
 };
 
 export const CustomerFields = ({
@@ -20,6 +21,8 @@ export const CustomerFields = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { customerType } = form.watch(`trDocs.${index}`);
 
   const SelectComponent =
@@ -36,18 +39,18 @@ export const CustomerFields = ({
         name={`trDocs.${index}.customerType`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Харилцагчийн төрөл</Form.Label>
+            <Form.Label>{t('customer-type')}</Form.Label>
 
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Харилцагчийн төрөл сонгох" />
+                  <Select.Value placeholder={t('select-customer-type')} />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
                 {Object.values(CustomerType).map((type) => (
                   <Select.Item key={type} value={type}>
-                    {CUSTOMER_TYPE_LABELS[type]}
+                    {t(CUSTOMER_TYPE_LABELS[type])}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -61,8 +64,8 @@ export const CustomerFields = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              {CUSTOMER_TYPE_LABELS[customerType as CustomerType] ||
-                'Харилцагч'}
+              {t(CUSTOMER_TYPE_LABELS[customerType as CustomerType]) ||
+                t('contact')}
             </Form.Label>
             <Form.Control>
               <SelectComponent

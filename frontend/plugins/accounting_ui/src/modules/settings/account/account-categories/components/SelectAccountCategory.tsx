@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -99,6 +100,8 @@ export const SelectAccountCatCommand = ({
   nullable?: boolean;
   exclude?: string[];
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { accountCategories, loading, error } = useAccountCategories({
@@ -121,7 +124,7 @@ export const SelectAccountCatCommand = ({
     <Command shouldFilter={false}>
       <Command.Input
         variant="secondary"
-        placeholder="Ангиллаар шүүх"
+        placeholder={t('filter-by-category')}
         ref={inputRef}
         value={search}
         onValueChange={(value) => setSearch(value)}
@@ -130,7 +133,7 @@ export const SelectAccountCatCommand = ({
         <Combobox.Empty error={error} loading={loading} />
         {nullable && (
           <Command.Item key="null" value="null" onSelect={() => onSelect(null)}>
-            Ангилал сонгоогүй
+            {t('no-category-selected')}
           </Command.Item>
         )}
         {accountCategories?.map((category: IAccountCategory) => (
@@ -218,12 +221,13 @@ const SelectAccountCategoryTrigger = React.forwardRef<
     loading?: boolean;
   }
 >(({ selectedCategory, loading, ...props }, ref) => {
+  const { t } = useTranslation('accounting');
   return (
     <Combobox.Trigger {...props} ref={ref}>
       {selectedCategory ? (
         <SelectAccountCategoryBadge category={selectedCategory} />
       ) : (
-        <Combobox.Value placeholder="Ангилал сонгох" />
+        <Combobox.Value placeholder={t('select-a-category')} />
       )}
     </Combobox.Trigger>
   );

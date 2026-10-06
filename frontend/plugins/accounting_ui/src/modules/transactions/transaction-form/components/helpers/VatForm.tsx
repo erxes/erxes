@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
 import { Checkbox, CurrencyField, Form } from 'erxes-ui';
@@ -21,6 +22,8 @@ export const VatForm = ({
   isWithTax?: boolean;
   isSameSide: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [taxPercents, setTaxPercents] = useAtom(taxPercentsState);
   const trDoc = useWatch({
     control: form.control,
@@ -167,7 +170,7 @@ export const VatForm = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">НӨАТ-тэй</Form.Label>
+            <Form.Label variant="peer">{t('apply-vat')}</Form.Label>
           </Form.Item>
         )}
       />
@@ -184,7 +187,9 @@ export const VatForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">НӨАТ гараар тооцох</Form.Label>
+                <Form.Label variant="peer">
+                  {t('enter-vat-manually')}
+                </Form.Label>
               </Form.Item>
             )}
           />
@@ -199,7 +204,9 @@ export const VatForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">Дараа НӨАТ тооцох</Form.Label>
+                <Form.Label variant="peer">
+                  {t('defer-vat-calculation')}
+                </Form.Label>
               </Form.Item>
             )}
           />
@@ -208,7 +215,7 @@ export const VatForm = ({
             name={`trDocs.${journalIndex}.vatRowId`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>НӨАТ-ын мөр</Form.Label>
+                <Form.Label>{t('vat-rules')}</Form.Label>
                 <SelectVat
                   value={field.value || ''}
                   onValueChange={field.onChange}
@@ -223,7 +230,7 @@ export const VatForm = ({
             name={`trDocs.${journalIndex}.vatAmount`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>НӨАТ-ын дүн</Form.Label>
+                <Form.Label>{t('vat-amount-2')}</Form.Label>
                 <CurrencyField.ValueInput
                   value={handleVat ? field.value ?? 0 : calcedAmount}
                   onChange={field.onChange}

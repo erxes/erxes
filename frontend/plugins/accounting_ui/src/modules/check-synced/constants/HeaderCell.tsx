@@ -6,7 +6,7 @@ export const HeaderCell = ({
   icon: Icon,
   labelKey,
 }: {
-  icon: Icon;
+  icon?: Icon;
   labelKey: string;
 }) => {
   const { t } = useTranslation('accounting');

@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
 
 const AccountIsTemp = ['True', 'False'];
 const ACCOUNT_BOOLEAN_LABELS: Record<string, string> = {
-  True: 'Тийм',
-  False: 'Үгүй',
+  True: 'yes',
+  False: 'no',
 };
 
 export const SelectAccountIsTempCommand = React.forwardRef<
@@ -18,12 +19,16 @@ export const SelectAccountIsTempCommand = React.forwardRef<
     onSelect?: (isTemp: string | null) => void;
   }
 >(({ selected, onSelect, ...props }, ref) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ? ACCOUNT_BOOLEAN_LABELS[selected] : 'Бүгд'}
+        {selected
+          ? t(ACCOUNT_BOOLEAN_LABELS[selected])
+          : t('global-search.all')}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsIsTempCommand
@@ -48,10 +53,12 @@ export const AccountsIsTempCommand = ({
   selected: string | null;
   onSelect?: (isTemp: string | null) => void;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Command>
       <Command.Input
-        placeholder="Түр дансаар шүүх"
+        placeholder={t('filter-by-temporary-account-status')}
         focusOnMount={focusOnMount}
       />
       <Command.List>
@@ -61,7 +68,7 @@ export const AccountsIsTempCommand = ({
             value={isTemp}
             onSelect={() => onSelect?.(isTemp)}
           >
-            {ACCOUNT_BOOLEAN_LABELS[isTemp]}
+            {t(ACCOUNT_BOOLEAN_LABELS[isTemp])}
             <Combobox.Check checked={selected === isTemp} />
           </Command.Item>
         ))}

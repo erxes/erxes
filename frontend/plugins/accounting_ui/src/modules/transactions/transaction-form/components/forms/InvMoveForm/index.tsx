@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
@@ -21,6 +22,8 @@ export const InvMoveForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const onChangeInAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.moveInAccount`, account as any);
   };
@@ -33,7 +36,7 @@ export const InvMoveForm = ({
           index={index}
           filter={{ journals: [JournalEnum.INVENTORY] }}
           allDetails={true}
-          labelTxt="Гарах барааны данс"
+          labelTxt={t('source-inventory-account')}
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -45,7 +48,7 @@ export const InvMoveForm = ({
           name={`trDocs.${index}.followInfos.moveInAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Орох барааны данс</Form.Label>
+              <Form.Label>{t('destination-inventory-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -66,7 +69,7 @@ export const InvMoveForm = ({
           name={`trDocs.${index}.followInfos.moveInBranchId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Орох салбар</Form.Label>
+              <Form.Label>{t('destination-branch')}</Form.Label>
               <Form.Control>
                 <SelectBranches.FormItem
                   mode="single"
@@ -83,7 +86,7 @@ export const InvMoveForm = ({
           name={`trDocs.${index}.followInfos.moveInDepartmentId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Орох хэлтэс</Form.Label>
+              <Form.Label>{t('destination-department')}</Form.Label>
               <Form.Control>
                 <SelectDepartments.FormItem
                   mode="single"

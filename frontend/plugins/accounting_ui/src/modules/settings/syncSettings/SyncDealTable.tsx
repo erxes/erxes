@@ -1,5 +1,6 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { RecordTableInlineCell } from 'erxes-ui';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { IConfig } from '../types/Config';
@@ -10,7 +11,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'board',
     accessorKey: 'board',
-    header: () => <RecordTable.InlineHead label="Board" />,
+    header: () => <HeaderCell labelKey="board" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <BoardSelect boardId={cell.row.original.value?.boardId} />
@@ -20,7 +21,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'pipeline',
     accessorKey: 'pipeline',
-    header: () => <RecordTable.InlineHead label="Pipeline" />,
+    header: () => <HeaderCell labelKey="pipeline" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <PipelineSelect pipelineId={cell.row.original.value?.pipelineId} />
@@ -30,7 +31,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'stage',
     accessorKey: 'stage',
-    header: () => <RecordTable.InlineHead label="Stage" />,
+    header: () => <HeaderCell labelKey="stage" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <StageSelect

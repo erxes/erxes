@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { useQuery } from '@apollo/client';
 import { IconSettings } from '@tabler/icons-react';
 import {
@@ -8,7 +9,6 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import i18n from 'i18next';
 import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
@@ -20,20 +20,23 @@ type AccountingSyncOrderRulesQueryResult = {
 };
 
 const ORDER_RETURN_TYPE_LABELS = {
-  delete: 'Устгах',
-  fullTr: 'Бүтэн гүйлгээ',
-  onlySale: 'Зөвхөн борлуулалт',
+  delete: 'delete',
+  fullTr: 'full-tr',
+  onlySale: 'only-sale',
 };
 
-const getRuleLabel = (rule?: AccountingOrderRule) =>
-  rule?.value?.title || rule?.subId || rule?._id || 'Select rule';
+const getRuleLabel = (t: TFunction<'accounting'>, rule?: AccountingOrderRule) =>
+  rule?.value?.title || rule?.subId || rule?._id || t('select-rule');
 
-const getRuleTypeLabel = (rule: AccountingOrderRule) => {
+const getRuleTypeLabel = (
+  rule: AccountingOrderRule,
+  t: TFunction<'accounting'>,
+) => {
   const returnType = rule.value?.returnType;
 
   return returnType
-    ? `${i18n.t('accounting:sale-return')} / ${ORDER_RETURN_TYPE_LABELS[returnType]}`
-    : i18n.t('accounting:sale-return');
+    ? `${t('sale-return')} / ${t(ORDER_RETURN_TYPE_LABELS[returnType])}`
+    : t('sale-return');
 };
 
 const useAccountingCheckSyncedOrderRules = () =>
@@ -96,9 +99,9 @@ const AccountingCheckSyncedOrderRuleContent = ({
             }}
           >
             <span className="flex flex-col">
-              <span className="font-medium">{getRuleLabel(rule)}</span>
+              <span className="font-medium">{getRuleLabel(t, rule)}</span>
               <span className="text-xs text-muted-foreground">
-                {getRuleTypeLabel(rule)}
+                {getRuleTypeLabel(rule, t)}
               </span>
             </span>
             <Combobox.Check checked={ruleId === rule._id} />
@@ -164,7 +167,7 @@ export const AccountingCheckSyncedOrderRuleFilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="orderRuleId">
-            {getRuleLabel(rule)}
+            {getRuleLabel(t, rule)}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

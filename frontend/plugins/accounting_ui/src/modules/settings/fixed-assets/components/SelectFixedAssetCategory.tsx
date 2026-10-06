@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover, cn } from 'erxes-ui';
 import { useState } from 'react';
 import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
@@ -15,6 +16,8 @@ export const SelectFixedAssetCategory = ({
   nullable?: boolean;
   className?: string;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
   const { fixedAssetCategories } = useFixedAssetCategories();
   const selectedCategory = fixedAssetCategories?.find(
@@ -27,12 +30,12 @@ export const SelectFixedAssetCategory = ({
         <span className="truncate">
           {selectedCategory
             ? `${selectedCategory.code} - ${selectedCategory.name}`
-            : 'Бүлэг сонгох'}
+            : t('select-a-category')}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>
         <Command shouldFilter>
-          <Command.Input placeholder="Бүлэг хайх" />
+          <Command.Input placeholder={t('search-categories')} />
           <Command.List>
             {nullable && (
               <Command.Item
@@ -42,7 +45,7 @@ export const SelectFixedAssetCategory = ({
                   setOpen(false);
                 }}
               >
-                Сонгохгүй
+                {t('none')}
               </Command.Item>
             )}
             {fixedAssetCategories

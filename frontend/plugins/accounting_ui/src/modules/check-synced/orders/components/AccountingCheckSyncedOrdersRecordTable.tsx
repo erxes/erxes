@@ -31,6 +31,8 @@ const NoOrdersEmptyState = () => {
 };
 
 export const AccountingCheckSyncedOrdersRecordTable = () => {
+  const { t } = useTranslation('accounting');
+
   const {
     canSync,
     checkOrders,
@@ -67,7 +69,7 @@ export const AccountingCheckSyncedOrdersRecordTable = () => {
       columns={columns}
       data={orders || []}
       className="m-3"
-      stickyColumns={['checkbox', 'toSync', 'number']}
+      stickyColumns={['checkbox', t('toSync'), 'number']}
       tableId="accounting_check_synced_orders_record_table"
     >
       <AccountingCheckSyncedOrdersCommandBar

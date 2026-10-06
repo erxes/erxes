@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconX } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
@@ -10,6 +11,8 @@ export const RemoveButton = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const details = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
@@ -31,7 +34,7 @@ export const RemoveButton = ({
       onClick={handleRemove}
     >
       <IconX />
-      Сонгосныг хасах
+      {t('remove-selected-rows')}
     </Button>
   );
 };

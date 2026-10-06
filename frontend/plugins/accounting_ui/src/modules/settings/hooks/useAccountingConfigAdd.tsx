@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { ACCOUNTINGS_CONFIGS_ADD } from '../graphql/mutations/updateConfig';
 import { toast } from 'erxes-ui';
 
 export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
+  const { t } = useTranslation('accounting');
+
   const [configAdd, { loading, error }] = useMutation(ACCOUNTINGS_CONFIGS_ADD);
 
   const addConfig = ({
@@ -23,7 +26,7 @@ export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
       },
       onError: (error) => {
         toast({
-          title: 'Алдаа',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -31,8 +34,8 @@ export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Амжилттай',
-          description: 'Тохиргоо нэмэгдлээ',
+          title: t('success'),
+          description: t('configuration-created-successfully'),
         });
         options?.onCompleted?.(data);
       },

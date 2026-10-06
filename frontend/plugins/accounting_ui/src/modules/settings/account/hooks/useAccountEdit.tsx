@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ACCOUNTS_EDIT } from '../graphql/mutations/accounts';
 import { toast } from 'erxes-ui';
 
 export const useAccountEdit = () => {
+  const { t } = useTranslation('accounting');
+
   const [_editAccount, { loading }] = useMutation(ACCOUNTS_EDIT);
 
   const editAccount = (options: OperationVariables, fields: string[]) => {
@@ -16,7 +19,7 @@ export const useAccountEdit = () => {
       variables,
       onError: (error) => {
         toast({
-          title: 'Алдаа',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -24,8 +27,8 @@ export const useAccountEdit = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Амжилттай',
-          description: 'Дансыг шинэчиллээ',
+          title: t('success'),
+          description: t('account-updated-successfully'),
           variant: 'success',
         });
         options?.onCompleted?.(data);

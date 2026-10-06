@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCaretRightFilled, IconReport } from '@tabler/icons-react';
 import { Collapsible, IconComponent, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -5,6 +6,8 @@ import { activeReportState } from '../states/renderingReportsStates';
 import { ReportRuleGroups, ReportRules } from '../types/reportsMap';
 
 export const ReportsList = () => {
+  const { t } = useTranslation('accounting');
+
   const [activeReport, setActiveReport] = useAtom(activeReportState);
 
   return (
@@ -22,7 +25,7 @@ export const ReportsList = () => {
             <Sidebar.GroupLabel asChild>
               <Collapsible.Trigger className="flex items-center gap-2">
                 <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/report-list:rotate-90" />
-                <span>{group.label}</span>
+                <span>{t(group.label)}</span>
               </Collapsible.Trigger>
             </Sidebar.GroupLabel>
             <Collapsible.Content>

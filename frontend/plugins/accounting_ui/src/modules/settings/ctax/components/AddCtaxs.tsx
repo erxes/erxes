@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Sheet } from 'erxes-ui';
 import { CtaxKind, CtaxStatus, TCtaxRowForm } from '../types/CtaxRow';
 
@@ -38,6 +39,8 @@ export const AddCtaxForm = ({
 };
 
 export const AddCtaxs = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,10 +48,10 @@ export const AddCtaxs = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          НХАТ нэмэх
+          {t('add-city-tax-rule')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="НХАТ нэмэх">
+      <AccountingSheet title={t('add-city-tax-rule')}>
         <AddCtaxForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>

@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
 
 const AccountIsOutBalance = ['True', 'False'];
 const ACCOUNT_BOOLEAN_LABELS: Record<string, string> = {
-  True: 'Тийм',
-  False: 'Үгүй',
+  True: 'yes',
+  False: 'no',
 };
 
 export const SelectAccountIsOutBalanceCommand = React.forwardRef<
@@ -18,12 +19,16 @@ export const SelectAccountIsOutBalanceCommand = React.forwardRef<
     onSelect?: (isOutBalance: string | null) => void;
   }
 >(({ selected, onSelect, ...props }, ref) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ? ACCOUNT_BOOLEAN_LABELS[selected] : 'Бүгд'}
+        {selected
+          ? t(ACCOUNT_BOOLEAN_LABELS[selected])
+          : t('global-search.all')}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsIsOutBalanceCommand
@@ -48,10 +53,12 @@ export const AccountsIsOutBalanceCommand = ({
   selected: string | null;
   onSelect?: (isOutBalance: string | null) => void;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Command>
       <Command.Input
-        placeholder="Баланс бусаар шүүх"
+        placeholder={t('filter-by-off-balance-sheet-status')}
         focusOnMount={focusOnMount}
       />
       <Command.List>
@@ -61,7 +68,7 @@ export const AccountsIsOutBalanceCommand = ({
             value={isOutBalance}
             onSelect={() => onSelect?.(isOutBalance)}
           >
-            {ACCOUNT_BOOLEAN_LABELS[isOutBalance]}
+            {t(ACCOUNT_BOOLEAN_LABELS[isOutBalance])}
             <Combobox.Check checked={selected === isOutBalance} />
           </Command.Item>
         ))}

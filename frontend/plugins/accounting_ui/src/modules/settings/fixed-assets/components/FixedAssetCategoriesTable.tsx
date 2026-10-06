@@ -1,3 +1,5 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -25,16 +27,18 @@ const FixedAssetCategoryMoreCell = ({
 }: {
   cell: Cell<IFixedAssetCategory, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [, setOpen] = useQueryState('fixedAssetCategoryId');
   const { confirm } = useConfirm();
   const { removeFixedAssetCategory } = useFixedAssetCategoryRemove();
 
   const handleDelete = () =>
     confirm({
-      message: 'Үндсэн хөрөнгийн бүлгийг устгах уу?',
+      message: t('are-you-sure-you-want-to-delete-this-fixed-asset-category'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeFixedAssetCategory({
@@ -54,10 +58,10 @@ const FixedAssetCategoryMoreCell = ({
               value="edit"
               onSelect={() => setOpen(cell.row.original._id)}
             >
-              <IconEdit /> Засах
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Устгах
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -75,7 +79,7 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <HeaderCell labelKey="code" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -84,7 +88,7 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <HeaderCell labelKey="name" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -93,7 +97,7 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
   {
     id: 'depreciationMethod',
     accessorKey: 'depreciationMethod',
-    header: () => <RecordTable.InlineHead label="Элэгдлийн арга" />,
+    header: () => <HeaderCell labelKey="depreciation-method" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -102,7 +106,7 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
   {
     id: 'defaultAnnualDepreciationRate',
     accessorKey: 'defaultAnnualDepreciationRate',
-    header: () => <RecordTable.InlineHead label="Жилийн %" />,
+    header: () => <HeaderCell labelKey="annual-rate" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -111,7 +115,7 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Тайлбар" />,
+    header: () => <HeaderCell labelKey="description" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -120,13 +124,15 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
 ];
 
 const FixedAssetCategoriesCommandbar = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <FixedAssetCategoriesDelete />
@@ -136,16 +142,20 @@ const FixedAssetCategoriesCommandbar = () => {
 };
 
 const FixedAssetCategoriesDelete = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeFixedAssetCategory, loading } = useFixedAssetCategoryRemove();
 
   const handleDelete = () =>
     confirm({
-      message: 'Эдгээр үндсэн хөрөнгийн бүлгийг устгах уу?',
+      message: t(
+        'are-you-sure-you-want-to-delete-the-selected-fixed-asset-categories',
+      ),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       table.getFilteredSelectedRowModel().rows.forEach((row) => {
@@ -159,7 +169,7 @@ const FixedAssetCategoriesDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };

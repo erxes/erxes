@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
@@ -113,6 +114,8 @@ export const SafeRemainderDetailTabs = ({
   onActiveTabChange,
   onFetchMore,
 }: ISafeRemainderDetailTabsProps) => {
+  const { t } = useTranslation('accounting');
+
   const setHotkeyScope = useSetHotkeyScope();
 
   return (
@@ -135,7 +138,7 @@ export const SafeRemainderDetailTabs = ({
               value={field.value}
               className="capitalize"
             >
-              {field.label}
+              {t(field.label)}
             </ToggleGroup.Item>
           ))}
         </ToggleGroup>

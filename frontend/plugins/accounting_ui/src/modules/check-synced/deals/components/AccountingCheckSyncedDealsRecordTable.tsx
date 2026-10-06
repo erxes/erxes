@@ -59,7 +59,7 @@ export const AccountingCheckSyncedDealsRecordTable = ({
       columns={columns}
       data={deals || []}
       className="m-3"
-      stickyColumns={['checkbox', 'toSync', 'name']}
+      stickyColumns={['checkbox', t('toSync'), 'name']}
       tableId={tableId}
     >
       <AccountingCheckSyncedDealsCommandBar

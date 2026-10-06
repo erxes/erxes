@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -9,12 +10,14 @@ import {
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
 
 export const AccountsCommandbar = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <AccountsDelete />
@@ -24,16 +27,18 @@ export const AccountsCommandbar = () => {
 };
 
 export const AccountsDelete = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeAccounts, loading } = useAccountsRemove();
 
   const handleDelete = () =>
     confirm({
-      message: 'Эдгээр дансыг устгахдаа итгэлтэй байна уу?',
+      message: t('are-you-sure-you-want-to-delete-the-selected-accounts'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeAccounts({
@@ -51,7 +56,7 @@ export const AccountsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };

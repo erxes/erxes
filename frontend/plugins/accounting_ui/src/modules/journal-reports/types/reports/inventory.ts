@@ -2,12 +2,12 @@ import { IReportConfig } from './common';
 
 export const inventoryReportRules: Record<string, IReportConfig> = {
   invCost: {
-    title: 'Барааны тайлан /өртгөөр/',
+    title: 'inventory-report-at-cost',
     colCount: 9,
     choices: [
-      { code: 'default', title: 'Данс' },
-      { code: 'accBranchDep', title: 'Данс-Салбар-Хэлтэс' },
-      { code: 'accDepBranch', title: 'Данс-Хэлтэс-Салбар' },
+      { code: 'default', title: 'account' },
+      { code: 'accBranchDep', title: 'account-branch-department' },
+      { code: 'accDepBranch', title: 'account-department-branch' },
     ],
     groups: {
       default: {
@@ -76,11 +76,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invSale: {
-    title: 'Барааны борлуулалтын тайлан /бараагаар/',
+    title: 'sales-report-by-product',
     colCount: 4,
     choices: [
-      { code: 'product', title: 'Бараагаар' },
-      { code: 'customerProduct', title: 'Харилцагч-Бараа' },
+      { code: 'product', title: 'by-product' },
+      { code: 'customerProduct', title: 'contact-product' },
     ],
     groups: {
       product: {
@@ -106,11 +106,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invSaleCost: {
-    title: 'Барааны борлуулалтын тайлан /өртгөөр/',
+    title: 'sales-cost-report',
     colCount: 6,
     choices: [
-      { code: 'product', title: 'Бараагаар' },
-      { code: 'customerProduct', title: 'Харилцагч-Бараа' },
+      { code: 'product', title: 'by-product' },
+      { code: 'customerProduct', title: 'contact-product' },
     ],
     groups: {
       product: {
@@ -136,11 +136,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invSaleCostPeriod: {
-    title: 'Борлуулалтын тайлан /өртгөөр/ - үе',
+    title: 'sales-cost-report-by-period',
     colCount: 6,
     choices: [
-      { code: 'product', title: 'Бараагаар' },
-      { code: 'customerProduct', title: 'Харилцагч-Бараа' },
+      { code: 'product', title: 'by-product' },
+      { code: 'customerProduct', title: 'contact-product' },
     ],
     groups: {
       product: {
@@ -166,11 +166,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invByPrice: {
-    title: 'Бараа материалын тайлан /зарах үнээр/',
+    title: 'inventory-report-at-selling-price',
     colCount: 15,
     choices: [
-      { code: 'product', title: 'Бараагаар' },
-      { code: 'accountProduct', title: 'Данс-Бараа' },
+      { code: 'product', title: 'by-product' },
+      { code: 'accountProduct', title: 'account-product' },
     ],
     groups: {
       product: {
@@ -197,11 +197,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invProfit: {
-    title: 'Бараа материалын ашгийн тайлан',
+    title: 'inventory-profitability-report',
     colCount: 6,
     choices: [
-      { code: 'product', title: 'Бараагаар' },
-      { code: 'accountProduct', title: 'Данс-Бараа' },
+      { code: 'product', title: 'by-product' },
+      { code: 'accountProduct', title: 'account-product' },
     ],
     groups: {
       product: {
@@ -228,11 +228,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invShipper: {
-    title: 'Барааны нийлүүлэгчийн тайлан',
+    title: 'inventory-supplier-report',
     colCount: 10,
     choices: [
-      { code: 'product', title: 'Бараагаар' },
-      { code: 'customerProduct', title: 'Харилцагч-Бараа' },
+      { code: 'product', title: 'by-product' },
+      { code: 'customerProduct', title: 'contact-product' },
     ],
     groups: {
       product: {
@@ -258,13 +258,13 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invSaleDaily: {
-    title: 'Бараа материалын тайлан /баримтаар/',
+    title: 'inventory-report-by-document',
     colCount: 7,
     choices: [
-      { code: 'document', title: 'Баримтаар' },
-      { code: 'dateDocument', title: 'Огноо-Баримт' },
-      { code: 'customerDocument', title: 'Харилцагч-Баримт' },
-      { code: 'userDocument', title: 'Хэрэглэгч-Баримт' },
+      { code: 'document', title: 'by-document' },
+      { code: 'dateDocument', title: 'date-document' },
+      { code: 'customerDocument', title: 'contact-document' },
+      { code: 'userDocument', title: 'user-document' },
     ],
     groups: {
       document: {
@@ -311,11 +311,11 @@ export const inventoryReportRules: Record<string, IReportConfig> = {
     },
   },
   invSellerSubsys: {
-    title: 'Худалдагчийн subsystem тайлан',
+    title: 'salesperson-subsystem-report',
     colCount: 7,
     choices: [
-      { code: 'systemOrder', title: 'Систем-Захиалга' },
-      { code: 'accountOrder', title: 'Данс-Захиалга' },
+      { code: 'systemOrder', title: 'system-order' },
+      { code: 'accountOrder', title: 'account-order' },
     ],
     groups: {
       systemOrder: {

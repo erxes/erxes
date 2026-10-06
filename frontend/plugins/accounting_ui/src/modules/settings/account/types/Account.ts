@@ -31,8 +31,8 @@ export enum AccountKind {
 }
 
 export const ACCOUNT_KIND_LABELS = {
-  [AccountKind.ACTIVE]: 'Актив',
-  [AccountKind.PASSIVE]: 'Пассив',
+  [AccountKind.ACTIVE]: 'asset',
+  [AccountKind.PASSIVE]: 'liability',
 };
 
 export enum AccountStatus {
@@ -41,8 +41,8 @@ export enum AccountStatus {
 }
 
 export const ACCOUNT_STATUS_LABELS = {
-  [AccountStatus.ACTIVE]: 'Идэвхтэй',
-  [AccountStatus.DELETED]: 'Устгасан',
+  [AccountStatus.ACTIVE]: 'navigation.active',
+  [AccountStatus.DELETED]: 'deleted',
 };
 
 export enum JournalEnum {

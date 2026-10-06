@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import {
   AccountKind,
@@ -45,6 +46,8 @@ export const InvSaleReturnForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${index}`,
@@ -129,12 +132,12 @@ export const InvSaleReturnForm = ({
           onSelect={onChangeSaleTr}
         >
           <Form.Item>
-            <Form.Label>Борлуулалтын гүйлгээ</Form.Label>
+            <Form.Label>{t('sales-transaction')}</Form.Label>
             <Form.Control>
               <Button variant="ghost" className="">
                 <IconBookDownload />
                 {trDoc.followInfos?.saleTransactionId ||
-                  'Борлуулалтын гүйлгээ сонгох'}
+                  t('select-a-sales-transaction')}
               </Button>
             </Form.Control>
             <Form.Message />
@@ -148,7 +151,7 @@ export const InvSaleReturnForm = ({
             kind: AccountKind.PASSIVE,
           }}
           allDetails={true}
-          labelTxt="Борлуулалтын данс"
+          labelTxt={t('sale-account')}
         />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
@@ -157,7 +160,7 @@ export const InvSaleReturnForm = ({
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Бараа материалын данс</Form.Label>
+              <Form.Label>{t('inventory-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -178,7 +181,7 @@ export const InvSaleReturnForm = ({
           name={`trDocs.${index}.followInfos.saleCostAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Өртгийн данс</Form.Label>
+              <Form.Label>{t('cost-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

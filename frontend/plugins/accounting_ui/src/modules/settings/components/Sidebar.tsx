@@ -1,14 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import { Separator, Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
 import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
 
 const FIXED_ASSET_SETTINGS_ROUTES = {
-  '/settings/accounting/fixed-assets/accounts-config': 'Дансны багц',
-  '/settings/accounting/fixed-assets/categories': 'Бүлэг',
-  '/settings/accounting/fixed-assets/assets': 'Үндсэн хөрөнгө',
+  '/settings/accounting/fixed-assets/accounts-config': 'account-configuration',
+  '/settings/accounting/fixed-assets/categories': 'category',
+  '/settings/accounting/fixed-assets/assets': 'fixed-asset',
 };
 
 export const AccountingSidebar = () => {
+  const { t } = useTranslation('accounting');
   const { pathname } = useLocation();
   const routes = pathname.startsWith('/settings/accounting/fixed-assets')
     ? FIXED_ASSET_SETTINGS_ROUTES
@@ -20,7 +22,7 @@ export const AccountingSidebar = () => {
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(routes).map(([path, label]) => (
-              <AccountingSidebarItem key={path} to={path} children={label} />
+              <AccountingSidebarItem key={path} to={path} children={t(label)} />
             ))}
           </Sidebar.Menu>
         </Sidebar.GroupContent>

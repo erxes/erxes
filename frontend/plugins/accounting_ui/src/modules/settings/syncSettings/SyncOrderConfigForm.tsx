@@ -111,13 +111,13 @@ export const SyncOrderConfigForm = ({
             <SyncConfigReturnTypeField control={form.control} />
           </SyncSettingSection>
 
-          <SyncSettingSection title="POS">
+          <SyncSettingSection title={t('pos')}>
             <Form.Field
               control={form.control}
               name="posId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>POS</Form.Label>
+                  <Form.Label>{t('pos')}</Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
@@ -126,7 +126,7 @@ export const SyncOrderConfigForm = ({
                       <Select.Content>
                         {posOptions.map((opt) => (
                           <Select.Item key={opt.value} value={opt.value}>
-                            {opt.label}
+                            {t(opt.label)}
                           </Select.Item>
                         ))}
                       </Select.Content>

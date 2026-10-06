@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Sheet } from 'erxes-ui';
 
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
@@ -43,6 +44,8 @@ const AddAccountCategoryForm = ({
 };
 
 export const AddAccountCategory = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -50,10 +53,10 @@ export const AddAccountCategory = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Дансны ангилал нэмэх
+          {t('add-account-category')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Дансны ангилал нэмэх">
+      <AccountingSheet title={t('add-account-category')}>
         <AddAccountCategoryForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>

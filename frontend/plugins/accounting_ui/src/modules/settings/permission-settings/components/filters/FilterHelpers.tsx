@@ -22,8 +22,7 @@ import {
 } from '~/modules/inventories/remainders/products-filter/components/selects/NumberRangeFilter';
 import { ACCOUNT_PERMISSIONS } from '../../types/Permission';
 
-type ScopeOption =
-  (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
+type ScopeOption = (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
 
 const splitCsv = (value?: string | null): string[] =>
   (value ?? '')
@@ -176,7 +175,11 @@ const ScopeMultiCommand = ({
   const { t } = useTranslation('accounting');
   return (
     <Command>
-      <Command.Input placeholder={t('search')} variant="secondary" focusOnMount />
+      <Command.Input
+        placeholder={t('search')}
+        variant="secondary"
+        focusOnMount
+      />
       <Command.List className="p-1">
         <Command.Empty>{t('no-results-found')}</Command.Empty>
         {options.map((option) => {
@@ -184,11 +187,11 @@ const ScopeMultiCommand = ({
           return (
             <Command.Item
               key={option.value}
-              value={option.label}
+              value={t(option.label)}
               onSelect={() => onPick(toggleValue(selected, option.value))}
             >
               <Icon className="size-4 shrink-0 text-muted-foreground" />
-              {option.label}
+              {t(option.label)}
               <Combobox.Check checked={selected.includes(option.value)} />
             </Command.Item>
           );
@@ -204,13 +207,16 @@ const ScopeChipLabel = ({
 }: {
   selected: string[];
   options: ReadonlyArray<ScopeOption>;
-}) => (
-  <span className="truncate block max-w-full">
-    {selected
-      .map((s) => options.find((o) => o.value === s)?.label ?? s)
-      .join(', ')}
-  </span>
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <span className="truncate block max-w-full">
+      {selected
+        .map((s) => t(options.find((o) => o.value === s)?.label ?? '') ?? s)
+        .join(', ')}
+    </span>
+  );
+};
 
 // ───────── Read scopes ─────────
 export const PermissionsFilterReads = () => {
@@ -323,17 +329,27 @@ export const FilterBarWrites = () => {
 };
 
 // ───────── Level (min + max) range filter ─────────
-export const PermissionsFilterLevel = () => (
-  <Filter.View filterKey="minLvl" inDialog>
-    <NumberRangeDialogView minKey="minLvl" maxKey="maxLvl" label="Level" />
-  </Filter.View>
-);
+export const PermissionsFilterLevel = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.View filterKey="minLvl" inDialog>
+      <NumberRangeDialogView
+        minKey="minLvl"
+        maxKey="maxLvl"
+        label={t('level')}
+      />
+    </Filter.View>
+  );
+};
 
-export const FilterBarLevel = () => (
-  <NumberRangeBarItem
-    minKey="minLvl"
-    maxKey="maxLvl"
-    label="Level"
-    icon={<IconStairs size={14} />}
-  />
-);
+export const FilterBarLevel = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <NumberRangeBarItem
+      minKey="minLvl"
+      maxKey="maxLvl"
+      label={t('level')}
+      icon={<IconStairs size={14} />}
+    />
+  );
+};

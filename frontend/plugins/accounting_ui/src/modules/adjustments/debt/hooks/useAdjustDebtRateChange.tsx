@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import {
   ADJUST_DEBT_RATE_CHANGE,
@@ -8,6 +9,8 @@ import { ADJUST_DEBT_RATE_QUERY } from '../graphql/adjustDebtRateQueries';
 import { useNavigate } from 'react-router-dom';
 
 export const useAdjustDebtRateChange = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
+
   const [_changeAdjustDebtRate, { loading }] = useMutation(
     ADJUST_DEBT_RATE_CHANGE,
     options,
@@ -18,7 +21,7 @@ export const useAdjustDebtRateChange = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -26,8 +29,10 @@ export const useAdjustDebtRateChange = (options?: OperationVariables) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Debt Rate Adjustment updated successfully',
+          title: t('success'),
+          description: t(
+            'receivables-and-payables-revaluation-updated-successfully',
+          ),
         });
         options?.onCompleted?.(data);
       },
@@ -52,6 +57,8 @@ export const useAdjustDebtRateChange = (options?: OperationVariables) => {
 };
 
 export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
+
   const navigate = useNavigate();
   const [_removeAdjustDebtRate, { loading }] = useMutation(
     ADJUST_DEBT_RATE_REMOVE,
@@ -63,7 +70,7 @@ export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -71,8 +78,10 @@ export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Debt Rate Adjustment removed successfully',
+          title: t('success'),
+          description: t(
+            'receivables-and-payables-revaluation-deleted-successfully',
+          ),
         });
         options?.onCompleted?.();
       },

@@ -30,7 +30,7 @@ export const TransactionsCommandbar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {selectedRows.length} {t('selected')}
+          {selectedRows.length} {t('selected-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="transactionsExportManage">

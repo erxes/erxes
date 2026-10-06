@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Checkbox,
   RecordTable,
@@ -99,7 +100,8 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'toSync',
     accessorKey: 'toSync',
-    header: () => {
+    header: function ToSyncDealsHeader() {
+      const { t } = useTranslation('accounting');
       const selectedCount = syncableDealIds.filter(
         (id) => toSyncDealIds[id],
       ).length;
@@ -117,13 +119,14 @@ export const getAccountingCheckSyncedDealsColumns = ({
             onCheckedChange={() =>
               onToggleAllToSync(syncableDealIds, nextChecked)
             }
-            aria-label="Select all deals to sync"
+            aria-label={t('select-all-deals-for-synchronization')}
           />
         </div>
       );
     },
     size: 33,
-    cell: ({ row }) => {
+    cell: function ToSyncDealCell({ row }) {
+      const { t } = useTranslation('accounting');
       const deal = row.original;
       const disabled = !isSyncable(deal);
 
@@ -135,7 +138,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
             onCheckedChange={(value) =>
               onToggleToSync(deal._id, Boolean(value))
             }
-            aria-label="Select deal to sync"
+            aria-label={t('select-deal-for-synchronization')}
           />
         </div>
       );

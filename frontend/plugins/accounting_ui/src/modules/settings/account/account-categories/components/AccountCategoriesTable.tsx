@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { Cell, ColumnDef } from '@tanstack/table-core';
 import { IAccountCategory } from '../types/AccountCategory';
 import {
@@ -242,7 +243,7 @@ export const accountCategoriesColumns: ColumnDef<
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <HeaderCell labelKey="code" />,
     cell: ({ cell }) => {
       const accountCategory = cell.row.original;
       return (
@@ -265,7 +266,7 @@ export const accountCategoriesColumns: ColumnDef<
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <HeaderCell labelKey="name" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -281,14 +282,14 @@ export const accountCategoriesColumns: ColumnDef<
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="Эцэг" />,
+    header: () => <HeaderCell labelKey="parent" />,
     cell: ({ cell }) => <AccountCategoryParentCell cell={cell} />,
     size: 250,
   },
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Тайлбар" />,
+    header: () => <HeaderCell labelKey="description" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField

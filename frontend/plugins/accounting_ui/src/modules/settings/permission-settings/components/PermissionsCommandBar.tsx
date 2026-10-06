@@ -21,7 +21,9 @@ export const PermissionsCommandbar = () => {
   return (
     <CommandBar open={selected.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selected.length} {t('selected')}</CommandBar.Value>
+        <CommandBar.Value>
+          {selected.length} {t('selected-4')}
+        </CommandBar.Value>
         <Separator.Inline />
         <PermissionsBulkEditor selected={selected} />
       </CommandBar.Bar>

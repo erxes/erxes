@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_CANCEL } from '../graphql/adjustClosingCancel';
@@ -11,6 +12,8 @@ export const useAdjustClosingCancel = (
   adjustId: string,
   options?: OperationVariables,
 ) => {
+  const { t } = useTranslation('accounting');
+
   const [_cancelMutation, { loading }] = useMutation(
     ADJUST_CLOSING_CANCEL,
     options,
@@ -25,7 +28,7 @@ export const useAdjustClosingCancel = (
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -33,8 +36,8 @@ export const useAdjustClosingCancel = (
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Closing adjust cancelled successfully',
+          title: t('success'),
+          description: t('closing-adjustment-cancelled-successfully'),
         });
         options?.onCompleted?.(data);
       },

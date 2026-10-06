@@ -290,6 +290,8 @@ export const AccountsFilterIsOutBalance = () => {
 };
 
 export const FilterBarIsOutBalance = () => {
+  const { t } = useTranslation('accounting');
+
   const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
     'isOutBalance',
   );
@@ -298,7 +300,7 @@ export const FilterBarIsOutBalance = () => {
     <Filter.BarItem queryKey="isOutBalance">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Баланс бус
+        {t('off-balance-sheet')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsOutBalanceCommand
@@ -332,13 +334,15 @@ export const AccountsFilterStatus = () => {
 };
 
 export const FilterBarStatus = () => {
+  const { t } = useTranslation('accounting');
+
   const [status, setStatus] = useQueryState<string | null>('status');
 
   return (
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Төлөв
+        {t('status')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountStatusCommand

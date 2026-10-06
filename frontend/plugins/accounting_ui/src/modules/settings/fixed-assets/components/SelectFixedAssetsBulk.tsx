@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import {
   Button,
@@ -68,6 +69,8 @@ const FixedAssetsList = ({
   setSelectedFixedAssetIds,
   setSelectedFixedAssets,
 }: IFixedAssetsListProps) => {
+  const { t } = useTranslation('accounting');
+
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
@@ -96,7 +99,7 @@ const FixedAssetsList = ({
       <div className="p-4">
         <div className="flex gap-4 justify-between items-center">
           <Input
-            placeholder="Хөрөнгө хайх"
+            placeholder={t('search-assets')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -110,7 +113,10 @@ const FixedAssetsList = ({
           />
         </div>
         <div className="mt-4 text-xs text-accent-foreground">
-          {!initialLoading && `${availableFixedAssets.length} үр дүн`}
+          {!initialLoading &&
+            t('global-search.results-count', {
+              count: availableFixedAssets.length,
+            })}
         </div>
       </div>
       <Separator />
@@ -194,10 +200,15 @@ export const SelectFixedAssetsBulk = ({
   fixedAssetIds,
   initialFixedAssets,
   onSelect,
-  title = 'Олон хөрөнгө нэмэх',
-  submitLabel = 'Сонгосон хөрөнгүүдийг нэмэх',
-  selectedLabel = 'Сонгосон',
+  title: titleProp,
+  submitLabel: submitLabelProp,
+  selectedLabel: selectedLabelProp,
 }: ISelectFixedAssetsBulkProps) => {
+  const { t } = useTranslation('accounting');
+  const title = titleProp ?? t('add-multiple-assets');
+  const submitLabel = submitLabelProp ?? t('add-selected-assets');
+  const selectedLabel = selectedLabelProp ?? t('selected');
+
   const [open, setOpen] = useState(false);
   const [selectedFixedAssetIds, setSelectedFixedAssetIds] = useState<string[]>(
     fixedAssetIds || [],
@@ -254,7 +265,7 @@ export const SelectFixedAssetsBulk = ({
             <Sheet.Footer className="sm:justify-end">
               <Sheet.Close asChild>
                 <Button variant="secondary" className="bg-border">
-                  Болих
+                  {t('cancel')}
                 </Button>
               </Sheet.Close>
               <Button

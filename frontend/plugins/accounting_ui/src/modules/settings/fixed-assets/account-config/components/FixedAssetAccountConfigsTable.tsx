@@ -1,3 +1,5 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
@@ -42,6 +44,8 @@ const AccountConfigMoreCell = ({
   cell: Cell<IFixedAssetAccountConfig, unknown>;
   onEdit: (config: IFixedAssetAccountConfig) => void;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { confirm } = useConfirm();
   const { remove } = useFixedAssetAccountConfigMutations();
 
@@ -57,20 +61,22 @@ const AccountConfigMoreCell = ({
               value="edit"
               onSelect={() => onEdit(cell.row.original)}
             >
-              <IconEdit /> Засах
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item
               value="delete"
               onSelect={() =>
                 confirm({
-                  message: 'Дансны багцыг устгах уу?',
-                  options: { okLabel: 'Устгах', cancelLabel: 'Болих' },
+                  message: t(
+                    'are-you-sure-you-want-to-delete-this-account-configuration',
+                  ),
+                  options: { okLabel: t('delete'), cancelLabel: t('cancel') },
                 }).then(() =>
                   remove({ variables: { _id: cell.row.original._id } }),
                 )
               }
             >
-              <IconTrash /> Устгах
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -90,7 +96,7 @@ const getColumns = (
   {
     id: 'accountId',
     accessorKey: 'accountId',
-    header: () => <RecordTable.InlineHead label="Хөрөнгийн данс" />,
+    header: () => <HeaderCell labelKey="asset-account" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <AccountsInline
@@ -104,7 +110,7 @@ const getColumns = (
   {
     id: 'depreciationAccountId',
     accessorFn: (config) => config.value.depreciationAccountId,
-    header: () => <RecordTable.InlineHead label="Хур. элэгдлийн данс" />,
+    header: () => <HeaderCell labelKey="accumulated-depreciation-account" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <AccountsInline
@@ -118,9 +124,7 @@ const getColumns = (
   {
     id: 'taxAssetAccountId',
     accessorFn: (config) => config.value.taxAssetAccountId,
-    header: () => (
-      <RecordTable.InlineHead label="Хойшлогдсон татварын хөрөнгө" />
-    ),
+    header: () => <HeaderCell labelKey="deferred-tax-asset" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <AccountsInline
@@ -134,7 +138,7 @@ const getColumns = (
   {
     id: 'taxLiabilityAccountId',
     accessorFn: (config) => config.value.taxLiabilityAccountId,
-    header: () => <RecordTable.InlineHead label="Хойшлогдсон татварын өр" />,
+    header: () => <HeaderCell labelKey="deferred-tax-liability" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <AccountsInline
@@ -186,13 +190,15 @@ const AccountConfigSheet = ({
 };
 
 const FixedAssetAccountConfigsCommandbar = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length} {t('selected-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <FixedAssetAccountConfigsDelete />
@@ -202,14 +208,18 @@ const FixedAssetAccountConfigsCommandbar = () => {
 };
 
 const FixedAssetAccountConfigsDelete = () => {
+  const { t } = useTranslation('accounting');
+
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { remove, removing } = useFixedAssetAccountConfigMutations();
 
   const handleDelete = () =>
     confirm({
-      message: 'Эдгээр дансны багцыг устгах уу?',
-      options: { okLabel: 'Устгах', cancelLabel: 'Болих' },
+      message: t(
+        'are-you-sure-you-want-to-delete-the-selected-account-configurations',
+      ),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(() => {
       table.getFilteredSelectedRowModel().rows.forEach((row) => {
         remove({
@@ -222,12 +232,14 @@ const FixedAssetAccountConfigsDelete = () => {
   return (
     <Button variant="secondary" disabled={removing} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };
 
 export const FixedAssetAccountConfigsTable = () => {
+  const { t } = useTranslation('accounting');
+
   const { configs, loading } = useFixedAssetAccountConfigs();
   const [selectedConfig, setSelectedConfig] =
     useState<IFixedAssetAccountConfig>();
@@ -248,7 +260,10 @@ export const FixedAssetAccountConfigsTable = () => {
         open={Boolean(selectedConfig)}
         onOpenChange={(open) => !open && setSelectedConfig(undefined)}
       >
-        <AccountingSheet title="Дансны багц засах" className="md:max-w-3xl">
+        <AccountingSheet
+          title={t('edit-account-configuration')}
+          className="md:max-w-3xl"
+        >
           {selectedConfig && (
             <AccountConfigSheet
               config={selectedConfig}
@@ -262,16 +277,21 @@ export const FixedAssetAccountConfigsTable = () => {
 };
 
 export const AddFixedAssetAccountConfig = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button onClick={() => setOpen(true)}>
-          <IconPlus /> Дансны багц нэмэх
+          <IconPlus /> {t('add-account-configuration')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Дансны багц нэмэх" className="md:max-w-3xl">
+      <AccountingSheet
+        title={t('add-account-configuration')}
+        className="md:max-w-3xl"
+      >
         <AccountConfigSheet onClose={() => setOpen(false)} />
       </AccountingSheet>
     </Sheet>

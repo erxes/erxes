@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { gql, useQuery } from '@apollo/client';
 import {
   Form,
@@ -43,6 +44,8 @@ const SelectEbarimtProductRules = ({
   kind: 'vat' | 'ctax';
   onValueChange: (value: string[]) => void;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const mongolianEnabled = isEnabled('mongolian');
   const { data, loading } = useQuery(EBARIMT_PRODUCT_RULES_QUERY, {
     variables: { kind },
@@ -71,10 +74,10 @@ const SelectEbarimtProductRules = ({
     <MultipleSelector
       value={selectedOptions}
       options={options}
-      placeholder="Дүрэм сонгох"
+      placeholder={t('select-a-rule')}
       emptyIndicator={
         <p className="text-center text-sm text-muted-foreground">
-          Дүрэм олдсонгүй
+          {t('no-rules-found')}
         </p>
       }
       loadingIndicator={

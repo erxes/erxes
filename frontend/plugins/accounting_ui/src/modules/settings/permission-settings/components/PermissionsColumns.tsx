@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
@@ -20,11 +21,13 @@ import { usePermissionEdit } from '../hooks/usePermissionEdit';
 type ScopeOption = (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
 
 const ScopeDisplay = ({ option }: { option: ScopeOption }) => {
+  const { t } = useTranslation('accounting');
+
   const Icon = option.icon;
   return (
     <span className="inline-flex items-center gap-2">
       <Icon className="size-4 shrink-0 text-muted-foreground" />
-      {option.label}
+      {t(option.label)}
     </span>
   );
 };
@@ -79,7 +82,7 @@ const PermissionInlineScopeCell = ({
             {options.map((option) => (
               <Command.Item
                 key={option.value}
-                value={option.label}
+                value={t(option.label)}
                 onSelect={() => {
                   if (option.value !== value) onChange(option.value);
                   setOpen(false);
@@ -138,7 +141,7 @@ export const PermissionScopeSelect = ({
             {options.map((option) => (
               <Command.Item
                 key={option.value}
-                value={option.label}
+                value={t(option.label)}
                 onSelect={() => {
                   onChange(option.value);
                   setOpen(false);
@@ -194,10 +197,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'accountName',
     accessorFn: (row) => row.account?.name,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('name')} />;
-    },
+    header: () => <HeaderCell labelKey="name" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -208,10 +208,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'accountCode',
     accessorFn: (row) => row.account?.code,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('code')} />;
-    },
+    header: () => <HeaderCell labelKey="code" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -222,10 +219,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'email',
     accessorFn: (row) => row.user?.email,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('email')} />;
-    },
+    header: () => <HeaderCell labelKey="email" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -236,32 +230,22 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'level',
     accessorKey: 'level',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('level')} />;
-    },
+    header: () => <HeaderCell labelKey="level" />,
     cell: PermissionLevelCell,
     size: 120,
   },
   {
     id: 'read',
     accessorKey: 'read',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('read')} />;
-    },
+    header: () => <HeaderCell labelKey="read" />,
     cell: PermissionReadCell,
     size: 220,
   },
   {
     id: 'write',
     accessorKey: 'write',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('write')} />;
-    },
+    header: () => <HeaderCell labelKey="write" />,
     cell: PermissionWriteCell,
     size: 220,
   },
 ];
-

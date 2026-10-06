@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import {
@@ -19,6 +20,8 @@ export const PrintInvSaleReturnDocument = ({
 }: {
   transaction: ITransaction;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const rows = buildRows(transaction, true);
   const subTotal = sumAmount(rows);
   const vatAmount = transaction?.vatAmount ?? 0;
@@ -28,8 +31,12 @@ export const PrintInvSaleReturnDocument = ({
   const documentNo = transaction?.number || transaction?.ptrNumber || '';
   const date = transaction?.date ? dayjs(transaction.date) : null;
   const dateText = date
-    ? `${date.year()} он ${date.month() + 1} сар ${date.date()} өдөр`
-    : '20... он ... сар ... өдөр';
+    ? t('document-date', {
+        year: date.year(),
+        month: date.month() + 1,
+        day: date.date(),
+      })
+    : t('20-2');
   const description = transaction?.description || '';
   const supplier =
     transaction.customer?.firstName || transaction.customer?.code || '';
@@ -38,24 +45,21 @@ export const PrintInvSaleReturnDocument = ({
     <A4Sheet>
       <FormHeader code="НХМаягт БМ-2" />
       <div className="mt-1 border-b border-black pb-1 font-bold">
-        Байгууллагын нэр:{' '}
-        <span className="font-normal">
-          {transaction?.branch?.title || ''}
-        </span>
+        {t('organization-name-3')}{' '}
+        <span className="font-normal">{transaction?.branch?.title || ''}</span>
       </div>
 
       <div className="mt-3 mb-3 text-center text-[16px] font-bold uppercase">
-        Орлогын баримт №{' '}
+        {t('receipt-voucher-no')}{' '}
         <span className="underline">{documentNo || ' '}</span>
       </div>
 
       <div className="font-bold">{dateText}</div>
       <div className="mt-1 font-bold">
-        Бэлтгэн нийлүүлэгчийн нэр:{' '}
-        <span className="font-normal">{supplier}</span>
+        {t('supplier-name')} <span className="font-normal">{supplier}</span>
       </div>
       <div className="mt-1 mb-2 font-bold">
-        Утга: <span className="font-normal">{description}</span>
+        {t('description-2')} <span className="font-normal">{description}</span>
       </div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
@@ -65,7 +69,7 @@ export const PrintInvSaleReturnDocument = ({
           <NumberedTotalRow total={subTotal} />
           <tr>
             <td className={`${TD} text-center`}>X</td>
-            <td className={`${TD} px-2 font-medium`}>НӨАТ дүн:</td>
+            <td className={`${TD} px-2 font-medium`}>{t('vat-amount')}</td>
             <td className={TD} />
             <td className={`${TD} px-2`} />
             <td className={TD} />
@@ -73,7 +77,7 @@ export const PrintInvSaleReturnDocument = ({
           </tr>
           <tr>
             <td className={TD} />
-            <td className={`${TD} px-2 font-medium`}>Нийт дүн:</td>
+            <td className={`${TD} px-2 font-medium`}>{t('total-amount-2')}</td>
             <td className={TD} />
             <td className={`${TD} px-2`} />
             <td className={TD} />
@@ -85,9 +89,9 @@ export const PrintInvSaleReturnDocument = ({
       </table>
 
       <div className="mt-6 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
-        <SignLine label="Шалгасан нягтлан бодогч" />
+        <SignLine label={t('received-by')} />
+        <SignLine label={t('handed-over-by')} />
+        <SignLine label={t('reviewed-by-accountant')} />
       </div>
     </A4Sheet>
   );

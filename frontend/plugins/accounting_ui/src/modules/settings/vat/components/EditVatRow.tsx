@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
@@ -59,6 +60,8 @@ export const EditVatRowForm = () => {
 };
 
 export const EditVatRow = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useQueryState<string>('vat_row_id');
   return (
     <Sheet
@@ -67,7 +70,7 @@ export const EditVatRow = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
+      <AccountingSheet title={t('edit-vat-rule')}>
         <EditVatRowForm />
       </AccountingSheet>
     </Sheet>

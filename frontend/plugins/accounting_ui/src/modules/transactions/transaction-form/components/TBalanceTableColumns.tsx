@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { TR_SIDES } from '@/transactions/types/constants';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
 import { Cell, ColumnDef, Row } from '@tanstack/react-table';
@@ -195,45 +196,43 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   transactionMoreColumn,
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="account" />,
     accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Дугаар" />,
+    header: () => <HeaderCell icon={IconFile} labelKey="number" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+    header: () => <HeaderCell icon={IconCalendar} labelKey="date" />,
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
   },
   {
     id: 'debit',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Дебет" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="debit" />,
     accessorKey: 'debit',
     cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
   },
   {
     id: 'credit',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Кредит" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="credit" />,
     accessorKey: 'credit',
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
   },
   {
     id: 'product-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="inventory" />,
     accessorKey: 'product-inv',
     cell: ({ row }) => <ProductCell row={row} />,
   },
   {
     id: 'unitPrice-inv',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж үнэ" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="unit-price" />,
     accessorKey: 'unitPrice-inv',
     cell: ({ row }) => (
       <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />
@@ -241,9 +240,7 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   },
   {
     id: 'count-inv',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тоо хэмжээ" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="quantity" />,
     accessorKey: 'count-inv',
     cell: ({ row }) => (
       <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />
@@ -251,19 +248,19 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
+    header: () => <HeaderCell icon={IconFile} labelKey="branch" />,
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
+    header: () => <HeaderCell icon={IconFile} labelKey="department" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => <HeaderCell icon={IconFile} labelKey="description" />,
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />

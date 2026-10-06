@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Sheet, useQueryState } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
@@ -12,6 +13,8 @@ export const EditAccountingConfig = ({
 }: {
   code: ACCOUNTING_SETTINGS_CODES;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useQueryState<string>('configId');
 
   return (
@@ -23,7 +26,7 @@ export const EditAccountingConfig = ({
     >
       <Sheet.View className="sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Синк тохиргоо засах</Sheet.Title>
+          <Sheet.Title>{t('edit-synchronization-settings')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <EditAccountingConfigForm code={code} />
@@ -37,6 +40,8 @@ export const EditAccountingConfigForm = ({
 }: {
   code: ACCOUNTING_SETTINGS_CODES;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const rule = SettingsRuleByCode[code];
   const [configId, setConfigId] = useQueryState('configId', {
     defaultValue: '',
@@ -63,7 +68,7 @@ export const EditAccountingConfigForm = ({
   }, [configValueDetail, reset]);
 
   if (!rule) {
-    return <div>Тохиргооны төрөл тодорхойгүй байна</div>;
+    return <div>{t('the-configuration-type-is-not-recognized')}</div>;
   }
 
   const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};

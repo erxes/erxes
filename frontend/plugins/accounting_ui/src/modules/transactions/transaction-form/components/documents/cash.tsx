@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
-import { amountToMongolianText } from './numberToWords';
+import { amountToText } from './numberToWords';
 import { keyRows } from './shared';
 
 const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
@@ -15,20 +16,25 @@ export type CashVariant =
 
 // The dotted filler line used on the legacy paper forms.
 const Dots = ({ className = '' }: { className?: string }) => (
-  <span className={`inline-block border-b border-dotted border-black ${className}`} />
+  <span
+    className={`inline-block border-b border-dotted border-black ${className}`}
+  />
 );
 
 // Shared header: form code (top-left) + ministry order note (top-right).
-const FormHeader = ({ code }: { code: string }) => (
-  <div className="flex items-start justify-between text-[11px]">
-    <div>{code}</div>
-    <div className="text-right leading-tight">
-      Сангийн сайдын 2017 оны 347 дугаар тушаалын
-      <br />
-      хавсралт
+const FormHeader = ({ code }: { code: string }) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <div className="flex items-start justify-between text-[11px]">
+      <div>{code}</div>
+      <div className="text-right leading-tight">
+        {t('order-no-347-of-the-minister-of-finance-2017')}
+        <br />
+        {t('appendix')}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // One signature line, e.g. "Захирал: ......./......./".
 const SignLine = ({ label }: { label: string }) => (
@@ -52,11 +58,9 @@ const getCommonFields = (transaction: ITransaction) => {
   return {
     amount,
     amountFormatted: formatNumber(amount),
-    amountInWords: amountToMongolianText(amount),
+    amountInWords: amountToText(amount),
     documentNo: transaction?.number || transaction?.ptrNumber || '',
-    date: transaction?.date
-      ? dayjs(transaction.date).format('YYYY.MM.DD')
-      : '',
+    date: transaction?.date ? dayjs(transaction.date).format('YYYY.MM.DD') : '',
     description: transaction?.description || '',
     partyName:
       transaction.customer?.firstName || transaction.customer?.code || '',
@@ -73,6 +77,8 @@ const TwinTableReceipt = ({
   title: string;
   partyLabel: string;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { documentNo, date, details } = {
     ...getCommonFields(transaction),
     details: transaction?.details || [],
@@ -81,21 +87,28 @@ const TwinTableReceipt = ({
   return (
     <div className="flex-1">
       <FormHeader code="НХМаягт МХ1" />
-      <div className="mt-2 border-b border-black pb-1">Байгууллага:</div>
+      <div className="mt-2 border-b border-black pb-1">{t('organization')}</div>
       <div className="mt-3 mb-3 text-center text-[14px] font-bold">
         {title} №{documentNo ? ` ${documentNo}` : ''}
       </div>
       <div className="text-[11px]">
-        Огноо: <span className="font-bold">{date || '20.../.../...'}</span>
+        {t('date-2')}{' '}
+        <span className="font-bold">{date || '20.../.../...'}</span>
       </div>
       <div className="mt-1 text-[11px]">{partyLabel}:</div>
 
       <table className="mt-2 w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th className="border border-black px-2 py-1 font-medium">Данс</th>
-            <th className="border border-black px-2 py-1 font-medium">Утга</th>
-            <th className="border border-black px-2 py-1 font-medium">Дүн</th>
+            <th className="border border-black px-2 py-1 font-medium">
+              {t('account')}
+            </th>
+            <th className="border border-black px-2 py-1 font-medium">
+              {t('description')}
+            </th>
+            <th className="border border-black px-2 py-1 font-medium">
+              {t('amount')}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -116,25 +129,25 @@ const TwinTableReceipt = ({
       </table>
 
       <div className="mt-4 text-[11px] font-bold">
-        Мөнгөн дүн (үсгээр):
+        {t('amount-in-words-2')}
         <Dots className="ml-1 w-40" />
       </div>
 
       <div className="mt-6 space-y-3 text-[11px]">
-        <SignLine label="Ерөнхий захирал" />
-        <SignLine label="Гүйцэтгэх захирал" />
-        <SignLine label="Ерөнхий нягтлан" />
-        <SignLine label="Хүлээн авагч" />
-        <SignLine label="Мөнгө тушаагч" />
+        <SignLine label={t('general-director')} />
+        <SignLine label={t('executive-director')} />
+        <SignLine label={t('chief-accountant')} />
+        <SignLine label={t('recipient')} />
+        <SignLine label={t('depositor')} />
       </div>
 
       <div className="mt-6 flex justify-between text-[11px]">
         <div>
-          Шивсэн:
+          {t('entered-by')}
           <Dots className="ml-1 w-24" />
         </div>
         <div>
-          Хэвлэсэн:
+          {t('printed-by')}
           <Dots className="ml-1 w-24" />
         </div>
       </div>
@@ -143,13 +156,7 @@ const TwinTableReceipt = ({
 };
 
 // A label with an underlined inline value — used by the lined cash receipt.
-const LinedField = ({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string;
-}) => (
+const LinedField = ({ label, value }: { label: string; value?: string }) => (
   <div className="flex items-end gap-2">
     <span className="shrink-0 font-bold">{label}:</span>
     <span className="flex-1 border-b border-black px-1">{value || ' '}</span>
@@ -158,6 +165,8 @@ const LinedField = ({
 
 // === cash_2 / cash_5: single receipt with underlined inline fields.
 const LinedReceipt = ({ transaction }: { transaction: ITransaction }) => {
+  const { t } = useTranslation('accounting');
+
   const { documentNo, date, partyName, description, amountFormatted } =
     getCommonFields(transaction);
 
@@ -168,39 +177,37 @@ const LinedReceipt = ({ transaction }: { transaction: ITransaction }) => {
     >
       <FormHeader code="НХМаягт МХ1" />
       <div className="mt-3 text-center text-[16px] font-bold">
-        Кассын орлогын баримт
+        {t('cash-receipt-voucher')}
       </div>
 
       <div className="mt-4 flex justify-between text-[11px]">
-        <div>Дугаар: {documentNo}</div>
-        <div>20.. он .. сар .. өдөр {date}</div>
+        <div>
+          {t('number-2')} {documentNo}
+        </div>
+        <div>
+          {t('20')} {date}
+        </div>
       </div>
 
       <div className="mt-3 space-y-4">
-        <LinedField label="Байгууллага нэр" />
-        <LinedField label="Хэнээс(хаанаас)" value={partyName} />
-        <LinedField label="Гүйлгээний утга" value={description} />
-        <LinedField label="Мөнгөний дүн" value={amountFormatted} />
+        <LinedField label={t('organization-name-2')} />
+        <LinedField label={t('received-from')} value={partyName} />
+        <LinedField label={t('transaction-description')} value={description} />
+        <LinedField label={t('amount')} value={amountFormatted} />
       </div>
 
       <div className="mt-16 space-y-3 pl-32 text-[11px]">
-        <SignLine label="Ерөнхий захирал" />
-        <SignLine label="Ерөнхий нягтлан" />
-        <SignLine label="Хүлээн авагч" />
-        <SignLine label="Мөнгө тушаагч" />
+        <SignLine label={t('general-director')} />
+        <SignLine label={t('chief-accountant')} />
+        <SignLine label={t('recipient')} />
+        <SignLine label={t('depositor')} />
       </div>
     </div>
   );
 };
 
 // A label above a dotted-underline value — used by the dotted cash receipt.
-const DottedField = ({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string;
-}) => (
+const DottedField = ({ label, value }: { label: string; value?: string }) => (
   <div className="space-y-2">
     <div className="font-bold">{label}:</div>
     <div className="border-b border-dotted border-black pb-0.5">
@@ -211,6 +218,8 @@ const DottedField = ({
 
 // === cash_3: НХМаягт МХ2 dotted-line "Бэлэн мөнгөний орлогын баримт".
 const DottedReceipt = ({ transaction }: { transaction: ITransaction }) => {
+  const { t } = useTranslation('accounting');
+
   const { documentNo, date, partyName, description, amountInWords } =
     getCommonFields(transaction);
 
@@ -222,39 +231,50 @@ const DottedReceipt = ({ transaction }: { transaction: ITransaction }) => {
       <div className="flex items-start gap-8 text-[11px]">
         <div className="font-medium">НХМаягт МХ2</div>
         <div className="leading-tight">
-          Сангийн сайдын 2017 оны 347 дугаар тушаалын
+          {t('order-no-347-of-the-minister-of-finance-2017')}
           <br />
-          хавсралт
+          {t('appendix')}
         </div>
       </div>
 
       <div className="mt-4 mb-6 text-center text-[16px] font-bold">
-        Бэлэн мөнгөний орлогын баримт
+        {t('cash-receipt-voucher')}
       </div>
 
       <div className="flex justify-between text-[11px]">
-        <div>Дугаар: {documentNo}</div>
-        <div>20.. он .. сар .. өдөр {date}</div>
+        <div>
+          {t('number-2')} {documentNo}
+        </div>
+        <div>
+          {t('20')} {date}
+        </div>
       </div>
 
       <div className="mt-4 space-y-4">
-        <DottedField label="Байгууллага нэр" />
-        <DottedField label="Хэнээс (хаанаас)" value={partyName} />
-        <DottedField label="Гүйлгээний утга" value={description} />
-        <DottedField label="Мөнгөний дүн" value={getCommonFields(transaction).amountFormatted} />
-        <DottedField label="Мөнгөн дүн(үсгээр)" value={amountInWords} />
+        <DottedField label={t('organization-name-2')} />
+        <DottedField label={t('received-from')} value={partyName} />
+        <DottedField label={t('transaction-description')} value={description} />
+        <DottedField
+          label={t('amount')}
+          value={getCommonFields(transaction).amountFormatted}
+        />
+        <DottedField label={t('amount-in-words')} value={amountInWords} />
         <div className="space-y-2">
-          <div className="font-bold">Хавсралт баримт бичиг:</div>
-          <div className="border-b border-dotted border-black pb-0.5">&nbsp;</div>
-          <div className="border-b border-dotted border-black pb-0.5">&nbsp;</div>
+          <div className="font-bold">{t('supporting-documents')}</div>
+          <div className="border-b border-dotted border-black pb-0.5">
+            &nbsp;
+          </div>
+          <div className="border-b border-dotted border-black pb-0.5">
+            &nbsp;
+          </div>
         </div>
       </div>
 
       <div className="mt-12 space-y-4 pl-24 text-[11px]">
-        <SignLine label="Дарга" />
-        <SignLine label="Нягтлан бодогч" />
-        <SignLine label="Мөнгө тушаагч" />
-        <SignLine label="Хүлээн авсан" />
+        <SignLine label={t('manager')} />
+        <SignLine label={t('accountant')} />
+        <SignLine label={t('depositor')} />
+        <SignLine label={t('received-by')} />
       </div>
     </div>
   );
@@ -262,6 +282,8 @@ const DottedReceipt = ({ transaction }: { transaction: ITransaction }) => {
 
 // === cash_4: side-by-side dotted "БЭЛЭН МӨНГӨНИЙ ОРЛОГЫН БАРИМТ" copies.
 const TwinDottedCopy = ({ transaction }: { transaction: ITransaction }) => {
+  const { t } = useTranslation('accounting');
+
   const { documentNo, date, partyName, description } =
     getCommonFields(transaction);
 
@@ -269,35 +291,39 @@ const TwinDottedCopy = ({ transaction }: { transaction: ITransaction }) => {
     <div className="flex-1">
       <FormHeader code="НХМаягт МХ" />
       <div className="mt-3 mb-4 text-center text-[12px] font-bold uppercase">
-        Бэлэн мөнгөний орлогын баримт
+        {t('cash-receipt-voucher')}
       </div>
 
       <div className="flex justify-between text-[11px]">
-        <div>Дугаар: {documentNo || '...'}</div>
         <div>
-          <span className="font-bold">20...</span> он ... сар ... өдөр {date}
+          {t('number-2')} {documentNo || '...'}
+        </div>
+        <div>
+          <span className="font-bold">20...</span> {t('year-month-day')} {date}
         </div>
       </div>
 
       <div className="mt-3 space-y-3 text-[11px]">
-        <div>Байгууллага нэр:</div>
+        <div>{t('organization-name-3')}</div>
         <div className="flex flex-wrap items-end gap-1">
-          <span>Мөнгө тушаагч:</span>
+          <span>{t('depositor-2')}</span>
           <Dots className="w-40" />
           <Dots className="w-20" />
         </div>
-        <div>ажилтай</div>
+        <div>{t('position')}</div>
         <div className="flex items-end gap-1">
           <Dots className="w-44" />
-          <span>овогтой</span>
+          <span>{t('surname')}</span>
         </div>
         <div className="flex items-end gap-1">
           <Dots className="w-40" />
-          <span>- нээс</span>
+          <span>{t('from')}</span>
         </div>
-        <div>Гүйлгээний утга: {description}</div>
+        <div>
+          {t('transaction-description-2')} {description}
+        </div>
         <div className="flex items-end gap-1">
-          <span>Тушаасан мөнгөний дүн:</span>
+          <span>{t('amount-deposited')}</span>
           <Dots className="flex-1" />
         </div>
         <div>
@@ -307,15 +333,15 @@ const TwinDottedCopy = ({ transaction }: { transaction: ITransaction }) => {
           <span>{partyName}</span>
           <Dots className="w-32" />
         </div>
-        <div>Хавсралт баримт бичиг:</div>
+        <div>{t('supporting-documents')}</div>
       </div>
 
       <div className="mt-12 flex items-end gap-4 text-[11px]">
-        <div className="shrink-0">Тэмдэг</div>
+        <div className="shrink-0">{t('seal')}</div>
         <div className="flex-1 space-y-3">
-          <SignLine label="Нягтлан бодогч" />
-          <SignLine label="Хүлээн авсан" />
-          <SignLine label="Мөнгө тушаагч" />
+          <SignLine label={t('accountant')} />
+          <SignLine label={t('received-by')} />
+          <SignLine label={t('depositor')} />
         </div>
       </div>
     </div>
@@ -339,19 +365,21 @@ export const PrintCashDocument = ({
   transaction: ITransaction;
   variant?: CashVariant;
 }) => {
+  const { t } = useTranslation('accounting');
+
   switch (variant) {
     case 'twin-table':
       return (
         <TwinSheet>
           <TwinTableReceipt
             transaction={transaction}
-            title="Кассын орлогын баримт"
-            partyLabel="Хэнээс(хаанаас)"
+            title={t('cash-receipt-voucher')}
+            partyLabel={t('received-from')}
           />
           <TwinTableReceipt
             transaction={transaction}
-            title="Кассын зарлагын баримт"
-            partyLabel="Хэнд(хаана)"
+            title={t('cash-payment-voucher')}
+            partyLabel={t('issued-to')}
           />
         </TwinSheet>
       );

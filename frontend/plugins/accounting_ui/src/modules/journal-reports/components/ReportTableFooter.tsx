@@ -1,7 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { ReportTable, useQueryState } from 'erxes-ui';
 import { getReportColumnCount } from './reportTableLayout';
 
 export const ReportTableFooter = () => {
+  const { t } = useTranslation('accounting');
+
   const [report] = useQueryState('report');
   const reportCode = typeof report === 'string' ? report : '';
   const columnCount = getReportColumnCount(reportCode);
@@ -13,7 +16,7 @@ export const ReportTableFooter = () => {
   return (
     <ReportTable.Row data-sum-key="footer" className="bg-muted/50">
       <ReportTable.Cell></ReportTable.Cell>
-      <ReportTable.Cell className="text-right">НИЙТ ДҮН:</ReportTable.Cell>
+      <ReportTable.Cell className="text-right">{t('total')}</ReportTable.Cell>
       {Array.from({ length: columnCount - 2 }).map((_, index) => (
         <ReportTable.Cell
           key={`${reportCode}-footer-value-${index}`}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import {
@@ -244,13 +245,15 @@ const SelectFixedAssetLabel = ({
 );
 
 const SelectFixedAssetValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('accounting');
+
   const { fixedAssets, placeholder: providerPlaceholder } =
     useSelectFixedAssetContext();
 
   if (!fixedAssets.length) {
     return (
       <span className="truncate text-muted-foreground">
-        {placeholder || providerPlaceholder || 'Хөрөнгө сонгох'}
+        {placeholder || providerPlaceholder || t('select-an-asset')}
       </span>
     );
   }

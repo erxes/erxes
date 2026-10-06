@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover } from 'erxes-ui';
 import { AccountStatus, ACCOUNT_STATUS_LABELS } from '../../types/Account';
 import React from 'react';
@@ -13,12 +14,16 @@ export const SelectAccountStatusCommand = React.forwardRef<
     onSelect?: (status: string | null) => void;
   }
 >(({ selected, onSelect, ...props }, ref) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ? ACCOUNT_STATUS_LABELS[selected as AccountStatus] : 'Бүгд'}
+        {selected
+          ? t(ACCOUNT_STATUS_LABELS[selected as AccountStatus])
+          : t('global-search.all')}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsStatusCommand
@@ -43,9 +48,14 @@ export const AccountsStatusCommand = ({
   selected: string | null;
   onSelect?: (status: string | null) => void;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Command>
-      <Command.Input placeholder="Төлөвөөр шүүх" focusOnMount={focusOnMount} />
+      <Command.Input
+        placeholder={t('filter-by-status')}
+        focusOnMount={focusOnMount}
+      />
       <Command.List>
         {Object.values(AccountStatus).map((status) => (
           <Command.Item
@@ -53,7 +63,7 @@ export const AccountsStatusCommand = ({
             value={status}
             onSelect={() => onSelect?.(status)}
           >
-            {ACCOUNT_STATUS_LABELS[status]}
+            {t(ACCOUNT_STATUS_LABELS[status])}
             <Combobox.Check checked={selected === status} />
           </Command.Item>
         ))}

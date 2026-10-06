@@ -1,10 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import {
   ITransaction,
   ITrDetail,
 } from '~/modules/transactions/types/Transaction';
-import { amountToMongolianText } from './numberToWords';
+import { amountToText } from './numberToWords';
 import { keyRows } from './shared';
 
 const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
@@ -25,15 +26,15 @@ const VARIANT_CONFIG: Record<
   // invoice_1.png — "Төлөгч" with a "Данс №" contract line layout.
   payer: {
     formCode: 'НХМаягт Т1',
-    counterpartyLabel: 'Төлөгч',
-    accountNumberLabel: 'Дансны дугаар',
+    counterpartyLabel: 'payer',
+    accountNumberLabel: 'account-number',
     showStamp: false,
   },
   // invoice_2.png — "Хариуцагч" with a (Тамга) stamp marker.
   responsible: {
     formCode: 'НХМаягт Т-1',
-    counterpartyLabel: 'Хариуцагч',
-    accountNumberLabel: 'Банкны дансны дугаар',
+    counterpartyLabel: 'assigned-to',
+    accountNumberLabel: 'bank-account-number',
     showStamp: true,
   },
 };
@@ -67,6 +68,8 @@ export const PrintInvoiceDocument = ({
   transaction: ITransaction;
   variant?: InvoiceVariant;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const config = VARIANT_CONFIG[variant];
 
   const details = transaction?.details || [];
@@ -75,7 +78,7 @@ export const PrintInvoiceDocument = ({
   const subTotal = rows.reduce((sum, r) => sum + r.amount, 0);
   const vatAmount = transaction?.vatAmount ?? 0;
   const total = subTotal + vatAmount;
-  const amountInWords = amountToMongolianText(total);
+  const amountInWords = amountToText(total);
 
   // Issuer ("Нэхэмжлэгч") — the company that issues the invoice.
   const issuerAccount = details[0]?.account;
@@ -107,25 +110,26 @@ export const PrintInvoiceDocument = ({
       <div className="flex items-start justify-between">
         <div className="font-medium">{config.formCode}</div>
         <div className="text-right leading-tight">
-          Сангийн сайдын 2017 оны 347 дугаар
+          {t('minister-of-finance-order-no-347-2017')}
           <br />
-          тушаалын хавсралт
+          {t('appendix-to-the-order')}
         </div>
       </div>
 
       <div className="mt-4 mb-6 text-center">
         <div className="text-[18px] font-bold uppercase tracking-wide">
-          Нэхэмжлэх №{documentNo ? ` ${documentNo}` : ''}
+          {t('invoice-no')}
+          {documentNo ? ` ${documentNo}` : ''}
         </div>
       </div>
 
       <div className="flex gap-8">
         {/* Issuer side */}
         <div className="w-1/2 space-y-1">
-          <div className="font-bold">Нэхэмжлэгч:</div>
-          <div>Байгууллагын нэр:</div>
-          <div>Утас, факс:</div>
-          <div>Э-шуудан:</div>
+          <div className="font-bold">{t('invoice-issuer')}</div>
+          <div>{t('organization-name-3')}</div>
+          <div>{t('phone-fax')}</div>
+          <div>{t('email-2')}</div>
           <table className="mt-2 w-full border-collapse border border-black/60">
             <thead>
               <tr>
@@ -133,7 +137,7 @@ export const PrintInvoiceDocument = ({
                   scope="col"
                   className="w-1/2 border border-black/60 px-2 py-1 text-left font-medium"
                 >
-                  Банкны нэр
+                  {t('bank-name')}
                 </th>
                 <th
                   scope="col"
@@ -163,14 +167,20 @@ export const PrintInvoiceDocument = ({
         {/* Counterparty side */}
         <div className="w-1/2 space-y-2">
           <div className="font-bold">{config.counterpartyLabel}:</div>
-          <div>Байгууллагын нэр: {counterpartyName}</div>
-          <div>Утас, факс: {counterpartyPhone}</div>
-          <div>Э-шуудан: {counterpartyEmail}</div>
-          <div>Гэрээний №: ............................................</div>
-          <div className="pt-3">
-            Нэхэмжилсэн огноо: {transactionDate || '20...-...-...'}
+          <div>
+            {t('organization-name-3')} {counterpartyName}
           </div>
-          <div>Төлбөр хийх хугацаа: 20...-...-...</div>
+          <div>
+            {t('phone-fax')} {counterpartyPhone}
+          </div>
+          <div>
+            {t('email-2')} {counterpartyEmail}
+          </div>
+          <div>{t('contract-no')}</div>
+          <div className="pt-3">
+            {t('invoice-date')} {transactionDate || '20...-...-...'}
+          </div>
+          <div>{t('payment-due-date-20')}</div>
         </div>
       </div>
 
@@ -181,16 +191,16 @@ export const PrintInvoiceDocument = ({
               №
             </th>
             <th className="border border-black/60 px-2 py-1 text-left font-medium">
-              Гүйлгээний утга
+              {t('transaction-description')}
             </th>
             <th className="border border-black/60 px-2 py-1 text-right font-medium">
-              Тоо хэмжээ
+              {t('quantity')}
             </th>
             <th className="border border-black/60 px-2 py-1 text-right font-medium">
-              Нэгжийн үнэ
+              {t('unit-price')}
             </th>
             <th className="border border-black/60 px-2 py-1 text-right font-medium">
-              Нийт үнэ
+              {t('total-value')}
             </th>
           </tr>
         </thead>
@@ -219,7 +229,7 @@ export const PrintInvoiceDocument = ({
               colSpan={4}
               className="border border-black/60 px-2 py-1.5 text-right font-medium"
             >
-              Дүн
+              {t('amount')}
             </td>
             <td className="border border-black/60 px-2 py-1.5 text-right">
               {formatNumber(subTotal)}
@@ -230,7 +240,7 @@ export const PrintInvoiceDocument = ({
               colSpan={4}
               className="border border-black/60 px-2 py-1.5 text-right font-medium"
             >
-              НӨАТ
+              {t('vat')}
             </td>
             <td className="border border-black/60 px-2 py-1.5 text-right">
               {formatNumber(vatAmount)}
@@ -241,7 +251,7 @@ export const PrintInvoiceDocument = ({
               colSpan={4}
               className="border border-black/60 px-2 py-1.5 text-right font-bold"
             >
-              Нийт дүн
+              {t('total-amount')}
             </td>
             <td className="border border-black/60 px-2 py-1.5 text-right font-bold">
               {formatNumber(total)}
@@ -251,20 +261,15 @@ export const PrintInvoiceDocument = ({
       </table>
 
       <div className="mt-4">
-        <span className="font-bold">Мөнгөн дүн (үсгээр):</span> {amountInWords}
+        <span className="font-bold">{t('amount-in-words-2')}</span>{' '}
+        {amountInWords}
       </div>
 
-      {config.showStamp && <div className="mt-3">(Тамга)</div>}
+      {config.showStamp && <div className="mt-3">{t('seal-2')}</div>}
 
       <div className="mt-10 space-y-6 pl-8">
-        <div>
-          Захирал: .................................................../
-          ........................../
-        </div>
-        <div>
-          Нягтлан бодогч: ........................................./
-          ........................../
-        </div>
+        <div>{t('director')}</div>
+        <div>{t('accountant-2')}</div>
       </div>
     </div>
   );

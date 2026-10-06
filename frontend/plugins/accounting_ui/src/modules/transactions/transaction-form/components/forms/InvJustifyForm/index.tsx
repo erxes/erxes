@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
@@ -20,6 +21,8 @@ export const InvJustifyForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
@@ -33,7 +36,7 @@ export const InvJustifyForm = ({
           form={form}
           index={index}
           sides={TR_SIDES.JUSTIFY_OPTIONS}
-          labelTxt="Өртгийн өөрчлөлт"
+          labelTxt={t('cost-change')}
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />

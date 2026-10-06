@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import {
   AccountKind,
@@ -36,6 +37,8 @@ export const InvSaleForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${index}`,
@@ -84,7 +87,7 @@ export const InvSaleForm = ({
             kind: AccountKind.PASSIVE,
           }}
           allDetails={true}
-          labelTxt="Борлуулалтын данс"
+          labelTxt={t('sale-account')}
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -96,7 +99,7 @@ export const InvSaleForm = ({
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Бараа материалын данс</Form.Label>
+              <Form.Label>{t('inventory-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -117,7 +120,7 @@ export const InvSaleForm = ({
           name={`trDocs.${index}.followInfos.saleCostAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Өртгийн данс</Form.Label>
+              <Form.Label>{t('cost-account')}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

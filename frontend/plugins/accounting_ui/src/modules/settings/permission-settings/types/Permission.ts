@@ -35,23 +35,35 @@ export const PERMISSION_NONE = 'none';
 
 export const ACCOUNT_PERMISSIONS = {
   READ: [
-    { value: 'none', label: 'Уншихгүй', icon: IconBan },
-    { value: 'own', label: 'Өөрийнхийгөө уншина', icon: IconUser },
-    { value: 'ltLvl', label: 'Бага түвшнийг уншина', icon: IconMathLower },
+    { value: 'none', label: 'no-viewing-access', icon: IconBan },
+    { value: 'own', label: 'view-own-records', icon: IconUser },
+    {
+      value: 'ltLvl',
+      label: 'view-records-at-lower-access-levels',
+      icon: IconMathLower,
+    },
     {
       value: 'lteLvl',
-      label: 'Чацуу түвшнийг уншина',
+      label: 'view-records-at-the-same-access-level',
       icon: IconMathEqualLower,
     },
-    { value: 'gtLvl', label: 'Бүгдийг уншина', icon: IconMathGreater },
+    { value: 'gtLvl', label: 'view-all-records', icon: IconMathGreater },
   ],
   WRITE: [
-    { value: 'none', label: 'Бичихгүй', icon: IconBan },
-    { value: 'add', label: 'Зөвхөн үүсгэж чадна', icon: IconPlus },
-    { value: 'own', label: 'Өөрийн үүсгэснийг засна', icon: IconUser },
-    { value: 'ltLvl', label: 'Бага түвшнийг засна', icon: IconMathLower },
-    { value: 'lteLvl', label: 'Чацуу түвшнийг засна', icon: IconMathEqualLower },
-    { value: 'gtLvl', label: 'Бүх эрх', icon: IconMathGreater },
+    { value: 'none', label: 'no-editing-access', icon: IconBan },
+    { value: 'add', label: 'create-only', icon: IconPlus },
+    { value: 'own', label: 'edit-own-records', icon: IconUser },
+    {
+      value: 'ltLvl',
+      label: 'edit-records-at-lower-access-levels',
+      icon: IconMathLower,
+    },
+    {
+      value: 'lteLvl',
+      label: 'edit-records-at-the-same-access-level',
+      icon: IconMathEqualLower,
+    },
+    { value: 'gtLvl', label: 'full-access', icon: IconMathGreater },
   ],
 } as const satisfies Record<
   'READ' | 'WRITE',

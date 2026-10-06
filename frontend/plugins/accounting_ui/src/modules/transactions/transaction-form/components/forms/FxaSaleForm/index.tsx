@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
@@ -23,6 +24,8 @@ export const FxaSaleForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const onFixedAssetAccountChange = useFxaAccountConfig(form, index, {
     setSaleOutAccount: true,
   });
@@ -39,7 +42,7 @@ export const FxaSaleForm = ({
           form={form}
           index={index}
           allDetails
-          labelTxt="Борлуулалтын орлогын данс"
+          labelTxt={t('sales-revenue-account')}
           filter={{
             journals: [JournalEnum.FXA_FOLLOW],
           }}

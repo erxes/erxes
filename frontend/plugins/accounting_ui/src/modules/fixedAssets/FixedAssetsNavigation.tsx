@@ -1,16 +1,19 @@
+import { useTranslation } from 'react-i18next';
 import { IconMoneybag, IconUserCheck } from '@tabler/icons-react';
 import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
 
 export const FixedAssetsNavigation = () => {
+  const { t } = useTranslation('accounting');
+
   return (
-    <NavigationMenuGroup name="Үндсэн хөрөнгө">
+    <NavigationMenuGroup name={t('fixed-asset')}>
       <NavigationMenuLinkItem
-        name="Эд хариуцагч"
+        name={t('asset-custodian')}
         icon={IconUserCheck}
         path="accounting/fixed-assets/owner-records"
       />
       <NavigationMenuLinkItem
-        name="Үлдэгдэл"
+        name={t('remainder')}
         icon={IconMoneybag}
         path="accounting/fixed-assets/remainders"
       />

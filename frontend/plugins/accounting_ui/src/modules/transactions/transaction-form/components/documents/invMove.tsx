@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { formatNumber, keyRows } from './shared';
@@ -15,6 +16,8 @@ export const PrintInvMoveDocument = ({
   transaction: ITransaction;
   variant?: InvMoveVariant;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const details = transaction?.details || [];
 
   // Each detail is one moved item; total is the sum of line values.
@@ -51,41 +54,45 @@ export const PrintInvMoveDocument = ({
       <div className="flex items-start justify-between text-[11px]">
         <div className="font-medium">НХМаягт БМ3</div>
         <div className="text-right leading-tight">
-          Санхүү эдийн засгийн сайд Үндэсний
+          {t('minister-of-finance-and-economy-and')}
           <br />
-          статистикийн газрын даргын 2002 оны
+          {t('head-of-the-national-statistical-office-2002')}
           <br />
-          6-р сарын 18-ны 171/111 тоот
+          {t('order-no-171-111-june-18')}
           <br />
-          тушаалын хавсралт
-          {variant === 'byPrice' ? ' (үнээр)' : ''}
+          {t('appendix-to-the-order')}
+          {variant === 'byPrice' ? t('at-value') : ''}
         </div>
       </div>
 
       <div className="mt-3 border-b border-black pb-1 font-bold">
-        Байгууллага:
+        {t('organization')}
       </div>
 
       <div className="mt-3 mb-2 text-center text-[15px] font-bold">
-        Дотоод хөдөлгөөн
+        {t('internal-transfer')}
       </div>
 
-      <div className="font-bold">Огноо: {date}</div>
-      <div className="mb-2 font-bold">Утга: {description}</div>
+      <div className="font-bold">
+        {t('date-2')} {date}
+      </div>
+      <div className="mb-2 font-bold">
+        {t('description-2')} {description}
+      </div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
             <th className={`${TH} w-8`}>№</th>
-            <th className={`${TH} px-2`}>Бараа материал</th>
-            <th className={TH}>Хэмжих нэгж</th>
-            <th className={TH}>Хаанаас</th>
-            <th className={TH}>Данснаас</th>
-            <th className={TH}>Хаашаа</th>
-            <th className={TH}>Дансанд</th>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>Нэгжийн үнэ</th>
-            <th className={TH}>Үнэ</th>
+            <th className={`${TH} px-2`}>{t('inventory')}</th>
+            <th className={TH}>{t('unit-of-measure')}</th>
+            <th className={TH}>{t('from-location')}</th>
+            <th className={TH}>{t('from-account')}</th>
+            <th className={TH}>{t('to-location')}</th>
+            <th className={TH}>{t('to-account')}</th>
+            <th className={TH}>{t('quantity')}</th>
+            <th className={TH}>{t('unit-price')}</th>
+            <th className={TH}>{t('price')}</th>
           </tr>
         </thead>
         <tbody>
@@ -111,7 +118,9 @@ export const PrintInvMoveDocument = ({
           ))}
           <tr>
             <td className={TD} />
-            <td className={`${TD} px-2 text-center font-medium`}>Дүн</td>
+            <td className={`${TD} px-2 text-center font-medium`}>
+              {t('amount')}
+            </td>
             <td className={TD} colSpan={6} />
             <td className={`${TD} text-right`} />
             <td className={`${TD} text-right font-bold`}>
@@ -123,14 +132,14 @@ export const PrintInvMoveDocument = ({
 
       <div className="mt-10 space-y-3 text-[11px]">
         <div className="flex items-end justify-center gap-2">
-          <span className="shrink-0">Хүлээн авсан:</span>
+          <span className="shrink-0">{t('received-by-2')}</span>
           <span className="inline-block w-72 border-b border-dotted border-black" />
           <span>/</span>
           <span className="inline-block w-72 border-b border-dotted border-black" />
           <span>/</span>
         </div>
         <div className="flex items-end justify-center gap-2">
-          <span className="shrink-0">Хүлээлгэн өгсөн:</span>
+          <span className="shrink-0">{t('handed-over-by-2')}</span>
           <span className="inline-block w-72 border-b border-dotted border-black" />
           <span>/</span>
           <span className="inline-block w-72 border-b border-dotted border-black" />

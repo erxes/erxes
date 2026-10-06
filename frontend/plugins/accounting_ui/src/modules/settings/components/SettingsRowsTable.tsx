@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
@@ -73,7 +74,7 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Дугаар" />,
+    header: () => <HeaderCell labelKey="number" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -82,7 +83,7 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <HeaderCell labelKey="name" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -91,7 +92,7 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Төрөл" />,
+    header: () => <HeaderCell labelKey="type" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -99,7 +100,7 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
+    header: () => <HeaderCell labelKey="status" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -107,7 +108,7 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'percent',
     accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Хувь" />,
+    header: () => <HeaderCell labelKey="percentage" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),

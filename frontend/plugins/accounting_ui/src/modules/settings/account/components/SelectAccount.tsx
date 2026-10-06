@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   SelectAccountContext,
   useSelectAccountContext,
@@ -146,6 +147,8 @@ const SelectAccountContent = () => {
 };
 
 const SelectAccountCommandItem = ({ account }: { account: IAccount }) => {
+  const { t } = useTranslation('accounting');
+
   const { onSelect, accountIds } = useSelectAccountContext();
   return (
     <Command.Item
@@ -154,7 +157,7 @@ const SelectAccountCommandItem = ({ account }: { account: IAccount }) => {
         onSelect(account);
       }}
     >
-      <AccountsInline accounts={[account]} placeholder="Нэргүй данс" />
+      <AccountsInline accounts={[account]} placeholder={t('unnamed-account')} />
       <Combobox.Check checked={accountIds.includes(account._id)} />
     </Command.Item>
   );
@@ -264,10 +267,12 @@ export const SelectAccountFilterItem = ({
   value?: string;
   label?: string;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Filter.Item value={value ?? 'account'}>
       <IconShoppingCart />
-      {label ?? 'Account'}
+      {label ?? t('account')}
     </Filter.Item>
   );
 };
@@ -320,6 +325,8 @@ export const SelectAccountFilterBar = ({
   mode?: 'single' | 'multiple';
   onCallback?: (account: IAccount) => void;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [account, setAccount] = useQueryState<string[] | string>(
     queryKey || 'account',
   );
@@ -333,7 +340,7 @@ export const SelectAccountFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'account'}>
       <Filter.BarName>
         <IconShoppingCart />
-        {!iconOnly && 'Accounts'}
+        {!iconOnly && t('accounts')}
       </Filter.BarName>
       <SelectAccountProvider
         mode={mode}

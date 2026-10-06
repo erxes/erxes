@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import {
   getCurrencyCodeFromOptions,
@@ -27,16 +28,18 @@ import {
 } from '../types/adjustFundRateSchema';
 
 export const AddAdjustFundRate = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen} modal>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Fund Rate Adjustment
+          {t('add-cash-and-bank-currency-revaluation')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Create Fund Rate Adjustment">
+      <AccountingSheet title={t('create-cash-and-bank-currency-revaluation')}>
         <AdjustFundRateFormContent setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
@@ -52,9 +55,11 @@ export const EditAdjustFundRate = ({
   setOpen: (open: boolean) => void;
   adjustFundRate: IAdjustFundRate;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Sheet open={open} onOpenChange={setOpen} modal>
-      <AccountingSheet title="Edit Fund Rate Adjustment">
+      <AccountingSheet title={t('edit-cash-and-bank-currency-revaluation')}>
         <AdjustFundRateFormContent
           setOpen={setOpen}
           adjustFundRate={adjustFundRate}
@@ -71,6 +76,8 @@ const AdjustFundRateFormContent = ({
   setOpen: (open: boolean) => void;
   adjustFundRate?: IAdjustFundRate;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { dealCurrencyOptions, mainCurrency: configuredMainCurrency } =
     useCurrencyConfigs();
   const form = useForm<TAdjustFundRateForm>({
@@ -164,7 +171,8 @@ const AdjustFundRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Main Currency <span className="text-destructive">*</span>
+                  {t('base-currency')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
@@ -187,7 +195,8 @@ const AdjustFundRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Foreign Currency <span className="text-destructive">*</span>
+                  {t('foreign-currency')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
@@ -210,7 +219,8 @@ const AdjustFundRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Spot Rate <span className="text-destructive">*</span>
+                  {t('spot-exchange-rate')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.ValueInput
@@ -230,7 +240,7 @@ const AdjustFundRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Date <span className="text-destructive">*</span>
+                  {t('date')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <DatePicker
@@ -250,7 +260,8 @@ const AdjustFundRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Gain Account <span className="text-destructive">*</span>
+                  {t('exchange-gain-account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccount
@@ -270,7 +281,8 @@ const AdjustFundRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Loss Account <span className="text-destructive">*</span>
+                  {t('exchange-loss-account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccount
@@ -289,10 +301,10 @@ const AdjustFundRateFormContent = ({
             name="description"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Description</Form.Label>
+                <Form.Label>{t('description')}</Form.Label>
                 <Form.Control>
                   <Textarea
-                    placeholder="Enter description"
+                    placeholder={t('enter-description')}
                     value={field.value || ''}
                     onChange={field.onChange}
                   />
@@ -310,11 +322,11 @@ const AdjustFundRateFormContent = ({
             size="lg"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

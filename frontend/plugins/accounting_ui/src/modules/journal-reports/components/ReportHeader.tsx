@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Separator, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -17,6 +18,8 @@ const parseQueryDate = (value?: string): string => {
 };
 
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
+  const { t } = useTranslation('accounting');
+
   const [currentOrganization] = useAtom(currentOrganizationState);
   const [report] = useQueryState('report');
   const [fromDate] = useQueryState('fromDate');
@@ -30,7 +33,7 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
     <>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-[1em]">
         <h1 className="text-[2em] leading-tight font-bold text-center">
-          {title}
+          {title ? t(title) : ''}
         </h1>
         <div>
           <ReportExcelExportButton reportContainerRef={reportContainerRef} />
@@ -38,13 +41,15 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
       </div>
       <div className="flex justify-between pb-[2em]">
         <div className="flex flex-col gap-1">
-          <p className="font-bold">{currentOrganization?.name ?? 'OrgName'}</p>
+          <p className="font-bold">
+            {currentOrganization?.name ?? t('organization')}
+          </p>
           <Separator className="print:bg-foreground bg-border" />
-          <p>(Аж ахуй нэгж албан байгууллагын нэр)</p>
+          <p>{t('organization-name')}</p>
         </div>
         <div className="flex flex-col gap-1 text-right">
           <p>{[from, to].filter((d) => d).join(' - ')}</p>
-          <p>(төгрөгөөр)</p>
+          <p>{t('in-mnt')}</p>
         </div>
       </div>
     </>

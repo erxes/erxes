@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import dayjs from 'dayjs';
 import { Cell, CellContext, ColumnDef } from '@tanstack/react-table';
 import { IAdjustInventory } from '../types/AdjustInventory';
@@ -63,14 +64,14 @@ const transactionMoreColumn = {
 
 const dateColumn = {
   id: 'date',
-  header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+  header: () => <HeaderCell icon={IconCalendar} labelKey="date" />,
   accessorKey: 'date',
   cell: DateCell,
 } satisfies ColumnDef<IAdjustInventory, Date>;
 
 const descriptionColumn = {
   id: 'description',
-  header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+  header: () => <HeaderCell icon={IconFile} labelKey="description" />,
   accessorKey: 'description',
   cell: DescriptionCell,
   size: 300,

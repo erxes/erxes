@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import {
   IconBox,
   IconBuildingWarehouse,
@@ -39,7 +40,7 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
   {
     id: 'product',
     accessorKey: 'product',
-    header: () => <RecordTable.InlineHead icon={IconBox} label="Бараа" />,
+    header: () => <HeaderCell icon={IconBox} labelKey="inventory" />,
     cell: ({ row }) => {
       const code = row.original.product?.code;
       const name = row.original.product?.name;
@@ -55,9 +56,7 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
   {
     id: 'branch',
     accessorKey: 'branch',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuildingWarehouse} label="Салбар" />
-    ),
+    header: () => <HeaderCell icon={IconBuildingWarehouse} labelKey="branch" />,
     cell: ({ row }) => {
       const code = row.original.branch?.code;
       const title = row.original.branch?.title;
@@ -73,9 +72,7 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
   {
     id: 'department',
     accessorKey: 'department',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHierarchy2} label="Хэлтэс" />
-    ),
+    header: () => <HeaderCell icon={IconHierarchy2} labelKey="department" />,
     cell: ({ row }) => {
       const code = row.original.department?.code;
       const title = row.original.department?.title;
@@ -91,9 +88,7 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
   {
     id: 'uom',
     accessorKey: 'uom',
-    header: () => (
-      <RecordTable.InlineHead icon={IconRuler2} label="Хэмжих нэгж" />
-    ),
+    header: () => <HeaderCell icon={IconRuler2} labelKey="unit-of-measure" />,
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(getValue() as string) ?? ''} />
@@ -105,7 +100,7 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
     id: 'remainder',
     accessorKey: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconStack2} label="Нөөц үлдэгдэл" />
+      <HeaderCell icon={IconStack2} labelKey="reserved-inventory" />
     ),
     cell: ({ row }) => <RemainderField reserveRem={row.original} />,
     size: 160,

@@ -26,7 +26,7 @@ const AddReserveRemForm = ({
 }) => {
   const { t } = useTranslation('accounting');
   const form = useForm<TReserveRemForm>({
-    resolver: zodResolver(reserveRemSchema),
+    resolver: zodResolver(reserveRemSchema(t)),
     defaultValues: {
       branchIds: [],
       departmentIds: [],

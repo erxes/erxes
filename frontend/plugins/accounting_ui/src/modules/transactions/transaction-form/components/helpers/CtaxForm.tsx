@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { Checkbox, CurrencyField, Form } from 'erxes-ui';
@@ -21,6 +22,8 @@ export const CtaxForm = ({
   isWithTax?: boolean;
   isSameSide: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [taxPercents, setTaxPercents] = useAtom(taxPercentsState);
   const trDoc = useWatch({
     control: form.control,
@@ -173,7 +176,7 @@ export const CtaxForm = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">НХАТ-тэй</Form.Label>
+            <Form.Label variant="peer">{t('apply-city-tax')}</Form.Label>
           </Form.Item>
         )}
       />
@@ -190,7 +193,9 @@ export const CtaxForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">НХАТ гараар тооцох</Form.Label>
+                <Form.Label variant="peer">
+                  {t('enter-city-tax-manually')}
+                </Form.Label>
               </Form.Item>
             )}
           />
@@ -199,7 +204,7 @@ export const CtaxForm = ({
             name={`trDocs.${journalIndex}.ctaxRowId`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>НХАТ-ын мөр</Form.Label>
+                <Form.Label>{t('city-tax-rules')}</Form.Label>
                 <SelectCtax
                   value={field.value || ''}
                   onValueChange={field.onChange}
@@ -214,7 +219,7 @@ export const CtaxForm = ({
             name={`trDocs.${journalIndex}.ctaxAmount`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>НХАТ-ын дүн</Form.Label>
+                <Form.Label>{t('city-tax-amount')}</Form.Label>
                 <CurrencyField.ValueInput
                   value={handleCtax ? field.value ?? 0 : calcedAmount}
                   onChange={field.onChange}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 
 import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
@@ -12,11 +13,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EditAccountForm = () => {
+  const { t } = useTranslation('accounting');
+
   const { accountDetail, closeDetail, loading } = useAccountDetail();
   const { editAccount, loading: editLoading } = useAccountEdit();
 
   const form = useForm<TAccountForm>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(accountSchema(t)),
     defaultValues: accountDetail || ACCOUNT_DEFAULT_VALUES,
   });
   const { reset } = form;
@@ -70,6 +73,8 @@ export const EditAccountForm = () => {
 };
 
 export const EditAccount = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useQueryState<string>('accountId');
   return (
     <Sheet
@@ -78,7 +83,7 @@ export const EditAccount = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <AccountingSheet title="Данс засах">
+      <AccountingSheet title={t('edit-account')}>
         <EditAccountForm />
       </AccountingSheet>
     </Sheet>

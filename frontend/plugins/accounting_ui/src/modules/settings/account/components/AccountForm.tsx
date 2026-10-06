@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   ACCOUNT_KIND_LABELS,
   ACCOUNT_STATUS_LABELS,
@@ -36,6 +37,8 @@ const AccountFormFields = ({
   status: string | undefined;
   journal: string | undefined;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { dealCurrencyOptions } = useCurrencyConfigs();
 
   return (
@@ -45,10 +48,10 @@ const AccountFormFields = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Нэр</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <Form.Control>
               <Input
-                placeholder="Дансны нэр оруулах"
+                placeholder={t('enter-the-account-name')}
                 {...field}
                 autoComplete="off"
               />
@@ -63,9 +66,9 @@ const AccountFormFields = ({
         name="code"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Код</Form.Label>
+            <Form.Label>{t('code')}</Form.Label>
             <Form.Control>
-              <Input placeholder="Дансны код оруулах" {...field} />
+              <Input placeholder={t('enter-the-account-code')} {...field} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -77,7 +80,7 @@ const AccountFormFields = ({
         name="categoryId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Ангилал</Form.Label>
+            <Form.Label>{t('category')}</Form.Label>
             <Form.Control>
               <SelectAccountCategory
                 tabIndex={0}
@@ -96,7 +99,7 @@ const AccountFormFields = ({
         name="currency"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Валют</Form.Label>
+            <Form.Label>{t('currency')}</Form.Label>
             <Form.Control>
               <CurrencyField.SelectCurrency
                 value={getCurrencyCodeFromOptions(
@@ -118,9 +121,9 @@ const AccountFormFields = ({
         name="description"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>Тайлбар</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <Form.Control>
-              <Textarea placeholder="Тайлбар оруулах" {...field} />
+              <Textarea placeholder={t('enter-a-description')} {...field} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -132,16 +135,16 @@ const AccountFormFields = ({
         name="kind"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Төрөл</Form.Label>
+            <Form.Label>{t('type')}</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Төрөл сонгох" />
+                  <Select.Value placeholder={t('select-type')} />
                 </Select.Trigger>
                 <Select.Content>
                   {Object.values(AccountKind).map((kind) => (
                     <Select.Item key={kind} value={kind}>
-                      {ACCOUNT_KIND_LABELS[kind]}
+                      {t(ACCOUNT_KIND_LABELS[kind])}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -157,16 +160,16 @@ const AccountFormFields = ({
         name="journal"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Журнал</Form.Label>
+            <Form.Label>{t('journal')}</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Журнал сонгох" />
+                  <Select.Value placeholder={t('select-a-journal')} />
                 </Select.Trigger>
                 <Select.Content>
                   {Object.values(JournalEnum).map((journal) => (
                     <Select.Item key={journal} value={journal}>
-                      {JOURNAL_LABELS[journal]}
+                      {t(JOURNAL_LABELS[journal])}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -184,9 +187,9 @@ const AccountFormFields = ({
             name="extra.bank"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Банк</Form.Label>
+                <Form.Label>{t('bank')}</Form.Label>
                 <Form.Control>
-                  <Input placeholder="Банкны нэр оруулах" {...field} />
+                  <Input placeholder={t('enter-the-bank-name')} {...field} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -198,10 +201,10 @@ const AccountFormFields = ({
             name="extra.bankAccount"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Банкны данс</Form.Label>
+                <Form.Label>{t('bank-account')}</Form.Label>
                 <Form.Control>
                   <Input
-                    placeholder="Банкны дансны дугаар оруулах"
+                    placeholder={t('enter-the-bank-account-number')}
                     {...field}
                   />
                 </Form.Control>
@@ -217,7 +220,7 @@ const AccountFormFields = ({
         name="branchId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Салбар</Form.Label>
+            <Form.Label>{t('branch')}</Form.Label>
             <Form.Control>
               <SelectBranches.FormItem
                 mode="single"
@@ -235,7 +238,7 @@ const AccountFormFields = ({
         name="departmentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Хэлтэс</Form.Label>
+            <Form.Label>{t('department')}</Form.Label>
             <Form.Control>
               <SelectDepartments.FormItem
                 mode="single"
@@ -259,7 +262,7 @@ const AccountFormFields = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">Түр данс</Form.Label>
+            <Form.Label variant="peer">{t('temporary-account')}</Form.Label>
           </Form.Item>
         )}
       />
@@ -275,7 +278,7 @@ const AccountFormFields = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">Баланс бус</Form.Label>
+            <Form.Label variant="peer">{t('off-balance-sheet')}</Form.Label>
           </Form.Item>
         )}
       />
@@ -286,16 +289,16 @@ const AccountFormFields = ({
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Төлөв</Form.Label>
+              <Form.Label>{t('status')}</Form.Label>
               <Form.Control>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Төлөв сонгох" />
+                    <Select.Value placeholder={t('select-a-status')} />
                   </Select.Trigger>
                   <Select.Content>
                     {Object.values(AccountStatus).map((status) => (
                       <Select.Item key={status} value={status}>
-                        {ACCOUNT_STATUS_LABELS[status]}
+                        {t(ACCOUNT_STATUS_LABELS[status])}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -319,6 +322,8 @@ export const AccountForm = ({
   handleSubmit: (data: TAccountForm) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const status = useWatch({
     control: form.control,
     name: 'status',
@@ -333,12 +338,12 @@ export const AccountForm = ({
     <Sheet.Footer className="shrink-0 border-t bg-background">
       <Sheet.Close asChild>
         <Button variant="outline" type="button" size="lg">
-          Болих
+          {t('cancel')}
         </Button>
       </Sheet.Close>
 
       <Button type="submit" size="lg" disabled={loading}>
-        {loading ? <Spinner /> : 'Данс хадгалах'}
+        {loading ? <Spinner /> : t('save-account')}
       </Button>
     </Sheet.Footer>
   );

@@ -1,3 +1,5 @@
+import { getI18n } from 'react-i18next';
+
 const ONES = [
   '',
   'нэг',
@@ -124,4 +126,87 @@ export const amountToMongolianText = (amount: number): string => {
   return `${sign}${tugrugText}`;
 };
 
-export default amountToMongolianText;
+const ENGLISH_ONES = [
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'eleven',
+  'twelve',
+  'thirteen',
+  'fourteen',
+  'fifteen',
+  'sixteen',
+  'seventeen',
+  'eighteen',
+  'nineteen',
+];
+const ENGLISH_TENS = [
+  '',
+  '',
+  'twenty',
+  'thirty',
+  'forty',
+  'fifty',
+  'sixty',
+  'seventy',
+  'eighty',
+  'ninety',
+];
+
+const integerToEnglishText = (value: number): string => {
+  if (value < 20) return ENGLISH_ONES[value];
+  if (value < 100) {
+    const remainder = value % 10;
+    return (
+      ENGLISH_TENS[Math.floor(value / 10)] +
+      (remainder ? `-${ENGLISH_ONES[remainder]}` : '')
+    );
+  }
+  for (const [scale, name] of [
+    [1_000_000_000_000, 'trillion'],
+    [1_000_000_000, 'billion'],
+    [1_000_000, 'million'],
+    [1_000, 'thousand'],
+    [100, 'hundred'],
+  ] as const) {
+    if (value >= scale) {
+      const remainder = value % scale;
+      return (
+        `${integerToEnglishText(Math.floor(value / scale))} ${name}` +
+        (remainder ? ` ${integerToEnglishText(remainder)}` : '')
+      );
+    }
+  }
+  return '';
+};
+
+export const amountToEnglishText = (amount: number): string => {
+  const totalMongo = Number.isFinite(amount)
+    ? Math.round(Math.abs(amount) * 100)
+    : 0;
+  const tugrug = Math.floor(totalMongo / 100);
+  const mongo = totalMongo % 100;
+  const sign = amount < 0 && totalMongo > 0 ? 'minus ' : '';
+  const amountText = `${integerToEnglishText(tugrug)} ${
+    tugrug === 1 ? 'tugrik' : 'tugriks'
+  }`;
+  return (
+    `${sign}${amountText}` +
+    (mongo > 0 ? ` and ${integerToEnglishText(mongo)} mongo` : '')
+  );
+};
+
+export const amountToText = (amount: number): string => {
+  const language = getI18n()?.resolvedLanguage ?? getI18n()?.language;
+  return language?.startsWith('en')
+    ? amountToEnglishText(amount)
+    : amountToMongolianText(amount);
+};

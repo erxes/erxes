@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IAdjustInventory } from '../types/AdjustInventory';
 import { Link } from 'react-router-dom';
@@ -117,59 +118,53 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   // },
   {
     id: 'product',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="inventory" />,
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
   },
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="account" />,
     accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 300,
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Салбар" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="branch" />,
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
     size: 200,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Хэлтэс" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="department" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
     size: 200,
   },
   {
     id: 'remainder',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="remainder" />,
     accessorKey: 'remainder',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'unitCost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="unit-cost" />,
     accessorKey: 'unitCost',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'cost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нийт өртөг" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="total-cost" />,
     accessorKey: 'cost',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => <HeaderCell icon={IconFile} labelKey="description" />,
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />

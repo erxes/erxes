@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import {
   IconChevronLeft,
@@ -60,6 +61,8 @@ export const Summary = ({
   errorMessage?: string;
   form: ITransactionGroupForm;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [showMore, setShowMore] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -81,10 +84,10 @@ export const Summary = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Эдгээр гүйлгээг устгах уу?',
+      message: t('are-you-sure-you-want-to-delete-the-selected-transactions'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       if (!parentId) {
@@ -102,7 +105,7 @@ export const Summary = ({
           size="icon"
           className="size-7 shrink-0"
           onClick={() => setShowMore((prev) => !prev)}
-          title={showMore ? 'Эвхэх' : 'Дэлгэх'}
+          title={showMore ? t('collapse') : t('expand')}
         >
           <IconChevronLeft
             className={cn(
@@ -125,7 +128,7 @@ export const Summary = ({
         ) : (
           <>
             <div className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-accent-foreground">Дебет:</span>
+              <span className="text-accent-foreground">{t('debit-2')}</span>
               <span
                 className={cn(
                   'font-bold',
@@ -141,7 +144,7 @@ export const Summary = ({
               </span>
             </div>
             <div className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-accent-foreground">Кредит:</span>
+              <span className="text-accent-foreground">{t('credit-2')}</span>
               <span
                 className={cn(
                   'font-bold',
@@ -159,7 +162,9 @@ export const Summary = ({
 
             {showMore ? (
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="text-accent-foreground">Зөрүү:</span>
+                <span className="text-accent-foreground">
+                  {t('difference-2')}
+                </span>
                 <span
                   className={cn(
                     'font-bold',
@@ -186,14 +191,16 @@ export const Summary = ({
         title={
           errorMessage ||
           (hasHiddenTransaction
-            ? 'Унших эрх хүрэхгүй гүйлгээ байгаа тул хадгалах боломжгүй'
+            ? t(
+                'this-document-cannot-be-saved-because-you-do-not-have-access-to-view-all-its-transactions',
+              )
             : isDraftedStatus
-            ? 'Ноорог бүлгийн төлөвөөр хадгалах'
+            ? t('save-as-draft')
             : undefined)
         }
       >
         <SubmitIcon />
-        Хадгалах
+        {t('save')}
       </Button>
       <Button
         variant="secondary"
@@ -202,7 +209,7 @@ export const Summary = ({
         onClick={handleDelete}
       >
         <IconTrashX />
-        {`Устгах`}
+        {t('delete')}
       </Button>
       <TrRightSidebar form={form} />
     </div>

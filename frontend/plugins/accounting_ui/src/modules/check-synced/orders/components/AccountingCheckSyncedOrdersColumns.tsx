@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Checkbox,
   RecordTable,
@@ -76,7 +77,8 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'toSync',
     accessorKey: 'toSync',
-    header: () => {
+    header: function ToSyncOrdersHeader() {
+      const { t } = useTranslation('accounting');
       const selectedCount = syncableOrderIds.filter(
         (id) => toSyncOrderIds[id],
       ).length;
@@ -95,13 +97,14 @@ export const getAccountingCheckSyncedOrdersColumns = ({
             onCheckedChange={() =>
               onToggleAllToSync(syncableOrderIds, nextChecked)
             }
-            aria-label="Select all orders to sync"
+            aria-label={t('select-all-orders-for-synchronization')}
           />
         </div>
       );
     },
     size: 33,
-    cell: ({ row }) => {
+    cell: function ToSyncOrderCell({ row }) {
+      const { t } = useTranslation('accounting');
       const order = row.original;
       const disabled = !isSyncable(order);
 
@@ -113,7 +116,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
             onCheckedChange={(value) =>
               onToggleToSync(order._id, Boolean(value))
             }
-            aria-label="Select order to sync"
+            aria-label={t('select-order-for-synchronization')}
           />
         </div>
       );

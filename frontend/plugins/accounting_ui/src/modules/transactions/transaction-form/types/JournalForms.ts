@@ -24,32 +24,58 @@ import {
   trDocSchema,
 } from '../contants/transactionSchema';
 
-export type TAddTransactionGroup = z.infer<typeof transactionGroupSchema>;
-export type TTrDoc = z.infer<typeof trDocSchema>;
-
-export type TMainJournal = z.infer<typeof transactionMainSchema>;
-export type TCashJournal = z.infer<typeof transactionCashSchema>;
-export type TBankJournal = z.infer<typeof transactionBankSchema>;
-export type TReceivableJournal = z.infer<typeof transactionReceivableSchema>;
-export type TPayableJournal = z.infer<typeof transactionPayableSchema>;
-export type TTaxJournal = z.infer<typeof transactionTaxSchema>;
-
-export type TInvIncomeJournal = z.infer<typeof transactionInvIncomeSchema>;
-export type TInvOutJournal = z.infer<typeof transactionInvOutSchema>;
-export type TInvJustifyJournal = z.infer<typeof transactionInvJustifySchema>;
-export type TInvMoveJournal = z.infer<typeof transactionInvMoveSchema>;
-export type TInvSaleJournal = z.infer<typeof transactionInvSaleSchema>;
-export type TInvSaleReturnJournal = z.infer<
-  typeof transactionInvSaleReturnSchema
+export type TAddTransactionGroup = z.infer<
+  ReturnType<typeof transactionGroupSchema>
 >;
-export type TInvDetail = z.infer<typeof invDetailSchema>;
+export type TTrDoc = z.infer<ReturnType<typeof trDocSchema>>;
 
-export type TFxaIncomeJournal = z.infer<typeof transactionFxaIncomeSchema>;
-export type TFxaOutJournal = z.infer<typeof transactionFxaOutSchema>;
-export type TFxaMoveJournal = z.infer<typeof transactionFxaMoveSchema>;
-export type TFxaSaleJournal = z.infer<typeof transactionFxaSaleSchema>;
-export type TFxaDetail = z.infer<typeof fxaDetailSchema>;
-export type TFxaIncomeDetail = z.infer<typeof fxaIncomeDetailSchema>;
+export type TMainJournal = z.infer<ReturnType<typeof transactionMainSchema>>;
+export type TCashJournal = z.infer<ReturnType<typeof transactionCashSchema>>;
+export type TBankJournal = z.infer<ReturnType<typeof transactionBankSchema>>;
+export type TReceivableJournal = z.infer<
+  ReturnType<typeof transactionReceivableSchema>
+>;
+export type TPayableJournal = z.infer<
+  ReturnType<typeof transactionPayableSchema>
+>;
+export type TTaxJournal = z.infer<ReturnType<typeof transactionTaxSchema>>;
+
+export type TInvIncomeJournal = z.infer<
+  ReturnType<typeof transactionInvIncomeSchema>
+>;
+export type TInvOutJournal = z.infer<
+  ReturnType<typeof transactionInvOutSchema>
+>;
+export type TInvJustifyJournal = z.infer<
+  ReturnType<typeof transactionInvJustifySchema>
+>;
+export type TInvMoveJournal = z.infer<
+  ReturnType<typeof transactionInvMoveSchema>
+>;
+export type TInvSaleJournal = z.infer<
+  ReturnType<typeof transactionInvSaleSchema>
+>;
+export type TInvSaleReturnJournal = z.infer<
+  ReturnType<typeof transactionInvSaleReturnSchema>
+>;
+export type TInvDetail = z.infer<ReturnType<typeof invDetailSchema>>;
+
+export type TFxaIncomeJournal = z.infer<
+  ReturnType<typeof transactionFxaIncomeSchema>
+>;
+export type TFxaOutJournal = z.infer<
+  ReturnType<typeof transactionFxaOutSchema>
+>;
+export type TFxaMoveJournal = z.infer<
+  ReturnType<typeof transactionFxaMoveSchema>
+>;
+export type TFxaSaleJournal = z.infer<
+  ReturnType<typeof transactionFxaSaleSchema>
+>;
+export type TFxaDetail = z.infer<ReturnType<typeof fxaDetailSchema>>;
+export type TFxaIncomeDetail = z.infer<
+  ReturnType<typeof fxaIncomeDetailSchema>
+>;
 
 export type ITransactionGroupForm = UseFormReturn<TAddTransactionGroup>;
 

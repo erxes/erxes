@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Sheet } from 'erxes-ui';
 import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
 
@@ -39,6 +40,8 @@ export const AddVatForm = ({
 };
 
 export const AddVats = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -46,10 +49,10 @@ export const AddVats = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          НӨАТ нэмэх
+          {t('add-vat-rule')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="НӨАТ нэмэх">
+      <AccountingSheet title={t('add-vat-rule')}>
         <AddVatForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>

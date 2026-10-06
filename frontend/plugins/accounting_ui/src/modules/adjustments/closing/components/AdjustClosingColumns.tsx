@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import {
   IconBuildingBank,
   IconCalendar,
@@ -99,14 +100,14 @@ export const adjustClosingTableColumns: (
     {
       id: 'status',
       accessorKey: 'status',
-      header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
+      header: () => <HeaderCell icon={IconFlag} labelKey="status" />,
       cell: StatusCell,
       size: 120,
     },
     {
       id: 'date',
       header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label={t('Date')} />
+        <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
       ),
       accessorKey: 'date',
       cell: DateCell,
@@ -122,7 +123,7 @@ export const adjustClosingTableColumns: (
     {
       id: 'description',
       header: () => (
-        <RecordTable.InlineHead icon={IconFile} label={t('Description')} />
+        <RecordTable.InlineHead icon={IconFile} label={t('description')} />
       ),
       accessorKey: 'description',
       cell: DescriptionCell,

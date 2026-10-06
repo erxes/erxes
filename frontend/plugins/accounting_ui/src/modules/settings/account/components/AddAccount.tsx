@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Sheet } from 'erxes-ui';
 
 import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
@@ -12,8 +13,10 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+  const { t } = useTranslation('accounting');
+
   const form = useForm<TAccountForm>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(accountSchema(t)),
     defaultValues: ACCOUNT_DEFAULT_VALUES,
   });
   const { addAccount, loading } = useAccountAdd();
@@ -34,6 +37,8 @@ const AddAccountForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
 };
 
 export const AddAccount = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -41,10 +46,10 @@ export const AddAccount = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Данс нэмэх
+          {t('add-account')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Данс нэмэх">
+      <AccountingSheet title={t('add-account')}>
         <AddAccountForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>

@@ -1,3 +1,5 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
+import { useTranslation } from 'react-i18next';
 import {
   IconCalculator,
   IconBuilding,
@@ -77,15 +79,13 @@ const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
 const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
   {
     id: 'account',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Account" />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} labelKey="account" />,
     cell: ({ row }) => <AccountCell detail={row.original} />,
     size: 260,
   },
   {
     id: 'customer',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Customer" />,
+    header: () => <HeaderCell icon={IconUser} labelKey="customer" />,
     cell: ({ row }) => (
       <TextCell
         value={[row.original.customerType, row.original.customerId]
@@ -97,15 +97,13 @@ const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label="Branch" />,
+    header: () => <HeaderCell icon={IconBuilding} labelKey="branch" />,
     cell: ({ row }) => <BranchCell branchId={row.original.branchId} />,
     size: 180,
   },
   {
     id: 'department',
-    header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Department" />
-    ),
+    header: () => <HeaderCell icon={IconBuilding} labelKey="department" />,
     cell: ({ row }) => (
       <DepartmentCell departmentId={row.original.departmentId} />
     ),
@@ -114,7 +112,7 @@ const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
   {
     id: 'mainBalance',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Main Balance" />
+      <HeaderCell icon={IconCurrencyDollar} labelKey="base-currency-balance" />
     ),
     accessorKey: 'mainBalance',
     cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
@@ -123,9 +121,9 @@ const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
   {
     id: 'currencyBalance',
     header: () => (
-      <RecordTable.InlineHead
+      <HeaderCell
         icon={IconCurrencyDollar}
-        label="Currency Balance"
+        labelKey="foreign-currency-balance"
       />
     ),
     accessorKey: 'currencyBalance',
@@ -135,7 +133,7 @@ const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
   {
     id: 'diff',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Difference" />
+      <HeaderCell icon={IconCurrencyDollar} labelKey="difference" />
     ),
     accessorKey: 'diff',
     cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
@@ -143,7 +141,7 @@ const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
   },
   {
     id: 'transactionId',
-    header: () => <RecordTable.InlineHead label="Transaction" />,
+    header: () => <HeaderCell labelKey="transaction" />,
     accessorKey: 'transactionId',
     cell: ({ getValue }) => <TextCell value={getValue<string>()} />,
     size: 220,
@@ -151,6 +149,8 @@ const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
 ];
 
 export const AdjustDebtRateDetail = () => {
+  const { t } = useTranslation('accounting');
+
   const [id] = useQueryState<string>('id');
   const [editOpen, setEditOpen] = useState(false);
 
@@ -177,7 +177,11 @@ export const AdjustDebtRateDetail = () => {
   }
 
   if (!id || !adjustDebtRate) {
-    return <div className="p-6">Adjust Debt Rate not found</div>;
+    return (
+      <div className="p-6">
+        {t('receivables-and-payables-revaluation-not-found')}
+      </div>
+    );
   }
 
   const handleDelete = () => {
@@ -200,19 +204,19 @@ export const AdjustDebtRateDetail = () => {
     <div className="p-6">
       <div className="bg-card rounded-lg shadow-sm">
         <div className="p-6 border-b flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Debt Rate Adjustment</h2>
+          <h2 className="text-2xl font-bold">{t('debt-rate-adjustment')}</h2>
           <div className="flex gap-2">
             <Button onClick={handleCalculate} disabled={calculateLoading}>
               {calculateLoading ? <Spinner /> : <IconCalculator size={16} />}
-              Calculate
+              {t('calculate')}
             </Button>
             <Button onClick={handleRun} disabled={runLoading}>
               {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
-              Run
+              {t('run')}
             </Button>
             <Button variant="outline" onClick={() => setEditOpen(true)}>
               <IconEdit size={16} />
-              Edit
+              {t('edit')}
             </Button>
             <Button
               variant="outline"
@@ -221,27 +225,27 @@ export const AdjustDebtRateDetail = () => {
               disabled={removeLoading}
             >
               <IconTrashX size={16} />
-              Delete
+              {t('delete')}
             </Button>
           </div>
         </div>
 
         <div className="p-6 grid grid-cols-2 gap-6">
           <DetailField
-            label="Date"
+            label={t('date')}
             value={dayjs(adjustDebtRate.date).format('YYYY-MM-DD')}
           />
-          <DetailField label="Currency" value={adjustDebtRate.currency} />
+          <DetailField label={t('currency')} value={adjustDebtRate.currency} />
           <DetailField
-            label="Spot Rate"
+            label={t('spot-exchange-rate')}
             value={adjustDebtRate.spotRate?.toFixed(4) || '-'}
           />
           <DetailField
-            label="Main Currency"
+            label={t('base-currency')}
             value={adjustDebtRate.mainCurrency}
           />
           <DetailField
-            label="Status"
+            label={t('status')}
             value={adjustDebtRate.status || 'draft'}
           />
           {adjustDebtRate.error && (
@@ -250,36 +254,36 @@ export const AdjustDebtRateDetail = () => {
             </div>
           )}
           <DetailField
-            label="Customer Type"
-            value={adjustDebtRate.customerType || 'All'}
+            label={t('customer-type')}
+            value={adjustDebtRate.customerType || t('global-search.all')}
           />
           {adjustDebtRate.customerId && (
             <DetailField
-              label="Customer ID"
+              label={t('customer-id')}
               value={adjustDebtRate.customerId}
             />
           )}
           {adjustDebtRate.branchId && (
-            <DetailField label="Branch" value={adjustDebtRate.branchId} />
+            <DetailField label={t('branch')} value={adjustDebtRate.branchId} />
           )}
           {adjustDebtRate.departmentId && (
             <DetailField
-              label="Department"
+              label={t('department')}
               value={adjustDebtRate.departmentId}
             />
           )}
           <DetailField
-            label="Gain Account"
+            label={t('exchange-gain-account')}
             value={adjustDebtRate.gainAccountId}
           />
           <DetailField
-            label="Loss Account"
+            label={t('exchange-loss-account')}
             value={adjustDebtRate.lossAccountId}
           />
           {adjustDebtRate.description && (
             <div className="col-span-2">
               <DetailField
-                label="Description"
+                label={t('description')}
                 value={adjustDebtRate.description}
               />
             </div>
@@ -288,7 +292,9 @@ export const AdjustDebtRateDetail = () => {
 
         {adjustDebtRate.details && adjustDebtRate.details.length > 0 && (
           <div className="p-6 border-t">
-            <h3 className="text-lg font-semibold mb-4">Account Details</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {t('account-details')}
+            </h3>
             <RecordTable.Provider
               columns={adjustDebtRateDetailColumns}
               data={adjustDebtRate.details}

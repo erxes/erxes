@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isDeeplyEqual, Sheet, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
@@ -16,6 +17,8 @@ const getUsefulLifeFromRate = (annualRate?: number) =>
   annualRate && annualRate > 0 ? roundRate(100 / annualRate) : undefined;
 
 export const EditFixedAssetCategory = () => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useQueryState<string>('fixedAssetCategoryId');
 
   return (
@@ -26,7 +29,7 @@ export const EditFixedAssetCategory = () => {
       }}
     >
       <AccountingSheet
-        title="Үндсэн хөрөнгийн бүлэг засах"
+        title={t('edit-fixed-asset-category')}
         className="md:max-w-4xl"
       >
         <EditFixedAssetCategoryForm />

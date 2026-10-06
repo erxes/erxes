@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
@@ -18,54 +20,67 @@ import {
   useFixedAssetOwnerRecordTransfer,
 } from '@/settings/fixed-assets/hooks/useFixedAssetMutations';
 
-const ownerRecordActionSchema = z
-  .object({
-    fixedAssetId: z.string().min(1, 'Үндсэн хөрөнгө сонгоно уу'),
-    code: z.string().optional(),
-    sequence: z.number().optional(),
-    count: z.number().gt(0, 'Тоо 0-ээс их байх ёстой'),
-    ownerId: z.string().optional(),
-    fromOwnerId: z.string().optional(),
-    toOwnerId: z.string().optional(),
-  })
-  .superRefine((value, ctx) => {
-    if (!value.ownerId && !value.fromOwnerId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Эд хариуцагч сонгоно уу',
-        path: ['ownerId'],
-      });
-    }
+const ownerRecordActionSchema = (t: TFunction<'accounting'>) =>
+  z
+    .object({
+      fixedAssetId: z.string().refine(
+        (value) => value.length >= 1,
+        () => ({ message: t('select-a-fixed-asset') }),
+      ),
+      code: z.string().optional(),
+      sequence: z.number().optional(),
+      count: z.number().refine(
+        (value) => value > 0,
+        () => ({
+          message: t('quantity-must-be-greater-than-zero'),
+        }),
+      ),
+      ownerId: z.string().optional(),
+      fromOwnerId: z.string().optional(),
+      toOwnerId: z.string().optional(),
+    })
+    .superRefine((value, ctx) => {
+      if (!value.ownerId && !value.fromOwnerId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('select-an-asset-custodian'),
+          path: ['ownerId'],
+        });
+      }
 
-    if (value.fromOwnerId !== undefined && !value.toOwnerId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Хүлээн авах эд хариуцагч сонгоно уу',
-        path: ['toOwnerId'],
-      });
-    }
+      if (value.fromOwnerId !== undefined && !value.toOwnerId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('select-the-receiving-custodian'),
+          path: ['toOwnerId'],
+        });
+      }
 
-    if (
-      value.fromOwnerId &&
-      value.toOwnerId &&
-      value.fromOwnerId === value.toOwnerId
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Шилжүүлэх эд хариуцагчид ялгаатай байх ёстой',
-        path: ['toOwnerId'],
-      });
-    }
-  });
+      if (
+        value.fromOwnerId &&
+        value.toOwnerId &&
+        value.fromOwnerId === value.toOwnerId
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t(
+            'the-transferring-and-receiving-custodians-must-be-different',
+          ),
+          path: ['toOwnerId'],
+        });
+      }
+    });
 
-type TOwnerRecordActionForm = z.infer<typeof ownerRecordActionSchema>;
+type TOwnerRecordActionForm = z.infer<
+  ReturnType<typeof ownerRecordActionSchema>
+>;
 
 type TActionMode = 'receive' | 'transfer' | 'handOver';
 
 const ACTION_LABELS: Record<TActionMode, string> = {
-  receive: 'Эд хариуцагчид оноох',
-  transfer: 'Эд хариуцагч шилжүүлэх',
-  handOver: 'Эд хариуцагчаас цуцлах',
+  receive: 'assign-to-custodian',
+  transfer: 'transfer-custody',
+  handOver: 'release-from-custody',
 };
 
 export const FxaOwnerRecordActionSheet = ({
@@ -77,6 +92,8 @@ export const FxaOwnerRecordActionSheet = ({
   defaultValues?: Partial<TOwnerRecordActionForm>;
   mode: TActionMode;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(false);
   const { addFixedAssetOwnerRecord, loading: addLoading } =
     useFixedAssetOwnerRecordAdd();
@@ -84,7 +101,7 @@ export const FxaOwnerRecordActionSheet = ({
     useFixedAssetOwnerRecordTransfer();
   const loading = addLoading || transferLoading;
   const form = useForm<TOwnerRecordActionForm>({
-    resolver: zodResolver(ownerRecordActionSchema),
+    resolver: zodResolver(ownerRecordActionSchema(t)),
     defaultValues: {
       fixedAssetId: '',
       code: '',
@@ -98,8 +115,8 @@ export const FxaOwnerRecordActionSheet = ({
 
   const handleInvalid = () => {
     toast({
-      title: 'Мэдээлэл дутуу байна',
-      description: 'Үндсэн хөрөнгө, тоо болон эд хариуцагчийг шалгана уу.',
+      title: t('required-information-is-missing'),
+      description: t('review-the-fixed-asset-quantity-and-custodian'),
       variant: 'destructive',
     });
   };
@@ -139,7 +156,7 @@ export const FxaOwnerRecordActionSheet = ({
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col overflow-hidden flex-none md:max-w-2xl">
         <Sheet.Header className="p-4 border-b">
-          <Sheet.Title>{ACTION_LABELS[mode]}</Sheet.Title>
+          <Sheet.Title>{t(ACTION_LABELS[mode])}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Form {...form}>
@@ -153,7 +170,7 @@ export const FxaOwnerRecordActionSheet = ({
                 name="fixedAssetId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Үндсэн хөрөнгө</Form.Label>
+                    <Form.Label>{t('fixed-asset')}</Form.Label>
                     <SelectFixedAsset.FormItem
                       mode="single"
                       value={field.value}
@@ -162,7 +179,7 @@ export const FxaOwnerRecordActionSheet = ({
                           Array.isArray(value) ? value[0] || '' : value || '',
                         )
                       }
-                      placeholder="Үндсэн хөрөнгө"
+                      placeholder={t('fixed-asset')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -173,7 +190,7 @@ export const FxaOwnerRecordActionSheet = ({
                 name="count"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Тоо</Form.Label>
+                    <Form.Label>{t('quantity')}</Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value ?? 0}
@@ -189,7 +206,7 @@ export const FxaOwnerRecordActionSheet = ({
                 name="code"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Код</Form.Label>
+                    <Form.Label>{t('code')}</Form.Label>
                     <Form.Control>
                       <Input {...field} value={field.value || ''} />
                     </Form.Control>
@@ -202,7 +219,7 @@ export const FxaOwnerRecordActionSheet = ({
                 name="sequence"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Дараалал</Form.Label>
+                    <Form.Label>{t('sequence')}</Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value}
@@ -220,7 +237,7 @@ export const FxaOwnerRecordActionSheet = ({
                     name="fromOwnerId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Хүлээлгэж өгөх</Form.Label>
+                        <Form.Label>{t('hand-over')}</Form.Label>
                         <SelectMember.FormItem
                           mode="single"
                           value={field.value || ''}
@@ -235,7 +252,7 @@ export const FxaOwnerRecordActionSheet = ({
                     name="toOwnerId"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Хүлээн авах</Form.Label>
+                        <Form.Label>{t('receive')}</Form.Label>
                         <SelectMember.FormItem
                           mode="single"
                           value={field.value || ''}
@@ -252,7 +269,7 @@ export const FxaOwnerRecordActionSheet = ({
                   name="ownerId"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Эд хариуцагч</Form.Label>
+                      <Form.Label>{t('asset-custodian')}</Form.Label>
                       <SelectMember.FormItem
                         mode="single"
                         value={field.value || ''}
@@ -267,12 +284,12 @@ export const FxaOwnerRecordActionSheet = ({
             <Sheet.Footer className="border-t bg-background">
               <Sheet.Close asChild>
                 <Button type="button" variant="outline">
-                  Болих
+                  {t('cancel')}
                 </Button>
               </Sheet.Close>
               <Button type="submit" disabled={loading}>
                 {loading && <Spinner />}
-                Хадгалах
+                {t('save')}
               </Button>
             </Sheet.Footer>
           </form>

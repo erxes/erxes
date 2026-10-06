@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -68,34 +69,30 @@ export const adjustClosingDetailTableColumns: ColumnDef<IClosingDetailEntryRow>[
     closingMoreColumn,
     {
       id: 'accountId',
-      header: () => (
-        <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
-      ),
+      header: () => <HeaderCell icon={IconMoneybag} labelKey="account" />,
       accessorKey: 'accountId',
       cell: ({ getValue }) => <TextCell getValue={getValue} />,
       size: 260,
     },
     {
       id: 'balance',
-      header: () => (
-        <RecordTable.InlineHead icon={IconMoneybag} label="Balance" />
-      ),
+      header: () => <HeaderCell icon={IconMoneybag} labelKey="remainder" />,
       accessorKey: 'balance',
       cell: ({ getValue }) => <MoneyCell getValue={getValue} />,
       size: 160,
     },
     {
       id: 'percent',
-      header: () => (
-        <RecordTable.InlineHead icon={IconPercentage} label="Percent" />
-      ),
+      header: () => <HeaderCell icon={IconPercentage} labelKey="percentage" />,
       accessorKey: 'percent',
       cell: ({ getValue }) => <TextCell getValue={getValue} />,
       size: 120,
     },
     {
       id: 'mainAccTrId',
-      header: () => <RecordTable.InlineHead icon={IconLink} label="Main Tr" />,
+      header: () => (
+        <HeaderCell icon={IconLink} labelKey="primary-transaction" />
+      ),
       accessorKey: 'mainAccTrId',
       cell: ({ getValue }) => <TextCell getValue={getValue} />,
       size: 220,
@@ -103,7 +100,7 @@ export const adjustClosingDetailTableColumns: ColumnDef<IClosingDetailEntryRow>[
     {
       id: 'integrateTrId',
       header: () => (
-        <RecordTable.InlineHead icon={IconLink} label="Integrate Tr" />
+        <HeaderCell icon={IconLink} labelKey="closing-transaction" />
       ),
       accessorKey: 'integrateTrId',
       cell: ({ getValue }) => <TextCell getValue={getValue} />,

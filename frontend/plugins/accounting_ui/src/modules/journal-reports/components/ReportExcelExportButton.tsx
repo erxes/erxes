@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, useQueryState, useToast } from 'erxes-ui';
@@ -22,6 +23,8 @@ const formatQueryDate = (value: unknown) => {
 export const ReportExcelExportButton = ({
   reportContainerRef,
 }: IReportExcelExportButtonProps) => {
+  const { t } = useTranslation('accounting');
+
   const [report] = useQueryState('report');
   const [fromDate] = useQueryState('fromDate');
   const [toDate] = useQueryState('toDate');
@@ -30,7 +33,7 @@ export const ReportExcelExportButton = ({
   const [exporting, setExporting] = useState(false);
 
   const reportCode = typeof report === 'string' ? report : '';
-  const title = ReportRules[reportCode]?.title || 'Accounting report';
+  const title = t(ReportRules[reportCode]?.title || 'accounting-report');
 
   const handleExport = async () => {
     if (!reportContainerRef.current) {
@@ -39,24 +42,28 @@ export const ReportExcelExportButton = ({
 
     setExporting(true);
     try {
-      await exportJournalReportExcel(reportContainerRef.current, {
-        title,
-        organizationName: organization?.name || '',
-        dateRange: [formatQueryDate(fromDate), formatQueryDate(toDate)]
-          .filter(Boolean)
-          .join(' - '),
-      });
+      await exportJournalReportExcel(
+        reportContainerRef.current,
+        {
+          title,
+          organizationName: organization?.name || '',
+          dateRange: [formatQueryDate(fromDate), formatQueryDate(toDate)]
+            .filter(Boolean)
+            .join(' - '),
+        },
+        t,
+      );
       toast({
-        title: 'Амжилттай',
-        description: 'Тайланг Excel файлаар татлаа',
+        title: t('success'),
+        description: t('the-report-was-downloaded-as-an-excel-workbook'),
       });
     } catch (error) {
       toast({
-        title: 'Алдаа',
+        title: t('error'),
         description:
           error instanceof Error
             ? error.message
-            : 'Excel файл үүсгэж чадсангүй',
+            : t('the-excel-workbook-could-not-be-generated'),
         variant: 'destructive',
       });
     } finally {
@@ -73,7 +80,7 @@ export const ReportExcelExportButton = ({
       className="print:hidden"
     >
       <IconFileSpreadsheet />
-      {exporting ? 'Excel бэлдэж байна...' : 'Excel татах'}
+      {exporting ? t('preparing-excel-workbook') : t('download-excel')}
     </Button>
   );
 };

@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { ColumnDef } from '@tanstack/react-table';
 import { IconCalendar, IconFile, IconProgressCheck } from '@tabler/icons-react';
 import dayjs from 'dayjs';
@@ -25,13 +26,13 @@ export const adjustFixedAssetTableColumns: ColumnDef<IAdjustFixedAsset>[] = [
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+    header: () => <HeaderCell icon={IconCalendar} labelKey="date" />,
     accessorKey: 'date',
     cell: ({ getValue }) => <DateCell value={getValue<Date>()} />,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => <HeaderCell icon={IconFile} labelKey="description" />,
     accessorKey: 'description',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -42,9 +43,7 @@ export const adjustFixedAssetTableColumns: ColumnDef<IAdjustFixedAsset>[] = [
   },
   {
     id: 'status',
-    header: () => (
-      <RecordTable.InlineHead icon={IconProgressCheck} label="Төлөв" />
-    ),
+    header: () => <HeaderCell icon={IconProgressCheck} labelKey="status" />,
     accessorKey: 'status',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>{getValue<string>()}</RecordTableInlineCell>

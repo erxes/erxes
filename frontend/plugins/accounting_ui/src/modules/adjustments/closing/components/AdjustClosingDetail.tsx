@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconBinoculars,
   IconCalculator,
@@ -157,19 +158,30 @@ const makeLinkedTransactionRows = (
     })),
   );
 
-const ClosingAccountHead = () => <RecordTable.InlineHead label="Account" />;
+const ClosingAccountHead = () => {
+  const { t } = useTranslation('accounting');
+  return <RecordTable.InlineHead label={t('account')} />;
+};
 
-const ClosingBalanceHead = () => <RecordTable.InlineHead label="Balance" />;
+const ClosingBalanceHead = () => {
+  const { t } = useTranslation('accounting');
+  return <RecordTable.InlineHead label={t('remainder')} />;
+};
 
-const ClosingPercentHead = () => <RecordTable.InlineHead label="Tax percent" />;
+const ClosingPercentHead = () => {
+  const { t } = useTranslation('accounting');
+  return <RecordTable.InlineHead label={t('tax-rate')} />;
+};
 
-const ClosingMainTransactionHead = () => (
-  <RecordTable.InlineHead label="Main transaction" />
-);
+const ClosingMainTransactionHead = () => {
+  const { t } = useTranslation('accounting');
+  return <RecordTable.InlineHead label={t('primary-transaction')} />;
+};
 
-const ClosingIntegrateTransactionHead = () => (
-  <RecordTable.InlineHead label="Integrate transaction" />
-);
+const ClosingIntegrateTransactionHead = () => {
+  const { t } = useTranslation('accounting');
+  return <RecordTable.InlineHead label={t('closing-transaction')} />;
+};
 
 const ClosingAccountCell = ({
   row,
@@ -292,6 +304,8 @@ const ClosingActionButtons = ({
   runLoading: boolean;
   status?: string;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const currentStatus = status || ADJ_INV_STATUSES.DRAFT;
 
   switch (currentStatus) {
@@ -301,12 +315,12 @@ const ClosingActionButtons = ({
         <>
           <Button onClick={onCalculate} disabled={calculateLoading}>
             {calculateLoading ? <Spinner /> : <IconCalculator />}
-            Calculate
+            {t('calculate')}
           </Button>
           {currentStatus === ADJ_INV_STATUSES.PROCESS && !error && (
             <Button onClick={onRun} disabled={runLoading}>
               {runLoading ? <Spinner /> : <IconPlayerPlay />}
-              Do Transaction
+              {t('do-transaction')}
             </Button>
           )}
           <Button
@@ -315,7 +329,7 @@ const ClosingActionButtons = ({
             onClick={onDelete}
           >
             <IconTrashX />
-            Delete
+            {t('delete')}
           </Button>
         </>
       );
@@ -328,7 +342,7 @@ const ClosingActionButtons = ({
           onClick={onCancel}
         >
           <IconTrashX />
-          Draft
+          {t('draft')}
         </Button>
       );
 
@@ -336,7 +350,7 @@ const ClosingActionButtons = ({
       return (
         <Button onClick={onPublish}>
           <IconGavel />
-          PUBLISH
+          {t('publish')}
         </Button>
       );
 
@@ -344,7 +358,7 @@ const ClosingActionButtons = ({
       return (
         <Button onClick={onRun}>
           <IconCrane />
-          Stop
+          {t('stop')}
         </Button>
       );
 
@@ -354,6 +368,8 @@ const ClosingActionButtons = ({
 };
 
 export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
+  const { t } = useTranslation('accounting');
+
   const { adjustClosingDetail, loading } = useAdjustClosingDetail({
     variables: { _id: id },
     skip: !id,
@@ -487,7 +503,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   return (
     <>
       <div className="m-3">
-        <h3 className="text-lg font-bold">Adjust Closing Detail</h3>
+        <h3 className="text-lg font-bold">{t('closing-adjustment-details')}</h3>
 
         {adjustClosingDetail && (
           <AdjustClosingStatusBar adjustClosing={adjustClosingDetail} />
@@ -495,7 +511,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
         <div className="flex justify-end items-center gap-6 mt-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-accent-foreground">Status:</span>
+            <span className="text-accent-foreground">{t('status-2')}</span>
             <span className="text-primary font-bold uppercase">
               {adjustClosingDetail?.status}
             </span>
@@ -528,8 +544,8 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
       <Tabs defaultValue="calculation" className="mx-3 mb-3 mt-4 space-y-4">
         <Tabs.List className="w-fit">
-          <Tabs.Trigger value="calculation">Calculation</Tabs.Trigger>
-          <Tabs.Trigger value="transactions">Transactions</Tabs.Trigger>
+          <Tabs.Trigger value="calculation">{t('calculation')}</Tabs.Trigger>
+          <Tabs.Trigger value="transactions">{t('transactions')}</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="calculation" className="space-y-4">
           {closingDetails.length > 0 ? (
@@ -544,7 +560,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
             ))
           ) : (
             <div className="p-10 text-center border-2 border-dashed rounded-lg text-muted-foreground">
-              No entries found. Please check your process.
+              {t('no-entries-found-review-the-calculation-settings')}
             </div>
           )}
 
@@ -563,7 +579,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
           {typeof adjustClosingDetail?.taxImpactValue === 'number' && (
             <div className="rounded-md border p-3 text-sm">
-              Tax impact:{' '}
+              {t('tax-impact')}{' '}
               <b>
                 {new Intl.NumberFormat().format(
                   adjustClosingDetail.taxImpactValue,
@@ -583,7 +599,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
                 variant="ghost"
                 className="w-full"
               >
-                Load More
+                {t('load-more')}
               </Button>
             )}
         </Tabs.Content>
@@ -611,6 +627,8 @@ const ClosingLinkedTransactionsTable = ({
   parentId?: string;
   rows: ITBalanceTransaction[];
 }) => {
+  const { t } = useTranslation('accounting');
+
   if (loading) {
     return (
       <div className="flex h-24 items-center justify-center rounded-md border">
@@ -622,7 +640,7 @@ const ClosingLinkedTransactionsTable = ({
   if (!parentId || !rows.length) {
     return (
       <div className="rounded-md border p-3 text-sm text-muted-foreground">
-        No linked transactions yet.
+        {t('no-linked-transactions')}
       </div>
     );
   }
@@ -657,6 +675,8 @@ const ClosingDetailGroup = ({
   detail: IAdjustClosingDetailItem;
   columns: ColumnDef<TClosingEntryRow>[];
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [open, setOpen] = useState(true);
   const rows = useMemo<TClosingEntryRow[]>(
     () =>
@@ -679,13 +699,13 @@ const ClosingDetailGroup = ({
       <div className="flex w-full items-center justify-between gap-3 border-b bg-muted/30 px-3 py-2 text-sm font-medium">
         <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="text-muted-foreground">Branch:</span>
+            <span className="text-muted-foreground">{t('branch-2')}</span>
             <TextOverflowTooltip
               value={formatStructureLabel(detail.branchId, branchMap)}
             />
           </div>
           <div className="flex min-w-0 items-center gap-2">
-            <span className="text-muted-foreground">Department:</span>
+            <span className="text-muted-foreground">{t('department-2')}</span>
             <TextOverflowTooltip
               value={formatStructureLabel(detail.departmentId, departmentMap)}
             />

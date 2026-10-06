@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
@@ -15,6 +16,8 @@ const TD = 'border border-black px-1 py-2';
 
 // === Хангамжийн материалын зарлага — one copy (printed twice per sheet).
 const OutReceipt = ({ transaction }: { transaction: ITransaction }) => {
+  const { t } = useTranslation('accounting');
+
   const rows = buildRows(transaction, true);
   const total = sumAmount(rows);
 
@@ -30,34 +33,34 @@ const OutReceipt = ({ transaction }: { transaction: ITransaction }) => {
     <div className="flex-1">
       <FormHeader code="НМХмаяг МХ1" />
       <div className="mt-1 font-bold">
-        Байгууллага:{' '}
+        {t('organization')}{' '}
         <span className="font-normal">{transaction?.branch?.title || ''}</span>
       </div>
 
       <div className="mt-2 mb-2 text-center text-[14px] font-bold leading-tight">
-        Хангамжийн материалын зарлага,
+        {t('supplies-issue')}
         <br />
-        баримт: <span className="underline">{documentNo || ' '}</span>
+        {t('voucher')} <span className="underline">{documentNo || ' '}</span>
       </div>
 
       <div className="text-[11px] font-bold">
-        Огноо: <span className="font-normal">{date}</span>
+        {t('date-2')} <span className="font-normal">{date}</span>
       </div>
       <div className="mt-1 text-[11px] font-bold">
-        Хэнд(хаана): <span className="font-normal">{recipient}</span>
+        {t('issued-to-2')} <span className="font-normal">{recipient}</span>
       </div>
       <div className="mt-1 mb-2 text-[11px] font-bold">
-        Утга: <span className="font-normal">{description}</span>
+        {t('description-2')} <span className="font-normal">{description}</span>
       </div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th className={TH}>Бараа материал</th>
-            <th className={TH}>Хэмжих нэгж</th>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>Нэгжийн үнэ</th>
-            <th className={TH}>Үнэ</th>
+            <th className={TH}>{t('inventory')}</th>
+            <th className={TH}>{t('unit-of-measure')}</th>
+            <th className={TH}>{t('quantity')}</th>
+            <th className={TH}>{t('unit-price')}</th>
+            <th className={TH}>{t('price')}</th>
           </tr>
         </thead>
         <tbody>
@@ -78,7 +81,7 @@ const OutReceipt = ({ transaction }: { transaction: ITransaction }) => {
           ))}
           <tr>
             <td className="border border-black px-1 py-1.5 font-medium">
-              Дүн:
+              {t('amount-2')}
             </td>
             <td className="border border-black px-1 py-1.5 text-center">X</td>
             <td className="border border-black px-1 py-1.5 text-center">X</td>
@@ -91,11 +94,11 @@ const OutReceipt = ({ transaction }: { transaction: ITransaction }) => {
       </table>
 
       <div className="mt-4 space-y-2.5">
-        <SignLine label="Зөвшөөрсөн" />
-        <SignLine label="Олгосон" />
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Шаардах бичсэн" />
-        <SignLine label="Хэвлэсэн" />
+        <SignLine label={t('approved')} />
+        <SignLine label={t('issued-by')} />
+        <SignLine label={t('received-by')} />
+        <SignLine label={t('requested-by')} />
+        <SignLine label={t('printed-by-2')} />
       </div>
     </div>
   );

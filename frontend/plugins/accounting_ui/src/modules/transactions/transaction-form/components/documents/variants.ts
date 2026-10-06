@@ -17,30 +17,30 @@ export const DOCUMENT_VARIANTS: Partial<
   Record<TrJournalEnum, IDocumentVariant[]>
 > = {
   [TrJournalEnum.RECEIVABLE]: [
-    { value: 'payer', label: 'Төлөгч' },
-    { value: 'responsible', label: 'Хариуцагч' },
+    { value: 'payer', label: 'payer' },
+    { value: 'responsible', label: 'assigned-to' },
   ],
   [TrJournalEnum.CASH]: [
-    { value: 'twin-table', label: 'Орлого/Зарлага хүснэгт' },
-    { value: 'lined', label: 'Кассын орлогын баримт' },
-    { value: 'dotted', label: 'Бэлэн мөнгөний баримт' },
-    { value: 'twin-dotted', label: 'Бэлэн мөнгө (2 хувь)' },
+    { value: 'twin-table', label: 'receipt-issue-table' },
+    { value: 'lined', label: 'cash-receipt-voucher' },
+    { value: 'dotted', label: 'cash-voucher' },
+    { value: 'twin-dotted', label: 'cash-voucher-two-copies' },
   ],
   [TrJournalEnum.INV_MOVE]: [
-    { value: 'standard', label: 'Дотоод хөдөлгөөн' },
-    { value: 'byPrice', label: 'Дотоод хөдөлгөөн (үнээр)' },
+    { value: 'standard', label: 'internal-transfer' },
+    { value: 'byPrice', label: 'internal-transfer-at-value' },
   ],
   [TrJournalEnum.INV_SALE]: [
-    { value: 'numbered', label: 'Зарлагын баримт №' },
-    { value: 'twin', label: 'Зарлагын баримт (2 хувь)' },
-    { value: 'location', label: 'Зарлагын баримт (байршилтай)' },
-    { value: 'discount', label: 'Зарлагын баримт (хөнгөлөлттэй)' },
+    { value: 'numbered', label: 'issue-voucher-no' },
+    { value: 'twin', label: 'issue-voucher-two-copies' },
+    { value: 'location', label: 'issue-voucher-with-location' },
+    { value: 'discount', label: 'issue-voucher-with-discount' },
   ],
   [TrJournalEnum.INV_INCOME]: [
-    { value: 'numbered', label: 'Орлогын баримт №' },
-    { value: 'twin', label: 'Орлогын баримт (2 хувь)' },
-    { value: 'simple', label: 'Орлогын баримт (энгийн)' },
-    { value: 'discount', label: 'Орлогын баримт (хөнгөлөлттэй)' },
+    { value: 'numbered', label: 'receipt-voucher-no' },
+    { value: 'twin', label: 'receipt-voucher-two-copies' },
+    { value: 'simple', label: 'standard-receipt-voucher' },
+    { value: 'discount', label: 'receipt-voucher-with-discount' },
   ],
 };
 

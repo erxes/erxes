@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
@@ -44,9 +45,7 @@ export const buildRows = (
 // Common header/party fields shared across the receipt layouts.
 export const getMeta = (transaction: ITransaction) => ({
   documentNo: transaction?.number || transaction?.ptrNumber || '',
-  date: transaction?.date
-    ? dayjs(transaction.date).format('YYYY.MM.DD')
-    : '',
+  date: transaction?.date ? dayjs(transaction.date).format('YYYY.MM.DD') : '',
   partyName:
     transaction.customer?.firstName || transaction.customer?.code || '',
   description: transaction?.description || '',
@@ -84,16 +83,19 @@ export const sumAmount = (rows: IReceiptRow[]) =>
   rows.reduce((sum, r) => sum + r.amount, 0);
 
 // Top-left form code + the ministry-order note printed on every form.
-export const FormHeader = ({ code }: { code: string }) => (
-  <div className="flex items-start justify-between text-[11px]">
-    <div className="font-medium">{code}</div>
-    <div className="text-right leading-tight">
-      Сангийн сайдын 2017 оны 347 дугаар
-      <br />
-      тушаалын хавсралт
+export const FormHeader = ({ code }: { code: string }) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <div className="flex items-start justify-between text-[11px]">
+      <div className="font-medium">{code}</div>
+      <div className="text-right leading-tight">
+        {t('minister-of-finance-order-no-347-2017')}
+        <br />
+        {t('appendix-to-the-order')}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // One signature line, e.g. "Хүлээн авсан: ......./......./".
 export const SignLine = ({
@@ -174,27 +176,30 @@ export const VoucherHeader = ({
   title: string;
   documentNo: string;
   date: string;
-}) => (
-  <>
-    <div className="mb-6 text-center">
-      <div className="text-[20px] font-bold uppercase tracking-wide">
-        {title}
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <>
+      <div className="mb-6 text-center">
+        <div className="text-[20px] font-bold uppercase tracking-wide">
+          {title}
+        </div>
+        <div className="mx-auto mt-1 h-0.5 w-28 bg-black" />
       </div>
-      <div className="mx-auto mt-1 h-0.5 w-28 bg-black" />
-    </div>
 
-    <div className="mb-4 flex items-end justify-between text-[12px]">
-      <div>
-        <span className="font-medium">№:</span>{' '}
-        <span className="font-bold">{documentNo || ' '}</span>
+      <div className="mb-4 flex items-end justify-between text-[12px]">
+        <div>
+          <span className="font-medium">№:</span>{' '}
+          <span className="font-bold">{documentNo || ' '}</span>
+        </div>
+        <div>
+          <span className="font-medium">{t('date-2')}</span>{' '}
+          <span className="font-bold">{date || ' '}</span>
+        </div>
       </div>
-      <div>
-        <span className="font-medium">Огноо:</span>{' '}
-        <span className="font-bold">{date || ' '}</span>
-      </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 // === Shared receipt layouts ================================================
 // invSale and invIncome print near-identical forms; the components below take
@@ -219,38 +224,41 @@ export const SimpleItemRows = ({
   rows: IKeyedRow<IReceiptRow>[];
   total: number;
   withLocation?: boolean;
-}) => (
-  <tbody>
-    {rows.map(({ key, row }) => (
-      <tr key={key}>
-        <td className={`${TD}${withLocation ? ' px-2' : ''}`}>
-          {row?.name || ' '}
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <tbody>
+      {rows.map(({ key, row }) => (
+        <tr key={key}>
+          <td className={`${TD}${withLocation ? ' px-2' : ''}`}>
+            {row?.name || ' '}
+          </td>
+          {withLocation && <td className={`${TD} px-2`}>&nbsp;</td>}
+          <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
+          <td className={`${TD} text-right`}>
+            {row?.count ? row.count.toLocaleString() : ' '}
+          </td>
+          <td className={`${TD} text-right`}>
+            {row ? formatNumber(row.unitPrice) : ' '}
+          </td>
+          <td className={`${TD} text-right`}>
+            {row ? formatNumber(row.amount) : ' '}
+          </td>
+        </tr>
+      ))}
+      <tr>
+        <td className={`${TD}${withLocation ? ' px-2' : ''} font-medium`}>
+          {t('amount-2')}
         </td>
-        {withLocation && <td className={`${TD} px-2`}>&nbsp;</td>}
-        <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
-        <td className={`${TD} text-right`}>
-          {row?.count ? row.count.toLocaleString() : ' '}
-        </td>
-        <td className={`${TD} text-right`}>
-          {row ? formatNumber(row.unitPrice) : ' '}
-        </td>
-        <td className={`${TD} text-right`}>
-          {row ? formatNumber(row.amount) : ' '}
-        </td>
+        {withLocation && <td className={`${TD} px-2 text-center`}>X</td>}
+        <td className={`${TD} text-center`}>X</td>
+        <td className={`${TD} text-center`}>X</td>
+        <td className={`${TD} text-center`}>X</td>
+        <td className={`${TD} text-right font-bold`}>{formatNumber(total)}</td>
       </tr>
-    ))}
-    <tr>
-      <td className={`${TD}${withLocation ? ' px-2' : ''} font-medium`}>
-        Дүн:
-      </td>
-      {withLocation && <td className={`${TD} px-2 text-center`}>X</td>}
-      <td className={`${TD} text-center`}>X</td>
-      <td className={`${TD} text-center`}>X</td>
-      <td className={`${TD} text-center`}>X</td>
-      <td className={`${TD} text-right font-bold`}>{formatNumber(total)}</td>
-    </tr>
-  </tbody>
-);
+    </tbody>
+  );
+};
 
 // The five-column item table (header + body) used by the simple layouts.
 const SimpleItemTable = ({
@@ -259,20 +267,23 @@ const SimpleItemTable = ({
 }: {
   rows: IKeyedRow<IReceiptRow>[];
   total: number;
-}) => (
-  <table className="w-full border-collapse border border-black text-[11px]">
-    <thead>
-      <tr>
-        <th className={TH}>Бараа материал</th>
-        <th className={TH}>Хэмжих нэгж</th>
-        <th className={TH}>Тоо</th>
-        <th className={TH}>Нэгжийн үнэ</th>
-        <th className={TH}>Үнэ</th>
-      </tr>
-    </thead>
-    <SimpleItemRows rows={rows} total={total} />
-  </table>
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <table className="w-full border-collapse border border-black text-[11px]">
+      <thead>
+        <tr>
+          <th className={TH}>{t('inventory')}</th>
+          <th className={TH}>{t('unit-of-measure')}</th>
+          <th className={TH}>{t('quantity')}</th>
+          <th className={TH}>{t('unit-price')}</th>
+          <th className={TH}>{t('price')}</th>
+        </tr>
+      </thead>
+      <SimpleItemRows rows={rows} total={total} />
+    </table>
+  );
+};
 
 // One side of a twin (two-per-sheet) simple receipt — used by inv_sale_1
 // and inv_income_1. `minRows` keeps the printed form its fixed height.
@@ -285,6 +296,8 @@ export const TwinReceipt = ({
   labels: IReceiptLabels;
   minRows: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const rows = buildRows(transaction);
   const filled = padRows(rows, minRows);
 
@@ -292,20 +305,22 @@ export const TwinReceipt = ({
     <div className="flex-1">
       <FormHeader code={labels.formCode} />
       <div className="mt-1 border-b border-black pb-1 font-bold">
-        {labels.orgLabel}
+        {t(labels.orgLabel)}
       </div>
       <div className="mt-2 mb-2 text-center text-[15px] font-bold">
-        {labels.title}
+        {t(labels.title)}
       </div>
-      <div className="text-[11px] font-bold">Огноо: 20.../.../...</div>
-      <div className="mt-1 text-[11px] font-bold">{labels.partyLabel}</div>
-      <div className="mt-1 mb-2 text-[11px] font-bold">Утга:</div>
+      <div className="text-[11px] font-bold">{t('date-20')}</div>
+      <div className="mt-1 text-[11px] font-bold">{t(labels.partyLabel)}</div>
+      <div className="mt-1 mb-2 text-[11px] font-bold">
+        {t('description-2')}
+      </div>
 
       <SimpleItemTable rows={filled} total={sumAmount(rows)} />
 
       <div className="mt-4 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
+        <SignLine label={t('received-by')} />
+        <SignLine label={t('handed-over-by')} />
       </div>
     </div>
   );
@@ -322,6 +337,8 @@ export const SimpleReceipt = ({
   labels: IReceiptLabels;
   minRows: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const rows = buildRows(transaction);
   const filled = padRows(rows, minRows);
 
@@ -329,21 +346,21 @@ export const SimpleReceipt = ({
     <A4Sheet paddingX="18mm">
       <FormHeader code={labels.formCode} />
       <div className="mt-1 border-b border-black pb-1 font-bold">
-        {labels.orgLabel}
+        {t(labels.orgLabel)}
       </div>
       <div className="mt-3 mb-3 text-center text-[16px] font-bold">
-        {labels.title}
+        {t(labels.title)}
       </div>
-      <div className="font-bold">Огноо: 20.../.../...</div>
-      <div className="mt-1 font-bold">{labels.partyLabel}</div>
-      <div className="mt-1 mb-2 font-bold">Утга:</div>
+      <div className="font-bold">{t('date-20')}</div>
+      <div className="mt-1 font-bold">{t(labels.partyLabel)}</div>
+      <div className="mt-1 mb-2 font-bold">{t('description-2')}</div>
 
       <SimpleItemTable rows={filled} total={sumAmount(rows)} />
 
       <div className="mt-6 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
-        <SignLine label="Шалгасан нягтлан бодогч" />
+        <SignLine label={t('received-by')} />
+        <SignLine label={t('handed-over-by')} />
+        <SignLine label={t('reviewed-by-accountant')} />
       </div>
     </A4Sheet>
   );
@@ -351,31 +368,34 @@ export const SimpleReceipt = ({
 
 // The numbered "№ ... / Хүлээн авсан" table head shared by inv_income_4 and
 // the sale-return form (both print НХМаягт БМ-2).
-export const NumberedTableHead = () => (
-  <thead>
-    <tr>
-      <th rowSpan={2} className={`${TH} w-8`}>
-        №
-      </th>
-      <th rowSpan={2} className={`${TH} px-2`}>
-        Материалын үнэт зүйлийн нэр,зэрэг, дугаар
-      </th>
-      <th rowSpan={2} className={TH}>
-        Хэмжих нэгж
-      </th>
-      <th rowSpan={2} className={`${TH} px-2`}>
-        Нэг бүрийн үнэ
-      </th>
-      <th colSpan={2} className={`${TH} px-2`}>
-        Хүлээн авсан
-      </th>
-    </tr>
-    <tr>
-      <th className={TH}>Тоо</th>
-      <th className={TH}>Үнэ</th>
-    </tr>
-  </thead>
-);
+export const NumberedTableHead = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <thead>
+      <tr>
+        <th rowSpan={2} className={`${TH} w-8`}>
+          №
+        </th>
+        <th rowSpan={2} className={`${TH} px-2`}>
+          {t('item-name-grade-and-number')}
+        </th>
+        <th rowSpan={2} className={TH}>
+          {t('unit-of-measure')}
+        </th>
+        <th rowSpan={2} className={`${TH} px-2`}>
+          {t('unit-price')}
+        </th>
+        <th colSpan={2} className={`${TH} px-2`}>
+          {t('received-by')}
+        </th>
+      </tr>
+      <tr>
+        <th className={TH}>{t('quantity')}</th>
+        <th className={TH}>{t('price')}</th>
+      </tr>
+    </thead>
+  );
+};
 
 // The numbered item rows (idx, name, unit, price, count, amount) shared by
 // the income-numbered and sale-return tables.
@@ -405,16 +425,19 @@ export const NumberedItemRows = ({
 );
 
 // The "Дүн:" subtotal row that closes the numbered (six-column) tables.
-export const NumberedTotalRow = ({ total }: { total: number }) => (
-  <tr>
-    <td className={TD} />
-    <td className={`${TD} px-2 font-medium`}>Дүн:</td>
-    <td className={`${TD} text-center`}>X</td>
-    <td className={`${TD} px-2 text-center`}>X</td>
-    <td className={`${TD} text-center`}>X</td>
-    <td className={`${TD} text-right font-bold`}>{formatNumber(total)}</td>
-  </tr>
-);
+export const NumberedTotalRow = ({ total }: { total: number }) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <tr>
+      <td className={TD} />
+      <td className={`${TD} px-2 font-medium`}>{t('amount-2')}</td>
+      <td className={`${TD} text-center`}>X</td>
+      <td className={`${TD} px-2 text-center`}>X</td>
+      <td className={`${TD} text-center`}>X</td>
+      <td className={`${TD} text-right font-bold`}>{formatNumber(total)}</td>
+    </tr>
+  );
+};
 
 // The labels/values that vary between the inv_sale and inv_income discount
 // receipts (inv_sale_3 / inv_income_3) — every other markup is identical.
@@ -443,6 +466,8 @@ export const DiscountReceipt = ({
   transaction: ITransaction;
   config: IDiscountReceiptConfig;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { documentNo } = getMeta(transaction);
   const rows = buildRows(transaction);
   const total = sumAmount(rows);
@@ -454,43 +479,43 @@ export const DiscountReceipt = ({
     <A4Sheet>
       <FormHeader code={config.formCode} />
       <div className="mt-1 border-b border-black pb-1 font-bold">
-        Байгууллага:
+        {t('organization')}
       </div>
       <div className="mt-3 mb-3 text-center text-[16px] font-bold">
-        {config.title}
+        {t(config.title)}
         {config.showDocNo && documentNo ? ` №${documentNo}` : ''}
       </div>
-      <div className="font-bold">{config.dateText}</div>
-      <div className="mt-1 font-bold">{config.partyLabel}</div>
-      <div className="mt-1 mb-2 font-bold">Утга:</div>
+      <div className="font-bold">{t(config.dateText)}</div>
+      <div className="mt-1 font-bold">{t(config.partyLabel)}</div>
+      <div className="mt-1 mb-2 font-bold">{t('description-2')}</div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
             <th rowSpan={2} className={`${TH} px-2`}>
-              Бараа материал
+              {t('inventory')}
             </th>
             <th rowSpan={2} className={TH}>
-              {config.unitHeader}
+              {t(config.unitHeader)}
             </th>
             <th rowSpan={2} className={`${TH} px-2`}>
-              Нэгж үнэ
+              {t('unit-price')}
               {config.priceHeaderNote ? (
                 <>
                   <br />
-                  {config.priceHeaderNote}
+                  {t(config.priceHeaderNote)}
                 </>
               ) : null}
             </th>
             <th colSpan={4} className={`${TH} px-2`}>
-              {config.groupHeader}
+              {t(config.groupHeader)}
             </th>
           </tr>
           <tr>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>{config.percentHeader}</th>
-            <th className={TH}>Хөнгөлөлт</th>
-            <th className={TH}>Дүн</th>
+            <th className={TH}>{t('quantity')}</th>
+            <th className={TH}>{t(config.percentHeader)}</th>
+            <th className={TH}>{t('discount')}</th>
+            <th className={TH}>{t('amount')}</th>
           </tr>
         </thead>
         <tbody>
@@ -512,7 +537,7 @@ export const DiscountReceipt = ({
             </tr>
           ))}
           <tr>
-            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+            <td className={`${TD} px-2 font-medium`}>{t('amount-2')}</td>
             <td className={`${TD} text-center`}>X</td>
             <td className={`${TD} px-2 text-center`}>X</td>
             <td className={`${TD} text-center`}>X</td>
@@ -524,13 +549,13 @@ export const DiscountReceipt = ({
           </tr>
           <tr>
             <td colSpan={6} className={`${TD} px-2 text-right font-medium`}>
-              {config.discountLabel}
+              {t(config.discountLabel)}
             </td>
             <td className={`${TD} text-right`}>{formatNumber(discount)}</td>
           </tr>
           <tr>
             <td colSpan={6} className={`${TD} px-2 text-right font-medium`}>
-              {config.payableLabel}
+              {t(config.payableLabel)}
             </td>
             <td className={`${TD} text-right font-bold`}>
               {formatNumber(payable)}
@@ -540,9 +565,9 @@ export const DiscountReceipt = ({
       </table>
 
       <div className="mt-6 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
-        <SignLine label={config.lastSignLabel} />
+        <SignLine label={t('received-by')} />
+        <SignLine label={t('handed-over-by')} />
+        <SignLine label={t(config.lastSignLabel)} />
       </div>
     </A4Sheet>
   );

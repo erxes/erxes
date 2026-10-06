@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectFixedAssetsBulk } from '@/settings/fixed-assets/components/SelectFixedAssetsBulk';
 import { IFixedAsset } from '@/settings/fixed-assets/types/FixedAsset';
 import { IconPlus } from '@tabler/icons-react';
@@ -22,6 +23,8 @@ export const AddFixedAssetRow = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -54,7 +57,7 @@ export const AddFixedAssetRow = ({
         onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
-        Шинэ мөр
+        {t('add-row')}
       </Button>
       <SelectFixedAssetsBulk
         fixedAssetIds={[]}
@@ -66,7 +69,7 @@ export const AddFixedAssetRow = ({
       >
         <Button type="button" variant="secondary" className="bg-border">
           <IconPlus />
-          Олон хөрөнгө нэмэх
+          {t('add-multiple-assets')}
         </Button>
       </SelectFixedAssetsBulk>
     </>

@@ -1,3 +1,4 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { IconMoneybag } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
@@ -18,16 +19,14 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="inventory" />,
     accessorKey: 'product',
     cell: ({ row }) => <SafeRemainderProductCell row={row} />,
     size: 300,
   },
   {
     id: 'uom',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="unit-of-measure" />,
     accessorKey: 'uom',
     cell: ({ row }) => (
       <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>
@@ -35,17 +34,15 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'preCount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бүртгэлийн үлдэгдэл" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="book-quantity" />,
     accessorKey: 'preCount',
-    cell: ({ row }) => <SafeRemainderNumberCell value={row.original.preCount} />,
+    cell: ({ row }) => (
+      <SafeRemainderNumberCell value={row.original.preCount} />
+    ),
   },
   {
     id: 'activeCost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бүртгэлийн нийт өртөг" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="book-value" />,
     cell: ({ row }) => (
       <SafeRemainderNumberCell value={row.original.trInfo?.activeCost ?? 0} />
     ),
@@ -53,7 +50,7 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын үлдэгдэл" />
+      <HeaderCell icon={IconMoneybag} labelKey="counted-quantity" />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
@@ -68,15 +65,13 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын нийт өртөг" />
+      <HeaderCell icon={IconMoneybag} labelKey="counted-inventory-value" />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
       <SafeRemainderUnitCostField
         value={
-          row.original.trInfo?.unitCost ??
-          row.original.trInfo?.activeCost ??
-          0
+          row.original.trInfo?.unitCost ?? row.original.trInfo?.activeCost ?? 0
         }
         field="trInfo.unitCost"
         _id={row.original._id}
@@ -86,9 +81,7 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'debitCost',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Дебет өртөг" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="debit-value" />,
     accessorKey: 'debitCost',
     cell: ({ row }) => (
       <SafeRemainderNumberCell
@@ -99,7 +92,7 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'diff',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооны зөрүү" />
+      <HeaderCell icon={IconMoneybag} labelKey="quantity-variance" />
     ),
     accessorKey: 'diff',
     cell: ({ row }) => (
@@ -113,9 +106,7 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'costDifference',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Өртгийн зөрүү" />
-    ),
+    header: () => <HeaderCell icon={IconMoneybag} labelKey="cost-variance" />,
     cell: ({ row }) => (
       <SafeRemainderNumberCell
         value={getSafeRemainderCostDifference(row.original)}

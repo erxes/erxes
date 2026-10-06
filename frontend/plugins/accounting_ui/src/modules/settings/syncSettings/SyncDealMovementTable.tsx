@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { RecordTableInlineCell } from 'erxes-ui';
 import {
   BoardSelect,
   PipelineSelect,
@@ -17,7 +19,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'board',
     accessorKey: 'board',
-    header: () => <RecordTable.InlineHead label="Board" />,
+    header: () => <HeaderCell labelKey="board" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <BoardSelect boardId={cell.row.original.value?.boardId} />
@@ -27,7 +29,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'pipeline',
     accessorKey: 'pipeline',
-    header: () => <RecordTable.InlineHead label="Pipeline" />,
+    header: () => <HeaderCell labelKey="pipeline" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <PipelineSelect pipelineId={cell.row.original.value?.pipelineId} />
@@ -37,7 +39,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'stage',
     accessorKey: 'stage',
-    header: () => <RecordTable.InlineHead label="Stage" />,
+    header: () => <HeaderCell labelKey="stage" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <StageSelect
@@ -50,7 +52,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'sourceAccount',
     accessorKey: 'sourceAccount',
-    header: () => <RecordTable.InlineHead label="Гарах данс" />,
+    header: () => <HeaderCell labelKey="source-account" />,
     cell: ({ cell }) => (
       <SelectAccount.InlineCell
         value={cell.row.original.value?.sourceAccountId || ''}
@@ -60,7 +62,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'destinationAccount',
     accessorKey: 'destinationAccount',
-    header: () => <RecordTable.InlineHead label="Орох данс" />,
+    header: () => <HeaderCell labelKey="destination-account" />,
     cell: ({ cell }) => (
       <SelectAccount.InlineCell
         value={cell.row.original.value?.destinationAccountId || ''}
@@ -70,7 +72,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'sourceBranch',
     accessorKey: 'sourceBranch',
-    header: () => <RecordTable.InlineHead label="Default гарах салбар" />,
+    header: () => <HeaderCell labelKey="default-source-branch" />,
     cell: ({ cell }) => (
       <SelectBranches.InlineCell
         branchIds={[cell.row.original.value?.defaultSourceBranchId || '']}
@@ -80,7 +82,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'sourceDepartment',
     accessorKey: 'sourceDepartment',
-    header: () => <RecordTable.InlineHead label="Default гарах хэлтэс" />,
+    header: () => <HeaderCell labelKey="default-source-department" />,
     cell: ({ cell }) => (
       <SelectDepartments.InlineCell
         departmentIds={[
@@ -92,7 +94,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'destinationBranch',
     accessorKey: 'destinationBranch',
-    header: () => <RecordTable.InlineHead label="Default орох салбар" />,
+    header: () => <HeaderCell labelKey="default-destination-branch" />,
     cell: ({ cell }) => (
       <SelectBranches.InlineCell
         branchIds={[cell.row.original.value?.defaultDestinationBranchId || '']}
@@ -102,7 +104,7 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'destinationDepartment',
     accessorKey: 'destinationDepartment',
-    header: () => <RecordTable.InlineHead label="Default орох хэлтэс" />,
+    header: () => <HeaderCell labelKey="default-destination-department" />,
     cell: ({ cell }) => (
       <SelectDepartments.InlineCell
         departmentIds={[
@@ -114,14 +116,17 @@ export const dealMovementColumns: ColumnDef<IConfig>[] = [
   {
     id: 'dealLocationSide',
     accessorKey: 'dealLocationSide',
-    header: () => <RecordTable.InlineHead label="Deal байршлын тал" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {cell.row.original.value?.dealLocationSide === 'destination'
-          ? 'Орох тал'
-          : 'Гарах тал'}
-      </RecordTableInlineCell>
-    ),
+    header: () => <HeaderCell labelKey="deal-location-applies-to" />,
+    cell: function DealLocationSideCell({ cell }) {
+      const { t } = useTranslation('accounting');
+      return (
+        <RecordTableInlineCell>
+          {cell.row.original.value?.dealLocationSide === 'destination'
+            ? t('destination')
+            : t('source')}
+        </RecordTableInlineCell>
+      );
+    },
   },
 ];
 

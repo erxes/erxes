@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Checkbox, Collapsible, Form, Spinner } from 'erxes-ui';
 import { useForm, UseFormReturn, useWatch } from 'react-hook-form';
 import {
@@ -21,6 +22,8 @@ const DEFAULT_VALUES: TMainSettings = {
 };
 
 export const MainSettingsForm = () => {
+  const { t } = useTranslation('accounting');
+
   const { configs, loading } = useMainConfigs();
   const { updateConfigs, loading: saving } = useMainUpdateConfigs();
   const form = useForm<TMainSettings>({
@@ -58,11 +61,11 @@ export const MainSettingsForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="h-full w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-8"
       >
-        <h1 className="text-lg font-semibold">Үндсэн тохиргоо</h1>
+        <h1 className="text-lg font-semibold">{t('general-settings')}</h1>
         <Collapsible defaultOpen>
           <Collapsible.TriggerButton className="h-8 w-auto text-base">
             <Collapsible.TriggerIcon />
-            Давуу эрхийн тохиргоо
+            {t('access-settings')}
           </Collapsible.TriggerButton>
 
           <Collapsible.Content className="pt-4 grid grid-cols-2 gap-4">
@@ -72,7 +75,7 @@ export const MainSettingsForm = () => {
         <Collapsible defaultOpen>
           <Collapsible.TriggerButton className="h-8 w-auto text-base">
             <Collapsible.TriggerIcon />
-            Татварын тохиргоо
+            {t('tax-settings')}
           </Collapsible.TriggerButton>
           <Collapsible.Content className="pt-4 grid grid-cols-2 gap-5">
             <VatFormFields form={form} />
@@ -85,7 +88,7 @@ export const MainSettingsForm = () => {
             type="submit"
             disabled={loading || saving}
           >
-            {saving ? <Spinner /> : 'Хадгалах'}
+            {saving ? <Spinner /> : t('save')}
           </Button>
         </div>
       </form>
@@ -98,6 +101,8 @@ export const DominantAccountPermissionFields = ({
 }: {
   form: UseFormReturn<TMainSettings>;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <>
       <Form.Field
@@ -105,7 +110,9 @@ export const DominantAccountPermissionFields = ({
         name="dominantReadAccountUsers"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>Бүх данс унших хэрэглэгчид</Form.Label>
+            <Form.Label>
+              {t('users-with-access-to-view-all-accounts')}
+            </Form.Label>
             <Form.Control>
               <SelectMember.FormItem
                 mode="multiple"
@@ -124,7 +131,9 @@ export const DominantAccountPermissionFields = ({
         name="dominantWriteAccountUsers"
         render={({ field }) => (
           <Form.Item className="col-span-2">
-            <Form.Label>Бүх дансанд бичих хэрэглэгчид</Form.Label>
+            <Form.Label>
+              {t('users-with-access-to-edit-all-accounts')}
+            </Form.Label>
             <Form.Control>
               <SelectMember.FormItem
                 mode="multiple"
@@ -147,6 +156,8 @@ export const VatFormFields = ({
 }: {
   form: UseFormReturn<TMainSettings>;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { HasVat } = useWatch({ control: form.control });
 
   return (
@@ -162,7 +173,7 @@ export const VatFormFields = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">НӨАТ-тэй</Form.Label>
+            <Form.Label variant="peer">{t('apply-vat')}</Form.Label>
           </Form.Item>
         )}
       />
@@ -174,7 +185,7 @@ export const VatFormFields = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label htmlFor="VatPayableAccount">
-                  НӨАТ өглөгийн данс
+                  {t('vat-payable-account')}
                 </Form.Label>
                 <SelectAccount
                   value={field.value}
@@ -190,7 +201,7 @@ export const VatFormFields = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label htmlFor="VatReceivableAccount">
-                  НӨАТ авлагын данс
+                  {t('vat-receivable-account')}
                 </Form.Label>
                 <SelectAccount
                   value={field.value}
@@ -206,7 +217,7 @@ export const VatFormFields = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label htmlFor="VatAfterPayableAccount">
-                  Дараах НӨАТ өглөгийн данс
+                  {t('deferred-vat-payable-account')}
                 </Form.Label>
                 <SelectAccount
                   value={field.value}
@@ -222,7 +233,7 @@ export const VatFormFields = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label htmlFor="VatAfterReceivableAccount">
-                  Дараах НӨАТ авлагын данс
+                  {t('deferred-vat-receivable-account')}
                 </Form.Label>
                 <SelectAccount
                   value={field.value}
@@ -243,6 +254,8 @@ export const CtaxFormFields = ({
 }: {
   form: UseFormReturn<TMainSettings>;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const { HasCtax } = useWatch({ control: form.control });
   return (
     <>
@@ -257,7 +270,7 @@ export const CtaxFormFields = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">НХАТ-тэй</Form.Label>
+            <Form.Label variant="peer">{t('apply-city-tax')}</Form.Label>
           </Form.Item>
         )}
       />
@@ -267,7 +280,7 @@ export const CtaxFormFields = ({
           name="CtaxPayableAccount"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>НХАТ өглөгийн данс</Form.Label>
+              <Form.Label>{t('city-tax-payable-account')}</Form.Label>
               <SelectAccount
                 value={field.value}
                 onValueChange={field.onChange}

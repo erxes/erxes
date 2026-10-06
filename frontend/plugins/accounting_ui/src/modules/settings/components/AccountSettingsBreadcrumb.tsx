@@ -15,7 +15,7 @@ export const AccountSettingsBreadcrumb = () => {
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES]}
+        {t(SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES])}
       </Button>
     </>
   );

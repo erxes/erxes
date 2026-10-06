@@ -19,6 +19,8 @@ type TTransactionNode = {
 const transactionsSearchProvider = defineSearchProvider<TTransactionNode>({
   key: 'accounting-transactions',
   label: 'Transactions',
+  labelKey: 'transactions',
+  labelNamespace: 'accounting',
   icon: IconReceipt,
   order: 200,
   selections: [

@@ -1,9 +1,9 @@
 export const ReportGroups = [
-  { key: 'main', label: 'Ерөнхий журнал' },
-  { key: 'fund', label: 'Мөнгөн хөрөнгө' },
-  { key: 'debt', label: 'Авлага өглөг' },
-  { key: 'inventory', label: 'Бараа материал' },
-  { key: 'fixedAsset', label: 'Үндсэн хөрөнгө' },
+  { key: 'main', label: 'general-journal' },
+  { key: 'fund', label: 'cash-and-bank' },
+  { key: 'debt', label: 'receivables-and-payables' },
+  { key: 'inventory', label: 'inventory' },
+  { key: 'fixedAsset', label: 'fixed-asset' },
 ];
 
 export interface IGroupRule {

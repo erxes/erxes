@@ -249,25 +249,27 @@ const TrStatusFieldContent = ({
 }: {
   field: { value: string; onChange: (v: string) => void };
   t: (s: string) => string;
-}) => (
-  <Form.Item>
-    <Form.Label>{t('tr-status-label')}</Form.Label>
-    <Form.Control>
-      <Select {...field} onValueChange={field.onChange}>
-        <Select.Trigger>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {TR_STATUS_OPTIONS.map((s) => (
-            <Select.Item key={s.value} value={s.value}>
-              {s.label}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-    </Form.Control>
-  </Form.Item>
-);
+}) => {
+  return (
+    <Form.Item>
+      <Form.Label>{t('tr-status-label')}</Form.Label>
+      <Form.Control>
+        <Select {...field} onValueChange={field.onChange}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            {TR_STATUS_OPTIONS.map((s) => (
+              <Select.Item key={s.value} value={s.value}>
+                {t(s.label)}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </Form.Control>
+    </Form.Item>
+  );
+};
 
 export const SyncConfigGeneralFields = <
   TFieldValues extends FieldValues & ISyncGeneralFields,
@@ -488,11 +490,11 @@ export const SyncConfigPaymentsSection = <
 
   const paymentList = useMemo(
     () => [
-      { type: 'cash', title: 'cash' },
-      { type: 'mobile', title: 'mobile' },
+      { type: 'cash', title: t('cash') },
+      { type: 'mobile', title: t('mobile-payment') },
       ...paymentTypes,
     ],
-    [paymentTypes],
+    [paymentTypes, t],
   );
 
   return (

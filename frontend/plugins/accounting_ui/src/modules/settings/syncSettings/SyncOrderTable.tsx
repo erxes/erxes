@@ -1,6 +1,7 @@
+import { HeaderCell } from '@/check-synced/constants/HeaderCell';
 import { useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
+import { RecordTableInlineCell } from 'erxes-ui';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { POS_DETAIL } from '../graphql/queries/relatedQueries';
 import { IConfig } from '../types/Config';
@@ -24,7 +25,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'pos',
     accessorKey: 'pos',
-    header: () => <RecordTable.InlineHead label="POS" />,
+    header: () => <HeaderCell labelKey="pos" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <PosSelect posId={cell.row.original.value?.posId} />

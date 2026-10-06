@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconZoomCancel, IconZoomIn } from '@tabler/icons-react';
 import {
   Button,
@@ -20,6 +21,8 @@ export const ExpenseForm = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   const [isShow, setIsShow] = useState(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
 
@@ -88,7 +91,7 @@ export const ExpenseForm = ({
                     onClick={handleAppend}
                   >
                     <IconPlus />
-                    {`Зардал нэмэх`}
+                    {t('add-expense')}
                   </Button>
                   <Button
                     variant="link"
@@ -110,14 +113,16 @@ export const ExpenseForm = ({
 };
 
 const ExpenseTableHeader = () => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Table.Header>
       <Table.Row>
         <Table.Head className="w-8"></Table.Head>
-        <Table.Head>Зардал</Table.Head>
-        <Table.Head>Дүрэм</Table.Head>
-        <Table.Head>Дүн</Table.Head>
-        <Table.Head>Данс</Table.Head>
+        <Table.Head>{t('expense')}</Table.Head>
+        <Table.Head>{t('rule')}</Table.Head>
+        <Table.Head>{t('amount')}</Table.Head>
+        <Table.Head>{t('account')}</Table.Head>
       </Table.Row>
     </Table.Header>
   );
