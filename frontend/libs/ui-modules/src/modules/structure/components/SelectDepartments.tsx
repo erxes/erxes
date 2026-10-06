@@ -225,10 +225,15 @@ export const SelectDepartmentsItem = ({
       selected={isSelected}
       onSelect={() => onSelect(department)}
     >
-      <TextOverflowTooltip
-        value={department.title}
-        className="flex-auto w-auto font-medium"
-      />
+      <div className="flex overflow-hidden flex-auto gap-2 items-center">
+        {department.code && (
+          <span className="text-muted-foreground">{department.code}</span>
+        )}
+        <TextOverflowTooltip
+          value={department.title}
+          className="flex-auto w-auto font-medium"
+        />
+      </div>
     </SelectTree.Item>
   );
 };
