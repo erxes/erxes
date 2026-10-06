@@ -116,7 +116,9 @@ it('clears an embed preview when Discord explicitly removes all embeds', async (
   jest.mocked(resolveConversationByMessageId).mockResolvedValue({
     message: { _id: 'mirror-message', content: 'old link' },
     conversation: { erxesApiId: 'inbox' },
-  } as unknown as NonNullable<Awaited<ReturnType<typeof resolveConversationByMessageId>>>);
+  } as unknown as NonNullable<
+    Awaited<ReturnType<typeof resolveConversationByMessageId>>
+  >);
   await receiveDiscordMessageEdit({
     models: modelsFrom({}),
     subdomain: 'test',
