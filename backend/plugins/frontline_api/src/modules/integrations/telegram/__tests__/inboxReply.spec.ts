@@ -240,6 +240,37 @@ test('dispatches and publishes a Telegram chat reply without a conversation cust
   );
 });
 
+test('stores one complete inbox message for a reply delivered as multiple Telegram chunks', async () => {
+  const text = `${'Long reply 😀\n'.repeat(900)}last character!`;
+  const content = `<p>${text}</p>`;
+  const extraData = {
+    telegram: { messageIds: ['10', '11', '12'], textChunked: true },
+  };
+  jest.mocked(handleTelegramIntegration).mockResolvedValue({
+    status: 'success',
+    data: {
+      status: 'success',
+      data: {
+        conversationId: conversation._id,
+        content: text,
+        displayContent: content,
+        extraData,
+      },
+    },
+  });
+  await conversationMutations.conversationMessageAdd(
+    null,
+    { ...doc, content },
+    context,
+  );
+  expect(addMessage).toHaveBeenCalledTimes(1);
+  expect(addMessage).toHaveBeenCalledWith(
+    expect.objectContaining({ content, extraData }),
+    'staff',
+  );
+  expect(pConversationClientMessageInserted).toHaveBeenCalledTimes(1);
+});
+
 test('keeps a long-link reply visible in the inbox preview after saving editor HTML', async () => {
   const url = 'https://example.com/' + 'long-path/'.repeat(15);
   jest.mocked(handleTelegramIntegration).mockResolvedValue({

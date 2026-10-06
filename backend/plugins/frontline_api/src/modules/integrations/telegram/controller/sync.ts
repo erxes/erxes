@@ -24,7 +24,12 @@ export const syncTelegramInboxMessage = async (
   if (message.userId && ('content' in fields || 'attachments' in fields)) {
     const canonical = await models.ConversationMessages.findOne(selector);
     const ids = z
-      .object({ telegram: z.object({ messageIds: z.array(z.string()) }) })
+      .object({
+        telegram: z.object({
+          messageIds: z.array(z.string()),
+          textChunked: z.boolean().optional(),
+        }),
+      })
       .safeParse(canonical?.extraData);
     if (ids.success && ids.data.telegram.messageIds.length > 1) {
       const parts = await models.TelegramConversationMessages.find({
@@ -40,7 +45,7 @@ export const syncTelegramInboxMessage = async (
         content: ordered
           .map((part) => telegramTextToHtml(part?.content ?? ''))
           .filter(Boolean)
-          .join('<br>'),
+          .join(ids.data.telegram.textChunked ? '' : '<br>'),
         attachments: ordered.flatMap((part) => part?.attachments ?? []),
         'extraData.telegram.editedAt': message.metadata?.editedAt,
       };

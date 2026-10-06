@@ -6,6 +6,7 @@ import { storeTelegramAttachment } from '../utils/attachments';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { telegramMessageSchema } from '../utils/message';
+import { telegramTextToHtml } from '../utils/content';
 
 jest.mock('../utils/attachments', () => ({
   storeTelegramAttachment: jest.fn(),
@@ -132,6 +133,24 @@ test('stores media once, escapes text, uses existing attachment shape and dedupl
   expect(receiveInboxMessage).toHaveBeenCalledTimes(1);
   expect(stored.processingToken).toBeUndefined();
 });
+test.each(['text', 'caption'] as const)(
+  'keeps the entire incoming %s without applying outbound length limits',
+  async (field) => {
+    const content = `${'Текст 😀 & <example>\n'.repeat(500)}last character!`;
+    const incoming = telegramMessageSchema.parse({
+      ...message,
+      caption: undefined,
+      document: field === 'caption' ? message.document : undefined,
+      [field]: content,
+    });
+    await getOrCreateMessage(models, 'tenant-a', conversation, incoming);
+    const data: { content: string } = JSON.parse(
+      jest.mocked(receiveInboxMessage).mock.calls[0][1].payload,
+    );
+    expect(stored.content).toBe(content);
+    expect(data.content).toBe(telegramTextToHtml(content));
+  },
+);
 test('concurrent webhook retries cannot upload or insert a second copy', async () => {
   let release: () => void = () => undefined;
   let notifyStarted: () => void = () => undefined;

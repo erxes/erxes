@@ -20,6 +20,7 @@ import {
   type TelegramMessageMetadata,
 } from '../utils/content';
 import type { TelegramMessage } from '../utils/message';
+import { splitTelegramReplyText } from '../utils/replyText';
 
 const telegramReplySchema = z.object({
   integrationId: z.string().min(1),
@@ -135,21 +136,19 @@ export const sendTelegramReply = async ({
     { skipHtmlDecoding: true },
   ).result;
   const text = validator.unescape(stripped.replace(/&nbsp;/g, '\u00a0')).trim();
-  if (
-    Array.from(text).length > ((attachments?.length ?? 0) > 0 ? 1024 : 4096)
-  ) {
-    throw new Error(
-      attachments?.length
-        ? 'Telegram attachment captions must be at most 1024 characters.'
-        : 'Telegram messages must be at most 4096 characters.',
-    );
-  }
   if (poll && (text || attachments?.length))
     throw new Error(
       'Send a Telegram poll separately from message text and attachments.',
     );
   if (!text && !attachments?.length && !poll)
     throw new Error('Enter a message or attach a file.');
+
+  const textParts = splitTelegramReplyText(
+    text,
+    attachments?.length ? 1024 : 4096,
+  );
+  const caption = attachments?.length ? (textParts[0] ?? '') : '';
+  const textMessages = attachments?.length ? textParts.slice(1) : textParts;
 
   // Prepare every file before the first provider write. A bad later file must
   // not leave an avoidable partial send behind.
@@ -164,8 +163,14 @@ export const sendTelegramReply = async ({
       files.every((file) => kind(file) === 'document') ||
       files.every((file) => kind(file) === 'audio'));
   let albumMessages: TelegramMessage[] | undefined;
-  for (let index = 0; index < Math.max(1, files.length); index++) {
+  for (
+    let index = 0;
+    index < Math.max(1, files.length + textMessages.length);
+    index++
+  ) {
     const file = files[index];
+    let partText = textMessages[index - files.length] ?? '';
+    if (file) partText = index === 0 ? caption : '';
     let sent: TelegramMessage;
     try {
       if (album && !albumMessages)
@@ -173,42 +178,43 @@ export const sendTelegramReply = async ({
           token: bot.token,
           chatId,
           messageThreadId: conversation.messageThreadId,
-          caption: text,
+          caption,
           files,
           replyToMessageId: replyId,
         });
-      sent = albumMessages
-        ? albumMessages[index]
-        : poll
-          ? await sendTelegramPoll({
-              token: bot.token,
-              chatId,
-              messageThreadId: conversation.messageThreadId,
-              poll,
-              replyToMessageId: replyId,
-            })
-          : file
-            ? await sendTelegramAttachment({
+      sent =
+        albumMessages && file
+          ? albumMessages[index]
+          : poll
+            ? await sendTelegramPoll({
                 token: bot.token,
                 chatId,
                 messageThreadId: conversation.messageThreadId,
-                caption: index === 0 ? text : '',
-                replyToMessageId: index === 0 ? replyId : undefined,
-                ...file,
+                poll,
+                replyToMessageId: replyId,
               })
-            : await sendTelegramMessage(
-                bot.token,
-                chatId,
-                text,
-                conversation.messageThreadId,
-                replyId,
-              );
+            : file
+              ? await sendTelegramAttachment({
+                  token: bot.token,
+                  chatId,
+                  messageThreadId: conversation.messageThreadId,
+                  caption: partText,
+                  replyToMessageId: index === 0 ? replyId : undefined,
+                  ...file,
+                })
+              : await sendTelegramMessage(
+                  bot.token,
+                  chatId,
+                  partText,
+                  conversation.messageThreadId,
+                  index === 0 ? replyId : undefined,
+                );
     } catch (error: unknown) {
       const reason =
         error instanceof Error ? error.message : 'Telegram reply failed.';
       throw new Error(
         sentIds.length
-          ? `${sentIds.length} attachment(s) were accepted before the reply stopped. Check Telegram before retrying. ${reason}`
+          ? `${sentIds.length} message part(s) were accepted before the reply stopped. Check Telegram before retrying. ${reason}`
           : reason,
       );
     }
@@ -219,7 +225,7 @@ export const sendTelegramReply = async ({
       chatId,
       messageId: String(sent.message_id),
       conversationId: conversation._id,
-      content: sent.text ?? sent.caption ?? (index === 0 ? text : ''),
+      content: partText,
       createdAt: new Date(sent.date * 1000),
       userId,
       pollId: sent.poll?.id,
@@ -261,6 +267,7 @@ export const sendTelegramReply = async ({
       extraData: {
         telegram: {
           messageIds: sentIds,
+          ...(textParts.length > 1 ? { textChunked: true } : {}),
           replyTo: quote,
           contentType: poll ? 'poll' : files.length ? 'attachment' : 'text',
         },

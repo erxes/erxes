@@ -21,6 +21,7 @@ export interface TelegramMessageMetadata {
   senderName?: string;
   messageId?: string;
   messageIds?: string[];
+  textChunked?: boolean;
   contentType?: string;
   mediaGroupId?: string;
   editedAt?: string;

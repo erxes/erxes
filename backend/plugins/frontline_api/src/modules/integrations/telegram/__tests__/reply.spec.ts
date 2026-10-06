@@ -49,7 +49,7 @@ const payload = {
   userId: 'staff',
   content: '<p>Hello &amp; welcome</p>',
 };
-const accepted = (id = 5): Response =>
+const accepted = (id = 5, text = 'Hello & welcome'): Response =>
   new Response(
     JSON.stringify({
       ok: true,
@@ -57,7 +57,7 @@ const accepted = (id = 5): Response =>
         message_id: id,
         date: 1_700_000_000,
         chat: { id: -100123, type: 'supergroup' },
-        text: 'Hello & welcome',
+        text,
       },
     }),
     { status: 200 },
@@ -95,6 +95,171 @@ test('sends an inbox reply into the mapped group topic and returns provider IDs'
     extraData: { telegram: { messageIds: ['5'] } },
   });
   expect(create).toHaveBeenCalledTimes(1);
+});
+test.each([
+  ['exact limit', 'a'.repeat(4096)],
+  ['over limit', 'a'.repeat(4097)],
+  [
+    'Unicode and whitespace boundaries',
+    `${'a'.repeat(4095)}😀 https://example.com/${'b'.repeat(4200)}\nend`,
+  ],
+  ['no fixed chunk count', `${'😀'.repeat(4096 * 11)}last character!`],
+])(
+  'delivers the entire text in ordered Unicode-safe chunks: %s',
+  async (_label, text) => {
+    let nextId = 20;
+    fetchMock.mockImplementation(async (_url, options) => {
+      const body: { text: string } = JSON.parse(String(options?.body));
+      return accepted(nextId++, body.text);
+    });
+    jest
+      .mocked(models.TelegramConversationMessages.findOne)
+      .mockResolvedValueOnce({
+        messageId: '7',
+        content: 'quoted',
+        senderName: 'Alice',
+      });
+    const result = await sendTelegramReply({
+      models,
+      subdomain: 'tenant',
+      payload: { ...payload, content: `<p>${text}</p>`, replyToMessageId: '7' },
+    });
+    const requests = fetchMock.mock.calls.map(([, options]) => {
+      const body: {
+        text: string;
+        chat_id: string;
+        message_thread_id: number;
+        reply_parameters?: { message_id: number };
+      } = JSON.parse(String(options?.body));
+      return body;
+    });
+    expect(requests.map((request) => request.text).join('')).toBe(text);
+    for (const [index, request] of requests.entries()) {
+      expect(Array.from(request.text).length).toBeLessThanOrEqual(4096);
+      expect(request.text).not.toMatch(/[\uD800-\uDFFF]/u);
+      expect(request).toMatchObject({
+        chat_id: '-100123',
+        message_thread_id: 27,
+      });
+      expect(request.reply_parameters).toEqual(
+        index === 0 ? { message_id: 7 } : undefined,
+      );
+    }
+    expect(result.data.content).toBe(text);
+    expect(result.data.displayContent).toBe(`<p>${text}</p>`);
+    expect(result.data.extraData.telegram.messageIds).toEqual(
+      requests.map((_, index) => String(20 + index)),
+    );
+    expect(
+      create.mock.calls
+        .map(([, update]) => update.$setOnInsert.content)
+        .join(''),
+    ).toBe(text);
+    expect(result.data.extraData.telegram.textChunked).toBe(
+      requests.length > 1 ? true : undefined,
+    );
+  },
+);
+test.each([1, 2])(
+  'sends %i media items once and sends the complete caption overflow as text',
+  async (count) => {
+    const text = `${'c'.repeat(1023)}😀\n${'d'.repeat(4096)}tail`;
+    const files = Array.from({ length: count }, (_, index) => ({
+      bytes: Buffer.from('photo'),
+      name: `p${index}.jpg`,
+      type: 'image/jpeg',
+      asPhoto: true,
+      url: `photo-${index}`,
+    }));
+    jest.mocked(prepareTelegramReplyFiles).mockResolvedValue(files);
+    const albumParts = files.map((_, index) => ({
+      message_id: 30 + index,
+      date: 1700000000,
+      chat: { id: -100123, type: 'supergroup' },
+      media_group_id: 'album',
+    }));
+    fetchMock.mockResolvedValueOnce(
+      count === 1
+        ? accepted(30)
+        : new Response(JSON.stringify({ ok: true, result: albumParts })),
+    );
+    let nextId = 30 + count;
+    fetchMock.mockImplementation(async (_url, options) => {
+      const body: { text: string } = JSON.parse(String(options?.body));
+      return accepted(nextId++, body.text);
+    });
+    const result = await sendTelegramReply({
+      models,
+      subdomain: 'tenant',
+      payload: {
+        ...payload,
+        content: text,
+        attachments: files.map(({ url }) => ({ url })),
+      },
+    });
+    const first = fetchMock.mock.calls[0];
+    expect(first[0]).toContain(count === 1 ? '/sendPhoto' : '/sendMediaGroup');
+    const form = first[1]?.body as FormData;
+    const media: { caption?: string }[] =
+      count === 1 ? [] : JSON.parse(String(form.get('media')));
+    const caption = String(
+      count === 1 ? form.get('caption') : media[0].caption,
+    );
+    const overflow = fetchMock.mock.calls.slice(1).map(([url, options]) => {
+      expect(url).toContain('/sendMessage');
+      const body: { text: string; message_thread_id: number } = JSON.parse(
+        String(options?.body),
+      );
+      expect(body.message_thread_id).toBe(27);
+      expect(Array.from(body.text).length).toBeLessThanOrEqual(4096);
+      return body.text;
+    });
+    expect(Array.from(caption).length).toBe(1024);
+    expect(caption + overflow.join('')).toBe(text);
+    expect(result.data.extraData.telegram.messageIds).toEqual(
+      Array.from({ length: count + overflow.length }, (_, index) =>
+        String(30 + index),
+      ),
+    );
+    expect(result.data.displayContent).toBe(text);
+    expect(
+      create.mock.calls
+        .map(([, update]) => update.$setOnInsert.content)
+        .join(''),
+    ).toBe(text);
+    expect(
+      create.mock.calls.flatMap(
+        ([, update]) => update.$setOnInsert.attachments,
+      ),
+    ).toHaveLength(count);
+  },
+);
+test('reports partial long-text delivery and never sends later chunks after rejection', async () => {
+  fetchMock
+    .mockResolvedValueOnce(accepted(40))
+    .mockResolvedValueOnce(new Response('{}', { status: 429 }));
+  await expect(
+    sendTelegramReply({
+      models,
+      subdomain: 'tenant',
+      payload: { ...payload, content: 'x'.repeat(4096 * 3) },
+    }),
+  ).rejects.toThrow('1 message part(s) were accepted');
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(create).toHaveBeenCalledTimes(1);
+});
+test('rejects an unsendable whitespace-only chunk before sending any part', async () => {
+  await expect(
+    sendTelegramReply({
+      models,
+      subdomain: 'tenant',
+      payload: {
+        ...payload,
+        content: 'x'.repeat(4096) + ' '.repeat(4096) + 'end',
+      },
+    }),
+  ).rejects.toThrow('Shorten the blank section');
+  expect(fetchMock).not.toHaveBeenCalled();
 });
 test.each([
   [
@@ -216,7 +381,7 @@ test('a partial provider send reports the accepted count without automatically r
       subdomain: 'tenant',
       payload: { ...payload, attachments: [{ url: 'a' }, { url: 'b' }] },
     }),
-  ).rejects.toThrow('1 attachment(s) were accepted');
+  ).rejects.toThrow('1 message part(s) were accepted');
   expect(fetchMock).toHaveBeenCalledTimes(2);
   expect(create).toHaveBeenCalledTimes(1);
 });

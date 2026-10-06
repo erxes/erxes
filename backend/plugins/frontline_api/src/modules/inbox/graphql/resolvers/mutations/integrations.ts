@@ -141,6 +141,10 @@ export const sendUpdateIntegration = async (
       case 'callpro':
         return await callProUpdateIntegration({ subdomain, data });
 
+      case 'telegram':
+        // Common fields belong to erxes; bot credentials use telegramUpdateBot.
+        return;
+
       case 'mobinetSms':
         break;
 

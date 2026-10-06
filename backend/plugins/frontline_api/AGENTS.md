@@ -63,7 +63,8 @@
 
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
-  fallbacks. Inbox replies use the provider dispatcher in
+  fallbacks. Long replies split into complete ordered text chunks, with caption
+  overflow sent after the media. Inbox replies use the provider dispatcher in
   `inbox/graphql/resolvers/mutations/conversationAutomation.ts`, while
   `conversationMessageMutations.ts` owns canonical storage and publication.
 
@@ -1115,6 +1116,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   storage and never expose token-bearing file URLs. Unsupported content gets
   a visible fallback. Transient ingestion failures remain retryable; uncertain
   outbound delivery must not be retried automatically.
+- Telegram text chunks contain at most 4096 code points; the first media caption
+  contains at most 1024. Never truncate remaining text or trim chunk boundaries.
+  Store every provider ID in one inbox message's `extraData.telegram.messageIds`;
+  `textChunked` tells edit synchronization to concatenate without added separators.
+  Common-field integration edits require no Telegram API call.
 - Disconnect must pause locally even when Telegram rejects the token. Removal
   detaches the bot and rotates its webhook secret before best-effort provider
   cleanup. Database failures still propagate. Inbox kind discovery includes
@@ -1203,6 +1209,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Complete long Telegram replies and connection edits
+
+- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
+- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
+- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
 
 ### `2026-10-06` — Telegram review fixes
 

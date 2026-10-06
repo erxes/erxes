@@ -438,6 +438,56 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
     });
     expect(await scoped.ConversationMessages.countDocuments()).toBe(1);
   });
+  test('an edit to a text chunk reassembles one inbox message without inserting separators or losing files', async () => {
+    const scoped = await generateModels('test');
+    const conversation = await chat();
+    const contents = ['a'.repeat(1024), '', 'b'.repeat(4096), 'tail'];
+    const attachment = {
+      name: 'photo.jpg',
+      type: 'image/jpeg',
+      url: 'stored-photo',
+      size: 3,
+    };
+    await scoped.TelegramConversationMessages.create(
+      contents.map((content, index) => ({
+        integrationId: 'integration',
+        chatId: '-123',
+        messageId: String(7 + index),
+        conversationId: conversation._id,
+        content,
+        createdAt: new Date(),
+        userId: 'staff',
+        attachments: index === 1 ? [attachment] : [],
+      })),
+    );
+    await scoped.ConversationMessages.create({
+      _id: 'outgoing-chunks',
+      conversationId: 'inbox-chat',
+      content: contents.join(''),
+      attachments: [attachment],
+      extraData: {
+        telegram: { messageIds: ['7', '8', '9', '10'], textChunked: true },
+      },
+    });
+    await getOrCreateMessage(
+      scoped,
+      'test',
+      conversation,
+      payload({ message_id: 9, text: 'EDITED 😀', edit_date: 1700000040 }),
+      undefined,
+      40,
+    );
+    const canonical =
+      await scoped.ConversationMessages.findById('outgoing-chunks').lean();
+    expect(canonical).toMatchObject({
+      content: `${contents[0]}EDITED 😀tail`,
+      attachments: [attachment],
+      extraData: {
+        telegram: { messageIds: ['7', '8', '9', '10'], textChunked: true },
+      },
+    });
+    expect(await scoped.ConversationMessages.countDocuments()).toBe(1);
+  });
   test('concurrent contact creation converges on one Core ID even before its local link exists', async () => {
     const scoped = await generateModels('test');
     const sender = { id: 1234, is_bot: false, first_name: 'Alice' };
