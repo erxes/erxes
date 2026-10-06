@@ -413,7 +413,7 @@ console.log(JSON.stringify({customer}))
         deviceToken,
       };
       
-      if(!customer){
+      if(customer){
         const updatedCustomer  = await sendTRPCMessage({
             subdomain,
             pluginName: 'core',
@@ -428,7 +428,7 @@ console.log(JSON.stringify({customer}))
           })
           console.log({updatedCustomer})
 
-          customer = updatedCustomer
+          // customer = updatedCustomer
       }else {
         const newCustomer = await sendTRPCMessage({
             subdomain,
