@@ -1,4 +1,10 @@
+## [3.2.7.1](https://github.com/erxes/erxes/compare/3.2.7...3.2.7.1) (2026-10-06)
 
+### Bug Fixes
+
+* Backport pipeline-scoped Erkhet product remainders in the sales product chooser ([#9562](https://github.com/erxes/erxes/pull/9562)).
+
+This hotfix is based on 3.2.7. Loyalty code, data structures, migrations, and dependencies remain at 3.2.7.
 
 ## [3.2.7](https://github.com/erxes/erxes/compare/3.2.6...3.2.7) (2026-09-30)
 

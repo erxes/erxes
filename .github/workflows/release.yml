@@ -13,6 +13,7 @@ on:
 jobs:
   tag-docker-images:
     name: Tag ${{ matrix.image }}
+    if: (github.event.inputs.version || github.ref_name) != '3.2.7.1'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -51,3 +52,109 @@ jobs:
         run: |
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
           docker buildx imagetools create -t "${{ matrix.image }}:$VERSION" "${{ matrix.image }}:latest"
+
+  build-hotfix-images:
+    name: Build 3.2.7.1 ${{ matrix.project }}
+    if: (github.event.inputs.version || github.ref_name) == '3.2.7.1'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: core-ui
+            image: erxes/erxes-next-ui
+            dockerfile: frontend/core-ui/Dockerfile
+          - project: mongolian_api
+            image: erxes/erxes-next-mongolian_api
+            dockerfile: backend/plugins/mongolian_api/Dockerfile
+    steps:
+      - name: Checkout hotfix tag
+        uses: actions/checkout@v4
+        with:
+          ref: '3.2.7.1'
+          fetch-depth: 0
+
+      - name: Verify hotfix base and version
+        run: |
+          git merge-base --is-ancestor 3.2.7 HEAD
+          node -e "if (require('./package.json').version !== '3.2.7.1') process.exit(1)"
+          git diff --exit-code 3.2.7 HEAD -- backend/plugins/loyalty_api frontend/plugins/loyalty_ui backend/saas-migrations pnpm-lock.yaml
+
+      - name: Install pnpm
+        if: matrix.project == 'mongolian_api'
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        if: matrix.project == 'mongolian_api'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build Mongolian API and shared module
+        if: matrix.project == 'mongolian_api'
+        run: |
+          pnpm install --frozen-lockfile
+          NX_DAEMON=false pnpm nx build erxes-api-shared --excludeTaskDependencies
+          NX_DAEMON=false pnpm nx build mongolian_api --excludeTaskDependencies
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push hotfix image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ matrix.image }}:3.2.7.1
+
+  tag-hotfix-base-images:
+    name: Preserve 3.2.7 ${{ matrix.image }}
+    if: (github.event.inputs.version || github.ref_name) == '3.2.7.1'
+    needs: build-hotfix-images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - erxes/erxes-next-core-api
+          - erxes/erxes-next-gateway
+          - erxes/erxes-next-sales_api
+          - erxes/erxes-next-frontline_api
+          - erxes/erxes-next-accounting_api
+          - erxes/erxes-next-content_api
+          - erxes/erxes-next-operation_api
+          - erxes/erxes-next-payment_api
+          - erxes/erxes-next-tourism_api
+          - erxes/erxes-next-loyalty_api
+          - erxes/erxes-next-posclient_api
+          - erxes/erxes-next-insurance_api
+          - erxes/erxes-next-logs
+          - erxes/erxes-next-automations
+          - erxes/frontline-widgets
+          - erxes/posclient-front
+          - erxes/help-center
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag original 3.2.7 image
+        run: docker buildx imagetools create -t "${{ matrix.image }}:3.2.7.1" "${{ matrix.image }}:3.2.7"

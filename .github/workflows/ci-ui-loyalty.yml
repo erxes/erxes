@@ -47,7 +47,7 @@ jobs:
       - name: Build loyalty UI
         run: |
           export NX_DAEMON=false
-          pnpm nx build loyalty_ui
+          pnpm nx build loyalty_ui ${{ github.ref_name == '3.2.7.1' && '--excludeTaskDependencies' || '' }}
 
       - name: Push to Cloudflare R2
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
