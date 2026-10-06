@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import { ORDER_CHANGE_LOG_ACTIONS } from '../../@types/orderChangeLogs';
 
 const orderChangeEntrySchema = new Schema(
   {
@@ -32,8 +33,15 @@ export const orderChangeLogSchema = schemaHooksWrapper(
     cartId: field({ type: String, optional: true, label: 'Cart', index: true }),
     // Identifies one client action; retries reuse it to avoid duplicate logs per POS.
     eventId: field({ type: String, optional: true, label: 'Client event' }),
-    // `cart` means a client-reported action; backend order-change logs leave this unset.
+    // Origin of the log, independent of the operation; legacy order logs may be unset.
     source: field({ type: String, optional: true, label: 'Change source' }),
+    // Operation performed on the cart/order; old logs without an action remain readable.
+    action: field({
+      type: String,
+      optional: true,
+      enum: [...ORDER_CHANGE_LOG_ACTIONS],
+      label: 'Action',
+    }),
     // Action time reported by the client, or server time for backend order changes.
     occurredAt: field({ type: Date, label: 'Action time', index: true }),
     // POS scope and acting user are taken from authenticated backend context.

@@ -75,6 +75,7 @@ export const cancelPosOrder = async (
 
   // Keep the audit snapshot after the order and its items are removed.
   await models.OrderChangeLogs.createLog({
+    action: 'cancel',
     orderId: _id,
     posToken: token,
     userId,

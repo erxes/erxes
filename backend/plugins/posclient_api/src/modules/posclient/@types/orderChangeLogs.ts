@@ -1,5 +1,13 @@
 import { Document } from 'mongoose';
 
+export const ORDER_CHANGE_LOG_ACTIONS = [
+  'create',
+  'update',
+  'cancel',
+  'return',
+] as const;
+export type OrderChangeLogAction = (typeof ORDER_CHANGE_LOG_ACTIONS)[number];
+
 export interface IOrderChangeEntry {
   field: string;
   oldValue?: unknown;
@@ -11,6 +19,7 @@ export interface IOrderChangeLog {
   cartId?: string;
   eventId?: string;
   source?: string;
+  action: OrderChangeLogAction;
   occurredAt?: Date;
   posToken: string;
   userId?: string;

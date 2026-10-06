@@ -1,6 +1,9 @@
 import { IModels } from '~/connectionResolvers';
 import { IOrder } from '../@types/orders';
-import { IOrderChangeEntry } from '../@types/orderChangeLogs';
+import {
+  IOrderChangeEntry,
+  OrderChangeLogAction,
+} from '../@types/orderChangeLogs';
 
 const orderFields: (keyof IOrder)[] = [
   'status',
@@ -78,22 +81,26 @@ export const saveOrderChangeSnapshot = async (
   posToken: string,
   userId: string | undefined,
   before: Awaited<ReturnType<typeof getOrderChangeSnapshot>>,
+  action: OrderChangeLogAction = 'update',
 ) => {
   const after = await getOrderChangeSnapshot(models, orderId);
-  const changes: IOrderChangeEntry[] = Object.entries(before).flatMap(
-    ([field, oldValue]) => {
-      const newValue = after[field];
-      return JSON.stringify(oldValue) === JSON.stringify(newValue)
-        ? []
-        : [{ field, oldValue, newValue }];
-    },
-  );
+  const changes: IOrderChangeEntry[] = Object.keys({
+    ...before,
+    ...after,
+  }).flatMap((field) => {
+    const oldValue = before[field];
+    const newValue = after[field];
+    return JSON.stringify(oldValue) === JSON.stringify(newValue)
+      ? []
+      : [{ field, oldValue, newValue }];
+  });
 
   if (changes.length) {
     await models.OrderChangeLogs.createLog({
       orderId,
       posToken,
       userId,
+      action,
       changes,
     });
   }

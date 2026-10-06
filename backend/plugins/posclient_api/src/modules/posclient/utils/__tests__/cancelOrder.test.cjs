@@ -22,6 +22,7 @@ function loadSource(relativePath, dependencies) {
       exports: module.exports,
       Date,
       Object,
+      Buffer,
       require: (name) => dependencies[name] || {},
     },
     { filename },
@@ -60,6 +61,7 @@ function cancellationFixture(overrides = {}) {
       createLog: async (doc) => {
         events.push('audit');
         assert.equal(doc.userId, 'actor');
+        assert.equal(doc.action, 'cancel');
         assert.equal(doc.changes[1].oldValue.length, 2);
       },
     },
@@ -326,7 +328,10 @@ function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
     '~/modules/posclient/utils/assertPosUser': { assertPosUser: () => {} },
     '~/modules/posclient/utils/orderChangeLogs': {
       getOrderChangeSnapshot: async () => ({}),
-      saveOrderChangeSnapshot: async () => events.push('audit'),
+      saveOrderChangeSnapshot: async (...args) => {
+        assert.equal(args[5], 'return');
+        events.push('audit');
+      },
     },
     '@/posclient/db/definitions/constants': {
       ORDER_STATUSES: { RETURN: 'return' },
@@ -386,3 +391,140 @@ test('closed internal receipt order without eBarimt can be returned and retained
   assert.equal(fixture.order.synced, false);
   assert.deepEqual(fixture.events, ['write', 'audit', 'publish', 'sync']);
 });
+
+function snapshotFixture() {
+  const logs = [];
+  const order = { status: 'new', totalAmount: 100 };
+  const items = [
+    { _id: 'item', productId: 'product', count: 1, unitPrice: 100 },
+  ];
+  const models = {
+    Orders: { getOrder: async () => order },
+    OrderItems: { find: () => ({ sort: () => ({ lean: async () => items }) }) },
+    OrderChangeLogs: { createLog: async (doc) => logs.push(doc) },
+  };
+  const helpers = loadSource('../orderChangeLogs.ts', {});
+  return { models, logs, order, items, ...helpers };
+}
+test('creation captures order and all items in one create log', async () => {
+  const state = snapshotFixture();
+  await state.saveOrderChangeSnapshot(
+    state.models,
+    'order',
+    'pos',
+    'actor',
+    {},
+    'create',
+  );
+  assert.equal(state.logs.length, 1);
+  assert.equal(state.logs[0].action, 'create');
+  assert.equal(state.logs[0].userId, 'actor');
+  assert.equal(
+    state.logs[0].changes.find((entry) => entry.field === 'items').newValue
+      .length,
+    1,
+  );
+});
+for (const action of ['update', 'return']) {
+  test(`changed snapshot records explicit ${action} action`, async () => {
+    const state = snapshotFixture();
+    const before = await state.getOrderChangeSnapshot(state.models, 'order');
+    state.order.status = action === 'return' ? 'return' : 'done';
+    await state.saveOrderChangeSnapshot(
+      state.models,
+      'order',
+      'pos',
+      'actor',
+      before,
+      action,
+    );
+    assert.equal(state.logs.length, 1);
+    assert.equal(state.logs[0].action, action);
+  });
+}
+test('unchanged snapshot still creates no log', async () => {
+  const state = snapshotFixture();
+  const before = await state.getOrderChangeSnapshot(state.models, 'order');
+  await state.saveOrderChangeSnapshot(
+    state.models,
+    'order',
+    'pos',
+    'actor',
+    before,
+  );
+  assert.equal(state.logs.length, 0);
+});
+test('backend log creation defaults source to order without changing action', async () => {
+  let LogClass;
+  const logs = [];
+  const models = {
+    OrderChangeLogs: {
+      create: async (doc) => {
+        logs.push(doc);
+        return doc;
+      },
+    },
+  };
+  loadSource('../../db/models/OrderChangeLogs.ts', {
+    '../definitions/orderChangeLogs': {
+      orderChangeLogSchema: {
+        loadClass: (value) => {
+          LogClass = value;
+        },
+      },
+    },
+  }).loadOrderChangeLogClass(models);
+  const log = await LogClass.createLog({
+    action: 'cancel',
+    posToken: 'pos',
+    changes: [],
+  });
+  assert.equal(log.source, 'order');
+  assert.equal(log.action, 'cancel');
+  assert.ok(log.occurredAt);
+});
+for (const afterCount of [0, 1]) {
+  test(`cart removal/reduction is an update action: remaining=${afterCount}`, async () => {
+    let LogClass;
+    const models = {
+      OrderChangeLogs: {
+        findOneAndUpdate: (_query, update) => ({
+          orFail: async () => update.$setOnInsert,
+        }),
+      },
+    };
+    loadSource('../../db/models/OrderChangeLogs.ts', {
+      '../definitions/orderChangeLogs': {
+        orderChangeLogSchema: {
+          loadClass: (value) => {
+            LogClass = value;
+          },
+        },
+      },
+    }).loadOrderChangeLogClass(models);
+    const item = {
+      _id: 'item',
+      productId: 'product',
+      count: 2,
+      unitPrice: 100,
+    };
+    const result = await LogClass.recordCartChange(
+      {
+        actorId: 'actor',
+        cartId: 'cart',
+        eventId: 'event',
+        occurredAt: new Date(),
+        beforeItems: [item],
+        afterItems: afterCount ? [{ ...item, count: afterCount }] : [],
+      },
+      'pos',
+      'actor',
+    );
+    assert.equal(result.source, 'cart');
+    assert.equal(result.action, 'update');
+    assert.equal(
+      result.changes[1].newValue[0].action,
+      afterCount ? 'decreased' : 'removed',
+    );
+  });
+}

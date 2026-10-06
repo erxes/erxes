@@ -171,6 +171,7 @@ export const types = `
     cartId: String
     eventId: String
     source: String
+    action: String
     occurredAt: Date
     posToken: String
     userId: String

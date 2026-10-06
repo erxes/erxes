@@ -22,6 +22,7 @@ export const loadOrderChangeLogClass = (models: IModels) => {
       const now = new Date();
       return models.OrderChangeLogs.create({
         ...doc,
+        source: doc.source || 'order',
         occurredAt: doc.occurredAt || now,
         createdAt: now,
       });
@@ -121,6 +122,7 @@ export const loadOrderChangeLogClass = (models: IModels) => {
             cartId: doc.cartId,
             eventId: doc.eventId,
             source: 'cart',
+            action: 'update',
             posToken,
             userId,
             occurredAt,

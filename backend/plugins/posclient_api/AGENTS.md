@@ -20,6 +20,10 @@
 
 ## Current Capabilities
 
+- Order audit events have independent `source` and `action` fields: new backend
+  logs use `source: order`, cart logs use `source: cart`, and operations are
+  `create`, `update`, `cancel`, or `return`. Order creation includes its items
+  in one event; cart removals/reductions use `update` with `itemActions` details.
 - Cancels unpaid orders without successful eBarimt, even when synced, retaining
   card/mobile and prepaid-payment safeguards. Synced cancellation requires
   sales acknowledgement before local order/item/failed-receipt cleanup.
@@ -106,7 +110,8 @@
 - `orderId` references a persisted order; `cartId` groups actions for one draft
   cart or uses `order:<orderId>` for a saved order. `eventId` identifies one
   client action and remains unchanged across retries. Backend order-change
-  logs leave `source` unset; client cart events use `source: cart`.
+  logs use `source: order`; client cart events use `source: cart`. Historical
+  logs may lack `source` or `action`; no speculative backfill is performed.
 - `OrderChangeLog.user` resolves the acting `userId` from tenant-scoped
   `PosUsers` and is registered in the runtime Apollo resolver map at
   `src/apollo/resolvers/index.ts`; custom resolver definitions alone do not
@@ -118,6 +123,8 @@
 
 ## Local Invariants
 
+- New audit writes must specify an operation action. `source` identifies
+  origin, never the operation. Unchanged update snapshots create no event.
 - Non-array eBarimt return results throw `TypeError` with the reported message
   before updating order payment or return status.
 - Any order with `paidDate` must be returned, never cancelled, even without
@@ -153,6 +160,10 @@
 
 ## Validation
 
+- Audit action smoke: create, edit, cancel and return an order; each event has
+  the matching action and `source: order`. Cart removals/reductions have
+  `source: cart`, `action: update` and item-specific details. Admin audit UI
+  displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
 - Cancellation/return smoke: cancel a synced unpaid order with only failed

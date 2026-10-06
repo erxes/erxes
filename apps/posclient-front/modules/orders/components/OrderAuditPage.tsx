@@ -34,6 +34,13 @@ import {
   orderAuditLogs,
 } from "../graphql/orderAudit"
 
+const actionLabels = {
+  create: "Үүсгэсэн",
+  update: "Өөрчилсөн",
+  cancel: "Цуцалж устгасан",
+  return: "Буцаалт бүртгэсэн",
+}
+
 const valueText = (value: unknown): string =>
   value == null
     ? "-"
@@ -297,6 +304,11 @@ export const OrderAuditPage = () => {
                         {log.source === "cart"
                           ? "Сагсны өөрчлөлт"
                           : "Захиалгын өөрчлөлт"}
+                      </span>
+                      <span>
+                        {log.action
+                          ? actionLabels[log.action]
+                          : "Үйлдэл тодорхойгүй"}
                       </span>
                     </div>
                     {Array.isArray(actions) &&

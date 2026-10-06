@@ -321,6 +321,15 @@ export const ordersAdd = async (
       });
     }
 
+    await saveOrderChangeSnapshot(
+      models,
+      order._id,
+      config.token,
+      posUser?._id,
+      {},
+      'create',
+    );
+
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
         ...order,
@@ -818,6 +827,7 @@ const orderMutations: Record<string, Resolver> = {
 
     if (changes.length) {
       await models.OrderChangeLogs.createLog({
+        action: 'update',
         orderId: params._id,
         posToken: config.token,
         userId: posUser?._id,
@@ -1605,6 +1615,7 @@ const orderMutations: Record<string, Resolver> = {
       config.token,
       posUser._id,
       before,
+      'return',
     );
 
     order = await models.Orders.getOrder(_id);
