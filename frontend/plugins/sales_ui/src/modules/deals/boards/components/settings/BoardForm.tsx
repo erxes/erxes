@@ -1,3 +1,15 @@
+import React from 'react';
+import { SubmitHandler } from 'react-hook-form';
+import {
+  Button,
+  Dialog,
+  Form,
+  Input,
+  Skeleton,
+  Spinner,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
 import {
   useAddBoardForm,
   useBoardAdd,
@@ -5,27 +17,17 @@ import {
   useBoardEdit,
 } from '@/deals/boards/hooks/useBoards';
 import { TBoardForm } from '@/deals/types/boards';
-import { IconX } from '@tabler/icons-react';
-import { Button, Form, Input, Skeleton, toast, useQueryState } from 'erxes-ui';
-import React from 'react';
-import { SubmitHandler } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { IconPlus } from '@tabler/icons-react';
 
-interface BoardFormProps {
-  open: boolean;
-  setOpen: (value: boolean) => void;
-}
-
-export const BoardForm = ({ open, setOpen }: BoardFormProps) => {
+export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState('boardId');
+
   const { methods } = useAddBoardForm();
   const { handleSubmit, reset } = methods;
 
-  const { t } = useTranslation('sales');
+  const [open, setOpen] = React.useState<boolean>(false);
 
   const { boardDetail, loading: boardDetailLoading } = useBoardDetail();
-  const { addBoard, loading: addLoading } = useBoardAdd();
-  const { editBoard, loading: editLoading } = useBoardEdit();
 
   React.useEffect(() => {
     setOpen(!!boardId);
@@ -36,17 +38,15 @@ export const BoardForm = ({ open, setOpen }: BoardFormProps) => {
     setOpen(false);
     setBoardId(null);
     reset();
-  }, [reset, setBoardId, setOpen]);
+  }, [reset, setBoardId]);
+
+  const { addBoard, loading: addLoading } = useBoardAdd();
+  const { editBoard, loading: editLoading } = useBoardEdit();
 
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
-    (data) => {
-      if (!data.name?.trim()) {
-        handleClose();
-        return;
-      }
-
+    async (data) => {
       const manageBoard = boardId ? editBoard : addBoard;
-      const successTitle = boardId ? t('board-updated') : t('board-created');
+      const successTitle = boardId ? 'Updated a board' : 'Created a board';
 
       manageBoard({
         variables: {
@@ -58,65 +58,74 @@ export const BoardForm = ({ open, setOpen }: BoardFormProps) => {
         },
       });
     },
-    [addBoard, editBoard, boardId, handleClose, t],
+    [addBoard, editBoard, boardId, handleClose],
   );
 
-  if (!open) return null;
-
-  if (boardDetailLoading) {
-    return <Skeleton className="w-full h-8 my-1" />;
-  }
-
   return (
-    <Form {...methods}>
-      <form
-        onSubmit={handleSubmit(submitHandler)}
-        className="flex items-center gap-1 p-1 my-1"
-      >
-        <Form.Field
-          control={methods.control}
-          name="name"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Control>
-                <Input
-                  {...field}
-                  type="text"
-                  placeholder={t('enter-board-name')}
-                  className="input"
-                  value={field.value || boardDetail?.name || ''}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                      e.preventDefault();
-                      handleClose();
-                    }
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleSubmit(submitHandler)();
-                    }
-                  }}
-                  ref={field.ref}
-                  onBlur={() => {
-                    field.onBlur();
-                    handleSubmit(submitHandler)();
-                  }}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) =>
+        boardId ? !isOpen && handleClose() : setOpen(isOpen)
+      }
+    >
+      <Dialog.Trigger asChild>
         <Button
-          type="button"
-          size="sm"
           variant="ghost"
-          className="h-4 w-4 p-0"
-          disabled={addLoading || editLoading}
-          onClick={handleClose}
+          className="text-xs font-semibold text-accent-foreground"
         >
-          <IconX className="w-4 h-4" />
+          <IconPlus />
         </Button>
-      </form>
-    </Form>
+      </Dialog.Trigger>
+      <Dialog.ContentCombined
+        title={boardId ? 'Edit Board' : 'Add Board'}
+        description={
+          boardId ? 'Edit existing board details' : 'Create a new board'
+        }
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <Form {...methods}>
+          <form
+            onSubmit={handleSubmit(submitHandler)}
+            className="flex flex-col gap-4 w-full"
+          >
+            <div className="flex flex-col gap-3">
+              {boardDetailLoading ? (
+                <Skeleton className="w-full h-10 my-1" />
+              ) : (
+                <Form.Field
+                  control={methods.control}
+                  name="name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Board Name</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="Enter board name"
+                          className="input"
+                          value={field.value || boardDetail?.name || ''}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              )}
+            </div>
+            <Dialog.Footer className="pt-2">
+              <Button type="button" variant="ghost" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addLoading || editLoading}>
+                {addLoading || editLoading ? <Spinner /> : 'Save'}
+              </Button>
+            </Dialog.Footer>
+          </form>
+        </Form>
+      </Dialog.ContentCombined>
+    </Dialog>
   );
 };
