@@ -29,7 +29,7 @@
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
   </a>
    <a href="https://explore.transifex.com/erxes-inc/erxesxos/">
-      <img alt="Transfex" src="https://img.shields.io/badge/translations-contribute-brightgreen">
+      <img alt="Transifix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
   </a>
 </p>
 
@@ -229,7 +229,7 @@ For general help using erxes, please refer to the erxes documentation. For addit
 - **<a href="https://www.linkedin.com/company/15233488/admin/dashboard/" > LinkedIn</a>** 
 - **<a href="https://www.facebook.com/erxesHQ" > Facebook</a>**
 - **<a href="https://www.instagram.com/erxeshq" > Instagram</a>** 
-- **<a href="https://twitter.com/erxesHQ" > Twitter</a>** 
+- **<a href="https://twitter.com/erxesHQ" > X</a>** 
 
  
 ## License
