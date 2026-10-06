@@ -13,18 +13,35 @@ const en = {
   connect: 'Connect Telegram',
   configure: 'Configure Telegram',
   description: 'Connect bot messages from private chats, groups, and channels.',
+  configIntro: 'Connect and manage Telegram bots in a personal or team inbox.',
+  configChooseInbox: 'Choose an inbox below, then open Telegram.',
+  configConnect:
+    'Click Connect Telegram, enter your @BotFather token and choose a brand. erxes fills in the connection name and webhook address; local testing requires a public HTTPS tunnel.',
+  configManage:
+    'For an existing connection, open its menu and choose Configure Telegram to check status or update the connection.',
+  personalInbox: 'Personal inbox',
+  teamInboxes: 'Team inboxes',
   bot: 'Saved bot',
   newBot: 'Use a new bot',
   token: 'Bot token',
   replacementToken: 'Replacement token (optional)',
   tokenHint:
     'Get the token from @BotFather. It is stored on the server and never shown again.',
-  name: 'Integration name',
+  name: 'Connection name (optional)',
+  namePlaceholder: "Use the bot's name",
+  nameHint: 'Only shown in erxes. Leave blank to use the Telegram bot’s name.',
   brand: 'Brand',
   chooseBrand: 'Select a brand',
   callback: 'Public Frontline address',
+  connectionSettings: 'Webhook connection settings',
+  callbackDetected:
+    'Uses your erxes address automatically. Change it only for a custom public address.',
+  callbackLocal:
+    'No public HTTPS address was detected. For local testing, enter a tunnel address that reaches your Frontline server.',
+  callbackSaved:
+    'Uses this bot’s saved webhook address. Change it if your public address has changed.',
   callbackHint:
-    'Paste the public HTTPS address of your Frontline server. For local testing, use your tunnel address.',
+    'For a custom deployment or local tunnel, enter the public HTTPS address that reaches Frontline.',
   callbackAutomatic: 'erxes adds the webhook path automatically.',
   callbackPreview: 'Webhook URL (generated)',
   callbackPending: 'The bot ID is filled in after your token is verified.',
@@ -81,18 +98,36 @@ const mn: Record<keyof typeof en, string> = {
   connect: 'Telegram холбох',
   configure: 'Telegram тохируулах',
   description: 'Ботын хувийн чат, бүлэг, сувгийн зурвасыг холбоно.',
+  configIntro: 'Telegram ботыг хувийн эсвэл багийн инбокст холбож, удирдана.',
+  configChooseInbox: 'Доороос инбоксоо сонгоод Telegram-ийг нээнэ үү.',
+  configConnect:
+    'Telegram холбох товчийг дарж @BotFather токеноо оруулаад брэндээ сонгоно уу. erxes холболтын нэр, webhook хаягийг автоматаар бөглөнө. Локал тестэд нийтийн HTTPS туннель шаардлагатай.',
+  configManage:
+    'Одоо байгаа холболтын цэснээс Telegram тохируулах гэдгийг сонгож төлөв шалгах эсвэл холболтоо шинэчилнэ үү.',
+  personalInbox: 'Хувийн инбокс',
+  teamInboxes: 'Багийн инбоксууд',
   bot: 'Хадгалсан бот',
   newBot: 'Шинэ бот ашиглах',
   token: 'Ботын токен',
   replacementToken: 'Шинэ токен (заавал биш)',
   tokenHint:
     '@BotFather-оос токен авна уу. Сервер дээр хадгалж, дахин харуулахгүй.',
-  name: 'Интеграцийн нэр',
+  name: 'Холболтын нэр (заавал биш)',
+  namePlaceholder: 'Ботын нэрийг ашиглах',
+  nameHint:
+    'Зөвхөн erxes-д харагдана. Хоосон үлдээвэл Telegram ботын нэрийг ашиглана.',
   brand: 'Брэнд',
   chooseBrand: 'Брэнд сонгох',
   callback: 'Frontline-ийн нийтийн хаяг',
+  connectionSettings: 'Webhook холболтын тохиргоо',
+  callbackDetected:
+    'erxes-ийн хаягийг автоматаар ашиглана. Өөр нийтийн хаяг ашиглах бол өөрчилнө үү.',
+  callbackLocal:
+    'Нийтийн HTTPS хаяг олдсонгүй. Локал тестэд Frontline серверт хүрэх туннелийн хаягаа оруулна уу.',
+  callbackSaved:
+    'Ботын хадгалсан webhook хаягийг ашиглана. Нийтийн хаяг өөрчлөгдсөн бол шинэчилнэ үү.',
   callbackHint:
-    'Frontline серверийн нийтийн HTTPS хаягийг оруулна уу. Локал тестэд туннелийн хаягаа ашиглана.',
+    'Тусгай сервер эсвэл локал туннель ашиглах бол Frontline-д хүрэх нийтийн HTTPS хаягийг оруулна уу.',
   callbackAutomatic: 'erxes webhook-ийн замыг автоматаар нэмнэ.',
   callbackPreview: 'Webhook URL (автомат)',
   callbackPending: 'Токеныг шалгасны дараа ботын ID автоматаар бөглөгдөнө.',

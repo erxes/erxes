@@ -27,3 +27,23 @@ export const getTelegramWebhookUrl = (
   const base = getTelegramServerAddress(address);
   return base ? `${base}/telegram/receive/${botId}` : undefined;
 };
+
+/** Use the same public gateway proxy as the other Frontline integrations. */
+export const getTelegramDefaultServerAddress = (
+  apiUrl: string,
+): string | undefined => {
+  const base = getTelegramServerAddress(apiUrl);
+  if (!base) return undefined;
+  const hostname = new URL(base).hostname.toLowerCase().replace(/\.$/, '');
+  if (
+    !hostname.includes('.') ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.local') ||
+    /^(0|10|127)\./.test(hostname) ||
+    /^169\.254\./.test(hostname) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+    /^192\.168\./.test(hostname)
+  )
+    return undefined;
+  return `${base}/pl:frontline`;
+};

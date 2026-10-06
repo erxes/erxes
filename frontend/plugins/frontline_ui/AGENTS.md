@@ -20,7 +20,7 @@
 - Channel settings (list, detail, members, integrations) and channel forms.
 - The `Move to channel` action on every channel-owned resource: integrations,
   ticket pipelines, forms, surveys and response templates.
-- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
+- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord, Telegram,
   calls, Call Pro, and the erxes messenger.
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
@@ -87,10 +87,18 @@
 
 ## Current Capabilities
 
-- Telegram setup uses a saved bot plus the public HTTPS Frontline address;
-  create and edit both explain and preview the generated callback URL. Bot
+- Telegram setup derives its public address from `REACT_APP_API_URL` and the
+  existing `/pl:frontline` gateway route. Local/non-public API addresses require
+  an explicit HTTPS tunnel; custom deployments can override the address.
+  Existing connections retain their registered callback. Connection names are
+  optional and default to the verified bot's name. Create/edit preview the
+  generated callback URL. Bot
   health/webhook actions, chat/topic labels, quotes, polls, media, edits,
   observed reactions and safe link cards integrate with the existing inbox.
+- Integrations config includes a Telegram section with setup instructions and
+  links to personal and team inbox settings. Each bot is configured through
+  the existing inbox integration sheet; no workspace-wide bot credentials are
+  duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
   (`SelectErxesMessenger`, saved as `config.integrationId`); empty means every
@@ -472,6 +480,9 @@ Telegram setup and provider-specific presentation live in
 `TelegramMessageAttachments.tsx` only adds the Cloudflare Stream player and
 media open links; native audio/video/image/file rendering remains shared within
 Frontline. No separate Telegram editor or reply atom is needed.
+`TelegramConfig.tsx` provides the Integrations config entry and links to the
+existing personal/team inbox routes, where `TelegramIntegrationDetail.tsx`
+owns the setup form and connection actions.
 
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1746,7 +1757,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   distinguish existing baseline failures from regressions in touched files.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
   Telegram setup/rendering and inbox composer regression coverage.
-- Telegram smoke: create/edit callback guidance, private/group/topic history,
+- Telegram smoke: config-page personal/team inbox links, production callback
+  defaults, local tunnel validation, saved callback preservation, optional
+  connection names, private/group/topic history,
   native replies, note isolation, media playback/open links, link cards and
   poll labels. Verify switching conversations during a send preserves the new
   draft, and other providers retain their reply and partial-delivery behavior.
@@ -1840,6 +1853,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram config entry and automatic setup defaults
+
+- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
+- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
+- **Contracts changed:** None; existing routes and per-bot setup are reused.
 
 ### `2026-10-06` — Telegram on the native composer and message components
 

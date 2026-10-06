@@ -4,8 +4,10 @@ import { IconBrandTelegram, IconSettings } from '@tabler/icons-react';
 import type { CellContext } from '@tanstack/react-table';
 import {
   Button,
+  Collapsible,
   Form,
   Input,
+  REACT_APP_API_URL,
   Select,
   Sheet,
   Spinner,
@@ -31,7 +33,11 @@ import {
   type TelegramWebhookInfo,
 } from './graphql';
 import { useTelegramTranslation } from './translations';
-import { getTelegramServerAddress, getTelegramWebhookUrl } from './webhookUrl';
+import {
+  getTelegramDefaultServerAddress,
+  getTelegramServerAddress,
+  getTelegramWebhookUrl,
+} from './webhookUrl';
 
 // undefined: closed, null: new connection, string: configure this integration.
 const telegramSetupState = atom<string | null | undefined>(undefined);
@@ -103,6 +109,8 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   const [savedBot, setSavedBot] = useState<TelegramBot>();
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<'saved' | 'linked' | undefined>();
+  const defaultAddress = getTelegramDefaultServerAddress(REACT_APP_API_URL);
+  const [showAddress, setShowAddress] = useState(!defaultAddress);
   const botsQuery = useQuery<{ telegramBots: TelegramBot[] }>(TELEGRAM_BOTS, {
     fetchPolicy: 'cache-and-network',
   });
@@ -113,7 +121,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
       name: '',
       brandId: '',
       token: '',
-      url: '',
+      url: integrationId ? '' : defaultAddress ?? '',
     },
   });
   const chosenId = form.watch('botId');
@@ -133,9 +141,14 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   );
   const status = statusQuery.data?.telegramBotWebhookInfo;
   useEffect(() => {
-    if (status?.url && !form.getFieldState('url').isDirty)
-      form.setValue('url', getTelegramServerAddress(status.url) ?? status.url);
-  }, [status?.url, form]);
+    if (status && !form.getFieldState('url').isDirty)
+      form.setValue(
+        'url',
+        status.url
+          ? getTelegramServerAddress(status.url) ?? status.url
+          : defaultAddress ?? '',
+      );
+  }, [status, defaultAddress, form]);
   const [addBot] = useMutation<{ telegramAddBot: TelegramBot }>(
     TELEGRAM_ADD_BOT,
   );
@@ -176,10 +189,6 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
     });
   };
   const submit = async (values: SetupValues): Promise<void> => {
-    if (needsLink && !values.name) {
-      form.setError('name', { message: t('name') });
-      return;
-    }
     if (needsLink && !values.brandId) {
       form.setError('brandId', { message: t('chooseBrand') });
       return;
@@ -211,7 +220,11 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
         const result = await addIntegration({
           variables: {
             kind: 'telegram-messenger',
-            name: values.name,
+            name:
+              values.name ||
+              current.botName ||
+              current.botUsername ||
+              'Telegram',
             brandId: values.brandId,
             channelId: channelId ?? '',
             data: { sourceBotId: current._id },
@@ -276,7 +289,9 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(submit)}
+        onSubmit={form.handleSubmit(submit, (errors) => {
+          if (errors.url) setShowAddress(true);
+        })}
         className="flex flex-col flex-auto overflow-hidden"
       >
         <Sheet.Header>
@@ -375,8 +390,12 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                       <Form.Item>
                         <Form.Label>{t('name')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} />
+                          <Input
+                            {...field}
+                            placeholder={bot?.botName || t('namePlaceholder')}
+                          />
                         </Form.Control>
+                        <Form.Description>{t('nameHint')}</Form.Description>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -406,43 +425,63 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                   {t(progress)}
                 </p>
               )}
-              <Form.Field
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('callback')}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="url"
-                        placeholder="https://your-public-frontline-host"
-                      />
-                    </Form.Control>
-                    <Form.Description>
-                      {t('callbackHint')}
-                      <span className="block mt-1">
-                        {t('callbackAutomatic')}
-                      </span>
-                      <span className="block mt-2 font-medium">
-                        {t('callbackPreview')}
-                      </span>
-                      <code className="block break-all">
-                        {getTelegramWebhookUrl(
-                          field.value || 'https://your-public-frontline-host',
-                          bot?._id ?? '{bot-id}',
-                        ) ?? `/telegram/receive/${bot?._id ?? '{bot-id}'}`}
-                      </code>
-                      {!bot && (
-                        <span className="block mt-1">
-                          {t('callbackPending')}
-                        </span>
-                      )}
-                    </Form.Description>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <Collapsible open={showAddress} onOpenChange={setShowAddress}>
+                <Collapsible.Trigger asChild>
+                  <Button type="button" variant="ghost" className="gap-2 px-0">
+                    <Collapsible.TriggerIcon />
+                    {t('connectionSettings')}
+                  </Button>
+                </Collapsible.Trigger>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {status?.url
+                    ? t('callbackSaved')
+                    : statusQuery.error
+                    ? t('statusFailed')
+                    : defaultAddress
+                    ? t('callbackDetected')
+                    : t('callbackLocal')}
+                </p>
+                <Collapsible.Content>
+                  <Form.Field
+                    control={form.control}
+                    name="url"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('callback')}</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            type="url"
+                            placeholder="https://your-public-frontline-host"
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          {t('callbackHint')}
+                          <span className="block mt-1">
+                            {t('callbackAutomatic')}
+                          </span>
+                          <span className="block mt-2 font-medium">
+                            {t('callbackPreview')}
+                          </span>
+                          <code className="block break-all">
+                            {getTelegramWebhookUrl(
+                              field.value ||
+                                'https://your-public-frontline-host',
+                              bot?._id ?? '{bot-id}',
+                            ) ?? `/telegram/receive/${bot?._id ?? '{bot-id}'}`}
+                          </code>
+                          {!bot && (
+                            <span className="block mt-1">
+                              {t('callbackPending')}
+                            </span>
+                          )}
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </Collapsible.Content>
+              </Collapsible>
               {bot?.erxesApiId && (
                 <div className="rounded-md border p-3 space-y-2 text-sm">
                   <p className="font-medium">{t('status')}</p>
@@ -543,6 +582,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
             disabled={
               busy ||
               botsQuery.loading ||
+              Boolean(bot?.erxesApiId && statusQuery.loading) ||
               Boolean(botsQuery.error) ||
               Boolean(integrationId && !bot)
             }
