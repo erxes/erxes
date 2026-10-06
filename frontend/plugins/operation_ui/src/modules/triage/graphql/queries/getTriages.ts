@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_TRIAGES = gql`
+export const GET_TRIAGES = gql(`
   query operationGetTriageList($filter: ITriageFilter) {
     operationGetTriageList(filter: $filter) {
       list {
@@ -23,4 +23,4 @@ export const GET_TRIAGES = gql`
       }
     }
   }
-`;
+`);

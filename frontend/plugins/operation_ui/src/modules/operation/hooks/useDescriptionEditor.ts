@@ -11,7 +11,7 @@ interface DescriptionEditorResult {
 }
 
 export const useDescriptionEditor = (
-  description: string | undefined,
+  description: string | null | undefined,
   placeholder: string,
 ): DescriptionEditorResult => {
   const [isReady, setIsReady] = useState(

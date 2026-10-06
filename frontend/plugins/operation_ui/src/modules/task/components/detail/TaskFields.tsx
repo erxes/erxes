@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
@@ -11,7 +12,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { ITask } from '@/task/types';
+import type { ITaskDetail } from '@/task/types';
 import {
   BlockEditor,
   Separator,
@@ -33,7 +34,7 @@ import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks
 import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
 import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
 
-export const TaskFields = ({ task }: { task: ITask }) => {
+export const TaskFields = ({ task }: { task: ITaskDetail }) => {
   const { t } = useTranslation('operation');
   const {
     _id: taskId,
@@ -135,7 +136,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
       />
       <TagsSelect.Provider
         mode="multiple"
-        value={tagIds}
+        value={compactList(tagIds)}
         type="operation:task"
         targetIds={[taskId]}
       >
@@ -158,13 +159,13 @@ export const TaskFields = ({ task }: { task: ITask }) => {
             teamIds={teamId ? [teamId] : undefined}
           />
           <DateSelectTask
-            value={startDate ? new Date(startDate) : undefined}
+            value={startDate}
             id={taskId}
             type="startDate"
             variant="detail"
           />
           <DateSelectTask
-            value={targetDate ? new Date(targetDate) : undefined}
+            value={targetDate}
             id={taskId}
             type="targetDate"
             variant="detail"

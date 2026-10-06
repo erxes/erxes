@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
-import { ITriage } from '@/triage/types/triage';
+import type { ITriageDetail } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from './triage-selects/ConvertToTask';
@@ -22,10 +22,19 @@ import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
 import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
+import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
+import { isGithubTriage } from '@/operation/utils/isGithubTriage';
 
-export const TriageFields = ({ triage }: { triage: ITriage }) => {
+export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
   const { t } = useTranslation('operation');
-  const { _id: triageId, priority, status, name: _name } = triage || {};
+  const {
+    _id: triageId,
+    priority,
+    status,
+    name: _name,
+    githubIssueNumber,
+    githubRepoName,
+  } = triage;
 
   const description = triage.description;
   const [descriptionContent, setDescriptionContent] =
@@ -83,6 +92,31 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {isGithubTriage(triage) && (
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="w-fit text-muted-foreground group"
+        >
+          <a
+            href={triage.githubIssueUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconBrandGithub className="size-4 shrink-0" />
+            <span>
+              {t('created-from-github-issue', {
+                defaultValue: 'Created from GitHub issue',
+              })}
+            </span>
+            <span className="font-normal">
+              {githubRepoName ? `${githubRepoName} ` : ''}#{githubIssueNumber}
+            </span>
+            <IconExternalLink className="size-3.5 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" />
+          </a>
+        </Button>
+      )}
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
         placeholder={t('triage-name')}

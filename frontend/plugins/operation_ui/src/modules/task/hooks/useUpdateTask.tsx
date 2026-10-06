@@ -1,37 +1,44 @@
-import { MutationFunctionOptions, useMutation } from '@apollo/client';
+import {
+  MutationFunctionOptions,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
 import { UPDATE_TASK_MUTATION } from '@/task/graphql/mutations/updateTask';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { gql } from '~/gql';
+import type {
+  UpdateTaskMutation,
+  UpdateTaskMutationVariables,
+} from '~/gql/graphql';
 
-interface IUpdateTaskMutationResponse {
-  updateTask: {
-    _id: string;
-    status: string;
-    propertiesData?: Record<string, unknown>;
-  };
-}
-
-interface IUpdateTaskVariables extends Record<string, unknown> {
-  _id: string;
-  status?: string;
-}
+const TASK_OPTIMISTIC_FIELDS = gql(`
+  fragment TaskOptimisticFields on Task {
+    tagIds
+    propertiesData
+  }
+`);
 
 export const useUpdateTask = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
-  const [_updateTask, { loading, error }] = useMutation<
-    IUpdateTaskMutationResponse,
-    IUpdateTaskVariables
-  >(UPDATE_TASK_MUTATION, {
+  const client = useApolloClient();
+  const [_updateTask, { loading, error }] = useMutation(UPDATE_TASK_MUTATION, {
     refetchQueries: ['GetTasks'],
   });
   const updateTask = (
     options: MutationFunctionOptions<
-      IUpdateTaskMutationResponse,
-      IUpdateTaskVariables
+      UpdateTaskMutation,
+      UpdateTaskMutationVariables
     >,
   ) => {
     const variables = options.variables;
+    const cached = variables?._id
+      ? client.readFragment({
+          id: client.cache.identify({ __typename: 'Task', _id: variables._id }),
+          fragment: TASK_OPTIMISTIC_FIELDS,
+        })
+      : null;
     const optimisticResponse =
       options.optimisticResponse ||
       (variables?.status
@@ -40,6 +47,8 @@ export const useUpdateTask = () => {
               __typename: 'Task' as const,
               _id: variables._id,
               status: variables.status,
+              tagIds: cached?.tagIds ?? null,
+              propertiesData: cached?.propertiesData ?? null,
             },
           }
         : undefined);

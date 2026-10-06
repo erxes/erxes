@@ -101,7 +101,7 @@ export const checkCycle = async (job: Job) => {
   if (endCycleIds.length > 0) {
     console.log(`[ACTION] Ending ${endCycleIds.length} cycles...`);
     for (const cycleId of endCycleIds) {
-      await models.Cycle.endCycle(cycleId);
+      await models.Cycle.endCycle(cycleId, subdomain);
     }
   }
 

@@ -9,7 +9,6 @@ import { NavigationFavoritesSection } from '@/navigation/components/navigation-a
 import { NavigationInboxButton } from '@/navigation/components/navigation-activity-rail/NavigationInboxButton';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
-import { NavigationWelcomeButton } from '@/navigation/components/navigation-activity-rail/NavigationWelcomeButton';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
 
 export const NavigationActivityRail = ({
@@ -17,14 +16,12 @@ export const NavigationActivityRail = ({
   activeActivityId,
   hiddenActivities,
   isInboxActive,
-  isWelcomeActive,
   isActivityPinned,
   isSettings,
   mobileExpanded,
   onActivityPinnedChange,
   onSearch,
   onSelectInbox,
-  onSelectWelcome,
   onSelectActivity,
   visibleActivities,
 }: Readonly<{
@@ -32,14 +29,12 @@ export const NavigationActivityRail = ({
   activeActivityId: string | null;
   hiddenActivities: INavigationActivity[];
   isInboxActive: boolean;
-  isWelcomeActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
   mobileExpanded: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
   onSelectInbox: () => void;
-  onSelectWelcome: () => void;
   onSelectActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
 }>) => {
@@ -60,11 +55,6 @@ export const NavigationActivityRail = ({
       )}
     >
       <NavigationRailLogo expanded={expanded} />
-      <NavigationWelcomeButton
-        expanded={expanded}
-        isWelcomeActive={isWelcomeActive}
-        onSelectWelcome={onSelectWelcome}
-      />
       {usePromotedRail ? (
         <div className="mb-1 flex shrink-0 flex-col gap-1">
           <NavigationInboxButton
