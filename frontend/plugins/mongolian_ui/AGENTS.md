@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -29,6 +29,9 @@
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
+- Mongolian settings shells preserve a bounded content height so settings
+  tables and forms scroll inside their main pane rather than escaping the host
+  settings viewport.
 - POS-in eBarimt settings include receipt behavior toggles for copy printing,
   summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
@@ -131,6 +134,9 @@
   existing filter and cursor hooks.
 - Cursor-paginated tables use `RecordTable.CursorProvider`, feature-specific
   session keys, and unique `tableId` values prefixed with `mongolian_`.
+- Sync Erkhet settings config tables share `ErkhetConfigRecordTable`, which owns
+  row selection, sticky structural columns, and vertical scrolling for the list
+  pane.
 
 ## Local Invariants
 
@@ -146,6 +152,8 @@
   definitions must stay aligned.
 - Do not modify backend contracts or shared libraries from a frontend-only
   Mongolian UI task.
+- Settings route shells must keep `min-h-0`/bounded overflow on flex content
+  panes so nested tables and forms remain scrollable.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 
