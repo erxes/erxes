@@ -362,6 +362,7 @@ export const widgetMutations: Record<string, Resolver> = {
       deviceToken,
       visitorId,
     } = args;
+    console.log(JSON.stringify(args, null, 2))
 
     const customData = data;
 
@@ -383,6 +384,8 @@ export const widgetMutations: Record<string, Resolver> = {
 
     let customer;
 
+    console.log({cachedCustomerId , email , phone , code})
+
     if (cachedCustomerId || email || phone || code) {
       customer = await sendTRPCMessage({
         subdomain,
@@ -398,7 +401,7 @@ export const widgetMutations: Record<string, Resolver> = {
           code,
         },
       });
-
+console.log({customer})
       const doc = {
         integrationId: integration._id,
         email,
@@ -496,7 +499,37 @@ export const widgetMutations: Record<string, Resolver> = {
 
       if (customer && company) {
         // add company to customer's companyIds list
+        const relatedCompanyIds: string[] = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'relation',
+          action: 'getRelationIds',
+          input: {
+            contentType: 'core:customer',
+            contentId: customer._id,
+            relatedContentType: 'core:company',
+          },
+          defaultValue: [],
+        });
 
+        if (!relatedCompanyIds.includes(company._id)) {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'relation',
+            action: 'createRelation',
+            input: {
+              relation: {
+                entities: [
+                  { contentType: 'core:customer', contentId: customer._id },
+                  { contentType: 'core:company', contentId: company._id },
+                ],
+              },
+            },
+          });
+        }
         await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
