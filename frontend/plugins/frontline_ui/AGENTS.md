@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -408,7 +408,8 @@
 - The inbox composer is note-only (Reply tab disabled, Internal Note selected)
   for `lead`, `calls`, `callpro` and `mail` conversations — the first three
   cannot carry an outbound reply, and mail replies go through the mail compose
-  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in `MessageInput.tsx`.
+  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
+  `conversation-detail/constants/composer.ts`.
 - The ticket list/board filter offers Branch and Department multi-selects
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
@@ -480,6 +481,10 @@
 Telegram setup and provider-specific presentation live in
 `src/modules/integrations/telegram/`. It reuses `ComposerShell`, `ComposerEditor`,
 `ComposerToolbar`, `useComposerSend`, `messageReplyState` and `MessageAttachments`.
+Composer components live in `conversation-detail/components/composer/` and
+their hooks in `conversation-detail/hooks/composer/`. `MessageInput` composes
+the shared draft, attachment, gallery and send hooks; Telegram keeps its
+provider flags at those existing entry points.
 `TelegramMessageAttachments.tsx` only adds the Cloudflare Stream player and
 media open links; native audio/video/image/file rendering remains shared within
 Frontline. No separate Telegram editor or reply atom is needed.
@@ -1283,7 +1288,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   document because `Survey.results` runs two aggregations per survey; the
   management list must not select it.
 - The composer shows two different controls by integration kind:
-  `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
+  `PollComposer` (ad-hoc, provider-native) for `discord-messenger` and
+  `telegram-messenger`, and
   `SendSurveyDialog` (saved survey) for `messenger`. Neither is a fallback for
   the other.
 - Discord polls and erxes surveys are separate all the way down. Discord writes
@@ -1769,6 +1775,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   distinguish existing baseline failures from regressions in touched files.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
   Telegram setup/rendering and inbox composer regression coverage.
+  Composer send regression tests import `hooks/composer/useComposerSend`;
+  keep them aligned with the production hook when composer paths change.
 - Telegram smoke: config-page personal/team inbox links, production callback
   defaults, local tunnel validation, saved callback preservation, optional
   connection names, private/group/topic history,

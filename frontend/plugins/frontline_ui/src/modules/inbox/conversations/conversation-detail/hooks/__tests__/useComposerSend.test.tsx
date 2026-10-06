@@ -3,7 +3,7 @@ import { ApolloError } from '@apollo/client';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 import { toast } from 'erxes-ui';
-import { useComposerSend } from '../useComposerSend';
+import { useComposerSend } from '../composer/useComposerSend';
 import type { useConversationMessageAdd } from '../useConversationMessageAdd';
 import { messageReplyState } from '../../states/messageReplyState';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
