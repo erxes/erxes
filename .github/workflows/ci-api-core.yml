@@ -7,12 +7,10 @@ on:
       - debug/core
     paths:
       - 'backend/core-api/**'
-      - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-core.yml'
   pull_request:
     paths:
       - 'backend/core-api/**'
-      - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-core.yml'
 
 env:
@@ -42,9 +40,6 @@ jobs:
         run: |
           echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
-
-      - name: Build shared module
-        run: pnpm nx build erxes-api-shared
 
       - name: Build core-api
         run: pnpm nx build core-api

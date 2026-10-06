@@ -8,13 +8,13 @@ on:
       - '[0-9]*'
     paths:
       - 'frontend/plugins/tourism_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-tourism.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/plugins/tourism_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-tourism.yml'
+      - 'package.json'
 
 permissions:
   actions: read

@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - 'frontend/core-ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-core-ui.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/core-ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-core-ui.yml'
+      - 'package.json'
 permissions:
   actions: read
   contents: read

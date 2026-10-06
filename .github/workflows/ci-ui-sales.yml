@@ -8,13 +8,13 @@ on:
       - '[0-9]*'
     paths:
       - 'frontend/plugins/sales_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-sales.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/plugins/sales_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-sales.yml'
+      - 'package.json'
   workflow_call:
     inputs:
       version:

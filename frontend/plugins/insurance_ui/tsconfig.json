@@ -6,12 +6,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "paths": {
-      "erxes-ui": [
-        "frontend/libs/erxes-ui/src"
-      ],
-      "erxes-ui/*": [
-        "frontend/libs/erxes-ui/src/*"
-      ],
       "~/*": [
         "frontend/plugins/insurance_ui/src/*"
       ],
@@ -23,12 +17,6 @@
       ],
       "@": [
         "frontend/plugins/insurance_ui/src/modules"
-      ],
-      "ui-modules": [
-        "frontend/libs/ui-modules/src"
-      ],
-      "ui-modules/*": [
-        "frontend/libs/ui-modules/src/*"
       ]
     }
   },

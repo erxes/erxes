@@ -21,7 +21,7 @@
     "@escape.tech/graphql-armor-max-depth": "^2.4.0",
     "@graphql-tools/schema": "^10.0.23",
     "@sentry/node": "^10.55.0",
-    "erxes-api-shared": "workspace:^",
+    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
     "graphql-parse-resolve-info": "^4.14.1",
     "graphql-ws": "^5.16.0",
     "http-proxy-middleware": "^3.0.3",

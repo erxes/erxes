@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@source '../../../frontend/libs/erxes-ui/src';
+@source '../modules/ui/erxes-ui';
 
 @plugin 'tailwindcss-animate';
 

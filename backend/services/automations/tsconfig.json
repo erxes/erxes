@@ -25,8 +25,7 @@
     "resolveJsonModule": true,
     "types": ["jest", "node"],
     "paths": {
-      "@/*": ["./src/*"],
-      "erxes-api-shared/*": ["../../erxes-api-shared/src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "ts-node": {

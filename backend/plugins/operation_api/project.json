@@ -59,7 +59,7 @@
       "inputs": [
         "{projectRoot}/print-schema.ts",
         "{projectRoot}/src/**/*.ts",
-        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
+        "{projectRoot}/package.json"
       ],
       "outputs": [
         "{projectRoot}/generated"

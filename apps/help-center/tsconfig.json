@@ -20,8 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "erxes-ui/*": ["../../frontend/libs/erxes-ui/src/*"],
-      "ui-modules/*": ["../../frontend/libs/ui-modules/src/*"],
+      "erxes-ui/*": ["./modules/ui/erxes-ui/*"],
       "react": ["./node_modules/@types/react"],
       "react/*": ["./node_modules/@types/react/*"],
       "react-dom": ["./node_modules/@types/react-dom"],

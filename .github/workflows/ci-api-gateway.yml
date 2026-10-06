@@ -6,12 +6,10 @@ on:
       - main
     paths:
       - 'backend/gateway/**'
-      - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-gateway.yml'
   pull_request:
     paths:
       - 'backend/gateway/**'
-      - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-gateway.yml'
 
 jobs:
@@ -38,11 +36,6 @@ jobs:
         run: |
           echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
-
-      - name: Build shared module
-        run: |
-          export NX_DAEMON=false
-          pnpm nx build erxes-api-shared
 
       - name: Login to Docker Hub
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

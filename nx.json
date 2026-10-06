@@ -17,16 +17,6 @@
     ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
-  "dependencyGraph": {
-    "inputs": [
-      {
-        "project": "erxes-api-shared",
-        "target": "build",
-        "inputs": ["default", "^production"]
-      }
-    ]
-  },
-
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",

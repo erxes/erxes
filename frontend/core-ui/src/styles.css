@@ -1,8 +1,9 @@
 @import '@maily-to/core/style.css';
 @import 'tailwindcss' source(none);
-@import '../../libs/erxes-ui/src/theme.css';
+@import 'erxes-ui/theme.css';
 @source '.';
-@source '../../libs/';
+@source '../../../node_modules/erxes-ui';
+@source '../../../node_modules/ui-modules';
 @source '../../plugins/';
 
 @plugin 'tailwindcss-animate';

@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - 'apps/frontline-widgets/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-apps-frontline-widgets.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'apps/frontline-widgets/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-apps-frontline-widgets.yml'
+      - 'package.json'
 permissions:
   actions: read
   contents: read

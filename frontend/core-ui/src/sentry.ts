@@ -11,7 +11,7 @@
  * while the API services report under production-api / amaraa-test-local.
  *
  * Mirrors the backend `beforeSend` noise filter
- * (backend/erxes-api-shared/src/utils/errorClassifier.ts) so expected business
+ * (src/utils/errorClassifier.ts in erxes/api-shared) so expected business
  * conditions surfaced client-side don't become Sentry noise.
  *
  * NOTE: local-dev errors only appear in Sentry if the project's "localhost"

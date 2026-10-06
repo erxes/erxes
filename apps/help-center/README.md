@@ -45,8 +45,7 @@ ticket queries authenticate with.
 
 ## Docker
 
-The image builds from the **repository root**, because the portal compiles a
-few form controls straight out of the `erxes-ui` source tree:
+The image builds from the **repository root**:
 
 ```bash
 docker build -f apps/help-center/Dockerfile -t erxes/help-center .
@@ -139,7 +138,14 @@ modules/
   notifications/         portal notification bell, feed and content links
   tickets/               ticket queries/mutations and components
   ui/                    Button, Card, Badge, Field, Avatar, Icon, EmptyState…
+    erxes-ui/            copied erxes-ui form controls, imported as erxes-ui/*
 ```
+
+`modules/ui/erxes-ui` holds copies of the few `erxes-ui` form controls the
+portal uses (from [`@erxes/ui`](https://github.com/erxes/ui) 3.2.13). The
+published package targets React 18 and Apollo Client 3, while the portal runs
+React 19 and Apollo Client 4, so it keeps its own copy compiled against its own
+dependencies. Copy newer versions over from `@erxes/ui` when needed.
 
 The sidebar is section-scoped. `SiteShell` builds one `NavGroup` per browsable
 part of the portal (knowledge base, forms, announcements, tickets) with that

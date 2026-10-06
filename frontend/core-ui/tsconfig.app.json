@@ -29,8 +29,6 @@
   ],
   "include": [
     "src/**/*",
-    "public",
-    "../libs/erxes-ui/src/**/*",
-    "../libs/ui-modules/src/**/*"
+    "public"
   ]
 }

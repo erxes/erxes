@@ -1,7 +1,7 @@
 @import 'tailwindcss' source(none);
 @source './**/*.{ts,tsx,js,jsx}';
-@source '../../../frontend/libs/erxes-ui/**/*.{ts,tsx,js,jsx}';
-@source '../../../frontend/libs/ui-modules/**/*.{ts,tsx,js,jsx}';
+@source '../../../node_modules/erxes-ui';
+@source '../../../node_modules/ui-modules';
 
 @plugin 'tailwindcss-animate';
 

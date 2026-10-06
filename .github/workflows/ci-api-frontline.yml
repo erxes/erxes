@@ -7,12 +7,10 @@ on:
       - debug/frontline
     paths:
       - 'backend/plugins/frontline_api/**'
-      - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-frontline.yml'
   pull_request:
     paths:
       - 'backend/plugins/frontline_api/**'
-      - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-frontline.yml'
 
 env:
@@ -42,9 +40,6 @@ jobs:
         run: |
           echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
-
-      - name: Build shared module
-        run: pnpm nx build erxes-api-shared
 
       - name: Build frontline_api
         run: pnpm nx build frontline_api

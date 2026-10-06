@@ -25,7 +25,16 @@ const config: ModuleFederationConfig = {
 
   shared: (libraryName, defaultConfig) => {
     if (coreLibraries.has(libraryName)) {
-      return defaultConfig;
+      const aliased = /^npm:.+@(.+)$/.exec(
+        String(defaultConfig.requiredVersion),
+      );
+      return aliased
+        ? {
+            ...defaultConfig,
+            requiredVersion: aliased[1],
+            strictVersion: false,
+          }
+        : defaultConfig;
     }
 
     // Returning false means the library is not shared.

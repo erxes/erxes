@@ -6,12 +6,10 @@ on:
       - main
     paths:
       - 'apps/help-center/**'
-      - 'frontend/libs/erxes-ui/src/**'
       - '.github/workflows/ci-apps-help-center.yml'
   pull_request:
     paths:
       - 'apps/help-center/**'
-      - 'frontend/libs/erxes-ui/src/**'
       - '.github/workflows/ci-apps-help-center.yml'
 
 jobs:

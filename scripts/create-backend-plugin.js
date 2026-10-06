@@ -66,7 +66,8 @@ function createBackendPlugin(pluginName, moduleName) {
     author: '',
     license: 'ISC',
     dependencies: {
-      'erxes-api-shared': 'workspace:^',
+      'erxes-api-shared': require('../backend/core-api/package.json')
+        .dependencies['erxes-api-shared'],
     },
     devDependencies: {},
   };
@@ -124,7 +125,6 @@ function createBackendPlugin(pluginName, moduleName) {
       paths: {
         '~/*': ['./src/*'],
         '@/*': ['./src/modules/*'],
-        'erxes-api-shared/*': ['../../erxes-api-shared/src/*'],
       },
     },
     'ts-node': {

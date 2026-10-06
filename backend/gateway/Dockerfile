@@ -8,7 +8,6 @@ COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json 
 
 # Copy service-specific package.json files
 COPY ./backend/gateway/package.json /app/backend/gateway/
-COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
 # Install pnpm and dependencies
 RUN npm install -g pnpm@9 \
@@ -16,7 +15,6 @@ RUN npm install -g pnpm@9 \
 
 # Copy source files
 COPY ./backend/gateway /app/backend/gateway
-COPY ./backend/erxes-api-shared /app/backend/erxes-api-shared
 
 WORKDIR /app/backend/gateway
 
@@ -34,17 +32,13 @@ WORKDIR /app
 
 COPY ./pnpm-lock.yaml /app/
 COPY ./backend/gateway/package.json /app/backend/gateway/
-COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
 RUN node -e "\
 const fs = require('fs'); \
-const shared = require('./backend/erxes-api-shared/package.json'); \
 const service = require('./backend/gateway/package.json'); \
 const dependencies = { \
-  ...(shared.dependencies || {}), \
   ...(service.dependencies || {}), \
 }; \
-delete dependencies['erxes-api-shared']; \
 fs.writeFileSync( \
   'package.json', \
   JSON.stringify( \
@@ -69,12 +63,6 @@ RUN apt-get update \
 
 # Copy production dependencies and built app only
 COPY --chown=root:root --chmod=0555 --from=prod-deps /app/node_modules ./node_modules
-RUN rm -rf ./node_modules/erxes-api-shared
-COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
-COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
-COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
-COPY --chown=root:root --chmod=0555 --from=build /app/backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
-COPY --chown=root:root --chmod=0444 --from=build /app/backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 COPY --chown=root:root --chmod=0555 --from=build /app/backend/gateway/dist ./backend/gateway/dist
 

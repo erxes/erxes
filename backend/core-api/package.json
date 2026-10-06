@@ -19,7 +19,7 @@
     "@workos-inc/node": "^7.65.0",
     "bcryptjs": "^3.0.2",
     "bwip-js": "^4.11.1",
-    "erxes-api-shared": "workspace:^",
+    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
     "firebase-admin": "^13.6.0",
     "formidable": "^3.5.4",
     "graphql-tag": "^2.12.6",

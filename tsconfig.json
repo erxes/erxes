@@ -8,9 +8,6 @@
       "path": "./backend/services/logs/tsconfig.json"
     },
     {
-      "path": "./backend/erxes-api-shared/tsconfig.json"
-    },
-    {
       "path": "./backend/gateway/tsconfig.json"
     },
     {
@@ -60,12 +57,6 @@
     },
     {
       "path": "./frontend/core-ui/tsconfig.json"
-    },
-    {
-      "path": "./frontend/libs/ui-modules/tsconfig.json"
-    },
-    {
-      "path": "./frontend/libs/erxes-ui/tsconfig.json"
     },
     {
       "path": "./frontend/plugins/sales_ui/tsconfig.json"

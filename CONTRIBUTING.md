@@ -30,13 +30,10 @@ micro-frontends.
 backend/
   gateway/             API gateway
   core-api/            Core backend modules and GraphQL API
-  erxes-api-shared/    Shared backend types and utilities
   plugins/<name>_api/  Backend plugin services
   services/            Background services
 frontend/
   core-ui/             Module Federation host
-  libs/erxes-ui/       Shared UI primitives
-  libs/ui-modules/     Shared business UI modules
   plugins/<name>_ui/   Frontend plugin remotes
 apps/                  Standalone applications
 scripts/               Development and generation scripts
@@ -87,12 +84,6 @@ pnpm nx test <project>
 ```
 
 Examples of project names include `core-api`, `sales_api`, and `sales_ui`.
-Backend projects that consume `erxes-api-shared` may require the shared library
-to be built first:
-
-```bash
-pnpm nx build erxes-api-shared
-```
 
 ## Contribution Workflow
 
@@ -204,11 +195,23 @@ implementations, debug logs, or untracked TODOs.
 Plugins must remain isolated. Do not import source code directly from another
 plugin.
 
-Use these shared locations when behavior genuinely belongs across projects:
+Use these shared packages when behavior genuinely belongs across projects.
+Each is developed in its own repository and installed from npm under the
+import name used in this repository:
 
-- `frontend/libs/erxes-ui` for reusable UI primitives
-- `frontend/libs/ui-modules` for reusable business UI
-- `backend/erxes-api-shared` for shared backend contracts and utilities
+- [`erxes/ui`](https://github.com/erxes/ui) (`erxes-ui`, npm `@erxes/ui`) for
+  reusable UI primitives
+- [`erxes/ui-modules`](https://github.com/erxes/ui-modules) (`ui-modules`, npm
+  `@erxes/ui-modules`) for reusable business UI
+- [`erxes/api-shared`](https://github.com/erxes/api-shared)
+  (`erxes-api-shared`, npm `@erxes/api-shared`) for shared backend contracts
+  and utilities
+
+A change to one of them lands in its repository first and is released to npm;
+this repository then bumps the pinned version (the root `package.json` for the
+two UI packages, each backend `package.json` for `erxes-api-shared`). To work
+on both at once, point the dependency at a local checkout, for example
+`"erxes-ui": "link:../ui/dist"`, and run `pnpm install`.
 
 When generating a plugin with `pnpm create-plugin`, treat generated output as a
 starting point. Replace placeholders, add real types and validation, and make

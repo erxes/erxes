@@ -12,7 +12,7 @@ The `customersAdd` GraphQL mutation creates a new customer (contact) record in e
 | Resolver          | `backend/core-api/src/modules/contacts/graphql/resolvers/mutations/customer.ts`     |
 | Model method      | `backend/core-api/src/modules/contacts/db/models/Customers.ts` — `createCustomer()` |
 | Schema definition | `backend/core-api/src/modules/contacts/db/definitions/customers.ts`                 |
-| Shared types      | `backend/erxes-api-shared/src/core-types/modules/contacts/customer.ts`              |
+| Shared types      | `src/core-types/modules/contacts/customer.ts` in erxes/api-shared                   |
 
 ---
 
@@ -120,7 +120,7 @@ All fields are optional. The mutation returns a `Customer` object.
 | `2`   | Female         |
 | `9`   | Not applicable |
 
-Additional pronoun/gender codes (`3`–`22`) are supported — check `CUSTOMER_SELECT_OPTIONS.SEX` in `erxes-api-shared/src/core-modules/users/constants.ts` for the full list.
+Additional pronoun/gender codes (`3`–`22`) are supported — check `CUSTOMER_SELECT_OPTIONS.SEX` in `src/core-modules/users/constants.ts` of erxes/api-shared for the full list.
 
 ---
 

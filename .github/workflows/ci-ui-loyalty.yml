@@ -8,13 +8,13 @@ on:
       - '[0-9]*'
     paths:
       - 'frontend/plugins/loyalty_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-loyalty.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/plugins/loyalty_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-loyalty.yml'
+      - 'package.json'
 
 permissions:
   actions: read

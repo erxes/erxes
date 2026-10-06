@@ -5,16 +5,12 @@ RUN npm install -g pnpm@9
 
 COPY pnpm-lock.yaml ./
 COPY backend/plugins/tourism_api/package.json backend/plugins/tourism_api/
-COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 RUN node -e "\
 const fs = require('fs'); \
-const shared = require('./backend/erxes-api-shared/package.json'); \
 const service = require('./backend/plugins/tourism_api/package.json'); \
 const dependencies = { \
-  ...(shared.dependencies || {}), \
   ...(service.dependencies || {}), \
 }; \
-delete dependencies['erxes-api-shared']; \
 fs.writeFileSync( \
   'package.json', \
   JSON.stringify( \
@@ -42,13 +38,6 @@ FROM node:22-alpine3.22
 WORKDIR /app
 
 COPY --from=installer /app/node_modules ./node_modules
-
-RUN rm -rf ./node_modules/erxes-api-shared
-COPY backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
-COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
-COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
-COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
-COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 COPY backend/plugins/tourism_api/dist ./dist
 

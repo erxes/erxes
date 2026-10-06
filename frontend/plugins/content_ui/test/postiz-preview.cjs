@@ -8,7 +8,7 @@ const tailwind = require('@tailwindcss/postcss');
 
 (async () => {
   const root = resolve(__dirname, '../../../..');
-  const ui = resolve(root, 'frontend/libs/erxes-ui/src');
+  const ui = resolve(root, 'node_modules/erxes-ui');
   const bundle = await build({
     entryPoints: [resolve(__dirname, 'postiz-preview.tsx')],
     bundle: true,
@@ -29,14 +29,14 @@ const tailwind = require('@tailwindcss/postcss');
               .map(
                 (name) =>
                   `export { ${name} } from ${JSON.stringify(
-                    resolve(ui, 'components', name.toLowerCase() + '.tsx'),
+                    resolve(ui, 'components', name.toLowerCase() + '.js'),
                   )};`,
               )
               .join('\n'),
             resolveDir: root,
           }));
           builder.onResolve({ filter: /^erxes-ui\/lib(?:\/utils)?$/ }, () => ({
-            path: resolve(ui, 'lib/utils.ts'),
+            path: resolve(ui, 'lib/utils.js'),
           }));
         },
       },

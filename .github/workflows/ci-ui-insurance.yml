@@ -8,13 +8,13 @@ on:
       - '[0-9]*'
     paths:
       - 'frontend/plugins/insurance_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-insurance.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/plugins/insurance_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-insurance.yml'
+      - 'package.json'
 
 permissions:
   actions: read

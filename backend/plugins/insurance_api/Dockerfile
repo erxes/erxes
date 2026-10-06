@@ -7,17 +7,13 @@ RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefo
 
 COPY pnpm-lock.yaml ./
 COPY backend/plugins/insurance_api/package.json backend/plugins/insurance_api/
-COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN node -e "\
 const fs = require('fs'); \
-const shared = require('./backend/erxes-api-shared/package.json'); \
 const service = require('./backend/plugins/insurance_api/package.json'); \
 const dependencies = { \
-  ...(shared.dependencies || {}), \
   ...(service.dependencies || {}), \
 }; \
-delete dependencies['erxes-api-shared']; \
 fs.writeFileSync( \
   'package.json', \
   JSON.stringify( \
@@ -48,13 +44,6 @@ WORKDIR /app
 RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
 
 COPY --from=installer /app/node_modules ./node_modules
-
-RUN rm -rf ./node_modules/erxes-api-shared
-COPY backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
-COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
-COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
-COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
-COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 COPY backend/plugins/insurance_api/dist ./dist
 

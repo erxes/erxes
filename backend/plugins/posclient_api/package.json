@@ -16,7 +16,7 @@
     "aws-sdk": "^2.1692.0",
     "bcryptjs": "^3.0.2",
     "debug": "^4.4.0",
-    "erxes-api-shared": "workspace:^",
+    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
     "fbgraph": "^1.4.4",
     "graphql-tag": "^2.12.6",
     "graphql-ws": "^5.16.0",

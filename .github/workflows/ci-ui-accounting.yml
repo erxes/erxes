@@ -8,13 +8,13 @@ on:
       - '[0-9]*'
     paths:
       - 'frontend/plugins/accounting_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-accounting.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/plugins/accounting_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-accounting.yml'
+      - 'package.json'
 
 permissions:
   actions: read

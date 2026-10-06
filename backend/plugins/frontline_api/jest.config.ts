@@ -16,7 +16,6 @@ export default {
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
     '^@/(.*)$': '<rootDir>/src/modules/$1',
-    '^erxes-api-shared/(.*)$': '<rootDir>/../../erxes-api-shared/src/$1',
   },
   testMatch: ['<rootDir>/src/**/*.test.ts'],
   forceExit: true,

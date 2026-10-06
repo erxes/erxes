@@ -18,7 +18,7 @@
   "author": "soyombo-baterdene",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^",
+    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
     "graphql-tag": "^2.12.6",
     "moment-timezone": "^0.5.48"
   },

@@ -8,13 +8,13 @@ on:
       - '[0-9]*'
     paths:
       - 'frontend/plugins/mongolian_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-mongolian.yml'
+      - 'package.json'
   pull_request:
     paths:
       - 'frontend/plugins/mongolian_ui/**'
-      - 'frontend/libs/**'
       - '.github/workflows/ci-ui-mongolian.yml'
+      - 'package.json'
 
 permissions:
   actions: read
