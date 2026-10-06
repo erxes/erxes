@@ -29,6 +29,7 @@ type ProductFooterProps = {
   showAdvancedView: boolean;
   showTaxView: boolean;
   productsData: IProductData[];
+  pipelineId?: string;
   onChangeProductsData: (data: IProductData[]) => void;
   updateTotal: (data: IProductData[]) => void;
   onAddProducts: (products: IProduct[]) => void;
@@ -77,7 +78,8 @@ const getHandDiscountAmount = (product: IProductData): number =>
     .reduce((sum, discountInfo) => sum + (Number(discountInfo.amount) || 0), 0);
 
 const clearDraftValue = (drafts: Record<string, string>, currency: string) => {
-  const { [currency]: _clearedDraft, ...remainingDrafts } = drafts;
+  const remainingDrafts = { ...drafts };
+  delete remainingDrafts[currency];
 
   return remainingDrafts;
 };
@@ -92,6 +94,7 @@ export const ProductFooter = ({
   showAdvancedView,
   showTaxView,
   productsData,
+  pipelineId,
   onChangeProductsData,
   updateTotal,
   onAddProducts,
@@ -355,6 +358,7 @@ export const ProductFooter = ({
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <SelectProductsBulk
             productIds={[]}
+            pipelineId={pipelineId}
             onSelect={(_, selectedProducts) =>
               onAddProducts(selectedProducts || [])
             }
