@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 
 export const CycleInline = forwardRef<
   HTMLDivElement,
-  { cycleId: string } & React.HTMLAttributes<HTMLDivElement>
+  { cycleId: string | null | undefined } & React.HTMLAttributes<HTMLDivElement>
 >(({ cycleId, className, ...props }, ref) => {
   const { cycleDetail } = useGetCycle(cycleId);
 

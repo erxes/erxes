@@ -1,4 +1,4 @@
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 import {
   IconCalendarEventFilled,
   IconCaretLeftRight,
@@ -18,7 +18,7 @@ const TriageContent = lazy(() =>
   })),
 );
 
-export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
+export const TriageWidgetCard = ({ triage }: { triage: ITriageDetail }) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
 

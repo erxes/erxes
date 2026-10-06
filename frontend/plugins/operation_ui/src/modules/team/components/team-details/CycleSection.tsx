@@ -35,7 +35,7 @@ export const CycleSection = ({ team }: { team: ITeam }) => {
           <div className="flex items-center gap-2">
             <Switch
               onCheckedChange={submitHandler}
-              checked={team.cycleEnabled}
+              checked={team.cycleEnabled ?? false}
             />
           </div>
         </div>

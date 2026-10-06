@@ -242,6 +242,7 @@ export const StatusForm = ({
         },
       });
     } else {
+      if (!teamId) return;
       addStatus({
         variables: { name, description, color, teamId, type: statusType },
         onCompleted: () => {
@@ -316,7 +317,11 @@ export const StatusForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Control>
-                      <Input placeholder={t('name')} {...field} className="w-full" />
+                      <Input
+                        placeholder={t('name')}
+                        {...field}
+                        className="w-full"
+                      />
                     </Form.Control>
                   </Form.Item>
                 )}

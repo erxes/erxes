@@ -12,7 +12,8 @@
       "@": ["frontend/plugins/operation_ui/src/modules"],
       "~/*": ["frontend/plugins/operation_ui/src/*"],
       "~": ["frontend/plugins/operation_ui/src"],
-      "ui-modules": ["frontend/libs/ui-modules/src"]
+      "ui-modules": ["frontend/libs/ui-modules/src"],
+      "ui-modules/*": ["frontend/libs/ui-modules/src/*"]
     }
   },
   "files": [],

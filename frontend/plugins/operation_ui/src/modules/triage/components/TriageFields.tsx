@@ -11,7 +11,7 @@ import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
 import { Block } from '@blocknote/core';
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from './triage-selects/ConvertToTask';
@@ -23,7 +23,7 @@ import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks
 import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 import { isGithubTriage } from '@/operation/utils/isGithubTriage';
 
-export const TriageFields = ({ triage }: { triage: ITriage }) => {
+export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
   const { t } = useTranslation('operation');
   const {
     _id: triageId,
@@ -31,11 +31,10 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
     status,
     name: _name,
     githubIssueNumber,
-    githubIssueUrl,
     githubRepoName,
   } = triage;
 
-  const description = (triage as ITriage)?.description;
+  const description = triage?.description;
   const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -106,7 +105,11 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
           size="sm"
           className="w-fit text-muted-foreground group"
         >
-          <a href={githubIssueUrl} target="_blank" rel="noopener noreferrer">
+          <a
+            href={triage.githubIssueUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <IconBrandGithub className="size-4 shrink-0" />
             <span>
               {t('created-from-github-issue', {

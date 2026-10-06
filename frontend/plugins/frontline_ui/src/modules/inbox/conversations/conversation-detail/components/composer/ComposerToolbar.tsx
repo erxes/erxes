@@ -61,7 +61,10 @@ export const ComposerToolbar = ({
   }
 
   return (
-    <div className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:gap-2 sm:px-3">
+    <div
+      data-composer-footer
+      className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:gap-2 sm:px-3"
+    >
       {!isInternalNote && (
         <ResponseTemplateSelector onSelect={onTemplateSelect} disabled={isBusy}>
           <Button

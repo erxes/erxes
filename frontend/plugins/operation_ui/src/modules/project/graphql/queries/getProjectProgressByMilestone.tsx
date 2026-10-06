@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_PROJECT_PROGRESS_BY_MILESTONE = gql`
+export const GET_PROJECT_PROGRESS_BY_MILESTONE = gql(`
   query GetMilestoneProgress($projectId: String!) {
     milestoneProgress(projectId: $projectId) {
       _id
@@ -11,4 +11,4 @@ export const GET_PROJECT_PROGRESS_BY_MILESTONE = gql`
       totalCompletedScope
     }
   }
-`;
+`);

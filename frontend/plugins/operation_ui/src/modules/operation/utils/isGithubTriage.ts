@@ -1,14 +1,14 @@
 import type { IProject } from '@/project/types';
-import type { ITask } from '@/task/types';
-import type { ITriage } from '@/triage/types/triage';
+import type { ITaskDetail } from '@/task/types';
+import type { ITriageDetail } from '@/triage/types/triage';
 
-type GithubTriage = ITriage & {
+type GithubTriage = ITriageDetail & {
   githubIssueUrl: string;
   githubIssueNumber: number;
 };
 
 export const isGithubTriage = (
-  content: ITask | IProject | ITriage,
+  content: ITaskDetail | IProject | ITriageDetail,
 ): content is GithubTriage =>
   content.createdBy === 'system' &&
   typeof content.status === 'number' &&

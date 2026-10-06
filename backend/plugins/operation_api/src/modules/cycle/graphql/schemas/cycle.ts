@@ -2,7 +2,7 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
     type Cycle {
-        _id: String
+        _id: String!
         name: String
         description: String
         startDate: Date
@@ -10,7 +10,7 @@ export const types = `
         teamId: String
         isCompleted: Boolean
         isActive: Boolean
-        statistics: JSON
+        statistics: CycleStatistics
         donePercent: Int
         unFinishedTasks: [String]
     }
@@ -19,6 +19,13 @@ export const types = `
         list: [Cycle],
         pageInfo: PageInfo
         totalCount: Int,
+    }
+
+    type CycleStatistics {
+        progress: OperationProgress
+        progressByMember: [OperationProgressByMember!]
+        progressByProject: [OperationProgressByProject!]
+        chartData: OperationProgressChart
     }
 
     input CycleInput {
@@ -31,18 +38,18 @@ export const types = `
     }
 `;
 export const queries = `
-    getCycle(_id: String): Cycle
+    getCycle(_id: String!): Cycle
     getCycles(teamId: String, ${GQL_CURSOR_PARAM_DEFS}): CycleListResponse
     getCyclesActive(teamId: String,taskId: String, ${GQL_CURSOR_PARAM_DEFS}): CycleListResponse
-    getCycleProgress(_id: String!, assigneeId: String): JSON
-    getCycleProgressChart(_id: String!, assigneeId: String): JSON
-    getCycleProgressByMember(_id: String!, assigneeId: String): JSON
-    getCycleProgressByProject(_id: String!, assigneeId: String): JSON
+    getCycleProgress(_id: String!, assigneeId: String): OperationProgress
+    getCycleProgressChart(_id: String!, assigneeId: String): OperationProgressChart
+    getCycleProgressByMember(_id: String!, assigneeId: String): [OperationProgressByMember!]!
+    getCycleProgressByProject(_id: String!, assigneeId: String): [OperationProgressByProject!]!
 `;
 
 export const mutations = `
-    createCycle(input: CycleInput): Cycle
-    updateCycle(input: CycleInput): Cycle
-    removeCycle(_id: String): JSON
-    endCycle(_id: String): JSON
+    createCycle(input: CycleInput!): Cycle
+    updateCycle(input: CycleInput!): Cycle
+    removeCycle(_id: String!): JSON
+    endCycle(_id: String!): JSON
 `;
