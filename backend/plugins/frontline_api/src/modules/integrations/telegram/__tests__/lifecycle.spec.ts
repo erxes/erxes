@@ -1,4 +1,6 @@
 import type { IContext, IModels } from '~/connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
+import { telegramRemoveIntegration } from '../messageBroker';
 import {
   loadTelegramBotClass,
   type ITelegramBotModel,
@@ -19,6 +21,10 @@ jest.mock('../client', () => ({
   deleteTelegramWebhook: jest.fn(),
 }));
 jest.mock('@/channel/utils', () => ({ visibleChannelsFilter: jest.fn() }));
+jest.mock('~/connectionResolvers', () => ({ generateModels: jest.fn() }));
+jest.mock('../controller/sendMessage', () => ({
+  sendTelegramReply: jest.fn(),
+}));
 jest.mock('erxes-api-shared/utils', () => ({
   mongooseStringRandomId: { type: String },
 }));
@@ -81,6 +87,7 @@ beforeEach(() => {
   jest.mocked(setTelegramWebhook).mockResolvedValue(true);
   jest.mocked(deleteTelegramWebhook).mockResolvedValue(true);
   jest.mocked(visibleChannelsFilter).mockResolvedValue({ memberIds: 'staff' });
+  jest.mocked(generateModels).mockResolvedValue(models);
 });
 test('reconnect validates the callback before contacting Telegram and activates only after registration', async () => {
   await expect(
@@ -125,13 +132,72 @@ test('token replacement must identify the same bot and returns credential-free m
   expect(result).not.toHaveProperty('token');
 });
 test('disconnect preserves mapping/history while pausing provider delivery and inbox replies', async () => {
-  await methods.disconnectBot(bot._id);
+  await expect(methods.disconnectBot(bot._id)).resolves.toBe(true);
   expect(deleteTelegramWebhook).toHaveBeenCalledWith(bot.token);
   expect(updateIntegration).toHaveBeenCalledWith(
     { _id: 'integration' },
     { $set: { isActive: false } },
   );
   expect(updateBot).not.toHaveBeenCalled();
+  expect(updateIntegration.mock.invocationCallOrder[0]).toBeLessThan(
+    jest.mocked(deleteTelegramWebhook).mock.invocationCallOrder[0],
+  );
+});
+test.each(['revoked token', 'network unavailable'])(
+  'disconnect still deactivates locally when webhook cleanup fails: %s',
+  async (reason) => {
+    jest.mocked(deleteTelegramWebhook).mockRejectedValueOnce(new Error(reason));
+    await expect(methods.disconnectBot(bot._id)).resolves.toBe(false);
+    expect(updateIntegration).toHaveBeenCalledWith(
+      { _id: 'integration' },
+      { $set: { isActive: false } },
+    );
+    expect(updateBot).not.toHaveBeenCalled();
+  },
+);
+test('a failed local disconnect does not remove the provider webhook', async () => {
+  updateIntegration.mockRejectedValueOnce(new Error('database unavailable'));
+  await expect(methods.disconnectBot(bot._id)).rejects.toThrow(
+    'database unavailable',
+  );
+  expect(deleteTelegramWebhook).not.toHaveBeenCalled();
+});
+test.each([true, false])(
+  'removal unlinks and invalidates the secret before best-effort provider cleanup (available: %s)',
+  async (available) => {
+    if (!available)
+      jest
+        .mocked(deleteTelegramWebhook)
+        .mockRejectedValueOnce(new Error('revoked token'));
+    await expect(
+      telegramRemoveIntegration({
+        subdomain: 'tenant-a',
+        data: { integrationId: 'integration' },
+      }),
+    ).resolves.toBeUndefined();
+    expect(generateModels).toHaveBeenCalledWith('tenant-a');
+    expect(updateBot).toHaveBeenCalledWith(
+      { _id: bot._id, erxesApiId: 'integration' },
+      {
+        $unset: { erxesApiId: '' },
+        $set: { webhookSecret: expect.stringMatching(/^[a-f0-9]{64}$/) },
+      },
+    );
+    expect(updateBot.mock.invocationCallOrder[0]).toBeLessThan(
+      jest.mocked(deleteTelegramWebhook).mock.invocationCallOrder[0],
+    );
+    expect(deleteTelegramWebhook).toHaveBeenCalledWith(bot.token, true);
+  },
+);
+test('a failed local unlink does not remove the provider webhook', async () => {
+  updateBot.mockRejectedValueOnce(new Error('database unavailable'));
+  await expect(
+    telegramRemoveIntegration({
+      subdomain: 'tenant-a',
+      data: { integrationId: 'integration' },
+    }),
+  ).rejects.toThrow('database unavailable');
+  expect(deleteTelegramWebhook).not.toHaveBeenCalled();
 });
 test('setup mutations reject permission failure before accessing credentials or provider methods', async () => {
   for (const run of [

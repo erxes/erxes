@@ -51,6 +51,21 @@ test('normalizes video cards into the same embed contract as Discord without emb
   ).toBeUndefined();
 });
 
+test('handles long punctuation and malformed metadata without repeated suffix scans', () => {
+  const url = `https://example.com/${'.'.repeat(100_000)}x`;
+  expect(telegramMessageLinks(`${url}).`)).toEqual([url]);
+  expect(
+    telegramMessageLinks(`https://example.com/a_(b)${')'.repeat(100_000)}.`),
+  ).toEqual(['https://example.com/a_(b)']);
+  const preview = parseTelegramLinkPreview(
+    `<meta ${'a'.repeat(
+      100_000,
+    )} content="ignored"><meta property=og:title content='Good'><meta name="description" content="kept">`,
+    'https://example.com',
+  );
+  expect(preview).toMatchObject({ title: 'Good', description: 'kept' });
+});
+
 test.each(['127.0.0.1', '::1', '169.254.169.254', '::ffff:127.0.0.1'])(
   'never connects to nonpublic preview address %s',
   async (address) => {

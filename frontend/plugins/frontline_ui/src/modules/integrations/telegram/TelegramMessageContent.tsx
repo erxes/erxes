@@ -11,6 +11,22 @@ const TELEGRAM_MESSAGE_LINK_PREVIEWS = gql`
   }
 `;
 
+// Match the server preview's punctuation handling without quadratic rescans.
+const trimLinkPunctuation = (value: string): string => {
+  let end = value.length;
+  while (end > 0 && '.,!?;:'.includes(value[end - 1])) end--;
+  let extraClosing = 0;
+  for (let index = 0; index < end; index++) {
+    if (value[index] === ')') extraClosing++;
+    if (value[index] === '(') extraClosing--;
+  }
+  while (end > 0 && value[end - 1] === ')' && extraClosing > 0) {
+    end--;
+    extraClosing--;
+  }
+  return value.slice(0, end);
+};
+
 // Historical Telegram messages contain escaped text, while outbound messages
 // already contain editor HTML. Only linkify text nodes; never replace markup or
 // nest links. Code stays literal, and BlockEditorReadOnly remains the renderer.
@@ -34,12 +50,7 @@ export const linkifyTelegramContent = (
     const fragment = doc.createDocumentFragment();
     let cursor = 0;
     for (const match of value.matchAll(/https?:\/\/[^\s<>"']+/gi)) {
-      let url = match[0].replace(/[.,!?;:]+$/, '');
-      while (
-        url.endsWith(')') &&
-        (url.match(/\)/g)?.length || 0) > (url.match(/\(/g)?.length || 0)
-      )
-        url = url.slice(0, -1);
+      const url = trimLinkPunctuation(match[0]);
       try {
         new URL(url);
       } catch {

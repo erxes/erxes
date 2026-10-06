@@ -55,6 +55,7 @@ export const queries = `
 
 export const mutations = `
   telegramUpdateBot(_id: String!, token: String): TelegramBot!
+  "Pauses the integration locally; returns whether Telegram webhook removal was confirmed."
   telegramDisconnectBot(_id: String!): Boolean!
   telegramAddBot(token: String!): TelegramBot!
   telegramSetWebhook(_id: String!, url: String!): Boolean!

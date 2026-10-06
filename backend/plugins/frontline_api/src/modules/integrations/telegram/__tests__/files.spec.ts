@@ -31,7 +31,7 @@ beforeEach(() => {
     file_unique_id: 'u',
     file_path: 'documents/a b.txt',
   });
-  fetchMock.mockImplementation(async () => new Response('abc'));
+  fetchMock.mockImplementation(() => Promise.resolve(new Response('abc')));
   jest
     .mocked(uploadFileToStorage)
     .mockImplementation(async ({ filePath, subdomain, fileName }) => {
@@ -113,13 +113,44 @@ test('persists through tenant storage with a safe basename and removes the priva
   });
   await expect(fs.access(dirname(temporaryFile))).rejects.toThrow();
 });
+test.each(['provider', 'metadata', 'header', 'stream'])(
+  'preserves the size-limit error through attachment storage when detected by %s',
+  async (source) => {
+    if (source === 'provider') {
+      jest
+        .mocked(getTelegramFile)
+        .mockRejectedValueOnce(new TelegramFileTooLargeError());
+    } else if (source === 'metadata') {
+      jest.mocked(getTelegramFile).mockResolvedValueOnce({
+        file_id: 'f',
+        file_unique_id: 'u',
+        file_path: 'f',
+        file_size: MAX_TELEGRAM_DOWNLOAD_BYTES + 1,
+      });
+    } else if (source === 'header') {
+      fetchMock.mockResolvedValueOnce(
+        new Response('x', {
+          headers: {
+            'content-length': String(MAX_TELEGRAM_DOWNLOAD_BYTES + 1),
+          },
+        }),
+      );
+    } else {
+      fetchMock.mockResolvedValueOnce(
+        new Response(new Uint8Array(MAX_TELEGRAM_DOWNLOAD_BYTES + 1)),
+      );
+    }
+    await expect(
+      storeTelegramAttachment({ subdomain: 'tenant-a', token, fileId: 'f' }),
+    ).rejects.toBeInstanceOf(TelegramFileTooLargeError);
+    expect(uploadFileToStorage).not.toHaveBeenCalled();
+  },
+);
 test('storage failure is controlled and still removes temporary bytes', async () => {
-  jest
-    .mocked(uploadFileToStorage)
-    .mockImplementationOnce(async ({ filePath }) => {
-      temporaryFile = filePath;
-      throw new Error('private-storage-error');
-    });
+  jest.mocked(uploadFileToStorage).mockImplementationOnce(({ filePath }) => {
+    temporaryFile = filePath;
+    return Promise.reject(new Error('private-storage-error'));
+  });
   await expect(
     storeTelegramAttachment({ subdomain: 'tenant-a', token, fileId: 'f' }),
   ).rejects.toThrow('Check file upload settings');

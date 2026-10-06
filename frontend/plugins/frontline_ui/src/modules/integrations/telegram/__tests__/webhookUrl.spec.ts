@@ -90,3 +90,8 @@ test('invalid callback addresses are rejected before token and webhook mutations
     expect(getTelegramWebhookUrl(address, 'saved-bot')).toBeUndefined();
   }
 });
+
+test('preserves long interior path separators and trims only trailing separators', () => {
+  const base = `https://example.com/proxy${'/'.repeat(100_000)}gateway`;
+  expect(getTelegramServerAddress(`${base}///`)).toBe(base);
+});

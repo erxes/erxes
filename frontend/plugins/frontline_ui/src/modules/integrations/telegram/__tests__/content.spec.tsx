@@ -66,6 +66,15 @@ test('only the actual Cloudflare Stream origin can become an iframe', () => {
   expect(getTelegramStreamPlayer('file:///video.mp4')).toBeUndefined();
 });
 
+test('linkification preserves long valid URLs and trims unbalanced punctuation', () => {
+  const url = `https://example.com/${'.'.repeat(100_000)}x_(balanced)`;
+  const content = `${url}${')'.repeat(100_000)}.`;
+  const { html } = linkifyTelegramContent(content);
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  expect(doc.querySelector('a')?.getAttribute('href')).toBe(url);
+  expect(doc.body.textContent).toBe(content);
+});
+
 test('audio has controls and a usable fallback when playback fails; history has no remove action', () => {
   const { container } = render(
     <TelegramMessageAttachments

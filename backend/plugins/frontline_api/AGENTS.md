@@ -556,6 +556,8 @@ The root router mounts its authenticated webhook at `/telegram`.
   message metadata. `telegramAddBot`, `telegramUpdateBot`, `telegramDisconnectBot`
   and `telegramSetWebhook` own bot lifecycle. Canonical inbox messages retain
   the existing content/attachment/poll contracts plus `extraData.telegram`.
+  `telegramDisconnectBot` pauses locally before provider cleanup; its Boolean
+  reports whether remote webhook removal was confirmed.
 
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
@@ -1113,6 +1115,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   storage and never expose token-bearing file URLs. Unsupported content gets
   a visible fallback. Transient ingestion failures remain retryable; uncertain
   outbound delivery must not be retried automatically.
+- Disconnect must pause locally even when Telegram rejects the token. Removal
+  detaches the bot and rotates its webhook secret before best-effort provider
+  cleanup. Database failures still propagate. Inbox kind discovery includes
+  `telegram-messenger`; URL/metadata parsing must avoid repeated suffix rescans.
 
 - A ticket property option marked `deprecated` (archived) in core is never
   sent to the widget; records that already hold it keep it.
@@ -1197,6 +1203,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
+- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
+- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
 
 ### `2026-10-06` — Telegram integration on the current inbox architecture
 

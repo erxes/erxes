@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { randomBytes } from 'node:crypto';
+import debug from 'debug';
 import { deleteTelegramWebhook } from './client';
 import { generateModels } from '~/connectionResolvers';
 import {
@@ -136,7 +137,6 @@ export const telegramRemoveIntegration = async ({
     erxesApiId: data.integrationId,
   }).select('+token');
   if (!bot) return;
-  await deleteTelegramWebhook(bot.token, true);
   await models.TelegramBots.updateOne(
     { _id: bot._id, erxesApiId: data.integrationId },
     {
@@ -144,4 +144,12 @@ export const telegramRemoveIntegration = async ({
       $set: { webhookSecret: randomBytes(32).toString('hex') },
     },
   );
+  try {
+    await deleteTelegramWebhook(bot.token, true);
+  } catch {
+    // The rotated secret and detached mapping already prevent ingestion.
+    debug('erxes:telegram:error')(
+      'Telegram webhook cleanup was not confirmed after integration removal.',
+    );
+  }
 };

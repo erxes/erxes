@@ -249,6 +249,22 @@ export const sendTelegramMessage = async (
   return parsed.data.result;
 };
 
+export type TelegramSendMediaType =
+  | 'photo'
+  | 'document'
+  | 'video'
+  | 'audio'
+  | 'voice'
+  | 'animation';
+const TELEGRAM_MEDIA_METHODS = {
+  photo: 'sendPhoto',
+  document: 'sendDocument',
+  video: 'sendVideo',
+  audio: 'sendAudio',
+  voice: 'sendVoice',
+  animation: 'sendAnimation',
+} as const;
+
 export const sendTelegramAttachment = async ({
   token,
   chatId,
@@ -353,22 +369,6 @@ export const getTelegramFile = async (
   return parsed.data.result;
 };
 
-export type TelegramSendMediaType =
-  | 'photo'
-  | 'document'
-  | 'video'
-  | 'audio'
-  | 'voice'
-  | 'animation';
-const TELEGRAM_MEDIA_METHODS = {
-  photo: 'sendPhoto',
-  document: 'sendDocument',
-  video: 'sendVideo',
-  audio: 'sendAudio',
-  voice: 'sendVoice',
-  animation: 'sendAnimation',
-} as const;
-
 export const sendTelegramMediaGroup = async ({
   token,
   chatId,
@@ -466,6 +466,7 @@ export const sendTelegramPoll = async ({
     is_anonymous: true,
     type: 'regular',
     allows_multiple_answers: draft.allowMultiselect,
+    // Bot API sendPoll accepts 5–2,628,000 seconds; the inbox uses hours.
     open_period: draft.duration * 3600,
   });
   const parsed = telegramSendMessageResponseSchema.safeParse(body);

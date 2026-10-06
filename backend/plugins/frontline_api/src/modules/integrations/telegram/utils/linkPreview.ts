@@ -26,10 +26,26 @@ const decodeText = (value: string): string =>
     .replace(/&#(x[0-9a-f]+|\d+);/gi, (_, code: string) => {
       const point =
         code[0].toLowerCase() === 'x'
-          ? parseInt(code.slice(1), 16)
+          ? Number.parseInt(code.slice(1), 16)
           : Number(code);
       return point > 0 && point <= 0x10ffff ? String.fromCodePoint(point) : '';
     });
+
+// Scan once rather than repeatedly backtracking over untrusted URL suffixes.
+const trimLinkPunctuation = (value: string): string => {
+  let end = value.length;
+  while (end > 0 && '.,!?;:'.includes(value[end - 1])) end--;
+  let extraClosing = 0;
+  for (let index = 0; index < end; index++) {
+    if (value[index] === ')') extraClosing++;
+    if (value[index] === '(') extraClosing--;
+  }
+  while (end > 0 && value[end - 1] === ')' && extraClosing > 0) {
+    end--;
+    extraClosing--;
+  }
+  return value.slice(0, end);
+};
 
 export const telegramMessageLinks = (content: string): string[] => {
   const text = stripHtml(content, { skipHtmlDecoding: true }).result;
@@ -39,15 +55,7 @@ export const telegramMessageLinks = (content: string): string[] => {
   );
   const plain = Array.from(
     decodeText(text).matchAll(/https?:\/\/[^\s<>"']+/gi),
-    (match) => {
-      let url = match[0].replace(/[.,!?;:]+$/, '');
-      while (
-        url.endsWith(')') &&
-        (url.match(/\)/g)?.length || 0) > (url.match(/\(/g)?.length || 0)
-      )
-        url = url.slice(0, -1);
-      return url;
-    },
+    (match) => trimLinkPunctuation(match[0]),
   );
   return [...new Set([...hrefs, ...plain])]
     .filter((value) => {
@@ -176,7 +184,7 @@ export const parseTelegramLinkPreview = (
   for (const tag of head.match(/<meta\b[^>]*>/gi) ?? []) {
     const attrs = new Map(
       Array.from(
-        tag.matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g),
+        tag.matchAll(/\s([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+))/g),
         (match) => [
           match[1].toLowerCase(),
           decodeText(match[2] ?? match[3] ?? match[4]),

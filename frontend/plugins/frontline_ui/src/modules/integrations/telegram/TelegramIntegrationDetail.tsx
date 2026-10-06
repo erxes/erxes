@@ -276,9 +276,17 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
     }
     setBusy(true);
     try {
-      await disconnect({ variables: { _id: bot._id } });
-      await refresh();
-      toast({ title: t('disconnected') });
+      const result = await disconnect({ variables: { _id: bot._id } });
+      if (!result.data) throw new Error(t('failed'));
+      // A revoked token also makes the status query fail; the query displays
+      // that error independently of the completed local disconnection.
+      await refresh().catch(() => undefined);
+      toast({
+        title: t('disconnected'),
+        description: result.data.telegramDisconnectBot
+          ? undefined
+          : t('disconnectCleanupPending'),
+      });
     } catch (error: unknown) {
       reportError(error);
     } finally {
@@ -544,7 +552,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                     <Button
                       type="button"
                       variant="ghost"
-                      disabled={busy || !status?.url}
+                      disabled={busy}
                       onClick={() => void disconnectBot()}
                     >
                       {t('disconnect')}

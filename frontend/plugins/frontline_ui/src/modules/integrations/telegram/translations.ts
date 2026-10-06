@@ -55,6 +55,8 @@ const en = {
     'Disconnect this bot? Existing conversations remain. Reconnect the webhook to receive messages again.',
   success: 'Telegram connection updated',
   disconnected: 'Telegram disconnected',
+  disconnectCleanupPending:
+    'Messages are paused in erxes. Telegram webhook removal could not be confirmed; retry Disconnect when Telegram is available or replace a revoked token.',
   failed: 'Telegram setup failed',
   saved: 'Bot saved. Continue connecting it to an inbox.',
   linked: 'Inbox linked. Register the webhook to finish.',
@@ -141,6 +143,8 @@ const mn: Record<keyof typeof en, string> = {
     'Ботын холболтыг салгах уу? Ярианууд хадгалагдана. Дахин зурвас авахын тулд webhook-ийг холбоно.',
   success: 'Telegram холболт шинэчлэгдлээ',
   disconnected: 'Telegram холболт саллаа',
+  disconnectCleanupPending:
+    'erxes-д зурвас хүлээн авах, илгээхийг зогсоолоо. Telegram webhook устсан эсэхийг баталгаажуулж чадсангүй. Telegram хэвийн болоход дахин салгах эсвэл хүчингүй токеныг солино уу.',
   failed: 'Telegram тохиргоо амжилтгүй',
   saved: 'Бот хадгалагдлаа. Инбокстой холбож үргэлжлүүлнэ үү.',
   linked: 'Инбокс холбогдлоо. Webhook бүртгэж дуусгана уу.',

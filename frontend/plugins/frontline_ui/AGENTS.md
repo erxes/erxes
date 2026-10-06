@@ -95,6 +95,9 @@
   generated callback URL. Bot
   health/webhook actions, chat/topic labels, quotes, polls, media, edits,
   observed reactions and safe link cards integrate with the existing inbox.
+- Telegram Disconnect remains available after a webhook status failure. It
+  reports local deactivation separately from unconfirmed provider cleanup and
+  refetches active setup/integration queries; status errors remain inline.
 - Integrations config includes a Telegram section with setup instructions and
   links to personal and team inbox settings. Each bot is configured through
   the existing inbox integration sheet; no workspace-wide bot credentials are
@@ -1853,6 +1856,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
+- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
+- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
 
 ### `2026-10-06` — Telegram config entry and automatic setup defaults
 

@@ -133,17 +133,22 @@ test('stores media once, escapes text, uses existing attachment shape and dedupl
   expect(stored.processingToken).toBeUndefined();
 });
 test('concurrent webhook retries cannot upload or insert a second copy', async () => {
-  let release: (() => void) | undefined;
-  jest.mocked(storeTelegramAttachment).mockImplementationOnce(
-    () =>
-      new Promise((resolve) => {
-        release = () => resolve(attachment);
-      }),
-  );
+  let release: () => void = () => undefined;
+  let notifyStarted: () => void = () => undefined;
+  const started = new Promise<void>((resolve) => {
+    notifyStarted = resolve;
+  });
+  const pending = new Promise<typeof attachment>((resolve) => {
+    release = () => resolve(attachment);
+  });
+  jest.mocked(storeTelegramAttachment).mockImplementationOnce(() => {
+    notifyStarted();
+    return pending;
+  });
   const first = run();
-  for (let i = 0; i < 10 && !release; i++) await Promise.resolve();
+  await started;
   await expect(run()).rejects.toThrow('still being processed');
-  release?.();
+  release();
   await first;
   expect(storeTelegramAttachment).toHaveBeenCalledTimes(1);
   expect(receiveInboxMessage).toHaveBeenCalledTimes(1);
@@ -185,8 +190,9 @@ test('a file limit discovered during download is shown in the inbox instead of b
 });
 
 test('an upgraded group reuses the old history through its alias without rewriting unique chat keys', async () => {
-  const { getOrCreateTelegramConversation } =
-    await import('../controller/store');
+  const { getOrCreateTelegramConversation } = await import(
+    '../controller/store'
+  );
   const old = { ...conversation, chatId: '-123', migratedToChatId: '-100123' };
   const find = jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce(old);
   const update = jest.fn().mockResolvedValue(old);
@@ -216,8 +222,9 @@ test('an upgraded group reuses the old history through its alias without rewriti
   );
 });
 test('a conversation already created at the upgraded ID wins without merging separate histories', async () => {
-  const { getOrCreateTelegramConversation } =
-    await import('../controller/store');
+  const { getOrCreateTelegramConversation } = await import(
+    '../controller/store'
+  );
   const existing = { ...conversation, _id: 'new-history', chatId: '-100123' };
   const find = jest.fn().mockResolvedValue(existing);
   const scopedModels = {

@@ -122,13 +122,19 @@ export const loadTelegramBotClass = (models: IModels) => {
     public static async disconnectBot(_id: string): Promise<boolean> {
       const bot = await models.TelegramBots.findOne({ _id }).select('+token');
       if (!bot) throw new Error('Telegram bot not found');
-      await deleteTelegramWebhook(bot.token);
       if (bot.erxesApiId)
         await models.Integrations.updateOne(
           { _id: bot.erxesApiId },
           { $set: { isActive: false } },
         );
-      return true;
+      // Local disconnection must still work with a revoked token or an outage.
+      // False lets the UI distinguish it from confirmed provider cleanup.
+      try {
+        await deleteTelegramWebhook(bot.token);
+        return true;
+      } catch {
+        return false;
+      }
     }
     public static getBots(
       filter: FilterQuery<ITelegramBotDocument>,

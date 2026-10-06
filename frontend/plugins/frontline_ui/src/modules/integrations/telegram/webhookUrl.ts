@@ -11,10 +11,13 @@ export const getTelegramServerAddress = (value: string): string | undefined => {
     )
       return undefined;
 
-    const path = url.pathname
-      .replace(/\/telegram\/receive(?:\/[^/]+)?\/?$/, '')
-      .replace(/\/+$/, '');
-    return `${url.origin}${path}`;
+    const path = url.pathname.replace(
+      /\/telegram\/receive(?:\/[^/]+)?\/?$/,
+      '',
+    );
+    let end = path.length;
+    while (end > 0 && path[end - 1] === '/') end--;
+    return `${url.origin}${path.slice(0, end)}`;
   } catch {
     return undefined;
   }
@@ -40,9 +43,9 @@ export const getTelegramDefaultServerAddress = (
     hostname.endsWith('.localhost') ||
     hostname.endsWith('.local') ||
     /^(0|10|127)\./.test(hostname) ||
-    /^169\.254\./.test(hostname) ||
+    hostname.startsWith('169.254.') ||
     /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
-    /^192\.168\./.test(hostname)
+    hostname.startsWith('192.168.')
   )
     return undefined;
   return `${base}/pl:frontline`;
