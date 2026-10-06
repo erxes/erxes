@@ -1,6 +1,7 @@
 export enum FrontlinePaths {
   Frontline = 'frontline',
   Inbox = '/inbox',
+  Tickets = '/tickets',
   TicketTags = '/ticket-tags',
   Calls = '/calls',
   IntegrationConfig = '/config',

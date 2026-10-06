@@ -8,7 +8,7 @@ interface IGetConversationSourceProgressResponse {
 }
 
 interface IGetConversationSourceProgressVariables {
-  customerId: string;
+  customerId?: string;
 }
 
 export const useGetConversationSourceProgress = (

@@ -10,7 +10,12 @@ type IConversationEditCustomFieldsVariables = {
 } & Record<string, unknown>;
 
 interface IConversationEditCustomFieldsResponse {
-  conversationEditCustomFields: IConversation;
+  conversationEditCustomFields: Pick<
+    IConversation,
+    '_id' | 'propertiesData'
+  > & {
+    __typename?: 'Conversation';
+  };
 }
 
 export const useConversationCustomFieldEdit = () => {

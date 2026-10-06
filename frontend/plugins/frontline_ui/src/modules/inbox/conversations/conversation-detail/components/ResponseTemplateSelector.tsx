@@ -22,7 +22,7 @@ import { useAtom, useAtomValue } from 'jotai';
 
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
-import type { TViewMode as ViewMode } from '@/responseTemplate/types';
+import type { TViewMode as ViewMode } from '@/inbox/conversations/conversation-detail/types';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { responseListViewAtom } from '@/inbox/conversations/conversation-detail/states/responseTemplate';
 import { useDebounce } from 'use-debounce';

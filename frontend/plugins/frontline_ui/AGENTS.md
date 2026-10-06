@@ -2148,6 +2148,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names. `refetchQueries` strings name
   operations, so a rename updates them in the same change.
+- The Facebook message-trigger condition schema is one flat object keyed by a
+  `type` enum, not a discriminated union, so its derived types index the fields
+  directly; `Extract<..., { type: ... }>` on it collapses to `never`.
 
 ## Validation
 
@@ -2168,8 +2171,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `pnpm nx build frontline_ui`
 - `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
   `groupCategoriesByParent` and `withoutEmptyCode` specs.
-- `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
-  distinguish existing baseline failures from regressions in touched files.
+- `pnpm nx lint frontline_ui` from the repository root; distinguish existing
+  baseline lint failures from regressions in touched files.
+- `npx tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` - no
+  errors under `frontend/plugins/frontline_ui`; errors reported inside
+  `frontend/libs` are pre-existing and owned by those libraries.
 - `project.json` defines `build`, `serve`, `serve-static`, `test`, and
   `codegen`.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
