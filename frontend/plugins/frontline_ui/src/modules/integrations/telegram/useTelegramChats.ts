@@ -46,31 +46,29 @@ export const useTelegramChats = (
     const load = async (): Promise<void> => {
       setLoading(Boolean(ids.length));
       const next = new Map<string, TelegramChat>();
-      try {
-        // The server caps metadata queries at 100 conversations. Infinite scroll
-        // can exceed that; cache-first batches retain labels for the whole list.
-        for (let offset = 0; offset < ids.length; offset += 100) {
-          const { data } = await client.query<{
-            telegramConversationChats: TelegramChat[];
-          }>({
-            query: TELEGRAM_CHATS,
-            fetchPolicy: revision ? 'network-only' : 'cache-first',
-            variables: { conversationIds: ids.slice(offset, offset + 100) },
-          });
-          if (cancelled) return;
-          data.telegramConversationChats.forEach((chat) =>
-            next.set(chat.conversationId, chat),
-          );
-        }
-        if (!cancelled) setChats(next);
-      } catch {
-        // Metadata is supplementary; keep the existing inbox/customer fallback
-        // when permissions or connectivity prevent fetching a chat label.
-      } finally {
-        if (!cancelled) setLoading(false);
+      // The server caps metadata queries at 100 conversations. Infinite scroll
+      // can exceed that; cache-first batches retain labels for the whole list.
+      for (let offset = 0; offset < ids.length; offset += 100) {
+        const { data } = await client.query<{
+          telegramConversationChats: TelegramChat[];
+        }>({
+          query: TELEGRAM_CHATS,
+          fetchPolicy: revision ? 'network-only' : 'cache-first',
+          variables: { conversationIds: ids.slice(offset, offset + 100) },
+        });
+        if (cancelled) return;
+        data.telegramConversationChats.forEach((chat) =>
+          next.set(chat.conversationId, chat),
+        );
       }
+      if (!cancelled) setChats(next);
     };
-    load();
+    const finishLoading = (): void => {
+      if (!cancelled) setLoading(false);
+    };
+    // Metadata is supplementary: settle failures while keeping the existing
+    // labels or inbox/customer fallback, and ignore cancelled loads.
+    load().then(finishLoading, finishLoading);
     return () => {
       cancelled = true;
     };

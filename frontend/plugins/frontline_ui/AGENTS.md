@@ -854,6 +854,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   put Telegram bot tokens or token-bearing download URLs in browser data.
 - Reconcile a saved Telegram bot with the server before retrying inbox linking;
   a lost mutation response may hide an already-committed integration.
+- Telegram chat-label loads explicitly settle both success and rejection;
+  failed metadata reads preserve existing labels or the inbox/customer fallback.
 - Telegram attachment selection enforces both the configured upload limit
   (20 MiB by default) and 50 MiB total across uploaded and pending files.
   Immediate refs must account for rapid selections before the next render.
@@ -1867,6 +1869,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram metadata promise handling
+
+- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
+- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
+- **Contracts changed:** None.
 
 ### `2026-10-06` — Telegram setup recovery and attachment guards
 
