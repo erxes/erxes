@@ -442,7 +442,7 @@ console.log(JSON.stringify({customer}))
             },
           });
 
-          console.log({newCustomer})
+          console.log(JSON.stringify({newCustomer }, null, 2))
 
 
           customer = newCustomer
