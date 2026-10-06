@@ -60,14 +60,4 @@ export const responseTemplateQueries = {
   ) {
     return models.ResponseTemplates.findById(_id);
   },
-
-  async responseTemplatesTotalCount(
-    _parent: undefined,
-    args: ResponseTemplatesFilter,
-    { models }: IContext,
-  ) {
-    const filterQuery = generateFilter(args);
-
-    return models.ResponseTemplates.find(filterQuery).countDocuments();
-  },
 };

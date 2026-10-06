@@ -246,8 +246,6 @@ const filterParams = `
 `;
 
 export const queries = `
-  callSessionDetail(uniqueid: String, conversationId: String): CallSession
-  callActiveSessions(inboxIntegrationId: String!, extension: String): [CallSession]
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(customerPhone: String): Customer

@@ -320,12 +320,6 @@ const callQueries = {
       throw new Error('Failed to retrieve call history details');
     }
   },
-
-  async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
-    return await models.CallCdrs.find({
-      uniqueid: uniqueId,
-    });
-  },
 };
 markResolvers(callQueries, {
   wrapperConfig: {

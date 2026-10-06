@@ -58,7 +58,6 @@ export const queries = `
 `;
 
 const pipelineParams = `
-    channelId:String
     pipelineId:String
     statusId:String
     description: String
@@ -74,8 +73,6 @@ const pipelineParams = `
     numberSize: String
     nameConfig: String
     departmentIds: [String],
-    nameConfig: String,
-    branchIds: [String],
     visibility: String,
     memberIds :[String]
     propertyIds: [String]
@@ -83,12 +80,14 @@ const pipelineParams = `
 export const mutations = `
   createPipeline(
     name: String!
+    channelId: String!
     ${pipelineParams}
   ): Pipeline
 
   updatePipeline(
     _id: String!
     name: String
+    channelId: String
     ${pipelineParams}
   ): Pipeline
 

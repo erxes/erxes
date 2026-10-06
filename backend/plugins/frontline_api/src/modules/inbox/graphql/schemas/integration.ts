@@ -241,7 +241,6 @@ export const queries = `
   allLeadIntegrations: [Integration]
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationsGetUsedTypesByChannel(channelId: String, scope: String): [integrationsGetUsedTypesByChannel]
-  integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, tag: String, channelId: String!, status: String, formLoadType: String): integrationsTotalCount
 `;
@@ -313,8 +312,6 @@ export const mutations = `
   integrationsRepair(_id: String!, kind: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
-
-  integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 
   integrationsCreateLeadIntegration(
     name: String!,

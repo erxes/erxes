@@ -1245,6 +1245,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and mail note paths) and `Status.addStatus` (`type`). `channelAddMembers`
   drops empty and repeated ids before inserting and rejects a list that ends
   up empty.
+- `createPipeline(channelId: String!)` requires the channel, which the
+  Mongoose schema already marks required, and `Pipeline.addPipeline` rejects
+  an empty one. `updatePipeline` keeps `channelId` optional, so both
+  mutations declare it themselves instead of through the shared
+  `pipelineParams`.
+- Every query, mutation and subscription declared in the SDL has a resolver,
+  and every resolver is declared. Report resolvers are registered under
+  `Query` only. `ticketPipelineChanged(_id: String!)` returns
+  `PipelineSubscription`, the `{ type, pipeline }` payload the pipeline
+  mutations publish. The one exception is `callsActiveSession` /
+  `callUpdateActiveSession`: declared without a resolver since 3.0, so the
+  call UI's mutation always gets `null`.
 - Optional filter objects default to `{}` before use: `getTickets`,
   `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
   `userConversations` rejects a missing `_id`, because `$in: [undefined]`

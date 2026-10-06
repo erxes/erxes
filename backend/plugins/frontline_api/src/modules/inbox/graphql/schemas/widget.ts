@@ -54,7 +54,6 @@ export const queries = `
     widgetsUnreadCount(conversationId: String): Int
     widgetsTotalUnreadCount(integrationId: String!, customerId: String, visitorId: String): Int
     widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
-    widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
   
     widgetsTicketCustomerDetail(customerId: String, type: String): Customer
     widgetsGetTicketTags(configId: String,parentId: String): [Tag]

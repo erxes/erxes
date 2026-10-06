@@ -78,12 +78,6 @@ export const types = `
     value: JSON
   }
 
-  type FormType {
-    title: String
-    description: String
-    contentType: String
-    icon: String
-  }
 
   type FormsTotalCount {
     total: Int
@@ -186,8 +180,6 @@ export const queries = `
   formsTotalCount(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams} ): FormsTotalCount
   formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): SubmissionListResponse
   formSubmissionDetail(_id: String!): Submission
-
-  formsGetContentTypes: [FormType]
 
   cpForms(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   cpFormDetail(_id: String!): Form
