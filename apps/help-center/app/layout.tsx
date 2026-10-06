@@ -11,6 +11,7 @@ import { LocaleProvider } from '@/modules/i18n/components/LocaleProvider';
 import { getLocale } from '@/modules/i18n/server';
 import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { PortalTheme } from '@/modules/layout/components/PortalTheme';
+import { RouteProgress } from '@/modules/layout/components/RouteProgress';
 import { site } from '@/modules/layout/constants/site';
 import { Toaster } from '@/modules/ui/components/Toaster';
 
@@ -51,7 +52,11 @@ export default async function RootLayout({
   const publishSubdomain = SUBDOMAIN_PATTERN.test(customDomainSubdomain);
 
   return (
-    <html lang={locale} className={`${openSans.variable} h-full`}>
+    <html
+      lang={locale}
+      className={`${openSans.variable} h-full`}
+      data-scroll-behavior="smooth"
+    >
       <head>
         <Script
           strategy="beforeInteractive"
@@ -75,6 +80,7 @@ export default async function RootLayout({
           </style>
         </noscript>
         <PortalTheme theme={theme} />
+        <RouteProgress />
         <LocaleProvider locale={locale}>
           <ApolloWrapper appToken={config?.appToken ?? ''}>
             <SessionProvider>

@@ -11,11 +11,13 @@ import { sortByRecency } from '../utils/selectors';
 const FEATURED_PREVIEW = 3;
 
 export const CategoryCard = async ({
+  id,
   category,
   eyebrow,
   featured = false,
   index = 0,
 }: {
+  id?: string;
   category: PortalCategory;
   eyebrow?: string;
   featured?: boolean;
@@ -28,7 +30,7 @@ export const CategoryCard = async ({
     : [];
 
   return (
-    <CardReveal index={index}>
+    <CardReveal id={id} index={index}>
       <Spotlight
         as="article"
         className={cn(
