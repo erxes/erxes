@@ -167,9 +167,14 @@ export const sendChannelMessage = async (
 
   const lastText = chunks.pop() as string;
   // Send chunks in order; parallel requests can reorder the Discord reply.
-  await chunks.reduce(async (previous, chunk) => {
+  await chunks.reduce(async (previous, chunk, index) => {
     await previous;
-    await postDiscordMessage({ token, channelId, content: chunk });
+    await postDiscordMessage({
+      token,
+      channelId,
+      content: chunk,
+      ...(index === 0 && { messageReference }),
+    });
   }, Promise.resolve());
   return postDiscordMessage({
     token,
@@ -179,6 +184,5 @@ export const sendChannelMessage = async (
     components,
     files,
     poll,
-    messageReference,
   });
 };

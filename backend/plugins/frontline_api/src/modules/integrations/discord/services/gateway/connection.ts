@@ -243,18 +243,21 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
       },
     });
 
-    if (!ownedSubdomains.has(subdomain)) {
+    const key = connectionKey(subdomain, token);
+    if (!ownedSubdomains.has(subdomain) || connections.has(key)) {
       try {
         await connection.destroy();
       } catch (e) {
         debugError(
-          `Failed to close stale Discord gateway: ${(e as Error).message}`,
+          `Failed to close stale or duplicate Discord gateway: ${
+            (e as Error).message
+          }`,
         );
       }
       return;
     }
 
-    connections.set(connectionKey(subdomain, token), connection);
+    connections.set(key, connection);
     trackOwnedToken(subdomain, token);
     debugDiscord(`Connected Discord gateway for app ${label} (${subdomain})`);
   } catch (e) {
