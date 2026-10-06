@@ -166,8 +166,8 @@ export const receiveTelegramReaction = async ({
     'reactions' in event
       ? 'counts'
       : event.user
-      ? `user:${event.user.id}`
-      : `chat:${event.actor_chat?.id}`;
+        ? `user:${event.user.id}`
+        : `chat:${event.actor_chat?.id}`;
   const reactions =
     'reactions' in event
       ? event.reactions.map((reaction) => ({

@@ -30,7 +30,7 @@ const request = (
     params: { _id: bot._id },
     body,
     get: () => secret,
-  } as unknown as Request<{ _id: string }, unknown, unknown>);
+  }) as unknown as Request<{ _id: string }, unknown, unknown>;
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(generateModels).mockResolvedValue(models);

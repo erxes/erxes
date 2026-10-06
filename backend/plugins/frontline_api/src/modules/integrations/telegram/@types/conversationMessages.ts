@@ -31,7 +31,6 @@ export interface ITelegramConversationMessage {
 }
 
 export interface ITelegramConversationMessageDocument
-  extends ITelegramConversationMessage,
-    Document {
+  extends ITelegramConversationMessage, Document {
   _id: string;
 }

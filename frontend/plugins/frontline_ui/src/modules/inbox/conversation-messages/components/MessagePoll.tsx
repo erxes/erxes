@@ -27,7 +27,10 @@ const percentageLabel = (count: number, totalVotes: number) =>
 export const MessagePoll = ({
   poll,
   provider = 'Discord',
-}: { poll: IMessagePoll; provider?: 'Discord' | 'Telegram' }) => {
+}: {
+  poll: IMessagePoll;
+  provider?: 'Discord' | 'Telegram';
+}) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!poll.expiry) return undefined;

@@ -57,8 +57,8 @@ export const getTelegramResponse = async (
         params instanceof FormData
           ? params
           : params
-          ? JSON.stringify(params)
-          : undefined,
+            ? JSON.stringify(params)
+            : undefined,
       signal: AbortSignal.timeout(params instanceof FormData ? 60_000 : 10_000),
       redirect: 'error',
     });

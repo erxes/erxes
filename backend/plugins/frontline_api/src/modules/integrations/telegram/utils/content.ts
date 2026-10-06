@@ -167,8 +167,8 @@ export const getTelegramMessageContent = (
       sticker.is_video
         ? 'video/webm'
         : sticker.is_animated
-        ? 'application/x-tgsticker'
-        : 'image/webp',
+          ? 'application/x-tgsticker'
+          : 'image/webp',
     );
     result.content = [
       sticker.emoji ? `Sticker ${sticker.emoji}` : 'Sticker',
@@ -341,4 +341,4 @@ export const telegramTextToHtml = (text: string): string =>
     .replace(/\n/g, '<br>');
 
 export const getTelegramThreadId = (message: TelegramMessage): number =>
-  message.is_topic_message ? message.message_thread_id ?? 0 : 0;
+  message.is_topic_message ? (message.message_thread_id ?? 0) : 0;

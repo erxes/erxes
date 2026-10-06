@@ -136,9 +136,9 @@ export const MessageItem = () => {
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER ||
       telegramAuthor) &&
-      !userId &&
-      (customerId || telegramAuthor) &&
-      separatePrevious,
+    !userId &&
+    (customerId || telegramAuthor) &&
+    separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -363,7 +363,10 @@ export const MessageItem = () => {
             !socialShareAttachment &&
             fallbackText && <UnsupportedMessage text={fallbackText} />}
           {!isDeleted && poll && (
-            <MessagePoll poll={poll} provider={isTelegram ? 'Telegram' : 'Discord'} />
+            <MessagePoll
+              poll={poll}
+              provider={isTelegram ? 'Telegram' : 'Discord'}
+            />
           )}
           {!isDeleted && survey && <MessageSurvey survey={survey} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}

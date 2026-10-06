@@ -204,14 +204,14 @@ export const prepareTelegramReplyFiles = async (
     const mediaType: TelegramSendMediaType = asPhoto
       ? 'photo'
       : opus
-      ? 'voice'
-      : gif
-      ? 'animation'
-      : mp3 || (mp4 && attachment.type === 'audio/mp4')
-      ? 'audio'
-      : mp4 && attachment.type === 'video/mp4'
-      ? 'video'
-      : 'document';
+        ? 'voice'
+        : gif
+          ? 'animation'
+          : mp3 || (mp4 && attachment.type === 'audio/mp4')
+            ? 'audio'
+            : mp4 && attachment.type === 'video/mp4'
+              ? 'video'
+              : 'document';
     files.push({
       bytes,
       name,
@@ -219,14 +219,14 @@ export const prepareTelegramReplyFiles = async (
       type: jpeg
         ? 'image/jpeg'
         : png
-        ? 'image/png'
-        : opus
-        ? 'audio/ogg'
-        : gif
-        ? 'image/gif'
-        : mp3
-        ? 'audio/mpeg'
-        : attachment.type || 'application/octet-stream',
+          ? 'image/png'
+          : opus
+            ? 'audio/ogg'
+            : gif
+              ? 'image/gif'
+              : mp3
+                ? 'audio/mpeg'
+                : attachment.type || 'application/octet-stream',
       asPhoto,
       mediaType,
     });

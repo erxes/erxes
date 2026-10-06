@@ -121,7 +121,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
       name: '',
       brandId: '',
       token: '',
-      url: integrationId ? '' : defaultAddress ?? '',
+      url: integrationId ? '' : (defaultAddress ?? ''),
     },
   });
   const chosenId = form.watch('botId');
@@ -145,8 +145,8 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
       form.setValue(
         'url',
         status.url
-          ? getTelegramServerAddress(status.url) ?? status.url
-          : defaultAddress ?? '',
+          ? (getTelegramServerAddress(status.url) ?? status.url)
+          : (defaultAddress ?? ''),
       );
   }, [status, defaultAddress, form]);
   const [addBot] = useMutation<{ telegramAddBot: TelegramBot }>(
@@ -436,10 +436,10 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                   {status?.url
                     ? t('callbackSaved')
                     : statusQuery.error
-                    ? t('statusFailed')
-                    : defaultAddress
-                    ? t('callbackDetected')
-                    : t('callbackLocal')}
+                      ? t('statusFailed')
+                      : defaultAddress
+                        ? t('callbackDetected')
+                        : t('callbackLocal')}
                 </p>
                 <Collapsible.Content>
                   <Form.Field
@@ -561,8 +561,8 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                 {bot.canJoinGroups === false
                   ? t('noGroups')
                   : bot.canReadAllGroupMessages
-                  ? t('privacyOff')
-                  : t('privacyOn')}
+                    ? t('privacyOff')
+                    : t('privacyOn')}
               </p>
             )}
             <p>{t('groupHint')}</p>

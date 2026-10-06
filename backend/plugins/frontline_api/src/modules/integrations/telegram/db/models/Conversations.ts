@@ -3,8 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { ITelegramConversationDocument } from '@/integrations/telegram/@types/conversations';
 import { telegramConversationSchema } from '@/integrations/telegram/db/definitions/conversations';
 
-export interface ITelegramConversationModel
-  extends Model<ITelegramConversationDocument> {
+export interface ITelegramConversationModel extends Model<ITelegramConversationDocument> {
   getConversation(
     selector: FilterQuery<ITelegramConversationDocument>,
   ): Promise<ITelegramConversationDocument>;

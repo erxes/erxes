@@ -425,9 +425,8 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
         reactions: [{ type: { type: 'emoji', emoji: '👍' }, total_count: 2 }],
       },
     });
-    const canonical = await scoped.ConversationMessages.findById(
-      'outgoing-album',
-    ).lean();
+    const canonical =
+      await scoped.ConversationMessages.findById('outgoing-album').lean();
     expect(canonical).toMatchObject({
       content: 'edited',
       extraData: {

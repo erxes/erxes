@@ -3,8 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { ITelegramConversationMessageDocument } from '@/integrations/telegram/@types/conversationMessages';
 import { telegramConversationMessageSchema } from '@/integrations/telegram/db/definitions/conversationMessages';
 
-export interface ITelegramConversationMessageModel
-  extends Model<ITelegramConversationMessageDocument> {
+export interface ITelegramConversationMessageModel extends Model<ITelegramConversationMessageDocument> {
   getMessage(
     selector: FilterQuery<ITelegramConversationMessageDocument>,
   ): Promise<ITelegramConversationMessageDocument>;
@@ -15,9 +14,8 @@ export const loadTelegramConversationMessageClass = (models: IModels) => {
     public static async getMessage(
       selector: FilterQuery<ITelegramConversationMessageDocument>,
     ): Promise<ITelegramConversationMessageDocument> {
-      const message = await models.TelegramConversationMessages.findOne(
-        selector,
-      );
+      const message =
+        await models.TelegramConversationMessages.findOne(selector);
 
       if (!message) {
         throw new Error('Telegram conversation message not found');

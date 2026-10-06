@@ -567,7 +567,7 @@ export const getOrCreateMessage = async (
       const sameFiles =
         JSON.stringify(sources.map((source) => source.fileId)) ===
         JSON.stringify(storedMessage.attachmentFileIds ?? []);
-      const attachments = sameFiles ? storedMessage.attachments ?? [] : [];
+      const attachments = sameFiles ? (storedMessage.attachments ?? []) : [];
       let content = mapped.content;
       if (sources.length && !sameFiles) {
         const bot = await models.TelegramBots.findOne({

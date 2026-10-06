@@ -180,29 +180,29 @@ export const sendTelegramReply = async ({
       sent = albumMessages
         ? albumMessages[index]
         : poll
-        ? await sendTelegramPoll({
-            token: bot.token,
-            chatId,
-            messageThreadId: conversation.messageThreadId,
-            poll,
-            replyToMessageId: replyId,
-          })
-        : file
-        ? await sendTelegramAttachment({
-            token: bot.token,
-            chatId,
-            messageThreadId: conversation.messageThreadId,
-            caption: index === 0 ? text : '',
-            replyToMessageId: index === 0 ? replyId : undefined,
-            ...file,
-          })
-        : await sendTelegramMessage(
-            bot.token,
-            chatId,
-            text,
-            conversation.messageThreadId,
-            replyId,
-          );
+          ? await sendTelegramPoll({
+              token: bot.token,
+              chatId,
+              messageThreadId: conversation.messageThreadId,
+              poll,
+              replyToMessageId: replyId,
+            })
+          : file
+            ? await sendTelegramAttachment({
+                token: bot.token,
+                chatId,
+                messageThreadId: conversation.messageThreadId,
+                caption: index === 0 ? text : '',
+                replyToMessageId: index === 0 ? replyId : undefined,
+                ...file,
+              })
+            : await sendTelegramMessage(
+                bot.token,
+                chatId,
+                text,
+                conversation.messageThreadId,
+                replyId,
+              );
     } catch (error: unknown) {
       const reason =
         error instanceof Error ? error.message : 'Telegram reply failed.';

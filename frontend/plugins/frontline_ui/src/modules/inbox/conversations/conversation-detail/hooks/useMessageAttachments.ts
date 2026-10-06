@@ -45,8 +45,8 @@ export const useMessageAttachments = (
       const providerMaximumBytes = isTelegram
         ? TELEGRAM_MAXIMUM_BYTES
         : isDiscord
-        ? DISCORD_MAXIMUM_BYTES
-        : DEFAULT_MAXIMUM_BYTES;
+          ? DISCORD_MAXIMUM_BYTES
+          : DEFAULT_MAXIMUM_BYTES;
       const configuredMaximumBytes =
         Number.parseInt(
           composerStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
