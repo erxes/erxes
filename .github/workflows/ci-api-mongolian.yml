@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/3.2.7.1-erkhet-remainders
     paths:
       - 'backend/plugins/mongolian_api/**'
       - 'backend/erxes-api-shared/**'
@@ -35,7 +36,7 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && '--frozen-lockfile' || '--no-frozen-lockfile' }}
 
       - name: Set environment variables
         run: |
@@ -43,10 +44,10 @@ jobs:
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Build shared module
-        run: pnpm nx build erxes-api-shared
+        run: pnpm nx build erxes-api-shared ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && '--excludeTaskDependencies' || '' }}
 
       - name: Build mongolian_api
-        run: pnpm nx build mongolian_api
+        run: pnpm nx build mongolian_api ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && '--excludeTaskDependencies' || '' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -55,20 +56,18 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders')
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image (multi-platform)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders')
         uses: docker/build-push-action@v5
         with:
           context: .
           file: backend/plugins/mongolian_api/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            erxes/erxes-next-mongolian_api:latest
-            erxes/erxes-next-mongolian_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
+          tags: ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && 'erxes/erxes-next-mongolian_api:3.2.7.1' || format('erxes/erxes-next-mongolian_api:latest,erxes/erxes-next-mongolian_api:{0}-{1}', env.DATE, env.SHORT_SHA) }}

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -90,6 +90,8 @@
 - Plugin data access must remain tenant-scoped through generated models.
 - Product list decoration must not mutate core product names; Erkhet stock
   should be exposed through explicit remainder query responses.
+- Missing Erkhet stock entries return a zero remainder; never substitute test
+  stock values or log product query counts in the remainder resolver.
 
 ## Validation
 

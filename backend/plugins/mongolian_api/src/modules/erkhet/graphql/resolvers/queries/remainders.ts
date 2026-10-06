@@ -63,7 +63,7 @@ const erkhetQueries = {
         },
         defaultValue: [],
       });
-      console.log(productIds.length, products.length, 'llllll');
+
       const codes = (products || []).map((item) => item.code);
 
       const jsonRes = await sendErkhetGet('/get-api/', {
@@ -105,7 +105,7 @@ const erkhetQueries = {
 
         result.push({
           _id: r._id,
-          remainder: Number(resp.rem ?? 99),
+          remainder: Number(resp.rem ?? 0),
           remainders: resp.rems ?? [],
         });
       }
