@@ -11,43 +11,6 @@ export const GET_POST = gql`
   }
 `;
 
-export const GET_COMMENTS = gql`
-  query InstagramGetComments(
-    $conversationId: String!
-    $getFirst: Boolean
-    $skip: Int
-    $limit: Int
-  ) {
-    instagramGetComments(
-      conversationId: $conversationId
-      getFirst: $getFirst
-      skip: $skip
-      limit: $limit
-    ) {
-      _id
-      content
-      conversationId
-      commentId
-      postId
-      recipientId
-      senderId
-      erxesApiId
-      timestamp
-      permalink_url
-      parentId
-      commentCount
-      isResolved
-      customer {
-        _id
-        userId
-        firstName
-        lastName
-        profilePic
-      }
-    }
-  }
-`;
-
 export const GET_COMMENT_COUNT = gql`
   query InstagramGetCommentCount(
     $conversationId: String!

@@ -5,9 +5,3 @@ export const UPDATE_CALL_CONFIGS = gql`
     callsUpdateConfigs(configsMap: $configsMap)
   }
 `;
-
-export const CALL_INTEGRATION_UPDATE = gql`
-  mutation callsUpdateIntegration($configsMap: JSON!) {
-    callsUpdateIntegration(configsMap: $configsMap)
-  }
-`;

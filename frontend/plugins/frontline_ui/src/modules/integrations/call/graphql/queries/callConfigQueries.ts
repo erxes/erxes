@@ -67,63 +67,6 @@ export const CALL_ACTIVE_SESSION = gql`
   }
 `;
 
-export const CALL_HISTORIES = gql`
-  query CallHistories(
-    $limit: Int
-    $callStatus: String
-    $callType: String
-    $startDate: String
-    $endDate: String
-    $skip: Int
-    $integrationId: String
-    $searchValue: String
-  ) {
-    callHistories(
-      limit: $limit
-      callStatus: $callStatus
-      callType: $callType
-      startDate: $startDate
-      endDate: $endDate
-      skip: $skip
-      integrationId: $integrationId
-      searchValue: $searchValue
-    ) {
-      _id
-      operatorPhone
-      customerPhone
-      callDuration
-      callStartTime
-      callEndTime
-      callType
-      callStatus
-      timeStamp
-      modifiedAt
-      createdAt
-      createdBy
-      modifiedBy
-      extensionNumber
-      conversationId
-      customerId
-      customer {
-        _id
-        avatar
-        email
-        firstName
-        getTags {
-          _id
-          name
-          colorCode
-          type
-        }
-        phone
-        primaryEmail
-        primaryPhone
-        tagIds
-      }
-    }
-  }
-`;
-
 export const CALL_HISTORIES_TOTAL_COUNT = gql`
   query callHistoriesTotalCount(
     $limit: Int
@@ -155,7 +98,7 @@ export const CALL_GET_AGENT_STATUS = gql`
 `;
 
 export const CALL_EXTENSION_LIST = gql`
-  query callExtensionList($integrationId: String!) {
+  query CallConfigExtensionList($integrationId: String!) {
     callExtensionList(integrationId: $integrationId)
   }
 `;
@@ -163,17 +106,5 @@ export const CALL_EXTENSION_LIST = gql`
 export const CALL_QUEUE_INITIAL_LIST = gql`
   query callQueueInitialList($queue: String!) {
     callQueueInitialList(queue: $queue)
-  }
-`;
-
-export const CALL_CUSTOMERS = gql`
-  query callCustomers($phoneNumber: String!) {
-    callCustomers(phoneNumber: $phoneNumber) {
-      primaryPhone
-      phone
-      lastName
-      firstName
-      _id
-    }
   }
 `;

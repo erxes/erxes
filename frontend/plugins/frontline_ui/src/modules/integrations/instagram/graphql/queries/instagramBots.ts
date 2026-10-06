@@ -1,26 +1,22 @@
 import gql from 'graphql-tag';
 
-const INSTAGRAM_BOT_FIELDS = `
-  _id
-  name
-  account
-  accountId
-  createdAt
-  page
-  pageId
-  profileUrl
-  persistentMenus {
-    _id
-    text
-    type
-    link
-  }
-`;
-
 export const INSTAGRAM_BOTS_LIST = gql`
   query InstagramMessengerBots {
     instagramMessengerBots {
-      ${INSTAGRAM_BOT_FIELDS}
+      _id
+      name
+      account
+      accountId
+      createdAt
+      page
+      pageId
+      profileUrl
+      persistentMenus {
+        _id
+        text
+        type
+        link
+      }
     }
   }
 `;
@@ -34,7 +30,20 @@ export const INSTAGRAM_BOTS_TOTAL_COUNT = gql`
 export const INSTAGRAM_BOT_DETAIL = gql`
   query InstagramMessengerBot($_id: String) {
     instagramMessengerBot(_id: $_id) {
-      ${INSTAGRAM_BOT_FIELDS}
+      _id
+      name
+      account
+      accountId
+      createdAt
+      page
+      pageId
+      profileUrl
+      persistentMenus {
+        _id
+        text
+        type
+        link
+      }
       greetText
       tag
       isEnabledBackBtn
@@ -44,7 +53,7 @@ export const INSTAGRAM_BOT_DETAIL = gql`
 `;
 
 export const GET_INSTAGRAM_BOT_PROFILE = gql`
-  query InstagramMessengerBot($_id: String) {
+  query InstagramMessengerBotProfile($_id: String) {
     instagramMessengerBot(_id: $_id) {
       _id
       name

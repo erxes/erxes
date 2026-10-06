@@ -6,17 +6,6 @@ export const ADD_ACTIVE_SESSION = gql`
   }
 `;
 
-export const CALL_TERMINATE_SESSION = gql`
-  mutation callTerminateSession {
-    callTerminateSession
-  }
-`;
-
-export const CALL_DISCONNECT = gql`
-  mutation callDisconnect {
-    callDisconnect
-  }
-`;
 export const CALL_CUSTOMER_ADD = gql`
   mutation CallAddCustomer(
     $inboxIntegrationId: String
@@ -80,22 +69,6 @@ export const CALL_TRANSFER = gql`
       extensionNumber: $extensionNumber
       integrationId: $integrationId
       direction: $direction
-    )
-  }
-`;
-
-export const CALL_SELECT_CUSTOMER = gql`
-  mutation callSelectCustomer(
-    $integrationId: String!
-    $customerId: String!
-    $phoneNumber: String!
-    $conversationId: String!
-  ) {
-    callSelectCustomer(
-      integrationId: $integrationId
-      customerId: $customerId
-      phoneNumber: $phoneNumber
-      conversationId: $conversationId
     )
   }
 `;

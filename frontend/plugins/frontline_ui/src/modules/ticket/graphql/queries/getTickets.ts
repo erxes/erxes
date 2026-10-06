@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { GQL_PAGE_INFO } from 'erxes-ui';
 
 export const GET_TICKETS = gql`
   query GetTickets($filter: ITicketFilter) {
@@ -29,7 +28,13 @@ export const GET_TICKETS = gql`
         state
         propertiesData
       }
-      ${GQL_PAGE_INFO}
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       totalCount
     }
   }

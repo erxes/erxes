@@ -1,36 +1,52 @@
 import gql from 'graphql-tag';
 
-const INSTAGRAM_BOT_PARAMS = `
-  $name: String,
-  $accountId: String,
-  $pageId: String,
-  $persistentMenus: [InstagramBotPersistentMenuInput],
-  $greetText: String,
-  $tag: String,
-  $isEnabledBackBtn: Boolean,
-  $backButtonText: String
-`;
-
-const INSTAGRAM_BOT_PARAMS_DEF = `
-  name: $name,
-  accountId: $accountId,
-  pageId: $pageId,
-  persistentMenus: $persistentMenus,
-  greetText: $greetText,
-  tag: $tag,
-  isEnabledBackBtn: $isEnabledBackBtn,
-  backButtonText: $backButtonText
-`;
-
 export const ADD_INSTAGRAM_BOT = gql`
-  mutation InstagramMessengerAddBot(${INSTAGRAM_BOT_PARAMS}) {
-    instagramMessengerAddBot(${INSTAGRAM_BOT_PARAMS_DEF})
+  mutation InstagramMessengerAddBot(
+    $name: String
+    $accountId: String
+    $pageId: String
+    $persistentMenus: [InstagramBotPersistentMenuInput]
+    $greetText: String
+    $tag: String
+    $isEnabledBackBtn: Boolean
+    $backButtonText: String
+  ) {
+    instagramMessengerAddBot(
+      name: $name
+      accountId: $accountId
+      pageId: $pageId
+      persistentMenus: $persistentMenus
+      greetText: $greetText
+      tag: $tag
+      isEnabledBackBtn: $isEnabledBackBtn
+      backButtonText: $backButtonText
+    )
   }
 `;
 
 export const UPDATE_INSTAGRAM_BOT = gql`
-  mutation InstagramMessengerUpdateBot($_id: String, ${INSTAGRAM_BOT_PARAMS}) {
-    instagramMessengerUpdateBot(_id: $_id, ${INSTAGRAM_BOT_PARAMS_DEF})
+  mutation InstagramMessengerUpdateBot(
+    $_id: String
+    $name: String
+    $accountId: String
+    $pageId: String
+    $persistentMenus: [InstagramBotPersistentMenuInput]
+    $greetText: String
+    $tag: String
+    $isEnabledBackBtn: Boolean
+    $backButtonText: String
+  ) {
+    instagramMessengerUpdateBot(
+      _id: $_id
+      name: $name
+      accountId: $accountId
+      pageId: $pageId
+      persistentMenus: $persistentMenus
+      greetText: $greetText
+      tag: $tag
+      isEnabledBackBtn: $isEnabledBackBtn
+      backButtonText: $backButtonText
+    )
   }
 `;
 
