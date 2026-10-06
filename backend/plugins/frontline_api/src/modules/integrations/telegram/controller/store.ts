@@ -1,4 +1,21 @@
 import { z } from 'zod';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { randomUUID } from 'node:crypto';
+import {
+  getTelegramMessageContent,
+  getTelegramMessageMetadata,
+  getTelegramSenderName,
+  getTelegramThreadId,
+  telegramTextToHtml,
+} from '../utils/content';
+import { syncTelegramReactions } from './reactions';
+import { syncTelegramInboxMessage } from './sync';
+import { storeTelegramAttachment } from '../utils/attachments';
+import {
+  TelegramFileTooLargeError,
+  TELEGRAM_FILE_TOO_LARGE_NOTICE,
+} from '../utils/fileLimits';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { TelegramMessage } from '@/integrations/telegram/utils/message';
 import { mongo } from 'mongoose';
@@ -11,18 +28,36 @@ const inboxEntityResponseSchema = z.object({
   _id: z.string().min(1),
 });
 
-const CUSTOMER_LINK_ATTEMPTS = 4;
 const CONVERSATION_LINK_ATTEMPTS = 4;
-const MESSAGE_LINK_ATTEMPTS = 4;
+const MESSAGE_LEASE_MS = 120_000;
 
 export const createCoreCustomer = async (
   subdomain: string,
   integrationId: string,
   sender: NonNullable<TelegramMessage['from']>,
+  customerId: string,
 ): Promise<string> => {
+  const findExisting = async (): Promise<string | undefined> => {
+    const found: unknown = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'customers',
+      action: 'findOne',
+      method: 'query',
+      input: { query: { _id: customerId } },
+    });
+    const parsed = inboxEntityResponseSchema.safeParse(found);
+    return parsed.success ? parsed.data._id : undefined;
+  };
+  const existing = await findExisting();
+  if (existing) return existing;
+  // The public Core create contract accepts _id. A stable ID prevents a slow
+  // first webhook and its retry from creating two contacts, including after a
+  // crash between Core creation and the Telegram-to-Core link.
   const response = await receiveInboxMessage(subdomain, {
     action: 'get-create-update-customer',
     payload: JSON.stringify({
+      _id: customerId,
       integrationId,
       firstName: sender.first_name,
       lastName: sender.last_name,
@@ -31,6 +66,8 @@ export const createCoreCustomer = async (
   });
 
   if (response.status !== 'success') {
+    const recovered = await findExisting();
+    if (recovered) return recovered;
     throw new Error(`Customer creation failed: ${response.errorMessage}`);
   }
 
@@ -104,29 +141,15 @@ export const getOrCreateCustomer = async (
     sender,
   );
 
-  let customer = result.customer;
+  const customer = result.customer;
+  if (customer.erxesApiId) return customer;
 
-  if (!result.created) {
-    for (let attempt = 1; attempt <= CUSTOMER_LINK_ATTEMPTS; attempt++) {
-      if (customer.erxesApiId) {
-        return customer;
-      }
-
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 250 * attempt);
-      });
-
-      customer = await models.TelegramCustomers.getCustomer({
-        _id: customer._id,
-      });
-    }
-  }
-
-  if (customer.erxesApiId) {
-    return customer;
-  }
-
-  const erxesApiId = await createCoreCustomer(subdomain, integrationId, sender);
+  const erxesApiId = await createCoreCustomer(
+    subdomain,
+    integrationId,
+    sender,
+    `telegram-${customer._id}`,
+  );
 
   const linkedCustomer = await models.TelegramCustomers.findOneAndUpdate(
     { _id: customer._id, erxesApiId: null },
@@ -160,8 +183,35 @@ export const getOrCreateTelegramConversation = async (
   const selector = {
     integrationId,
     chatId: String(message.chat.id),
-    messageThreadId: message.message_thread_id ?? 0,
+    messageThreadId: getTelegramThreadId(message),
   };
+  const topicName =
+    message.forum_topic_created?.name ?? message.forum_topic_edited?.name;
+  const chatFields = {
+    chatTitle: message.new_chat_title ?? message.chat.title,
+    chatType: message.migrate_to_chat_id ? 'supergroup' : message.chat.type,
+    ...(topicName !== undefined ? { topicName } : {}),
+  };
+
+  // A group upgrade changes the provider ID. Keep the original history when
+  // possible, without merging/deleting a conversation already seen at the new ID.
+  const existing =
+    (await models.TelegramConversations.findOne(selector)) ??
+    (await models.TelegramConversations.findOne({
+      integrationId,
+      migratedToChatId: selector.chatId,
+      messageThreadId: selector.messageThreadId,
+    }));
+  if (existing) {
+    const conversation = await models.TelegramConversations.findOneAndUpdate(
+      { _id: existing._id },
+      { $set: chatFields },
+      { new: true, runValidators: true },
+    );
+    if (!conversation)
+      throw new Error('Telegram conversation no longer exists');
+    return { conversation, created: false };
+  }
 
   let created = false;
 
@@ -171,10 +221,9 @@ export const getOrCreateTelegramConversation = async (
       {
         $setOnInsert: {
           ...selector,
-          chatType: message.chat.type,
-          chatTitle: message.chat.title,
+          ...chatFields,
           timestamp: new Date(message.date * 1000),
-          content: message.text ?? '',
+          content: getTelegramMessageContent(message)?.content ?? '',
         },
       },
       {
@@ -208,14 +257,15 @@ export const getOrCreateTelegramConversation = async (
 export const createInboxConversation = async (
   subdomain: string,
   conversation: ITelegramConversationDocument,
-  customerId: string,
+  customerId?: string,
 ): Promise<string> => {
   const response = await receiveInboxMessage(subdomain, {
     action: 'create-or-update-conversation',
     payload: JSON.stringify({
+      conversationId: `telegram-${conversation._id}`,
       integrationId: conversation.integrationId,
-      customerId,
-      content: conversation.content,
+      customerId: conversation.chatType === 'private' ? customerId : undefined,
+      content: telegramTextToHtml(conversation.content),
       createdAt: conversation.timestamp,
     }),
   });
@@ -238,11 +288,11 @@ export const getOrCreateConversation = async (
   subdomain: string,
   integrationId: string,
   message: TelegramMessage,
-  customer: ITelegramCustomerDocument,
+  customer?: ITelegramCustomerDocument,
 ): Promise<ITelegramConversationDocument> => {
-  const customerId = customer.erxesApiId;
+  const customerId = customer?.erxesApiId;
 
-  if (!customerId) {
+  if (customer && !customerId) {
     throw new Error('Telegram customer must be linked to a Core contact');
   }
 
@@ -308,7 +358,7 @@ export const getOrCreateTelegramMessage = async (
   models: IModels,
   conversation: ITelegramConversationDocument,
   message: TelegramMessage,
-  customerId: string,
+  customerId?: string,
 ): Promise<{
   message: ITelegramConversationMessageDocument;
   created: boolean;
@@ -329,7 +379,11 @@ export const getOrCreateTelegramMessage = async (
           ...selector,
           conversationId: conversation._id,
           customerId,
-          content: message.text ?? '',
+          senderName: getTelegramSenderName(message),
+          metadata: getTelegramMessageMetadata(message),
+          pollId: message.poll?.id,
+          poll: getTelegramMessageContent(message).poll,
+          content: getTelegramMessageContent(message)?.content ?? '',
           createdAt: new Date(message.date * 1000),
         },
       },
@@ -365,13 +419,24 @@ export const createInboxMessage = async (
   subdomain: string,
   inboxConversationId: string,
   message: ITelegramConversationMessageDocument,
+  chatType = 'private',
 ): Promise<string> => {
   const response = await receiveInboxMessage(subdomain, {
     action: 'create-conversation-message',
     metaInfo: 'replaceContent',
     payload: JSON.stringify({
+      _id: `telegram-${message._id}`,
       conversationId: inboxConversationId,
-      content: message.content,
+      content: telegramTextToHtml(message.content),
+      extraData: {
+        poll: message.poll,
+        telegram: {
+          ...message.metadata,
+          chatType,
+          senderName: message.senderName,
+          messageId: message.messageId,
+        },
+      },
       customerId: message.customerId,
       createdAt: message.createdAt,
       attachments: message.attachments,
@@ -396,71 +461,228 @@ export const getOrCreateMessage = async (
   subdomain: string,
   conversation: ITelegramConversationDocument,
   message: TelegramMessage,
-  customer: ITelegramCustomerDocument,
+  customer?: ITelegramCustomerDocument,
+  updateId = 0,
 ): Promise<ITelegramConversationMessageDocument> => {
   const inboxConversationId = conversation.erxesApiId;
-  const customerId = customer.erxesApiId;
-
-  if (!inboxConversationId || !customerId) {
+  if (!inboxConversationId || (customer && !customer.erxesApiId)) {
     throw new Error(
-      'Customer and conversation must be linked before storing a Telegram message',
+      'Telegram conversation and sender must be linked before storing a message',
     );
   }
-
-  const result = await getOrCreateTelegramMessage(
+  const { message: stored } = await getOrCreateTelegramMessage(
     models,
     conversation,
     message,
-    customerId,
+    customer?.erxesApiId,
   );
+  const editDate = message.edit_date ?? 0;
+  const isEdit = editDate > 0;
+  const alreadyApplied =
+    (stored.processedEditDate ?? 0) > editDate ||
+    ((stored.processedEditDate ?? 0) === editDate &&
+      (stored.processedUpdateId ?? 0) >= updateId);
+  if ((stored.erxesApiId || stored.userId) && (!isEdit || alreadyApplied))
+    return stored;
 
-  let storedMessage = result.message;
-
-  if (!result.created) {
-    for (let attempt = 1; attempt <= MESSAGE_LINK_ATTEMPTS; attempt++) {
-      if (storedMessage.erxesApiId) {
-        return storedMessage;
-      }
-
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 250 * attempt);
-      });
-
-      storedMessage = await models.TelegramConversationMessages.getMessage({
-        _id: storedMessage._id,
-      });
-    }
-  }
-  if (storedMessage.erxesApiId) {
-    return storedMessage;
-  }
-
-  const erxesApiId = await createInboxMessage(
-    subdomain,
-    inboxConversationId,
-    storedMessage,
-  );
-
-  const linkedMessage =
+  const processingToken = randomUUID();
+  let storedMessage =
     await models.TelegramConversationMessages.findOneAndUpdate(
       {
-        _id: storedMessage._id,
-        erxesApiId: null,
+        _id: stored._id,
+        ...(!isEdit ? { erxesApiId: null } : {}),
+        $or: [
+          { processingUntil: null },
+          { processingUntil: { $lt: new Date() } },
+        ],
       },
-      { $set: { erxesApiId } },
+      {
+        $set: {
+          processingToken,
+          processingUntil: new Date(Date.now() + MESSAGE_LEASE_MS),
+        },
+      },
+      { new: true },
+    );
+  if (!storedMessage) {
+    const current = await models.TelegramConversationMessages.getMessage({
+      _id: stored._id,
+    });
+    if (current.erxesApiId && !isEdit) return current;
+    throw new Error(
+      'This Telegram message is still being processed; retry the webhook',
+    );
+  }
+
+  const lease = { _id: stored._id, processingToken };
+  let leaseLost = false;
+  let renewal = Promise.resolve();
+  const heartbeat = setInterval(() => {
+    renewal = renewal
+      .then(async () => {
+        const renewed = await models.TelegramConversationMessages.updateOne(
+          lease,
+          {
+            $set: { processingUntil: new Date(Date.now() + MESSAGE_LEASE_MS) },
+          },
+        );
+        if (!renewed.matchedCount) leaseLost = true;
+      })
+      .catch(() => {
+        leaseLost = true;
+      });
+  }, 30_000);
+  heartbeat.unref();
+
+  try {
+    if (
+      isEdit &&
+      ((storedMessage.processedEditDate ?? 0) > editDate ||
+        ((storedMessage.processedEditDate ?? 0) === editDate &&
+          (storedMessage.processedUpdateId ?? 0) >= updateId))
+    )
+      return storedMessage;
+    let inboxId = stored.erxesApiId ?? `telegram-${stored._id}`;
+    const inboxMessage = await models.ConversationMessages.findOne({
+      _id: inboxId,
+      conversationId: inboxConversationId,
+    });
+    if (!inboxMessage || isEdit) {
+      const mapped = getTelegramMessageContent(message);
+      // An edited poll message may arrive after a newer standalone poll tally.
+      // Preserve that tally while still applying the message's other edits.
+      const poll =
+        message.poll?.id === storedMessage.pollId &&
+        (storedMessage.pollUpdateId ?? 0) > updateId &&
+        (storedMessage.pollUpdateAt?.getTime() ?? 0) >
+          Date.now() - 7 * 86400_000
+          ? storedMessage.poll
+          : mapped.poll;
+      const sources = [
+        mapped.attachment,
+        ...(mapped.additionalAttachments ?? []),
+      ].filter((source): source is NonNullable<typeof source> =>
+        Boolean(source),
+      );
+      const sameFiles =
+        JSON.stringify(sources.map((source) => source.fileId)) ===
+        JSON.stringify(storedMessage.attachmentFileIds ?? []);
+      const attachments = sameFiles ? storedMessage.attachments ?? [] : [];
+      let content = mapped.content;
+      if (sources.length && !sameFiles) {
+        const bot = await models.TelegramBots.findOne({
+          erxesApiId: conversation.integrationId,
+        }).select('+token');
+        if (!bot?.token) throw new Error('Telegram bot is no longer connected');
+        for (const source of sources) {
+          try {
+            attachments.push(
+              await storeTelegramAttachment({
+                subdomain,
+                token: bot.token,
+                ...source,
+              }),
+            );
+          } catch (error: unknown) {
+            if (!(error instanceof TelegramFileTooLargeError)) throw error;
+            content = [content, TELEGRAM_FILE_TOO_LARGE_NOTICE]
+              .filter(Boolean)
+              .join('\n');
+          }
+        }
+      } else if (
+        sameFiles &&
+        storedMessage.content.includes(TELEGRAM_FILE_TOO_LARGE_NOTICE)
+      ) {
+        content = [content, TELEGRAM_FILE_TOO_LARGE_NOTICE]
+          .filter(Boolean)
+          .join('\n');
+      }
+      const updated =
+        await models.TelegramConversationMessages.findOneAndUpdate(
+          lease,
+          {
+            $set: {
+              content,
+              attachments,
+              attachmentFileIds: sources.map((source) => source.fileId),
+              metadata: getTelegramMessageMetadata(message),
+              ...(poll ? { pollId: message.poll?.id, poll } : {}),
+              ...(isEdit ? { updatedAt: new Date(editDate * 1000) } : {}),
+            },
+            ...(!poll ? { $unset: { pollId: '', poll: '' } } : {}),
+          },
+          { new: true, runValidators: true },
+        );
+      if (!updated || leaseLost)
+        throw new Error('Telegram message processing lease was lost');
+      storedMessage = updated;
+      if (inboxMessage || stored.userId) {
+        inboxId = await syncTelegramInboxMessage(
+          models,
+          subdomain,
+          inboxConversationId,
+          storedMessage,
+          {
+            content: telegramTextToHtml(content),
+            attachments,
+            ...Object.fromEntries(
+              Object.entries(getTelegramMessageMetadata(message)).map(
+                ([key, value]) => [`extraData.telegram.${key}`, value ?? null],
+              ),
+            ),
+            'extraData.poll': poll ?? null,
+          },
+        );
+      } else {
+        await createInboxMessage(
+          subdomain,
+          inboxConversationId,
+          storedMessage,
+          conversation.chatType,
+        );
+      }
+    } else {
+      // Recover a crash after the canonical insert but before our link was saved.
+      await models.Conversations.updateConversation(inboxConversationId, {
+        status: 'open',
+        readUserIds: [],
+        content: telegramTextToHtml(storedMessage.content),
+        updatedAt: storedMessage.createdAt,
+      });
+      await pConversationClientMessageInserted(subdomain, inboxMessage);
+    }
+    if (
+      await models.TelegramReactions.exists({
+        integrationId: stored.integrationId,
+        chatId: stored.chatId,
+        messageId: stored.messageId,
+      })
+    )
+      await syncTelegramReactions(
+        models,
+        subdomain,
+        inboxConversationId,
+        storedMessage,
+      );
+    const linked = await models.TelegramConversationMessages.findOneAndUpdate(
+      lease,
+      {
+        $set: {
+          erxesApiId: inboxId,
+          processedEditDate: editDate,
+          processedUpdateId: updateId,
+        },
+      },
       { new: true, runValidators: true },
     );
-
-  if (linkedMessage) {
-    return linkedMessage;
+    if (!linked) throw new Error('Telegram message processing lease was lost');
+    return linked;
+  } finally {
+    clearInterval(heartbeat);
+    await renewal;
+    await models.TelegramConversationMessages.updateOne(lease, {
+      $unset: { processingToken: '', processingUntil: '' },
+    });
   }
-
-  const currentMessage = await models.TelegramConversationMessages.getMessage({
-    _id: storedMessage._id,
-  });
-
-  if (!currentMessage.erxesApiId) {
-    throw new Error('Telegram message could not be linked to an inbox message');
-  }
-  return currentMessage;
 };

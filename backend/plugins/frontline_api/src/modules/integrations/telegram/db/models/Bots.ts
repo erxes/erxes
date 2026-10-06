@@ -10,6 +10,7 @@ import {
   getTelegramBot,
   getTelegramWebhookInfo,
   setTelegramWebhook,
+  deleteTelegramWebhook,
   type TelegramWebhookInfo,
 } from '@/integrations/telegram/client';
 import { verifyTelegramWebhookSecret } from '@/integrations/telegram/utils/webhookAuth';
@@ -18,6 +19,8 @@ export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   getBot(_id: string): Promise<ITelegramBotDocument>;
   getWebhookInfo(_id: string): Promise<TelegramWebhookInfo>;
   setWebhook(_id: string, url: string): Promise<boolean>;
+  updateBot(_id: string, token?: string): Promise<ITelegramBotDocument>;
+  disconnectBot(_id: string): Promise<boolean>;
   getBots(
     filter: FilterQuery<ITelegramBotDocument>,
   ): Promise<ITelegramBotDocument[]>;
@@ -65,7 +68,67 @@ export const loadTelegramBotClass = (models: IModels) => {
         );
       }
 
-      return setTelegramWebhook(bot.token, url, bot.webhookSecret);
+      let parsed: URL;
+      try {
+        parsed = new URL(url);
+      } catch {
+        throw new Error('Enter a valid HTTPS webhook URL.');
+      }
+      if (
+        !parsed.pathname.endsWith(`/telegram/receive/${_id}`) ||
+        parsed.username ||
+        parsed.password ||
+        parsed.search ||
+        parsed.hash
+      ) {
+        throw new Error(
+          `Webhook URL must end with /telegram/receive/${_id}, without credentials, query parameters or fragments.`,
+        );
+      }
+      await setTelegramWebhook(bot.token, url, bot.webhookSecret);
+      await models.Integrations.updateOne(
+        { _id: bot.erxesApiId },
+        { $set: { isActive: true } },
+      );
+      return true;
+    }
+    public static async updateBot(
+      _id: string,
+      token?: string,
+    ): Promise<ITelegramBotDocument> {
+      const bot = await models.TelegramBots.findOne({ _id }).select('+token');
+      if (!bot) throw new Error('Telegram bot not found');
+      const verified = await getTelegramBot(token ?? bot.token);
+      if (String(verified.id) !== bot.botId)
+        throw new Error(
+          'The replacement token must belong to the same Telegram bot.',
+        );
+      await models.TelegramBots.updateOne(
+        { _id },
+        {
+          $set: {
+            token: token ?? bot.token,
+            botName: verified.first_name,
+            botUsername: verified.username,
+            canJoinGroups: verified.can_join_groups,
+            canReadAllGroupMessages: verified.can_read_all_group_messages,
+            lastVerifiedAt: new Date(),
+          },
+        },
+        { runValidators: true },
+      );
+      return models.TelegramBots.getBot(_id);
+    }
+    public static async disconnectBot(_id: string): Promise<boolean> {
+      const bot = await models.TelegramBots.findOne({ _id }).select('+token');
+      if (!bot) throw new Error('Telegram bot not found');
+      await deleteTelegramWebhook(bot.token);
+      if (bot.erxesApiId)
+        await models.Integrations.updateOne(
+          { _id: bot.erxesApiId },
+          { $set: { isActive: false } },
+        );
+      return true;
     }
     public static getBots(
       filter: FilterQuery<ITelegramBotDocument>,

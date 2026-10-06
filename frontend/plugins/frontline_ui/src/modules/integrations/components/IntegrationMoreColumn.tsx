@@ -57,6 +57,12 @@ const DiscordIntegrationActions = lazy(() =>
   })),
 );
 
+const TelegramIntegrationActions = lazy(() =>
+  import('../telegram/TelegramIntegrationDetail').then((module) => ({
+    default: module.TelegramIntegrationActions,
+  })),
+);
+
 export const IntegrationMoreColumnCell = ({
   cell,
 }: {
@@ -75,6 +81,9 @@ export const IntegrationMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit">
               <Suspense fallback={<div />}>
+                {integrationType === IntegrationType.TELEGRAM_MESSENGER && (
+                  <TelegramIntegrationActions cell={cell} />
+                )}
                 {integrationType === IntegrationType.ERXES_MESSENGER && (
                   <ErxesMessengerActions cell={cell} />
                 )}

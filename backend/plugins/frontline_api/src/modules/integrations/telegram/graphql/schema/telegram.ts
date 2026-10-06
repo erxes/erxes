@@ -1,4 +1,12 @@
 export const types = `
+  type TelegramConversationChat {
+    conversationId: String!
+    chatId: String!
+    chatType: String!
+    chatTitle: String
+    messageThreadId: Float!
+    topicName: String
+  }
   type TelegramTokenValidation {
     valid: Boolean!
     botId: String
@@ -37,6 +45,8 @@ export const types = `
 `;
 
 export const queries = `
+  telegramMessageLinkPreviews(messageId: String!): JSON
+  telegramConversationChats(conversationIds: [String!]!): [TelegramConversationChat!]!
   telegramBots: [TelegramBot!]!
   telegramBot(_id: String!): TelegramBot!
   telegramValidateToken(token: String!): TelegramTokenValidation!
@@ -44,6 +54,8 @@ export const queries = `
 `;
 
 export const mutations = `
+  telegramUpdateBot(_id: String!, token: String): TelegramBot!
+  telegramDisconnectBot(_id: String!): Boolean!
   telegramAddBot(token: String!): TelegramBot!
   telegramSetWebhook(_id: String!, url: String!): Boolean!
 `;

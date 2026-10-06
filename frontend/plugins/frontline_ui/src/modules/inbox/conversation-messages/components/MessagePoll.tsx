@@ -18,7 +18,9 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
   const countById = new Map<string | number, number>(
     (poll.results?.answerCounts ?? []).map((c) => [c.id, c.count]),
   );
-  const totalVotes = [...countById.values()].reduce((sum, n) => sum + n, 0);
+  const totalVotes =
+    poll.results?.totalVoters ??
+    [...countById.values()].reduce((sum, n) => sum + n, 0);
 
   const closed =
     Boolean(poll.results?.isFinalized) ||

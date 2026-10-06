@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { randomBytes } from 'node:crypto';
+import { deleteTelegramWebhook } from './client';
 import { generateModels } from '~/connectionResolvers';
 import {
   sendTelegramReply,
@@ -102,6 +104,7 @@ export const handleTelegramIntegration = async ({
     const models = await generateModels(subdomain);
     const reply = await sendTelegramReply({
       models,
+      subdomain,
       payload: parsed.data,
     });
 
@@ -118,4 +121,27 @@ export const handleTelegramIntegration = async ({
           : 'Could not process the Telegram reply',
     };
   }
+};
+
+export const telegramRemoveIntegration = async ({
+  subdomain,
+  data,
+}: {
+  subdomain: string;
+  data: { integrationId?: string };
+}): Promise<void> => {
+  if (!data.integrationId) throw new Error('Integration ID is required');
+  const models = await generateModels(subdomain);
+  const bot = await models.TelegramBots.findOne({
+    erxesApiId: data.integrationId,
+  }).select('+token');
+  if (!bot) return;
+  await deleteTelegramWebhook(bot.token, true);
+  await models.TelegramBots.updateOne(
+    { _id: bot._id, erxesApiId: data.integrationId },
+    {
+      $unset: { erxesApiId: '' },
+      $set: { webhookSecret: randomBytes(32).toString('hex') },
+    },
+  );
 };

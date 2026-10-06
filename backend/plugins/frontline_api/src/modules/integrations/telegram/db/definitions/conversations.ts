@@ -23,6 +23,8 @@ export const telegramConversationSchema = new Schema({
     enum: ['private', 'group', 'supergroup', 'channel'],
   },
   chatTitle: String,
+  topicName: String,
+  migratedToChatId: String,
   messageThreadId: {
     type: Number,
     required: true,

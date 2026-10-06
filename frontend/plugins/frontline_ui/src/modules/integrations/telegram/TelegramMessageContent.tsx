@@ -1,0 +1,103 @@
+import { useMemo } from 'react';
+import { gql, useQuery } from '@apollo/client';
+import { Skeleton } from 'erxes-ui';
+import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
+import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
+import type { IMessageEmbed } from '@/inbox/types/Conversation';
+
+const TELEGRAM_MESSAGE_LINK_PREVIEWS = gql`
+  query frontlineTelegramMessageLinkPreviews($messageId: String!) {
+    telegramMessageLinkPreviews(messageId: $messageId)
+  }
+`;
+
+// Historical Telegram messages contain escaped text, while outbound messages
+// already contain editor HTML. Only linkify text nodes; never replace markup or
+// nest links. Code stays literal, and BlockEditorReadOnly remains the renderer.
+export const linkifyTelegramContent = (
+  content: string,
+): { html: string; hasLinks: boolean } => {
+  const doc = new DOMParser().parseFromString(content, 'text/html');
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  let node = walker.nextNode();
+  while (node) {
+    if (
+      node instanceof Text &&
+      !node.parentElement?.closest('a,code,pre,script,style')
+    )
+      nodes.push(node);
+    node = walker.nextNode();
+  }
+  for (const text of nodes) {
+    const value = text.textContent || '';
+    const fragment = doc.createDocumentFragment();
+    let cursor = 0;
+    for (const match of value.matchAll(/https?:\/\/[^\s<>"']+/gi)) {
+      let url = match[0].replace(/[.,!?;:]+$/, '');
+      while (
+        url.endsWith(')') &&
+        (url.match(/\)/g)?.length || 0) > (url.match(/\(/g)?.length || 0)
+      )
+        url = url.slice(0, -1);
+      try {
+        new URL(url);
+      } catch {
+        continue;
+      }
+      fragment.append(value.slice(cursor, match.index));
+      const link = doc.createElement('a');
+      link.href = url;
+      link.textContent = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      fragment.append(link);
+      cursor = (match.index || 0) + url.length;
+    }
+    if (cursor) {
+      fragment.append(value.slice(cursor));
+      text.replaceWith(fragment);
+    }
+  }
+  return {
+    html: doc.body.innerHTML,
+    hasLinks: Boolean(
+      doc.body.querySelector('a[href^="https://"],a[href^="http://"]'),
+    ),
+  };
+};
+
+export const TelegramLinkPreviews = ({
+  messageId,
+  content,
+}: {
+  messageId: string;
+  content: string;
+}) => {
+  const { hasLinks } = useMemo(
+    () => linkifyTelegramContent(content),
+    [content],
+  );
+  const { data, loading } = useQuery<{
+    telegramMessageLinkPreviews: IMessageEmbed[];
+  }>(TELEGRAM_MESSAGE_LINK_PREVIEWS, {
+    variables: { messageId },
+    fetchPolicy: 'cache-and-network',
+    skip: !hasLinks,
+  });
+  if (!hasLinks) return null;
+  if (loading && !data)
+    return (
+      <Skeleton
+        className="mt-2 h-16 w-full"
+        aria-label="Loading link preview"
+      />
+    );
+  // The message's link remains usable when its website cannot supply a preview.
+  return <MessageEmbeds embeds={data?.telegramMessageLinkPreviews} />;
+};
+
+export const TelegramMessageContent = ({ content }: { content: string }) => {
+  const { html } = useMemo(() => linkifyTelegramContent(content), [content]);
+  return <MessageContent content={html} />;
+};

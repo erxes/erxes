@@ -2,6 +2,7 @@ import {
   BlockEditor,
   Button,
   Input,
+  IAttachment,
   Kbd,
   Spinner,
   Toggle,
@@ -31,7 +32,7 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebounce, useThrottledCallback } from 'use-debounce';
-import { useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
@@ -42,7 +43,10 @@ import {
   EditorMentionItem,
   MentionInEditor,
 } from 'ui-modules';
-import { Block } from '@blocknote/core';
+import { Block, PartialBlock } from '@blocknote/core';
+import type { IResponseTemplate } from '@/responseTemplate/types';
+import { getMessageDraftBlocks } from '../utils/messageDraft';
+import { telegramReplyToState } from '@/integrations/telegram/telegramReplyToState';
 import {
   useDiscordChannelMemberSearch,
   useDiscordConversationParticipants,
@@ -85,15 +89,45 @@ export const MessageInput = ({
   conversationId: string;
 }) => {
   const { t } = useTranslation('frontline');
+  const client = useApolloClient();
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
+  const supportsReply = isDiscord || isTelegram;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
+  const [telegramReplyTo, setTelegramReplyTo] = useAtom(telegramReplyToState);
+  const replyTo = isTelegram
+    ? telegramReplyTo?.conversationId === conversationId
+      ? telegramReplyTo
+      : null
+    : discordReplyTo;
+  const clearReply = useCallback(() => {
+    setDiscordReplyTo(null);
+    setTelegramReplyTo(null);
+  }, [setDiscordReplyTo, setTelegramReplyTo]);
+  const activeRefetchQueries = useCallback(
+    () =>
+      [...client.getObservableQueries('active').values()]
+        .filter((query) =>
+          [
+            'Conversations',
+            'ConversationMessages',
+            'ConversationCounts',
+            'FrontlineInboxSidebarWorkCounts',
+          ].includes(query.queryName ?? ''),
+        )
+        .map((query) => ({
+          query: query.options.query,
+          variables: query.variables,
+        })),
+    [client],
+  );
 
   const discordParticipants = useDiscordConversationParticipants(
     conversationId,
@@ -150,15 +184,15 @@ export const MessageInput = ({
   }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
 
   useEffect(() => {
-    setDiscordReplyTo(null);
-  }, [conversationId, setDiscordReplyTo]);
+    clearReply();
+  }, [conversationId, clearReply]);
 
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
 
   const { responses } = useGetResponses({
-    skip: !debouncedSearchValue,
+    skip: isTelegram || !debouncedSearchValue,
     variables: {
       filter: {
         searchValue: debouncedSearchValue || undefined,
@@ -167,8 +201,12 @@ export const MessageInput = ({
   });
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [attachmentPreview, setAttachmentPreview] = useState<{
+    name: string;
+    type: string;
+    data?: string;
+  } | null>(null);
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -199,7 +237,9 @@ export const MessageInput = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<
+    (IResponseTemplate & { preview: string })[]
+  >([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
@@ -227,8 +267,19 @@ export const MessageInput = ({
             variant: 'default',
           }),
         afterRead: ({ result, fileInfo }) =>
-          setAttachmentPreview({ ...fileInfo, data: result }),
-        afterUpload: ({ response, fileInfo }) => {
+          setAttachmentPreview({
+            ...fileInfo,
+            data: typeof result === 'string' ? result : undefined,
+          }),
+        afterUpload: ({ response, fileInfo, status }) => {
+          if (status !== 'ok' || typeof response !== 'string') {
+            setAttachmentPreview(null);
+            toast({
+              title: t('file-upload-failed', 'File upload failed'),
+              variant: 'destructive',
+            });
+            return;
+          }
           setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
           setAttachmentPreview(null);
           toast({
@@ -241,7 +292,7 @@ export const MessageInput = ({
         },
       });
     },
-    [upload],
+    [upload, t],
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -264,61 +315,56 @@ export const MessageInput = ({
     });
   };
 
-  const stripHtml = (html: string): string => {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-  };
+  const handleTemplateSelect = useCallback(
+    async (templateContent: string, templateId?: string) => {
+      if (!editor) {
+        return toast({
+          title: t('editor-not-ready', 'Editor not ready'),
+          variant: 'destructive',
+        });
+      }
 
-  const handleTemplateSelect = async (
-    templateContent: string,
-    templateId?: string,
-  ) => {
-    if (!editor) {
-      return toast({
-        title: t('editor-not-ready', 'Editor not ready'),
-        variant: 'destructive',
-      });
-    }
+      const parseTemplateToBlocks = (content: string) => {
+        try {
+          const parsed: unknown = JSON.parse(content);
+          return Array.isArray(parsed)
+            ? (parsed as PartialBlock[])
+            : [{ type: 'paragraph' as const, content, props: {} }];
+        } catch {
+          const clean =
+            new DOMParser()
+              .parseFromString(content, 'text/html')
+              .body.textContent?.trim() || '';
+          return [{ type: 'paragraph' as const, content: clean, props: {} }];
+        }
+      };
 
-    const parseTemplateToBlocks = (content: string) => {
       try {
-        const parsed = JSON.parse(content);
-        return Array.isArray(parsed)
-          ? parsed
-          : [{ type: 'paragraph', content, props: {} }];
-      } catch (e) {
-        console.warn('Template JSON parse failed, fallback to plain text:', e);
-        const clean = stripHtml(content).trim();
-        return [{ type: 'paragraph', content: clean, props: {} }];
+        const blocksToInsert = parseTemplateToBlocks(templateContent);
+
+        const existingBlocks = editor.document;
+        if (existingBlocks?.length) {
+          await editor.removeBlocks(existingBlocks.map((b) => b.id));
+        }
+
+        await editor.insertBlocks(
+          blocksToInsert,
+          editor.topLevelBlocks[0]?.id,
+          'before',
+        );
+
+        await editor.focus();
+        setShowSuggestions(false);
+        setResponseTemplateId(templateId || null);
+      } catch {
+        toast({
+          title: t('failed-to-insert-template', 'Failed to insert template'),
+          variant: 'destructive',
+        });
       }
-    };
-
-    try {
-      const blocksToInsert = parseTemplateToBlocks(templateContent);
-
-      const existingBlocks = editor.document;
-      if (existingBlocks?.length) {
-        await editor.removeBlocks(existingBlocks.map((b) => b.id));
-      }
-
-      await editor.insertBlocks(
-        blocksToInsert,
-        editor.topLevelBlocks[0]?.id,
-        'before',
-      );
-
-      await editor.focus();
-      setShowSuggestions(false);
-      setResponseTemplateId(templateId || null);
-    } catch (error) {
-      console.error('Error inserting template:', error);
-      toast({
-        title: t('failed-to-insert-template', 'Failed to insert template'),
-        variant: 'destructive',
-      });
-    }
-  };
+    },
+    [editor, t],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -351,7 +397,7 @@ export const MessageInput = ({
           break;
       }
     },
-    [showSuggestions, selectedIndex, suggestions],
+    [showSuggestions, selectedIndex, suggestions, handleTemplateSelect],
   );
 
   useEffect(() => {
@@ -359,7 +405,7 @@ export const MessageInput = ({
   }, [suggestions]);
 
   useEffect(() => {
-    if (!debouncedSearchValue) {
+    if (isTelegram || !debouncedSearchValue) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -371,11 +417,10 @@ export const MessageInput = ({
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [preparedResponses, debouncedSearchValue]);
+  }, [preparedResponses, debouncedSearchValue, isTelegram]);
 
   const handleChange = useCallback(async () => {
-    const blocks = await editor?.document;
-    blocks?.pop();
+    const blocks = getMessageDraftBlocks(editor?.document ?? []);
     setContent(blocks as Block[]);
 
     const html = await editor?.blocksToHTMLLossy(blocks);
@@ -390,7 +435,22 @@ export const MessageInput = ({
       setShowSuggestions(false);
     }
 
-    setMentionedUserIds(getMentionedUserIds(blocks));
+    setMentionedUserIds(
+      getMentionedUserIds(
+        blocks.map((block) => ({
+          content: Array.isArray(block.content)
+            ? block.content.flatMap((item) =>
+                item.type === 'mention' &&
+                'props' in item &&
+                '_id' in item.props &&
+                typeof item.props._id === 'string'
+                  ? [{ type: 'mention', props: { _id: item.props._id } }]
+                  : [],
+              )
+            : [],
+        })),
+      ),
+    );
   }, [editor, pingAgentTyping]);
 
   const handleSubmit = useCallback(async () => {
@@ -419,32 +479,29 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
-          ? { replyToMessageId: discordReplyTo.messageId }
+        ...(supportsReply && !isInternalNote && replyTo
+          ? { replyToMessageId: replyTo.messageId }
           : {}),
       },
       onCompleted: () => {
         toast({
-          title: t('message-sent', 'Message sent!'),
+          title: isInternalNote
+            ? t('internal-note-saved', 'Internal note saved')
+            : t('message-sent', 'Message sent!'),
           variant: 'default',
         });
         if (content?.length) editor?.removeBlocks(content);
 
         setContent(undefined);
         setMentionedUserIds([]);
-        setIsInternalNote(false);
+        setIsInternalNote(onlyInternal);
         setAttachments([]);
         setAttachmentPreview(null);
         setShowSuggestions(false);
         setResponseTemplateId(null);
-        setDiscordReplyTo(null);
+        clearReply();
       },
-      refetchQueries: [
-        'Conversations',
-        'ConversationMessages',
-        'ConversationCounts',
-        'FrontlineInboxSidebarWorkCounts',
-      ],
+      refetchQueries: activeRefetchQueries,
       onError: (err) =>
         toast({
           title: t('failed-to-send', 'Failed to send: {{message}}', {
@@ -459,14 +516,18 @@ export const MessageInput = ({
     mentionedUserIds,
     isInternalNote,
     isDiscord,
-    discordReplyTo,
-    setDiscordReplyTo,
+    replyTo,
+    supportsReply,
+    clearReply,
+    onlyInternal,
     messageExtraInfo,
     attachments,
     editor,
     addConversationMessage,
     setIsInternalNote,
     responseTemplateId,
+    activeRefetchQueries,
+    t,
   ]);
 
   const handleSendPoll = useCallback(
@@ -474,25 +535,36 @@ export const MessageInput = ({
       if (!conversationId) return false;
       try {
         await addConversationMessage({
-          variables: { conversationId, content: '', internal: false, poll },
-          refetchQueries: [
-            'Conversations',
-            'ConversationMessages',
-            'ConversationCounts',
-            'FrontlineInboxSidebarWorkCounts',
-          ],
+          variables: {
+            conversationId,
+            content: '',
+            internal: false,
+            poll,
+            ...(replyTo ? { replyToMessageId: replyTo.messageId } : {}),
+          },
+          refetchQueries: activeRefetchQueries,
         });
+        clearReply();
         toast({ title: t('poll-sent', 'Poll sent!'), variant: 'default' });
         return true;
       } catch (err) {
         toast({
-          title: `Failed to send poll: ${(err as Error).message}`,
+          title: t('failed-to-send', 'Failed to send: {{message}}', {
+            message: err instanceof Error ? err.message : 'Poll send failed',
+          }),
           variant: 'destructive',
         });
         return false;
       }
     },
-    [conversationId, addConversationMessage],
+    [
+      conversationId,
+      addConversationMessage,
+      replyTo,
+      clearReply,
+      activeRefetchQueries,
+      t,
+    ],
   );
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
@@ -510,7 +582,7 @@ export const MessageInput = ({
           isInternalNote && 'bg-warning/20',
         )}
       >
-        {showSuggestions && !isInternalNote && (
+        {showSuggestions && !isInternalNote && !isTelegram && (
           <ResponseTemplateDropdown
             suggestions={suggestions}
             selectedIndex={selectedIndex}
@@ -522,18 +594,26 @@ export const MessageInput = ({
           />
         )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
+        {isInternalNote && (
+          <p className="mx-6 text-xs text-muted-foreground">
+            {t(
+              'internal-note-only-visible-to-team',
+              'Only visible to your team; this is not sent to the customer.',
+            )}
+          </p>
+        )}
+        {supportsReply && !isInternalNote && replyTo && (
           <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
             <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
               <IconArrowBackUp className="size-4 flex-none" />
               <span className="truncate">
-                {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
+                {t('replying-to', 'Replying to:')} {replyTo.preview}
               </span>
             </div>
             <button
               type="button"
               aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
+              onClick={clearReply}
               className="flex-none text-muted-foreground hover:text-foreground"
             >
               <IconX size={14} aria-hidden="true" />
@@ -543,6 +623,7 @@ export const MessageInput = ({
 
         <BlockEditor
           editor={editor}
+          sideMenu={!isTelegram}
           onChange={handleChange}
           disabled={loading}
           className={cn(
@@ -647,8 +728,12 @@ export const MessageInput = ({
             />
           </Button>
 
-          {isDiscord && !isInternalNote && (
-            <PollComposer onSubmit={handleSendPoll} loading={loading} />
+          {supportsReply && !isInternalNote && (
+            <PollComposer
+              onSubmit={handleSendPoll}
+              loading={loading}
+              provider={isTelegram ? 'Telegram' : 'Discord'}
+            />
           )}
 
           {isMessenger && !isInternalNote && (
@@ -669,7 +754,7 @@ export const MessageInput = ({
             onClick={handleSubmit}
           >
             {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
-            {t('send', 'Send')}
+            {isInternalNote ? t('save-note', 'Save note') : t('send', 'Send')}
             <Kbd className="ml-1 hidden sm:flex">
               <IconCommand size={12} />
               <IconCornerDownLeft size={12} />

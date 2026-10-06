@@ -143,6 +143,12 @@ import {
   loadDiscordConversationMessageClass,
 } from '@/integrations/discord/db/models/ConversationMessages';
 
+import {
+  ITelegramReactionDocument,
+  ITelegramReactionModel,
+} from '@/integrations/telegram/@types/reactions';
+import { loadTelegramReactionClass } from '@/integrations/telegram/db/models/Reactions';
+
 //Telegram imports
 import { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
 import {
@@ -419,6 +425,7 @@ export interface IModels {
   MailCloudflare: IMailCloudflareModel;
 
   // telegram
+  TelegramReactions: ITelegramReactionModel;
   TelegramBots: ITelegramBotModel;
   TelegramCustomers: ITelegramCustomerModel;
   TelegramConversations: ITelegramConversationModel;
@@ -696,6 +703,10 @@ export const loadClasses = (
     loadDiscordConversationMessageClass(models),
   );
 
+  models.TelegramReactions = db.model<
+    ITelegramReactionDocument,
+    ITelegramReactionModel
+  >('telegram_reactions', loadTelegramReactionClass());
   // telegram models
   models.TelegramBots = db.model<ITelegramBotDocument, ITelegramBotModel>(
     'telegram_bots',

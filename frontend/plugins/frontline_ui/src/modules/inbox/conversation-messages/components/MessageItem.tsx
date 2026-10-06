@@ -16,10 +16,21 @@ import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/ConversationFormDisplay';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
+import { MessageMedia } from '@/inbox/conversation-messages/components/MessageMedia';
+import {
+  TelegramMessageContent,
+  TelegramLinkPreviews,
+} from '@/integrations/telegram/TelegramMessageContent';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import { MessageSurvey } from '@/inbox/conversation-messages/components/MessageSurvey';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
+import {
+  TelegramMessageActions,
+  TelegramMessageQuote,
+  TelegramMessageStatus,
+} from '@/integrations/telegram/TelegramMessageDetails';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
 import { IconBrain, IconFile, IconSparkles } from '@tabler/icons-react';
 
@@ -57,6 +68,7 @@ const getMessageBubbleClassName = ({
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
   const { t } = useTranslation('frontline');
+  const { integration } = useConversationContext();
   const { previousMessage, nextMessage, ...message } =
     useConversationMessageContext();
   const {
@@ -81,6 +93,8 @@ export const MessageItem = () => {
   const poll = extraData?.poll;
   const survey = extraData?.survey;
   const embeds = extraData?.embeds;
+  const isTelegram =
+    Boolean(extraData?.telegram) || integration?.kind === 'telegram-messenger';
 
   const botText =
     isBotMessage && botData?.length
@@ -103,8 +117,15 @@ export const MessageItem = () => {
       </MessageWrapper>
     );
 
+  const telegramSender =
+    !userId && extraData?.telegram?.chatType !== 'private'
+      ? extraData?.telegram?.senderName
+      : undefined;
   const showAuthorName = Boolean(
-    isGroupConversation && !userId && customerId && separatePrevious,
+    isGroupConversation &&
+      !userId &&
+      (customerId || telegramSender) &&
+      separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -130,10 +151,12 @@ export const MessageItem = () => {
     <>
       {showAuthorName && (
         <div className="pl-11 pt-4 pb-0.5 text-xs font-medium text-muted-foreground">
-          <CustomersInline
-            customerIds={customerId ? [customerId] : []}
-            hideAvatar
-          />
+          {telegramSender || (
+            <CustomersInline
+              customerIds={customerId ? [customerId] : []}
+              hideAvatar
+            />
+          )}
         </div>
       )}
       {showBotName && (
@@ -147,7 +170,8 @@ export const MessageItem = () => {
         <div
           className={cn(
             'min-w-0 max-w-[428px]',
-            extraData?.discordMessageId && 'group relative',
+            (extraData?.discordMessageId || extraData?.telegram) &&
+              'group relative',
           )}
           key={_id}
         >
@@ -166,6 +190,29 @@ export const MessageItem = () => {
               />
             </div>
           )}
+          {extraData?.telegram &&
+            !internal &&
+            conversationId &&
+            (extraData.telegram.messageId ||
+              extraData.telegram.messageIds?.[0]) && (
+              <div
+                className={cn(
+                  'absolute bottom-0 z-10 opacity-0 group-hover:opacity-100 focus-within:opacity-100',
+                  userId ? 'right-full mr-1' : 'left-full ml-1',
+                )}
+              >
+                <TelegramMessageActions
+                  conversationId={conversationId}
+                  messageId={
+                    extraData.telegram.messageId ||
+                    extraData.telegram.messageIds?.[0] ||
+                    ''
+                  }
+                  content={displayContent || ''}
+                />
+              </div>
+            )}
+          <TelegramMessageQuote data={extraData?.telegram} />
           {isDeleted && (
             <div
               className={cn(
@@ -199,7 +246,14 @@ export const MessageItem = () => {
               asChild
             >
               <div>
-                <MessageContent content={displayContent} internal={internal} />
+                {isTelegram && !internal ? (
+                  <TelegramMessageContent content={displayContent || ''} />
+                ) : (
+                  <MessageContent
+                    content={displayContent}
+                    internal={internal}
+                  />
+                )}
                 {separateNext && (
                   <div className="text-muted-foreground mt-1">
                     <RelativeDateDisplay value={createdAt}>
@@ -219,6 +273,14 @@ export const MessageItem = () => {
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && survey && <MessageSurvey survey={survey} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
+          {isTelegram && !internal && hasTextBubble && (
+            <TelegramLinkPreviews
+              key={`${_id}-${displayContent}`}
+              messageId={_id}
+              content={displayContent || ''}
+            />
+          )}
+          <TelegramMessageStatus data={extraData?.telegram} />
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&
@@ -308,9 +370,16 @@ const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
   }
 
   const single = attachments.length === 1;
+  const hasMedia = attachments.some((item) =>
+    /^(video|audio)\//.test(item.type || ''),
+  );
 
   return (
-    <div className={cn(single ? 'flex' : 'grid grid-cols-3 gap-2')}>
+    <div
+      className={cn(
+        single || hasMedia ? 'flex flex-col gap-2' : 'grid grid-cols-3 gap-2',
+      )}
+    >
       {attachments.map((attachment, index) => (
         <Attachment
           key={`${attachment.url}-${index}`}
@@ -330,8 +399,11 @@ const Attachment = ({
   length?: number;
 }) => {
   const { t } = useTranslation('frontline');
-  const isImage = attachment.type.startsWith('image');
+  const isImage = attachment.type?.startsWith('image');
   const single = length === 1;
+  if (/^(video|audio)\//.test(attachment.type || '')) {
+    return <MessageMedia key={attachment.url} attachment={attachment} />;
+  }
   if (!isImage) {
     return (
       <a

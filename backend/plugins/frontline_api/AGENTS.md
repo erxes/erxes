@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -24,7 +24,7 @@
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
 - Telegram bot credential validation, provider webhook status and registration,
-  inbox delivery of private plain-text replies, and tenant-scoped
+  media, replies, edits, polls and observed reactions for private chats, groups, channels and forum topics, and tenant-scoped
   bot records, customer identity mappings, conversation mappings, and message mappings.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
@@ -134,158 +134,43 @@
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
 - Boots the Call app and the Discord gateway client from `onServerInit`.
-- Validates a Telegram bot token with `getMe` through
-  `telegramValidateToken`. The query requires `integrationsAdd`, returns bot
-  identity and optional group settings, and exposes controlled validation errors.
-- The internal `getTelegramWebhookInfo(token)` client reads the provider's
-  current webhook URL, pending update count, and optional delivery details. It
-  validates the response with Zod and does not change webhook configuration.
-- The internal `setTelegramWebhook(token, url, webhookSecret)` client validates
-  an HTTPS callback URL and provider-compatible secret, then registers new
-  message updates while preserving pending updates. It requires an explicit
-  successful provider response. `TelegramBots.setWebhook(_id, url)` invokes it
-  using the saved bot's credentials through the `telegramSetWebhook` mutation.
-- The internal `sendTelegramMessage(token, chatId, text)` client posts plain
-  text to a numeric chat ID and returns a validated provider `TelegramMessage`.
-  It rejects invalid chat IDs, blank text, and text exceeding 4096 Unicode code
-  points before requesting Telegram. The inbox reply handler invokes it.
-- The internal `sendTelegramReply({ models, payload })` handler validates an
-  inbox reply, resolves its saved bot and ordinary private-chat mapping, strips
-  editor HTML, and sends text through the provider client. After acceptance it
-  saves the Telegram message mapping with the staff sender, then returns the
-  inbox conversation ID, text preview, and original display content.
-- `handleTelegramIntegration` accepts `telegram` / `reply-messenger`, validates
-  the JSON envelope and matching integration ID before resolving tenant models,
-  and wraps the reply handler's result for the existing inbox dispatcher.
-  `conversationMessageAdd` creates the canonical inbox reply, updates its preview,
-  and publishes subscription events after Telegram acceptance and mapping storage.
-  Internal notes retain the existing local-only path.
-- The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
-  unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
-  It lives in `src/modules/integrations/telegram/utils/webhookAuth.ts`.
-- `telegramUpdateSchema` validates incoming update envelopes with a nonnegative
-  safe-integer `update_id` and preserves additional event fields. It does not
-  validate those event fields or process deliveries.
-- `telegramMessageSchema` validates message identifiers, timestamp, chat,
-  optional user or chat sender, text, and topic metadata. It accepts signed chat
-  IDs and preserves additional fields as unknown. The internal message receiver
-  invokes it before filtering supported messages or accessing persistence.
-- `TelegramBots.verifyWebhookSecret(_id, receivedSecret?)` checks the supplied
-  secret against the saved bot in the tenant's database and returns a boolean.
-  Missing inputs, unknown bots, and incorrect secrets return `false`.
-- `authenticateTelegramWebhook` reads the saved bot's `_id` route parameter and
-  `X-Telegram-Bot-Api-Secret-Token` header, resolves tenant models, and calls the
-  saved-bot verifier. It responds with `401` for missing or rejected credentials,
-  `500` for verification failures, and calls `next()` on success. It runs before
-  the controller on `POST /telegram/receive/:_id`.
-- Registers `TelegramBots` on the tenant's database connection. Its
-  `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
-- Registers `TelegramCustomers` on the tenant's database connection. Its
-  `getCustomer(selector)` method returns the matching customer mapping or throws
-  `Telegram customer not found`.
-- The internal Telegram `createCoreCustomer` adapter forwards a validated
-  sender's first and last names and the linked integration ID through
-  `receiveInboxMessage` using the supplied subdomain. It returns a nonempty Core
-  customer ID and rejects bridge failures or malformed success data. It does
-  not look up or link Telegram customer mappings itself.
-- The internal `getOrCreateTelegramCustomer` helper inserts or reuses a local
-  mapping by the sender's string `userId`. It returns the mapping and whether
-  this invocation inserted it, preserves existing profile and Core-link fields,
-  and adopts a concurrent insert winner. It does not call Core or link records.
-- The internal Telegram `getOrCreateCustomer` coordinator returns a mapping
-  linked to a Core contact. It reuses an existing link, gives a competing
-  creator four bounded waits to finish, and attempts linking if the mapping
-  remains unlinked. A conditional write preserves a competing completed link;
-  failures propagate and leave existing mappings available for retry.
-- Registers `TelegramConversations` on the tenant's database connection. Its
-  `getConversation(selector)` method returns the matching conversation mapping
-  or throws `Telegram conversation not found`. Conversation identity combines
-  the integration, chat, and topic.
-- The internal `getOrCreateTelegramConversation` helper inserts or reuses that
-  mapping and reports whether this invocation inserted it. It stores string
-  chat IDs, defaults absent topics to zero, converts message time to a `Date`,
-  and initializes the chat metadata and text preview. Existing metadata and
-  inbox links are preserved; the helper does not create an inbox conversation.
-- The internal `createInboxConversation` adapter forwards the mapping's
-  integration, preview, and source timestamp plus a Core customer ID through
-  the existing inbox bridge. It validates and returns the created inbox ID;
-  it does not save that ID on the Telegram mapping. Its ID-response validator
-  is shared with `createCoreCustomer`.
-- The internal `getOrCreateConversation` coordinator requires a customer linked
-  to Core, reuses completed inbox links, and waits briefly for a competing
-  creator before attempting recovery. It conditionally saves the inbox ID and
-  adopts a competing completed link without overwriting it. Failures propagate
-  and leave the mapping available for retry.
-- Registers `TelegramConversationMessages` on the tenant's database connection.
-  Its `getMessage(selector)` method returns the matching message mapping or
-  throws `Telegram conversation message not found`. A unique compound index
-  rejects duplicate integration, chat, and message identities. The internal
-  receiver writes these records through the message coordinator.
-- The internal `getOrCreateTelegramMessage` helper inserts or reuses a message
-  mapping by integration, chat, and provider message ID. It stores the local
-  conversation ID, Core customer ID, text, and source timestamp; existing
-  content and links remain unchanged. It reports local insertion ownership and
-  adopts a concurrent insert winner without creating an inbox message.
-- The internal `createInboxMessage` adapter forwards stored message content,
-  customer, timestamp, and attachments to the supplied inbox conversation via
-  `receiveInboxMessage`. It requests preview replacement and validates the
-  returned inbox message ID. It does not persist the link, coordinate retries,
-  or invoke Telegram.
-- The internal `getOrCreateMessage` coordinator requires a linked customer and
-  conversation, reuses completed message links, and waits briefly before
-  recovering an unlinked mapping. It conditionally saves the created inbox
-  message ID and adopts a competing completed link. Failures propagate while
-  preserving mappings for retry.
-- The internal `receiveTelegramMessage` handler validates a provider message
-  and processes ordinary private human text through the customer, conversation,
-  and message coordinators in order. Valid unsupported messages return `null`
-  without persistence; invalid payloads, missing integration links, and storage
-  failures propagate. It uses the supplied tenant models, subdomain, and saved
-  bot. The authenticated Telegram webhook controller invokes this handler.
-- `POST /telegram/receive/:_id` validates the update envelope and forwards new
-  `message` updates to the private-text receiver. Other event types and valid
-  unsupported messages receive `200` without persistence. Supported messages
-  receive `200` after the receiver completes; Zod failures receive `400`, and
-  other processing failures receive a generic `500` response.
-- Saved Telegram bot metadata includes optional `erxesApiId`, the linked
-  Frontline integration ID. It is nullable in GraphQL; unconnected bots omit it
-  in storage.
-- `TelegramBots.attachIntegration(_id, integrationId)` links an unconnected bot
-  to an existing `telegram-messenger` integration in the supplied tenant. It
-  rejects missing records, repeated connections, and reused integrations, and
-  returns the updated bot without selecting credentials. The external
-  integration creation flow invokes it through the Telegram creation adapter.
-- The internal `telegramCreateIntegrations` adapter validates the
-  `telegram-messenger` kind and a strict setup payload containing `sourceBotId`,
-  resolves tenant models, and attaches the saved bot to the supplied integration.
-  The `telegram` dispatcher case invokes it from the existing external
-  integration mutation. It returns `{ status: 'success' }` or throws so the
-  common creation flow rolls back the new integration on attachment failure.
-- `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
-  token. It returns provider information without changing the bot record or
-  webhook configuration.
-- `TelegramBots.setWebhook(_id, url)` registers a callback using the tenant's
-  saved token and webhook secret. It rejects missing bots and bots without an
-  inbox integration link, returns a boolean, and leaves the bot record unchanged.
-- `telegramSetWebhook(_id, url)` exposes registration after checking
-  `integrationsEdit`. It accepts only the saved bot ID and callback URL, returns
-  `true` on provider success, and propagates failures as GraphQL errors.
-- `telegramBotWebhookInfo(_id)` exposes that status after checking
-  `integrationsEdit`. It returns camel-case fields and converts provider error
-  timestamps from Unix seconds into GraphQL `Date` values.
-- Exposes `telegramBots` and `telegramBot(_id)` for reading saved bots after
-  checking `showIntegrations`. Lists are ordered newest first; both queries
-  return public metadata from the tenant's database without calling Telegram.
-- `TelegramBots.createBot({ token, createdBy })` verifies the token before
-  saving the provider's bot identity, capability flags, verification time, and
-  a generated webhook secret. It rejects duplicate bot identities and returns
-  the saved record without credentials.
-- Exposes `telegramAddBot` through the federated GraphQL schema. The resolver
-  checks `integrationsAdd` and takes `createdBy` from the authenticated user.
-  Creation saves the bot record. The external integration mutation can link
-  that saved bot to an inbox integration. The HTTP receiving route is mounted;
-  saved-bot webhook registration is available through GraphQL. A Telegram
-  connection UI is not implemented yet.
+- Telegram setup verifies/saves bots, attaches them to existing inbox integrations,
+  registers or reconnects signed webhooks, reads provider status, refreshes bot
+  metadata, replaces same-bot tokens, and disconnects without deleting history.
+- Telegram receives `message`, `channel_post` and their edited variants. Text,
+  photos, documents, voice/audio/video, animation, video notes, stickers and live
+  photos use existing content/attachments. Contacts, locations, venues and dice
+  become readable content; unsupported content becomes a visible notice.
+- Group/supergroup/channel senders and group/private forum topics are supported.
+  Topic names are learned from topic service messages. Edited content replaces the
+  same canonical message using the existing subscription; stale edits are rejected.
+- Telegram replies reuse the inbox mutation's existing attachment, poll and reply
+  fields. Photos/videos, audio-only and document-only batches use native albums;
+  other combinations send sequentially. Compatible uploads use native audio,
+  voice, video or animation methods. Internal notes stay local.
+- Poll results reuse `extraData.poll`; standalone poll updates refresh that card.
+  New polls are anonymous regular polls (2–10 answers, 1–168 hours). Reactions are
+  observed provider state, including retractions and anonymous count snapshots;
+  they require bot admin rights and explicit webhook registration. Outgoing album
+  reactions aggregate the parts represented by the canonical bubble.
+- Telegram media is downloaded into workspace storage through the public shared
+  storage API. Inbound files are bounded at 20 MiB; oversize files become visible
+  notices. Outbound files are preflighted with a 50 MiB total reply limit, using
+  multipart uploads and a caption on the first file only.
+- Telegram inbound message linking uses renewable Mongo leases and deterministic
+  inbox IDs to recover webhook retries after partial writes. Outbound provider
+  calls are never automatically retried; partial/uncertain sends return explicit
+  errors instead of reporting an unconfirmed delivery as successful.
+- Telegram group upgrades retain a `migratedToChatId` alias for future replies
+  and, when no conversation at the new ID exists, reuse the original history.
+  Human senders keep customer identities; anonymous/channel senders do not create
+  fake Core contacts. Chat labels are available through a membership-scoped query.
+- Telegram link previews read URLs from a stored, visible, non-internal message
+  and return the existing inbox embed shape. Metadata fetches are public HTTPS
+  only, revalidate and pin DNS through redirects, and cap time, bytes and links.
+  Preview failures retain an ordinary clickable link; cached results are scoped
+  by tenant and URL. Automatic forum-topic header references do not create false
+  quoted-reply cards; explicit quotes remain available.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -344,11 +229,17 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity, webhook status and registration, and plain-text sending; permission-checked validation and saved-bot queries, creation and webhook registration mutations, bot schema and model, webhook secret comparison, internal creation adapter |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot identity, credentials, lifecycle, signed webhook setup/status, permission-checked GraphQL and integration linking |
 | Telegram customers   | `src/modules/integrations/telegram/@types/customers.ts`, `src/modules/integrations/telegram/db/` | Customer identity mapping interface, schema, and model loader |
-| Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Local customer, conversation, and message insert/reuse; Core customer and inbox conversation/message creation through the bridge; conditional linking with bounded waits |
+| Telegram persistence | `src/modules/integrations/telegram/controller/store.ts` | Tenant mapping, deterministic inbox linking, media persistence and renewable message processing leases |
+| Telegram updates | `src/modules/integrations/telegram/controller/{sync,polls,reactions,eventLease}.ts` | Ordered edits, poll results and reaction projections onto existing canonical messages |
+| Telegram reaction state | `src/modules/integrations/telegram/@types/reactions.ts`, `src/modules/integrations/telegram/db/models/Reactions.ts` | Tenant-scoped actor snapshots and anonymous count snapshots |
 | Telegram receiver | `src/modules/integrations/telegram/controller/receiveMessage.ts` | Validates and filters provider messages, then resolves the customer, conversation, and inbox message in order |
-| Telegram replies | `src/modules/integrations/telegram/controller/sendMessage.ts` | Validates private text replies, resolves the saved bot and conversation, sends through the client, and saves the provider message mapping |
+| Telegram payloads | `src/modules/integrations/telegram/utils/{message,update,content}.ts` | Typed update/message validation, media and structured content normalization, and visible unsupported-content notices |
+| Telegram previews | `src/modules/integrations/telegram/utils/{linkPreview,publicAddress}.ts` | Bounded public HTTPS metadata reads, tenant cache and existing inbox embed normalization |
+| Telegram downloads | `src/modules/integrations/telegram/utils/downloadFile.ts` | Resolves provider file metadata, validates and encodes the download path, and retrieves bounded file bytes with timeout and cleanup |
+| Telegram attachment storage | `src/modules/integrations/telegram/utils/attachments.ts` | Downloads one file, sanitizes its display name, uploads through workspace storage using an isolated temporary directory, and returns an inbox attachment |
+| Telegram replies | `src/modules/integrations/telegram/controller/sendMessage.ts` | Preflights text/files/polls and quote targets, resolves chat/topic, sends native media/albums or text, and saves accepted provider IDs |
 | Telegram reply dispatch | `src/modules/integrations/telegram/messageBroker.ts`, `src/modules/inbox/graphql/resolvers/mutations/conversations.ts` | Validates the reply envelope, resolves tenant models, routes Telegram replies, and reuses canonical inbox storage and publishing |
 | Telegram webhook | `src/modules/integrations/telegram/routes.ts`, `src/modules/integrations/telegram/controller/webhook.ts` | Authenticated HTTP ingestion, update dispatch, and acknowledgment after processing |
 | Telegram conversations | `src/modules/integrations/telegram/@types/conversations.ts`, `src/modules/integrations/telegram/db/` | Conversation mapping interface, schema, and model loader |
@@ -367,67 +258,42 @@
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
 | Surveys              | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
 
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-> > > > > > > | Survey ticket automation | `src/modules/survey/ticketAutomation.ts` | Threshold evaluation, atomic single-ticket claim, ticket creation |
-> > > > > > > | Knowledge base | `src/modules/knowledgebase/` | Topics, categories, articles, AI knowledge source |
-> > > > > > > | Help center | `src/modules/helpcenter/` | Client portal configs: general settings and appearance for a published help center |
-> > > > > > > | Reports | `src/modules/reports/` | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model |
-> > > > > > > | Migrations | `src/migrations/` | Plugin-owned data migrations |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts` | Threshold evaluation, atomic single-ticket claim, ticket creation |
+| Knowledge base | `src/modules/knowledgebase/` | Topics, categories, articles, AI knowledge source |
+| Help center | `src/modules/helpcenter/` | Client portal configs: general settings and appearance for a published help center |
+| Reports | `src/modules/reports/` | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model |
+| Migrations | `src/migrations/` | Plugin-owned data migrations |
 
 ## Contracts
 
 ### Provides
 
-- Internal `sendTelegramReply({ models, payload }): Promise<ITelegramReplyResult>`
-  returns `{ status: 'success', data: { conversationId, content, displayContent } }`
-  after provider acceptance and local persistence. Validation and delivery
-  failures throw; the Telegram broker invokes the handler.
-- Internal `handleTelegramIntegration({ subdomain, data })` returns
-  `{ status: 'success', data: ITelegramReplyResult }` or
-  `{ status: 'error', errorMessage }`. It accepts only `telegram` /
-  `reply-messenger` with matching envelope and destination integration IDs.
-- The existing `conversationMessageAdd` mutation routes `telegram-messenger`
-  replies through this broker; its GraphQL schema is unchanged. The resolver
-  supplies the authenticated staff ID and owns canonical message creation,
-  preview updates, and subscription publishing.
-- `POST /telegram/receive/:_id` — the route parameter is the tenant's saved bot
-  record ID. Requires the matching `X-Telegram-Bot-Api-Secret-Token` header;
-  responds with `401` for rejected credentials, `400` for Zod validation
-  failures, `500` for other processing failures, and `200` after processing or
-  intentionally skipping an update. Provider webhook registration is separate.
-- `integrationsCreateExternalIntegration` accepts `kind: "telegram-messenger"`
-  and `data: { sourceBotId }` to link a saved bot to the newly created inbox
-  integration. `sourceBotId` is the saved erxes record ID. Omitting `channelId`
-  uses the caller's personal channel. This path retains the common resolver's
-  existing channel checks and, like Discord creation, has no explicit
-  `integrationsAdd` action check.
-- `telegramValidateToken(token: String!): TelegramTokenValidation!` — checks
-  credentials for integration setup. Successful results include a string bot ID,
-  bot name, and optional username and group settings; failed checks return
-  `valid: false` with an error. Permission failures remain GraphQL errors.
-- `telegramAddBot(token: String!): TelegramBot!` — creates a tenant-owned bot
-  after checking `integrationsAdd`. Returns the erxes record ID, Telegram
-  identity, optional group settings, verification time, timestamps, and creator.
-  The only input is the token; credentials are excluded from `TelegramBot`.
-  Permission, validation, and duplicate failures are GraphQL errors.
-- `telegramBots: [TelegramBot!]!` — lists the tenant's saved bots newest first;
-  returns an empty array when none are saved. Requires `showIntegrations`.
-- `telegramBot(_id: String!): TelegramBot!` — reads a saved bot by its erxes
-  record ID after checking `showIntegrations`; a missing bot is a GraphQL error.
-  Both read queries use the public `TelegramBot` type and exclude credentials.
-- `TelegramBot.erxesApiId: String` — the linked Frontline integration ID, or
-  `null` when the saved bot has no integration link.
-- `telegramBotWebhookInfo(_id: String!): TelegramWebhookInfo!` — reads the saved
-  bot's current provider webhook status after checking `integrationsEdit`.
-  Returns URL, certificate flag, pending update count, and optional IP address,
-  error dates/message, connection limit, and allowed update kinds. Absent optional
-  fields become `null`; permission, missing-bot, and provider failures are GraphQL
-  errors. The token and webhook secret are not fields of this response type.
-- `telegramSetWebhook(_id: String!, url: String!): Boolean!` — registers the
-  supplied full HTTPS callback URL for the tenant's saved, linked bot after
-  checking `integrationsEdit`. Success returns `true`; permission, missing-bot,
-  missing-link, validation, database, and provider failures are GraphQL errors.
-  The operation accepts and returns no bot credentials.
+- `POST /telegram/receive/:_id`: saved bot ID plus matching
+  `X-Telegram-Bot-Api-Secret-Token`; `401` rejected authentication, `400` malformed
+  payload, generic `500` retryable processing failure, `200` handled/skipped update.
+- `telegramValidateToken(token)` and `telegramAddBot(token)` require
+  `integrationsAdd`; creation derives the creator from the authenticated user.
+- `telegramBots` / `telegramBot(_id)` require `showIntegrations` and return
+  public metadata only. `TelegramBot.erxesApiId` is the nullable inbox link.
+- `telegramBotWebhookInfo(_id)`, `telegramSetWebhook(_id, url)`,
+  `telegramUpdateBot(_id, token?)`, and `telegramDisconnectBot(_id)` require
+  `integrationsEdit`. Status timestamps are GraphQL Dates; credentials are never
+  public fields. Registration/disconnect return booleans; update returns metadata.
+- `telegramConversationChats(conversationIds: [String!]!)` requires
+  `showConversations`, accepts at most 100 IDs, and restricts chat metadata to
+  integrations in channels visible to the acting user. Returns inbox conversation
+  ID, provider chat ID/type/title, topic ID and optional topic name.
+- `telegramMessageLinkPreviews(messageId: String!): JSON` requires
+  `showConversations` plus visible-channel membership. Reads links only from a
+  stored non-internal Telegram message; returns at most two existing-shape embeds.
+- `integrationsCreateExternalIntegration` retains `kind: 'telegram-messenger'`
+  and `data: { sourceBotId }`; the saved bot ID is linked atomically. The common
+  channel authorization and rollback path remain unchanged. Removal unregisters
+  the webhook, drops pending updates, detaches the bot and rotates its secret.
+- `sendTelegramReply({ models, subdomain, payload })` returns the existing nested
+  broker success shape with `{ conversationId, content, displayContent, extraData }`.
+  `extraData.telegram.messageIds` contains accepted provider IDs. Canonical
+  outgoing writes/subscriptions remain owned by `conversationMessageAdd`.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -436,25 +302,16 @@
 
 ### Consumes
 
-- Telegram Bot API `GET /bot<token>/getMe`,
-  `GET /bot<token>/getWebhookInfo`, and JSON `POST /bot<token>/setWebhook` and
-  `POST /bot<token>/sendMessage` — a
-  shared request helper validates token syntax, limits requests to ten seconds,
-  rejects redirects, and replaces raw transport and response errors with
-  controlled messages. Each client validates its response with Zod; an empty
-  webhook URL is a valid unconfigured state when reading status.
-- Telegram customer creation uses the Frontline-local `receiveInboxMessage`
-  action `get-create-update-customer`, which reaches Core through its published
-  customer procedures. The adapter passes the integration ID and sender names;
-  it does not supply an email or phone for matching existing Core customers.
-- Telegram inbox conversation creation uses the Frontline-local
-  `receiveInboxMessage` action `create-or-update-conversation` without an
-  existing `conversationId`. The adapter supplies `createdAt` from the mapping's
-  source timestamp; the inbox model uses it for both initial timestamps.
-- Telegram inbox message creation uses the Frontline-local `receiveInboxMessage`
-  action `create-conversation-message` with `metaInfo: 'replaceContent'`. This
-  action stores the inbox message, updates its conversation, and publishes the
-  existing inbox realtime events; the adapter returns its validated message ID.
+- Telegram Bot API identity, webhook status/register/delete, file lookup,
+  sendMessage, sendPhoto, sendDocument, sendAudio, sendVoice, sendVideo,
+  sendAnimation, sendMediaGroup and sendPoll. Requests reject redirects and expose
+  controlled failures; ordinary calls time out at 10 seconds, multipart at 60.
+- Fixed-host Telegram file downloads use a 30-second timeout and byte bounds.
+  The adapter consumes public `uploadFileToStorage`, `readFileStreamFromStorage`,
+  `sanitizeFilename`, and `IAttachment` from `erxes-api-shared`, forwarding the tenant.
+- Frontline-local `receiveInboxMessage` bridges human senders to Core contacts,
+  creates/updates deterministic inbox conversations, and creates canonical inbox
+  messages with existing realtime publication. No shared inbox schema changes.
 - `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
   `customers.createMessengerCustomer` / `updateMessengerCustomer`,
@@ -468,464 +325,172 @@
 
 ## Data and State
 
-- `src/connectionResolvers.ts` supplies the plugin's per-subdomain model container.
-- `src/modules/integrations/telegram/@types/bot.ts` defines the Telegram bot
-  record interface and a document interface extending Mongoose `Document`:
-  bot identity, credentials, group settings, verification time, timestamps,
-  creator, and optional `erxesApiId` integration link. The document interface
-  declares the erxes `_id`;
-  `ITelegramBotCreateInput` accepts only `token` and `createdBy`.
-- `src/modules/integrations/telegram/db/definitions/bots.ts` defines the bot
-  schema with generated string IDs, a unique `botId` index, immutable bot and
-  creator IDs, and automatic timestamps. A unique sparse `erxesApiId` index
-  prevents multiple bot records from linking to the same integration while
-  allowing multiple bots without a link. `token` and `webhookSecret` are
-  excluded from queries by default.
-- `src/modules/integrations/telegram/db/models/Bots.ts` defines
-  `ITelegramBotModel` and `loadTelegramBotClass(models)`. `src/connectionResolvers.ts`
-  registers the loader as `models.TelegramBots` with model name `telegram_bots`.
-  `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
-- `src/modules/integrations/telegram/@types/customers.ts`,
-  `db/definitions/customers.ts`, and `db/models/Customers.ts` define the customer
-  mapping document, schema, and `loadTelegramCustomerClass(models)`.
-  `src/connectionResolvers.ts` registers `TelegramCustomers` as
-  `customers_telegram`. Each mapping has a generated string `_id`, required
-  unique string `userId`, required `integrationId`, optional name and username,
-  and optional `erxesApiId` linking to the Core customer.
-- `src/modules/integrations/telegram/@types/conversations.ts`,
-  `src/modules/integrations/telegram/db/definitions/conversations.ts`, and
-  `src/modules/integrations/telegram/db/models/Conversations.ts` define the
-  conversation mapping and `loadTelegramConversationClass(models)`.
-  `src/connectionResolvers.ts` registers `TelegramConversations` as
-  `conversations_telegram`. A unique compound index covers `integrationId`,
-  string `chatId`, and `messageThreadId`. The thread defaults to `0` and must be
-  a nonnegative safe integer. Records also hold the chat type, optional title,
-  required `timestamp`, content defaulting to an empty string, and optional
-  `erxesApiId` linking to a Frontline inbox conversation.
-- `src/modules/integrations/telegram/@types/conversationMessages.ts`,
-  `src/modules/integrations/telegram/db/definitions/conversationMessages.ts`,
-  and `src/modules/integrations/telegram/db/models/ConversationMessages.ts`
-  define the message mapping and `loadTelegramConversationMessageClass(models)`.
-  `src/connectionResolvers.ts` registers `TelegramConversationMessages` as
-  `conversation_messages_telegram`. Records require string `integrationId`,
-  `chatId`, `messageId`, and `conversationId`, plus `createdAt`. Content defaults
-  to an empty string. Optional fields hold the inbox message link, edit time,
-  Core customer ID, staff user ID, and attachments using the shared schema.
-- Outgoing Telegram mappings use the local conversation mapping ID, the
-  provider's string message ID and source timestamp, and the acting staff
-  `userId`. The reply handler leaves the optional inbox-message `erxesApiId`
-  absent because the canonical inbox message has not been created at that stage.
-- `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
-  sorted by descending `createdAt`, retaining the default credential projection.
-- `attachIntegration` checks the destination through `models.Integrations`,
-  then conditionally updates the bot only while `erxesApiId` is absent. A
-  nonmatching update distinguishes an unknown bot from an existing connection;
-  duplicate integration links and other update failures return controlled errors.
-- `verifyWebhookSecret` skips database access for missing inputs, explicitly
-  selects `+webhookSecret`, and returns only the comparison result. It does not
-  select the bot token, call Telegram, or modify the record. Database failures
-  propagate to the caller.
-- `getWebhookInfo(_id)` explicitly selects `+token` from the supplied tenant's
-  bot model and passes it to the provider client. A missing bot throws before
-  any provider request; the return value contains webhook information rather
-  than the credential-bearing database document.
-- `setWebhook(_id, url)` explicitly selects `+token +webhookSecret` from the
-  supplied tenant's bot model. It requires a present `erxesApiId` before calling
-  the registration client, returns no credential-bearing document, and does not
-  persist the callback URL or change verification timestamps.
-- `src/modules/integrations/telegram/@types/webhook.ts` defines
-  `ITelegramWebhook`, the camel-case query response with optional `Date` values.
-  It is a plain interface, not a persisted model or Mongoose document.
-- `createBot` stores a fresh 32-byte random secret encoded as hex. It reads the
-  inserted record through `getBot` so the result uses the schema's default
-  credential projection; the direct result of `create` still contains secrets.
-- Telegram token validation does not persist credentials or integration records.
+- `src/connectionResolvers.ts` supplies per-subdomain models. Telegram follows
+  the local type → schema → class loader → model registration pattern.
+- `telegram_bots`: unique provider `botId`, generated local `_id`, creator,
+  names/capabilities, verification timestamp and unique sparse `erxesApiId`.
+  `token` / `webhookSecret` are `select: false`, not encrypted by that setting.
+- `customers_telegram`: unique provider `userId` within the tenant, originating
+  integration and optional `erxesApiId` pointing to Core. New contacts use a stable
+  `telegram-<mapping _id>` Core ID and public Core lookup/create contracts to
+  converge concurrent creation and recover a missing local link.
+- `conversations_telegram`: unique `(integrationId, chatId, messageThreadId)`,
+  chat type/title/topic name, timestamp/preview and inbox `erxesApiId`. Ordinary chats use
+  topic zero. Optional `migratedToChatId` redirects upgraded-group replies.
+- `conversation_messages_telegram`: unique `(integrationId, chatId, messageId)`,
+  local conversation ID, source timestamp, content, existing attachment array,
+  human customer or staff user, optional sender label and canonical message link.
+  `processingToken` / `processingUntil` implement a renewable processing lease.
+  `attachmentFileIds` avoids downloading unchanged media on caption edits;
+  processed edit/update versions reject stale delivery. Poll ID/state and message
+  metadata are adapter-owned optional fields.
+- `telegram_reactions`: unique `(integrationId, chatId, messageId, actorId)`;
+  actor snapshots carry provider date/update ID for idempotent ordering. The
+  reserved `counts` actor represents an anonymous aggregate. Short event leases
+  serialize projection with message edits; canonical version fields reject stale
+  poll/reaction projections.
+- New canonical inbound IDs are `telegram-<local mapping _id>`; pre-existing
+  canonical links are reused unchanged. Inbox `extraData.telegram` carries chat/
+  sender/provider IDs, album/edit/quote metadata and reaction display state;
+  polls reuse existing `extraData.poll`. No shared schema was changed.
+- All added persisted fields are optional. Existing unique indexes and message
+  shapes remain valid; this change requires no destructive data migration.
+- Link metadata is not persisted on the canonical message. An in-process cache
+  keys by tenant and URL, retains results for five minutes and holds at most 200
+  entries; concurrent reads share the in-flight promise.
 
 ## Local Invariants
 
-- Check `integrationsAdd` before token validation or bot creation; keep permission
-  checks outside the handler that converts provider failures into validation results.
-- Check `showIntegrations` before either saved-bot metadata query accesses tenant
-  models. `telegramBots` and `telegramBot` must not request credentials or contact
-  Telegram.
-- Telegram credentials must not appear in public API results or raw error messages.
-  Reject surrounding whitespace instead of silently rewriting a pasted token.
-- The text-sending client accepts nonzero signed decimal safe-integer chat IDs
-  stored as strings. Check text emptiness without rewriting the submitted text,
-  enforce the 4096-code-point limit, and omit `parse_mode`. Reuse
-  `telegramMessageSchema` to validate the successful provider response. The
-  client does not load credentials, persist messages, or automatically retry.
-- The reply handler must use the supplied tenant models, select `+token` from
-  the bot linked to the inbox integration, and match a conversation by both
-  that integration and its inbox `erxesApiId`. Require `chatType: 'private'`
-  and `messageThreadId: 0` before sending.
-- Reject internal notes, attachments, polls, and quoted replies before provider
-  access. Convert editor HTML through the existing `string-strip-html` utility;
-  preserve the original HTML as `displayContent` for the caller's inbox write.
-- Await provider acceptance before saving an outgoing Telegram mapping, then
-  await that save before reporting success. A failed save must explicitly report
-  that Telegram accepted the message. Do not retry automatically or create the
-  canonical inbox message in this handler; provider and database writes are not
-  atomic, so manually retrying after a save failure can duplicate delivery.
-- The Telegram broker must validate its action, JSON payload, and matching
-  integration IDs before generating models from the supplied subdomain. Keep
-  the outer result wrapper: the inbox resolver consumes `response.data.data`.
-  Return handler failures through `status: 'error'` so accepted-but-unsaved
-  errors retain their meaning without an inaccurate delivery-failure prefix.
-- Keep canonical inbox writes in `conversationMessageAdd`, after a successful
-  broker result. Derive the staff sender from request context and keep internal
-  notes on the existing branch that bypasses provider dispatch.
-- Webhook registration requires a full HTTPS callback URL without surrounding
-  whitespace and a secret of 1–256 characters from `A-Z`, `a-z`, `0-9`, `_`, or
-  `-`. Send `allowed_updates: ['message']` and `drop_pending_updates: false`;
-  accept success only when both `ok` and `result` are literal `true`. The
-  receiver still filters supported private text from incoming message updates.
-- Telegram webhook secret comparison must reject empty values and check byte
-  lengths before calling `timingSafeEqual`; compare the received value exactly
-  without trimming or normalizing it.
-- Telegram webhook authentication must resolve models from `getSubdomain(req)`
-  and interpret the `_id` route parameter as the erxes bot record ID. Reject
-  missing credentials before model initialization, keep error responses generic,
-  and pass successful requests onward without acknowledging their payloads.
-- Mount Telegram authentication before its webhook controller. Dispatch only
-  the envelope's new `message` field, and resolve the saved bot through the same
-  request subdomain. Await the receiver before acknowledging supported messages;
-  unsupported event types may be acknowledged immediately after authentication
-  and envelope validation. Never expose raw processing errors in HTTP responses.
-- Keep Telegram supporting utilities in `src/modules/integrations/telegram/utils/`.
-  `utils/update.ts` defines the Zod envelope schema and inferred `TelegramUpdate`
-  type. Treat preserved event fields as unknown until their handler validates
-  them; envelope validation alone does not make an event safe to process.
-- `utils/message.ts` defines `telegramMessageSchema` and its inferred
-  `TelegramMessage` type. Keep provider payload validation separate from
-  persisted document types. Preserve optional senders/text and signed chat IDs;
-  accepting message metadata does not implement media or message delivery.
-- `receiveTelegramMessage` processes private text from a present human sender
-  only. Ignore chat senders, blank or absent text, zero message IDs, and topic,
-  thread, business, or guest contexts before persistence. Trimming checks
-  emptiness without rewriting text. The caller supplies the authenticated bot
-  and tenant context; the receiver is not an HTTP authentication boundary.
-  Await customer and conversation linkage before creating or reusing a message,
-  and let failures propagate to the caller.
-- The `client.ts` types `TelegramBot` and `TelegramWebhookInfo` describe
-  validated provider responses. Keep them separate from the saved-record types
-  `ITelegramBot` and `ITelegramBotDocument` and the mapped query response
-  `ITelegramWebhook`. Only persisted records need Mongoose document interfaces.
-- Keep `token` and `webhookSecret` out of the `TelegramBot` GraphQL type.
-  `telegramAddBot` must derive `createdBy` from request context, never an argument.
-- An unconnected bot must omit `erxesApiId` in MongoDB; do not store an empty
-  string or `null` as its unconnected value. `botId` identifies the Telegram
-  bot; `erxesApiId` identifies the Frontline integration.
-- Keep the missing-link condition inside the attachment update filter so
-  concurrent requests cannot overwrite a connection. Check the destination's
-  `telegram-messenger` kind through the supplied tenant's integration model.
-  The attachment method only links records; the external creation flow owns
-  integration creation and rollback.
-- `telegramCreateIntegrations` treats parsed setup JSON as unknown and validates
-  it before resolving tenant models. `sourceBotId` is the saved bot's erxes
-  `_id`; accept no token or extra setup fields. Propagate attachment failures to
-  the caller, which owns integration creation and rollback.
-- Backend queries must explicitly select any Telegram credential fields they
-  need; `select: false` controls query projection and does not encrypt storage.
-- Callers of `TelegramBots.getWebhookInfo` must enforce integration permissions
-  before loading credentials. The method must use the supplied tenant model,
-  preserve stored verification timestamps, and return only provider information.
-- Callers of `TelegramBots.setWebhook` must enforce integration permissions
-  before loading credentials. Use the supplied tenant model and full callback
-  URL; require an inbox link before contacting Telegram, await registration,
-  and propagate database and provider failures to the caller.
-- `telegramSetWebhook` must await `integrationsEdit` permission before invoking
-  the model. Keep the public arguments limited to `_id` and `url`, obtain
-  credentials from the tenant's saved bot, and return only a boolean.
-- `telegramBotWebhookInfo` must check `integrationsEdit` before invoking the
-  model. Map optional Unix timestamps by testing for `undefined`, so a zero
-  timestamp remains valid, and expose the update list as `allowedUpdates`.
-- Keep Telegram bot model registration consistent with the other integrations:
-  use the document interface, model interface, and class loader. The model
-  loader imports the schema and uses the supplied tenant model container.
-- Telegram customer identity is unique by `userId` within each tenant, across
-  its integrations. Customer mappings use the supplied tenant model container;
-  their `erxesApiId` refers to a Core customer, while `integrationId` records the
-  originating Frontline integration. The mapping does not own the Core record.
-- Local customer lookup uses `$setOnInsert` with the unique `userId` index;
-  repeated messages must not overwrite an existing profile, originating
-  integration, or Core link. `created` reports insertion by this invocation,
-  not whether a Core contact exists. Only a MongoDB duplicate-key error on
-  `userId` is handled as a concurrent insert; other database failures propagate.
-- `createCoreCustomer` requires an already-validated, present Telegram sender
-  and a linked Frontline integration ID. Forward the same request's subdomain
-  through the inbox bridge and validate its returned `_id` before using it.
-  This adapter creates a Core contact; it does not itself prevent repeated
-  calls from creating multiple contacts for the same Telegram sender.
-- `getOrCreateCustomer` must return only after observing a nonempty Core link.
-  Existing unlinked mappings are reread after 250, 500, 750, and 1000 ms before
-  attempting recovery. Write the link only while `erxesApiId` is null or absent,
-  and adopt a competing saved link when the conditional write loses. These
-  waits do not make Core creation idempotent: simultaneous recovery, slow Core
-  calls, or a failed link write can leave an extra Core contact. Do not claim
-  exactly-once contact creation or delete a mapping as generic error cleanup.
-- Identify a Telegram conversation from message metadata using the integration,
-  chat, and topic together within the supplied tenant. Store an absent topic as
-  `messageThreadId: 0`; keep this internal default separate from outbound API
-  parameters. Conversation `erxesApiId` refers to the Frontline inbox
-  conversation and may be absent until linked. Metadata storage does not imply
-  that webhook delivery or group/topic handling is implemented.
-- `getOrCreateTelegramConversation` uses `$setOnInsert` with the full unique
-  identity and preserves existing content, timestamp, chat metadata, and inbox
-  link during lookup. Only a duplicate-key error on all three identity fields
-  is adopted as a concurrent insert winner. `created` describes this local
-  insertion, not inbox creation; failures from writes and rereads propagate.
-- Call `createInboxConversation` only when creating the inbox record for an
-  unlinked Telegram mapping, with the same tenant context and a Core customer
-  ID. The returned `_id` identifies the Frontline inbox conversation. Validate
-  that response before linking; creation alone is not idempotent, and the
-  caller owns saving the link and coordinating competing requests.
-- `getOrCreateConversation` requires `customer.erxesApiId` before model access
-  and returns only after observing a nonempty inbox link. Existing unlinked
-  mappings are reread after 250, 500, 750, and 1000 ms before recovery. Claim
-  only null or absent links and adopt a competing saved link; propagate bridge,
-  response-validation, database, and missing-row failures without deleting
-  mappings. These waits are not a lock: simultaneous recovery, slow inbox
-  creation, or a failed link write can leave an extra inbox conversation.
-- Identify a Telegram message mapping by `integrationId`, `chatId`, and
-  `messageId` together within the supplied tenant. Its `conversationId` refers
-  to the local Telegram conversation mapping; its optional `erxesApiId` refers
-  to the Frontline inbox message. `customerId` is a Core customer ID and
-  `userId` is an erxes staff user ID. The unique index prevents duplicate local
-  mappings; it does not make later writes to inbox records atomic or implement
-  webhook retry handling.
-- `getOrCreateTelegramMessage` uses `$setOnInsert` and returns `{ message,
-  created }`. Preserve existing content, timestamps, customer/conversation IDs,
-  and inbox links during lookup. Recover only a MongoDB duplicate-key error
-  whose index pattern includes all three message identity fields; propagate
-  other write failures and failed rereads. A reused local message without an
-  inbox link must not be treated as successfully delivered.
-- `createInboxMessage` takes the Frontline inbox conversation ID separately
-  from the local message mapping. Do not forward the mapping's `conversationId`
-  as the inbox destination. Preserve stored content, Core customer ID, source
-  creation time, and attachments. The caller owns link persistence and retry
-  coordination; repeated creation calls can create additional inbox messages,
-  including when a bridge call fails after a partial write.
-- `getOrCreateMessage` requires nonempty customer and conversation links before
-  model access. It rereads existing unlinked mappings after 250, 500, 750, and
-  1000 ms before recovery, claims only null or absent message links, and returns
-  only after observing a saved inbox message ID. Do not delete mappings as
-  error cleanup. Bounded waits do not guarantee exactly-once inbox delivery:
-  slow creation, simultaneous recovery, partial bridge writes, or failed link
-  writes can create additional inbox messages even when one local link wins.
-- Callers of `TelegramBots.createBot` must enforce permissions and supply
-  `createdBy` from the authenticated user. Derive bot identity and capabilities
-  from `getMe`; reject duplicate identities without replacing saved credentials.
-  Return controlled storage errors rather than raw database error details.
-- Expose Telegram bot IDs as strings in GraphQL. Preserve absent optional
-  capability fields separately from explicit `false` values.
+- Enforce setup permissions before credential access. Derive actors from request
+  context; generate models from the authenticated request's subdomain. Chat metadata
+  must apply channel visibility, not only tenant membership.
+- Bot tokens/secrets never enter GraphQL results, browser storage, file URLs exposed
+  to clients, or raw error messages. Validate token syntax without silently trimming it.
+- Preview fetches accept no arbitrary URL query argument: resolve a stored visible
+  message first. Keep public-address validation and pinned DNS on every metadata
+  redirect, no credentials/cookies, at most two URLs, two redirects, five seconds
+  and 512 KiB of streamed HTML. Metadata failure must preserve the usable link.
+- `sourceBotId` is the local saved-bot ID. An unconnected bot omits `erxesApiId`;
+  conditional attachment may not overwrite another connection. Preserve common
+  creation rollback and channel checks rather than adding a parallel lifecycle.
+- Replacement tokens must resolve to the same provider bot ID. Webhook URLs must
+  be HTTPS and end with `/telegram/receive/<saved-bot-id>` without query, fragment
+  or credentials. Register message/channel posts, both edited variants, poll and
+  reaction/count events, preserving pending updates.
+  Disconnect keeps history and pauses the integration; successful registration reactivates it.
+- Authenticate the webhook before dispatch. Compare nonempty equal-length secret
+  buffers with `timingSafeEqual`; preserve generic HTTP errors. Validate each
+  message after validating its envelope and await processing before acknowledging.
+- Human group authors may have Core contacts, but the group/channel itself is not
+  a single customer. The inbox reply mutation permits Telegram conversations
+  without a customer; delivery uses the validated chat mapping. Missing linked
+  customers and other integrations retain the existing customer requirement.
+  Never create a fake human for `sender_chat`. Topic IDs apply
+  only when `is_topic_message` is true. Business, guest and channel direct-message
+  modes are separate delivery contracts and are not registered. Scheduled
+  `message_id: 0` and the connected bot's own echoes are not imported.
+- Never silently discard ordinary message content: map it to the existing inbox
+  contract or retain a visible fallback. Ordinary deletions have no Bot API event;
+  do not infer a deletion from a missing update. Replies must reference a mapped
+  message in this integration, current chat and topic.
+- Preserve raw text in mappings and escape it before inbox HTML rendering. Reuse
+  the existing attachment schema and renderer. Do not expose Telegram token URLs.
+- Downloads validate/encode path segments and enforce 20 MiB at metadata, headers
+  and streamed bytes. Permanent size-limit failures become a visible notice;
+  transient failures remain retryable. Always abort/release readers on exit.
+- Workspace upload uses a unique temporary directory, fixed private filename
+  (`0600`), sanitized display basename, actual byte size and cleanup in `finally`.
+- Outgoing files use workspace storage keys or HTTPS public URLs. Resolve and pin
+  public DNS addresses, reject private/reserved targets and redirects, and bound
+  time and bytes. Preflight all files before sending any; max ten files and 50 MiB
+  total. Compatible JPEG/PNG up to 10 MiB use sendPhoto; supported signatures
+  route audio/voice/video/animation to native methods, with documents as fallback.
+  Image keys missing from object storage use public `readFileFromStorage`, as
+  Mail does, to support Cloudflare Images. That shared fallback buffers before
+  its size check; streaming failures and non-image keys must not use it.
+- Preserve editor HTML for the inbox; send plain text (4096 code points) or a
+  first-file caption (1024). Internal notes never leave erxes. Polls use the
+  existing poll input and quoted replies use a validated provider message ID.
+  Strip editor markup before unescaping text so literal angle-bracket tags and
+  entity spellings are preserved in outgoing Telegram replies and captions.
+- Await provider acceptance and local mapping storage before success. Report partial
+  sends/ambiguous timeouts explicitly and never retry outbound sends automatically.
+  Provider delivery and canonical inbox writes cannot be made atomic by this adapter.
+- Inbound processing claims a two-minute token-fenced Mongo lease, renewed every
+  30 seconds. Reuse stored attachments, deterministic IDs and canonical records
+  after partial failure. Release only the owned lease. Re-publish existing inbox
+  events during recovery; subscribers deduplicate canonical message IDs.
+- New customer links use a deterministic Core ID derived from the local mapping,
+  the public Core find/create contract, and lookup after a competing insert.
+  Preserve existing links and conditional linking. Do not claim distributed
+  exactly-once creation or delete mappings as generic error cleanup.
+- Group upgrades store an alias instead of rewriting the unique chat key. If both
+  histories already exist, keep both and route future replies to the upgraded chat.
+- Keep application exports named, no new `any`, no new dependencies and no source
+  changes outside Frontline. Test doubles may cast at the Mongoose boundary.
 
 ## Validation
 
-- `pnpm nx lint frontline_api`
-- `pnpm nx build frontline_api`
-- `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram backend/plugins/frontline_api/src/routes.ts --max-warnings=0`
-- `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram backend/plugins/frontline_api/src/routes.ts`
-- The project currently has no Nx test target.
-- Telegram route checks: mount the real Frontline router with unrelated
-  integration routers stubbed, and use isolated HTTP requests with stubbed tenant
-  models and persistence. Verify authentication before processing, tenant
-  forwarding, malformed payload rejection, unsupported-update acknowledgment,
-  generic failure responses, and no success response before persistence finishes.
-  These checks must not register a webhook or write live inbox records.
-- Telegram receiver checks: use the actual message validator with stubbed
-  persistence coordinators. Verify sequential dependencies, tenant forwarding,
-  unchanged text, no writes for unsupported messages or malformed payloads,
-  rejection of an unlinked bot for supported text, and propagation of each
-  coordinator's failure without calling later coordinators.
-- Telegram customer adapter checks: stub the inbox bridge, verify tenant and
-  profile forwarding, optional last names, a single call per invocation, and
-  a string ID result. Reject bridge errors and success data with a missing,
-  empty, or nonstring ID; propagate thrown failures without creating live contacts.
-- Telegram customer lookup checks: verify first insertion, repeat lookup,
-  preserved profile/integration/Core links, optional names, distinct senders,
-  tenant isolation, required fields, and exact string storage of large safe
-  provider IDs. Concurrent first messages must yield one mapping and one
-  `created: true`; only a duplicate on `userId` is recoverable. Stub the inbox
-  bridge to confirm lookup never calls Core; clean up isolated test databases.
-- Telegram customer linking checks: use isolated tenant databases and a stubbed
-  Core bridge to verify first linking, existing-link reuse across integrations,
-  concurrent first messages with a timely Core response, recovery of unlinked
-  and null-linked mappings, and adoption of a late competing link. Exercise
-  malformed Core data, transport errors, database failures, and missing rows;
-  assert that failures propagate and do not delete mappings. Verify the known
-  extra-contact risk during simultaneous recovery or after a failed link write.
-- Telegram message model checks: verify saved defaults, required fields,
-  shared attachment validation, optional inbox/customer/staff links, and
-  `getMessage` lookups and missing-record errors. Reject duplicate identities,
-  including concurrent inserts and attempts under another local conversation;
-  allow different chats, integrations, messages, and tenant databases.
-- Telegram message lookup checks: verify initial field mapping, unchanged
-  records on repeat delivery, concurrent insertion ownership, and isolation
-  across chats, integrations, and tenant databases. Check signed safe chat
-  IDs and omitted text. Adopt only a duplicate on the expected compound index;
-  reject other indexes, incomplete index patterns, nonduplicate failures, and
-  missing winners. A failed reread must leave the insert available for retry.
-  Use isolated databases and confirm that lookup never calls the inbox bridge.
-- Telegram inbox message adapter checks: stub the bridge and verify exact
-  tenant, action, preview flag, supplied inbox conversation ID, and stored
-  message fields. Preserve empty text, omitted/empty attachments, and the local
-  mapping. Return only the validated message ID; reject structured or thrown
-  bridge failures and malformed success data without additional creation calls.
-  These checks must not create live inbox records or call Telegram.
-- Telegram message linking checks: use isolated tenant databases and a stubbed
-  inbox bridge. Reject missing prerequisite links before writes; verify first
-  linking, immediate reuse, concurrent first calls with a timely response,
-  null/absent-link recovery, final-wait completion, and late competing links.
-  Propagate bridge, response-validation, link-write, and missing-row failures
-  while retaining retryable mappings. Verify tenant isolation and reproduce
-  the extra-inbox-message risk during simultaneous recovery.
-- Telegram conversation model checks: verify lookups, missing-record errors,
-  optional inbox links, required fields, and content/topic defaults. Reject
-  negative, fractional, unsafe, or null thread IDs. Duplicate compound
-  identities, including concurrent inserts and absent versus explicit zero
-  topics, must fail; different integrations, chats, topics, and tenants must
-  remain independent.
-- Telegram conversation lookup checks: verify initial field mapping, repeat
-  reuse, preserved metadata and inbox links, absent versus zero topics, and
-  separation by integration, chat, topic, and tenant database. Concurrent first
-  messages must produce one mapping and one `created: true`. Check signed safe
-  chat IDs, absent optional fields, rejected invalid inserts, exact duplicate
-  index handling, and retry after a failed reread. The inbox bridge must not be
-  called; use isolated databases and clean them up after checks.
-- Telegram inbox creation adapter checks: stub the inbox bridge and verify
-  exact tenant, integration, Core customer, preview, and `createdAt` forwarding
-  in one creation request. Preserve empty previews and the supplied mapping.
-  Reject bridge failures and malformed success IDs, return only the validated
-  ID, and verify that shared response validation still works for Core customer
-  creation. These checks must not create live inbox records.
-- Telegram conversation linking checks: use isolated tenant databases and a
-  stubbed inbox bridge. Reject an unlinked customer before writes; verify first
-  linking, immediate reuse, concurrent first calls with a timely bridge
-  response, null/absent-link recovery, and completion on the final wait.
-  Preserve a late competing link and propagate malformed responses, bridge
-  failures, failed link writes, and missing rows. Keep retryable mappings and
-  verify tenant isolation plus the extra-record risk during simultaneous recovery.
-- Telegram customer model checks: look up mappings by provider user ID and
-  erxes record ID, reject missing records and missing required IDs, and allow
-  an absent Core link. Verify that the unique user ID index rejects concurrent
-  duplicates within a tenant while separate tenant databases remain isolated.
-- Telegram message checks: accept private, group, channel-sender, and topic
-  payloads, omitted optional fields, zero message IDs, and large safe IDs.
-  Reject malformed metadata and unsafe or fractional IDs. Preserve unvalidated
-  extra fields on the message, chat, and sender without treating them as typed.
-- Telegram dispatch checks: the external integration mutation passes the tenant,
-  new integration ID, and saved-bot ID to the adapter. A failed attachment rolls
-  back only the integration created by that request; a successful attachment
-  preserves it. Existing provider dispatch and personal-channel checks remain
-  intact.
-- Telegram creation adapter checks: invalid kinds, malformed JSON, and invalid
-  or extra setup fields fail before model access. Forward the supplied subdomain,
-  bot ID, and integration ID unchanged; return success only after attachment and
-  propagate model initialization or attachment failures.
-- Telegram link metadata check: the bot schema declares a unique sparse
-  `erxesApiId` index, existing unconnected bots remain valid, and the running
-  Frontline and gateway schemas expose the link as nullable `String` without
-  exposing credential fields.
-- Telegram attachment checks: reject missing IDs, unknown bots/integrations,
-  and non-Telegram destinations. Verify successful linking, credential
-  exclusion, rejection of reassignment and reused integrations, and both
-  concurrent claims for one bot and competing bots for one integration. Use
-  isolated test records; preserve the supplied tenant model and return
-  controlled update errors.
-- Telegram webhook secret checks: accept matching nonempty secrets; reject
-  missing, empty, differing, or whitespace-altered values. Differing UTF-8 byte
-  lengths must return `false` without throwing.
-- Saved-bot secret checks: reject unknown bots and missing inputs; verify against
-  the supplied tenant model only. Select the hidden webhook secret explicitly,
-  return a boolean without credentials, and propagate database failures.
-- Telegram middleware checks: verify `401` for missing or rejected credentials,
-  `500` for model or verification failures, and exactly one `next()` call only
-  after successful verification. Preserve the received secret and route tenant
-  into model generation; authentication must not read or acknowledge the body.
-- Telegram update checks: preserve accompanying event fields for valid update
-  IDs; reject non-object inputs and missing, string, boolean, fractional,
-  negative, non-finite, or unsafe IDs. Zero is accepted by the envelope schema.
-- Telegram smoke scenario: a signed-in user with `integrationsAdd` validates a
-  real bot token through the gateway and receives the bot identity and group
-  settings. A rejected token returns `valid: false`; permission denial remains a
-  GraphQL error and prevents the provider request.
-- Telegram client checks: both read methods reject malformed tokens before
-  requesting Telegram and return controlled errors for transport, HTTP, JSON,
-  and response-schema failures. Webhook status accepts an empty URL and zero
-  pending updates, preserves optional delivery details, and rejects negative or
-  fractional counts. Read a test bot's identity and webhook status without
-  printing credentials, changing its webhook, or consuming pending updates.
-- Telegram registration client checks: stub `fetch` to verify the exact JSON
-  POST, secret, message subscription, preserved pending updates, timeout, and
-  redirect rejection. Reject invalid URLs, secrets, and tokens before a request;
-  reject unsuccessful or malformed responses. Verify existing read methods
-  remain GET requests. These isolated checks must not register a live webhook.
-- Telegram sending client checks: stub `fetch` to verify the exact JSON POST,
-  unchanged text, numeric chat ID, timeout signal, and redirect rejection.
-  Check blank text, Unicode length boundaries, invalid IDs and tokens,
-  malformed provider messages, and controlled transport, HTTP, and JSON errors.
-  Verify no automatic retries and preserve existing identity and webhook
-  clients. These isolated checks must not send a live message.
-- Telegram reply checks: exercise the real handler and client with stubbed
-  tenant models and HTTP. Verify credential selection, integration/conversation
-  matching, private-chat scope, HTML conversion, provider IDs and timestamps,
-  staff attribution, and the inbox response shape. Reject malformed payloads
-  and unsupported features before model access; provider failures must prevent
-  persistence. Verify awaited send/save ordering, controlled save failures,
-  no retries, and forwarding through the supplied tenant models. Do not send
-  live messages or write live records during these checks.
-- Telegram reply dispatch checks: exercise the actual broker, dispatcher,
-  `conversationMessageAdd`, reply handler/client, and message publisher with
-  database, HTTP, tRPC, notification, and pubsub stubs. Verify the nested result,
-  tenant and staff forwarding, awaited mapping storage, one canonical message,
-  preview updates, and per-conversation and channel-member subscription events.
-  Internal notes must bypass Telegram; rejected sends must prevent inbox writes.
-  Preserve accepted-but-unsaved errors without retries and check existing
-  provider dispatch and Telegram setup attachment behavior.
-- Telegram reply smoke scenario: send a unique plain-text reply from an existing
-  private Telegram inbox conversation with Internal Note off. Confirm one bot
-  message in Telegram and one agent message in the inbox without refreshing.
-  An internal note must appear only in erxes. Mock checks do not prove live delivery.
-- Telegram model checks: successful creation returns provider-derived metadata
-  without credentials; duplicate creation preserves the original record;
-  missing creators and rejected tokens prevent writes; storage errors do not
-  expose credentials. Verify absent capability fields separately from `false`.
-- Saved-bot webhook checks: `getWebhookInfo` uses the stored token while ordinary
-  reads still exclude credentials; a missing bot prevents the provider call,
-  provider errors remain controlled, and saved timestamps remain unchanged.
-- Saved-bot registration checks: stub the database and provider to verify saved
-  credential selection, exact callback forwarding, rejection of missing or
-  unlinked bots before a provider call, tenant separation, awaited registration,
-  and propagated failures. Registration must not modify the bot record.
-- Registration GraphQL checks: execute the real Telegram schema, resolver,
-  model method, and client with database and HTTP stubs. Verify required string
-  arguments, rejection of credential arguments and result selections, permission
-  denial and deferred permission before model access, successful registration,
-  and propagated validation, database, and controlled provider failures.
-- Registration smoke scenario: ensure the running subgraph and gateway expose
-  `telegramSetWebhook`, then call it as a signed-in user with `integrationsEdit`
-  using a linked test bot and reachable callback URL. Read
-  `telegramBotWebhookInfo` to confirm registration; separately send private text
-  to the test bot and verify HTTP acknowledgment and inbox persistence.
-- Webhook query smoke scenario: a signed-in user with `integrationsEdit` calls
-  `telegramBotWebhookInfo` through the gateway using the saved bot's erxes ID.
-  Verify empty URLs, false/zero values, optional `null` fields, update lists, and
-  ISO date serialization. Permission denial must prevent model access; querying
-  `token` or `webhookSecret` must fail GraphQL validation.
-- Telegram creation smoke scenario: call `telegramAddBot` through the gateway
-  while signed in with `integrationsAdd`; verify the returned record ID and bot
-  identity. Repeating creation must reject the duplicate without replacing its
-  credentials. Permission denial and invalid input must prevent creation;
-  selecting credential fields or supplying `createdBy` must fail GraphQL validation.
-- Telegram read smoke scenario: a user with `showIntegrations` can list saved
-  bots and retrieve one by erxes `_id`; the list is newest first, a missing bot
-  returns an error, and neither query exposes credentials or calls Telegram.
-  Permission denial must prevent model access.
+- `pnpm nx lint frontline_api` (inferred ESLint target).
+- `pnpm nx build frontline_api` (TypeScript and alias compilation).
+- `pnpm nx test frontline_api` (plugin-owned Jest target).
+- `pnpm exec tsc -p backend/plugins/frontline_api/tsconfig.spec.json --noEmit --incremental false`.
+- `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`.
+- Jest tests under Telegram `__tests__/` cover provider-shaped parsing, chat/topic
+  routing, multipart sends, partial failures, leases/recovery, file bounds and
+  storage cleanup, setup lifecycle and permissions. Most tests stub external
+  boundaries. `TELEGRAM_MONGO_TESTS=1 pnpm nx test frontline_api --skipNxCache`
+  additionally exercises production Mongoose schemas/indexes and concurrency in
+  a unique disposable database on local MongoDB port 27017; it never uses a
+  development tenant database. Provider/storage/Core transport remain stubbed.
+- The Jest transform includes the reply utility's ESM dependencies only; do not
+  transform every dependency or introduce a new runtime dependency for tests.
+- Live smoke: use a dedicated test bot; create/connect from settings, inspect status,
+  send text/media/polls/replies in private/group/channel/topic contexts, edit
+  received messages, react/retract, rename topics, and check fallback notices;
+  verify realtime display, internal-note isolation, and disconnect/reconnect.
+  Test duplicate webhooks and attachment limits without touching production data.
+- Report existing project lint/type failures separately from changed-file diagnostics.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Live Telegram delivery and preview corrections
+
+- **Summary:** Preserved literal replies and inbox snippets, allowed customerless group/channel sends, fixed CDN-only image reads and implicit topic quotes, and added bounded link previews.
+- **Affected areas:** Telegram reply/content/attachment/preview adapters, query resolver/schema, inbox message mutation and regression tests.
+- **Contracts changed:** Added `telegramMessageLinkPreviews(messageId: String!): JSON`, gated by `showConversations` and channel membership; canonical inbox schemas are unchanged.
+
+### `2026-10-06` — Telegram lifecycle, media and message updates
+
+- **Summary:** Added setup/lifecycle, chat/topic routing, media and visible fallbacks, native albums/polls/replies, ordered edits/reactions and retry-safe inbox/contact linking.
+- **Affected areas:** `src/modules/integrations/telegram/`, model registration, integration removal dispatch, plugin test configuration.
+- **Contracts changed:** Added `telegramUpdateBot`, `telegramDisconnectBot`, `telegramConversationChats`; webhook registration includes channel posts, edits, polls and reactions; existing inbox content/attachment/poll/reply contracts retained.
+
+### `2026-10-06` — Telegram attachment storage adapter
+
+- **Summary:** Added workspace storage for downloaded Telegram files with sanitized names, actual byte sizes, controlled errors, and temporary-file cleanup.
+- **Affected areas:** `src/modules/integrations/telegram/utils/attachments.ts`.
+- **Contracts changed:** Added internal `storeTelegramAttachment(...): Promise<IAttachment>` using the existing inbox attachment contract; message receiver wiring remains separate.
+
+### `2026-10-06` — Telegram file downloader
+
+- **Summary:** Added bounded file downloads with encoded provider paths, controlled errors, timeout, and request cleanup.
+- **Affected areas:** `src/modules/integrations/telegram/utils/downloadFile.ts`.
+- **Contracts changed:** Added internal `downloadTelegramFile(token, fileId): Promise<Buffer>` and `MAX_TELEGRAM_DOWNLOAD_BYTES`; no public API or inbox attachment contract change.
+
+### `2026-10-05` — Telegram file lookup client
+
+- **Summary:** Added provider file metadata lookup with validated download paths and controlled request failures.
+- **Affected areas:** `src/modules/integrations/telegram/client.ts`.
+- **Contracts changed:** Added internal `getTelegramFile(token, fileId): Promise<TelegramFile>`; no public API change or media receiver wiring.
+
+### `2026-10-05` — Telegram media payload validation
+
+- **Summary:** Added validation for optional photo, document, and caption payloads while preserving the existing text receiver scope.
+- **Affected areas:** `src/modules/integrations/telegram/utils/message.ts`.
+- **Contracts changed:** Internal `TelegramMessage` includes typed `caption`, `photo`, and `document` fields; no public API or stored attachment contract change.
 
 ### `2026-10-05` — Telegram inbox reply dispatch
 
@@ -950,39 +515,3 @@
 - **Summary:** Exposed saved-bot webhook registration through a permission-checked GraphQL mutation.
 - **Affected areas:** `src/modules/integrations/telegram/graphql/schema/telegram.ts`, `src/modules/integrations/telegram/graphql/resolvers/mutations.ts`.
 - **Contracts changed:** Added `telegramSetWebhook(_id: String!, url: String!): Boolean!` with an `integrationsEdit` permission check.
-
-### `2026-10-05` — Saved-bot webhook registration
-
-- **Summary:** Connected provider registration to saved tenant credentials and required an inbox integration link before activation.
-- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
-- **Contracts changed:** Added internal `TelegramBots.setWebhook(_id, url): Promise<boolean>`; no public API change.
-
-### `2026-10-05` — Telegram webhook registration client
-
-- **Summary:** Added validated provider webhook registration with preserved pending updates and controlled failure messages.
-- **Affected areas:** `src/modules/integrations/telegram/client.ts`.
-- **Contracts changed:** Added internal `setTelegramWebhook(token, url, webhookSecret)`; the request helper accepts optional JSON parameters. No public API change.
-
-### `2026-10-05` — Telegram webhook route
-
-- **Summary:** Connected secret-authenticated HTTP updates to the private-text receiver with validation, awaited processing, and controlled responses.
-- **Affected areas:** `src/routes.ts`, `src/modules/integrations/telegram/routes.ts`, `src/modules/integrations/telegram/controller/webhook.ts`.
-- **Contracts changed:** Added `POST /telegram/receive/:_id`; provider webhook registration remains separate.
-
-### `2026-10-05` — Telegram private text receiver
-
-- **Summary:** Added validation and filtering for ordinary private human text, followed by customer, conversation, and inbox-message linkage.
-- **Affected areas:** `src/modules/integrations/telegram/controller/receiveMessage.ts`.
-- **Contracts changed:** Added internal `receiveTelegramMessage({ models, subdomain, bot, payload })`; unsupported messages return `null`, while validation and persistence failures propagate. HTTP routing is not yet connected.
-
-### `2026-10-05` — Telegram message inbox linking
-
-- **Summary:** Added message lookup-and-link coordination with bounded waits, retryable unlinked mappings, and conditional link preservation.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `getOrCreateMessage(models, subdomain, conversation, message, customer)`; no public API or webhook route invokes it yet.
-
-### `2026-10-04` — Telegram inbox message creation adapter
-
-- **Summary:** Added inbox message creation through the existing bridge, preserving stored message fields and validating the returned ID.
-- **Affected areas:** `src/modules/integrations/telegram/controller/store.ts`.
-- **Contracts changed:** Added internal `createInboxMessage(subdomain, inboxConversationId, message)`; link persistence and webhook routing remain separate.

@@ -15,6 +15,7 @@ import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { handleTelegramIntegration } from '@/integrations/telegram/messageBroker';
+import { telegramTextToHtml } from '@/integrations/telegram/utils/content';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { convertConversation } from '@/inbox/services/conversationConvert';
@@ -592,11 +593,16 @@ export const conversationMutations = {
           })
         : null;
 
-      if (!customer) {
+      // Telegram groups/channels are addressed by their chat mapping, not by a
+      // single customer. A missing linked customer still indicates stale data.
+      if (
+        !customer &&
+        (kind !== 'telegram-messenger' || conversation.customerId)
+      ) {
         throw new Error('Customer not found for the conversation');
       }
 
-      const email = customer.primaryEmail;
+      const email = customer?.primaryEmail;
 
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({
@@ -707,6 +713,19 @@ export const conversationMutations = {
           messageDoc,
           userId,
         );
+        if (
+          kind === 'telegram-messenger' &&
+          responseConversationId &&
+          typeof responseContent === 'string' &&
+          responseContent
+        ) {
+          // addMessage copies editor HTML into the 100-character list preview.
+          // Long link attributes can consume that entire preview before its
+          // visible text, so restore Telegram's already-normalized text here.
+          await models.Conversations.updateConversation(responseConversationId, {
+            content: telegramTextToHtml(responseContent),
+          });
+        }
         await publishUnreadCountsSafely({
           conversationId,
           integrationId,

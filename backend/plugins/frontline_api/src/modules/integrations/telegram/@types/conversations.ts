@@ -4,9 +4,11 @@ export interface ITelegramConversation {
   integrationId: string;
   erxesApiId?: string;
   chatId: string;
+  migratedToChatId?: string;
   chatType: 'private' | 'group' | 'supergroup' | 'channel';
   chatTitle?: string;
   messageThreadId: number;
+  topicName?: string;
   timestamp: Date;
   content: string;
 }

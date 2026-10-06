@@ -37,8 +37,50 @@ export const telegramConversationMessageSchema = new Schema({
   },
   updatedAt: Date,
   attachments: [attachmentSchema],
+  attachmentFileIds: [String],
+  metadata: {
+    chatType: String,
+    senderName: String,
+    messageId: String,
+    messageIds: [String],
+    contentType: String,
+    mediaGroupId: String,
+    editedAt: String,
+    topicName: String,
+    replyTo: {
+      messageId: String,
+      chatId: String,
+      senderName: String,
+      content: String,
+    },
+  },
+  pollId: { type: String, index: true },
+  poll: {
+    type: new Schema(
+      {
+        question: String,
+        answers: [{ _id: false, id: String, text: String }],
+        allowMultiselect: Boolean,
+        expiry: String,
+        results: {
+          isFinalized: Boolean,
+          totalVoters: Number,
+          answerCounts: [{ _id: false, id: String, count: Number }],
+        },
+      },
+      { _id: false },
+    ),
+    default: undefined,
+  },
+  processedEditDate: Number,
+  processedUpdateId: Number,
+  pollUpdateId: Number,
+  pollUpdateAt: Date,
   customerId: { type: String, index: true },
   userId: { type: String, index: true },
+  senderName: String,
+  processingToken: String,
+  processingUntil: Date,
 });
 
 telegramConversationMessageSchema.index(

@@ -34,6 +34,7 @@ export interface IAutomatedReplyControl {
 type IMessageAnswer = { id: string | number; text: string; emoji?: string };
 
 type IMessageTally = {
+  totalVoters?: number;
   isFinalized?: boolean;
   answerCounts: { id: string | number; count: number }[];
 };
@@ -81,6 +82,24 @@ export interface IMessageEmbed {
   timestamp?: string;
 }
 
+export interface ITelegramMessageData {
+  senderName?: string;
+  messageId?: string;
+  messageIds?: string[];
+  chatType?: string;
+  contentType?: string;
+  mediaGroupId?: string;
+  editedAt?: string;
+  topicName?: string;
+  replyTo?: {
+    messageId: string;
+    chatId: string;
+    senderName: string;
+    content: string;
+  };
+  reactions?: { key: string; label: string; count: number }[];
+}
+
 export interface IMessage {
   _id: string;
   conversationId?: string;
@@ -92,6 +111,7 @@ export interface IMessage {
   attachments?: IAttachment[];
   formWidgetData?: IFormWidgetItem[];
   extraData?: {
+    telegram?: ITelegramMessageData;
     poll?: IMessagePoll;
     survey?: IMessageSurvey;
     embeds?: IMessageEmbed[];

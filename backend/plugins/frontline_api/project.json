@@ -42,6 +42,14 @@
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/frontline_api/Dockerfile . -t erxes/erxes-next-frontline_api"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/backend/plugins/frontline_api"],
+      "options": {
+        "jestConfig": "backend/plugins/frontline_api/jest.config.ts",
+        "runInBand": true
+      }
     }
   }
 }

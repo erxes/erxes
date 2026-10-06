@@ -2,6 +2,9 @@ import type { IContext } from '~/connectionResolvers';
 import type { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
 import type { ITelegramWebhook } from '@/integrations/telegram/@types/webhook';
 import { getTelegramBot } from '@/integrations/telegram/client';
+import { visibleChannelsFilter } from '@/channel/utils';
+import { z } from 'zod';
+import { getTelegramLinkPreviews } from '../../utils/linkPreview';
 
 type TelegramTokenValidationResult =
   | {
@@ -18,6 +21,53 @@ type TelegramTokenValidationResult =
     };
 
 export const telegramQueries = {
+  async telegramMessageLinkPreviews(
+    _root: undefined,
+    { messageId }: { messageId: string },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+    z.string().min(1).max(200).parse(messageId);
+    const message = await models.ConversationMessages.findOne({
+      _id: messageId,
+    });
+    if (!message || message.internal) return [];
+    const conversation = await models.Conversations.findOne({
+      _id: message.conversationId,
+    });
+    if (!conversation) return [];
+    const channels = await models.Channels.find(
+      await visibleChannelsFilter({ models, subdomain, user }),
+    ).distinct('_id');
+    const integration = await models.Integrations.exists({
+      _id: conversation.integrationId,
+      kind: 'telegram-messenger',
+      channelId: { $in: channels },
+    });
+    if (!integration) return [];
+    return getTelegramLinkPreviews(subdomain, message.content || '');
+  },
+  async telegramConversationChats(
+    _root: undefined,
+    { conversationIds }: { conversationIds: string[] },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+    const ids = z.array(z.string().min(1)).max(100).parse(conversationIds);
+    if (!ids.length) return [];
+    const channels = await models.Channels.find(
+      await visibleChannelsFilter({ models, subdomain, user }),
+    ).distinct('_id');
+    const integrations = await models.Integrations.find({
+      kind: 'telegram-messenger',
+      channelId: { $in: channels },
+    }).distinct('_id');
+    const chats = await models.TelegramConversations.find({
+      erxesApiId: { $in: ids },
+      integrationId: { $in: integrations },
+    }).lean();
+    return chats.map((chat) => ({ ...chat, conversationId: chat.erxesApiId }));
+  },
   async telegramBots(
     _root: undefined,
     _args: unknown,

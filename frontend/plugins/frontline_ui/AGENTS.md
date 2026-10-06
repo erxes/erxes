@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -72,6 +72,33 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Telegram appears in the channel integration catalogue. Its setup sheet creates
+  or reuses saved bots, links an inbox, registers/updates a webhook, refreshes
+  provider status, replaces same-bot tokens and disconnects. Validation and
+  partial-setup recovery preserve already-saved bot/integration IDs.
+  New and existing bots accept a public Frontline address and preview the
+  automatically generated webhook URL; new bots explain the pending bot ID.
+- Telegram private/group/channel/topic conversations reuse existing inbox content,
+  attachments, composer and realtime subscriptions. Group/channel titles and
+  sender names are shown without treating the whole group as one customer.
+  Topic names refresh from service-message metadata. Telegram quote actions,
+  album/edit labels and observed reaction counts use optional `extraData.telegram`.
+- Telegram URLs, including historical plain-text URLs, open from the message and
+  reuse the inbox's Discord-style `MessageEmbeds` cards. Preview reads use the
+  permission-checked `telegramMessageLinkPreviews` query for a stored message ID.
+- Inbox history renders audio/video inline through plugin-local `MessageMedia`.
+  Cloudflare Stream manifests use its hosted player; ordinary workspace files use
+  native media controls with a filename/open fallback. Returning to the inbox list
+  revalidates cached conversations after updates received while the list was closed.
+- The existing poll composer/card supports Telegram anonymous regular polls and
+  provider tallies; Telegram voting occurs in Telegram. Unique voter counts are
+  used when supplied; Discord's existing count fallback is retained.
+- Telegram disables automatic response-template suggestions and block side menus;
+  templates remain manually selectable. The composer preserves the final text
+  block, trims only empty trailing paragraphs, labels notes “Save note” and
+  explains their team-only visibility. It defaults to reply mode for Telegram.
+  Reply/mark-read refetches include active queries only.
 
 - Telegram private-text conversations render saved messages through the standard
   `ConversationMessages` component. Its existing subscription appends incoming
@@ -292,6 +319,16 @@
 
 ## Architecture
 
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Telegram setup | `src/modules/integrations/telegram/TelegramIntegrationDetail.tsx` | Lazy-loaded sheet and integration-row action using existing Form/Sheet/SelectBrand |
+| Telegram webhook address | `src/modules/integrations/telegram/webhookUrl.ts` | Validates the public HTTPS address and generates the selected bot's callback, preserving reverse-proxy prefixes |
+| Telegram API | `src/modules/integrations/telegram/graphql.ts` | Uniquely prefixed setup and chat-metadata operations |
+| Telegram labels | `src/modules/integrations/telegram/useTelegramChats.ts` | Metadata batches of at most 100, refreshed by user message subscriptions; label fallback on failure |
+| Telegram links | `src/modules/integrations/telegram/TelegramMessageContent.tsx` | Linkifies historical text and queries stored-message previews for existing `MessageEmbeds` cards |
+| History media | `src/modules/inbox/conversation-messages/components/MessageMedia.tsx` | Read-only native audio/video or validated Cloudflare Stream player, with file fallback |
+| Telegram language | `src/modules/integrations/telegram/translations.ts` | Plugin-owned English/Mongolian resources via public i18next APIs |
+
 | Area                     | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Host registration        | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
@@ -346,6 +383,9 @@
 ## Contracts
 
 ### Provides
+
+- Telegram setup on the existing `/settings/frontline/channels/details/:id/telegram-messenger`
+  route and Configure Telegram row action. No new federation expose.
 
 - Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
   and `FrontlineMain`) — the read-only survey results board.
@@ -405,6 +445,11 @@
   A new ticket card uses this rather than reading the filter atoms itself.
 
 ### Consumes
+
+- Frontline `telegramBots`, `telegramAddBot`, `telegramUpdateBot`,
+  `telegramSetWebhook`, `telegramDisconnectBot`, `telegramBotWebhookInfo`,
+  `telegramConversationChats`, `telegramMessageLinkPreviews`, and existing
+  `integrationsCreateExternalIntegration`.
 
 - Telegram conversation display reuses `conversationMessages`,
   `conversationMessagesTotalCount`, and `conversationMessageInserted` from
@@ -523,6 +568,20 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Data and State
 
+- Telegram setup's Jotai atom selects closed/new/integration state; form values,
+  secret input and partial-setup progress remain component-local and reset on close.
+  Apollo owns saved metadata; active integration/status/count queries refetch after
+  mutation. Tokens are cleared after successful save and never persisted in browser storage.
+- Optional `IMessage.extraData.telegram` identifies sender, quote, album, edit and
+  reaction state using existing JSON extraData; poll data uses `extraData.poll`.
+  `telegramReplyToState` carries conversation and provider message IDs plus a
+  text preview. Clear it on conversation changes and after successful sends;
+  never forward a note through the provider reply path.
+- Telegram preview results use Apollo by stored message ID and refresh when
+  displayed content changes. Linkification also applies to older Telegram history
+  without new message metadata by reading the conversation's integration kind.
+  Media playback/error state is local to the attachment URL.
+
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -586,6 +645,24 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Telegram uses existing `erxes-ui`/`ui-modules` primitives, attachment rendering
+  and internal-note semantics. Orange notes stay local. Do not add a Telegram-only
+  editor or attachment contract. History media rendering is Frontline-owned;
+  shared package renderers and contracts remain unchanged. Never show attachment
+  removal controls on received messages. Only validated Cloudflare Stream origins
+  may become media iframes; link previews reuse `MessageEmbeds` without page scripts.
+- Telegram setup must recover partial saves by retaining saved IDs. Keep webhook
+  status distinct from proof of delivery, and show old provider errors with timestamps.
+  Generate the webhook path from the saved bot ID in both new/edit flows; never
+  require manual ID entry. Accept a base address or existing callback, preserve
+  reverse-proxy prefixes, and reject non-HTTPS, login, query and fragment URLs
+  before setup mutations.
+- Telegram labels use membership-scoped metadata and batch to the server's 100-ID
+  limit. Sender labels keep anonymous/channel messages distinct in bubble grouping.
+- Telegram's English/Mongolian copy is owned by the plugin in `frontline-telegram`
+  through public i18next APIs, preserving the root plugin scope boundary. Existing
+  `frontline` namespace keys remain gateway-owned.
 
 - `ConversationDetail.tsx` includes `telegram-messenger` alongside `messenger`,
   `lead`, and `discord-messenger` when mounting `ConversationMessages`. Telegram
@@ -1234,9 +1311,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   data, and a card must not start doing so on its own.
 - Exposed modules stay lazy-loaded and wrapped in `Suspense`.
 - Routed pages use `h-full`, never `h-dvh`/`h-screen`.
-- New user-visible strings go through `useTranslation('frontline')` with keys
-  added to both `en` and `mn` gateway-owned locale files; that is a
-  repository-level change and must be requested explicitly.
+- Existing `frontline` namespace strings use `useTranslation('frontline')`;
+  adding gateway-owned keys requires explicitly scoped repository-level work.
+  Telegram owns a separate plugin-local `frontline-telegram` namespace in both
+  `en` and `mn` so its setup does not require a gateway source change.
 - Ticket tag selectors must go through `SelectTagsTicket`
   (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
   `TagsSelect.SelectedList` directly — the shared component chains every
@@ -1254,11 +1332,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `pnpm exec eslint frontend/plugins/frontline_ui/src/...` on touched files.
   The project has existing lint and TypeScript errors elsewhere; report those
   separately from diagnostics on the changed files.
-- `project.json` defines only `build`, `serve`, and `serve-static` — there is no
-  `test` target for this project; do not invent one.
-- Smoke (Telegram): open a private-text conversation and confirm saved messages
-  load. Keep it open while sending another message to the bot; it must appear in
-  the same conversation without refreshing.
+- `pnpm nx test frontline_ui` (plugin-owned Jest target). Tests cover draft
+  retention/empty paragraphs, reply identity/escaping, unique poll voter counts
+  and Telegram webhook address validation/generation.
+- Smoke (Telegram): open the catalogue, validate an empty setup form, connect a
+  dedicated test bot, configure an existing row, inspect status and reconnect.
+  Confirm new/edit forms both preview the generated callback, explain a new
+  bot's pending ID and reject an invalid public address before saving.
+  Verify private/group/channel/topic media, polls, quoted replies, edits, reaction
+  counts and correct labels without refresh. Compare Save note with Send, verify
+  drafts keep their last paragraph, and check webhook event upgrade guidance.
+  Check English/Mongolian copy and permission/error states.
 - Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
   `…a deal` and `…a task`; each save shows a success toast, the entry turns
   into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
@@ -1322,6 +1406,24 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Clear Telegram webhook setup
+
+- **Summary:** New and existing bot forms explain the public server address and automatically generate and preview the bot-specific webhook URL.
+- **Affected areas:** `src/modules/integrations/telegram/{TelegramIntegrationDetail.tsx,translations.ts,webhookUrl.ts,__tests__/webhookUrl.spec.ts}`.
+- **Contracts changed:** None; the existing webhook mutation still receives the complete callback URL.
+
+### `2026-10-06` — Inbox media and Telegram link polish
+
+- **Summary:** Added playable history media, clickable Telegram links and native embed cards, and refreshed stale inbox lists on return.
+- **Affected areas:** `MessageMedia.tsx`, `MessageItem.tsx`, `TelegramMessageContent.tsx`, `useConversations.tsx` and Telegram tests.
+- **Contracts changed:** Consumes `telegramMessageLinkPreviews(messageId)`; existing attachment and embed shapes are unchanged.
+
+### `2026-10-06` — Telegram setup, media metadata and composer
+
+- **Summary:** Added Telegram setup/status, chat/topic/sender labels, quotes/edit/album/reaction metadata, poll support and clearer note/draft behavior.
+- **Affected areas:** `src/modules/integrations/telegram/`, catalogue/detail/actions, inbox rendering/composer and plugin tests.
+- **Contracts changed:** Consumes Telegram lifecycle/chat metadata and existing inbox poll/reply fields; optional message metadata expanded without shared schema or renderer changes.
 
 ### `2026-10-05` — Telegram inbox message display
 
@@ -1395,42 +1497,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
 - **Contracts changed:** `CallAddCustomer` also selects
   `integration { _id name }`.
-
-### `2026-09-15` — The call widget can clear its cached state
-
-- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
-  every persisted call atom and sends the agent back to the call config picker,
-  so a stale config or SIP registration no longer needs manual `localStorage`
-  cleanup.
-- **Affected areas:**
-  `src/modules/integrations/call/components/CallSipActions.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-14` — Help Center stops calling its records topics
-
-- **Summary:** The Help Center surface reused the knowledge base's `kb-*`
-  strings, so its create button, drawer title and empty state all said "topic"
-  while acting on help centers. Those five labels now use `helpcenter-*` keys
-  with inline English fallbacks, matching the `t(key, 'Default')` form already
-  used elsewhere in the plugin.
-- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
-  `src/modules/helpcenter/components/HelpCenterRecordTable.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** None. The new `helpcenter-*` keys have no entry in
-  `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
-  plugin boundary, so they render from their inline fallbacks until those
-  translations are added as separate repository-level work.
-
-### `2026-09-14` — Knowledge Base opens on its topics, not the first article list
-
-- **Summary:** Opening Knowledge Base drilled straight into the first topic's
-  first category because the sidebar auto-selected `topicId` on mount and the
-  page then auto-selected that topic's first `categoryId`. Both auto-selections
-  are gone, so the landing view is the topic grid; picking a topic now shows
-  that topic's categories as cards, and a `categoryId` left over from another
-  topic is cleared instead of being replaced by that topic's first category.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/KnowledgeBase.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
-- **Contracts changed:** None. The `topicId` and `categoryId` query parameters
-  keep their meaning; neither is now set without a user action.

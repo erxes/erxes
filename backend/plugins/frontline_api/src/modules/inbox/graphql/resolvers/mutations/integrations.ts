@@ -36,7 +36,10 @@ import {
   discordRemoveIntegrations,
   discordRepairIntegrations,
 } from '@/integrations/discord/messageBroker';
-import { telegramCreateIntegrations } from '@/integrations/telegram/messageBroker';
+import {
+  telegramCreateIntegrations,
+  telegramRemoveIntegration,
+} from '@/integrations/telegram/messageBroker';
 import {
   callProCreateIntegration,
   callProRemoveIntegration,
@@ -158,6 +161,8 @@ export const sendRemoveIntegration = async (
 ) => {
   try {
     switch (serviceName) {
+      case 'telegram':
+        return await telegramRemoveIntegration({ subdomain, data });
       case 'facebook':
         return await facebookRemoveIntegrations({ subdomain, data });
       case 'calls':

@@ -1,8 +1,25 @@
 import { z } from 'zod';
 import { stripHtml } from 'string-strip-html';
+import validator from 'validator';
 import type { IModels } from '~/connectionResolvers';
 import type { ITelegramConversationMessage } from '@/integrations/telegram/@types/conversationMessages';
-import { sendTelegramMessage } from '@/integrations/telegram/client';
+import {
+  prepareTelegramReplyFiles,
+  telegramReplyAttachmentSchema,
+} from '../utils/replyAttachments';
+import {
+  sendTelegramMessage,
+  sendTelegramAttachment,
+  sendTelegramMediaGroup,
+  sendTelegramPoll,
+  telegramPollDraftSchema,
+} from '@/integrations/telegram/client';
+import {
+  normalizeTelegramPoll,
+  type TelegramInboxPoll,
+  type TelegramMessageMetadata,
+} from '../utils/content';
+import type { TelegramMessage } from '../utils/message';
 
 const telegramReplySchema = z.object({
   integrationId: z.string().min(1),
@@ -10,9 +27,13 @@ const telegramReplySchema = z.object({
   userId: z.string().min(1),
   content: z.string(),
   internal: z.boolean().nullish(),
-  attachments: z.array(z.unknown()).nullish(),
-  poll: z.unknown().optional(),
-  replyToMessageId: z.string().nullish(),
+  attachments: z.array(telegramReplyAttachmentSchema).max(10).nullish(),
+  poll: telegramPollDraftSchema.nullish(),
+  replyToMessageId: z
+    .string()
+    .regex(/^[1-9]\d*$/)
+    .refine((id) => Number.isSafeInteger(Number(id)))
+    .nullish(),
 });
 
 export interface ITelegramReplyResult {
@@ -21,14 +42,20 @@ export interface ITelegramReplyResult {
     conversationId: string;
     content: string;
     displayContent: string;
+    extraData: {
+      telegram: TelegramMessageMetadata & { messageIds: string[] };
+      poll?: TelegramInboxPoll;
+    };
   };
 }
 
 export const sendTelegramReply = async ({
   models,
+  subdomain,
   payload,
 }: {
   models: IModels;
+  subdomain: string;
   payload: unknown;
 }): Promise<ITelegramReplyResult> => {
   const parsed = telegramReplySchema.safeParse(payload);
@@ -52,11 +79,14 @@ export const sendTelegramReply = async ({
     throw new Error('Internal notes must stay in the inbox');
   }
 
-  if ((attachments?.length ?? 0) > 0 || poll != null || replyToMessageId) {
+  const integration = await models.Integrations.findOne({
+    _id: integrationId,
+    kind: 'telegram-messenger',
+  });
+  if (!integration || integration.isActive === false)
     throw new Error(
-      'Telegram currently supports text messages without attachments, polls, or quoted replies',
+      'This Telegram integration is disconnected or archived. Reconnect it before replying.',
     );
-  }
 
   const bot = await models.TelegramBots.findOne({
     erxesApiId: integrationId,
@@ -74,42 +104,168 @@ export const sendTelegramReply = async ({
   if (!conversation) {
     throw new Error('Telegram conversation not found for this integration');
   }
+  const chatId = conversation.migratedToChatId ?? conversation.chatId;
 
-  if (
-    conversation.chatType !== 'private' ||
-    conversation.messageThreadId !== 0
-  ) {
-    throw new Error('Only ordinary private Telegram chats are supported');
-  }
-
-  const text = stripHtml(content).result.trim();
-  const sent = await sendTelegramMessage(bot.token, conversation.chatId, text);
-  const messageContent = sent.text ?? text;
-
-  const message: ITelegramConversationMessage = {
-    integrationId,
-    chatId: conversation.chatId,
-    messageId: String(sent.message_id),
-    conversationId: conversation._id,
-    content: messageContent,
-    createdAt: new Date(sent.date * 1000),
-    userId,
-  };
-
-  try {
-    await models.TelegramConversationMessages.create(message);
-  } catch {
+  const replyTarget = replyToMessageId
+    ? await models.TelegramConversationMessages.findOne({
+        integrationId,
+        conversationId: conversation._id,
+        chatId,
+        messageId: replyToMessageId,
+      })
+    : null;
+  if (replyToMessageId && !replyTarget)
     throw new Error(
-      'Telegram accepted this message, but its local record could not be saved. Check the chat before trying again.',
+      'The quoted message must belong to this Telegram chat and topic. Messages from before a group upgrade cannot be quoted here.',
+    );
+  const quote: TelegramMessageMetadata['replyTo'] = replyTarget
+    ? {
+        messageId: replyTarget.messageId,
+        chatId,
+        senderName: replyTarget.senderName ?? '',
+        content: replyTarget.content.slice(0, 500) || '[Attachment or poll]',
+      }
+    : undefined;
+  const replyId = replyToMessageId ? Number(replyToMessageId) : undefined;
+
+  // Strip editor markup before decoding its text. Decoding first turns a
+  // literal &lt;b&gt; into a tag and silently removes part of the user's reply.
+  const stripped = stripHtml(
+    content.replace(/<br\s*\/?>(?:\n)?/gi, '\n').replace(/<\/(p|div)>/gi, '\n'),
+    { skipHtmlDecoding: true },
+  ).result;
+  const text = validator.unescape(stripped.replace(/&nbsp;/g, '\u00a0')).trim();
+  if (
+    Array.from(text).length > ((attachments?.length ?? 0) > 0 ? 1024 : 4096)
+  ) {
+    throw new Error(
+      attachments?.length
+        ? 'Telegram attachment captions must be at most 1024 characters.'
+        : 'Telegram messages must be at most 4096 characters.',
     );
   }
+  if (poll && (text || attachments?.length))
+    throw new Error(
+      'Send a Telegram poll separately from message text and attachments.',
+    );
+  if (!text && !attachments?.length && !poll)
+    throw new Error('Enter a message or attach a file.');
 
+  // Prepare every file before the first provider write. A bad later file must
+  // not leave an avoidable partial send behind.
+  const files = await prepareTelegramReplyFiles(subdomain, attachments ?? []);
+  const sentIds: string[] = [];
+  let sentPoll: TelegramInboxPoll | undefined;
+  const kind = (file: (typeof files)[number]) =>
+    file.mediaType ?? (file.asPhoto ? 'photo' : 'document');
+  const album =
+    files.length > 1 &&
+    (files.every((file) => ['photo', 'video'].includes(kind(file))) ||
+      files.every((file) => kind(file) === 'document') ||
+      files.every((file) => kind(file) === 'audio'));
+  let albumMessages: TelegramMessage[] | undefined;
+  for (let index = 0; index < Math.max(1, files.length); index++) {
+    const file = files[index];
+    let sent: TelegramMessage;
+    try {
+      if (album && !albumMessages)
+        albumMessages = await sendTelegramMediaGroup({
+          token: bot.token,
+          chatId,
+          messageThreadId: conversation.messageThreadId,
+          caption: text,
+          files,
+          replyToMessageId: replyId,
+        });
+      sent = albumMessages
+        ? albumMessages[index]
+        : poll
+        ? await sendTelegramPoll({
+            token: bot.token,
+            chatId,
+            messageThreadId: conversation.messageThreadId,
+            poll,
+            replyToMessageId: replyId,
+          })
+        : file
+        ? await sendTelegramAttachment({
+            token: bot.token,
+            chatId,
+            messageThreadId: conversation.messageThreadId,
+            caption: index === 0 ? text : '',
+            replyToMessageId: index === 0 ? replyId : undefined,
+            ...file,
+          })
+        : await sendTelegramMessage(
+            bot.token,
+            chatId,
+            text,
+            conversation.messageThreadId,
+            replyId,
+          );
+    } catch (error: unknown) {
+      const reason =
+        error instanceof Error ? error.message : 'Telegram reply failed.';
+      throw new Error(
+        sentIds.length
+          ? `${sentIds.length} attachment(s) were accepted before the reply stopped. Check Telegram before retrying. ${reason}`
+          : reason,
+      );
+    }
+    if (sent.poll) sentPoll = normalizeTelegramPoll(sent.poll);
+    sentIds.push(String(sent.message_id));
+    const message: ITelegramConversationMessage = {
+      integrationId,
+      chatId,
+      messageId: String(sent.message_id),
+      conversationId: conversation._id,
+      content: sent.text ?? sent.caption ?? (index === 0 ? text : ''),
+      createdAt: new Date(sent.date * 1000),
+      userId,
+      pollId: sent.poll?.id,
+      poll: sent.poll ? normalizeTelegramPoll(sent.poll) : undefined,
+      metadata: { replyTo: quote, mediaGroupId: sent.media_group_id },
+      attachments: file
+        ? [
+            {
+              name: file.name,
+              type: file.type,
+              url: file.url,
+              size: file.bytes.length,
+            },
+          ]
+        : [],
+    };
+    try {
+      await models.TelegramConversationMessages.updateOne(
+        {
+          integrationId,
+          chatId,
+          messageId: message.messageId,
+        },
+        { $setOnInsert: message },
+        { upsert: true, runValidators: true },
+      );
+    } catch {
+      throw new Error(
+        'Telegram accepted the message, but its local record could not be saved. Check the chat before trying again.',
+      );
+    }
+  }
   return {
     status: 'success',
     data: {
       conversationId,
-      content: messageContent,
+      content: text || sentPoll?.question || files[0]?.name || '',
       displayContent: content,
+      extraData: {
+        telegram: {
+          messageIds: sentIds,
+          replyTo: quote,
+          contentType: poll ? 'poll' : files.length ? 'attachment' : 'text',
+        },
+        ...(sentPoll ? { poll: sentPoll } : {}),
+      },
     },
   };
 };
