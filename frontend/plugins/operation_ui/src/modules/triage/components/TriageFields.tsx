@@ -5,12 +5,12 @@ import {
   Dialog,
   Button,
   Spinner,
+  type IBlockEditor,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
-import { Block } from '@blocknote/core';
 import { ITriage } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
@@ -21,13 +21,15 @@ import { useConvertTriage } from '../hooks/useConvertTriage';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
+import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const { t } = useTranslation('operation');
   const { _id: triageId, priority, status, name: _name } = triage || {};
 
   const description = triage.description;
-  const [descriptionContent, setDescriptionContent] = useState<Block[]>();
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
   const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
     description,
     t('description-placeholder'),
@@ -40,21 +42,8 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
   const [name, setName] = useState(_name);
 
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      const blocks = [...content];
-      const lastBlock = blocks[blocks.length - 1];
-      if (
-        blocks.length > 1 &&
-        lastBlock.type === 'paragraph' &&
-        Array.isArray(lastBlock.content) &&
-        lastBlock.content.length === 0
-      ) {
-        blocks.pop();
-      }
-      setDescriptionContent(blocks as Block[]);
-    }
+  const handleDescriptionChange = (): void => {
+    setDescriptionContent(normalizeDescriptionBlocks(editor.document));
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);

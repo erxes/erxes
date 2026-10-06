@@ -12,7 +12,6 @@ import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPri
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { ITask } from '@/task/types';
-import { Block } from '@blocknote/core';
 import {
   BlockEditor,
   Separator,
@@ -20,6 +19,7 @@ import {
   Combobox,
   Button,
   Spinner,
+  type IBlockEditor,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -31,6 +31,7 @@ import {
 } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
+import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
 
 export const TaskFields = ({ task }: { task: ITask }) => {
   const { t } = useTranslation('operation');
@@ -54,7 +55,8 @@ export const TaskFields = ({ task }: { task: ITask }) => {
 
   const startDate = task.startDate;
   const description = task.description;
-  const [descriptionContent, setDescriptionContent] = useState<Block[]>();
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
   const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
     description,
     t('description-placeholder'),
@@ -62,21 +64,8 @@ export const TaskFields = ({ task }: { task: ITask }) => {
   const { updateTask } = useUpdateTask();
   const [name, setName] = useState(_name);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      const blocks = [...content];
-      const lastBlock = blocks[blocks.length - 1];
-      if (
-        blocks.length > 1 &&
-        lastBlock.type === 'paragraph' &&
-        Array.isArray(lastBlock.content) &&
-        lastBlock.content.length === 0
-      ) {
-        blocks.pop();
-      }
-      setDescriptionContent(blocks as Block[]);
-    }
+  const handleDescriptionChange = (): void => {
+    setDescriptionContent(normalizeDescriptionBlocks(editor.document));
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
