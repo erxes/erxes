@@ -510,11 +510,6 @@ export const loadCustomerClass = (
       cachedCustomerId,
     }) {
       let customer: ICustomerDocument | null = null;
-console.log({      integrationId,
-      email,
-      phone,
-      code,
-      cachedCustomerId,})
       const defaultFilter = { status: { $ne: 'deleted' } };
 
 
@@ -597,7 +592,6 @@ console.log({      integrationId,
       customData,
     }: IUpdateMessengerCustomerParams) {
       const customer = await models.Customers.getCustomer(_id);
-      console.log({customer})
 
       doc = this.fixListFields(doc, customData, customer);
 

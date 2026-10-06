@@ -362,7 +362,7 @@ export const widgetMutations: Record<string, Resolver> = {
       deviceToken,
       visitorId,
     } = args;
-    console.log(JSON.stringify(args, null, 2))
+    console.log(JSON.stringify({args}, null, 2))
 
     const customData = data;
 
@@ -401,7 +401,9 @@ export const widgetMutations: Record<string, Resolver> = {
           code,
         },
       });
-console.log({customer})
+
+console.log(JSON.stringify({customer}))
+
       const doc = {
         integrationId: integration._id,
         email,
@@ -410,8 +412,9 @@ console.log({customer})
         isUser,
         deviceToken,
       };
-      customer = customer
-        ? await sendTRPCMessage({
+      
+      if(!customer){
+        const updatedCustomer  = await sendTRPCMessage({
             subdomain,
             pluginName: 'core',
             method: 'mutation',
@@ -423,7 +426,11 @@ console.log({customer})
               customData,
             },
           })
-        : await sendTRPCMessage({
+          console.log({updatedCustomer})
+
+          customer = updatedCustomer
+      }else {
+        const newCustomer = await sendTRPCMessage({
             subdomain,
             pluginName: 'core',
             method: 'mutation',
@@ -434,6 +441,12 @@ console.log({customer})
               customData,
             },
           });
+
+          console.log({newCustomer})
+
+
+          customer = newCustomer
+      }
     }
 
     // get or create company
@@ -545,6 +558,9 @@ console.log({customer})
         });
       }
     }
+
+    console.log({visitorId,cachedCustomerId,customer})
+
     if (visitorId && !cachedCustomerId && !customer) {
       const lead = await createVisitor(subdomain, visitorId);
       const docs = { ...args } as any;
