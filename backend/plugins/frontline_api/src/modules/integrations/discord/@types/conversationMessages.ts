@@ -19,7 +19,6 @@ export interface IDiscordConversationMessage {
 }
 
 export interface IDiscordConversationMessageDocument
-  extends IDiscordConversationMessage,
-    Document {
+  extends IDiscordConversationMessage, Document {
   _id: string;
 }
