@@ -38,8 +38,8 @@ const valueText = (value: unknown): string =>
   value == null
     ? "-"
     : typeof value === "object"
-    ? JSON.stringify(value)
-    : String(value)
+      ? JSON.stringify(value)
+      : String(value)
 
 export const AuditItemSnapshot = ({ value }: { value: unknown }) => {
   const items = Array.isArray(value) ? value.filter(isCartLogItem) : []

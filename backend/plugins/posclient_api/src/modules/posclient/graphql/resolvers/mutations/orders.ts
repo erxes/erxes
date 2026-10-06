@@ -105,7 +105,7 @@ const normalizeDateChangeValue = (value: unknown) => {
 const normalizeChangeValue = (
   field: EditableOrderChangeField,
   value: unknown,
-) => (field === 'dueDate' ? normalizeDateChangeValue(value) : value ?? null);
+) => (field === 'dueDate' ? normalizeDateChangeValue(value) : (value ?? null));
 
 const valuesAreEqual = (
   field: EditableOrderChangeField,
@@ -1599,7 +1599,13 @@ const orderMutations: Record<string, Resolver> = {
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
-    await saveOrderChangeSnapshot(models, _id, config.token, posUser._id, before);
+    await saveOrderChangeSnapshot(
+      models,
+      _id,
+      config.token,
+      posUser._id,
+      before,
+    );
 
     order = await models.Orders.getOrder(_id);
 
