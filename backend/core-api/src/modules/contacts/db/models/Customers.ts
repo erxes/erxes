@@ -517,14 +517,9 @@ console.log({      integrationId,
       cachedCustomerId,})
       const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (cachedCustomerId) {
-        customer = await models.Customers.findOne({
-          ...defaultFilter,
-          _id: cachedCustomerId,
-        }).lean();
-      }
 
-      if (!customer && email) {
+
+      if (customer && email) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
           $or: [{ emails: { $in: [email] } }, { primaryEmail: email }],
@@ -542,6 +537,12 @@ console.log({      integrationId,
         customer = await models.Customers.findOne({
           ...defaultFilter,
           code,
+        }).lean();
+      }
+      if (!customer&&cachedCustomerId) {
+        customer = await models.Customers.findOne({
+          ...defaultFilter,
+          _id: cachedCustomerId,
         }).lean();
       }
 
