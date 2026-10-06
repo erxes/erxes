@@ -11,10 +11,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=deps /app/apps/help-center/node_modules ./apps/help-center/node_modules
 COPY apps/help-center ./apps/help-center
-RUN find ./apps/help-center -maxdepth 1 -name '.env*' ! -name '.env.example' -delete
-
-
-RUN ln -s apps/help-center/node_modules /app/node_modules
+RUN find ./apps/help-center -maxdepth 1 -name '.env*' ! -name '.env.example' -delete \
+    && ln -s apps/help-center/node_modules /app/node_modules
 
 WORKDIR /app/apps/help-center
 RUN npx next build

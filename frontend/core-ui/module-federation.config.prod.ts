@@ -5,6 +5,7 @@
  **/
 
 import { ModuleFederationConfig } from '@nx/rspack/module-federation';
+import { withoutNpmAlias } from '../module-federation.shared';
 
 const coreLibraries = new Set([
   'react',
@@ -23,16 +24,7 @@ const config: ModuleFederationConfig = {
 
   shared: (libraryName, defaultConfig) => {
     if (coreLibraries.has(libraryName)) {
-      const aliased = /^npm:.+@(.+)$/.exec(
-        String(defaultConfig.requiredVersion),
-      );
-      return aliased
-        ? {
-            ...defaultConfig,
-            requiredVersion: aliased[1],
-            strictVersion: false,
-          }
-        : defaultConfig;
+      return withoutNpmAlias(defaultConfig);
     }
 
     return false;

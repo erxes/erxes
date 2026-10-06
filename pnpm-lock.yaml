@@ -1335,9 +1335,18 @@ importers:
 
   backend/services/logs:
     dependencies:
+      cookie-parser:
+        specifier: ^1.4.7
+        version: 1.4.7
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       erxes-api-shared:
         specifier: npm:@erxes/api-shared@3.2.13
         version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
       tslib:
         specifier: ^2.6.3
         version: 2.8.1

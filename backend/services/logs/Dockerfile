@@ -26,7 +26,7 @@ fs.writeFileSync( \
   ), \
 ); \
 " \
-    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
+    && pnpm install --prod --no-frozen-lockfile
 
 # Runtime image
 FROM base AS runtime
