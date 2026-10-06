@@ -198,8 +198,8 @@ export const Summary = ({
                 'unable-to-save-because-some-transactions-cannot-be-viewed-with-your-current-permissions',
               )
             : isDraftedStatus
-            ? t('save-with-draft-status')
-            : undefined)
+              ? t('save-with-draft-status')
+              : undefined)
         }
       >
         <SubmitIcon />

@@ -70,7 +70,7 @@ const dateColumn = (t: TFunction<'accounting'>) =>
     ),
     accessorKey: 'date',
     cell: DateCell,
-  } satisfies ColumnDef<IAdjustInventory, Date>);
+  }) satisfies ColumnDef<IAdjustInventory, Date>;
 
 const descriptionColumn = (t: TFunction<'accounting'>) =>
   ({
@@ -81,7 +81,7 @@ const descriptionColumn = (t: TFunction<'accounting'>) =>
     accessorKey: 'description',
     cell: DescriptionCell,
     size: 300,
-  } satisfies ColumnDef<IAdjustInventory, string>);
+  }) satisfies ColumnDef<IAdjustInventory, string>;
 
 export const adjustTableColumns = (t: TFunction<'accounting'>) => [
   transactionMoreColumn,
