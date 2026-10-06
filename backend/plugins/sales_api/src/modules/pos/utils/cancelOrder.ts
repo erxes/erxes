@@ -45,7 +45,7 @@ export const cancelSyncedPosOrder = async (
       throwOnError: true,
     });
     if (!Array.isArray(receipts)) {
-      throw new Error('Unable to verify synced eBarimt receipts');
+      throw new TypeError('Unable to verify synced eBarimt receipts');
     }
     if (receipts.length) {
       throw new Error(

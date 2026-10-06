@@ -358,7 +358,10 @@ function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
 }
 test('failed fiscal return does not update or publish returned order', async () => {
   const fixture = mutationFixture({ error: 'receipt return rejected' });
-  await assert.rejects(fixture.run(), /receipt return rejected/);
+  await assert.rejects(fixture.run(), {
+    name: 'TypeError',
+    message: 'receipt return rejected',
+  });
   assert.deepEqual(fixture.events, []);
   assert.equal(fixture.order.returnInfo, undefined);
 });

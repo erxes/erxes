@@ -1594,7 +1594,7 @@ const orderMutations: Record<string, Resolver> = {
           )
         : [];
     if (!Array.isArray(returnResponses)) {
-      throw new Error(returnResponses.error);
+      throw new TypeError(returnResponses.error);
     }
 
     await models.Orders.updateOne({ _id: order._id }, modifier);

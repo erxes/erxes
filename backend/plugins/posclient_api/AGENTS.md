@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -118,6 +118,8 @@
 
 ## Local Invariants
 
+- Non-array eBarimt return results throw `TypeError` with the reported message
+  before updating order payment or return status.
 - Any order with `paidDate` must be returned, never cancelled, even without
   eBarimt or with `billType: '9'` (internal/temporary receipt). Receipt type
   alone does not close an unpaid draft; non-fiscal returns need no eBarimt config.

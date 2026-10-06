@@ -5,7 +5,7 @@ import OrderItem from '@/posclient/graphql/resolvers/customResolvers/orderItem';
 import PosConfig from '@/posclient/graphql/resolvers/customResolvers/posConfig';
 import PoscProduct from '@/posclient/graphql/resolvers/customResolvers/poscProduct';
 import Cover from '@/posclient/graphql/resolvers/customResolvers/cover';
-import { OrderChangeLog } from '@/posclient/graphql/resolvers/customResolvers/orderChangeLog';
+import OrderChangeLog from '@/posclient/graphql/resolvers/customResolvers/orderChangeLog';
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import cpResolvers from '~/modules/posclient/graphql/resolvers/customResolvers/cpResolver';
 

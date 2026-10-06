@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -179,6 +179,7 @@
 
 ## Local Invariants
 
+- Non-array synced eBarimt receipt results throw `TypeError` before deletion.
 - POS cancellation requires matching `posId` and `posToken`; paid orders
   (`paidDate` set), including internal/temporary receipts without eBarimt,
   must be returned rather than cancelled. Returned orders

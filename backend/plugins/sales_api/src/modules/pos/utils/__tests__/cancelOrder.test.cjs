@@ -98,7 +98,10 @@ for (const failure of ['find', 'refund']) {
 }
 test('unconfirmed receipt query prevents deletion', async () => {
   const state = fixture({ receipts: null });
-  await assert.rejects(state.run(), /Unable to verify/);
+  await assert.rejects(state.run(), {
+    name: 'TypeError',
+    message: 'Unable to verify synced eBarimt receipts',
+  });
   assert.equal(state.events.includes('delete'), false);
 });
 for (const order of [
