@@ -221,7 +221,7 @@ export const CtaxForm = ({
               <Form.Item>
                 <Form.Label>{t('city-tax-amount')}</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleCtax ? field.value ?? 0 : calcedAmount}
+                  value={handleCtax ? (field.value ?? 0) : calcedAmount}
                   onChange={field.onChange}
                   disabled={!handleCtax}
                 />

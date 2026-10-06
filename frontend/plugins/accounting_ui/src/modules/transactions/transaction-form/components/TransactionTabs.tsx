@@ -45,8 +45,8 @@ import { TBalance } from './TBalance';
 const isHiddenTransaction = (transaction?: object) =>
   Boolean(
     transaction &&
-      'permission' in transaction &&
-      transaction.permission === 'hidden',
+    'permission' in transaction &&
+    transaction.permission === 'hidden',
   );
 
 // Separate the transaction form component to prevent unnecessary re-renders

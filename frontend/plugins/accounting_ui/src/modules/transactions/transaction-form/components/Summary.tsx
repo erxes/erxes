@@ -195,8 +195,8 @@ export const Summary = ({
                 'this-document-cannot-be-saved-because-you-do-not-have-access-to-view-all-its-transactions',
               )
             : isDraftedStatus
-            ? t('save-as-draft')
-            : undefined)
+              ? t('save-as-draft')
+              : undefined)
         }
       >
         <SubmitIcon />

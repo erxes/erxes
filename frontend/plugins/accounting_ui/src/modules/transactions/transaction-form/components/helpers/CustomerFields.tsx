@@ -29,8 +29,8 @@ export const CustomerFields = ({
     customerType === CustomerType.CUSTOMER
       ? SelectCustomer.FormItem
       : customerType === CustomerType.COMPANY
-      ? SelectCompany
-      : SelectMember.FormItem;
+        ? SelectCompany
+        : SelectMember.FormItem;
 
   return (
     <>

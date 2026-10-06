@@ -109,11 +109,11 @@ export const VatForm = ({
             ...(curr?.details || [{}])[0],
             accountId: trDoc.afterVat
               ? side === 'dt'
-                ? configs?.VatAfterReceivableAccount ?? ''
-                : configs?.VatAfterPayableAccount ?? ''
+                ? (configs?.VatAfterReceivableAccount ?? '')
+                : (configs?.VatAfterPayableAccount ?? '')
               : side === 'dt'
-              ? configs?.VatReceivableAccount
-              : configs?.VatPayableAccount,
+                ? configs?.VatReceivableAccount
+                : configs?.VatPayableAccount,
             amount: calcedAmount,
           },
         ],
@@ -232,7 +232,7 @@ export const VatForm = ({
               <Form.Item>
                 <Form.Label>{t('vat-amount-2')}</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleVat ? field.value ?? 0 : calcedAmount}
+                  value={handleVat ? (field.value ?? 0) : calcedAmount}
                   onChange={field.onChange}
                   disabled={!handleVat}
                 />
