@@ -3,12 +3,21 @@ import { useToast } from 'erxes-ui';
 import { DELETE_STATUS } from '../graphql/mutations/deleteStatus';
 import { GET_STATUSES_BY_TYPE } from '../graphql/queries/getStatusesByType';
 import { useTranslation } from 'react-i18next';
+import {
+  DeleteStatusMutation,
+  DeleteStatusMutationVariables,
+} from '~/gql/graphql';
 
 export const useDeleteStatus = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_deleteStatus, { loading, error }] = useMutation(DELETE_STATUS);
-  const deleteStatus = (options: MutationHookOptions) => {
+  const deleteStatus = (
+    options: MutationHookOptions<
+      DeleteStatusMutation,
+      DeleteStatusMutationVariables
+    >,
+  ) => {
     return _deleteStatus({
       refetchQueries: [GET_STATUSES_BY_TYPE],
       onError: (e) => {

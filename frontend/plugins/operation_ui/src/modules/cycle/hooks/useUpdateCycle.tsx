@@ -2,23 +2,36 @@ import { useMutation, MutationHookOptions } from '@apollo/client';
 import { UPDATE_CYCLE } from '../graphql/mutations/updateCycle';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import {
+  CycleInput,
+  UpdateCycleMutation,
+  UpdateCycleMutationVariables,
+} from '~/gql/graphql';
+
+type UpdateCycleOptions = Omit<
+  MutationHookOptions<UpdateCycleMutation, UpdateCycleMutationVariables>,
+  'variables'
+> & {
+  variables?: CycleInput;
+  showSuccessToast?: boolean;
+};
+
 export const useUpdateCycle = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_updateCycle, { loading, error }] = useMutation(UPDATE_CYCLE);
 
-  const updateCycle = (
-    options: MutationHookOptions & { showSuccessToast?: boolean },
-  ) => {
+  const updateCycle = (options: UpdateCycleOptions) => {
     return _updateCycle({
       ...options,
-      variables: {
-        input: options.variables,
-      },
+      variables: options.variables ? { input: options.variables } : undefined,
       update: (cache, { data }) => {
         if (data?.updateCycle) {
           const updatedCycle = data.updateCycle;
-          const cacheId = cache.identify(updatedCycle);
+          const cacheId = cache.identify({
+            __typename: 'Cycle',
+            _id: updatedCycle._id,
+          });
 
           if (cacheId) {
             cache.modify({
@@ -48,7 +61,6 @@ export const useUpdateCycle = () => {
         }
       },
       onError: (error) => {
-        console.error('Update cycle error:', error);
         toast({
           title: t('error'),
           description: error.message || t('failed-to-update-cycle'),

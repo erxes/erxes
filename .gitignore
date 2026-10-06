@@ -50,7 +50,8 @@ Thumbs.db
 
 # Local personal notes (untracked)
 .personal/
-.claude
+.claude/*
+!.claude/skills
 
 storybook-static
 backend/plugins/payment_api/src/public/widget/
@@ -69,4 +70,5 @@ cloudflare/mail-worker/node_modules/
 cloudflare/mail-worker/.wrangler/
 
 # Agent tool session state
-.agents/
+.agents/*
+!.agents/skills/

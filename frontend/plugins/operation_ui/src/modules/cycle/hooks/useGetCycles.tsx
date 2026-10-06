@@ -1,13 +1,15 @@
 import { CYCLES_CURSOR_SESSION_KEY } from '@/cycle/constants';
 import { GET_CYCLES } from '@/cycle/graphql/queries/getCycles';
 import { cycleTotalCountAtom } from '@/cycle/states/cycleTotalCountState';
-import { ICycle } from '@/cycle/types';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/operation/utils/cursorList';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  ICursorListResponse,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   useToast,
   validateFetchMore,
@@ -16,10 +18,14 @@ import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  GetCyclesRecordTableQuery,
+  GetCyclesRecordTableQueryVariables,
+} from '~/gql/graphql';
 const CYCLES_PER_PAGE = 30;
 
 export const useCyclesVariables = (
-  variables?: QueryHookOptions<ICursorListResponse<ICycle>>['variables'],
+  variables?: GetCyclesRecordTableQueryVariables,
 ) => {
   const { teamId } = useParams();
   const { cursor } = useRecordTableCursor({
@@ -32,20 +38,21 @@ export const useCyclesVariables = (
       createdAt: -1,
     },
     cursor,
-    teamId: teamId || undefined,
+    teamId,
     ...variables,
   };
 };
 
 export const useGetCycles = (
-  options?: QueryHookOptions<ICursorListResponse<ICycle>>,
+  options?: QueryHookOptions<
+    GetCyclesRecordTableQuery,
+    GetCyclesRecordTableQueryVariables
+  >,
 ) => {
   const variables = useCyclesVariables(options?.variables);
   const { t } = useTranslation('operation');
   const { toast } = useToast();
-  const { data, loading, error, fetchMore } = useQuery<
-    ICursorListResponse<ICycle>
-  >(GET_CYCLES, {
+  const { data, loading, error, fetchMore } = useQuery(GET_CYCLES, {
     ...options,
     variables,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
@@ -57,7 +64,8 @@ export const useGetCycles = (
       });
     },
   });
-  const { list: cycles, pageInfo, totalCount } = data?.getCycles || {};
+  const { list, pageInfo, totalCount } = data?.getCycles || {};
+  const cycles = compactList(list);
   const setCycleTotalCount = useSetAtom(cycleTotalCountAtom);
   useEffect(() => {
     if (isUndefinedOrNull(totalCount)) return;
@@ -69,7 +77,9 @@ export const useGetCycles = (
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (!validateFetchMore({ direction, pageInfo })) {
+    if (
+      !validateFetchMore({ direction, pageInfo: toCursorPageInfo(pageInfo) })
+    ) {
       return;
     }
 
@@ -83,14 +93,14 @@ export const useGetCycles = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!prev.getCycles || !fetchMoreResult?.getCycles) return prev;
 
         return Object.assign({}, prev, {
-          getCycles: mergeCursorData({
+          getCycles: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.getCycles,
-            prevResult: prev.getCycles,
-          }),
+            prev.getCycles,
+            fetchMoreResult.getCycles,
+          ),
         });
       },
     });
@@ -101,7 +111,7 @@ export const useGetCycles = (
     error,
     handleFetchMore,
     cycles,
-    pageInfo,
+    pageInfo: toCursorPageInfo(pageInfo),
     totalCount,
   };
 };

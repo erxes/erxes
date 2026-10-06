@@ -152,8 +152,8 @@ export function HelpCenterDrawer({
 
                 {/* Mounted only while open: it checks the domain with
                     Cloudflare, which should not happen on every edit. */}
-                {isEditing && activeTab === 'domain' && (
-                  <HelpCenterDomainTab t={t} />
+                {helpCenter?._id && activeTab === 'domain' && (
+                  <HelpCenterDomainTab helpCenterId={helpCenter._id} t={t} />
                 )}
               </ScrollArea>
             </form>

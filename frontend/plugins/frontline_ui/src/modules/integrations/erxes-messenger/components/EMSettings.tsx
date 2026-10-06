@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   Collapsible,
@@ -7,23 +6,70 @@ import {
   LanguageSelect,
   Switch,
 } from 'erxes-ui';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { EM_SETTINGS_SCHEMA } from '../constants/emSettingsSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  EMSettingsBooleanField,
+  EMSettingsSwitchField,
+} from '@/integrations/erxes-messenger/components/EMSettingsSwitchField';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   erxesMessengerSetupSettingsAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useFieldArray, useForm } from 'react-hook-form';
+
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
+import { EM_SETTINGS_SCHEMA } from '../constants/emSettingsSchema';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 type EMSettingsFormValues = z.infer<typeof EM_SETTINGS_SCHEMA>;
+
+const SETTINGS_SWITCHES: {
+  name: EMSettingsBooleanField;
+  label: string;
+  description?: string;
+}[] = [
+  {
+    name: 'requireAuth',
+    label: 'require-authentication',
+    description: 'require-authentication-description',
+  },
+  {
+    name: 'showChat',
+    label: 'show-chat',
+    description: 'show-chat-description',
+  },
+  {
+    name: 'showLauncher',
+    label: 'show-launcher',
+    description: 'show-launcher-description',
+  },
+  {
+    name: 'isSupportInAppView',
+    label: 'in-app-view',
+    description: 'in-app-view-description',
+  },
+  {
+    name: 'forceLogoutWhenResolve',
+    label: 'force-logout',
+    description: 'force-logout-description',
+  },
+  {
+    name: 'notifyCustomer',
+    label: 'notify-customer',
+    description: 'notify-customer-description',
+  },
+  {
+    name: 'showVideoCallRequest',
+    label: 'show-video-call-request',
+  },
+];
 
 export const EMSettings = () => {
   const { t } = useTranslation('frontline');
@@ -38,6 +84,7 @@ export const EMSettings = () => {
       forceLogoutWhenResolve: false,
       notifyCustomer: false,
       showVideoCallRequest: false,
+      isSupportInAppView: false,
       websiteApps: [],
     },
   });
@@ -92,141 +139,14 @@ export const EMSettings = () => {
                 </Form.Item>
               )}
             />
-            <Form.Field
-              name="requireAuth"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('require-authentication')}
-                    </Form.Label>
-                  </div>
-                  <Form.Description>
-                    {t('require-authentication-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="showChat"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('show-chat')}
-                    </Form.Label>
-                  </div>
-                  <Form.Description>
-                    {t('show-chat-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="showLauncher"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('show-launcher')}
-                    </Form.Label>
-                  </div>
-                  <Form.Description>
-                    {t('show-launcher-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="forceLogoutWhenResolve"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('force-logout')}
-                    </Form.Label>
-                  </div>
-                  <Form.Description>
-                    {t('force-logout-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="notifyCustomer"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('notify-customer')}
-                    </Form.Label>
-                  </div>
-                  <Form.Description>
-                    {t('notify-customer-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="showVideoCallRequest"
-              render={({ field }) => (
-                <Form.Item>
-                  <div className="flex items-center gap-3">
-                    <Form.Control>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-
-                    <Form.Label variant="peer" className="leading-6">
-                      {t('show-video-call-request')}
-                    </Form.Label>
-                  </div>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            {SETTINGS_SWITCHES.map(({ name, label, description }) => (
+              <EMSettingsSwitchField
+                key={name}
+                name={name}
+                label={t(label)}
+                description={description ? t(description) : undefined}
+              />
+            ))}
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />

@@ -21,5 +21,6 @@ export const EM_SETTINGS_SCHEMA = z.object({
   forceLogoutWhenResolve: z.boolean().default(false),
   notifyCustomer: z.boolean().default(false),
   showVideoCallRequest: z.boolean().default(false),
+  isSupportInAppView: z.boolean().default(false),
   websiteApps: z.array(WEBSITE_APP_SCHEMA).default([]),
 });

@@ -1,12 +1,13 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_TEAMS = gql`
+export const GET_TEAMS = gql(`
   query getTeams(
     $name: String
     $userId: String
     $teamIds: [String]
     $projectId: String
     $isTriageEnabled: Boolean
+    $teamId: String
   ) {
     getTeams(
       name: $name
@@ -14,6 +15,7 @@ export const GET_TEAMS = gql`
       teamIds: $teamIds
       projectId: $projectId
       isTriageEnabled: $isTriageEnabled
+      teamId: $teamId
     ) {
       _id
       icon
@@ -28,4 +30,4 @@ export const GET_TEAMS = gql`
       memberCount
     }
   }
-`;
+`);
