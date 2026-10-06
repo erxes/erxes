@@ -262,7 +262,7 @@ export const syncConversationToCore = async ({
       { channelId: conversation.channelId },
       { $setOnInsert: { ...conversation.toObject(), erxesApiId: mintedApiId } },
       { upsert: true, new: true },
-    ).catch(async (error: unknown) => {
+    ).catch((error: unknown) => {
       if (!getErrorMessage(error).includes('duplicate')) throw error;
       return models.DiscordConversations.findOne({
         channelId: conversation.channelId,

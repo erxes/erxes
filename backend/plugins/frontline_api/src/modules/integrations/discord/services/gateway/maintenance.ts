@@ -95,8 +95,8 @@ export const closeUndesiredDiscordSockets = async (
   }
 
   await Promise.all(
-    Array.from(owned, (token) =>
-      desired.has(token) ? undefined : disconnectDiscordToken(subdomain, token),
-    ),
+    Array.from(owned)
+      .filter((token) => !desired.has(token))
+      .map((token) => disconnectDiscordToken(subdomain, token)),
   );
 };
