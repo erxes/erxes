@@ -1,8 +1,8 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { isAddingAppAtom } from '../state';
-import { useAppsAdd } from '../hooks/useAppsAdd';
+import { isAddingAppAtom } from '@/settings/apps/state';
+import { useAppsAdd } from '@/settings/apps/hooks/useAppsAdd';
 
 export const AppsAddRow = () => {
   const setIsAddingApp = useSetAtom(isAddingAppAtom);
@@ -48,8 +48,8 @@ export const AppsAddRow = () => {
     <Table.Row>
       <Table.Cell />
       <Table.Cell />
-      <Table.Cell colSpan={6} className="h-cell">
-        <div className="h-full w-full max-w-[310px] flex items-center px-3">
+      <Table.Cell colSpan={1} className="p-1">
+        <div className="h-full w-full flex items-center bg-accent rounded-lg">
           <input
             ref={inputRef}
             disabled={loading}
@@ -67,10 +67,13 @@ export const AppsAddRow = () => {
               }
             }}
             placeholder="My App"
-            className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
+            className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none"
           />
         </div>
       </Table.Cell>
+      <Table.Cell />
+      <Table.Cell />
+      <Table.Cell />
     </Table.Row>
   );
 };

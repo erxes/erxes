@@ -1,23 +1,30 @@
-import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
-import { CreateBrand } from './CreateBrand';
+import {
+  Can,
+  PageHeader,
+  PageHeaderEnd,
+  PageHeaderStart,
+  usePermissionCheck,
+} from 'ui-modules';
 import { Breadcrumb, Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconChessKnightFilled, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import { renderingBrandDetailAtom } from '../state';
+import { renderingBrandDetailAtom } from '@/settings/brands/state';
 
 export function BrandsHeader() {
   const { t } = useTranslation('settings', {
     keyPrefix: 'brands',
   });
   const [isAddingBrand, setIsAddingBrand] = useAtom(renderingBrandDetailAtom);
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canCreateBrand = isLoaded && hasActionPermission('brandsCreate');
 
   useScopedHotkeys(
     'c',
     () => {
-      setIsAddingBrand(true);
+      if (canCreateBrand) setIsAddingBrand(true);
     },
     SettingsHotKeyScope.BrandsPage,
   );
@@ -40,7 +47,6 @@ export function BrandsHeader() {
       </PageHeaderStart>
       <PageHeaderEnd>
         <Can action="brandsCreate">
-          {/* <CreateBrand /> */}
           <Button
             disabled={isAddingBrand}
             onClick={() => setIsAddingBrand(true)}

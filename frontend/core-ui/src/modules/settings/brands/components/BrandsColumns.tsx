@@ -15,11 +15,11 @@ import {
   Textarea,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { IBrand } from '../types';
+import { IBrand } from '@/settings/brands/types';
 import { useState } from 'react';
 import { useBrandsEdit } from '@/settings/brands/hooks/useBrandsEdit';
 import { TFunction } from 'i18next';
-import { brandsMoreColumn } from './BrandsMoreColumn';
+import { brandsMoreColumn } from '@/settings/brands/components/BrandsMoreColumn';
 
 const BrandNameCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
   const { _id, name } = cell.row.original;
@@ -54,6 +54,9 @@ const BrandNameCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
       <RecordTableInlineCell.Content
         style={{ width: 'var(--radix-popover-trigger-width)' }}
         className="min-w-0 max-w-full"
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+        }}
       >
         <Input
           value={_name}
@@ -64,7 +67,15 @@ const BrandNameCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
             if (e.key === 'Enter') {
               e.preventDefault();
               onSave();
+              setOpen(false);
             }
+          }}
+          onFocus={(e) => {
+            const input = e.target;
+            const length = input.value.length;
+            setTimeout(() => {
+              input.setSelectionRange(length, length);
+            }, 0);
           }}
         />
       </RecordTableInlineCell.Content>
@@ -114,8 +125,10 @@ const BrandDescriptionCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
         <TextOverflowTooltip value={cell.getValue() as string} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content
-        style={{ width: 'var(--radix-popover-trigger-width)' }}
-        className="min-w-0 max-w-full"
+        style={{ width: 'calc(var(--radix-popover-trigger-width))' }}
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+        }}
       >
         <Textarea
           value={_description}
@@ -123,13 +136,25 @@ const BrandDescriptionCell = ({ cell }: { cell: Cell<IBrand, unknown> }) => {
           disabled={loading}
           placeholder="Add brand description..."
           maxLength={350}
-          rows={1}
+          rows={3}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Escape') {
+              setOpen(false);
+              return;
+            }
+            if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
               onSave();
+              setOpen(false);
             }
+          }}
+          onFocus={(e) => {
+            const textarea = e.currentTarget;
+            const length = textarea.value.length;
+            setTimeout(() => {
+              textarea.setSelectionRange(length, length);
+            }, 0);
           }}
         />
       </RecordTableInlineCell.Content>

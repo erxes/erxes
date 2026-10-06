@@ -1,9 +1,9 @@
 import { DateRange, Matcher } from 'react-day-picker';
-import { Calendar, CalendarProps } from './calendar';
-import { Button } from './button';
-import { Popover } from './popover';
+import { Calendar, CalendarProps } from 'erxes-ui/components/calendar';
+import { Button } from 'erxes-ui/components/button';
+import { Popover } from 'erxes-ui/components/popover';
 import React from 'react';
-import { cn } from '../lib/utils';
+import { cn } from 'erxes-ui/lib/utils';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
@@ -35,10 +35,33 @@ const formatDateMask = (value: string) => {
   if (digits.length <= 4) {
     return digits;
   }
+
+  const year = digits.slice(0, 4);
+  const month = digits.slice(4, 6);
+
+  const normalizedMonth =
+    month.length === 2
+      ? String(Math.min(Number(month), 12)).padStart(2, '0')
+      : month;
+
   if (digits.length <= 6) {
-    return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    return `${year}-${normalizedMonth}`;
   }
-  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+
+  const day = digits.slice(6, 8);
+
+  const maxDay = dayjs(
+    `${year}-${normalizedMonth}-01`,
+    'YYYY-MM-DD',
+    true,
+  ).daysInMonth();
+
+  const normalizedDay =
+    day.length === 2
+      ? String(Math.min(Number(day), maxDay)).padStart(2, '0')
+      : day;
+
+  return `${year}-${normalizedMonth}-${normalizedDay}`;
 };
 
 export const DatePicker = ({
@@ -63,7 +86,7 @@ export const DatePicker = ({
   const [isOpen, setIsOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
 
-  const maxInputLength = 10;
+  const maxInputLength = format.length;
 
   React.useEffect(() => {
     if (value && mode === 'single') {
@@ -85,34 +108,24 @@ export const DatePicker = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
-
     const formattedText =
       format === 'YYYY-MM-DD'
         ? formatDateMask(rawValue)
         : rawValue.slice(0, maxInputLength);
-
     setInputValue(formattedText);
-
-    if (mode === 'single') {
-      if (formattedText.length === maxInputLength) {
-        const parsedDate = dayjs(formattedText, format, true);
-
-        if (parsedDate.isValid()) {
-          const dateObj = parsedDate.toDate();
-
-          const isBeforeMin =
-            minBound && parsedDate.isBefore(dayjs(minBound), 'day');
-          const isAfterMax =
-            maxBound && parsedDate.isAfter(dayjs(maxBound), 'day');
-
-          if (!isBeforeMin && !isAfterMax) {
-            onChange(dateObj);
-          }
-        }
-      } else if (formattedText === '' && allowNull) {
-        onChange(undefined);
-      }
+    if (mode !== 'single') return;
+    if (!formattedText && allowNull) {
+      onChange(undefined);
+      return;
     }
+    if (formattedText.length !== maxInputLength) return;
+    const parsedDate = dayjs(formattedText, format, true);
+    if (!parsedDate.isValid()) return;
+    const isOutOfRange =
+      (minBound && parsedDate.isBefore(dayjs(minBound), 'day')) ||
+      (maxBound && parsedDate.isAfter(dayjs(maxBound), 'day'));
+    if (isOutOfRange) return;
+    onChange(parsedDate.toDate());
   };
 
   const handleDateChange = (
@@ -150,9 +163,9 @@ export const DatePicker = ({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <Popover.Trigger asChild={true}>
-        <div className="relative inline-block w-full">
-          {mode === 'single' ? (
+      <div className="relative inline-block w-full">
+        {mode === 'single' ? (
+          <Popover.Trigger asChild>
             <input
               type="text"
               value={inputValue}
@@ -160,13 +173,38 @@ export const DatePicker = ({
               maxLength={maxInputLength}
               placeholder={placeholder}
               disabled={disabled === true}
-              onClick={() => setIsOpen(true)}
+              onBlur={() => {
+                if (inputValue === '' && allowNull) return;
+
+                const parsedDate = dayjs(inputValue, format, true);
+                const isWithinBounds =
+                  parsedDate.isValid() &&
+                  !(minBound && parsedDate.isBefore(dayjs(minBound), 'day')) &&
+                  !(maxBound && parsedDate.isAfter(dayjs(maxBound), 'day'));
+
+                if (!isWithinBounds) {
+                  setInputValue(
+                    value && mode === 'single'
+                      ? dayjs(value as Date).format(format)
+                      : '',
+                  );
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(true);
+                }
+              }}
               className={cn(
                 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
                 className,
               )}
             />
-          ) : (
+          </Popover.Trigger>
+        ) : (
+          <Popover.Trigger asChild>
             <Button
               variant={variant}
               disabled={disabled === true}
@@ -183,9 +221,9 @@ export const DatePicker = ({
                 placeholder,
               )}
             </Button>
-          )}
-        </div>
-      </Popover.Trigger>
+          </Popover.Trigger>
+        )}
+      </div>
       <Popover.Content
         align="start"
         {...popoverContentProps}

@@ -53,13 +53,29 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
     >
       <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content
-        style={{ width: 'var(--radix-popover-trigger-width)' }}
-        className="min-w-0 max-w-full"
+        style={{ width: 'calc(var(--radix-popover-trigger-width))' }}
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+        }}
       >
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
           disabled={loading}
+          onFocus={(e) => {
+            const input = e.target;
+            const length = input.value.length;
+            setTimeout(() => {
+              input.setSelectionRange(length, length);
+            }, 0);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onSave();
+              setOpen(false);
+            }
+          }}
         />
       </RecordTableInlineCell.Content>
     </Popover>

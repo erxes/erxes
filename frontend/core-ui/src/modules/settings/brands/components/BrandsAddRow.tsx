@@ -1,8 +1,8 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { renderingBrandDetailAtom } from '../state';
-import { useBrandsAdd } from '../hooks/useBrandsAdd';
+import { renderingBrandDetailAtom } from '@/settings/brands/state';
+import { useBrandsAdd } from '@/settings/brands/hooks/useBrandsAdd';
 
 export const BrandsAddRow = () => {
   const setIsAddingBrand = useSetAtom(renderingBrandDetailAtom);
@@ -48,8 +48,8 @@ export const BrandsAddRow = () => {
     <Table.Row>
       <Table.Cell />
       <Table.Cell />
-      <Table.Cell colSpan={6} className="h-cell">
-        <div className="h-full flex items-center px-3">
+      <Table.Cell className="p-1">
+        <div className="h-full w-full flex items-center bg-accent rounded-lg">
           <input
             ref={inputRef}
             disabled={loading}
@@ -67,11 +67,13 @@ export const BrandsAddRow = () => {
               }
             }}
             placeholder="Brand name"
-            className="w-full max-w-xs bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
-            maxLength={288}
+            className="w-full max-w-xs bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none font-medium"
           />
         </div>
       </Table.Cell>
+      <Table.Cell />
+      <Table.Cell />
+      <Table.Cell />
     </Table.Row>
   );
 };

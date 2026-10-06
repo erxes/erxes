@@ -1,8 +1,8 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { addingClientPortalAtom } from '../state';
-import { useCreateClientPortal } from '../hooks/useCreateClientPortal';
+import { addingClientPortalAtom } from '@/client-portal/state';
+import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { useNavigate } from 'react-router-dom';
 
 export const ClientPortalAddRow = () => {
@@ -43,6 +43,14 @@ export const ClientPortalAddRow = () => {
         });
         navigate(`${data.clientPortalAdd._id}`);
       },
+      onError: (error) => {
+        handledRef.current = false;
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   };
 
@@ -50,8 +58,8 @@ export const ClientPortalAddRow = () => {
     <Table.Row>
       <Table.Cell />
       <Table.Cell />
-      <Table.Cell colSpan={6} className="h-cell">
-        <div className="h-full max-w-[310px] w-full flex items-center px-3">
+      <Table.Cell className="p-1">
+        <div className="h-full flex items-center w-full bg-accent max-w-none rounded-lg">
           <input
             ref={inputRef}
             disabled={loading}
@@ -69,10 +77,13 @@ export const ClientPortalAddRow = () => {
               }
             }}
             placeholder="Create client portal"
-            className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg"
+            className="w-full bg-transparent px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium"
           />
         </div>
       </Table.Cell>
+      <Table.Cell />
+      <Table.Cell />
+      <Table.Cell />
     </Table.Row>
   );
 };
