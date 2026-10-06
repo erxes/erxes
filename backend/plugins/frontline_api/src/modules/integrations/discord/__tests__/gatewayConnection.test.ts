@@ -17,12 +17,10 @@ jest.mock('~/connectionResolvers', () => ({
   generateModels: jest.fn(() =>
     Promise.resolve({
       DiscordBots: {
-        findOne: jest
-          .fn()
-          .mockResolvedValue({
-            applicationId: 'bot',
-            erxesApiId: 'integration',
-          }),
+        findOne: jest.fn().mockResolvedValue({
+          applicationId: 'bot',
+          erxesApiId: 'integration',
+        }),
       },
     }),
   ),
