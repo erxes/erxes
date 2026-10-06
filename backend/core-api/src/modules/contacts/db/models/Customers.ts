@@ -519,7 +519,7 @@ console.log({      integrationId,
 
 
 
-      if (customer && email) {
+      if (!customer && email) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
           $or: [{ emails: { $in: [email] } }, { primaryEmail: email }],
