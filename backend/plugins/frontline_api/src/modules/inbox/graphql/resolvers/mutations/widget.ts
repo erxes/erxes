@@ -561,32 +561,32 @@ console.log(JSON.stringify({customer}))
 
     console.log({visitorId,cachedCustomerId,customer})
 
-    if (visitorId && !cachedCustomerId && !customer) {
-      const lead = await createVisitor(subdomain, visitorId);
-      const docs = { ...args } as any;
-      docs.customerId = lead._id;
+    // if (visitorId && !cachedCustomerId && !customer) {
+    //   const lead = await createVisitor(subdomain, visitorId);
+    //   const docs = { ...args } as any;
+    //   docs.customerId = lead._id;
 
-      await models.ConversationMessages.updateVisitorEngageMessages(
-        visitorId,
-        lead._id,
-      );
-      await models.Conversations.updateMany(
-        {
-          visitorId,
-        },
-        { $set: { customerId: lead._id, visitorId: '' } },
-      );
-      customer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'saveVisitorContactInfo',
-        input: {
-          params: docs,
-        },
-      });
-    }
+    //   await models.ConversationMessages.updateVisitorEngageMessages(
+    //     visitorId,
+    //     lead._id,
+    //   );
+    //   await models.Conversations.updateMany(
+    //     {
+    //       visitorId,
+    //     },
+    //     { $set: { customerId: lead._id, visitorId: '' } },
+    //   );
+    //   customer = await sendTRPCMessage({
+    //     subdomain,
+    //     pluginName: 'core',
+    //     method: 'mutation',
+    //     module: 'customers',
+    //     action: 'saveVisitorContactInfo',
+    //     input: {
+    //       params: docs,
+    //     },
+    //   });
+    // }
 
     if (!integration.isConnected) {
       await models.Integrations.updateOne(
