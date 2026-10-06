@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -734,7 +734,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 - `operation_api` GraphQL `getTeams(userId)` and
   `getStatusesChoicesByTeam(teamId)` under the operation names
   `FrontlineConvertTaskTeams` / `FrontlineConvertTaskStatuses` — the task
-  convert dialog's team and status pickers.
+  convert dialog's team and status pickers. `getStatusesChoicesByTeam`
+  returns `[StatusChoice]` objects, so the document selects
+  `label value color type`; a bare field is rejected by the gateway.
 - `ui-modules` `SelectBoard`, `SelectPipeline`, `SelectStage`, `SelectMember`,
   `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
   the Convert menu's visibility; `useFields`, `PropertyFormField` and
