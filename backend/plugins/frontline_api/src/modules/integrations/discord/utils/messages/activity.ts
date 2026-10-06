@@ -16,9 +16,10 @@ import {
   normalizeDiscordAttachments,
   normalizeDiscordStickers,
 } from '@/integrations/discord/utils/media/normalize';
-import { DISCORD_VOICE_MESSAGE_FLAG } from '@/integrations/discord/constants/messages';
-
-import { CONTENT_MESSAGE_TYPES } from '@/integrations/discord/constants/messages';
+import {
+  DISCORD_VOICE_MESSAGE_FLAG,
+  CONTENT_MESSAGE_TYPES,
+} from '@/integrations/discord/constants/messages';
 
 /** Map the Discord author into an activity author. */
 const resolveActivityAuthor = (payload: TDiscordMessagePayload) => {

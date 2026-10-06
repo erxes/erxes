@@ -188,17 +188,27 @@ export const waitForConversationLink = async (
  * mirrored messages and sever the inbox link) and is left in place to retry
  * on the next message.
  */
-export const syncConversationToCore = async (
-  models: IModels,
-  subdomain: string,
-  bot: IDiscordBotDocument,
-  conversation: IDiscordConversationDocument,
-  createdInThisCall: boolean,
-  customer: IDiscordCustomerDocument,
-  previewContent: string,
-  storedAttachments: DiscordAttachment[],
-  timestamp: Date,
-) => {
+export const syncConversationToCore = async ({
+  models,
+  subdomain,
+  bot,
+  conversation,
+  createdInThisCall,
+  customer,
+  previewContent,
+  storedAttachments,
+  timestamp,
+}: {
+  models: IModels;
+  subdomain: string;
+  bot: IDiscordBotDocument;
+  conversation: IDiscordConversationDocument;
+  createdInThisCall: boolean;
+  customer: IDiscordCustomerDocument;
+  previewContent: string;
+  storedAttachments: DiscordAttachment[];
+  timestamp: Date;
+}) => {
   const isFirstSync = !conversation.erxesApiId;
 
   try {
@@ -248,13 +258,45 @@ export const syncConversationToCore = async (
     // The row vanished between the sync and the claim (its creator rolled it
     // back on a failure): re-attach our minted link so the message still
     // lands rather than being dropped.
-    conversation.erxesApiId = mintedApiId;
-    await conversation.save();
-    return conversation;
+    const restored = await models.DiscordConversations.findOneAndUpdate(
+      { channelId: conversation.channelId },
+      { $setOnInsert: { ...conversation.toObject(), erxesApiId: mintedApiId } },
+      { upsert: true, new: true },
+    ).catch(async (error: unknown) => {
+      if (!getErrorMessage(error).includes('duplicate')) throw error;
+      return models.DiscordConversations.findOne({
+        channelId: conversation.channelId,
+      });
+    });
+    if (!restored) {
+      throw new Error(
+        'Discord conversation disappeared while restoring its inbox link',
+      );
+    }
+    if (restored.erxesApiId) {
+      return restored;
+    }
+    // A concurrent creator may have restored an unlinked row first.
+    const linked = await models.DiscordConversations.findOneAndUpdate(
+      { _id: restored._id, erxesApiId: null },
+      { $set: { erxesApiId: mintedApiId } },
+      { new: true },
+    );
+    const linkedConversation =
+      linked || (await models.DiscordConversations.findById(restored._id));
+    if (!linkedConversation?.erxesApiId) {
+      throw new Error(
+        'Discord conversation disappeared while linking to the inbox',
+      );
+    }
+    return linkedConversation;
   } catch (e) {
     // Roll back only a row this call created — see the doc comment above.
     if (createdInThisCall) {
-      await models.DiscordConversations.deleteOne({ _id: conversation._id });
+      await models.DiscordConversations.deleteOne({
+        _id: conversation._id,
+        erxesApiId: null,
+      });
     }
     throw new Error(getErrorMessage(e));
   }

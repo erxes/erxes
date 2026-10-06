@@ -49,7 +49,7 @@ export const resolveAttachmentUrl = (
 export const filenameFromUrl = (url: string, index: number): string => {
   try {
     const { pathname } = new URL(url);
-    const last = pathname.split('/').filter(Boolean).pop();
+    const last = pathname.split('/').reverse().find(Boolean);
     return last || `attachment-${index}`;
   } catch {
     return `attachment-${index}`;

@@ -20,6 +20,88 @@ import type { IMessage } from '@/inbox/types/Conversation';
 const pinnedImage = (message: IMessage) =>
   message.attachments?.find(({ type }) => type?.startsWith('image'));
 
+const PinnedMessageRow = ({
+  message,
+  unpinning,
+  onSelectMessage,
+  onUnpin,
+}: {
+  message: IMessage;
+  unpinning: boolean;
+  onSelectMessage: (messageId: string) => void;
+  onUnpin: (message: IMessage) => Promise<void>;
+}) => {
+  const { t } = useTranslation('frontline');
+  const image = pinnedImage(message);
+  return (
+    <div className="flex items-start gap-2 px-3 py-2.5">
+      <Button
+        type="button"
+        variant="ghost"
+        className="h-auto min-w-0 flex-1 items-start justify-start gap-2 whitespace-normal p-1 text-left"
+        onClick={() => {
+          onSelectMessage(getProviderMessageId(message) || message._id);
+        }}
+      >
+        {image && (
+          <InboxImage
+            src={readImage(image.url)}
+            alt={image.name || t('pinned-attachment', 'Pinned attachment')}
+            className="size-12 shrink-0 rounded object-cover"
+          />
+        )}
+        <span className="line-clamp-3 min-w-0 flex-1 text-sm leading-5">
+          {previewOf(message)}
+        </span>
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        disabled={unpinning || !getProviderMessageId(message)}
+        aria-label={t('unpin-message', 'Unpin message')}
+        onClick={() => onUnpin(message)}
+        className="shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+      >
+        <IconPinnedOff className="size-4" />
+      </Button>
+    </div>
+  );
+};
+
+const PinnedMessagesList = ({
+  messages,
+  unpinning,
+  onSelectMessage,
+  onUnpin,
+}: {
+  messages: IMessage[];
+  unpinning: boolean;
+  onSelectMessage: (messageId: string) => void;
+  onUnpin: (message: IMessage) => Promise<void>;
+}) => {
+  return (
+    <ScrollArea.Root className="max-h-72">
+      <ScrollArea.Viewport className="max-h-72">
+        <div className="divide-y">
+          {messages.map((message) => {
+            return (
+              <PinnedMessageRow
+                key={message._id}
+                message={message}
+                unpinning={unpinning}
+                onSelectMessage={onSelectMessage}
+                onUnpin={onUnpin}
+              />
+            );
+          })}
+        </div>
+      </ScrollArea.Viewport>
+      <ScrollArea.Bar orientation="vertical" />
+    </ScrollArea.Root>
+  );
+};
+
 export const PinnedMessagesBar = ({
   conversationId,
   onSelectMessage,
@@ -34,10 +116,7 @@ export const PinnedMessagesBar = ({
   const [unpinMessage, { loading: unpinning }] = useMutation(
     CONVERSATION_MESSAGE_PIN,
     {
-      refetchQueries: [
-        'FrontlineConversationPinnedMessages',
-        'ConversationMessages',
-      ],
+      refetchQueries: ['FrontlineConversationPinnedMessages'],
       awaitRefetchQueries: true,
     },
   );
@@ -122,59 +201,15 @@ export const PinnedMessagesBar = ({
         <div className="border-b px-3 py-2 text-xs font-medium">
           {t('pinned-messages', 'Pinned messages')}
         </div>
-        <ScrollArea.Root className="max-h-72">
-          <ScrollArea.Viewport className="max-h-72">
-            <div className="divide-y">
-              {messages.map((message) => {
-                const image = pinnedImage(message);
-                return (
-                  <div
-                    key={message._id}
-                    className="flex items-start gap-2 px-3 py-2.5"
-                  >
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="h-auto min-w-0 flex-1 items-start justify-start gap-2 whitespace-normal p-1 text-left"
-                      onClick={() => {
-                        setOpen(false);
-                        onSelectMessage(
-                          getProviderMessageId(message) || message._id,
-                        );
-                      }}
-                    >
-                      {image && (
-                        <InboxImage
-                          src={readImage(image.url)}
-                          alt={
-                            image.name ||
-                            t('pinned-attachment', 'Pinned attachment')
-                          }
-                          className="size-12 shrink-0 rounded object-cover"
-                        />
-                      )}
-                      <span className="line-clamp-3 min-w-0 flex-1 text-sm leading-5">
-                        {previewOf(message)}
-                      </span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      disabled={unpinning || !getProviderMessageId(message)}
-                      aria-label={t('unpin-message', 'Unpin message')}
-                      onClick={() => handleUnpin(message)}
-                      className="shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <IconPinnedOff className="size-4" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          </ScrollArea.Viewport>
-          <ScrollArea.Bar orientation="vertical" />
-        </ScrollArea.Root>
+        <PinnedMessagesList
+          messages={messages}
+          unpinning={unpinning}
+          onSelectMessage={(messageId) => {
+            setOpen(false);
+            onSelectMessage(messageId);
+          }}
+          onUnpin={handleUnpin}
+        />
       </Popover.Content>
     </Popover>
   );

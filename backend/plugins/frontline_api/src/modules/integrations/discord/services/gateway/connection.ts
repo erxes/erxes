@@ -82,6 +82,25 @@ const retryPendingBackfill = async (
   );
 };
 
+export const disconnectDiscordToken = async (
+  subdomain: string,
+  token: string,
+) => {
+  const key = connectionKey(subdomain, token);
+  const connection = connections.get(key);
+
+  if (connection) {
+    try {
+      await connection.destroy();
+    } catch (e) {
+      debugError(`Failed to close Discord gateway: ${(e as Error).message}`);
+    }
+    connections.delete(key);
+  }
+
+  untrackToken(subdomain, token);
+};
+
 export const connectDiscordToken = async (subdomain: string, token: string) => {
   if (!token || connections.has(connectionKey(subdomain, token))) {
     return;
@@ -251,23 +270,4 @@ export const connectDiscordBot = async (
     return;
   }
   await connectDiscordToken(subdomain, bot.token);
-};
-
-export const disconnectDiscordToken = async (
-  subdomain: string,
-  token: string,
-) => {
-  const key = connectionKey(subdomain, token);
-  const connection = connections.get(key);
-
-  if (connection) {
-    try {
-      await connection.destroy();
-    } catch (e) {
-      debugError(`Failed to close Discord gateway: ${(e as Error).message}`);
-    }
-    connections.delete(key);
-  }
-
-  untrackToken(subdomain, token);
 };

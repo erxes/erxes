@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import initCallApp from '@/integrations/call/initApp';
 import { initDiscord } from '@/integrations/discord/services/gateway/ownership';
 import { startPlugin } from 'erxes-api-shared/utils';
@@ -62,7 +63,7 @@ startPlugin({
   }),
 
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(
+  subscriptionPluginPath: resolve(
     __dirname,
     'apollo',
     process.env.NODE_ENV === 'production'

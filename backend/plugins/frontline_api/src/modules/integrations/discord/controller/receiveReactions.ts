@@ -51,22 +51,8 @@ export const receiveDiscordReaction = async ({
         messageFilter,
         {
           $pull: {
-            'extraData.reactions': isBotReaction
-              ? {
-                  $or: [
-                    providerReaction,
-                    { emoji: event.emoji, reaction: { $exists: true } },
-                  ],
-                }
-              : providerReaction,
-            reactions: isBotReaction
-              ? {
-                  $or: [
-                    providerReaction,
-                    { emoji: event.emoji, reaction: { $exists: true } },
-                  ],
-                }
-              : providerReaction,
+            'extraData.reactions': providerReaction,
+            reactions: providerReaction,
           },
         },
         { new: true },

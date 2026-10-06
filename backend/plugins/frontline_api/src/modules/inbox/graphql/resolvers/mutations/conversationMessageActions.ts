@@ -47,7 +47,7 @@ export const conversationMessageActionMutations = {
     }
     return response?.data || { status: 'success' };
   },
-  async conversationMessageReact(
+  conversationMessageReact(
     _root: unknown,
     args: IConversationReaction,
     context: IContext,
@@ -55,13 +55,15 @@ export const conversationMessageActionMutations = {
     return reactToConversationMessage(args, context);
   },
   async conversationAgentTyping(
-    _root,
+    _root: unknown,
     {
       conversationId,
       typing = true,
     }: { conversationId: string; typing?: boolean },
-    { models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('conversationMessageAdd');
+    await authorizeConversationAccess(models, user, conversationId);
     try {
       const conversation =
         await models.Conversations.getConversation(conversationId);
@@ -95,7 +97,7 @@ export const conversationMessageActionMutations = {
     }
   },
   async conversationMessageEdit(
-    _root,
+    _root: unknown,
     { _id, ...fields }: IMessage & { _id: string },
     { user, models }: IContext,
   ) {
@@ -104,7 +106,7 @@ export const conversationMessageActionMutations = {
       return await models.ConversationMessages.updateMessage(_id, fields);
     }
     throw new Error(
-      `You cannot edit this message. Only the author of an internal message can edit it.`,
+      'You cannot edit this message. Only the author of an internal message can edit it.',
     );
   },
 };

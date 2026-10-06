@@ -26,7 +26,7 @@ export const LottieSticker = ({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !animationData) return;
+    if (!container || !animationData) return undefined;
     let cancelled = false;
     let animation: AnimationItem | undefined;
     setLoading(true);
@@ -38,7 +38,7 @@ export const LottieSticker = ({
       }
     };
 
-    void import('lottie-web')
+    import('lottie-web/build/player/lottie_light')
       .then(({ default: lottie }) => {
         if (cancelled) return;
         const reducedMotion = window.matchMedia(

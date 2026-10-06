@@ -145,17 +145,17 @@ export const receiveDiscordMessage = async ({
       return;
     }
 
-    conversation = await syncConversationToCore(
+    conversation = await syncConversationToCore({
       models,
       subdomain,
       bot,
       conversation,
-      created.createdInThisCall,
+      createdInThisCall: created.createdInThisCall,
       customer,
       previewContent,
       storedAttachments,
-      activity.timestamp,
-    );
+      timestamp: activity.timestamp,
+    });
 
     await persistAndDispatchMessage({
       models,

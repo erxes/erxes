@@ -34,7 +34,7 @@ export const fetchWithNetworkRetry = async (
 ): Promise<Response> => {
   const method = (init?.method || 'GET').toUpperCase();
   const retryable = IDEMPOTENT_METHODS.has(method);
-  for (let attempt = 0; ; attempt++) {
+  const attemptFetch = async (attempt: number): Promise<Response> => {
     try {
       return await fetch(input, init);
     } catch (error) {
@@ -42,8 +42,10 @@ export const fetchWithNetworkRetry = async (
         throw error;
       }
       await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+      return attemptFetch(attempt + 1);
     }
-  }
+  };
+  return attemptFetch(0);
 };
 
 const buildRequestHeaders = (
@@ -70,7 +72,7 @@ const resolveRetryAfterMs = (
 
   const headerRetryHeader = response.headers.get('retry-after');
   const headerRetry =
-    headerRetryHeader === null ? NaN : Number(headerRetryHeader);
+    headerRetryHeader === null ? Number.NaN : Number(headerRetryHeader);
   if (Number.isFinite(headerRetry)) {
     return capMs(headerRetry);
   }
@@ -90,7 +92,7 @@ export const discordRequest = async <T>({
   body,
   form,
 }: TDiscordRequestArgs): Promise<T> => {
-  for (let attempt = 0; ; attempt++) {
+  const attemptRequest = async (attempt: number): Promise<T> => {
     const response = await fetchWithNetworkRetry(`${DISCORD_API_URL}${path}`, {
       method,
       headers: buildRequestHeaders(token, form),
@@ -103,7 +105,7 @@ export const discordRequest = async <T>({
     if (response.status === 429 && attempt < MAX_RATE_LIMIT_RETRIES) {
       const waitMs = resolveRetryAfterMs(response, errorBody);
       await new Promise((resolve) => setTimeout(resolve, waitMs));
-      continue;
+      return attemptRequest(attempt + 1);
     }
 
     if (!response.ok) {
@@ -117,5 +119,6 @@ export const discordRequest = async <T>({
     }
 
     return data as T;
-  }
+  };
+  return attemptRequest(0);
 };

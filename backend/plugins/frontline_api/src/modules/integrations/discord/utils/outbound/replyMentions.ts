@@ -19,25 +19,27 @@ export const resolveMentionsForReply = async (
   ];
 
   const nameByUserId = new Map<string, string>();
-  for (const id of mentionIds) {
-    const mentioned = await models.DiscordCustomers.findOne({ userId: id });
-    let name = mentioned?.firstName;
+  await Promise.all(
+    mentionIds.map(async (id) => {
+      const mentioned = await models.DiscordCustomers.findOne({ userId: id });
+      let name = mentioned?.firstName;
 
-    if (!name) {
-      try {
-        const user = await getDiscordUser(token, id);
-        name = user?.global_name || user?.username;
-      } catch (e) {
-        debugError(
-          `Failed to resolve Discord mention name for ${id}: ${getErrorMessage(
-            e,
-          )}`,
-        );
+      if (!name) {
+        try {
+          const user = await getDiscordUser(token, id);
+          name = user?.global_name || user?.username;
+        } catch (e) {
+          debugError(
+            `Failed to resolve Discord mention name for ${id}: ${getErrorMessage(
+              e,
+            )}`,
+          );
+        }
       }
-    }
 
-    nameByUserId.set(id, name || 'user');
-  }
+      nameByUserId.set(id, name || 'user');
+    }),
+  );
 
   const toName = (_m: string, id: string) =>
     `@${nameByUserId.get(id) || 'user'}`;

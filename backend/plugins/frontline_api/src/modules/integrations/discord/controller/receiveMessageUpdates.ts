@@ -43,8 +43,8 @@ const applyDiscordMessageEdit = async ({
   const rootPatch: Record<string, unknown> = {};
   const mirrorPatch: Partial<IDiscordConversationMessage> = {};
 
-  if (activity.embeds?.length) {
-    extraPatch.embeds = activity.embeds;
+  if (Array.isArray(activity.raw?.embeds)) {
+    extraPatch.embeds = activity.embeds || [];
   }
   if (typeof activity.raw?.pinned === 'boolean') {
     extraPatch.discordPinned = activity.raw.pinned;
@@ -119,32 +119,37 @@ export const receiveDiscordMessageDelete = async ({
   subdomain: string;
   event: DiscordMessageDeleteEvent;
 }) => {
-  for (const messageId of event.messageIds) {
-    await processDiscordMessageUpdate(subdomain, messageId, async () => {
-      const resolved = await resolveConversationByMessageId(models, messageId);
+  await Promise.all(
+    event.messageIds.map((messageId) =>
+      processDiscordMessageUpdate(subdomain, messageId, async () => {
+        const resolved = await resolveConversationByMessageId(
+          models,
+          messageId,
+        );
 
-      if (!resolved) {
-        return;
-      }
+        if (!resolved) {
+          return;
+        }
 
-      const deletedAt = new Date();
+        const deletedAt = new Date();
 
-      await models.DiscordConversationMessages.updateOne(
-        { _id: resolved.message._id },
-        { $set: { deletedAt } },
-      );
+        await models.DiscordConversationMessages.updateOne(
+          { _id: resolved.message._id },
+          { $set: { deletedAt } },
+        );
 
-      await updateInboxMessageExtra(
-        models,
-        subdomain,
-        messageId,
-        { discordDeletedAt: deletedAt.toISOString() },
-        { content: '' },
-      );
+        await updateInboxMessageExtra(
+          models,
+          subdomain,
+          messageId,
+          { discordDeletedAt: deletedAt.toISOString() },
+          { content: '' },
+        );
 
-      debugDiscord(
-        `Discord message ${messageId} deleted in conversation ${resolved.conversation.erxesApiId}`,
-      );
-    });
-  }
+        debugDiscord(
+          `Discord message ${messageId} deleted in conversation ${resolved.conversation.erxesApiId}`,
+        );
+      }),
+    ),
+  );
 };

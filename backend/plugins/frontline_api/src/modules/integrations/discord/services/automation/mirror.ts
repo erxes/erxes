@@ -48,14 +48,11 @@ export const mirrorSentMessageToInbox = async ({
       normalizeSentAttachments(sent?.attachments),
     );
 
-    const extraData =
-      createdPoll || mirrorEmbeds.length
-        ? {
-            ...(createdPoll && { poll: createdPoll }),
-            ...(mirrorEmbeds.length && { embeds: mirrorEmbeds }),
-            discordMessageId: sent?.id,
-          }
-        : undefined;
+    const extraData = {
+      ...(createdPoll && { poll: createdPoll }),
+      ...(mirrorEmbeds.length && { embeds: mirrorEmbeds }),
+      discordMessageId: sent.id,
+    };
 
     await models.DiscordConversationMessages.create({
       conversationId: conversation._id,
@@ -77,6 +74,7 @@ export const mirrorSentMessageToInbox = async ({
         // Structured content (poll + embeds, incl. link buttons rendered as
         // embed cards) the inbox stores on `extraData` and renders as cards.
         extraData,
+        providerData: { messageId: sent.id },
         // Flag automation-sent replies (e.g. the AI Agent) so the inbox can
         // visually distinguish them from human-written messages.
         fromBot: true,

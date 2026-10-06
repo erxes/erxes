@@ -44,7 +44,7 @@ const sleepUnlessLost = async (ms: number, isLost: () => boolean) => {
   let waited = 0;
   while (waited < ms && !isLost()) {
     const step = Math.min(2000, ms - waited);
-    await sleep(step);
+    await sleep(step); // NOSONAR: Poll lock loss between dependent delay steps.
     waited += step;
   }
 };
@@ -58,9 +58,9 @@ const reconcileSubdomain = async (subdomain: string) => {
 
   const desired = await computeDesiredDiscordTokens(models);
 
-  for (const token of desired) {
-    await connectDiscordToken(subdomain, token);
-  }
+  await Promise.all(
+    Array.from(desired, (token) => connectDiscordToken(subdomain, token)),
+  );
 
   await closeUndesiredDiscordSockets(subdomain, desired);
 };
@@ -70,9 +70,9 @@ const teardownSubdomain = async (subdomain: string) => {
   if (!owned) {
     return;
   }
-  for (const token of owned) {
-    await disconnectDiscordToken(subdomain, token);
-  }
+  await Promise.all(
+    Array.from(owned, (token) => disconnectDiscordToken(subdomain, token)),
+  );
   ownedTokens.delete(subdomain);
 };
 
@@ -82,9 +82,9 @@ const runOwnerLoop = async (subdomain: string) => {
   while (true) {
     let lock: TDiscordLock;
     try {
-      lock = await redlock.acquire([key], LOCK_TTL);
+      lock = await redlock.acquire([key], LOCK_TTL); // NOSONAR: Acquire ownership before running this cycle.
     } catch {
-      await sleep(ACQUIRE_RETRY_INTERVAL);
+      await sleep(ACQUIRE_RETRY_INTERVAL); // NOSONAR: Failed acquisition must back off before retrying.
       continue;
     }
 
@@ -103,7 +103,7 @@ const runOwnerLoop = async (subdomain: string) => {
       // skipcq: JS-0092 — `lost` is flipped by the lock-renew setInterval above.
       while (!lost) {
         try {
-          await reconcileSubdomain(subdomain);
+          await reconcileSubdomain(subdomain); // NOSONAR: Reconciliation cycles must not overlap.
         } catch (error) {
           debugError(
             `Discord reconcile error for ${subdomain}: ${
@@ -111,14 +111,14 @@ const runOwnerLoop = async (subdomain: string) => {
             }`,
           );
         }
-        await sleepUnlessLost(RECONCILE_INTERVAL, () => lost);
+        await sleepUnlessLost(RECONCILE_INTERVAL, () => lost); // NOSONAR: Wait or detect lock loss before the next cycle.
       }
     } finally {
       clearInterval(renew);
       ownedSubdomains.delete(subdomain);
-      await teardownSubdomain(subdomain);
+      await teardownSubdomain(subdomain); // NOSONAR: Close owned sockets before releasing or reacquiring the lock.
       try {
-        await lock.release();
+        await lock.release(); // NOSONAR: Release the previous lock before reacquiring ownership.
       } catch {
         // The lock may already have expired or been transferred during teardown.
       }
@@ -157,14 +157,14 @@ const startSaasDistributing = async () => {
 
   while (true) {
     try {
-      const organizations = await getSaasOrganizations();
+      const organizations = await getSaasOrganizations(); // NOSONAR: Discover organizations once per polling cycle.
       for (const org of organizations) {
         ensureOwnerLoop(org.subdomain);
       }
     } catch (error) {
       debugError(`Discord SaaS discovery error: ${(error as Error).message}`);
     }
-    await sleep(ORG_DISCOVERY_INTERVAL);
+    await sleep(ORG_DISCOVERY_INTERVAL); // NOSONAR: Bound discovery frequency before polling again.
   }
 };
 

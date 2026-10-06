@@ -1,3 +1,4 @@
+import { authorizeConversationAccess } from '@/inbox/utils/conversationAccess';
 import type { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
 import { resolveForwardedSnapshotForMessage } from '@/inbox/forwardedMessage';
 import { createNotifications } from '~/utils/notifications';
@@ -19,10 +20,12 @@ export const conversationMessageMutations = {
   ...conversationMessageActionMutations,
 
   async conversationMessageAdd(
-    _root,
+    _root: unknown,
     doc: IConversationMessageAdd,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('conversationMessageAdd');
+    await authorizeConversationAccess(models, user, doc.conversationId);
     try {
       const conversation = await models.Conversations.getConversation(
         doc.conversationId,

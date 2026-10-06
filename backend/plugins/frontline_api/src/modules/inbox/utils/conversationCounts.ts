@@ -8,7 +8,8 @@ import {
 } from '@/inbox/@types/conversationCounts';
 import { CommonBuilder } from '@/inbox/utils/conversationCountBuilder';
 
-// Count conversatio  by channel
+// The builder holds mutable filters; serialize each count to avoid mixing scopes.
+// Count conversations by channel
 const countByChannels = async (
   models: IModels,
   qb: CommonBuilder<IListArgs>,
@@ -16,41 +17,42 @@ const countByChannels = async (
 ): Promise<ICountBy> => {
   const channels = await models.Channels.find({});
 
-  for (const channel of channels) {
+  await channels.reduce(async (previous, channel) => {
+    await previous;
     await qb.buildAllQueries();
     await qb.channelFilter(channel._id);
-
-    counts[channel._id as string] = await qb.runQueries();
-  }
+    counts[channel._id] = CommonBuilder.runQueries();
+  }, Promise.resolve());
 
   return counts;
 };
 
-// Count converstaion by tag
+// Count conversations by tag
 const countByTags = async (
   subdomain: string,
   qb: CommonBuilder<IListArgs>,
   counts: ICountBy,
 ): Promise<ICountBy> => {
-  const tags = await sendTRPCMessage({
+  const tags: { _id: string }[] = await sendTRPCMessage({
     subdomain,
 
     pluginName: 'core',
-    method: 'query', // this is a mutation, not a query
+    method: 'query',
     module: 'tags',
     action: 'find',
+    defaultValue: [],
     input: {
       query: {
         type: 'inbox:conversation',
       },
     },
   });
-  for (const tag of tags) {
+  await tags.reduce(async (previous, tag) => {
+    await previous;
     await qb.buildAllQueries();
-    await qb.tagFilter(tag._id);
-
-    counts[tag._id] = await qb.runQueries();
-  }
+    qb.tagFilter(tag._id);
+    counts[tag._id] = CommonBuilder.runQueries();
+  }, Promise.resolve());
 
   return counts;
 };
@@ -62,12 +64,12 @@ const countByIntegrationTypes = async (
 ): Promise<ICountBy> => {
   const kindsMap = await getIntegrationsKinds();
 
-  for (const type of Object.keys(kindsMap)) {
+  await Object.keys(kindsMap).reduce(async (previous, type) => {
+    await previous;
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
-
-    counts[type] = await qb.runQueries();
-  }
+    counts[type] = CommonBuilder.runQueries();
+  }, Promise.resolve());
 
   return counts;
 };
@@ -83,12 +85,12 @@ const countByIntegrations = async (
     kind: 'discord-messenger',
   });
 
-  for (const integration of integrations) {
+  await integrations.reduce(async (previous, integration) => {
+    await previous;
     await qb.buildAllQueries();
     qb.integrationFilter(integration._id);
-
-    counts[integration._id as string] = await qb.runQueries();
-  }
+    counts[integration._id] = CommonBuilder.runQueries();
+  }, Promise.resolve());
 
   return counts;
 };
@@ -120,6 +122,9 @@ export const countByConversations = async (
 
     case 'byIntegrations':
       await countByIntegrations(qb, counts);
+      break;
+
+    default:
       break;
   }
 

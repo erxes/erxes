@@ -144,11 +144,11 @@ export const loadDiscordBotClass = (models: IModels) => {
       return models.DiscordBots.validateConnection(_id);
     }
 
-    public static async validateConnection(_id: string) {
+    public static validateConnection(_id: string) {
       return validateConnection(models, _id);
     }
 
-    public static async markTokenBroken(
+    public static markTokenBroken(
       token: string,
       reason: string,
       tokenValid = false,
@@ -156,7 +156,7 @@ export const loadDiscordBotClass = (models: IModels) => {
       return markTokenBroken(models, token, reason, tokenValid);
     }
 
-    public static async revalidateToken(token: string) {
+    public static revalidateToken(token: string) {
       return revalidateToken(models, token);
     }
 
@@ -203,13 +203,11 @@ export const loadDiscordBotClass = (models: IModels) => {
       return claimed;
     }
 
-    public static async detachIntegrationsFromChannels(
-      integrationIds: string[],
-    ) {
+    public static detachIntegrationsFromChannels(integrationIds: string[]) {
       return detachIntegrationsFromChannels(models, integrationIds);
     }
 
-    public static async removeInboxConversations(integrationIds: string[]) {
+    public static removeInboxConversations(integrationIds: string[]) {
       return removeInboxConversations(models, integrationIds);
     }
 

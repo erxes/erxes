@@ -69,6 +69,9 @@ export const resolveReplyTarget = async (
     conversationId,
     messageId: replyToMessageId,
   });
+  if (!repliedMessage || repliedMessage.deletedAt) {
+    throw new Error('Reply target was not found in this Discord conversation');
+  }
   return {
     messageId: replyToMessageId,
     content:

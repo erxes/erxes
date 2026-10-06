@@ -15,7 +15,8 @@ export const loadMessageTarget = async <T>({
   let lastMessageCount = -1;
   const totalCount = getTotalCount();
 
-  while (!isCancelled()) {
+  const loadNextPage = async (): Promise<T | null> => {
+    if (isCancelled()) return null;
     const target = findTarget();
     if (target) return target;
 
@@ -25,7 +26,8 @@ export const loadMessageTarget = async <T>({
     }
     lastMessageCount = messageCount;
     await loadMore();
-  }
+    return loadNextPage();
+  };
 
-  return null;
+  return loadNextPage();
 };

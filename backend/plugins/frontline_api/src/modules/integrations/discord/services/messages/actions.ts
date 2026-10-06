@@ -49,12 +49,28 @@ export const handleDiscordReaction = async (
   const updateReaction = remove
     ? removeChannelMessageReaction
     : addChannelMessageReaction;
-  await updateReaction(
-    bot.token,
-    conversation.channelId,
-    messageId,
-    discordEmoji,
-  );
+  // Agents share a bot identity in Discord; keep its reaction while another
+  // agent still owns this emoji in the inbox.
+  const hasOtherAgentReaction =
+    remove &&
+    (await models.ConversationMessages.exists({
+      ...messageFilter,
+      'extraData.reactions': {
+        $elemMatch: {
+          emoji,
+          reaction: { $exists: true },
+          senderId: { $ne: userId || 'agent' },
+        },
+      },
+    }));
+  if (!hasOtherAgentReaction) {
+    await updateReaction(
+      bot.token,
+      conversation.channelId,
+      messageId,
+      discordEmoji,
+    );
+  }
 
   const inboxMessage = await models.ConversationMessages.findOneAndUpdate(
     messageFilter,

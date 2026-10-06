@@ -3,7 +3,8 @@ import {
   MAX_CHUNKS,
 } from '@/integrations/discord/constants/messages';
 
-const isHighSurrogate = (code: number) => code >= 0xd800 && code <= 0xdbff;
+const isHighSurrogate = (code: number | undefined) =>
+  code !== undefined && code >= 0xd800 && code <= 0xdbff;
 
 const pickCut = (window: string, maxLen: number): number | null => {
   for (const sep of ['\n\n', '\n', ' ']) {
@@ -37,7 +38,9 @@ export const splitDiscordContent = (
 
   while (rest.length > maxLen && chunks.length < MAX_CHUNKS - 1) {
     let cut = pickCut(rest.slice(0, maxLen), maxLen);
-    cut ??= isHighSurrogate(rest.charCodeAt(maxLen - 1)) ? maxLen - 1 : maxLen;
+    cut ??= isHighSurrogate(rest.slice(0, maxLen).codePointAt(maxLen - 1))
+      ? maxLen - 1
+      : maxLen;
     const piece = rest.slice(0, cut).trimEnd();
     if (piece) chunks.push(piece);
     rest = rest.slice(cut);
@@ -47,7 +50,7 @@ export const splitDiscordContent = (
   if (rest.length > maxLen) {
     truncated = true;
     let tail = rest.slice(0, maxLen - 1);
-    if (isHighSurrogate(tail.charCodeAt(tail.length - 1))) {
+    if (isHighSurrogate(tail.codePointAt(tail.length - 1))) {
       tail = tail.slice(0, -1);
     }
     chunks.push(`${tail.trimEnd()}…`);

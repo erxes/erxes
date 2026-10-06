@@ -43,40 +43,44 @@ export const revalidateStaleDiscordTokens = async (models: IModels) => {
 
   const tokens = new Set(stale.map((bot) => bot.token).filter(Boolean));
 
-  for (const token of tokens) {
-    try {
-      await models.DiscordBots.revalidateToken(token);
-    } catch (e) {
-      debugError(`Discord token revalidation failed: ${getErrorMessage(e)}`);
-    }
-  }
+  await Promise.all(
+    Array.from(tokens, async (token) => {
+      try {
+        await models.DiscordBots.revalidateToken(token);
+      } catch (e) {
+        debugError(`Discord token revalidation failed: ${getErrorMessage(e)}`);
+      }
+    }),
+  );
 };
 
 export const computeDesiredDiscordTokens = async (models: IModels) => {
   const bots = await models.DiscordBots.find({ 'health.status': 'healthy' });
   const desired = new Set<string>();
 
-  for (const rawBot of bots) {
-    let bot: IDiscordBotDocument = rawBot;
-    if (!bot.erxesApiId) {
-      try {
-        bot = await models.DiscordBots.ensureInboxIntegration(
-          bot._id,
-          bot.createdBy,
-        );
-      } catch (e) {
-        debugError(
-          `Failed to ensure inbox integration for bot ${bot._id}: ${
-            (e as Error).message
-          }`,
-        );
-        continue;
+  await Promise.all(
+    bots.map(async (rawBot) => {
+      let bot: IDiscordBotDocument = rawBot;
+      if (!bot.erxesApiId) {
+        try {
+          bot = await models.DiscordBots.ensureInboxIntegration(
+            bot._id,
+            bot.createdBy,
+          );
+        } catch (e) {
+          debugError(
+            `Failed to ensure inbox integration for bot ${bot._id}: ${
+              (e as Error).message
+            }`,
+          );
+          return;
+        }
       }
-    }
-    if (bot.token) {
-      desired.add(bot.token);
-    }
-  }
+      if (bot.token) {
+        desired.add(bot.token);
+      }
+    }),
+  );
 
   return desired;
 };
@@ -90,9 +94,9 @@ export const closeUndesiredDiscordSockets = async (
     return;
   }
 
-  for (const token of [...owned]) {
-    if (!desired.has(token)) {
-      await disconnectDiscordToken(subdomain, token);
-    }
-  }
+  await Promise.all(
+    Array.from(owned, (token) =>
+      desired.has(token) ? undefined : disconnectDiscordToken(subdomain, token),
+    ),
+  );
 };

@@ -32,8 +32,7 @@ export const useConversationPinnedMessages = (conversationId: string) => {
             subscriptionData.data?.conversationMessageUpdated;
           if (
             !previous?.conversationPinnedMessages ||
-            !message ||
-            message.conversationId !== conversationId
+            message?.conversationId !== conversationId
           ) {
             return previous;
           }

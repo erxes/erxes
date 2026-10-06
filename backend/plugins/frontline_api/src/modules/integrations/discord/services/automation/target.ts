@@ -45,6 +45,13 @@ export const resolveConversationTarget = async (
     execution?.target as Partial<TDiscordTriggerTarget> | undefined
   )?.conversationId;
 
+  if (
+    typeof conversationErxesApiId !== 'string' ||
+    !conversationErxesApiId.trim()
+  ) {
+    throw new Error('Conversation target requires a conversation ID');
+  }
+
   const conversation = await models.DiscordConversations.findOne({
     erxesApiId: conversationErxesApiId,
   });

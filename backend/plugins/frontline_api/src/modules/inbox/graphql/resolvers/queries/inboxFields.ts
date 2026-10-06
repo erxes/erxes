@@ -1,5 +1,5 @@
 export const inboxFieldQueries = {
-  async inboxFields() {
+  inboxFields() {
     const response: {
       customer?: unknown[];
       conversation?: unknown[];

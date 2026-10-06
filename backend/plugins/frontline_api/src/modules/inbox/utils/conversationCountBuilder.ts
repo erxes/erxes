@@ -3,7 +3,7 @@ import {
   buildParticipatingQuery,
   buildDateQueries,
 } from '@/inbox/utils/conversationCountFilters';
-import * as _ from 'underscore';
+import { intersection, pluck } from 'underscore';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { IListArgs } from '~/conversationQueryBuilder';
 import { IModels } from '~/connectionResolvers';
@@ -36,7 +36,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
     this.filterList = [];
 
     this.resetPositiveList();
-    this.defaultFilters();
   }
 
   // filter by segment
@@ -122,9 +121,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
       return;
     }
 
-    const integrationIds: string[] = _.intersection(
+    const integrationIds: string[] = intersection(
       this.integrationIds,
-      _.pluck(integrations, '_id'),
+      pluck(integrations, '_id'),
     );
 
     if (integrationIds.length === 0) {
@@ -195,7 +194,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     });
   }
 
-  public async dateFilter(startDate: string, endDate: string) {
+  public dateFilter(startDate: string, endDate: string) {
     this.positiveList.push(...buildDateQueries(startDate, endDate));
   }
 
@@ -207,7 +206,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        'integrationId.keyword': _.pluck(integrations, '_id'),
+        'integrationId.keyword': pluck(integrations, '_id'),
       },
     });
   }
@@ -266,7 +265,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     }
 
     if (this.params.startDate && this.params.endDate) {
-      await this.dateFilter(this.params.startDate, this.params.endDate);
+      this.dateFilter(this.params.startDate, this.params.endDate);
     }
   }
 
@@ -276,7 +275,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
    * count has been empty. The clause builders above are kept as the seam a
    * Mongo implementation fills; until then the answer is honestly zero.
    */
-  public async runQueries(): Promise<number> {
+  public static runQueries(): number {
     return 0;
   }
 }

@@ -3,7 +3,7 @@ import { authorizeConversationAccess } from '@/inbox/utils/conversationAccess';
 import { IContext } from '~/connectionResolvers';
 
 export const conversationMessageQueries = {
-  async conversationMessage(
+  conversationMessage(
     _root: unknown,
     { _id }: { _id: string },
     { models }: IContext,
@@ -67,7 +67,7 @@ export const conversationMessageQueries = {
   /**
    *  Get all conversation messages count. We will use it in pager
    */
-  async conversationMessagesTotalCount(
+  conversationMessagesTotalCount(
     _root: unknown,
     { conversationId }: { conversationId: string },
     { models }: IContext,

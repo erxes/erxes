@@ -12,6 +12,18 @@ import { loadMessageTarget } from '@/inbox/conversation-messages/utils/messageNa
 const waitForRender = () =>
   new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
+const waitUntilIdle = (isWaiting: () => boolean): Promise<void> =>
+  new Promise((resolve) => {
+    const check = () => {
+      if (isWaiting()) {
+        requestAnimationFrame(check);
+      } else {
+        resolve();
+      }
+    };
+    check();
+  });
+
 export const useMessageNavigation = ({
   conversationId,
   messagesLength,
@@ -64,13 +76,13 @@ export const useMessageNavigation = ({
   }, [jumpToMessage]);
 
   useEffect(() => {
-    if (!pendingTarget || pendingTarget.conversationId !== conversationId) {
-      return;
+    if (pendingTarget?.conversationId !== conversationId) {
+      return undefined;
     }
     let cancelled = false;
     const escapedId = CSS.escape(pendingTarget.messageId);
     const navigate = async () => {
-      while (latestRef.current.loading && !cancelled) await waitForRender();
+      await waitUntilIdle(() => latestRef.current.loading && !cancelled);
       return loadMessageTarget({
         findTarget: () =>
           containerRef.current?.querySelector<HTMLElement>(
@@ -80,7 +92,7 @@ export const useMessageNavigation = ({
         getTotalCount: () => latestRef.current.totalCount,
         isCancelled: () => cancelled,
         loadMore: async () => {
-          while (latestRef.current.loading && !cancelled) await waitForRender();
+          await waitUntilIdle(() => latestRef.current.loading && !cancelled);
           if (cancelled) return;
           await latestRef.current.handleFetchMore();
           await waitForRender();

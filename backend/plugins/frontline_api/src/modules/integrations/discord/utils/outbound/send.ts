@@ -42,7 +42,7 @@ const buildDiscordMessagePayload = ({
         ? {
             type: 0,
             message_id: messageReference,
-            fail_if_not_exists: false,
+            fail_if_not_exists: true,
           }
         : {
             type: messageReference.type,
@@ -63,7 +63,8 @@ const buildDiscordMessageForm = async (
   payload: Record<string, unknown>,
 ) => {
   const form = new FormData();
-  for (const [index, file] of files.entries()) {
+  await files.reduce(async (previous, file, index) => {
+    await previous;
     let response: Response;
     try {
       response = await fetchWithNetworkRetry(file.url);
@@ -93,7 +94,7 @@ const buildDiscordMessageForm = async (
       blob,
       file.filename || filenameFromUrl(file.url, index),
     );
-  }
+  }, Promise.resolve());
   form.append('payload_json', JSON.stringify(payload));
   return form;
 };
@@ -165,13 +166,11 @@ export const sendChannelMessage = async (
   }
 
   const lastText = chunks.pop() as string;
-  for (const chunk of chunks) {
-    await postDiscordMessage({
-      token,
-      channelId,
-      content: chunk,
-    });
-  }
+  // Send chunks in order; parallel requests can reorder the Discord reply.
+  await chunks.reduce(async (previous, chunk) => {
+    await previous;
+    await postDiscordMessage({ token, channelId, content: chunk });
+  }, Promise.resolve());
   return postDiscordMessage({
     token,
     channelId,
