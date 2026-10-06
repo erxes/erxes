@@ -47,7 +47,7 @@ export function LinkRepoDialog({
     defaultValues: {
       installationId: initialInstallationId ?? 0,
       repoName: initialRepoName,
-      syncMode: currentConfig?.syncMode ?? 'twoWay',
+      syncMode: currentConfig?.syncMode === 'oneWay' ? 'oneWay' : 'twoWay',
     },
   });
   const installationId = form.watch('installationId');
@@ -75,7 +75,7 @@ export function LinkRepoDialog({
     form.reset({
       installationId: initialInstallationId ?? 0,
       repoName: initialRepoName,
-      syncMode: currentConfig?.syncMode ?? 'twoWay',
+      syncMode: currentConfig?.syncMode === 'oneWay' ? 'oneWay' : 'twoWay',
     });
   }, [
     currentConfig?.syncMode,
@@ -87,8 +87,9 @@ export function LinkRepoDialog({
 
   const availableRepositories = repositories.filter(
     (repository) =>
-      repository.fullName === currentConfig?.repoName ||
-      !linkedRepoNames.includes(repository.fullName),
+      repository.fullName != null &&
+      (repository.fullName === currentConfig?.repoName ||
+        !linkedRepoNames.includes(repository.fullName)),
   );
 
   function handleOrganizationChange(value: string) {
@@ -196,7 +197,7 @@ export function LinkRepoDialog({
                           {availableRepositories.map((repository) => (
                             <Select.Item
                               key={repository.fullName}
-                              value={repository.fullName}
+                              value={repository.fullName ?? ''}
                             >
                               {repository.fullName}
                               {repository.isPrivate ? (

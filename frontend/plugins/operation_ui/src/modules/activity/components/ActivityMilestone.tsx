@@ -17,7 +17,7 @@ export const ActivityMilestone = ({
       <div className="inline-flex items-center gap-1">
         {t('added-milestone')}
         <span className="font-bold">
-          <MilestoneInline milestoneId={metadata.newValue} />
+          <MilestoneInline milestoneId={metadata?.newValue} />
         </span>
       </div>
     );
@@ -28,7 +28,7 @@ export const ActivityMilestone = ({
       <div className="inline-flex items-center gap-1">
         {t('removed-milestone')}
         <span className="font-bold">
-          <MilestoneInline milestoneId={metadata.previousValue || ''} />
+          <MilestoneInline milestoneId={metadata?.previousValue} />
         </span>
       </div>
     );

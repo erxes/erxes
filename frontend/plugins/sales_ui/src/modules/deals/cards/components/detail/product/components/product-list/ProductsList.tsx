@@ -28,12 +28,14 @@ export const ProductsList = ({
   products,
   productsData,
   dealId,
+  pipelineId,
   refetch,
   tickUsed,
 }: {
   products: IProduct[];
   productsData: IProductData[];
   dealId: string;
+  pipelineId?: string;
   refetch: () => void;
   tickUsed: boolean;
 }) => {
@@ -270,6 +272,7 @@ export const ProductsList = ({
         showAdvancedView={showAdvancedView}
         showTaxView={showTaxView}
         productsData={localProductsData}
+        pipelineId={pipelineId}
         onChangeProductsData={setLocalProductsData}
         updateTotal={updateTotal}
         onAddProducts={addProducts}

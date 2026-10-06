@@ -13,6 +13,7 @@ import {
 import { useState } from 'react';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { useProducts } from '../hooks/useProducts';
+import { useProductsWithPluginRemainders } from '../hooks/useProductsWithPluginRemainders';
 import { useInView } from 'react-intersection-observer';
 import { AddProduct } from './AddProduct';
 import { useDebounce } from 'use-debounce';
@@ -37,6 +38,7 @@ interface SelectProductsProps {
   cancelLabel?: React.ReactNode;
   selectedLabel?: React.ReactNode;
   isSelectionValid?: (productIds: string[], products: IProduct[]) => boolean;
+  pipelineId?: string;
 }
 
 interface SelectProductsBulkContentProps
@@ -48,6 +50,7 @@ interface SelectProductsBulkContentProps
       | 'initialProducts'
       | 'selectionLimit'
       | 'isSelectionValid'
+      | 'pipelineId'
     >,
     Required<
       Pick<SelectProductsProps, 'submitLabel' | 'cancelLabel' | 'selectedLabel'>
@@ -61,6 +64,7 @@ interface ProductsListProps {
   selectedProductIds: string[];
   setSelectedProductIds: React.Dispatch<React.SetStateAction<string[]>>;
   selectionLimit?: number;
+  pipelineId?: string;
 }
 
 interface ProductListItemProps {
@@ -93,7 +97,7 @@ const ProductListItem = ({
           {fixNum(product.unitPrice).toLocaleString()}
         </span>
         <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
-          {product.remainder.remainder ?? 0} {product.uom ?? ''}
+          {product.remainder?.remainder ?? 0} {product.uom ?? ''}
         </span>
       </span>
     </div>
@@ -115,6 +119,7 @@ export const SelectProductsBulk = ({
   cancelLabel = 'Cancel',
   selectedLabel = 'Added',
   isSelectionValid,
+  pipelineId,
 }: SelectProductsProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const resolvedOpen = open ?? internalOpen;
@@ -150,6 +155,7 @@ export const SelectProductsBulk = ({
             cancelLabel={cancelLabel}
             selectedLabel={selectedLabel}
             isSelectionValid={isSelectionValid}
+            pipelineId={pipelineId}
           />
         )}
       </Sheet.View>
@@ -167,6 +173,7 @@ const SelectProductsBulkContent = ({
   cancelLabel,
   selectedLabel,
   isSelectionValid,
+  pipelineId,
 }: SelectProductsBulkContentProps) => {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>(
     productIds || [],
@@ -214,6 +221,7 @@ const SelectProductsBulkContent = ({
           setSelectedProductIds={setSelectedProductIds}
           setSelectedProducts={setSelectedProducts}
           selectionLimit={selectionLimit}
+          pipelineId={pipelineId}
         />
         <SelectedProductsList
           selectedProducts={selectedProducts}
@@ -263,12 +271,14 @@ const ProductsList = ({
   selectedProductIds,
   setSelectedProductIds,
   selectionLimit,
+  pipelineId: propPipelineId,
 }: ProductsListProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [companyId, setCompanyId] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = propPipelineId || queryPipelineId || undefined;
 
   const { products, handleFetchMore, totalCount, loading, fetchingMore } =
     useProducts({
@@ -277,9 +287,13 @@ const ProductsList = ({
         searchValue: debouncedSearch,
         vendorId: companyId || undefined,
         categoryIds: categoryId ? [categoryId] : undefined,
-        pipelineId: pipelineId || undefined,
+        pipelineId,
       },
     });
+  const productsWithRemainders = useProductsWithPluginRemainders({
+    products,
+    pipelineId,
+  });
 
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
@@ -299,10 +313,10 @@ const ProductsList = ({
   const selectionLimitReached =
     selectionLimit !== undefined && selectedProductIds.length >= selectionLimit;
   const initialLoading = loading && !products.length;
-  const unselectedProducts = products.filter(
+  const unselectedProducts = productsWithRemainders.filter(
     (product) => !selectedProductIds.includes(product._id),
   );
-  const selectedResultCount = products.filter((product) =>
+  const selectedResultCount = productsWithRemainders.filter((product) =>
     selectedProductIds.includes(product._id),
   ).length;
   const availableTotalCount = Math.max(totalCount - selectedResultCount, 0);

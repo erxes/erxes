@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
@@ -11,7 +12,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { ITask } from '@/task/types';
+import { ITaskDetail } from '@/task/types';
 import { Block } from '@blocknote/core';
 import {
   BlockEditor,
@@ -31,7 +32,7 @@ import {
 } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
-export const TaskFields = ({ task }: { task: ITask }) => {
+export const TaskFields = ({ task }: { task: ITaskDetail }) => {
   const { t } = useTranslation('operation');
   const {
     _id: taskId,
@@ -51,8 +52,8 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     githubRepoName,
   } = task || {};
 
-  const startDate = (task as any)?.startDate;
-  const description = (task as any)?.description;
+  const startDate = task?.startDate;
+  const description = task?.description;
   const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -141,7 +142,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
       />
       <TagsSelect.Provider
         mode="multiple"
-        value={tagIds}
+        value={compactList(tagIds)}
         type="operation:task"
         targetIds={[taskId]}
       >
@@ -164,13 +165,13 @@ export const TaskFields = ({ task }: { task: ITask }) => {
             teamIds={teamId ? [teamId] : undefined}
           />
           <DateSelectTask
-            value={startDate ? new Date(startDate) : undefined}
+            value={startDate}
             id={taskId}
             type="startDate"
             variant="detail"
           />
           <DateSelectTask
-            value={targetDate ? new Date(targetDate) : undefined}
+            value={targetDate}
             id={taskId}
             type="targetDate"
             variant="detail"

@@ -124,6 +124,8 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- `Task` exposes `_id`, `name`, `status`, `teamId`, `createdAt` and `updatedAt` as non-null, and `Triage` exposes `_id`, `name`, `teamId`, `createdAt` and `updatedAt` as non-null. `Project` exposes `_id`, `name`, `teamIds` (non-null items), `createdAt` and `updatedAt` as non-null, and `Milestone` exposes `_id`, `name` and `projectId` as non-null. They are `required` or timestamped in the Mongoose schemas since 3.0. `createProject` and `updateProject` enforce the same contract on writes because the update path uses `findOneAndUpdate` without validators: an explicit null or blank `name` throws, and `teamIds` throws if it is null or contains a null/blank item (an empty array is allowed). Fields with only a default (`priority`, `number`, `estimatePoint`, `icon`, `status`) stay nullable because list queries use `.lean()`, which does not apply defaults to older documents.
+- `removeTask` returns and publishes the task as it was before deletion, with `type: 'delete'`.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils` opens a Redis client on import that would otherwise keep it alive.
 - A task's `_id` stays an `ObjectId`. `schemaWrapper` must never be applied to
   `taskSchema`: it would make `_id` a generated string and orphan every
@@ -152,10 +154,65 @@ propertiesData? } })`
   the caller must enforce `taskCreate` for the acting user before calling it.
   It does not open a GitHub issue — that sync stays in the `createTask`
   resolver.
+- Mutation and query arguments the operation cannot run without are non-null
+  in the SDL (`_id`, `createCycle.input`, `updateCycle.input`,
+  `getTeamEstimateChoises.teamId`). Runtime guards that remain cover cases
+  GraphQL validation cannot: empty-string ids and `updateCycle.input._id`,
+  which stays nullable because `createCycle` sends the same `CycleInput`
+  without an `_id`.
+- An argument the operation cannot run without must fail with a clear error,
+  even when the SDL has to keep it nullable for a caller. `getTeamMembers`
+  and `getConvertedProject` throw on a missing id for this reason;
+  `getTeamMembers` requires `teamId` or `teamIds` and never runs an empty
+  `$match`.
+- Every query or mutation declared in the SDL must have a resolver, and every
+  resolver must be declared. Template operations carry no dedicated
+  permission, so they reuse the `task*` actions they configure.
+- `teamUpdate(memberIds)` syncs `TeamMember` rows to the given list and
+  additionally requires `teamMemberManage`; omitting it leaves membership
+  untouched. Member roles are deprecated end to end, so `teamUpdateMember`
+  is gone from the SDL and the resolvers.
+- `Cycle.endCycle(_id, subdomain)` needs the tenant to resolve the timezone
+  for the progress chart; the worker and the mutation both pass it.
+- Progress queries (`getProjectProgress*`, `getCycleProgress*`) return
+  concrete SDL object types (`OperationProgress`, `OperationProgressByMember`,
+  `OperationProgressByTeam`, `OperationProgressByProject`,
+  `OperationProgressChart`), not `JSON`. `Cycle.statistics` is a concrete
+  `CycleStatistics` type over the same progress types, and the
+  `Cycle.statistics` resolver fills missing totals with 0 so old documents
+  stored with `progress: {}` still satisfy the `Int!` fields. The aggregations can legitimately
+  produce no rows, so the resolvers return zero-valued objects or empty
+  arrays instead of `{}` when the aggregate result is missing. Milestone
+  progress counters (`totalScope`, `totalStartedScope`,
+  `totalCompletedScope`) are non-null ints because the aggregation always
+  emits numbers.
+- `OperationTemplate` exposes `_id`, `name`, `teamId`, `createdAt` and
+  `updatedAt` as non-null (schema-required or timestamps), and
+  `operationTemplateDetail` takes `_id: String!`. `GithubConfig` fields are
+  all non-null (all required in the schema); `GithubConnection` is non-null
+  except `orgAvatarUrl`/`initiatedUserId`. `OperationActivity._id`, `action`,
+  `contentId`, `module` and timestamps are non-null; `metadata` and
+  `createdBy` stay nullable.
+- `Cycle._id` is non-null; its other fields stay nullable because nothing
+  in the Mongoose schema requires them.
+- `getStatusesChoicesByTeam` and `getTeamEstimateChoises` return concrete
+  `[StatusChoice]` and `[EstimateChoice]` types, not `JSON`. `Status` exposes
+  `color`, `order`, `type`, `createdAt` and `updatedAt` as non-null
+  (schema-required or timestamps). `Team._id`, `Team.createdAt`,
+  `Team.updatedAt` and `TeamMember._id` are non-null; other Team fields stay
+  nullable because the Mongoose schema does not require them and `.lean()`
+  does not apply defaults. `deleteStatus` still returns the `deleteOne`
+  result as `JSON`.
+- Any request-driven value (filter, params, variables, input, args,
+  searchValue) that reaches a `$regex` or `new RegExp()` goes through
+  `escapeRegExp` from `erxes-api-shared/utils` first. The plugin-local ESLint
+  `no-restricted-syntax` rules in `eslint.config.js` fail the lint otherwise.
 
 ## Validation
 
 - `pnpm nx run operation_api:schema:print` - writes `generated/schema.graphql`.
+- `pnpm nx lint operation_api` - runs ESLint with the plugin-local
+  `eslint.config.js` (regex-escaping rules).
 - `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
   no errors.
 - `pnpm nx build operation_api` - its type-declaration step can exhaust the
@@ -166,3 +223,42 @@ propertiesData? } })`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Escaped user-controlled regexes
+
+- **Summary:** Every user-controlled string that reaches a Mongo `$regex` or
+  `new RegExp` is escaped with `escapeRegExp`; dead `if (!filter)` guards in
+  the subscription filter are gone.
+- **Affected areas:** subscription filters, task/triage/milestone queries,
+  task and project export handlers, task model.
+- **Contracts changed:** `None` — filter semantics are unchanged; a `name`
+  search for `a.b` now matches the literal text instead of `a` + any char.
+
+### `2026-09-29` — Resolver contracts and template permissions
+
+- **Summary:** `operationCancelTriage` now sets the triage status to cancelled,
+  dead `getMyTeams` and deprecated `teamUpdateMember` are gone, `teamUpdate`
+  syncs members when `memberIds` is sent, `createProject` persists `icon`,
+  `updateStatus` returns the updated document, `moveCycle` no longer rolls
+  over cancelled tasks, and every template operation checks a permission.
+- **Affected areas:** triage/team/project mutations and queries, cycle model
+  and worker, template resolvers, task filter handling.
+- **Contracts changed:** `ITaskFilter.estimate` and `teamUpdateMember`
+  removed (never read, no callers); `teamUpdate` honors `memberIds` with
+  `teamMemberManage`.
+
+### `2026-09-29` — Required ids and filters
+
+- **Summary:** Mutations that act by id now declare it non-null, resolvers throw
+  actionable errors for missing ids, and list resolvers default a missing
+  `filter` to `{}` instead of crashing.
+- **Affected areas:** cycle/team GraphQL schemas, cycle model guards,
+  task/triage/project/team query resolvers.
+- **Contracts changed:** `removeCycle`, `endCycle`, `getCycle` take
+  `_id: String!`; `getTeamEstimateChoises` takes `teamId: String!`;
+  `createCycle`, `updateCycle` take `input: CycleInput!`; `teamAddMembers`
+  takes `memberIds: [String]!`.

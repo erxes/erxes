@@ -58,7 +58,10 @@ const SelectTeamProvider = ({
   isTriageEnabled?: boolean;
 }) => {
   const { teams, loading } = useGetCurrentUsersTeams({
-    variables: { isTriageEnabled, teamId: value },
+    variables: {
+      isTriageEnabled,
+      teamId: typeof value === 'string' ? value : undefined,
+    },
   });
 
   const handleValueChange = (teamId: string) => {
@@ -106,8 +109,11 @@ const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex gap-2 items-center">
         {selectedTeams.map((team) => (
           <Badge key={team._id} variant="secondary">
-            <IconComponent name={team.icon} className="size-4 shrink-0" />
-            <TextOverflowTooltip value={team.name} className="max-w-32" />
+            <IconComponent
+              name={team.icon ?? undefined}
+              className="size-4 shrink-0"
+            />
+            <TextOverflowTooltip value={team.name ?? ''} className="max-w-32" />
           </Badge>
         ))}
       </div>
@@ -117,11 +123,11 @@ const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <div className="flex gap-2 items-center">
       <IconComponent
-        name={selectedTeams[0]?.icon}
+        name={selectedTeams[0]?.icon ?? undefined}
         className="size-4 shrink-0"
       />
       <TextOverflowTooltip
-        value={selectedTeams[0]?.name}
+        value={selectedTeams[0]?.name ?? ''}
         className="max-w-32"
       />
     </div>
@@ -139,8 +145,8 @@ const SelectTeamCommandItem = ({ team }: { team: ITeam }) => {
       }}
     >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
-        <IconComponent name={team.icon} className="size-4" />
-        <TextOverflowTooltip value={team.name} />
+        <IconComponent name={team.icon ?? undefined} className="size-4" />
+        <TextOverflowTooltip value={team.name ?? ''} />
       </div>
       <Combobox.Check checked={value.includes(team._id)} />
     </Command.Item>
