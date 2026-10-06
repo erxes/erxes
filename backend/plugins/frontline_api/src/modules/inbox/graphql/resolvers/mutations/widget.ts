@@ -798,6 +798,7 @@ export const widgetMutations: Record<string, Resolver> = {
             {
               ...msg.toObject(),
               ...(parsedPayload || {}),
+              integrationId,
               automationId: automationId || undefined,
             },
           ],

@@ -1,4 +1,4 @@
-import { Avatar, Badge, Skeleton, readImage } from 'erxes-ui';
+import { Avatar, Badge, Skeleton, Tooltip, readImage } from 'erxes-ui';
 import { IconRobot, IconUser } from '@tabler/icons-react';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -55,6 +55,7 @@ const ActivityActorAvatar = () => {
   const { isSystem, loading, user } = useActivityActorContext();
   const fullName = user?.details?.fullName;
   const avatar = user?.details?.avatar;
+  const actorName = fullName || user?.username;
 
   if (isSystem) {
     return (
@@ -77,14 +78,19 @@ const ActivityActorAvatar = () => {
   }
 
   return (
-    <Avatar className="size-5">
-      {avatar && (
-        <Avatar.Image src={readImage(avatar, 200)} alt={fullName || ''} />
-      )}
-      <Avatar.Fallback className="text-[10px]">
-        {fullName?.charAt(0) || <IconUser className="size-3" />}
-      </Avatar.Fallback>
-    </Avatar>
+    <Tooltip delayDuration={100}>
+      <Tooltip.Trigger asChild>
+        <Avatar className="size-5">
+          {avatar && (
+            <Avatar.Image src={readImage(avatar, 200)} alt={actorName || ''} />
+          )}
+          <Avatar.Fallback className="text-[10px]">
+            {actorName?.charAt(0) || <IconUser className="size-3" />}
+          </Avatar.Fallback>
+        </Avatar>
+      </Tooltip.Trigger>
+      <Tooltip.Content>{actorName}</Tooltip.Content>
+    </Tooltip>
   );
 };
 
@@ -103,7 +109,7 @@ const ActivityActorName = () => {
   return (
     <div className="flex items-center gap-1">
       <span className="text-accent-foreground">
-        {user?.details?.fullName || t('unknown')}
+        {user?.details?.fullName || user?.username || t('unknown')}
       </span>
       {user?.isActive === false && (
         <Badge variant="destructive" className="h-5 px-1.5 text-[11px]">
