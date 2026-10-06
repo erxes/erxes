@@ -32,7 +32,7 @@ it('rejects a typing action when the actor lacks message permissions', async () 
 
 it("rejects typing for a conversation outside the actor's channels", async () => {
   const context = {
-    checkPermission: jest.fn().mockResolvedValue(undefined),
+    checkPermission: jest.fn().mockImplementation(() => Promise.resolve()),
     user: { _id: 'agent' },
     subdomain: 'test',
     models: {

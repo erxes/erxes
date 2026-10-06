@@ -37,12 +37,13 @@ it('does not retry a message POST after an ambiguous network failure', async () 
 it('bounds Discord rate-limit retries and surfaces the final API error', async () => {
   const fetchMock = jest
     .spyOn(globalThis, 'fetch')
-    .mockImplementation(
-      async () =>
+    .mockImplementation(() =>
+      Promise.resolve(
         new Response(
           JSON.stringify({ retry_after: 0.1, message: 'Rate limited' }),
           { status: 429 },
         ),
+      ),
     );
   const result = expect(
     discordRequest({

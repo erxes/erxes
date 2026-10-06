@@ -1,5 +1,5 @@
 /** Fetch older pages until a target is found, stopping when a page adds nothing. */
-export const loadMessageTarget = async <T>({
+export const loadMessageTarget = <T>({
   findTarget,
   loadMore,
   getMessageCount,

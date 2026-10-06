@@ -3,8 +3,9 @@ import { loadMessageTarget } from '../messageNavigation';
 it('loads older pages until the selected message becomes available', async () => {
   let count = 50;
   const target = { id: 'old-message' };
-  const loadMore = jest.fn(async () => {
+  const loadMore = jest.fn(() => {
     count += 50;
+    return Promise.resolve();
   });
   const result = await loadMessageTarget({
     findTarget: () => (count === 150 ? target : null),
@@ -18,7 +19,7 @@ it('loads older pages until the selected message becomes available', async () =>
 });
 
 it('stops if a page adds no messages', async () => {
-  const loadMore = jest.fn(async () => undefined);
+  const loadMore = jest.fn(() => Promise.resolve());
   const result = await loadMessageTarget({
     findTarget: () => null,
     loadMore,
@@ -32,8 +33,9 @@ it('stops if a page adds no messages', async () => {
 
 it('stops loading pages after navigation is cancelled', async () => {
   let cancelled = false;
-  const loadMore = jest.fn(async () => {
+  const loadMore = jest.fn(() => {
     cancelled = true;
+    return Promise.resolve();
   });
   await expect(
     loadMessageTarget({

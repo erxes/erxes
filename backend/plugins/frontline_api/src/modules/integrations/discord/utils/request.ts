@@ -28,7 +28,7 @@ const parseDiscordResponse = (text: string): unknown => {
 };
 
 /** Retry transient network failures only for idempotent HTTP requests. */
-export const fetchWithNetworkRetry = async (
+export const fetchWithNetworkRetry = (
   input: string,
   init?: RequestInit,
 ): Promise<Response> => {
@@ -85,7 +85,7 @@ const resolveRetryAfterMs = (
   return capMs(1);
 };
 
-export const discordRequest = async <T>({
+export const discordRequest = <T>({
   token,
   method,
   path,
