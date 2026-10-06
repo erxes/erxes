@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_GITHUB_CONNECTIONS = gql`
+export const GET_GITHUB_CONNECTIONS = gql(`
   query operationGithubConnections {
     getGithubConnections {
       _id
@@ -12,9 +12,9 @@ export const GET_GITHUB_CONNECTIONS = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const GET_GITHUB_REPOSITORIES = gql`
+export const GET_GITHUB_REPOSITORIES = gql(`
   query operationGithubRepositories($installationId: Int!) {
     getGithubRepositories(installationId: $installationId) {
       fullName
@@ -22,4 +22,4 @@ export const GET_GITHUB_REPOSITORIES = gql`
       isPrivate
     }
   }
-`;
+`);

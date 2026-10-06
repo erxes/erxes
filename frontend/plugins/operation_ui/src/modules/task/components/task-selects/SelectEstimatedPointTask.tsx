@@ -24,7 +24,7 @@ import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { useParams } from 'react-router-dom';
 
 interface SelectEstimatedPointContextType {
-  value?: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   estimateChoices: IEstimateChoice[];
 }
@@ -50,7 +50,7 @@ export const SelectEstimatedPointProvider = ({
   variant,
 }: {
   children: React.ReactNode;
-  value?: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   teamId: string;
   variant?: `${SelectTriggerVariant}`;
@@ -184,7 +184,7 @@ export const SelectEstimatedPointRoot = ({
   teamId,
   variant,
 }: {
-  value: number;
+  value?: number | null;
   taskId: string;
   teamId: string;
   variant: `${SelectTriggerVariant}`;
@@ -260,7 +260,7 @@ const SelectEstimatedPointFilterView = () => {
   return (
     <Filter.View filterKey="estimatePoint">
       <SelectEstimatedPointProvider
-        value={estimatePoint ?? undefined}
+        value={estimatePoint}
         onValueChange={(value) => {
           setEstimatePoint(value);
           resetFilterState();

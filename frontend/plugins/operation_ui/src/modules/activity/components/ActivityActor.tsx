@@ -30,7 +30,7 @@ const ActivityActorProvider = ({
   actorId,
   children,
 }: {
-  actorId?: string;
+  actorId?: string | null;
   children: ReactNode;
 }) => {
   const isSystem = actorId === 'system';

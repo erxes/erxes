@@ -1,20 +1,24 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_ESTIMATE_CHOICE_BY_TEAM } from '../graphql/queries/getEstimateChoiceByTeam';
-import { IEstimateChoice } from '@/task/types';
+import { compactList } from '@/operation/utils/cursorList';
+import {
+  EstimateChoisesQuery,
+  EstimateChoisesQueryVariables,
+} from '~/gql/graphql';
 
-interface IUseGetEstimateChoiceByTeamResponse {
-  getTeamEstimateChoises: IEstimateChoice[];
-}
-
-export const useGetEstimateChoiceByTeam = (options: QueryHookOptions) => {
-  const { data, loading, error } =
-    useQuery<IUseGetEstimateChoiceByTeamResponse>(
-      GET_ESTIMATE_CHOICE_BY_TEAM,
-      options,
-    );
+export const useGetEstimateChoiceByTeam = (
+  options: QueryHookOptions<
+    EstimateChoisesQuery,
+    EstimateChoisesQueryVariables
+  >,
+) => {
+  const { data, loading, error } = useQuery(
+    GET_ESTIMATE_CHOICE_BY_TEAM,
+    options,
+  );
 
   return {
-    estimateChoices: data?.getTeamEstimateChoises || [],
+    estimateChoices: compactList(data?.getTeamEstimateChoises),
     loading,
     error,
   };

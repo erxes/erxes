@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_NOTE = gql`
+export const CREATE_NOTE = gql(`
   mutation CreateNote(
     $content: String
     $contentId: String
@@ -10,4 +10,4 @@ export const CREATE_NOTE = gql`
       _id
     }
   }
-`;
+`);

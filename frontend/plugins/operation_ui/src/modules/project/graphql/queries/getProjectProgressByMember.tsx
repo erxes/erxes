@@ -1,7 +1,12 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_PROJECT_PROGRESS_BY_MEMBER = gql`
+export const GET_PROJECT_PROGRESS_BY_MEMBER = gql(`
   query getProjectProgressByMember($_id: String!) {
-    getProjectProgressByMember(_id: $_id)
+    getProjectProgressByMember(_id: $_id) {
+      assigneeId
+      totalScope
+      totalStartedScope
+      totalCompletedScope
+    }
   }
-`;
+`);
