@@ -49,7 +49,12 @@ export const getProviderMessageId = (message: IMessage) =>
 export const getMessageReactions = (message: IMessage) =>
   message.reactions?.length ? message.reactions : message.extraData?.reactions;
 
-export const findOwnReaction = (message: IMessage, userId?: string) =>
-  getMessageReactions(message)?.find(
-    (reaction) => reaction.senderId === userId,
-  );
+export const getOwnReactionKeys = (
+  message: IMessage,
+  userId?: string,
+): string[] =>
+  userId
+    ? (getMessageReactions(message) || [])
+        .filter((reaction) => reaction.senderId === userId)
+        .map(getReactionKey)
+    : [];

@@ -16,13 +16,13 @@ export function ReactionMenu() {
     messageId,
     disabled,
     disabledReason,
-    selectedReaction,
+    selectedReactions,
     reactions,
   } = useReactionTarget();
   const { toggleReaction, loading } = useMessageReaction(isInstagram);
 
   const handleReaction = async (reaction: Reaction) => {
-    const remove = selectedReaction === reaction;
+    const remove = selectedReactions.includes(reaction);
     await toggleReaction({ conversationId, messageId, reaction, remove });
   };
 
@@ -30,7 +30,7 @@ export function ReactionMenu() {
 
   if (reactions.length === 1) {
     const reaction = reactions[0];
-    const selected = selectedReaction === reaction;
+    const selected = selectedReactions.includes(reaction);
 
     let reactionLabel = 'Add love reaction';
     if (disabled) {
@@ -101,7 +101,7 @@ export function ReactionMenu() {
           >
             <span
               className={
-                selectedReaction === reaction
+                selectedReactions.includes(reaction)
                   ? 'rounded bg-accent ring-1 ring-primary'
                   : undefined
               }

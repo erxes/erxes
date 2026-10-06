@@ -3,7 +3,7 @@ import type { IModels } from '~/connectionResolvers';
 import {
   authorizeConversationAccess,
   type IAuthUser,
-} from '@/inbox/conversationUtils';
+} from '@/inbox/utils/conversationAccess';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);

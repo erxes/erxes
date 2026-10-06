@@ -1,0 +1,182 @@
+import {
+  getEnv,
+  getSaasOrganizations,
+  getSaasCoreConnection,
+} from 'erxes-api-shared/utils';
+
+import { generateModels } from '~/connectionResolvers';
+
+import { redlock, TDiscordLock } from '@/integrations/discord/redlock';
+
+import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
+
+import {
+  sweepDiscordOrphanIntegrations,
+  revalidateStaleDiscordTokens,
+  computeDesiredDiscordTokens,
+  closeUndesiredDiscordSockets,
+} from '@/integrations/discord/services/gateway/maintenance';
+
+import {
+  connectDiscordToken,
+  disconnectDiscordToken,
+} from '@/integrations/discord/services/gateway/connection';
+
+import {
+  ownedTokens,
+  ownedSubdomains,
+  ownerLoops,
+} from '@/integrations/discord/state/gateway';
+
+import {
+  LOCK_TTL,
+  ACQUIRE_RETRY_INTERVAL,
+  LOCK_RENEW_INTERVAL,
+  RECONCILE_INTERVAL,
+  ORG_DISCOVERY_INTERVAL,
+} from '@/integrations/discord/constants/gateway';
+
+const { NODE_ENV } = process.env;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const sleepUnlessLost = async (ms: number, isLost: () => boolean) => {
+  let waited = 0;
+  while (waited < ms && !isLost()) {
+    const step = Math.min(2000, ms - waited);
+    await sleep(step);
+    waited += step;
+  }
+};
+
+const reconcileSubdomain = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
+
+  await sweepDiscordOrphanIntegrations(models, subdomain);
+
+  await revalidateStaleDiscordTokens(models);
+
+  const desired = await computeDesiredDiscordTokens(models);
+
+  for (const token of desired) {
+    await connectDiscordToken(subdomain, token);
+  }
+
+  await closeUndesiredDiscordSockets(subdomain, desired);
+};
+
+const teardownSubdomain = async (subdomain: string) => {
+  const owned = ownedTokens.get(subdomain);
+  if (!owned) {
+    return;
+  }
+  for (const token of owned) {
+    await disconnectDiscordToken(subdomain, token);
+  }
+  ownedTokens.delete(subdomain);
+};
+
+const runOwnerLoop = async (subdomain: string) => {
+  const key = `${subdomain}:discord:work_distributor`;
+
+  while (true) {
+    let lock: TDiscordLock;
+    try {
+      lock = await redlock.acquire([key], LOCK_TTL);
+    } catch {
+      await sleep(ACQUIRE_RETRY_INTERVAL);
+      continue;
+    }
+
+    ownedSubdomains.add(subdomain);
+    let lost = false;
+
+    const renew = setInterval(async () => {
+      try {
+        lock = await lock.extend(LOCK_TTL);
+      } catch {
+        lost = true;
+      }
+    }, LOCK_RENEW_INTERVAL);
+
+    try {
+      // skipcq: JS-0092 — `lost` is flipped by the lock-renew setInterval above.
+      while (!lost) {
+        try {
+          await reconcileSubdomain(subdomain);
+        } catch (error) {
+          debugError(
+            `Discord reconcile error for ${subdomain}: ${
+              (error as Error).message
+            }`,
+          );
+        }
+        await sleepUnlessLost(RECONCILE_INTERVAL, () => lost);
+      }
+    } finally {
+      clearInterval(renew);
+      ownedSubdomains.delete(subdomain);
+      await teardownSubdomain(subdomain);
+      try {
+        await lock.release();
+      } catch {
+        // The lock may already have expired or been transferred during teardown.
+      }
+    }
+  }
+};
+
+const ensureOwnerLoop = (subdomain: string) => {
+  if (!subdomain || ownerLoops.has(subdomain)) {
+    return;
+  }
+  ownerLoops.add(subdomain);
+  runOwnerLoop(subdomain).catch((error) => {
+    ownerLoops.delete(subdomain);
+    debugError(
+      `Discord owner loop crashed for ${subdomain}: ${
+        (error as Error).message
+      }`,
+    );
+  });
+};
+
+const startDistributing = async (subdomain: string) => {
+  if (NODE_ENV === 'production') {
+    await sleep(60000);
+  }
+  ensureOwnerLoop(subdomain);
+};
+
+const startSaasDistributing = async () => {
+  await getSaasCoreConnection();
+
+  if (NODE_ENV === 'production') {
+    await sleep(60000);
+  }
+
+  while (true) {
+    try {
+      const organizations = await getSaasOrganizations();
+      for (const org of organizations) {
+        ensureOwnerLoop(org.subdomain);
+      }
+    } catch (error) {
+      debugError(`Discord SaaS discovery error: ${(error as Error).message}`);
+    }
+    await sleep(ORG_DISCOVERY_INTERVAL);
+  }
+};
+
+export const initDiscord = () => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  debugDiscord('Initializing Discord gateway distributor');
+
+  const distributor =
+    VERSION === 'saas' ? startSaasDistributing() : startDistributing('os');
+
+  distributor.catch((err) =>
+    debugError(`Failed to start Discord distributor: ${err.message}`),
+  );
+};

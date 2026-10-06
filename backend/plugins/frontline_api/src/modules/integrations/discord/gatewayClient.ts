@@ -5,13 +5,13 @@ import {
   GatewayDispatchEvents,
   GatewayCloseCodes,
 } from 'discord-api-types/v10';
+import { mapMessageCreateToActivity } from '@/integrations/discord/utils/messages/activity';
 import {
-  mapMessageCreateToActivity,
   mapMessageDeleteToEvent,
   mapPollVoteToEvent,
   mapReactionToEvent,
   mapTypingStartToEvent,
-} from '@/integrations/discord/activity';
+} from '@/integrations/discord/utils/mapGatewayEvents';
 import {
   DiscordActivity,
   DiscordMessageDeleteEvent,

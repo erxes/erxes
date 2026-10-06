@@ -21,6 +21,7 @@ export const conversationMessageSchema = new Schema({
   },
   content: { type: String },
   attachments: [attachmentSchema],
+  attachmentIds: [String],
   replyTo: { type: replyToSchema, optional: true },
   conversationId: { type: String, index: true },
   customerId: { type: String, index: true },

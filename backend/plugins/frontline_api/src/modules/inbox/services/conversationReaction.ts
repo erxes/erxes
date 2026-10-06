@@ -3,8 +3,8 @@ import { handleFacebookReaction } from '@/integrations/facebook/handleFacebookMe
 import { publishFacebookMessage } from '@/integrations/facebook/services/messageEvents';
 import { handleInstagramReaction } from '@/integrations/instagram/handleInstagramMessage';
 import { publishInstagramMessage } from '@/integrations/instagram/services/messageEvents';
-import { handleDiscordReaction } from '@/integrations/discord/handleDiscordMessage';
-import { publishDiscordMessage } from '@/integrations/discord/messageEvents';
+import { handleDiscordReaction } from '@/integrations/discord/services/messages/actions';
+import { publishDiscordMessage } from '@/integrations/discord/services/messages/events';
 import type { IContext } from '~/connectionResolvers';
 
 export interface IConversationReaction {
@@ -77,6 +77,6 @@ export const reactToConversationMessage = async (
     userId: user._id,
   });
 
-  await handler.publish(conversationId, result.data);
+  await handler.publish(conversationId, result.data, context.subdomain);
   return true;
 };

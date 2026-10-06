@@ -10,6 +10,7 @@ export interface IDiscordConversationMessage {
   updatedAt?: Date;
   deletedAt?: Date;
   attachments?: DiscordAttachment[];
+  attachmentIds?: string[];
   replyTo?: IMessageReplyTo;
   customerId?: string;
   userId?: string;
@@ -18,6 +19,7 @@ export interface IDiscordConversationMessage {
 }
 
 export interface IDiscordConversationMessageDocument
-  extends IDiscordConversationMessage, Document {
+  extends IDiscordConversationMessage,
+    Document {
   _id: string;
 }
