@@ -1,7 +1,7 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
-import { useFormDnd } from './FormDndProvider';
-import { useMountStatus } from '../hooks/useMountStatus';
+import { useFormDnd } from '@/forms/components/FormDndProvider';
+import { useMountStatus } from '@/forms/hooks/useMountStatus';
 import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -34,10 +34,13 @@ import {
   FORM_FIELD_TYPES,
   FormGroupKey,
   GroupedFields,
-} from '../constants/formFieldTypes';
+} from '@/forms/constants/formFieldTypes';
 import React, { useState } from 'react';
-import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
-import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
+import {
+  FormFieldDetail,
+  FormFieldDetailSheet,
+} from '@/forms/components/FormFieldDetail';
+import { FORM_GROUP_LABELS } from '@/forms/constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
 
 export const FormDndField = ({
