@@ -41,10 +41,13 @@ const ReserveRemFilterPopover = () => {
                   value="productId"
                   label={t('product')}
                 />
-                <SelectBranches.FilterItem value="branchId" label="Салбар" />
+                <SelectBranches.FilterItem
+                  value="branchId"
+                  label={t('branch')}
+                />
                 <SelectDepartments.FilterItem
                   value="departmentId"
-                  label="Хэлтэс"
+                  label={t('department')}
                 />
               </Command.List>
             </Command>
@@ -102,12 +105,12 @@ export const ReserveRemFilter = ({
           mode="single"
         />
         <SelectBranches.FilterBar
-          label="Салбар"
+          label={t('branch')}
           filterKey="branchId"
           mode="single"
         />
         <SelectDepartments.FilterBar
-          label="Хэлтэс"
+          label={t('department')}
           filterKey="departmentId"
           mode="single"
         />

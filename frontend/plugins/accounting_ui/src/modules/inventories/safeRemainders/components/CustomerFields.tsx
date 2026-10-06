@@ -43,8 +43,8 @@ export const CustomerFields = ({
               </Form.Control>
               <Select.Content>
                 {Object.values(CustomerType).map((type) => (
-                  <Select.Item key={type} value={type}>
-                    {type}
+                  <Select.Item key={t(type)} value={t(type)}>
+                    {t(type)}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -57,7 +57,7 @@ export const CustomerFields = ({
         name={`${kind}.customerId`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{customerType}</Form.Label>
+            <Form.Label>{customerType ? t(customerType) : ''}</Form.Label>
             <Form.Control>
               <SelectComponent
                 value={field.value ?? ''}

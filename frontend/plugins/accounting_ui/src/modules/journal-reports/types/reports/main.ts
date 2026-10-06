@@ -2,13 +2,13 @@ import { IReportConfig } from './common';
 
 export const mainReportRules: Record<string, IReportConfig> = {
   ac: {
-    title: 'Дансны хуулга',
+    title: 'account-statement',
     colCount: 6,
     choices: [
-      { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' },
-      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
-      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
+      { code: 'default', title: 'by-account' },
+      { code: 'cat', title: 'by-account-category' },
+      { code: 'branchDepartment', title: 'by-branch-and-department' },
+      { code: 'departmentBranch', title: 'by-department-and-branch' },
     ],
     groups: {
       default: {
@@ -77,13 +77,13 @@ export const mainReportRules: Record<string, IReportConfig> = {
     },
   },
   tb: {
-    title: 'Гүйлгээ баланс',
+    title: 'trial-balance',
     colCount: 6,
     choices: [
-      { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' },
-      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
-      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
+      { code: 'default', title: 'by-account' },
+      { code: 'cat', title: 'by-account-category' },
+      { code: 'branchDepartment', title: 'by-branch-and-department' },
+      { code: 'departmentBranch', title: 'by-department-and-branch' },
     ],
     groups: {
       default: {
@@ -148,11 +148,11 @@ export const mainReportRules: Record<string, IReportConfig> = {
     },
   },
   mb: {
-    title: 'Ерөнхий дэвтэр',
+    title: 'general-ledger',
     colCount: 6,
     choices: [
-      { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' },
+      { code: 'default', title: 'by-account' },
+      { code: 'cat', title: 'by-account-category' },
     ],
     groups: {
       default: {
@@ -181,7 +181,7 @@ export const mainReportRules: Record<string, IReportConfig> = {
     },
   },
   mj: {
-    title: 'Ерөнхий журнал',
+    title: 'general-journal',
     colCount: 2,
     groups: {
       default: {
@@ -199,7 +199,7 @@ export const mainReportRules: Record<string, IReportConfig> = {
     },
   },
   mjs: {
-    title: 'Ерөнхий журнал /хураангуй/',
+    title: 'general-journal-summary',
     colCount: 5,
     groups: {
       default: {

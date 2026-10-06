@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
 import {
   TCtaxRowForm,
@@ -18,6 +19,7 @@ export const CtaxRowForm = ({
   onSubmit: (data: TCtaxRowForm) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   return (
     <Form {...form}>
       <form
@@ -39,11 +41,11 @@ export const CtaxRowForm = ({
         <Sheet.Footer className="shrink-0 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Болих
+              {t('cancel-label')}
             </Button>
           </Sheet.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Хадгалах'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

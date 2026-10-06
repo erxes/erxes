@@ -55,7 +55,7 @@ export const EditSafeRemainder = () => {
         <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 lg:grid-cols-2">
             <RuleSection
-              title="Орлого"
+              title={t('receipt')}
               icon={<IconArrowDownLeft size={16} />}
               trId={safeRemainder?.incomeTrId}
             >
@@ -80,7 +80,7 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Зарлага"
+              title={t('issue')}
               icon={<IconArrowUpRight size={16} />}
               trId={safeRemainder?.outTrId}
             >
@@ -105,8 +105,8 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Өртөг өсөх залруулга"
-              description="Өртөг нэмэх бараа материалын данс"
+              title={t('cost-increase-adjustment')}
+              description={t('inventory-cost-increase-account')}
               icon={<IconArrowDownLeft size={16} />}
               trId={safeRemainder?.costIncreaseTrId}
             >
@@ -131,8 +131,8 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Өртөг буурах залруулга"
-              description="Өртөг хасах бараа материалын данс"
+              title={t('cost-decrease-adjustment')}
+              description={t('inventory-cost-decrease-account')}
               icon={<IconArrowUpRight size={16} />}
               trId={safeRemainder?.costDecreaseTrId}
             >
@@ -157,7 +157,7 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Борлуулалт"
+              title={t('sale')}
               icon={<IconShoppingCart size={16} />}
               trId={safeRemainder?.saleTrId}
             >

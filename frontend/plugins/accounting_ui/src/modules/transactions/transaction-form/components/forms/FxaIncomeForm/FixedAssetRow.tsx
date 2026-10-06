@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Checkbox,
   CurrencyField,
@@ -34,6 +35,7 @@ export const FixedAssetRow = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -238,7 +240,7 @@ export const FixedAssetRow = ({
               >
                 <Form.Control>
                   <RecordTableInlineCell.Trigger className="min-w-36">
-                    {field.value || 'Код'}
+                    {field.value || t('code')}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
                 <RecordTableInlineCell.Content>
@@ -246,7 +248,7 @@ export const FixedAssetRow = ({
                     value={field.value || ''}
                     onChange={field.onChange}
                     className="h-8 min-w-36"
-                    placeholder="Код"
+                    placeholder={t('code')}
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
@@ -270,7 +272,7 @@ export const FixedAssetRow = ({
               >
                 <Form.Control>
                   <RecordTableInlineCell.Trigger className="min-w-48">
-                    {field.value || 'Нэр'}
+                    {field.value || t('name')}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
                 <RecordTableInlineCell.Content>
@@ -278,7 +280,7 @@ export const FixedAssetRow = ({
                     value={field.value || ''}
                     onChange={field.onChange}
                     className="h-8 min-w-48"
-                    placeholder="Нэр"
+                    placeholder={t('name')}
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>

@@ -1,4 +1,10 @@
-import { Button, Dialog, Input, useFilterContext, useFilterQueryState } from 'erxes-ui';
+import {
+  Button,
+  Dialog,
+  Input,
+  useFilterContext,
+  useFilterQueryState,
+} from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { useRemoveQueryStateByKey } from 'erxes-ui/hooks';
 import { useEffect, useState } from 'react';
@@ -13,17 +19,31 @@ interface NumberRangeDialogViewProps {
 
 const toInputString = (v: unknown): string => {
   if (v === null || v === undefined || v === '') return '';
-  if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+  if (
+    typeof v === 'string' ||
+    typeof v === 'number' ||
+    typeof v === 'boolean'
+  ) {
     return String(v);
   }
   return '';
 };
 
-export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<NumberRangeDialogViewProps>) {
+export function NumberRangeDialogView({
+  minKey,
+  maxKey,
+  label,
+}: Readonly<NumberRangeDialogViewProps>) {
   const { t } = useTranslation('accounting');
   const { setDialogView, setOpenDialog, sessionKey } = useFilterContext();
-  const [minQuery, setMinQuery] = useFilterQueryState<string>(minKey, sessionKey ?? '');
-  const [maxQuery, setMaxQuery] = useFilterQueryState<string>(maxKey, sessionKey ?? '');
+  const [minQuery, setMinQuery] = useFilterQueryState<string>(
+    minKey,
+    sessionKey ?? '',
+  );
+  const [maxQuery, setMaxQuery] = useFilterQueryState<string>(
+    maxKey,
+    sessionKey ?? '',
+  );
   const [minVal, setMinVal] = useState<string>('');
   const [maxVal, setMaxVal] = useState<string>('');
 
@@ -46,7 +66,9 @@ export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<Number
     <Dialog.Content>
       <form onSubmit={onSubmit}>
         <Dialog.Header>
-          <Dialog.Title className="font-medium text-lg">{t('filter-by', { label })}</Dialog.Title>
+          <Dialog.Title className="font-medium text-lg">
+            {t('filter-by', { label: t(label) })}
+          </Dialog.Title>
         </Dialog.Header>
         <div className="flex gap-3 my-4">
           <Input
@@ -64,9 +86,13 @@ export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<Number
         </div>
         <Dialog.Footer className="sm:space-x-3">
           <Dialog.Close asChild>
-            <Button variant="outline" size="lg">{t('cancel')}</Button>
+            <Button variant="outline" size="lg">
+              {t('cancel')}
+            </Button>
           </Dialog.Close>
-          <Button size="lg" type="submit">{t('apply')}</Button>
+          <Button size="lg" type="submit">
+            {t('apply')}
+          </Button>
         </Dialog.Footer>
       </form>
     </Dialog.Content>
@@ -80,7 +106,13 @@ interface NumberRangeBarItemProps {
   readonly icon: ReactNode;
 }
 
-export function NumberRangeBarItem({ minKey, maxKey, label, icon }: Readonly<NumberRangeBarItemProps>) {
+export function NumberRangeBarItem({
+  minKey,
+  maxKey,
+  label,
+  icon,
+}: Readonly<NumberRangeBarItemProps>) {
+  const { t } = useTranslation('accounting');
   const [minQuery] = useFilterQueryState<string>(minKey);
   const [maxQuery] = useFilterQueryState<string>(maxKey);
   const { setDialogView, setOpenDialog } = useFilterContext();
@@ -108,7 +140,7 @@ export function NumberRangeBarItem({ minKey, maxKey, label, icon }: Readonly<Num
     <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium">
       <div className="bg-background rounded-l [&>svg]:size-4 flex items-center px-2 gap-2 w-fit">
         {icon}
-        {label}
+        {t(label)}
       </div>
       <Button
         variant="ghost"

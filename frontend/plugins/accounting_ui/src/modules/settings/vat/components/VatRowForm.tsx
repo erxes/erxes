@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
 import {
   TVatRowForm,
@@ -18,6 +19,7 @@ export const VatRowForm = ({
   onSubmit: (data: TVatRowForm) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   return (
     <Form {...form}>
       <form
@@ -39,7 +41,7 @@ export const VatRowForm = ({
               name="tabCount"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Доголын тоо</Form.Label>
+                  <Form.Label>{t('indentation-level')}</Form.Label>
                   <Form.Control>
                     <Input
                       type="number"
@@ -63,7 +65,7 @@ export const VatRowForm = ({
                       onCheckedChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Label variant="peer">Тод бичих</Form.Label>
+                  <Form.Label variant="peer">{t('bold-text')}</Form.Label>
                 </Form.Item>
               )}
             />
@@ -73,12 +75,12 @@ export const VatRowForm = ({
         <Sheet.Footer className="shrink-0 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Болих
+              {t('cancel-label')}
             </Button>
           </Sheet.Close>
 
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Хадгалах'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { cn, displayNum, ReportTable } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -61,6 +62,7 @@ export const HandleTransactionMore = ({
   moreData,
   currentKey,
 }: RenderMoreProps) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const columnCount = (ReportRules[report]?.colCount || 0) + 2;
 
@@ -88,16 +90,20 @@ export const HandleTransactionMore = ({
         <ReportTable>
           <ReportTable.Header>
             <ReportTable.Row>
-              <ReportTable.Head>Огноо</ReportTable.Head>
-              <ReportTable.Head>Дугаар</ReportTable.Head>
-              <ReportTable.Head>Журнал</ReportTable.Head>
-              <ReportTable.Head>Гүйлгээний утга</ReportTable.Head>
-              <ReportTable.Head>Тоо</ReportTable.Head>
-              <ReportTable.Head>Нэгж үнэ</ReportTable.Head>
-              <ReportTable.Head>Валют дүн</ReportTable.Head>
-              <ReportTable.Head>Дебет</ReportTable.Head>
-              <ReportTable.Head>Кредит</ReportTable.Head>
-              <ReportTable.Head>Харьцсан данс</ReportTable.Head>
+              <ReportTable.Head>{t('date')}</ReportTable.Head>
+              <ReportTable.Head>{t('number')}</ReportTable.Head>
+              <ReportTable.Head>{t('journal')}</ReportTable.Head>
+              <ReportTable.Head>
+                {t('transaction-description')}
+              </ReportTable.Head>
+              <ReportTable.Head>{t('quantity')}</ReportTable.Head>
+              <ReportTable.Head>{t('unit-price')}</ReportTable.Head>
+              <ReportTable.Head>
+                {t('foreign-currency-amount')}
+              </ReportTable.Head>
+              <ReportTable.Head>{t('debit')}</ReportTable.Head>
+              <ReportTable.Head>{t('credit')}</ReportTable.Head>
+              <ReportTable.Head>{t('corresponding-account')}</ReportTable.Head>
             </ReportTable.Row>
           </ReportTable.Header>
           <ReportTable.Body>
@@ -122,8 +128,10 @@ export const HandleTransactionMore = ({
                     {transaction.ptrNumber || transaction.number || ''}
                   </ReportTable.Cell>
                   <ReportTable.Cell className="text-left">
-                    {TR_JOURNAL_LABELS[transaction.journal as TrJournalEnum] ||
-                      transaction.journal}
+                    {t(
+                      TR_JOURNAL_LABELS[transaction.journal as TrJournalEnum] ||
+                        '',
+                    ) || transaction.journal}
                   </ReportTable.Cell>
                   <ReportTable.Cell className="text-left">
                     {transaction.description || ''}

@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import {
   IconCircleCheck,
   IconCalculator,
@@ -109,70 +111,77 @@ const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
   </RecordTableInlineCell>
 );
 
-const TransactionAccountCell = ({ row }: { row: TLinkedTransactionRow }) => (
-  <RecordTableInlineCell>
-    <div className="min-w-0">
-      <div className="truncate font-medium">
-        {[row.detail.account?.code, row.detail.account?.name]
-          .filter(Boolean)
-          .join(' - ') ||
-          row.detail.accountId ||
-          '-'}
+const TransactionAccountCell = ({ row }: { row: TLinkedTransactionRow }) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <RecordTableInlineCell>
+      <div className="min-w-0">
+        <div className="truncate font-medium">
+          {[row.detail.account?.code, row.detail.account?.name]
+            .filter(Boolean)
+            .join(' - ') ||
+            row.detail.accountId ||
+            '-'}
+        </div>
+        <div className="truncate text-xs text-muted-foreground">
+          {t(row.transaction.journal)}
+        </div>
       </div>
-      <div className="truncate text-xs text-muted-foreground">
-        {row.transaction.journal}
-      </div>
-    </div>
-  </RecordTableInlineCell>
-);
+    </RecordTableInlineCell>
+  );
+};
 
-const fundRateDetailColumns: ColumnDef<IAdjustFundRateDetail>[] = [
+const fundRateDetailColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAdjustFundRateDetail>[] => [
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead label="Account" />,
+    header: () => <RecordTable.InlineHead label={t('account')} />,
     cell: ({ row }) => <FundRateAccountCell detail={row.original} />,
     size: 260,
   },
   {
     id: 'mainBalance',
-    header: () => <RecordTable.InlineHead label="Main Balance" />,
+    header: () => <RecordTable.InlineHead label={t('Main Balance')} />,
     accessorKey: 'mainBalance',
     cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
     size: 160,
   },
   {
     id: 'currencyBalance',
-    header: () => <RecordTable.InlineHead label="Currency Balance" />,
+    header: () => <RecordTable.InlineHead label={t('Currency Balance')} />,
     accessorKey: 'currencyBalance',
     cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
     size: 180,
   },
   {
     id: 'diff',
-    header: () => <RecordTable.InlineHead label="Difference" />,
+    header: () => <RecordTable.InlineHead label={t('Difference')} />,
     accessorKey: 'diff',
     cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
     size: 160,
   },
   {
     id: 'transactionId',
-    header: () => <RecordTable.InlineHead label="Transaction" />,
+    header: () => <RecordTable.InlineHead label={t('transaction')} />,
     accessorKey: 'transactionId',
     cell: ({ getValue }) => <TextCell value={getValue<string>()} />,
     size: 220,
   },
 ];
 
-const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
+const linkedTransactionColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<TLinkedTransactionRow>[] => [
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead label="Account" />,
+    header: () => <RecordTable.InlineHead label={t('account')} />,
     cell: ({ row }) => <TransactionAccountCell row={row.original} />,
     size: 260,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead label="Number" />,
+    header: () => <RecordTable.InlineHead label={t('number')} />,
     cell: ({ row }) => (
       <TextCell
         value={
@@ -184,7 +193,7 @@ const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead label="Date" />,
+    header: () => <RecordTable.InlineHead label={t('date')} />,
     cell: ({ row }) => (
       <TextCell
         value={
@@ -198,7 +207,7 @@ const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
   },
   {
     id: 'debit',
-    header: () => <RecordTable.InlineHead label="Debit" />,
+    header: () => <RecordTable.InlineHead label={t('debit')} />,
     cell: ({ row }) => (
       <AmountCell
         amount={
@@ -212,7 +221,7 @@ const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
   },
   {
     id: 'credit',
-    header: () => <RecordTable.InlineHead label="Credit" />,
+    header: () => <RecordTable.InlineHead label={t('credit')} />,
     cell: ({ row }) => (
       <AmountCell
         amount={
@@ -226,13 +235,13 @@ const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead label="Branch" />,
+    header: () => <RecordTable.InlineHead label={t('branch')} />,
     cell: ({ row }) => <BranchCell branchId={row.original.detail.branchId} />,
     size: 180,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead label="Department" />,
+    header: () => <RecordTable.InlineHead label={t('department')} />,
     cell: ({ row }) => (
       <DepartmentCell departmentId={row.original.detail.departmentId} />
     ),
@@ -240,7 +249,7 @@ const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label={t('description')} />,
     cell: ({ row }) => (
       <TextCell value={row.original.transaction.description} />
     ),
@@ -249,6 +258,7 @@ const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
 ];
 
 export const AdjustFundRateDetail = () => {
+  const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
   const [editOpen, setEditOpen] = useState(false);
 
@@ -338,7 +348,7 @@ export const AdjustFundRateDetail = () => {
   }
 
   if (!id || !adjustFundRate) {
-    return <div className="p-6">Adjust Fund Rate not found</div>;
+    return <div className="p-6">{t('Adjust Fund Rate not found')}</div>;
   }
 
   const handleDelete = () => {
@@ -359,38 +369,41 @@ export const AdjustFundRateDetail = () => {
     <div className="m-3 flex flex-col gap-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-lg font-bold">Fund Rate Adjustment</h3>
+          <h3 className="text-lg font-bold">{t('fund-rate-adjustment')}</h3>
           <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 md:grid-cols-4 xl:grid-cols-7">
             <DetailField
-              label="Date"
+              label={t('date')}
               value={dayjs(adjustFundRate.date).format('YYYY-MM-DD')}
             />
-            <DetailField label="Currency" value={adjustFundRate.currency} />
             <DetailField
-              label="Spot Rate"
+              label={t('currency')}
+              value={adjustFundRate.currency}
+            />
+            <DetailField
+              label={t('Spot Rate')}
               value={adjustFundRate.spotRate?.toFixed(4) || '-'}
             />
             <DetailField
-              label="Main Currency"
+              label={t('Main Currency')}
               value={adjustFundRate.mainCurrency}
             />
             <DetailField
-              label="Gain Account"
+              label={t('Gain Account')}
               value={formatAccount(
                 accountById[adjustFundRate.gainAccountId],
                 adjustFundRate.gainAccountId,
               )}
             />
             <DetailField
-              label="Loss Account"
+              label={t('Loss Account')}
               value={formatAccount(
                 accountById[adjustFundRate.lossAccountId],
                 adjustFundRate.lossAccountId,
               )}
             />
             <DetailField
-              label="Status"
-              value={adjustFundRate.status || 'draft'}
+              label={t('status')}
+              value={t(adjustFundRate.status || 'draft')}
             />
           </div>
           {adjustFundRate.description && (
@@ -402,15 +415,15 @@ export const AdjustFundRateDetail = () => {
         <div className="flex flex-wrap justify-end gap-2">
           <Button onClick={handleCalculate} disabled={calculateLoading}>
             {calculateLoading ? <Spinner /> : <IconCalculator size={16} />}
-            Calculate
+            {t('Calculate')}
           </Button>
           <Button onClick={handleRun} disabled={runLoading}>
             {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
-            Run
+            {t('run')}
           </Button>
           <Button variant="outline" onClick={() => setEditOpen(true)}>
             <IconEdit size={16} />
-            Edit
+            {t('edit')}
           </Button>
           <Button
             variant="outline"
@@ -419,7 +432,7 @@ export const AdjustFundRateDetail = () => {
             disabled={removeLoading}
           >
             <IconTrashX size={16} />
-            Delete
+            {t('delete')}
           </Button>
         </div>
       </div>
@@ -440,8 +453,8 @@ export const AdjustFundRateDetail = () => {
 
       <Tabs defaultValue="calculation" className="flex flex-col gap-3">
         <Tabs.List className="w-fit">
-          <Tabs.Trigger value="calculation">Calculation</Tabs.Trigger>
-          <Tabs.Trigger value="transactions">Transactions</Tabs.Trigger>
+          <Tabs.Trigger value="calculation">{t('Calculation')}</Tabs.Trigger>
+          <Tabs.Trigger value="transactions">{t('transactions')}</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="calculation">
           <CalculationGroups groupedDetails={groupedDetails} />
@@ -474,10 +487,11 @@ const CalculationGroups = ({
     details: IAdjustFundRateDetail[];
   }>;
 }) => {
+  const { t } = useTranslation('accounting');
   if (!groupedDetails.length) {
     return (
       <div className="rounded-md border p-3 text-sm text-muted-foreground">
-        No calculated account balances yet.
+        {t('No calculated account balances yet.')}
       </div>
     );
   }
@@ -493,7 +507,9 @@ const CalculationGroups = ({
         >
           <div className="flex flex-wrap items-center gap-6 border-b bg-muted/30 px-3 py-2 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Branch:</span>
+              <span className="text-muted-foreground">
+                {t('Branch:', { nsSeparator: false })}
+              </span>
               {group.branchId ? (
                 <SelectBranches.InlineCell branchIds={[group.branchId]} />
               ) : (
@@ -501,7 +517,9 @@ const CalculationGroups = ({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Department:</span>
+              <span className="text-muted-foreground">
+                {t('Department:', { nsSeparator: false })}
+              </span>
               {group.departmentId ? (
                 <SelectDepartments.InlineCell
                   departmentIds={[group.departmentId]}
@@ -512,7 +530,7 @@ const CalculationGroups = ({
             </div>
           </div>
           <RecordTable.Provider
-            columns={fundRateDetailColumns}
+            columns={fundRateDetailColumns(t)}
             data={group.details}
             tableId={`accounting_adjust_fund_rate_detail_group_${index}`}
           >
@@ -538,6 +556,7 @@ const LinkedTransactionsTable = ({
   loading: boolean;
   rows: TLinkedTransactionRow[];
 }) => {
+  const { t } = useTranslation('accounting');
   if (loading) {
     return (
       <div className="flex h-24 items-center justify-center rounded-md border">
@@ -549,14 +568,14 @@ const LinkedTransactionsTable = ({
   if (!rows.length) {
     return (
       <div className="rounded-md border p-3 text-sm text-muted-foreground">
-        No linked transactions yet.
+        {t('No linked transactions yet.')}
       </div>
     );
   }
 
   return (
     <RecordTable.Provider
-      columns={linkedTransactionColumns}
+      columns={linkedTransactionColumns(t)}
       data={rows}
       tableId="accounting_adjust_fund_rate_linked_transactions"
       className="rounded-md border"

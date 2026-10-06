@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import { Cell, CellContext, ColumnDef } from '@tanstack/react-table';
 import { IAdjustInventory } from '../types/AdjustInventory';
@@ -61,23 +62,29 @@ const transactionMoreColumn = {
   size: 33,
 } satisfies ColumnDef<IAdjustInventory>;
 
-const dateColumn = {
-  id: 'date',
-  header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
-  accessorKey: 'date',
-  cell: DateCell,
-} satisfies ColumnDef<IAdjustInventory, Date>;
+const dateColumn = (t: TFunction<'accounting'>) =>
+  ({
+    id: 'date',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
+    accessorKey: 'date',
+    cell: DateCell,
+  } satisfies ColumnDef<IAdjustInventory, Date>);
 
-const descriptionColumn = {
-  id: 'description',
-  header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
-  accessorKey: 'description',
-  cell: DescriptionCell,
-  size: 300,
-} satisfies ColumnDef<IAdjustInventory, string>;
+const descriptionColumn = (t: TFunction<'accounting'>) =>
+  ({
+    id: 'description',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
+    accessorKey: 'description',
+    cell: DescriptionCell,
+    size: 300,
+  } satisfies ColumnDef<IAdjustInventory, string>);
 
-export const adjustTableColumns = [
+export const adjustTableColumns = (t: TFunction<'accounting'>) => [
   transactionMoreColumn,
-  dateColumn,
-  descriptionColumn,
+  dateColumn(t),
+  descriptionColumn(t),
 ];

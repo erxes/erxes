@@ -1,8 +1,20 @@
+import { getI18n } from 'react-i18next';
 import { parse } from 'csv-parse/browser/esm/sync';
 import { TSafeRemainderImportItem } from '../types/SafeRemainder';
 
+const translateImportError = (
+  key: string,
+  defaultValue: string,
+  values: { row?: number; field?: string } = {},
+): string =>
+  getI18n()?.t(key, { ns: 'accounting', defaultValue, ...values }) ??
+  defaultValue;
+
 const normalizeHeader = (header: string) =>
-  header.replace(/^\uFEFF/, '').trim().toLowerCase();
+  header
+    .replace(/^\uFEFF/, '')
+    .trim()
+    .toLowerCase();
 
 const getColumn = (row: Record<string, string>, ...names: string[]) => {
   for (const name of names) {
@@ -15,7 +27,13 @@ const getColumn = (row: Record<string, string>, ...names: string[]) => {
 const parseNumber = (value: string | undefined, field: string, row: number) => {
   const parsed = Number(value);
   if (value === undefined || value === '' || !Number.isFinite(parsed)) {
-    throw new Error(`${row}-р мөрийн ${field} утга буруу байна`);
+    throw new Error(
+      translateImportError(
+        'import-invalid-number',
+        `${row}-р мөрийн ${field} утга буруу байна`,
+        { row, field },
+      ),
+    );
   }
   return parsed;
 };
@@ -33,7 +51,13 @@ const parseBoolean = (value: string | undefined, row: number) => {
   const normalized = value?.toLowerCase();
   if (['true', '1', 'yes'].includes(normalized ?? '')) return true;
   if (['false', '0', 'no'].includes(normalized ?? '')) return false;
-  throw new Error(`${row}-р мөрийн isSale утга true/false байх ёстой`);
+  throw new Error(
+    translateImportError(
+      'import-invalid-sale-flag',
+      `${row}-р мөрийн isSale утга true/false байх ёстой`,
+      { row },
+    ),
+  );
 };
 
 const parseTextRows = (text: string): TSafeRemainderImportItem[] => {
@@ -46,7 +70,14 @@ const parseTextRows = (text: string): TSafeRemainderImportItem[] => {
 
   return rows.map((row, index) => {
     const productCode = row[0]?.trim();
-    if (!productCode) throw new Error(`${index + 1}-р мөрийн код хоосон байна`);
+    if (!productCode)
+      throw new Error(
+        translateImportError(
+          'import-missing-code',
+          `${index + 1}-р мөрийн код хоосон байна`,
+          { row: index + 1 },
+        ),
+      );
     return {
       productCode,
       count: parseNumber(row[1], 'count', index + 1),
@@ -66,17 +97,17 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
     const rowNumber = index + 2;
     const productCode = getColumn(row, 'productCode', 'code');
     if (!productCode) {
-      throw new Error(`${rowNumber}-р мөрийн productCode хоосон байна`);
+      throw new Error(
+        translateImportError(
+          'import-missing-product-code',
+          `${rowNumber}-р мөрийн productCode хоосон байна`,
+          { row: rowNumber },
+        ),
+      );
     }
 
     const totalCost = parseOptionalNumber(
-      getColumn(
-        row,
-        'totalCost',
-        'countedCost',
-        'unitCost',
-        'trInfo.unitCost',
-      ),
+      getColumn(row, 'totalCost', 'countedCost', 'unitCost', 'trInfo.unitCost'),
       'totalCost',
       rowNumber,
     );
@@ -91,7 +122,13 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
     );
 
     if (isSale && unitPrice === undefined) {
-      throw new Error(`${rowNumber}-р мөрийн unitPrice шаардлагатай`);
+      throw new Error(
+        translateImportError(
+          'import-missing-unit-price',
+          `${rowNumber}-р мөрийн unitPrice шаардлагатай`,
+          { row: rowNumber },
+        ),
+      );
     }
 
     return {
@@ -112,5 +149,10 @@ export const parseSafeRemainderImport = (text: string, fileName: string) => {
   if (normalizedFileName.endsWith('.csv')) return parseCsvRows(text);
   if (normalizedFileName.endsWith('.txt')) return parseTextRows(text);
 
-  throw new Error('Зөвхөн TXT эсвэл CSV файл импортлоно');
+  throw new Error(
+    translateImportError(
+      'import-unsupported-file',
+      'Зөвхөн TXT эсвэл CSV файл импортлоно',
+    ),
+  );
 };

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -63,50 +64,53 @@ const closingMoreColumn: ColumnDef<IClosingDetailEntryRow> = {
   size: 33,
 };
 
-export const adjustClosingDetailTableColumns: ColumnDef<IClosingDetailEntryRow>[] =
-  [
-    closingMoreColumn,
-    {
-      id: 'accountId',
-      header: () => (
-        <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
-      ),
-      accessorKey: 'accountId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
-      size: 260,
-    },
-    {
-      id: 'balance',
-      header: () => (
-        <RecordTable.InlineHead icon={IconMoneybag} label="Balance" />
-      ),
-      accessorKey: 'balance',
-      cell: ({ getValue }) => <MoneyCell getValue={getValue} />,
-      size: 160,
-    },
-    {
-      id: 'percent',
-      header: () => (
-        <RecordTable.InlineHead icon={IconPercentage} label="Percent" />
-      ),
-      accessorKey: 'percent',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
-      size: 120,
-    },
-    {
-      id: 'mainAccTrId',
-      header: () => <RecordTable.InlineHead icon={IconLink} label="Main Tr" />,
-      accessorKey: 'mainAccTrId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
-      size: 220,
-    },
-    {
-      id: 'integrateTrId',
-      header: () => (
-        <RecordTable.InlineHead icon={IconLink} label="Integrate Tr" />
-      ),
-      accessorKey: 'integrateTrId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
-      size: 220,
-    },
-  ];
+export const adjustClosingDetailTableColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IClosingDetailEntryRow>[] => [
+  closingMoreColumn,
+  {
+    id: 'accountId',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('account')} />
+    ),
+    accessorKey: 'accountId',
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    size: 260,
+  },
+  {
+    id: 'balance',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('Balance')} />
+    ),
+    accessorKey: 'balance',
+    cell: ({ getValue }) => <MoneyCell getValue={getValue} />,
+    size: 160,
+  },
+  {
+    id: 'percent',
+    header: () => (
+      <RecordTable.InlineHead icon={IconPercentage} label={t('Percent')} />
+    ),
+    accessorKey: 'percent',
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    size: 120,
+  },
+  {
+    id: 'mainAccTrId',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLink} label={t('Main Tr')} />
+    ),
+    accessorKey: 'mainAccTrId',
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    size: 220,
+  },
+  {
+    id: 'integrateTrId',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLink} label={t('Integrate Tr')} />
+    ),
+    accessorKey: 'integrateTrId',
+    cell: ({ getValue }) => <TextCell getValue={getValue} />,
+    size: 220,
+  },
+];

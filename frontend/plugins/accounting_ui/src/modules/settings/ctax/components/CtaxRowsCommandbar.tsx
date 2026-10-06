@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   CommandBar,
@@ -10,12 +11,14 @@ import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
 import { IconTrash } from '@tabler/icons-react';
 
 export const CtaxRowsCommandbar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length}{' '}
+          {t('selected-label-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <CtaxRowsDelete />
@@ -25,16 +28,17 @@ export const CtaxRowsCommandbar = () => {
 };
 
 export const CtaxRowsDelete = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeCtaxRows, loading } = useCtaxRowsRemove();
 
   const handleDelete = () => {
     confirm({
-      message: 'Эдгээр НХАТ-ын мөрийг устгахдаа итгэлтэй байна уу?',
+      message: t('are-you-sure-you-want-to-delete-these-city-tax-rows'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel-label'),
       },
     }).then(() => {
       const ctaxRowIds = table
@@ -45,7 +49,7 @@ export const CtaxRowsDelete = () => {
         variables: { ctaxRowIds },
         onError: (error: Error) => {
           toast({
-            title: 'Алдаа',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -53,8 +57,8 @@ export const CtaxRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Амжилттай',
-            description: 'НХАТ-ын мөрийг устгалаа',
+            title: t('success'),
+            description: t('city-tax-row-deleted-successfully'),
           });
         },
       });
@@ -64,7 +68,7 @@ export const CtaxRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import {
   A4Sheet,
@@ -27,57 +28,64 @@ export type InvSaleVariant =
 
 // Labels for the shared twin receipt — inv_sale_1.
 const TWIN_LABELS: IReceiptLabels = {
-  formCode: 'НХМаягт БМ3',
-  title: 'Зарлагын баримт',
-  orgLabel: 'Байгууллага:',
-  partyLabel: 'Хэнд(хаана):',
+  formCode: 'accounting-form-bm3',
+  title: 'issue-voucher',
+  orgLabel: 'organization-label',
+  partyLabel: 'recipient-destination-label',
 };
 
 // === inv_sale_2: single receipt with an extra Байршил column.
 const LocationReceipt = ({ transaction }: { transaction: ITransaction }) => {
+  const { t } = useTranslation('accounting');
   const { date } = getMeta(transaction);
   const rows = buildRows(transaction);
   const filled = padRows(rows, 5);
 
   return (
     <A4Sheet paddingX="18mm">
-      <FormHeader code="НХМаягт БМ3" />
+      <FormHeader code="accounting-form-bm3" />
       <div className="mt-1 border-b border-black pb-1 font-bold">
-        Байгууллага:
+        {t('organization-label', { nsSeparator: false })}
       </div>
       <div className="mt-3 mb-3 text-center text-[16px] font-bold">
-        Зарлагын баримт
+        {t('issue-voucher')}
       </div>
-      <div className="font-bold">Огноо: {date || '20.../.../...'}</div>
-      <div className="mt-1 font-bold">Хэнд(хаана):</div>
-      <div className="mt-1 mb-2 font-bold">Утга:</div>
+      <div className="font-bold">
+        {t('date-label', { nsSeparator: false })} {date || '20.../.../...'}
+      </div>
+      <div className="mt-1 font-bold">
+        {t('recipient-destination-label', { nsSeparator: false })}
+      </div>
+      <div className="mt-1 mb-2 font-bold">
+        {t('description-label', { nsSeparator: false })}
+      </div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th className={`${TH} px-2`}>Бараа материал</th>
-            <th className={`${TH} px-2`}>Байршил</th>
-            <th className={TH}>Хэмжих нэгж</th>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>Нэгжийн үнэ</th>
-            <th className={TH}>Үнэ</th>
+            <th className={`${TH} px-2`}>{t('inventory-label')}</th>
+            <th className={`${TH} px-2`}>{t('location')}</th>
+            <th className={TH}>{t('unit-of-measure-label-2')}</th>
+            <th className={TH}>{t('quantity')}</th>
+            <th className={TH}>{t('unit-price-label')}</th>
+            <th className={TH}>{t('price')}</th>
           </tr>
         </thead>
         <SimpleItemRows rows={filled} total={sumAmount(rows)} withLocation />
       </table>
 
       <div className="mt-6 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
+        <SignLine label={t('received-label')} />
+        <SignLine label={t('handed-over-label')} />
       </div>
 
       <div className="mt-6 flex justify-between text-[11px]">
         <div>
-          <span>Шивсэн:</span>
+          <span>{t('entered-by', { nsSeparator: false })}</span>
           <span className="ml-1 inline-block w-40 border-b border-dotted border-black" />
         </div>
         <div>
-          <span>Хэвлэсэн:</span>
+          <span>{t('printed-label', { nsSeparator: false })}</span>
           <span className="ml-1 inline-block w-40 border-b border-dotted border-black" />
         </div>
       </div>
@@ -86,24 +94,28 @@ const LocationReceipt = ({ transaction }: { transaction: ITransaction }) => {
 };
 
 // inv_sale_3 discount-receipt labels — "Худалдсан" with a payable summary.
-const DISCOUNT_CONFIG = (date: string): IDiscountReceiptConfig => ({
-  formCode: 'НХМаягт БМ3',
-  title: 'Зарлагын баримт',
-  showDocNo: false,
-  dateText: date || '20... он ... сар ... өдөр',
-  partyLabel: 'Хэнд(хаана):',
-  unitHeader: 'Хэм. нэгж',
-  priceHeaderNote: '\\НӨАТ орсон\\',
-  groupHeader: 'Худалдсан',
-  percentHeader: 'Хөн. хувь',
-  discountLabel: '- Хөнгөлөлт:',
-  payableLabel: 'Төлбөр:',
-  lastSignLabel: 'Хянасан',
-  minRows: 5,
-});
+const DISCOUNT_CONFIG = (date: string): IDiscountReceiptConfig => {
+  const { t } = useTranslation('accounting');
+  return {
+    formCode: t('accounting-form-bm3'),
+    title: t('issue-voucher'),
+    showDocNo: false,
+    dateText: date || t('year-month-day-label'),
+    partyLabel: t('recipient-destination-label', { nsSeparator: false }),
+    unitHeader: t('unit-of-measure-label'),
+    priceHeaderNote: t('vat-included'),
+    groupHeader: t('sold-label'),
+    percentHeader: t('discount-label-2'),
+    discountLabel: t('discount', { nsSeparator: false }),
+    payableLabel: t('payment', { nsSeparator: false }),
+    lastSignLabel: t('reviewed-by'),
+    minRows: 5,
+  };
+};
 
 // === inv_sale_4: numbered "ЗАРЛАГЫН БАРИМТ №" with a "Худалдах" group.
 const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
+  const { t } = useTranslation('accounting');
   const { documentNo, date } = getMeta(transaction);
   const rows = buildRows(transaction);
   const total = sumAmount(rows);
@@ -111,16 +123,21 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
 
   return (
     <A4Sheet>
-      <FormHeader code="НХМаягт БМ-3" />
+      <FormHeader code="accounting-form-bm-3" />
       <div className="mt-1 border-b border-black pb-1 font-bold">
-        Байгууллагын нэр:
+        {t('organization-name-label-3', { nsSeparator: false })}
       </div>
       <div className="mt-3 mb-3 text-center text-[16px] font-bold uppercase">
-        Зарлагын баримт №{documentNo ? ` ${documentNo}` : ''}
+        {t('issue-voucher-no')}
+        {documentNo ? ` ${documentNo}` : ''}
       </div>
-      <div className="font-bold">{date || '20... он ... сар ... өдөр'}</div>
-      <div className="mt-1 font-bold">(Худалдан авагчийн нэр):</div>
-      <div className="mt-1 mb-2 font-bold">Утга:</div>
+      <div className="font-bold">{date || t('year-month-day-label')}</div>
+      <div className="mt-1 font-bold">
+        {t('customer-name', { nsSeparator: false })}
+      </div>
+      <div className="mt-1 mb-2 font-bold">
+        {t('description-label', { nsSeparator: false })}
+      </div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
@@ -129,19 +146,19 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
               №
             </th>
             <th rowSpan={2} className={`${TH} px-2`}>
-              Материалын үнэт зүйлийн нэр, зэрэг, дугаар
+              {t('item-description-grade-and-number')}
             </th>
             <th rowSpan={2} className={TH}>
-              Хэмжих нэгж
+              {t('unit-of-measure-label-2')}
             </th>
             <th colSpan={3} className={`${TH} px-2`}>
-              Худалдах
+              {t('sell-label')}
             </th>
           </tr>
           <tr>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>Нэгжийн үнэ</th>
-            <th className={TH}>Нийт дүн</th>
+            <th className={TH}>{t('quantity')}</th>
+            <th className={TH}>{t('unit-price-label')}</th>
+            <th className={TH}>{t('total-amount-label')}</th>
           </tr>
         </thead>
         <tbody>
@@ -163,7 +180,9 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
           ))}
           <tr>
             <td className={TD} />
-            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+            <td className={`${TD} px-2 font-medium`}>
+              {t('amount-label', { nsSeparator: false })}
+            </td>
             <td className={`${TD} text-center`}>X</td>
             <td className={`${TD} text-center`}>X</td>
             <td className={`${TD} text-center`}>X</td>
@@ -175,9 +194,9 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
       </table>
 
       <div className="mt-6 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
-        <SignLine label="Шалгасан нягтлан бодогч" />
+        <SignLine label={t('received-label')} />
+        <SignLine label={t('handed-over-label')} />
+        <SignLine label={t('reviewed-by-accountant-label')} />
       </div>
     </A4Sheet>
   );

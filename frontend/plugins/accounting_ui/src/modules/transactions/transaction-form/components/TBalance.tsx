@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { followTrDocsState } from '../states/trStates';
 import { ITBalanceTransaction } from '../types/TBalance';
 import { ITransactionGroupForm } from '../types/JournalForms';
@@ -10,6 +11,7 @@ import { useWatch } from 'react-hook-form';
 import { useMemo } from 'react';
 
 export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
+  const { t } = useTranslation('accounting');
   const date = useWatch({
     control: form.control,
     name: 'date',
@@ -76,10 +78,10 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
 
   const columns = useMemo(() => {
     if ((trDocs || []).some((tr) => tr.journal.includes('inv'))) {
-      return tbalanceColumns.filter((c) => !c.id?.includes('inv'));
+      return tbalanceColumns(t).filter((c) => !c.id?.includes('inv'));
     }
-    return tbalanceColumns;
-  }, [trDocs]);
+    return tbalanceColumns(t);
+  }, [trDocs, t]);
 
   return (
     <RecordTable.Provider

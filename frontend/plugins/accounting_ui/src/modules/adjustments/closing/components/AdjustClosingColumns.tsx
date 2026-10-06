@@ -13,6 +13,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -22,6 +23,7 @@ import { IAdjustClosing } from '../types/AdjustClosing';
 import { AdjustClosingMoreColumn } from './AdjustClosingMoreColumn';
 
 const StatusCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const setRenderingDetail = useSetAtom(renderingAdjustClosingDetailAtom);
   const { _id, status } = cell.row.original;
@@ -33,7 +35,7 @@ const StatusCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
         navigate(`/accounting/adjustment/closing/${_id}`);
       }}
     >
-      {status}
+      {status ? t(status) : ''}
     </RecordTableInlineCell.Anchor>
   );
 };
@@ -91,7 +93,7 @@ const AccountInlineCell = ({
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IAdjustClosing>;
 
 export const adjustClosingTableColumns: (
-  t: TFunction,
+  t: TFunction<'accounting'>,
 ) => ColumnDef<IAdjustClosing>[] = (t) => {
   return [
     AdjustClosingMoreColumn,
@@ -99,7 +101,9 @@ export const adjustClosingTableColumns: (
     {
       id: 'status',
       accessorKey: 'status',
-      header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconFlag} label={t('status')} />
+      ),
       cell: StatusCell,
       size: 120,
     },

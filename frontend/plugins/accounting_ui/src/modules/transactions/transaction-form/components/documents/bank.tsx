@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
@@ -9,6 +10,7 @@ export const PrintBankDocument = ({
 }: {
   transaction: ITransaction;
 }) => {
+  const { t } = useTranslation('accounting');
   const detail = transaction?.details?.[0];
 
   const amount = detail?.currencyAmount ?? detail?.amount ?? 0;
@@ -38,36 +40,36 @@ export const PrintBankDocument = ({
       className="w-[210mm] min-h-[297mm] bg-white px-[18mm] py-[14mm] font-serif text-[12px] leading-snug text-black shadow-sidebar-inset"
     >
       <VoucherHeader
-        title="Төлбөрийн даалгавар"
+        title={t('payment-order')}
         documentNo={documentNo}
         date={transactionDate}
       />
 
       <div className="mb-3">
-        <Field label="Төлөгчийн нэр" value={payerName} />
+        <Field label={t('payer-name')} value={payerName} />
       </div>
 
       <table className="w-full border-collapse border border-black/60 text-[12px]">
         <thead>
           <tr className="bg-black/6">
             <th className="border border-black/60 px-2 py-1 text-left font-medium">
-              Талууд
+              {t('sides')}
             </th>
             <th className="border border-black/60 px-2 py-1 text-left font-medium">
-              Банк
+              {t('bank-label')}
             </th>
             <th className="border border-black/60 px-2 py-1 text-left font-medium">
-              Данс
+              {t('account')}
             </th>
             <th className="border border-black/60 px-2 py-1 text-right font-medium">
-              Дүн
+              {t('amount')}
             </th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td className="border border-black/60 px-2 py-1.5 font-medium">
-              Төлөгч
+              {t('payer')}
             </td>
             <td className="border border-black/60 px-2 py-1.5">{payerBank}</td>
             <td className="border border-black/60 px-2 py-1.5">
@@ -79,7 +81,7 @@ export const PrintBankDocument = ({
           </tr>
           <tr>
             <td className="border border-black/60 px-2 py-1.5 font-medium">
-              Хүлээн авагч
+              {t('recipient')}
             </td>
             <td className="border border-black/60 px-2 py-1.5">
               {receiverBank}
@@ -96,18 +98,18 @@ export const PrintBankDocument = ({
 
       <div className="mt-3">
         <Field
-          label="Мөнгөн дүн (үсгээр)"
+          label={t('amount-in-words')}
           value={amountInWords}
           className="border-x border-t border-black/60"
         />
         <Field
-          label="Барааг хүлээн авсан буюу ажил гүйцэтгэсэн"
+          label={t('goods-received-or-services-performed')}
           value={transactionDate}
           className="border-x border-black/60"
         />
         <div className="flex border-x border-b border-black/60">
           <div className="w-[42%] shrink-0 bg-black/4 px-2 py-1 font-medium">
-            Төлбөрийн зориулалт
+            {t('payment-purpose')}
           </div>
           <div className="min-h-16 flex-1 px-2 py-1 whitespace-pre-wrap">
             {description || ' '}
@@ -118,12 +120,12 @@ export const PrintBankDocument = ({
       <div className="mt-12 flex justify-between text-[12px]">
         <div className="w-1/2 text-center">
           <div className="mx-auto mt-8 w-52 border-t border-black pt-1">
-            Ерөнхий нягтлан бодогч
+            {t('chief-accountant-label')}
           </div>
         </div>
         <div className="w-1/2 text-center">
           <div className="mx-auto mt-8 w-52 border-t border-black pt-1">
-            Гарын үсэг / Тамга
+            {t('signature-seal')}
           </div>
         </div>
       </div>

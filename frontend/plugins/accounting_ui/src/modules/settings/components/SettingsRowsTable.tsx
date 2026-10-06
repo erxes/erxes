@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
@@ -67,13 +68,14 @@ export const SettingsRowsTable = <TData,>({
 
 export const getSharedRowColumns = <T,>(
   moreColumn: ColumnDef<T>,
+  t: TFunction<'accounting'>,
 ): ColumnDef<T>[] => [
   moreColumn,
   RecordTable.checkboxColumn as ColumnDef<T>,
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Дугаар" />,
+    header: () => <RecordTable.InlineHead label={t('number')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -82,7 +84,7 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -91,23 +93,27 @@ export const getSharedRowColumns = <T,>(
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Төрөл" />,
+    header: () => <RecordTable.InlineHead label={t('type')} />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {t(cell.getValue<string>() || '')}
+      </RecordTableInlineCell>
     ),
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
+    header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {t(cell.getValue<string>() || '')}
+      </RecordTableInlineCell>
     ),
   },
   {
     id: 'percent',
     accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Хувь" />,
+    header: () => <RecordTable.InlineHead label={t('Percent')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),

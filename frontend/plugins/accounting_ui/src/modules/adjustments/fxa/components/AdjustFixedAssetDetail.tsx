@@ -86,7 +86,7 @@ export const AdjustFixedAssetDetail = () => {
         <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">{t('status')}:</span>
-            <span className="text-primary font-bold">{status}</span>
+            <span className="text-primary font-bold">{t(status)}</span>
           </div>
           {adjustFixedAsset.error && (
             <span className="text-sm text-destructive">
@@ -120,7 +120,7 @@ export const AdjustFixedAssetDetail = () => {
         </div>
       </div>
       <RecordTable.Provider
-        columns={adjustFxaDetailColumns}
+        columns={adjustFxaDetailColumns(t)}
         data={adjustFxaDetails}
         stickyColumns={[]}
         tableId="accounting_adjust_fixed_asset_detail_record_table"

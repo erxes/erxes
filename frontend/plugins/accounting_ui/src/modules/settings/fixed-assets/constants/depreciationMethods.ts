@@ -9,22 +9,22 @@ export const FIXED_ASSET_DEPRECIATION_METHOD_VALUES = [
 export const FIXED_ASSET_DEPRECIATION_METHODS = [
   {
     value: FIXED_ASSET_DEPRECIATION_METHOD_VALUES[0],
-    label: 'Шулуун шугамын арга',
+    label: 'straight-line-method',
   },
   {
     value: FIXED_ASSET_DEPRECIATION_METHOD_VALUES[1],
-    label: 'Жилийн нийлбэрийн арга',
+    label: 'sum-of-the-years-digits-method',
   },
   {
     value: FIXED_ASSET_DEPRECIATION_METHOD_VALUES[2],
-    label: 'Давхар буурах үлдэгдлийн арга',
+    label: 'double-declining-balance-method',
   },
   {
     value: FIXED_ASSET_DEPRECIATION_METHOD_VALUES[3],
-    label: 'Үлдэгдэл бууруулах арга',
+    label: 'declining-balance-method',
   },
   {
     value: FIXED_ASSET_DEPRECIATION_METHOD_VALUES[4],
-    label: 'Дурын дүнгээр',
+    label: 'custom-amount',
   },
 ] as const;

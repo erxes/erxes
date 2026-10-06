@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+import { getI18n, useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import {
@@ -26,7 +28,7 @@ type TFxaRemainderRow = IFixedAssetLocationRemainder & {
   categoryId?: string;
 };
 
-const GENERAL_LABEL = 'Ерөнхий';
+const GENERAL_LABEL = 'general';
 
 const formatCount = (value?: number) =>
   (value || 0).toLocaleString(undefined, { maximumFractionDigits: 4 });
@@ -39,12 +41,12 @@ const joinCategoryLabel = (category?: IFixedAssetCategory) =>
 
 const joinLocationLabel = (id?: string, object?: TLabelItem) => {
   if (!id) {
-    return GENERAL_LABEL;
+    return getI18n().t(GENERAL_LABEL, { ns: 'accounting' });
   }
 
   const label = [object?.code, object?.title].filter(Boolean).join(' - ');
 
-  return label || 'Олдоогүй';
+  return label || getI18n().t('not-found', { ns: 'accounting' });
 };
 
 const getFxaRemainderColumns = ({
@@ -52,16 +54,18 @@ const getFxaRemainderColumns = ({
   categoriesById,
   departmentsById,
   fixedAssetsById,
+  t,
 }: {
   branchesById: Record<string, TLabelItem>;
   categoriesById: Record<string, IFixedAssetCategory>;
   departmentsById: Record<string, TLabelItem>;
   fixedAssetsById: Record<string, IFixedAsset>;
+  t: TFunction<'accounting'>;
 }): ColumnDef<TFxaRemainderRow>[] => [
   {
     id: 'fixedAssetId',
     accessorKey: 'fixedAssetId',
-    header: () => <RecordTable.InlineHead label="Үндсэн хөрөнгө" />,
+    header: () => <RecordTable.InlineHead label={t('fixed-assets')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -78,7 +82,7 @@ const getFxaRemainderColumns = ({
   {
     id: 'categoryId',
     accessorKey: 'categoryId',
-    header: () => <RecordTable.InlineHead label="Бүлэг" />,
+    header: () => <RecordTable.InlineHead label={t('category-label')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -95,7 +99,7 @@ const getFxaRemainderColumns = ({
   {
     id: 'branchId',
     accessorKey: 'branchId',
-    header: () => <RecordTable.InlineHead label="Салбар" />,
+    header: () => <RecordTable.InlineHead label={t('branch')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -113,7 +117,7 @@ const getFxaRemainderColumns = ({
   {
     id: 'departmentId',
     accessorKey: 'departmentId',
-    header: () => <RecordTable.InlineHead label="Хэлтэс" />,
+    header: () => <RecordTable.InlineHead label={t('department')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -131,7 +135,7 @@ const getFxaRemainderColumns = ({
   {
     id: 'remainder',
     accessorKey: 'remainder',
-    header: () => <RecordTable.InlineHead label="Үлдэгдэл" />,
+    header: () => <RecordTable.InlineHead label={t('remainder')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {formatCount(row.original.remainder)}
@@ -164,6 +168,7 @@ const FxaRemaindersSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const FxaRemaindersTable = () => {
+  const { t } = useTranslation('accounting');
   const { fixedAssetRemainders, loading } = useFixedAssetRemainders();
   const fixedAssetIds = [
     ...new Set(
@@ -261,8 +266,9 @@ export const FxaRemaindersTable = () => {
         categoriesById,
         departmentsById,
         fixedAssetsById,
+        t,
       }),
-    [branchesById, categoriesById, departmentsById, fixedAssetsById],
+    [branchesById, categoriesById, departmentsById, fixedAssetsById, t],
   );
   const isInitialLoading =
     loading ||
@@ -291,7 +297,7 @@ export const FxaRemaindersTable = () => {
                   colSpan={columns.length}
                   className="text-center text-muted-foreground"
                 >
-                  Үлдэгдэл олдсонгүй.
+                  {t('no-balance-found')}
                 </Table.Cell>
               </Table.Row>
             )}

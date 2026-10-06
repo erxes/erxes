@@ -1,14 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import { RecordTable } from 'erxes-ui';
 import { useAdjustFixedAssets } from '../hooks/useAdjustFixedAssets';
 import { adjustFixedAssetTableColumns } from './AdjustFixedAssetTableColumns';
 
 export const AdjustFixedAssetTable = () => {
+  const { t } = useTranslation('accounting');
   const { adjustFixedAssets, loading, totalCount, handleFetchMore } =
     useAdjustFixedAssets();
 
   return (
     <RecordTable.Provider
-      columns={adjustFixedAssetTableColumns}
+      columns={adjustFixedAssetTableColumns(t)}
       data={adjustFixedAssets}
       stickyColumns={[]}
       className="m-3"

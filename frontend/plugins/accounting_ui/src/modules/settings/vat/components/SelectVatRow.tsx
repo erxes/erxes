@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
 import { Combobox, Command, Popover, TextOverflowTooltip } from 'erxes-ui';
 import { useVatRows } from '../hooks/useVatRows';
@@ -45,6 +46,7 @@ export const SelectVatList = ({
   selectedVat: IVatRow | undefined;
   setSelectedVat: (vatRow: IVatRow) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const [searchValue, setSearchValue] = useState('');
   const { vatRows, totalCount, loading, error, handleFetchMore } = useVatRows({
     variables: {
@@ -55,7 +57,7 @@ export const SelectVatList = ({
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="НӨАТ хайх"
+        placeholder={t('search-vat')}
         value={searchValue}
         onValueChange={(value) => setSearchValue(value)}
       />
@@ -90,6 +92,7 @@ export const SelectVatValue = ({
   vatRow?: IVatRow;
   onCallback?: (row: IVatRow) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { vatRowDetail, loading } = useVatValue({
     variables: {
       id: vatRowId,
@@ -107,7 +110,7 @@ export const SelectVatValue = ({
   }, [lastVatRow, loading]);
 
   if (!lastVatRow?._id) {
-    return <Combobox.Value placeholder="НӨАТ сонгох" loading={loading} />;
+    return <Combobox.Value placeholder={t('select-vat')} loading={loading} />;
   }
 
   return (

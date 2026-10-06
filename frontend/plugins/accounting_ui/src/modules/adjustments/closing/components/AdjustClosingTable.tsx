@@ -13,7 +13,7 @@ export const AdjustClosingTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsAdjustClosingLeadSessionKey();
 
-  const { t } = useTranslation('Adjust', { keyPrefix: 'Closing' });
+  const { t } = useTranslation('accounting');
 
   const columns = useMemo(() => adjustClosingTableColumns(t), [t]);
 

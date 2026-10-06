@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { FieldErrors, UseFormReturn } from 'react-hook-form';
 import {
   Button,
@@ -50,6 +51,7 @@ export const FixedAssetForm = ({
   handleSubmit: (data: TFixedAssetForm) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const { fixedAssetCategories } = useFixedAssetCategories();
 
   const getDepreciationMethod = (value?: string) =>
@@ -98,24 +100,24 @@ export const FixedAssetForm = ({
 
   const handleInvalid = (errors: FieldErrors<TFixedAssetForm>) => {
     const fieldLabels: Partial<Record<keyof TFixedAssetForm, string>> = {
-      name: 'Нэр',
-      code: 'Код',
-      categoryId: 'Бүлэг',
-      depreciationMethod: 'Элэгдлийн арга',
-      usefulLife: 'Ашиглах хугацаа',
-      annualDepreciationRate: 'Жилд элэгдэх хувь',
-      salvageValue: 'Үлдэх өртөг',
-      taxDepreciationMethod: 'Татварын элэгдлийн арга',
-      taxUsefulLife: 'Татварын ашиглах хугацаа',
-      taxSalvageValue: 'Татварын үлдэх өртөг',
+      name: t('name'),
+      code: t('code'),
+      categoryId: t('category-label'),
+      depreciationMethod: t('depreciation-method'),
+      usefulLife: t('useful-life'),
+      annualDepreciationRate: t('annual-depreciation-rate'),
+      salvageValue: t('residual-value'),
+      taxDepreciationMethod: t('tax-depreciation-method'),
+      taxUsefulLife: t('tax-useful-life'),
+      taxSalvageValue: t('tax-residual-value'),
     };
     const invalidFields = Object.keys(errors).map(
       (field) => fieldLabels[field as keyof TFixedAssetForm] || field,
     );
 
     toast({
-      title: 'Мэдээлэл дутуу байна',
-      description: `Шалгах талбар: ${invalidFields.join(', ')}`,
+      title: t('required-information-is-missing'),
+      description: t('fields-to-check', { fields: invalidFields.join(', ') }),
       variant: 'destructive',
     });
   };
@@ -133,7 +135,7 @@ export const FixedAssetForm = ({
               name="categoryId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Бүлэг</Form.Label>
+                  <Form.Label>{t('category-label')}</Form.Label>
                   <SelectFixedAssetCategory
                     selected={field.value}
                     onSelect={(categoryId) => {
@@ -150,7 +152,7 @@ export const FixedAssetForm = ({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Код</Form.Label>
+                  <Form.Label>{t('code')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -163,7 +165,7 @@ export const FixedAssetForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Нэр</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -176,16 +178,18 @@ export const FixedAssetForm = ({
               name="depreciationMethod"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Элэгдлийн арга</Form.Label>
+                  <Form.Label>{t('depreciation-method')}</Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
-                        <Select.Value placeholder="Элэгдлийн арга сонгох" />
+                        <Select.Value
+                          placeholder={t('select-depreciation-method')}
+                        />
                       </Select.Trigger>
                       <Select.Content>
                         {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
                           <Select.Item key={method.value} value={method.value}>
-                            {method.label}
+                            {t(method.label || '', { nsSeparator: false })}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -200,7 +204,7 @@ export const FixedAssetForm = ({
               name="usefulLife"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Ашиглах жил</Form.Label>
+                  <Form.Label>{t('useful-life-in-years')}</Form.Label>
                   <Form.Control>
                     <NumberInput
                       field={{
@@ -225,7 +229,7 @@ export const FixedAssetForm = ({
               name="annualDepreciationRate"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Жилд элэгдэх хувь</Form.Label>
+                  <Form.Label>{t('annual-depreciation-rate')}</Form.Label>
                   <Form.Control>
                     <NumberInput
                       field={{
@@ -250,7 +254,7 @@ export const FixedAssetForm = ({
               name="salvageValue"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Үлдэх өртөг</Form.Label>
+                  <Form.Label>{t('residual-value')}</Form.Label>
                   <Form.Control>
                     <NumberInput field={field} />
                   </Form.Control>
@@ -263,16 +267,18 @@ export const FixedAssetForm = ({
               name="taxDepreciationMethod"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Татварын элэгдлийн арга</Form.Label>
+                  <Form.Label>{t('tax-depreciation-method')}</Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
-                        <Select.Value placeholder="Татварын элэгдлийн арга сонгох" />
+                        <Select.Value
+                          placeholder={t('select-tax-depreciation-method')}
+                        />
                       </Select.Trigger>
                       <Select.Content>
                         {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
                           <Select.Item key={method.value} value={method.value}>
-                            {method.label}
+                            {t(method.label || '', { nsSeparator: false })}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -287,7 +293,7 @@ export const FixedAssetForm = ({
               name="taxUsefulLife"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Татварын ашиглах хугацаа</Form.Label>
+                  <Form.Label>{t('tax-useful-life')}</Form.Label>
                   <Form.Control>
                     <NumberInput field={field} />
                   </Form.Control>
@@ -300,7 +306,7 @@ export const FixedAssetForm = ({
               name="taxSalvageValue"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Татварын үлдэх өртөг</Form.Label>
+                  <Form.Label>{t('tax-residual-value')}</Form.Label>
                   <Form.Control>
                     <NumberInput field={field} />
                   </Form.Control>
@@ -313,7 +319,7 @@ export const FixedAssetForm = ({
               name="description"
               render={({ field }) => (
                 <Form.Item className="col-span-1 md:col-span-3">
-                  <Form.Label>Тайлбар</Form.Label>
+                  <Form.Label>{t('description')}</Form.Label>
                   <Form.Control>
                     <Textarea {...field} />
                   </Form.Control>
@@ -326,12 +332,12 @@ export const FixedAssetForm = ({
         <Sheet.Footer className="shrink-0 border-t bg-background">
           <Sheet.Close asChild>
             <Button variant="outline" type="button" size="lg">
-              Болих
+              {t('cancel-label')}
             </Button>
           </Sheet.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Хадгалах
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

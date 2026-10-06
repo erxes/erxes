@@ -1,4 +1,11 @@
-import { Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import { IconBox, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
 import { PRODUCT_TYPES } from 'ui-modules/modules/products/constants/productTypes';
@@ -33,7 +40,7 @@ export function SelectProductTypeFilterView() {
                 resetFilterState();
               }}
             >
-              {pt.label}
+              {t(pt.label || '', { nsSeparator: false })}
               {type === pt.value && <IconCheck size={14} />}
             </Command.Item>
           ))}
@@ -61,7 +68,9 @@ export function SelectProductTypeFilterBar() {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="type">
-            {selected?.label ?? <Combobox.Value placeholder={t('select-type')} />}
+            {t(selected?.label || '', { nsSeparator: false }) ?? (
+              <Combobox.Value placeholder={t('select-type')} />
+            )}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -77,7 +86,7 @@ export function SelectProductTypeFilterBar() {
                     setOpen(false);
                   }}
                 >
-                  {pt.label}
+                  {t(pt.label || '', { nsSeparator: false })}
                   {type === pt.value && <IconCheck size={14} />}
                 </Command.Item>
               ))}

@@ -127,7 +127,7 @@ export const exportJournalReportExcel = async (
 ) => {
   const table = container.querySelector('table[data-slot="table"]');
   if (!(table instanceof HTMLTableElement)) {
-    throw new Error('Тайлангийн хүснэгт олдсонгүй');
+    throw new Error('report-table-not-found');
   }
 
   const rows = extractTableRows(table);
@@ -136,7 +136,7 @@ export const exportJournalReportExcel = async (
       row.some((cell) => !cell.isHeader && !cell.isTotal && cell.value !== ''),
     )
   ) {
-    throw new Error('Татах тайлангийн мэдээлэл алга');
+    throw new Error('no-report-data-available-to-download');
   }
 
   const workbook = new ExcelJS.Workbook();

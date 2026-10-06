@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   DatePicker,
@@ -19,6 +20,7 @@ import { useAdjustClosingDetail } from '../hooks/useAdjustClosingDetail';
 import { useEffect } from 'react';
 
 export const EditAdjustClosingSheet = () => {
+  const { t } = useTranslation('accounting');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const adjustClosingId = searchParams.get('adjustClosingId');
@@ -39,7 +41,7 @@ export const EditAdjustClosingSheet = () => {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <Sheet.View title="Edit Closing Adjustment">
+      <Sheet.View title={t('Edit Closing Adjustment')}>
         {!loading && adjustClosingDetail ? (
           <EditAdjustClosingForm
             detail={adjustClosingDetail}
@@ -58,6 +60,7 @@ export const EditAdjustClosingForm = ({
   detail: IAdjustClosingDetail;
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const form = useForm<TAdjustClosingForm>({
     resolver: zodResolver(adjustClosingSchema),
     defaultValues: {
@@ -107,7 +110,7 @@ export const EditAdjustClosingForm = ({
         className="p-6 flex-auto overflow-auto"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h3 className="text-lg font-bold">Edit Adjust Inventory</h3>
+        <h3 className="text-lg font-bold">{t('Edit Adjust Inventory')}</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Field
@@ -115,7 +118,7 @@ export const EditAdjustClosingForm = ({
             name="date"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Date</Form.Label>
+                <Form.Label>{t('date')}</Form.Label>
                 <Form.Control>
                   <DatePicker
                     value={field.value}
@@ -133,7 +136,7 @@ export const EditAdjustClosingForm = ({
             name="beginDate"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Begin date</Form.Label>
+                <Form.Label>{t('Begin date')}</Form.Label>
                 <Form.Control>
                   <DatePicker
                     value={field.value ?? undefined}
@@ -151,11 +154,11 @@ export const EditAdjustClosingForm = ({
             name="integrateAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Integrate account</Form.Label>
+                <Form.Label>{t('Integrate account')}</Form.Label>
                 <SelectAccountFormItem
                   value={field.value ?? undefined}
                   onValueChange={field.onChange}
-                  placeholder="Integrate account ID"
+                  placeholder={t('Integrate account ID')}
                 />
                 <Form.Message />
               </Form.Item>
@@ -167,12 +170,12 @@ export const EditAdjustClosingForm = ({
             name="periodGLAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Period GL account</Form.Label>
+                <Form.Label>{t('Period GL account')}</Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Period GL account ID"
+                    placeholder={t('Period GL account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -185,12 +188,12 @@ export const EditAdjustClosingForm = ({
             name="earningAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Earning account</Form.Label>
+                <Form.Label>{t('Earning account')}</Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Earning account ID"
+                    placeholder={t('Earning account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -203,12 +206,12 @@ export const EditAdjustClosingForm = ({
             name="taxPayableAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Tax payable account</Form.Label>
+                <Form.Label>{t('Tax payable account')}</Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Tax Payable account ID"
+                    placeholder={t('Tax Payable account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -222,9 +225,9 @@ export const EditAdjustClosingForm = ({
           name="description"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description')}</Form.Label>
               <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
+                <Textarea placeholder={t('enter-description')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -237,12 +240,12 @@ export const EditAdjustClosingForm = ({
             name="accountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Account</Form.Label>
+                <Form.Label>{t('account')}</Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder=" Account ID"
+                    placeholder={t('Account ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -255,11 +258,11 @@ export const EditAdjustClosingForm = ({
             name="balance"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Balance</Form.Label>
+                <Form.Label>{t('Balance')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="number"
-                    placeholder="Balance"
+                    placeholder={t('Balance')}
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -274,11 +277,11 @@ export const EditAdjustClosingForm = ({
             name="percent"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Percent</Form.Label>
+                <Form.Label>{t('Percent')}</Form.Label>
                 <Form.Control>
                   <Input
                     type="number"
-                    placeholder="Percent"
+                    placeholder={t('Percent')}
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -293,12 +296,12 @@ export const EditAdjustClosingForm = ({
             name="mainAccTrId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Main Transaction</Form.Label>
+                <Form.Label>{t('Main Transaction')}</Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Main Transaction ID"
+                    placeholder={t('Main Transaction ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -311,12 +314,12 @@ export const EditAdjustClosingForm = ({
             name="integrateTrId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Integrate Transaction</Form.Label>
+                <Form.Label>{t('Integrate Transaction')}</Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder="Integrate Transaction ID"
+                    placeholder={t('Integrate Transaction ID')}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -332,12 +335,12 @@ export const EditAdjustClosingForm = ({
             size="lg"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
 
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </div>
       </form>

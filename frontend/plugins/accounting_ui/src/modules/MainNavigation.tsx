@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconClipboardTextFilled,
   IconCrane,
@@ -14,6 +15,7 @@ import {
 } from './transactions/types/constants';
 
 function RenderJournals() {
+  const { t } = useTranslation('accounting');
   const path = 'accounting/records';
   const { pathname } = useLocation();
   const [journal, setJournal] = useQueryState<string>('journal');
@@ -41,7 +43,7 @@ function RenderJournals() {
                   )}
                 />
                 <span className="capitalize">
-                  {TR_JOURNAL_LABELS[trJournal]}
+                  {t(TR_JOURNAL_LABELS[trJournal] || '')}
                 </span>
               </div>
             </Sidebar.MenuButton>
@@ -53,35 +55,36 @@ function RenderJournals() {
 }
 
 export const MainNavigation = () => {
+  const { t } = useTranslation('accounting');
   return (
     <>
       <NavigationMenuLinkItem
-        name="Баримтууд"
+        name={t('receipts')}
         icon={IconListDetails}
         path="main"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Журнал бичилт"
+        name={t('journal-entries')}
         icon={IconListCheck}
         path="records"
         pathPrefix="accounting"
       />
       <RenderJournals />
       <NavigationMenuLinkItem
-        name="Бүрэн бус баримтууд"
+        name={t('incomplete-vouchers')}
         icon={IconCrane}
         path="odd-transactions"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Тайлан"
+        name={t('report')}
         icon={IconClipboardTextFilled}
         path="journal-reports"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Мэдээ таталт"
+        name={t('check-sync')}
         icon={IconRefreshAlert}
         path="check-sync"
         pathPrefix="accounting"
