@@ -29,16 +29,27 @@ const MESSENGER_CONTAINER_ID = 'erxes-messenger-container';
 const MESSENGER_SCRIPT_ID = 'erxes-messenger-bundle-script';
 const MESSENGER_IFRAME_ID = 'erxes-messenger-iframe';
 
-const getSupportMessengerConfig = () => ({
-  integrationId:
-    window.env?.REACT_APP_SUPPORT_MESSENGER_INTEGRATION_ID ??
-    process.env.REACT_APP_SUPPORT_MESSENGER_INTEGRATION_ID ??
-    '9S6seo9wawN6cou8v',
-  widgetsUrl:
-    window.env?.REACT_APP_WIDGETS_URL ??
-    process.env.REACT_APP_WIDGETS_URL ??
-    'https://w.officenext.erxes.io',
-});
+const DEFAULT_SUPPORT_INTEGRATION_ID = '9S6seo9wawN6cou8v';
+const DEFAULT_WIDGETS_URL = 'https://w.officenext.erxes.io';
+
+const getSubdomain = () => window.location.hostname.split('.')[0];
+
+const getSupportMessengerConfig = () => {
+  const domainFormat =
+    window.env?.REACT_APP_WIDGETS_URL ||
+    process.env.REACT_APP_WIDGETS_URL ||
+    DEFAULT_WIDGETS_URL;
+
+  return {
+    integrationId:
+      window.env?.REACT_APP_SUPPORT_MESSENGER_INTEGRATION_ID ||
+      process.env.REACT_APP_SUPPORT_MESSENGER_INTEGRATION_ID ||
+      DEFAULT_SUPPORT_INTEGRATION_ID,
+    widgetsUrl: domainFormat
+      .replace('<subdomain>', getSubdomain())
+      .replace(/\/+$/, ''),
+  };
+};
 
 export const SupportMessenger = () => {
   const currentUser = useAtomValue(currentUserState);
