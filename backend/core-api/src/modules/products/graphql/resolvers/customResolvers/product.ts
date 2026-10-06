@@ -308,4 +308,18 @@ export default {
 
     return uom?.name || uom?.code || '';
   },
+
+  conditionGroup: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!product.conditionGroupId) {
+      return null;
+    }
+
+    return models.ProductConditionGroups.findOne({
+      _id: product.conditionGroupId,
+    }).lean();
+  },
 };

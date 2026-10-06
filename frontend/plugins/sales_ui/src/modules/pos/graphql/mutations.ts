@@ -32,6 +32,7 @@ const commonFields = `
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
   $permissionConfig: JSON
+  $customerCreateConfig: JSON
   $allowTypes: [String]
   $isShowRemainder: Boolean
   $isCheckRemainder: Boolean
@@ -71,6 +72,7 @@ const commonVariables = `
   deliveryConfig: $deliveryConfig,
   cardsConfig: $cardsConfig,
   permissionConfig: $permissionConfig,
+  customerCreateConfig: $customerCreateConfig,
   allowTypes: $allowTypes,
   isShowRemainder: $isShowRemainder,
   isCheckRemainder: $isCheckRemainder,

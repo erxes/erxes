@@ -16,7 +16,8 @@ import {
   PRICING_FIXED_VALUE_ADD,
   PRICING_FIXED_VALUE_EDIT,
 } from '@/pricing/graphql/mutations';
-import { FixedPricingTable } from './FixedPricingTable';
+import { usePricingConditionGroups } from '@/pricing/hooks/usePricingConditionGroups';
+import { FixedPricingTable, IConditionColumn } from './FixedPricingTable';
 
 interface CommonRuleInfoProps {
   pricingId?: string;
@@ -46,6 +47,24 @@ export const CommonRuleInfo = ({
   const client = useApolloClient();
   const [addFixedValue] = useMutation(PRICING_FIXED_VALUE_ADD);
   const [editFixedValue] = useMutation(PRICING_FIXED_VALUE_EDIT);
+  const { conditionGroups } = usePricingConditionGroups();
+
+  // The plan's chosen conditions, in their group's order, become price columns.
+  const planConditionIds = new Set(pricingDetail?.conditionIds || []);
+  const conditionColumns: IConditionColumn[] = conditionGroups.flatMap(
+    (group) =>
+      group.conditions
+        .filter(({ _id }) => planConditionIds.has(_id))
+        .map(({ _id, name }) => ({
+          _id,
+          name,
+          groupId: group._id,
+          groupName: group.name,
+        })),
+  );
+  const groupNames = Object.fromEntries(
+    conditionGroups.map(({ _id, name }) => [_id, name]),
+  );
   const form = useForm<CommonRuleFormValues>({
     defaultValues: {
       discountType: 'fixed',
@@ -96,7 +115,19 @@ export const CommonRuleInfo = ({
       if (values.discountType === 'fixed') {
         await Promise.all(
           values.fixedValues
-            .filter((fv) => fv.newPrice !== fv.unitPrice)
+            .map((fv) => ({
+              ...fv,
+              conditionPrices: Object.entries(fv.conditionPriceMap || {})
+                .filter((entry): entry is [string, number] => entry[1] != null)
+                .map(([conditionId, price]) => ({ conditionId, price })),
+            }))
+            // A saved row may need its condition cells cleared, so it always goes.
+            .filter(
+              (fv) =>
+                fv._id ||
+                fv.newPrice !== fv.unitPrice ||
+                fv.conditionPrices.length,
+            )
             .map((fv) => {
               const doc = {
                 productId: fv.productId,
@@ -104,6 +135,7 @@ export const CommonRuleInfo = ({
                 uom: fv.uom,
                 unitPrice: fv.unitPrice,
                 newPrice: fv.newPrice,
+                conditionPrices: fv.conditionPrices,
               };
               if (fv._id) {
                 return editFixedValue({ variables: { id: fv._id, doc } });
@@ -281,6 +313,8 @@ export const CommonRuleInfo = ({
           <FixedPricingTable
             control={form.control}
             pricingId={pricingId}
+            conditionColumns={conditionColumns}
+            groupNames={groupNames}
             onSave={form.handleSubmit(handleSubmit)}
           />
         )}

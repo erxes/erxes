@@ -104,7 +104,13 @@ export const ProductDetailSheet = () => {
         }))
       : data.subUoms;
 
-    return { ...data, attachment, attachmentMore, subUoms };
+    return {
+      ...data,
+      attachment,
+      attachmentMore,
+      subUoms,
+      conditionGroupId: data.conditionGroupId || null,
+    };
   };
 
   const handleSave = (data: ProductFormValues) => {

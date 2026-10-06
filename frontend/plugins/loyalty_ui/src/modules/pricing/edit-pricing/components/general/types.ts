@@ -20,6 +20,7 @@ export interface GeneralFormValues {
   appliesProductIds: string[];
   segmentId: string | null;
   vendorCompanyIds: string[];
+  conditionIds: string[];
   productTagIds: string[];
   excludeTagIds: string[];
   bundleProductIds: string[];

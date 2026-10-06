@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/tooltip"
 import Uploader from "@/components/ui/uploader"
 
+import { LoyaltyDiscountBadge } from "@/modules/customer/components/LoyaltyDiscountBadge"
 import CartItemStatus from "./cartItemStatus"
 
 const CartItem = ({
@@ -39,6 +40,7 @@ const CartItem = ({
   attachment,
   idx,
   productId,
+  discountInfos,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
   const banFractions = useAtomValue(banFractionsAtom)
@@ -113,6 +115,10 @@ const CartItem = ({
                 unitPrice={unitPrice}
                 productId={productId}
                 className="ml-2 text-xs"
+              />
+              <LoyaltyDiscountBadge
+                productId={productId}
+                discountInfos={discountInfos}
               />
             </div>
           </div>

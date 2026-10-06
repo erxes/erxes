@@ -85,6 +85,7 @@ export interface IPricingPlanDetail {
   categoriesExcluded?: string[];
   segments?: string[];
   vendors?: string[];
+  conditionIds?: string[];
   tags?: string[];
   tagsExcluded?: string[];
 
@@ -167,6 +168,9 @@ export interface IPricingFixedValue {
   uom: string;
   unitPrice: number;
   newPrice: number;
+  // Fixed price per product condition, used instead of newPrice (form: conditionPriceMap).
+  conditionPrices?: { conditionId: string; price: number }[];
+  conditionPriceMap?: Record<string, number | null>;
   createdBy?: string;
   updatedBy?: string;
   createdAt?: string;

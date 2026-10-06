@@ -41,6 +41,10 @@ export function useProductFieldTypes() {
       label: t('product-rule'),
     },
     {
+      value: ProductsPath.ConditionGroups,
+      label: t('condition-groups', 'Condition groups'),
+    },
+    {
       value: ProductsPath.Packages,
       label: t('packages', 'Packages'),
     },

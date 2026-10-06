@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -34,6 +34,9 @@
 
 - POS configuration exposes `isShowRemainder` for remainder display separately
   from `isCheckRemainder` and validation category exclusions.
+- POS configuration stores `customerCreateConfig` (`enabled`,
+  `assignCashierAsOwner`, `layout`) for POS client customer registration and
+  syncs it to POS client.
 
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
@@ -168,11 +171,16 @@
   `discountInfos`, `totalAmount`, `unUsedTotalAmount`, `bothTotalAmount`,
   `mobileAmount`, `mobileAmounts`, and `paymentsData`.
 - Pipeline documents store validated Core deal field ids in `propertyIds`.
+- POS `customerCreateConfig.layout` rows hold customer system field codes from
+  `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
 
 - Preserve tenant isolation through the request `subdomain` for every model and
   service access.
+- `posAdd`/`posEdit` reject an enabled `customerCreateConfig` whose layout lacks
+  both `primaryEmail` and `primaryPhone` or places an unknown code
+  (`validateCustomerCreateConfig`).
 - Cross-service access must use published GraphQL, tRPC, HTTP, event, or
   federation contracts.
 - Deal stage-list indexes must retain cursor ordering and keep the common

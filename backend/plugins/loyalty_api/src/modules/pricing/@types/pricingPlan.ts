@@ -25,6 +25,7 @@ export interface IPricingPlan {
   categoriesExcluded?: string[];
   segments?: string[];
   vendors?: string[];
+  conditionIds?: string[];
   tags?: string[];
   tagsExcluded?: string[];
 

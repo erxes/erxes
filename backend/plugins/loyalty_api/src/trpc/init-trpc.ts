@@ -13,6 +13,7 @@ import {
   calculatePriceAdjust,
 } from '~/modules/pricing/utils/rule';
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
+import { getOwnerSummary } from '~/utils/ownerSummary';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
@@ -41,6 +42,13 @@ const checkLoyaltiesInput = z.object({
     .transform((value) => value || ''),
   products: z.array(productSchema),
   discountInfo: discountInfoSchema,
+});
+
+const ownerSummaryInput = z.object({
+  ownerType: z.enum(['customer', 'company', 'user']),
+  ownerId: z.string().min(1),
+  // The sale's total, so reward vouchers can be checked against it.
+  totalAmount: z.number().min(0).optional(),
 });
 
 const confirmLoyaltiesInput = z.object({
@@ -74,6 +82,7 @@ const pricingProductSchema = z.object({
   price: z.number().nonnegative().optional(),
   quantity: z.number().int().positive(),
   manufacturedDate: z.string().nullish(),
+  conditionId: z.string().nullish(),
 });
 
 const participantKindSchema = z.preprocess(
@@ -181,6 +190,13 @@ export const appRouter = t.router({
         );
       }),
 
+    // Balances, tiers and sale vouchers for the owner a selling screen serves.
+    ownerSummary: t.procedure
+      .input(ownerSummaryInput)
+      .query(async ({ ctx, input }) =>
+        getOwnerSummary(ctx.models, ctx.subdomain, input),
+      ),
+
     confirmLoyalties: t.procedure
       .input(confirmLoyaltiesInput)
       .mutation(async ({ ctx, input }) => {
@@ -238,6 +254,7 @@ export const appRouter = t.router({
           price: p.unitPrice ?? p.price ?? 0,
           quantity: p.quantity,
           manufacturedDate: p.manufacturedDate || new Date().toISOString(),
+          conditionId: p.conditionId || undefined,
         }));
 
         return await checkPricing({

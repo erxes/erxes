@@ -124,7 +124,16 @@ const calculateDefaultDiscount = async (
       return 0;
     }
 
-    const discount = item.price - fixedValue.newPrice;
+    // A line sold under one of the plan's conditions takes that column's price.
+    const conditionPrice =
+      item.conditionId && plan.conditionIds?.includes(item.conditionId)
+        ? fixedValue.conditionPrices?.find(
+            ({ conditionId }) => conditionId === item.conditionId,
+          )?.price
+        : undefined;
+    const newPrice = conditionPrice ?? fixedValue.newPrice;
+
+    const discount = item.price - newPrice;
     return calculatePriceAdjust(
       item.price,
       discount,

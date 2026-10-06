@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -27,6 +27,7 @@
 - Pricing detail forms edit general targeting, options, participants, price,
   quantity, repeat, expiry, and rules sections.
 - Pricing general edit forms allow selected start and end dates to be cleared.
+- The pricing General tab picks product conditions (`GeneralConditionField`, grouped checkboxes from core `productConditionGroups` via `pricingProductConditionGroups`) into `conditionIds`. For a fixed plan each picked condition becomes a column after New price in `FixedPricingTable`: that condition's fixed price (empty = New price), editable only on products whose `conditionGroupId` owns that condition (others show an N/A badge whose popover can give the product that group in place through core `productsSetConditionGroup`, refetching `PricingFixedValuesPage`; the form-reset key ignores `conditionGroupId` so unsaved edits survive). The form keeps `conditionPriceMap` per row and `CommonRuleInfo` saves it as `conditionPrices`; saved rows are always resent so cleared cells clear.
 - Pricing priority selection includes none, public, POS base, and scoped base pricing; POS-base and scoped-base plans hide participant targeting.
 - Options detail supports branch, department, board, and pipeline selection.
 - Board and pipeline selectors can clear an existing selection; clearing a board
@@ -86,6 +87,8 @@
   the list and page through `page`/`perPage`.
 
 ### Consumes
+
+- Core `productConditionGroups` (product condition groups owned by core products).
 
 - Public components and hooks from `erxes-ui` and `ui-modules`.
 - Sales board, pipeline, and stage GraphQL queries exposed through platform

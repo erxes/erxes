@@ -64,6 +64,7 @@ export const types = `
     categoriesExcluded: [String],
     segments: [String],
     vendors: [String],
+    conditionIds: [String],
     tags: [String],
     tagsExcluded: [String],
 
@@ -131,6 +132,11 @@ export const types = `
    fixedValues: [PricingFixedValue]    
      
   }
+     type PricingConditionPrice {
+      conditionId: String!
+      price: Float!
+    }
+
      type PricingFixedValue {
       _id: String
       pricingPlanId: String
@@ -139,6 +145,7 @@ export const types = `
       uom: String
       unitPrice: Float
       newPrice: Float
+      conditionPrices: [PricingConditionPrice]
       createdBy: String
       updatedBy: String
       createdAt: Date
@@ -153,6 +160,8 @@ export const types = `
       uom: String
       unitPrice: Float
       newPrice: Float
+      conditionGroupId: String
+      conditionPrices: [PricingConditionPrice]
       status: String
     }
 
@@ -225,6 +234,7 @@ export const types = `
     categoriesExcluded: [String],
     segments: [String],
     vendors: [String],
+    conditionIds: [String],
     tags: [String],
     tagsExcluded: [String],
 
@@ -301,6 +311,7 @@ export const types = `
     categoriesExcluded: [String],
     segments: [String],
     vendors: [String],
+    conditionIds: [String],
     tags: [String],
     tagsExcluded: [String],
 
@@ -357,12 +368,18 @@ export const types = `
     repeatRules: [RepeatRuleInput],
   }
 
+  input PricingConditionPriceInput {
+      conditionId: String!
+      price: Float!
+    }
+
   input PricingFixedValueInput {
       productId: String
       sortField: String
       uom: String
       unitPrice: Float
       newPrice: Float
+      conditionPrices: [PricingConditionPriceInput]
     }
 
   input PricingCheckProduct {

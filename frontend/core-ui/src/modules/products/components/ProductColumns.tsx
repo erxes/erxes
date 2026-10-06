@@ -2,6 +2,7 @@ import {
   IconCategory,
   IconCurrencyDollar,
   IconHash,
+  IconListDetails,
   IconLabel,
   IconUser,
   IconShoppingCart,
@@ -197,6 +198,24 @@ export const productColumns: (
         />
       );
     },
+    size: 200,
+  },
+  {
+    id: 'conditionGroup',
+    accessorKey: 'conditionGroup',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconListDetails}
+        label={t('condition-group')}
+      />
+    ),
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={cell.row.original.conditionGroup?.name || ''}
+        />
+      </RecordTableInlineCell>
+    ),
     size: 200,
   },
 ];

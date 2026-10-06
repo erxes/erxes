@@ -50,6 +50,12 @@ const ProductsBundleRulePage = lazy(() =>
   })),
 );
 
+const ProductsConditionGroupPage = lazy(() =>
+  import('~/pages/products/ProductsConditionGroupPage').then((module) => ({
+    default: module.ProductsConditionGroupPage,
+  })),
+);
+
 const ProductsProductRulePage = lazy(() =>
   import('~/pages/products/ProductsProductRulePage').then((module) => ({
     default: module.ProductsProductRulePage,
@@ -81,6 +87,10 @@ export const ProductsSettingRoutes = () => {
         />
         <Route path="bundle-rule" element={<ProductsBundleRulePage />} />
         <Route path="product-rule" element={<ProductsProductRulePage />} />
+        <Route
+          path="condition-groups"
+          element={<ProductsConditionGroupPage />}
+        />
         <Route path="packages" element={<ProductsPackagePage />} />
       </Routes>
       <ProductsPageEffect />

@@ -61,6 +61,10 @@ const productsMain = gql`
           _id
           primaryName
         }
+        conditionGroup {
+          _id
+          name
+        }
       }
       ${GQL_PAGE_INFO}
     }

@@ -28,6 +28,8 @@ export interface IProduct {
   currency: CurrencyCode;
   remainder: any;
   status?: 'active' | 'deleted';
+  conditionGroupId?: string | null;
+  conditionGroup?: { _id: string; name: string } | null;
 }
 export interface IBundleRuleItem {
   code: string;

@@ -60,6 +60,13 @@ interface ICatProd {
   productId: string;
 }
 
+export interface IPosCustomerCreateConfig {
+  enabled: boolean;
+  assignCashierAsOwner?: boolean;
+  // Rows of system field codes and 'property:<fieldId>' entries.
+  layout: string[][];
+}
+
 export interface IConfig {
   name: string;
   description?: string;
@@ -94,6 +101,7 @@ export interface IConfig {
   departmentId?: string;
   allowBranchIds?: string[];
   permissionConfig?: any;
+  customerCreateConfig?: IPosCustomerCreateConfig;
   allowTypes: string[];
   isShowRemainder?: boolean;
   isCheckRemainder: boolean;

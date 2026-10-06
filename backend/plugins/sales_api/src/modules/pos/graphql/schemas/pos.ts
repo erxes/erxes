@@ -38,6 +38,7 @@ const posCommonFields = `
   deliveryConfig: JSON
   cardsConfig: JSON
   permissionConfig: JSON
+  customerCreateConfig: JSON
   allowTypes: [String]
   isShowRemainder: Boolean
   isCheckRemainder: Boolean

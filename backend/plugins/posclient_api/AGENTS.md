@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-03`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -27,6 +27,9 @@
   and `isCleanTaxPrice`, in POS client config.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
+- Shows the cashier the order's chosen customer's loyalty: `poscCustomerLoyalty` passes loyalty's `ownerSummary` through (wallets, tiers, sale vouchers); null when loyalty is not running.
+- Lets POS admins, and cashiers with `permissionConfig.cashiers.createCustomer`,
+  register Core customers through the synced `customerCreateConfig` layout.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
 
 ## Architecture
@@ -38,6 +41,7 @@
 | GraphQL schemas  | `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas`                       | Declares POS client GraphQL types and operations.                                                              |
 | Config models    | `backend/plugins/posclient_api/src/modules/posclient/db`                                    | Stores synced POS client configuration and runtime data.                                                       |
 | Discount utils   | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                     |
+| Customer create  | `backend/plugins/posclient_api/src/modules/posclient/utils/customerCreate.ts`               | Resolves the POS customer form, filters input to the layout, validates, and finds duplicates.                  |
 | Sync utilities   | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                   |
 
 ## Contracts
@@ -48,6 +52,13 @@
 - `poscProducts(..., propertiesData: String): [PoscProduct]` and `poscProductsTotalCount(..., propertiesData: String): Int` GraphQL queries.
 - POS client GraphQL and tRPC contracts for order, cover, config, and user flows.
 - `OrderItemInput`, `PosOrderItem`, and stored order items may include `discountInfos: JSON`.
+- `poscCustomerForm: PosCustomerForm` returns `canCreate` and the resolved
+  form `rows` (system fields plus live `core:customer` properties).
+- `poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty` (logged-in POS user).
+- `poscLoyaltyPreview(items, customerId, couponCode, voucherId): [PosLoyaltyPreviewLine]` runs the same `checkLoyalties` an order save runs, without saving, and returns each line's loyalty (`voucher`-type) discount percent so the cashier sees it before ordering.
+- `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order.
+- `poscCustomersAdd(doc: JSON!): PosCustomerAddResult` returns either the
+  created `customer` or an existing `duplicate` (same e-mail, phone, or code).
 
 ### Consumes
 
@@ -55,7 +66,10 @@
   from sales POS configuration.
 - Loyalty `score.checkSpend` validates point payment amounts against the order
   total before payment completion.
-- Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
+- Synced POS config fields including `adminIds`, `cashierIds`, `token`, `permissionConfig`, and `customerCreateConfig`.
+- Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
+- Core tRPC `fields.find`, `customers.findActiveCustomers`, and
+  `customers.createCustomer`.
 - Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
   `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
@@ -80,7 +94,10 @@
   Core inventory balances with display disabled. `saveRemainder` controls
   remainder persistence and the existing hourly sync.
 - POS client report queries must require a logged-in POS user.
+- `checkLoyalties` sends loyalty `undefined`, never `null`, for an unchosen `couponCode`/`voucherId`: loyalty's zod input rejects null and the swallowed error would drop every loyalty discount.
+- `sendTRPCMessage` swallows errors unless `throwOnError` is set; a check whose failure must reach the cashier (like `poscCouponCheck`) passes it.
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
+- `poscCustomersAdd` sends Core only fields placed in `customerCreateConfig.layout`, requires e-mail or phone, and always sets `state: 'customer'`, `createdVia: { source: 'pos', sourceId: posId, sourceName: posName, actorId: posUserId }` (the `schemaWrapper` provenance field; no core change); `ownerId` is the POS user only when `assignCashierAsOwner` is on. No offline queue: Core must be reachable.
 - `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
 - Automatic pricing and loyalty/voucher recalculation must preserve existing `hand` discounts and replace only the matching automatic source entry.
 - POS order item `unitPrice` is stored after discounts; discount base
@@ -94,4 +111,5 @@
   check-only validates Core balances with display disabled; category-excluded
   products bypass validation; enabling `saveRemainder` persists fetched stock.
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
+- POS customer smoke scenario: as a cashier with `createCustomer`, `poscCustomerForm.canCreate` is true; `poscCustomersAdd` with a new phone creates a customer with `createdVia.sourceId` = POS id; repeating it returns `duplicate` instead.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.

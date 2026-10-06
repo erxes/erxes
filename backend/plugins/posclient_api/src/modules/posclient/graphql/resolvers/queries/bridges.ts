@@ -1,5 +1,11 @@
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
+import { checkLoyalties } from '~/modules/posclient/utils/loyalties';
+import {
+  canCreateCustomer,
+  resolveCustomerForm,
+} from '~/modules/posclient/utils/customerCreate';
 
 export interface IListArgs {
   searchValue: string;
@@ -261,6 +267,111 @@ const bridgesQueries = {
       };
     }
     return;
+  },
+
+  // Shown to the cashier only for the customer chosen on the order.
+  async poscCustomerLoyalty(
+    _root,
+    { customerId, totalAmount }: { customerId: string; totalAmount?: number },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'query',
+      module: 'loyalty',
+      action: 'ownerSummary',
+      input: { ownerType: 'customer', ownerId: customerId, totalAmount },
+      defaultValue: null,
+    });
+  },
+
+  // Checked when typed in, so a bad code never sticks to the order; returns the campaign title.
+  async poscCouponCheck(
+    _root,
+    {
+      code,
+      customerId,
+      totalAmount,
+    }: { code: string; customerId?: string; totalAmount?: number },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const campaign = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'query',
+      module: 'coupon',
+      action: 'checkCoupon',
+      input: { code, ownerId: customerId, totalAmount },
+      throwOnError: true,
+    });
+
+    if (!campaign) {
+      throw new Error('Coupons are not available on this POS');
+    }
+
+    return campaign.title || code;
+  },
+
+  // The loyalty discount a save would give each line, computed without saving.
+  async poscLoyaltyPreview(
+    _root,
+    {
+      items,
+      customerId,
+      couponCode,
+      voucherId,
+    }: {
+      items: { productId: string; count: number; unitPrice: number }[];
+      customerId?: string;
+      couponCode?: string;
+      voucherId?: string;
+    },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const doc = await checkLoyalties(subdomain, {
+      items: items.map((item, index) => ({ ...item, _id: String(index) })),
+      customerId,
+      couponCode,
+      voucherId,
+      totalAmount: 0,
+      type: '',
+      description: '',
+    });
+
+    return doc.items.flatMap(({ productId, discountInfos }) => {
+      const loyalty = (discountInfos || []).find(
+        ({ type }) => type === 'voucher',
+      );
+
+      return loyalty?.percent
+        ? [{ productId, percent: loyalty.percent, title: loyalty.title }]
+        : [];
+    });
+  },
+
+  async poscCustomerForm(
+    _root,
+    _args,
+    { subdomain, config, posUser }: IContext,
+  ) {
+    if (!canCreateCustomer(config, posUser)) {
+      return { canCreate: false, rows: [] };
+    }
+
+    return {
+      canCreate: true,
+      rows: await resolveCustomerForm(
+        subdomain,
+        config.customerCreateConfig?.layout || [],
+      ),
+    };
   },
 };
 

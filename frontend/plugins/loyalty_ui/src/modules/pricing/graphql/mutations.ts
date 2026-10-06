@@ -79,3 +79,16 @@ export const PRICING_PLANS_RECALCULATE_PUBLIC_DISCOUNTS = gql`
     pricingPlansRecalculatePublicDiscounts
   }
 `;
+
+// Core's own mutation; lets the fixed price table give a product a condition group in place.
+export const PRICING_PRODUCT_SET_CONDITION_GROUP = gql`
+  mutation pricingProductSetConditionGroup(
+    $productIds: [String!]!
+    $conditionGroupId: String
+  ) {
+    productsSetConditionGroup(
+      productIds: $productIds
+      conditionGroupId: $conditionGroupId
+    )
+  }
+`;

@@ -56,6 +56,8 @@ export const pricingPlanSchema = schemaWrapper(
       tagsExcluded: { type: [String], default: [] },
       segments: { type: [String], default: [] },
       vendors: { type: [String], default: [] },
+      // Core product condition ids; the plan prices only lines sold under one of them.
+      conditionIds: { type: [String], default: [] },
 
       // Customer & broker targeting (dynamic conditions).
       // Empty fields mean "no constraint", so pre-existing plans behave unchanged.

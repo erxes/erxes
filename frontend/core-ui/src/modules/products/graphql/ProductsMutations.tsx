@@ -129,6 +129,7 @@ const productsEdit = gql`
     $code: String
     $propertiesData: JSON
     $vendorId: String
+    $conditionGroupId: String
     $uom: String
     $barcodeDescription: String
     $barcodes: [String]
@@ -154,6 +155,7 @@ const productsEdit = gql`
       code: $code
       propertiesData: $propertiesData
       vendorId: $vendorId
+      conditionGroupId: $conditionGroupId
       barcodes: $barcodes
       uom: $uom
       barcodeDescription: $barcodeDescription
@@ -174,6 +176,7 @@ const productsEdit = gql`
       code
       categoryId
       vendorId
+      conditionGroupId
       scopeBrandIds
       status
       description

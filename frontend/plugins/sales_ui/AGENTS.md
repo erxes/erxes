@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-03`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -53,8 +53,16 @@
 - Deal product tax controls live behind a separate Tax view toggle; Advanced
   view no longer owns tax columns or footer total tax controls.
 - POS permission settings assign admins and cashiers and persist cashier temp
-  bill, report visibility, and direct discount controls through
-  `permissionConfig`.
+  bill, report visibility, customer creation, and direct discount controls
+  through `permissionConfig`.
+- POS "Customer registration" tab (`CustomerCreate` /
+  `useCustomerCreateConfig`) enables cashier-side customer creation, picks
+  whether the cashier becomes owner, toggles which system fields and Core
+  `core:customer` properties show, and arranges them with the shared
+  `ui-modules` `LayoutEditor`. Properties deleted or archived since saving
+  show a warning and are stripped on the next save. "Add field" (gated by
+  `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
+  `core:customer` and places the new property on the form, visible.
 
 ## Architecture
 
@@ -67,6 +75,7 @@
 | Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save |
 | Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata |
 | POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                |
+| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                              |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                      |
 | POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                              |
 
@@ -82,7 +91,9 @@
 
 - `sales_api` GraphQL pipeline, deal, product, and POS contracts.
 - Core properties through public `ui-modules` property hooks with
-  `contentType: 'sales:deal'`.
+  `contentType: 'sales:deal'` and, for the POS customer form,
+  `contentType: 'core:customer'`.
+- `ui-modules` `LayoutEditor` and `PropertyAddSheet` for the POS customer form.
 - `erxes-ui` and `ui-modules` public React components.
 
 ## Data and State
@@ -97,12 +108,20 @@
   with `type: 'hand'`; pricing/voucher/score entries remain automatic data.
 - POS report access persists as `permissionConfig.cashiers.seeReport` in the
   POS document.
+- Cashier customer creation persists as
+  `permissionConfig.cashiers.createCustomer`; admins are always allowed.
+- `customerCreateConfig` = `{ enabled, assignCashierAsOwner, layout }`, where
+  `layout` rows hold system field codes and `property:<fieldId>` entries.
+  Placement is visibility: a field not in `layout` is hidden.
 
 ## Local Invariants
 
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
+- An enabled POS customer form must keep `primaryEmail` or `primaryPhone`;
+  the last one placed cannot be hidden. Featured (plugin-owned) customer
+  properties are not offered.
 - Deal product create, update, and delete flows must keep the table responsive
   without requiring a manual refresh.
 - Expanded product view must render the same product workspace as the inline
@@ -129,3 +148,6 @@
   verify the inline table shows the same state.
 - POS settings smoke scenario: open POS permission tab, toggle cashier
   "SEE REPORT", save, and verify the value persists after reload.
+- POS customer smoke scenario: open the "Customer registration" tab, enable it,
+  hide e-mail (phone stays locked on), add a property, rearrange in Edit
+  layout, save, and verify the layout persists after reload.

@@ -32,7 +32,7 @@ export interface IProductModel extends Model<IProductDocument> {
   ): Promise<IProductDocument | null>;
   updateProducts(
     query: any,
-    doc: IProduct,
+    doc: Partial<IProduct>,
   ): Promise<{ n: number; nModified: number; ok: number }>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
@@ -366,7 +366,7 @@ export const loadProductClass = (
       return updatedProduct;
     }
 
-    public static async updateProducts(query: any, doc: IProduct) {
+    public static async updateProducts(query: any, doc: Partial<IProduct>) {
       const products = await models.Products.find(query).lean();
 
       const result = await models.Products.updateMany(query, { $set: doc });

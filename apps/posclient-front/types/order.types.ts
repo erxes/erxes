@@ -189,6 +189,7 @@ export interface IOrder extends IOrderCommon {
   sloteCode?: string
   isPre?: boolean
   deliveryInfo?: { description?: string }
+  extraInfo?: { voucherId?: string | null; couponCode?: string | null } | null
 }
 
 export interface IOrderHistory {

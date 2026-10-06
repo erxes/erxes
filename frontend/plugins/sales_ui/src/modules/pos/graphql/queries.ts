@@ -47,6 +47,7 @@ export const posCommonFields = `
   kioskExcludeProductIds
   deliveryConfig
   permissionConfig
+  customerCreateConfig
   allowTypes
   isShowRemainder
   isCheckRemainder

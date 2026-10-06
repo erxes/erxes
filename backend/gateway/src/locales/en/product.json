@@ -124,7 +124,9 @@
     "productUpdated": "Product updated successfully",
     "validationErrorTitle": "Validation error",
     "validationErrorDescription": "Please check the form fields",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "condition-group": "Condition group",
+    "none": "None"
   },
   "general-config-form": {
     "general-settings": "General settings",
@@ -290,5 +292,21 @@
     "similarity-saved": "Similarity saved",
     "similarity-removed": "Similarity removed",
     "check-required-fields": "Please fill in the required fields"
-  }
+  },
+  "condition-groups": "Condition groups",
+  "add-condition-group": "Add condition group",
+  "edit-condition-group": "Edit condition group",
+  "conditions": "Conditions",
+  "condition-name": "e.g. Dented",
+  "add-condition": "Add condition",
+  "condition-group-saved": "Saved",
+  "condition-group-remove-confirm": "Products using these groups will lose their conditions. Delete?",
+  "condition-group-removed": "Deleted",
+  "no-condition-groups": "No condition groups yet",
+  "condition-groups-hint": "Group the states a product can be sold in, e.g. Dented or Display unit.",
+  "set-condition-group": "Set condition group",
+  "set-condition-group-description": "Every product in this category and its subcategories gets this group now. Products added later are not changed.",
+  "condition-group": "Condition group",
+  "no-condition-group": "None (clear)",
+  "condition-group-applied": "Condition group set on {{count}} products"
 }

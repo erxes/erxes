@@ -11,6 +11,7 @@ import { Appearance } from '@/pos/components/appearance';
 import { ScreenConfig } from '@/pos/components/screenConfig';
 import { DeliveryConfig } from '@/pos/components/deliveryConfig';
 import { SyncCard } from '@/pos/components/syncCard';
+import { CustomerCreate } from '@/pos/components/customerCreate/CustomerCreate';
 
 interface MainContentProps {
   activeStep: string;
@@ -69,6 +70,13 @@ export const MainContent: React.FC<MainContentProps> = ({
           <Permission
             posId={posId}
             posType={posType}
+            onSaveActionChange={handleSaveActionChange}
+          />
+        );
+      case 'customer':
+        return (
+          <CustomerCreate
+            posId={posId}
             onSaveActionChange={handleSaveActionChange}
           />
         );

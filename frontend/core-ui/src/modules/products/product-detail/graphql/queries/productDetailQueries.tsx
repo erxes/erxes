@@ -10,6 +10,7 @@ export const PRODUCT_DETAIL_QUERY = gql`
       code
       categoryId
       vendorId
+      conditionGroupId
       scopeBrandIds
       status
       description

@@ -22,6 +22,7 @@ export const orderFields = `
   isPre
   directDiscount
   directIsAmount
+  extraInfo
 `
 export const orderItemBaseFields = `
  _id

@@ -1,5 +1,12 @@
 import { Document } from 'mongoose';
 
+export interface IPosCustomerCreateConfig {
+  enabled: boolean;
+  assignCashierAsOwner?: boolean;
+  // Rows of system field codes and 'property:<fieldId>' entries.
+  layout: string[][];
+}
+
 export interface IPos {
   name: string;
   description?: string;
@@ -35,6 +42,7 @@ export interface IPos {
   deliveryConfig?: any;
   cardsConfig?: any;
   permissionConfig?: any;
+  customerCreateConfig?: IPosCustomerCreateConfig;
   allowTypes: string[];
   isShowRemainder?: boolean;
   isCheckRemainder: boolean;

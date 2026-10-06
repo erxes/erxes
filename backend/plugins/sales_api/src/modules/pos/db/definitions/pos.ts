@@ -80,6 +80,11 @@ export const posSchema = schemaWrapper(
       optional: true,
       label: 'Permission',
     },
+    customerCreateConfig: {
+      type: Object,
+      optional: true,
+      label: 'Customer create config',
+    },
     allowTypes: { type: [String], label: 'Allow Types' },
     isShowRemainder: { type: Boolean, label: 'Show Remainder' },
     isCheckRemainder: { type: Boolean, label: 'is Check Remainder' },

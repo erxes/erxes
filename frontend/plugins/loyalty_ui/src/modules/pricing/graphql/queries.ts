@@ -130,6 +130,7 @@ export const PRICING_PLAN_DETAIL = gql`
       categoriesExcluded
       segments
       vendors
+      conditionIds
       tags
       tagsExcluded
       customerIds
@@ -272,7 +273,26 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
         uom
         unitPrice
         newPrice
+        conditionGroupId
+        conditionPrices {
+          conditionId
+          price
+        }
         status
+      }
+    }
+  }
+`;
+
+// Core product conditions a plan can give its own price columns.
+export const PRICING_PRODUCT_CONDITION_GROUPS = gql`
+  query pricingProductConditionGroups {
+    productConditionGroups {
+      _id
+      name
+      conditions {
+        _id
+        name
       }
     }
   }

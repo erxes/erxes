@@ -122,7 +122,9 @@
     "productUpdated": "Бүтээгдэхүүн амжилттай шинэчлэгдлээ",
     "validationErrorTitle": "Баталгаажуулалтын алдаа",
     "validationErrorDescription": "Талбаруудыг шалгана уу",
-    "unknownError": "Тодорхойгүй алдаа гарлаа"
+    "unknownError": "Тодорхойгүй алдаа гарлаа",
+    "condition-group": "Нөхцлийн бүлэг",
+    "none": "Байхгүй"
   },
   "general-config-form": {
     "general-settings": "Ерөнхий тохиргоо",
@@ -288,5 +290,21 @@
     "similarity-saved": "Ижил төстэй хадгалагдлаа",
     "similarity-removed": "Ижил төстэй устгагдлаа",
     "check-required-fields": "Шаардлагатай талбаруудыг бөглөнө үү"
-  }
+  },
+  "condition-groups": "Нөхцлийн бүлэг",
+  "add-condition-group": "Нөхцлийн бүлэг нэмэх",
+  "edit-condition-group": "Нөхцлийн бүлэг засах",
+  "conditions": "Нөхцлүүд",
+  "condition-name": "Жишээ нь: Хонхорхойтой",
+  "add-condition": "Нөхцөл нэмэх",
+  "condition-group-saved": "Хадгалагдлаа",
+  "condition-group-remove-confirm": "Эдгээр бүлэгтэй бараанууд нөхцлөө алдана. Устгах уу?",
+  "condition-group-removed": "Устгагдлаа",
+  "no-condition-groups": "Нөхцлийн бүлэг алга",
+  "condition-groups-hint": "Бараа ямар байдалтай зарагдаж болохыг бүлэглэнэ, жишээ нь Хонхорхойтой, Үзүүлэнгийн.",
+  "set-condition-group": "Нөхцлийн бүлэг оноох",
+  "set-condition-group-description": "Энэ ангилал болон дэд ангиллын бүх бараанд одоо оноогдоно. Дараа нэмэгдэх бараанд автоматаар оноогдохгүй.",
+  "condition-group": "Нөхцлийн бүлэг",
+  "no-condition-group": "Байхгүй (цэвэрлэх)",
+  "condition-group-applied": "{{count}} бараанд нөхцлийн бүлэг оноогдлоо"
 }

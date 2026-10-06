@@ -12,6 +12,8 @@ import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
 import { fixNum } from '@/lib/utils'
 
+import { LoyaltyDiscountBadge } from "@/modules/customer/components/LoyaltyDiscountBadge"
+
 const CartItem = ({
   _id,
   index,
@@ -19,6 +21,7 @@ const CartItem = ({
   productName,
   unitPrice,
   productId,
+  discountInfos,
 }: OrderItem & { index: number }) => {
   const updateCart = useSetAtom(updateCartAtom)
   const formattedIndex = (index + 1).toString().padStart(2, "0")
@@ -74,6 +77,10 @@ const CartItem = ({
             productId={productId}
             unitPrice={unitPrice}
             className="text-xs font-extrabold"
+          />
+          <LoyaltyDiscountBadge
+            productId={productId}
+            discountInfos={discountInfos}
           />
         </span>
         <span className="w-6/12">

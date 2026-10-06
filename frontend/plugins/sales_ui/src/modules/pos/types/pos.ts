@@ -65,6 +65,13 @@ export interface DeliveryConfig {
   mapCustomField?: string;
 }
 
+export interface IPosCustomerCreateConfig {
+  enabled: boolean;
+  assignCashierAsOwner?: boolean;
+  // Rows of system field codes and 'property:<fieldId>' entries.
+  layout: string[][];
+}
+
 export interface IPos {
   _id: string;
   name: string;
@@ -121,8 +128,10 @@ export interface IPos {
     cashiers?: {
       isTempBill?: boolean;
       seeReport?: boolean;
+      createCustomer?: boolean;
       directDiscount?: boolean;
       directDiscountLimit?: number;
     };
   };
+  customerCreateConfig?: IPosCustomerCreateConfig;
 }

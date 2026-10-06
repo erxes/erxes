@@ -66,6 +66,11 @@ import {
   loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
 import { IProductRuleDocument } from '@/products/@types/rule';
+import { IProductConditionGroupDocument } from '@/products/@types/conditionGroup';
+import {
+  IProductConditionGroupModel,
+  loadProductConditionGroupClass,
+} from '@/products/db/models/ConditionGroups';
 import { IPackageDocument } from '@/products/@types/package';
 import {
   IProductCategoryModel,
@@ -407,6 +412,7 @@ export interface IModels {
   BundleCondition: IBundleConditionModel;
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
+  ProductConditionGroups: IProductConditionGroupModel;
   PermissionGroups: IPermissionGroupModel;
   ApprovalLocks: IApprovalLockModel;
   ApprovalRequests: IApprovalRequestModel;
@@ -839,6 +845,13 @@ export const loadClasses = (
   models.ProductRules = db.model<IProductRuleDocument, IProductRuleModel>(
     'product_rules',
     loadProductRuleClass(models, subdomain),
+  );
+  models.ProductConditionGroups = db.model<
+    IProductConditionGroupDocument,
+    IProductConditionGroupModel
+  >(
+    'product_condition_groups',
+    loadProductConditionGroupClass(models),
   );
   models.PermissionGroups = db.model<
     IPermissionGroupDocument,

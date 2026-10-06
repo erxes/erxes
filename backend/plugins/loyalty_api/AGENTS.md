@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -39,6 +39,7 @@
 - `loyaltyAccountTypesAdoptCampaignFields` turns the custom fields legacy campaigns write into account types in place (same field id, values recast to numbers); `loyaltyAccountTypeLegacyFieldCount` reports how many remain.
 - With purchase `items`, a campaign's total counts only items that pass its product/category/tag restrictions; discounted items are skipped only when `additionalConfig.discountCheck === true`. Without items the purchase `totalAmount` is used as is.
 - Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
+- A pricing plan's `conditionIds` (core product condition ids) are extra price columns of its fixed table, not a filter: each `pricing_fixed_values` row keeps `conditionPrices [{conditionId, price}]` (cleaned in the model: empty cells dropped, no negatives). In `checkPricing` a fixed plan prices a line sold under one of its conditions (`checkPricing` products carry an optional `conditionId`) at that condition's fixed price; a line whose condition cell is empty, or with any other or no condition, gets plain `newPrice`. Only fixed plans use conditions. `pricingFixedValuesPage` returns each product's core `conditionGroupId` so the UI edits only cells of the product's own group. Loyalty only matches ids; core owns the conditions.
 - Pricing plan updates remove persisted start and end dates when their enabled flags are disabled.
 - Pricing plan lists honor `page` and `perPage`, with deterministic `_id`
   tie-breaking after the requested or default sort field.
@@ -48,6 +49,7 @@
 - A voucher campaign may cap what one owner receives (`perOwnerLimit {count, period: campaign|year|month}`, calendar periods in the organization's time zone via `loyaltyTimeZone`). Every issue path enforces it in `modules/voucher/services/ownerLimit.ts`: `createVoucher` throws `VoucherOwnerLimitError`, `createVouchers` leaves those owners out, and the Issue voucher automation action reports them as `skipped` (all refused) or `refusedOwnerIds` (some refused). Vouchers, spins and lotteries issued from the campaign all count; a `score` voucher cannot be limited.
 - `loyaltyScoreSpendLimit(campaignId, ownerType, ownerId, totalAmount, targetId)` tells a paying screen the most money points may pay on an order (`ScoreCampaigns.spendLimit`, rules in `maxSpendMoney` beside `checkSpendRules` so the offer always passes the check): balance including what this target already spent, point value, step, and `blocked` (`frozen`, `belowMin`, `empty`).
 - Each earning row in a score log's `breakdown` keeps how it was counted (`calc`: value type and value, the tier column it came from, the money counted, money per point, base points for a multiplier bonus, the cap that cut it, and what a point pays), written by `evaluateEarnTable` so earnings and `scoreCampaignEarnPreview` explain themselves the same way; logs written before have no `calc`.
+- tRPC `loyalty.ownerSummary({ ownerType: customer|company|user, ownerId, totalAmount? })` (`utils/ownerSummary.ts`) tells a selling screen what the owner it serves holds: account number and status, non-archived wallet balances with pending, tier and points expiring soon (the same `resolveAccountBalances` the `LoyaltyAccount.balances` resolver uses), and the owner's `new` sale vouchers (`bonus`/`discount` marked `autoApplied`, since `directVoucher` applies them to any sale; `reward` ones run `Vouchers.checkVoucher` against `totalAmount` and carry `applicable` + `reason`). A customer's vouchers held by their client portal user are included. Coupons have no owner, so none are listed.
 - `loyaltyAccounts` lists loyalty accounts newest first (cursor paginated on `joinedAt`) with filters for owner type, status, account type and its tier (`none` = holds the type without a tier); `searchValue` is either a 10-digit account number or text matched against owners in core (customers, companies, users; at most 200 owners per type), built in `services/accountList.ts`. `LoyaltyAccount.owner` resolves the owner document.
 
 ## Architecture
@@ -57,7 +59,8 @@
 | Runtime               | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts`                                                     | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                                                    |
 | Score models          | `src/modules/score/db`                                                                                                   | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields.                                |
 | Loyalty account types | `src/modules/score/db/models/AccountType.ts`, `src/modules/score/services/accountBalance.ts`                             | Define account types, bind their core featured balance field, archive, and adopt legacy fields.                             |
-| Loyalty accounts      | `src/modules/score/db/models/Account.ts`                                                                                 | Open one account per owner and mirror per-type balances and tiers.                                                          |
+| Loyalty accounts      | `src/modules/score/db/models/Account.ts`, `src/modules/score/services/accountBalances.ts`                                | Open one account per owner, mirror per-type balances and tiers, and resolve balances for display.                           |
+| Owner summary         | `src/utils/ownerSummary.ts`                                                                                              | Balances, tiers and sale vouchers for a selling screen (`loyalty.ownerSummary`).                                            |
 | Tiers and resets      | `src/modules/score/services/accountTier.ts`, `src/modules/score/services/accountReset.ts`, `src/worker/index.ts`         | Set tiers with featured field convergence; reset due account types per period.                                              |
 | Earning table         | `src/modules/score/services/earnTable.ts`, `src/modules/score/services/earnContext.ts`                                   | Normalize and evaluate campaign earning tables (pure), build their context (tier, amounts, product scopes, first purchase). |
 | Lots                  | `src/modules/score/db/models/Lot.ts`, `src/modules/score/services/lotPolicy.ts`, `src/modules/score/services/lotJobs.ts` | FIFO lot consumption, pending release, rolling expiry, lot reconciliation.                                                  |
@@ -72,7 +75,7 @@
 ### Provides
 
 - GraphQL contracts for loyalty modules registered through `src/apollo`, including `loyaltyAccountOfOwner`, `loyaltyAccountFreeze`, `loyaltyAccountUnfreeze`, `loyaltyAccountSetTier`, `loyaltyAccountTypes`, `loyaltyAccountType`, `loyaltyAccountTypeLegacyFieldCount`, `loyaltyAccountTypeAdd`, `loyaltyAccountTypeEdit`, `loyaltyAccountTypeArchive`, `loyaltyAccountTypeUnarchive`, and `loyaltyAccountTypesAdoptCampaignFields`; `ScoreCampaign` exposes `accountTypeId` and `accountType`.
-- tRPC procedures in `src/trpc/init-trpc.ts`, including `score.scoreCampaign`, `score.checkSpend`, `score.spend`, `score.refund` and `pricing.checkPricing`.
+- tRPC procedures in `src/trpc/init-trpc.ts`, including `loyalty.ownerSummary`, `score.scoreCampaign`, `score.checkSpend`, `score.spend`, `score.refund` and `pricing.checkPricing`.
 - Automation action `loyalty:score.score.create` declares `inputs` `totalAmount`, `paidAmount`, `items`.
 - Automation trigger `loyalty:score.tier` (Tier changed) with output `_id`, `ownerType`, `customerId` (reference to `core:customer`), `accountTypeName`, `fromTier`, `toTier`, `direction`.
 - Metadata, permission, automation, and after-process handlers under `src/meta`.

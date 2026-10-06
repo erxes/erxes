@@ -4,6 +4,7 @@ import { SelectCompany } from 'ui-modules/modules/contacts';
 import { useTranslation } from 'react-i18next';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { useFormContext } from 'react-hook-form';
+import { ProductConditionGroupField } from './ProductConditionGroupField';
 
 export function ProductDetailInfo() {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
@@ -54,6 +55,7 @@ export function ProductDetailInfo() {
               </div>
             )}
           />
+          <ProductConditionGroupField />
         </div>
       </InfoCard.Content>
     </InfoCard>

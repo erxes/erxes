@@ -9,21 +9,81 @@ export const types = `
     primaryAddress: JSON
     addresses: [JSON]
   }
+
+  type PosCustomerFormField {
+    code: String!
+    name: String!
+    type: String!
+    isSystem: Boolean
+    options: JSON
+  }
+
+  type PosCustomerForm {
+    canCreate: Boolean!
+    rows: [[PosCustomerFormField]]
+  }
+
+  type PosLoyaltyTier {
+    key: String
+    name: String
+  }
+
+  type PosLoyaltyWallet {
+    accountTypeId: String
+    name: String
+    balance: Float
+    pending: Float
+    tier: PosLoyaltyTier
+    expiringSoon: JSON
+  }
+
+  type PosLoyaltyVoucher {
+    _id: String!
+    campaignId: String
+    title: String
+    voucherType: String
+    kind: String
+    value: Float
+    expiresAt: Date
+    autoApplied: Boolean
+    applicable: Boolean
+    reason: String
+  }
+
+  type PosCustomerLoyalty {
+    accountNumber: String
+    status: String
+    wallets: [PosLoyaltyWallet]
+    vouchers: [PosLoyaltyVoucher]
+  }
+
+  type PosLoyaltyPreviewLine {
+    productId: String!
+    percent: Float
+    title: String
+  }
+
+  input PosLoyaltyPreviewItem {
+    productId: String!
+    count: Float!
+    unitPrice: Float!
+  }
+
+  type PosCustomerAddResult {
+    customer: PosCustomer
+    duplicate: PosCustomer
+  }
 `;
 
 export const queries = `
   poscCustomers(searchValue: String!, type: String, perPage: Int, page: Int): [PosCustomer]
   poscCustomerDetail(_id: String!, type: String): PosCustomer
-`;
-
-const mutationParams = `
-  firstName: String
-  lastName: String
-  email: String
-  phone: String
-  sex: Int
+  poscCustomerForm: PosCustomerForm
+  poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty
+  poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String
+  poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String): [PosLoyaltyPreviewLine]
 `;
 
 export const mutations = `
-  poscCustomersAdd(${mutationParams}): PosCustomer
+  poscCustomersAdd(doc: JSON!): PosCustomerAddResult
 `;
