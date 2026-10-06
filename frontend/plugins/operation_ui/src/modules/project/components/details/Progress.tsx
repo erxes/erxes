@@ -30,17 +30,16 @@ export const ProgressDot = ({
 
 export const Progress = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
-  const { projectProgress } = useGetProjectProgress({
-    variables: { _id: projectId },
-    skip: !projectId,
-  });
+  const { projectProgress } = useGetProjectProgress(projectId);
 
   return (
     <div className="flex justify-between w-full my-4">
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="total" />
-          <p className="text-xs font-medium text-muted-foreground">{t('total-colon')}</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t('total-colon')}
+          </p>
         </span>
         <p className="text-xs font-medium">
           {projectProgress?.totalScope || 0}
@@ -49,7 +48,9 @@ export const Progress = ({ projectId }: { projectId: string }) => {
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="started" />
-          <p className="text-xs font-medium text-muted-foreground">{t('started-colon')}</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t('started-colon')}
+          </p>
         </span>
         <p className="text-xs font-medium">
           {projectProgress?.totalStartedScope || 0}

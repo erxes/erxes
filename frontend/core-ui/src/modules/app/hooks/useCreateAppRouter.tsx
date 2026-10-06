@@ -27,7 +27,6 @@ import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
 import { TemplateRoutes } from '../components/TemplateRoutes';
 import { UserProvider } from '@/auth/providers/UserProvider';
-import { WelcomeHomePage } from '~/pages/welcome/WelcomeHomePage';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
 import { lazy } from 'react';
 import { useAtomValue } from 'jotai';
@@ -92,8 +91,6 @@ export const useCreateAppRouter = () => {
                 path={AppPath.Index}
                 element={<Navigate to={AppPath.MyInbox} />}
               />
-              <Route path={AppPath.WelcomeHome} element={<WelcomeHomePage />} />
-
               <Route
                 path={AppPath.SettingsCatchAll}
                 element={<SettingsRoutes />}

@@ -26,13 +26,7 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 
-type Team = {
-  _id: string;
-  name: string;
-  icon?: string;
-  cycleEnabled: boolean;
-  triageEnabled: boolean;
-};
+import { ITeam } from '@/team/types';
 
 function LoadingSkeleton() {
   return (
@@ -45,7 +39,7 @@ function LoadingSkeleton() {
 }
 
 interface TeamItemProps {
-  team: Team;
+  team: ITeam;
 }
 
 function TeamItem({ team }: TeamItemProps) {
@@ -61,12 +55,12 @@ function TeamItem({ team }: TeamItemProps) {
                 className="px-2 flex min-w-0 justify-start rounded-lg"
               >
                 <IconComponent
-                  name={team.icon}
+                  name={team.icon ?? undefined}
                   className="text-accent-foreground shrink-0"
                 />
                 <TextOverflowTooltip
                   className="font-sans font-semibold normal-case flex-1 min-w-0"
-                  value={team.name}
+                  value={team.name ?? ''}
                 />
                 <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
                   <IconChevronRight className="size-3.5!" />
@@ -138,7 +132,7 @@ export function TeamsNavigation() {
   );
 }
 
-const TeamActionsMenu = ({ team }: { team: Team }) => {
+const TeamActionsMenu = ({ team }: { team: ITeam }) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();
 

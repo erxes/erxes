@@ -46,10 +46,11 @@ export const TasksAssignToContent = ({
             updateTask({
               variables: {
                 _id: taskId,
-                assigneeId: value,
-            },
-          })
-        ));
+                assigneeId: Array.isArray(value) ? value[0] : value,
+              },
+            }),
+          ),
+        );
         setOpen(false);
       }}
     >

@@ -1,7 +1,8 @@
 import { useActivityListContext } from '@/activity/context/ActivityListContext';
 import { IActivity } from '@/activity/types';
-import { ITask } from '@/task/types';
+import { ITaskDetail } from '@/task/types';
 import { IProject } from '@/project/types';
+import { ITriageDetail } from '@/triage/types/triage';
 import { useGetStatusByTeam } from '@/task/hooks/useGetStatusByTeam';
 import { Badge } from 'erxes-ui';
 import {
@@ -10,8 +11,14 @@ import {
 } from '@/operation/components/StatusInline';
 import { useTranslation } from 'react-i18next';
 
-const isTask = (content: ITask | IProject): content is ITask => {
-  return 'teamId' in content;
+const isTask = (
+  content: ITaskDetail | IProject | ITriageDetail,
+): content is ITaskDetail => {
+  return (
+    'teamId' in content &&
+    'status' in content &&
+    typeof content.status === 'string'
+  );
 };
 
 export const ActivityStatus = ({
@@ -20,27 +27,27 @@ export const ActivityStatus = ({
   metadata: IActivity['metadata'];
 }) => {
   const { t } = useTranslation('operation');
-  const { previousValue, newValue } = metadata;
+  const { previousValue, newValue } = metadata ?? {};
   const contentDetail = useActivityListContext();
 
   const { statuses } = useGetStatusByTeam({
-    variables: { teamId: isTask(contentDetail) ? contentDetail.teamId : '' },
-    skip: !isTask(contentDetail),
+    variables:
+      isTask(contentDetail) && contentDetail.teamId
+        ? { teamId: contentDetail.teamId }
+        : undefined,
+    skip: !isTask(contentDetail) || !contentDetail.teamId,
   });
 
-  const getTaskStatus = (value?: string) => {
+  const getTaskStatus = (value?: string | null) => {
     return statuses?.find((status) => status.value === value);
   };
 
-  const renderStatusBadge = (value?: string) => {
+  const renderStatusBadge = (value?: string | null) => {
     if (isTask(contentDetail)) {
       const status = getTaskStatus(value);
       return (
         <Badge variant="secondary" className="capitalize">
-          <StatusInlineIcon
-            statusType={status?.type as number}
-            color={status?.color}
-          />
+          <StatusInlineIcon statusType={status?.type} color={status?.color} />
           {status?.label}
         </Badge>
       );

@@ -21,7 +21,7 @@ import {
 import clsx from 'clsx';
 
 interface SelectPriorityContextType {
-  value: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   variant?: `${SelectTriggerVariant}`;
 }
@@ -46,7 +46,7 @@ const SelectPriorityProvider = ({
   variant,
 }: {
   children: React.ReactNode;
-  value?: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   variant?: `${SelectTriggerVariant}`;
 }) => {
@@ -131,7 +131,7 @@ const SelectPriorityRoot = ({
   scope,
   variant,
 }: {
-  value?: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   scope?: string;
   variant: `${SelectTriggerVariant}`;

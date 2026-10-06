@@ -8,10 +8,7 @@ import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 
 export const ProgressByTeam = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
-  const { projectProgressByTeam } = useGetProjectProgressByTeam({
-    variables: { _id: projectId },
-    skip: !projectId,
-  });
+  const { projectProgressByTeam } = useGetProjectProgressByTeam(projectId);
 
   if (!projectProgressByTeam) {
     return null;
@@ -28,7 +25,11 @@ export const ProgressByTeam = ({ projectId }: { projectId: string }) => {
   return (
     <div>
       {projectProgressByTeam?.map((item) => (
-        <HoverCard openDelay={150} closeDelay={150} key={item.teamId}>
+        <HoverCard
+          openDelay={150}
+          closeDelay={150}
+          key={item.teamId ?? 'unassigned'}
+        >
           <HoverCard.Trigger asChild>
             <Button
               className="flex justify-start gap-2 items-center text-sm font-normal h-10 py-1"
@@ -37,7 +38,7 @@ export const ProgressByTeam = ({ projectId }: { projectId: string }) => {
               size="lg"
             >
               <div>
-                <TeamInline teamId={item.teamId} />
+                {item.teamId && <TeamInline teamId={item.teamId} />}
 
                 <ChartContainer
                   config={chartConfig}

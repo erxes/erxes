@@ -1,78 +1,55 @@
 import {
-  getBlockAttachments,
-  getMentionedUserIds,
-  stripHtml,
-  toast,
   useBlockEditor,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Block } from '@blocknote/core';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 
 import {
   isInternalState,
-  isInternalNoteCollapsedState,
   isSlashMenuOpenState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/ComposerShell';
-import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/ComposerEditor';
-import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/ComposerPreviews';
-import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/ComposerToolbar';
+import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/composer/ComposerShell';
+import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/composer/ComposerEditor';
+import { ComposerGalleries } from '@/inbox/conversations/conversation-detail/components/composer/ComposerGalleries';
+import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/composer/ComposerPreviews';
+import { ComposerReplyPreview } from '@/inbox/conversations/conversation-detail/components/composer/ComposerReplyPreview';
+import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/composer/ComposerToolbar';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
 import { useDiscordComposer } from '@/inbox/conversations/conversation-detail/hooks/useDiscordComposer';
-import { useComposerSend } from '@/inbox/conversations/conversation-detail/hooks/useComposerSend';
-import { useComposerEditorKeyDown } from '@/inbox/conversations/conversation-detail/hooks/useComposerEditorKeyDown';
+import { useComposerSend } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerSend';
+import { useComposerEditorKeyDown } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerEditorKeyDown';
 import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { IntegrationType } from '@/types/Integration';
-import { useTranslation } from 'react-i18next';
-import { currentUserState } from 'ui-modules';
-import {
-  clearLegacyConversationDrafts,
-  composerStorage,
-  getConversationDraftKey,
-  parseConversationDraft,
-} from '@/inbox/conversations/conversation-detail/utils/messageInput';
-
-const NOTE_ONLY_INTEGRATION_KINDS: string[] = [
-  'lead',
-  IntegrationType.CALL,
-  IntegrationType.CALLPRO,
-  IntegrationType.MAIL,
-];
+import { useComposerDraft } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerDraft';
+import { useComposerAttachments } from '@/inbox/conversations/conversation-detail/hooks/composer/useComposerAttachments';
 
 export const MessageInput = ({
   conversationId,
 }: {
   conversationId: string;
 }) => {
-  const { t } = useTranslation('frontline');
-  const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
+  const isInternalNote = useAtomValue(isInternalState);
   const [isSlashMenuOpen, setIsSlashMenuOpen] = useAtom(isSlashMenuOpenState);
   const onlyInternal = useAtomValue(onlyInternalState);
-  const setOnlyInternal = useSetAtom(onlyInternalState);
-  const currentUserId = useAtomValue(currentUserState)?._id;
   const { integration } = useConversationContext();
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
-  const [content, setContent] = useState<Block[]>();
-  const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const setIsInternalNoteCollapsed = useSetAtom(isInternalNoteCollapsedState);
   const editor = useBlockEditor();
-  const draftInternalRef = useRef(false);
-  const restoredDraftKeyRef = useRef<string>();
-  const restoringDraftRef = useRef(false);
-  const draftKey = currentUserId
-    ? getConversationDraftKey(currentUserId, conversationId)
-    : null;
+  const {
+    blockAttachments,
+    removeBlockAttachment,
+    isGalleryUploading,
+    onGalleryUploadingChange,
+  } = useComposerAttachments(editor);
   const {
     attachments,
     pendingAttachments,
@@ -105,136 +82,30 @@ export const MessageInput = ({
     stopAgentTyping,
   } = useDiscordComposer({ conversationId, isDiscord, isInternalNote });
 
-  useEffect(() => {
-    clearLegacyConversationDrafts();
-  }, []);
-
-  useEffect(() => {
-    if (!draftKey || restoredDraftKeyRef.current === draftKey) return;
-    restoredDraftKeyRef.current = draftKey;
-    restoringDraftRef.current = true;
-    resetAttachments();
-    resetSuggestions();
-
-    try {
-      const draft = parseConversationDraft(composerStorage.getItem(draftKey));
-      draftInternalRef.current = draft.internal ?? false;
-      editor.replaceBlocks(editor.document, draft.blocks);
-      setContent(draft.blocks.length ? draft.blocks : undefined);
-      setIsInternalNote(draftInternalRef.current);
-    } catch {
-      draftInternalRef.current = false;
-      composerStorage.removeItem(draftKey);
-      editor.replaceBlocks(editor.document, []);
-      setContent(() => undefined);
-      setIsInternalNote(false);
-    } finally {
-      window.setTimeout(() => {
-        restoringDraftRef.current = false;
-      }, 0);
-    }
-  }, [draftKey, editor, resetAttachments, resetSuggestions, setIsInternalNote]);
-
-  useEffect(() => {
-    const isNoteOnly = NOTE_ONLY_INTEGRATION_KINDS.includes(
-      integration?.kind ?? '',
-    );
-    setIsInternalNoteCollapsed(false);
-    setOnlyInternal(isNoteOnly);
-    setIsInternalNote(isNoteOnly || draftInternalRef.current);
-  }, [
+  const {
+    draftKey,
+    content,
+    mentionedUserIds,
+    handleInternalNoteChange,
+    handleChange,
+    resetComposer,
+    handlePartialDelivery,
+  } = useComposerDraft({
     conversationId,
-    integration?.kind,
-    setIsInternalNote,
-    setIsInternalNoteCollapsed,
-    setOnlyInternal,
-  ]);
-
-  useEffect(() => {
-    if (replyTo && !onlyInternal) {
-      setIsInternalNote(false);
-      setIsInternalNoteCollapsed(false);
-    }
-  }, [replyTo, onlyInternal, setIsInternalNote, setIsInternalNoteCollapsed]);
+    integrationKind: integration?.kind,
+    editor,
+    resetAttachments,
+    retainAttachments,
+    resetSuggestions,
+    setResponseTemplateId,
+    setSearchValue,
+    pingAgentTyping,
+  });
 
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
-
-  const handleInternalNoteChange = useCallback(
-    (internal: boolean) => {
-      setIsInternalNoteCollapsed(false);
-      setIsInternalNote(internal);
-      resetSuggestions();
-      setResponseTemplateId(null);
-      if (content?.length && draftKey) {
-        composerStorage.setItem(
-          draftKey,
-          JSON.stringify({ blocks: content, internal }),
-        );
-      }
-    },
-    [
-      content,
-      draftKey,
-      resetSuggestions,
-      setIsInternalNote,
-      setIsInternalNoteCollapsed,
-      setResponseTemplateId,
-    ],
-  );
-
-  const handleChange = useCallback(async () => {
-    if (restoringDraftRef.current) return;
-
-    const blocks = editor.document as Block[];
-    const html = await editor.blocksToHTMLLossy(blocks);
-    const plain = stripHtml(html).trim();
-    const hasBlockAttachments = getBlockAttachments(blocks).length > 0;
-    const nextContent = plain || hasBlockAttachments ? blocks : undefined;
-
-    setContent(nextContent);
-    setSearchValue(plain);
-    if (plain) pingAgentTyping();
-    setMentionedUserIds(getMentionedUserIds(blocks));
-
-    if (nextContent && draftKey) {
-      composerStorage.setItem(
-        draftKey,
-        JSON.stringify({ blocks, internal: isInternalNote }),
-      );
-    } else if (draftKey) {
-      composerStorage.removeItem(draftKey);
-    }
-  }, [draftKey, editor, isInternalNote, pingAgentTyping, setSearchValue]);
-
-  const resetComposer = useCallback(() => {
-    editor.replaceBlocks(editor.document, []);
-    setContent(() => undefined);
-    setMentionedUserIds([]);
-    setIsInternalNote(onlyInternal);
-    resetAttachments();
-    resetSuggestions();
-    setResponseTemplateId(null);
-    setReplyTo(null);
-  }, [
-    editor,
-    onlyInternal,
-    resetAttachments,
-    resetSuggestions,
-    setIsInternalNote,
-    setReplyTo,
-    setResponseTemplateId,
-  ]);
-
-  const handlePartialDelivery = useCallback(
-    (remainingAttachments: typeof attachments) => {
-      resetComposer();
-      retainAttachments(remainingAttachments);
-    },
-    [resetComposer, retainAttachments],
-  );
 
   const { handleSubmit, handleSendPoll, loading } = useComposerSend({
     conversationId,
@@ -247,7 +118,7 @@ export const MessageInput = ({
     isInstagram,
     isFacebook: integration?.kind === IntegrationType.FACEBOOK_MESSENGER,
     isInternalNote,
-    isUploading,
+    isUploading: isUploading || isGalleryUploading,
     responseTemplateId,
     resetComposer,
     onPartialDelivery: handlePartialDelivery,
@@ -255,27 +126,11 @@ export const MessageInput = ({
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
 
-  const removeBlockAttachment = useCallback(
-    (url: string) => {
-      const mediaTypes = new Set(['image', 'video', 'audio', 'file']);
-      const blocks = editor.document.filter((block) => {
-        const props = block.props as { url?: string };
-
-        return mediaTypes.has(block.type) && props.url === url;
-      });
-
-      if (!blocks.length) return;
-
-      editor.removeBlocks(blocks);
-      toast({ title: t('attachment-removed', 'Attachment removed') });
-    },
-    [editor, t],
-  );
-
   const editorRef = useComposerEditorKeyDown({
+    editor,
     isInternalNote,
     isSlashMenuOpen,
-    isUploading,
+    isUploading: isUploading || isGalleryUploading,
     loading,
     onlyInternal,
     showSuggestions,
@@ -295,56 +150,78 @@ export const MessageInput = ({
   }, [editor, setIsSlashMenuOpen]);
 
   const sendDisabled =
-    loading || isUploading || (!content?.length && attachments.length === 0);
-  const blockAttachments = getBlockAttachments(content || []);
+    loading ||
+    isUploading ||
+    isGalleryUploading ||
+    (!content?.length && attachments.length === 0);
 
   return (
     <ComposerShell
-      disabled={loading || isUploading}
       onDrop={handleDrop}
+      disabled={loading || isUploading || isGalleryUploading}
       onInternalNoteChange={handleInternalNoteChange}
+      replyPreview={
+        !isInternalNote && replyTo ? (
+          <ComposerReplyPreview
+            replyTo={replyTo}
+            onCancel={() => setReplyTo(null)}
+          />
+        ) : null
+      }
     >
-      <ComposerPreviews
-        attachments={attachments}
-        blockAttachments={blockAttachments}
-        pendingAttachments={pendingAttachments}
-        replyTo={isInternalNote ? null : replyTo}
-        onRemove={removeAttachment}
-        onRemoveBlockAttachment={removeBlockAttachment}
-        onCancelReply={() => setReplyTo(null)}
-      />
-
-      {showSuggestions && !isInternalNote && (
-        <ResponseTemplateDropdown
-          suggestions={suggestions}
-          selectedIndex={selectedIndex}
-          availableChannels={availableChannels}
-          loading={suggestionsLoading}
-          onSelect={selectTemplate}
-        />
-      )}
-
       <div
-        ref={editorRef}
-        data-composer-editor
-        onPasteCapture={handlePaste}
-        className="flex min-h-0 min-w-0 flex-1 flex-col overscroll-contain [&_.bn-container]:h-full [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full [&_.bn-editor]:max-h-full [&_.bn-editor]:overflow-y-auto"
+        data-composer-previews
+        className="flex max-h-24 shrink-0 flex-wrap items-center gap-2 overflow-y-auto overscroll-contain border-b border-border/50 p-2 empty:hidden sm:px-3"
       >
-        <ComposerEditor
+        <ComposerGalleries
           editor={editor}
-          isDiscord={isDiscord}
-          isInternalNote={isInternalNote}
-          loading={loading}
-          discordMentionItems={discordMentionItems}
-          discordMentionNote={discordMentionNote}
-          searchDiscordMentionItems={searchDiscordMentionItems}
-          onChange={handleChange}
-          onFocus={setHotkeyScopeAndMemorizePreviousScope}
-          onBlur={() => {
-            goBackToPreviousHotkeyScope();
-            stopAgentTyping();
-          }}
+          disabled={loading || isUploading}
+          onUploadingChange={onGalleryUploadingChange}
         />
+        <ComposerPreviews
+          attachments={attachments}
+          blockAttachments={blockAttachments}
+          pendingAttachments={pendingAttachments}
+          onRemove={removeAttachment}
+          onRemoveBlockAttachment={removeBlockAttachment}
+        />
+      </div>
+      <div
+        data-composer-scroll
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+      >
+        {showSuggestions && !isInternalNote && (
+          <ResponseTemplateDropdown
+            suggestions={suggestions}
+            selectedIndex={selectedIndex}
+            availableChannels={availableChannels}
+            loading={suggestionsLoading}
+            onSelect={selectTemplate}
+          />
+        )}
+
+        <div
+          ref={editorRef}
+          data-composer-editor
+          onPasteCapture={handlePaste}
+          className="min-h-12 min-w-0 [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full"
+        >
+          <ComposerEditor
+            editor={editor}
+            isDiscord={isDiscord}
+            isInternalNote={isInternalNote}
+            loading={loading}
+            discordMentionItems={discordMentionItems}
+            discordMentionNote={discordMentionNote}
+            searchDiscordMentionItems={searchDiscordMentionItems}
+            onChange={handleChange}
+            onFocus={setHotkeyScopeAndMemorizePreviousScope}
+            onBlur={() => {
+              goBackToPreviousHotkeyScope();
+              stopAgentTyping();
+            }}
+          />
+        </div>
       </div>
 
       <ComposerToolbar
@@ -353,7 +230,7 @@ export const MessageInput = ({
         isDiscord={isDiscord}
         isMessenger={isMessenger}
         isInternalNote={isInternalNote}
-        isUploading={isUploading}
+        isUploading={isUploading || isGalleryUploading}
         loading={loading}
         sendDisabled={sendDisabled}
         onFilesSelected={handleFileInput}

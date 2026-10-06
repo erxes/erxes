@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const CREATE_MILESTONE_MUTATION = gql`
+export const CREATE_MILESTONE_MUTATION = gql(`
   mutation CreateMilestone(
     $name: String!
     $projectId: String!
@@ -17,4 +17,4 @@ export const CREATE_MILESTONE_MUTATION = gql`
       targetDate
     }
   }
-`;
+`);

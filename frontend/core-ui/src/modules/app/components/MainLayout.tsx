@@ -1,3 +1,8 @@
+import { Sidebar, cn, useQueryState } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
+
+import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
+import { GlobalSearch } from '@/search/components/GlobalSearch';
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
 import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
 import { NavigationContextPanel } from '@/navigation/components/NavigationContextPanel';
@@ -13,13 +18,10 @@ import {
   navigationSidebarOpenState,
   navigationSidebarWidthState,
 } from '@/navigation/states/navigationPanelState';
-import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
-import { GlobalSearch } from '@/search/components/GlobalSearch';
-import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
-import { cn, Sidebar, useQueryState } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
 import { type ReactNode, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router';
+import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
+import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 
 const NavigationWorkspace = () => {
   const { isMobile } = Sidebar.useSidebar();
@@ -96,6 +98,7 @@ export const DefaultLayout = () => {
     <NavigationSidebarProvider>
       <VisitedPageTabs />
       <GlobalSearch />
+      <WelcomeNotificationEffect />
       <Sidebar
         collapsible="icon"
         variant="sidebar"

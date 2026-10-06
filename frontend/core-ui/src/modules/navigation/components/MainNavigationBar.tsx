@@ -28,7 +28,6 @@ export const MainNavigationBar = () => {
   const isInboxActive =
     pathname === `/${AppPath.MyInbox}` ||
     pathname.startsWith(`/${AppPath.MyInbox}/`);
-  const isWelcomeActive = pathname === AppPath.WelcomeHome;
   const routeActivity = findNavigationActivityByPath(activities, pathname);
   const activeActivity =
     routeActivity ||
@@ -106,20 +105,13 @@ export const MainNavigationBar = () => {
     navigate(`/${AppPath.MyInbox}`);
   };
 
-  const handleSelectWelcome = () => {
-    navigate(AppPath.WelcomeHome);
-  };
-
   return (
     <>
       <NavigationItemCountProbe activities={activities} />
       <NavigationActivityRail
         activities={activities}
-        activeActivityId={
-          isInboxActive || isWelcomeActive ? null : activeActivity?.id || null
-        }
+        activeActivityId={isInboxActive ? null : activeActivity?.id || null}
         isInboxActive={isInboxActive}
-        isWelcomeActive={isWelcomeActive}
         hiddenActivities={unlistedActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
@@ -127,7 +119,6 @@ export const MainNavigationBar = () => {
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}
-        onSelectWelcome={handleSelectWelcome}
         onSelectActivity={handleSelectActivity}
         onToggleActivity={handleToggleActivity}
         visibleActivities={listedActivities}
