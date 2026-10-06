@@ -14,7 +14,7 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
+    "erxes-api-shared": "npm:@erxes/api-shared@1.0.0",
     "express": "^4.21.2",
     "tslib": "^2.6.3"
   },

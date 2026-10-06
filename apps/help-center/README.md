@@ -142,7 +142,7 @@ modules/
 ```
 
 `modules/ui/erxes-ui` holds copies of the few `erxes-ui` form controls the
-portal uses (from [`@erxes/ui`](https://github.com/erxes/ui) 3.2.13). The
+portal uses (from [`@erxes/ui`](https://github.com/erxes/ui) 1.0.0). The
 published package targets React 18 and Apollo Client 3, while the portal runs
 React 19 and Apollo Client 4, so it keeps its own copy compiled against its own
 dependencies. Copy newer versions over from `@erxes/ui` when needed.

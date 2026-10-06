@@ -229,8 +229,8 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4
       erxes-ui:
-        specifier: npm:@erxes/ui@3.2.13
-        version: '@erxes/ui@3.2.13(@apollo/client@3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/extension-code-block@2.27.3(@tiptap/core@2.27.3(@tiptap/pm@2.27.3))(@tiptap/pm@2.27.3))(@types/hast@3.0.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(graphql@16.10.0)(highlight.js@11.12.0)(jotai@2.12.2(@types/react@18.3.1)(react@18.3.1))(lowlight@3.3.0)(prosemirror-model@1.25.11)(prosemirror-state@1.4.3)(prosemirror-view@1.42.3)(react-dom@18.3.1(react@18.3.1))(react-i18next@15.4.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-is@18.3.1)(react-router-dom@7.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@5.0.1)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(typescript@5.7.3))(typescript@5.7.3)(webpack@5.99.5)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)'
+        specifier: npm:@erxes/ui@1.0.0
+        version: '@erxes/ui@1.0.0(@apollo/client@3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/extension-code-block@2.27.3(@tiptap/core@2.27.3(@tiptap/pm@2.27.3))(@tiptap/pm@2.27.3))(@types/hast@3.0.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(graphql@16.10.0)(highlight.js@11.12.0)(jotai@2.12.2(@types/react@18.3.1)(react@18.3.1))(lowlight@3.3.0)(prosemirror-model@1.25.11)(prosemirror-state@1.4.3)(prosemirror-view@1.42.3)(react-dom@18.3.1(react@18.3.1))(react-i18next@15.4.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-is@18.3.1)(react-router-dom@7.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@5.0.1)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(typescript@5.7.3))(typescript@5.7.3)(webpack@5.99.5)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)'
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
@@ -463,8 +463,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3(encoding@0.1.13)
       ui-modules:
-        specifier: npm:@erxes/ui-modules@3.2.13
-        version: '@erxes/ui-modules@3.2.13(thmotwpoaspzwk3hhk7uwp5f6i)'
+        specifier: npm:@erxes/ui-modules@1.0.0
+        version: '@erxes/ui-modules@1.0.0(dewi3jkrvtmy3ych7i37ak6vti)'
       underscore:
         specifier: ^1.13.7
         version: 1.13.7
@@ -806,8 +806,8 @@ importers:
         specifier: ^4.11.1
         version: 4.11.1
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       firebase-admin:
         specifier: ^13.6.0
         version: 13.6.0(encoding@0.1.13)
@@ -884,8 +884,8 @@ importers:
         specifier: ^10.55.0
         version: 10.57.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-parse-resolve-info:
         specifier: ^4.14.1
         version: 4.14.1(graphql@16.10.0)
@@ -908,8 +908,8 @@ importers:
   backend/plugins/accounting_api:
     dependencies:
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -920,8 +920,8 @@ importers:
   backend/plugins/content_api:
     dependencies:
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -959,8 +959,8 @@ importers:
         specifier: 0.38.49
         version: 0.38.49
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       fast-xml-parser:
         specifier: 5.2.5
         version: 5.2.5
@@ -1019,8 +1019,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1037,8 +1037,8 @@ importers:
   backend/plugins/loyalty_api:
     dependencies:
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1049,8 +1049,8 @@ importers:
   backend/plugins/mongolian_api:
     dependencies:
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1070,8 +1070,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1088,8 +1088,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1222,8 +1222,8 @@ importers:
         specifier: ^4.4.0
         version: 4.4.0(supports-color@5.5.0)
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       fbgraph:
         specifier: ^1.4.4
         version: 1.4.4
@@ -1249,8 +1249,8 @@ importers:
   backend/plugins/sales_api:
     dependencies:
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1267,8 +1267,8 @@ importers:
   backend/plugins/tourism_api:
     dependencies:
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
@@ -1282,8 +1282,8 @@ importers:
         specifier: 3.913.0
         version: 3.913.0
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       fast-xml-parser:
         specifier: 5.10.1
         version: 5.10.1
@@ -1306,8 +1306,8 @@ importers:
         specifier: ^4.4.0
         version: 4.4.0(supports-color@5.5.0)
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -1342,8 +1342,8 @@ importers:
         specifier: ^2.8.5
         version: 2.8.5
       erxes-api-shared:
-        specifier: npm:@erxes/api-shared@3.2.13
-        version: '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
+        specifier: npm:@erxes/api-shared@1.0.0
+        version: '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)'
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -2622,14 +2622,14 @@ packages:
     resolution: {integrity: sha512-nl9cmUh8F+2/NNzpcLjzNqtaVn0m8XSzzxrPU2ByHhlz4Hqlc5QBfRsemZkoJMKrMviJXyJYdKZiUP1o70F3Kw==}
     engines: {node: '>=18.0.0'}
 
-  '@erxes/api-shared@3.2.13':
-    resolution: {integrity: sha512-6Aw6hnqwouvXxYoHo4Q6MHKYGq5ENbHB+GL6buLCf6GsAAQCD428Vwr5xIsgg936VogiXssfoYlD6EpicdDi0w==}
+  '@erxes/api-shared@1.0.0':
+    resolution: {integrity: sha512-oNwLVRNNGHkbY1Jiu2aqW0IgnfjzWLFqMZgNCczUVA2aIWaTuFmocNYCDPUIxe9lWHLeuaoVmI/WysMO7NHp8Q==}
 
-  '@erxes/ui-modules@3.2.13':
-    resolution: {integrity: sha512-RZXz6R5Bi82+HdXJgCJ/HnuEOrAuUJzegqop71tUtUg8tPwUck9ym13cHdD9lnd71ol5GxVNLg1XYPlLO1aQJw==}
+  '@erxes/ui-modules@1.0.0':
+    resolution: {integrity: sha512-OAYUIsRIKZlSdGzfHWgDBXDi2dz2ygl1vgwYOAGvWuerjnGB9J4waQZ+PJX84St59xJzRYmlfHYyX/YaBJpu/g==}
     peerDependencies:
       '@apollo/client': ^3.11.8
-      erxes-ui: npm:@erxes/ui@^3.2.13
+      erxes-ui: npm:@erxes/ui@^1.0.0
       graphql: ^16.10.0
       jotai: ^2.12.0
       react: ^18.3.1
@@ -2638,8 +2638,8 @@ packages:
       react-router: ^7.1.5
       react-router-dom: ^7.1.1
 
-  '@erxes/ui@3.2.13':
-    resolution: {integrity: sha512-k4CgMkS+/+0fA7oHVsUzYFRS4ALou8GBv/oXM6SQ9fNX6fQMPXVlmKnjmrkbuPuCZmEsKOj55fzZ+NIV337N5Q==}
+  '@erxes/ui@1.0.0':
+    resolution: {integrity: sha512-xaXDv0yuF4TBOngsJw1jnGRZmCnOv5e7RkJZhj0wgyhxua4FznYoyBebmL5Jom4krswWSb7dBSV/N1kJ76lS2g==}
     peerDependencies:
       '@apollo/client': ^3.11.8
       graphql: ^16.10.0
@@ -22054,7 +22054,7 @@ snapshots:
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
 
-  '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)':
+  '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(debug@4.4.0)(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)':
     dependencies:
       '@apollo/server': 4.11.3(encoding@0.1.13)(graphql@16.10.0)
       '@apollo/subgraph': 2.10.0(graphql@16.10.0)
@@ -22107,7 +22107,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@erxes/api-shared@3.2.13(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)':
+  '@erxes/api-shared@1.0.0(@opentelemetry/exporter-trace-otlp-http@0.218.0(@opentelemetry/api@1.9.1))(encoding@0.1.13)(socks@2.8.7)(typescript@5.8.3)':
     dependencies:
       '@apollo/server': 4.11.3(encoding@0.1.13)(graphql@16.10.0)
       '@apollo/subgraph': 2.10.0(graphql@16.10.0)
@@ -22160,7 +22160,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@erxes/ui-modules@3.2.13(thmotwpoaspzwk3hhk7uwp5f6i)':
+  '@erxes/ui-modules@1.0.0(dewi3jkrvtmy3ych7i37ak6vti)':
     dependencies:
       '@apollo/client': 3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@blocknote/core': 0.35.0(@types/hast@3.0.4)(highlight.js@11.12.0)(lowlight@3.3.0)
@@ -22179,7 +22179,7 @@ snapshots:
       '@xyflow/react': 12.11.0(@types/react-dom@18.3.0)(@types/react@18.3.1)(immer@10.1.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       class-variance-authority: 0.7.1
       date-fns: 4.1.0
-      erxes-ui: '@erxes/ui@3.2.13(@apollo/client@3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/extension-code-block@2.27.3(@tiptap/core@2.27.3(@tiptap/pm@2.27.3))(@tiptap/pm@2.27.3))(@types/hast@3.0.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(graphql@16.10.0)(highlight.js@11.12.0)(jotai@2.12.2(@types/react@18.3.1)(react@18.3.1))(lowlight@3.3.0)(prosemirror-model@1.25.11)(prosemirror-state@1.4.3)(prosemirror-view@1.42.3)(react-dom@18.3.1(react@18.3.1))(react-i18next@15.4.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-is@18.3.1)(react-router-dom@7.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@5.0.1)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(typescript@5.7.3))(typescript@5.7.3)(webpack@5.99.5)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)'
+      erxes-ui: '@erxes/ui@1.0.0(@apollo/client@3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/extension-code-block@2.27.3(@tiptap/core@2.27.3(@tiptap/pm@2.27.3))(@tiptap/pm@2.27.3))(@types/hast@3.0.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(graphql@16.10.0)(highlight.js@11.12.0)(jotai@2.12.2(@types/react@18.3.1)(react@18.3.1))(lowlight@3.3.0)(prosemirror-model@1.25.11)(prosemirror-state@1.4.3)(prosemirror-view@1.42.3)(react-dom@18.3.1(react@18.3.1))(react-i18next@15.4.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-is@18.3.1)(react-router-dom@7.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@5.0.1)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(typescript@5.7.3))(typescript@5.7.3)(webpack@5.99.5)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)'
       framer-motion: 12.6.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       frimousse: 0.3.0(react@18.3.1)(typescript@5.7.3)
       graphql: 16.10.0
@@ -22218,7 +22218,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@erxes/ui@3.2.13(@apollo/client@3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/extension-code-block@2.27.3(@tiptap/core@2.27.3(@tiptap/pm@2.27.3))(@tiptap/pm@2.27.3))(@types/hast@3.0.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(graphql@16.10.0)(highlight.js@11.12.0)(jotai@2.12.2(@types/react@18.3.1)(react@18.3.1))(lowlight@3.3.0)(prosemirror-model@1.25.11)(prosemirror-state@1.4.3)(prosemirror-view@1.42.3)(react-dom@18.3.1(react@18.3.1))(react-i18next@15.4.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-is@18.3.1)(react-router-dom@7.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@5.0.1)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(typescript@5.7.3))(typescript@5.7.3)(webpack@5.99.5)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)':
+  '@erxes/ui@1.0.0(@apollo/client@3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/extension-code-block@2.27.3(@tiptap/core@2.27.3(@tiptap/pm@2.27.3))(@tiptap/pm@2.27.3))(@types/hast@3.0.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(graphql@16.10.0)(highlight.js@11.12.0)(jotai@2.12.2(@types/react@18.3.1)(react@18.3.1))(lowlight@3.3.0)(prosemirror-model@1.25.11)(prosemirror-state@1.4.3)(prosemirror-view@1.42.3)(react-dom@18.3.1(react@18.3.1))(react-i18next@15.4.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-is@18.3.1)(react-router-dom@7.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(redux@5.0.1)(ts-node@10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@18.16.9)(typescript@5.7.3))(typescript@5.7.3)(webpack@5.99.5)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)':
     dependencies:
       '@apollo/client': 3.13.6(@types/react@18.3.1)(graphql-ws@6.3.0(graphql@16.10.0)(ws@8.22.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@blocknote/core': 0.35.0(@types/hast@3.0.4)(highlight.js@11.12.0)(lowlight@3.3.0)

@@ -15,7 +15,7 @@
     "@aws-sdk/client-s3": "^3.913.0",
     "bullmq": "^5.40.0",
     "debug": "^4.4.0",
-    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
+    "erxes-api-shared": "npm:@erxes/api-shared@1.0.0",
     "express": "^4.21.2",
     "helmet": "^8.1.0",
     "https-proxy-agent": "^7.0.6",

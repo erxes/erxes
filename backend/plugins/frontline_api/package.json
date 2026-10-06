@@ -18,7 +18,7 @@
     "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "discord-api-types": "0.38.49",
-    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
+    "erxes-api-shared": "npm:@erxes/api-shared@1.0.0",
     "fast-xml-parser": "5.2.5",
     "fbgraph": "^1.4.4",
     "graphql-tag": "^2.12.6",

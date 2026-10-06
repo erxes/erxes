@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
+    "erxes-api-shared": "npm:@erxes/api-shared@1.0.0",
     "graphql-tag": "^2.12.6",
     "mathjs": "^15.1.1"
   }

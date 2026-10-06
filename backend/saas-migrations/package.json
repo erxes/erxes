@@ -11,7 +11,7 @@
     "lint:knowledgebase": "eslint content/knowledgebase --max-warnings=0"
   },
   "dependencies": {
-    "erxes-api-shared": "npm:@erxes/api-shared@3.2.13",
+    "erxes-api-shared": "npm:@erxes/api-shared@1.0.0",
     "@aws-sdk/client-s3": "3.913.0",
     "fast-xml-parser": "5.10.1",
     "file-type": "20.5.0",
