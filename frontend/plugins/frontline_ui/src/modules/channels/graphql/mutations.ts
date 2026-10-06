@@ -68,7 +68,7 @@ const REMOVE_CHANNEL = gql`
 `;
 
 const ADD_CHANNEL_MEMBERS = gql`
-  mutation ChannelAddMembers($id: String!, $memberIds: [String]) {
+  mutation ChannelAddMembers($id: String!, $memberIds: [String!]!) {
     channelAddMembers(_id: $id, memberIds: $memberIds) {
       _id
       memberId

@@ -2158,6 +2158,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names. `refetchQueries` strings name
   operations, so a rename updates them in the same change.
+- A document variable is non-null wherever the frontline_api argument is:
+  `ConversationMessageAdd($conversationId)`, `ConversationMarkAsRead($id)`,
+  `ResponseTemplatesEdit($id)`, `TicketCreateNote($contentId)`,
+  `AddTicketStatus($type)`, and `[String!]!` for
+  `ChannelAddMembers($memberIds)` and `FormsRemove($_ids)`. Codegen rejects a
+  nullable variable in a non-null position, so a backend tightening changes
+  the documents in the same change.
 - The Facebook message-trigger condition schema is one flat object keyed by a
   `type` enum, not a discriminated union, so its derived types index the fields
   directly; `Extract<..., { type: ... }>` on it collapses to `never`.

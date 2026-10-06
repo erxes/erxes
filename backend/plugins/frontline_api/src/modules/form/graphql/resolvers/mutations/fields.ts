@@ -59,7 +59,7 @@ export const fieldMutations = {
       return;
     }
 
-    for (const f of newFields) {
+    for (const f of newFields ?? []) {
       if (f.logics && f.logics.length > 0) {
         logicalFields.push(f);
         continue;

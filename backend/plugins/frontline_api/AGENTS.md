@@ -1234,6 +1234,28 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   added there, never as another `if` branch.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
   opens a Redis client on import that would otherwise keep it alive.
+- An argument a resolver cannot run without is non-null in the SDL:
+  `responseTemplatesEdit(_id)`, `conversationMessageAdd(conversationId)`,
+  `conversationMarkAsRead(_id)`, `ticketCreateNote(contentId)`,
+  `addTicketStatus(type)`, and `[String!]!` for
+  `channelAddMembers`/`channelRemoveMembers(memberIds)` and
+  `formsRemove(_ids)`. The write methods still reject the empty values GraphQL
+  lets through: `ResponseTemplates.updateResponseTemplate` (`_id`),
+  `Note.createNote` (`contentId`, which also covers the client portal, widget
+  and mail note paths) and `Status.addStatus` (`type`). `channelAddMembers`
+  drops empty and repeated ids before inserting and rejects a list that ends
+  up empty.
+- Optional filter objects default to `{}` before use: `getTickets`,
+  `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
+  `userConversations` rejects a missing `_id`, because `$in: [undefined]`
+  matches every conversation that has no `participatedUserIds` field.
+  `frontlineFieldsBulkAction` accepts `updatedFields` without `newFields`.
+- These arguments stay nullable on purpose: `conversationsAssign`
+  `assignedUserId` (null unassigns), `callAddCustomer` `inboxIntegrationId` /
+  `queueName` (either one finds the integration), the `updateTicketStatus`
+  fields (a patch), `ticketCreateNote` `content` (a note may carry only
+  attachments), and the `instagramGetPosts` filters (a missing one means no
+  filter).
 
 ## Validation
 

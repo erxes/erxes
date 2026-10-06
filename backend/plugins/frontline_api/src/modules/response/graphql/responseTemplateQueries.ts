@@ -27,10 +27,11 @@ const generateFilter = (args: ResponseTemplatesFilter) => {
 export const responseTemplateQueries = {
   async responseTemplates(
     _parent: undefined,
-    { filter }: { filter: ResponseTemplatesFilter },
+    args: { filter?: ResponseTemplatesFilter | null },
 
     { models }: IContext,
   ) {
+    const filter: ResponseTemplatesFilter = args.filter ?? {};
     const filterQuery = generateFilter(filter);
 
     filterQuery.channelId = { $exists: true, $ne: null };

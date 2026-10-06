@@ -52,7 +52,7 @@ export const mutations = `
     description: String
     color: String
     order: Int
-    type: Int
+    type: Int!
     ${statusParams}
   ): TicketStatus
 

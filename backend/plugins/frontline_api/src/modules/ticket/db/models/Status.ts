@@ -39,6 +39,10 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async addStatus(doc: IStatus): Promise<IStatusDocument> {
+      if (!doc.type) {
+        throw new Error('Status type is required');
+      }
+
       const lastStatus = await models.Status.findOne({
         pipelineId: doc.pipelineId,
         type: doc.type,

@@ -7,7 +7,7 @@ export const ADD_TICKET_STATUS = gql`
     $description: String
     $color: String
     $order: Int
-    $type: Int
+    $type: Int!
   ) {
     addTicketStatus(
       name: $name

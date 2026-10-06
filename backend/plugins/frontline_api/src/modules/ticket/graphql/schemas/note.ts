@@ -19,7 +19,7 @@ export const types = `
 
 const createNoteParams = `
     content: String
-    contentId: String
+    contentId: String!
     mentions: [String]
     attachments: [AttachmentInput]
     isInternal: Boolean

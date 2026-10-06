@@ -49,7 +49,7 @@ export const FORM_BULK_ACTION = gql`
 `;
 
 export const FORM_REMOVE = gql`
-  mutation FormsRemove($_ids: [String]) {
+  mutation FormsRemove($_ids: [String!]!) {
     formsRemove(_ids: $_ids)
   }
 `;
