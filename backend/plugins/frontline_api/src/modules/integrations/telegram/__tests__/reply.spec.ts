@@ -108,9 +108,9 @@ test.each([
   'delivers the entire text in ordered Unicode-safe chunks: %s',
   async (_label, text) => {
     let nextId = 20;
-    fetchMock.mockImplementation(async (_url, options) => {
+    fetchMock.mockImplementation((_url, options) => {
       const body: { text: string } = JSON.parse(String(options?.body));
-      return accepted(nextId++, body.text);
+      return Promise.resolve(accepted(nextId++, body.text));
     });
     jest
       .mocked(models.TelegramConversationMessages.findOne)
@@ -184,9 +184,9 @@ test.each([1, 2])(
         : new Response(JSON.stringify({ ok: true, result: albumParts })),
     );
     let nextId = 30 + count;
-    fetchMock.mockImplementation(async (_url, options) => {
+    fetchMock.mockImplementation((_url, options) => {
       const body: { text: string } = JSON.parse(String(options?.body));
-      return accepted(nextId++, body.text);
+      return Promise.resolve(accepted(nextId++, body.text));
     });
     const result = await sendTelegramReply({
       models,
@@ -255,7 +255,7 @@ test('rejects an unsendable whitespace-only chunk before sending any part', asyn
       subdomain: 'tenant',
       payload: {
         ...payload,
-        content: 'x'.repeat(4096) + ' '.repeat(4096) + 'end',
+        content: `${'x'.repeat(4096)}${' '.repeat(4096)}end`,
       },
     }),
   ).rejects.toThrow('Shorten the blank section');

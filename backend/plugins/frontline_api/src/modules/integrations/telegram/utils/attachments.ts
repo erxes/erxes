@@ -5,6 +5,7 @@ import type { IAttachment } from 'erxes-api-shared/core-types';
 import { sanitizeFilename, uploadFileToStorage } from 'erxes-api-shared/utils';
 import { downloadTelegramFile } from '@/integrations/telegram/utils/downloadFile';
 
+/** Downloads bounded provider media into workspace storage and removes temporary files. */
 export const storeTelegramAttachment = async ({
   subdomain,
   token,

@@ -68,7 +68,7 @@ const methods = loadTelegramBotClass(models).statics as unknown as Pick<
   ITelegramBotModel,
   'setWebhook' | 'updateBot' | 'disconnectBot'
 >;
-const checkPermission = jest.fn().mockResolvedValue(undefined);
+const checkPermission = jest.fn().mockImplementation(() => Promise.resolve());
 const context = {
   models,
   subdomain: 'tenant-a',

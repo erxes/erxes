@@ -42,7 +42,7 @@ let stored: ITelegramConversationMessageDocument;
 let canonical: { _id: string; conversationId: string } | null;
 let crashAfterInsert = false;
 const findOneAndUpdate = jest.fn(
-  async (
+  (
     filter: { processingToken?: string; erxesApiId?: null },
     update: { $set: Partial<ITelegramConversationMessageDocument> },
   ) => {
@@ -50,31 +50,28 @@ const findOneAndUpdate = jest.fn(
       filter.erxesApiId === null &&
       (stored.erxesApiId || stored.processingToken)
     )
-      return null;
+      return Promise.resolve(null);
     if (
       filter.processingToken &&
       filter.processingToken !== stored.processingToken
     )
-      return null;
+      return Promise.resolve(null);
     Object.assign(stored, update.$set);
-    return stored;
+    return Promise.resolve(stored);
   },
 );
 const models = {
   TelegramConversationMessages: {
     updateOne: jest.fn(
-      async (
-        _filter: unknown,
-        update: { $unset?: { processingToken?: string } },
-      ) => {
+      (_filter: unknown, update: { $unset?: { processingToken?: string } }) => {
         if (update.$unset) {
           delete stored.processingToken;
           delete stored.processingUntil;
         }
-        return { upsertedCount: 1, matchedCount: 1 };
+        return Promise.resolve({ upsertedCount: 1, matchedCount: 1 });
       },
     ),
-    getMessage: jest.fn(async () => stored),
+    getMessage: jest.fn(() => Promise.resolve(stored)),
     findOneAndUpdate,
   },
   TelegramReactions: { exists: jest.fn().mockResolvedValue(null) },
@@ -83,7 +80,7 @@ const models = {
       select: jest.fn().mockResolvedValue({ token: '123:fake' }),
     })),
   },
-  ConversationMessages: { findOne: jest.fn(async () => canonical) },
+  ConversationMessages: { findOne: jest.fn(() => Promise.resolve(canonical)) },
   Conversations: { updateConversation: jest.fn().mockResolvedValue({}) },
 } as unknown as IModels;
 const run = () => getOrCreateMessage(models, 'tenant-a', conversation, message);
@@ -103,14 +100,13 @@ beforeEach(() => {
   canonical = null;
   crashAfterInsert = false;
   jest.mocked(storeTelegramAttachment).mockResolvedValue(attachment);
-  jest
-    .mocked(receiveInboxMessage)
-    .mockImplementation(async (_tenant, event) => {
-      const data = JSON.parse(event.payload);
-      canonical = { _id: data._id, conversationId: data.conversationId };
-      if (crashAfterInsert) throw new Error('process failed after insert');
-      return { status: 'success', data: { _id: data._id } };
-    });
+  jest.mocked(receiveInboxMessage).mockImplementation((_tenant, event) => {
+    const data = JSON.parse(event.payload);
+    canonical = { _id: data._id, conversationId: data.conversationId };
+    if (crashAfterInsert)
+      return Promise.reject(new Error('process failed after insert'));
+    return Promise.resolve({ status: 'success', data: { _id: data._id } });
+  });
 });
 test('stores media once, escapes text, uses existing attachment shape and deduplicates redelivery', async () => {
   const first = await run();
@@ -132,6 +128,61 @@ test('stores media once, escapes text, uses existing attachment shape and dedupl
   expect(storeTelegramAttachment).toHaveBeenCalledTimes(1);
   expect(receiveInboxMessage).toHaveBeenCalledTimes(1);
   expect(stored.processingToken).toBeUndefined();
+});
+test.each([false, true])(
+  'sets the preview for captionless media before publishing, including crash recovery (%s)',
+  async (recover) => {
+    crashAfterInsert = recover;
+    const incoming = { ...message, caption: undefined };
+    if (recover) {
+      await expect(
+        getOrCreateMessage(models, 'tenant-a', conversation, incoming),
+      ).rejects.toThrow('process failed');
+      jest.mocked(models.Conversations.updateConversation).mockClear();
+    }
+    await getOrCreateMessage(models, 'tenant-a', conversation, incoming);
+    expect(models.Conversations.updateConversation).toHaveBeenCalledWith(
+      'inbox-chat',
+      expect.objectContaining({ content: 'file.txt' }),
+    );
+    expect(stored.content).toBe('');
+    const data: { content: string; attachments: unknown[] } = JSON.parse(
+      jest.mocked(receiveInboxMessage).mock.calls[0][1].payload,
+    );
+    expect(data).toMatchObject({ content: '', attachments: [attachment] });
+    if (!recover) {
+      expect(
+        jest.mocked(models.Conversations.updateConversation).mock
+          .invocationCallOrder[0],
+      ).toBeLessThan(
+        jest.mocked(receiveInboxMessage).mock.invocationCallOrder[0],
+      );
+    }
+  },
+);
+test('updates the list preview for a poll without duplicating its question in the bubble', async () => {
+  const incoming = telegramMessageSchema.parse({
+    ...message,
+    caption: undefined,
+    document: undefined,
+    poll: {
+      id: 'poll',
+      question: '<Lunch?>',
+      options: [],
+      total_voter_count: 0,
+      is_closed: false,
+      is_anonymous: true,
+      type: 'regular',
+      allows_multiple_answers: false,
+    },
+  });
+  await getOrCreateMessage(models, 'tenant-a', conversation, incoming);
+  expect(models.Conversations.updateConversation).toHaveBeenCalledWith(
+    'inbox-chat',
+    { content: '&lt;Lunch?&gt;' },
+  );
+  expect(stored.content).toBe('');
+  expect(stored.poll?.question).toBe('<Lunch?>');
 });
 test.each(['text', 'caption'] as const)(
   'keeps the entire incoming %s without applying outbound length limits',
@@ -209,8 +260,9 @@ test('a file limit discovered during download is shown in the inbox instead of b
 });
 
 test('an upgraded group reuses the old history through its alias without rewriting unique chat keys', async () => {
-  const { getOrCreateTelegramConversation } =
-    await import('../controller/store');
+  const { getOrCreateTelegramConversation } = await import(
+    '../controller/store'
+  );
   const old = { ...conversation, chatId: '-123', migratedToChatId: '-100123' };
   const find = jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce(old);
   const update = jest.fn().mockResolvedValue(old);
@@ -240,8 +292,9 @@ test('an upgraded group reuses the old history through its alias without rewriti
   );
 });
 test('a conversation already created at the upgraded ID wins without merging separate histories', async () => {
-  const { getOrCreateTelegramConversation } =
-    await import('../controller/store');
+  const { getOrCreateTelegramConversation } = await import(
+    '../controller/store'
+  );
   const existing = { ...conversation, _id: 'new-history', chatId: '-100123' };
   const find = jest.fn().mockResolvedValue(existing);
   const scopedModels = {

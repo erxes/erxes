@@ -5,6 +5,7 @@ import {
 } from './fileLimits';
 export { MAX_TELEGRAM_DOWNLOAD_BYTES } from './fileLimits';
 
+/** Downloads a validated Telegram file path within the 20 MB limit and timeout. */
 export const downloadTelegramFile = async (
   token: string,
   fileId: string,

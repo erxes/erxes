@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 
+/** Compares equal-length UTF-8 secrets without content-dependent timing. */
 export const verifyTelegramWebhookSecret = (
   expectedSecret: string,
   receivedSecret?: string,

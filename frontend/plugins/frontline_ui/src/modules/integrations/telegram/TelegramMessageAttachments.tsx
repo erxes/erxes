@@ -24,6 +24,7 @@ export const getTelegramStreamPlayer = (
   }
 };
 
+/** Renders native media controls and usable file links without history removal actions. */
 export const TelegramMessageAttachments = ({
   attachments,
 }: {
@@ -41,20 +42,21 @@ export const TelegramMessageAttachments = ({
   return (
     <div className="max-w-full min-w-0 space-y-2">
       {media.some(({ player }) => player) ? (
-        media.map(({ attachment, player }, index) =>
+        media.map(({ attachment, player }) =>
           player ? (
             <iframe
-              key={`${attachment.url}-${index}`}
+              key={attachment.url}
               src={player}
               title={attachment.name || t('video', 'Video')}
               className="aspect-video w-96 max-w-full rounded border-0"
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              sandbox="allow-scripts allow-same-origin allow-presentation"
               allowFullScreen
               loading="lazy"
             />
           ) : (
             <MessageAttachments
-              key={`${attachment.url}-${index}`}
+              key={attachment.url}
               attachments={[attachment]}
             />
           ),
@@ -67,9 +69,9 @@ export const TelegramMessageAttachments = ({
           ({ attachment }) =>
             attachment.url && /^(audio|video)/.test(attachment.type || ''),
         )
-        .map(({ attachment, src, player }, index) => (
+        .map(({ attachment, src, player }) => (
           <a
-            key={`${attachment.url}-${index}`}
+            key={attachment.url}
             href={player || src}
             target="_blank"
             rel="noopener noreferrer"

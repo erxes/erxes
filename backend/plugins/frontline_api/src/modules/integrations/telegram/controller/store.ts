@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import {
   getTelegramMessageContent,
   getTelegramMessageMetadata,
+  getTelegramMessagePreview,
   getTelegramSenderName,
   getTelegramThreadId,
   telegramTextToHtml,
@@ -31,12 +32,14 @@ const inboxEntityResponseSchema = z.object({
 const CONVERSATION_LINK_ATTEMPTS = 4;
 const MESSAGE_LEASE_MS = 120_000;
 
+/** Reuses a stable Core contact ID so webhook retries cannot duplicate contacts. */
 export const createCoreCustomer = async (
   subdomain: string,
   integrationId: string,
   sender: NonNullable<TelegramMessage['from']>,
   customerId: string,
 ): Promise<string> => {
+  /** Checks the public Core lookup before creating or recovering a contact. */
   const findExisting = async (): Promise<string | undefined> => {
     const found: unknown = await sendTRPCMessage({
       subdomain,
@@ -80,6 +83,7 @@ export const createCoreCustomer = async (
   return customer.data._id;
 };
 
+/** Upserts the tenant Telegram identity and converges concurrent deliveries. */
 export const getOrCreateTelegramCustomer = async (
   models: IModels,
   integrationId: string,
@@ -129,6 +133,7 @@ export const getOrCreateTelegramCustomer = async (
   };
 };
 
+/** Links a provider identity to its Core contact without overwriting a concurrent winner. */
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -172,6 +177,7 @@ export const getOrCreateCustomer = async (
   return currentCustomer;
 };
 
+/** Finds or creates one conversation per integration, chat and forum topic. */
 export const getOrCreateTelegramConversation = async (
   models: IModels,
   integrationId: string,
@@ -223,7 +229,9 @@ export const getOrCreateTelegramConversation = async (
           ...selector,
           ...chatFields,
           timestamp: new Date(message.date * 1000),
-          content: getTelegramMessageContent(message)?.content ?? '',
+          content: getTelegramMessagePreview(
+            getTelegramMessageContent(message),
+          ),
         },
       },
       {
@@ -254,6 +262,7 @@ export const getOrCreateTelegramConversation = async (
   };
 };
 
+/** Creates the canonical inbox conversation using the stable Telegram mapping ID. */
 export const createInboxConversation = async (
   subdomain: string,
   conversation: ITelegramConversationDocument,
@@ -283,6 +292,7 @@ export const createInboxConversation = async (
   return inboxConversation.data._id;
 };
 
+/** Waits for an in-flight link, then safely recovers an unlinked conversation. */
 export const getOrCreateConversation = async (
   models: IModels,
   subdomain: string,
@@ -354,6 +364,7 @@ export const getOrCreateConversation = async (
   return currentConversation;
 };
 
+/** Deduplicates provider message IDs within their integration and chat. */
 export const getOrCreateTelegramMessage = async (
   models: IModels,
   conversation: ITelegramConversationDocument,
@@ -415,6 +426,7 @@ export const getOrCreateTelegramMessage = async (
   };
 };
 
+/** Inserts a native inbox message and publishes through the existing inbox bridge. */
 export const createInboxMessage = async (
   subdomain: string,
   inboxConversationId: string,
@@ -456,6 +468,7 @@ export const createInboxMessage = async (
   return inboxMessage.data._id;
 };
 
+/** Leases message processing to store media, recover interrupted inserts, and apply ordered edits. */
 export const getOrCreateMessage = async (
   models: IModels,
   subdomain: string,
@@ -635,6 +648,13 @@ export const getOrCreateMessage = async (
           },
         );
       } else {
+        if (!content) {
+          // Like Discord, keep the preview separate from a media/poll bubble.
+          // Set it before the inbox bridge publishes its list update.
+          await models.Conversations.updateConversation(inboxConversationId, {
+            content: telegramTextToHtml(getTelegramMessagePreview(mapped)),
+          });
+        }
         await createInboxMessage(
           subdomain,
           inboxConversationId,
@@ -647,7 +667,10 @@ export const getOrCreateMessage = async (
       await models.Conversations.updateConversation(inboxConversationId, {
         status: 'open',
         readUserIds: [],
-        content: telegramTextToHtml(storedMessage.content),
+        content: telegramTextToHtml(
+          storedMessage.content ||
+            getTelegramMessagePreview(getTelegramMessageContent(message)),
+        ),
         updatedAt: storedMessage.createdAt,
       });
       await pConversationClientMessageInserted(subdomain, inboxMessage);

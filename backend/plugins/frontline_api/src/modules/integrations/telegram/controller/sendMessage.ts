@@ -50,6 +50,7 @@ export interface ITelegramReplyResult {
   };
 }
 
+/** Preflights a reply, sends ordered provider parts, and records only confirmed deliveries. */
 export const sendTelegramReply = async ({
   models,
   subdomain,
@@ -155,6 +156,7 @@ export const sendTelegramReply = async ({
   const files = await prepareTelegramReplyFiles(subdomain, attachments ?? []);
   const sentIds: string[] = [];
   let sentPoll: TelegramInboxPoll | undefined;
+  /** Resolves the media category used to choose a compatible album request. */
   const kind = (file: (typeof files)[number]) =>
     file.mediaType ?? (file.asPhoto ? 'photo' : 'document');
   const album =

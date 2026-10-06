@@ -23,6 +23,7 @@ export const getTelegramServerAddress = (value: string): string | undefined => {
   }
 };
 
+/** Appends the bot callback path to a validated public server address. */
 export const getTelegramWebhookUrl = (
   address: string,
   botId: string,

@@ -177,6 +177,7 @@ const mn: Record<keyof typeof en, string> = {
   statusFailed: 'Webhook төлөв авч чадсангүй.',
 };
 
+/** Registers plugin-owned English and Mongolian resources with English fallbacks. */
 export const useTelegramTranslation = (): {
   t: (key: keyof typeof en) => string;
 } => {

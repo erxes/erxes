@@ -4,6 +4,7 @@ import { normalizeTelegramPoll } from '../utils/content';
 import { syncTelegramInboxMessage } from './sync';
 import { withTelegramEventLease } from './eventLease';
 
+/** Applies poll tallies in update order and republishes the existing inbox message. */
 export const receiveTelegramPoll = async ({
   models,
   subdomain,

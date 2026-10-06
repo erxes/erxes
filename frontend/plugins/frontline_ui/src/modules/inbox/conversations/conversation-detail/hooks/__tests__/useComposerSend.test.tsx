@@ -78,10 +78,10 @@ const setup = (overrides: Partial<Options> = {}) => {
 beforeEach(() => {
   jest.clearAllMocks();
   sessionStorage.clear();
-  mockAddMessage.mockImplementation(async (options: MutationOptions) => {
+  mockAddMessage.mockImplementation((options: MutationOptions) => {
     const data = { conversationMessageAdd: { _id: 'saved' } };
     options.onCompleted?.(data);
-    return { data };
+    return Promise.resolve({ data });
   });
 });
 
@@ -154,7 +154,7 @@ test('Facebook partial delivery retains only unsent attachments for retry', asyn
     size: 10,
   };
   const pending = { ...sent, url: 'pending.png' };
-  mockAddMessage.mockImplementation(async (options: MutationOptions) => {
+  mockAddMessage.mockImplementation((options: MutationOptions) => {
     const data = {
       conversationMessageAdd: {
         _id: 'saved',
@@ -168,7 +168,7 @@ test('Facebook partial delivery retains only unsent attachments for retry', asyn
       },
     };
     options.onCompleted?.(data);
-    return { data };
+    return Promise.resolve({ data });
   });
   const { result, options } = setup({
     isFacebook: true,
@@ -196,8 +196,9 @@ test('a send finishing after conversation navigation does not clear the new draf
   );
   const { result, options, rerender } = setup();
   let sending: Promise<void> | undefined;
-  await act(async () => {
+  await act(() => {
     sending = result.current.handleSubmit();
+    return Promise.resolve();
   });
   sessionStorage.setItem('draft-b', 'new draft');
   rerender({ ...options, conversationId: 'chat-b', draftKey: 'draft-b' });
@@ -210,11 +211,11 @@ test('a send finishing after conversation navigation does not clear the new draf
 });
 
 test('Instagram failures retain their provider-specific feedback and the unsent draft', async () => {
-  mockAddMessage.mockImplementation(async (options: MutationOptions) => {
+  mockAddMessage.mockImplementation((options: MutationOptions) => {
     options.onError?.(
       new ApolloError({ errorMessage: 'Messaging window expired' }),
     );
-    return {};
+    return Promise.resolve({});
   });
   const { result, options } = setup({ isInstagram: true });
   await act(() => result.current.handleSubmit());

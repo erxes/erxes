@@ -48,6 +48,7 @@ export interface TelegramAttachmentSource {
   mimeType?: string;
 }
 
+/** Adapts provider answers and tallies to the existing inbox poll shape. */
 export const normalizeTelegramPoll = (
   poll: NonNullable<TelegramMessage['poll']>,
 ): TelegramInboxPoll => ({
@@ -70,6 +71,7 @@ export const normalizeTelegramPoll = (
   },
 });
 
+/** Selects the highest-resolution photo, using file size to break ties. */
 const largestPhoto = (photos: NonNullable<TelegramMessage['photo']>) =>
   photos.reduce<(typeof photos)[number] | undefined>(
     (largest, candidate) =>
@@ -82,6 +84,7 @@ const largestPhoto = (photos: NonNullable<TelegramMessage['photo']>) =>
     undefined,
   );
 
+/** Maps media metadata and captions, replacing oversized files with a visible notice. */
 const fileContent = (
   message: TelegramMessage,
   file: NonNullable<TelegramMessage['document']>,
@@ -110,6 +113,7 @@ const fileContent = (
   };
 };
 
+/** Normalizes supported content and supplies a visible fallback for unsupported events. */
 export const getTelegramMessageContent = (
   message: TelegramMessage,
 ): TelegramMessageContent => {
@@ -288,6 +292,18 @@ export const getTelegramMessageContent = (
   };
 };
 
+/** Supplies list previews without adding artificial captions to message bubbles. */
+export const getTelegramMessagePreview = (
+  message: TelegramMessageContent,
+): string => {
+  if (message.content) return message.content;
+  if (message.poll) return message.poll.question;
+  if (message.contentType === 'document' && message.attachment?.fileName)
+    return message.attachment.fileName;
+  return message.contentType.replace(/_/g, ' ');
+};
+
+/** Prefers channel and anonymous-admin identity over Telegram compatibility users. */
 export const getTelegramSenderName = (
   message: Pick<TelegramMessage, 'from' | 'sender_chat' | 'author_signature'>,
 ): string =>
@@ -295,6 +311,7 @@ export const getTelegramSenderName = (
   message.author_signature ??
   [message.from?.first_name, message.from?.last_name].filter(Boolean).join(' ');
 
+/** Preserves provider context, edits and explicit reply references in extraData. */
 export const getTelegramMessageMetadata = (
   message: TelegramMessage,
 ): TelegramMessageMetadata => ({
@@ -332,6 +349,7 @@ export const getTelegramMessageMetadata = (
       : undefined,
 });
 
+/** Escapes literal provider text and preserves line breaks for the inbox renderer. */
 export const telegramTextToHtml = (text: string): string =>
   text
     .replace(/&/g, '&amp;')
@@ -341,5 +359,6 @@ export const telegramTextToHtml = (text: string): string =>
     .replace(/'/g, '&#39;')
     .replace(/\n/g, '<br>');
 
+/** Partitions forum topics only; ordinary reply thread IDs stay in the same chat. */
 export const getTelegramThreadId = (message: TelegramMessage): number =>
   message.is_topic_message ? (message.message_thread_id ?? 0) : 0;

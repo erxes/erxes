@@ -14,6 +14,7 @@ const telegramIntegrationDataSchema = z
   })
   .strict();
 
+/** Validates saved-bot setup data and attaches it to the tenant inbox integration. */
 export const telegramCreateIntegrations = async ({
   subdomain,
   data,
@@ -69,6 +70,7 @@ type TelegramIntegrationResponse =
       errorMessage: string;
     };
 
+/** Validates reply routing and adapts provider errors to the inbox service envelope. */
 export const handleTelegramIntegration = async ({
   subdomain,
   data,
@@ -124,6 +126,7 @@ export const handleTelegramIntegration = async ({
   }
 };
 
+/** Detaches the bot and rotates its secret before best-effort remote cleanup. */
 export const telegramRemoveIntegration = async ({
   subdomain,
   data,

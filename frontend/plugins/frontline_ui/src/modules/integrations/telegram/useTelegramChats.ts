@@ -5,6 +5,7 @@ import { currentUserState } from 'ui-modules';
 import { TELEGRAM_CHAT_MESSAGE_INSERTED } from './graphql';
 import { TELEGRAM_CHATS, type TelegramChat } from './graphql';
 
+/** Labels shared chats and forum topics while preserving private-contact display names. */
 export const telegramChatLabel = (chat?: TelegramChat): string | undefined => {
   if (!chat || (chat.chatType === 'private' && !chat.messageThreadId))
     return undefined;
@@ -14,6 +15,7 @@ export const telegramChatLabel = (chat?: TelegramChat): string | undefined => {
     : name;
 };
 
+/** Loads visible chat labels in bounded batches and refreshes them on inbox events. */
 export const useTelegramChats = (
   conversationIds: string[],
 ): {
@@ -40,6 +42,7 @@ export const useTelegramChats = (
   useEffect(() => {
     let cancelled = false;
     const ids: string[] = JSON.parse(idsKey);
+    /** Fetches each metadata batch and ignores results after the effect is cancelled. */
     const load = async (): Promise<void> => {
       setLoading(Boolean(ids.length));
       const next = new Map<string, TelegramChat>();
@@ -67,7 +70,7 @@ export const useTelegramChats = (
         if (!cancelled) setLoading(false);
       }
     };
-    void load();
+    load();
     return () => {
       cancelled = true;
     };

@@ -143,7 +143,7 @@ export const sendUpdateIntegration = async (
 
       case 'telegram':
         // Common fields belong to erxes; bot credentials use telegramUpdateBot.
-        return;
+        break;
 
       case 'mobinetSms':
         break;

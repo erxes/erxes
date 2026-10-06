@@ -272,7 +272,7 @@ test('stores one complete inbox message for a reply delivered as multiple Telegr
 });
 
 test('keeps a long-link reply visible in the inbox preview after saving editor HTML', async () => {
-  const url = 'https://example.com/' + 'long-path/'.repeat(15);
+  const url = `https://example.com/${'long-path/'.repeat(15)}`;
   jest.mocked(handleTelegramIntegration).mockResolvedValue({
     status: 'success',
     data: {

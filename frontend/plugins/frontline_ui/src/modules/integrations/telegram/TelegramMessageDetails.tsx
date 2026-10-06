@@ -1,6 +1,7 @@
 import { useTelegramTranslation } from './translations';
 import type { ITelegramMessageData } from '@/inbox/types/Conversation';
 
+/** Shows provider edit, album, poll and observed reaction metadata. */
 export const TelegramMessageStatus = ({
   data,
 }: {
@@ -13,9 +14,9 @@ export const TelegramMessageStatus = ({
       {data.mediaGroupId && <div>{t('albumPart')}</div>}
       {data.editedAt && <div>{t('edited')}</div>}
       {data.contentType === 'poll' && <div>{t('pollVoting')}</div>}
-      {!!data.reactions?.length && (
+      {Boolean(data.reactions?.length) && (
         <div className="flex flex-wrap gap-1" title={t('observedReactions')}>
-          {data.reactions.map((reaction) => (
+          {data.reactions?.map((reaction) => (
             <span key={reaction.key} className="rounded border px-1.5 py-0.5">
               {reaction.label} {reaction.count}
             </span>

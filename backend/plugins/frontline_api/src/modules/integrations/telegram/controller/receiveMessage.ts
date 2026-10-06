@@ -8,6 +8,7 @@ import {
   getOrCreateMessage,
 } from '@/integrations/telegram/controller/store';
 
+/** Routes a supported tenant webhook to its chat/topic and canonical inbox message. */
 export const receiveTelegramMessage = async ({
   models,
   subdomain,

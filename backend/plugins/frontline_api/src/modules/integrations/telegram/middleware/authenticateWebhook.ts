@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
+/** Rejects unverified webhook secrets before any update can be processed. */
 export const authenticateTelegramWebhook = async (
   req: Request<{ _id: string }, unknown, unknown>,
   res: Response<unknown>,

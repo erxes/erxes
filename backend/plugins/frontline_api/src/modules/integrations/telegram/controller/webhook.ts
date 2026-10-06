@@ -6,6 +6,7 @@ import { generateModels } from '~/connectionResolvers';
 import { telegramUpdateSchema } from '@/integrations/telegram/utils/update';
 import { receiveTelegramMessage } from '@/integrations/telegram/controller/receiveMessage';
 
+/** Dispatches authenticated updates and acknowledges only completed or unsupported events. */
 export const telegramWebhook = async (
   req: Request<{ _id: string }, unknown, unknown>,
   res: Response<unknown>,

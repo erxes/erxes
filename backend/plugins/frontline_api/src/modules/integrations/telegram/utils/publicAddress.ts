@@ -33,6 +33,7 @@ for (const [network, prefix] of [
 ] as const)
   blockedV6.addSubnet(network, prefix, 'ipv6');
 
+/** Allows only public IPv4/IPv6 destinations for attachment and preview requests. */
 export const isPublicTelegramFileAddress = (address: string): boolean => {
   const family = isIP(address);
   return family === 4

@@ -16,4 +16,5 @@ telegramReactionSchema.index(
   { unique: true },
 );
 
+/** Exposes the schema whose unique actor key deduplicates reaction updates. */
 export const loadTelegramReactionClass = (): Schema => telegramReactionSchema;

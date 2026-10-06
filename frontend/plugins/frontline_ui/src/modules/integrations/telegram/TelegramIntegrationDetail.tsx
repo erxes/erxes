@@ -40,7 +40,8 @@ import {
 } from './webhookUrl';
 
 // undefined: closed, null: new connection, string: configure this integration.
-const telegramSetupState = atom<string | null | undefined>(undefined);
+const telegramSetupState = atom<string | null>();
+/** Validates the public callback address before any bot setup mutation. */
 const getSetupSchema = (callbackError: string) =>
   z.object({
     botId: z.string(),
@@ -56,6 +57,7 @@ const getSetupSchema = (callbackError: string) =>
   });
 type SetupValues = z.infer<ReturnType<typeof getSetupSchema>>;
 
+/** Opens setup for the integration selected in the native integrations table. */
 export const TelegramIntegrationActions = ({
   cell,
 }: {
@@ -75,32 +77,7 @@ export const TelegramIntegrationActions = ({
   );
 };
 
-export const TelegramIntegrationDetail = () => {
-  const [integrationId, setIntegrationId] = useAtom(telegramSetupState);
-  const { t } = useTelegramTranslation();
-  return (
-    <Sheet
-      open={integrationId !== undefined}
-      onOpenChange={(open) => setIntegrationId(open ? null : undefined)}
-    >
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconBrandTelegram />
-          {t('connect')}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-2xl">
-        {integrationId !== undefined && (
-          <TelegramSetup
-            key={integrationId ?? 'new'}
-            integrationId={integrationId}
-          />
-        )}
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
+/** Runs resumable bot verification, inbox linking and webhook registration. */
 const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   const { id: channelId } = useParams();
   const { t } = useTelegramTranslation();
@@ -126,10 +103,13 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   });
   const chosenId = form.watch('botId');
   const bot =
-    savedBot ??
     botsQuery.data?.telegramBots.find((item) =>
-      integrationId ? item.erxesApiId === integrationId : item._id === chosenId,
-    );
+      savedBot
+        ? item._id === savedBot._id
+        : integrationId
+          ? item.erxesApiId === integrationId
+          : item._id === chosenId,
+    ) ?? savedBot;
   const needsLink = !bot?.erxesApiId;
   const statusQuery = useQuery<{ telegramBotWebhookInfo: TelegramWebhookInfo }>(
     TELEGRAM_WEBHOOK_INFO,
@@ -165,6 +145,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
     integrationsCreateExternalIntegration: { _id: string };
   }>(ADD_INTEGRATION);
 
+  /** Refetches active setup and inbox queries after connection changes. */
   const refresh = async (): Promise<void> => {
     const names = new Set([
       'frontlineTelegramSetupBots',
@@ -181,6 +162,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
         names.has(query.queryName ?? '') ? query.refetch() : false,
     });
   };
+  /** Shows actionable setup failures without discarding the entered form values. */
   const reportError = (error: unknown): void => {
     toast({
       title: t('failed'),
@@ -188,6 +170,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
       variant: 'destructive',
     });
   };
+  /** Reconciles saved bot state before resuming setup after an interrupted request. */
   const submit = async (values: SetupValues): Promise<void> => {
     if (needsLink && !values.brandId) {
       form.setError('brandId', { message: t('chooseBrand') });
@@ -215,6 +198,17 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
         current = result.data.telegramUpdateBot;
         setSavedBot(current);
         form.setValue('token', '');
+      }
+      if (!current.erxesApiId) {
+        // A previous create may have committed before its response was lost.
+        // Reconcile with the server before attempting another integration.
+        const { data } = await botsQuery.refetch();
+        const reconciled = data.telegramBots.find(
+          (item) => item._id === current?._id,
+        );
+        if (!reconciled) throw new Error(t('missing'));
+        current = reconciled;
+        setSavedBot(current);
       }
       if (!current.erxesApiId) {
         const result = await addIntegration({
@@ -254,6 +248,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
       setBusy(false);
     }
   };
+  /** Re-verifies bot capabilities and reloads webhook diagnostics. */
   const refreshStatus = async (): Promise<void> => {
     if (!bot) return;
     setBusy(true);
@@ -267,6 +262,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
       setBusy(false);
     }
   };
+  /** Confirms disconnection and distinguishes local deactivation from remote cleanup. */
   const disconnectBot = async (): Promise<void> => {
     if (!bot) return;
     try {
@@ -320,7 +316,9 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => void botsQuery.refetch().catch(reportError)}
+                onClick={() => {
+                  botsQuery.refetch().catch(reportError);
+                }}
               >
                 {t('retry')}
               </Button>
@@ -545,7 +543,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                       type="button"
                       variant="secondary"
                       disabled={busy}
-                      onClick={() => void refreshStatus()}
+                      onClick={refreshStatus}
                     >
                       {t('refresh')}
                     </Button>
@@ -553,7 +551,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
                       type="button"
                       variant="ghost"
                       disabled={busy}
-                      onClick={() => void disconnectBot()}
+                      onClick={disconnectBot}
                     >
                       {t('disconnect')}
                     </Button>
@@ -601,5 +599,32 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
         </Sheet.Footer>
       </form>
     </Form>
+  );
+};
+
+/** Owns the shared connection sheet for new and existing Telegram bots. */
+export const TelegramIntegrationDetail = () => {
+  const [integrationId, setIntegrationId] = useAtom(telegramSetupState);
+  const { t } = useTelegramTranslation();
+  return (
+    <Sheet
+      open={integrationId !== undefined}
+      onOpenChange={(open) => setIntegrationId(open ? null : undefined)}
+    >
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconBrandTelegram />
+          {t('connect')}
+        </Button>
+      </Sheet.Trigger>
+      <Sheet.View className="sm:max-w-2xl">
+        {integrationId !== undefined && (
+          <TelegramSetup
+            key={integrationId ?? 'new'}
+            integrationId={integrationId}
+          />
+        )}
+      </Sheet.View>
+    </Sheet>
   );
 };

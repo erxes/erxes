@@ -3,14 +3,18 @@ import { IModels } from '~/connectionResolvers';
 import { ITelegramConversationDocument } from '@/integrations/telegram/@types/conversations';
 import { telegramConversationSchema } from '@/integrations/telegram/db/definitions/conversations';
 
-export interface ITelegramConversationModel extends Model<ITelegramConversationDocument> {
+export interface ITelegramConversationModel
+  extends Model<ITelegramConversationDocument> {
   getConversation(
     selector: FilterQuery<ITelegramConversationDocument>,
   ): Promise<ITelegramConversationDocument>;
 }
 
+/** Registers tenant-scoped Telegram conversation lookup methods. */
 export const loadTelegramConversationClass = (models: IModels) => {
+  /** Loads the chat/topic mapping for a native inbox conversation. */
   class TelegramConversation {
+    /** Returns a matching Telegram conversation or reports a missing mapping. */
     public static async getConversation(
       selector: FilterQuery<ITelegramConversationDocument>,
     ): Promise<ITelegramConversationDocument> {

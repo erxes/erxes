@@ -51,14 +51,15 @@ export const linkifyTelegramContent = (
     let cursor = 0;
     for (const match of value.matchAll(/https?:\/\/[^\s<>"']+/gi)) {
       const url = trimLinkPunctuation(match[0]);
+      let parsedUrl: URL;
       try {
-        new URL(url);
+        parsedUrl = new URL(url);
       } catch {
         continue;
       }
       fragment.append(value.slice(cursor, match.index));
       const link = doc.createElement('a');
-      link.href = url;
+      link.href = parsedUrl.href;
       link.textContent = url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
@@ -78,6 +79,7 @@ export const linkifyTelegramContent = (
   };
 };
 
+/** Loads authorized link cards while retaining the original message link on failure. */
 export const TelegramLinkPreviews = ({
   messageId,
   content,
@@ -108,6 +110,7 @@ export const TelegramLinkPreviews = ({
   return <MessageEmbeds embeds={data?.telegramMessageLinkPreviews} />;
 };
 
+/** Linkifies literal provider URLs before using the native message renderer. */
 export const TelegramMessageContent = ({ content }: { content: string }) => {
   const { html } = useMemo(() => linkifyTelegramContent(content), [content]);
   return <MessageContent content={html} />;

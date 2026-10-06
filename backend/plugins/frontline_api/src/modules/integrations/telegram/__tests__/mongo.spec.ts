@@ -26,13 +26,18 @@ jest.mock('~/connectionResolvers', () => ({ generateModels: jest.fn() }));
 jest.mock('erxes-api-shared/utils', () => ({
   mongooseStringRandomId: {
     type: String,
-    default: () => require('node:crypto').randomUUID(),
+    default: () =>
+      jest
+        .requireActual<typeof import('node:crypto')>('node:crypto')
+        .randomUUID(),
   },
   graphqlPubsub: { publish: jest.fn() },
   sendTRPCMessage: jest.fn(),
 }));
 jest.mock('erxes-api-shared/core-modules', () => ({
-  attachmentSchema: new (require('mongoose').Schema)(
+  attachmentSchema: new (jest.requireActual<typeof import('mongoose')>(
+    'mongoose',
+  ).Schema)(
     { url: String, name: String, type: String, size: Number },
     { _id: false },
   ),
@@ -62,7 +67,9 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
     // persistence methods below are the production model classes.
     models = {
       TelegramBots: {
-        findOne: () => ({ select: async () => ({ token: '123:fake' }) }),
+        findOne: () => ({
+          select: () => Promise.resolve({ token: '123:fake' }),
+        }),
       },
       Conversations: { updateConversation: jest.fn() },
     } as unknown as IModels;
@@ -96,10 +103,12 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
         firstName: String,
       }),
     );
-    jest.mocked(generateModels).mockImplementation(async (tenant) => {
+    jest.mocked(generateModels).mockImplementation((tenant) => {
       if (tenant !== 'test')
-        throw new Error('Only the isolated test tenant is allowed');
-      return models;
+        return Promise.reject(
+          new Error('Only the isolated test tenant is allowed'),
+        );
+      return Promise.resolve(models);
     });
     await Promise.all(
       Object.values(connection.models).map((model) => model.init()),
@@ -123,16 +132,18 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
   });
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.mocked(graphqlPubsub.publish).mockResolvedValue(undefined);
+    jest
+      .mocked(graphqlPubsub.publish)
+      .mockImplementation(() => Promise.resolve());
     jest.mocked(storeTelegramAttachment).mockResolvedValue({
       url: 'key',
       name: 'file.pdf',
       type: 'application/pdf',
       size: 3,
     });
-    jest.mocked(sendTRPCMessage).mockImplementation(async (request) => {
+    jest.mocked(sendTRPCMessage).mockImplementation((request) => {
       const input = request.input as { query: { _id: string } };
-      return coreContacts.findById(input.query._id).lean();
+      return coreContacts.findById(input.query._id).lean().exec();
     });
     jest
       .mocked(receiveInboxMessage)
@@ -162,7 +173,7 @@ mongoSuite('Telegram persistence against isolated local MongoDB', () => {
       text: 'original',
       ...extra,
     });
-  const chat = async () =>
+  const chat = () =>
     models.TelegramConversations.create({
       _id: 'local-chat',
       integrationId: 'integration',

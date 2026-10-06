@@ -21,6 +21,7 @@ const telegramGetMeResponseSchema = z.object({
 
 export type TelegramBot = z.infer<typeof telegramBotSchema>;
 
+/** Calls the Bot API with bounded requests and token-safe, actionable errors. */
 export const getTelegramResponse = async (
   token: string,
   method:
@@ -114,6 +115,7 @@ export const getTelegramResponse = async (
   return body;
 };
 
+/** Validates a token and returns the verified bot identity and capabilities. */
 export const getTelegramBot = async (token: string): Promise<TelegramBot> => {
   const body = await getTelegramResponse(token, 'getMe');
   const parsed = telegramGetMeResponseSchema.safeParse(body);
@@ -146,6 +148,7 @@ const telegramGetWebhookInfoResponseSchema = z.object({
 
 export type TelegramWebhookInfo = z.infer<typeof telegramWebhookInfoSchema>;
 
+/** Reads the current callback and Telegram delivery diagnostics. */
 export const getTelegramWebhookInfo = async (
   token: string,
 ): Promise<TelegramWebhookInfo> => {
@@ -166,6 +169,7 @@ const telegramSetWebhookResponseSchema = z.object({
   result: z.literal(true),
 });
 
+/** Registers the authenticated callback with all supported update types. */
 export const setTelegramWebhook = async (
   token: string,
   url: string,
@@ -212,6 +216,7 @@ const telegramSendMessageResponseSchema = z.object({
   result: telegramMessageSchema,
 });
 
+/** Sends one validated text chunk and requires a confirmed Telegram message ID. */
 export const sendTelegramMessage = async (
   token: string,
   chatId: string,
@@ -265,6 +270,7 @@ const TELEGRAM_MEDIA_METHODS = {
   animation: 'sendAnimation',
 } as const;
 
+/** Uploads one file with its caption and chat/topic routing. */
 export const sendTelegramAttachment = async ({
   token,
   chatId,
@@ -319,6 +325,7 @@ export const sendTelegramAttachment = async ({
   return parsed.data.result;
 };
 
+/** Stops webhook delivery, preserving queued updates unless explicitly discarded. */
 export const deleteTelegramWebhook = async (
   token: string,
   dropPendingUpdates = false,
@@ -346,6 +353,7 @@ const telegramGetFileResponseSchema = z.object({
 
 export type TelegramFile = z.infer<typeof telegramFileSchema>;
 
+/** Resolves a provider file ID to validated download metadata. */
 export const getTelegramFile = async (
   token: string,
   fileId: string,
@@ -369,6 +377,7 @@ export const getTelegramFile = async (
   return parsed.data.result;
 };
 
+/** Uploads one album and requires confirmation for every attachment. */
 export const sendTelegramMediaGroup = async ({
   token,
   chatId,
@@ -441,6 +450,7 @@ export const telegramPollDraftSchema = z.object({
   allowMultiselect: z.boolean(),
 });
 
+/** Sends a native poll using the inbox draft and hour-based duration. */
 export const sendTelegramPoll = async ({
   token,
   chatId,

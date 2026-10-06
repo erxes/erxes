@@ -117,6 +117,9 @@ test('Stream video uses the hosted player and keeps an open link', () => {
   expect(container.querySelector('iframe')?.src).toBe(
     'https://customer-example.cloudflarestream.com/video123/iframe',
   );
+  expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBe(
+    'allow-scripts allow-same-origin allow-presentation',
+  );
   expect(container.querySelector('video')).toBeNull();
   expect(
     screen.getByRole('link', { name: 'Recording' }).getAttribute('href'),

@@ -32,8 +32,11 @@ export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   ): Promise<ITelegramBotDocument>;
 }
 
+/** Binds bot lifecycle methods to the tenant model collection. */
 export const loadTelegramBotClass = (models: IModels) => {
+  /** Owns verified bot credentials, webhook registration and inbox linkage. */
   class TelegramBot {
+    /** Returns the saved bot without selecting private credentials. */
     public static async getBot(_id: string): Promise<ITelegramBotDocument> {
       const bot = await models.TelegramBots.findOne({ _id });
 
@@ -43,6 +46,7 @@ export const loadTelegramBotClass = (models: IModels) => {
 
       return bot;
     }
+    /** Fetches provider webhook diagnostics using the saved token. */
     public static async getWebhookInfo(
       _id: string,
     ): Promise<TelegramWebhookInfo> {
@@ -53,6 +57,7 @@ export const loadTelegramBotClass = (models: IModels) => {
       }
       return getTelegramWebhookInfo(bot.token);
     }
+    /** Validates this bot callback, registers it, and reactivates its inbox integration. */
     public static async setWebhook(_id: string, url: string): Promise<boolean> {
       const bot = await models.TelegramBots.findOne({ _id }).select(
         '+token +webhookSecret',
@@ -92,6 +97,7 @@ export const loadTelegramBotClass = (models: IModels) => {
       );
       return true;
     }
+    /** Refreshes capabilities or rotates a token after verifying the same bot identity. */
     public static async updateBot(
       _id: string,
       token?: string,
@@ -119,6 +125,7 @@ export const loadTelegramBotClass = (models: IModels) => {
       );
       return models.TelegramBots.getBot(_id);
     }
+    /** Deactivates locally first and reports whether remote webhook cleanup succeeded. */
     public static async disconnectBot(_id: string): Promise<boolean> {
       const bot = await models.TelegramBots.findOne({ _id }).select('+token');
       if (!bot) throw new Error('Telegram bot not found');
@@ -136,11 +143,13 @@ export const loadTelegramBotClass = (models: IModels) => {
         return false;
       }
     }
+    /** Lists tenant bots newest first without exposing credential fields. */
     public static getBots(
       filter: FilterQuery<ITelegramBotDocument>,
     ): Promise<ITelegramBotDocument[]> {
       return models.TelegramBots.find(filter).sort({ createdAt: -1 }).exec();
     }
+    /** Verifies a token and saves a unique bot with a generated webhook secret. */
     public static async createBot({
       token,
       createdBy,
@@ -179,6 +188,7 @@ export const loadTelegramBotClass = (models: IModels) => {
 
       return models.TelegramBots.getBot(bot._id);
     }
+    /** Checks the request secret against the tenant bot using constant-time comparison. */
     public static async verifyWebhookSecret(
       _id: string,
       receivedSecret?: string,
@@ -195,6 +205,7 @@ export const loadTelegramBotClass = (models: IModels) => {
 
       return verifyTelegramWebhookSecret(bot.webhookSecret, receivedSecret);
     }
+    /** Atomically links an unconnected bot to a Telegram inbox integration. */
     public static async attachIntegration(
       _id: string,
       integrationId: string,

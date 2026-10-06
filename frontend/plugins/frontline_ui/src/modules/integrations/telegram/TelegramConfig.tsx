@@ -5,6 +5,7 @@ import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
 import { useTelegramTranslation } from './translations';
 
+/** Explains per-bot setup and links to personal or team inbox connections. */
 export const TelegramConfigCollapse = () => {
   const { t } = useTelegramTranslation();
   const integration = INTEGRATIONS[IntegrationType.TELEGRAM_MESSENGER];

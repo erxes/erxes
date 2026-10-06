@@ -1121,6 +1121,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Store every provider ID in one inbox message's `extraData.telegram.messageIds`;
   `textChunked` tells edit synchronization to concatenate without added separators.
   Common-field integration edits require no Telegram API call.
+- Captionless Telegram media and polls still need conversation-list previews.
+  Keep the filename/type/question fallback separate from message content so
+  native attachment and poll bubbles do not gain artificial captions. Write
+  the preview before publishing a new inbox message, including retry recovery.
 - Disconnect must pause locally even when Telegram rejects the token. Removal
   detaches the bot and rotates its webhook secret before best-effort provider
   cleanup. Database failures still propagate. Inbox kind discovery includes
@@ -1209,6 +1213,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram previews and review hygiene
+
+- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
+- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
+- **Contracts changed:** None; previews use the existing conversation content field.
 
 ### `2026-10-06` — Complete long Telegram replies and connection edits
 

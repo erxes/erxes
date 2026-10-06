@@ -21,6 +21,7 @@ export const telegramReplyAttachmentSchema = z.object({
   size: z.number().nonnegative().safe().nullish(),
 });
 
+/** Reads and closes a stream within the remaining reply byte budget and timeout. */
 export const readBoundedTelegramFile = async (
   stream: Readable,
   limit: number,
@@ -50,6 +51,7 @@ export const readBoundedTelegramFile = async (
   }
 };
 
+/** Downloads a direct HTTPS file using the checked DNS address without redirects. */
 const readPublicFile = async (url: URL, limit: number): Promise<Buffer> => {
   if (
     url.protocol !== 'https:' ||
@@ -109,6 +111,7 @@ const readPublicFile = async (url: URL, limit: number): Promise<Buffer> => {
   });
 };
 
+/** Reads a validated workspace key or bounded public file through existing storage APIs. */
 const readAttachment = async (
   subdomain: string,
   location: string,
@@ -159,6 +162,7 @@ export interface TelegramReplyFile {
   url: string;
 }
 
+/** Preflights every attachment within one reply budget and detects supported media formats. */
 export const prepareTelegramReplyFiles = async (
   subdomain: string,
   attachments: z.infer<typeof telegramReplyAttachmentSchema>[],

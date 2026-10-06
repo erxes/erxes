@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 import {
   getTelegramMessageContent,
   getTelegramMessageMetadata,
+  getTelegramMessagePreview,
   getTelegramThreadId,
   telegramTextToHtml,
 } from '../utils/content';
@@ -30,6 +31,48 @@ const parse = (extra: Record<string, unknown>) =>
     ...extra,
   });
 describe('Telegram content adapter', () => {
+  test.each([
+    [
+      {
+        document: {
+          file_id: 'd',
+          file_unique_id: 'd',
+          file_name: 'report.pdf',
+        },
+      },
+      'report.pdf',
+    ],
+    [{ video: { file_id: 'v', file_unique_id: 'v' } }, 'video'],
+    [
+      { photo: [{ file_id: 'p', file_unique_id: 'p', width: 10, height: 10 }] },
+      'photo',
+    ],
+    [
+      {
+        poll: {
+          id: 'poll',
+          question: 'Lunch?',
+          options: [],
+          total_voter_count: 0,
+          is_closed: false,
+          is_anonymous: true,
+          type: 'regular',
+          allows_multiple_answers: false,
+        },
+      },
+      'Lunch?',
+    ],
+  ])(
+    'provides a preview for captionless content without changing the bubble: %j',
+    (extra, expected) => {
+      const mapped = getTelegramMessageContent(parse(extra));
+      expect(mapped.content).toBe('');
+      expect(getTelegramMessagePreview(mapped)).toBe(expected);
+      expect(
+        getTelegramMessagePreview({ ...mapped, content: 'My caption' }),
+      ).toBe('My caption');
+    },
+  );
   test('hides automatic topic-header replies while preserving explicit quotes and normal replies', () => {
     const message = parse({
       text: 'Topic message',

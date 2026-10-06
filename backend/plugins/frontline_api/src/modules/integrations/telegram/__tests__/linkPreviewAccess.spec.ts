@@ -30,7 +30,7 @@ const context = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  checkPermission.mockResolvedValue(undefined);
+  checkPermission.mockImplementation(() => Promise.resolve());
   findMessage.mockResolvedValue({
     conversationId: 'conversation',
     content: 'https://example.com',

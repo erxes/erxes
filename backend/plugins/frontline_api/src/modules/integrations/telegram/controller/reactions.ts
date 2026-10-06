@@ -34,6 +34,7 @@ const countsSchema = baseSchema.extend({
     }),
   ),
 });
+/** Maps Telegram reaction variants to stable aggregation keys and display labels. */
 const label = (
   reaction: z.infer<typeof reactionSchema>,
 ): { key: string; label: string } => {
@@ -44,6 +45,7 @@ const label = (
   return { key: 'paid', label: '⭐' };
 };
 
+/** Projects current reaction totals across all Telegram parts of an inbox message. */
 export const syncTelegramReactions = async (
   models: IModels,
   subdomain: string,
@@ -144,6 +146,7 @@ export const syncTelegramReactions = async (
   );
 };
 
+/** Stores ordered actor or anonymous-count updates and synchronizes their inbox projection. */
 export const receiveTelegramReaction = async ({
   models,
   subdomain,

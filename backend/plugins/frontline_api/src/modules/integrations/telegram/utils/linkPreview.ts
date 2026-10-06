@@ -20,6 +20,7 @@ const cache = new Map<
   { expires: number; result: Promise<TelegramLinkPreview> }
 >();
 
+/** Decodes named and numeric HTML entities while discarding invalid code points. */
 const decodeText = (value: string): string =>
   validator
     .unescape(value)
@@ -47,6 +48,7 @@ const trimLinkPunctuation = (value: string): string => {
   return value.slice(0, end);
 };
 
+/** Extracts at most two distinct HTTP links from editor HTML or provider text. */
 export const telegramMessageLinks = (content: string): string[] => {
   const text = stripHtml(content, { skipHtmlDecoding: true }).result;
   const hrefs = Array.from(
@@ -68,6 +70,7 @@ export const telegramMessageLinks = (content: string): string[] => {
     .slice(0, 2);
 };
 
+/** Rejects credentials, non-HTTPS schemes and custom ports before preview fetching. */
 const publicUrl = (value: string, base?: string): URL => {
   const url = new URL(value, base);
   if (
@@ -81,8 +84,10 @@ const publicUrl = (value: string, base?: string): URL => {
   return url;
 };
 
+/** Resolves and checks public IPs within the preview deadline for DNS pinning. */
 const resolvePublicAddress = async (url: URL, signal: AbortSignal) => {
   signal.throwIfAborted();
+  /** Replaced by the active DNS cancellation handler and removed after lookup. */
   let onAbort: () => void = () => undefined;
   try {
     const addresses = await Promise.race([
@@ -172,6 +177,7 @@ export const readTelegramPreviewHtml = async (
   throw new Error('Too many preview redirects');
 };
 
+/** Maps bounded page metadata into a native link card without executing scripts. */
 export const parseTelegramLinkPreview = (
   html: string,
   original: string,
@@ -195,6 +201,7 @@ export const parseTelegramLinkPreview = (
     if (key && attrs.get('content'))
       meta.set(key.toLowerCase(), attrs.get('content') || '');
   }
+  /** Strips markup, decodes entities and bounds a display metadata field. */
   const plain = (value: string, max: number) =>
     decodeText(stripHtml(value, { skipHtmlDecoding: true }).result)
       .trim()
@@ -235,7 +242,8 @@ export const parseTelegramLinkPreview = (
   return preview;
 };
 
-export const getTelegramLinkPreviews = async (
+/** Caches bounded, tenant-keyed preview fetches and falls back to usable links. */
+export const getTelegramLinkPreviews = (
   subdomain: string,
   content: string,
 ): Promise<TelegramLinkPreview[]> =>

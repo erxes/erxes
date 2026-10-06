@@ -34,7 +34,7 @@ test('extracts at most two distinct HTTP links, decodes ampersands and preserves
 
 test('normalizes video cards into the same embed contract as Discord without embedding page scripts', () => {
   const result = parseTelegramLinkPreview(
-    `<head><meta content="player" name="twitter:card"><meta content="Recording &amp; demo" property="og:title"><meta property="og:description" content="A short &#x1f600; video"><meta property="og:image" content="/poster.png"><script><meta property="og:title" content="bad"></script></head>`,
+    '<head><meta content="player" name="twitter:card"><meta content="Recording &amp; demo" property="og:title"><meta property="og:description" content="A short &#x1f600; video"><meta property="og:image" content="/poster.png"><script><meta property="og:title" content="bad"></script></head>',
     'https://example.com/share',
   );
   expect(result).toMatchObject({

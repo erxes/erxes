@@ -39,7 +39,7 @@ beforeEach(() => {
   jest.mocked(receiveTelegramMessage).mockResolvedValue(null);
 });
 test('authentication rejects missing or mismatched secrets before processing', async () => {
-  await authenticateTelegramWebhook(request({}, undefined), res, next);
+  await authenticateTelegramWebhook(request({}), res, next);
   expect(status).toHaveBeenCalledWith(401);
   expect(generateModels).not.toHaveBeenCalled();
   verify.mockResolvedValueOnce(false);

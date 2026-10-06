@@ -852,6 +852,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 - Keep Telegram linkification, authenticated preview lookup and Stream-origin
   validation inside its module. Quotes render literal provider text. Never
   put Telegram bot tokens or token-bearing download URLs in browser data.
+- Reconcile a saved Telegram bot with the server before retrying inbox linking;
+  a lost mutation response may hide an already-committed integration.
+- Telegram attachment selection enforces both the configured upload limit
+  (20 MiB by default) and 50 MiB total across uploaded and pending files.
+  Immediate refs must account for rapid selections before the next render.
+- Cloudflare Stream players use the validated cross-origin host and a sandbox
+  permitting scripts, their own origin and presentation, without top navigation.
 - Telegram suppresses automatic response-template suggestions while typing;
   the explicit template selector remains available. Preserve other providers'
   composer behavior, Facebook partial-delivery recovery, Instagram error
@@ -1766,6 +1773,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   native replies, note isolation, media playback/open links, link cards and
   poll labels. Verify switching conversations during a send preserves the new
   draft, and other providers retain their reply and partial-delivery behavior.
+- Telegram recovery smoke: retry setup after a lost integration-create response
+  and confirm it resumes webhook registration without another integration;
+  select files in quick succession and confirm the combined size guard includes
+  pending uploads and releases capacity after removal or composer reset.
 - Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
   Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
   `Move to channel`, pick another channel and confirm the row leaves this list
@@ -1856,6 +1867,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram setup recovery and attachment guards
+
+- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
+- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
+- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
 
 ### `2026-10-06` — Telegram review fixes
 
