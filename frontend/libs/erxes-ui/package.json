@@ -1,112 +1,12 @@
 {
   "name": "erxes-ui",
   "version": "1.0.0",
-  "description": "erxes design system: UI primitives, business modules, hooks and shared frontend state",
-  "license": "AGPL-3.0-only",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes.git",
-    "directory": "frontend/libs/erxes-ui"
-  },
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": {
-      "types": [
-        "./dist/index.d.ts",
-        "./src/index.ts"
-      ],
-      "default": "./src/index.ts"
-    },
-    "./theme.css": "./src/theme.css",
-    "./*": {
-      "types": [
-        "./dist/*.d.ts",
-        "./dist/*/index.d.ts",
-        "./src/*.ts",
-        "./src/*/index.ts"
-      ],
-      "default": [
-        "./src/*.tsx",
-        "./src/*.ts",
-        "./src/*/index.tsx",
-        "./src/*/index.ts"
-      ]
-    },
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "src",
-    "dist"
-  ],
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dts": "tsc -p tsconfig.dts.json",
-    "prepare": "tsc -p tsconfig.dts.json || test -f dist/index.d.ts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "@types/react": "18.3.1",
-    "@types/react-dom": "18.3.0",
-    "typescript": "^5.7.3"
-  },
-  "peerDependencies": {
-    "@apollo/client": "^3.11.8",
-    "graphql": "^16.10.0",
-    "jotai": "^2.12.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-i18next": "^15.1.1",
-    "react-router-dom": "^7.1.1"
-  },
-  "dependencies": {
-    "@blocknote/core": "^0.35.0",
-    "@blocknote/react": "^0.35.0",
-    "@blocknote/shadcn": "^0.35.0",
-    "@dnd-kit/core": "^6.2.0",
-    "@dnd-kit/modifiers": "^8.0.0",
-    "@dnd-kit/sortable": "^9.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
-    "@formkit/auto-animate": "^0.8.2",
-    "@hookform/resolvers": "^3.9.1",
-    "@maily-to/core": "0.3.7",
-    "@maily-to/render": "0.2.3",
-    "@module-federation/enhanced": "0.6.6",
-    "@sniptt/guards": "^0.2.0",
-    "@tabler/icons-react": "^3.34.0",
-    "@tanstack/react-table": "^8.20.5",
-    "@tanstack/table-core": "^8.20.5",
-    "@tiptap/core": "^2.27.3",
-    "@tiptap/pm": "^2.27.3",
-    "@tiptap/suggestion": "^2.27.3",
-    "@types/deep-equal": "^1.0.4",
-    "@types/js-cookie": "^3.0.6",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
-    "cmdk": "^1.0.4",
-    "date-fns": "^4.1.0",
-    "date-fns-tz": "^3.2.0",
-    "dayjs": "^1.11.13",
-    "deep-equal": "^2.2.3",
-    "dompurify": "^3.2.4",
-    "emblor": "^1.4.8",
-    "js-cookie": "^3.0.5",
-    "libphonenumber-js": "^1.11.20",
-    "motion": "^11.11.17",
-    "radix-ui": "^1.4.3",
-    "react-aria-components": "^1.10.1",
-    "react-day-picker": "^9.11.1",
-    "react-dropzone": "^14.3.8",
-    "react-hook-form": "^7.53.2",
-    "react-hotkeys-hook": "^4.6.1",
-    "react-imask": "^7.6.1",
-    "react-intersection-observer": "^9.13.1",
-    "react-merge-refs": "^2.1.1",
-    "react-resizable-panels": "^2.1.7",
-    "recharts": "^3.1.2",
-    "tailwind-merge": "^2.5.4",
-    "type-fest": "^4.30.0",
-    "zod": "^3.23.8"
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
