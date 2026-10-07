@@ -6,6 +6,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import type { mongo } from 'mongoose';
 import { CONTACT_STATUSES } from './constants';
 
 type ContactFilter = Record<string, unknown>;
@@ -330,11 +331,12 @@ export const generateFilter = async (
   return filter;
 };
 
+/** Builds bulk inserts or updates while merging custom fields for imported contacts. */
 export const createOrUpdate = async ({
   collection,
   data: { rows, doNotReplaceExistingValues },
 }) => {
-  const operations: any = [];
+  const operations: mongo.AnyBulkWriteOperation[] = [];
 
   for (const row of rows) {
     const { selector, doc, customFieldsData } = row;
@@ -354,15 +356,12 @@ export const createOrUpdate = async ({
         cfData.push(cf);
       }
 
-      const newDoc = { ...doc };
-
-      if (doNotReplaceExistingValues) {
-        for (const fieldName of Object.keys(doc)) {
-          if (prevEntry[fieldName]) {
-            delete newDoc[fieldName];
-          }
-        }
-      }
+      const newDoc = Object.fromEntries(
+        Object.entries(doc).filter(
+          ([fieldName]) =>
+            !doNotReplaceExistingValues || !prevEntry[fieldName],
+        ),
+      );
 
       newDoc.customFieldsData = cfData;
 
@@ -425,6 +424,8 @@ export const customersCount = async ({
 
       break;
     }
+    default:
+      break;
   }
 
   return counts;
