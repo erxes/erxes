@@ -17,7 +17,7 @@
 //   pnpm publish:shared-libs --dry-run [--otp=<code>]
 //   pnpm publish:shared-libs [--otp=<code>]
 
-const { execFileSync, execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -183,6 +183,10 @@ function main() {
   fs.mkdirSync(WORK_DIR, { recursive: true });
 
   for (const lib of LIBS) {
+    fs.rmSync(path.join(ROOT, lib.dir, 'dist'), {
+      recursive: true,
+      force: true,
+    });
     lib.build();
     const expectedOutput = lib.buildCheck(path.join(ROOT, lib.dir));
     if (!fs.existsSync(expectedOutput)) {
