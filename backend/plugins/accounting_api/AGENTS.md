@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -54,6 +54,7 @@
 - Deal movement sync configs create or update `invMove` transactions from checked deal product rows when a deal enters the configured stage; product/deal branch and department can be applied to either the movement source or destination, the other side uses configured default source/destination locations, and movement amounts use active inventory cost instead of deal sale price.
 - The `invJustify` journal adjusts inventory cost without changing quantity; its selectable debit side increases cost, its credit side decreases cost, and changing side on an existing transaction reverses the prior inventory effect before applying the new direction.
 - Inventory out and internal movement handlers replace submitted unit price and amount with current active inventory cost before saving; inventory sale keeps its editable sale price only on the sale transaction while generated cost-of-goods and inventory follow transactions use active cost.
+- Deal and POS order sale sync preserves normal sale journal creation and validation while skipping payment and receivable rows with missing account configuration. Actual paid amounts reduce the unpaid remainder even when their accounting rows are skipped, so missing payment accounts do not produce replacement receivables; the sale workflow may remain unbalanced.
 - Recalculates inventory adjustment outgoing costs by product, account, and effective branch/department location using detail-level branch/department before falling back to transaction root location, caches daily cost state, and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts. Generated split `invOut` transactions identified by both `originId` and `originType: invSplitOut` retain their transferred unit price and amount; adjustment cache consumes their stored total cost instead of repricing them.
 
 ## Architecture
@@ -156,6 +157,7 @@
 - Inventory split follow transactions must remain cost-neutral: the split `invOut` removes the received source quantity at its total line cost, the split `invIncome` receives `source count * ratio`, and its unit price equals total line cost divided by that converted quantity; internal-movement splits use the destination account, branch, and department.
 - Inventory split synchronization must preserve generated detail ids by source `originId`, remove duplicate generated transactions with inventory reversal, and fail when an enabled source split cannot map to its income-side detail.
 - Deal movement sync must resolve product-row `branchId`/`departmentId` first, then deal-level branch/department, then configured defaults; when the deal location side is destination, source details use default source location and generated `invMoveIn` details use deal/product location, and vice versa for source-side configs. It must cost source details from active inventory cost for the configured source account and effective source location, excluding the existing synced movement during resync.
+- Deal and POS order sale sync must preserve sale journal validation. Missing payment, receivable, or cash/bank account configuration skips only those payment rows; actual paid amounts must be deducted before checking account configuration, and the sync must not invent balancing rows solely to force `ptrStatus: ok`.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
 - Inventory adjustment grouping must use detail-level branch/department when present and fall back to transaction root branch/department so mixed-location transaction rows cost against the correct location.
