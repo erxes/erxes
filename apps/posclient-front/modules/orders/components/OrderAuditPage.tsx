@@ -46,8 +46,8 @@ const valueText = (value: unknown): string =>
   value == null
     ? "-"
     : typeof value === "object"
-    ? JSON.stringify(value)
-    : String(value)
+      ? JSON.stringify(value)
+      : String(value)
 
 const snapshotFields = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" && !Array.isArray(value)
