@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -453,6 +453,10 @@
 - Conversation and ticket segment `tagIds` lookups list their own tags
   (`frontline:conversation`, `frontline:ticket`) plus workspace tags
   (`query.variables`).
+- Conversation and ticket segments declare a `propertiesData`
+  `segmentFieldNamespaces` entry (`propertyType` `frontline:conversation`,
+  `frontline:ticket`), so core lists their custom properties as segment fields
+  and the members filter and evaluator resolve them.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company

@@ -6,6 +6,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { evaluateTaskFields } from './evaluate';
 import { TASK_SEGMENT_FIELD_MAP, TASK_TYPE } from './fields';
+import { TASK_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { countTaskSegmentMembers, listTaskSegmentMembers } from './members';
 import { applyTaskSegmentMembership } from './membership';
 import { TASK_SEGMENT_RELATIONS } from './relations';
@@ -30,6 +31,7 @@ export const tasksSegments = {
   ],
 
   segmentFields: TASK_SEGMENT_FIELD_MAP,
+  segmentFieldNamespaces: TASK_SEGMENT_FIELD_NAMESPACES,
 
   segmentRelations: TASK_SEGMENT_RELATIONS,
 

@@ -194,7 +194,7 @@ export const getProductsData = async (
 
     const productsById = await calcProductsTaxRule(
       subdomain,
-      ebarimtConfig,
+      ebarimtConfig?.value,
       products,
     );
 

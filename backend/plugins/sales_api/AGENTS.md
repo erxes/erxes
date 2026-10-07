@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -109,6 +109,9 @@
   order description with `deliveryInfo.description`.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
+- POS product sync calculates tax rules from the POS-specific `posInEbarimt`
+  config document's `value`; selected VAT and city-tax rules are fetched through
+  Mongolian `productRules.find` with a `data` filter before sending products.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -146,7 +149,9 @@
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
 - Sales-owned tRPC and record-reference contracts.
-- `segmentFields` for `sales:sales.deals`, `segmentRelations` for `customer.deals` and
+- `segmentFields` and a `propertiesData` `segmentFieldNamespaces` entry
+  (`propertyType` `sales:deal`) for
+  `sales:sales.deals`, `segmentRelations` for `customer.deals` and
   `company.deals`, and the `evaluateFields`, `listSegmentMembers` and
   `countSegmentMembers` segment producers on `/segments`.
 

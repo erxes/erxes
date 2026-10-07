@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { SALES_SEGMENT_FIELDS } from '../fields';
+import { SALES_SEGMENT_FIELD_NAMESPACES } from '../namespaces';
 import { SALES_SEGMENT_RELATIONS } from '../relations';
 import { salesSegmentSource } from '../collections';
 import { resolveStageDerived } from './stageDerived';
@@ -14,6 +15,7 @@ import { resolveStageDerivedNode } from './stageFilter';
 const contract = (models: IModels): SegmentOwnerContract => ({
   sourceFor: (contentType) => salesSegmentSource(models, contentType),
   fields: SALES_SEGMENT_FIELDS,
+  namespaces: SALES_SEGMENT_FIELD_NAMESPACES,
   relations: SALES_SEGMENT_RELATIONS,
 
   resolveDerived: ({ requests, subjectIds }) =>

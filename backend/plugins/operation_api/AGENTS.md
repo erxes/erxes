@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -86,7 +86,9 @@
   once per process, so a changed list shows after core-api restarts.
 - GraphQL queries, mutations and subscriptions for tasks, teams, statuses,
   cycles, milestones, projects, notes and templates.
-- Segment content type `operation:task.tasks`, with `segmentFields`,
+- Segment content type `operation:task.tasks`, with `segmentFields`, a
+  `propertiesData` `segmentFieldNamespaces` entry (`propertyType`
+  `operation:task`),
   `evaluateFields`, `listSegmentMembers`, `countSegmentMembers` and
   `applyMembership`.
 - Segment relations `user.assignedTasks` and `user.createdTasks`.
