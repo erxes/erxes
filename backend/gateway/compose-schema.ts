@@ -3,7 +3,13 @@
 // frontend codegen reads. The router composes the same subgraphs at runtime.
 import { composeServices } from '@apollo/composition';
 import { parse, printSchema } from 'graphql';
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { gatewaySubscriptionTypeDefs } from './src/subscription/genTypeDefs';
 
 const backendPath = '..';
@@ -42,5 +48,7 @@ writeFileSync(
   printSchema(schema.toAPISchema().toGraphQLJSSchema()),
 );
 console.log(
-  `Composed ${subgraphPaths.map(({ name }) => name).join(', ')} into generated/schema.graphql`,
+  `Composed ${subgraphPaths
+    .map(({ name }) => name)
+    .join(', ')} into generated/schema.graphql`,
 );
