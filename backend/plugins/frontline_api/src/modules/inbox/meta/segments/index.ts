@@ -7,6 +7,7 @@ import { IModels } from '~/connectionResolvers';
 import { inboxSegmentConfigs } from './configs';
 import { evaluateInboxFields } from './evaluate';
 import { INBOX_SEGMENT_FIELDS } from './fields';
+import { INBOX_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { countInboxSegmentMembers, listInboxSegmentMembers } from './members';
 import { applyInboxSegmentMembership } from './membership';
 import { INBOX_SEGMENT_RELATIONS } from './relations';
@@ -15,6 +16,7 @@ export const inboxSegments = {
   contentTypes: inboxSegmentConfigs.contentTypes,
 
   segmentFields: INBOX_SEGMENT_FIELDS,
+  segmentFieldNamespaces: INBOX_SEGMENT_FIELD_NAMESPACES,
 
   segmentRelations: INBOX_SEGMENT_RELATIONS,
 

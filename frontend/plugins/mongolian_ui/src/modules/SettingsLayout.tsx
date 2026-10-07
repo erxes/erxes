@@ -15,11 +15,11 @@ export const SettingsLayout = ({
 }) => {
   return (
     <Filter id="mongolian-settings">
-      <div className="flex flex-col flex-auto overflow-hidden h-full">
+      <div className="flex h-full min-h-0 flex-auto flex-col overflow-hidden">
         <SettingsHeader breadcrumbs={breadcrumbs}>
           {actions && <div className="ml-auto">{actions}</div>}
         </SettingsHeader>
-        <div className="flex flex-auto overflow-hidden h-full">
+        <div className="flex min-h-0 flex-auto overflow-hidden">
           {sidebar}
           <Suspense
             fallback={

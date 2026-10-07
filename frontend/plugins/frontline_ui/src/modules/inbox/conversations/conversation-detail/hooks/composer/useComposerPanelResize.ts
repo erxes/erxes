@@ -3,12 +3,14 @@ import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { useAtomValue } from 'jotai';
 import { isInternalNoteCollapsedState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
-const MIN_COMPOSER_HEIGHT = 160;
-const DEFAULT_COMPOSER_HEIGHT = 240;
-const COLLAPSED_COMPOSER_HEIGHT = 64;
-
-const getDefaultSize = (height: number) =>
-  Math.min(75, Math.max(30, (DEFAULT_COMPOSER_HEIGHT / height) * 100));
+import {
+  COLLAPSED_COMPOSER_HEIGHT,
+  MAX_AUTO_COMPOSER_SIZE,
+} from '@/inbox/conversations/conversation-detail/constants/composer';
+import {
+  getDefaultSize,
+  getMinimumComposerHeight,
+} from '@/inbox/conversations/conversation-detail/utils/composer';
 
 export const useComposerPanelResize = () => {
   const collapsed = useAtomValue(isInternalNoteCollapsedState);
@@ -23,6 +25,7 @@ export const useComposerPanelResize = () => {
   const wasCollapsedRef = useRef(false);
   const expandedSizeRef = useRef<number | null>(null);
   const [minSize, setMinSize] = useState(20);
+  const minSizeRef = useRef(20);
 
   useLayoutEffect(() => {
     const group = panelGroupRef.current;
@@ -46,9 +49,10 @@ export const useComposerPanelResize = () => {
       }
 
       const nextMinSize = Math.min(
-        70,
-        Math.max(20, (MIN_COMPOSER_HEIGHT / height) * 100),
+        100,
+        Math.max(20, (getMinimumComposerHeight(group) / height) * 100),
       );
+      minSizeRef.current = nextMinSize;
       setMinSize(nextMinSize);
 
       if (restoreSize !== null) {
@@ -62,7 +66,7 @@ export const useComposerPanelResize = () => {
         !initialSizeSetRef.current ||
         (!manuallyResizedRef.current && autoResizeStartRef.current === null)
       ) {
-        panel.resize(getDefaultSize(height));
+        panel.resize(Math.max(nextMinSize, getDefaultSize(height)));
         initialSizeSetRef.current = true;
       } else if (panel.getSize() < nextMinSize) {
         panel.resize(nextMinSize);
@@ -71,10 +75,32 @@ export const useComposerPanelResize = () => {
 
     const observer = new ResizeObserver(updatePanelSize);
     observer.observe(group);
+    group
+      .querySelectorAll(
+        '[data-composer-header], [data-composer-previews], [data-composer-footer]',
+      )
+      .forEach((element) => observer.observe(element));
     updatePanelSize();
 
     return () => observer.disconnect();
   }, [collapsed]);
+
+  useLayoutEffect(() => {
+    const group = panelGroupRef.current;
+    const panel = inputPanelRef.current;
+    if (
+      !group?.clientHeight ||
+      !panel ||
+      collapsedRef.current ||
+      manuallyResizedRef.current ||
+      autoResizeStartRef.current !== null
+    )
+      return;
+
+    // Apply after Panel receives the new minimum; its previous constraint can
+    // otherwise prevent shrinking when the last preview is removed.
+    panel.resize(Math.max(minSize, getDefaultSize(group.clientHeight)));
+  }, [minSize]);
 
   const getEditor = (target: EventTarget) =>
     target instanceof Element
@@ -103,21 +129,25 @@ export const useComposerPanelResize = () => {
       if (!panel || !group.clientHeight) return;
 
       if (editor.querySelector('[data-is-only-empty-block="true"]')) {
-        panel.resize(getDefaultSize(group.clientHeight));
         autoResizeStartRef.current = null;
+        manuallyResizedRef.current = false;
+        panel.resize(
+          Math.max(minSizeRef.current, getDefaultSize(group.clientHeight)),
+        );
         return;
       }
 
       if (!change) return;
 
       const size = panel.getSize();
-      if (size < 25 || (change < 0 && autoResizeStartRef.current === null))
+      if (change < 0 && autoResizeStartRef.current === null) return;
+      const viewport = editor.closest<HTMLElement>('[data-composer-scroll]');
+      if (change > 0 && contentHeight <= (viewport ?? editor).clientHeight)
         return;
-      if (change > 0 && contentHeight <= editor.clientHeight) return;
 
       const startSize = autoResizeStartRef.current ?? size;
       const nextSize = Math.min(
-        100,
+        Math.max(MAX_AUTO_COMPOSER_SIZE, startSize),
         Math.max(
           startSize,
           Math.ceil(size + (change / group.clientHeight) * 100),
@@ -126,12 +156,13 @@ export const useComposerPanelResize = () => {
       if (nextSize === size) return;
 
       panel.resize(nextSize);
-      autoResizeStartRef.current = nextSize > startSize ? startSize : null;
+      autoResizeStartRef.current =
+        manuallyResizedRef.current || nextSize > startSize ? startSize : null;
     });
   };
 
   const resetAutoResize = () => {
-    autoResizeStartRef.current = null;
+    autoResizeStartRef.current = inputPanelRef.current?.getSize() ?? null;
     manuallyResizedRef.current = true;
   };
 
