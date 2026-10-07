@@ -29,7 +29,7 @@
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
   </a>
    <a href="https://explore.transifex.com/erxes-inc/erxesxos/">
-      <img alt="Transifix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
+      <img alt="Transifex" src="https://img.shields.io/badge/translations-contribute-brightgreen">
   </a>
 </p>
 
