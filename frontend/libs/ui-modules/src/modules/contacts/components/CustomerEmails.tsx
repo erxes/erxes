@@ -52,7 +52,6 @@ export function CustomerEmails({
     });
   };
 
-  /** Persists the email validation status and confirms the change to the user. */
   const handleValidationStatusChange = (status: ValidationStatus) => {
     customerEdit({
       variables: {

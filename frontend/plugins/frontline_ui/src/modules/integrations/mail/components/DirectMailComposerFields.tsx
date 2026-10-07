@@ -239,7 +239,7 @@ export const BodyField = ({
         name="body"
         control={control}
         render={({ field }) => (
-          <div role="group" aria-label="Email message">
+          <fieldset aria-label="Email message" className="min-w-0">
             <BlockEditor
               editor={editor}
               disabled={disabled}
@@ -255,7 +255,7 @@ export const BodyField = ({
               slashMenuOnTop
               className="min-h-52 w-full"
             />
-          </div>
+          </fieldset>
         )}
       />
       {errors.body && (

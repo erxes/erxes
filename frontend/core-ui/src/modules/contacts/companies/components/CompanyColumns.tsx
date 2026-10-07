@@ -40,9 +40,7 @@ import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { companyMoreColumn } from './CompanyMoreColumn';
 
-/** Renders editable company emails with a mail compose action. */
 const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
-  /** Opens the mail composer with the selected company email and alternatives. */
   const handleEmailClick = (email: string) => {
     const emails = [company.primaryEmail, ...(company.emails || [])].filter(
       (value, index, values): value is string =>
