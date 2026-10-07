@@ -24,6 +24,8 @@ export const generateFilter = async (
   subdomain?: string,
   skipPipelineVisibility = false,
 ) => {
+  filter = filter ?? {};
+
   const {
     segmentIds,
     createdStartDate,
