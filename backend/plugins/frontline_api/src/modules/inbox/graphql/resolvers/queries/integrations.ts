@@ -2,6 +2,7 @@ import { getIntegrationsKinds } from '@/inbox/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   cursorPaginate,
+  escapeRegExp,
   markResolvers,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -73,7 +74,7 @@ const generateFilterQuery = async ({
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+    query.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
   }
 
   // filtering integrations by tag

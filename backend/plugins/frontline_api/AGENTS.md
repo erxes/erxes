@@ -1260,6 +1260,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   own. `integrationsSaveMessengerConfigs` and
   `integrationsSaveMessengerAppearanceData` take no `channelId`: the messenger
   create and edit mutations set the channel.
+- Any request-driven value (filter, params, args, searchValue, queue) that
+  reaches a `$regex` or `new RegExp()` goes through `escapeRegExp` from
+  `erxes-api-shared/utils` first, called inline in the pattern. The
+  plugin-local ESLint `no-restricted-syntax` rules in `eslint.config.js`
+  (copied from operation_api) fail the lint otherwise. Three patterns are
+  regexes on purpose and carry an `eslint-disable-next-line` with the reason:
+  the admin-defined `customRegex` in `form/validationRegistry.ts`
+  (length-capped, run with a timeout), the field `regexValidation` in
+  `form/db/models/Forms.ts`, and `MAIL_TAG` in `mail/utils/textFormat.ts`,
+  built from a constant tag list.
 - Optional filter objects default to `{}` before use: `getTickets`,
   `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
   `userConversations` rejects a missing `_id`, because `$in: [undefined]`
@@ -1274,7 +1284,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
-- `pnpm nx lint frontline_api`
+- `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
+  `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
 - `pnpm nx run frontline_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the

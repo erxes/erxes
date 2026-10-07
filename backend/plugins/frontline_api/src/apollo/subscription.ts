@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { withFilter } from 'graphql-subscriptions';
 
 export default {
@@ -131,7 +131,7 @@ export default {
             }
 
             if (filter.name) {
-              const regex = new RegExp(filter.name, 'i');
+              const regex = new RegExp(escapeRegExp(filter.name), 'i');
               if (!regex.test(ticket.name)) return false;
             }
 
