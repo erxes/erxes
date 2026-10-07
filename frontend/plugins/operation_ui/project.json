@@ -64,8 +64,8 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["operation_api"],
-          "target": "schema:print"
+          "projects": ["gateway"],
+          "target": "schema:compose"
         }
       ],
       "inputs": [
