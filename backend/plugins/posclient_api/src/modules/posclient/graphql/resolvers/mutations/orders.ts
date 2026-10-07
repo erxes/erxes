@@ -45,6 +45,10 @@ import { debugError } from '~/modules/posclient/debugError';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
 import {
+  IReturnOrderInput,
+  returnPosOrder,
+} from '~/modules/posclient/utils/returnOrder';
+import {
   getOrderChangeSnapshot,
   saveOrderChangeSnapshot,
 } from '~/modules/posclient/utils/orderChangeLogs';
@@ -1494,163 +1498,10 @@ const orderMutations: Record<string, Resolver> = {
 
   async ordersReturn(
     _root,
-    {
-      _id,
-      cashAmount,
-      paidAmounts,
-      description,
-    }: {
-      _id: string;
-      cashAmount?: number;
-      paidAmounts?: IPaidAmount[];
-      description?: string;
-    },
-    { subdomain, models, posUser, config }: IContext,
+    doc: IReturnOrderInput,
+    context: IContext,
   ) {
-    assertPosUser(posUser);
-
-    if (!posUser?._id || !config.adminIds.includes(posUser._id)) {
-      throw new Error('Order return admin required');
-    }
-
-    const trimmedDescription = description?.trim();
-
-    let order = await models.Orders.getOrder(_id);
-
-    if (order.posToken !== config.token && order.subToken !== config.token) {
-      throw new Error('Order does not belong to this POS');
-    }
-    if (order.status === ORDER_STATUSES.RETURN || order.returnInfo?.returnAt) {
-      throw new Error('Order is already returned');
-    }
-
-    const amount =
-      (cashAmount || 0) +
-      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
-
-    if (order.isPre) {
-      if (
-        !(order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-      ) {
-        throw new Error('Order yet not paid');
-      }
-
-      const savedPaidAmount =
-        (order.cashAmount || 0) +
-        (order.mobileAmount || 0) +
-        (order.paidAmounts || []).reduce(
-          (sum, i) => Number(sum) + Number(i.amount),
-          0,
-        );
-
-      if (savedPaidAmount !== amount) {
-        throw new Error('Amount exceeds total amount');
-      }
-    } else {
-      if (!order.paidDate) {
-        throw new Error('Order yet not paid');
-      }
-
-      if (order.totalAmount != amount) {
-        throw new Error('Amount exceeds total amount');
-      }
-    }
-
-    const before = await getOrderChangeSnapshot(models, _id);
-    const modifier = {
-      $set: {
-        status: ORDER_STATUSES.RETURN,
-        synced: false,
-        returnInfo: {
-          cashAmount,
-          paidAmounts,
-          returnAt: new Date(),
-          returnBy: posUser._id,
-          description: trimmedDescription || undefined,
-        },
-        cashAmount: cashAmount
-          ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(
-          (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount })),
-        ),
-      },
-    };
-
-    const receiptQuery = { contentId: _id, contentType: 'pos' };
-    if (
-      await models.PutResponses.exists({
-        ...receiptQuery,
-        $or: [{ status: { $exists: false } }, { status: null }, { status: '' }],
-      })
-    ) {
-      throw new Error(
-        'eBarimt request is unresolved. Check its result before returning',
-      );
-    }
-    const hasReceipt = await models.PutResponses.exists({
-      ...receiptQuery,
-      status: 'SUCCESS',
-    });
-    if (hasReceipt && !config.ebarimtConfig) {
-      throw new Error('Please check ebarimt config');
-    }
-    const returnResponses =
-      hasReceipt && config.ebarimtConfig
-        ? await models.PutResponses.returnBill(
-            { ...receiptQuery, number: order.number ?? '' },
-            config.ebarimtConfig,
-            posUser,
-          )
-        : [];
-    if (!Array.isArray(returnResponses)) {
-      throw new TypeError(returnResponses.error);
-    }
-
-    await models.Orders.updateOne({ _id: order._id }, modifier);
-
-    await saveOrderChangeSnapshot(
-      models,
-      _id,
-      config.token,
-      posUser._id,
-      before,
-      'return',
-    );
-
-    order = await models.Orders.getOrder(_id);
-
-    await graphqlPubsub.publish('ordersOrdered', {
-      ordersOrdered: {
-        ...order,
-        _id: order._id,
-        status: order.status,
-        customerId: order.customerId,
-        customerType: order.customerType,
-      },
-    });
-
-    try {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'sales',
-        module: 'pos',
-        action: 'createOrUpdateOrders',
-        input: {
-          posToken: config.token,
-          action: 'makePayment',
-          responses: returnResponses,
-          order,
-          items: await models.OrderItems.find({ orderId: _id }).lean(),
-        },
-        defaultValue: {},
-      });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
-    }
-
-    return models.Orders.findOne({ _id: order._id });
+    return returnPosOrder(doc, context);
   },
 };
 

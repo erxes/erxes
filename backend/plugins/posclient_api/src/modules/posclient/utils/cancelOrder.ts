@@ -1,6 +1,14 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { getOrderChangeSnapshot } from './orderChangeLogs';
+import {
+  getOrderChangeSnapshot,
+  saveOrderCancellationSnapshot,
+} from './orderChangeLogs';
+import {
+  assertNoUnresolvedOrderReceipts,
+  getOrderReceiptQuery,
+  hasSuccessfulOrderReceipt,
+} from './orderReceipts';
 
 export const cancelPosOrder = async (
   models: IModels,
@@ -24,24 +32,12 @@ export const cancelPosOrder = async (
     );
   }
 
-  const receiptQuery = { contentType: 'pos', contentId: _id };
-  if (
-    await models.PutResponses.exists({ ...receiptQuery, status: 'SUCCESS' })
-  ) {
+  if (await hasSuccessfulOrderReceipt(models, _id)) {
     throw new Error(
       'Successful eBarimt exists. Return the order instead of cancelling it',
     );
   }
-  if (
-    await models.PutResponses.exists({
-      ...receiptQuery,
-      $or: [{ status: { $exists: false } }, { status: null }, { status: '' }],
-    })
-  ) {
-    throw new Error(
-      'eBarimt request is unresolved. Check its result before cancelling',
-    );
-  }
+  await assertNoUnresolvedOrderReceipts(models, _id, 'cancelling');
   if (
     order.mobileAmount ||
     (order.paidAmounts || []).some(
@@ -57,7 +53,7 @@ export const cancelPosOrder = async (
     throw new Error('Cannot cancel cause PreOrder added payment');
   }
 
-  const before = await getOrderChangeSnapshot(models, _id);
+  const before = await getOrderChangeSnapshot(models, _id, order);
   if (order.synced) {
     const result: { cancelled?: boolean } | undefined = await sendTRPCMessage({
       subdomain,
@@ -74,22 +70,9 @@ export const cancelPosOrder = async (
   }
 
   // Keep the audit snapshot after the order and its items are removed.
-  await models.OrderChangeLogs.createLog({
-    action: 'cancel',
-    orderId: _id,
-    posToken: token,
-    userId,
-    changes: [
-      {
-        field: 'order',
-        oldValue: { ...order, items: before.items },
-        newValue: null,
-      },
-      { field: 'items', oldValue: before.items, newValue: [] },
-    ],
-  });
+  await saveOrderCancellationSnapshot(models, order, token, userId, before);
   await models.PutResponses.deleteMany({
-    ...receiptQuery,
+    ...getOrderReceiptQuery(_id),
     status: { $ne: 'SUCCESS' },
   });
   await models.OrderItems.deleteMany({ orderId: _id });

@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { IOrder } from '../@types/orders';
+import { IOrder, IOrderDocument } from '../@types/orders';
 import {
   IOrderChangeEntry,
   OrderChangeLogAction,
@@ -32,6 +32,8 @@ const orderFields: (keyof IOrder)[] = [
   'paidAmounts',
 ];
 
+export type OrderChangeSnapshot = Record<string, unknown>;
+
 const normalizeValue = (value: unknown): unknown => {
   if (value instanceof Date) {
     return value.toISOString();
@@ -52,8 +54,9 @@ const normalizeValue = (value: unknown): unknown => {
 export const getOrderChangeSnapshot = async (
   models: IModels,
   orderId: string,
-): Promise<Record<string, unknown>> => {
-  const order = await models.Orders.getOrder(orderId);
+  existingOrder?: IOrder,
+): Promise<OrderChangeSnapshot> => {
+  const order = existingOrder || (await models.Orders.getOrder(orderId));
   const items = await models.OrderItems.find({ orderId })
     .sort({ _id: 1 })
     .lean();
@@ -80,7 +83,7 @@ export const saveOrderChangeSnapshot = async (
   orderId: string,
   posToken: string,
   userId: string | undefined,
-  before: Awaited<ReturnType<typeof getOrderChangeSnapshot>>,
+  before: OrderChangeSnapshot,
   action: OrderChangeLogAction = 'update',
 ) => {
   const after = await getOrderChangeSnapshot(models, orderId);
@@ -104,4 +107,27 @@ export const saveOrderChangeSnapshot = async (
       changes,
     });
   }
+};
+
+export const saveOrderCancellationSnapshot = async (
+  models: IModels,
+  order: IOrderDocument,
+  posToken: string,
+  userId: string | undefined,
+  before: OrderChangeSnapshot,
+): Promise<void> => {
+  await models.OrderChangeLogs.createLog({
+    action: 'cancel',
+    orderId: order._id,
+    posToken,
+    userId,
+    changes: [
+      {
+        field: 'order',
+        oldValue: { ...order, items: before.items },
+        newValue: null,
+      },
+      { field: 'items', oldValue: before.items, newValue: [] },
+    ],
+  });
 };

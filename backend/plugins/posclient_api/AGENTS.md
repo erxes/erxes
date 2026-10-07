@@ -55,6 +55,9 @@
 | Config models    | `backend/plugins/posclient_api/src/modules/posclient/db`                                    | Stores synced POS client configuration and runtime data.                                                          |
 | Order logs       | `backend/plugins/posclient_api/src/modules/posclient/db/models/OrderChangeLogs.ts`          | Persists POS client order and item change snapshots.                                                              |
 | Order snapshots  | `backend/plugins/posclient_api/src/modules/posclient/utils/orderChangeLogs.ts`              | Compares persisted order fields and sorted item snapshots, excluding item creation timestamps and Mongo metadata. |
+| Order cancellation | `backend/plugins/posclient_api/src/modules/posclient/utils/cancelOrder.ts` | Validates cancellation, requires sales acknowledgement when synced, and cleans local order/item/receipt data. |
+| Order return | `backend/plugins/posclient_api/src/modules/posclient/utils/returnOrder.ts` | Runs authenticated admin returns, validates payment totals, preserves the order, records audit, publishes and syncs. |
+| Order receipts | `backend/plugins/posclient_api/src/modules/posclient/utils/orderReceipts.ts` | Shared POS receipt selector, success/unresolved checks, and validated fiscal return responses. |
 | Discount utils   | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                        |
 | Sync utilities   | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                      |
 
@@ -123,6 +126,12 @@
 
 ## Local Invariants
 
+- GraphQL `ordersReturn` delegates to `returnPosOrder`; payment, permission,
+  receipt and sync logic belongs to the service, not the resolver. Receipt
+  selectors/checks are shared with cancellation through `orderReceipts.ts`.
+- Cancellation snapshots are written through `saveOrderCancellationSnapshot`
+  and retain the full original order plus normalized item values in one event.
+  Snapshot readers may reuse an already loaded order to avoid a second read.
 - New audit writes must specify an operation action. `source` identifies
   origin, never the operation. Unchanged update snapshots create no event.
 - Non-array eBarimt return results throw `TypeError` with the reported message

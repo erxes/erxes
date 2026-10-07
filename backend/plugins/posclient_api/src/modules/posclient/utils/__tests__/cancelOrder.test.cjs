@@ -66,6 +66,7 @@ function cancellationFixture(overrides = {}) {
       },
     },
   };
+  const auditHelpers = loadSource('../orderChangeLogs.ts', {});
   const { cancelPosOrder } = loadSource('../cancelOrder.ts', {
     'erxes-api-shared/utils': {
       sendTRPCMessage: async (request) => {
@@ -77,10 +78,12 @@ function cancellationFixture(overrides = {}) {
       },
     },
     './orderChangeLogs': {
+      ...auditHelpers,
       getOrderChangeSnapshot: async () => ({
         items: [{ _id: 'one' }, { _id: 'two' }],
       }),
     },
+    './orderReceipts': loadSource('../orderReceipts.ts', {}),
   });
   return {
     events,
@@ -291,8 +294,14 @@ test('receipt missing its date cannot be marked returned', async () => {
   assert.equal(fixture.requests.length, 0);
 });
 
-function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
+function mutationFixture(
+  receiptResult,
+  hasReceipt = true,
+  overrides = {},
+  options = {},
+) {
   const events = [];
+  const receiptCalls = [];
   const order = {
     _id: 'order',
     posToken: 'pos',
@@ -311,8 +320,12 @@ function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
       findOne: async () => order,
     },
     PutResponses: {
-      exists: async (query) => query.status === 'SUCCESS' && hasReceipt,
-      returnBill: async () => receiptResult,
+      exists: async (query) =>
+        query.status === 'SUCCESS' ? hasReceipt : !!options.pendingReceipt,
+      returnBill: async (...args) => {
+        receiptCalls.push(args);
+        return receiptResult;
+      },
     },
     OrderItems: { find: () => ({ lean: async () => [{ _id: 'item' }] }) },
   };
@@ -323,9 +336,13 @@ function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
       sendTRPCMessage: async (request) => {
         assert.equal(request.input.items.length, 1);
         events.push('sync');
+        if (options.syncFailure) throw new Error('sales unavailable');
       },
     },
-    '~/modules/posclient/utils/assertPosUser': { assertPosUser: () => {} },
+    '~/modules/posclient/utils/assertPosUser': loadSource(
+      '../assertPosUser.ts',
+      {},
+    ),
     '~/modules/posclient/utils/orderChangeLogs': {
       getOrderChangeSnapshot: async () => ({}),
       saveOrderChangeSnapshot: async (...args) => {
@@ -337,6 +354,20 @@ function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
       ORDER_STATUSES: { RETURN: 'return' },
     },
   };
+  dependencies['~/modules/posclient/utils/returnOrder'] = loadSource(
+    '../returnOrder.ts',
+    {
+      'erxes-api-shared/utils': dependencies['erxes-api-shared/utils'],
+      '../db/definitions/constants':
+        dependencies['@/posclient/db/definitions/constants'],
+      './assertPosUser':
+        dependencies['~/modules/posclient/utils/assertPosUser'],
+      './orderChangeLogs':
+        dependencies['~/modules/posclient/utils/orderChangeLogs'],
+      './orderReceipts': loadSource('../orderReceipts.ts', {}),
+      '../debugError': { debugError: () => events.push('sync-error') },
+    },
+  );
   const mutations = loadSource(
     '../../graphql/resolvers/mutations/orders.ts',
     dependencies,
@@ -344,18 +375,23 @@ function mutationFixture(receiptResult, hasReceipt = true, overrides = {}) {
   return {
     order,
     events,
+    receiptCalls,
     run: () =>
       mutations.ordersReturn(
         null,
-        { _id: 'order', cashAmount: 100 },
+        { _id: 'order', cashAmount: 100, ...options.input },
         {
           models,
           subdomain: 'tenant',
-          posUser: { _id: 'actor' },
+          posUser:
+            options.posUser === null
+              ? undefined
+              : options.posUser || { _id: 'actor' },
           config: {
             token: 'pos',
             adminIds: ['actor'],
             ebarimtConfig: hasReceipt ? {} : undefined,
+            ...options.config,
           },
         },
       ),
@@ -390,6 +426,89 @@ test('closed internal receipt order without eBarimt can be returned and retained
   assert.equal(fixture.order.returnInfo.returnBy, 'actor');
   assert.equal(fixture.order.synced, false);
   assert.deepEqual(fixture.events, ['write', 'audit', 'publish', 'sync']);
+});
+for (const scenario of [
+  {
+    name: 'unauthenticated',
+    options: { posUser: null },
+    error: /Login required/,
+  },
+  {
+    name: 'non-admin',
+    options: { config: { adminIds: [] } },
+    error: /admin required/,
+  },
+  {
+    name: 'another POS',
+    order: { posToken: 'other' },
+    error: /does not belong/,
+  },
+  {
+    name: 'already returned',
+    order: { status: 'return' },
+    error: /already returned/,
+  },
+  { name: 'unpaid', order: { paidDate: null }, error: /not paid/ },
+  {
+    name: 'wrong amount',
+    options: { input: { cashAmount: 50 } },
+    error: /Amount exceeds/,
+  },
+  {
+    name: 'pending receipt',
+    options: { pendingReceipt: true },
+    error: /unresolved/,
+  },
+  {
+    name: 'missing receipt config',
+    options: { config: { ebarimtConfig: undefined } },
+    error: /check ebarimt config/,
+  },
+]) {
+  test(`return service retains order for ${scenario.name}`, async () => {
+    const state = mutationFixture([], true, scenario.order, scenario.options);
+    await assert.rejects(state.run(), scenario.error);
+    assert.deepEqual(state.events, []);
+    assert.equal(state.receiptCalls.length, 0);
+    assert.equal(state.order.returnInfo, undefined);
+  });
+}
+test('sales failure after return retains returned order for later sync', async () => {
+  const state = mutationFixture([], false, {}, { syncFailure: true });
+  await state.run();
+  assert.equal(state.order.status, 'return');
+  assert.equal(state.order.synced, false);
+  assert.deepEqual(state.events, [
+    'write',
+    'audit',
+    'publish',
+    'sync',
+    'sync-error',
+  ]);
+});
+test('prepaid return validates and reverses the saved payment amounts', async () => {
+  const state = mutationFixture(
+    [],
+    false,
+    {
+      isPre: true,
+      cashAmount: 20,
+      paidDate: null,
+      paidAmounts: [{ type: 'cashless', amount: 30 }],
+    },
+    {
+      input: {
+        cashAmount: 20,
+        paidAmounts: [{ type: 'cashless', amount: 30 }],
+        description: '  reason  ',
+      },
+    },
+  );
+  await state.run();
+  assert.equal(state.order.cashAmount, 0);
+  assert.equal(state.order.paidAmounts[1].amount, -30);
+  assert.equal(state.order.returnInfo.description, 'reason');
+  assert.equal(state.receiptCalls.length, 0);
 });
 
 function snapshotFixture() {
@@ -453,6 +572,46 @@ test('unchanged snapshot still creates no log', async () => {
     before,
   );
   assert.equal(state.logs.length, 0);
+});
+test('existing order snapshot avoids a redundant order read', async () => {
+  const state = snapshotFixture();
+  state.models.Orders.getOrder = async () => {
+    throw new Error('unexpected order read');
+  };
+  const snapshot = await state.getOrderChangeSnapshot(
+    state.models,
+    'order',
+    state.order,
+  );
+  assert.equal(snapshot.status, 'new');
+  assert.equal(snapshot.items.length, 1);
+});
+test('cancellation audit preserves complete order and item snapshots', async () => {
+  const state = snapshotFixture();
+  const order = {
+    ...state.order,
+    _id: 'order',
+    number: '001',
+    customerId: 'customer',
+  };
+  const before = await state.getOrderChangeSnapshot(
+    state.models,
+    'order',
+    order,
+  );
+  await state.saveOrderCancellationSnapshot(
+    state.models,
+    order,
+    'pos',
+    'actor',
+    before,
+  );
+  assert.equal(state.logs.length, 1);
+  assert.equal(state.logs[0].action, 'cancel');
+  assert.equal(state.logs[0].changes[0].oldValue.number, '001');
+  assert.equal(state.logs[0].changes[0].oldValue.customerId, 'customer');
+  assert.equal(state.logs[0].changes[0].oldValue.items[0].productId, 'product');
+  assert.equal(state.logs[0].changes[1].newValue.length, 0);
 });
 test('backend log creation defaults source to order without changing action', async () => {
   let LogClass;
