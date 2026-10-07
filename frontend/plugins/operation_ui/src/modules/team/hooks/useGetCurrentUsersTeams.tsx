@@ -1,19 +1,16 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
 import { GET_TEAMS } from '@/team/graphql/queries/getTeams';
-import { ITeam } from '@/team/types';
+import { GetTeamsQuery, GetTeamsQueryVariables } from '~/gql/graphql';
+import { compactList } from '@/operation/utils/cursorList';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 
-interface IGetTeamsQueryResponse {
-  getTeams: ITeam[];
-}
-
 export const useGetCurrentUsersTeams = (
-  options?: QueryHookOptions<IGetTeamsQueryResponse>,
+  options?: QueryHookOptions<GetTeamsQuery, GetTeamsQueryVariables>,
 ) => {
   const currentUser = useAtomValue(currentUserState);
   const userId = currentUser?._id;
-  const { data, loading } = useQuery<IGetTeamsQueryResponse>(GET_TEAMS, {
+  const { data, loading } = useQuery(GET_TEAMS, {
     ...options,
     variables: {
       userId,
@@ -21,7 +18,7 @@ export const useGetCurrentUsersTeams = (
     },
   });
 
-  const teams = data?.getTeams;
+  const teams = compactList(data?.getTeams);
 
   return { teams, loading };
 };

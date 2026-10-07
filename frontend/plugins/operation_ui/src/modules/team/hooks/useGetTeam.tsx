@@ -1,16 +1,11 @@
-import { useQuery, QueryHookOptions } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { GET_TEAM } from '@/team/graphql/queries/getTeam';
-import { ITeam } from '@/team/types';
 
-interface IUseGetTeamResponse {
-  getTeam: ITeam;
-}
-
-export const useGetTeam = (options?: QueryHookOptions<IUseGetTeamResponse>) => {
-  const { data, loading, refetch, error } = useQuery<IUseGetTeamResponse>(
-    GET_TEAM,
-    options,
-  );
+export const useGetTeam = (teamId?: string | null) => {
+  const { data, loading, refetch, error } = useQuery(GET_TEAM, {
+    variables: teamId ? { _id: teamId } : undefined,
+    skip: !teamId,
+  });
 
   const team = data?.getTeam;
 

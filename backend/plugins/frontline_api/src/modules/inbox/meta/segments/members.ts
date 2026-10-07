@@ -11,6 +11,7 @@ import { IModels } from '~/connectionResolvers';
 import { inboxCollection } from './collections';
 import { resolveIntegrationKindNode } from './derived';
 import { CONVERSATION_TYPE, INBOX_SEGMENT_FIELDS } from './fields';
+import { INBOX_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 
 /**
  * Runs a segment against the conversation collection.
@@ -31,7 +32,11 @@ const compile = async (
 
   return compileSegmentMongoFilter(
     await resolveIntegrationKindNode(models, node),
-    { fields: INBOX_SEGMENT_FIELDS[contentType], timeZone },
+    {
+      fields: INBOX_SEGMENT_FIELDS[contentType],
+      namespaces: INBOX_SEGMENT_FIELD_NAMESPACES[contentType],
+      timeZone,
+    },
   );
 };
 

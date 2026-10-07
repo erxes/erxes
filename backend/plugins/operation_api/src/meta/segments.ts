@@ -25,6 +25,7 @@ export default {
   ],
 
   segmentFields: { ...tasksSegments.segmentFields },
+  segmentFieldNamespaces: { ...tasksSegments.segmentFieldNamespaces },
   segmentRelations: [...(tasksSegments.segmentRelations || [])],
 
   evaluateFields: createSegmentEvaluateFieldsHandler({

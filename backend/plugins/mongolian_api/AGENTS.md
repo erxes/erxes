@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-09-11`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -27,6 +27,8 @@
 - Stores exchange-rate rows in the tenant-scoped `exchange_rates` Mongo collection, one document per `date + mainCurrency + rateCurrency`.
 - Resolves active exchange rates by selecting the latest row whose `date` is less than or equal to the requested date.
 - Provides ebarimt, product-place, config, Erkhet sync-log, and MS Dynamic backend capabilities through plugin-owned modules.
+- Provides `erkhetRemainders` for callers that need Erkhet stock by product ids
+  and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
 - Product places publishes full printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
 
@@ -49,10 +51,13 @@
 
 - GraphQL exchange-rate queries and mutations: `exchangeRatesMain`, `exchangeGetRate`, `exchangeRateAdd`, `exchangeRateEdit`, and `exchangeRatesRemove`.
 - GraphQL product-place subscription: `productPlacesResponded`.
+- GraphQL Erkhet remainder query: `erkhetRemainders(productIds, pipelineId, stageId, posId, accountCodes, locationCodes)`.
 - tRPC exchange-rate procedures under `exchangeRates`: `findOne`, `create`, `update`, and `getActiveRate`.
 - `exchangeRates.getActiveRate` accepts a Date-coercible `date` value, plus `rateCurrency` and optional `mainCurrency`.
 - tRPC product-place procedures: `afterMutation`, `beforeResolver`, and `afterDealStageChanged`.
 - Plugin meta hooks for product product-list default filtering and sales deal stage-change product place processing.
+- No backend `afterQuery` hook is registered for product remainder decoration;
+  callers should use the explicit `erkhetRemainders` GraphQL query.
 
 ### Consumes
 
@@ -83,6 +88,8 @@
   matching the legacy productplaces plugin behavior.
 - Product-place print subscriptions keep receipt `content` as JSON so branch, department, product, and text payloads survive without narrowing the schema.
 - Plugin data access must remain tenant-scoped through generated models.
+- Product list decoration must not mutate core product names; Erkhet stock
+  should be exposed through explicit remainder query responses.
 
 ## Validation
 

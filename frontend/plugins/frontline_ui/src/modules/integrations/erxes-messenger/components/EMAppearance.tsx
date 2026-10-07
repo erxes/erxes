@@ -1,5 +1,8 @@
-import { useTranslation } from 'react-i18next';
 import { Button, ColorPicker, Form, Label, Upload } from 'erxes-ui';
+import {
+  EMLayout,
+  EMLayoutPreviousStepButton,
+} from '@/integrations/erxes-messenger/components/EMLayout';
 import {
   HeroStyleRadioGroup,
   NavigationVariantRadioGroup,
@@ -8,17 +11,15 @@ import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { EMAPPEARANCE_SCHEMA } from '@/integrations/erxes-messenger/constants/emAppearanceSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  EMLayout,
-  EMLayoutPreviousStepButton,
-} from '@/integrations/erxes-messenger/components/EMLayout';
 import { useAtomValue, useSetAtom } from 'jotai';
+
+import { EMAPPEARANCE_SCHEMA } from '@/integrations/erxes-messenger/constants/emAppearanceSchema';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 import { IconUpload } from '@tabler/icons-react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EMAppearance = () => {
   const { t } = useTranslation('frontline');
@@ -148,9 +149,7 @@ export const EMAppearance = () => {
                       </Upload.Root>
                     </Form.Control>
                     <Form.Message />
-                    <Form.Description>
-                      {t('logo-description')}
-                    </Form.Description>
+                    <Form.Description>{t('logo-description')}</Form.Description>
                   </Form.Item>
                 )}
               />

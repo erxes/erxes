@@ -1,20 +1,14 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
 import { GET_TEAMS } from '@/team/graphql/queries/getTeams';
-import { ITeam } from '@/team/types';
-
-interface IGetTeamsQueryResponse {
-  getTeams: ITeam[];
-}
+import { GetTeamsQuery, GetTeamsQueryVariables } from '~/gql/graphql';
+import { compactList } from '@/operation/utils/cursorList';
 
 export const useGetTeams = (
-  options?: QueryHookOptions<IGetTeamsQueryResponse>,
+  options?: QueryHookOptions<GetTeamsQuery, GetTeamsQueryVariables>,
 ) => {
-  const { data, loading } = useQuery<IGetTeamsQueryResponse>(
-    GET_TEAMS,
-    options,
-  );
+  const { data, loading } = useQuery(GET_TEAMS, options);
 
-  const teams = data?.getTeams;
+  const teams = compactList(data?.getTeams);
 
   return { teams, loading };
 };

@@ -21,6 +21,7 @@ export default {
     ...salesSegments.segmentFields,
     ...posSegments.segmentFields,
   },
+  segmentFieldNamespaces: salesSegments.segmentFieldNamespaces,
   segmentRelations: [
     ...(salesSegments.segmentRelations || []),
     ...(posSegments.segmentRelations || []),

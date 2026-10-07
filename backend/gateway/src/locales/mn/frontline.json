@@ -484,6 +484,8 @@
   "notify-customer": "Харилцагчид мэдэгдэх",
   "notify-customer-description": "Хэрэв харилцагч оффлайн байж имэйл оруулсан бол оператор хариулахад имэйл илгээнэ",
   "show-video-call-request": "Видео дуудлагын хүсэлт харуулах",
+  "in-app-view": "Апп доторх харагдац",
+  "in-app-view-description": "Чат тавтай морилох дэлгэц дээр гарч ирнэ",
   "enable-ai-bot": "AI бот идэвхжүүлэх",
   "enable-ai-bot-description": "Харилцаа удирдахад AI бот идэвхжүүлэх",
   "automation-bot": "Автоматжуулалтын бот",

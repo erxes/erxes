@@ -149,7 +149,7 @@ export function TeamGithubSettings({ teamId }: { teamId: string }) {
               <div className="flex min-w-0 items-center gap-3">
                 <Avatar size="xl">
                   <Avatar.Image
-                    src={currentConnection.orgAvatarUrl}
+                    src={currentConnection.orgAvatarUrl ?? undefined}
                     alt={currentConnection.orgName}
                   />
                   <Avatar.Fallback>

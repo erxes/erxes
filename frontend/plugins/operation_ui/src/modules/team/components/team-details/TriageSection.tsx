@@ -35,7 +35,7 @@ export const TriageSection = ({ team }: { team: ITeam }) => {
           <div className="flex items-center gap-2">
             <Switch
               onCheckedChange={submitHandler}
-              checked={team.triageEnabled}
+              checked={team.triageEnabled ?? false}
             />
           </div>
         </div>

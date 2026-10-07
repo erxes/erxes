@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -61,6 +61,10 @@
 
 ## Current Capabilities
 
+- Messenger `uiOptions` stores the appearance step: logo pair, colours,
+  `heroStyleVariant`, `navigationVariant`, and the `isSupportInAppView` flag.
+  `saveMessengerAppearanceData` lists every field explicitly — a new
+  `uiOptions` field must be added there or it is silently dropped.
 - The Erxes Messenger Message trigger (`frontline:inbox.messages`) can be
   scoped to one messenger through `config.integrationId`. The widget puts the
   message's `integrationId` on the trigger target; `checkCustomTrigger` rejects
@@ -442,6 +446,10 @@
 - Conversation and ticket segment `tagIds` lookups list their own tags
   (`frontline:conversation`, `frontline:ticket`) plus workspace tags
   (`query.variables`).
+- Conversation and ticket segments declare a `propertiesData`
+  `segmentFieldNamespaces` entry (`propertyType` `frontline:conversation`,
+  `frontline:ticket`), so core lists their custom properties as segment fields
+  and the members filter and evaluator resolve them.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company
