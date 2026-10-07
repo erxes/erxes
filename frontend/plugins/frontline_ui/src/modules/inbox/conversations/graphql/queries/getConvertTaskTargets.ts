@@ -12,6 +12,11 @@ export const GET_CONVERT_TASK_TEAMS = gql`
 
 export const GET_CONVERT_TASK_STATUSES = gql`
   query FrontlineConvertTaskStatuses($teamId: String!) {
-    getStatusesChoicesByTeam(teamId: $teamId)
+    getStatusesChoicesByTeam(teamId: $teamId) {
+      label
+      value
+      color
+      type
+    }
   }
 `;
