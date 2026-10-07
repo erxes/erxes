@@ -130,7 +130,6 @@ export const TdbConfigForm = ({
                 value={values.clientSecret}
                 onChange={onChange}
               />
-
             </div>
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="testMode">{t('environment')}</Label>
