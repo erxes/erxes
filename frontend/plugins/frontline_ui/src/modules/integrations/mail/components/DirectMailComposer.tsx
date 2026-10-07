@@ -4,12 +4,13 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import type { Block } from '@blocknote/core';
-import { useBlockEditor } from 'erxes-ui';
+import { Button, useBlockEditor } from 'erxes-ui';
 import {
   serializeNoteBlocks,
   trimEmptyBlocks,
 } from '@/activity/utils/noteBlocks';
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
+import { MAIL_UNVERIFIED_RECIPIENTS_QUERY } from '@/integrations/mail/graphql/queries/mailRecipients';
 import {
   useMailMessageRetry,
   useMailSendMail,
@@ -64,6 +65,47 @@ export const DirectMailComposer = () => {
   const { handleSubmit, reset, setValue, setError, watch } = form;
   const sending = loading || retryLoading || form.formState.isSubmitting;
   const integrationId = watch('integrationId');
+  const to = watch('to');
+  const cc = watch('cc');
+  const bcc = watch('bcc');
+  const recipientEmails = useMemo(
+    () =>
+      [
+        ...new Set(
+          [
+            to.trim().toLowerCase(),
+            ...(showCc ? splitAddresses(cc) : []),
+            ...(showBcc ? splitAddresses(bcc) : []),
+          ]
+            .map((email) => email.trim().toLowerCase())
+            .filter(Boolean),
+        ),
+      ].sort(),
+    [to, cc, bcc, showCc, showBcc],
+  );
+  const validRecipients =
+    recipientEmails.length > 0 &&
+    recipientEmails.every(
+      (email) => z.string().email().safeParse(email).success,
+    );
+  const {
+    data: recipientVerification,
+    loading: checkingRecipients,
+    error: recipientVerificationError,
+    refetch: recheckRecipients,
+  } = useQuery<{ mailUnverifiedRecipients: string[] }>(
+    MAIL_UNVERIFIED_RECIPIENTS_QUERY,
+    {
+      variables: { emails: recipientEmails },
+      skip: !target || !validRecipients,
+      fetchPolicy: 'network-only',
+    },
+  );
+  const recipientsVerified =
+    validRecipients &&
+    !checkingRecipients &&
+    !recipientVerificationError &&
+    recipientVerification?.mailUnverifiedRecipients.length === 0;
   const selectedSender = senders.find(
     (sender) => sender.integrationId === integrationId,
   );
@@ -140,7 +182,7 @@ export const DirectMailComposer = () => {
   };
 
   const submit = async (values: ComposeValues) => {
-    if (sending) return;
+    if (sending || !recipientsVerified) return;
     if (failedDelivery) {
       mailMessageRetry(failedDelivery._id, close);
       return;
@@ -228,9 +270,31 @@ export const DirectMailComposer = () => {
                 {' Retry sending, or close this draft to start a new email.'}
               </p>
             )}
+            {!recipientsVerified && (
+              <p role="status" className="px-4 py-3 text-sm text-destructive">
+                {checkingRecipients
+                  ? 'Checking recipient email verification...'
+                  : recipientVerificationError
+                  ? 'Unable to check recipient email verification.'
+                  : 'All recipient email addresses must be verified before sending.'}
+                {recipientVerificationError && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      recheckRecipients().catch(() => undefined);
+                    }}
+                  >
+                    Retry
+                  </Button>
+                )}
+              </p>
+            )}
             <ComposerFooter
               disabled={
                 sending ||
+                !recipientsVerified ||
                 (!failedDelivery &&
                   (sendersLoading || Boolean(sendersError) || !senders.length))
               }

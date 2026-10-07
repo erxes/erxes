@@ -1,5 +1,9 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { readMailVerifiedContacts } from '../recipients';
+import {
+  assertVerifiedMailRecipients,
+  readMailVerifiedContacts,
+  readUnverifiedMailRecipients,
+} from '../recipients';
 
 jest.mock('erxes-api-shared/utils', () => ({
   escapeRegExp: (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
@@ -7,6 +11,8 @@ jest.mock('erxes-api-shared/utils', () => ({
 }));
 
 const send = jest.mocked(sendTRPCMessage);
+
+jest.mock('string-strip-html', () => ({ stripHtml: jest.fn() }));
 
 describe('mail verified recipients', () => {
   beforeEach(() => send.mockReset());
@@ -76,5 +82,75 @@ describe('mail verified recipients', () => {
     await expect(readMailVerifiedContacts('tenant', {})).rejects.toThrow(
       'Core unavailable',
     );
+  });
+
+  it('matches verified primary emails exactly and normalizes case', async () => {
+    send.mockResolvedValue([
+      {
+        primaryEmail: 'Known@Example.com',
+        emailValidationStatus: 'valid',
+        emails: ['alias@example.com'],
+      },
+      {
+        primaryEmail: 'verified@example.com',
+        emailValidationStatus: 'verified',
+      },
+      { primaryEmail: 'unknown@example.com', emailValidationStatus: 'unknown' },
+    ]);
+    await expect(
+      readUnverifiedMailRecipients('tenant', [
+        ' Known@example.com ',
+        'verified@example.com',
+        'unknown@example.com',
+        'alias@example.com',
+      ]),
+    ).resolves.toEqual(['unknown@example.com', 'alias@example.com']);
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subdomain: 'tenant',
+        throwOnError: true,
+        input: expect.objectContaining({
+          query: expect.objectContaining({
+            emailValidationStatus: { $in: ['valid', 'verified'] },
+            $or: expect.arrayContaining([
+              {
+                primaryEmail: {
+                  $regex: '^known@example\\.com$',
+                  $options: 'i',
+                },
+              },
+            ]),
+          }),
+        }),
+      }),
+    );
+  });
+
+  it.each(['to', 'cc', 'bcc'] as const)(
+    'rejects an unverified %s recipient',
+    async (field) => {
+      send.mockResolvedValue([
+        { primaryEmail: 'known@example.com', emailValidationStatus: 'valid' },
+      ]);
+      await expect(
+        assertVerifiedMailRecipients('tenant', {
+          to: ['known@example.com'],
+          [field]: ['unknown@example.com'],
+        }),
+      ).rejects.toMatchObject({ retryable: false });
+    },
+  );
+
+  it('allows all verified recipients and fails closed when Core is unavailable', async () => {
+    send.mockResolvedValue([
+      { primaryEmail: 'known@example.com', emailValidationStatus: 'valid' },
+    ]);
+    await expect(
+      assertVerifiedMailRecipients('tenant', { to: ['known@example.com'] }),
+    ).resolves.toBeUndefined();
+    send.mockRejectedValue(new Error('Core unavailable'));
+    await expect(
+      assertVerifiedMailRecipients('tenant', { to: ['known@example.com'] }),
+    ).rejects.toThrow('Core unavailable');
   });
 });
