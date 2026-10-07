@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-09-24`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -75,6 +75,7 @@
 
 ## Validation
 
+- `pnpm nx run content_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build content_api`
 - `node --test backend/plugins/content_api/test/dockerfile.test.cjs`
 - `pnpm exec tsc --noEmit -p backend/plugins/content_api/tsconfig.json`

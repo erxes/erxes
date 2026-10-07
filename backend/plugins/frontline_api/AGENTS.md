@@ -1129,6 +1129,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
+- `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api`
 - `pnpm nx build frontline_api`
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`

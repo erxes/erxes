@@ -365,6 +365,7 @@
 
 ## Validation
 
+- `pnpm nx run sales_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build sales_api`
 - `pnpm nx build:packageJson sales_api`
 - Smoke scenario: query deals by `stageId` and verify `totalCount` does not

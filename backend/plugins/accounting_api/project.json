@@ -60,6 +60,7 @@
         "build"
       ],
       "command": "docker build -f backend/plugins/accounting_api/Dockerfile . -t erxes/erxes-next-accounting_api"
-    }
+    },
+    "schema:print": {}
   }
 }

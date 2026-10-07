@@ -23,10 +23,7 @@ import {
   queries as ExchangeRateQueries,
   types as ExchangeRateTypes,
 } from '@/exchangeRates/graphql/schemas';
-import {
-  types as ProductPlacesTypes,
-  subscriptions as ProductPlacesSubscriptions,
-} from '@/productPlaces/graphql/schema';
+import { types as ProductPlacesTypes } from '@/productPlaces/graphql/schema';
 
 export const types = `
   ${ConfigTypes}
@@ -53,8 +50,4 @@ export const mutations = `
   ${ExchangeRateMutations}
 `;
 
-export const subscriptions = `
-  ${ProductPlacesSubscriptions}
-`;
-
-export default { types, queries, mutations, subscriptions };
+export default { types, queries, mutations };

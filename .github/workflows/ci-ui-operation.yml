@@ -10,11 +10,33 @@ on:
       - 'frontend/plugins/operation_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-operation.yml'
+      # codegen checks operation_ui against the composed backend schema, whose
+      # SDL strings can import from anywhere in a backend's src
+      - 'backend/core-api/src/**'
+      - 'backend/plugins/*/src/**'
+      - 'backend/erxes-api-shared/src/**'
+      - 'backend/gateway/compose-schema.ts'
+      - 'backend/gateway/src/subscription/genTypeDefs.ts'
+      - 'backend/*/project.json'
+      - 'backend/plugins/*/project.json'
+      - 'scripts/print-subgraph-schema.ts'
+      - 'nx.json'
   pull_request:
     paths:
       - 'frontend/plugins/operation_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-operation.yml'
+      # codegen checks operation_ui against the composed backend schema, whose
+      # SDL strings can import from anywhere in a backend's src
+      - 'backend/core-api/src/**'
+      - 'backend/plugins/*/src/**'
+      - 'backend/erxes-api-shared/src/**'
+      - 'backend/gateway/compose-schema.ts'
+      - 'backend/gateway/src/subscription/genTypeDefs.ts'
+      - 'backend/*/project.json'
+      - 'backend/plugins/*/project.json'
+      - 'scripts/print-subgraph-schema.ts'
+      - 'nx.json'
 
 permissions:
   actions: read

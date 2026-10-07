@@ -52,6 +52,7 @@
         "build"
       ],
       "command": "docker build -f backend/plugins/mongolian_api/Dockerfile . -t erxes/erxes-next-mongolian_api"
-    }
+    },
+    "schema:print": {}
   }
 }

@@ -9,12 +9,13 @@ The backend SDL is the **contract**. Codegen checks every frontend document agai
 
 `operation` is the finished **reference plugin**. Read its files before writing anything, and copy their shape:
 
-- `backend/plugins/operation_api/print-schema.ts`, the `schema:print` target in `backend/plugins/operation_api/project.json`, and `generated/` in its `.gitignore`
-- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` target and the `codegen` entries in `dependsOn` for `build` and `serve` in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
+- `scripts/print-subgraph-schema.ts` and the `schema:print` default in `nx.json`, which `backend/plugins/operation_api/project.json` turns on with `"schema:print": {}`
+- `backend/gateway/compose-schema.ts` and the `schema:compose` target in `backend/gateway/project.json`, which compose every printed subgraph into `backend/gateway/generated/schema.graphql`
+- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` target and the `codegen` entries in `dependsOn` for `build` and `serve`, and the `dependentTasksOutputFiles` input on `build`, in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
 - `frontend/plugins/operation_ui/eslint.config.js` for the enforcement rules
 - `frontend/plugins/operation_ui/src/modules/task/types/index.ts` for types derived from generated queries
 
-Work only inside `backend/plugins/<name>_api` and `frontend/plugins/<name>_ui`. The codegen packages already sit in the root `devDependencies`. Update both plugin `AGENTS.md` guides in every layer.
+Work only inside `backend/plugins/<name>_api` and `frontend/plugins/<name>_ui`. The codegen packages already sit in the root `devDependencies`, and every gateway subgraph already has `schema:print`. Codegen reads the **composed** schema, because a plugin's frontend also queries fields that core and other plugins own. Update both plugin `AGENTS.md` guides in every layer.
 
 ## Steps
 
@@ -22,7 +23,7 @@ Ship each step as one **layer**: a PR stacked on the one before. Each layer buil
 
 ### 1. Setup layer
 
-Add `print-schema.ts`, the `schema:print` package script (`tsx print-schema.ts`), and the Nx target to the backend. Plugins without `src/apollo/subscription.ts` drop the subscription half of `buildSubgraphSchema`. Add `codegen.ts`, the `codegen` target, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend, with the schema path pointing at this plugin's `generated/schema.graphql`.
+Add `codegen.ts`, the `codegen` target, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend. Copy the `build` target's `inputs` too: `src/gql/` is gitignored, so without `{ "dependentTasksOutputFiles": "**/*.ts" }` Nx replays a cached bundle after a backend-only SDL change. The schema path is `backend/gateway/generated/schema.graphql`, and the `codegen` target depends on `gateway:schema:compose`. A new backend plugin gets `"schema:print": {}` in its `project.json`; the print script picks up `src/apollo/typeDefs.ts` and, when present, `src/apollo/subscription.ts`.
 
 Codegen validates every document in the plugin from the first run, typed or not, so it goes **red** on documents that already drift. Fix each one in this layer: a misspelled field, a field the SDL never had, a wrong argument, an operation name used twice.
 
@@ -92,7 +93,9 @@ A non-null field that resolves to null nulls its parent, and in a list that blan
 
 ## Gotchas
 
-- `print-schema.ts` ends with `process.exit`. `erxes-api-shared/utils` opens Redis on import and keeps the process alive.
+- `scripts/print-subgraph-schema.ts` ends with `process.exit`. `erxes-api-shared/utils` opens Redis on import and keeps the process alive.
+- One subgraph breaking composition fails every plugin's codegen. Run `pnpm nx run gateway:schema:compose --parallel=2` after changing any SDL. The composed file is the repo-wide codegen schema with every opted-in subgraph. A deployment's router composes only the plugins it enables, so a composition error here may not show up in a given deployment, and a clean compose doesn't prove one deployment's config composes.
+- `posclient_api` has no `schema:print` target, so it is not composed. posclient-front talks to it directly, not through the gateway.
 - Codegen reads documents statically. A `${FRAGMENT}` interpolation hides the fragment's fields from it, so write fields inline, or define a GraphQL fragment with `gql()` and spread it by name.
 - Operation names must be unique. A name like `mutation Mutation` generates `MutationMutation` types, so name every operation after the plugin and module.
 - A subscription that evicts cache entries needs `__typename` in its selection, or `cache.identify` finds nothing.

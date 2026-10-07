@@ -52,6 +52,7 @@
         "build"
       ],
       "command": "docker build -f backend/plugins/insurance_api/Dockerfile . -t erxes/erxes-next-insurance_api"
-    }
+    },
+    "schema:print": {}
   }
 }

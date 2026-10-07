@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -123,6 +123,7 @@
 
 ## Validation
 
+- `pnpm nx run loyalty_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
