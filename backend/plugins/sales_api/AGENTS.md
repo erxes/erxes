@@ -109,6 +109,9 @@
   order description with `deliveryInfo.description`.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
+- POS product sync calculates tax rules from the POS-specific `posInEbarimt`
+  config document's `value`; selected VAT and city-tax rules are fetched through
+  Mongolian `productRules.find` with a `data` filter before sending products.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
