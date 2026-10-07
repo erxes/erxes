@@ -81,6 +81,7 @@ export interface IProduct extends IProductCommonFields {
   subUoms?: ISubUom[];
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
+  conditionGroupId?: string;
   sameDefault?: string[];
   similarityId?: string | null;
   pdfAttachment?: IPdfAttachment;

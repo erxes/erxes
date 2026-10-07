@@ -145,6 +145,39 @@ const generateFilter = async (
   return filter;
 };
 
+const getPlanConditionGroupIds = async (
+  subdomain: string,
+  productIds: string[],
+): Promise<string[]> => {
+  if (!productIds.length) {
+    return [];
+  }
+
+  const products: { conditionGroupId?: string }[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'products',
+    action: 'find',
+    input: {
+      query: {
+        _id: { $in: productIds },
+        status: { $ne: 'deleted' },
+        conditionGroupId: { $nin: [null, ''] },
+      },
+      fields: { conditionGroupId: 1 },
+    },
+    defaultValue: [],
+  });
+
+  return [
+    ...new Set(
+      products.flatMap(({ conditionGroupId }) =>
+        conditionGroupId ? [conditionGroupId] : [],
+      ),
+    ),
+  ];
+};
+
 export const pricingPlanQueries = {
   pricingPlans: async (
     _root: any,
@@ -290,8 +323,14 @@ export const pricingPlanQueries = {
     const skip = (page - 1) * perPage;
     const pageProductIds = candidateProductIds.slice(skip, skip + perPage);
 
+    // Condition columns follow the whole plan, so they hold still across pages.
+    const conditionGroupIds = await getPlanConditionGroupIds(
+      subdomain,
+      planProductIds,
+    );
+
     if (!pageProductIds.length) {
-      return { list: [], totalCount };
+      return { list: [], totalCount, conditionGroupIds };
     }
 
     // Fetch product details from core for this page only
@@ -324,12 +363,13 @@ export const pricingPlanQueries = {
         unitPrice: product?.unitPrice ?? fixedValue?.unitPrice ?? 0,
         newPrice: fixedValue?.newPrice ?? product?.unitPrice ?? 0,
         conditionGroupId: product?.conditionGroupId || null,
+        productStatus: product?.status || null,
         conditionPrices: fixedValue?.conditionPrices || [],
         status,
       };
     });
 
-    return { list, totalCount };
+    return { list, totalCount, conditionGroupIds };
   },
 
   pricingCheckDiscount: async (

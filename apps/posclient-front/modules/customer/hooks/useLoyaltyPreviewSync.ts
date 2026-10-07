@@ -15,16 +15,18 @@ import { OrderItem } from "@/types/order.types"
 import { queries } from "../graphql"
 
 interface PreviewResponse {
-  poscLoyaltyPreview?: { productId: string; percent: number }[] | null
+  poscLoyaltyPreview?:
+    | { key: string; percent: number; unitPrice: number }[]
+    | null
 }
 
 const CART_DEBOUNCE_MS = 500
 
-// A saved line already carries its loyalty discount; previewing it again would double it.
-const hasLoyaltyDiscount = (item: OrderItem) =>
-  (item.discountInfos || []).some(({ type }) => type === "voucher")
+// A saved line already carries its pricing and loyalty discount; previewing it again would double it.
+const hasAutoDiscount = (item: OrderItem) =>
+  (item.discountInfos || []).some(({ type }) => type !== "hand")
 
-// One query for the whole cart; rows read the result from loyaltyPreviewAtom.
+// One query for the whole cart, keyed by line; rows read it from loyaltyPreviewAtom.
 export const useLoyaltyPreviewSync = () => {
   const cart = useAtomValue(cartAtom)
   const customer = useAtomValue(customerAtom)
@@ -34,8 +36,14 @@ export const useLoyaltyPreviewSync = () => {
   const setPreview = useSetAtom(loyaltyPreviewAtom)
 
   const items = cart
-    .filter((item) => !hasLoyaltyDiscount(item) && item.unitPrice > 0)
-    .map(({ productId, count, unitPrice }) => ({ productId, count, unitPrice }))
+    .filter((item) => !hasAutoDiscount(item) && item.unitPrice > 0)
+    .map(({ _id, productId, count, unitPrice, conditionId }) => ({
+      key: _id,
+      productId,
+      count,
+      unitPrice,
+      conditionId: conditionId || undefined,
+    }))
   const itemsKey = JSON.stringify(items)
   const [settledKey, setSettledKey] = useState(itemsKey)
 
@@ -48,7 +56,8 @@ export const useLoyaltyPreviewSync = () => {
   }, [itemsKey])
 
   const customerId = !customerType ? customer?._id : undefined
-  const skip = settledKey === "[]" || (!customerId && !couponCode && !voucherId)
+  // Pricing plans apply to anyone, so a cart is previewed even without a customer.
+  const skip = settledKey === "[]"
 
   const { data } = useQuery<PreviewResponse>(queries.poscLoyaltyPreview, {
     variables: {
@@ -65,7 +74,10 @@ export const useLoyaltyPreviewSync = () => {
     const lines = skip ? [] : data?.poscLoyaltyPreview || []
     setPreview(
       Object.fromEntries(
-        lines.map(({ productId, percent }) => [productId, percent])
+        lines.map(({ key, percent, unitPrice }) => [
+          key,
+          { percent, unitPrice },
+        ])
       )
     )
   }, [data, skip, setPreview])

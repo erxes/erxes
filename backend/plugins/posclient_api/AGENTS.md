@@ -27,6 +27,7 @@
   and `isCleanTaxPrice`, in POS client config.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
+- Order items keep an optional `conditionId` (the core product condition a unit is sold under; saved by ordersAdd/Edit and the order-utils item writer, passed to loyalty `checkPricing`, synced to sales). Synced products keep core's `conditionGroupId` (schema field; products synced before it existed need a re-sync), and `PosOrderItem.conditionGroupId` resolves it from the product.
 - Shows the cashier the order's chosen customer's loyalty: `poscCustomerLoyalty` passes loyalty's `ownerSummary` through (wallets, tiers, sale vouchers); null when loyalty is not running.
 - Lets POS admins, and cashiers with `permissionConfig.cashiers.createCustomer`,
   register Core customers through the synced `customerCreateConfig` layout.
@@ -55,7 +56,8 @@
 - `poscCustomerForm: PosCustomerForm` returns `canCreate` and the resolved
   form `rows` (system fields plus live `core:customer` properties).
 - `poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty` (logged-in POS user).
-- `poscLoyaltyPreview(items, customerId, couponCode, voucherId): [PosLoyaltyPreviewLine]` runs the same `checkLoyalties` an order save runs, without saving, and returns each line's loyalty (`voucher`-type) discount percent so the cashier sees it before ordering.
+- `poscLoyaltyPreview(items, customerId, couponCode, voucherId): [PosLoyaltyPreviewLine]` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving, and returns each line's total discount percent and resulting `unitPrice` (display only; the saved order stays authoritative) keyed by the caller's line `key` (a product can sit on several lines under different conditions); bonus lines pricing adds are left out.
+- `poscProductConditionGroups(ids)` reads core's product condition groups (core tRPC `productConditionGroups.find`) so a cart line can pick a condition.
 - `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order.
 - `poscCustomersAdd(doc: JSON!): PosCustomerAddResult` returns either the
   created `customer` or an existing `duplicate` (same e-mail, phone, or code).

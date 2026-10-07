@@ -236,6 +236,7 @@ export const getItemInputs = (
       isTake,
       status,
       manufacturedDate,
+      conditionId,
       description,
       attachment,
     }) => {
@@ -268,6 +269,7 @@ export const getItemInputs = (
         isTake,
         status,
         manufacturedDate,
+        conditionId: conditionId || undefined,
         description,
         attachment,
       }

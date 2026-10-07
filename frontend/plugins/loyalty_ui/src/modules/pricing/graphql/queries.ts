@@ -130,7 +130,6 @@ export const PRICING_PLAN_DETAIL = gql`
       categoriesExcluded
       segments
       vendors
-      conditionIds
       tags
       tagsExcluded
       customerIds
@@ -265,6 +264,7 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
       search: $search
     ) {
       totalCount
+      conditionGroupIds
       list {
         _id
         productId
@@ -274,6 +274,7 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
         unitPrice
         newPrice
         conditionGroupId
+        productStatus
         conditionPrices {
           conditionId
           price

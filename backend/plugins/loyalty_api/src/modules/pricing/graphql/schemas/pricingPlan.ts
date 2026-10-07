@@ -64,7 +64,6 @@ export const types = `
     categoriesExcluded: [String],
     segments: [String],
     vendors: [String],
-    conditionIds: [String],
     tags: [String],
     tagsExcluded: [String],
 
@@ -162,12 +161,14 @@ export const types = `
       newPrice: Float
       conditionGroupId: String
       conditionPrices: [PricingConditionPrice]
+      productStatus: String
       status: String
     }
 
     type PricingFixedValuePageResult {
       list: [PricingFixedValuePageItem]
       totalCount: Int
+      conditionGroupIds: [String]
     }
   input QuantityRuleInput {
     type: String,
@@ -234,7 +235,6 @@ export const types = `
     categoriesExcluded: [String],
     segments: [String],
     vendors: [String],
-    conditionIds: [String],
     tags: [String],
     tagsExcluded: [String],
 
@@ -311,7 +311,6 @@ export const types = `
     categoriesExcluded: [String],
     segments: [String],
     vendors: [String],
-    conditionIds: [String],
     tags: [String],
     tagsExcluded: [String],
 

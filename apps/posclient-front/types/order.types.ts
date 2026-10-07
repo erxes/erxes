@@ -19,6 +19,9 @@ export interface OrderItemInput {
     percent?: number
   }[]
   manufacturedDate?: string
+  // The product condition this unit is sold under; its group comes from the product.
+  conditionId?: string | null
+  conditionGroupId?: string | null
 }
 
 export interface IAddToCartInput extends IProduct {

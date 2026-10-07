@@ -27,7 +27,7 @@ import { customerSearchAtom, selectedTabAtom } from "."
 import { cartAtom, cartChangedAtom, totalAmountAtom } from "./cart.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
-import { fixNum, getItemInputs } from "@/lib/utils"
+import { fixNum, getCartTotal, getItemInputs } from "@/lib/utils"
 
 // order
 export const activeOrderIdAtom = atomWithStorage<string | null>(
@@ -57,8 +57,21 @@ export const voucherIdAtom = atom((get) => {
     : null
 })
 export const couponCodeAtom = atom<string | null>(null)
-// Loyalty discount percent per product a save would give, before it is saved.
-export const loyaltyPreviewAtom = atom<Record<string, number>>({})
+// Pricing and loyalty discount per cart line a save would give, before it is saved.
+export const loyaltyPreviewAtom = atom<
+  Record<string, { percent: number; unitPrice: number }>
+>({})
+// Display only: payments always use the saved order's amounts.
+export const previewTotalAmountAtom = atom<number>((get) => {
+  const preview = get(loyaltyPreviewAtom)
+
+  return getCartTotal(
+    get(cartAtom).map((item) => ({
+      ...item,
+      unitPrice: preview[item._id]?.unitPrice ?? item.unitPrice,
+    }))
+  )
+})
 
 // broker
 export const brokerAtom = atomWithStorage<Customer | null>("broker", null)

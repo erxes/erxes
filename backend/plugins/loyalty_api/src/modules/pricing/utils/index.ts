@@ -87,6 +87,7 @@ export const getMainConditions = ({
 const applyPriorityConditions = (
   conditions: Record<string, any>,
   prioritizeRule?: string,
+  hasConditionItems?: boolean,
 ) => {
   if (prioritizeRule === 'only') {
     conditions.$and = [
@@ -102,35 +103,47 @@ const applyPriorityConditions = (
     conditions.$and = [
       ...(conditions.$and || []),
       {
-        $or: [{ priority: { $nin: ['posBase', 'pipelineBase'] } }],
+        $or: [
+          { priority: { $nin: ['posBase', 'pipelineBase'] } },
+          // Their condition prices are the one part sync could not bake in.
+          ...(hasConditionItems
+            ? [{ priority: 'posBase', type: 'fixed' }]
+            : []),
+        ],
       },
     ];
   }
 };
 
 // Helper function to calculate default discount value
+// null: the plan does not price this line at all.
 const calculateDefaultDiscount = async (
   plan: any,
   item: any,
   models: IModels,
-): Promise<number> => {
+  conditionOnly: boolean,
+): Promise<number | null> => {
   if (plan.type === 'fixed') {
     const fixedValue = await models.PricingFixedValues.findOne({
       pricingPlanId: plan._id.toString(),
       productId: item.productId,
     });
 
+    // A line sold under a condition takes that condition's price when it has one.
+    const conditionPrice = item.conditionId
+      ? fixedValue?.conditionPrices?.find(
+          ({ conditionId }) => conditionId === item.conditionId,
+        )?.price
+      : undefined;
+
+    if (conditionOnly && conditionPrice == null) {
+      return null;
+    }
+
     if (fixedValue?.newPrice == null) {
       return 0;
     }
 
-    // A line sold under one of the plan's conditions takes that column's price.
-    const conditionPrice =
-      item.conditionId && plan.conditionIds?.includes(item.conditionId)
-        ? fixedValue.conditionPrices?.find(
-            ({ conditionId }) => conditionId === item.conditionId,
-          )?.price
-        : undefined;
     const newPrice = conditionPrice ?? fixedValue.newPrice;
 
     const discount = item.price - newPrice;
@@ -140,6 +153,10 @@ const calculateDefaultDiscount = async (
       plan.priceAdjustType,
       plan.priceAdjustFactor,
     );
+  }
+
+  if (conditionOnly) {
+    return null;
   }
 
   let defaultValue = calculateDiscountValue(plan.type, plan.value, item.price);
@@ -387,7 +404,11 @@ export const checkPricing = async (params: {
 
   // Prepare query conditions
   const conditions = getMainConditions({ branchId, departmentId, pipelineId });
-  applyPriorityConditions(conditions, prioritizeRule);
+  applyPriorityConditions(
+    conditions,
+    prioritizeRule,
+    orderItems.some((item) => item.conditionId),
+  );
 
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
@@ -440,6 +461,10 @@ export const checkPricing = async (params: {
       continue;
     }
 
+    // POS sync already baked this plan's new prices into unit prices.
+    const bakedAtSync =
+      prioritizeRule === 'exclude' && plan.priority === 'posBase';
+
     let appliedBundleCounts = Number.POSITIVE_INFINITY;
     const appliedBundleItems: any[] = [];
 
@@ -449,22 +474,32 @@ export const checkPricing = async (params: {
         continue;
       }
 
+      // Calculate discount
+      const defaultValue = await calculateDefaultDiscount(
+        plan,
+        item,
+        models,
+        bakedAtSync,
+      );
+
+      if (defaultValue === null) {
+        continue;
+      }
+
       // Update bundle counts
       if (appliedBundleCounts > item.quantity) {
         appliedBundleCounts = item.quantity;
       }
 
-      // Calculate discount
-      const defaultValue = await calculateDefaultDiscount(plan, item, models);
-
       // Process item with plan rules
-      const { type, value, bonusProducts, shouldApply } = processItemWithPlan(
-        item,
-        plan,
-        totalAmount,
-        defaultValue,
-        result,
-      );
+      const { type, value, bonusProducts, shouldApply } = bakedAtSync
+        ? {
+            type: plan.type,
+            value: defaultValue,
+            bonusProducts: [],
+            shouldApply: true,
+          }
+        : processItemWithPlan(item, plan, totalAmount, defaultValue, result);
 
       if (shouldApply) {
         // Update result with calculated values

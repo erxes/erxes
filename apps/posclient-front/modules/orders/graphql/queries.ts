@@ -42,6 +42,8 @@ export const orderItemFields = `
     discountPercent
     bonusCount
     manufacturedDate
+    conditionId
+    conditionGroupId
     description
     attachment
 `

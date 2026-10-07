@@ -25,7 +25,6 @@ export const GENERAL_FORM_DEFAULT_VALUES: GeneralFormValues = {
   appliesProductIds: [],
   segmentId: null,
   vendorCompanyIds: [],
-  conditionIds: [],
   productTagIds: [],
   excludeTagIds: [],
   bundleProductIds: [],
@@ -69,7 +68,6 @@ export const getGeneralFormValues = (
   appliesProductIds: pricingDetail.products || [],
   segmentId: pricingDetail.segments?.[0] || null,
   vendorCompanyIds: pricingDetail.vendors || [],
-  conditionIds: pricingDetail.conditionIds || [],
   productTagIds: pricingDetail.tags || [],
   excludeTagIds: pricingDetail.tagsExcluded || [],
   bundleProductIds: pricingDetail.productsBundle?.[0] || [],
@@ -87,7 +85,6 @@ export const getGeneralPricingDocument = (
     priority: priorityFromFormValue(values.priority),
     isStartDateEnabled: Boolean(values.startDate),
     isEndDateEnabled: Boolean(values.endDate),
-    conditionIds: values.conditionIds,
   };
 
   if (values.startDate) {

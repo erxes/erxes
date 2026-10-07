@@ -1,6 +1,5 @@
 import { PricingAppliesToSelect } from '@/pricing/components/PricingAppliesToSelect';
 import { PricingPrioritySelect } from '@/pricing/components/PricingPrioritySelect';
-import { GeneralConditionField } from '@/pricing/edit-pricing/components/general/GeneralConditionField';
 import { GeneralDateField } from '@/pricing/edit-pricing/components/general/GeneralDateField';
 import { GeneralTargetFields } from '@/pricing/edit-pricing/components/general/GeneralTargetFields';
 import { GeneralFormValues } from '@/pricing/edit-pricing/components/general/types';
@@ -109,8 +108,6 @@ export const GeneralFormFields = ({
           placeholder={t('select-end-date')}
         />
       </div>
-
-      <GeneralConditionField control={control} />
     </>
   );
 };

@@ -18,6 +18,7 @@ interface IUpdateItem {
   isTake?: boolean
   description?: string
   attachment?: { url?: string } | null
+  conditionId?: string | null
   fromAdd?: boolean
   allowed?: boolean
   status?: IOrderItemStatus
@@ -80,6 +81,7 @@ export const addToCart = (
       isTake,
       description,
       attachment,
+      conditionId,
     }) =>
       productId === product._id &&
       [ORDER_ITEM_STATUSES.NEW, ORDER_ITEM_STATUSES.CONFIRM].includes(
@@ -88,7 +90,8 @@ export const addToCart = (
       (itemManufacturedDate || "") === manufacturedDate &&
       !isTake &&
       !description &&
-      !attachment
+      !attachment &&
+      !conditionId
   )
 
   if (prevItem) {
@@ -96,7 +99,7 @@ export const addToCart = (
     return changeCartItem({ _id, count: count + 1, fromAdd: true }, cart)
   }
 
-  const { unitPrice, _id, name, code, attachment } = product
+  const { unitPrice, _id, name, code, attachment, conditionGroupId } = product
 
   const cartItem = {
     _id: Math.random().toString(),
@@ -107,6 +110,7 @@ export const addToCart = (
     status: ORDER_STATUSES.NEW as IOrderItemStatus,
     productImgUrl: attachment?.url,
     manufacturedDate: manufacturedDate || undefined,
+    conditionGroupId: conditionGroupId || undefined,
   }
 
   return [cartItem, ...cart]

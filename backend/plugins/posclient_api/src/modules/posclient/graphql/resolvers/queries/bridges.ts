@@ -2,6 +2,7 @@ import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { checkLoyalties } from '~/modules/posclient/utils/loyalties';
+import { checkPricing } from '~/modules/posclient/utils/pricing';
 import {
   canCreateCustomer,
   resolveCustomerForm,
@@ -317,7 +318,7 @@ const bridgesQueries = {
     return campaign.title || code;
   },
 
-  // The loyalty discount a save would give each line, computed without saving.
+  // The pricing and loyalty discount a save would give each line, without saving.
   async poscLoyaltyPreview(
     _root,
     {
@@ -326,33 +327,87 @@ const bridgesQueries = {
       couponCode,
       voucherId,
     }: {
-      items: { productId: string; count: number; unitPrice: number }[];
+      items: {
+        key: string;
+        productId: string;
+        count: number;
+        unitPrice: number;
+        conditionId?: string;
+      }[];
       customerId?: string;
       couponCode?: string;
       voucherId?: string;
     },
+    { subdomain, posUser, config }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const originalByKey = new Map(items.map((item) => [item.key, item]));
+    const priced = await checkPricing(
+      subdomain,
+      {
+        items: items.map(({ key, ...item }) => ({ ...item, _id: key })),
+        customerId,
+        totalAmount: 0,
+        type: '',
+        description: '',
+      },
+      config,
+    );
+    const doc = await checkLoyalties(subdomain, {
+      ...priced,
+      couponCode,
+      voucherId,
+    });
+
+    // Bonus lines pricing adds have no key and are left out.
+    return doc.items.flatMap(({ _id, productId, unitPrice, discountInfos }) => {
+      const original = originalByKey.get(_id);
+
+      if (!original?.unitPrice || unitPrice == null) {
+        return [];
+      }
+
+      const percent =
+        Math.round((1 - unitPrice / original.unitPrice) * 1000) / 10;
+
+      return percent > 0
+        ? [
+            {
+              key: _id,
+              productId,
+              percent,
+              unitPrice,
+              title: (discountInfos || [])
+                .filter(({ type }) => type !== 'hand')
+                .map(({ title }) => title)
+                .filter(Boolean)
+                .join(', '),
+            },
+          ]
+        : [];
+    });
+  },
+
+  async poscProductConditionGroups(
+    _root,
+    { ids }: { ids: string[] },
     { subdomain, posUser }: IContext,
   ) {
     assertPosUser(posUser);
 
-    const doc = await checkLoyalties(subdomain, {
-      items: items.map((item, index) => ({ ...item, _id: String(index) })),
-      customerId,
-      couponCode,
-      voucherId,
-      totalAmount: 0,
-      type: '',
-      description: '',
-    });
+    if (!ids.length) {
+      return [];
+    }
 
-    return doc.items.flatMap(({ productId, discountInfos }) => {
-      const loyalty = (discountInfos || []).find(
-        ({ type }) => type === 'voucher',
-      );
-
-      return loyalty?.percent
-        ? [{ productId, percent: loyalty.percent, title: loyalty.title }]
-        : [];
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'productConditionGroups',
+      action: 'find',
+      input: { ids },
+      defaultValue: [],
     });
   },
 

@@ -4,14 +4,37 @@ import { useAtomValue } from "jotai"
 import { OrderItem } from "@/types/order.types"
 import { fixNum } from "@/lib/utils"
 
+// What the line's pricing and loyalty discounts take off its price before them.
+const savedPercent = (
+  discountInfos: OrderItem["discountInfos"],
+  unitPrice: number,
+  count: number
+) => {
+  const infos = discountInfos || []
+  const auto = infos
+    .filter(({ type }) => type !== "hand")
+    .reduce((sum, { amount }) => sum + (amount || 0), 0)
+  const all = infos.reduce((sum, { amount }) => sum + (amount || 0), 0)
+  const base = unitPrice * count + all
+
+  return auto && base ? (auto / base) * 100 : 0
+}
+
 // A saved line shows what the server gave; an unsaved one what a save would give.
 export const LoyaltyDiscountBadge = ({
-  productId,
+  itemId,
   discountInfos,
-}: Pick<OrderItem, "productId" | "discountInfos">) => {
+  unitPrice,
+  count,
+}: {
+  itemId: string
+  discountInfos: OrderItem["discountInfos"]
+  unitPrice: number
+  count: number
+}) => {
   const preview = useAtomValue(loyaltyPreviewAtom)
-  const saved = (discountInfos || []).find(({ type }) => type === "voucher")
-  const percent = saved?.percent || preview[productId]
+  const percent =
+    savedPercent(discountInfos, unitPrice, count) || preview[itemId]?.percent
 
   if (!percent) return null
 

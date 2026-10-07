@@ -58,15 +58,30 @@ export const types = `
   }
 
   type PosLoyaltyPreviewLine {
+    key: String!
     productId: String!
     percent: Float
+    unitPrice: Float
     title: String
   }
 
   input PosLoyaltyPreviewItem {
+    key: String!
     productId: String!
     count: Float!
     unitPrice: Float!
+    conditionId: String
+  }
+
+  type PosProductCondition {
+    _id: String!
+    name: String!
+  }
+
+  type PosProductConditionGroup {
+    _id: String!
+    name: String!
+    conditions: [PosProductCondition]
   }
 
   type PosCustomerAddResult {
@@ -80,6 +95,7 @@ export const queries = `
   poscCustomerDetail(_id: String!, type: String): PosCustomer
   poscCustomerForm: PosCustomerForm
   poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty
+  poscProductConditionGroups(ids: [String!]!): [PosProductConditionGroup]
   poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String
   poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String): [PosLoyaltyPreviewLine]
 `;

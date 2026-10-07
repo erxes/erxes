@@ -19,6 +19,10 @@ import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
 import { useSetProductConditionGroup } from '@/pricing/hooks/useSetProductConditionGroup';
+import {
+  IConditionColumn,
+  usePricingConditionColumns,
+} from '@/pricing/hooks/usePricingConditionGroups';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
@@ -32,15 +36,8 @@ interface IPageItem {
   newPrice: number;
   conditionGroupId: string | null;
   conditionPrices: { conditionId: string; price: number }[];
+  productStatus: string | null;
   status: FixedPricingStatus;
-}
-
-// A product condition the plan prices in its own column.
-export interface IConditionColumn {
-  _id: string;
-  name: string;
-  groupId: string;
-  groupName: string;
 }
 
 const toConditionPriceMap = (
@@ -57,6 +54,8 @@ interface IProductRow {
   unitPrice: number;
   code?: string;
   conditionGroupId: string | null;
+  // Deleted products are never sold, so their row is shown but not editable.
+  isDeleted: boolean;
 }
 
 const readFileAsText = (file: File): Promise<string> => file.text();
@@ -152,6 +151,12 @@ const DiffPrice = ({ diff }: { diff: number }) => {
   return <span style={{ color, fontWeight }}>{text}</span>;
 };
 
+const NotAvailableBadge = () => (
+  <span className="mx-2 rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+    Not available
+  </span>
+);
+
 // The product cannot be sold under this condition; the popover says how to change that.
 const ConditionUnavailableCell = ({
   productId,
@@ -210,15 +215,10 @@ const applyCustomPageSize = (
 export const FixedPricingTable = ({
   control,
   pricingId,
-  conditionColumns,
-  groupNames,
   onSave,
 }: {
   control: Control<any>;
   pricingId: string;
-  conditionColumns: IConditionColumn[];
-  // Every condition group's name by id, to say which group a product would lose.
-  groupNames: Record<string, string>;
   onSave: () => void;
 }) => {
   const { fields, replace } = useFieldArray({ control, name: 'fixedValues' });
@@ -263,6 +263,9 @@ export const FixedPricingTable = ({
   const pageItems: IPageItem[] = pageResult?.list || [];
   const totalCount: number = pageResult?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const { conditionColumns, groupNames } = usePricingConditionColumns(
+    pageResult?.conditionGroupIds || [],
+  );
   // A product gaining a condition group must not reset unsaved edits on the page.
   const pageItemsKey = JSON.stringify(
     pageItems.map((item) => ({ ...item, conditionGroupId: undefined })),
@@ -394,6 +397,7 @@ export const FixedPricingTable = ({
         unitPrice: item.unitPrice,
         code: item.sortField,
         conditionGroupId: item.conditionGroupId,
+        isDeleted: item.productStatus === 'deleted',
       };
       return (
         <FixedPricingRow
@@ -681,38 +685,48 @@ const FixedPricingRow = ({
         />
       </Table.Cell>
 
-      <RecordTableHotKeyControl rowId={rowId} rowIndex={index}>
+      {product.isDeleted ? (
         <Table.Cell>
-          <Form.Field
-            control={control}
-            name={`fixedValues.${index}.newPrice`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`fixedValues.${index}.newPrice`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <InputNumber
-                    value={field.value ?? 0}
-                    onChange={(v) => field.onChange(v || 0)}
-                    onKeyDown={handleNewPriceKeyDown}
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
+          <RecordTableInlineCell className="text-muted-foreground">
+            {newPrice.toLocaleString()}
+          </RecordTableInlineCell>
         </Table.Cell>
-      </RecordTableHotKeyControl>
+      ) : (
+        <RecordTableHotKeyControl rowId={rowId} rowIndex={index}>
+          <Table.Cell>
+            <Form.Field
+              control={control}
+              name={`fixedValues.${index}.newPrice`}
+              render={({ field }) => (
+                <PopoverScoped
+                  scope={`fixedValues.${index}.newPrice`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger>
+                      {field.value?.toLocaleString() || 0}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <InputNumber
+                      value={field.value ?? 0}
+                      onChange={(v) => field.onChange(v || 0)}
+                      onKeyDown={handleNewPriceKeyDown}
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+              )}
+            />
+          </Table.Cell>
+        </RecordTableHotKeyControl>
+      )}
 
+      {/* Only the product's own condition group can be sold under. */}
       {conditionColumns.map((column) => (
         <Table.Cell key={column._id}>
-          {/* Only the product's own condition group can be sold under. */}
-          {product.conditionGroupId === column.groupId ? (
+          {product.isDeleted ? (
+            <NotAvailableBadge />
+          ) : product.conditionGroupId === column.groupId ? (
             <Form.Field
               control={control}
               name={`fixedValues.${index}.conditionPriceMap.${column._id}`}
@@ -764,7 +778,11 @@ const FixedPricingRow = ({
 
       <Table.Cell>
         <RecordTableInlineCell>
-          <StatusBadge status={status} />
+          {product.isDeleted ? (
+            <NotAvailableBadge />
+          ) : (
+            <StatusBadge status={status} />
+          )}
         </RecordTableInlineCell>
       </Table.Cell>
     </Table.Row>

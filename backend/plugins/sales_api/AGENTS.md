@@ -112,6 +112,9 @@
   order description with `deliveryInfo.description`.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
+- Product changes reach POS clients through `afterMutation` (`meta/productUtils.ts`);
+  core's bulk `productsSetConditionGroup` / `productCategorySetConditionGroup`
+  bypass `productsEdit`, so each touched product in a POS's groups is resent.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -173,6 +176,7 @@
   `discountInfos`, `totalAmount`, `unUsedTotalAmount`, `bothTotalAmount`,
   `mobileAmount`, `mobileAmounts`, and `paymentsData`.
 - Pipeline documents store validated Core deal field ids in `propertyIds`.
+- POS order items keep the optional `conditionId` (core product condition) the POS client sold a line under, for reporting.
 - POS `customerCreateConfig.layout` rows hold customer system field codes from
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 

@@ -91,17 +91,24 @@ const plan = (
     // Boundary cast: a full Mongoose document is impractical to build in a unit test.
   } as unknown as IPricingPlanDocument);
 
-const makeModels = (plans: IPricingPlanDocument[]): IModels =>
+const makeModels = (
+  plans: IPricingPlanDocument[],
+  fixedValue: unknown = null,
+): IModels =>
   ({
     PricingPlans: {
       find: jest.fn(() => ({ sort: jest.fn().mockResolvedValue(plans) })),
     },
-    // Boundary cast: only PricingPlans.find is exercised by checkPricing.
+    PricingFixedValues: {
+      findOne: jest.fn().mockResolvedValue(fixedValue),
+    },
+    // Boundary cast: only these two lookups are exercised by checkPricing.
   } as unknown as IModels);
 
 const run = (
   plans: IPricingPlanDocument[],
   context: {
+    prioritizeRule?: string;
     customerType?: 'customer' | 'company' | 'user';
     customerId?: string;
     brokerType?: 'customer' | 'company' | 'user';
@@ -144,9 +151,45 @@ describe('checkPricing — applies eligible plans', () => {
   });
 
   it('preserves a negative POS-base adjustment', async () => {
-    const result = await run([plan({ priority: 'posBase', value: -5 })]);
+    const result = await run([plan({ priority: 'posBase', value: -5 })], {
+      prioritizeRule: 'only',
+    });
 
     expect(result?.i1?.value).toBe(-5);
+  });
+});
+
+describe('checkPricing — POS-base fixed plans at checkout', () => {
+  const fixedPlan = plan({ priority: 'posBase', type: 'fixed' });
+  const fixedValue = {
+    newPrice: 80,
+    conditionPrices: [{ conditionId: 'dented', price: 50 }],
+  };
+  // Sync already lowered the unit price to the new price.
+  const checkout = (conditionId?: string) =>
+    checkPricing({
+      models: makeModels([fixedPlan], fixedValue),
+      subdomain: 'test',
+      prioritizeRule: 'exclude',
+      totalAmount: 80,
+      orderItems: [
+        { itemId: 'i1', productId: 'p1', quantity: 1, price: 80, conditionId },
+      ],
+    });
+
+  it('prices a line sold under a condition at that condition price', async () => {
+    const result = await checkout('dented');
+    expect(result?.i1?.value).toBe(30);
+  });
+
+  it('leaves plain lines alone, their new price is already baked in', async () => {
+    const result = await checkout();
+    expect(result?.i1?.value).toBe(0);
+  });
+
+  it('leaves a condition without its own price alone', async () => {
+    const result = await checkout('broken');
+    expect(result?.i1?.value).toBe(0);
   });
 });
 
