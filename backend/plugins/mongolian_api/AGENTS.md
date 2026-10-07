@@ -73,6 +73,7 @@
 
 ## Local Invariants
 
+- Subscription fields (`ebarimtResponded`, `productPlacesResponded`) are declared only in `src/apollo/subscription.ts`, which the gateway serves. Declaring one again in the subgraph SDL fails `schema:print`.
 - Exchange-rate lookup accepts Date-coercible values because service-to-service tRPC calls serialize JavaScript `Date` values over HTTP.
 - Active-rate lookup must return the latest rate on or before the requested day.
 - One exchange-rate document represents exactly one main/rate currency pair for one day.
