@@ -29,11 +29,33 @@ export class AccountsApi extends BaseApi {
    * GET /accounts/{acntno}/balance
    */
   async getBalance(accountNumberOrIban: string): Promise<TdbBalanceResponse> {
-    return this.request<TdbBalanceResponse>({
-      method: 'GET',
-      path: `accounts/${encodeURIComponent(accountNumberOrIban)}/balance`,
-    });
-  }
+  const response = await this.request<any>({
+    method: 'GET',
+    path: `accounts/${encodeURIComponent(accountNumberOrIban)}/balance`,
+  });
+
+  const account = response.data?.invoice || response.acntno;
+
+  return {
+    success: response.success,
+    msg: response.msg || response.message || '',
+    data: account
+      ? {
+          invoice: {
+            acntno: Number(account.acntno ?? account.ACNTNO),
+            iban: account.iban ?? account.IBAN ?? '',
+            ACNTNAME: account.ACNTNAME,
+            ACNTMODE: account.ACNTMODE,
+            CURCODE: account.CURCODE,
+            BALANCE: account.BALANCE,
+            CUSTNO: account.CUSTNO,
+            AVAILABLEBAL: account.AVAILABLEBAL,
+            HOLDBAL: account.HOLDBAL,
+          },
+        }
+      : null,
+  };
+}
 
   /**
    * Get account statement.
@@ -43,23 +65,50 @@ export class AccountsApi extends BaseApi {
    * - date format: YYYY/MM/DD
    */
   async getStatement(args: {
+  accountNumberOrIban: string;
+  from: string;
+  to: string;
+  page?: number;
+  size?: number;
+}): Promise<TdbStatementResponse> {
+  const response = await this.request<any>({
+    method: 'GET',
+    path: `accounts/statement/${encodeURIComponent(args.accountNumberOrIban)}`,
+    params: {
+      from: args.from,
+      to: args.to,
+      page: args.page ?? 1,
+      size: args.size ?? 100,
+    },
+  });
+
+  throw new Error(`TDB STATEMENT RAW: ${JSON.stringify(response)}`);
+}
+  async findTransaction(args: {
     accountNumberOrIban: string;
+    amount: number;
+    description: string;
     from: string;
     to: string;
-    page?: number;
-    size?: number;
-  }): Promise<TdbStatementResponse> {
-    return this.request<TdbStatementResponse>({
-      method: 'GET',
-      path: `accounts/statement/${encodeURIComponent(
-        args.accountNumberOrIban,
-      )}`,
-      params: {
-        from: args.from,
-        to: args.to,
-        page: args.page ?? 1,
-        size: args.size ?? 100,
-      },
+  }) {
+    const response = await this.getStatement({
+      accountNumberOrIban: args.accountNumberOrIban,
+      from: args.from,
+      to: args.to,
+      page: 1,
+      size: 100,
+    });
+
+    const transactions = response.txn ?? [];
+    const expectedDescription = args.description.trim();
+
+    return transactions.find((item) => {
+      const statementDescription = item.txndesc?.trim();
+
+      return (
+        Number(item.credit) === Number(args.amount) &&
+        statementDescription?.startsWith(expectedDescription)
+      );
     });
   }
 }

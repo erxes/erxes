@@ -18,14 +18,26 @@ export const types = `
     data: [TdbAccount]
   }
 
+  type TdbBalanceAccount {
+    acntno: Int
+    iban: String
+    ACNTNAME: String
+    ACNTMODE: String
+    CURCODE: String
+    BALANCE: Float
+    CUSTNO: String
+    AVAILABLEBAL: Float
+    HOLDBAL: Float
+  }
+
+  type TdbBalanceData {
+    invoice: TdbBalanceAccount
+  }
+
   type TdbBalanceResponse {
     success: Boolean
     msg: String
     data: TdbBalanceData
-  }
-
-  type TdbBalanceData {
-    invoice: TdbAccount
   }
 
   type TdbStatementHeader {
@@ -59,7 +71,9 @@ export const types = `
 `;
 
 export const queries = `
-  tdbAccounts(configId: String!): TdbAccountsResponse
+  tdbAccounts(
+    configId: String!
+  ): TdbAccountsResponse
 
   tdbAccountBalance(
     configId: String!

@@ -24,7 +24,10 @@ export interface ITdbConfigDocument extends ITdbConfig, Document {
 export interface TdbTokenResponse {
   success: boolean;
   msg?: string;
-  token: string;
+  token?: string;
+  data?: {
+    token: string;
+  };
 }
 
 /**
@@ -53,13 +56,24 @@ export interface TdbAccountsResponse {
 /**
  * Account balance
  */
+export interface TdbBalanceAccount {
+  acntno: number;
+  iban: string;
+  ACNTNAME: string;
+  ACNTMODE: string;
+  CURCODE: string;
+  BALANCE: number;
+  CUSTNO: string;
+  AVAILABLEBAL: number;
+  HOLDBAL: number;
+}
 
 export interface TdbBalanceResponse {
   success: boolean;
   msg: string;
   data: {
-    invoice: TdbAccount;
-  };
+    invoice: TdbBalanceAccount;
+  } | null;
 }
 
 /**
@@ -134,41 +148,4 @@ export interface TdbInterbankTransferInput {
 export interface TdbBank {
   code: string;
   name: string;
-}
-
-/**
- * Orders / HPP
- */
-
-export interface TdbOrderInput {
-  typeRid?: string;
-  amount: number;
-  currency: string;
-  description?: string;
-  language?: string;
-  hppRedirectUrl: string;
-}
-
-export interface TdbOrder {
-  id: number;
-  typeRid: string;
-  amount: number;
-  currency: string;
-  description?: string;
-  language?: string;
-  hppRedirectUrl?: string;
-  password?: string;
-  status: string;
-}
-
-export interface TdbOrderCreateResponse {
-  success: boolean;
-  msg: string;
-  order: TdbOrder;
-}
-
-export interface TdbOrderDetail {
-  success: boolean;
-  msg: string;
-  order: TdbOrder;
 }

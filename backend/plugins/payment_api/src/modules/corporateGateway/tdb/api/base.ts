@@ -1,5 +1,5 @@
 import fetch, { HeadersInit, RequestInit } from 'node-fetch';
-import { TdbTokenResponse } from '../@types/tdb';
+import { TdbTokenResponse } from '@/corporateGateway/tdb/@types/tdb';
 
 export class BaseApi {
   protected config: {
@@ -29,8 +29,6 @@ export class BaseApi {
     if (this.accessToken && Date.now() < this.tokenExpiresAt) {
       return this.accessToken;
     }
-    console.log('[TDB CGW] apiUrl:', this.config.apiUrl);
-    console.log('[TDB CGW] token URL:', `${this.config.apiUrl}/oauth2/token`);
 
     const response = await fetch(`${this.config.apiUrl}/oauth2/token`, {
       method: 'POST',
@@ -55,23 +53,23 @@ export class BaseApi {
       throw new Error(`TDB token response is not valid JSON: ${responseText}`);
     }
 
-    if (!response.ok || !result.success || !result.token) {
-      console.error('[TDB CGW] OAuth response:', {
-        status: response.status,
-        headers: Object.fromEntries(response.headers.entries()),
-        body: result,
-      });
+    const token = result.data?.token || (result as any).token;
 
-      throw new Error(result.msg || 'Failed to obtain TDB access token');
+    if (!response.ok || !result.success || !token) {
+      throw new Error(
+        result.msg ||
+          (result as any).message ||
+          `TDB OAuth failed with status ${response.status}: ${responseText}`,
+      );
     }
 
-    this.accessToken = result.token;
+    this.accessToken = token;
 
-    // Documentation says token is valid for 5 minutes.
-    // Use a small safety buffer so we don't use an almost-expired token.
+    // TDB CGW access token is valid for 5 minutes.
+    // Cache it for 4 minutes to avoid using an almost-expired token.
     this.tokenExpiresAt = Date.now() + 4 * 60 * 1000;
 
-    return this.accessToken;
+    return token;
   }
 
   protected async request<T>(args: {
@@ -99,11 +97,6 @@ export class BaseApi {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
-    console.log('[TDB CGW] REQUEST:', {
-      method: args.method,
-      url,
-      data: args.data,
-    });
 
     const requestOptions: RequestInit = {
       method: args.method,
@@ -120,7 +113,6 @@ export class BaseApi {
     const response = await fetch(url, requestOptions);
 
     const responseText = await response.text();
-
     let result: any;
 
     try {

@@ -12,19 +12,12 @@ import {
   inputs as TransferInputs,
 } from './transfers';
 
-import {
-  types as OrderTypes,
-  mutations as OrderMutations,
-  inputTypes as OrderInputs,
-} from './orders';
 
 export const types = `
   ${ConfigTypes}
   ${AccountTypes}
   ${TransferTypes}
   ${TransferInputs}
-  ${OrderTypes}
-  ${OrderInputs}
 `;
 
 export const queries = `
@@ -35,7 +28,6 @@ export const queries = `
 export const mutations = `
   ${ConfigMutations}
   ${TransferMutations}
-  ${OrderMutations}
 `;
 
 export default {

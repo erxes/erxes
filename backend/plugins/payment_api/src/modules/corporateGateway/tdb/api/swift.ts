@@ -1,5 +1,9 @@
 import { BaseApi } from './base';
 
+export interface TdbSwiftResponse<T> {
+  success: boolean;
+  data: T;
+}
 export interface TdbSwiftCustomer {
   customerFullName: string;
   customerFullName2: string;
@@ -111,7 +115,7 @@ export class SwiftApi extends BaseApi {
    * GET /transfer/swift/customer
    */
   async customer() {
-    return this.request<TdbSwiftCustomer>({
+    return this.request<TdbSwiftResponse<TdbSwiftCustomer>>({
       method: 'GET',
       path: 'transfer/swift/customer',
     });
@@ -123,7 +127,7 @@ export class SwiftApi extends BaseApi {
    * GET /transfer/swift/countries
    */
   async countries() {
-    return this.request<TdbSwiftCountry[]>({
+    return this.request<TdbSwiftResponse<TdbSwiftCountry[]>>({
       method: 'GET',
       path: 'transfer/swift/countries',
     });
@@ -135,7 +139,7 @@ export class SwiftApi extends BaseApi {
    * GET /transfer/swift/currencies
    */
   async currencies() {
-    return this.request<TdbSwiftCurrency[]>({
+    return this.request<TdbSwiftResponse<TdbSwiftCurrency[]>>({
       method: 'GET',
       path: 'transfer/swift/currencies',
     });
@@ -147,7 +151,7 @@ export class SwiftApi extends BaseApi {
    * POST /transfer/swift/charges
    */
   async charges(input: { currency: string; countryCode: string }) {
-    return this.request<TdbSwiftCharge[]>({
+    return this.request<TdbSwiftResponse<TdbSwiftCharge>>({
       method: 'POST',
       path: 'transfer/swift/charges',
       data: input,
@@ -160,7 +164,7 @@ export class SwiftApi extends BaseApi {
    * POST /transfer/swift/fee
    */
   async fee(input: TdbSwiftFeeInput) {
-    return this.request<TdbSwiftFee>({
+    return this.request<TdbSwiftResponse<TdbSwiftFee>>({
       method: 'POST',
       path: 'transfer/swift/fee',
       data: input,
@@ -173,7 +177,7 @@ export class SwiftApi extends BaseApi {
    * GET /transfer/swift/mainpurpose
    */
   async mainPurpose() {
-    return this.request<TdbSwiftMainPurpose[]>({
+    return this.request<TdbSwiftResponse<TdbSwiftMainPurpose[]>>({
       method: 'GET',
       path: 'transfer/swift/mainpurpose',
     });
@@ -185,7 +189,7 @@ export class SwiftApi extends BaseApi {
    * GET /transfer/swift/subpurpose
    */
   async subPurpose(categoryCode?: string) {
-    return this.request<TdbSwiftSubPurpose[]>({
+    return this.request<TdbSwiftResponse<TdbSwiftSubPurpose[]>>({
       method: 'GET',
       path: 'transfer/swift/subpurpose',
       params: categoryCode ? { categoryCode } : undefined,
@@ -198,7 +202,7 @@ export class SwiftApi extends BaseApi {
    * GET /transfer/swift/funds
    */
   async funds() {
-    return this.request<TdbSwiftFund[]>({
+    return this.request<TdbSwiftResponse<TdbSwiftFund[]>>({
       method: 'GET',
       path: 'transfer/swift/funds',
     });
@@ -210,7 +214,7 @@ export class SwiftApi extends BaseApi {
    * POST /transfer/swift/transaction
    */
   async transaction(input: TdbSwiftTransactionInput) {
-    return this.request<TdbSwiftTransactionResponse>({
+    return this.request<TdbSwiftResponse<TdbSwiftTransactionResponse>>({
       method: 'POST',
       path: 'transfer/swift/transaction',
       data: input,

@@ -91,6 +91,9 @@ const tdbCgwSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   status: z.enum(['active', 'inactive']),
   configId: z.string().min(1, 'Configuration is required'),
+  accountNumber: z.string().min(1, 'Account is required'),
+  iban: z.string().min(1, 'IBAN is required'),
+  accountName: z.string().min(1, 'Account name is required'),
 });
 
 // Dynamic schema generator based on payment kind
