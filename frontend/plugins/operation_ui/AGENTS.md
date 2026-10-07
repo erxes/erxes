@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -36,7 +36,7 @@
 - The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
-- GraphQL codegen (`client-preset`) validates every operation document against the printed `operation_api` schema and generates result and variable types into `src/gql/`.
+- GraphQL codegen (`client-preset`) validates every operation document against the composed gateway schema and generates result and variable types into `src/gql/`.
 
 ## Architecture
 
@@ -51,7 +51,7 @@
 | Activity timeline       | `frontend/plugins/operation_ui/src/modules/activity/components`                          | Renders activity actors and field changes for task, project, and triage details.                                             |
 | GitHub triage detection | `frontend/plugins/operation_ui/src/modules/operation/utils/isGithubTriage.ts`            | Shared type guard for GitHub source links and creator attribution in triage details, creation timelines, and relation cards. |
 | Pages                   | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                                        |
-| GraphQL codegen         | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/plugins/operation_api/generated/schema.graphql`.                             |
+| GraphQL codegen         | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/gateway/generated/schema.graphql`.                                           |
 | Relation widgets        | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                                            |
 | Notification widgets    | `frontend/plugins/operation_ui/src/widgets/notifications`                                | Provides notification widget exports.                                                                                        |
 | Automation widgets      | `frontend/plugins/operation_ui/src/widgets/automations`                                  | Provides automation remote entry exports.                                                                                    |
@@ -69,7 +69,7 @@
 - Public UI APIs from `erxes-ui` and `ui-modules`.
 - Operation API contracts through the plugin's local GraphQL documents and hooks.
 - The host i18next `operation` namespace, loaded from gateway English and Mongolian locale JSON files; acceptance activity uses `accepted-triage`.
-- The printed operation subgraph schema from the `operation_api:schema:print` Nx target, consumed only at codegen time.
+- The composed client-facing schema from the `gateway:schema:compose` Nx target, consumed only at codegen time.
 - Core property-field queries and the public `FieldsInDetail` renderer from `ui-modules` for `operation:task` and `operation:project`.
 - React Router host mounting contracts from core UI Module Federation.
 
