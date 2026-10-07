@@ -19,6 +19,7 @@ type TAutomationRecord = {
   name?: string;
   status?: string;
   triggers?: { type: string; config?: TPosOrderTriggerConfig }[];
+  actions?: { type: string; config?: { campaignId?: string } }[];
 };
 
 export type TPosAutomation = {
@@ -28,6 +29,10 @@ export type TPosAutomation = {
   eventTypes: string[];
   // Runs on every POS, not only this one.
   isAllPos: boolean;
+  // Gives loyalty points when an order is paid.
+  givesPoints: boolean;
+  // Has an Adjust score with no campaign: it would give nothing.
+  missingCampaign: boolean;
 };
 
 /** The automations a POS's orders start, and links that open new ones. */
@@ -45,12 +50,16 @@ export const usePosAutomations = (posId?: string, posName?: string) => {
   });
 
   const automations: TPosAutomation[] = (data?.automations || []).flatMap(
-    ({ _id, name, status, triggers }) => {
+    ({ _id, name, status, triggers, actions }) => {
       // A trigger with no POS runs on every POS, this one included.
       const own = (triggers || []).filter(
         ({ type, config }) =>
           type === POS_ORDER_TRIGGER_TYPE &&
           (!config?.posId || config.posId === posId),
+      );
+
+      const scoreActions = (actions || []).filter(
+        ({ type }) => type === LOYALTY_ADJUST_SCORE_ACTION,
       );
 
       return own.length
@@ -63,6 +72,14 @@ export const usePosAutomations = (posId?: string, posName?: string) => {
                 config?.eventType ? [config.eventType] : [],
               ),
               isAllPos: own.every(({ config }) => !config?.posId),
+              givesPoints:
+                !!scoreActions.length &&
+                own.some(
+                  ({ config }) => (config?.eventType || 'paid') === 'paid',
+                ),
+              missingCampaign: scoreActions.some(
+                ({ config }) => !config?.campaignId,
+              ),
             },
           ]
         : [];
@@ -111,13 +128,24 @@ export const usePosAutomations = (posId?: string, posName?: string) => {
   const editPath = (automationId: string) =>
     `/automations/edit/${automationId}${automationReturnLinkSearch(returnTo)}`;
 
+  const canGivePoints = isEnabled('loyalty');
+
   return {
     automations,
     editPath,
+    // Loyalty is on, yet no paid order of this POS would earn anything.
+    noActivePointsRule:
+      canGivePoints &&
+      !loading &&
+      !error &&
+      !automations.some(
+        ({ status, givesPoints, missingCampaign }) =>
+          status === 'active' && givesPoints && !missingCampaign,
+      ),
     loading,
     error,
     // Without loyalty the builder would drop the seeded action as unknown.
-    canGivePoints: isEnabled('loyalty'),
+    canGivePoints,
     createPointsAutomation,
     createAutomation,
   };

@@ -2,6 +2,7 @@ import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { checkLoyalties } from '~/modules/posclient/utils/loyalties';
+import { previewLoyaltyEarn } from '~/modules/posclient/utils/loyaltyEarn';
 import { checkPricing } from '~/modules/posclient/utils/pricing';
 import {
   canCreateCustomer,
@@ -387,6 +388,21 @@ const bridgesQueries = {
           ]
         : [];
     });
+  },
+
+  async poscLoyaltyEarnPreview(
+    _root,
+    args: {
+      items: { productId: string; amount: number }[];
+      totalAmount: number;
+      customerId?: string;
+      orderType?: string;
+    },
+    { subdomain, posUser, config }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return previewLoyaltyEarn(subdomain, config, args);
   },
 
   async poscProductConditionGroups(

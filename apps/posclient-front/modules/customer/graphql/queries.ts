@@ -109,8 +109,33 @@ const poscLoyaltyPreview = gql`
   }
 `
 
+const poscLoyaltyEarnPreview = gql`
+  query poscLoyaltyEarnPreview(
+    $items: [PosLoyaltyEarnItem!]!
+    $totalAmount: Float!
+    $customerId: String
+    $orderType: String
+  ) {
+    poscLoyaltyEarnPreview(
+      items: $items
+      totalAmount: $totalAmount
+      customerId: $customerId
+      orderType: $orderType
+    ) {
+      hasRules
+      earns {
+        walletName
+        points
+        reasons
+        error
+      }
+    }
+  }
+`
+
 const queries = {
   poscCouponCheck,
+  poscLoyaltyEarnPreview,
   poscLoyaltyPreview,
   poscCustomerDetail,
   poscCustomers,

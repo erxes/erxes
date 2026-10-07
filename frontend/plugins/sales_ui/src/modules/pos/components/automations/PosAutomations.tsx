@@ -1,10 +1,11 @@
 import {
+  IconAlertTriangle,
   IconBolt,
   IconChevronRight,
   IconPlus,
   IconStar,
 } from '@tabler/icons-react';
-import { Badge, Button, InfoCard, Skeleton } from 'erxes-ui';
+import { Alert, Badge, Button, InfoCard, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { usePosAutomations } from '@/pos/hooks/usePosAutomations';
@@ -21,6 +22,7 @@ export const PosAutomations = ({
   const {
     automations,
     editPath,
+    noActivePointsRule,
     loading,
     error,
     canGivePoints,
@@ -38,6 +40,21 @@ export const PosAutomations = ({
               'Rules that run on this POS’s orders: points, vouchers, messages. Each one is a regular automation you can edit in the builder.',
             )}
           </p>
+
+          {noActivePointsRule && (
+            <Alert variant="warning">
+              <IconAlertTriangle />
+              <Alert.Title>
+                {t('pos-no-points-rule-title', 'Purchases here earn no points')}
+              </Alert.Title>
+              <Alert.Description>
+                {t(
+                  'pos-no-points-rule-description',
+                  'No active automation gives points when this POS’s order is paid. Cashiers see the same warning once they pick a customer.',
+                )}
+              </Alert.Description>
+            </Alert>
+          )}
 
           {loading && !automations.length && (
             <Skeleton className="h-9 w-full" />
@@ -64,7 +81,14 @@ export const PosAutomations = ({
           {!!automations.length && (
             <div className="flex flex-col gap-2">
               {automations.map(
-                ({ _id, name, status, eventTypes, isAllPos }) => (
+                ({
+                  _id,
+                  name,
+                  status,
+                  eventTypes,
+                  isAllPos,
+                  missingCampaign,
+                }) => (
                   <Link
                     key={_id}
                     to={editPath(_id)}
@@ -77,6 +101,12 @@ export const PosAutomations = ({
                     {isAllPos && (
                       <Badge variant="secondary">
                         {t('pos-automation-all-pos', 'All POS')}
+                      </Badge>
+                    )}
+                    {missingCampaign && (
+                      <Badge variant="warning">
+                        <IconAlertTriangle />
+                        {t('pos-automation-no-campaign', 'No score campaign')}
                       </Badge>
                     )}
                     {!!eventTypes.length && (

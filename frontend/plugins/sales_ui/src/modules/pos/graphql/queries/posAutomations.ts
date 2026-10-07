@@ -13,6 +13,11 @@ export const POS_ORDER_AUTOMATIONS = gql`
         type
         config
       }
+      actions {
+        id
+        type
+        config
+      }
     }
   }
 `;

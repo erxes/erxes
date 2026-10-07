@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { useCustomerLoyalty } from "../hooks/useCustomerLoyalty"
 import { useLoyaltySelection } from "../hooks/useLoyaltySelection"
+import { LoyaltyEarnPreview } from "./LoyaltyEarnPreview"
 
 const formatDate = (value?: string | null) =>
   value ? format(new Date(value), "yyyy.MM.dd") : ""
@@ -91,7 +92,10 @@ export const CustomerLoyaltyPanel = () => {
 
   if (!wallets.length && !vouchers.length) {
     return (
-      <div className="mt-2 text-xs text-neutral-500">Оноо, voucher байхгүй</div>
+      <div className="mt-2 space-y-1">
+        <div className="text-xs text-neutral-500">Оноо, voucher байхгүй</div>
+        <LoyaltyEarnPreview />
+      </div>
     )
   }
 
@@ -125,6 +129,7 @@ export const CustomerLoyaltyPanel = () => {
           </div>
         </div>
       ))}
+      <LoyaltyEarnPreview />
       {!!vouchers.length && (
         <div className="divide-y border-t pt-1">
           {vouchers.map((voucher) => (

@@ -900,5 +900,8 @@
   "pos-automations-failed": "Could not load automations: {{message}}",
   "pos-give-points-on-purchase": "Give points on purchase",
   "pos-other-automation": "Other automation",
-  "pos-automation-all-pos": "All POS"
+  "pos-automation-all-pos": "All POS",
+  "pos-no-points-rule-title": "Purchases here earn no points",
+  "pos-no-points-rule-description": "No active automation gives points when this POS’s order is paid. Cashiers see the same warning once they pick a customer.",
+  "pos-automation-no-campaign": "No score campaign"
 }

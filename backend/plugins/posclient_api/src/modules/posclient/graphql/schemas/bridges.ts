@@ -57,6 +57,23 @@ export const types = `
     vouchers: [PosLoyaltyVoucher]
   }
 
+  type PosLoyaltyEarn {
+    walletName: String
+    points: Float
+    reasons: [String]
+    error: String
+  }
+
+  type PosLoyaltyEarnPreview {
+    hasRules: Boolean
+    earns: [PosLoyaltyEarn]
+  }
+
+  input PosLoyaltyEarnItem {
+    productId: String!
+    amount: Float!
+  }
+
   type PosLoyaltyPreviewLine {
     key: String!
     productId: String!
@@ -98,6 +115,7 @@ export const queries = `
   poscProductConditionGroups(ids: [String!]!): [PosProductConditionGroup]
   poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String
   poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String): [PosLoyaltyPreviewLine]
+  poscLoyaltyEarnPreview(items: [PosLoyaltyEarnItem!]!, totalAmount: Float!, customerId: String, orderType: String): PosLoyaltyEarnPreview
 `;
 
 export const mutations = `

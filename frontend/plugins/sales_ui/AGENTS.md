@@ -101,6 +101,10 @@
   `emptyLabel`) lists "Any POS" first; choosing it clears `posId` so the
   trigger matches every POS (single-mode `SelectPos` otherwise cannot be
   unselected).
+- The POS "Automations" tab warns (`noActivePointsRule`) when loyalty is on but
+  no active automation listed there gives points on a paid order with a score
+  campaign set, and badges rows whose Adjust score has no campaign
+  (`missingCampaign`); the query reads `actions` for this.
 - Sales routes and Module Federation UI entries registered by `src/config.tsx`.
 - Product table view state through local React state only; no backend contract
   changes are required for expanded product management.

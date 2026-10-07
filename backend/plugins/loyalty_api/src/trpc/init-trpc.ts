@@ -146,6 +146,31 @@ const spendInput = z.object({
   actorId: z.string().optional(),
 });
 
+// What a purchase would earn, asked before it is paid; nothing is written.
+const earnPreviewInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  rules: z.array(
+    z.object({
+      campaignId: z.string(),
+      earnRowKeys: z.array(z.string()).optional(),
+    }),
+  ),
+  purchase: z.object({
+    totalAmount: z.number().min(0),
+    paidAmount: z.number().min(0),
+    items: z
+      .array(
+        z.object({
+          productId: z.string(),
+          amount: z.number(),
+          discounted: z.boolean().optional(),
+        }),
+      )
+      .optional(),
+  }),
+});
+
 const refundInput = z.object({
   targetId: z.string(),
   description: z.string().optional(),
@@ -388,6 +413,12 @@ export const appRouter = t.router({
       .input(spendInput)
       .mutation(async ({ ctx, input }) =>
         ctx.models.ScoreCampaigns.spend(input),
+      ),
+
+    earnPreview: t.procedure
+      .input(earnPreviewInput)
+      .query(async ({ ctx, input }) =>
+        ctx.models.ScoreCampaigns.previewEarnRules(input),
       ),
 
     refund: t.procedure
