@@ -1496,11 +1496,7 @@ const orderMutations: Record<string, Resolver> = {
     }
   },
 
-  async ordersReturn(
-    _root,
-    doc: IReturnOrderInput,
-    context: IContext,
-  ) {
+  async ordersReturn(_root, doc: IReturnOrderInput, context: IContext) {
     return returnPosOrder(doc, context);
   },
 };
