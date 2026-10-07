@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -133,6 +133,7 @@
 
 ## Validation
 
+- `pnpm nx run payment_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint payment_api`
 - `pnpm nx build payment_api`
 - Smoke: pay a test invoice that has `email` and `data.quantity`, confirm one

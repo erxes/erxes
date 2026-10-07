@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -183,6 +183,7 @@
 
 ## Validation
 
+- `pnpm nx run accounting_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`

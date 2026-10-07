@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -93,6 +93,7 @@
 
 ## Validation
 
+- `pnpm nx run mongolian_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build mongolian_api`
 - `pnpm build`
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
