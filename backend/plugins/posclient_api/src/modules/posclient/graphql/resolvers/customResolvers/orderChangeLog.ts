@@ -11,6 +11,6 @@ export default {
       return null;
     }
 
-    return models.PosUsers.findOne({ _id: log.userId }).lean();
+    return await models.PosUsers.findOne({ _id: log.userId }).lean();
   },
 };
