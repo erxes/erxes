@@ -100,6 +100,7 @@ export const FormDndField = ({
             onTouchStart={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
               e.stopPropagation();
+              if (e.nativeEvent.isComposing) return;
               if (e.key === 'Enter') {
                 e.currentTarget.blur();
               } else if (e.key === 'Escape') {
