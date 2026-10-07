@@ -1528,6 +1528,24 @@ importers:
       '@module-federation/enhanced':
         specifier: 0.6.6
         version: 0.6.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)(webpack@5.99.5(@swc/core@1.5.29(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack-cli@5.1.4))
+      '@radix-ui/react-dialog':
+        specifier: 1.1.15
+        version: 1.1.15(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-popover':
+        specifier: 1.1.15
+        version: 1.1.15(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-scroll-area':
+        specifier: 1.2.10
+        version: 1.2.10(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-separator':
+        specifier: 1.1.7
+        version: 1.1.7(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-tabs':
+        specifier: 1.1.13
+        version: 1.1.13(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-tooltip':
+        specifier: 1.2.8
+        version: 1.2.8(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@sniptt/guards':
         specifier: ^0.2.0
         version: 0.2.0
@@ -1585,6 +1603,9 @@ importers:
       graphql:
         specifier: ^16.10.0
         version: 16.10.0
+      imask:
+        specifier: 7.6.1
+        version: 7.6.1
       jotai:
         specifier: ^2.12.0
         version: 2.12.2(@types/react@18.3.1)(react@18.3.1)
@@ -1673,6 +1694,9 @@ importers:
       '@blocknote/react':
         specifier: ^0.35.0
         version: 0.35.0(@types/hast@3.0.4)(highlight.js@11.12.0)(lowlight@3.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@codemirror/state':
+        specifier: 6.5.2
+        version: 6.5.2
       '@codemirror/view':
         specifier: ^6.38.6
         version: 6.38.6
