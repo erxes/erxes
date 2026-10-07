@@ -6,7 +6,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
-import { Button, InfoCard, Input, Label, Textarea } from 'erxes-ui';
+import { Button, InfoCard, Input, Label, Textarea, Tooltip } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import { AddField, FormDndField } from './FormDndField';
@@ -35,13 +35,22 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
     >
       <div className="flex items-center p-4 pb-0 gap-2">
         {isMultipleSteps && (
-          <Input
-            value={getStepValue(step).name}
-            className="w-1/3"
-            onChange={(e) =>
-              handleChangeStepValue(step, 'name', e.target.value)
-            }
-          />
+          <Tooltip.Provider>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <Input
+                  value={getStepValue(step).name}
+                  className="w-1/3 text-ellipsis"
+                  onChange={(e) =>
+                    handleChangeStepValue(step, 'name', e.target.value)
+                  }
+                />
+              </Tooltip.Trigger>
+              {getStepValue(step).name && (
+                <Tooltip.Content>{getStepValue(step).name}</Tooltip.Content>
+              )}
+            </Tooltip>
+          </Tooltip.Provider>
         )}
         <AddField step={step} />
         {isMultipleSteps && (
