@@ -1,3 +1,4 @@
+import { isDefined } from 'erxes-ui';
 import { useAtomValue, useStore, WritableAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -6,7 +7,12 @@ import {
   getReportFacebookPageFilterAtom,
   getReportFacebookSearchFilterAtom,
 } from '@/report/states';
-import { ReportChart, ReportChartFilters } from '@/report/types';
+import {
+  ReportChart,
+  ReportChartFilters,
+  SavedReportChartFilters,
+  isResponsesChartType,
+} from '@/report/types';
 import { getFilters } from '@/report/utils/dateFilters';
 
 const useFacebookChartFilterConfig = (cardId: string): ReportChartFilters => {
@@ -47,17 +53,20 @@ const useRestoreFacebookChartFilters = (
     }
 
     restoredChartId.current = chart._id;
-    const filters = chart.filters || {};
+    const filters: SavedReportChartFilters = chart.filters ?? {};
     const set = <T>(
       getAtom: (id: string) => WritableAtom<T, [T], void>,
       value: T,
     ) => store.set(getAtom(cardId), value);
 
     set(getReportDateFilterAtom, filters.date || '');
-    set(getReportFacebookPageFilterAtom, filters.pageIds || []);
+    set(
+      getReportFacebookPageFilterAtom,
+      (filters.pageIds ?? []).filter(isDefined),
+    );
     set(getReportFacebookSearchFilterAtom, filters.searchValue || '');
 
-    if (chart.visualType) {
+    if (isResponsesChartType(chart.visualType)) {
       set(getReportChartTypeAtom, chart.visualType);
     }
 

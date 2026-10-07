@@ -582,6 +582,10 @@
   the printed `frontline_api` schema, the core snapshot
   `schema/platform.graphql` and `codegen/external-plugins.graphql`, and
   generates result and variable types into `src/gql/`.
+- The report module is typed from the schema: its documents, and the call
+  report documents it reads from `integrations/call/graphql/queries/`
+  (`callStatistics.ts`, `callHistoryList.ts`), are `gql()` documents, and its
+  hooks and response types come from the generated query types.
 
 ## Architecture
 
@@ -816,7 +820,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   both mutations update that same cache entry, so a chart saved from any card
   appears without a refetch or a reload. Do not reintroduce a per-chart-type
   query: the mutation would then write to a different cache entry than the
-  board reads.
+  board reads. `ReportChartFields` selects every filter key the backend
+  persists, including the Facebook card's `pageIds` and `searchValue`; a key
+  left out of the fragment is saved but never restored.
 - `frontline_api` GraphQL `mailConversationDetail(conversationId!, limit)` —
   returns `{ messages, hasMore }`, the newest `limit` messages oldest-first, not
   a bare list. `mailSendMail` and `mailMessageRetry` return the delivery outcome
@@ -2147,10 +2153,44 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   text, so an interpolated selection is sent at runtime but missing from
   validation and the generated types. A shared field set is a `gql` fragment
   defined in this plugin. In a `gql()` document from `~/gql` it is spread by
-  name only and never interpolated; the generated document embeds it. The
-  inbox message inserted and updated subscriptions share
-  `FrontlineConversationMessageFields`, so an update replaces a message with
-  the same full shape.
+  name only and never interpolated; the generated document embeds it
+  (`ReportChartFields`). The inbox message inserted and updated
+  subscriptions share `FrontlineConversationMessageFields`, so an update
+  replaces a message with the same full shape.
+- A module typed from the schema (so far `report`) writes every document as
+  `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
+  types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
+  `~/gql/graphql`, and derives response types from the generated query types.
+  The `~/gql/graphql` type import goes after the `@apollo/client` import;
+  the migration's `rg` check otherwise reads across the two imports and
+  reports a false hit.
+- Report outputs stay nullable as the schema declares them, except the call
+  report's `day` fields, which `frontline_api` declares non-null. Null list
+  items are dropped with `isDefined` from `erxes-ui`, either in the hook or in
+  the component that maps the list, before anything renders or computes.
+  Components default null scalars where they render or compute. Tightening a
+  report output to non-null is a `frontline_api` contract change, not a UI
+  cast.
+- `ReportChartFilters` is the `TicketReportFilter` input a card builds and
+  sends; `SavedReportChartFilters` is the `ReportChartFields` selection a card
+  restores from. Restoring reads the saved shape and drops null items before
+  setting the filter atoms, and applies `visualType` only when
+  `isResponsesChartType` accepts it.
+- `useTicketList` normalizes `reportTicketList` once (`toTicketList`,
+  memoized on the Apollo field): null rows are dropped and counts and pages
+  default, so `TicketList`, its columns and the fetch-more merge read a
+  non-null shape. The list columns pass nullable member ids and descriptions
+  on as `undefined`.
+- The call SLA missed reason is the schema's `String`, so
+  `getMissedReasonMeta` in `report/call/components/SlaSection/slaUtils.ts`
+  falls back to neutral metadata for a reason without an entry in
+  `MISSED_REASON_META`.
+- `CustomLegendContent` takes recharts' `DefaultLegendContentProps` handler
+  signatures (`data`, `index`, `event`), so a `Legend` content callback is
+  written `(props) => <CustomLegendContent {...props} />` with no annotation.
+  Item enter reports that item; leaving the legend container reports the last
+  hovered item, so a pie chart's highlight clears only when the pointer leaves
+  the legend.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
   `codegen` target, which depends on `frontline_api:schema:print` only. The
   plugin never depends on core's or an optional plugin's printed schema.

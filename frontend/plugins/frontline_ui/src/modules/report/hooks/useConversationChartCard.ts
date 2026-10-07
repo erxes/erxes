@@ -1,3 +1,4 @@
+import { isDefined } from 'erxes-ui';
 import { useAtomValue, useStore, WritableAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -8,7 +9,12 @@ import {
   getReportMemberFilterAtom,
   getReportSourceFilterAtom,
 } from '@/report/states';
-import { ReportChart, ReportChartFilters } from '@/report/types';
+import {
+  ReportChart,
+  ReportChartFilters,
+  SavedReportChartFilters,
+  isResponsesChartType,
+} from '@/report/types';
 import { getFilters } from '@/report/utils/dateFilters';
 
 const DEFAULT_SOURCE = 'all';
@@ -55,7 +61,7 @@ const useRestoreConversationChartFilters = (
     }
 
     restoredChartId.current = chart._id;
-    const filters = chart.filters || {};
+    const filters: SavedReportChartFilters = chart.filters ?? {};
     const set = <T>(
       getAtom: (id: string) => WritableAtom<T, [T], void>,
       value: T,
@@ -63,11 +69,14 @@ const useRestoreConversationChartFilters = (
 
     set(getReportDateFilterAtom, filters.date || '');
     set(getReportSourceFilterAtom, filters.source || DEFAULT_SOURCE);
-    set(getReportChannelFilterAtom, filters.channelIds || []);
-    set(getReportMemberFilterAtom, filters.memberIds || []);
+    set(
+      getReportChannelFilterAtom,
+      (filters.channelIds ?? []).filter(isDefined),
+    );
+    set(getReportMemberFilterAtom, (filters.memberIds ?? []).filter(isDefined));
     set(getReportCallStatusFilterAtom, DEFAULT_CALL_STATUS);
 
-    if (chart.visualType) {
+    if (isResponsesChartType(chart.visualType)) {
       set(getReportChartTypeAtom, chart.visualType);
     }
 

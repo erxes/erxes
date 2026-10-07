@@ -87,7 +87,9 @@ export const FacebookReportsList = () => {
   const { reportCharts } = useReportCharts();
   const savedFacebookCharts = useMemo(
     () =>
-      reportCharts.filter((chart) => facebookReportComponents[chart.chartType]),
+      reportCharts.filter(
+        (chart) => facebookReportComponents[chart.chartType ?? ''],
+      ),
     [reportCharts],
   );
 
@@ -182,7 +184,7 @@ export const FacebookReportsList = () => {
     const savedChart: ReportChart | undefined = savedChartsById.get(id);
 
     if (savedChart) {
-      const Component = facebookReportComponents[savedChart.chartType];
+      const Component = facebookReportComponents[savedChart.chartType ?? ''];
       if (!Component) return null;
       return { title: savedChart.name, component: Component, savedChart };
     }
@@ -206,7 +208,7 @@ export const FacebookReportsList = () => {
 
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: cardConfig.title ?? '',
       cardId: id,
       savedChart: cardConfig.savedChart,
       colSpan: overrideColSpan ?? colSpan,
@@ -231,7 +233,7 @@ export const FacebookReportsList = () => {
   const summary = facebookSummary;
   const messageShare =
     summary && summary.messages
-      ? Math.round((summary.botMessages / summary.messages) * 100)
+      ? Math.round(((summary.botMessages ?? 0) / summary.messages) * 100)
       : 0;
 
   return (

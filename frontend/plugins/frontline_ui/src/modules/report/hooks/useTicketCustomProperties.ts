@@ -1,28 +1,25 @@
+import { isDefined } from 'erxes-ui';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_CUSTOM_PROPERTIES } from '@/report/graphql/queries/getTicketChart';
-
-interface TicketCustomProperty {
-  _id: string;
-  name: string;
-  group?: string;
-  count: number;
-  percentage: number;
-}
-
-interface TicketCustomPropertiesResponse {
-  reportTicketCustomProperties: TicketCustomProperty[];
-}
+import type {
+  ReportTicketCustomPropertiesQuery,
+  ReportTicketCustomPropertiesQueryVariables,
+} from '~/gql/graphql';
 
 export const useTicketCustomProperties = (
-  options?: QueryHookOptions<TicketCustomPropertiesResponse>,
+  options?: QueryHookOptions<
+    ReportTicketCustomPropertiesQuery,
+    ReportTicketCustomPropertiesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<TicketCustomPropertiesResponse>(
+  const { data, loading, error } = useQuery(
     GET_TICKET_CUSTOM_PROPERTIES,
     options,
   );
 
   return {
-    ticketCustomProperties: data?.reportTicketCustomProperties,
+    ticketCustomProperties:
+      data?.reportTicketCustomProperties?.filter(isDefined),
     loading,
     error,
   };

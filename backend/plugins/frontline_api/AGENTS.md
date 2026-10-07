@@ -790,6 +790,9 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `CallVolumePoint.noAnswer` and `HeatCell.noAnswer` count every call in the
   bucket that no human answered, in both directions — unlike
   `CallVolumePoint.abandoned`, which stays inbound-only.
+- `CallVolumePoint.day`, `CallDayHourCell.day` and `CallSlaPoint.day` are
+  non-null: each bucket is keyed by the PBX day of a call that has a `start`,
+  and calls without one are skipped, so every row carries its day.
 - GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
 direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
   day × hour** instead of day-of-week, for the spreadsheet export of the report.
