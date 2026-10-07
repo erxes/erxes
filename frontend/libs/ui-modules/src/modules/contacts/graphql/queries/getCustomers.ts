@@ -7,18 +7,8 @@ import {
 import { gql } from '@apollo/client';
 
 export const GET_CUSTOMERS = gql`
-  query customers(
-    $searchValue: String
-    ${GQL_CURSOR_PARAM_DEFS}
-    $ids: [String]
-    $emailValidationStatus: String
-  ) {
-    customers(
-      searchValue: $searchValue
-      ${GQL_CURSOR_PARAMS}
-      ids: $ids
-      emailValidationStatus: $emailValidationStatus
-    ) {
+  query customers($searchValue: String ${GQL_CURSOR_PARAM_DEFS} $ids: [String]) {
+    customers(searchValue: $searchValue ${GQL_CURSOR_PARAMS} ids: $ids) {
       list {
         _id
         firstName
@@ -26,8 +16,6 @@ export const GET_CUSTOMERS = gql`
         lastName
         avatar
         primaryEmail
-        emails
-        emailValidationStatus
         primaryPhone
       }
       totalCount

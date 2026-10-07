@@ -2,57 +2,38 @@ import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
   buildSearchTokenFilter,
   ISearchTokenConfig,
-  MessageProps,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import type { mongo } from 'mongoose';
 import { CONTACT_STATUSES } from './constants';
 
-type ContactFilter = Record<string, unknown>;
-
-interface ContactFilterParams {
-  searchValue?: string;
-  tagIds?: string[];
-  excludeTagIds?: string[];
-  tagWithRelated?: boolean;
-  type?: string;
-  dateFilters?: string;
-  propertiesData?: string;
-  brandIds?: string[];
-  integrationIds?: string[];
-  integrationTypes?: string[];
-  status?: string;
-  ids?: string[];
-  excludeIds?: boolean;
-  segmentIds?: string[];
-  clientPortalId?: string;
-  emailValidationStatus?: string;
-}
-
-export const findIntegrations = (
+export const generateFilter = async (
   subdomain: string,
-  query: Record<string, unknown>,
-  options?: MessageProps['options'],
-) =>
-  sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'frontline',
-    method: 'query',
-    module: 'integration',
-    action: 'find',
-    input: { query },
-    defaultValue: [],
-    options,
-  });
-
-const applyBasicFilters = async (
-  filter: ContactFilter,
-  params: ContactFilterParams,
+  params: any,
   models: IModels,
+  searchConfig?: ISearchTokenConfig,
 ) => {
-  const { type, status, clientPortalId, emailValidationStatus } = params;
+  const {
+    searchValue,
+    tagIds,
+    excludeTagIds,
+    tagWithRelated,
+    type,
+    dateFilters,
+    propertiesData,
+    brandIds,
+    integrationIds,
+    integrationTypes,
+    status,
+    ids,
+    excludeIds,
+    segmentIds,
+    clientPortalId,
+  } = params;
+
+  const filter: any = {
+    status: { $ne: CONTACT_STATUSES.deleted },
+  };
 
   if (type) {
     filter['state'] = { $eq: type };
@@ -62,172 +43,92 @@ const applyBasicFilters = async (
     filter.status = { $eq: CONTACT_STATUSES[status] };
   }
 
-  if (clientPortalId) {
-    const customerIds = await models.CPUser.find({ clientPortalId }).distinct(
-      'erxesCustomerId',
-    );
+  if (searchValue) {
+    if (searchConfig?.enabled) {
+      Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
+    } else {
+      const regex = { $regex: searchValue, $options: 'i' };
 
-    filter['$and'] = [{ _id: { $in: customerIds } }];
+      filter['$or'] = [
+        { searchText: regex },
+        { primaryEmail: regex },
+        { emails: regex },
+        { primaryPhone: regex },
+        { phones: regex },
+        { firstName: regex },
+        { lastName: regex },
+        { middleName: regex },
+      ];
+    }
   }
-
-  if (emailValidationStatus) {
-    filter['emailValidationStatus'] = { $eq: emailValidationStatus };
-  }
-};
-
-const applySearchFilter = (
-  filter: ContactFilter,
-  params: ContactFilterParams,
-  searchConfig?: ISearchTokenConfig,
-) => {
-  const { searchValue } = params;
-
-  if (!searchValue) {
-    return;
-  }
-
-  if (searchConfig?.enabled) {
-    Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
-    return;
-  }
-
-  const regex = { $regex: searchValue, $options: 'i' };
-
-  filter['$or'] = [
-    { searchText: regex },
-    { primaryEmail: regex },
-    { emails: regex },
-    { primaryPhone: regex },
-    { phones: regex },
-    { firstName: regex },
-    { lastName: regex },
-    { middleName: regex },
-  ];
-};
-
-const applyIdFilter = (filter: ContactFilter, params: ContactFilterParams) => {
-  const { ids, excludeIds } = params;
 
   if (ids?.length) {
     filter['_id'] = excludeIds ? { $nin: ids } : { $in: ids };
   }
-};
 
-const collectRelatedIntegrationIds = async (
-  subdomain: string,
-  params: ContactFilterParams,
-) => {
-  const { brandIds, integrationIds, integrationTypes } = params;
-  const relatedIntegrationIdSet = new Set<string>();
+  if (clientPortalId) {
+    const cpUsers = await models.CPUser.find({ clientPortalId }).distinct('erxesCustomerId');
 
-  if (brandIds) {
-    const integrations = await findIntegrations(subdomain, {
-      brandId: { $in: brandIds },
-    });
-    integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
-  }
-
-  if (integrationIds) {
-    const integrations = await findIntegrations(subdomain, {
-      _id: { $in: integrationIds },
-    });
-    integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
-  }
-
-  if (integrationTypes) {
-    const integrations = await findIntegrations(subdomain, {
-      kind: { $in: integrationTypes },
-    });
-    integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
-  }
-
-  return relatedIntegrationIdSet;
-};
-
-const applyIntegrationFilter = async (
-  filter: ContactFilter,
-  subdomain: string,
-  params: ContactFilterParams,
-) => {
-  const { brandIds, integrationIds, integrationTypes } = params;
-
-  if (!(brandIds || integrationIds || integrationTypes)) {
-    return;
-  }
-
-  const relatedIntegrationIdSet = await collectRelatedIntegrationIds(
-    subdomain,
-    params,
-  );
-
-  if (relatedIntegrationIdSet.size > 0) {
-    filter['relatedIntegrationIds'] = {
-      $in: Array.from(relatedIntegrationIdSet),
+    filter['_id'] = {
+      $in: [...new Set([...cpUsers, ...(filter['_id'] || [])])]
     };
   }
-};
 
-const resolveTagIds = async (
-  params: ContactFilterParams,
-  models: IModels,
-  baseTagIds: string[],
-) => {
-  const { tagWithRelated } = params;
+  if (brandIds || integrationIds || integrationTypes) {
+    const relatedIntegrationIdSet = new Set();
 
-  if (!tagWithRelated) {
-    return [...new Set(baseTagIds)];
+    if (brandIds) {
+      const integrations = await findIntegrations(subdomain, {
+        brandId: { $in: brandIds },
+      });
+      integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
+    }
+
+    if (integrationIds) {
+      const integrations = await findIntegrations(subdomain, {
+        _id: { $in: integrationIds },
+      });
+      integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
+    }
+
+    if (integrationTypes) {
+      const integrations = await findIntegrations(subdomain, {
+        kind: { $in: integrationTypes },
+      });
+      integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
+    }
+
+    if (relatedIntegrationIdSet.size > 0) {
+      filter['relatedIntegrationIds'] = {
+        $in: Array.from(relatedIntegrationIdSet),
+      };
+    }
   }
 
-  const tagObjs = await models.Tags.find({ _id: { $in: baseTagIds } });
+  if (tagIds?.length || excludeTagIds?.length) {
+    let baseTagIds = tagIds || excludeTagIds || [];
 
-  for (const tag of tagObjs) {
-    baseTagIds = baseTagIds.concat(tag.relatedIds || []);
+    if (tagWithRelated) {
+      const tagObjs = await models.Tags.find({ _id: { $in: baseTagIds } });
+
+      tagObjs.forEach((tag) => {
+        baseTagIds = baseTagIds.concat(tag.relatedIds || []);
+      });
+    }
+
+    baseTagIds = [...new Set(baseTagIds)];
+
+    if (tagIds?.length && excludeTagIds?.length) {
+      filter['tagIds'] = {
+        $in: baseTagIds.filter((id) => tagIds.includes(id)),
+        $nin: baseTagIds.filter((id) => excludeTagIds.includes(id)),
+      };
+    } else if (tagIds?.length) {
+      filter['tagIds'] = { $in: baseTagIds };
+    } else if (excludeTagIds?.length) {
+      filter['tagIds'] = { $nin: baseTagIds };
+    }
   }
-
-  return [...new Set(baseTagIds)];
-};
-
-const applyTagFilter = async (
-  filter: ContactFilter,
-  params: ContactFilterParams,
-  models: IModels,
-) => {
-  const { tagIds, excludeTagIds } = params;
-
-  if (!(tagIds?.length || excludeTagIds?.length)) {
-    return;
-  }
-
-  const resolvedTagIds = tagIds?.length
-    ? await resolveTagIds(params, models, tagIds)
-    : [];
-  const resolvedExcludeTagIds = excludeTagIds?.length
-    ? await resolveTagIds(params, models, excludeTagIds)
-    : [];
-
-  if (tagIds?.length && excludeTagIds?.length) {
-    filter['tagIds'] = {
-      $in: resolvedTagIds,
-      $nin: resolvedExcludeTagIds,
-    };
-    return;
-  }
-
-  if (tagIds?.length) {
-    filter['tagIds'] = { $in: resolvedTagIds };
-    return;
-  }
-
-  if (excludeTagIds?.length) {
-    filter['tagIds'] = { $nin: resolvedExcludeTagIds };
-  }
-};
-
-const applySegmentFilter = (
-  filter: ContactFilter,
-  params: ContactFilterParams,
-) => {
-  const { segmentIds } = params;
 
   // Membership is read off the record, not recomputed: the segmentation worker
   // maintains `segmentIds`, so filtering by segment is an indexed lookup rather
@@ -235,86 +136,38 @@ const applySegmentFilter = (
   if (segmentIds?.length) {
     filter['segmentIds'] = { $in: segmentIds };
   }
-};
 
-const applyDateRangeFilter = (
-  filter: ContactFilter,
-  params: ContactFilterParams,
-) => {
-  const { dateFilters } = params;
+  if (dateFilters) {
+    try {
+      const dateFilter = JSON.parse(dateFilters);
 
-  if (!dateFilters) {
-    return;
-  }
+      for (const [key, value] of Object.entries(dateFilter)) {
+        const { gte, lte } = (value || {}) as { gte?: string; lte?: string };
 
-  let dateFilter: Record<string, { gte?: string; lte?: string }>;
+        if (gte || lte) {
+          filter[key] = {};
 
-  try {
-    dateFilter = JSON.parse(dateFilters);
-  } catch (err) {
-    throw new Error(`Invalid dateFilters JSON: ${err}`);
-  }
+          if (gte) {
+            filter[key]['$gte'] = gte;
+          }
 
-  for (const [key, value] of Object.entries(dateFilter)) {
-    const { gte, lte } = value || {};
-
-    if (!(gte || lte)) {
-      continue;
+          if (lte) {
+            filter[key]['$lte'] = lte;
+          }
+        }
+      }
+    } catch (err) {
+      throw new Error(`Invalid dateFilters JSON: ${err}`);
     }
+  }
 
-    const range: Record<string, string> = {};
+  if (propertiesData) {
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
-    if (gte) {
-      range['$gte'] = gte;
+    if (propertyConditions.length) {
+      filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
     }
-
-    if (lte) {
-      range['$lte'] = lte;
-    }
-
-    filter[key] = range;
   }
-};
-
-const applyPropertyFilter = (
-  filter: ContactFilter,
-  params: ContactFilterParams,
-) => {
-  const { propertiesData } = params;
-
-  if (!propertiesData) {
-    return;
-  }
-
-  const propertyConditions = buildPropertyFilter(propertiesData);
-
-  if (propertyConditions.length) {
-    const existingConditions = filter['$and'];
-    const baseConditions = Array.isArray(existingConditions)
-      ? existingConditions
-      : [];
-    filter['$and'] = [...baseConditions, ...propertyConditions];
-  }
-};
-
-export const generateFilter = async (
-  subdomain: string,
-  params: ContactFilterParams,
-  models: IModels,
-  searchConfig?: ISearchTokenConfig,
-) => {
-  const filter: ContactFilter = {
-    status: { $ne: CONTACT_STATUSES.deleted },
-  };
-
-  await applyBasicFilters(filter, params, models);
-  applySearchFilter(filter, params, searchConfig);
-  applyIdFilter(filter, params);
-  await applyIntegrationFilter(filter, subdomain, params);
-  await applyTagFilter(filter, params, models);
-  applySegmentFilter(filter, params);
-  applyDateRangeFilter(filter, params);
-  applyPropertyFilter(filter, params);
 
   return filter;
 };
@@ -323,7 +176,7 @@ export const createOrUpdate = async ({
   collection,
   data: { rows, doNotReplaceExistingValues },
 }) => {
-  const operations: mongo.AnyBulkWriteOperation[] = [];
+  const operations: any = [];
 
   for (const row of rows) {
     const { selector, doc, customFieldsData } = row;
@@ -343,11 +196,15 @@ export const createOrUpdate = async ({
         cfData.push(cf);
       }
 
-      const newDoc = Object.fromEntries(
-        Object.entries(doc).filter(
-          ([fieldName]) => !doNotReplaceExistingValues || !prevEntry[fieldName],
-        ),
-      );
+      const newDoc = { ...doc };
+
+      if (doNotReplaceExistingValues) {
+        for (const fieldName of Object.keys(doc)) {
+          if (prevEntry[fieldName]) {
+            delete newDoc[fieldName];
+          }
+        }
+      }
 
       newDoc.customFieldsData = cfData;
 
@@ -364,6 +221,19 @@ export const createOrUpdate = async ({
 
   return collection.bulkWrite(operations);
 };
+
+export const findIntegrations = (subdomain: string, query, options?) =>
+  sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'frontline',
+    method: 'query',
+    module: 'integration',
+    action: 'find',
+    input: { query },
+    defaultValue: [],
+    options,
+  });
 
 export const customersCount = async ({
   models,
@@ -409,8 +279,6 @@ export const customersCount = async ({
 
       break;
     }
-    default:
-      break;
   }
 
   return counts;

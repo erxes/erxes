@@ -117,10 +117,8 @@ export const DirectMailComposer = () => {
       showBcc,
       openCc,
       openBcc,
-      emails: target?.emails ?? [],
-      targetCustomerId: target?.customerId,
     }),
-    [showCc, showBcc, openCc, openBcc, target?.emails, target?.customerId],
+    [showCc, showBcc, openCc, openBcc],
   );
 
   useEffect(() => {
@@ -130,11 +128,7 @@ export const DirectMailComposer = () => {
         return;
       }
 
-      const emails = [
-        ...new Set([detail.email, ...(detail.emails ?? [])]),
-      ].filter((email) => z.string().email().safeParse(email).success);
-
-      setTarget({ ...detail, emails });
+      setTarget(detail);
       setRecipientCustomerId(detail.customerId);
       setFailedDelivery(() => undefined);
       setShowCc(false);

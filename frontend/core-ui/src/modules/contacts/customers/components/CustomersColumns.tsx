@@ -1,5 +1,4 @@
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { useEmailLane } from '@/settings/email-addresses/contexts/EmailLanes';
 import {
   IconCalendarPlus,
   IconChartBar,
@@ -24,7 +23,6 @@ import {
   useQueryState,
   PopoverScoped,
   FullNameValue,
-  Badge,
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
@@ -49,42 +47,25 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
   const hasMailComposer = useFloatingWidgets().some(
     (plugin) => plugin.name === 'frontline',
   );
-  const laneOf = useEmailLane();
-  const deliveryLane = laneOf(customer.primaryEmail);
 
   const handleEmailClick = (email: string) => {
-    const emails = [customer.primaryEmail, ...(customer.emails || [])].filter(
-      (value, index, values): value is string =>
-        Boolean(value) && values.indexOf(value) === index,
-    );
-
     window.dispatchEvent(
       new CustomEvent('frontline:compose-email', {
-        detail: { customerId: customer._id, email, emails },
+        detail: { customerId: customer._id, email },
       }),
     );
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <CustomerEmails
-        primaryEmail={customer.primaryEmail || ''}
-        _id={customer._id}
-        emailValidationStatus={customer.emailValidationStatus}
-        emails={customer.emails || []}
-        scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-        Trigger={RecordTableInlineCell.Trigger}
-        onEmailClick={hasMailComposer ? handleEmailClick : undefined}
-      />
-      {deliveryLane !== 'unknown' && (
-        <Badge
-          variant={deliveryLane === 'proven' ? 'success' : 'destructive'}
-          className="shrink-0"
-        >
-          Delivery: {deliveryLane}
-        </Badge>
-      )}
-    </div>
+    <CustomerEmails
+      primaryEmail={customer.primaryEmail || ''}
+      _id={customer._id}
+      emailValidationStatus={customer.emailValidationStatus}
+      emails={customer.emails || []}
+      scope={ContactsHotKeyScope.CustomersTableInlinePopover}
+      Trigger={RecordTableInlineCell.Trigger}
+      onEmailClick={hasMailComposer ? handleEmailClick : undefined}
+    />
   );
 };
 

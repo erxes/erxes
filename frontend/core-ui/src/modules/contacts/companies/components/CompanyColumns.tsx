@@ -46,14 +46,9 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
     (plugin) => plugin.name === 'frontline',
   );
   const handleEmailClick = (email: string) => {
-    const emails = [company.primaryEmail, ...(company.emails || [])].filter(
-      (value, index, values): value is string =>
-        Boolean(value) && values.indexOf(value) === index,
-    );
-
     window.dispatchEvent(
       new CustomEvent('frontline:compose-email', {
-        detail: { companyId: company._id, email, emails },
+        detail: { companyId: company._id, email },
       }),
     );
   };
@@ -152,7 +147,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
             primaryPhone={primaryPhone || ''}
             phones={phones || []}
             phoneValidationStatus={phoneValidationStatus}
-            scope={`${ContactsHotKeyScope.CompaniesPage}.${_id}.Phones`}
+            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Phones'}
             Trigger={RecordTableInlineCell.Trigger}
           />
         );
