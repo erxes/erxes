@@ -10,13 +10,11 @@ on:
       - 'frontend/plugins/operation_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-operation.yml'
-      # codegen checks operation_ui against the composed backend schema
-      - 'backend/core-api/src/apollo/**'
-      - 'backend/core-api/src/**/graphql/**'
-      - 'backend/plugins/*/src/apollo/**'
-      - 'backend/plugins/*/src/**/graphql/**'
-      - 'backend/plugins/*/src/**/graphql.ts'
-      - 'backend/erxes-api-shared/src/utils/apollo/**'
+      # codegen checks operation_ui against the composed backend schema, whose
+      # SDL strings can import from anywhere in a backend's src
+      - 'backend/core-api/src/**'
+      - 'backend/plugins/*/src/**'
+      - 'backend/erxes-api-shared/src/**'
       - 'backend/gateway/compose-schema.ts'
       - 'backend/gateway/src/subscription/genTypeDefs.ts'
       - 'backend/*/project.json'
@@ -28,13 +26,11 @@ on:
       - 'frontend/plugins/operation_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-operation.yml'
-      # codegen checks operation_ui against the composed backend schema
-      - 'backend/core-api/src/apollo/**'
-      - 'backend/core-api/src/**/graphql/**'
-      - 'backend/plugins/*/src/apollo/**'
-      - 'backend/plugins/*/src/**/graphql/**'
-      - 'backend/plugins/*/src/**/graphql.ts'
-      - 'backend/erxes-api-shared/src/utils/apollo/**'
+      # codegen checks operation_ui against the composed backend schema, whose
+      # SDL strings can import from anywhere in a backend's src
+      - 'backend/core-api/src/**'
+      - 'backend/plugins/*/src/**'
+      - 'backend/erxes-api-shared/src/**'
       - 'backend/gateway/compose-schema.ts'
       - 'backend/gateway/src/subscription/genTypeDefs.ts'
       - 'backend/*/project.json'
