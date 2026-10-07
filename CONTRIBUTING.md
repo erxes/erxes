@@ -109,12 +109,12 @@ cleanup makes review harder and should be submitted separately.
 ### 2. Fork and branch
 
 Fork the repository, clone your fork, and create a branch from the latest
-upstream `develop` branch.
+upstream `main` branch.
 
 ```bash
 git fetch upstream
-git switch develop
-git pull --ff-only upstream develop
+git switch main
+git pull --ff-only upstream main
 git switch -c <prefix>/<short-description>
 ```
 
@@ -182,7 +182,8 @@ implementations, debug logs, or untracked TODOs.
 - Check authentication and permissions before mutations or sensitive reads.
 - Define new Mongoose schemas with `new Schema(...)` and explicit fields. Follow
   the owning module's established `schemaWrapper` pattern where it provides
-  shared schema behavior.
+  shared schema behavior, unless that module's scoped instructions prohibit new
+  usage.
 - Keep resolver methods thin; put reusable business behavior in the module's
   established service or model layer.
 - Rebuild `erxes-api-shared` before validating consumers when shared backend
@@ -261,7 +262,7 @@ or unrelated formatting changes unless the repository explicitly tracks them.
 
 ## Pull Requests
 
-Open pull requests against `develop`. Link the issue and include:
+Open pull requests against `main`. Link the issue and include:
 
 - **What:** the behavior or contract changed
 - **Why:** the problem being solved
