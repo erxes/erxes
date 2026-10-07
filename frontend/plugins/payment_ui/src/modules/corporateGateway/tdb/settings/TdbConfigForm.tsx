@@ -32,8 +32,8 @@ export const TdbConfigForm = ({
     name: config?.name ?? '',
     description: config?.description ?? '',
     apiUrl: config?.apiUrl ?? DEFAULT_API_URL,
-    clientId: '',
-    clientSecret: '',
+    clientId: config?.clientId ?? '',
+    clientSecret: config?.clientSecret ?? '',
     testMode: config?.testMode ?? true,
   });
 
@@ -131,11 +131,6 @@ export const TdbConfigForm = ({
                 onChange={onChange}
               />
 
-              {config && (
-                <p className="text-xs text-muted-foreground">
-                  {t('leave-empty-keep-client-secret')}
-                </p>
-              )}
             </div>
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="testMode">{t('environment')}</Label>

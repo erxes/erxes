@@ -5,6 +5,7 @@ export const types = `
     description: String
     apiUrl: String
     clientId: String
+    clientSecret: String
     testMode: Boolean
   }
 

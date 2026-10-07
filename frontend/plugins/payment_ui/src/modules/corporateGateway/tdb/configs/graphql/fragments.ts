@@ -4,5 +4,6 @@ export const configFields = `
   description
   apiUrl
   clientId
+  clientSecret
   testMode
 `;
