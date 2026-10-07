@@ -72,3 +72,6 @@ cloudflare/mail-worker/.wrangler/
 # Agent tool session state
 .agents/*
 !.agents/skills/
+
+# printed and composed GraphQL schemas (schema:print, gateway:schema:compose)
+backend/**/generated/

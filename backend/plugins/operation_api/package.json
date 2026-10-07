@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "start": "node -r tsconfig-paths/register dist/src/main.js",
-    "schema:print": "tsx print-schema.ts"
+    "start": "node -r tsconfig-paths/register dist/src/main.js"
   },
   "keywords": [],
   "author": "",
