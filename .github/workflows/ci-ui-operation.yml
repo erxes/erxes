@@ -10,11 +10,37 @@ on:
       - 'frontend/plugins/operation_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-operation.yml'
+      # codegen checks operation_ui against the composed backend schema
+      - 'backend/core-api/src/apollo/**'
+      - 'backend/core-api/src/**/graphql/**'
+      - 'backend/plugins/*/src/apollo/**'
+      - 'backend/plugins/*/src/**/graphql/**'
+      - 'backend/plugins/*/src/**/graphql.ts'
+      - 'backend/erxes-api-shared/src/utils/apollo/**'
+      - 'backend/gateway/compose-schema.ts'
+      - 'backend/gateway/src/subscription/genTypeDefs.ts'
+      - 'backend/*/project.json'
+      - 'backend/plugins/*/project.json'
+      - 'scripts/print-subgraph-schema.ts'
+      - 'nx.json'
   pull_request:
     paths:
       - 'frontend/plugins/operation_ui/**'
       - 'frontend/libs/**'
       - '.github/workflows/ci-ui-operation.yml'
+      # codegen checks operation_ui against the composed backend schema
+      - 'backend/core-api/src/apollo/**'
+      - 'backend/core-api/src/**/graphql/**'
+      - 'backend/plugins/*/src/apollo/**'
+      - 'backend/plugins/*/src/**/graphql/**'
+      - 'backend/plugins/*/src/**/graphql.ts'
+      - 'backend/erxes-api-shared/src/utils/apollo/**'
+      - 'backend/gateway/compose-schema.ts'
+      - 'backend/gateway/src/subscription/genTypeDefs.ts'
+      - 'backend/*/project.json'
+      - 'backend/plugins/*/project.json'
+      - 'scripts/print-subgraph-schema.ts'
+      - 'nx.json'
 
 permissions:
   actions: read
