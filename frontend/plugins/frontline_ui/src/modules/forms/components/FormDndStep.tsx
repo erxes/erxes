@@ -10,10 +10,12 @@ import { Button, InfoCard, Input, Label, Textarea } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import { AddField, FormDndField } from './FormDndField';
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
   const { t } = useTranslation('frontline');
+  const titleInputId = useId();
   const { fields, steps, handleChangeStepValue, getStepValue } = useFormDnd();
   const stepFields = fields[step];
   const { attributes, listeners, setNodeRef, transition, transform } =
@@ -34,10 +36,13 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
       className="p-0 relative gap-0"
     >
       <div className="px-4 pt-4 space-y-2">
-        {isMultipleSteps && <Label>{t('title-label', 'Title')}</Label>}
+        {isMultipleSteps && (
+          <Label htmlFor={titleInputId}>{t('title-label', 'Title')}</Label>
+        )}
         <div className="flex items-center gap-2">
           {isMultipleSteps && (
             <Input
+              id={titleInputId}
               value={getStepValue(step).name}
               className="w-1/2 text-ellipsis"
               onChange={(e) =>
