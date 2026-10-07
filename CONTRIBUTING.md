@@ -52,7 +52,7 @@ have a real, current need for it.
 Use the same major toolchain as CI:
 
 - Node.js 22
-- pnpm 8 or newer; npm and Yarn are not supported
+- pnpm 9 (the repository currently pins 9.12.3); npm and Yarn are not supported
 - MongoDB
 - Redis
 - Elasticsearch 7 when the affected feature requires search
@@ -180,8 +180,9 @@ implementations, debug logs, or untracked TODOs.
 - Preserve tenant isolation. Every request and model operation must honor the
   request subdomain.
 - Check authentication and permissions before mutations or sensitive reads.
-- Define new Mongoose schemas with `new Schema(...)` and explicit fields. Do not
-  introduce new `schemaWrapper` usage.
+- Define new Mongoose schemas with `new Schema(...)` and explicit fields. Follow
+  the owning module's established `schemaWrapper` pattern where it provides
+  shared schema behavior.
 - Keep resolver methods thin; put reusable business behavior in the module's
   established service or model layer.
 - Rebuild `erxes-api-shared` before validating consumers when shared backend
