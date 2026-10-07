@@ -41,10 +41,14 @@ import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailSta
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { customerMoreColumn } from './CustomerMoreColumn';
+import { useFloatingWidgets } from '@/widgets/hooks/useFloatingWidgets';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
 const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
+  const hasMailComposer = useFloatingWidgets().some(
+    (plugin) => plugin.name === 'frontline',
+  );
   const laneOf = useEmailLane();
   const deliveryLane = laneOf(customer.primaryEmail);
 
@@ -70,7 +74,7 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
         emails={customer.emails || []}
         scope={ContactsHotKeyScope.CustomersTableInlinePopover}
         Trigger={RecordTableInlineCell.Trigger}
-        onEmailClick={handleEmailClick}
+        onEmailClick={hasMailComposer ? handleEmailClick : undefined}
       />
       {deliveryLane !== 'unknown' && (
         <Badge

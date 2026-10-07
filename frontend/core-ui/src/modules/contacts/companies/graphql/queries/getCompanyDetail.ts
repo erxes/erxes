@@ -8,7 +8,6 @@ export const GET_COMPANY_DETAIL = gql`
       code
       createdAt
       primaryEmail
-      emailValidationStatus
       primaryName
       primaryPhone
       ownerId

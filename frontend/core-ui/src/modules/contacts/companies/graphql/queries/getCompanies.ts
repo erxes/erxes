@@ -59,7 +59,6 @@ export const GET_COMPANIES = gql`
         }
         emails
         primaryEmail
-        emailValidationStatus
         ownerId
         phones
         primaryPhone

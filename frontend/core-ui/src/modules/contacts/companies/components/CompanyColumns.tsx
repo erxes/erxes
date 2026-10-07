@@ -39,8 +39,12 @@ import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailState
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { companyMoreColumn } from './CompanyMoreColumn';
+import { useFloatingWidgets } from '@/widgets/hooks/useFloatingWidgets';
 
 const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
+  const hasMailComposer = useFloatingWidgets().some(
+    (plugin) => plugin.name === 'frontline',
+  );
   const handleEmailClick = (email: string) => {
     const emails = [company.primaryEmail, ...(company.emails || [])].filter(
       (value, index, values): value is string =>
@@ -62,7 +66,7 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
       emailValidationStatus={company.emailValidationStatus}
       emails={company.emails || []}
       Trigger={RecordTableInlineCell.Trigger}
-      onEmailClick={handleEmailClick}
+      onEmailClick={hasMailComposer ? handleEmailClick : undefined}
     />
   );
 };

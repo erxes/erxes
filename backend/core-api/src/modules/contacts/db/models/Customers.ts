@@ -283,6 +283,14 @@ export const loadCustomerClass = (
 
       const oldCustomer = await models.Customers.getCustomer(_id);
 
+      if (
+        doc.primaryEmail !== undefined &&
+        (doc.primaryEmail ?? '').trim().toLowerCase() !==
+          (oldCustomer.primaryEmail ?? '').trim().toLowerCase()
+      ) {
+        doc.emailValidationStatus = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+      }
+
       if (doc.propertiesData) {
         const propertiesData = await models.Fields.validateFieldValues(
           await models.Fields.keepFeaturedValues(

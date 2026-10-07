@@ -80,7 +80,7 @@ export const DirectMailComposer = () => {
             .map((email) => email.trim().toLowerCase())
             .filter(Boolean),
         ),
-      ].sort(),
+      ].sort((left, right) => left.localeCompare(right)),
     [to, cc, bcc, showCc, showBcc],
   );
   const validRecipients =
@@ -271,7 +271,7 @@ export const DirectMailComposer = () => {
               </p>
             )}
             {!checkingRecipients && !recipientsVerified && (
-              <p role="status" className="px-4 py-3 text-sm text-destructive">
+              <output className="block px-4 py-3 text-sm text-destructive">
                 {recipientVerificationError
                   ? 'Unable to check recipient email verification.'
                   : 'All recipient email addresses must be verified before sending.'}
@@ -287,7 +287,7 @@ export const DirectMailComposer = () => {
                     Retry
                   </Button>
                 )}
-              </p>
+              </output>
             )}
             <ComposerFooter
               disabled={
