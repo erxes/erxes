@@ -33,7 +33,6 @@ export const SurveyGeneral = () => {
   });
   const setSurveyContent = useSetAtom(surveySetupContentAtom);
 
-  // Ticket pipelines belong to a channel, so a channel change invalidates them.
   const clearTicketTargets = () =>
     setSurveyContent((content) => ({
       steps: content.steps.map((step) => ({
