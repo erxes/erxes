@@ -43,8 +43,7 @@
     "**/*.css"
   ],
   "scripts": {
-    "dts": "tsc -p tsconfig.dts.json",
-    "prepare": "tsc -p tsconfig.dts.json || test -f dist/index.d.ts"
+    "build:dts": "tsc -p tsconfig.dts.json"
   },
   "devDependencies": {
     "@types/react": "18.3.1",
