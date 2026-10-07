@@ -11,7 +11,7 @@ The backend SDL is the **contract**. Codegen checks every frontend document agai
 
 - `scripts/print-subgraph-schema.ts` and the `schema:print` default in `nx.json`, which `backend/plugins/operation_api/project.json` turns on with `"schema:print": {}`
 - `backend/gateway/compose-schema.ts` and the `schema:compose` target in `backend/gateway/project.json`, which compose every printed subgraph into `backend/gateway/generated/schema.graphql`
-- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` target and the `codegen` entries in `dependsOn` for `build` and `serve` in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
+- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` target and the `codegen` entries in `dependsOn` for `build` and `serve`, and the `dependentTasksOutputFiles` input on `build`, in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
 - `frontend/plugins/operation_ui/eslint.config.js` for the enforcement rules
 - `frontend/plugins/operation_ui/src/modules/task/types/index.ts` for types derived from generated queries
 
@@ -23,7 +23,7 @@ Ship each step as one **layer**: a PR stacked on the one before. Each layer buil
 
 ### 1. Setup layer
 
-Add `codegen.ts`, the `codegen` target, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend. The schema path is `backend/gateway/generated/schema.graphql`, and the `codegen` target depends on `gateway:schema:compose`. A new backend plugin gets `"schema:print": {}` in its `project.json`; the print script picks up `src/apollo/typeDefs.ts` and, when present, `src/apollo/subscription.ts`.
+Add `codegen.ts`, the `codegen` target, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend. Copy the `build` target's `inputs` too: `src/gql/` is gitignored, so without `{ "dependentTasksOutputFiles": "**/*.ts" }` Nx replays a cached bundle after a backend-only SDL change. The schema path is `backend/gateway/generated/schema.graphql`, and the `codegen` target depends on `gateway:schema:compose`. A new backend plugin gets `"schema:print": {}` in its `project.json`; the print script picks up `src/apollo/typeDefs.ts` and, when present, `src/apollo/subscription.ts`.
 
 Codegen validates every document in the plugin from the first run, typed or not, so it goes **red** on documents that already drift. Fix each one in this layer: a misspelled field, a field the SDL never had, a wrong argument, an operation name used twice.
 

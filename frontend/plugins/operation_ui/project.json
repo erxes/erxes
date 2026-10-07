@@ -28,6 +28,11 @@
           "rspackConfig": "frontend/plugins/operation_ui/rspack.config.prod.ts"
         }
       },
+      "inputs": [
+        "production",
+        "^production",
+        { "dependentTasksOutputFiles": "**/*.ts" }
+      ],
       "dependsOn": ["^build", "codegen"]
     },
     "serve": {
