@@ -1,8 +1,9 @@
 import { queries } from "@/modules/orders/graphql"
+import { configAtom, isAdminAtom } from "@/store/config.store"
 import { detailIdAtom } from "@/store/history.store"
-import { useQuery } from "@apollo/client"
+import { gql, useQuery, useSubscription } from "@apollo/client"
 import { format } from "date-fns"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import {
   AlarmClockIcon,
   CalendarCheckIcon,
@@ -25,13 +26,55 @@ import {
 } from "lucide-react"
 
 import { IOrderStatus } from "@/types/order.types"
-import { ORDER_STATUSES } from "@/lib/constants"
+import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
 
 import Items from "./items"
 import Payment from "./payment"
+
+type OrderChangeEntry = {
+  field: string
+  oldValue?: unknown
+  newValue?: unknown
+}
+
+type OrderChangeLog = {
+  _id: string
+  createdAt?: string
+  changes?: OrderChangeEntry[]
+  user?: {
+    email?: string
+    primaryEmail?: string
+  }
+}
+
+type OrderChangeLogsData = {
+  orderChangeLogs?: OrderChangeLog[]
+}
+
+const orderLogUpdates = gql`
+  subscription posclientOrderLogOrderUpdates(
+    $token: String
+    $statuses: [String]
+  ) {
+    ordersOrdered(posToken: $token, statuses: $statuses) {
+      _id
+    }
+  }
+`
+
+const itemLogUpdates = gql`
+  subscription posclientOrderLogItemUpdates(
+    $token: String
+    $statuses: [String]
+  ) {
+    orderItemsOrdered(posToken: $token, statuses: $statuses) {
+      _id
+    }
+  }
+`
 
 const StatusIcons = {
   [ORDER_STATUSES.NEW]: CircleIcon,
@@ -50,9 +93,34 @@ const TypeIcons = {
 
 const OrderDetail = () => {
   const [detailId, setDetailId] = useAtom(detailIdAtom)
+  const isAdmin = useAtomValue(isAdminAtom)
+  const { token } = useAtomValue(configAtom) || {}
   const { loading, data } = useQuery(queries.historyDetail, {
     skip: !detailId,
     variables: { id: detailId },
+  })
+  const { data: changeLogData, refetch: refetchChangeLogs } =
+    useQuery<OrderChangeLogsData>(queries.orderChangeLogs, {
+      skip: !detailId || !isAdmin,
+      variables: { orderId: detailId || "" },
+      fetchPolicy: "network-only",
+    })
+
+  useSubscription<{ ordersOrdered?: { _id: string } }>(orderLogUpdates, {
+    skip: !detailId || !isAdmin || !token,
+    variables: { token, statuses: ORDER_STATUSES.ALL },
+    onData({ data: event }) {
+      if (event.data?.ordersOrdered?._id === detailId) {
+        void refetchChangeLogs()
+      }
+    },
+  })
+  useSubscription<{ orderItemsOrdered?: { _id: string } }>(itemLogUpdates, {
+    skip: !detailId || !isAdmin || !token,
+    variables: { token, statuses: ORDER_ITEM_STATUSES.ALL },
+    onData() {
+      void refetchChangeLogs()
+    },
   })
 
   const {
@@ -188,9 +256,108 @@ const OrderDetail = () => {
             paidAmounts={paidAmounts}
           />
           <Items items={items} />
+          {isAdmin && (
+            <OrderChangeLogs
+              logs={changeLogData?.orderChangeLogs || []}
+              formatDate={formatDate}
+            />
+          )}
         </div>
       </SheetContent>
     </Sheet>
+  )
+}
+
+const fieldLabels: Record<string, string> = {
+  itemActions: "Барааны үйлдэл",
+  items: "Бараанууд",
+  status: "Төлөв",
+  saleStatus: "Борлуулалтын төлөв",
+  totalAmount: "Нийт дүн",
+  directDiscount: "Хөнгөлөлт",
+  directIsAmount: "Хөнгөлөлт дүнгээр",
+  customerId: "Харилцагч",
+  customerType: "Харилцагчийн төрөл",
+  brokerId: "Зуучлагч",
+  brokerType: "Зуучлагчийн төрөл",
+  type: "Захиалгын төрөл",
+  billType: "Баримтын төрөл",
+  registerNumber: "Регистрийн дугаар",
+  slotCode: "Ширээ",
+  subBranchId: "Дэд салбар",
+  departmentId: "Хэлтэс",
+  taxInfo: "Татварын мэдээлэл",
+  extraInfo: "Нэмэлт мэдээлэл",
+  dueDate: "Дуусах огноо",
+  branchId: "Салбар",
+  deliveryInfo: "Хүргэлтийн мэдээлэл",
+  description: "Тайлбар",
+}
+
+const formatChangeValue = (value: unknown) => {
+  if (value === null || value === undefined || value === "") {
+    return "-"
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return `${value}`
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Тийм" : "Үгүй"
+  }
+
+  return JSON.stringify(value)
+}
+
+const OrderChangeLogs = ({
+  logs,
+  formatDate,
+}: {
+  logs: OrderChangeLog[]
+  formatDate: (date: string) => string
+}) => {
+  if (!logs.length) {
+    return null
+  }
+
+  return (
+    <Card>
+      <CardHeader className="p-2 pb-1">
+        <CardTitle className="text-xs text-slate-500 font-medium">
+          Өөрчлөлтийн лог
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 px-2 pb-2">
+        {logs.map((log) => (
+          <div
+            key={log._id}
+            className="border-b pb-2 last:border-b-0 last:pb-0"
+          >
+            <div className="mb-1 text-xs text-slate-500">
+              {formatDate(log.createdAt || "")}
+              {log.user?.primaryEmail || log.user?.email
+                ? ` · ${log.user.primaryEmail || log.user.email}`
+                : ""}
+            </div>
+            <div className="space-y-1">
+              {(log.changes || []).map((change) => (
+                <div
+                  key={`${log._id}-${change.field}`}
+                  className="text-sm text-slate-800 break-words min-w-0"
+                >
+                  <span className="font-semibold">
+                    {fieldLabels[change.field] || change.field}:
+                  </span>{" "}
+                  {formatChangeValue(change.oldValue)} →{" "}
+                  {formatChangeValue(change.newValue)}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   )
 }
 
