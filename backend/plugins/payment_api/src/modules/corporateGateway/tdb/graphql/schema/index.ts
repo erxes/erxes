@@ -12,7 +12,6 @@ import {
   inputs as TransferInputs,
 } from './transfers';
 
-
 export const types = `
   ${ConfigTypes}
   ${AccountTypes}

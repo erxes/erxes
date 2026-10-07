@@ -53,10 +53,8 @@ const TdbCGWForm: React.FC<Props> = ({ payment, form }) => {
     },
   });
 
-  const [
-    loadAccounts,
-    { loading: accountsLoading, data: accountsData },
-  ] = useLazyQuery(ACCOUNTS_QUERY);
+  const [loadAccounts, { loading: accountsLoading, data: accountsData }] =
+    useLazyQuery(ACCOUNTS_QUERY);
 
   React.useEffect(() => {
     if (!payment?.config) return;
@@ -156,23 +154,15 @@ const TdbCGWForm: React.FC<Props> = ({ payment, form }) => {
                     (item: any) => item.ACNTNO === value,
                   );
 
-                  setValue(
-                    'iban',
-                    account?.IBAN || account?.iban || '',
-                  );
+                  setValue('iban', account?.IBAN || account?.iban || '');
 
-                  setValue(
-                    'accountName',
-                    account?.ACNTNAME || '',
-                  );
+                  setValue('accountName', account?.ACNTNAME || '');
                 }}
               >
                 <Select.Trigger>
                   <Select.Value
                     placeholder={
-                      accountsLoading
-                        ? t('loading')
-                        : t('select-account')
+                      accountsLoading ? t('loading') : t('select-account')
                     }
                   />
                 </Select.Trigger>
@@ -180,10 +170,7 @@ const TdbCGWForm: React.FC<Props> = ({ payment, form }) => {
                 <Select.Content>
                   <Select.Group>
                     {accounts.map((account: any) => (
-                      <Select.Item
-                        key={account.ACNTNO}
-                        value={account.ACNTNO}
-                      >
+                      <Select.Item key={account.ACNTNO} value={account.ACNTNO}>
                         {account.ACNTNO} - {account.ACNTNAME}
                       </Select.Item>
                     ))}

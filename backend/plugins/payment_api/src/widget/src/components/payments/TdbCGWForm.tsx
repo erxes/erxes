@@ -16,11 +16,7 @@ const LabelInputRow = ({
     <label className="text-sm mb-1 block">{label}</label>
 
     <div className="flex items-center gap-2 w-full">
-      <Input
-        className="w-full border rounded-lg grow"
-        value={value}
-        readOnly
-      />
+      <Input className="w-full border rounded-lg grow" value={value} readOnly />
 
       <button
         type="button"
@@ -38,12 +34,7 @@ const LabelInputRow = ({
 );
 
 const TdbCGWForm = () => {
-  const {
-    transaction,
-    apiResponse,
-    invoiceDetail,
-    apiDomain,
-  } = usePayment();
+  const { transaction, apiResponse, invoiceDetail, apiDomain } = usePayment();
 
   if (!transaction) {
     return null;
