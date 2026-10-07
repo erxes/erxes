@@ -48,10 +48,11 @@ export const DatePicker = ({
   ...props
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  
-  const minBound = minDate ?? (withPresent ? new Date('1900-01-01') : undefined);
+
+  const minBound =
+    minDate ?? (withPresent ? new Date('1900-01-01') : undefined);
   const maxBound = maxDate ?? (withPresent ? new Date() : undefined);
-  
+
   const calendarDisabled: Matcher[] = [
     ...(disabled === undefined ? [] : [disabled].flat()),
     ...(minBound ? [{ before: minBound }] : []),

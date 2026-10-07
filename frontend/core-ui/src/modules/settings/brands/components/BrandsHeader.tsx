@@ -1,14 +1,27 @@
 import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { CreateBrand } from './CreateBrand';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { IconChessKnightFilled } from '@tabler/icons-react';
+import { IconChessKnightFilled, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useAtom } from 'jotai';
+import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
+import { renderingBrandDetailAtom } from '../state';
 
 export function BrandsHeader() {
   const { t } = useTranslation('settings', {
     keyPrefix: 'brands',
   });
+  const [isAddingBrand, setIsAddingBrand] = useAtom(renderingBrandDetailAtom);
+
+  useScopedHotkeys(
+    'c',
+    () => {
+      setIsAddingBrand(true);
+    },
+    SettingsHotKeyScope.BrandsPage,
+  );
+
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -27,7 +40,15 @@ export function BrandsHeader() {
       </PageHeaderStart>
       <PageHeaderEnd>
         <Can action="brandsCreate">
-          <CreateBrand />
+          {/* <CreateBrand /> */}
+          <Button
+            disabled={isAddingBrand}
+            onClick={() => setIsAddingBrand(true)}
+          >
+            <IconPlus />
+            {t('create-brand')}
+            <Kbd>C</Kbd>
+          </Button>
         </Can>
       </PageHeaderEnd>
     </PageHeader>
