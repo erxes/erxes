@@ -24,7 +24,7 @@ import {
   useQueryState,
   PopoverScoped,
   FullNameValue,
-  ValidationStatus,
+  Badge,
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
@@ -44,15 +44,10 @@ import { customerMoreColumn } from './CustomerMoreColumn';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
-const LANE_AS_STATUS: Record<string, ValidationStatus | undefined> = {
-  proven: ValidationStatus.Valid,
-  suppressed: ValidationStatus.Invalid,
-  unknown: undefined,
-};
-
+/** Shows manual email validation alongside the independent delivery standing. */
 const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
   const laneOf = useEmailLane();
-  const deliveryStatus = LANE_AS_STATUS[laneOf(customer.primaryEmail)];
+  const deliveryLane = laneOf(customer.primaryEmail);
 
   /** Opens the mail composer with the selected customer email and alternatives. */
   const handleEmailClick = (email: string) => {
@@ -69,15 +64,25 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
   };
 
   return (
-    <CustomerEmails
-      primaryEmail={customer.primaryEmail || ''}
-      _id={customer._id}
-      emailValidationStatus={deliveryStatus || customer.emailValidationStatus}
-      emails={customer.emails || []}
-      scope={ContactsHotKeyScope.CustomersTableInlinePopover}
-      Trigger={RecordTableInlineCell.Trigger}
-      onEmailClick={handleEmailClick}
-    />
+    <div className="flex items-center gap-1">
+      <CustomerEmails
+        primaryEmail={customer.primaryEmail || ''}
+        _id={customer._id}
+        emailValidationStatus={customer.emailValidationStatus}
+        emails={customer.emails || []}
+        scope={ContactsHotKeyScope.CustomersTableInlinePopover}
+        Trigger={RecordTableInlineCell.Trigger}
+        onEmailClick={handleEmailClick}
+      />
+      {deliveryLane !== 'unknown' && (
+        <Badge
+          variant={deliveryLane === 'proven' ? 'success' : 'destructive'}
+          className="shrink-0"
+        >
+          Delivery: {deliveryLane}
+        </Badge>
+      )}
+    </div>
   );
 };
 

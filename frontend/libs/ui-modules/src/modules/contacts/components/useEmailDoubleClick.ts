@@ -33,13 +33,13 @@ export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
     };
   };
 
-  /** Cancels pending editing and invokes the compose action once. */
+  /** Cancels pending editing and composes mail or opens the editor as a fallback. */
   const handleEmailDoubleClick = (email: string) => {
     if (pendingClickRef.current) {
       window.clearTimeout(pendingClickRef.current.timeoutId);
       pendingClickRef.current = null;
     }
-    setOpen(false);
+    setOpen(!onEmailClick);
     onEmailClick?.(email);
   };
 
