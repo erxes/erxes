@@ -1,110 +1,81 @@
+import Link from 'next/link';
 import { SessionLink } from '@/modules/auth/components/SessionLink';
-import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
-import { Hero } from '@/modules/layout/components/Hero';
+import { getT } from '@/modules/i18n/server';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
+import { getPortalSettings } from '@/modules/layout/api';
+import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { MyTickets } from '@/modules/tickets/components/MyTickets';
 import {
-  NEW_TICKET_REASON,
   NEW_TICKET_ROUTE,
-  TICKETS_OFF_REASON,
-  TICKETS_OFF_TITLE,
+  ticketsOffReason,
 } from '@/modules/tickets/constants/guard';
-import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { buttonClass } from '@/modules/ui/components/Button';
-import { CardLink, cardLinkClass } from '@/modules/ui/components/Card';
-import { Container } from '@/modules/ui/components/Container';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { Icon } from '@/modules/ui/components/Icon';
 
-export const metadata = { title: 'Support portal' };
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.portalTitle'),
+});
 
 export default async function TicketsPage() {
-  const [{ headline }, settings] = await Promise.all([
-    getPortalIdentity(),
-    getPortalSettings(),
-  ]);
+  const [settings, t] = await Promise.all([getPortalSettings(), getT()]);
 
   return (
-    <>
-      <Hero headline={headline} />
-
-      <Container className="py-10 lg:py-14">
-        <Breadcrumbs
-          items={[{ label: 'Knowledge base', href: '/' }, { label: 'Support' }]}
+    <PortalShell
+      breadcrumbs={[
+        { label: t('nav.home'), href: '/' },
+        { label: t('tickets.crumb') },
+      ]}
+      title={t('tickets.portalTitle')}
+      description={t('tickets.portalText')}
+    >
+      {!settings.ticketsEnabled ? (
+        <FeatureOff
+          title={t('tickets.offTitle')}
+          description={ticketsOffReason(
+            knowledgeBaseName(settings.knowledgeBaseLabel, t),
+            t,
+          )}
         />
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2.5 rounded-2xl bg-white px-4 py-3 shadow-shell">
+            <SessionLink
+              href={NEW_TICKET_ROUTE}
+              reason={t('tickets.signInReason')}
+              className={buttonClass({ size: 'sm' })}
+            >
+              <Icon name="plus" size={16} />
+              {t('tickets.newShort')}
+            </SessionLink>
 
-        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
-          Support portal
-        </h1>
+            <Link
+              href="/tickets/track"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle hover:text-ink focus-visible:bg-subtle"
+            >
+              <Icon name="binoculars" size={16} />
+              {t('tickets.trackByNumber')}
+            </Link>
 
-        {!settings.ticketsEnabled ? (
-          <div className="mt-7">
-            <FeatureOff
-              title={TICKETS_OFF_TITLE}
-              description={TICKETS_OFF_REASON}
-            />
+            <span className="ml-auto hidden text-[13px] text-muted-foreground sm:block">
+              {t('tickets.repliesByEmail')}
+            </span>
           </div>
-        ) : (
-          <>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2">
-              <SessionLink
-                href={NEW_TICKET_ROUTE}
-                reason={NEW_TICKET_REASON}
-                className={cardLinkClass('flex items-start gap-4 p-6')}
-              >
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
-                  <Icon name="inbox" size={22} />
-                </span>
-                <span>
-                  <span className="block text-base font-semibold text-ink">
-                    Submit a ticket
-                  </span>
-                  <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
-                    Fill in the form to raise a new ticket with the support
-                    team.
-                  </span>
-                </span>
-              </SessionLink>
 
-              <CardLink
-                href="/tickets/track"
-                className="flex items-start gap-4 p-6"
-              >
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
-                  <Icon name="binoculars" size={22} />
-                </span>
-                <span>
-                  <span className="block text-base font-semibold text-ink">
-                    Track a ticket
-                  </span>
-                  <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
-                    Use your ticket number to check its status and replies.
-                  </span>
-                </span>
-              </CardLink>
+          <section aria-labelledby="my-tickets" className="mt-8">
+            <h2
+              id="my-tickets"
+              className="text-[17px] font-semibold tracking-[-0.01em] text-ink"
+            >
+              {t('tickets.mine')}
+            </h2>
+
+            <div className="mt-4">
+              <MyTickets />
             </div>
-
-            <section aria-labelledby="my-tickets" className="mt-12">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 id="my-tickets" className="text-xl font-semibold text-ink">
-                  My tickets
-                </h2>
-                <SessionLink
-                  href={NEW_TICKET_ROUTE}
-                  reason={NEW_TICKET_REASON}
-                  className={buttonClass({ size: 'sm' })}
-                >
-                  <Icon name="plus" size={16} />
-                  New ticket
-                </SessionLink>
-              </div>
-
-              <div className="mt-5">
-                <MyTickets />
-              </div>
-            </section>
-          </>
-        )}
-      </Container>
-    </>
+          </section>
+        </>
+      )}
+    </PortalShell>
   );
 }

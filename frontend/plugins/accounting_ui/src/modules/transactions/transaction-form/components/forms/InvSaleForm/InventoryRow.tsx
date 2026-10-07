@@ -1,5 +1,5 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
+import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '@/transactions/types/constants';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
@@ -17,7 +17,7 @@ import {
 } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useWatch } from 'react-hook-form';
+import { FieldPath, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import {
   useGetAccountingProductUnitPrice,
@@ -30,6 +30,7 @@ import {
 } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
+  TAddTransactionGroup,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
 import {
@@ -38,6 +39,18 @@ import {
   getTempId,
   hasDuplicateProductId,
 } from '../../utils';
+
+type TSaleFollowAccount = Pick<
+  IAccount,
+  | '_id'
+  | 'code'
+  | 'name'
+  | 'currency'
+  | 'kind'
+  | 'journal'
+  | 'branchId'
+  | 'departmentId'
+>;
 
 const findFollowTr = (
   followTrDocs: ITransaction[],
@@ -59,7 +72,7 @@ const buildSaleFollowDetails = ({
   trDoc,
   unitCost,
 }: {
-  account?: any;
+  account?: TSaleFollowAccount;
   accountId?: string;
   activeDetail: ITrDetail;
   currentTr?: ITransaction;
@@ -69,19 +82,31 @@ const buildSaleFollowDetails = ({
   (trDoc.details || []).map((saleDetail) => {
     const currentDetail = findFollowDetail(currentTr?.details, saleDetail._id);
 
-    if (currentDetail && saleDetail._id !== activeDetail._id) {
-      return currentDetail;
+    if (saleDetail._id !== activeDetail._id) {
+      return (
+        currentDetail ??
+        ({
+          ...saleDetail,
+          originId: saleDetail._id,
+          account,
+          accountId,
+          unitPrice: 0,
+          count: saleDetail.count,
+          amount: 0,
+        } as ITrDetail)
+      );
     }
 
     return {
       ...saleDetail,
       ...currentDetail,
+      originId: saleDetail._id,
       productId: saleDetail.productId,
       account,
       accountId,
       unitPrice: unitCost,
-      count: activeDetail.count,
-      amount: fixNum(unitCost * (activeDetail.count ?? 0)),
+      count: saleDetail.count,
+      amount: fixNum(unitCost * (saleDetail.count ?? 0)),
     } as ITrDetail;
   });
 
@@ -89,10 +114,12 @@ export const InventoryRow = ({
   detailIndex,
   journalIndex,
   form,
+  initialUnitCost,
 }: {
   detailIndex: number;
   journalIndex: number;
   form: ITransactionGroupForm;
+  initialUnitCost?: number;
 }) => {
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
@@ -115,19 +142,23 @@ export const InventoryRow = ({
   const { unitPrice, count, _id } = detail;
 
   const initProductId = useRef(detail.productId);
+  const hasProductChanged = useRef(false);
   const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
   const initBranchId = useRef(trDoc.branchId);
   const initDepartmentId = useRef(trDoc.departmentId);
   const [unitCost, setUnitCost] = useState(
-    followTrDocs
-      .find(
-        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
-      )
-      ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ?? 0,
+    initialUnitCost ??
+      followTrDocs
+        .find(
+          (ftr) =>
+            ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
+        )
+        ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ??
+      0,
   );
 
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
+  const getFieldName = (name: keyof ITrDetail) => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as FieldPath<TAddTransactionGroup>;
   };
 
   useEffect(() => {
@@ -194,7 +225,7 @@ export const InventoryRow = ({
     unitCost,
     trDoc._id,
     trDoc.parentId,
-    trDoc.details,
+    trDoc.details.length,
     trDoc.followExtras?.saleCostAccount,
     trDoc.followExtras?.saleOutAccount,
     trDoc.followInfos?.saleCostAccountId,
@@ -240,7 +271,6 @@ export const InventoryRow = ({
     }
 
     setTaxAmounts(calcTaxAmounts(count, unitPrice));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
@@ -253,7 +283,8 @@ export const InventoryRow = ({
     skip:
       !detail.productId ||
       !trDoc.followInfos?.saleOutAccountId ||
-      (initProductId.current &&
+      (!hasProductChanged.current &&
+        initProductId.current &&
         detail.productId === initProductId.current &&
         trDoc.branchId === initBranchId.current &&
         trDoc.departmentId === initDepartmentId.current &&
@@ -270,19 +301,20 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      (initProductId.current && detail.productId === initProductId.current),
+      (!hasProductChanged.current &&
+        initProductId.current &&
+        detail.productId === initProductId.current),
   });
 
-  // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
 
-    setUnitCost(fixNum(costInfo?.unitCost ?? 0));
+    if (costInfo === undefined) return;
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.productId, loading]);
+    setUnitCost(fixNum(costInfo.unitCost ?? 0));
+  }, [currentCostInfo, detail.productId, loading]);
 
   const handleAmountChange = (
     value: number,
@@ -316,14 +348,20 @@ export const InventoryRow = ({
     if (
       loadingSelectedProductUnitPrice ||
       !detail.productId ||
-      (initProductId.current && detail.productId === initProductId.current)
+      (!hasProductChanged.current &&
+        initProductId.current &&
+        detail.productId === initProductId.current)
     ) {
       return;
     }
 
     calcAmount(count ?? 0, selectedProductUnitPrice);
     form.setValue(getFieldName('unitPrice'), selectedProductUnitPrice);
-  }, [detail.productId, loadingSelectedProductUnitPrice]);
+  }, [
+    detail.productId,
+    loadingSelectedProductUnitPrice,
+    selectedProductUnitPrice,
+  ]);
 
   const handleCountChange = (
     value: number,
@@ -348,7 +386,7 @@ export const InventoryRow = ({
     setTaxAmounts({ unitPriceWithTax, amountWithTax });
 
     form.setValue(
-      getFieldName('unitPrice') as any,
+      getFieldName('unitPrice'),
       (unitPriceWithTax / (100 + rowPercent)) * 100,
     );
   };
@@ -380,6 +418,9 @@ export const InventoryRow = ({
     productId: string,
     onChange: (productId: string) => void,
   ) => {
+    if (productId !== detail.productId) {
+      hasProductChanged.current = true;
+    }
     onChange(productId);
   };
 
@@ -397,7 +438,7 @@ export const InventoryRow = ({
         enableOnFormTags
       >
         <Table.Cell
-          className={cn({
+          className={cn('w-8', {
             'border-t': detailIndex === 0,
             'rounded-tl-lg': detailIndex === 0,
             'rounded-bl-lg': detailIndex === trDoc.details.length - 1,

@@ -1,14 +1,15 @@
+import { Sidebar, cn } from 'erxes-ui';
+
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationActivityButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityButton';
 import { NavigationActivityGroups } from '@/navigation/components/navigation-activity-rail/NavigationActivityGroups';
+import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
 import { NavigationActivitySearchButton } from '@/navigation/components/navigation-activity-rail/NavigationActivitySearchButton';
 import { NavigationFavoritesSection } from '@/navigation/components/navigation-activity-rail/NavigationFavoritesSection';
 import { NavigationInboxButton } from '@/navigation/components/navigation-activity-rail/NavigationInboxButton';
-import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
 import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
 import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
-import { cn, Sidebar } from 'erxes-ui';
 
 export const NavigationActivityRail = ({
   activities,

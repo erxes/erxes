@@ -111,7 +111,9 @@ export const TasksCommandBar = () => {
                   <Command.Group className="p-1">
                     <Command.Item
                       className="w-full"
+                      disabled={!currentUser}
                       onSelect={async () => {
+                        if (!currentUser) return;
                         await Promise.all(
                           taskIds.map((taskId) =>
                             updateTask({
@@ -129,10 +131,10 @@ export const TasksCommandBar = () => {
                         <div className="flex items-center justify-center">
                           <Avatar className="size-4">
                             <Avatar.Image
-                              src={readImage(currentUser.details.avatar)}
+                              src={readImage(currentUser?.details?.avatar)}
                             />
                             <Avatar.Fallback className="text-xs">
-                              {currentUser.details.fullName.charAt(0) || '-'}
+                              {currentUser?.details?.fullName?.charAt(0) || '-'}
                             </Avatar.Fallback>
                           </Avatar>
                         </div>
@@ -168,7 +170,9 @@ export const TasksCommandBar = () => {
                   <Command.Group className="p-1">
                     <Command.Item
                       className="flex justify-between text-destructive"
+                      disabled={!currentUser}
                       onSelect={async () => {
+                        if (!currentUser) return;
                         await Promise.all(
                           taskIds.map((taskId) =>
                             removeTask(taskId, {

@@ -1,5 +1,10 @@
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
-import { IconChevronLeft, IconGavel, IconTrashX } from '@tabler/icons-react';
+import {
+  IconChevronLeft,
+  IconFilePencil,
+  IconGavel,
+  IconTrashX,
+} from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -13,7 +18,7 @@ import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TR_SIDES } from '../../types/constants';
+import { TR_SIDES, TR_STATUS_GROUPS } from '../../types/constants';
 import { getTransactionReturnPath } from '../../utils/transactionNavigation';
 import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
 import { followTrDocsState } from '../states/trStates';
@@ -45,6 +50,9 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
   return [sumDebit, sumCredit];
 };
 
+const DRAFTED_STATUSES =
+  TR_STATUS_GROUPS.find(({ label }) => label === 'DRAFTED')?.values || [];
+
 export const Summary = ({
   errorMessage,
   form,
@@ -56,7 +64,7 @@ export const Summary = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnPath = getTransactionReturnPath(searchParams.get('returnTo'));
-  const { ptrNumber, trDocs } = useWatch({ control: form.control });
+  const { ptrNumber, status, trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
 
@@ -68,6 +76,8 @@ export const Summary = ({
   const hasHiddenTransaction = (trDocs || []).some(
     (trDoc: any) => trDoc?.permission === 'hidden',
   );
+  const isDraftedStatus = DRAFTED_STATUSES.includes(status || '');
+  const SubmitIcon = isDraftedStatus ? IconFilePencil : IconGavel;
 
   const handleDelete = () =>
     confirm({
@@ -116,7 +126,12 @@ export const Summary = ({
           <>
             <div className="flex items-center gap-2 whitespace-nowrap">
               <span className="text-accent-foreground">Дебет:</span>
-              <span className="font-bold text-primary">
+              <span
+                className={cn(
+                  'font-bold',
+                  isDraftedStatus ? 'text-warning' : 'text-primary',
+                )}
+              >
                 <CurrencyFormatedDisplay
                   currencyValue={{
                     currencyCode: CurrencyCode.MNT,
@@ -127,7 +142,12 @@ export const Summary = ({
             </div>
             <div className="flex items-center gap-2 whitespace-nowrap">
               <span className="text-accent-foreground">Кредит:</span>
-              <span className="font-bold text-primary">
+              <span
+                className={cn(
+                  'font-bold',
+                  isDraftedStatus ? 'text-warning' : 'text-primary',
+                )}
+              >
                 <CurrencyFormatedDisplay
                   currencyValue={{
                     currencyCode: CurrencyCode.MNT,
@@ -160,15 +180,19 @@ export const Summary = ({
       </div>
       <Button
         type="submit"
+        variant={isDraftedStatus ? 'secondary' : 'default'}
+        className={isDraftedStatus ? 'text-warning' : undefined}
         disabled={hasHiddenTransaction || !!errorMessage}
         title={
           errorMessage ||
           (hasHiddenTransaction
             ? 'Унших эрх хүрэхгүй гүйлгээ байгаа тул хадгалах боломжгүй'
+            : isDraftedStatus
+            ? 'Ноорог бүлгийн төлөвөөр хадгалах'
             : undefined)
         }
       >
-        <IconGavel />
+        <SubmitIcon />
         Хадгалах
       </Button>
       <Button

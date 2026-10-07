@@ -1,3 +1,5 @@
+import type { Translate } from '@/modules/i18n/translate';
+
 export type FormField = {
   _id: string;
   type: string | null;
@@ -8,6 +10,8 @@ export type FormField = {
   options: string[] | null;
   validation: string | null;
   order: number | null;
+  column: number | null;
+  pageNumber: number | null;
 };
 
 export type FormSummary = {
@@ -18,8 +22,24 @@ export type FormSummary = {
   tagIds: string[] | null;
 };
 
+export type FormLeadStep = {
+  name?: string | null;
+  description?: string | null;
+  order?: number | null;
+};
+
+export type FormLeadData = {
+  primaryColor?: string | null;
+  thankTitle?: string | null;
+  thankContent?: string | null;
+  steps?: Record<string, FormLeadStep> | null;
+};
+
 export type PortalForm = FormSummary & {
   buttonText: string | null;
+  channelId: string | null;
+  status: string | null;
+  leadData: FormLeadData | null;
   fields: FormField[] | null;
 };
 
@@ -45,5 +65,5 @@ export type SaveLeadResponse = {
   } | null;
 };
 
-export const formTitle = (form: FormSummary): string =>
-  form.title?.trim() || form.name?.trim() || 'Untitled form';
+export const formTitle = (form: FormSummary, t: Translate): string =>
+  form.title?.trim() || form.name?.trim() || t('forms.untitled');

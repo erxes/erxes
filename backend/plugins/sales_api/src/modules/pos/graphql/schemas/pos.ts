@@ -39,6 +39,7 @@ const posCommonFields = `
   cardsConfig: JSON
   permissionConfig: JSON
   allowTypes: [String]
+  isShowRemainder: Boolean
   isCheckRemainder: Boolean
   checkExcludeCategoryIds: [String]
   saveRemainder: Boolean

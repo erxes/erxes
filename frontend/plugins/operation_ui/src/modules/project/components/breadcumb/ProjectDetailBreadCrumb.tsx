@@ -20,10 +20,7 @@ export const ProjectDetailBreadCrumb = () => {
   }>();
   const { pathname } = useLocation();
 
-  const { project, loading: projectLoading } = useGetProject({
-    variables: { _id: projectId },
-    skip: !projectId,
-  });
+  const { project, loading: projectLoading } = useGetProject(projectId);
 
   // Determine base path
   const basePath = teamId
@@ -47,7 +44,7 @@ export const ProjectDetailBreadCrumb = () => {
         <Breadcrumb.Item>
           <Button variant="ghost" asChild>
             <Link to={`${basePath}/overview`}>
-              <IconComponent name={project?.icon} />
+              <IconComponent name={project?.icon ?? undefined} />
               {project?.name}
             </Link>
           </Button>

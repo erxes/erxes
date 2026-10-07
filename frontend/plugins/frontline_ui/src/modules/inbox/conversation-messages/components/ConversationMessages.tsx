@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { MessageItem } from './MessageItem';
-import { IMessage } from '@/inbox/types/Conversation';
+import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
+import type { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
 import { useConversationTypingStatus } from '@/inbox/conversation-messages/hooks/useConversationTypingStatus';
 import { TypingIndicator } from '@/inbox/conversation-messages/components/TypingIndicator';
@@ -36,6 +36,7 @@ export const ConversationMessages = ({
 
   return (
     <InboxMessagesContainer
+      conversationId={conversationId}
       fetchMore={handleFetchMore}
       messagesLength={messages?.length || 0}
       totalCount={totalCount}

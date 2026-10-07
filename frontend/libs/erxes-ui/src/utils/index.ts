@@ -15,3 +15,4 @@ export * from './isEnabled';
 export * from './string-array';
 export * from './searchProvider';
 export * from './stripHtml';
+export * from './videoEmbed';

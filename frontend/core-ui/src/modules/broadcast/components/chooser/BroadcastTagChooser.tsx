@@ -1,166 +1,99 @@
-import {
-  CUSTOMER_RELATION_TYPE,
-  useBroadcastChooser,
-} from '@/broadcast/hooks/useBroadcastChooser';
-import { Combobox, Command } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
+import { IconTag } from '@tabler/icons-react';
+import { cn, Command } from 'erxes-ui';
+import { useBroadcastTagSelection } from '../../hooks/useBroadcastTagSelection';
+import { BroadcastTargetEmpty } from '../steps/BroadcastTargetEmpty';
 
 export const BroadcastTagChooser = ({
-  tags,
   value,
   onChange,
 }: {
-  tags: any;
   value: string[];
   onChange: (value: string[]) => void;
 }) => {
-  const { setValue } = useFormContext();
+  const {
+    options,
+    loading,
+    countOf,
+    isSelected,
+    toggle,
+    toggleGroup,
+    groupCount,
+    hasSelectedChild,
+  } = useBroadcastTagSelection({ value, onChange });
 
-  const { counts, loading } = useBroadcastChooser({
-    countTypes: [CUSTOMER_RELATION_TYPE.TAG],
-  });
+  const count = (value: number) => (
+    <span
+      className={cn(
+        'ml-2 text-xs text-muted-foreground',
+        loading && 'animate-pulse',
+      )}
+    >
+      {value}
+    </span>
+  );
 
-  const tagCounts = counts['tag'] || {};
+  if (!loading && !options.length) {
+    return (
+      <BroadcastTargetEmpty
+        icon={IconTag}
+        titleKey="target.no-tags"
+        descriptionKey="target.no-tags-body"
+        actionKey="target.create-tag"
+        to="/settings/tags?tagType=core:customer"
+      />
+    );
+  }
 
   return (
     <Command>
       <Command.List className="min-h-full">
-        <Combobox.Empty loading={true}></Combobox.Empty>
-        {tags.map((tag: any) => {
-          if (!tag.children) {
-            return (
-              <Command.Item
-                key={tag._id}
-                value={tag._id}
-                onSelect={() => {
-                  const targetIds = [];
-
-                  if (value?.includes(tag._id)) {
-                    targetIds.push(
-                      ...(value || []).filter((id: string) => id !== tag._id),
-                    );
-                  } else {
-                    targetIds.push(...(value || []), tag._id);
-                  }
-
-                  onChange(targetIds);
-
-                  const targetCount = targetIds.reduce(
-                    (sum, id) => sum + (tagCounts[id] || 0),
-                    0,
-                  );
-
-                  setValue('targetCount', targetCount);
-                }}
-                className={`mb-1 flex justify-between cursor-pointer last-of-type:mb-9 ${
-                  value?.includes(tag._id)
-                    ? 'bg-primary/10 data-[selected=true]:bg-primary/10'
-                    : ''
-                }`}
-              >
-                <span>{tag.name}</span>
-                <span
-                  className={`ml-2 text-xs text-muted-foreground ${
-                    loading ? 'animate-pulse' : ''
-                  }`}
-                >
-                  {tagCounts[tag._id] || 0}
-                </span>
-              </Command.Item>
-            );
-          }
-
-          return (
+        {options.map((tag) =>
+          !tag.children ? (
+            <Command.Item
+              key={tag._id}
+              value={tag._id}
+              onSelect={() => toggle(tag._id)}
+              className={cn(
+                'mb-1 flex justify-between cursor-pointer last-of-type:mb-9',
+                isSelected(tag._id) &&
+                  'bg-primary/10 data-[selected=true]:bg-primary/10',
+              )}
+            >
+              <span>{tag.name}</span>
+              {count(countOf(tag._id))}
+            </Command.Item>
+          ) : (
             <Command.Group
               key={tag._id}
               heading={
                 <span
                   className="cursor-pointer hover:text-primary flex justify-between w-full"
-                  onClick={() => {
-                    const childIds = (tag.children || []).map(
-                      (c: any) => c._id,
-                    );
-                    const allSelected = childIds.every((id: string) =>
-                      value?.includes(id),
-                    );
-
-                    const targetIds = allSelected
-                      ? (value || []).filter(
-                          (id: string) => !childIds.includes(id),
-                        )
-                      : [...new Set([...(value || []), ...childIds])];
-
-                    onChange(targetIds);
-
-                    const targetCount = targetIds.reduce(
-                      (sum, id) => sum + (tagCounts[id] || 0),
-                      0,
-                    );
-                    setValue('targetCount', targetCount);
-                  }}
+                  onClick={() => toggleGroup(tag)}
                 >
                   <span>{tag.name}</span>
-                  {(tag.children || []).some((c: any) =>
-                    value?.includes(c._id),
-                  ) && (
-                    <span
-                      className={`ml-2 text-xs text-muted-foreground ${loading ? 'animate-pulse' : ''}`}
-                    >
-                      {(tag.children || []).reduce(
-                        (sum: number, c: any) => sum + (tagCounts[c._id] || 0),
-                        0,
-                      )}
-                    </span>
-                  )}
+                  {hasSelectedChild(tag) && count(groupCount(tag))}
                 </span>
               }
               className="p-0"
             >
-              {(tag.children || []).map((child: any) => (
+              {tag.children.map((child) => (
                 <Command.Item
                   key={child._id}
                   value={child._id}
-                  onSelect={() => {
-                    const targetIds = [];
-
-                    if (value?.includes(child._id)) {
-                      targetIds.push(
-                        ...(value || []).filter(
-                          (id: string) => id !== child._id,
-                        ),
-                      );
-                    } else {
-                      targetIds.push(...(value || []), child._id);
-                    }
-
-                    onChange(targetIds);
-
-                    const targetCount = targetIds.reduce(
-                      (sum, id) => sum + (tagCounts[id] || 0),
-                      0,
-                    );
-
-                    setValue('targetCount', targetCount);
-                  }}
-                  className={`mb-1 pl-5 flex justify-between cursor-pointer  ${
-                    value?.includes(child._id)
-                      ? 'bg-primary/10 data-[selected=true]:bg-primary/10'
-                      : ''
-                  }`}
+                  onSelect={() => toggle(child._id)}
+                  className={cn(
+                    'mb-1 pl-5 flex justify-between cursor-pointer',
+                    isSelected(child._id) &&
+                      'bg-primary/10 data-[selected=true]:bg-primary/10',
+                  )}
                 >
                   <span>{child.name}</span>
-                  <span
-                    className={`ml-2 text-xs text-muted-foreground ${
-                      loading ? 'animate-pulse' : ''
-                    }`}
-                  >
-                    {tagCounts[child._id] || 0}
-                  </span>
+                  {count(countOf(child._id))}
                 </Command.Item>
               ))}
             </Command.Group>
-          );
-        })}
+          ),
+        )}
       </Command.List>
     </Command>
   );

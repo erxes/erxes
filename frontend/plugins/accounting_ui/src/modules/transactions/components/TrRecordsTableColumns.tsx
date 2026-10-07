@@ -5,7 +5,7 @@ import {
   IconMoneybag,
   IconTrash,
 } from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
   Combobox,
@@ -60,16 +60,16 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: any) => {
-  const { details } = row.original;
-  const { amount, side } = details;
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
+  const { details, side } = row.original;
+  const { amount } = details;
 
   return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
-const CreditCell = ({ row }: any) => {
-  const { details } = row.original;
-  const { amount, side } = details;
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
+  const { details, side } = row.original;
+  const { amount } = details;
 
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };

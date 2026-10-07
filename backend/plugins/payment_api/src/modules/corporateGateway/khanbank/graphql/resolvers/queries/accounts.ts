@@ -99,6 +99,34 @@ const queries = {
       throw new Error(e.message);
     }
   },
+  async khanbankFindTransaction(
+  _root,
+  args: {
+    configId: string;
+    accountNumber: string;
+    amount: number;
+    description?: string;
+    record?: number;
+  },
+  { models }: IContext,
+) {
+  try {
+    const config = await models.KhanbankConfigs.getConfig({
+      _id: args.configId,
+    });
+
+    const khanbank = new Khanbank(config);
+
+    return await khanbank.statements.findTransaction({
+      accountNumber: args.accountNumber,
+      amount: args.amount,
+      description: args.description,
+      record: args.record,
+    });
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+},
 };
 
 export default queries;

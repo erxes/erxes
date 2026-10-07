@@ -66,6 +66,13 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,
     companyName:
       ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
+    hasCopy: ebarimtPos?.value?.hasCopy ?? ebarimtMain?.value?.hasCopy ?? false,
+    hasSumQty:
+      ebarimtPos?.value?.hasSumQty ?? ebarimtMain?.value?.hasSumQty ?? false,
+    isCleanTaxPrice:
+      ebarimtPos?.value?.isCleanTaxPrice ??
+      ebarimtMain?.value?.isCleanTaxPrice ??
+      false,
   };
 
   const erkhetConfigs = await sendTRPCMessage({
@@ -187,7 +194,7 @@ export const getProductsData = async (
 
     const productsById = await calcProductsTaxRule(
       subdomain,
-      ebarimtConfig,
+      ebarimtConfig?.value,
       products,
     );
 

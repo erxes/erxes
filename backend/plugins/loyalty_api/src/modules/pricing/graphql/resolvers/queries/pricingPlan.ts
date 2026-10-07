@@ -1,6 +1,6 @@
 import { IContext, IModels } from '~/connectionResolvers';
 import dayjs from 'dayjs';
-import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { defaultPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   getAllowedProducts,
   getProductIdsForPlan,
@@ -154,26 +154,19 @@ export const pricingPlanQueries = {
     await checkPermission('pricingPlanView');
     const filter = await generateFilter(subdomain, models, params);
     const { sortField, sortDirection } = params;
-    const sort: any =
-      sortField && sortDirection
-        ? { [sortField]: sortDirection }
-        : { updatedAt: -1 };
+    const sort: Record<string, 1 | -1> = sortField
+      ? { [sortField]: sortDirection === 1 ? 1 : -1, _id: 1 }
+      : { updatedAt: -1, _id: 1 };
 
     if (params.findOne) {
       const docs = await models.PricingPlans.find(filter).sort(sort).limit(1);
       return docs || [];
     }
 
-    const result = await cursorPaginate({
-      model: models.PricingPlans,
-      query: filter,
-      params: {
-        ...params,
-        orderBy: sort,
-      },
-    });
-
-    return Array.isArray(result?.list) ? result.list : [];
+    return defaultPaginate(
+      models.PricingPlans.find(filter).sort(sort),
+      params,
+    );
   },
 
   cpPricingPlans: async (
@@ -183,10 +176,9 @@ export const pricingPlanQueries = {
   ) => {
     const filter = await generateFilter(subdomain, models, params);
     const { sortField, sortDirection } = params;
-    const sort: any =
-      sortField && sortDirection
-        ? { [sortField]: sortDirection }
-        : { updatedAt: -1 };
+    const sort: Record<string, 1 | -1> = sortField
+      ? { [sortField]: sortDirection === 1 ? 1 : -1, _id: 1 }
+      : { updatedAt: -1, _id: 1 };
 
     if (params.findOne) {
       const docs = await models.PricingPlans.find(filter).sort(sort).limit(1);
@@ -194,16 +186,10 @@ export const pricingPlanQueries = {
       return docs || [];
     }
 
-    const result = await cursorPaginate({
-      model: models.PricingPlans,
-      query: filter,
-      params: {
-        ...params,
-        orderBy: sort,
-      },
-    });
-
-    return Array.isArray(result?.list) ? result.list : [];
+    return defaultPaginate(
+      models.PricingPlans.find(filter).sort(sort),
+      params,
+    );
   },
 
   pricingPlansCount: async (

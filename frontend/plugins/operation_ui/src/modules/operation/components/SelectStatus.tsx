@@ -22,7 +22,7 @@ import {
 } from '@/operation/components/StatusInline';
 import { STATUS_TYPE_LABELS } from '@/operation/constants/statusConstants';
 interface SelectStatusContextType {
-  value?: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   variant?: `${SelectTriggerVariant}`;
 }
@@ -48,7 +48,7 @@ export const SelectStatusProvider = ({
   variant,
 }: {
   children: React.ReactNode;
-  value?: number;
+  value?: number | null;
   onValueChange: (value: number) => void;
   variant?: `${SelectTriggerVariant}`;
 }) => {
@@ -197,7 +197,7 @@ const SelectStatusRoot = ({
   onValueChange,
   useExtendedLabels,
 }: {
-  value?: number;
+  value?: number | null;
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: number) => void;

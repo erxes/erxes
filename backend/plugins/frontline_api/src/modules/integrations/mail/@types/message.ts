@@ -22,6 +22,8 @@ export interface IMailAttachment {
   error?: string;
 }
 
+export type TMailConversationStatusOnSent = 'closed' | 'new';
+
 export interface IMailMessage {
   inboxIntegrationId: string;
   inboxConversationId?: string;
@@ -29,6 +31,8 @@ export interface IMailMessage {
   messageId: string;
   subject?: string;
   body: string;
+  reactionEmoji?: string;
+  hasReplyTo?: boolean;
   from: IMailAddress[];
   to: IMailAddress[];
   cc: IMailAddress[];
@@ -38,12 +42,18 @@ export interface IMailMessage {
   references?: string[];
   replyTag?: string;
   isAuto?: boolean;
+  automated?: boolean;
+  conversationStatusOnSent?: TMailConversationStatusOnSent;
+  conversationStatusAppliedAt?: Date;
+  draftId?: string;
+  sourceMessageId?: string;
   envelopeFrom?: string;
   senderMismatch?: boolean;
   providerMessageId?: string;
   deliveryStatus?: TMailDeliveryStatus;
   deliveryError?: string;
   deliveryRetryable?: boolean;
+  deliveryAttemptedAt?: Date;
   bouncedRecipients?: string[];
   type: TMailMessageType;
   createdAt: Date;
@@ -66,12 +76,14 @@ export interface IMailComposeArgs {
   customerId?: string;
   subject: string;
   body?: string;
+  reactionEmoji?: string;
   to: string[];
   cc?: string[];
   bcc?: string[];
   attachments?: IMailAttachmentInput[];
   replyToMessageId?: string;
   references?: string[];
+  automated?: boolean;
 }
 
 export interface IMailSendArgs extends IMailComposeArgs {
@@ -79,6 +91,8 @@ export interface IMailSendArgs extends IMailComposeArgs {
   conversationId?: string;
   shouldResolve?: boolean;
   shouldOpen?: boolean;
+  draftId?: string;
+  sourceMessageId?: string;
 }
 
 export interface IMailTicketMailArgs extends IMailComposeArgs {

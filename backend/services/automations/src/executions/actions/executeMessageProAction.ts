@@ -1,10 +1,16 @@
 import {
+  buildSkippedAction,
   IAutomationAction,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { sendSms } from '../../utils/sms';
+
+const RELATION_CONTENT_TYPES: Record<string, string> = {
+  'sales:sales.deals': 'sales:deal',
+  'frontline:tickets.tickets': 'frontline:ticket',
+};
 
 const stripHtmlToText = (html: string) =>
   html
@@ -37,26 +43,36 @@ export const executeMessageProAction = async (
       ? resolvedConfig.documentId
       : '';
 
-  const { target } = execution;
+  const { target, triggerType = '' } = execution;
   const itemId = target?._id;
+  const relationContentType = Object.entries(RELATION_CONTENT_TYPES).find(
+    ([type]) => triggerType === type || triggerType.startsWith(`${type}.`),
+  )?.[1];
 
   if (!documentId || !itemId) {
-    return { documentId, content: '', phone: '', sent: false };
+    return buildSkippedAction('no-document-or-target', {
+      documentId,
+      content: '',
+      phone: '',
+      sent: false,
+    });
   }
 
-  const customerIds: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: itemId,
-      relatedContentType: 'core:customer',
-    },
-    defaultValue: [],
-  });
+  const customerIds: string[] = relationContentType
+    ? await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'relation',
+        action: 'getRelationIds',
+        input: {
+          contentType: relationContentType,
+          contentId: itemId,
+          relatedContentType: 'core:customer',
+        },
+        defaultValue: [],
+      })
+    : [];
 
   let customerPhone = '';
 
@@ -122,10 +138,19 @@ export const executeMessageProAction = async (
     sent = true;
   }
 
-  return {
+  const result = {
     documentId,
     content: cleanedText,
     phone: customerPhone,
     sent,
   };
+
+  if (!sent) {
+    return buildSkippedAction(
+      cleanedText ? 'no-customer-phone' : 'empty-document',
+      result,
+    );
+  }
+
+  return result;
 };

@@ -9,8 +9,12 @@ import { ActivityPriority } from '@/activity/components/ActivityPriority';
 import { ActivityStatus } from '@/activity/components/ActivityStatus';
 import { ActivityTeam } from '@/activity/components/ActivityTeam';
 import { Name } from '@/activity/components/Name';
+import { ActivityAccept } from '@/activity/components/ActivityAccept';
 import { ACTIVITY_MODULES } from '@/activity/constants';
 import { IActivity } from '@/activity/types';
+import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
+import { useTranslation } from 'react-i18next';
+import { ActivityActor } from '@/activity/components/ActivityActor';
 import {
   IconAlertSquareRounded,
   IconCalendar,
@@ -21,9 +25,6 @@ import {
   IconSquareRotated,
   IconUsersGroup,
 } from '@tabler/icons-react';
-import { MembersInline } from 'ui-modules';
-import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
-import { useTranslation } from 'react-i18next';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
   const { t } = useTranslation('operation');
@@ -56,6 +57,8 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
       return <ActivityMilestone metadata={metadata} action={action} />;
     case ACTIVITY_MODULES.CONVERT:
       return <ActivityConvertToProject metadata={metadata} action={action} />;
+    case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
+      return <ActivityAccept action={action} />;
     default:
       return <div>{t('unknown-module')}</div>;
   }
@@ -70,10 +73,7 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
 
     case ACTIVITY_MODULES.PRIORITY:
       return (
-        <IconAlertSquareRounded
-          className="size-4 
-      text-accent-foreground"
-        />
+        <IconAlertSquareRounded className="size-4 text-accent-foreground" />
       );
     case ACTIVITY_MODULES.TEAM:
       return <IconUsersGroup className="size-4 text-accent-foreground" />;
@@ -82,15 +82,8 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.END_DATE:
       return <IconCalendar className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.ASSIGNEE:
-      return (
-        <MembersInline.Provider
-          memberIds={
-            activity.metadata?.newValue ? [activity.metadata.newValue] : []
-          }
-        >
-          <MembersInline.Avatar />
-        </MembersInline.Provider>
-      );
+    case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
+      return <ActivityActor.Avatar />;
     case ACTIVITY_MODULES.NOTE:
       return <IconNote className="size-4 text-accent-foreground" />;
 

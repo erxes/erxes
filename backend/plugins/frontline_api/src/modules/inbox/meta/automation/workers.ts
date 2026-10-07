@@ -1,4 +1,7 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
+  buildSkippedAction,
   getSetPropertySelector,
   replaceOutputPlaceholders,
   setProperty,
@@ -417,6 +420,13 @@ export const inboxAutomationWorkers = {
     _context: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType === 'messages') {
+      // No messenger selected keeps the trigger firing for every messenger.
+      const integrationId = toStringValue(config.integrationId);
+
+      if (integrationId && target?.integrationId !== integrationId) {
+        return false;
+      }
+
       const conditions = Array.isArray(config.conditions)
         ? config.conditions
         : [];
@@ -491,13 +501,18 @@ export const inboxAutomationWorkers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType !== 'messages') {
-      return { result: null };
+      return buildFailedAction(
+        `Inbox automations do not handle "${collectionType}"`,
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
     }
 
     const { target } = execution;
     const { conversationId } = target || {};
 
-    if (!conversationId) return { result: null };
+    if (!conversationId) {
+      return buildSkippedAction('no-conversation');
+    }
 
     try {
       const resolvedConfig = await replaceOutputPlaceholders({
@@ -535,7 +550,9 @@ export const inboxAutomationWorkers = {
           sentMessages.push(botMessage);
         }
 
-        if (!sentMessages.length) return { result: null };
+        if (!sentMessages.length) {
+          return buildSkippedAction('nothing-to-send');
+        }
 
         const first = sentMessages[0];
         return {
@@ -563,7 +580,9 @@ export const inboxAutomationWorkers = {
         }
       }
 
-      if (!text) return { result: null };
+      if (!text) {
+        return buildSkippedAction('no-reply-text');
+      }
 
       const botData = [{ type: 'text', text: `<p>${text}</p>` }];
 

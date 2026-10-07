@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -25,18 +25,32 @@
 
 ## Current Capabilities
 
+- POS product settings independently persist `isShowRemainder` for display and
+  `isCheckRemainder` for preventing negative stock, with category exclusions.
+
 - Runs as the sales Module Federation remote.
 - Development Rspack serving ignores generated dependency/cache/output folders
   to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
+- When the pipeline has a payment type with a score campaign, each stage shows
+  "Refund loyalty points" (`PipelineStageRefundPoints` /
+  `usePipelineStageRefundPoints`): checked by default on `Lost` stages while
+  `refundPoints` is unset, and every change asks for confirmation first.
+- In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
+- Deal detail broker selection shows `Broker: None` until a broker type is
+  chosen, then renders a matching entity selector with a `Select broker`
+  placeholder.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
   tables.
+- Deal product bulk add passes the deal pipeline id into the shared product
+  chooser so enabled plugin remainder providers can resolve pipeline-scoped
+  stock without sales importing those plugins.
 - Deal product advanced view manages only product-level manual `hand` discounts
   while preserving automatic discount sources in `discountInfos`.
 - Deal product tax controls live behind a separate Tax view toggle; Advanced
@@ -94,6 +108,8 @@
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
 - Deal product create, update, and delete flows must keep the table responsive
   without requiring a manual refresh.
+- Deal product selectors may pass sales context such as `pipelineId` into
+  shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline
   view so filters, table edits, add products, totals, and save behavior remain
   identical.
@@ -118,87 +134,3 @@
   verify the inline table shows the same state.
 - POS settings smoke scenario: open POS permission tab, toggle cashier
   "SEE REPORT", save, and verify the value persists after reload.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-21` — Expanded deal product workspace
-
-- **Summary:** Deal product management now has an Expand view toggle that opens
-  the same table, filters, footer totals, add, edit, and save controls in a
-  near-fullscreen dialog.
-- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/product-list/{ProductsList.tsx,ProductsListHeader.tsx}`.
-- **Contracts changed:** None.
-
-### `2026-09-13` — Sync footer handle discount inputs
-
-- **Summary:** Deal product footer handle percent and amount inputs now clear
-  the alternate draft per currency so both controls reflect the same manual
-  `hand` discount state.
-- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/ProductFooter.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-13` — Fill handle discount footer inputs
-
-- **Summary:** Deal product footer discount inputs now fill from the current
-  per-currency manual `hand` discount amount and percent while aggregate labels
-  still show all discounts.
-- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/ProductFooter.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-13` — Ignore empty row discount edits
-
-- **Summary:** Deal product row discount percent/amount fields now ignore empty
-  edits so blank inputs do not create manual `hand` discount entries.
-- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/product-table/getProductColumns.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-13` — Product Tax view toggle
-
-- **Summary:** Added a separate Tax view toggle and moved product tax
-  percent/amount columns plus footer total tax controls out of Advanced view.
-- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/{ProductFooter.tsx,product-list,product-table}`.
-- **Contracts changed:** None.
-
-### `2026-09-12` — Advanced product manual discounts
-
-- **Summary:** Advanced-view product row and footer discount edits now update
-  only `hand` discount metadata while preserving automatic discount sources.
-- **Affected areas:** `src/modules/deals/cards/components/detail/product/{components,hooks,utils,productTableAtom.ts}`.
-- **Contracts changed:** Deal product JSON may include `discountInfos` with
-  manual `hand` entries.
-
-### `2026-09-09` — Bound Dev Watchers
-
-- **Summary:** Sales UI Rspack development serving now ignores generated
-  dependency, cache, coverage, temp, and output folders to reduce local watcher
-  pressure.
-- **Affected areas:** `rspack.config.ts`.
-- **Contracts changed:** None.
-
-### `2026-09-05` — Property groups share one card shell
-
-- **Summary:** The deal detail property groups render through
-  `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group
-  and a repeating one look the same instead of a secondary-button header beside
-  a card tray.
-- **Affected areas:** `src/modules/deals/cards/components/detail/DealPipelineProperties.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-12` — Select deal properties by group
-
-- **Summary:** Pipeline property configuration now selects an entire Core deal
-  property group with one checkbox instead of selecting fields one by one; the
-  stored contract remains the group's field ids.
-- **Affected areas:** `src/modules/deals/pipelines/components/PipelinePropertySelector.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-12` — Pipeline-scoped deal properties
-
-- **Summary:** Sales pipelines now choose grouped Core deal properties; legacy
-  pipelines retain show-all behavior until first save, then deal detail renders
-  only the chosen fields.
-- **Affected areas:** `src/modules/deals/{pipelines,cards,graphql,types,schemas}`.
-- **Contracts changed:** Pipeline GraphQL reads and mutations now include
-  `propertyIds`.

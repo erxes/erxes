@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import {
   IListParams,
   IPropertyField,
@@ -16,6 +17,12 @@ export interface ITicketSourceSurvey {
 }
 
 export interface ITicket {
+  /**
+   * What produced this, when nobody typed it in — a campaign, an
+   * automation. Written by whatever created it; `schemaWrapper` carries the
+   * field on every schema.
+   */
+  createdVia?: TCreatedVia;
   name: string;
   channelId: string;
   stageId: string;
@@ -58,7 +65,21 @@ export interface ITicketDocument extends ITicket, Document {
   updatedAt: Date;
 }
 
-export interface ITicketFilter extends IListParams, ITicket {
+export interface ITicketFilter
+  extends IListParams,
+    Omit<ITicket, 'propertiesData'> {
+  segmentIds?: string[];
+  createdStartDate?: Date;
+  createdEndDate?: Date;
+  startDateStartDate?: Date;
+  startDateEndDate?: Date;
+  targetDateStartDate?: Date;
+  targetDateEndDate?: Date;
+  statusChangedStartDate?: Date;
+  statusChangedEndDate?: Date;
+  branchIds?: string[];
+  departmentIds?: string[];
+  propertiesData?: string;
   userId?: string;
   createdAt?: Date;
 }

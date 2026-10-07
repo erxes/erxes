@@ -83,6 +83,25 @@ export type TAutomationFindObjectTargetDefinition = {
   output?: TAutomationRuntimeOutputDefinition;
 };
 
+/**
+ * A value an action reads from whatever started the run. The action names
+ * what it needs; it never learns which record supplied it.
+ */
+export type TAutomationActionInput = {
+  key: string;
+  label: string;
+  type: 'number' | 'string' | 'array' | 'object';
+};
+
+/**
+ * Per action type, which of the trigger's own output keys fills each of that
+ * action's inputs. Declared by the trigger's plugin, so no one maps by hand.
+ */
+export type TAutomationTriggerActionInputs = Record<
+  string,
+  Record<string, string>
+>;
+
 export type IAutomationsTriggerConfig = {
   type?: string;
   moduleName?: string;
@@ -92,7 +111,19 @@ export type IAutomationsTriggerConfig = {
   label: string;
   description: string;
   isCustom?: boolean;
+  /**
+   * An event trigger: every event starts a run, even for a record that
+   * already went through this automation (a tier reached again). Without it a
+   * record enrolls once unless the automation sets its own re-enrollment.
+   */
+  reEnrollment?: boolean;
+  /**
+   * Each event is its own occurrence (a deal reaching a stage), so the
+   * automation may offer "every time it happens" as a re-enrollment rule.
+   */
+  reEnrollable?: boolean;
   output?: TAutomationRuntimeOutputDefinition;
+  actionInputs?: TAutomationTriggerActionInputs;
   conditions?: {
     type: string;
     icon: string;
@@ -141,10 +172,34 @@ export type IAutomationsActionConfig = {
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
   allowedMultiTriggerTypes?: string[];
+  /**
+   * Target record types this action can operate on, named with the same
+   * identifiers as trigger types. Declaring nothing means the action is
+   * target-agnostic and any caller may use it.
+   *
+   * Callers that supply their own target (a broadcast enrolling customers, an
+   * AI agent, a manual run) check what they supply against this, so an action
+   * never needs a per-caller flag.
+   */
+  requiresTargetTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
+  inputs?: TAutomationActionInput[];
   setPropertyTargets?: TAutomationSetPropertyTarget[];
   deferred?: IAutomationsDeferredConfig;
+  /**
+   * Whether the action can carry a retry / error-branch policy. Declaring
+   * nothing means it can, unless the action defers its work — a deferred
+   * failure is reported long after the flow moved on, so the policy would
+   * have nothing left to act on.
+   */
+  errorPolicy?: { supported: boolean };
+  /**
+   * The action creates records that belong to someone, so the run needs a
+   * person to act for — the automation's owner. Declaring nothing means the
+   * action owns nothing and never asks who it is acting as.
+   */
+  requiresActor?: boolean;
 };
 
 export type IAutomationsBotsConfig = {
@@ -229,6 +284,76 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
   findObjectTargets?: TAutomationFindObjectTargetDefinition[];
   setPropertyTargets?: TAutomationSetPropertyTarget[];
   ai?: TAutomationAiConfig;
+  /**
+   * Flows shipped with the code, not created by a tenant. They exist from the
+   * moment the plugin is deployed and are never written to a tenant database:
+   * a copy is only materialized when someone installs one.
+   */
+  workflowTemplates?: TAutomationBuiltInTemplate[];
+};
+
+/**
+ * A step of a built-in template.
+ *
+ * Addressed by `order` rather than by id: ids are generated per automation, so
+ * a template that hardcoded them could never be installed twice. Installing
+ * maps every order to a fresh id and rewrites the connections with it.
+ */
+export type TAutomationBuiltInTemplateStep = {
+  order: number;
+  type: string;
+  label?: string;
+  description?: string;
+  icon?: string;
+  config?: Record<string, any>;
+  /**
+   * What runs after this step: a plain chain (`2`), or the branch handles of a
+   * step that has more than one output (`{ yes: 2, no: 3 }` for `if`,
+   * `{ isExists: 2, notExists: 3 }` for `findObject`).
+   */
+  next?: number | Record<string, number>;
+};
+
+/**
+ * Something the tenant must already have before a template can work — a bot, a
+ * pipeline stage, an integration. The value is chosen once, while installing,
+ * by a component the owning plugin provides: only that plugin knows what
+ * counts as a valid candidate and how to list them.
+ */
+export type TAutomationBuiltInTemplateRequirement = {
+  /** Unique within the template; how `dependsOn` refers to another one. */
+  key: string;
+  /** Resolved by the owning plugin's `templateRequirement` component. */
+  kind: string;
+  label: string;
+  description?: string;
+  /**
+   * Where the chosen value lands in the flow. Omitted for a requirement that
+   * only gates — something that must exist but fills nothing in.
+   *
+   * `from` names a field of the answer when the component reports an object
+   * rather than a scalar, so one choice can settle everything it implies — an
+   * address and the name that goes with it, a pipeline and its label.
+   */
+  fills?: { order: number; path: string; from?: string }[];
+  /** Stays unanswerable until that requirement has a value (stage needs its pipeline). */
+  dependsOn?: string;
+};
+
+export type TAutomationBuiltInTemplate = {
+  /** Stable across deploys; how an installed copy still names its origin. */
+  id: string;
+  name: string;
+  description?: string;
+  flow: TAutomationBuiltInTemplateStep[];
+  requirements?: TAutomationBuiltInTemplateRequirement[];
+  /**
+   * Fields the template deliberately leaves empty because only the
+   * organization can write them — its own name in a signature, the wording of
+   * an offer. Unlike a requirement these never block installing; they are
+   * listed so the flow is not installed and then quietly left unfinished.
+   */
+  mustConfigure?: { order: number; label: string }[];
 };
 
 export type TAutomationFindObjectResult = {

@@ -3,6 +3,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { VoucherAddRestrictionCoreField } from './voucher-restriction-field/VoucherAddRestrictionCoreField';
 import { VoucherAddRestrictionMoreFields } from './voucher-restriction-field/VoucherAddRestrictionMoreFields';
+import { VoucherOwnerLimitField } from './voucher-restriction-field/VoucherOwnerLimitField';
 
 export function AddVoucherRestrictionForm({
   form,
@@ -14,6 +15,7 @@ export function AddVoucherRestrictionForm({
       <div className="p-5 flex flex-col gap-4">
         <VoucherAddRestrictionCoreField form={form} />
         <VoucherAddRestrictionMoreFields form={form} />
+        <VoucherOwnerLimitField form={form} />
       </div>
     </ScrollArea>
   );

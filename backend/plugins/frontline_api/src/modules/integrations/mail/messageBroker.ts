@@ -104,6 +104,9 @@ export const mailRemoveIntegrations = async ({
   await models.MailMessages.deleteMany({
     inboxIntegrationId: integrationId,
   });
+  await models.MailDrafts.deleteMany({
+    inboxIntegrationId: integrationId,
+  });
   await models.MailCustomers.deleteMany({
     inboxIntegrationId: integrationId,
   });

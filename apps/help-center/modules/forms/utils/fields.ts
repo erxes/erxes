@@ -1,5 +1,11 @@
+import type { Translate } from '@/modules/i18n/translate';
 import { z } from 'zod';
-import type { FormAttachment, FormField, FormSubmission } from '../types';
+import type {
+  FormAttachment,
+  FormField,
+  FormSubmission,
+  PortalForm,
+} from '../types';
 
 export type FieldKind =
   | 'text'
@@ -55,11 +61,17 @@ const MULTI: FieldKind[] = ['check', 'multiSelect'];
 export const fieldOptions = (field: FormField): string[] =>
   (field.options ?? []).filter(Boolean);
 
-export const fieldLabel = (field: FormField): string =>
-  field.text?.trim() || 'Question';
+export const fieldLabel = (field: FormField, t: Translate): string =>
+  field.text?.trim() || t('forms.question');
 
-export const fieldHint = (field: FormField): string =>
-  (field.description?.trim() || field.content?.trim()) ?? '';
+export const fieldDescription = (field: FormField): string =>
+  field.description?.trim() ?? '';
+
+export const fieldPlaceholder = (field: FormField): string =>
+  field.content?.trim() ?? '';
+
+export const fieldSpanClass = (field: FormField): string =>
+  isAnswerable(field) && field.column !== 2 ? '' : 'sm:col-span-2';
 
 export type FormValue = string | string[] | FormAttachment[];
 export type FormValues = Record<string, FormValue>;
@@ -82,7 +94,11 @@ const asList = (entry: FormValue): unknown[] =>
 const PHONE = /^\d{8,}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const issueFor = (field: FormField, entry: FormValue): string | null => {
+const issueFor = (
+  field: FormField,
+  entry: FormValue,
+  t: Translate,
+): string | null => {
   const kind = fieldKind(field);
   const empty =
     MULTI.includes(kind) || kind === 'file'
@@ -91,8 +107,8 @@ const issueFor = (field: FormField, entry: FormValue): string | null => {
 
   if (field.isRequired && empty) {
     return MULTI.includes(kind) || kind === 'file'
-      ? 'Please choose at least one option.'
-      : 'Please fill in this field.';
+      ? t('forms.chooseOne')
+      : t('forms.fillField');
   }
 
   if (empty) {
@@ -102,24 +118,24 @@ const issueFor = (field: FormField, entry: FormValue): string | null => {
   const text = asText(entry);
 
   if (kind === 'email' && !EMAIL.test(text)) {
-    return 'Please enter a valid email address.';
+    return t('validation.emailRequired');
   }
 
   if (kind === 'phone' && !PHONE.test(text.replace(/[\s()+-.]|ext/gi, ''))) {
-    return 'The phone number must have at least 8 digits.';
+    return t('forms.phoneDigits');
   }
 
   if (kind === 'number' && Number.isNaN(Number(text))) {
-    return 'Please enter digits only.';
+    return t('forms.digitsOnly');
   }
 
   return null;
 };
 
-export const formSchema = (fields: FormField[]) =>
+export const formSchema = (fields: FormField[], t: Translate) =>
   z.record(z.string(), value).superRefine((values, ctx) => {
     for (const field of fields.filter(isAnswerable)) {
-      const issue = issueFor(field, values[field._id] ?? '');
+      const issue = issueFor(field, values[field._id] ?? '', t);
 
       if (issue) {
         ctx.addIssue({
@@ -165,3 +181,48 @@ export const toSubmissions = (
 
 export const orderedFields = (fields: FormField[]): FormField[] =>
   [...fields].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+export type FormStep = {
+  key: string;
+  name: string;
+  description: string;
+  fields: FormField[];
+};
+
+export const formSteps = (form: PortalForm): FormStep[] => {
+  const fields = orderedFields(form.fields ?? []);
+  const steps = Object.entries(form.leadData?.steps ?? {})
+    .map(([key, step]) => ({
+      key,
+      name: step.name?.trim() ?? '',
+      description: step.description?.trim() ?? '',
+      order: step.order ?? 1,
+    }))
+    .sort((a, b) => a.order - b.order);
+
+  if (!steps.length) {
+    return [{ key: 'initial', name: '', description: '', fields }];
+  }
+
+  const orders = new Set(steps.map((step) => step.order));
+  const firstOrder = steps[0].order;
+
+  return steps
+    .map(({ order, ...step }) => ({
+      ...step,
+      fields: fields.filter((field) => {
+        const page = field.pageNumber ?? firstOrder;
+
+        return orders.has(page) ? page === order : order === firstOrder;
+      }),
+    }))
+    .filter((step, index) => index === 0 || step.fields.length > 0);
+};
+
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+export const formPrimaryColor = (form: PortalForm): string => {
+  const color = form.leadData?.primaryColor?.trim() ?? '';
+
+  return HEX_COLOR.test(color) ? color : '';
+};

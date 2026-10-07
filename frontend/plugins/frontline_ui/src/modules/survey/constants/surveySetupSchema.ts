@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  MAX_SURVEY_ATTACHMENTS,
   MAX_SURVEY_OPTIONS,
   MAX_SURVEY_STEPS,
 } from '@/survey/types/surveyTypes';
@@ -51,12 +52,25 @@ const SURVEY_STEP_OPTION_SCHEMA = z
     }
   });
 
+const SURVEY_STEP_ATTACHMENT_SCHEMA = z.object({
+  url: z.string().trim().min(1),
+  name: z.string(),
+  type: z.string(),
+  size: z.number(),
+});
+
 const SURVEY_STEP_SCHEMA = z.object({
   _id: z.string().optional(),
   key: z.string(),
   name: z.string().trim().max(100),
   description: z.string().max(300),
   question: z.string().trim().min(1, 'Question is required').max(300),
+  attachments: z
+    .array(SURVEY_STEP_ATTACHMENT_SCHEMA)
+    .max(
+      MAX_SURVEY_ATTACHMENTS,
+      `A question carries at most ${MAX_SURVEY_ATTACHMENTS} attachments`,
+    ),
   allowMultiselect: z.boolean(),
   options: z
     .array(SURVEY_STEP_OPTION_SCHEMA)
@@ -93,3 +107,6 @@ export type TSurveyGeneral = z.infer<typeof SURVEY_GENERAL_SCHEMA>;
 export type TSurveyContent = z.infer<typeof SURVEY_CONTENT_SCHEMA>;
 export type TSurveyContentStep = z.infer<typeof SURVEY_STEP_SCHEMA>;
 export type TSurveyConfirmation = z.infer<typeof SURVEY_CONFIRMATION_SCHEMA>;
+export type TSurveyStepAttachment = z.infer<
+  typeof SURVEY_STEP_ATTACHMENT_SCHEMA
+>;

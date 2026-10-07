@@ -33,6 +33,23 @@ export const findArticle = (
 ): PortalArticle | null =>
   allArticles(topic).find((article) => article._id === articleId) ?? null;
 
+export type ArticleEntry = {
+  article: PortalArticle;
+  category: PortalCategory;
+};
+
+export const articleEntries = (topic: PortalTopic): ArticleEntry[] =>
+  allCategories(topic).flatMap((category) =>
+    category.articles.map((article) => ({ article, category })),
+  );
+
+export const sortByReadership = (entries: ArticleEntry[]): ArticleEntry[] =>
+  [...entries].sort(
+    (a, b) =>
+      b.article.viewCount - a.article.viewCount ||
+      (b.article.modifiedAt ?? '').localeCompare(a.article.modifiedAt ?? ''),
+  );
+
 export const sortByRecency = (articles: PortalArticle[]): PortalArticle[] =>
   [...articles].sort((a, b) =>
     (b.modifiedAt ?? '').localeCompare(a.modifiedAt ?? ''),
@@ -56,6 +73,22 @@ export const searchArticles = (
   );
 };
 
+export type BrowseEntry = {
+  category: PortalCategory;
+  group: string | null;
+};
+
+export const browseCategories = (topic: PortalTopic): BrowseEntry[] =>
+  topic.sections.flatMap((section): BrowseEntry[] => {
+    if (section.children.length) {
+      return section.children
+        .filter((category) => category.articleCount)
+        .map((category) => ({ category, group: section.title }));
+    }
+
+    return section.articleCount ? [{ category: section, group: null }] : [];
+  });
+
 export const sectionCards = (section: PortalSection): PortalCategory[] =>
   section.children.length
     ? section.children
@@ -68,18 +101,4 @@ export const sectionArticleCount = (section: PortalSection): number =>
     ? section.children.reduce((sum, child) => sum + child.articleCount, 0)
     : section.articleCount;
 
-export const formatDate = (value: string | null): string => {
-  if (!value) {
-    return '—';
-  }
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime())
-    ? '—'
-    : date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
-};
+export { formatDate } from '@/modules/i18n/format';

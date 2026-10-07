@@ -1,5 +1,5 @@
 import { BSON, Db, Filter, MongoClient, WithId } from 'mongodb';
-import { extractDatabaseName } from '../wordpress/resolveTarget';
+import { extractDatabaseName } from './utils';
 import { buildPlan } from './buildPlan';
 import {
   fingerprint,

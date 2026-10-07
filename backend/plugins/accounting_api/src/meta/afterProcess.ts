@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { dealToTrs } from './afterProcessHandlers/dealToTrs';
+import { dealToMovementTrs } from './afterProcessHandlers/dealToMovementTrs';
 import { dealToReturnTrs } from './afterProcessHandlers/dealToReturnTrs';
 import { orderToTrs } from './afterProcessHandlers/orderToTrs';
 import { orderToReturnTrs } from './afterProcessHandlers/orderToReturnTrs';
@@ -165,6 +166,10 @@ export const afterProcess: AfterProcessConfigs = {
             'syncDealReturn',
             currentStageId,
           );
+          const configMovement = await models.Configs.getConfigValue(
+            'syncDealMovement',
+            currentStageId,
+          );
 
           if (prevStageId === currentStageId) {
             return;
@@ -216,6 +221,32 @@ export const afterProcess: AfterProcessConfigs = {
                 subdomain,
                 dealId: currentDocument._id,
                 responseFieldId: configReturn.responseFieldId,
+                message: getErrorMessage(e),
+                userId,
+              });
+            }
+          }
+          if (configMovement?.stageId === currentStageId) {
+            try {
+              await dealToMovementTrs({
+                subdomain,
+                models,
+                userId,
+                deal: currentDocument,
+                config: configMovement,
+              });
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configMovement.responseFieldId,
+                message: 'success',
+                userId,
+              });
+            } catch (e) {
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configMovement.responseFieldId,
                 message: getErrorMessage(e),
                 userId,
               });
@@ -291,6 +322,10 @@ export const afterProcess: AfterProcessConfigs = {
             'syncDeal',
             currentStageId,
           );
+          const configMovement = await models.Configs.getConfigValue(
+            'syncDealMovement',
+            currentStageId,
+          );
 
           if (configSale?.stageId === currentStageId) {
             try {
@@ -313,6 +348,32 @@ export const afterProcess: AfterProcessConfigs = {
                 subdomain,
                 dealId: currentDocument._id,
                 responseFieldId: configSale.responseFieldId,
+                message: getErrorMessage(e),
+                userId,
+              });
+            }
+          }
+          if (configMovement?.stageId === currentStageId) {
+            try {
+              await dealToMovementTrs({
+                subdomain,
+                models,
+                userId,
+                deal: currentDocument,
+                config: configMovement,
+              });
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configMovement.responseFieldId,
+                message: 'success',
+                userId,
+              });
+            } catch (e) {
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configMovement.responseFieldId,
                 message: getErrorMessage(e),
                 userId,
               });

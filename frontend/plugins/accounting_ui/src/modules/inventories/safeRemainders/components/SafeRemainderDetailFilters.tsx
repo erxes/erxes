@@ -123,7 +123,12 @@ const EnumFilterBar = ({
 
 const SafeRemainderDetailFilterPopover = () => {
   const { t } = useTranslation('accounting');
-  const [queryParams] = useMultiQueryState<Record<string, any>>([
+  const [queryParams] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    diffType?: string;
+    category?: string | string[];
+  }>([
     'searchValue',
     'status',
     'diffType',
@@ -229,7 +234,7 @@ export const SafeRemainderDetailFilter = ({
           options={STATUS_OPTIONS}
         />
         <SafeRemainderDetailFilterPopover />
-        {afterBar && <>{afterBar}</>}
+        {afterBar}
       </Filter.Bar>
     </Filter>
   );

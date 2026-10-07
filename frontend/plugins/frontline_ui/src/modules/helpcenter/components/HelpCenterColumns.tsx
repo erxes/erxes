@@ -10,24 +10,23 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
 import {
   Combobox,
-  Input,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { ReactNode, useMemo, useRef, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { helpCenterMoreColumn } from '@/helpcenter/components/HelpCenterMoreColumn';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
-import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
+import { SelectHelpCenterClientPortal } from '@/helpcenter/components/SelectHelpCenterClientPortal';
 import {
   THelpCenterPatch,
   useEditHelpCenter,
 } from '@/helpcenter/hooks/useEditHelpCenter';
 import { HelpCenterHotKeyScope, IHelpCenter } from '@/helpcenter/types';
+import { KbInlineTextCell } from '@/knowledgebase/shared/components/KbInlineTextCell';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -56,59 +55,17 @@ const InlineTextCell = ({
   children?: ReactNode;
 }) => {
   const helpCenter = cell.row.original;
-  const savedValue = (cell.getValue() as string) || '';
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(savedValue);
   const { editHelpCenter } = useEditHelpCenter();
 
-  const saved = useRef(false);
-
-  const handleSave = () => {
-    if (saved.current) return;
-
-    const next = value.trim();
-
-    if (next === savedValue) return;
-
-    saved.current = true;
-    editHelpCenter(helpCenter, { [field]: next });
-  };
-
   return (
-    <PopoverScoped
+    <KbInlineTextCell
+      value={(cell.getValue() as string) || ''}
+      placeholder={placeholder}
       scope={cellScope(helpCenter, field)}
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (nextOpen) {
-          setValue(savedValue);
-          saved.current = false;
-          setOpen(true);
-          return;
-        }
-        handleSave();
-        setOpen(false);
-      }}
+      onSave={(next) => editHelpCenter(helpCenter, { [field]: next })}
     >
-      <RecordTableInlineCell.Trigger>
-        {children ?? <TextOverflowTooltip value={savedValue || placeholder} />}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="min-w-72">
-        <Input
-          value={value}
-          placeholder={placeholder}
-          onChange={(event) => setValue(event.target.value)}
-          autoFocus
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter') return;
-
-            event.preventDefault();
-
-            handleSave();
-            setOpen(false);
-          }}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+      {children}
+    </KbInlineTextCell>
   );
 };
 
@@ -117,12 +74,17 @@ const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const { editHelpCenter } = useEditHelpCenter();
 
   return (
-    <SelectHelpCenterWebsite
+    <SelectHelpCenterClientPortal
       variant="table"
-      value={helpCenter.url ?? ''}
+      value={helpCenter.clientPortalId ?? ''}
+      domain={helpCenter.url ?? ''}
       scope={cellScope(helpCenter, 'url')}
-      onValueChange={(domain, erxesAppToken) =>
-        editHelpCenter(helpCenter, { url: domain, erxesAppToken })
+      onValueChange={(portal) =>
+        editHelpCenter(helpCenter, {
+          clientPortalId: portal._id,
+          url: portal.domain,
+          erxesAppToken: portal.erxesAppToken,
+        })
       }
     />
   );
@@ -247,7 +209,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     size: 340,
     header: () => (
       <RecordTable.InlineHead
-        label={t('website', 'Website')}
+        label={t('sidebar.client-portal', 'Client portal')}
         icon={IconWorld}
       />
     ),

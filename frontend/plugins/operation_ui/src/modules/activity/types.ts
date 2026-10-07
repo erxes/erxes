@@ -1,13 +1,7 @@
-export interface IActivity {
-  _id: string;
-  module: string;
-  action: string;
-  contentId: string;
-  metadata: {
-    newValue: string;
-    previousValue?: string;
-  };
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { GetOperationActivitiesQuery } from '~/gql/graphql';
+
+export type IActivity = NonNullable<
+  NonNullable<
+    NonNullable<GetOperationActivitiesQuery['getOperationActivities']>['list']
+  >[number]
+>;

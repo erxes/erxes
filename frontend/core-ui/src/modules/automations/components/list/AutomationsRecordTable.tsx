@@ -5,6 +5,8 @@ import { AutomationsRecordTableContent } from '@/automations/components/list/Aut
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
+import { AutomationsCardList } from '@/automations/components/list/AutomationsCardList';
+import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import {
   Breadcrumb,
@@ -40,6 +42,7 @@ export const AutomationsRecordTable = () => {
   } = useAutomationsRecordTable();
 
   const { t } = useTranslation('automations');
+  const { layout } = useAutomationsListLayout();
   const columns = useMemo(() => getAutomationColumns(t), [t]);
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('automations'));
   const navigate = useNavigate();
@@ -104,12 +107,19 @@ export const AutomationsRecordTable = () => {
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
       {error ? (
         <AutomationErrorEmptyState
-          title="Couldn't load automations"
+          title={t('automations-load-error')}
           error={error}
           onRetry={() => refetch()}
         />
       ) : list.length === 0 ? (
         <AutomationsRecordTableEmptyState />
+      ) : layout === 'grid' ? (
+        <AutomationsCardList
+          list={list}
+          loading={loading}
+          hasNextPage={hasNextPage}
+          handleFetchMore={handleFetchMore}
+        />
       ) : (
         <AutomationsRecordTableContent
           columns={columns}

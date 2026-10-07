@@ -11,6 +11,7 @@ export enum TrJournalEnum {
 
   INV_INCOME = 'invIncome',
   INV_OUT = 'invOut',
+  INV_JUSTIFY = 'invJustify',
 
   INV_MOVE = 'invMove',
   INV_MOVE_IN = 'invMoveIn',
@@ -46,6 +47,7 @@ export const TR_JOURNAL_LABELS = {
 
   [TrJournalEnum.INV_INCOME]: 'Барааны орлого',
   [TrJournalEnum.INV_OUT]: 'Барааны зарлага',
+  [TrJournalEnum.INV_JUSTIFY]: 'Барааны өртөг залруулга',
 
   [TrJournalEnum.INV_MOVE]: 'Дотоод хөдөлгөөн',
   [TrJournalEnum.INV_MOVE_IN]: 'Дот.Хөд орлого',
@@ -84,6 +86,7 @@ export const ORIGIN_TR_JOURNALS = [
   TrJournalEnum.PAYABLE,
   TrJournalEnum.INV_INCOME,
   TrJournalEnum.INV_OUT,
+  TrJournalEnum.INV_JUSTIFY,
   TrJournalEnum.INV_MOVE,
   TrJournalEnum.INV_SALE,
   TrJournalEnum.INV_SALE_RETURN,
@@ -105,6 +108,10 @@ export const TR_SIDES = {
   FUND_OPTIONS: [
     { value: 'dt', label: 'Орлого' },
     { value: 'ct', label: 'Зарлага' },
+  ],
+  JUSTIFY_OPTIONS: [
+    { value: 'dt', label: 'Өртөг өсөх' },
+    { value: 'ct', label: 'Өртөг буурах' },
   ],
   RECEIVABLE_OPTIONS: [
     { value: 'dt', label: 'Үүсгэх' },
@@ -178,16 +185,6 @@ export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
 
 export const TR_STATUS_GROUPS = [
   {
-    label: 'DRAFTED',
-    values: [
-      TR_STATUSES.DRAFT,
-      TR_STATUSES.MENTIONED,
-      TR_STATUSES.APPROVED,
-      TR_STATUSES.REJECED,
-      TR_STATUSES.RETURNED,
-    ],
-  },
-  {
     label: 'PUBLISHED',
     values: [
       TR_STATUSES.PROGRESS,
@@ -195,6 +192,16 @@ export const TR_STATUS_GROUPS = [
       TR_STATUSES.CONFIRMED,
       TR_STATUSES.CANELLED,
       TR_STATUSES.COMPLETE,
+    ],
+  },
+  {
+    label: 'DRAFTED',
+    values: [
+      TR_STATUSES.DRAFT,
+      TR_STATUSES.MENTIONED,
+      TR_STATUSES.APPROVED,
+      TR_STATUSES.REJECED,
+      TR_STATUSES.RETURNED,
     ],
   },
   {

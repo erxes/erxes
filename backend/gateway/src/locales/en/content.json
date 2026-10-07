@@ -471,5 +471,17 @@
   "seo-description-placeholder": "Description shown in search results",
   "seo-description-desc": "Shown under the title in search results. Up to 160 characters.",
   "duplicate": "Duplicate",
-  "post-duplicated-successfully": "Post duplicated as a draft"
+  "post-duplicated-successfully": "Post duplicated as a draft",
+  "custom-domain": "Custom domain",
+  "web-domain-description": "Show this website on your own domain, such as www.example.com.",
+  "web-domain-not-deployed": "Deploy the website first, then connect your domain here.",
+  "web-domain-default": "Always available at",
+  "web-domain-dns-hint": "Add the records above at your DNS provider. Checks can take a few minutes; press Refresh to check again. On Cloudflare, set records to \"DNS only\" (grey cloud).",
+  "web-domain-remove-confirm": "Disconnect {{name}}? It will stop showing this website.",
+  "web-domain-load-error": "Could not load the domains",
+  "pending": "Pending",
+  "value": "Value",
+  "refresh": "Refresh",
+  "retry": "Try again",
+  "add": "Add"
 }

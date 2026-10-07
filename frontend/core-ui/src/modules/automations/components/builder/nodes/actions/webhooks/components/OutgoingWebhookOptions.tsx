@@ -27,6 +27,24 @@ export const OutgoingWebhookOptions = () => {
       />
       <Form.Field
         control={control}
+        name="options.continueOnHttpError"
+        render={({ field }) => (
+          <Form.Item className="flex flex-row justify-between">
+            <div>
+              <Form.Label>Treat 4xx and 5xx as a real answer</Form.Label>
+              <Form.Description>
+                By default an error response fails this step. Turn this on when
+                the status itself is the answer you want to read — what happens
+                after a failure is set under Error handling.
+              </Form.Description>
+            </div>
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={control}
         name="options.timeout"
         render={({ field }) => (
           <Form.Item>

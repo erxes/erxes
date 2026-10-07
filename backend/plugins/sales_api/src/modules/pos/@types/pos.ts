@@ -36,6 +36,7 @@ export interface IPos {
   cardsConfig?: any;
   permissionConfig?: any;
   allowTypes: string[];
+  isShowRemainder?: boolean;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;

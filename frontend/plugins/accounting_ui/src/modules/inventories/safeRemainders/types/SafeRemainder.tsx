@@ -32,11 +32,33 @@ export type ISafeRemainder = {
   outTrId?: string;
   saleRule?: Record<string, unknown>;
   saleTrId?: string;
+  costIncreaseRule?: Record<string, unknown>;
+  costDecreaseRule?: Record<string, unknown>;
+  costIncreaseTrId?: string;
+  costDecreaseTrId?: string;
+};
+
+export type TSafeRemainderItemTrInfo = {
+  activeCost?: number;
+  unitCost?: number;
+  isCostExplicit?: boolean;
+  lastIncomePrice?: number;
+  isSale?: boolean;
+  unitPrice?: number;
+};
+
+export type TSafeRemainderImportItem = {
+  productCode: string;
+  count: number;
+  trInfo?: Omit<TSafeRemainderItemTrInfo, 'activeCost'>;
 };
 
 export type ISafeRemainderItem = {
   _id: string;
+  createdAt: Date;
+  createdBy: string;
   modifiedAt: Date;
+  modifiedBy: string;
   status: string;
   remainderId: string;
   productId: string;
@@ -48,11 +70,7 @@ export type ISafeRemainderItem = {
 
   product: IProduct;
 
-  trInfo?: {
-    unitCost?: number;
-    isSale?: boolean;
-    unitPrice?: number;
-  };
+  trInfo?: TSafeRemainderItemTrInfo;
 };
 
 export const SAFE_REMAINDER_STATUSES = {

@@ -10,6 +10,8 @@ import { z } from 'zod';
 import { PasswordInput, TextInput } from '@/modules/ui/components/FormInput';
 import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import type { Translate } from '@/modules/i18n/translate';
 import { authErrorMessage } from '../utils/errors';
 import { AUTH_PORTAL_LOGIN } from '../graphql/mutations/auth';
 import { AUTH_PORTAL_CURRENT_USER } from '../graphql/queries/auth';
@@ -22,21 +24,23 @@ import {
   type LoginResponse,
 } from '../types';
 
-const signInSchema = z.object({
-  email: z.string().email('That email address is not valid.'),
-  password: z.string().min(1, 'Please enter your password.'),
-});
+const signInSchema = (t: Translate) =>
+  z.object({
+    email: z.string().email(t('validation.email')),
+    password: z.string().min(1, t('validation.password')),
+  });
 
-type SignInValues = z.infer<typeof signInSchema>;
+type SignInValues = z.infer<ReturnType<typeof signInSchema>>;
 
 export const SignInForm = ({ next }: { next?: string | null }) => {
   const router = useRouter();
+  const t = useT();
   const client = useApolloClient();
   const { signIn } = useSession();
   const [login, { loading }] = useMutation<LoginResponse>(AUTH_PORTAL_LOGIN);
 
   const form = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(signInSchema(t)),
     defaultValues: { email: '', password: '' },
   });
 
@@ -63,25 +67,25 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
       const current = session?.clientPortalCurrentUser;
 
       if (!current) {
-        throw new Error('No signed-in user was returned.');
+        throw new Error(t('auth.noUser'));
       }
 
       signIn(sessionFromCurrentUser(current, address), token);
 
       toast({
         variant: 'success',
-        title: 'Signed in',
-        description: `Welcome back, ${displayName(current)}.`,
+        title: t('auth.signedIn'),
+        description: t('auth.welcomeBackName', { name: displayName(current) }),
       });
 
       router.replace(next ?? '/');
     } catch (caught) {
-      const message = authErrorMessage(caught);
+      const message = authErrorMessage(caught, t);
 
       form.setError('root', { message });
       toast({
         variant: 'destructive',
-        title: 'Could not sign in',
+        title: t('auth.signInFailed'),
         description: message,
       });
     }
@@ -92,7 +96,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="space-y-4"
+        className="space-y-5"
       >
         <Form.Field
           control={form.control}
@@ -103,7 +107,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Email
+                {t('field.email')}
               </Form.Label>
               <Form.Control>
                 <TextInput
@@ -127,7 +131,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Password
+                {t('field.password')}
               </Form.Label>
               <Form.Control>
                 <PasswordInput
@@ -151,9 +155,13 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
           </p>
         ) : null}
 
-        <Button type="submit" disabled={loading} className="mt-2 w-full">
-          <Icon name="lock" size={15} />
-          {loading ? 'Signing in…' : 'Sign in'}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={loading}
+          className="mt-2 w-full"
+        >
+          {loading ? t('auth.signingIn') : t('auth.signIn')}
         </Button>
       </form>
     </Form>

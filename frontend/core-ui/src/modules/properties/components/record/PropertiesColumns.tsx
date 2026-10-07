@@ -5,13 +5,11 @@ import {
   IconComponent,
   RecordTable,
   RecordTableInlineCell,
-  Spinner,
   Switch,
-  useConfirm,
 } from 'erxes-ui';
 import { CORE_RELATION_TYPES, Can, IField } from 'ui-modules';
 import type { Cell, ColumnDef } from '@tanstack/react-table';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconTrash, IconEdit } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 
 import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
@@ -20,7 +18,7 @@ import React from 'react';
 import type { TFunction } from 'i18next';
 import { selectedFieldIdsState } from '../../states/selectedFieldsState';
 import { useEditProperty } from '../../hooks/useEditProperty';
-import { useFieldRemove } from '../../hooks/useFieldRemove';
+import { archiveTargetState } from '../../states/archiveTargetState';
 import { useTranslation } from 'react-i18next';
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
@@ -99,25 +97,17 @@ const PropertiesMoreColumnCell = ({
   contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { _id, groupId } = cell.row.original;
-  const { confirm } = useConfirm();
-  const { removeField, loading } = useFieldRemove();
+  const { _id, groupId, owner, name } = cell.row.original;
+  const setArchiveTarget = useSetAtom(archiveTargetState);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
 
-  const handleDelete = () => {
-    confirm({
-      message: t(
-        'confirm-delete-field',
-        'Are you sure you want to delete this field?',
-      ),
-    }).then(() => {
-      removeField({ variables: { id: _id } });
-      setSelectedFieldIds((prev) => {
-        if (!prev[_id]) return prev;
-        const next = { ...prev };
-        delete next[_id];
-        return next;
-      });
+  const handleRemove = () => {
+    setArchiveTarget({ kind: 'fields', ids: [_id], label: `"${name}"` });
+    setSelectedFieldIds((prev) => {
+      if (!prev[_id]) return prev;
+      const next = { ...prev };
+      delete next[_id];
+      return next;
     });
   };
 
@@ -140,16 +130,15 @@ const PropertiesMoreColumnCell = ({
               </Link>
             </DropdownMenu.Item>
           </Can>
-          <Can action="fieldsManage">
-            <DropdownMenu.Item
-              className="text-destructive"
-              disabled={loading}
-              onClick={handleDelete}
-            >
-              {loading ? <Spinner size="sm" /> : <IconTrash />}
-              {t('delete', 'Delete')}
-            </DropdownMenu.Item>
-          </Can>
+          {/* The owning plugin releases a featured field; people cannot. */}
+          {!owner && (
+            <Can action="fieldsManage">
+              <DropdownMenu.Item onClick={handleRemove}>
+                <IconTrash />
+                {t('remove', 'Remove')}
+              </DropdownMenu.Item>
+            </Can>
+          )}
         </DropdownMenu.Content>
       </DropdownMenu>
     </div>
@@ -165,9 +154,13 @@ const PropertyToggleCell = ({
   toggleKey: 'isVisible' | 'isVisibleToCreate' | 'isRequired';
   label: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { editProperty } = useEditProperty();
-  const { _id } = cell.row.original;
+  const { _id, owner } = cell.row.original;
   const checked = Boolean(cell.getValue());
+  // The owning plugin fills a featured field, so people only choose whether
+  // it shows; creating with it or requiring it has nothing to ask for.
+  const locked = !!owner && toggleKey !== 'isVisible';
 
   return (
     <RecordTableInlineCell>
@@ -178,6 +171,15 @@ const PropertyToggleCell = ({
         <Switch
           size="sm"
           aria-label={label}
+          title={
+            locked
+              ? t(
+                  'featured-field-toggle-locked',
+                  'Filled by its plugin, so it is never asked for',
+                )
+              : undefined
+          }
+          disabled={locked}
           checked={checked}
           onCheckedChange={(value) =>
             editProperty({ variables: { id: _id, [toggleKey]: value } })
@@ -226,7 +228,7 @@ export const propertiesColumns = (
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
-      const { name, icon } = cell.row.original;
+      const { name, icon, owner } = cell.row.original;
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 overflow-hidden">
@@ -235,6 +237,22 @@ export const propertiesColumns = (
               name={icon}
             />
             <span className="truncate">{name}</span>
+            {owner && (
+              <Badge
+                variant={owner.status === 'active' ? 'secondary' : 'warning'}
+                className="shrink-0"
+                title={t(
+                  'featured-field-hint',
+                  'Created and filled by the {{plugin}} plugin; its type, options and values cannot be changed here.',
+                  { plugin: owner.plugin },
+                )}
+              >
+                {owner.plugin}
+                {owner.status && owner.status !== 'active'
+                  ? ` · ${owner.status}`
+                  : ''}
+              </Badge>
+            )}
           </div>
         </RecordTableInlineCell>
       );

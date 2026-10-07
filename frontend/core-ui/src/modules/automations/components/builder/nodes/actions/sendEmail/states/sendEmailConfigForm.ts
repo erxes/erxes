@@ -6,8 +6,12 @@ export const sendEmailConfigFormSchema = z.object({
   replyToEmail: z.string().optional(),
   toEmailsPlaceHolders: z.string(),
   ccEmailsPlaceHolders: z.string(),
-  subject: z.string(),
+  subject: z.string().min(1, 'Subject is required'),
   content: z.string(),
+  // What the body was written in. Absent on every action saved before the
+  // email editor, and that absence means block content.
+  contentJson: z.any().optional(),
+  contentFormat: z.enum(['blocks', 'maily']).optional(),
   html: z.string(),
   type: z.enum(['default', 'verified', 'custom']),
 });

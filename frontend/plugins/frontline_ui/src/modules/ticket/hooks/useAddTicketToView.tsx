@@ -16,8 +16,8 @@ export const useAddTicketToView = () => {
         return prev;
       }
       return [
-        ...prev,
         { id: ticket._id, column: ticket.statusId, sort: ticket.updatedAt },
+        ...prev,
       ];
     });
     setTicketCountByBoard((prev) => ({

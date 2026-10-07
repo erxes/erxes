@@ -111,6 +111,7 @@ export const types = `
     leaderBoardPosition: Int
     employeeId: String
     isOnboarded: Boolean
+    hasPassword: Boolean
     cursor: String
   }
 

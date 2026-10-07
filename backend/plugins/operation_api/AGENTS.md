@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -33,13 +33,31 @@
 
 ## Current Capabilities
 
+- A task or project an automation creates records `createdVia` — what produced
+  it, which run, and for whom — and is created as that actor. `getAutomationUserId`
+  reads the actor from there when neither the action config nor the target names
+  one.
+- Two task workflow templates ship with the plugin through
+  `automations.constants.workflowTemplates`: `operation.follow-up-task` (wait
+  three days, then open a task) and `operation.hand-off-now` (open one
+  straight away). They are code, never tenant documents, so they exist on a
+  fresh deployment; a copy is materialized only when someone installs one.
+  Neither restricts the target, so both are offered on a broadcast campaign as
+  well — giving the team a task per customer rather than messaging that
+  customer. Both declare `operation:task.team` and `operation:task.status`
+  requirements, the status scoped by the team.
+
+- Task segment `tagIds` lists `operation:task` tags plus workspace tags
+  (`query.variables`).
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
   team member (`user.assignedTasks`, `user.createdTasks`).
 - Task import/export through the platform's import-export producers.
 - GraphQL subscriptions for live task and project updates.
+- `pnpm schema:print` writes the full subgraph schema, including the subscription fields from `src/apollo/subscription.ts`, to `generated/schema.graphql` without Redis, Mongo or a running service.
 - Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
 - GitHub issue synchronisation for tasks.
+- Triage conversion preserves the triage creator on the task while recording a `TRIAGE_ACCEPTANCE` activity with action `ACCEPTED` by the acting user; other task creation paths continue to use their acting `userId` as creator. Conversion to a cancelled task does not record acceptance and can save a decline reason as a note.
 - Another service can create a task on a user's behalf from a status id
   (`task.createFromSource`) and check which of a list of ids are tasks
   (`task.findOne`); `frontline` uses both to convert a conversation into a task.
@@ -54,6 +72,7 @@
 | Task segment contract | `src/modules/task/meta/segments/`              | Fields, collections, members, membership, evaluation, relations       |
 | Plugin segment meta   | `src/meta/segments.ts`                         | Routes segment producers to the module that owns the content type     |
 | Import/export         | `src/meta/import-export/`                      | Task import and export handlers                                       |
+| Schema print          | `print-schema.ts`                              | Prints the subgraph schema for codegen (`generated/`, gitignored)     |
 | GitHub integration    | `src/modules/githubIntegration/`, `src/utils/` | Issue sync, repository configuration                                  |
 
 ## Contracts
@@ -67,11 +86,14 @@
   once per process, so a changed list shows after core-api restarts.
 - GraphQL queries, mutations and subscriptions for tasks, teams, statuses,
   cycles, milestones, projects, notes and templates.
-- Segment content type `operation:task.tasks`, with `segmentFields`,
+- Segment content type `operation:task.tasks`, with `segmentFields`, a
+  `propertiesData` `segmentFieldNamespaces` entry (`propertyType`
+  `operation:task`),
   `evaluateFields`, `listSegmentMembers`, `countSegmentMembers` and
   `applyMembership`.
 - Segment relations `user.assignedTasks` and `user.createdTasks`.
 - Import/export producers for the `task` module.
+- Nx target `schema:print` (cached, output `generated/schema.graphql`), consumed by `operation_ui:codegen`.
 - tRPC procedures under `src/trpc/` and `src/modules/task/trpc/task.ts`:
   `task.tag`; `task.findOne({ _ids })` returns the first task among the ids
   (`{ _id, name, teamId }`) or `null`, skipping ids that are not ObjectIds;
@@ -104,6 +126,9 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- `Task` exposes `_id`, `name`, `status`, `teamId`, `createdAt` and `updatedAt` as non-null, and `Triage` exposes `_id`, `name`, `teamId`, `createdAt` and `updatedAt` as non-null. `Project` exposes `_id`, `name`, `teamIds` (non-null items), `createdAt` and `updatedAt` as non-null, and `Milestone` exposes `_id`, `name` and `projectId` as non-null. They are `required` or timestamped in the Mongoose schemas since 3.0. `createProject` and `updateProject` enforce the same contract on writes because the update path uses `findOneAndUpdate` without validators: an explicit null or blank `name` throws, and `teamIds` throws if it is null or contains a null/blank item (an empty array is allowed). Fields with only a default (`priority`, `number`, `estimatePoint`, `icon`, `status`) stay nullable because list queries use `.lean()`, which does not apply defaults to older documents.
+- `removeTask` returns and publishes the task as it was before deletion, with `type: 'delete'`.
+- `print-schema.ts` must exit the process itself: `erxes-api-shared/utils` opens a Redis client on import that would otherwise keep it alive.
 - A task's `_id` stays an `ObjectId`. `schemaWrapper` must never be applied to
   `taskSchema`: it would make `_id` a generated string and orphan every
   existing task and reference. `segmentIds` is therefore declared by hand.
@@ -120,6 +145,8 @@ propertiesData? } })`
   collection.
 - Preserve tenant isolation by using the request `subdomain` for every model,
   resolver, worker and route access.
+- Decide whether triage conversion is a decline from the mutation's requested `status`, not the triage's stored status; only non-cancelled conversions create acceptance activity.
+- Only `createTask` calls carrying `triageId` may preserve `doc.createdBy`; automation, import, GraphQL, and tRPC task creation continue to assign `userId`.
 - Validate `propertiesData` whenever it is present on a GraphQL create or update; an empty object is a valid explicit clear and must not be treated as omitted.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
@@ -129,9 +156,65 @@ propertiesData? } })`
   the caller must enforce `taskCreate` for the acting user before calling it.
   It does not open a GitHub issue — that sync stays in the `createTask`
   resolver.
+- Mutation and query arguments the operation cannot run without are non-null
+  in the SDL (`_id`, `createCycle.input`, `updateCycle.input`,
+  `getTeamEstimateChoises.teamId`). Runtime guards that remain cover cases
+  GraphQL validation cannot: empty-string ids and `updateCycle.input._id`,
+  which stays nullable because `createCycle` sends the same `CycleInput`
+  without an `_id`.
+- An argument the operation cannot run without must fail with a clear error,
+  even when the SDL has to keep it nullable for a caller. `getTeamMembers`
+  and `getConvertedProject` throw on a missing id for this reason;
+  `getTeamMembers` requires `teamId` or `teamIds` and never runs an empty
+  `$match`.
+- Every query or mutation declared in the SDL must have a resolver, and every
+  resolver must be declared. Template operations carry no dedicated
+  permission, so they reuse the `task*` actions they configure.
+- `teamUpdate(memberIds)` syncs `TeamMember` rows to the given list and
+  additionally requires `teamMemberManage`; omitting it leaves membership
+  untouched. Member roles are deprecated end to end, so `teamUpdateMember`
+  is gone from the SDL and the resolvers.
+- `Cycle.endCycle(_id, subdomain)` needs the tenant to resolve the timezone
+  for the progress chart; the worker and the mutation both pass it.
+- Progress queries (`getProjectProgress*`, `getCycleProgress*`) return
+  concrete SDL object types (`OperationProgress`, `OperationProgressByMember`,
+  `OperationProgressByTeam`, `OperationProgressByProject`,
+  `OperationProgressChart`), not `JSON`. `Cycle.statistics` is a concrete
+  `CycleStatistics` type over the same progress types, and the
+  `Cycle.statistics` resolver fills missing totals with 0 so old documents
+  stored with `progress: {}` still satisfy the `Int!` fields. The aggregations can legitimately
+  produce no rows, so the resolvers return zero-valued objects or empty
+  arrays instead of `{}` when the aggregate result is missing. Milestone
+  progress counters (`totalScope`, `totalStartedScope`,
+  `totalCompletedScope`) are non-null ints because the aggregation always
+  emits numbers.
+- `OperationTemplate` exposes `_id`, `name`, `teamId`, `createdAt` and
+  `updatedAt` as non-null (schema-required or timestamps), and
+  `operationTemplateDetail` takes `_id: String!`. `GithubConfig` fields are
+  all non-null (all required in the schema); `GithubConnection` is non-null
+  except `orgAvatarUrl`/`initiatedUserId`. `OperationActivity._id`, `action`,
+  `contentId`, `module` and timestamps are non-null; `metadata` and
+  `createdBy` stay nullable.
+- `Cycle._id` is non-null; its other fields stay nullable because nothing
+  in the Mongoose schema requires them.
+- `getStatusesChoicesByTeam` and `getTeamEstimateChoises` return concrete
+  `[StatusChoice]` and `[EstimateChoice]` types, not `JSON`. `Status` exposes
+  `color`, `order`, `type`, `createdAt` and `updatedAt` as non-null
+  (schema-required or timestamps). `Team._id`, `Team.createdAt`,
+  `Team.updatedAt` and `TeamMember._id` are non-null; other Team fields stay
+  nullable because the Mongoose schema does not require them and `.lean()`
+  does not apply defaults. `deleteStatus` still returns the `deleteOne`
+  result as `JSON`.
+- Any request-driven value (filter, params, variables, input, args,
+  searchValue) that reaches a `$regex` or `new RegExp()` goes through
+  `escapeRegExp` from `erxes-api-shared/utils` first. The plugin-local ESLint
+  `no-restricted-syntax` rules in `eslint.config.js` fail the lint otherwise.
 
 ## Validation
 
+- `pnpm nx run operation_api:schema:print` - writes `generated/schema.graphql`.
+- `pnpm nx lint operation_api` - runs ESLint with the plugin-local
+  `eslint.config.js` (regex-escaping rules).
 - `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
   no errors.
 - `pnpm nx build operation_api` - its type-declaration step can exhaust the
@@ -147,67 +230,37 @@ propertiesData? } })`
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-17` — Property types declare system fields
+### `2026-09-29` — Escaped user-controlled regexes
 
-- **Summary:** The `task` and `project` property types now declare `systemFields`, shown
-  as the "Basic information" group in Settings → Properties.
-- **Affected areas:** `src/meta/properties.ts` (`task`, `project`), `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
+- **Summary:** Every user-controlled string that reaches a Mongo `$regex` or
+  `new RegExp` is escaped with `escapeRegExp`; dead `if (!filter)` guards in
+  the subscription filter are gone.
+- **Affected areas:** subscription filters, task/triage/milestone queries,
+  task and project export handlers, task model.
+- **Contracts changed:** `None` — filter semantics are unchanged; a `name`
+  search for `a.b` now matches the literal text instead of `a` + any char.
 
-### `2026-09-17` — Tasks can be created from another service
+### `2026-09-29` — Resolver contracts and template permissions
 
-- **Summary:** Added the `task.createFromSource` and `task.findOne` tRPC
-  procedures so `frontline` can convert a conversation into a task and detect
-  an existing one; tasks can store `propertiesData`.
-- **Affected areas:** `src/modules/task/trpc/task.ts`,
-  `src/modules/task/db/definitions/task.ts`, `src/modules/task/@types/task.ts`
-- **Contracts changed:** New tRPC procedures `task.createFromSource` and
-  `task.findOne`; `operation_tasks` gains the optional `propertiesData` field.
+- **Summary:** `operationCancelTriage` now sets the triage status to cancelled,
+  dead `getMyTeams` and deprecated `teamUpdateMember` are gone, `teamUpdate`
+  syncs members when `memberIds` is sent, `createProject` persists `icon`,
+  `updateStatus` returns the updated document, `moveCycle` no longer rolls
+  over cancelled tasks, and every template operation checks a permission.
+- **Affected areas:** triage/team/project mutations and queries, cycle model
+  and worker, template resolvers, task filter handling.
+- **Contracts changed:** `ITaskFilter.estimate` and `teamUpdateMember`
+  removed (never read, no callers); `teamUpdate` honors `memberIds` with
+  `teamMemberManage`.
 
-### `2026-09-05` — `Export repeating task properties by row`
+### `2026-09-29` — Required ids and filters
 
-- **Summary:** Task and project import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, using the shared property import/export helpers.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/getTaskExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`, `src/meta/import-export/import/processTaskRows.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; `getExportHeaders`, `resolveExportHeaders`, `getCustomPropertyHeaders` and `getTaskCustomPropertyHeaders` take an optional `models` argument.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from the automations module handlers, taking both its
-  task and project branches; automation target matching now runs through the
-  segment engine, so the Elasticsearch-era selector round-trip has no caller
-  left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/automations/automationHandlers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the task and project modules
-  and from the plugin-level segment object; the plugin no longer makes any
-  plugin-to-plugin segment call, and no plugin-to-plugin RPC loop can form.
-  `projectsSegments` is now a declaration only - its content type and
-  dependent modules - and answers no producer.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/task/meta/segments/index.ts`,
-  `src/modules/project/meta/segments.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.
-
-### `2026-09-01` — Tasks became a real segment content type
-
-- **Summary:** `operation:task.tasks` is now declared with its event content
-  type, filterable on 19 user-facing fields, materialisable, and reachable
-  from a team-member segment; the module moved off the Elasticsearch-era
-  producers onto the shared evaluator.
-- **Affected areas:** `src/modules/task/meta/segments/` (was `segments.ts`,
-  now a directory with fields, collections, members, membership, evaluate and
-  relations); `src/meta/segments.ts`;
-  `src/modules/task/db/definitions/task.ts` (`segmentIds`, join indexes).
-- **Contracts changed:** Task content type now declares
-  `contentType: 'operation:task.tasks'`; new relations `user.assignedTasks`,
-  `user.createdTasks`.
+- **Summary:** Mutations that act by id now declare it non-null, resolvers throw
+  actionable errors for missing ids, and list resolvers default a missing
+  `filter` to `{}` instead of crashing.
+- **Affected areas:** cycle/team GraphQL schemas, cycle model guards,
+  task/triage/project/team query resolvers.
+- **Contracts changed:** `removeCycle`, `endCycle`, `getCycle` take
+  `_id: String!`; `getTeamEstimateChoises` takes `teamId: String!`;
+  `createCycle`, `updateCycle` take `input: CycleInput!`; `teamAddMembers`
+  takes `memberIds: [String]!`.

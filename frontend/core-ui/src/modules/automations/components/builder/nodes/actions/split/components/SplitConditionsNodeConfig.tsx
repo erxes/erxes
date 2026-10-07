@@ -1,5 +1,6 @@
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useAutomationOptionalConnect } from 'ui-modules';
+import { useSplitNodeIssues } from '../hooks/useSplitNodeIssues';
 import { TSplitConditionsConfigForm } from '../states/splitConditionsConfigForm';
 
 const FALLBACK_OPTION_ID = 'fallback';
@@ -13,6 +14,8 @@ export const SplitConditionsNodeConfig = ({
     flowDirection: nodeData.flowDirection,
   });
   const { options = [] } = config || {};
+
+  useSplitNodeIssues(config);
 
   return (
     <>

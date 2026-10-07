@@ -15,6 +15,7 @@ export const automationsRouter = t.router({
           'triggers.type': query.triggerType,
           'triggers.config.botId': query.botId,
           status: 'active',
+          ownedBy: { $exists: false },
         }).lean();
       }),
 

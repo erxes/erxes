@@ -16,6 +16,7 @@ import {
   IOrganization,
   ISaasAddon,
   ISaasBundle,
+  ISaasHelpCenterDomain,
   ISaasOrganizationPlanHistory,
 } from './types';
 import { redis } from '../redis';
@@ -166,6 +167,168 @@ export const updateSaasOrganization = async (
   await getSaasCoreConnection();
 
   return coreModelOrganizations.updateOne({ subdomain }, { $set: update });
+};
+
+type OrganizationWithHelpCenterDomains = Pick<
+  IOrganization,
+  'subdomain' | 'helpCenterDomain' | 'helpCenterDomains'
+>;
+
+const HELP_CENTER_DOMAIN_FIELDS = {
+  subdomain: 1,
+  helpCenterDomain: 1,
+  helpCenterDomains: 1,
+};
+
+/** The organization's help center domains, the legacy single one included. */
+export const helpCenterDomainsOf = (
+  organization?: Partial<OrganizationWithHelpCenterDomains> | null,
+): ISaasHelpCenterDomain[] => {
+  const domains = [...(organization?.helpCenterDomains || [])];
+  const legacy = organization?.helpCenterDomain;
+
+  if (
+    legacy?.hostname &&
+    !domains.some((domain) => domain.hostname === legacy.hostname)
+  ) {
+    domains.push(legacy);
+  }
+
+  return domains;
+};
+
+export const getSaasOrganizationByHelpCenterDomain = async (
+  hostname: string,
+): Promise<{ subdomain: string; domain: ISaasHelpCenterDomain } | null> => {
+  await getSaasCoreConnection();
+
+  const organization: OrganizationWithHelpCenterDomains | null =
+    await coreModelOrganizations
+      .findOne(
+        {
+          $or: [
+            { 'helpCenterDomains.hostname': hostname },
+            { 'helpCenterDomain.hostname': hostname },
+          ],
+        },
+        HELP_CENTER_DOMAIN_FIELDS,
+      )
+      .lean();
+
+  const domain = helpCenterDomainsOf(organization).find(
+    (entry) => entry.hostname === hostname,
+  );
+
+  return organization && domain
+    ? { subdomain: organization.subdomain, domain }
+    : null;
+};
+
+export const getSaasOrganizationHelpCenterDomains = async (
+  subdomain: string,
+): Promise<ISaasHelpCenterDomain[]> => {
+  await getSaasCoreConnection();
+
+  const organization = await coreModelOrganizations
+    .findOne({ subdomain }, HELP_CENTER_DOMAIN_FIELDS)
+    .lean();
+
+  return helpCenterDomainsOf(organization);
+};
+
+/**
+ * Organizations with a help center domain still waiting on DNS or its
+ * certificate within its background check window. Callers pick the pending
+ * entries out with helpCenterDomainsOf; active domains are skipped there.
+ */
+export const getSaasOrganizationsWithPendingHelpCenterDomain =
+  async (): Promise<OrganizationWithHelpCenterDomains[]> => {
+    await getSaasCoreConnection();
+
+    const pending = {
+      hostname: { $exists: true },
+      autoCheckUntil: { $gt: new Date() },
+      $or: [{ status: { $ne: 'active' } }, { sslStatus: { $ne: 'active' } }],
+    };
+
+    return coreModelOrganizations
+      .find(
+        {
+          $or: [
+            { helpCenterDomains: { $elemMatch: pending } },
+            {
+              'helpCenterDomain.hostname': { $exists: true },
+              'helpCenterDomain.autoCheckUntil': { $gt: new Date() },
+              $or: [
+                { 'helpCenterDomain.status': { $ne: 'active' } },
+                { 'helpCenterDomain.sslStatus': { $ne: 'active' } },
+              ],
+            },
+          ],
+        },
+        HELP_CENTER_DOMAIN_FIELDS,
+      )
+      .lean();
+  };
+
+// Moves a legacy single domain into the list, so writes only touch the list.
+const moveLegacyHelpCenterDomain = async (subdomain: string) => {
+  const organization = await coreModelOrganizations
+    .findOne(
+      { subdomain, 'helpCenterDomain.hostname': { $exists: true } },
+      HELP_CENTER_DOMAIN_FIELDS,
+    )
+    .lean();
+
+  if (!organization) {
+    return;
+  }
+
+  await coreModelOrganizations.updateOne(
+    { subdomain, helpCenterDomain: { $exists: true } },
+    {
+      $set: { helpCenterDomains: helpCenterDomainsOf(organization) },
+      $unset: { helpCenterDomain: 1 },
+    },
+  );
+};
+
+/** Adds the domain, or replaces the stored one with the same hostname. */
+export const saveSaasOrganizationHelpCenterDomain = async (
+  subdomain: string,
+  domain: ISaasHelpCenterDomain,
+) => {
+  await getSaasCoreConnection();
+  await moveLegacyHelpCenterDomain(subdomain);
+
+  const replaced = await coreModelOrganizations.updateOne(
+    { subdomain, 'helpCenterDomains.hostname': domain.hostname },
+    { $set: { 'helpCenterDomains.$': domain } },
+  );
+
+  if (!replaced.matchedCount) {
+    await coreModelOrganizations.updateOne(
+      { subdomain, 'helpCenterDomains.hostname': { $ne: domain.hostname } },
+      { $push: { helpCenterDomains: domain } },
+    );
+  }
+
+  return removeOrgsCache('helpCenterDomain');
+};
+
+export const removeSaasOrganizationHelpCenterDomain = async (
+  subdomain: string,
+  hostname: string,
+) => {
+  await getSaasCoreConnection();
+  await moveLegacyHelpCenterDomain(subdomain);
+
+  await coreModelOrganizations.updateOne(
+    { subdomain },
+    { $pull: { helpCenterDomains: { hostname } } },
+  );
+
+  return removeOrgsCache('helpCenterDomain');
 };
 
 export const getSaasOrganizationDetail = async ({

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -22,6 +22,8 @@
 ## Current Capabilities
 
 - Provides CMS content, category, page, menu, custom-field, and media workflows.
+- Shows the full parent path for post category choices, including categories
+  with the same name under different parents.
 - Provides Web Builder configuration and editing surfaces.
 - Preserves blank lines and Tab-indented block structure when CMS posts are
   saved and reopened in the post editor.
@@ -85,6 +87,8 @@
   plus the non-lossy editor document before the existing submission boundary.
 - CMS post serialization must invalidate stale asynchronous HTML output after
   edits, external document replacement, and editor unmount.
+- Post form category option labels show the full parent path, while option
+  values remain category IDs and multiple selections remain available.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
   and must not replace editor blocks after a newer user edit.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
@@ -93,6 +97,7 @@
 
 ### UI Conventions
 
+- Published CMS posts check `agentPostizTenantEnabled` before offering the Postiz sheet. Disabled or unavailable Postiz access keeps the normal CMS publish path; enabled tenants retain the sharing sheet and its CMS-only action.
 - Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`.
 - Match existing CMS page structure: header, optional CMS sidebar, content area,
   and drawers.
@@ -195,76 +200,3 @@
 - Adding shared CMS UI to `src/widgets` instead of `src/modules/cms/shared`.
 - Changing backend schema or API assumptions from the UI layer.
 - Writing React or TypeScript tutorial content in this file instead of local rules.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-15` - Isolate CMS post-save refreshes
-
-- **Summary:** Limit post-edit refetches to CMS documents so unrelated assistant queries cannot block the Postiz sharing flow.
-- **Affected areas:** `src/modules/cms/hooks/usePostMutations.ts` and hook regression tests.
-- **Contracts changed:** None.
-
-### `2026-09-15` - CMS Postiz publish sheet
-
-- **Summary:** Add channel/caption/image selection, Admin-led enablement, CMS-only fallback and social delivery history using shared erxes primitives.
-- **Affected areas:** Post submission hook, form, typed post mutations, `posts/postiz`, synthetic browser preview.
-- **Contracts changed:** Consumes `cmsPostizOptions`, `cmsPostizEnable`, `cmsPostizValidate`, `cmsPostizShare`, `cmsPostizDeliveries` and `cmsPostizRetry`; deploy backend contracts first.
-
-### `2026-09-09` — Bound dev watchers
-
-- **Summary:** Content UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders while preserving image asset handling.
-- **Affected areas:** `rspack.config.ts`
-- **Contracts changed:** None
-
-### `2026-08-17` — Raise custom-field upload limit to 650 MiB
-
-- **Summary:** Raised the CMS custom-field file upload ceiling from 630 MiB to
-  650 MiB while preserving chunked upload behavior.
-- **Affected areas:** `src/modules/cms/posts/CustomFieldInput.tsx`
-- **Contracts changed:** None
-
-### `2026-08-13` — Validate complete embedded block payloads
-
-- **Summary:** Validated embedded CMS block props, content, styles, tables, and
-  children against the active editor schema before restoring them.
-- **Affected areas:** `src/modules/cms/posts/utils/blockStructureHTML.ts`
-- **Contracts changed:** None
-
-### `2026-08-13` — Guard asynchronous post restoration
-
-- **Summary:** Prevented delayed legacy HTML parsing from replacing newer CMS
-  post editor changes.
-- **Affected areas:** `src/modules/cms/posts/components/CmsPostEditor.tsx`
-- **Contracts changed:** None
-
-### `2026-08-13` — Validate embedded post structure
-
-- **Summary:** Rejected malformed, unsupported, and recursively invalid block
-  metadata so CMS posts safely fall back to legacy HTML parsing.
-- **Affected areas:** `src/modules/cms/posts/utils/blockStructureHTML.ts`
-- **Contracts changed:** None
-
-### `2026-08-13` — Guard asynchronous post serialization
-
-- **Summary:** Prevented stale in-flight HTML serialization from overwriting
-  newer CMS post editor content.
-- **Affected areas:** `src/modules/cms/posts/components/CmsPostEditor.tsx`
-- **Contracts changed:** None
-
-### `2026-08-13` — Restore structured post content
-
-- **Summary:** Restored saved blank paragraphs and Tab indentation with a
-  CMS-local editor adapter while preserving the existing publish/save flow.
-- **Affected areas:** `src/modules/cms/posts/PostPreview.tsx`, CMS post editor
-  adapter, and block-structure serialization utility
-- **Contracts changed:** None
-
-### `2026-08-11` — Increase custom-field upload limit
-
-- **Summary:** Raised the CMS custom-field file upload ceiling from 20 MiB to
-  630 MiB, routed large files through chunked upload, and synchronized its
-  helper text.
-- **Affected areas:** `src/modules/cms/posts/CustomFieldInput.tsx`
-- **Contracts changed:** None

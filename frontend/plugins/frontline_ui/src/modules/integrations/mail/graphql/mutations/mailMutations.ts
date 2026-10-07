@@ -34,6 +34,20 @@ export const MAIL_SEND_MAIL_MUTATION = gql`
   }
 `;
 
+export const MAIL_SEND_REACTION_MUTATION = gql`
+  mutation frontlineMailSendReaction(
+    $conversationId: String!
+    $messageId: String!
+    $emoji: String!
+  ) {
+    mailSendReaction(
+      conversationId: $conversationId
+      messageId: $messageId
+      emoji: $emoji
+    )
+  }
+`;
+
 export const MAIL_MESSAGE_RETRY_MUTATION = gql`
   mutation mailMessageRetry($_id: String!) {
     mailMessageRetry(_id: $_id)
@@ -47,6 +61,31 @@ export const MAIL_CHECK_CONNECTION_MUTATION = gql`
       tenant
       endpoint
       error
+    }
+  }
+`;
+
+export const MAIL_DRAFT_SAVE_MUTATION = gql`
+  mutation mailDraftSave($_id: String!, $subject: String, $body: String!) {
+    mailDraftSave(_id: $_id, subject: $subject, body: $body) {
+      _id
+      subject
+      body
+      status
+    }
+  }
+`;
+
+export const MAIL_DRAFT_APPROVE_MUTATION = gql`
+  mutation mailDraftApprove($_id: String!) {
+    mailDraftApprove(_id: $_id)
+  }
+`;
+
+export const MAIL_DRAFT_REMOVE_MUTATION = gql`
+  mutation mailDraftRemove($_id: String!) {
+    mailDraftRemove(_id: $_id) {
+      _id
     }
   }
 `;

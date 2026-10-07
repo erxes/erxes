@@ -9,6 +9,8 @@ import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
+import { IDeal } from '~/modules/sales/@types';
+import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 
 export const getConfig = async (
   subdomain: string,
@@ -124,51 +126,86 @@ export const getBranchesUtil = async (
   });
 };
 
+// The record loyalty ties these points to.
+const POS_ORDER_TARGET_TYPE = 'sales:pos.orders';
+
+/**
+ * Tells loyalty what this order paid with points. Every point payment type of
+ * the POS is sent, so one taken off the order is recorded as nothing spent.
+ */
+export const spendOrderPoints = async (
+  subdomain: string,
+  models: IModels,
+  order: IPosOrder & { _id?: string },
+  userId?: string,
+) => {
+  if (!order.customerId || !order._id) {
+    return;
+  }
+
+  const pos = await models.Pos.findOne(
+    { token: order.posToken },
+    { paymentTypes: 1 },
+  ).lean();
+
+  for (const paymentType of pos?.paymentTypes || []) {
+    if (!paymentType.scoreCampaignId) {
+      continue;
+    }
+
+    const pointsPaymentAmount = (order.paidAmounts || [])
+      .filter(({ type }) => type === paymentType.type)
+      .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'spend',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: order.customerId,
+        campaignId: paymentType.scoreCampaignId,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        serviceName: 'pos',
+        pointsPaymentAmount,
+        totalAmount: Number(order.totalAmount) || 0,
+        actorId: userId || order.userId,
+      },
+    });
+  }
+};
+
+// A returned order takes back what it earned and gives back what it spent.
+export const refundOrderPoints = async (
+  subdomain: string,
+  order: IPosOrder & { _id?: string },
+) => {
+  if (!order._id) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'score',
+    action: 'refund',
+    input: {
+      targetId: order._id,
+      description: 'POS order returned',
+      actorId: order.userId,
+    },
+    defaultValue: null,
+  });
+};
+
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   const models = await generateModels(subdomain);
 
-  const pos = await models.Pos.findOne({
-    token: order.posToken,
-    paymentTypes: {
-      $elemMatch: {
-        type: { $in: (order?.paidAmounts || []).map(({ type }) => type) },
-        scoreCampaignId: { $exists: true },
-      },
-    },
-  });
-
-  if (pos) {
-    const { paymentTypes = [] } = pos;
-    for (const paymentType of paymentTypes) {
-      if (
-        paymentType.scoreCampaignId &&
-        (order?.paidAmounts || []).find(({ type }) => type === paymentType.type)
-      ) {
-        try {
-          await sendTRPCMessage({
-            subdomain,
-
-            pluginName: 'loyalty',
-            method: 'mutation',
-            module: 'score',
-            action: 'doScoreCampaign',
-            input: {
-              ownerType: order.customerType || 'customer',
-              ownerId: order.customerId,
-              campaignId: paymentType.scoreCampaignId,
-              target: order,
-              actionMethod: 'subtract',
-              serviceName: 'pos',
-              targetId: (order as any)?._id,
-            },
-          });
-        } catch (error) {
-          console.log(error);
-          throw new Error(error.message);
-        }
-      }
-    }
-  }
+  await spendOrderPoints(subdomain, models, order);
 
   const confirmItems = order.items || [];
 
@@ -205,45 +242,6 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     });
   } catch (e) {
     throw new Error(e.message);
-  }
-};
-
-const syncOrderScoreCampaigns = async ({
-  subdomain,
-  newOrder,
-  oldOrder,
-}: {
-  subdomain: string;
-  newOrder: IPosOrderDocument;
-  oldOrder?: IPosOrderDocument;
-}) => {
-  if (!newOrder.customerId) {
-    return;
-  }
-
-  try {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      method: 'mutation',
-      module: 'score',
-      action: 'consumeTargetChange',
-      input: {
-        contentType: 'sales:posOrder',
-        serviceName: 'sales',
-        targetId: newOrder._id,
-        target: newOrder,
-        oldTarget: oldOrder,
-        ownerHints: {
-          [newOrder.customerType || 'customer']: newOrder.customerId,
-          customer: newOrder.customerId,
-          user: newOrder.userId,
-        },
-      },
-      defaultValue: null,
-    });
-  } catch (error) {
-    console.log(subdomain, error.message);
   }
 };
 
@@ -538,30 +536,35 @@ const createDealPerOrder = async ({
   // ===> sync cards config then
   const { cardsConfig } = pos;
 
-  const currentCardsConfig: any = (Object.values(cardsConfig || {}) || []).find(
-    (c) =>
-      (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId,
-  );
+  type CardsConfig = {
+    branchId?: string;
+    stageId?: string;
+    pipelineId?: string;
+    assignedUserIds?: string[];
+  };
+
+  const currentCardsConfig = (
+    Object.values(cardsConfig || {}) as CardsConfig[]
+  ).find((config) => config?.branchId === newOrder.branchId);
 
   if (currentCardsConfig?.stageId) {
-    const paymentsData: any = {};
+    const paymentsData: NonNullable<IDeal['paymentsData']> = {};
+
     if (newOrder.cashAmount) {
       paymentsData.cash = {
         amount: newOrder.cashAmount,
         currency: 'MNT',
       };
     }
+
     if (newOrder.mobileAmount) {
       paymentsData.bank = {
-        amount: newOrder.cashAmount,
+        amount: newOrder.mobileAmount,
         currency: 'MNT',
       };
     }
+
     if (newOrder.paidAmounts?.length) {
-      let otherAmount = 0;
-      for (const paidAmount of newOrder.paidAmounts) {
-        otherAmount += paidAmount.amount;
-      }
       paymentsData.other = {
         amount: newOrder.paidAmounts.reduce(
           (sum, curr) => curr.amount + sum,
@@ -571,32 +574,52 @@ const createDealPerOrder = async ({
       };
     }
 
-    const cardDeal = await sendTRPCMessage({
-      subdomain,
+    const dealDoc: IDeal = {
+      name: `Cards: ${newOrder.number}`,
+      startDate: newOrder.createdAt,
+      description: `<p>${newOrder.description || ''}</p> <p>${
+        newOrder.deliveryInfo?.description || ''
+      }</p>`,
+      stageId: currentCardsConfig.stageId,
+      assignedUserIds: currentCardsConfig.assignedUserIds,
+      productsData: (newOrder.items || []).map((i) => ({
+        productId: i.productId,
+        uom: 'PC',
+        currency: 'MNT',
+        quantity: i.count,
+        unitPrice: i.unitPrice || 0,
+        globalUnitPrice: 0,
+        unitPricePercent: 0,
+        amount: i.count * (i.unitPrice || 0),
+        tickUsed: true,
+      })),
+      paymentsData,
+    };
 
-      method: 'mutation',
-      pluginName: 'sales',
-      module: 'deal',
-      action: 'create',
-      input: {
-        name: `Cards: ${newOrder.number}`,
-        startDate: newOrder.createdAt,
-        description: `<p>${newOrder.description}</p>`,
-        stageId: currentCardsConfig.stageId,
-        assignedUserIds: currentCardsConfig.assignedUserIds,
-        productsData: (newOrder.items || []).map((i) => ({
-          productId: i.productId,
-          uom: 'PC',
-          currency: 'MNT',
-          quantity: i.count,
-          unitPrice: i.unitPrice,
-          amount: i.count * (i.unitPrice || 0),
-          tickUsed: true,
-        })),
-        paymentsData,
-      },
-    });
-    if (newOrder.customerId && cardDeal._id) {
+    const oldDeal = newOrder.convertDealId
+      ? await models.Deals.findOne({ _id: newOrder.convertDealId })
+      : null;
+
+    if (oldDeal) {
+      const cardDeal = await models.Deals.updateDeal(oldDeal._id, dealDoc);
+
+      await subscriptionWrapper(models, {
+        action: 'update',
+        deal: cardDeal,
+        oldDeal,
+        pipelineId: currentCardsConfig.pipelineId,
+      });
+
+      return cardDeal._id;
+    }
+
+    const cardDeal = await models.Deals.createDeal(dealDoc);
+
+    if (
+      newOrder.customerId &&
+      cardDeal._id &&
+      ['customer', 'company'].includes(newOrder.customerType || 'customer')
+    ) {
       await sendTRPCMessage({
         subdomain,
         method: 'mutation',
@@ -619,18 +642,11 @@ const createDealPerOrder = async ({
         },
       });
     }
-    await sendTRPCMessage({
-      subdomain,
 
-      method: 'mutation',
-      pluginName: 'sales',
-      module: 'deal',
-      action: 'subscriptionWrapper',
-      input: {
-        action: 'create',
-        deal: cardDeal,
-        pipelineId: currentCardsConfig.pipelineId,
-      },
+    await subscriptionWrapper(models, {
+      action: 'create',
+      deal: cardDeal,
+      pipelineId: currentCardsConfig.pipelineId,
     });
 
     await models.PosOrders.updateOne(
@@ -695,12 +711,6 @@ export const syncOrderFromClient = async ({
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await checkServiceRunning('automations'))) {
       try {
-        await syncOrderScoreCampaigns({
-          subdomain,
-          newOrder,
-          oldOrder,
-        });
-
         sendAutomationTrigger(subdomain, {
           type: 'pos:posOrder',
           targets: [newOrder],
@@ -711,7 +721,11 @@ export const syncOrderFromClient = async ({
     }
 
     try {
-      await confirmLoyalties(subdomain, newOrder);
+      if (newOrder.status === 'return') {
+        await refundOrderPoints(subdomain, newOrder);
+      } else {
+        await confirmLoyalties(subdomain, newOrder);
+      }
     } catch (e) {
       console.log(subdomain, e.message);
     }
@@ -877,7 +891,10 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 
 export const calcProductsTaxRule = async (
   subdomain: string,
-  config,
+  config: {
+    reverseVatRules?: string[];
+    reverseCtaxRules?: string[];
+  } | undefined,
   products,
 ) => {
   const vatRules =
@@ -888,7 +905,7 @@ export const calcProductsTaxRule = async (
         pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
-        input: { _id: { $in: config.reverseVatRules } },
+        input: { data: { _id: { $in: config.reverseVatRules } } },
         defaultValue: [],
       }))) ||
     [];
@@ -901,7 +918,7 @@ export const calcProductsTaxRule = async (
         pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
-        input: { _id: { $in: config.reverseCtaxRules } },
+        input: { data: { _id: { $in: config.reverseCtaxRules } } },
         defaultValue: [],
       }))) ||
     [];

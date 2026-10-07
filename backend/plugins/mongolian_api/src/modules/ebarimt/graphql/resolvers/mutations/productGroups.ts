@@ -7,7 +7,7 @@ export const productGroupMutations = {
     doc: IProductGroup,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('ebarimt:productGroupCreate');
+    await checkPermission('manageEbarimtProductGroups');
     return await models.ProductGroups.createProductGroup({
       ...doc,
       modifiedBy: user._id,
@@ -19,7 +19,7 @@ export const productGroupMutations = {
     { _id, ...doc }: { _id: string } & IProductGroup,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('ebarimt:productGroupUpdate');
+    await checkPermission('manageEbarimtProductGroups');
     return await models.ProductGroups.updateProductGroup(_id, {
       ...doc,
       modifiedBy: user._id,
@@ -31,7 +31,7 @@ export const productGroupMutations = {
     { ids }: { ids: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('ebarimt:productGroupsRemove');
+    await checkPermission('manageEbarimtProductGroups');
     return await models.ProductGroups.removeProductGroups(ids);
   },
 };

@@ -1,3 +1,5 @@
+import { escapeHtml } from '@/integrations/mail/utils/html';
+
 /**
  * The ticket note composer stores BlockNote documents, so `note.content` is a
  * JSON array of blocks rather than prose. Mail needs HTML, and a note written
@@ -27,18 +29,13 @@ const HEADING_LEVELS = new Set([1, 2, 3]);
 
 const SAFE_COLOR = /^[a-z0-9#(),.%\s-]+$/i;
 
+const UNNAMED_ATTACHMENT = 'attachment';
+
 const LIST_TAGS: Record<string, string> = {
   bulletListItem: 'ul',
   numberedListItem: 'ol',
   checkListItem: 'ul',
 };
-
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 
 const styleAttribute = (styles?: TInlineStyles) => {
   if (!styles) {
@@ -132,7 +129,9 @@ const renderBlock = (block: IBlock): string => {
 
       const caption = escapeHtml(String(block.props?.caption ?? ''));
 
-      return `<p><img src="${escapeHtml(url)}" alt="${caption}" /></p>${children}`;
+      return `<p><img src="${escapeHtml(
+        url,
+      )}" alt="${caption}" /></p>${children}`;
     }
 
     default:
@@ -192,3 +191,10 @@ export const noteContentToHtml = (content?: string) => {
 
   return blocks ? renderBlocks(blocks) : raw;
 };
+
+export const attachmentListToHtml = (names: string[]) =>
+  names.length
+    ? `<ul>${names
+        .map((name) => `<li>${escapeHtml(name || UNNAMED_ATTACHMENT)}</li>`)
+        .join('')}</ul>`
+    : '';

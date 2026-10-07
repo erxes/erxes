@@ -9,6 +9,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { FRONTLINE_SEGMENT_FIELDS, TICKET_TYPE } from './fields';
+import { TICKET_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 
 type PagedCollection = {
   countDocuments: (filter: Record<string, unknown>) => Promise<number>;
@@ -25,7 +26,13 @@ type PagedCollection = {
 const compile = (contentType: string, node: SegmentNode, timeZone?: string) => {
   const fields = FRONTLINE_SEGMENT_FIELDS[contentType];
 
-  return fields ? compileSegmentMongoFilter(node, { fields, timeZone }) : null;
+  return fields
+    ? compileSegmentMongoFilter(node, {
+        fields,
+        namespaces: TICKET_SEGMENT_FIELD_NAMESPACES[contentType],
+        timeZone,
+      })
+    : null;
 };
 
 export const listTicketSegmentMembers = async (

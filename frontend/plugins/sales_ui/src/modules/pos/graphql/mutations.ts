@@ -33,6 +33,7 @@ const commonFields = `
   $deliveryConfig: JSON
   $permissionConfig: JSON
   $allowTypes: [String]
+  $isShowRemainder: Boolean
   $isCheckRemainder: Boolean
   $checkExcludeCategoryIds: [String]
   $saveRemainder: Boolean
@@ -71,6 +72,7 @@ const commonVariables = `
   cardsConfig: $cardsConfig,
   permissionConfig: $permissionConfig,
   allowTypes: $allowTypes,
+  isShowRemainder: $isShowRemainder,
   isCheckRemainder: $isCheckRemainder,
   checkExcludeCategoryIds: $checkExcludeCategoryIds,
   saveRemainder: $saveRemainder,

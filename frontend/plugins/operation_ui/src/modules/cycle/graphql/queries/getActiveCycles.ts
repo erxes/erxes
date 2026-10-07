@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_ACTIVE_CYCLES = gql`
+export const GET_ACTIVE_CYCLES = gql(`
   query GetActiveCycles(
     $teamId: String
     $taskId: String
@@ -27,4 +27,4 @@ export const GET_ACTIVE_CYCLES = gql`
       totalCount
     }
   }
-`;
+`);

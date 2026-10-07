@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.1.12",
+  "version": "3.2.14",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -45,6 +45,8 @@
     "@graphql-tools/schema": "^10.0.23",
     "@hookform/resolvers": "^3.9.1",
     "@internationalized/date": "^3.8.2",
+    "@maily-to/core": "0.3.7",
+    "@maily-to/render": "0.2.3",
     "@module-federation/sdk": "^0.8.9",
     "@react-pdf/renderer": "3.1.14",
     "@sendgrid/mail": "^8.1.5",
@@ -98,7 +100,7 @@
     "graphql-redis-subscriptions": "^2.7.0",
     "graphql-subscriptions": "^3.0.0",
     "graphql-tag": "^2.12.6",
-    "graphql-ws": "^5.16.0",
+    "graphql-ws": "^6.3.0",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "html-to-image": "^1.11.13",
@@ -165,7 +167,7 @@
     "use-debounce": "^10.0.4",
     "uuid-by-string": "^4.0.0",
     "validator": "^13.15.0",
-    "ws": "^8.18.2",
+    "ws": "^8.22.0",
     "xss": "^1.0.15",
     "yaml": "^2.7.0",
     "zod": "^3.23.8",
@@ -176,6 +178,9 @@
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
     "@eslint/js": "^9.8.0",
+    "@graphql-codegen/cli": "^7.4.3",
+    "@graphql-codegen/client-preset": "^6.2.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@module-federation/enhanced": "0.6.6",
     "@nx/esbuild": "20.4.0",
     "@nx/eslint": "20.0.8",
@@ -212,6 +217,8 @@
     "@swc/helpers": "~0.5.11",
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/react": "15.0.6",
+    "@tiptap/core": "^2.27.3",
+    "@tiptap/pm": "^2.27.3",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/deep-equal": "^1.0.4",
@@ -272,7 +279,9 @@
       "@mastra/core>zod": "^3.25.0",
       "@mastra/memory>zod": "^3.25.0",
       "@mastra/libsql>zod": "^3.25.0",
-      "nanoid@^5.0.0": "^5.1.16"
+      "nanoid@^5.0.0": "^5.1.16",
+      "prosemirror-model": "^1.25.11",
+      "prosemirror-view": "^1.42.3"
     }
   }
 }

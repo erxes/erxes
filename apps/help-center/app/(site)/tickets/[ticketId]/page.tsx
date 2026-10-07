@@ -1,36 +1,27 @@
-import { getPortalIdentity } from '@/modules/layout/api';
-import { Hero } from '@/modules/layout/components/Hero';
+import { getT } from '@/modules/i18n/server';
+import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { TicketDetail } from '@/modules/tickets/components/TicketDetail';
-import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
-import { Container } from '@/modules/ui/components/Container';
 
 type Props = { params: Promise<{ ticketId: string }> };
 
-export const metadata = { title: 'Ticket' };
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.ticket'),
+});
 
 export default async function TicketPage({ params }: Props) {
-  const [{ headline }, { ticketId }] = await Promise.all([
-    getPortalIdentity(),
-    params,
-  ]);
+  const [{ ticketId }, t] = await Promise.all([params, getT()]);
 
   return (
-    <>
-      <Hero headline={headline} />
-
-      <Container className="py-10 lg:py-14">
-        <Breadcrumbs
-          items={[
-            { label: 'Knowledge base', href: '/' },
-            { label: 'Support', href: '/tickets' },
-            { label: 'Ticket' },
-          ]}
-        />
-
-        <div className="mt-6">
-          <TicketDetail ticketId={ticketId} />
-        </div>
-      </Container>
-    </>
+    <PortalShell
+      breadcrumbs={[
+        { label: t('nav.home'), href: '/' },
+        { label: t('tickets.crumb'), href: '/tickets' },
+        { label: t('tickets.ticket') },
+      ]}
+      title={t('tickets.ticket')}
+      description={t('tickets.detailText')}
+    >
+      <TicketDetail ticketId={ticketId} />
+    </PortalShell>
   );
 }

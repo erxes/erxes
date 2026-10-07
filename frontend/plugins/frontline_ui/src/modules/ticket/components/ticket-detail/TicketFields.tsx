@@ -116,6 +116,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
   >(initialDescriptionContent);
+  const loadedDescriptionRef = React.useRef(descriptionContent);
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
@@ -237,6 +238,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   useEffect(() => {
     if (isRemovedRef.current || !ticketId) return;
     if (!debouncedDescriptionContent) return;
+    if (debouncedDescriptionContent === loadedDescriptionRef.current) return;
     const currentParsed = parseDescription(description);
     if (
       JSON.stringify(debouncedDescriptionContent) ===

@@ -15,11 +15,13 @@ export interface IEbarimtConfig {
   hasCitytax: boolean;
   defaultUnitedCode: string;
   vatPercent: number;
-  cityTaxPercent: number;
+  citytaxPercent: number;
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];
+  headerText?: string;
   footerText?: string;
   hasCopy: boolean;
+  hasSumQty: boolean;
   isCleanTaxPrice?: boolean;
 }
 
@@ -93,6 +95,7 @@ export interface IConfig {
   allowBranchIds?: string[];
   permissionConfig?: any;
   allowTypes: string[];
+  isShowRemainder?: boolean;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;

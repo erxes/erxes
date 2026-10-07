@@ -22,6 +22,7 @@ import {
   messengerMessageTriggerFormSchema,
   TMessengerMessageTriggerForm,
 } from '../../states/messengerMessageTriggerForm';
+import { SelectErxesMessenger } from '@/integrations/erxes-messenger/components/SelectErxesMessenger';
 
 const EVENT_ICONS: Record<
   TMessengerEventType,
@@ -80,7 +81,13 @@ export const InboxMessageTriggerForm = ({
 
   const form = useForm<TMessengerMessageTriggerForm>({
     resolver: zodResolver(messengerMessageTriggerFormSchema),
-    defaultValues: { conditions: defaultConditions },
+    defaultValues: {
+      integrationId:
+        typeof activeTrigger?.config?.integrationId === 'string'
+          ? activeTrigger.config.integrationId
+          : undefined,
+      conditions: defaultConditions,
+    },
   });
 
   const conditions = form.watch('conditions') ?? [];
@@ -124,6 +131,32 @@ export const InboxMessageTriggerForm = ({
             'Select which messenger widget events should trigger this automation.',
           )}
         </p>
+        <Form.Field
+          control={form.control}
+          name="integrationId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('messenger', 'Erxes Messenger')}</Form.Label>
+              <SelectErxesMessenger
+                value={field.value}
+                onValueChange={({ integrationId }) =>
+                  field.onChange(
+                    integrationId === field.value ? undefined : integrationId,
+                  )
+                }
+                placeholder={t('all-messengers', 'All erxes messengers')}
+                className="w-full"
+              />
+              <Form.Description>
+                {t(
+                  'messenger-description',
+                  'Leave empty to trigger on every erxes messenger.',
+                )}
+              </Form.Description>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
         <Form.Field
           control={form.control}
           name="conditions"

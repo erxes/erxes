@@ -3,10 +3,8 @@ import { notFound } from 'next/navigation';
 import { getPortalForm } from '@/modules/forms/api';
 import { FormView } from '@/modules/forms/components/FormView';
 import { formTitle } from '@/modules/forms/types';
-import { getPortalIdentity } from '@/modules/layout/api';
-import { Hero } from '@/modules/layout/components/Hero';
-import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
-import { Container } from '@/modules/ui/components/Container';
+import { getT } from '@/modules/i18n/server';
+import { PortalShell } from '@/modules/layout/components/PortalShell';
 import {
   LoadError,
   SetupNotice,
@@ -19,71 +17,54 @@ export const generateMetadata = async ({
   params,
 }: Props): Promise<Metadata> => {
   const { formId } = await params;
-  const form = await getPortalForm(formId);
+  const [form, t] = await Promise.all([getPortalForm(formId), getT()]);
 
   return {
-    title: form.state === 'ready' && form.data ? formTitle(form.data) : 'Form',
+    title:
+      form.state === 'ready' && form.data
+        ? formTitle(form.data, t)
+        : t('nav.form'),
   };
 };
 
 export default async function FormPage({ params }: Props) {
   const { formId } = await params;
-  const [{ headline }, form] = await Promise.all([
-    getPortalIdentity(),
-    getPortalForm(formId),
-  ]);
+  const [form, t] = await Promise.all([getPortalForm(formId), getT()]);
 
   if (form.state === 'ready' && !form.data) {
     notFound();
   }
 
   return (
-    <>
-      <Hero headline={headline} />
-
-      <Container column="text" className="py-10 lg:py-14">
-        <Breadcrumbs
-          items={[
-            { label: 'Knowledge base', href: '/' },
-            { label: 'Forms', href: '/forms' },
-            {
-              label:
-                form.state === 'ready' && form.data
-                  ? formTitle(form.data)
-                  : 'Form',
-            },
-          ]}
-        />
-
-        {form.state === 'unconfigured' ? (
-          <div className="mt-7">
-            <SetupNotice missing={form.missing} />
-          </div>
-        ) : form.state === 'unpublished' ? (
-          <div className="mt-7">
-            <Unpublished domain={form.domain} />
-          </div>
-        ) : form.state === 'error' ? (
-          <div className="mt-7">
-            <LoadError title="Could not load the form" message={form.message} />
-          </div>
-        ) : form.data ? (
-          <>
-            <h1 className="mt-6 text-[30px] font-semibold leading-snug tracking-[-0.02em] text-ink sm:text-[34px]">
-              {formTitle(form.data)}
-            </h1>
-            {form.data.description?.trim() ? (
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {form.data.description}
-              </p>
-            ) : null}
-
-            <div className="mt-7">
-              <FormView form={form.data} />
-            </div>
-          </>
-        ) : null}
-      </Container>
-    </>
+    <PortalShell
+      breadcrumbs={[
+        { label: t('nav.home'), href: '/' },
+        { label: t('nav.forms'), href: '/forms' },
+        {
+          label:
+            form.state === 'ready' && form.data
+              ? formTitle(form.data, t)
+              : t('nav.form'),
+        },
+      ]}
+    >
+      {form.state === 'unconfigured' ? (
+        <div className="">
+          <SetupNotice missing={form.missing} />
+        </div>
+      ) : form.state === 'unpublished' ? (
+        <div className="">
+          <Unpublished domain={form.domain} />
+        </div>
+      ) : form.state === 'error' ? (
+        <div className="">
+          <LoadError title={t('forms.loadOneFailed')} message={form.message} />
+        </div>
+      ) : form.data ? (
+        <div className="">
+          <FormView form={form.data} />
+        </div>
+      ) : null}
+    </PortalShell>
   );
 }

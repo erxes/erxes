@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
+import { fixNum } from 'erxes-api-shared/utils';
 import CurrencyTr from './currencyTr';
 import TaxTrs from './taxTrs';
 import { InvIncomeExpenseTrs } from './invIncome';
@@ -21,6 +22,12 @@ import {
   prepareFxaOwnerRecordTransaction,
   rebuildFixedAssetCurrentCounts,
 } from './fixedAssets';
+import { activeCost } from './inventories';
+import { saveInvJustify } from './invJustify';
+import {
+  normalizeInvSplitTransaction,
+  syncInvSplitFollowTrs,
+} from './invSplit';
 import {
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
@@ -37,14 +44,15 @@ export const commonSave = async (
     throw new Error('Journal cannot be changed');
   }
 
-  const handler = getJournalHandler(doc.journal);
+  const normalizedDoc = normalizeInvSplitTransaction(doc);
+  const handler = getJournalHandler(normalizedDoc.journal);
   if (!handler) throw new Error(`Unsupported journal: ${doc.journal}`);
 
   const { mainTr, otherTrs } = await handler(
     subdomain,
     models,
     userId,
-    doc,
+    normalizedDoc,
     oldTr,
   );
 
@@ -79,6 +87,7 @@ function getJournalHandler(journal: string) {
     payable: handleSingleTr,
     invIncome: handleInvIncome,
     invOut: handleInvOut,
+    invJustify: saveInvJustify,
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
@@ -92,6 +101,63 @@ function getJournalHandler(journal: string) {
 }
 
 const isNonEmptyString = (value?: string): value is string => !!value;
+
+const applyActiveInventoryCosts = async (
+  models: IModels,
+  doc: ITransaction,
+  excludedTransactionIds: string[] = [],
+) => {
+  const details = (doc.details || []).map((detail) => ({ ...detail }));
+  const groups = new Map<
+    string,
+    {
+      accountId: string;
+      branchId?: string;
+      departmentId?: string;
+      detailIndexes: number[];
+    }
+  >();
+
+  details.forEach((detail, detailIndex) => {
+    const branchId = detail.branchId || doc.branchId;
+    const departmentId = detail.departmentId || doc.departmentId;
+    const key = JSON.stringify([detail.accountId, branchId, departmentId]);
+    const group = groups.get(key) || {
+      accountId: detail.accountId,
+      branchId,
+      departmentId,
+      detailIndexes: [],
+    };
+
+    group.detailIndexes.push(detailIndex);
+    groups.set(key, group);
+  });
+
+  await Promise.all(
+    [...groups.values()].map(async (group) => {
+      const productIds = group.detailIndexes
+        .map((detailIndex) => details[detailIndex].productId)
+        .filter(isNonEmptyString);
+      const costs = await activeCost(
+        models,
+        group.accountId,
+        group.branchId,
+        group.departmentId,
+        productIds,
+        excludedTransactionIds,
+      );
+
+      for (const detailIndex of group.detailIndexes) {
+        const detail = details[detailIndex];
+        const unitPrice = costs[detail.productId || '']?.unitCost ?? 0;
+        detail.unitPrice = unitPrice;
+        detail.amount = fixNum(unitPrice * (detail.count ?? 0), 4);
+      }
+    }),
+  );
+
+  return { ...doc, details };
+};
 
 const getRemovedFxaDetailIds = (
   oldTr: ITransactionDocument,
@@ -187,6 +253,13 @@ async function handleInvIncome(
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await InvIncomeExpenseTrs(models, userId, transaction))),
+    ...(await syncInvSplitFollowTrs(
+      subdomain,
+      models,
+      userId,
+      transaction,
+      transaction,
+    )),
   ];
 
   return { mainTr: transaction, otherTrs };
@@ -199,10 +272,15 @@ async function handleInvOut(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
+  const costedDoc = await applyActiveInventoryCosts(
+    models,
+    doc,
+    oldTr?._id ? [oldTr._id] : [],
+  );
   const mainTr = await createOrUpdateTr(
     models,
     userId,
-    { ...doc, side: TR_SIDES.CREDIT },
+    { ...costedDoc, side: TR_SIDES.CREDIT },
     oldTr,
   );
 
@@ -221,19 +299,40 @@ async function handleInvMove(
   const invMoveInTrsClass = new InvMoveInTrs(models, userId, doc);
   await invMoveInTrsClass.checkValidation();
 
+  const oldFollowInTrs = oldTr?._id
+    ? await invMoveInTrsClass.getOldFollowInTrs(oldTr._id)
+    : [];
+  const costedDoc = await applyActiveInventoryCosts(models, doc, [
+    ...(oldTr?._id ? [oldTr._id] : []),
+    ...oldFollowInTrs.map((transaction) => transaction._id),
+  ]);
+
   const transaction = await createOrUpdateTr(
     models,
     userId,
-    { ...doc, side: TR_SIDES.CREDIT },
+    { ...costedDoc, side: TR_SIDES.CREDIT },
     oldTr,
   );
-  const { invMoveInTr, oldFollowInTr } =
-    await invMoveInTrsClass.doTrs(transaction);
+  const { invMoveInTr, oldFollowInTr } = await invMoveInTrsClass.doTrs(
+    transaction,
+    oldFollowInTrs,
+  );
 
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);
 
-  return { mainTr: transaction, otherTrs: [invMoveInTr] };
+  const splitFollowTrs = await syncInvSplitFollowTrs(
+    subdomain,
+    models,
+    userId,
+    transaction,
+    invMoveInTr,
+  );
+
+  return {
+    mainTr: transaction,
+    otherTrs: [invMoveInTr, ...splitFollowTrs],
+  };
 }
 
 async function handleInvSale(

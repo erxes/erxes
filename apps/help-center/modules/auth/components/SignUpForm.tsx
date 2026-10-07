@@ -10,7 +10,10 @@ import { z } from 'zod';
 import { PasswordInput, TextInput } from '@/modules/ui/components/FormInput';
 import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import type { Translate } from '@/modules/i18n/translate';
 import { authErrorMessage } from '../utils/errors';
+import { PASSWORD_RULE } from '../utils/password';
 import { withNext } from '../utils/redirect';
 import {
   AUTH_PORTAL_LOGIN,
@@ -27,31 +30,26 @@ import {
   type RegisterResponse,
 } from '../types';
 
-const PASSWORD_RULE = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+const signUpSchema = (t: Translate) =>
+  z
+    .object({
+      name: z.string().refine((value) => value.trim().length > 0, {
+        message: t('validation.name'),
+      }),
+      email: z.string().email(t('validation.email')),
+      password: z.string().regex(PASSWORD_RULE, t('auth.passwordHint')),
+      confirm: z.string(),
+    })
+    .refine((values) => values.confirm === values.password, {
+      message: t('validation.passwordMatch'),
+      path: ['confirm'],
+    });
 
-const signUpSchema = z
-  .object({
-    name: z.string().refine((value) => value.trim().length > 0, {
-      message: 'Please enter your name.',
-    }),
-    email: z.string().email('That email address is not valid.'),
-    password: z
-      .string()
-      .regex(
-        PASSWORD_RULE,
-        'The password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.',
-      ),
-    confirm: z.string(),
-  })
-  .refine((values) => values.confirm === values.password, {
-    message: 'The passwords do not match.',
-    path: ['confirm'],
-  });
-
-type SignUpValues = z.infer<typeof signUpSchema>;
+type SignUpValues = z.infer<ReturnType<typeof signUpSchema>>;
 
 export const SignUpForm = ({ next }: { next?: string | null }) => {
   const router = useRouter();
+  const t = useT();
   const client = useApolloClient();
   const { signIn } = useSession();
 
@@ -63,7 +61,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
   const loading = registering || signingIn;
 
   const form = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(signUpSchema(t)),
     defaultValues: { name: '', email: '', password: '', confirm: '' },
   });
 
@@ -84,14 +82,13 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       const created = data?.clientPortalUserRegister;
 
       if (!created) {
-        throw new Error('Could not create the account.');
+        throw new Error(t('auth.createFailed'));
       }
 
       if (!created.isVerified) {
         toast({
-          title: 'Account created',
-          description:
-            'Follow the instructions sent to your email to confirm your account, then sign in.',
+          title: t('auth.accountCreated'),
+          description: t('auth.confirmEmail'),
         });
         router.replace(withNext('/sign-in', next ?? null));
         return;
@@ -116,25 +113,25 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       const current = session?.clientPortalCurrentUser;
 
       if (!current) {
-        throw new Error('No signed-in user was returned.');
+        throw new Error(t('auth.noUser'));
       }
 
       signIn(sessionFromCurrentUser(current, address), token);
 
       toast({
         variant: 'success',
-        title: 'Your account is ready',
-        description: `Welcome, ${displayName(current)}.`,
+        title: t('auth.accountReady'),
+        description: t('auth.welcomeName', { name: displayName(current) }),
       });
 
       router.replace(next ?? '/');
     } catch (caught) {
-      const message = authErrorMessage(caught);
+      const message = authErrorMessage(caught, t);
 
       form.setError('root', { message });
       toast({
         variant: 'destructive',
-        title: 'Could not sign up',
+        title: t('auth.signUpFailed'),
         description: message,
       });
     }
@@ -145,7 +142,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="space-y-4"
+        className="space-y-5"
       >
         <Form.Field
           control={form.control}
@@ -156,13 +153,13 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Name
+                {t('field.name')}
               </Form.Label>
               <Form.Control>
                 <TextInput
                   {...field}
                   autoComplete="name"
-                  placeholder="Your name"
+                  placeholder={t('field.namePlaceholder')}
                 />
               </Form.Control>
               <Form.Message />
@@ -179,7 +176,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Email
+                {t('field.email')}
               </Form.Label>
               <Form.Control>
                 <TextInput
@@ -203,7 +200,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Password
+                {t('field.password')}
               </Form.Label>
               <Form.Control>
                 <PasswordInput
@@ -212,6 +209,10 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                   placeholder="••••••••"
                 />
               </Form.Control>
+              <Form.Description>
+                At least 8 characters, with an uppercase letter, a lowercase
+                letter and a number.
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
@@ -226,7 +227,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Confirm password
+                {t('field.confirmPassword')}
               </Form.Label>
               <Form.Control>
                 <PasswordInput
@@ -250,9 +251,13 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
           </p>
         ) : null}
 
-        <Button type="submit" disabled={loading} className="mt-2 w-full">
-          <Icon name="user" size={15} />
-          {loading ? 'Signing up…' : 'Sign up'}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={loading}
+          className="mt-2 w-full"
+        >
+          {loading ? t('auth.signingUp') : t('auth.signUp')}
         </Button>
       </form>
     </Form>

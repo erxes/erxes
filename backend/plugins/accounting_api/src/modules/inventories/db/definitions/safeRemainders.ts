@@ -25,6 +25,10 @@ export const safeRemainderSchema = schemaWrapper(
     outTrId: { type: String, optional: true },
     saleRule: { type: Object, optional: true },
     saleTrId: { type: String, optional: true },
+    costIncreaseRule: { type: Object, optional: true },
+    costDecreaseRule: { type: Object, optional: true },
+    costIncreaseTrId: { type: String, optional: true },
+    costDecreaseTrId: { type: String, optional: true },
 
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String, label: 'Created User' },

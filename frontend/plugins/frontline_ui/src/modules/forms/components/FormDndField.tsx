@@ -62,7 +62,7 @@ export const FormDndField = ({
     <>
       <div
         className={cn(
-          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2',
+          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2 min-w-0',
           fieldData?.span === 2 && 'col-span-2',
           mountedWhileDragging && 'fade-in',
         )}
@@ -71,7 +71,7 @@ export const FormDndField = ({
         {...listeners}
       >
         <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
-        {fieldData?.label}
+        <span className="truncate min-w-0">{fieldData?.label}</span>
         <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>

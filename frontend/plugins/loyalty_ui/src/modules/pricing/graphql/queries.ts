@@ -39,6 +39,8 @@ export const GET_STAGES = gql`
 
 export const PRICING_PLANS = gql`
   query PricingPlans(
+    $page: Int
+    $perPage: Int
     $status: String
     $priority: String
     $branchId: String
@@ -51,6 +53,8 @@ export const PRICING_PLANS = gql`
     $isRepeatEnabled: Boolean
   ) {
     pricingPlans(
+      page: $page
+      perPage: $perPage
       status: $status
       priority: $priority
       branchId: $branchId
@@ -91,6 +95,18 @@ export const PRICING_PLANS = gql`
         email
       }
     }
+    pricingPlansCount(
+      status: $status
+      priority: $priority
+      branchId: $branchId
+      departmentId: $departmentId
+      productId: $productId
+      date: $date
+      isQuantityEnabled: $isQuantityEnabled
+      isPriceEnabled: $isPriceEnabled
+      isExpiryEnabled: $isExpiryEnabled
+      isRepeatEnabled: $isRepeatEnabled
+    )
   }
 `;
 

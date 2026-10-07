@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-09-16`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -65,6 +65,7 @@
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.
 - Signer and worker startup use existing `JWT_TOKEN_SECRET`. Derive the CMS-purpose key exactly as specified in `CMS_POSTIZ.md`; reject missing/blank JWT. `CMS_POSTIZ_SHARED_SECRET` is ignored.
 - Tenant context remains signed and verified even when SaaS tenants share a JWT root.
+- The SaaS delivery sweep streams tenant identifiers and checks for due work through the MongoDB driver before loading tenant models. Reuse worker models for tenants with due jobs; idle tenants must not create cached Mongoose models.
 - Preserve leases, snapshots and request IDs. UNKNOWN means manual review, not permission to publish again.
 - Enterprise workers scan the installation database without using a synthetic routing tenant. Dispatch, user lookup and status polling use each saved `subdomain`; no DOMAIN-derived fallback or installation-specific setting is used.
 - SaaS workers enumerate tenant databases and reject snapshots naming another tenant. Legacy SaaS rows can be bound to their database tenant under the claimed lease. Legacy enterprise rows without a tenant become UNKNOWN and require verified operator recovery; never infer ownership from an article URL, user ID or another job.
@@ -79,31 +80,3 @@
 - `pnpm exec tsc --noEmit -p backend/plugins/content_api/tsconfig.json`
 - `pnpm exec jest --config backend/plugins/content_api/jest.postiz.cjs --runInBand`
 - No Nx `lint` or `test` target is defined.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-16` - Include Postiz sharing in CMS authoring roles
-
-- **Summary:** Grant Postiz sharing to the four existing CMS authoring/editor/admin groups without creating a custom group or changing approval rules.
-- **Affected areas:** Default permission metadata and role-resolution regression tests.
-- **Contracts changed:** Existing default role IDs resolve `cmsPostsSharePostiz` after updated metadata is loaded; Viewer and publication/approval grants are unchanged. No database backfill is required.
-
-### `2026-09-16` - Persist CMS delivery tenant routing
-
-- **Summary:** Route enterprise and SaaS delivery jobs through their originating tenant, including retries and remote status polling.
-- **Affected areas:** CMS delivery model, service, worker, history query, tenant guards and regression tests.
-- **Contracts changed:** Add optional persisted `subdomain` for backward compatibility. No GraphQL input, signing protocol, secret or startup configuration changes. Legacy enterprise deliveries require verified recovery as documented in `CMS_POSTIZ.md`.
-
-### `2026-09-15` - Match agent installer QEMU compatibility
-
-- **Summary:** Use agent_api's installer-only JIT workaround and preserve dependency installation failures.
-- **Affected areas:** Dockerfile, Docker contract tests and this guide.
-- **Contracts changed:** None. CI workflow, architectures, image tags, runtime settings and plugin startup remain unchanged.
-
-### `2026-09-15` - Reuse internal JWT authentication for CMS
-
-- **Summary:** Derive CMS signing keys from the existing JWT secret and start the delivery worker without a new secret setting.
-- **Affected areas:** CMS bridge, worker startup, authentication tests and deployment notes.
-- **Contracts changed:** Retire `CMS_POSTIZ_SHARED_SECRET`; require matching `JWT_TOKEN_SECRET` and coordinated content_api/agent_api deployment. Envelope fields and authorization checks are unchanged.
