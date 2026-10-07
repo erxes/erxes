@@ -43,9 +43,13 @@ type DealPrintDocumentProps = {
   deals: Pick<IDeal, '_id'>[];
   disabled?: boolean;
   variant?: 'button' | 'submenu';
+  trigger?: React.ReactNode;
 };
 
-type DealPrintDocumentSubmenuProps = Omit<DealPrintDocumentProps, 'variant'>;
+type DealPrintDocumentSubmenuProps = Omit<
+  DealPrintDocumentProps,
+  'variant' | 'trigger'
+>;
 
 const printHtml = (printWindow: Window, html: string, title: string) => {
   const printUrl = URL.createObjectURL(
@@ -177,6 +181,7 @@ export const DealPrintDocument = ({
   deals,
   disabled = false,
   variant = 'button',
+  trigger,
 }: DealPrintDocumentProps) => {
   if (variant === 'submenu') {
     return <DealPrintDocumentSubmenu deals={deals} disabled={disabled} />;
@@ -184,7 +189,11 @@ export const DealPrintDocument = ({
 
   return (
     <fieldset className="contents" disabled={disabled}>
-      <PrintDocument items={deals} contentType={DEAL_DOCUMENT_CONTENT_TYPE} />
+      <PrintDocument
+        items={deals}
+        contentType={DEAL_DOCUMENT_CONTENT_TYPE}
+        trigger={trigger}
+      />
     </fieldset>
   );
 };

@@ -1,6 +1,7 @@
-import { Button, Popover } from 'erxes-ui';
+import { Popover } from 'erxes-ui';
 
 import { ChecklistForm } from './ChecklistForm';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import { IconListCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,12 +10,10 @@ export const ChecklistOverview = ({ label }: Readonly<{ label?: string }>) => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <Button variant="outline" size="sm" className="h-7 gap-1.5 px-2">
-          <IconListCheck />
-          {label ?? t('checklist', 'Checklist')}
-        </Button>
-      </Popover.Trigger>
+      <DealChipTrigger>
+        <IconListCheck />
+        {label ?? t('checklist', 'Checklist')}
+      </DealChipTrigger>
       <Popover.Content>
         <ChecklistForm />
       </Popover.Content>

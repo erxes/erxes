@@ -24,26 +24,30 @@ import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger
 const ChipPopover = ({
   open,
   onOpenChange,
+  label,
   value,
   children,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  label?: React.ReactNode;
   value: React.ReactNode;
   children: React.ReactNode;
 }) => (
   <Popover open={open} onOpenChange={onOpenChange}>
-    <DealChipTrigger>{value}</DealChipTrigger>
+    <DealChipTrigger label={label}>{value}</DealChipTrigger>
     <Combobox.Content>{children}</Combobox.Content>
   </Popover>
 );
 
 type ChipProps = {
+  label?: React.ReactNode;
   value?: string[] | string;
   onValueChange: (value: string | string[]) => void;
 };
 
 export const DealAssigneeChip = ({
+  label,
   value,
   onValueChange,
   placeholder,
@@ -64,6 +68,7 @@ export const DealAssigneeChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectMember.Value placeholder={placeholder} />}
       >
         <SelectMember.Content />
@@ -73,6 +78,7 @@ export const DealAssigneeChip = ({
 };
 
 export const DealTagsChip = ({
+  label,
   value,
   onValueChange,
   showSelectedTagsOutside = true,
@@ -94,11 +100,9 @@ export const DealTagsChip = ({
       onValueChange={onValueChange}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <TagsSelect.Trigger
-          variant="outline"
-          placeholder={t('select-tags')}
-          showValue
-        />
+        <DealChipTrigger label={label}>
+          <TagsSelect.Value placeholder={t('select-tags')} showValue />
+        </DealChipTrigger>
         {showSelectedTagsOutside ? <TagsSelect.SelectedList /> : null}
         <Combobox.Content>
           <TagsSelect.Content />
@@ -108,7 +112,11 @@ export const DealTagsChip = ({
   );
 };
 
-export const DealBranchesChip = ({ value, onValueChange }: ChipProps) => {
+export const DealBranchesChip = ({
+  label,
+  value,
+  onValueChange,
+}: ChipProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -123,6 +131,7 @@ export const DealBranchesChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectBranches.Value />}
       >
         <SelectBranches.Content />
@@ -131,7 +140,11 @@ export const DealBranchesChip = ({ value, onValueChange }: ChipProps) => {
   );
 };
 
-export const DealDepartmentsChip = ({ value, onValueChange }: ChipProps) => {
+export const DealDepartmentsChip = ({
+  label,
+  value,
+  onValueChange,
+}: ChipProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -146,6 +159,7 @@ export const DealDepartmentsChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectDepartments.Value />}
       >
         <SelectDepartments.Content />
@@ -155,6 +169,7 @@ export const DealDepartmentsChip = ({ value, onValueChange }: ChipProps) => {
 };
 
 export const DealStageChip = ({
+  label,
   value,
   pipelineId,
   onValueChange,
@@ -176,6 +191,7 @@ export const DealStageChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectStage.Value />}
       >
         <SelectStage.Content />
@@ -185,6 +201,7 @@ export const DealStageChip = ({
 };
 
 export const DealCustomerChip = ({
+  label,
   value,
   onValueChange,
   placeholder,
@@ -204,6 +221,7 @@ export const DealCustomerChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectCustomer.Value placeholder={placeholder} />}
       >
         <SelectCustomer.Content />
@@ -213,6 +231,7 @@ export const DealCustomerChip = ({
 };
 
 export const DealCompanyChip = ({
+  label,
   value,
   onValueChange,
   placeholder,
@@ -232,6 +251,7 @@ export const DealCompanyChip = ({
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
+        label={label}
         value={<SelectCompany.Value placeholder={placeholder} />}
       >
         <SelectCompany.Content />
@@ -241,14 +261,14 @@ export const DealCompanyChip = ({
 };
 
 export const DealBrokerTypeChip = ({
+  label,
   value,
   options,
-  selectedPrefix,
   onValueChange,
 }: {
+  label?: React.ReactNode;
   value: string;
   options: { value: string; label: string }[];
-  selectedPrefix: string;
   onValueChange: (value: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
@@ -258,12 +278,8 @@ export const DealBrokerTypeChip = ({
     <ChipPopover
       open={open}
       onOpenChange={setOpen}
-      value={
-        <span className="truncate">
-          <span className="font-medium text-foreground">{selectedPrefix}:</span>{' '}
-          <Combobox.Value value={selected?.label} className="inline" />
-        </span>
-      }
+      label={label}
+      value={<Combobox.Value value={selected?.label} className="inline" />}
     >
       <Command>
         <Command.List>

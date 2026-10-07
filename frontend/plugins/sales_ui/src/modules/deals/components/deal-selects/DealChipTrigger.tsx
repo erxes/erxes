@@ -1,4 +1,27 @@
-import { Combobox, cn } from 'erxes-ui';
+import React from 'react';
+import { IconChevronDown } from '@tabler/icons-react';
+import { Button, Combobox, cn } from 'erxes-ui';
+
+/**
+ * Action button for the deal detail row, shaped like `DealChipTrigger` so
+ * actions sit in the same pill row as the field chips.
+ */
+export const DealChipButton = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  React.ComponentPropsWithoutRef<typeof Button>
+>(({ className, ...props }, ref) => (
+  <Button
+    ref={ref}
+    variant="outline"
+    {...props}
+    className={cn(
+      'h-7 gap-1.5 rounded px-3 font-medium shadow-xs hover:bg-accent/50 [&_svg]:size-4',
+      className,
+    )}
+  />
+));
+
+DealChipButton.displayName = 'DealChipButton';
 
 /**
  * Inline chip trigger for the deal detail row.
@@ -9,13 +32,31 @@ import { Combobox, cn } from 'erxes-ui';
  * compose Provider/Value/Content around this instead of reusing those roots.
  */
 export const DealChipTrigger = ({
+  label,
   children,
   className,
 }: {
+  label?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }) => (
-  <Combobox.TriggerBase className={cn('w-fit h-7 max-w-xs', className)}>
-    {children}
+  <Combobox.TriggerBase
+    className={cn(
+      'group w-fit max-w-sm h-7 rounded p-0 gap-0 overflow-hidden',
+      'data-[state=open]:border-primary/40',
+      className,
+    )}
+  >
+    {label && (
+      <span className="flex h-full shrink-0 items-center whitespace-nowrap px-3 text-muted-foreground bg-muted/40 border-r">
+        {label}
+      </span>
+    )}
+    <span className="flex min-w-0 items-center gap-1.5 pl-3 pr-2.5 font-medium text-foreground">
+      <span className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap [&_svg]:size-4 [&_svg]:shrink-0">
+        {children}
+      </span>
+      <IconChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+    </span>
   </Combobox.TriggerBase>
 );

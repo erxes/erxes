@@ -6,8 +6,10 @@ import {
   IconTrash,
   IconEdit,
   IconDotsVertical,
+  IconPrinter,
 } from '@tabler/icons-react';
 import { IDeal } from '@/deals/types/deals';
+import { DealChipButton } from '@/deals/components/deal-selects/DealChipTrigger';
 import { useTranslation } from 'react-i18next';
 import { DealPrintDocument } from '@/deals/actionBar/components/DealPrintDocument';
 import { useDealActions } from '@/deals/actionBar/hooks/useDealActions';
@@ -56,38 +58,39 @@ export const DealsActions = ({
   if (variant === 'inline') {
     return (
       <>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 gap-1.5 px-2"
-          onClick={() => void handleCopy()}
-          disabled={isLoading}
-        >
+        <DealChipButton onClick={() => void handleCopy()} disabled={isLoading}>
           <IconCopy />
           {t('duplicate')}
-        </Button>
-        <DealPrintDocument deals={deals} disabled={isLoading} />
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 gap-1.5 px-2"
+        </DealChipButton>
+        <DealPrintDocument
+          deals={deals}
+          disabled={isLoading}
+          trigger={
+            <DealChipButton
+              variant="secondary"
+              className="text-primary shadow-none hover:bg-border"
+            >
+              <IconPrinter />
+              {t('print', 'Print')}
+            </DealChipButton>
+          }
+        />
+        <DealChipButton
           onClick={() => void handleArchive()}
           disabled={isLoading}
         >
           <IconArchive />
           {archiveLabel}
-        </Button>
+        </DealChipButton>
         {showRemove && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 gap-1.5 px-2 text-red-700 hover:text-red-700"
+          <DealChipButton
+            className="text-red-700 hover:text-red-700"
             onClick={() => void handleRemove()}
             disabled={isLoading}
           >
             <IconTrash />
             {t('remove')}
-          </Button>
+          </DealChipButton>
         )}
       </>
     );

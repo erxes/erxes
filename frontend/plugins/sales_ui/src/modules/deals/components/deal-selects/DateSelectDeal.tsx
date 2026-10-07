@@ -25,6 +25,7 @@ import {
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -119,8 +120,10 @@ const DateSelectContent = () => {
 };
 
 export const DateSelectTrigger = ({
+  label,
   children,
 }: {
+  label?: React.ReactNode;
   children: React.ReactNode;
 }) => {
   const { variant } = useDateSelectContext();
@@ -143,6 +146,9 @@ export const DateSelectTrigger = ({
       </Popover.Trigger>
     );
   }
+  if (variant === DateSelectVariant.DETAIL) {
+    return <DealChipTrigger label={label}>{children}</DealChipTrigger>;
+  }
   return (
     <Combobox.TriggerBase className="w-fit h-7">
       {children}
@@ -156,6 +162,7 @@ export const DateSelectDealRoot = ({
   type,
   scope,
   variant = DateSelectVariant.TABLE,
+  label,
   placeholder,
 }: {
   value?: Date | string;
@@ -163,6 +170,7 @@ export const DateSelectDealRoot = ({
   type: 'startDate' | 'closeDate';
   scope?: string;
   variant?: `${DateSelectVariant}`;
+  label?: React.ReactNode;
   placeholder?: string;
 }) => {
   const { t } = useTranslation('sales');
@@ -217,7 +225,7 @@ export const DateSelectDealRoot = ({
         error={error}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <DateSelectTrigger>
+          <DateSelectTrigger label={label}>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
               {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
@@ -241,7 +249,7 @@ export const DateSelectDealRoot = ({
       error={error}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <DateSelectTrigger>
+        <DateSelectTrigger label={label}>
           <DateSelectValue placeholder={placeholder} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
