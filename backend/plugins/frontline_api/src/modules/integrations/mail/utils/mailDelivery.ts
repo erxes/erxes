@@ -96,9 +96,8 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
         message.replyTag,
       );
 
-      const senderName = await models.MailIntegrations.resolveSenderName(
-        integration,
-      );
+      const senderName =
+        await models.MailIntegrations.resolveSenderName(integration);
 
       const [inReplyTo] = await mailDelivery.toWireReferences(
         message.inboxIntegrationId,

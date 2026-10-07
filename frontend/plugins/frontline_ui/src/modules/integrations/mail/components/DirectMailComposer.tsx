@@ -275,8 +275,8 @@ export const DirectMailComposer = () => {
                 {checkingRecipients
                   ? 'Checking recipient email verification...'
                   : recipientVerificationError
-                  ? 'Unable to check recipient email verification.'
-                  : 'All recipient email addresses must be verified before sending.'}
+                    ? 'Unable to check recipient email verification.'
+                    : 'All recipient email addresses must be verified before sending.'}
                 {recipientVerificationError && (
                   <Button
                     type="button"
