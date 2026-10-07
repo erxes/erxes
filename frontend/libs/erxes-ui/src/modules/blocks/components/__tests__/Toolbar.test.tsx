@@ -12,9 +12,11 @@ jest.mock('@blocknote/react', () => {
     }: {
       formattingToolbar: import('react').ComponentType;
     }) => <Contents />,
-    FormattingToolbar: ({ children }: { children: import('react').ReactNode }) => (
-      <div role="toolbar">{children}</div>
-    ),
+    FormattingToolbar: ({
+      children,
+    }: {
+      children: import('react').ReactNode;
+    }) => <div role="toolbar">{children}</div>,
     BasicTextStyleButton: ({ basicTextStyle }: { basicTextStyle: string }) => {
       const [pressed, setPressed] = React.useState(false);
       return (

@@ -12,7 +12,11 @@ it('reports selected state immediately and keeps the forwarded ref and disabled 
   const onPressedChange = jest.fn();
   const ref = createRef<HTMLButtonElement>();
   const { rerender } = render(
-    <ToolbarToggle ref={ref} aria-label="Bold" onPressedChange={onPressedChange} />,
+    <ToolbarToggle
+      ref={ref}
+      aria-label="Bold"
+      onPressedChange={onPressedChange}
+    />,
   );
   const bold = screen.getByRole('button', { name: 'Bold' });
   expect(ref.current).toBe(bold);
