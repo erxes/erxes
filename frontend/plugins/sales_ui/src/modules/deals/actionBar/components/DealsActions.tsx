@@ -46,7 +46,7 @@ export const DealsActions = ({
       <Button
         variant="outline"
         className="flex items-center gap-2"
-        onClick={() => void handleWatch()}
+        onClick={handleWatch}
         disabled={isLoading}
       >
         <IconEye />
@@ -58,7 +58,7 @@ export const DealsActions = ({
   if (variant === 'inline') {
     return (
       <>
-        <DealChipButton onClick={() => void handleCopy()} disabled={isLoading}>
+        <DealChipButton onClick={handleCopy} disabled={isLoading}>
           <IconCopy />
           {t('duplicate')}
         </DealChipButton>
@@ -75,17 +75,14 @@ export const DealsActions = ({
             </DealChipButton>
           }
         />
-        <DealChipButton
-          onClick={() => void handleArchive()}
-          disabled={isLoading}
-        >
+        <DealChipButton onClick={handleArchive} disabled={isLoading}>
           <IconArchive />
           {archiveLabel}
         </DealChipButton>
         {showRemove && (
           <DealChipButton
             className="text-red-700 hover:text-red-700"
-            onClick={() => void handleRemove()}
+            onClick={handleRemove}
             disabled={isLoading}
           >
             <IconTrash />
