@@ -79,8 +79,8 @@ export const SurveyOptionTicketConfig = ({
     form.formState.errors.steps?.[stepIndex]?.options?.[optionIndex];
   const hasTicketError = Boolean(
     optionErrors?.ticketCreationThreshold ||
-      optionErrors?.ticketPipelineId ||
-      optionErrors?.ticketStatusId,
+    optionErrors?.ticketPipelineId ||
+    optionErrors?.ticketStatusId,
   );
 
   return (
