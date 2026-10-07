@@ -37,7 +37,12 @@ export const RecordTableCursorProvider = ({
   const handleScroll = () => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     const firstVisibleRow = scrollRef.current?.querySelector('.in-view');
-    if (firstVisibleRow && sessionKey) {
+    if (
+      firstVisibleRow &&
+      sessionKey &&
+      firstVisibleRow.id &&
+      firstVisibleRow.id.trim() !== ''
+    ) {
       sessionStorage.setItem(sessionKey, firstVisibleRow.id);
     }
     debounceTimer.current = setTimeout(() => {

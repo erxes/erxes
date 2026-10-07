@@ -34,7 +34,7 @@ export interface PageInfo {
 }
 
 export interface CursorResult<T> {
-  list: T[];
+  list: (T & { cursor?: string })[];
   totalCount: number;
   pageInfo: PageInfo;
 }
