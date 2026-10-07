@@ -66,6 +66,17 @@
   show a warning and are stripped on the next save. "Add field" (gated by
   `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
   `core:customer` and places the new property on the form, visible.
+- POS "Automations" tab (`PosAutomations` / `usePosAutomations`) lists the
+  automations whose `sales:pos.orders.event` trigger config names this `posId`
+  or no POS at all (those run on every POS and carry an "All POS" badge)
+  (core `automations(triggerTypes)` query `PosOrderAutomations`, narrowed
+  client-side) and opens new ones through the `ui-modules`
+  `buildAutomationSeedLink`: "Give points on purchase" seeds an `eventType:
+  'paid'` trigger plus loyalty Adjust score (`{{ trigger.customerId }}`; the
+  campaign is picked in the builder) and shows only when `isEnabled('loyalty')`;
+  "Other automation" seeds the trigger with `posId` alone. Both seeds and the
+  list's edit links carry `returnTo` (this tab, labelled with the POS name) so
+  the builder header offers a way back. Nothing is saved until the user saves in the builder.
 
 ## Architecture
 
@@ -86,6 +97,10 @@
 
 ### Provides
 
+- POS order event trigger form: the POS field (`SelectPos.FormItem` with
+  `emptyLabel`) lists "Any POS" first; choosing it clears `posId` so the
+  trigger matches every POS (single-mode `SelectPos` otherwise cannot be
+  unselected).
 - Sales routes and Module Federation UI entries registered by `src/config.tsx`.
 - Product table view state through local React state only; no backend contract
   changes are required for expanded product management.
@@ -156,3 +171,6 @@
 - POS customer smoke scenario: open the "Customer registration" tab, enable it,
   hide e-mail (phone stays locked on), add a property, rearrange in Edit
   layout, save, and verify the layout persists after reload.
+- POS automations smoke scenario: open the "Automations" tab, click "Give
+  points on purchase", pick a score campaign in the builder, save, come back
+  and verify the automation is listed with its status.

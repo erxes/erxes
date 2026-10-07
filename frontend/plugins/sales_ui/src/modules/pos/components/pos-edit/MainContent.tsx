@@ -12,6 +12,7 @@ import { ScreenConfig } from '@/pos/components/screenConfig';
 import { DeliveryConfig } from '@/pos/components/deliveryConfig';
 import { SyncCard } from '@/pos/components/syncCard';
 import { CustomerCreate } from '@/pos/components/customerCreate/CustomerCreate';
+import { PosAutomations } from '@/pos/components/automations/PosAutomations';
 
 interface MainContentProps {
   activeStep: string;
@@ -80,6 +81,8 @@ export const MainContent: React.FC<MainContentProps> = ({
             onSaveActionChange={handleSaveActionChange}
           />
         );
+      case 'automations':
+        return <PosAutomations posId={posId} posName={posDetail?.name} />;
       case 'product':
         return (
           <Products

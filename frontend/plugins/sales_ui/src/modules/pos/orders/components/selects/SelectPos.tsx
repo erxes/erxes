@@ -61,12 +61,18 @@ export const SelectPosProvider = ({
     [isSingleMode, onValueChange, value],
   );
 
+  const clear = useCallback(() => {
+    setPos([]);
+    onValueChange(isSingleMode ? null : []);
+  }, [isSingleMode, onValueChange]);
+
   return (
     <SelectPosContext.Provider
       value={{
         pos: _pos,
         posIds: !value ? [] : Array.isArray(value) ? value : [value],
         onSelect,
+        clear,
         setPos,
         loading: false,
         error: null,
@@ -102,11 +108,12 @@ const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
   );
 };
 
-const SelectPosContent = () => {
+// `emptyLabel` offers "no POS" as a choice of its own, for fields where empty means any.
+const SelectPosContent = ({ emptyLabel }: { emptyLabel?: string }) => {
   const { t } = useTranslation('sales');
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { pos: selectedPos } = useSelectPosContext();
+  const { pos: selectedPos, posIds, clear } = useSelectPosContext();
 
   const {
     posList = [],
@@ -129,6 +136,12 @@ const SelectPosContent = () => {
       />
       <Command.List>
         <Combobox.Empty loading={loading} />
+        {emptyLabel && !search && (
+          <Command.Item value="__any__" onSelect={clear}>
+            <span className="text-muted-foreground">{emptyLabel}</span>
+            <Combobox.Check checked={!posIds.length} />
+          </Command.Item>
+        )}
         {selectedPos.length > 0 && (
           <>
             {selectedPos.map((pos) => (
@@ -275,10 +288,12 @@ export const SelectPosFormItem = ({
   onValueChange,
   className,
   placeholder,
+  emptyLabel,
   ...props
 }: Omit<React.ComponentProps<typeof SelectPosProvider>, 'children'> & {
   className?: string;
   placeholder?: string;
+  emptyLabel?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -298,7 +313,7 @@ export const SelectPosFormItem = ({
         </Form.Control>
 
         <Combobox.Content>
-          <SelectPosContent />
+          <SelectPosContent emptyLabel={emptyLabel} />
         </Combobox.Content>
       </Popover>
     </SelectPosProvider>

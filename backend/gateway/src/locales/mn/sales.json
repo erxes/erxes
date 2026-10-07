@@ -892,5 +892,13 @@
   "points-available": "{{points}} оноо · дээд тал нь {{amount}}",
   "points-blocked-frozen": "Лоялти данс царцсан байна",
   "points-blocked-belowMin": "Үлдэгдэл доод хэмжээнд хүрээгүй тул оноо зарцуулах боломжгүй",
-  "points-blocked-empty": "Энэ deal-д зарцуулах оноо алга"
+  "points-blocked-empty": "Энэ deal-д зарцуулах оноо алга",
+  "customer-registration": "Харилцагч бүртгэх",
+  "pos-automations": "Автоматжуулалт",
+  "pos-automations-hint": "Энэ POS-ийн захиалга дээр ажилладаг дүрмүүд: оноо, voucher, мессеж. Тус бүр нь builder дээр засаж болох энгийн automation.",
+  "pos-automations-empty": "Энэ POS-ийн захиалга дээр ажилладаг automation алга.",
+  "pos-automations-failed": "Automation ачаалж чадсангүй: {{message}}",
+  "pos-give-points-on-purchase": "Худалдан авалтаар оноо өгөх",
+  "pos-other-automation": "Өөр automation",
+  "pos-automation-all-pos": "Бүх POS"
 }

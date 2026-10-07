@@ -93,6 +93,7 @@ export const getSteps = () => {
     { value: 'payments', title: 'payments' },
     { value: 'permission', title: 'permission' },
     { value: 'customer', title: 'customer-registration' },
+    { value: 'automations', title: 'pos-automations' },
     { value: 'product', title: 'product-and-service' },
     { value: 'appearance', title: 'brand-color-and-logo' },
     { value: 'screen', title: 'screen' },

@@ -1,6 +1,7 @@
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import {
+  automationReturnLinkSearch,
   buildAutomationSeedLink,
   generateAutomationElementId,
   TAutomationSeedAction,
@@ -22,6 +23,7 @@ export const useCampaignAutomationSeeds = (
   form: UseFormReturn<LoyaltyScoreFormValues>,
 ) => {
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const { campaignId } = useScoreCampaignContext();
   const [title, accountTypeId] = useWatch({
     control: form.control,
@@ -31,6 +33,10 @@ export const useCampaignAutomationSeeds = (
   const accountType = accounts.find(({ _id }) => _id === accountTypeId);
   // Highest first: the split takes the first branch that matches.
   const tiers = [...activeTiers(accountType?.tiers)].reverse();
+  const returnTo = {
+    path: `${pathname}${search}`,
+    label: title || 'Score campaign',
+  };
 
   // Points can come from any event, so the trigger is left to the user. From a
   // row, the action turns on only that row; otherwise every row counts.
@@ -42,6 +48,7 @@ export const useCampaignAutomationSeeds = (
     navigate(
       buildAutomationSeedLink({
         name: title || '',
+        returnTo,
         actions: [
           {
             id: generateAutomationElementId(),
@@ -102,13 +109,19 @@ export const useCampaignAutomationSeeds = (
       buildAutomationSeedLink({
         triggerType: CUSTOMER_TRIGGER_TYPE,
         name: `${accountType.name} tier`,
+        returnTo,
         actions,
       }),
     );
   };
 
+  // Opening an existing one keeps the same way back as creating one.
+  const editPath = (automationId: string) =>
+    `/automations/edit/${automationId}${automationReturnLinkSearch(returnTo)}`;
+
   return {
     isSaved: !!campaignId,
+    editPath,
     canCreateTier: !!campaignId && tiers.length > 0,
     createPointAutomation,
     createTierAutomation,

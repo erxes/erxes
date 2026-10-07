@@ -892,5 +892,13 @@
   "points-available": "{{points}} points · up to {{amount}}",
   "points-blocked-frozen": "The loyalty account is frozen",
   "points-blocked-belowMin": "Points can be spent once the balance reaches the minimum",
-  "points-blocked-empty": "No points to spend on this deal"
+  "points-blocked-empty": "No points to spend on this deal",
+  "customer-registration": "Customer registration",
+  "pos-automations": "Automations",
+  "pos-automations-hint": "Rules that run on this POS’s orders: points, vouchers, messages. Each one is a regular automation you can edit in the builder.",
+  "pos-automations-empty": "No automation runs on this POS’s orders yet.",
+  "pos-automations-failed": "Could not load automations: {{message}}",
+  "pos-give-points-on-purchase": "Give points on purchase",
+  "pos-other-automation": "Other automation",
+  "pos-automation-all-pos": "All POS"
 }
