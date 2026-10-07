@@ -1,28 +1,40 @@
-// Composes the subgraph schemas printed by each service's `schema:print`
-// target into generated/schema.graphql, the client-facing schema every
-// frontend codegen reads. The router composes the same subgraphs at runtime.
+// Composes the subgraph schemas printed by every backend that opts into the
+// `schema:print` Nx target into generated/schema.graphql. This is the
+// repo-wide schema frontend codegen checks against: every gateway subgraph
+// plus the gateway's own subscription fields. A deployment's router composes
+// only the plugins it enables, at runtime.
 import { composeServices } from '@apollo/composition';
 import { parse, printSchema } from 'graphql';
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { gatewaySubscriptionTypeDefs } from './src/subscription/genTypeDefs';
 
-const backendPath = '..';
+type ProjectJson = { targets?: Record<string, unknown> };
 
-// posclient-front talks to posclient_api directly, not through the gateway
-const notComposed = ['posclient_api'];
+const printsSchema = (path: string) => {
+  const project: ProjectJson = JSON.parse(
+    readFileSync(`${path}/project.json`, 'utf-8'),
+  );
+  return 'schema:print' in (project.targets ?? {});
+};
 
-const subgraphPaths = [
-  { name: 'core', path: `${backendPath}/core-api` },
-  ...readdirSync(`${backendPath}/plugins`)
-    .filter((dir) => !notComposed.includes(dir))
+const subgraphs = [
+  { name: 'core', path: '../core-api' },
+  ...readdirSync('../plugins')
     .map((dir) => ({
       name: dir.replace(/_api$/, ''),
-      path: `${backendPath}/plugins/${dir}`,
-    })),
-];
+      path: `../plugins/${dir}`,
+    }))
+    .filter(({ path }) => existsSync(`${path}/project.json`)),
+].filter(({ path }) => printsSchema(path));
 
 const { errors, schema } = composeServices([
-  ...subgraphPaths.map(({ name, path }) => ({
+  ...subgraphs.map(({ name, path }) => ({
     name,
     typeDefs: parse(readFileSync(`${path}/generated/schema.graphql`, 'utf-8')),
   })),
@@ -44,7 +56,7 @@ writeFileSync(
   printSchema(schema.toAPISchema().toGraphQLJSSchema()),
 );
 console.log(
-  `Composed ${subgraphPaths
+  `Composed ${subgraphs
     .map(({ name }) => name)
     .join(', ')} into generated/schema.graphql`,
 );

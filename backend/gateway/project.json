@@ -55,7 +55,7 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["core-api", "*_api", "!posclient_api"],
+          "projects": ["*"],
           "target": "schema:print"
         }
       ],
