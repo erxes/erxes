@@ -25,12 +25,7 @@
         "./src/*.ts",
         "./src/*/index.ts"
       ],
-      "default": [
-        "./src/*.tsx",
-        "./src/*.ts",
-        "./src/*/index.tsx",
-        "./src/*/index.ts"
-      ]
+      "default": "./src/*"
     },
     "./package.json": "./package.json"
   },
