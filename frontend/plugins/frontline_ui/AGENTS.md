@@ -1139,7 +1139,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `user` change, so a `Call from` change to different SIP credentials
   re-registers and one on the same credentials keeps the live connection. Never
   force a `key` on `SipProvider`: `CallWidget` renders inside it, and a remount
-  runs the widget's `IDLE` effect and closes the widget.
+  runs the widget's `IDLE` effect and closes the widget. Its `useSip()` context
+  carries only call controls; frontline_api has no active-session contract, so
+  there is nothing to register a device or tab against.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by

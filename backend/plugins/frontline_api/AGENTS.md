@@ -1254,9 +1254,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and every resolver is declared. Report resolvers are registered under
   `Query` only. `ticketPipelineChanged(_id: String!)` returns
   `PipelineSubscription`, the `{ type, pipeline }` payload the pipeline
-  mutations publish. The one exception is `callsActiveSession` /
-  `callUpdateActiveSession`: declared without a resolver since 3.0, so the
-  call UI's mutation always gets `null`.
+  mutations publish.
 - Optional filter objects default to `{}` before use: `getTickets`,
   `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
   `userConversations` rejects a missing `_id`, because `$in: [undefined]`

@@ -1,7 +1,6 @@
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { useAtom, useAtomValue } from 'jotai';
 import SipProvider from './SipProvider';
-import { useCallCreateSession } from '@/integrations/call/hooks/useCallCreateSession';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { useCallGetConfigs } from '@/integrations/call/hooks/useCallGetConfigs';
 import { useCurrentCallSession } from '@/integrations/call/hooks/useCurrentCallSession';
@@ -22,8 +21,6 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   const { callConfigs, loading: callConfigLoading } = useCallGetConfigs({
     skip: callUserIntegrationLoading || Boolean(!callUserIntegrations?.length),
   });
-
-  const { createActiveSession } = useCallCreateSession();
 
   if (
     callUserIntegrationLoading ||
@@ -67,11 +64,7 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <SipProvider
-      createSession={createActiveSession}
-      historyId={historyId}
-      {...sipConfig}
-    >
+    <SipProvider historyId={historyId} {...sipConfig}>
       <CallSessionBridge />
       {children}
     </SipProvider>

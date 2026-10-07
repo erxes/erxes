@@ -57,16 +57,6 @@ export const CALL_CUSTOMER_DETAIL = gql`
   }
 `;
 
-export const CALL_ACTIVE_SESSION = gql`
-  query callsActiveSession {
-    callsActiveSession {
-      _id
-      userId
-      lastLoginDeviceId
-    }
-  }
-`;
-
 export const CALL_HISTORIES_TOTAL_COUNT = gql`
   query callHistoriesTotalCount(
     $limit: Int

@@ -60,11 +60,6 @@ export const types = `
     channels: [CallChannel]
     integration: CallConversationIntegration
   }
-  type CallActiveSession {
-    _id: String
-    userId: String
-    lastLoginDeviceId: String
-  }
    type CallHistory{
     _id: String
     operatorPhone: String
@@ -249,7 +244,6 @@ export const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(customerPhone: String): Customer
-  callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
   callHistoriesTotalCount(${filterParams}, skip: Int): Int
   callsGetConfigs: JSON
@@ -265,7 +259,6 @@ export const queries = `
 export const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
-  callUpdateActiveSession: JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String

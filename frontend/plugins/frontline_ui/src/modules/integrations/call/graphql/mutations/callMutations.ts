@@ -1,11 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const ADD_ACTIVE_SESSION = gql`
-  mutation CallUpdateActiveSession {
-    callUpdateActiveSession
-  }
-`;
-
 export const CALL_CUSTOMER_ADD = gql`
   mutation CallAddCustomer(
     $inboxIntegrationId: String
