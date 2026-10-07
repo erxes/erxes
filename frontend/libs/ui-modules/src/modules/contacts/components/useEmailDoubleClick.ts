@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const DOUBLE_CLICK_DELAY = 300;
 
+/** Separates delayed email editing from native double-click composition. */
 export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
   const [open, setOpen] = useState(false);
   const pendingClickRef = useRef<{
@@ -9,6 +10,7 @@ export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
     timeoutId: number;
   } | null>(null);
 
+  /** Schedules single-click editing and cancels a pending second click. */
   const handleEmailClick = (email: string) => {
     const pendingClick = pendingClickRef.current;
 
@@ -31,6 +33,7 @@ export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
     };
   };
 
+  /** Cancels pending editing and invokes the compose action once. */
   const handleEmailDoubleClick = (email: string) => {
     if (pendingClickRef.current) {
       window.clearTimeout(pendingClickRef.current.timeoutId);

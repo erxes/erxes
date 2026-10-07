@@ -29,6 +29,7 @@ interface ContactFilterParams {
   emailValidationStatus?: string;
 }
 
+/** Queries tenant integrations through the Frontline service contract. */
 export const findIntegrations = (
   subdomain: string,
   query: Record<string, unknown>,
@@ -46,6 +47,7 @@ export const findIntegrations = (
     options,
   });
 
+/** Applies contact state, portal membership, and email validation filters. */
 const applyBasicFilters = async (
   filter: ContactFilter,
   params: ContactFilterParams,
@@ -74,6 +76,7 @@ const applyBasicFilters = async (
   }
 };
 
+/** Uses configured search tokens or the legacy contact text fields. */
 const applySearchFilter = (
   filter: ContactFilter,
   params: ContactFilterParams,
@@ -104,6 +107,7 @@ const applySearchFilter = (
   ];
 };
 
+/** Includes or excludes the explicitly selected contact IDs. */
 const applyIdFilter = (filter: ContactFilter, params: ContactFilterParams) => {
   const { ids, excludeIds } = params;
 
@@ -112,6 +116,7 @@ const applyIdFilter = (filter: ContactFilter, params: ContactFilterParams) => {
   }
 };
 
+/** Resolves integrations matching the selected brands, IDs, or kinds. */
 const collectRelatedIntegrationIds = async (
   subdomain: string,
   params: ContactFilterParams,
@@ -143,6 +148,7 @@ const collectRelatedIntegrationIds = async (
   return relatedIntegrationIdSet;
 };
 
+/** Restricts contacts to the matching integration relationships. */
 const applyIntegrationFilter = async (
   filter: ContactFilter,
   subdomain: string,
@@ -166,6 +172,7 @@ const applyIntegrationFilter = async (
   }
 };
 
+/** Deduplicates selected tags and optionally includes their related tags. */
 const resolveTagIds = async (
   params: ContactFilterParams,
   models: IModels,
@@ -186,6 +193,7 @@ const resolveTagIds = async (
   return [...new Set(baseTagIds)];
 };
 
+/** Resolves included and excluded tag sets independently. */
 const applyTagFilter = async (
   filter: ContactFilter,
   params: ContactFilterParams,
@@ -222,6 +230,7 @@ const applyTagFilter = async (
   }
 };
 
+/** Filters indexed segment memberships maintained by the segmentation worker. */
 const applySegmentFilter = (
   filter: ContactFilter,
   params: ContactFilterParams,
@@ -236,6 +245,7 @@ const applySegmentFilter = (
   }
 };
 
+/** Parses date filters and applies each supplied lower or upper bound. */
 const applyDateRangeFilter = (
   filter: ContactFilter,
   params: ContactFilterParams,
@@ -275,6 +285,7 @@ const applyDateRangeFilter = (
   }
 };
 
+/** Appends property conditions while preserving existing conjunctions. */
 const applyPropertyFilter = (
   filter: ContactFilter,
   params: ContactFilterParams,
@@ -296,6 +307,7 @@ const applyPropertyFilter = (
   }
 };
 
+/** Combines tenant contact filters into a MongoDB query predicate. */
 export const generateFilter = async (
   subdomain: string,
   params: ContactFilterParams,
@@ -368,6 +380,7 @@ export const createOrUpdate = async ({
   return collection.bulkWrite(operations);
 };
 
+/** Returns customer counts grouped by tag or integration brand. */
 export const customersCount = async ({
   models,
   subdomain,

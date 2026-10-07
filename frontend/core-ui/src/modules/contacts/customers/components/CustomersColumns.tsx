@@ -54,6 +54,7 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
   const laneOf = useEmailLane();
   const deliveryStatus = LANE_AS_STATUS[laneOf(customer.primaryEmail)];
 
+  /** Opens the mail composer with the selected customer email and alternatives. */
   const handleEmailClick = (email: string) => {
     const emails = [customer.primaryEmail, ...(customer.emails || [])].filter(
       (value, index, values): value is string =>
