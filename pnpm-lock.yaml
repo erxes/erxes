@@ -488,8 +488,8 @@ importers:
         version: 5.0.14(@types/react@18.3.1)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
     devDependencies:
       '@apollo/composition':
-        specifier: 2.10.0
-        version: 2.10.0(graphql@16.10.0)
+        specifier: 2.9.3
+        version: 2.9.3(graphql@16.10.0)
       '@apollo/rover':
         specifier: ^0.26.3
         version: 0.26.3
@@ -1530,8 +1530,8 @@ packages:
       subscriptions-transport-ws:
         optional: true
 
-  '@apollo/composition@2.10.0':
-    resolution: {integrity: sha512-+EkUY97+DMrBnMvbaPGwYwVmOzNgvAmbvRJSMGGC95ISnev7Cd5sVVVP6HKKann3hd8Yq6y83Enzp1xew5HI4w==}
+  '@apollo/composition@2.9.3':
+    resolution: {integrity: sha512-dcIZ5K+9sBNNPzXkYtZa91IegeMc350fXN7UMKTggqx5EBbWrakU/ltC0fp8Tr0qqlPGtEWFzXMmoqXKVPQJ1w==}
     engines: {node: '>=14.15.0'}
     peerDependencies:
       graphql: ^16.5.0
@@ -1542,12 +1542,18 @@ packages:
     peerDependencies:
       graphql: ^16.5.0
 
+  '@apollo/federation-internals@2.9.3':
+    resolution: {integrity: sha512-r50Ykc331CZUw4TxpcqprAZOlGkbzoHEiHObUqUhQopTx8i0aXNt+0pc3nzqUAoT9OD83yJqPJV1EiZF2vCupQ==}
+    engines: {node: '>=14.15.0'}
+    peerDependencies:
+      graphql: ^16.5.0
+
   '@apollo/protobufjs@1.2.7':
     resolution: {integrity: sha512-Lahx5zntHPZia35myYDBRuF58tlwPskwHc5CWBZC/4bMKB6siTBWwtMrkqXcsNwQiFSzSx5hKdRPUmemrEp3Gg==}
     hasBin: true
 
-  '@apollo/query-graphs@2.10.0':
-    resolution: {integrity: sha512-d9PgQ7sjd98lK2NvKKYp1iOZP24OrvbtRw5GNuW7nlQPYD4D8DCofEBGtDXs7RIcWaMp5OrU4U2dQcCzPi2MDg==}
+  '@apollo/query-graphs@2.9.3':
+    resolution: {integrity: sha512-FG0Jptr9wNTScWTRO3LFBD6mqCU5fLn4vI4NxEkK3IBNfLmWPUykyIXgrvjwg/TJkxfBBpfmBM47luvZpkbkYg==}
     engines: {node: '>=14.15.0'}
     peerDependencies:
       graphql: ^16.5.0
@@ -20288,13 +20294,21 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@apollo/composition@2.10.0(graphql@16.10.0)':
+  '@apollo/composition@2.9.3(graphql@16.10.0)':
     dependencies:
-      '@apollo/federation-internals': 2.10.0(graphql@16.10.0)
-      '@apollo/query-graphs': 2.10.0(graphql@16.10.0)
+      '@apollo/federation-internals': 2.9.3(graphql@16.10.0)
+      '@apollo/query-graphs': 2.9.3(graphql@16.10.0)
       graphql: 16.10.0
 
   '@apollo/federation-internals@2.10.0(graphql@16.10.0)':
+    dependencies:
+      '@types/uuid': 9.0.8
+      chalk: 4.1.2
+      graphql: 16.10.0
+      js-levenshtein: 1.1.6
+      uuid: 9.0.1
+
+  '@apollo/federation-internals@2.9.3(graphql@16.10.0)':
     dependencies:
       '@types/uuid': 9.0.8
       chalk: 4.1.2
@@ -20317,9 +20331,9 @@ snapshots:
       '@types/long': 4.0.2
       long: 4.0.0
 
-  '@apollo/query-graphs@2.10.0(graphql@16.10.0)':
+  '@apollo/query-graphs@2.9.3(graphql@16.10.0)':
     dependencies:
-      '@apollo/federation-internals': 2.10.0(graphql@16.10.0)
+      '@apollo/federation-internals': 2.9.3(graphql@16.10.0)
       deep-equal: 2.2.3
       graphql: 16.10.0
       ts-graphviz: 1.8.2
