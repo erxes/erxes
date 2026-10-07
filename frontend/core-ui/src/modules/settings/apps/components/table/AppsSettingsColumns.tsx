@@ -52,7 +52,10 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
       }}
     >
       <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="min-w-72">
+      <RecordTableInlineCell.Content
+        style={{ width: 'var(--radix-popover-trigger-width)' }}
+        className="min-w-0 max-w-full"
+      >
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
