@@ -20,13 +20,10 @@ export const TaskSideWidgets = ({
   });
 
   return (
-    <FocusSheet.SideTabs>
-      {relationWidgetsModules.map((module) => (
-        <FocusSheet.SideContent key={module.name} value={module.name}>
-          <SideMenuContext.Provider
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            value={{ activeTab: module.name, setActiveTab: () => {} }}
-          >
+    <SideMenu className="shrink-0">
+      {relationWidgetsModules.map((module) => {
+        return (
+          <SideMenu.Content value={module.name} key={module.name}>
             <RelationWidget
               module={module.name}
               pluginName={module.pluginName}
