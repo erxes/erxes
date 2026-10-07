@@ -2,6 +2,7 @@ import { IconTicket } from '@tabler/icons-react';
 import {
   Badge,
   Button,
+  cn,
   Form,
   Input,
   Label,
@@ -74,6 +75,14 @@ export const SurveyOptionTicketConfig = ({
   const enabled = Boolean(option?.ticketCreationEnabled);
   const created = Boolean(option?.ticketCreated);
 
+  const optionErrors =
+    form.formState.errors.steps?.[stepIndex]?.options?.[optionIndex];
+  const hasTicketError = Boolean(
+    optionErrors?.ticketCreationThreshold ||
+      optionErrors?.ticketPipelineId ||
+      optionErrors?.ticketStatusId,
+  );
+
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -81,7 +90,11 @@ export const SurveyOptionTicketConfig = ({
           type="button"
           variant={enabled ? 'secondary' : 'ghost'}
           size="sm"
-          className="shrink-0 gap-1 text-muted-foreground"
+          className={cn(
+            'shrink-0 gap-1 text-muted-foreground',
+            hasTicketError &&
+              'bg-destructive/10 text-destructive hover:bg-destructive/20',
+          )}
           title={t('survey-option-ticket', 'Ticket automation')}
         >
           <IconTicket />
