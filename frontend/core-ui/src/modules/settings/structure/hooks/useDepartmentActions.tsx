@@ -17,11 +17,11 @@ interface AddDepartmentResult {
 }
 
 export function useDepartmentAdd(
-  options?: MutationHookOptions<AddDepartmentResult, any>,
+  options?: MutationHookOptions<AddDepartmentResult, OperationVariables>,
 ) {
   const [handleAdd, { loading, error }] = useMutation(ADD_DEPARTMENT, {
     ...options,
-    refetchQueries: ['Departments'],
+    refetchQueries: ['StructureChartDepartments'],
   });
 
   return {
@@ -32,11 +32,11 @@ export function useDepartmentAdd(
 }
 
 export function useDepartmentEdit(
-  options?: MutationHookOptions<AddDepartmentResult, any>,
+  options?: MutationHookOptions<AddDepartmentResult, OperationVariables>,
 ) {
   const [handleEdit, { loading, error }] = useMutation(EDIT_DEPARTMENT, {
     ...options,
-    refetchQueries: ['Departments'],
+    refetchQueries: ['StructureChartDepartments'],
   });
 
   return {
@@ -51,7 +51,7 @@ export function useRemoveDepartment() {
   const [handleRemove, { loading, error }] = useMutation(REMOVE_DEPARTMENTS, {
     onCompleted: () =>
       toast({ title: 'Removed successfully!', variant: 'success' }),
-    refetchQueries: ['Departments'],
+    refetchQueries: ['StructureChartDepartments'],
   });
 
   return {
@@ -71,7 +71,7 @@ export function useDepartmentInlineEdit() {
   ) => {
     const { variables } = operationVariables || {};
 
-    const fieldsToUpdate: Record<string, () => any> = {};
+    const fieldsToUpdate: Record<string, () => unknown> = {};
     fields.forEach((field) => {
       fieldsToUpdate[field] = () => variables[field];
     });

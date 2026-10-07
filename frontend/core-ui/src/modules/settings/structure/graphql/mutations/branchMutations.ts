@@ -76,7 +76,7 @@ export const EDIT_BRANCH = gql`
 `;
 
 export const REMOVE_BRANCHES = gql`
-  mutation BranchesRemove($ids: [String!]) {
+  mutation BranchesRemove($ids: [String!]!) {
     branchesRemove(ids: $ids)
   }
 `;
