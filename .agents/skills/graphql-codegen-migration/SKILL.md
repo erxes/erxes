@@ -94,8 +94,8 @@ A non-null field that resolves to null nulls its parent, and in a list that blan
 ## Gotchas
 
 - `scripts/print-subgraph-schema.ts` ends with `process.exit`. `erxes-api-shared/utils` opens Redis on import and keeps the process alive.
-- One subgraph breaking composition fails every plugin's codegen. Run `pnpm nx run gateway:schema:compose --parallel=2` after changing any SDL. Composition errors here are the same ones the router would hit in production.
-- `posclient_api` is not composed. posclient-front talks to it directly, not through the gateway.
+- One subgraph breaking composition fails every plugin's codegen. Run `pnpm nx run gateway:schema:compose --parallel=2` after changing any SDL. The composed file is the repo-wide codegen schema with every opted-in subgraph. A deployment's router composes only the plugins it enables, so a composition error here may not show up in a given deployment, and a clean compose doesn't prove one deployment's config composes.
+- `posclient_api` has no `schema:print` target, so it is not composed. posclient-front talks to it directly, not through the gateway.
 - Codegen reads documents statically. A `${FRAGMENT}` interpolation hides the fragment's fields from it, so write fields inline, or define a GraphQL fragment with `gql()` and spread it by name.
 - Operation names must be unique. A name like `mutation Mutation` generates `MutationMutation` types, so name every operation after the plugin and module.
 - A subscription that evicts cache entries needs `__typename` in its selection, or `cache.identify` finds nothing.
