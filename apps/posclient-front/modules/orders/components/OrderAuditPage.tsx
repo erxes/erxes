@@ -7,6 +7,7 @@ import { useQuery } from "@apollo/client"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 import {
+  ArrowRight,
   ChevronLeft,
   ChevronRight,
   HistoryIcon,
@@ -45,8 +46,136 @@ const valueText = (value: unknown): string =>
   value == null
     ? "-"
     : typeof value === "object"
-      ? JSON.stringify(value)
-      : String(value)
+    ? JSON.stringify(value)
+    : String(value)
+
+const snapshotFields = (value: unknown): Record<string, unknown> =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? { ...value }
+    : {}
+
+export const AuditChanges = ({ log }: { log: OrderAuditLog }) => {
+  const items = log.changes.find((change) => change.field === "items")
+  const actions = log.changes.find(
+    (change) => change.field === "itemActions"
+  )?.newValue
+  const orderChanges = log.changes
+    .filter((change) => !["items", "itemActions"].includes(change.field))
+    .flatMap((change) => {
+      if (change.field !== "order") return [change]
+      const before = snapshotFields(change.oldValue)
+      const after = snapshotFields(change.newValue)
+      return Array.from(
+        new Set([...Object.keys(before), ...Object.keys(after)])
+      )
+        .filter((field) => field !== "items")
+        .map((field) => ({
+          field,
+          oldValue: before[field],
+          newValue: after[field],
+        }))
+    })
+  const total = orderChanges.find((change) => change.field === "totalAmount")
+  const beforeCount = Array.isArray(items?.oldValue) ? items.oldValue.length : 0
+  const afterCount = Array.isArray(items?.newValue) ? items.newValue.length : 0
+
+  return (
+    <div className="space-y-2 min-w-0">
+      {!!orderChanges.length && (
+        <details className="group/order">
+          <summary className="flex flex-wrap items-center gap-x-4 gap-y-1 cursor-pointer text-sm list-none [&::-webkit-details-marker]:hidden">
+            <span className="inline-flex items-center gap-1 font-medium">
+              <ChevronRight
+                size={14}
+                className="shrink-0 group-open/order:rotate-90"
+              />
+              Захиалгын өөрчлөлт
+            </span>
+            <span className="break-all text-xs">
+              number: {log.orderNumber || "-"}
+            </span>
+            {total && (
+              <span className="inline-flex flex-wrap items-center gap-2 text-xs">
+                totalAmount: {valueText(total.oldValue)}
+                <ArrowRight size={12} className="shrink-0" aria-label="Дараа" />
+                {valueText(total.newValue)}
+              </span>
+            )}
+            {items && (
+              <span className="text-xs">
+                itemsCount: {beforeCount} → {afterCount}
+              </span>
+            )}
+          </summary>
+          <div className="mt-2 space-y-1 text-xs">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_16px_minmax(0,1fr)] gap-2 text-muted-foreground">
+              <span>Талбар</span>
+              <span>Өмнө</span>
+              <span />
+              <span>Дараа</span>
+            </div>
+            {orderChanges.map((change) => (
+              <div
+                key={change.field}
+                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_16px_minmax(0,1fr)] gap-2 border-t py-1"
+              >
+                <span className="min-w-0 break-all font-medium">
+                  {change.field}
+                </span>
+                <span className="min-w-0 break-all">
+                  {valueText(change.oldValue)}
+                </span>
+                <ArrowRight size={12} className="mt-0.5" aria-label="Дараа" />
+                <span className="min-w-0 break-all">
+                  {valueText(change.newValue)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+      {items && (
+        <details className="group/items">
+          <summary className="flex items-center gap-1 cursor-pointer text-sm list-none [&::-webkit-details-marker]:hidden">
+            <ChevronRight
+              size={14}
+              className="shrink-0 group-open/items:rotate-90"
+            />
+            <span>Барааны өөрчлөлт</span>
+            <span className="ml-2 text-xs text-muted-foreground">
+              [{beforeCount}] / [{afterCount}]
+            </span>
+          </summary>
+          <div className="mt-2 space-y-2">
+            {Array.isArray(actions) &&
+              actions.filter(isItemAction).map((action) => (
+                <div key={action.itemId} className="text-xs break-words">
+                  <strong>{action.productName || action.productId}</strong> ·{" "}
+                  {action.action === "removed" ? "Устгасан" : "Тоо бууруулсан"}:{" "}
+                  {action.beforeCount} → {action.afterCount}
+                </div>
+              ))}
+            <div className="grid grid-cols-[minmax(0,1fr)_16px_minmax(0,1fr)] gap-2 sm:gap-3">
+              <div className="min-w-0">
+                <h3 className="text-xs font-semibold mb-1">
+                  Өмнө ({beforeCount})
+                </h3>
+                <AuditItemSnapshot value={items.oldValue} />
+              </div>
+              <ArrowRight size={14} className="mt-0.5" aria-label="Дараа" />
+              <div className="min-w-0">
+                <h3 className="text-xs font-semibold mb-1">
+                  Дараа ({afterCount})
+                </h3>
+                <AuditItemSnapshot value={items.newValue} />
+              </div>
+            </div>
+          </div>
+        </details>
+      )}
+    </div>
+  )
+}
 
 export const AuditItemSnapshot = ({ value }: { value: unknown }) => {
   const items = Array.isArray(value) ? value.filter(isCartLogItem) : []
@@ -274,12 +403,6 @@ export const OrderAuditPage = () => {
                 {day} · {getOrderAuditUserLabel(entries[0])}
               </h2>
               {entries.map((log) => {
-                const actions = log.changes.find(
-                  (change) => change.field === "itemActions"
-                )?.newValue
-                const items = log.changes.find(
-                  (change) => change.field === "items"
-                )
                 const date = new Date(log.occurredAt || log.createdAt || "")
                 return (
                   <div key={log._id} className="border-b py-3 space-y-2">
@@ -295,9 +418,9 @@ export const OrderAuditPage = () => {
                           ? format(date, "HH:mm:ss")
                           : "-"}
                       </time>
-                      <span>
+                      <span className="min-w-0 break-all" title={log.orderId}>
                         {log.orderId
-                          ? `Захиалга: ${log.orderId}`
+                          ? `Захиалга: ${log.orderNumber || "-"}`
                           : `Сагс: ${log.cartId || "-"}`}
                       </span>
                       <span>
@@ -311,52 +434,7 @@ export const OrderAuditPage = () => {
                           : "Үйлдэл тодорхойгүй"}
                       </span>
                     </div>
-                    {Array.isArray(actions) &&
-                      actions.filter(isItemAction).map((action) => (
-                        <div
-                          key={action.itemId}
-                          className="text-sm break-words"
-                        >
-                          <strong>
-                            {action.productName || action.productId}
-                          </strong>{" "}
-                          ·{" "}
-                          {action.action === "removed"
-                            ? "Устгасан"
-                            : "Тоо бууруулсан"}
-                          : {action.beforeCount} → {action.afterCount}
-                        </div>
-                      ))}
-                    {items && (
-                      <details>
-                        <summary className="cursor-pointer text-sm">
-                          Барааны өмнөх / дараах жагсаалт
-                        </summary>
-                        <div className="grid sm:grid-cols-2 gap-3 mt-2">
-                          <div>
-                            <h3 className="text-xs font-semibold mb-1">Өмнө</h3>
-                            <AuditItemSnapshot value={items.oldValue} />
-                          </div>
-                          <div>
-                            <h3 className="text-xs font-semibold mb-1">
-                              Дараа
-                            </h3>
-                            <AuditItemSnapshot value={items.newValue} />
-                          </div>
-                        </div>
-                      </details>
-                    )}
-                    {log.changes
-                      .filter(
-                        (change) =>
-                          !["items", "itemActions"].includes(change.field)
-                      )
-                      .map((change) => (
-                        <div key={change.field} className="text-xs break-words">
-                          {change.field}: {valueText(change.oldValue)} →{" "}
-                          {valueText(change.newValue)}
-                        </div>
-                      ))}
+                    <AuditChanges log={log} />
                   </div>
                 )
               })}

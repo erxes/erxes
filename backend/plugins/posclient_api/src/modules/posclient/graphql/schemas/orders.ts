@@ -168,6 +168,7 @@ export const types = `
   type OrderChangeLog {
     _id: String!
     orderId: String
+    orderNumber: String
     cartId: String
     eventId: String
     source: String

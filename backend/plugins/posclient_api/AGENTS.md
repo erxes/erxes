@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -119,6 +119,9 @@
   `PosUsers` and is registered in the runtime Apollo resolver map at
   `src/apollo/resolvers/index.ts`; custom resolver definitions alone do not
   register fields with the running service.
+- `OrderChangeLog.orderNumber` resolves the POS-scoped order number, falling
+  back to the cancellation snapshot for deleted orders, including their earlier
+  events. Missing numbers remain null; IDs are never presented as numbers.
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
@@ -175,6 +178,10 @@
   displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
+- `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/customResolvers/__tests__/orderChangeLog.test.cjs`
+- Audit number smoke: existing and cancelled orders show their order number;
+  unsaved carts and logs without a recoverable number do not display an ID
+  as a number. Earlier events use the POS-owned cancellation snapshot after deletion.
 - Cancellation/return smoke: cancel a synced unpaid order with only failed
   receipts; verify sales acknowledgement precedes local cleanup. Reject
   deletion for successful/unresolved receipts. A failed receipt return must

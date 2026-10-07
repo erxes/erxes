@@ -4,6 +4,7 @@ import { gql } from "@apollo/client"
 export type OrderAuditLog = {
   _id: string
   orderId?: string
+  orderNumber?: string | null
   cartId?: string
   source?: string
   action?: "create" | "update" | "cancel" | "return" | null
@@ -83,6 +84,7 @@ export const orderAuditLogs = gql`
     ) {
       _id
       orderId
+      orderNumber
       cartId
       source
       action
