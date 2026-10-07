@@ -72,7 +72,6 @@ export interface MessengerSetupPayload {
     hideWhenOffline?: boolean;
     forceLogoutWhenResolve?: boolean;
     showVideoCallRequest?: boolean;
-    isSupportInAppView?: boolean;
     links?: { [key: string]: string };
     externalLinks?: { url: string }[];
     knowledgeBaseTopicId?: string;

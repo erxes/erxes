@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -31,6 +31,7 @@
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
 - Task activity rows show the accepting member's avatar and name with a triage-acceptance action; the action component supplies only the action text while the shared activity wrapper supplies the actor and timestamp.
+- GitHub-created triages show a link to the originating repository issue above the name, like the task GitHub badge. Their creation timeline and relation widget card use the short "Created from GitHub issue" attribution; manually created triages retain their user attribution.
 - Task, project, and triage activity timelines use action-specific icons; assignee changes and triage acceptance show the actor's avatar and hover label instead. The sentence names each entry's creator, while assignee changes show the new assignee only in the change detail.
 - The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
@@ -39,20 +40,21 @@
 
 ## Architecture
 
-| Area                 | Path                                                                                     | Responsibility                                                                                              |
-| -------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Runtime              | `frontend/plugins/operation_ui/src/main.ts`                                              | Starts the operation UI remote.                                                                             |
-| Federation config    | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                             |
-| Dev server config    | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                               |
-| Plugin config        | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                              |
-| Property side panel  | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state. |
-| Operation modules    | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                            |
-| Activity timeline    | `frontend/plugins/operation_ui/src/modules/activity/components`                          | Renders activity actors and field changes for task, project, and triage details.                            |
-| Pages                | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                       |
-| GraphQL codegen      | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/plugins/operation_api/generated/schema.graphql`.            |
-| Relation widgets     | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                           |
-| Notification widgets | `frontend/plugins/operation_ui/src/widgets/notifications`                                | Provides notification widget exports.                                                                       |
-| Automation widgets   | `frontend/plugins/operation_ui/src/widgets/automations`                                  | Provides automation remote entry exports.                                                                   |
+| Area                    | Path                                                                                     | Responsibility                                                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Runtime                 | `frontend/plugins/operation_ui/src/main.ts`                                              | Starts the operation UI remote.                                                                                              |
+| Federation config       | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                                              |
+| Dev server config       | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                                                |
+| Plugin config           | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                                               |
+| Property side panel     | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state.                  |
+| Operation modules       | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                                             |
+| Activity timeline       | `frontend/plugins/operation_ui/src/modules/activity/components`                          | Renders activity actors and field changes for task, project, and triage details.                                             |
+| GitHub triage detection | `frontend/plugins/operation_ui/src/modules/operation/utils/isGithubTriage.ts`            | Shared type guard for GitHub source links and creator attribution in triage details, creation timelines, and relation cards. |
+| Pages                   | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                                        |
+| GraphQL codegen         | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/plugins/operation_api/generated/schema.graphql`.                             |
+| Relation widgets        | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                                            |
+| Notification widgets    | `frontend/plugins/operation_ui/src/widgets/notifications`                                | Provides notification widget exports.                                                                                        |
+| Automation widgets      | `frontend/plugins/operation_ui/src/widgets/automations`                                  | Provides automation remote entry exports.                                                                                    |
 
 ## Contracts
 
@@ -74,6 +76,7 @@
 ## Data and State
 
 - Apollo Client owns server state where operation feature hooks use GraphQL.
+- The triage detail query reads the GitHub issue number, URL, and repository name when the API provides them.
 - React Hook Form and local React state own editable form and component-local state.
 - Widget state remains scoped to operation widget modules.
 - Task and project custom values are read from and submitted as `propertiesData` through their existing Apollo detail/update flows.
@@ -81,6 +84,9 @@
 ## Local Invariants
 
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
+- Use `isGithubTriage` for GitHub triage attribution and source-link visibility: require a `system` creator, numeric triage status, non-empty issue URL, and numeric issue number. Tasks, projects without issue metadata, and other triages retain normal creator attribution.
+- GitHub triage attribution consumes `ITriageDetail` from the generated detail query, which selects the triage status and issue metadata. Keep the shared helper and relation card on detail types; `ITriage` is the list-query item and does not select those fields. Render the source link from the guarded triage object so `isGithubTriage` narrows the nullable issue URL.
+- `CreatorInfo` uses one `ActivityTimelineItem` for both GitHub and member creation attribution; only the avatar and attribution content vary, with `ActivityActor.Provider` supplying member context and skipping member lookup for `system` creators.
 - `ActivityIcon` is rendered inside `ActivityActor.Provider`. Assignee-change and triage-acceptance avatars, their hover labels, and every actor name resolve from `activity.createdBy`; never use `metadata.newValue` for the actor. Other modules retain action-specific icons, and changed field values belong in the entry body.
 - Module Federation exposes, route paths, widget names, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
@@ -113,6 +119,7 @@
 - `pnpm nx test operation_ui --passWithNoTests` (the inferred Jest target currently has no test files)
 - `pnpm nx run operation_ui:codegen`
 - `pnpm nx build operation_ui`
+- Smoke scenario: create an issue in a connected GitHub repository and confirm the resulting triage shows a linked source issue above its name and short GitHub attribution in the timeline and relation card; create a triage manually and confirm its member attribution remains visible.
 - `npx tsc --noEmit -p frontend/plugins/operation_ui/tsconfig.app.json` - no errors under `frontend/plugins/operation_ui`; errors reported inside `frontend/libs` are pre-existing and owned by those libraries.
 - Smoke scenario: open operation projects, tasks, team, operation settings, relation widgets, and automation widget entry through the remote.
 - Inbox smoke: open a task, triage, project and team notification in My Inbox; the task detail is padded, shows side widgets, and its icon column stays put while scrolling.
