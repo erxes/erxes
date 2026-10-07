@@ -46,9 +46,10 @@ export const findIntegrations = (
     options,
   });
 
-const applyBasicFilters = (
+const applyBasicFilters = async (
   filter: ContactFilter,
   params: ContactFilterParams,
+  models: IModels,
 ) => {
   const { type, status, clientPortalId, emailValidationStatus } = params;
 
@@ -61,11 +62,11 @@ const applyBasicFilters = (
   }
 
   if (clientPortalId) {
-    const cpUsers = await models.CPUser.find({ clientPortalId }).distinct('erxesCustomerId');
+    const customerIds = await models.CPUser.find({ clientPortalId }).distinct(
+      'erxesCustomerId',
+    );
 
-    filter['_id'] = {
-      $in: [...new Set([...cpUsers, ...(filter['_id'] || [])])]
-    };
+    filter['$and'] = [{ _id: { $in: customerIds } }];
   }
 
   if (emailValidationStatus) {
@@ -305,7 +306,7 @@ export const generateFilter = async (
     status: { $ne: CONTACT_STATUSES.deleted },
   };
 
-  applyBasicFilters(filter, params);
+  await applyBasicFilters(filter, params, models);
   applySearchFilter(filter, params, searchConfig);
   applyIdFilter(filter, params);
   await applyIntegrationFilter(filter, subdomain, params);

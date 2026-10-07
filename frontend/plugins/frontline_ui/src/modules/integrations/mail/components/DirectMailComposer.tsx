@@ -3,6 +3,12 @@ import { useQuery } from '@apollo/client';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
+import type { Block } from '@blocknote/core';
+import { useBlockEditor } from 'erxes-ui';
+import {
+  serializeNoteBlocks,
+  trimEmptyBlocks,
+} from '@/activity/utils/noteBlocks';
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
 import {
   useMailMessageRetry,
@@ -18,7 +24,6 @@ import type {
 import {
   composeSchema,
   splitAddresses,
-  toHtml,
 } from '@/integrations/mail/utils/directMailComposer';
 import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/constants/directMailComposer';
 import {
@@ -43,7 +48,7 @@ export const DirectMailComposer = () => {
   }>(MAIL_SENDERS_QUERY, { skip: !target });
   const { mailSendMail, loading } = useMailSendMail();
   const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
-  const sending = loading || retryLoading;
+  const editor = useBlockEditor({ placeholder: 'Write an email...' });
   const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
   const form = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
@@ -56,7 +61,8 @@ export const DirectMailComposer = () => {
       body: '',
     },
   });
-  const { handleSubmit, reset, setValue, watch } = form;
+  const { handleSubmit, reset, setValue, setError, watch } = form;
+  const sending = loading || retryLoading || form.formState.isSubmitting;
   const integrationId = watch('integrationId');
   const selectedSender = senders.find(
     (sender) => sender.integrationId === integrationId,
@@ -91,6 +97,7 @@ export const DirectMailComposer = () => {
       setFailedDelivery(() => undefined);
       setShowCc(false);
       setShowBcc(false);
+      editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
       reset({
         integrationId: '',
         to: detail.email,
@@ -104,7 +111,7 @@ export const DirectMailComposer = () => {
     window.addEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
     return () =>
       window.removeEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
-  }, [reset, sending]);
+  }, [editor, reset, sending]);
 
   useEffect(() => {
     if (target && !integrationId && senders.length) {
@@ -119,22 +126,44 @@ export const DirectMailComposer = () => {
 
   useEffect(() => {
     if (target) {
-      document.getElementById('direct-mail-body')?.focus();
+      editor.focus();
     }
-  }, [target]);
+  }, [editor, target]);
 
   if (!target) return null;
 
   const close = () => {
+    editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
     setTarget(null);
     setFailedDelivery(() => undefined);
     reset();
   };
 
-  const submit = (values: ComposeValues) => {
+  const submit = async (values: ComposeValues) => {
     if (sending) return;
     if (failedDelivery) {
       mailMessageRetry(failedDelivery._id, close);
+      return;
+    }
+    let body: string;
+    try {
+      body = await editor.blocksToHTMLLossy(editor.document);
+      const content = new DOMParser().parseFromString(body, 'text/html').body;
+      if (
+        !content.textContent?.trim() &&
+        !content.querySelector('img,video,audio')
+      ) {
+        setError('body', { type: 'manual', message: 'Message is required' });
+        return;
+      }
+    } catch (error) {
+      setError('body', {
+        type: 'manual',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Unable to prepare email message',
+      });
       return;
     }
     mailSendMail(
@@ -142,7 +171,7 @@ export const DirectMailComposer = () => {
         integrationId: values.integrationId,
         customerId: recipientCustomerId,
         subject: values.subject.trim(),
-        body: toHtml(values.body.trim()),
+        body,
         to: [values.to.trim()],
         cc: showCc ? splitAddresses(values.cc) : undefined,
         bcc: showBcc ? splitAddresses(values.bcc) : undefined,
@@ -172,6 +201,19 @@ export const DirectMailComposer = () => {
             onSubmit={handleSubmit(submit)}
           >
             <ComposerFields
+              editor={editor}
+              onBodyChange={() =>
+                setValue(
+                  'body',
+                  serializeNoteBlocks(
+                    trimEmptyBlocks(editor.document as Block[]),
+                  ),
+                  {
+                    shouldDirty: true,
+                    shouldValidate: form.formState.isSubmitted,
+                  },
+                )
+              }
               disabled={sending || Boolean(failedDelivery)}
               sendersLoading={sendersLoading}
               selectedSender={selectedSender}

@@ -48,7 +48,7 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
     );
 
     window.dispatchEvent(
-      new CustomEvent('erxes:compose-email', {
+      new CustomEvent('frontline:compose-email', {
         detail: { companyId: company._id, email, emails },
       }),
     );

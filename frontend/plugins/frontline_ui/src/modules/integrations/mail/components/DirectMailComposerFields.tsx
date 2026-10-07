@@ -1,5 +1,13 @@
 import { IconMail, IconSend, IconX } from '@tabler/icons-react';
-import { Button, Input, Select, Spinner, Textarea } from 'erxes-ui';
+import {
+  BlockEditor,
+  Button,
+  Input,
+  Select,
+  Spinner,
+  useBlockEditor,
+  usePreviousHotkeyScope,
+} from 'erxes-ui';
 import { Controller, useFormContext } from 'react-hook-form';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -208,19 +216,47 @@ export const SubjectRow = () => {
   );
 };
 
-export const BodyField = () => {
+export const BodyField = ({
+  editor,
+  disabled,
+  onChange,
+}: {
+  editor: ReturnType<typeof useBlockEditor>;
+  disabled: boolean;
+  onChange: () => void;
+}) => {
   const {
-    register,
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
+  const {
+    control,
     formState: { errors },
   } = useFormContext<ComposeValues>();
   return (
     <div className="min-h-0 flex-1 bg-muted/10 p-3">
-      <Textarea
-        id="direct-mail-body"
-        aria-label="Email message"
-        className="h-full min-h-52 resize-none rounded-lg border-0 bg-transparent p-2 text-sm leading-6 shadow-none focus-visible:ring-0"
-        placeholder="Write your message"
-        {...register('body')}
+      <Controller
+        name="body"
+        control={control}
+        render={({ field }) => (
+          <div role="group" aria-label="Email message">
+            <BlockEditor
+              editor={editor}
+              disabled={disabled}
+              onChange={onChange}
+              onFocus={() =>
+                setHotkeyScopeAndMemorizePreviousScope('frontline-mail-editor')
+              }
+              onBlur={() => {
+                field.onBlur();
+                goBackToPreviousHotkeyScope();
+              }}
+              sideMenu={false}
+              slashMenuOnTop
+              className="min-h-52 w-full"
+            />
+          </div>
+        )}
       />
       {errors.body && (
         <p className="mt-1 text-xs text-destructive">{errors.body.message}</p>
@@ -232,16 +268,20 @@ export const BodyField = () => {
 export const ComposerFields = ({
   disabled,
   onRecipientSelect,
+  editor,
+  onBodyChange,
   ...senderProps
 }: ComponentProps<typeof FromRow> & {
   onRecipientSelect: (customerId?: string) => void;
+  editor: ReturnType<typeof useBlockEditor>;
+  onBodyChange: () => void;
 }) => (
   <fieldset disabled={disabled} className="flex min-h-0 flex-1 flex-col">
     <FromRow {...senderProps} disabled={disabled} />
     <ToRow onRecipientSelect={onRecipientSelect} />
     <CcBccFields />
     <SubjectRow />
-    <BodyField />
+    <BodyField editor={editor} disabled={disabled} onChange={onBodyChange} />
   </fieldset>
 );
 
