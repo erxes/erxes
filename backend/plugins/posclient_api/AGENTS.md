@@ -47,19 +47,19 @@
 
 ## Architecture
 
-| Area             | Path                                                                                        | Responsibility                                                                                                    |
-| ---------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| GraphQL reports  | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/report.ts`   | Calculates daily POS report totals and product summaries.                                                         |
-| GraphQL products | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts` | Builds tenant-scoped POS product/category filters, sorting, counts, similarity grouping, and remainder checks.    |
-| GraphQL schemas  | `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas`                       | Declares POS client GraphQL types and operations.                                                                 |
-| Config models    | `backend/plugins/posclient_api/src/modules/posclient/db`                                    | Stores synced POS client configuration and runtime data.                                                          |
-| Order logs       | `backend/plugins/posclient_api/src/modules/posclient/db/models/OrderChangeLogs.ts`          | Persists POS client order and item change snapshots.                                                              |
-| Order snapshots  | `backend/plugins/posclient_api/src/modules/posclient/utils/orderChangeLogs.ts`              | Compares persisted order fields and sorted item snapshots, excluding item creation timestamps and Mongo metadata. |
-| Order cancellation | `backend/plugins/posclient_api/src/modules/posclient/utils/cancelOrder.ts` | Validates cancellation, requires sales acknowledgement when synced, and cleans local order/item/receipt data. |
-| Order return | `backend/plugins/posclient_api/src/modules/posclient/utils/returnOrder.ts` | Runs authenticated admin returns, validates payment totals, preserves the order, records audit, publishes and syncs. |
-| Order receipts | `backend/plugins/posclient_api/src/modules/posclient/utils/orderReceipts.ts` | Shared POS receipt selector, success/unresolved checks, and validated fiscal return responses. |
-| Discount utils   | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                        |
-| Sync utilities   | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                      |
+| Area               | Path                                                                                        | Responsibility                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| GraphQL reports    | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/report.ts`   | Calculates daily POS report totals and product summaries.                                                            |
+| GraphQL products   | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts` | Builds tenant-scoped POS product/category filters, sorting, counts, similarity grouping, and remainder checks.       |
+| GraphQL schemas    | `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas`                       | Declares POS client GraphQL types and operations.                                                                    |
+| Config models      | `backend/plugins/posclient_api/src/modules/posclient/db`                                    | Stores synced POS client configuration and runtime data.                                                             |
+| Order logs         | `backend/plugins/posclient_api/src/modules/posclient/db/models/OrderChangeLogs.ts`          | Persists POS client order and item change snapshots.                                                                 |
+| Order snapshots    | `backend/plugins/posclient_api/src/modules/posclient/utils/orderChangeLogs.ts`              | Compares persisted order fields and sorted item snapshots, excluding item creation timestamps and Mongo metadata.    |
+| Order cancellation | `backend/plugins/posclient_api/src/modules/posclient/utils/cancelOrder.ts`                  | Validates cancellation, requires sales acknowledgement when synced, and cleans local order/item/receipt data.        |
+| Order return       | `backend/plugins/posclient_api/src/modules/posclient/utils/returnOrder.ts`                  | Runs authenticated admin returns, validates payment totals, preserves the order, records audit, publishes and syncs. |
+| Order receipts     | `backend/plugins/posclient_api/src/modules/posclient/utils/orderReceipts.ts`                | Shared POS receipt selector, success/unresolved checks, and validated fiscal return responses.                       |
+| Discount utils     | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                           |
+| Sync utilities     | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                         |
 
 ## Contracts
 
