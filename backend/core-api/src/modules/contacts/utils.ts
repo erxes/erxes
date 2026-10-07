@@ -358,8 +358,7 @@ export const createOrUpdate = async ({
 
       const newDoc = Object.fromEntries(
         Object.entries(doc).filter(
-          ([fieldName]) =>
-            !doNotReplaceExistingValues || !prevEntry[fieldName],
+          ([fieldName]) => !doNotReplaceExistingValues || !prevEntry[fieldName],
         ),
       );
 
