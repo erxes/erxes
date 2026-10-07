@@ -520,8 +520,6 @@ export const loadCustomerClass = (
       let customer: ICustomerDocument | null = null;
       const defaultFilter = { status: { $ne: 'deleted' } };
 
-
-
       if (!customer && email) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
@@ -542,7 +540,7 @@ export const loadCustomerClass = (
           code,
         }).lean();
       }
-      if (!customer&&cachedCustomerId) {
+      if (!customer && cachedCustomerId) {
         customer = await models.Customers.findOne({
           ...defaultFilter,
           _id: cachedCustomerId,
