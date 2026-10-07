@@ -3,24 +3,23 @@
 // frontend codegen reads. The router composes the same subgraphs at runtime.
 import { composeServices } from '@apollo/composition';
 import { parse, printSchema } from 'graphql';
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { gatewaySubscriptionTypeDefs } from './src/subscription/genTypeDefs';
 
 const backendPath = '..';
 
+// posclient-front talks to posclient_api directly, not through the gateway
+const notComposed = ['posclient_api'];
+
 const subgraphPaths = [
   { name: 'core', path: `${backendPath}/core-api` },
-  ...readdirSync(`${backendPath}/plugins`).map((dir) => ({
-    name: dir.replace(/_api$/, ''),
-    path: `${backendPath}/plugins/${dir}`,
-  })),
-].filter(({ path }) => existsSync(`${path}/generated/schema.graphql`));
+  ...readdirSync(`${backendPath}/plugins`)
+    .filter((dir) => !notComposed.includes(dir))
+    .map((dir) => ({
+      name: dir.replace(/_api$/, ''),
+      path: `${backendPath}/plugins/${dir}`,
+    })),
+];
 
 const { errors, schema } = composeServices([
   ...subgraphPaths.map(({ name, path }) => ({
@@ -36,10 +35,7 @@ const { errors, schema } = composeServices([
 ]);
 
 if (errors) {
-  for (const error of errors) {
-    console.error(error.message);
-  }
-  process.exit(1);
+  throw new Error(errors.map((error) => error.message).join('\n'));
 }
 
 mkdirSync('generated', { recursive: true });
