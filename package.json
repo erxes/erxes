@@ -7,7 +7,6 @@
     "dev:apis": "dotenv -e .env -- node scripts/start-api-dev.js",
     "dev:uis": "dotenv -e .env -- node scripts/start-ui-dev.js",
     "create-plugin": "node scripts/create-plugin.js",
-    "publish:shared-libs": "node scripts/publish-shared-libs.js",
     "release": "release-it"
   },
   "engines": {
