@@ -87,7 +87,6 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         knowledgeBaseTopicId: config?.knowledgeBaseTopicId ?? '',
         websiteApps: settings?.websiteApps ?? [],
       },
-      callData: {},
     },
     uiOptions: {
       primary: {

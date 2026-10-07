@@ -201,26 +201,6 @@ export const types = `
     isSupportInAppView: Boolean
   }
 
-  input OperatorInput {
-    _id: String
-    userId: String
-    name: String
-  }
-
-  input DepartmentInput {
-    _id: String
-    name: String
-    operators: [OperatorInput]
-  }
-
-  input IntegrationCallData {
-    header: String
-    description: String
-    secondPageHeader: String
-    secondPageDescription: String
-    departments: [DepartmentInput]
-    isReceiveWebCall: Boolean
-  }
 `;
 
 export const queries = `
@@ -280,7 +260,6 @@ export const mutations = `
 
   integrationsSaveMessengerAppearanceData(
     _id: String!,
-    channelId: String!,
     uiOptions: MessengerUiOptions,
     brandId: String!): Integration
 
@@ -291,10 +270,8 @@ export const mutations = `
 
   integrationsSaveMessengerConfigs(
     _id: String!,
-    channelId: String!,
     brandId: String!,
     messengerData: IntegrationMessengerData,
-    callData: IntegrationCallData
     ): Integration
 
   integrationsCreateExternalIntegration(

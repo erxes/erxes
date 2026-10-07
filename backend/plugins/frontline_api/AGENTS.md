@@ -588,15 +588,14 @@ The root router mounts its authenticated webhook at `/telegram`.
   `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
   keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
   `showHelpCenter`, writes check `helpCenterManage`.
-- GraphQL: `helpCenterGetConfigByDomain(clientPortalName: String): HelpCenterConfig` —
+- GraphQL: `helpCenterGetConfigByDomain: HelpCenterConfig` —
   the published site's own bootstrap read, the help center counterpart of the
   1.x `clientPortalGetConfigByDomain` lookup. It is the **one public operation
   in this module** (`wrapperConfig.skipPermission`): the site calling it has no
   staff user, no `cpUser` and no client portal header yet, because the domain
-  is how it discovers which help center it is. Like the 1.x signature it
-  mirrors, `clientPortalName` is accepted but not read: the query resolver's
-  `getByHost` takes the domain from the request's `Origin` header alone, so a
-  server-side caller must set that header itself. After the same
+  is how it discovers which help center it is. It takes no arguments: the
+  query resolver's `getByHost` takes the domain from the request's `Origin`
+  header alone, so a server-side caller must set that header itself. After the same
   normalization the write path applies, it returns the config whose `url`
   starts with that origin (escaped, case-insensitive, ending at a `/` or the
   end of the string), and throws `Not found` when no origin was supplied or no
@@ -1051,7 +1050,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
   `helpCenterConfigsTotalCount(searchValue, brandId)`,
-  `helpCenterGetConfigByDomain(clientPortalName)` (the published site's own
+  `helpCenterGetConfigByDomain` (the published site's own
   bootstrap read, the one operation in this module that skips the permission
   check), `helpCenterConfigUpdate(config: HelpCenterConfigInput!)`
   (create-or-update, keyed on `config._id`) and `helpCenterConfigRemove(_id)`.
@@ -1255,6 +1254,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `Query` only. `ticketPipelineChanged(_id: String!)` returns
   `PipelineSubscription`, the `{ type, pipeline }` payload the pipeline
   mutations publish.
+- Every argument declared in the SDL is read by its resolver. The only
+  exception is the shared cursor parameters from `erxes-api-shared`
+  (`cursorMode`, `sortMode`, `aggregationPipeline`), which the plugin does not
+  own. `integrationsSaveMessengerConfigs` and
+  `integrationsSaveMessengerAppearanceData` take no `channelId`: the messenger
+  create and edit mutations set the channel.
 - Optional filter objects default to `{}` before use: `getTickets`,
   `cpGetTickets`, `cpGetTicketTotalCount` and `responseTemplates`.
   `userConversations` rejects a missing `_id`, because `$in: [undefined]`

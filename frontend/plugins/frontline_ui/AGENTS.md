@@ -357,6 +357,11 @@
   `messengerData.isSupportInAppView` through `integrationsSaveMessengerConfigs`
   and `EMSetupSetAtom.ts` reads it back for the edit flow; the API input field
   must exist for the save to succeed.
+- The messenger save mutations (`SAVE_EM_CONFIGS_MUTATION`,
+  `SAVE_EM_APPEARANCE_MUTATION`) send only `_id`, `brandId` and their payload.
+  The channel goes through `integrationsCreateMessengerIntegration` /
+  `integrationsEditMessengerIntegration`, which `useCreateMessenger` and
+  `useEditMessenger` run first.
 - The erxes messenger Appearance step (`EMAppearance.tsx`) edits `uiOptions`:
   colours, logos, hero style, navigation bar, and an `isSupportInAppView`
   switch (default off).

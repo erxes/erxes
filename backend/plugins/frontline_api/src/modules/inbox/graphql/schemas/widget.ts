@@ -48,7 +48,6 @@ export const types = `
 export const queries = `
     widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
     widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
-    widgetsGetMessengerIntegration(channelId: String!): Integration
    
     widgetsMessages(conversationId: String): [ConversationMessage]
     widgetsUnreadCount(conversationId: String): Int
@@ -97,12 +96,9 @@ export const mutations = `
   
     widgetBotRequest(
       customerId: String
-      payload: String
-      visitorId: String
       conversationId: String
       integrationId: String!,
       message: String!
-      type: String!
       ): JSON
   
     widgetsReadConversationMessages(conversationId: String): JSON

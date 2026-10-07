@@ -140,7 +140,6 @@ const commonFields = `
   buttonText: String,
   type: String!,
   numberOfPages: Int,
-  googleMapApiKey: String
 
   visibility: String
   leadData: JSON

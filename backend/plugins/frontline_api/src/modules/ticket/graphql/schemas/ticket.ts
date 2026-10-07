@@ -148,7 +148,6 @@ const updateTicketParams = `
   channelId: String
   pipelineId: String
   statusId: String
-  destinationStatusId: String
   priority: Int
   branchId: String
   departmentId: String

@@ -49,7 +49,6 @@ export const useCreateMessenger = () => {
           saveConfigsMutation({
             variables: {
               _id,
-              channelId: createVariables.channelId,
               brandId: createVariables.brandId,
               ...saveConfigVariables,
             },
@@ -63,7 +62,6 @@ export const useCreateMessenger = () => {
           saveAppearanceMutation({
             variables: {
               _id,
-              channelId: configFormValues.channelId,
               brandId: configFormValues.brandId,
               uiOptions,
             },

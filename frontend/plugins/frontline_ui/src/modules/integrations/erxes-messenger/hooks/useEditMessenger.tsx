@@ -49,7 +49,6 @@ export const useEditMessenger = () => {
           saveConfigsMutation({
             variables: {
               _id: integrationId,
-              channelId: createVariables.channelId,
               brandId: createVariables.brandId,
               ...saveConfigVariables,
             },
@@ -63,7 +62,6 @@ export const useEditMessenger = () => {
           saveAppearanceMutation({
             variables: {
               _id: integrationId,
-              channelId: configFormValues.channelId,
               uiOptions,
               brandId: configFormValues.brandId,
             },
