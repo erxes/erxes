@@ -19,6 +19,18 @@ import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
+import { ToolbarToggle } from './ToolbarToggle';
+
+const editorUIComponents = {
+  Button: { Button },
+  Toggle: { Toggle: ToolbarToggle },
+  Tooltip: {
+    Tooltip,
+    TooltipContent: Tooltip.Content,
+    TooltipProvider: Tooltip.Provider,
+    TooltipTrigger: Tooltip.Trigger,
+  },
+};
 
 type EditorBlock = ReturnType<
   BlockEditorProps['editor']['getTextCursorPosition']
@@ -157,15 +169,7 @@ export const BlockEditor = ({
         onChange={onChange}
         formattingToolbar={false}
         tableHandles={false}
-        shadCNComponents={{
-          Button: { Button },
-          Tooltip: {
-            Tooltip,
-            TooltipContent: Tooltip.Content,
-            TooltipProvider: Tooltip.Provider,
-            TooltipTrigger: Tooltip.Trigger,
-          },
-        }}
+        shadCNComponents={editorUIComponents}
         style={style}
       >
         <SuggestionMenuController

@@ -15,53 +15,51 @@ import {
 import { FontFamilyButton } from './FontFamilyButton';
 import { ImageStyleButton } from './ImageStyleButton';
 
-export const Toolbar = () => {
-  return (
-    <FormattingToolbarController
-      formattingToolbar={() => (
-        <FormattingToolbar>
-          <BlockTypeSelect key={'blockTypeSelect'} />
-          <FontFamilyButton key={'fontFamilyButton'} />
-          <ImageStyleButton />
-          <FileCaptionButton key={'fileCaptionButton'} />
-          <FileReplaceButton key={'replaceFileButton'} />
-          <BasicTextStyleButton
-            basicTextStyle={'bold'}
-            key={'boldStyleButton'}
-          />
-          <BasicTextStyleButton
-            basicTextStyle={'italic'}
-            key={'italicStyleButton'}
-          />
-          <BasicTextStyleButton
-            basicTextStyle={'underline'}
-            key={'underlineStyleButton'}
-          />
-          <BasicTextStyleButton
-            basicTextStyle={'strike'}
-            key={'strikeStyleButton'}
-          />
-          {/* Extra button to toggle code styles */}
-          <BasicTextStyleButton
-            key={'codeStyleButton'}
-            basicTextStyle={'code'}
-          />
-          <TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
-          <TextAlignButton
-            textAlignment={'center'}
-            key={'textAlignCenterButton'}
-          />
-          <TextAlignButton
-            textAlignment={'right'}
-            key={'textAlignRightButton'}
-          />
-          <ColorStyleButton key={'colorStyleButton'} />
-          <NestBlockButton key={'nestBlockButton'} />
-          <UnnestBlockButton key={'unnestBlockButton'} />
-          <CreateLinkButton key={'createLinkButton'} />
-          <TableCellMergeButton key={'mergeTableCellButton'} />
-        </FormattingToolbar>
-      )}
+const ToolbarContents = () => (
+  <FormattingToolbar>
+    <BlockTypeSelect key={'blockTypeSelect'} />
+    <FontFamilyButton key={'fontFamilyButton'} />
+    <ImageStyleButton />
+    <FileCaptionButton key={'fileCaptionButton'} />
+    <FileReplaceButton key={'replaceFileButton'} />
+    <BasicTextStyleButton
+      basicTextStyle={'bold'}
+      key={'boldStyleButton'}
     />
-  );
-};
+    <BasicTextStyleButton
+      basicTextStyle={'italic'}
+      key={'italicStyleButton'}
+    />
+    <BasicTextStyleButton
+      basicTextStyle={'underline'}
+      key={'underlineStyleButton'}
+    />
+    <BasicTextStyleButton
+      basicTextStyle={'strike'}
+      key={'strikeStyleButton'}
+    />
+    {/* Extra button to toggle code styles */}
+    <BasicTextStyleButton
+      key={'codeStyleButton'}
+      basicTextStyle={'code'}
+    />
+    <TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
+    <TextAlignButton
+      textAlignment={'center'}
+      key={'textAlignCenterButton'}
+    />
+    <TextAlignButton
+      textAlignment={'right'}
+      key={'textAlignRightButton'}
+    />
+    <ColorStyleButton key={'colorStyleButton'} />
+    <NestBlockButton key={'nestBlockButton'} />
+    <UnnestBlockButton key={'unnestBlockButton'} />
+    <CreateLinkButton key={'createLinkButton'} />
+    <TableCellMergeButton key={'mergeTableCellButton'} />
+  </FormattingToolbar>
+);
+
+export const Toolbar = () => (
+  <FormattingToolbarController formattingToolbar={ToolbarContents} />
+);
