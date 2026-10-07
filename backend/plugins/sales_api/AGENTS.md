@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-04`
+- **Last synchronized:** `2026-10-07`
 
 ## Scope
 
@@ -146,7 +146,9 @@
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
 - Sales-owned tRPC and record-reference contracts.
-- `segmentFields` for `sales:sales.deals`, `segmentRelations` for `customer.deals` and
+- `segmentFields` and a `propertiesData` `segmentFieldNamespaces` entry
+  (`propertyType` `sales:deal`) for
+  `sales:sales.deals`, `segmentRelations` for `customer.deals` and
   `company.deals`, and the `evaluateFields`, `listSegmentMembers` and
   `countSegmentMembers` segment producers on `/segments`.
 
