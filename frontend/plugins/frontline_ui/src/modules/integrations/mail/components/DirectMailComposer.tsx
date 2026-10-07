@@ -270,13 +270,11 @@ export const DirectMailComposer = () => {
                 {' Retry sending, or close this draft to start a new email.'}
               </p>
             )}
-            {!recipientsVerified && (
+            {!checkingRecipients && !recipientsVerified && (
               <p role="status" className="px-4 py-3 text-sm text-destructive">
-                {checkingRecipients
-                  ? 'Checking recipient email verification...'
-                  : recipientVerificationError
-                    ? 'Unable to check recipient email verification.'
-                    : 'All recipient email addresses must be verified before sending.'}
+                {recipientVerificationError
+                  ? 'Unable to check recipient email verification.'
+                  : 'All recipient email addresses must be verified before sending.'}
                 {recipientVerificationError && (
                   <Button
                     type="button"
