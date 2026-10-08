@@ -2,10 +2,7 @@ import { useApolloClient, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useState } from 'react';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
-import {
-  GET_DOCUMENTS,
-  GET_DOCUMENT_DETAIL,
-} from '../graphql/queries';
+import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 import { IDocument } from '../types';
 
 export const useDocumentDuplicate = (): {

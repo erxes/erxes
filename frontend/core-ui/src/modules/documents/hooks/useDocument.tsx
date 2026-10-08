@@ -10,10 +10,7 @@ import { useFormContext } from 'react-hook-form';
 import { FormType } from './useDocumentForm';
 import { IDocument } from '../types';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
-import {
-  GET_DOCUMENTS,
-  GET_DOCUMENT_DETAIL,
-} from '../graphql/queries';
+import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 export const useDocument = (): {
   document: IDocument | null;
