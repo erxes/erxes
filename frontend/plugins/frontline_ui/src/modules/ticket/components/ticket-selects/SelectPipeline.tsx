@@ -4,27 +4,48 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import {
+  canCreateFromSearch,
+  SelectCreateCommandItem,
+  SelectCreateContainer,
+} from '@/ticket/components/ticket-selects/SelectCreate';
+import { CreatePipelineForm } from '@/pipelines/components/CreatePipelineForm';
+import { usePipelineAdd } from '@/pipelines/hooks/useAddPipeline';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
-import { IPipeline } from '@/pipelines/types';
+import { IPipeline, TCreatePipelineForm } from '@/pipelines/types';
+import { CREATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Badge,
   Button,
   Combobox,
   Command,
   Filter,
+  Form,
   //   IconComponent,
   PopoverScoped,
   TextOverflowTooltip,
   useFilterContext,
   useFilterQueryState,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
-import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
+import {
+  Control,
+  FieldValues,
+  UseFormReturn,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
 import { Link } from 'react-router';
+
+const INLINE_PIPELINE_SCHEMA = CREATE_PIPELINE_FORM_SCHEMA.extend({
+  name: z.string().trim().min(1),
+});
 
 interface SelectPipelineContextType {
   value: string;
@@ -140,6 +161,7 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   return (
     <Command.Item
       value={pipeline._id}
+      keywords={[pipeline.name]}
       onSelect={() => {
         onValueChange(pipeline._id);
       }}
@@ -153,36 +175,131 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   );
 };
 
-const SelectPipelineContent = () => {
+const SelectPipelineCreateForm = ({
+  name,
+  channelId,
+  onBack,
+}: {
+  name: string;
+  channelId: string;
+  onBack: () => void;
+}) => {
   const { t } = useTranslation('frontline');
-  const { pipelines, channelId } = useSelectPipelineContext();
+  const { toast } = useToast();
+  const { onValueChange } = useSelectPipelineContext();
+  const { addPipeline, loading } = usePipelineAdd();
+  const form = useForm<TCreatePipelineForm>({
+    resolver: zodResolver(INLINE_PIPELINE_SCHEMA),
+    defaultValues: {
+      name,
+      description: '',
+      channelId,
+    },
+  });
+
+  const onSubmit = (data: TCreatePipelineForm) => {
+    addPipeline({
+      variables: { ...data, channelId },
+      onCompleted: ({ createPipeline }) => {
+        toast({ title: t('success', 'Success!') });
+        onBack();
+        onValueChange(createPipeline._id);
+      },
+      onError: (error) =>
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <SelectCreateContainer
+        title={t('create-pipeline', 'Create pipeline')}
+        onBack={onBack}
+        onSubmit={form.handleSubmit(onSubmit)}
+        loading={loading}
+      >
+        <CreatePipelineForm form={form} />
+      </SelectCreateContainer>
+    </Form>
+  );
+};
+
+const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
+  const { t } = useTranslation('frontline');
+  const { pipelines, channelId, loading } = useSelectPipelineContext();
+  const [search, setSearch] = useState('');
+  const [newPipelineName, setNewPipelineName] = useState('');
+
+  if (newPipelineName && channelId) {
+    return (
+      <SelectPipelineCreateForm
+        name={newPipelineName}
+        channelId={channelId}
+        onBack={() => setNewPipelineName('')}
+      />
+    );
+  }
+
+  const showCreate =
+    allowCreate &&
+    !!channelId &&
+    !loading &&
+    canCreateFromSearch(
+      search,
+      (pipelines || []).map((pipeline) => pipeline.name),
+    );
+
   return (
     <Command>
       <Command.Input
+        value={search}
+        onValueChange={setSearch}
         placeholder={t('search-pipelines', 'Search pipelines...')}
       />
       <Command.List>
-        <Command.Empty>
-          <div className="text-muted-foreground">
-            {channelId ? (
-              <div className="flex items-center flex-col gap-2">
-                {t('no-pipelines-found', 'No pipelines found')}
-                <Button asChild variant="secondary">
-                  <Link
-                    to={`/settings/frontline/channels/${channelId}/pipelines`}
-                  >
-                    {t('add-pipeline', 'Add pipeline')}
-                  </Link>
-                </Button>
-              </div>
-            ) : (
-              t('channel-not-selected', 'Channel not selected')
-            )}
-          </div>
-        </Command.Empty>
+        {!showCreate && (
+          <Command.Empty>
+            <div className="text-muted-foreground">
+              {channelId ? (
+                <div className="flex items-center flex-col gap-2">
+                  {t('no-pipelines-found', 'No pipelines found')}
+                  {allowCreate ? (
+                    <span className="text-xs">
+                      {t(
+                        'type-name-to-create-pipeline',
+                        'Type a name to create a pipeline',
+                      )}
+                    </span>
+                  ) : (
+                    <Button asChild variant="secondary">
+                      <Link
+                        to={`/settings/frontline/channels/${channelId}/pipelines`}
+                      >
+                        {t('add-pipeline', 'Add pipeline')}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                t('channel-not-selected', 'Channel not selected')
+              )}
+            </div>
+          </Command.Empty>
+        )}
         {pipelines?.map((pipeline) => (
           <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
         ))}
+        {showCreate && (
+          <SelectCreateCommandItem
+            search={search}
+            label={t('create-new-pipeline', 'Create new pipeline')}
+            onSelect={setNewPipelineName}
+          />
+        )}
       </Command.List>
     </Command>
   );
@@ -307,7 +424,7 @@ const SelectPipelineFormItem = <
           <SelectPipelineValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">
-          <SelectPipelineContent />
+          <SelectPipelineContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>
     </SelectPipelineProvider>

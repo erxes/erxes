@@ -3,28 +3,46 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import {
+  canCreateFromSearch,
+  SelectCreateCommandItem,
+  SelectCreateContainer,
+} from '@/ticket/components/ticket-selects/SelectCreate';
+import { ChannelForm } from '@/channels/components/settings/channels-list/ChannelForm';
+import { useChannelAdd } from '@/channels/hooks/useChannelAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { IChannel } from '@/channels/types';
+import { CHANNEL_SCHEMA } from '@/channels/schema/channel';
+import { IChannel, TChannelForm } from '@/channels/types';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Badge,
   Combobox,
   Command,
   Filter,
+  Form,
   IconComponent,
   PopoverScoped,
   TextOverflowTooltip,
   useFilterContext,
   useFilterQueryState,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+
+const INLINE_CHANNEL_SCHEMA = CHANNEL_SCHEMA.extend({
+  name: z.string().trim().min(1),
+});
 
 interface SelectChannelContextType {
   value: string;
   onValueChange: (value: string) => void;
   loading: boolean;
   channels?: IChannel[];
+  refetch: () => void;
 }
 
 const SelectChannelContext =
@@ -51,7 +69,7 @@ const SelectChannelProvider = ({
   onValueChange?: (value: string) => void;
   setOpen?: (open: boolean) => void;
 }) => {
-  const { channels, loading } = useGetChannels();
+  const { channels, loading, refetch } = useGetChannels();
 
   const handleValueChange = (channelId: string) => {
     if (!channelId) return;
@@ -66,6 +84,7 @@ const SelectChannelProvider = ({
         onValueChange: handleValueChange,
         loading,
         channels,
+        refetch,
       }}
     >
       {children}
@@ -120,6 +139,7 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
   return (
     <Command.Item
       value={channel._id}
+      keywords={[channel.name]}
       onSelect={() => {
         onValueChange(channel._id);
       }}
@@ -133,17 +153,101 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
   );
 };
 
-const SelectChannelContent = () => {
+const SelectChannelCreateForm = ({
+  name,
+  onBack,
+}: {
+  name: string;
+  onBack: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { toast } = useToast();
+  const { onValueChange, refetch } = useSelectChannelContext();
+  const { addChannel, loading } = useChannelAdd();
+  const form = useForm<TChannelForm>({
+    resolver: zodResolver(INLINE_CHANNEL_SCHEMA),
+    defaultValues: {
+      name,
+      description: '',
+      memberIds: [],
+      scope: 'team',
+    },
+  });
+
+  const onSubmit = (data: TChannelForm) => {
+    addChannel({
+      variables: data,
+      onCompleted: ({ channelAdd }) => {
+        toast({ title: t('success', 'Success!') });
+        refetch();
+        onBack();
+        onValueChange(channelAdd._id);
+      },
+      onError: (error) =>
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <SelectCreateContainer
+        title={t('create-channel', 'Create channel')}
+        onBack={onBack}
+        onSubmit={form.handleSubmit(onSubmit)}
+        loading={loading}
+      >
+        <ChannelForm form={form} />
+      </SelectCreateContainer>
+    </Form>
+  );
+};
+
+const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   const { t } = useTranslation('frontline');
   const { loading, channels } = useSelectChannelContext();
+  const [search, setSearch] = useState('');
+  const [newChannelName, setNewChannelName] = useState('');
+
+  if (newChannelName) {
+    return (
+      <SelectChannelCreateForm
+        name={newChannelName}
+        onBack={() => setNewChannelName('')}
+      />
+    );
+  }
+
+  const showCreate =
+    allowCreate &&
+    !loading &&
+    canCreateFromSearch(
+      search,
+      (channels || []).map((channel) => channel.name),
+    );
+
   return (
     <Command>
-      <Command.Input placeholder={t('search-channels', 'Search channels...')} />
+      <Command.Input
+        value={search}
+        onValueChange={setSearch}
+        placeholder={t('search-channels', 'Search channels...')}
+      />
       <Command.List>
-        <Combobox.Empty loading={loading} />
+        {!showCreate && <Combobox.Empty loading={loading} />}
         {channels?.map((channel) => (
           <SelectChannelCommandItem key={channel._id} channel={channel} />
         ))}
+        {showCreate && (
+          <SelectCreateCommandItem
+            search={search}
+            label={t('create-new-channel', 'Create new channel')}
+            onSelect={setNewChannelName}
+          />
+        )}
       </Command.List>
     </Command>
   );
@@ -241,7 +345,7 @@ const SelectChannelFormItem = ({
           <SelectChannelValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">
-          <SelectChannelContent />
+          <SelectChannelContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>
     </SelectChannelProvider>

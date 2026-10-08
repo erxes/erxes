@@ -78,7 +78,7 @@ export const useGetTicketStatusById = (_id?: string) => {
 
 export const useGetAccessibleTicketStatuses = (options?: QueryHookOptions) => {
   const { pipelineId } = useParams();
-  const { data, loading, error } =
+  const { data, loading, error, refetch } =
     useQuery<IUseGetAccessibleTicketStatusesResponse>(
       GET_ACCESSIBLE_TICKET_STATUSES,
       {
@@ -92,5 +92,5 @@ export const useGetAccessibleTicketStatuses = (options?: QueryHookOptions) => {
 
   const statuses = data?.getAccessibleTicketStatuses;
 
-  return { statuses: statuses || [], loading, error };
+  return { statuses: statuses || [], loading, error, refetch };
 };
