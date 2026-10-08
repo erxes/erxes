@@ -37,7 +37,7 @@ export const topicToForm = (topic: ITopic): TTopicForm => ({
   title: topic.title || '',
   description: topic.description || '',
   code: topic.code || '',
-  brandId: topic.brandId ?? topic.brand?._id ?? '',
+  brandId: topic.brand?._id ?? '',
   languageCode: topic.languageCode || '',
   color: topic.color || EMPTY_TOPIC.color,
   backgroundImage: topic.backgroundImage || '',

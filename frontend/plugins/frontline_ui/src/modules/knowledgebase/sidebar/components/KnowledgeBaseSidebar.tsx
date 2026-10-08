@@ -14,11 +14,11 @@ import {
 } from '@/knowledgebase/sidebar/states/kbSidebarWidthState';
 import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
-import { ICategory, ITopic } from '@/knowledgebase/types';
+import { ICategoryFields, ITopic } from '@/knowledgebase/types';
 
 type TCategoryDraft = {
   topicId: string;
-  category?: ICategory;
+  category?: ICategoryFields;
 };
 
 const TopicTree = ({
@@ -32,7 +32,7 @@ const TopicTree = ({
   loading: boolean;
   error?: { message: string };
   onAddCategory: (topicId: string) => void;
-  onEditCategory: (topicId: string, category: ICategory) => void;
+  onEditCategory: (topicId: string, category: ICategoryFields) => void;
 }) => {
   const { t } = useTranslation('frontline');
 

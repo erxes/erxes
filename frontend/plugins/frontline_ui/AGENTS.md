@@ -2157,8 +2157,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   (`ReportChartFields`). The inbox message inserted and updated
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
-- A module typed from the schema (so far `report`, `integrations/call` and the
-  Facebook and Instagram bot widgets) writes every document as
+- A module typed from the schema (so far `report`, `integrations/call`,
+  `knowledgebase`, and the Facebook, Instagram and knowledge base automation
+  widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2197,6 +2198,24 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   the list row, `IInstagramBotDetail` the form query (also the form context's
   `instagramMessengerBot`) and `IInstagramBotProfile` the trigger profile
   query.
+- Knowledge base documents share the `FrontlineKb*Fields` fragments in
+  `knowledgebase/graphql/queries.ts`, spread by name. `ITopic`, `ICategory`,
+  `IArticle` (list rows), `ITopicDetail`, `IArticleDetail` and
+  `IKnowledgeBaseTopic` (the messenger FAQ preview's topic content) are derived
+  from those queries; `ITopicDoc`, `ICategoryDoc` and `IArticleDoc` stay the
+  local input shapes. `ICategoryFields` is `FrontlineKbCategoryFieldsFragment`,
+  the category embedded in a topic: the sidebar tree, `CategoryDrawer` and
+  `groupCategoriesByParent` (generic over `TCategoryNode`) take it, and
+  `ICategory` adds `authors`. `withoutEmptyCode` and `useConfirmRemoveCategory`
+  accept the schema's `null`. `useTopics`, `useTopicOptions`, `useCategories`
+  and `useArticles` memoize their filtered lists, because the knowledge base
+  tables and sidebar memoize on them. A topic's brand is read from
+  `brand._id` (the schema has no `brandId` output).
+- Knowledge base article attachments follow `AttachmentInput`: `name` is
+  required on input though nullable on output, so the article drawer and
+  article duplication map stored attachments through `toKbAttachment`
+  (`knowledgebase/utils`; null `name` becomes `''`) before they reach the form
+  or a mutation.
 - Facebook and Instagram bot tables read a row's `account` / `page` name from
   `cell.row.original` (falling back to `-`), never from a cast of
   `cell.getValue()`.

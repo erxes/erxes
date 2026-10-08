@@ -604,6 +604,11 @@ The root router mounts its authenticated webhook at `/telegram`.
   config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- GraphQL knowledge base: `KnowledgeBaseCategory._id` and
+  `KnowledgeBaseParentCategory._id` are non-null — every category field
+  (`categories`, `parentCategories`, `childrens`, list, detail, add, edit)
+  resolves a stored category document. `KnowledgeBaseTopic` exposes `brand`,
+  not `brandId`.
 - Nothing in this module is named `clientPortal*`, and it must stay that way.
   `core-api` owns the real client portal — portal users, auth, OAuth — and
   already publishes its own `ClientPortalConfigInput` with different fields; two

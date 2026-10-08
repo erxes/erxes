@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const KB_ATTACHMENT_FIELDS = gql`
+export const KB_ATTACHMENT_FIELDS = gql(`
   fragment FrontlineKbAttachmentFields on Attachment {
     name
     url
@@ -8,9 +8,9 @@ const KB_ATTACHMENT_FIELDS = gql`
     size
     duration
   }
-`;
+`);
 
-export const KB_AUTHOR_FIELDS = gql`
+export const KB_AUTHOR_FIELDS = gql(`
   fragment FrontlineKbAuthorFields on User {
     _id
     username
@@ -20,9 +20,9 @@ export const KB_AUTHOR_FIELDS = gql`
       fullName
     }
   }
-`;
+`);
 
-export const KB_CATEGORY_FIELDS = gql`
+export const KB_CATEGORY_FIELDS = gql(`
   fragment FrontlineKbCategoryFields on KnowledgeBaseCategory {
     _id
     title
@@ -34,9 +34,9 @@ export const KB_CATEGORY_FIELDS = gql`
     createdDate
     modifiedDate
   }
-`;
+`);
 
-export const KB_TOPIC_FIELDS = gql`
+export const KB_TOPIC_FIELDS = gql(`
   fragment FrontlineKbTopicFields on KnowledgeBaseTopic {
     _id
     title
@@ -55,9 +55,9 @@ export const KB_TOPIC_FIELDS = gql`
       name
     }
   }
-`;
+`);
 
-export const KB_ARTICLE_FIELDS = gql`
+export const KB_ARTICLE_FIELDS = gql(`
   fragment FrontlineKbArticleFields on KnowledgeBaseArticle {
     _id
     code
@@ -72,11 +72,9 @@ export const KB_ARTICLE_FIELDS = gql`
     modifiedDate
     scheduledDate
   }
-`;
+`);
 
-export const TOPICS = gql`
-  ${KB_TOPIC_FIELDS}
-  ${KB_CATEGORY_FIELDS}
+export const TOPICS = gql(`
   query frontlineKbTopics(
     $page: Int
     $perPage: Int
@@ -96,9 +94,9 @@ export const TOPICS = gql`
     }
     knowledgeBaseTopicsTotalCount
   }
-`;
+`);
 
-export const TOPIC_OPTIONS = gql`
+export const TOPIC_OPTIONS = gql(`
   query frontlineKbTopicOptions($perPage: Int, $searchValue: String) {
     knowledgeBaseTopics(page: 1, perPage: $perPage, searchValue: $searchValue) {
       _id
@@ -106,11 +104,9 @@ export const TOPIC_OPTIONS = gql`
       code
     }
   }
-`;
+`);
 
-export const TOPIC_DETAIL = gql`
-  ${KB_TOPIC_FIELDS}
-  ${KB_CATEGORY_FIELDS}
+export const TOPIC_DETAIL = gql(`
   query frontlineKbTopicDetail($_id: String!) {
     knowledgeBaseTopicDetail(_id: $_id) {
       ...FrontlineKbTopicFields
@@ -119,11 +115,9 @@ export const TOPIC_DETAIL = gql`
       }
     }
   }
-`;
+`);
 
-export const CATEGORIES = gql`
-  ${KB_CATEGORY_FIELDS}
-  ${KB_AUTHOR_FIELDS}
+export const CATEGORIES = gql(`
   query frontlineKbCategories($topicIds: [String], $page: Int, $perPage: Int) {
     knowledgeBaseCategories(
       topicIds: $topicIds
@@ -137,11 +131,9 @@ export const CATEGORIES = gql`
     }
     knowledgeBaseCategoriesTotalCount(topicIds: $topicIds)
   }
-`;
+`);
 
-export const ARTICLES = gql`
-  ${KB_ARTICLE_FIELDS}
-  ${KB_AUTHOR_FIELDS}
+export const ARTICLES = gql(`
   query frontlineKbArticles(
     $topicIds: [String]
     $categoryIds: [String]
@@ -175,11 +167,9 @@ export const ARTICLES = gql`
       searchValue: $searchValue
     )
   }
-`;
+`);
 
-export const ARTICLE_DETAIL = gql`
-  ${KB_ARTICLE_FIELDS}
-  ${KB_ATTACHMENT_FIELDS}
+export const ARTICLE_DETAIL = gql(`
   query frontlineKbArticleDetail($_id: String!) {
     knowledgeBaseArticleDetail(_id: $_id) {
       ...FrontlineKbArticleFields
@@ -201,9 +191,9 @@ export const ARTICLE_DETAIL = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
+export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql(`
   query frontlineKbTopicContent($_id: String!) {
     knowledgeBaseTopicDetail(_id: $_id) {
       _id
@@ -293,4 +283,4 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
       }
     }
   }
-`;
+`);
