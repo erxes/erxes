@@ -325,8 +325,8 @@ const sendMessageToIframe = (contentWindow: Window) => {
       isMessengerVisible
         ? 'Close messenger'
         : lastUnreadCount > 0
-        ? `Open messenger, ${lastUnreadCount} unread`
-        : 'Open messenger',
+          ? `Open messenger, ${lastUnreadCount} unread`
+          : 'Open messenger',
     );
     launcherBtn.setAttribute('aria-expanded', String(isMessengerVisible));
   };
