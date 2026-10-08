@@ -4,6 +4,7 @@ import {
   Combobox,
   Command,
   Form,
+  isDefined,
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
@@ -11,16 +12,17 @@ import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GET_HELP_CENTER_FORM_OPTIONS } from '@/helpcenter/graphql/queries/getHelpCenterFormOptions';
+import type { FrontlineHelpCenterFormOptionsQuery } from '~/gql/graphql';
 
 const FORM_OPTIONS_LIMIT = 100;
 
 const MAX_VISIBLE_BADGES = 3;
 
-type TFormOption = {
-  _id: string;
-  name?: string;
-  title?: string;
-};
+type TFormOption = NonNullable<
+  NonNullable<
+    NonNullable<FrontlineHelpCenterFormOptionsQuery['forms']>['list']
+  >[number]
+>;
 
 const getFormName = (form: TFormOption, t: TFunction) =>
   form.name || form.title || t('unnamed-form', 'Untitled form');
@@ -78,15 +80,13 @@ export const SelectHelpCenterForms = ({
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
-  const { data, loading, error } = useQuery<{
-    forms: { list: TFormOption[] | null } | null;
-  }>(GET_HELP_CENTER_FORM_OPTIONS, {
+  const { data, loading, error } = useQuery(GET_HELP_CENTER_FORM_OPTIONS, {
     variables: { channelId, limit: FORM_OPTIONS_LIMIT },
     skip: !channelId,
     fetchPolicy: 'cache-and-network',
   });
 
-  const forms = channelId ? (data?.forms?.list ?? []) : [];
+  const forms = channelId ? data?.forms?.list?.filter(isDefined) ?? [] : [];
   const selectedForms = value
     .map((formId) => forms.find((form) => form._id === formId))
     .filter((form): form is TFormOption => !!form);

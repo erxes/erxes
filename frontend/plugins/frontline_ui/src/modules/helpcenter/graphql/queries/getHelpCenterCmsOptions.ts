@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_HELP_CENTER_CMS_OPTIONS = gql`
+export const GET_HELP_CENTER_CMS_OPTIONS = gql(`
   query frontlineHelpCenterCmsOptions {
     contentCMSList {
       _id
@@ -8,13 +8,13 @@ export const GET_HELP_CENTER_CMS_OPTIONS = gql`
       clientPortalId
     }
   }
-`;
+`);
 
-export const GET_HELP_CENTER_CMS_PORTAL_TOKEN = gql`
+export const GET_HELP_CENTER_CMS_PORTAL_TOKEN = gql(`
   query frontlineHelpCenterCmsPortalToken($_id: String) {
     getClientPortal(_id: $_id) {
       _id
       token
     }
   }
-`;
+`);

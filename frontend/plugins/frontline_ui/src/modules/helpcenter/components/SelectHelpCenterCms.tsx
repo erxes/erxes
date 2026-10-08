@@ -16,10 +16,6 @@ import { IHelpCenterCmsConfig, IHelpCenterCmsOption } from '@/helpcenter/types';
 
 const MAX_VISIBLE_BADGES = 3;
 
-type TCmsPortalTokenResponse = {
-  getClientPortal: { _id: string; token?: string | null } | null;
-};
-
 const getCmsName = (cms: IHelpCenterCmsOption, t: TFunction) =>
   cms.name || t('unnamed-cms', 'Untitled CMS');
 
@@ -80,10 +76,12 @@ export const SelectHelpCenterCms = ({
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
-  const [getPortalToken, { loading: tokenLoading }] =
-    useLazyQuery<TCmsPortalTokenResponse>(GET_HELP_CENTER_CMS_PORTAL_TOKEN, {
+  const [getPortalToken, { loading: tokenLoading }] = useLazyQuery(
+    GET_HELP_CENTER_CMS_PORTAL_TOKEN,
+    {
       fetchPolicy: 'network-only',
-    });
+    },
+  );
 
   const selectedCms = value
     .map(({ cmsId }) => cmsList.find((cms) => cms._id === cmsId))

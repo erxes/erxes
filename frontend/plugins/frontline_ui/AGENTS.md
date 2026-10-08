@@ -2158,8 +2158,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
-  `knowledgebase`, and the Facebook, Instagram and knowledge base automation
-  widgets) writes every document as
+  `knowledgebase`, `helpcenter`, and the Facebook, Instagram and knowledge
+  base automation widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2211,6 +2211,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   and `useArticles` memoize their filtered lists, because the knowledge base
   tables and sidebar memoize on them. A topic's brand is read from
   `brand._id` (the schema has no `brandId` output).
+- Help center documents share the `HelpCenterConfigFields` and
+  `CustomDomainFields` fragments, spread by name. `IHelpCenter` is
+  `HelpCenterConfigFieldsFragment`, `ICustomDomain` is
+  `CustomDomainFieldsFragment`, and the CMS, client portal, form and topic
+  option types are derived from their option queries. The config input,
+  styles, header and footer interfaces stay the local form/input shapes;
+  `toHelpCenterConfigInput` drops null list items and defaults null scalars
+  when it turns a stored config into that input.
 - Knowledge base article attachments follow `AttachmentInput`: `name` is
   required on input though nullable on output, so the article drawer and
   article duplication map stored attachments through `toKbAttachment`
