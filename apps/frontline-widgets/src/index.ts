@@ -4,15 +4,86 @@ import { listenForCommonRequests } from './lib/utils';
 const ERXES_WIDGET_CONTAINER_ID = 'erxes-messenger-container';
 const MESSENGER_IFRAME_ID = 'erxes-messenger-iframe';
 
+// Launcher color and logo from the last connect, so the launcher can render
+// before (or without) the messenger iframe
+const LAUNCHER_CACHE_KEY = 'erxes-messenger-launcher';
+const LAUNCHER_CACHE_MAX_AGE = 24 * 60 * 60 * 1000;
+// Early connects wait for page load, this delay, then an idle period
+const EARLY_CONNECT_DELAY = 2000;
+
+type LauncherLook = {
+  color?: string;
+  foreground?: string;
+  backgroundImage: string;
+  hasCustomLogo: boolean;
+};
+
+type LauncherCache = LauncherLook & {
+  integrationId: string;
+  savedAt: number;
+  // Visitor opened the messenger or is a known customer: connect early on
+  // later page views so unread badges and reply notifications keep working
+  engaged: boolean;
+};
+
 const getStorage = () => {
   return localStorage.getItem('erxes') || '{}';
+};
+
+const getMessengerSettings = () => (window as any).erxesSettings?.messenger;
+
+const readLauncherCache = (): LauncherCache | undefined => {
+  try {
+    const cache = JSON.parse(localStorage.getItem(LAUNCHER_CACHE_KEY) || '');
+
+    return cache?.integrationId === getMessengerSettings()?.integrationId
+      ? cache
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const writeLauncherCache = (changes: Partial<LauncherCache>) => {
+  try {
+    localStorage.setItem(
+      LAUNCHER_CACHE_KEY,
+      JSON.stringify({
+        ...readLauncherCache(),
+        ...changes,
+        integrationId: getMessengerSettings()?.integrationId,
+      }),
+    );
+  } catch {
+    // storage unavailable
+  }
+};
+
+// The messenger iframe is ~1 MB of app code, so it loads on the first
+// launcher click unless something has to happen on page load: identifying
+// the visitor from erxesSettings, showing unread badges to a known visitor,
+// or fetching the launcher look nobody has cached yet.
+const needsEarlyConnect = () => {
+  const settings = getMessengerSettings() || {};
+  const cache = readLauncherCache();
+
+  return Boolean(
+    settings.email ||
+      settings.phone ||
+      settings.code ||
+      settings.data ||
+      settings.companyData ||
+      !cache?.savedAt ||
+      cache.engaged ||
+      Date.now() - cache.savedAt > LAUNCHER_CACHE_MAX_AGE,
+  );
 };
 
 // Re-sends the host page's current erxesSettings/theme/storage to an
 // already-loaded messenger iframe. Used both on first load and whenever this
 // script is re-injected on an already-mounted widget (see below).
 const sendMessageToIframe = (contentWindow: Window) => {
-  const settings = (window as any).erxesSettings?.messenger;
+  const settings = getMessengerSettings();
   const storedTheme = localStorage.getItem('theme');
   const prefersDark = window.matchMedia?.(
     '(prefers-color-scheme: dark)',
@@ -122,7 +193,7 @@ const sendMessageToIframe = (contentWindow: Window) => {
 
     return '';
   };
-  messengerIframe.src = generateIntegrationUrl('messenger');
+  const messengerUrl = generateIntegrationUrl('messenger');
   messengerIframe.style.display = 'none';
   messengerIframe.allow =
     'camera *; microphone *; clipboard-read; clipboard-write';
@@ -130,6 +201,10 @@ const sendMessageToIframe = (contentWindow: Window) => {
   let launcherIframeDocument: Document | undefined = undefined;
   let lastUnreadCount = 0;
   let isMessengerVisible = false;
+  let isMessengerMounted = false;
+  let isMessengerLoaded = false;
+  // A click arrived before the iframe loaded; open once it does
+  let openOnLoad = false;
 
   function renewViewPort() {
     if (viewportMeta) {
@@ -232,8 +307,67 @@ const sendMessageToIframe = (contentWindow: Window) => {
       event.type === 'click'
     ) {
       getParentAudioCtx()?.resume();
-      postMessageToContentWindow();
+      toggleMessenger();
     }
+  };
+
+  const toggleMessenger = () => {
+    writeLauncherCache({ engaged: true });
+
+    if (isMessengerLoaded) {
+      postMessageToContentWindow();
+      return;
+    }
+
+    openOnLoad = !openOnLoad;
+    mountMessenger();
+  };
+
+  const applyLauncherLook = (look: LauncherLook) => {
+    const launcherBtn = launcherIframeDocument?.querySelector('.erxes-launcher');
+
+    if (!launcherBtn) {
+      return;
+    }
+
+    backgroundImage = look.backgroundImage;
+    hasCustomLogo = look.hasCustomLogo;
+
+    (launcherBtn as HTMLElement).style.cssText = `
+      width: 48px;
+      height: 48px;
+      font-smoothing: antialiased;
+      animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      line-height: 48px;
+      pointer-events: auto;
+      text-align: center;
+      transition: background-image 0.3s ease-in;
+      z-index: 2147483646;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background-color: ${look.color};
+      color: ${look.foreground || '#673fbd'};
+      background-image: ${backgroundImage};
+      background-size: ${hasCustomLogo ? '32px' : '18px'};
+      background-position: center;
+    `;
+
+    // If the widget is already open when connection info arrives, restore the X state
+    if (isMessengerVisible) {
+      (launcherBtn as HTMLElement).style.backgroundImage = 'none';
+      (launcherBtn as HTMLElement).innerHTML = CLOSE_ICON_STRING;
+    }
+
+    launcherIframe.style.opacity = '1';
   };
 
   const handleLauncherIframeLoad = async () => {
@@ -258,6 +392,14 @@ const sendMessageToIframe = (contentWindow: Window) => {
 
       launcherBtn.addEventListener('click', handleLauncherEvent);
       launcherBtn.addEventListener('keyup', handleLauncherEvent);
+      // Start loading on hover so the first click opens sooner
+      launcherBtn.addEventListener('pointerenter', mountMessenger);
+
+      const cache = readLauncherCache();
+
+      if (cache?.savedAt) {
+        applyLauncherLook(cache);
+      }
     }
   };
 
@@ -271,16 +413,24 @@ const sendMessageToIframe = (contentWindow: Window) => {
   launcherIframe.className = 'erxes-launcher';
   launcherIframe.src = 'about:blank';
 
-  // Add the messenger iframe to its container
-  messengerIframeContainer.appendChild(messengerIframe);
   // Add the launcher iframe to its container
-
   launcherContainer.appendChild(launcherIframe);
   launcherIframe.addEventListener('load', handleLauncherIframeLoad);
   // Add both the messenger and launcher containers to the erxes widget container
   erxesWidgetContainer.append(messengerIframeContainer, launcherContainer);
   // Append the erxes container to the document body
   document.body.appendChild(erxesWidgetContainer);
+
+  // Creates the messenger iframe; safe to call more than once
+  function mountMessenger() {
+    if (isMessengerMounted) {
+      return;
+    }
+
+    isMessengerMounted = true;
+    messengerIframe.src = messengerUrl;
+    messengerIframeContainer.appendChild(messengerIframe);
+  }
 
   const handleMessengerIframeLoad = async () => {
     if (!messengerIframe || !messengerIframe.contentWindow) {
@@ -289,9 +439,13 @@ const sendMessageToIframe = (contentWindow: Window) => {
     }
     const contentWindow = messengerIframe.contentWindow;
     messengerIframe.style.display = 'block';
-    setupShowMessengerProperty(contentWindow);
+    isMessengerLoaded = true;
     sendMessageToIframe(contentWindow);
-    launcherIframe.style.opacity = '1';
+
+    if (openOnLoad) {
+      openOnLoad = false;
+      postMessageToContentWindow();
+    }
   };
 
   const setErxesProperty = (name: string, value: any) => {
@@ -302,19 +456,36 @@ const sendMessageToIframe = (contentWindow: Window) => {
     (window as any).Erxes = erxes;
   };
 
-  const setupShowMessengerProperty = (contentWindow: Window) => {
-    setErxesProperty('showMessenger', () => {
-      contentWindow.postMessage(
-        {
-          fromPublisher: true,
-          action: 'showMessenger',
-        },
-        '*',
-      );
-    });
-  };
+  setErxesProperty('showMessenger', () => {
+    if (!isMessengerVisible && !openOnLoad) {
+      toggleMessenger();
+    }
+  });
 
   messengerIframe.addEventListener('load', handleMessengerIframeLoad);
+
+  const scheduleEarlyConnect = () => {
+    const connectWhenIdle = () =>
+      setTimeout(() => {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(mountMessenger, { timeout: 5000 });
+        } else {
+          mountMessenger();
+        }
+      }, EARLY_CONNECT_DELAY);
+
+    if (document.readyState === 'complete') {
+      connectWhenIdle();
+    } else {
+      window.addEventListener('load', connectWhenIdle, { once: true });
+    }
+  };
+
+  if (getMessengerSettings()?.eager) {
+    mountMessenger();
+  } else if (needsEarlyConnect()) {
+    scheduleEarlyConnect();
+  }
 
   const postMessageToContentWindow = () => {
     if (!messengerIframe || !messengerIframe.contentWindow) {
@@ -346,56 +517,27 @@ const sendMessageToIframe = (contentWindow: Window) => {
         return console.error('Messenger: uiOptions is not defined');
       }
 
-      const launcherBtn =
-        launcherIframeDocument?.querySelector('.erxes-launcher');
-
-      if (!launcherBtn) {
+      if (!launcherIframeDocument?.querySelector('.erxes-launcher')) {
         return console.error('Messenger: launcher element is not defined');
       }
 
-      const { primary, launcherLogo: uiOptionsLogo } = uiOptions;
+      const { primary, launcherLogo: logo } = uiOptions;
+      const hasLogo = logo?.length > 0;
+      const look: LauncherLook = {
+        color: primary?.DEFAULT,
+        foreground: primary?.foreground,
+        hasCustomLogo: hasLogo,
+        backgroundImage: hasLogo
+          ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
+          : defaultLogo,
+      };
 
-      const logo = uiOptionsLogo;
-      const color = primary?.DEFAULT;
-      const foreground = primary?.foreground;
-      hasCustomLogo = logo.length > 0;
-      backgroundImage = hasCustomLogo
-        ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
-        : backgroundImage;
-
-      (launcherBtn as HTMLElement).style.cssText = `
-      width: 48px;
-      height: 48px;
-      font-smoothing: antialiased;
-      animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      line-height: 48px;
-      pointer-events: auto;
-      text-align: center;
-      transition: background-image 0.3s ease-in;
-      z-index: 2147483646;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      background-color: ${color};
-      color: ${foreground || '#673fbd'};
-      background-image: ${backgroundImage};
-      background-size: ${hasCustomLogo ? '32px' : '18px'};
-      background-position: center;
-    `;
-
-      // If the widget is already open when connection info arrives, restore the X state
-      if (isMessengerVisible) {
-        (launcherBtn as HTMLElement).style.backgroundImage = 'none';
-        (launcherBtn as HTMLElement).innerHTML = CLOSE_ICON_STRING;
-      }
+      applyLauncherLook(look);
+      writeLauncherCache({
+        ...look,
+        savedAt: Date.now(),
+        ...(widgetsMessengerConnect.customerId ? { engaged: true } : {}),
+      });
     }
   };
 
