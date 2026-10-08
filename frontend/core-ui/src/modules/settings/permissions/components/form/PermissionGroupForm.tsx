@@ -99,8 +99,8 @@ export const PermissionGroupForm = ({
                 ? t('saving')
                 : t('creating')
               : mode === 'edit'
-              ? t('save-changes')
-              : t('create-group')}
+                ? t('save-changes')
+                : t('create-group')}
           </Button>
         </div>
       </form>

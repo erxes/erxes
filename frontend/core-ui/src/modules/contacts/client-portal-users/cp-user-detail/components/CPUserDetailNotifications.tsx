@@ -196,71 +196,71 @@ export function CPUserDetailNotifications() {
       <ScrollArea.Root className="w-full h-full overflow-hidden">
         <ScrollArea.Viewport className="[&>div]:block!">
           <div className="py-6 px-8 flex flex-col gap-3">
-          {list.map((notification) => (
-            <div
-              key={notification._id}
-              className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="font-medium line-clamp-1">
-                    {notification.title}
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {notification.message}
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="secondary" className="capitalize">
-                      {notification.priority}
-                    </Badge>
-                    <Badge variant="secondary" className="capitalize">
-                      {notification.type}
-                    </Badge>
-                    {notification.isRead ? (
-                      <Badge variant="secondary">
-                        {t('read', { defaultValue: 'Read' })}
+            {list.map((notification) => (
+              <div
+                key={notification._id}
+                className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="font-medium line-clamp-1">
+                      {notification.title}
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {notification.message}
+                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="secondary" className="capitalize">
+                        {notification.priority}
                       </Badge>
-                    ) : (
-                      <Badge variant="default">
-                        {t('unread', { defaultValue: 'Unread' })}
+                      <Badge variant="secondary" className="capitalize">
+                        {notification.type}
                       </Badge>
-                    )}
-                    {notification.result &&
-                      (notification.result.android ||
-                        notification.result.ios ||
-                        notification.result.web) && (
-                      <span
-                        className="inline-flex items-center gap-1 text-muted-foreground"
-                        title={t('sentToPlatforms', {
-                          defaultValue: 'Sent to platforms',
-                        })}
-                      >
-                        {notification.result.android && (
-                          <IconBrandAndroid className="size-4" />
+                      {notification.isRead ? (
+                        <Badge variant="secondary">
+                          {t('read', { defaultValue: 'Read' })}
+                        </Badge>
+                      ) : (
+                        <Badge variant="default">
+                          {t('unread', { defaultValue: 'Unread' })}
+                        </Badge>
+                      )}
+                      {notification.result &&
+                        (notification.result.android ||
+                          notification.result.ios ||
+                          notification.result.web) && (
+                          <span
+                            className="inline-flex items-center gap-1 text-muted-foreground"
+                            title={t('sentToPlatforms', {
+                              defaultValue: 'Sent to platforms',
+                            })}
+                          >
+                            {notification.result.android && (
+                              <IconBrandAndroid className="size-4" />
+                            )}
+                            {notification.result.ios && (
+                              <IconBrandApple className="size-4" />
+                            )}
+                            {notification.result.web && (
+                              <IconWorldWww className="size-4" />
+                            )}
+                          </span>
                         )}
-                        {notification.result.ios && (
-                          <IconBrandApple className="size-4" />
-                        )}
-                        {notification.result.web && (
-                          <IconWorldWww className="size-4" />
-                        )}
-                      </span>
-                    )}
+                    </div>
                   </div>
-                </div>
-                <div className="text-xs text-muted-foreground shrink-0">
-                  <RelativeDateDisplay.Value value={notification.createdAt} />
+                  <div className="text-xs text-muted-foreground shrink-0">
+                    <RelativeDateDisplay.Value value={notification.createdAt} />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          {hasNextPage && (
-            <div ref={inViewRef} className="flex justify-center py-2">
-              {loading ? (
-                <Spinner containerClassName="inline-flex flex-none" />
-              ) : null}
-            </div>
-          )}
+            ))}
+            {hasNextPage && (
+              <div ref={inViewRef} className="flex justify-center py-2">
+                {loading ? (
+                  <Spinner containerClassName="inline-flex flex-none" />
+                ) : null}
+              </div>
+            )}
           </div>
         </ScrollArea.Viewport>
         <ScrollArea.Bar orientation="vertical" />

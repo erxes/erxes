@@ -20,9 +20,7 @@ export const CompanyAddSheet = () => {
 
   const onOpen = () => {
     setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(
-      ContactsHotKeyScope.CompanyAddSheet,
-    );
+    setHotkeyScopeAndMemorizePreviousScope(ContactsHotKeyScope.CompanyAddSheet);
   };
 
   const onClose = () => {
@@ -31,11 +29,7 @@ export const CompanyAddSheet = () => {
   };
 
   useScopedHotkeys(`c`, () => onOpen(), ContactsHotKeyScope.CompaniesPage);
-  useScopedHotkeys(
-    `esc`,
-    () => onClose(),
-    ContactsHotKeyScope.CompanyAddSheet,
-  );
+  useScopedHotkeys(`esc`, () => onClose(), ContactsHotKeyScope.CompanyAddSheet);
 
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
