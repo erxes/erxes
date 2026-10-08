@@ -16,12 +16,18 @@ import {
   Separator,
   cn,
   Skeleton,
-  BlockEditorReadOnly,
   formatDateISOStringToRelativeDate,
   ScrollArea,
 } from 'erxes-ui';
 import { AnimatePresence, motion } from 'motion/react';
-import { ComponentPropsWithoutRef, FC, useMemo, useState } from 'react';
+import {
+  ComponentPropsWithoutRef,
+  FC,
+  lazy,
+  Suspense,
+  useMemo,
+  useState,
+} from 'react';
 import { ITicketCheckProgress, ITicketNote } from '../types';
 import { format } from 'date-fns';
 import { useGetTicketsByCustomer } from '../hooks/useGetTicketsByCustomer';
@@ -31,6 +37,14 @@ import { ticketTabAtom } from '../../states';
 import { useGetTicketNotes } from '../hooks/useGetTicketNotes';
 import { WdigetMembersInline } from '../../components/widget-members-inline';
 import { TicketStatusInlineValue } from './ticket-status-inline';
+
+// The block editor pulls in BlockNote, ProseMirror and Yjs; only ticket notes
+// need it, so keep it out of the messenger's first load
+const BlockEditorReadOnly = lazy(() =>
+  import('@libs/blockEditorReadOnly').then((m) => ({
+    default: m.BlockEditorReadOnly,
+  })),
+);
 
 export const TicketSubmissions = () => {
   const { tickets, error } = useGetTicketsByCustomer();
@@ -381,10 +395,12 @@ export const TicketNoteItem = ({ note }: { note: ITicketNote }) => {
             </p>
           </span>
           <div className="border rounded-lg min-h-14 px-4 py-3 ml-1 mt-1">
-            <BlockEditorReadOnly
-              content={note.content || ''}
-              className="read-only text-sm"
-            />
+            <Suspense fallback={<Skeleton className="h-6 w-full" />}>
+              <BlockEditorReadOnly
+                content={note.content || ''}
+                className="read-only text-sm"
+              />
+            </Suspense>
           </div>
         </div>
       </WdigetMembersInline>
