@@ -20,6 +20,7 @@ import {
   ScrollArea,
 } from 'erxes-ui';
 import { AnimatePresence, motion } from 'motion/react';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   ComponentPropsWithoutRef,
   FC,
@@ -395,12 +396,20 @@ export const TicketNoteItem = ({ note }: { note: ITicketNote }) => {
             </p>
           </span>
           <div className="border rounded-lg min-h-14 px-4 py-3 ml-1 mt-1">
-            <Suspense fallback={<Skeleton className="h-6 w-full" />}>
-              <BlockEditorReadOnly
-                content={note.content || ''}
-                className="read-only text-sm"
-              />
-            </Suspense>
+            <ErrorBoundary
+              fallback={
+                <p className="text-sm text-muted-foreground">
+                  This note couldn't load. Refresh the page to try again.
+                </p>
+              }
+            >
+              <Suspense fallback={<Skeleton className="h-6 w-full" />}>
+                <BlockEditorReadOnly
+                  content={note.content || ''}
+                  className="read-only text-sm"
+                />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </div>
       </WdigetMembersInline>

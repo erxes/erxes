@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useAtom } from 'jotai';
 import { postMessage } from '../lib/utils';
@@ -27,7 +27,6 @@ import { useCustomerData } from './messenger/hooks/useCustomerData';
 import { replayEarlyPublisherMessages } from '@libs/earlyPublisherMessages';
 
 export function App() {
-  const [isMessengerVisible, setIsMessengerVisible] = useState(false);
   const [isSmallContainer] = useState(false);
   const { activeTab } = useMessenger();
   const [connection] = useAtom(connectionAtom);
@@ -61,23 +60,27 @@ export function App() {
     postMessage('fromMessenger', 'unreadCount', { count: unreadCount });
   }, [unreadCount]);
 
+  // A ref, not state: host messages can be replayed in a burst (see
+  // earlyPublisherMessages) and each one must see the previous one's result
+  const isMessengerVisibleRef = useRef(false);
+
   useEffect(() => {
-    const toggle = () => {
+    const setVisible = (isVisible: boolean) => {
+      if (isMessengerVisibleRef.current === isVisible) {
+        return;
+      }
+
+      isMessengerVisibleRef.current = isVisible;
       // notify parent window launcher state
       postMessage('fromMessenger', 'messenger', {
-        isVisible: !isMessengerVisible,
+        isVisible,
         isSmallContainer,
       });
-      setIsMessengerVisible(!isMessengerVisible);
     };
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data.action === 'closeMessenger' && isMessengerVisible) {
-        postMessage('fromMessenger', 'messenger', {
-          isVisible: false,
-          isSmallContainer,
-        });
-        setIsMessengerVisible(false);
+      if (event.data.action === 'closeMessenger') {
+        setVisible(false);
         return;
       }
 
@@ -92,8 +95,14 @@ export function App() {
           document.documentElement.classList.remove('dark');
         }
 
+        // The loader sends the visibility it wants; older loaders send a
+        // bare toggle
         if (event.data.action === 'toggleMessenger') {
-          toggle();
+          setVisible(
+            typeof event.data.isVisible === 'boolean'
+              ? event.data.isVisible
+              : !isMessengerVisibleRef.current,
+          );
         }
       }
     };
@@ -103,7 +112,7 @@ export function App() {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [isMessengerVisible, isSmallContainer]);
+  }, [isSmallContainer]);
 
   // Runs after the listeners above are attached
   useEffect(() => {
