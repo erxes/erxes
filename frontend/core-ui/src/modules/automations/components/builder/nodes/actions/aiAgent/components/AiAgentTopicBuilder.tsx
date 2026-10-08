@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Textarea } from 'erxes-ui';
@@ -5,6 +6,7 @@ import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { generateAutomationElementId } from 'ui-modules';
 
 export const AiAgentTopicBuilder = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -21,7 +23,10 @@ export const AiAgentTopicBuilder = () => {
                 name={`topics.${index}.topicName`}
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Enter topic label" />
+                  <Input
+                    {...field}
+                    placeholder={t('ai-agent-topic-label-placeholder')}
+                  />
                 )}
               />
               <Button
@@ -41,7 +46,7 @@ export const AiAgentTopicBuilder = () => {
               render={({ field }) => (
                 <Textarea
                   {...field}
-                  placeholder="Explain when this topic should be selected"
+                  placeholder={t('ai-agent-topic-prompt-placeholder')}
                 />
               )}
             />
@@ -54,12 +59,14 @@ export const AiAgentTopicBuilder = () => {
         onClick={() =>
           append({
             id: generateAutomationElementId(),
-            topicName: `Topic ${fields.length + 1}`,
+            topicName: t('ai-agent-topic-default-name', {
+              number: fields.length + 1,
+            }),
             prompt: '',
           })
         }
       >
-        Add Topic
+        {t('ai-agent-add-topic')}
       </Button>
     </>
   );

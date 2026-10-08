@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { ChartContainer, ChartTooltipContent } from 'erxes-ui';
 import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 // Status colours follow STATUSES_BADGE_VARIABLES so the chart and the badges
 // tell the same story.
@@ -45,12 +46,13 @@ export const AutomationStatsChart = ({
   beginDate: Date;
   endDate: Date;
 }) => {
+  const { t } = useTranslation('automations');
   const series = useFilledSeries(timeSeries, beginDate, endDate);
 
   if (!timeSeries.length) {
     return (
       <div className="flex h-72 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
-        No runs in this range
+        {t('stats-no-runs-in-range')}
       </div>
     );
   }
@@ -58,7 +60,7 @@ export const AutomationStatsChart = ({
   return (
     <div className="rounded-lg border bg-background p-4">
       <span className="text-xs font-medium text-muted-foreground">
-        Runs per day
+        {t('stats-runs-per-day')}
       </span>
       <ChartContainer config={CHART_CONFIG} className="mt-2 h-72 w-full">
         <BarChart data={series} margin={{ top: 8, right: 8, left: -16 }}>
@@ -76,19 +78,19 @@ export const AutomationStatsChart = ({
             dataKey="complete"
             stackId="runs"
             fill="var(--success)"
-            name="Complete"
+            name={t('stats-complete')}
           />
           <Bar
             dataKey="waiting"
             stackId="runs"
             fill="var(--warning)"
-            name="Waiting"
+            name={t('stats-waiting')}
           />
           <Bar
             dataKey="error"
             stackId="runs"
             fill="var(--destructive)"
-            name="Error"
+            name={t('error')}
             radius={[2, 2, 0, 0]}
           />
         </BarChart>

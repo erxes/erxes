@@ -5,6 +5,7 @@ import {
   TAutomationStatsCount,
 } from '@/automations/types';
 import { Badge } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const getStatusVariant = (status: string): StatusBadgeValue =>
   STATUSES_BADGE_VARIABLES[status as keyof typeof STATUSES_BADGE_VARIABLES] ??
@@ -31,6 +32,7 @@ export const AutomationStatsOverview = ({
 }: {
   stats: TAutomationStats;
 }) => {
+  const { t } = useTranslation('automations');
   const { total, byStatus, byErrorCode } = stats;
 
   const errorTotal = byStatus.find(({ key }) => key === 'error')?.count ?? 0;
@@ -38,16 +40,16 @@ export const AutomationStatsOverview = ({
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      <StatTile label="Runs">
+      <StatTile label={t('stats-runs')}>
         <span className="text-2xl font-semibold leading-none">{total}</span>
         {!!total && (
           <span className="text-xs text-muted-foreground">
-            {errorRate}% failed
+            {t('stats-failed-rate', { rate: errorRate })}
           </span>
         )}
       </StatTile>
 
-      <StatTile label="By status">
+      <StatTile label={t('stats-by-status')}>
         {byStatus.length ? (
           byStatus.map(({ key, count }: TAutomationStatsCount) => (
             <Badge key={key} variant={getStatusVariant(key)}>
@@ -55,11 +57,13 @@ export const AutomationStatsOverview = ({
             </Badge>
           ))
         ) : (
-          <span className="text-sm text-muted-foreground">No runs</span>
+          <span className="text-sm text-muted-foreground">
+            {t('stats-no-runs')}
+          </span>
         )}
       </StatTile>
 
-      <StatTile label="Failure reasons">
+      <StatTile label={t('stats-failure-reasons')}>
         {byErrorCode.length ? (
           byErrorCode.map(({ key, count }: TAutomationStatsCount) => (
             <Badge key={key} variant="destructive">
@@ -67,7 +71,9 @@ export const AutomationStatsOverview = ({
             </Badge>
           ))
         ) : (
-          <span className="text-sm text-muted-foreground">No failures</span>
+          <span className="text-sm text-muted-foreground">
+            {t('stats-no-failures')}
+          </span>
         )}
       </StatTile>
     </div>

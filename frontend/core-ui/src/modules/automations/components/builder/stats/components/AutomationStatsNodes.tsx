@@ -3,6 +3,7 @@ import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { TAutomationStatsNode } from '@/automations/types';
 import { Badge, Table, TextOverflowTooltip } from 'erxes-ui';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const formatDuration = (ms?: number) => {
   if (ms === undefined || ms === null) {
@@ -47,12 +48,13 @@ export const AutomationStatsNodes = ({
 }: {
   nodes: TAutomationStatsNode[];
 }) => {
+  const { t } = useTranslation('automations');
   const getNodeLabel = useNodeLabel();
 
   if (!nodes.length) {
     return (
       <div className="flex h-32 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
-        No actions have run yet
+        {t('stats-no-actions-run')}
       </div>
     );
   }
@@ -62,12 +64,20 @@ export const AutomationStatsNodes = ({
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.Head className="px-3">Action</Table.Head>
-            <Table.Head className="px-3 text-right">Runs</Table.Head>
-            <Table.Head className="px-3 text-right">Failed</Table.Head>
-            <Table.Head className="px-3 text-right">Avg</Table.Head>
-            <Table.Head className="px-3 text-right">Max</Table.Head>
-            <Table.Head className="px-3">Reasons</Table.Head>
+            <Table.Head className="px-3">{t('action')}</Table.Head>
+            <Table.Head className="px-3 text-right">
+              {t('stats-runs')}
+            </Table.Head>
+            <Table.Head className="px-3 text-right">
+              {t('stats-failed')}
+            </Table.Head>
+            <Table.Head className="px-3 text-right">
+              {t('stats-avg')}
+            </Table.Head>
+            <Table.Head className="px-3 text-right">
+              {t('stats-max')}
+            </Table.Head>
+            <Table.Head className="px-3">{t('stats-reasons')}</Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -86,7 +96,7 @@ export const AutomationStatsNodes = ({
                     />
                     <span className="min-w-0 shrink-[2] truncate text-xs text-muted-foreground">
                       {typeLabel}
-                      {isRemoved && ' · removed from canvas'}
+                      {isRemoved && ` · ${t('stats-removed-from-canvas')}`}
                     </span>
                   </div>
                 </Table.Cell>

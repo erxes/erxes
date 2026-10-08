@@ -1,8 +1,10 @@
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const AiAgentGeneralForm = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
 
   return (
@@ -12,7 +14,7 @@ export const AiAgentGeneralForm = () => {
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Name</Form.Label>
+            <Form.Label>{t('name')}</Form.Label>
             <Form.Control>
               <Input
                 type="text"
@@ -21,8 +23,7 @@ export const AiAgentGeneralForm = () => {
               />
             </Form.Control>
             <Form.Description>
-              Give the agent a clear name so it is easy to pick inside
-              automation actions.
+              {t('settings-agent-name-description')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -34,17 +35,16 @@ export const AiAgentGeneralForm = () => {
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <Form.Control>
               <Textarea
                 rows={5}
-                placeholder="Routes Facebook conversations, classifies intents, and extracts order attributes for downstream automation steps."
+                placeholder={t('settings-agent-description-placeholder')}
                 {...field}
               />
             </Form.Control>
             <Form.Description>
-              Describe what this agent is meant to do for the team and for
-              future automation builders.
+              {t('settings-agent-description-help')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

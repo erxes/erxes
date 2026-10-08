@@ -3,10 +3,12 @@ import { useSelectExecutionCellProps } from '@/automations/components/builder/hi
 import { CellContext } from '@tanstack/table-core';
 import { RecordTableInlineCell } from 'erxes-ui';
 import { IAutomationHistory } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryTriggerCell = ({
   cell,
 }: CellContext<IAutomationHistory, unknown>) => {
+  const { t } = useTranslation('automations');
   const triggerType = cell.row?.original?.triggerType;
   const { triggersConst } = useAutomation();
   const selectProps = useSelectExecutionCellProps(cell.row.original._id);
@@ -17,7 +19,7 @@ export const AutomationHistoryTriggerCell = ({
 
   return (
     <RecordTableInlineCell {...selectProps}>
-      {triggerLabel || triggerType || 'Empty'}
+      {triggerLabel || triggerType || t('history-empty')}
     </RecordTableInlineCell>
   );
 };

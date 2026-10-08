@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AutomationVariableBrowser } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
 import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowserTypes';
 import { useEmailDocumentPlaceholder } from '@/automations/components/common/EmailDocumentPlaceholderPicker';
@@ -59,6 +60,7 @@ export const SendEmailEmailContentEditorSheet = ({
   setIsSheetOpen: (isOpen: boolean) => void;
   onChange: (content: string) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { setValue } = useFormContext<TAutomationSendEmailConfig>();
   const { isDragActive, handleDragOver, handleDragLeave, handleDrop } =
     useAutomationVariableBlockEditorDrop({
@@ -102,9 +104,9 @@ export const SendEmailEmailContentEditorSheet = ({
       <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
         <Sheet.Header>
           <div className="space-y-1">
-            <Sheet.Title>Edit Email Content</Sheet.Title>
+            <Sheet.Title>{t('send-email-edit-content-title')}</Sheet.Title>
             <Sheet.Description>
-              Edit the email content for the email action.
+              {t('send-email-edit-content-description')}
             </Sheet.Description>
           </div>
           <Sheet.Close />
@@ -117,11 +119,10 @@ export const SendEmailEmailContentEditorSheet = ({
                 onInsertVariable={handleInsertVariable}
                 onInsertVariableAsLink={handleInsertVariableAsLink}
                 emptyState={{
-                  title: 'No variables available yet',
-                  description:
-                    'Add a trigger or an earlier action to this automation to insert variables into the email content.',
+                  title: t('send-email-no-variables-title'),
+                  description: t('send-email-no-variables-content-description'),
                 }}
-                sourceSectionTitle="Variable Sources"
+                sourceSectionTitle={t('send-email-variable-sources')}
               />
             </div>
           </aside>
@@ -155,9 +156,9 @@ export const SendEmailEmailContentEditorSheet = ({
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
-          <Button onClick={onSave}>Save</Button>
+          <Button onClick={onSave}>{t('save')}</Button>
         </Sheet.Footer>
       </Sheet.View>
     </Sheet>

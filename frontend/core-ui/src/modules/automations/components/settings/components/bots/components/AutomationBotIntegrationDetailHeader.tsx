@@ -1,12 +1,14 @@
 import { useAutomationBotTotalCount } from '@/automations/components/settings/components/bots/hooks/useAutomationBots';
 import { IAutomationBot } from '@/automations/components/settings/components/bots/types/automationBots';
 import { cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBotIntegrationDetailHeader = ({
   botIntegrationConstant,
 }: {
   botIntegrationConstant: IAutomationBot;
 }) => {
+  const { t } = useTranslation('automations');
   const { name, label, logo, pluginName, totalCountQueryName } =
     botIntegrationConstant || {};
 
@@ -33,7 +35,7 @@ export const AutomationBotIntegrationDetailHeader = ({
         </div>
       </div>
       <div className="text-sm text-muted-foreground font-medium py-2">
-        {`Connect and manage ${label} bots`}
+        {t('settings-bots-connect-manage', { label })}
       </div>
     </div>
   );

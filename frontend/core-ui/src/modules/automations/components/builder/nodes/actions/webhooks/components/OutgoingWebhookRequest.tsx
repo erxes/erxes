@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
 import { AUTOMATION_INCOMING_WEBHOOK_API_METHODS } from '@/automations/components/builder/nodes/triggers/webhooks/constants/incomingWebhook';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
@@ -18,6 +19,7 @@ const DISABLED_WEBHOOK_URL_SUGGESTIONS = {
 } as const;
 
 export const OutgoingWebhookRequest = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
@@ -28,7 +30,7 @@ export const OutgoingWebhookRequest = () => {
           name="method"
           render={({ field }) => (
             <Form.Item className="w-1/6">
-              <Form.Label>Method</Form.Label>
+              <Form.Label>{t('webhook-field-method')}</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value />
@@ -52,7 +54,7 @@ export const OutgoingWebhookRequest = () => {
           name="url"
           render={({ field }) => (
             <Form.Item className="w-5/6">
-              <Form.Label>URL</Form.Label>
+              <Form.Label>{t('webhook-field-url')}</Form.Label>
               <PlaceholderInput
                 {...field}
                 disabled={[
@@ -82,7 +84,7 @@ export const OutgoingWebhookRequest = () => {
               <>
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">
-                    Query Parameters
+                    {t('webhook-query-parameters')}
                   </Label>
                   <Button
                     variant="outline"
@@ -92,13 +94,13 @@ export const OutgoingWebhookRequest = () => {
                     }
                   >
                     <IconPlus className="mr-2" />
-                    Add Parameter
+                    {t('webhook-add-parameter')}
                   </Button>
                 </div>
                 {queryParams.map((param, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <Input
-                      placeholder="Parameter name"
+                      placeholder={t('webhook-parameter-name-placeholder')}
                       value={param.name}
                       onChange={(e) => {
                         const newParams = [...queryParams];
@@ -108,7 +110,7 @@ export const OutgoingWebhookRequest = () => {
                       className="flex-1"
                     />
                     <Input
-                      placeholder="Value or expression"
+                      placeholder={t('webhook-value-placeholder')}
                       value={param.value}
                       onChange={(e) => {
                         const newParams = [...queryParams];

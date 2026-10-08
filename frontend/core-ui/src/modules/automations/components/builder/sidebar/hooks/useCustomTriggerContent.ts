@@ -7,8 +7,10 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const useCustomTriggerContent = (activeNode: NodeData) => {
+  const { t } = useTranslation('automations');
   const { setAutomationBuilderFormValue } = useAutomationFormController();
   const { setQueryParams, toggleSidebar: toggleSideBarOpen } = useAutomation();
   const { triggers } = useAutomationNodes();
@@ -24,7 +26,7 @@ export const useCustomTriggerContent = (activeNode: NodeData) => {
     setQueryParams({ activeNodeId: null });
     toggleSideBarOpen();
     toast({
-      title: 'Trigger configuration added successfully.',
+      title: t('sidebar-trigger-configuration-added'),
       variant: 'success',
     });
   };

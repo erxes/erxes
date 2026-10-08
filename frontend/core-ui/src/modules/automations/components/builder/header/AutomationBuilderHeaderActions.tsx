@@ -6,8 +6,10 @@ import { AutomationNodeType } from '@/automations/types';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Toggle, Tooltip, cn } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderHeaderActions = () => {
+  const { t } = useTranslation('automations');
   const { isEmpty } = useAutomationNodes();
   const { editingWorkflowId, isReadOnly } = useAutomation();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
@@ -43,16 +45,18 @@ export const AutomationBuilderHeaderActions = () => {
           >
             <Button variant="outline" className="whitespace-nowrap">
               <IconPlus className="shrink-0" />
-              <span>{needsTrigger ? 'Add trigger' : 'Add action'}</span>
+              <span>
+                {needsTrigger ? t('add-trigger') : t('header-add-action')}
+              </span>
             </Button>
           </Toggle>
         </Tooltip.Trigger>
         <Tooltip.Content>
           {isLibraryOpen
-            ? 'Close the node library'
+            ? t('header-close-node-library')
             : needsTrigger
-            ? 'Pick what starts this automation'
-            : 'Pick what happens next'}
+            ? t('header-pick-what-starts')
+            : t('header-pick-what-happens-next')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

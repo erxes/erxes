@@ -4,8 +4,10 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationNodeType } from '@/automations/types';
+import { useTranslation } from 'react-i18next';
 
 export const useAutomationBuilderSecondarySidebar = () => {
+  const { t } = useTranslation('automations');
   const { queryParams } = useAutomation();
   const { triggers, actions } = useAutomationNodes();
   const workflowEditScope = useWorkflowEditScope();
@@ -21,9 +23,9 @@ export const useAutomationBuilderSecondarySidebar = () => {
             id: WORKFLOW_INPUT_NODE_ID,
             type: '',
             nodeType: AutomationNodeType.Workflow,
-            label: 'Inputs',
+            label: t('inputs'),
             icon: 'IconArrowBarToRight',
-            kindLabel: 'Input',
+            kindLabel: t('sidebar-input'),
             staticVariables: inputNames.map((name) => ({
               key: name,
               label: name,

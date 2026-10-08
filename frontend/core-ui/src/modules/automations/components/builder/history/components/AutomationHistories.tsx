@@ -123,7 +123,7 @@ export const AutomationHistories = ({
       </PageSubHeader>
       {error ? (
         <AutomationErrorEmptyState
-          title="Couldn't load the run history"
+          title={t('history-load-error')}
           error={error}
           onRetry={() => refetch()}
         />

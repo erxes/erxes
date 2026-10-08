@@ -3,8 +3,10 @@ import { automationCanvasMarqueeModeState } from '@/automations/states/automatio
 import { IconFocusCentered, IconMarquee2 } from '@tabler/icons-react';
 import { useReactFlow } from '@xyflow/react';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationCanvasViewControls = () => {
+  const { t } = useTranslation('automations');
   const { fitView } = useReactFlow();
   const [isMarqueeMode, setIsMarqueeMode] = useAtom(
     automationCanvasMarqueeModeState,
@@ -13,14 +15,18 @@ export const AutomationCanvasViewControls = () => {
   return (
     <>
       <AutomationCanvasControlButton
-        label="Fit canvas"
+        label={t('controls-fit-canvas')}
         onClick={() => fitView({ padding: 0.2, duration: 300 })}
       >
         <IconFocusCentered />
       </AutomationCanvasControlButton>
 
       <AutomationCanvasControlButton
-        label={isMarqueeMode ? 'Exit marquee select' : 'Marquee select'}
+        label={
+          isMarqueeMode
+            ? t('controls-exit-marquee-select')
+            : t('controls-marquee-select')
+        }
         active={isMarqueeMode}
         onClick={() => setIsMarqueeMode((value) => !value)}
       >

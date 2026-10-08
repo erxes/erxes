@@ -7,6 +7,7 @@ import {
 } from '@/automations/utils/automationBuilderUtils/nodeSelection';
 import { IconTrash } from '@tabler/icons-react';
 import { AlertDialog, Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const MarqueeDeleteSelectionAction = ({
   selection,
@@ -18,6 +19,7 @@ export const MarqueeDeleteSelectionAction = ({
   onDeleted: () => void;
 }) => {
   const { isReadOnly } = useAutomation();
+  const { t } = useTranslation('automations');
   const { isOpen, onDelete, setOpen } = useDeleteSelectedNodesAlert({
     selectedIds,
     onDeleted,
@@ -32,7 +34,7 @@ export const MarqueeDeleteSelectionAction = ({
         onClick={() => setOpen(true)}
       >
         <IconTrash />
-        Delete
+        {t('delete')}
       </Button>
 
       <AlertDialog open={isOpen} onOpenChange={setOpen}>
@@ -47,12 +49,12 @@ export const MarqueeDeleteSelectionAction = ({
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
             <AlertDialog.Action
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={onDelete}
             >
-              Delete
+              {t('delete')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>

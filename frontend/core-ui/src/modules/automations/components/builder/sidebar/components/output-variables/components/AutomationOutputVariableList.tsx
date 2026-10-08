@@ -9,6 +9,7 @@ import { AutomationVariableListProvider } from '../context/AutomationVariableLis
 import { AutomationOutputVariableItem } from './AutomationOutputVariableItem';
 import { AutomationVariableBrowserEmptyState } from './AutomationVariableBrowserEmptyState';
 import { AutomationVariableBrowserLoadingState } from './AutomationVariableBrowserLoadingState';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationOutputVariableList = ({
   buildVariablePath,
@@ -29,8 +30,13 @@ export const AutomationOutputVariableList = ({
   sourceNode: TAutomationVariableSourceNode;
   variables: TAutomationOutputVariable[];
 }) => {
+  const { t } = useTranslation('automations');
   if (loading) {
-    return <AutomationVariableBrowserLoadingState text="Loading outputs..." />;
+    return (
+      <AutomationVariableBrowserLoadingState
+        text={t('sidebar-loading-outputs')}
+      />
+    );
   }
 
   return (
@@ -49,8 +55,8 @@ export const AutomationOutputVariableList = ({
           <AutomationVariableBrowserEmptyState
             text={
               variables.length
-                ? 'No matching output variables.'
-                : 'No output variables available.'
+                ? t('sidebar-no-matching-output-variables')
+                : t('sidebar-no-output-variables')
             }
           />
         </Command.Empty>

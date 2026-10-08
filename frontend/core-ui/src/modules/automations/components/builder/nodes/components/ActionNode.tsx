@@ -16,6 +16,7 @@ import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Handle, Position } from '@xyflow/react';
 import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ActionNodeSourceHandler = ({
   id,
@@ -132,13 +133,14 @@ const ActionNodeHeader = ({
 };
 
 const ActionNode = ({ data, selected, id, ...props }: any) => {
+  const { t } = useTranslation('automations');
   const { beforeTitleContent, config, nextActionId, workflowId, error } = data;
   const isVertical = data.flowDirection === 'vertical';
 
   return (
     <NodeFrame
       key={id}
-      label="Action"
+      label={t('action')}
       actions={!data.readOnly && <NodeDropdownActions id={id} data={data} />}
       className={cn('animate-in fade-in zoom-in-95', {
         'ring-2 ring-success': selected,

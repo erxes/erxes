@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAiAgentFieldsGroupName } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectFieldBuilder';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
@@ -16,6 +17,7 @@ export const AiAgentFieldOptionsBuilder = ({
   name: TAiAgentFieldsGroupName;
   index: number;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   // Same path-type reuse as AiAgentObjectFieldBuilder: captureFields items
   // share the objectFields shape.
@@ -33,8 +35,8 @@ export const AiAgentFieldOptionsBuilder = ({
   return (
     <div className="flex flex-col gap-2 rounded-md border p-2">
       <div className="grid grid-cols-12 gap-2">
-        <Label className="col-span-3">Value</Label>
-        <Label className="col-span-8">When (rule)</Label>
+        <Label className="col-span-3">{t('value')}</Label>
+        <Label className="col-span-8">{t('ai-agent-option-when-rule')}</Label>
       </div>
 
       {fields.map((option, optionIndex) => (
@@ -56,7 +58,7 @@ export const AiAgentFieldOptionsBuilder = ({
               <Form.Item className="col-span-8">
                 <Textarea
                   {...field}
-                  placeholder="Service is fully down or payments are failing"
+                  placeholder={t('ai-agent-option-prompt-placeholder')}
                 />
                 <Form.Message />
               </Form.Item>
@@ -67,7 +69,7 @@ export const AiAgentFieldOptionsBuilder = ({
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Remove value"
+              aria-label={t('ai-agent-remove-value')}
               onClick={() => remove(optionIndex)}
             >
               <IconTrash />
@@ -87,7 +89,7 @@ export const AiAgentFieldOptionsBuilder = ({
         onClick={() => append({ value: '', prompt: '' })}
       >
         <IconPlus />
-        Add value
+        {t('ai-agent-add-value')}
       </Button>
     </div>
   );

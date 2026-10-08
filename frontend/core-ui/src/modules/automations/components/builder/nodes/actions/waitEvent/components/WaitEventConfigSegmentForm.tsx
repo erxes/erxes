@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useWaitEventConfigContent } from '@/automations/components/builder/nodes/actions/waitEvent/hooks/useWaitEventConfigContent';
 import { TAutomationWaitEventConfig } from '@/automations/components/builder/nodes/actions/waitEvent/type/waitEvent';
 import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
@@ -18,6 +19,7 @@ export function WaitEventConfigSegmentForm({
   selectedNodeId?: string;
   configFieldNamePrefix: TAutomationActionConfigFieldPrefix;
 }) {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAutomationBuilderForm>();
 
   const { contentType } = useWaitEventConfigContent(
@@ -28,9 +30,9 @@ export function WaitEventConfigSegmentForm({
   if (!contentType) {
     return (
       <Form.Item className="flex-1 px-4">
-        <Form.Label>Conditions</Form.Label>
+        <Form.Label>{t('wait-event-conditions')}</Form.Label>
         <div className="text-muted-foreground text-sm">
-          Select a target to configure conditions
+          {t('wait-event-select-target')}
         </div>
       </Form.Item>
     );
@@ -43,9 +45,11 @@ export function WaitEventConfigSegmentForm({
         control={control}
         render={({ field }) => (
           <Form.Item className="flex-1 min-h-0 flex flex-col px-4">
-            <Form.Label>Conditions {`(${field.value})`}</Form.Label>
+            <Form.Label>
+              {t('wait-event-conditions')} {`(${field.value})`}
+            </Form.Label>
             <Form.Description>
-              Define conditions that must be met before continuing.
+              {t('wait-event-conditions-description')}
             </Form.Description>
             <Form.Message />
             <div className="flex-1 min-h-0 w-[650px]">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { stringifyAutomationHistoryValue } from '@/automations/components/builder/history/components/AutomationHistoryPopoverValue';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { ActionResult } from 'ui-modules';
@@ -30,11 +31,15 @@ const getAiAgentSummary = (result?: TAiAgentResult) => {
 export const AiAgentActionResult = ({
   result,
 }: ActionResultComponentProps<TAiAgentResult>) => {
+  const { t } = useTranslation('automations');
+
   if (result?.type === 'generateText') {
     return (
       <>
-        <ActionResult.Status>Generated text</ActionResult.Status>
-        <ActionResult.Body title="Generated text">
+        <ActionResult.Status>
+          {t('ai-agent-generated-text')}
+        </ActionResult.Status>
+        <ActionResult.Body title={t('ai-agent-generated-text')}>
           <p className="whitespace-pre-wrap break-words text-xs">
             {result.text}
           </p>
@@ -46,7 +51,7 @@ export const AiAgentActionResult = ({
   if (result?.type === 'classification') {
     return (
       <>
-        <ActionResult.Status>Classified</ActionResult.Status>
+        <ActionResult.Status>{t('ai-agent-classified')}</ActionResult.Status>
         <ActionResult.Fields>
           {Object.entries(result.attributes || {}).map(([key, value]) => (
             <ActionResult.Field

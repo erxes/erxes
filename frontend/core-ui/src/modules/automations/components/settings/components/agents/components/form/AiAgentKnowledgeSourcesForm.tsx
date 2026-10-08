@@ -28,7 +28,10 @@ export const AiAgentKnowledgeSourcesForm = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">{t('knowledge-sources')}</h3>
         <span className="text-xs text-muted-foreground">
-          {indexedCount} indexed · {indexingCount} indexing
+          {t('knowledge-articles-index-summary', {
+            indexed: indexedCount,
+            indexing: indexingCount,
+          })}
         </span>
       </div>
       <p className="text-sm text-muted-foreground">
@@ -41,10 +44,11 @@ export const AiAgentKnowledgeSourcesForm = () => {
         render={({ field }) => (
           <div className="mt-3 flex items-center justify-between rounded-md border p-3">
             <div>
-              <p className="text-sm font-medium">Search on demand</p>
+              <p className="text-sm font-medium">
+                {t('settings-knowledge-search-on-demand')}
+              </p>
               <p className="text-xs text-muted-foreground">
-                The agent searches knowledge only when a reply needs it, instead
-                of loading matches into every prompt.
+                {t('settings-knowledge-search-on-demand-description')}
               </p>
             </div>
             <Switch

@@ -7,12 +7,14 @@ import { AutomationNodeType } from '@/automations/types';
 import { cn } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationNodeLibraryTabs = ({
   activeNodeTab,
 }: {
   activeNodeTab: AutomationNodeType;
 }) => {
+  const { t } = useTranslation('automations');
   const { awaitingToConnectNodeId } = useAutomation();
   const workflowEditScope = useWorkflowEditScope();
   const edgeInsertTarget = useAtomValue(automationEdgeInsertTargetState);
@@ -25,7 +27,7 @@ export const AutomationNodeLibraryTabs = ({
   return (
     <div className="shrink-0 px-5 pt-4">
       <div className="relative flex h-7 items-center rounded-md bg-foreground/5">
-        {AUTOMATION_LIBRARY_TABS.map(({ value, label, icon: Icon }) => (
+        {AUTOMATION_LIBRARY_TABS.map(({ value, labelKey, icon: Icon }) => (
           <button
             key={value}
             type="button"
@@ -43,7 +45,9 @@ export const AutomationNodeLibraryTabs = ({
               />
             )}
             <Icon className="relative z-10 size-3.5 shrink-0" />
-            <span className="relative z-10 whitespace-nowrap">{label}</span>
+            <span className="relative z-10 whitespace-nowrap">
+              {t(labelKey)}
+            </span>
           </button>
         ))}
       </div>

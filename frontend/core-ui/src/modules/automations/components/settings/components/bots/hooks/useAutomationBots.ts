@@ -4,6 +4,7 @@ import {
 } from '@/automations/components/settings/components/bots/graphql/automationsBotsQueries';
 import { IAutomationBotsConstantsQueryResponse } from '@/automations/components/settings/components/bots/types/automationBots';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 export const useAutomationBots = () => {
   const { data, loading, error } =
@@ -36,6 +37,7 @@ export const useAutomationBotTotalCount = (queryName: string, skip?: any) => {
 };
 
 export const useAutomationBotIntegrationDetail = (botType: string) => {
+  const { t } = useTranslation('automations');
   const {
     automationBotsConstants,
     loading: botConstantsLoading,
@@ -51,7 +53,7 @@ export const useAutomationBotIntegrationDetail = (botType: string) => {
   // Handle error after all hooks are safely called
   if (!botIntegrationConstant || botConstantsError) {
     return {
-      error: botConstantsError?.message || 'Not found bot constants ',
+      error: botConstantsError?.message || t('settings-bots-not-found'),
       botIntegrationConstant: null,
       totalCount: 0,
       loading: botConstantsLoading,

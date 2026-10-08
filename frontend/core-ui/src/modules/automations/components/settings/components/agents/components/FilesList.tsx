@@ -13,6 +13,7 @@ import {
   TAiAgentContextFile,
 } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Badge, Button, cn, Tooltip } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface FileGridProps {
   files: TAiAgentContextFile[];
@@ -29,6 +30,7 @@ export function FileGrid({
   onFileReindex,
   reindexingFileId,
 }: FileGridProps) {
+  const { t } = useTranslation('automations');
   const getFileIcon = (file: TAiAgentContextFile) => {
     const name = file.name.toLowerCase();
     const type = file.type || '';
@@ -106,17 +108,23 @@ export function FileGrid({
                   <span>{formatContextFileSize(file.size)}</span>
                   {formatContextFileUploadedAt(file.uploadedAt) && (
                     <span>
-                      Added {formatContextFileUploadedAt(file.uploadedAt)}
+                      {t('settings-files-added', {
+                        date: formatContextFileUploadedAt(file.uploadedAt),
+                      })}
                     </span>
                   )}
                   {getContextFileVersionCount(file) > 0 && (
                     <span className="inline-flex items-center gap-1">
                       <IconHistory className="size-3.5" />
-                      {getContextFileVersionCount(file)} previous
+                      {t('settings-files-previous', {
+                        count: getContextFileVersionCount(file),
+                      })}
                     </span>
                   )}
                   {typeof file.chunkCount === 'number' && (
-                    <span>{file.chunkCount} chunks</span>
+                    <span>
+                      {t('settings-files-chunks', { count: file.chunkCount })}
+                    </span>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -154,7 +162,9 @@ export function FileGrid({
                         onFileReindex(file.id);
                       }}
                       className="h-7 w-7 p-0 text-muted-foreground"
-                      aria-label={`Reindex ${file.name}`}
+                      aria-label={t('settings-files-reindex-file', {
+                        name: file.name,
+                      })}
                       disabled={reindexingFileId === file.id}
                     >
                       <IconRefresh
@@ -165,7 +175,9 @@ export function FileGrid({
                       />
                     </Button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content>Reindex knowledge</Tooltip.Content>
+                  <Tooltip.Content>
+                    {t('settings-files-reindex-knowledge')}
+                  </Tooltip.Content>
                 </Tooltip>
               )}
               <Button
@@ -176,7 +188,9 @@ export function FileGrid({
                   onFileDelete(file.id);
                 }}
                 className="h-7 w-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                aria-label={`Remove ${file.name}`}
+                aria-label={t('settings-files-remove-file', {
+                  name: file.name,
+                })}
               >
                 <IconTrash className="size-4" />
               </Button>

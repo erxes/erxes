@@ -10,6 +10,7 @@ import {
   TIncomingWebhookJSONPropertyEditorProps,
   TIncomingWebhookJSONPropertySchema,
 } from '@/automations/components/builder/nodes/triggers/webhooks/types/incomingWebhookJsonBuilder';
+import { useTranslation } from 'react-i18next';
 
 export function IncomingWebhookJSONPropertyEditor({
   property,
@@ -19,6 +20,7 @@ export function IncomingWebhookJSONPropertyEditor({
   onAddChild,
   onToggleExpanded,
 }: TIncomingWebhookJSONPropertyEditorProps) {
+  const { t } = useTranslation('automations');
   const hasIndent = depth > 0;
   const isExpandable =
     property.type === 'object' ||
@@ -58,7 +60,7 @@ export function IncomingWebhookJSONPropertyEditor({
 
           <div>
             <Input
-              placeholder="Property name"
+              placeholder={t('webhook-trigger-property-name')}
               value={property.name}
               onChange={(e) => onUpdate(property.id, 'name', e.target.value)}
             />
@@ -112,7 +114,9 @@ export function IncomingWebhookJSONPropertyEditor({
                 onUpdate(property.id, 'required', pressed)
               }
             >
-              {property.required ? 'Required' : 'Optional'}
+              {property.required
+                ? t('webhook-trigger-required')
+                : t('webhook-trigger-optional')}
             </Toggle>
           </div>
         </div>
@@ -144,7 +148,7 @@ export function IncomingWebhookJSONPropertyEditor({
                   onUpdate(property.id, 'arrayItemSchema', next);
                 }
               }}
-              title="Add child property"
+              title={t('webhook-trigger-add-child-property')}
             >
               <IconPlus />
             </Button>
@@ -177,7 +181,9 @@ export function IncomingWebhookJSONPropertyEditor({
 
       {showArrayObjectChildren && (
         <div className="space-y-2 border-l pl-4 ml-2">
-          <div className="text-xs font-medium">Array Item Schema:</div>
+          <div className="text-xs font-medium">
+            {t('webhook-trigger-array-item-schema')}
+          </div>
           {property.arrayItemSchema?.map((child) => (
             <IncomingWebhookJSONPropertyEditor
               key={child.id}
@@ -207,7 +213,7 @@ export function IncomingWebhookJSONPropertyEditor({
               }}
             >
               <IconPlus className="mr-1" />
-              Add Array Item Property
+              {t('webhook-trigger-add-array-item-property')}
             </Button>
           </div>
         </div>

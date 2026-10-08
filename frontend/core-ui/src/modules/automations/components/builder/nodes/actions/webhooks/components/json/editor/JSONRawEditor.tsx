@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from 'erxes-ui';
 
 interface JSONRawEditorProps {
@@ -15,17 +16,21 @@ export function JSONRawEditor({
   onApply,
   onChange,
 }: JSONRawEditorProps) {
+  const { t } = useTranslation('automations');
+
   return (
     <div className="mt-2 border rounded-md p-2 bg-muted/30">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-[10px] text-muted-foreground">JSON summary</div>
+        <div className="text-[10px] text-muted-foreground">
+          {t('webhook-json-summary')}
+        </div>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={onToggle}>
-            {isOpen ? 'Hide raw' : 'Edit raw'}
+            {isOpen ? t('webhook-json-hide-raw') : t('webhook-json-edit-raw')}
           </Button>
           {isOpen && (
             <Button size="sm" onClick={onApply}>
-              Apply
+              {t('apply')}
             </Button>
           )}
         </div>

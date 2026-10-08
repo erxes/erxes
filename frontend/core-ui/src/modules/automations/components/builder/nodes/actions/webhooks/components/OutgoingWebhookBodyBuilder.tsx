@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { json } from '@codemirror/lang-json';
 import { EditorView as CMEditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
@@ -62,6 +63,7 @@ export function OutgoingWebhookBodyBuilder({
   onChange: (value: string) => void;
   onBodyModeChange: (value: 'json' | 'text') => void;
 }) {
+  const { t } = useTranslation('automations');
   const extensions = useMemo(() => [json(), createTheme()], []);
   const normalizedValue = normalizeOutgoingWebhookBodyValue(value, bodyMode);
   const { isDragActive, editorExtensions } =
@@ -76,14 +78,14 @@ export function OutgoingWebhookBodyBuilder({
   return (
     <Form.Item className="flex flex-col h-full">
       <div className="flex items-center justify-between gap-3">
-        <Form.Label>Body</Form.Label>
+        <Form.Label>{t('body')}</Form.Label>
         <Select value={bodyMode} onValueChange={onBodyModeChange}>
           <Select.Trigger className="w-36">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
             <Select.Item value="json">JSON</Select.Item>
-            <Select.Item value="text">Text</Select.Item>
+            <Select.Item value="text">{t('webhook-body-text')}</Select.Item>
           </Select.Content>
         </Select>
       </div>

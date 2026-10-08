@@ -12,12 +12,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Select, Tabs, toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookConfigForm = ({
   formRef,
   handleSave,
   activeNode,
 }: AutomationTriggerSidebarCoreFormProps) => {
+  const { t } = useTranslation('automations');
   const form = useForm<TIncomingWebhookForm>({
     resolver: zodResolver(incomingWebhookFormSchema),
     defaultValues: {
@@ -29,7 +31,7 @@ export const IncomingWebhookConfigForm = ({
     submit: () =>
       form.handleSubmit(handleSave, () => {
         toast({
-          title: 'There is some error in the form',
+          title: t('webhook-trigger-form-error'),
           variant: 'destructive',
         });
       })(),
@@ -45,7 +47,7 @@ export const IncomingWebhookConfigForm = ({
             defaultValue={AUTOMATION_INCOMING_WEBHOOK_API_METHODS[1]}
             render={({ field }) => (
               <Form.Item className="shrink-0">
-                <Form.Label>Method</Form.Label>
+                <Form.Label>{t('webhook-field-method')}</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
@@ -74,9 +76,11 @@ export const IncomingWebhookConfigForm = ({
         </div>
         <Tabs defaultValue="headers">
           <Tabs.List>
-            <Tabs.Trigger value="headers">Headers</Tabs.Trigger>
-            <Tabs.Trigger value="body">Body</Tabs.Trigger>
-            <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
+            <Tabs.Trigger value="headers">{t('headers')}</Tabs.Trigger>
+            <Tabs.Trigger value="body">{t('body')}</Tabs.Trigger>
+            <Tabs.Trigger value="settings">
+              {t('webhook-trigger-settings')}
+            </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="headers" className="py-4">
             <Form.Field

@@ -8,12 +8,14 @@ import { useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { WaitEventTargetTypes } from '../../nodes/actions/waitEvent/type/waitEvent';
+import { useTranslation } from 'react-i18next';
 
 export const useAutomationActionTargetSelector = ({
   activeNode,
 }: {
   activeNode: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const [activeNodeId] = useQueryState<string>('activeNodeId');
 
   const configFieldNamePrefix: `actions.${number}` = `${AutomationNodesType.Actions}.${activeNode.nodeIndex}`;
@@ -72,7 +74,7 @@ export const useAutomationActionTargetSelector = ({
         {
           type: WaitEventTargetTypes.Trigger,
           id: trigger.id,
-          label: `${trigger.label} (Trigger)`,
+          label: `${trigger.label} (${t('trigger')})`,
           nodeType: trigger.type,
           icon: trigger.icon,
         },
@@ -80,7 +82,7 @@ export const useAutomationActionTargetSelector = ({
       ];
     }
     return actionOptions;
-  }, [filteredActionsCanBeTarget, activeNodeId, trigger]);
+  }, [filteredActionsCanBeTarget, activeNodeId, trigger, t]);
 
   const handleChangeTarget = (
     value: string,

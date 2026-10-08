@@ -1,6 +1,7 @@
 import { TAutomationStatsErrorMessage } from '@/automations/types';
 import dayjs from 'dayjs';
 import { Badge, RelativeDateDisplay } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const formatErrorCode = (code: string) =>
   code.toLowerCase().split('_').join(' ');
@@ -39,6 +40,7 @@ export const AutomationStatsErrorMessages = ({
 }: {
   errorMessages: TAutomationStatsErrorMessage[];
 }) => {
+  const { t } = useTranslation('automations');
   if (!errorMessages.length) {
     return null;
   }
@@ -47,7 +49,7 @@ export const AutomationStatsErrorMessages = ({
     <div className="rounded-lg border bg-background">
       <div className="border-b px-4 py-3">
         <span className="text-xs font-medium text-muted-foreground">
-          Repeated failures
+          {t('stats-repeated-failures')}
         </span>
       </div>
       {errorMessages.map((entry) => (

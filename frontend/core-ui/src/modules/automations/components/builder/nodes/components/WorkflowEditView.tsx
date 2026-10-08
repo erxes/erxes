@@ -9,11 +9,13 @@ import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefini
 import { AlertDialog } from 'erxes-ui';
 import { useCallback } from 'react';
 import { FieldPath, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 // Binds the shared workflow editor to a workflow node of the automation being
 // built. Edits are committed to the outer form only on Save; the automation's
 // own Save persists them as usual.
 export const WorkflowEditView = ({ workflowId }: { workflowId: string }) => {
+  const { t } = useTranslation('automations');
   const outerForm = useFormContext<TAutomationBuilderForm>();
   const { setEditingWorkflowId } = useAutomation();
   const { workflows } = useAutomationNodes();
@@ -81,7 +83,7 @@ export const WorkflowEditView = ({ workflowId }: { workflowId: string }) => {
           entryActionId: workflow.config?.entryActionId,
           inputs: workflow.config?.inputs || {},
         }}
-        breadcrumbLabel="Automation"
+        breadcrumbLabel={t('workflow-breadcrumb-automation')}
         edgeType={outerForm.getValues('edgeType') ?? 'default'}
         flowDirection={outerForm.getValues('flowDirection') ?? 'horizontal'}
         onSave={handleSave}
@@ -91,16 +93,19 @@ export const WorkflowEditView = ({ workflowId }: { workflowId: string }) => {
       <AlertDialog open={isPromptOpen} onOpenChange={setPromptOpen}>
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>Update template?</AlertDialog.Title>
+            <AlertDialog.Title>
+              {t('workflow-update-template-title')}
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              This workflow was inserted from a template. Apply the saved edits
-              to the template as well, or keep them only in this automation?
+              {t('workflow-update-template-description')}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Only this automation</AlertDialog.Cancel>
+            <AlertDialog.Cancel>
+              {t('workflow-update-template-only-this')}
+            </AlertDialog.Cancel>
             <AlertDialog.Action onClick={confirmUpdateTemplate}>
-              Update template
+              {t('workflow-update-template-confirm')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>

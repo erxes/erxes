@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { AutomationRemoteEntryProps } from 'ui-modules';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   pluginName: string;
@@ -18,6 +19,7 @@ export const RenderPluginsComponentWrapper = ({
   moduleName,
   props,
 }: Props) => {
+  const { t } = useTranslation('automations');
   if (!pluginName || pluginName === 'core' || !moduleName) {
     return null;
   }
@@ -28,7 +30,7 @@ export const RenderPluginsComponentWrapper = ({
   if (!isEnabled) {
     return (
       <p className="flex flex-row gap-2 items-center size-full justify-center">
-        {`Plugin ${pluginName} disabled`}
+        {t('common-plugin-disabled', { name: pluginName })}
         <IconInfoTriangle className="size-3 text-destructive" />
       </p>
     );

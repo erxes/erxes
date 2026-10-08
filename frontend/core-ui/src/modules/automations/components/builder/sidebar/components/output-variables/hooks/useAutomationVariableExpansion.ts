@@ -7,6 +7,7 @@ import {
   TAutomationReferenceFieldsResponse,
 } from '../AutomationVariableBrowserTypes';
 import { useAutomationVariableList } from '../context/AutomationVariableListContext';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Expand/collapse state of a variable's sub-fields.
@@ -20,6 +21,7 @@ import { useAutomationVariableList } from '../context/AutomationVariableListCont
 export const useAutomationVariableExpansion = (
   variable: TAutomationOutputVariable,
 ) => {
+  const { t } = useTranslation('automations');
   const { sourceNode } = useAutomationVariableList();
   const [expanded, setExpanded] = useState(false);
   const [loadReferenceFields, { data, loading }] =
@@ -41,10 +43,10 @@ export const useAutomationVariableExpansion = (
   const isExpandable =
     variable.exposure === 'reference' || nestedFields.length > 0;
   const expandLabel = expanded
-    ? 'Hide fields'
+    ? t('sidebar-hide-fields')
     : variable.exposure === 'reference'
-    ? 'Reference'
-    : 'Fields';
+    ? t('sidebar-reference')
+    : t('sidebar-fields');
 
   const toggleExpanded = (event: React.MouseEvent) => {
     event.stopPropagation();

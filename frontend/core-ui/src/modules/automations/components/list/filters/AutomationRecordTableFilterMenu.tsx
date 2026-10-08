@@ -9,52 +9,54 @@ import {
   IconUserUp,
 } from '@tabler/icons-react';
 import { Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationRecordTableFilterMenu = () => {
+  const { t } = useTranslation('automations');
   return (
     <Filter.View>
       <Command>
         <Filter.CommandInput
-          placeholder="Filter"
+          placeholder={t('stats-filter-placeholder')}
           variant="secondary"
           className="bg-background"
         />
         <Command.List className="p-1">
           <Filter.Item value="searchValue">
             <IconSearch />
-            Search
+            {t('search-filter')}
           </Filter.Item>
           <Filter.Item value="status">
             <IconProgressCheck />
-            Status
+            {t('status-filter')}
           </Filter.Item>
           <Filter.Item value="createdAt">
             <IconCalendar />
-            Created At
+            {t('created-at-filter')}
           </Filter.Item>
           <Filter.Item value="createdByIds">
             <IconUser />
-            Created By
+            {t('filter-created-by')}
           </Filter.Item>
           <Filter.Item value="updatedAt">
             <IconCalendar />
-            Updated At
+            {t('updated-at-filter')}
           </Filter.Item>
           <Filter.Item value="updatedByIds">
             <IconUserUp />
-            Updated By
+            {t('filter-updated-by')}
           </Filter.Item>
           <Filter.Item value="triggerTypes">
             <IconPointerBolt />
-            Trigger Types
+            {t('trigger-types-filter')}
           </Filter.Item>
           <Filter.Item value="actionTypes">
             <IconBolt />
-            Action Types
+            {t('filter-action-types')}
           </Filter.Item>
           <Filter.Item value="tagIds">
             <IconTags />
-            Tags
+            {t('tags')}
           </Filter.Item>
         </Command.List>
       </Command>

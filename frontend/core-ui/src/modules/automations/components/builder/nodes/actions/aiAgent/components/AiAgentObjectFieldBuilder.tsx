@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AiAgentFieldOptionsBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentFieldOptionsBuilder';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { IconTrash } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ export const AiAgentObjectFieldBuilder = ({
   handleRemove: () => void;
   name?: TAiAgentFieldsGroupName;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   // captureFields items share the exact shape of objectFields items, so the
   // objectFields path type is reused while the runtime path stays correct.
@@ -74,7 +76,7 @@ export const AiAgentObjectFieldBuilder = ({
               render={({ field }) => (
                 <Form.Item className="col-span-4">
                   <Input
-                    placeholder="Optional validation or enum hints"
+                    placeholder={t('ai-agent-field-validation-placeholder')}
                     {...field}
                   />
                   <Form.Message />
@@ -100,7 +102,7 @@ export const AiAgentObjectFieldBuilder = ({
           render={({ field }) => (
             <Form.Item>
               <Textarea
-                placeholder="Describe what this field should extract from the input"
+                placeholder={t('ai-agent-field-prompt-placeholder')}
                 {...field}
               />
               <Form.Message />
