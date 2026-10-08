@@ -1,5 +1,5 @@
 import { IconCalendar, IconX } from '@tabler/icons-react';
-import { DateRange, Matcher } from 'react-day-picker';
+import { DateRange, Matcher, dateMatchModifiers } from 'react-day-picker';
 import { Calendar, CalendarProps } from 'erxes-ui/components/calendar';
 import { Button } from 'erxes-ui/components/button';
 import { Popover } from 'erxes-ui/components/popover';
@@ -133,10 +133,10 @@ const isWithinBounds = (date: dayjs.Dayjs, minBound?: Date, maxBound?: Date) =>
   !(minBound && date.isBefore(dayjs(minBound), 'day')) &&
   !(maxBound && date.isAfter(dayjs(maxBound), 'day'));
 
+// Only the default format is masked; other formats (e.g. `MMM D, YYYY`) vary
+// in length, so their text is left as typed and validated by strict parsing.
 const maskInputText = (rawValue: string, format: string) =>
-  format === DEFAULT_FORMAT
-    ? formatDateMask(rawValue)
-    : rawValue.slice(0, format.length);
+  format === DEFAULT_FORMAT ? formatDateMask(rawValue) : rawValue;
 
 const getSingleDate = (
   value: NormalizedValue,
@@ -169,7 +169,6 @@ const parseInputDate = (
   minBound?: Date,
   maxBound?: Date,
 ) => {
-  if (text.length !== format.length) return undefined;
   const parsedDate = dayjs(text, format, true);
   return isWithinBounds(parsedDate, minBound, maxBound)
     ? parsedDate.toDate()
@@ -203,8 +202,6 @@ export const DatePicker = ({
   const [isFocused, setIsFocused] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const maxInputLength = format.length;
-
   const normalizedValue = normalizeValue(value, mode);
   const singleDate = getSingleDate(normalizedValue, mode);
   const singleTime = singleDate?.getTime();
@@ -236,13 +233,18 @@ export const DatePicker = ({
       minBound,
       maxBound,
     );
-    if (parsedDate) onChange(parsedDate);
+    if (parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled)) {
+      onChange(parsedDate);
+    }
   };
 
   const handleInputBlur = () => {
     setIsFocused(false);
     const parsedDate = dayjs(inputValue, format, true);
-    if (!isWithinBounds(parsedDate, minBound, maxBound)) {
+    if (
+      !isWithinBounds(parsedDate, minBound, maxBound) ||
+      dateMatchModifiers(parsedDate.toDate(), calendarDisabled)
+    ) {
       setInputValue(formatSingle());
     }
   };
@@ -271,7 +273,6 @@ export const DatePicker = ({
   const showDisplayValue = !isFocused && !!singleDate;
   const canClear = clearable && !isDisabled && !!singleDate;
   const inputText = showDisplayValue ? formatSingle(displayFormat) : inputValue;
-  const inputMaxLength = showDisplayValue ? undefined : maxInputLength;
 
   const handleOpenChange = (open: boolean) => {
     if (open && isDisabled) return;
@@ -294,13 +295,8 @@ export const DatePicker = ({
               <input
                 ref={inputRef}
                 type="text"
-                value={
-                  showDisplayValue && singleDate
-                    ? dayjs(singleDate).format(displayFormat)
-                    : inputValue
-                }
+                value={inputText}
                 onChange={handleInputChange}
-                maxLength={showDisplayValue ? undefined : maxInputLength}
                 placeholder={placeholder}
                 disabled={isDisabled}
                 onFocus={() => setIsFocused(true)}
