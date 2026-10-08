@@ -7,6 +7,7 @@ import {
 } from '@/posclient/db/definitions/constants';
 
 import { IDoc } from '@/posclient/db/models/PutData';
+import type { UpdateQuery } from 'mongoose';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   checkCouponCode,
@@ -28,10 +29,19 @@ import {
   getPureDate,
   sendTRPCMessage,
   markResolvers,
+  ExpectedError,
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
-import { IPaidAmount } from '~/modules/posclient/@types/orders';
+import {
+  IOrder,
+  IOrderDocument,
+  IPaidAmount,
+} from '~/modules/posclient/@types/orders';
+import {
+  ICartChangeLogInput,
+  IOrderChangeEntry,
+} from '~/modules/posclient/@types/orderChangeLogs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
@@ -39,6 +49,15 @@ import { IModels } from '~/connectionResolvers';
 import { prepareSettlePayment } from '~/modules/posclient/utils';
 import { debugError } from '~/modules/posclient/debugError';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
+import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
+import {
+  IReturnOrderInput,
+  returnPosOrder,
+} from '~/modules/posclient/utils/returnOrder';
+import {
+  getOrderChangeSnapshot,
+  saveOrderChangeSnapshot,
+} from '~/modules/posclient/utils/orderChangeLogs';
 
 interface IPaymentBase {
   billType: string;
@@ -70,9 +89,107 @@ export interface IOrderChangeParams {
   _id: string;
   dueDate?: Date;
   branchId?: string;
-  deliveryInfo?: string;
+  deliveryInfo?: unknown;
   description?: string;
 }
+
+type EditableOrderChangeField =
+  | 'dueDate'
+  | 'branchId'
+  | 'deliveryInfo'
+  | 'description';
+
+const normalizeDateChangeValue = (value: unknown) => {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    return Number.isNaN(date.valueOf()) ? value : date.toISOString();
+  }
+
+  return value ?? null;
+};
+
+const normalizeChangeValue = (
+  field: EditableOrderChangeField,
+  value: unknown,
+) => (field === 'dueDate' ? normalizeDateChangeValue(value) : (value ?? null));
+
+const valuesAreEqual = (
+  field: EditableOrderChangeField,
+  oldValue: unknown,
+  newValue: unknown,
+) =>
+  JSON.stringify(normalizeChangeValue(field, oldValue)) ===
+  JSON.stringify(normalizeChangeValue(field, newValue));
+
+const getOrderChangeValue = (
+  order: IOrder,
+  field: EditableOrderChangeField,
+  config: IConfigDocument,
+) => {
+  if (field === 'branchId') {
+    return config.branchId ? order.subBranchId : order.branchId;
+  }
+
+  return order[field];
+};
+
+const buildOrderChangeEntries = (
+  order: IOrder,
+  params: IOrderChangeParams,
+  config: IConfigDocument,
+): IOrderChangeEntry[] => {
+  const fields: EditableOrderChangeField[] = [
+    'dueDate',
+    'branchId',
+    'deliveryInfo',
+    'description',
+  ];
+
+  return fields.reduce<IOrderChangeEntry[]>((entries, field) => {
+    const newValue = params[field];
+
+    if (newValue === undefined) {
+      return entries;
+    }
+
+    const oldValue = getOrderChangeValue(order, field, config);
+
+    if (valuesAreEqual(field, oldValue, newValue)) {
+      return entries;
+    }
+
+    return [...entries, { field, oldValue, newValue }];
+  }, []);
+};
+
+const buildAddPaymentModifier = (
+  cashAmount?: number,
+  paidAmounts: IPaidAmount[] = [],
+): UpdateQuery<IOrderDocument> => {
+  const modifier: UpdateQuery<IOrderDocument> = {
+    $set: {
+      saleStatus: ORDER_SALE_STATUS.CONFIRMED,
+    },
+  };
+
+  if (cashAmount) {
+    modifier.$inc = {
+      cashAmount: Number(cashAmount.toFixed(2)),
+    };
+  }
+
+  if (paidAmounts.length) {
+    modifier.$push = {
+      paidAmounts: { $each: paidAmounts },
+    };
+  }
+
+  return modifier;
+};
 
 const getTaxInfo = (config: IConfig) => {
   return {
@@ -239,6 +356,15 @@ export const ordersAdd = async (
       });
     }
 
+    await saveOrderChangeSnapshot(
+      models,
+      order._id,
+      config.token,
+      posUser?._id,
+      {},
+      'create',
+    );
+
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
         ...order,
@@ -296,6 +422,8 @@ export const ordersEdit = async (
 
   await validateOrder(subdomain, models, config, doc, order);
 
+  const before = await getOrderChangeSnapshot(models, doc._id);
+
   await cleanOrderItems(doc._id, doc.items, models);
 
   const preparedDoc = await prepareOrderDoc(
@@ -343,6 +471,14 @@ export const ordersEdit = async (
       voucherId: doc.voucherId,
     },
   });
+
+  await saveOrderChangeSnapshot(
+    models,
+    doc._id,
+    config.token,
+    posUser?._id,
+    before,
+  );
 
   await graphqlPubsub.publish('ordersOrdered', {
     ordersOrdered: {
@@ -484,39 +620,6 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-export async function cancelPosOrder(
-  models: IModels,
-  _id: string,
-): Promise<any> {
-  const order = await models.Orders.getOrder(_id);
-
-  checkOrderStatus(order);
-
-  if (
-    order.mobileAmount ||
-    (order.paidAmounts || []).filter(
-      (pa) => pa.info && Object.keys(pa.info).length,
-    ).length > 0
-  ) {
-    throw new Error('Card payment exists for this order');
-  }
-
-  if (
-    order.isPre &&
-    (order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-  ) {
-    throw new Error('Cannot cancel cause PreOrder added payment');
-  }
-
-  if (order.synced === true) {
-    throw new Error('Order is already synced to erxes');
-  }
-
-  await models.OrderItems.deleteMany({ orderId: _id });
-
-  return models.Orders.deleteOne({ _id });
-}
-
 async function applyOrderSaleStatusChange(
   models: IModels,
   _id: string,
@@ -534,6 +637,20 @@ async function applyOrderSaleStatusChange(
 }
 
 const orderMutations: Record<string, Resolver> = {
+  async posclientCartChangeLogCreate(
+    _root,
+    { doc }: { doc: ICartChangeLogInput },
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+    if (!posUser) throw new Error('POS user required');
+    const log = await models.OrderChangeLogs.recordCartChange(
+      doc,
+      config.token,
+      posUser._id,
+    );
+    return log;
+  },
   async ordersAdd(
     _root,
     doc: IOrderInput,
@@ -557,8 +674,12 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, cpUser }: IContext,
   ) {
+    if (doc.customerType !== 'visitor' && !cpUser) {
+      throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
+    }
+
     const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
       posUser,
       config,
@@ -575,8 +696,12 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersEdit(
     _root,
     doc: IOrderEditParams,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, cpUser }: IContext,
   ) {
+    if (doc.customerType !== 'visitor' && !cpUser) {
+      throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
+    }
+
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
 
@@ -598,6 +723,7 @@ const orderMutations: Record<string, Resolver> = {
     assertPosUser(posUser);
 
     const oldOrder = await models.Orders.getOrder(_id);
+    const before = await getOrderChangeSnapshot(models, _id);
 
     const order = await models.Orders.updateOrder(_id, {
       ...oldOrder,
@@ -618,6 +744,14 @@ const orderMutations: Record<string, Resolver> = {
         { $set: { status: ORDER_ITEM_STATUSES.DONE } },
       );
     }
+
+    await saveOrderChangeSnapshot(
+      models,
+      _id,
+      config.token,
+      posUser?._id,
+      before,
+    );
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
@@ -661,7 +795,17 @@ const orderMutations: Record<string, Resolver> = {
   ) {
     assertPosUser(posUser);
 
-    return applyOrderSaleStatusChange(models, _id, saleStatus);
+    const before = await getOrderChangeSnapshot(models, _id);
+    const order = await applyOrderSaleStatusChange(models, _id, saleStatus);
+    await saveOrderChangeSnapshot(
+      models,
+      _id,
+      config.token,
+      posUser?._id,
+      before,
+    );
+    await graphqlPubsub.publish('ordersOrdered', { ordersOrdered: order });
+    return order;
   },
 
   async cpOrderChangeSaleStatus(
@@ -675,7 +819,7 @@ const orderMutations: Record<string, Resolver> = {
   async ordersChange(
     _root,
     params: IOrderChangeParams,
-    { models, config, subdomain, posUser }: IContext,
+    { models, config, posUser }: IContext,
   ) {
     assertPosUser(posUser);
 
@@ -703,11 +847,13 @@ const orderMutations: Record<string, Resolver> = {
       }
     }
 
+    const changes = buildOrderChangeEntries(order, params, config);
+
     const doc = { ...order };
 
-    if (params.dueDate) doc.dueDate = params.dueDate;
+    if (params.dueDate !== undefined) doc.dueDate = params.dueDate;
 
-    if (params.branchId) {
+    if (params.branchId !== undefined) {
       if (config.branchId) {
         doc.subBranchId = params.branchId;
       } else {
@@ -716,33 +862,27 @@ const orderMutations: Record<string, Resolver> = {
       }
     }
 
-    if (params.deliveryInfo) doc.deliveryInfo = params.deliveryInfo;
-    if (params.description) doc.description = params.description;
+    if (params.deliveryInfo !== undefined)
+      doc.deliveryInfo = params.deliveryInfo;
+    if (params.description !== undefined) doc.description = params.description;
 
     const changedOrder = await models.Orders.updateOrder(params._id, doc);
 
-    if (changedOrder.paidDate || changedOrder.isPre) {
-      try {
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'sales',
-          module: 'pos',
-          action: 'createOrUpdateOrders',
-          input: {
-            posToken: config.token,
-            action: 'makePayment',
-            order,
-            items: await models.OrderItems.find({
-              orderId: params._id,
-            }).lean(),
-          },
-          defaultValue: {},
-        });
-      } catch (e) {
-        debugError(`Error occurred while sending data to erxes: ${e.message}`);
-      }
+    if (changes.length) {
+      await models.OrderChangeLogs.createLog({
+        action: 'update',
+        orderId: params._id,
+        posToken: config.token,
+        userId: posUser?._id,
+        changes,
+      });
     }
+
+    await graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: changedOrder,
+    });
+
+    return changedOrder;
   },
 
   async orderItemChangeStatus(
@@ -753,8 +893,21 @@ const orderMutations: Record<string, Resolver> = {
     assertPosUser(posUser);
 
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
+    const orderId = oldOrderItem.orderId;
+    if (!orderId) {
+      throw new Error('Order item has no order');
+    }
+    const before = await getOrderChangeSnapshot(models, orderId);
 
     await models.OrderItems.updateOrderItem(_id, { ...oldOrderItem, status });
+
+    await saveOrderChangeSnapshot(
+      models,
+      orderId,
+      config.token,
+      posUser?._id,
+      before,
+    );
 
     await graphqlPubsub.publish('orderItemsOrdered', {
       orderItemsOrdered: {
@@ -902,15 +1055,7 @@ const orderMutations: Record<string, Resolver> = {
     );
     await checkCouponCode({ subdomain, order });
 
-    const modifier: any = {
-      $set: {
-        cashAmount: cashAmount
-          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
-        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
-      },
-    };
+    const modifier = buildAddPaymentModifier(cashAmount, paidAmounts);
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
@@ -938,7 +1083,7 @@ const orderMutations: Record<string, Resolver> = {
           input: {
             posToken: config.token,
             action: 'makePayment',
-            order,
+            order: newOrder,
             items,
           },
         });
@@ -979,15 +1124,7 @@ const orderMutations: Record<string, Resolver> = {
     );
     await checkCouponCode({ subdomain, order });
 
-    const modifier: any = {
-      $set: {
-        cashAmount: cashAmount
-          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
-        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
-      },
-    };
+    const modifier = buildAddPaymentModifier(cashAmount, paidAmounts);
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
@@ -1015,7 +1152,7 @@ const orderMutations: Record<string, Resolver> = {
           input: {
             posToken: config.token,
             action: 'makePayment',
-            order,
+            order: newOrder,
             items,
           },
         });
@@ -1027,14 +1164,18 @@ const orderMutations: Record<string, Resolver> = {
     return newOrder;
   },
 
-  async ordersCancel(_root, { _id }, { models, posUser, config }: IContext) {
+  async ordersCancel(
+    _root,
+    { _id },
+    { models, posUser, config, subdomain }: IContext,
+  ) {
     assertPosUser(posUser);
 
-    return cancelPosOrder(models, _id);
+    return cancelPosOrder(models, _id, subdomain, config.token, posUser._id);
   },
 
-  async cpOrdersCancel(_root, { _id }, { models }: IContext) {
-    return cancelPosOrder(models, _id);
+  async cpOrdersCancel(_root, { _id }, { models, subdomain, user }: IContext) {
+    return cancelPosOrder(models, _id, subdomain, undefined, user?._id);
   },
 
   /**
@@ -1378,141 +1519,8 @@ const orderMutations: Record<string, Resolver> = {
     }
   },
 
-  async ordersReturn(
-    _root,
-    {
-      _id,
-      cashAmount,
-      paidAmounts,
-      description,
-    }: {
-      _id: string;
-      cashAmount?: number;
-      paidAmounts?: IPaidAmount[];
-      description?: string;
-    },
-    { subdomain, models, posUser, config }: IContext,
-  ) {
-    assertPosUser(posUser);
-
-    if (!posUser?._id || !config.adminIds.includes(posUser._id)) {
-      throw new Error('Order return admin required');
-    }
-
-    const trimmedDescription = description?.trim();
-
-    let order = await models.Orders.getOrder(_id);
-
-    if (order.returnInfo?.returnAt) {
-      throw new Error('Order is already returned');
-    }
-
-    const amount =
-      (cashAmount || 0) +
-      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
-
-    if (order.isPre) {
-      if (
-        !(order.cashAmount || order.mobileAmount || order.paidAmounts?.length)
-      ) {
-        throw new Error('Order yet not paid');
-      }
-
-      const savedPaidAmount =
-        (order.cashAmount || 0) +
-        (order.mobileAmount || 0) +
-        (order.paidAmounts || []).reduce(
-          (sum, i) => Number(sum) + Number(i.amount),
-          0,
-        );
-
-      if (savedPaidAmount !== amount) {
-        throw new Error('Amount exceeds total amount');
-      }
-    } else {
-      if (!order.paidDate) {
-        throw new Error('Order yet not paid');
-      }
-
-      if (order.totalAmount != amount) {
-        throw new Error('Amount exceeds total amount');
-      }
-    }
-
-    const modifier: any = {
-      $set: {
-        status: ORDER_STATUSES.RETURN,
-        returnInfo: {
-          cashAmount,
-          paidAmounts,
-          returnAt: new Date(),
-          returnBy: posUser._id,
-          description: trimmedDescription || undefined,
-        },
-        cashAmount: cashAmount
-          ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(
-          (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount })),
-        ),
-      },
-    };
-
-    const ebarimtConfig = config.ebarimtConfig;
-
-    if (!ebarimtConfig) {
-      throw new Error('Please check ebarimt config');
-    }
-
-    let returnResponses = (await models.PutResponses.returnBill(
-      {
-        contentId: _id,
-        contentType: 'pos',
-        number: order.number ?? '',
-      },
-      ebarimtConfig,
-      posUser,
-    )) as any;
-
-    if (returnResponses.error) {
-      returnResponses = [];
-    }
-
-    await models.Orders.updateOne({ _id: order._id }, modifier);
-
-    order = await models.Orders.getOrder(_id);
-
-    await graphqlPubsub.publish('ordersOrdered', {
-      ordersOrdered: {
-        ...order,
-        _id: order._id,
-        status: order.status,
-        customerId: order.customerId,
-        customerType: order.customerType,
-      },
-    });
-
-    try {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'sales',
-        module: 'pos',
-        action: 'createOrUpdateOrders',
-        input: {
-          posToken: config.token,
-          action: 'makePayment',
-          responses: returnResponses,
-          order,
-          items: await models.OrderItems.find({ orderId: _id }).lean(),
-        },
-        defaultValue: {},
-      });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
-    }
-
-    return models.Orders.findOne({ _id: order._id });
+  async ordersReturn(_root, doc: IReturnOrderInput, context: IContext) {
+    return returnPosOrder(doc, context);
   },
 };
 

@@ -21,6 +21,11 @@ export const initialData = {
 
 const GOLOMT_DEFAULT_PATH = "http://localhost:8500"
 
+type GolomtTransactionResponse = {
+  responseCode?: string
+  responseDesc?: string
+}
+
 const formatPath = (port?: string) =>
   port ? `http://localhost:${port}` : GOLOMT_DEFAULT_PATH
 
@@ -37,8 +42,8 @@ const useGolomt = () => {
 }
 
 export const useGolomtTransaction = (options: {
-  onCompleted: (data?: any) => void
-  onError: (data: any) => void
+  onCompleted: (data?: GolomtTransactionResponse) => Promise<void> | void
+  onError: (data: string) => void
 }) => {
   const { onCompleted, onError } = options
   const { config } = usePaymentType(BANK_CARD_TYPES.GOLOMT) || {}
@@ -46,7 +51,7 @@ export const useGolomtTransaction = (options: {
 
   const sendData = { ...initialData, ...config, terminalID }
   if (devicePortNo) {
-    sendData.portNo = devicePortNo;
+    sendData.portNo = devicePortNo
   }
 
   const sendTransaction = async (variables: {
@@ -54,7 +59,7 @@ export const useGolomtTransaction = (options: {
     amount: number
   }) => {
     const { _id, amount } = variables
-    fetch(
+    return fetch(
       endPoint(
         {
           ...sendData,
@@ -66,19 +71,19 @@ export const useGolomtTransaction = (options: {
       )
     )
       .then((res) => res.json())
-      .then((r) => {
-        const posResult = JSON.parse(r?.PosResult)
+      .then(async (r: { PosResult: string }) => {
+        const posResult: GolomtTransactionResponse = JSON.parse(r?.PosResult)
         const { responseCode } = posResult || {}
         if (responseCode === "00") {
+          await onCompleted(posResult)
           toast({
             description: "Transaction was successful",
           })
-          return (
-            !!onCompleted && onCompleted(posResult)
-          )
+          return
         }
-        toast({ description: posResult.responseDesc, variant: "destructive" })
-        return !!onError && onError(posResult.responseDesc)
+        const message = posResult?.responseDesc || "Transaction failed"
+        toast({ description: message, variant: "destructive" })
+        return !!onError && onError(message)
       })
       .catch((e) => {
         toast({ description: e.message, variant: "destructive" })

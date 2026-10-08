@@ -8,6 +8,7 @@ import { IModels } from '~/connectionResolvers';
 import { inboxSegmentSource } from './collections';
 import { resolveIntegrationKind, resolveIntegrationKindNode } from './derived';
 import { INBOX_SEGMENT_FIELDS } from './fields';
+import { INBOX_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { INBOX_SEGMENT_RELATIONS } from './relations';
 
 /**
@@ -20,6 +21,7 @@ import { INBOX_SEGMENT_RELATIONS } from './relations';
 const contract = (models: IModels): SegmentOwnerContract => ({
   sourceFor: (contentType) => inboxSegmentSource(models, contentType),
   fields: INBOX_SEGMENT_FIELDS,
+  namespaces: INBOX_SEGMENT_FIELD_NAMESPACES,
   relations: INBOX_SEGMENT_RELATIONS,
 
   resolveDerived: ({ requests, subjectIds }) =>

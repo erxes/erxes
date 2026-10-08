@@ -110,7 +110,13 @@ export const useConversations = (
 
   const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery<
     ICursorListResponse<IConversation>
-  >(GET_CONVERSATIONS, { ...options, variables });
+  >(GET_CONVERSATIONS, {
+    // The list unmounts in conversation detail. Refresh on returning so events
+    // received while it was absent cannot leave a stale preview or hide a chat.
+    fetchPolicy: 'cache-and-network',
+    ...options,
+    variables,
+  });
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
   const { _id: userId } = useAtomValue(currentUserState) || {};

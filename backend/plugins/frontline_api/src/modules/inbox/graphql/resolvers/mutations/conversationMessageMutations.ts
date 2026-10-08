@@ -74,6 +74,12 @@ const storeDispatchedMessage = async ({
     messageDoc,
     userId,
   );
+  // The provider supplies a plain-text snippet; addMessage stores the rich body.
+  if (kind === 'telegram-messenger' && responseConversationId && content) {
+    await models.Conversations.updateConversation(responseConversationId, {
+      content,
+    });
+  }
   await publishUnreadCountsSafely({
     conversationId: conversation._id,
     integrationId,
@@ -184,11 +190,14 @@ export const conversationMessageMutations = {
           })
         : null;
 
-      if (!customer) {
+      if (
+        !customer &&
+        !(kind === 'telegram-messenger' && !conversation.customerId)
+      ) {
         throw new Error('Customer not found for the conversation');
       }
 
-      const email = customer.primaryEmail;
+      const email = customer?.primaryEmail;
 
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({
