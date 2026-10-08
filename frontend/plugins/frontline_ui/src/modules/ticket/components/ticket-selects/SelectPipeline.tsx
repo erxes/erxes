@@ -246,7 +246,7 @@ const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
 
   const showCreate =
     allowCreate &&
-    !!channelId &&
+    Boolean(channelId) &&
     !loading &&
     canCreateFromSearch(
       search,

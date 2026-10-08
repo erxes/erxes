@@ -328,7 +328,7 @@ const SelectStatusContent = ({ allowCreate }: { allowCreate?: boolean }) => {
 
   const showCreate =
     allowCreate &&
-    !!pipelineId &&
+    Boolean(pipelineId) &&
     !loading &&
     canCreateFromSearch(
       search,
