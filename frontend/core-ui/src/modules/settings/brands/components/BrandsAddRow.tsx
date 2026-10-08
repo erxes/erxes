@@ -1,12 +1,12 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { isAddingAppAtom } from '@/settings/apps/state';
-import { useAppsAdd } from '@/settings/apps/hooks/useAppsAdd';
+import { renderingBrandDetailAtom } from '@/settings/brands/state';
+import { useBrandsAdd } from '@/settings/brands/hooks/useBrandsAdd';
 
-export const AppsAddRow = () => {
-  const setIsAddingApp = useSetAtom(isAddingAppAtom);
-  const { appsAdd, loading } = useAppsAdd();
+export const BrandsAddRow = () => {
+  const setIsAddingBrand = useSetAtom(renderingBrandDetailAtom);
+  const { brandsAdd, loading } = useBrandsAdd();
   const { toast } = useToast();
   const [value, setValue] = useState('');
   const handledRef = useRef(false);
@@ -19,7 +19,7 @@ export const AppsAddRow = () => {
   const cancel = () => {
     if (handledRef.current) return;
     handledRef.current = true;
-    setIsAddingApp(false);
+    setIsAddingBrand(false);
   };
 
   const submit = () => {
@@ -30,9 +30,9 @@ export const AppsAddRow = () => {
       return;
     }
     handledRef.current = true;
-    appsAdd({
+    brandsAdd({
       variables: { name },
-      onCompleted: () => setIsAddingApp(false),
+      onCompleted: () => setIsAddingBrand(false),
       onError: (error) => {
         handledRef.current = false;
         toast({
@@ -48,7 +48,7 @@ export const AppsAddRow = () => {
     <Table.Row>
       <Table.Cell />
       <Table.Cell />
-      <Table.Cell colSpan={1} className="p-1">
+      <Table.Cell className="p-1">
         <div className="h-full w-full flex items-center bg-accent rounded-lg">
           <input
             ref={inputRef}
@@ -66,8 +66,8 @@ export const AppsAddRow = () => {
                 cancel();
               }
             }}
-            placeholder="My App"
-            className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none"
+            placeholder="Brand name"
+            className="w-full max-w-xs bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none font-medium"
           />
         </div>
       </Table.Cell>
