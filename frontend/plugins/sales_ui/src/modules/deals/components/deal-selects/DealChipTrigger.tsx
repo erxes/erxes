@@ -1,27 +1,6 @@
 import React from 'react';
 import { IconChevronDown } from '@tabler/icons-react';
-import { Button, Combobox, cn } from 'erxes-ui';
-
-/**
- * Action button for the deal detail row, shaped like `DealChipTrigger` so
- * actions sit in the same pill row as the field chips.
- */
-export const DealChipButton = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button>
->(({ className, ...props }, ref) => (
-  <Button
-    ref={ref}
-    variant="outline"
-    {...props}
-    className={cn(
-      'h-7 gap-1.5 rounded px-3 font-medium shadow-xs hover:bg-accent/50 [&_svg]:size-4',
-      className,
-    )}
-  />
-));
-
-DealChipButton.displayName = 'DealChipButton';
+import { Combobox, cn } from 'erxes-ui';
 
 /**
  * Inline chip trigger for the deal detail row.

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -44,6 +44,11 @@
 - Deal detail broker selection shows `Broker: None` until a broker type is
   chosen, then renders a matching entity selector with a `Select broker`
   placeholder.
+- Deal detail header exposes an `Actions` dropdown (`DealsActions`) with
+  duplicate, watch/unwatch, print, archive/restore, and remove; the same
+  component is the bulk action menu in the deals list command bar. Print opens
+  the shared `ui-modules` `PrintDocument` sheet (`sales:deal` content type)
+  rendered outside the dropdown so closing the menu does not unmount it.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product

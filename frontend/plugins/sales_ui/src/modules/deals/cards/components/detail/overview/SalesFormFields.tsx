@@ -18,7 +18,6 @@ import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
-import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { ChecklistOverview } from './checklist/ChecklistOverview';
 import {
   areIdListsEqual,
@@ -259,12 +258,9 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <DealsActions deals={[deal]} variant="inline" />
           <ChecklistOverview />
+          <AttachmentUploader />
         </div>
-      </div>
-      <div className="flex">
-        <AttachmentUploader />
       </div>
       <Attachments />
       <Separator className="mt-4" />
