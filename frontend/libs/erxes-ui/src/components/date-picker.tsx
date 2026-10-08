@@ -128,6 +128,54 @@ const formatDateMask = (value: string) => {
   return `${year}-${normalizedMonth}-${normalizedDay}`;
 };
 
+const isWithinBounds = (date: dayjs.Dayjs, minBound?: Date, maxBound?: Date) =>
+  date.isValid() &&
+  !(minBound && date.isBefore(dayjs(minBound), 'day')) &&
+  !(maxBound && date.isAfter(dayjs(maxBound), 'day'));
+
+const maskInputText = (rawValue: string, format: string) =>
+  format === DEFAULT_FORMAT
+    ? formatDateMask(rawValue)
+    : rawValue.slice(0, format.length);
+
+const getSingleDate = (
+  value: NormalizedValue,
+  mode: 'single' | 'multiple' | 'range',
+) => (mode === 'single' && value instanceof Date ? value : undefined);
+
+const getDateBounds = (
+  withPresent: boolean,
+  minDate?: Date,
+  maxDate?: Date,
+) => ({
+  minBound: minDate ?? (withPresent ? new Date('1900-01-01') : undefined),
+  maxBound: maxDate ?? (withPresent ? new Date() : undefined),
+});
+
+const getCalendarDisabled = (
+  disabled: DatePickerProps['disabled'],
+  minBound?: Date,
+  maxBound?: Date,
+): Matcher[] => [
+  ...(disabled === undefined ? [] : [disabled].flat()),
+  ...(minBound ? [{ before: minBound }] : []),
+  ...(maxBound ? [{ after: maxBound }] : []),
+];
+
+/** Returns the typed date once it is complete, valid and within bounds. */
+const parseInputDate = (
+  text: string,
+  format: string,
+  minBound?: Date,
+  maxBound?: Date,
+) => {
+  if (text.length !== format.length) return undefined;
+  const parsedDate = dayjs(text, format, true);
+  return isWithinBounds(parsedDate, minBound, maxBound)
+    ? parsedDate.toDate()
+    : undefined;
+};
+
 export const DatePicker = ({
   value,
   onChange,
@@ -158,13 +206,10 @@ export const DatePicker = ({
   const maxInputLength = format.length;
 
   const normalizedValue = normalizeValue(value, mode);
-  const singleDate =
-    mode === 'single' && normalizedValue instanceof Date
-      ? normalizedValue
-      : undefined;
+  const singleDate = getSingleDate(normalizedValue, mode);
   const singleTime = singleDate?.getTime();
-  const formatSingle = () =>
-    singleDate ? dayjs(singleDate).format(format) : '';
+  const formatSingle = (outputFormat = format) =>
+    singleDate ? dayjs(singleDate).format(outputFormat) : '';
 
   // Keyed on the timestamp so a parent re-creating the same Date each render
   // does not wipe what the user is typing.
@@ -174,63 +219,43 @@ export const DatePicker = ({
     );
   }, [singleTime, format]);
 
-  const minBound =
-    minDate ?? (withPresent ? new Date('1900-01-01') : undefined);
-  const maxBound = maxDate ?? (withPresent ? new Date() : undefined);
-
-  const calendarDisabled: Matcher[] = [
-    ...(disabled === undefined ? [] : [disabled].flat()),
-    ...(minBound ? [{ before: minBound }] : []),
-    ...(maxBound ? [{ after: maxBound }] : []),
-  ];
+  const { minBound, maxBound } = getDateBounds(withPresent, minDate, maxDate);
+  const calendarDisabled = getCalendarDisabled(disabled, minBound, maxBound);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
-    const formattedText =
-      format === DEFAULT_FORMAT
-        ? formatDateMask(rawValue)
-        : rawValue.slice(0, maxInputLength);
+    const formattedText = maskInputText(e.target.value, format);
     setInputValue(formattedText);
     if (mode !== 'single') return;
     if (!formattedText) {
       if (allowNull && singleDate) onChange(null);
       return;
     }
-    if (formattedText.length !== maxInputLength) return;
-    const parsedDate = dayjs(formattedText, format, true);
-    if (!parsedDate.isValid()) return;
-    const isOutOfRange =
-      (minBound && parsedDate.isBefore(dayjs(minBound), 'day')) ||
-      (maxBound && parsedDate.isAfter(dayjs(maxBound), 'day'));
-    if (isOutOfRange) return;
-    onChange(parsedDate.toDate());
+    const parsedDate = parseInputDate(
+      formattedText,
+      format,
+      minBound,
+      maxBound,
+    );
+    if (parsedDate) onChange(parsedDate);
+  };
+
+  const handleInputBlur = () => {
+    setIsFocused(false);
+    const parsedDate = dayjs(inputValue, format, true);
+    if (!isWithinBounds(parsedDate, minBound, maxBound)) {
+      setInputValue(formatSingle());
+    }
   };
 
   const handleDateChange = (
     selectedDate: Date | Date[] | DateRange | undefined,
   ) => {
-    if (!selectedDate) {
-      return;
-    }
-
-    if (
-      mode !== 'range' ||
-      (mode === 'range' && (selectedDate as DateRange)?.to)
-    ) {
+    if (!selectedDate) return;
+    // A range stays open until both ends are picked.
+    if (mode !== 'range' || (selectedDate as DateRange).to) {
       setIsOpen(false);
     }
-
-    if (mode === 'range') {
-      const range = selectedDate as DateRange;
-      if (range?.from && range?.to) {
-        setIsOpen(false);
-      }
-    }
-
-    if (mode === 'single') {
-      setIsOpen(false);
-    }
-    onChange?.(selectedDate);
+    onChange(selectedDate);
   };
 
   const handleClear = () => {
@@ -245,6 +270,8 @@ export const DatePicker = ({
   const isDisabled = disabled === true;
   const showDisplayValue = !isFocused && !!singleDate;
   const canClear = clearable && !isDisabled && !!singleDate;
+  const inputText = showDisplayValue ? formatSingle(displayFormat) : inputValue;
+  const inputMaxLength = showDisplayValue ? undefined : maxInputLength;
 
   const handleOpenChange = (open: boolean) => {
     if (open && isDisabled) return;
@@ -277,21 +304,7 @@ export const DatePicker = ({
                 placeholder={placeholder}
                 disabled={isDisabled}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => {
-                  setIsFocused(false);
-
-                  const parsedDate = dayjs(inputValue, format, true);
-                  const isWithinBounds =
-                    parsedDate.isValid() &&
-                    !(
-                      minBound && parsedDate.isBefore(dayjs(minBound), 'day')
-                    ) &&
-                    !(maxBound && parsedDate.isAfter(dayjs(maxBound), 'day'));
-
-                  if (!isWithinBounds) {
-                    setInputValue(formatSingle());
-                  }
-                }}
+                onBlur={handleInputBlur}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
