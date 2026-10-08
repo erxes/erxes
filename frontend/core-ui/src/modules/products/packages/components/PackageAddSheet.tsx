@@ -84,7 +84,10 @@ export const PackageAddSheet = () => {
           status: values.status,
         },
       });
-      toast({ variant: 'success', title: t('package-created', 'Package created') });
+      toast({
+        variant: 'success',
+        title: t('package-created', 'Package created'),
+      });
       handleClose();
     } catch (e: any) {
       toast({
@@ -96,7 +99,10 @@ export const PackageAddSheet = () => {
   };
 
   return (
-    <Sheet open={open} onOpenChange={(v) => (v ? setOpen(true) : handleClose())}>
+    <Sheet
+      open={open}
+      onOpenChange={(v) => (v ? setOpen(true) : handleClose())}
+    >
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -140,7 +146,10 @@ export const PackageAddSheet = () => {
                           render={({ field }) => (
                             <Form.Item>
                               <Form.Label>{t('status', 'Status')}</Form.Label>
-                              <Select value={field.value} onValueChange={field.onChange}>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
                                 <Form.Control>
                                   <Select.Trigger className="h-8">
                                     <Select.Value />
@@ -148,7 +157,10 @@ export const PackageAddSheet = () => {
                                 </Form.Control>
                                 <Select.Content>
                                   {PACKAGE_STATUS_OPTIONS.map((option) => (
-                                    <Select.Item key={option.value} value={option.value}>
+                                    <Select.Item
+                                      key={option.value}
+                                      value={option.value}
+                                    >
                                       {t(option.labelKey)}
                                     </Select.Item>
                                   ))}
@@ -163,9 +175,15 @@ export const PackageAddSheet = () => {
                           name="description"
                           render={({ field }) => (
                             <Form.Item className="col-span-2">
-                              <Form.Label>{t('description', 'Description')}</Form.Label>
+                              <Form.Label>
+                                {t('description', 'Description')}
+                              </Form.Label>
                               <Form.Control>
-                                <Textarea className="min-h-20" rows={4} {...field} />
+                                <Textarea
+                                  className="min-h-20"
+                                  rows={4}
+                                  {...field}
+                                />
                               </Form.Control>
                               <Form.Message />
                             </Form.Item>
@@ -183,7 +201,11 @@ export const PackageAddSheet = () => {
                                 value={field.value || []}
                                 onValueChange={(value) =>
                                   field.onChange(
-                                    Array.isArray(value) ? value : value ? [value] : [],
+                                    Array.isArray(value)
+                                      ? value
+                                      : value
+                                        ? [value]
+                                        : [],
                                   )
                                 }
                               />
@@ -205,7 +227,12 @@ export const PackageAddSheet = () => {
                             <ProductPrimaryImageUpload
                               value={
                                 field.value
-                                  ? { name: field.value, url: field.value, type: '', size: 0 }
+                                  ? {
+                                      name: field.value,
+                                      url: field.value,
+                                      type: '',
+                                      size: 0,
+                                    }
                                   : null
                               }
                               onChange={(v: ProductAttachmentItem | null) =>
@@ -224,7 +251,9 @@ export const PackageAddSheet = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{t('price', 'Price')}</span>
+                            <span className="text-sm font-medium">
+                              {t('price', 'Price')}
+                            </span>
                             {pricing.displayTotal && (
                               <span className="text-xs text-muted-foreground tabular-nums line-through">
                                 {pricing.displayTotal}
@@ -240,7 +269,9 @@ export const PackageAddSheet = () => {
                           </CurrencyField>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <span className="text-sm font-medium">{t('percent', 'Percent')}</span>
+                          <span className="text-sm font-medium">
+                            {t('percent', 'Percent')}
+                          </span>
                           <Input
                             type="number"
                             min={0}
@@ -248,7 +279,9 @@ export const PackageAddSheet = () => {
                             step="0.1"
                             placeholder="0"
                             value={pricing.percent}
-                            onChange={(e) => pricing.onPercentChange(e.target.value)}
+                            onChange={(e) =>
+                              pricing.onPercentChange(e.target.value)
+                            }
                           />
                         </div>
                       </div>
@@ -280,7 +313,12 @@ export const PackageAddSheet = () => {
             </Sheet.Content>
 
             <Sheet.Footer className="flex-none">
-              <Button type="button" variant="outline" onClick={handleClose} disabled={saving}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={saving}
+              >
                 {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={saving}>

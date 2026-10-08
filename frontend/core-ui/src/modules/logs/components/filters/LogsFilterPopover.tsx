@@ -6,12 +6,7 @@ import {
   IconTag,
   IconUser,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  useMultiQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 
 import { LogActionsFilter } from './LogActionFilter';

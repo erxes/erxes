@@ -26,7 +26,12 @@ export const CompanyWidgets = ({
   });
 
   const handleSelectCompanies = (companyIds: string[]) => {
-    manageRelations({ contentType, contentId, relatedContentType: 'core:company', relatedContentIds: companyIds })
+    manageRelations({
+      contentType,
+      contentId,
+      relatedContentType: 'core:company',
+      relatedContentIds: companyIds,
+    });
   };
 
   if (loading) {

@@ -13,7 +13,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { IPackage, PACKAGE_STATUS_OPTIONS } from '../types/Package';
-import { useChangePackageStatus, useEditPackage } from '../hooks/usePackageMutations';
+import {
+  useChangePackageStatus,
+  useEditPackage,
+} from '../hooks/usePackageMutations';
 
 const statusVariant = (status?: string) => {
   switch (status) {
@@ -41,7 +44,10 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
 
     try {
       await changeStatus({ variables: { _id: pkg._id, status: next } });
-      toast({ variant: 'success', title: t('status-updated', 'Status updated') });
+      toast({
+        variant: 'success',
+        title: t('status-updated', 'Status updated'),
+      });
     } catch (e: any) {
       toast({
         variant: 'destructive',
@@ -120,9 +126,7 @@ const formatDate = (value?: string) => {
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 };
 
-export const createPackageColumns = (
-  t: TFunction,
-): ColumnDef<IPackage>[] => [
+export const createPackageColumns = (t: TFunction): ColumnDef<IPackage>[] => [
   RecordTable.checkboxColumn as ColumnDef<IPackage>,
   {
     id: 'name',
@@ -168,7 +172,9 @@ export const createPackageColumns = (
   {
     id: 'totalPrice',
     accessorKey: 'totalPrice',
-    header: () => <RecordTable.InlineHead label={t('total-price', 'Total Price')} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('total-price', 'Total Price')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-sm">
         {formatPrice(cell.getValue() as number | undefined)}

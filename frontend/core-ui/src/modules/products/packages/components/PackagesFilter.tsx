@@ -114,7 +114,10 @@ export const PackagesFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
+              <Filter.CommandInput
+                placeholder={t('filter', 'Filter')}
+                variant="secondary"
+              />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <Filter.Item value="status">

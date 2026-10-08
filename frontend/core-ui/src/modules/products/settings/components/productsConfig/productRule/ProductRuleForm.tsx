@@ -352,8 +352,8 @@ export const ProductRuleForm = ({
                 ? t('updating')
                 : t('creating')
               : productRule
-              ? t('update')
-              : t('create')}
+                ? t('update')
+                : t('create')}
           </Button>
         </Sheet.Footer>
       </form>

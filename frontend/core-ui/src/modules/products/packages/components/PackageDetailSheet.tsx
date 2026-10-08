@@ -24,9 +24,16 @@ import {
   type ProductAttachmentItem,
 } from 'ui-modules';
 import { usePackageDetail } from '../hooks/usePackageDetail';
-import { useChangePackageStatus, useEditPackage } from '../hooks/usePackageMutations';
+import {
+  useChangePackageStatus,
+  useEditPackage,
+} from '../hooks/usePackageMutations';
 import { usePricing } from '../hooks/usePricing';
-import { IPackage, IPackageProduct, PACKAGE_STATUS_OPTIONS } from '../types/Package';
+import {
+  IPackage,
+  IPackageProduct,
+  PACKAGE_STATUS_OPTIONS,
+} from '../types/Package';
 import { PackageProductPicker } from './PackageProductPicker';
 
 const Label = ({ children }: { children: React.ReactNode }) => (
@@ -52,7 +59,9 @@ const PackageTagsField = ({
           tagId={tagId}
           variant="secondary"
           onClose={
-            disabled ? undefined : () => onChange(value.filter((id) => id !== tagId))
+            disabled
+              ? undefined
+              : () => onChange(value.filter((id) => id !== tagId))
           }
         />
       ))}
@@ -85,7 +94,13 @@ const PackageTagsField = ({
   );
 };
 
-const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => void }) => {
+const PackageDetailEditor = ({
+  pkg,
+  onClose,
+}: {
+  pkg: IPackage;
+  onClose: () => void;
+}) => {
   const { t } = useTranslation('product', { keyPrefix: 'package' });
   const { changeStatus, loading: savingStatus } = useChangePackageStatus();
   const { editPackage, loading: savingEdits } = useEditPackage(pkg._id);
@@ -93,7 +108,9 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
   const [name, setName] = useState(pkg.name || '');
   const [description, setDescription] = useState(pkg.description || '');
   const [coverImage, setCoverImage] = useState(pkg.coverImage || '');
-  const [products, setProducts] = useState<IPackageProduct[]>(pkg.products || []);
+  const [products, setProducts] = useState<IPackageProduct[]>(
+    pkg.products || [],
+  );
   const [tagIds, setTagIds] = useState<string[]>(pkg.tagIds || []);
   const [status, setStatus] = useState(pkg.status || 'active');
 
@@ -125,7 +142,10 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
 
   const handleSave = async () => {
     if (!name.trim()) {
-      toast({ variant: 'destructive', title: t('name-required', 'Name is required') });
+      toast({
+        variant: 'destructive',
+        title: t('name-required', 'Name is required'),
+      });
       return;
     }
     if (!products.length) {
@@ -146,23 +166,32 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
     }
 
     try {
-      await Promise.all([
-        basicDirty &&
-          editPackage({
-            variables: {
-              _id: pkg._id,
-              name,
-              description,
-              coverImage,
-              price: parsedPrice,
-              percent: pricing.percent !== '' ? Number(pricing.percent) : undefined,
-              products: products.map(({ productId, quantity }) => ({ productId, quantity })),
-              tagIds,
-            },
-          }),
-        statusDirty && changeStatus({ variables: { _id: pkg._id, status } }),
-      ].filter(Boolean));
-      toast({ variant: 'success', title: t('package-updated', 'Package updated') });
+      await Promise.all(
+        [
+          basicDirty &&
+            editPackage({
+              variables: {
+                _id: pkg._id,
+                name,
+                description,
+                coverImage,
+                price: parsedPrice,
+                percent:
+                  pricing.percent !== '' ? Number(pricing.percent) : undefined,
+                products: products.map(({ productId, quantity }) => ({
+                  productId,
+                  quantity,
+                })),
+                tagIds,
+              },
+            }),
+          statusDirty && changeStatus({ variables: { _id: pkg._id, status } }),
+        ].filter(Boolean),
+      );
+      toast({
+        variant: 'success',
+        title: t('package-updated', 'Package updated'),
+      });
     } catch (e: any) {
       toast({
         variant: 'destructive',
@@ -182,11 +211,19 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <Label>{t('name', 'Name')}</Label>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} disabled={saving} />
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      disabled={saving}
+                    />
                   </div>
                   <div className="flex flex-col gap-2">
                     <Label>{t('status', 'Status')}</Label>
-                    <Select value={status} disabled={saving} onValueChange={setStatus}>
+                    <Select
+                      value={status}
+                      disabled={saving}
+                      onValueChange={setStatus}
+                    >
                       <Select.Trigger className="h-8">
                         <Select.Value />
                       </Select.Trigger>
@@ -224,8 +261,14 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
             <InfoCard title={t('cover-image', 'Cover image')}>
               <InfoCard.Content>
                 <ProductPrimaryImageUpload
-                  value={coverImage ? { name: coverImage, url: coverImage, type: '', size: 0 } : null}
-                  onChange={(v: ProductAttachmentItem | null) => setCoverImage(v?.url || '')}
+                  value={
+                    coverImage
+                      ? { name: coverImage, url: coverImage, type: '', size: 0 }
+                      : null
+                  }
+                  onChange={(v: ProductAttachmentItem | null) =>
+                    setCoverImage(v?.url || '')
+                  }
                 />
               </InfoCard.Content>
             </InfoCard>
@@ -285,7 +328,12 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
           <Button type="button" variant="outline" onClick={onClose}>
             {t('close', 'Close')}
           </Button>
-          <Button type="button" onClick={handleSave} disabled={!dirty || saving} className="gap-2">
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={!dirty || saving}
+            className="gap-2"
+          >
             <IconCheck className="size-4" />
             {t('save', 'Save')}
           </Button>
@@ -297,7 +345,8 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
 
 export const PackageDetailSheet = () => {
   const { t } = useTranslation('product', { keyPrefix: 'package' });
-  const [activePackageId, setActivePackageId] = useQueryState<string>('activePackageId');
+  const [activePackageId, setActivePackageId] =
+    useQueryState<string>('activePackageId');
   const { package: pkg, loading } = usePackageDetail(activePackageId);
 
   const handleClose = () => setActivePackageId(null);
@@ -305,13 +354,17 @@ export const PackageDetailSheet = () => {
   return (
     <Sheet
       open={!!activePackageId}
-      onOpenChange={(open) => { if (!open) handleClose(); }}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
     >
       <Sheet.View className="p-0 sm:max-w-5xl">
         <div className="flex flex-col flex-auto overflow-hidden">
           <Sheet.Header className="flex gap-2">
             <IconPackage />
-            <Sheet.Title>{pkg?.name || t('package-detail', 'Package detail')}</Sheet.Title>
+            <Sheet.Title>
+              {pkg?.name || t('package-detail', 'Package detail')}
+            </Sheet.Title>
             <Sheet.Close />
           </Sheet.Header>
 

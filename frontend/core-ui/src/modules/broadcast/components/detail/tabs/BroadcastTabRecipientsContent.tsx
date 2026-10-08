@@ -317,15 +317,12 @@ const RecipientRow =
     selected: TBroadcastRecipient | null,
     onSelect: (recipient: TBroadcastRecipient) => void,
   ) =>
-  ({ original, ...props }: React.ComponentProps<typeof RecordTable.Row>) =>
-    (
-      <RecordTable.Row
-        {...props}
-        original={original}
-        className="cursor-pointer"
-        onClick={() => onSelect(original)}
-        {...(selected?._id === original?._id
-          ? { 'data-state': 'selected' }
-          : {})}
-      />
-    );
+  ({ original, ...props }: React.ComponentProps<typeof RecordTable.Row>) => (
+    <RecordTable.Row
+      {...props}
+      original={original}
+      className="cursor-pointer"
+      onClick={() => onSelect(original)}
+      {...(selected?._id === original?._id ? { 'data-state': 'selected' } : {})}
+    />
+  );

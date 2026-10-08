@@ -13,7 +13,8 @@ export const ClientPortalDetailResetPassword = ({
   clientPortal: IClientPortal;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
-  const resetPasswordConfig = clientPortal?.securityAuthConfig?.resetPasswordConfig;
+  const resetPasswordConfig =
+    clientPortal?.securityAuthConfig?.resetPasswordConfig;
   const form = useForm<
     z.infer<typeof CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA>
   >({
@@ -65,8 +66,12 @@ export const ClientPortalDetailResetPassword = ({
                   onValueChange={(value) => field.onChange(value === 'code')}
                   variant="outline"
                 >
-                  <ToggleGroup.Item value="link" className="flex-auto">{t('link')}</ToggleGroup.Item>
-                  <ToggleGroup.Item value="code" className="flex-auto">{t('code')}</ToggleGroup.Item>
+                  <ToggleGroup.Item value="link" className="flex-auto">
+                    {t('link')}
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="code" className="flex-auto">
+                    {t('code')}
+                  </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
             </Form.Item>
@@ -79,7 +84,9 @@ export const ClientPortalDetailResetPassword = ({
             <Form.Item className="col-start-1">
               <Form.Label>{t('email-subject')}</Form.Label>
               <Input {...field} />
-              <Form.Description>{t('reset-email-subject-description')}</Form.Description>
+              <Form.Description>
+                {t('reset-email-subject-description')}
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
@@ -95,7 +102,9 @@ export const ClientPortalDetailResetPassword = ({
                 onChange={field.onChange}
                 isHTML
               />
-              <Form.Description>{t('reset-email-content-description')}</Form.Description>
+              <Form.Description>
+                {t('reset-email-content-description')}
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
@@ -107,7 +116,9 @@ export const ClientPortalDetailResetPassword = ({
           disabled={loading}
           variant="secondary"
         >
-          {loading && <Spinner containerClassName="w-auto flex-none" />}{t('save')}</Button>
+          {loading && <Spinner containerClassName="w-auto flex-none" />}
+          {t('save')}
+        </Button>
       </form>
     </Form>
   );

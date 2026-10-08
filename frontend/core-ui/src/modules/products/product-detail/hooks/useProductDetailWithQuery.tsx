@@ -13,14 +13,15 @@ export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
   const queryProductId = _id ?? undefined;
   const shouldSkip = !queryProductId || !!options?.skip;
 
-  const { productDetail, productId, loading, error, refetch } = useProductDetail({
-    ...options,
-    variables: {
-      ...options?.variables,
-      _id: queryProductId,
-    },
-    skip: shouldSkip,
-  });
+  const { productDetail, productId, loading, error, refetch } =
+    useProductDetail({
+      ...options,
+      variables: {
+        ...options?.variables,
+        _id: queryProductId,
+      },
+      skip: shouldSkip,
+    });
 
   useEffect(() => {
     if (error) {

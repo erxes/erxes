@@ -81,7 +81,9 @@ const emailTemplateColumns = (t: TFunction): ColumnDef<IEmailTemplate>[] => [
   {
     id: 'contentFormat',
     accessorKey: 'contentFormat',
-    header: () => <RecordTable.InlineHead icon={IconMail} label={t('editor')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMail} label={t('editor')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="secondary">
@@ -93,7 +95,9 @@ const emailTemplateColumns = (t: TFunction): ColumnDef<IEmailTemplate>[] => [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <MembersInline.Provider

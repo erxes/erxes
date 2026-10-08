@@ -58,7 +58,11 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
     ),
-    cell: ({ row: { original: { type } } }) => (
+    cell: ({
+      row: {
+        original: { type },
+      },
+    }) => (
       <RecordTableInlineCell>
         {type && (
           <Badge variant={PRODUCT_TYPE_VARIANTS[type] ?? 'secondary'}>

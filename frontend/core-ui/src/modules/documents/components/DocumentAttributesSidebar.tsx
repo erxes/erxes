@@ -121,7 +121,9 @@ export const DocumentAttributesSidebar = ({
                           {attr.label || attr.name}
                         </span>
                         <span className="truncate text-sm text-foreground">
-                          {"{{ "}{attr.value}{" }}"}
+                          {'{{ '}
+                          {attr.value}
+                          {' }}'}
                         </span>
                       </div>
                     </Command.Item>

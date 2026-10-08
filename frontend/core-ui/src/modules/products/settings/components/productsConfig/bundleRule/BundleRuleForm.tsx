@@ -259,8 +259,8 @@ export const BundleRuleForm = ({
                 ? t('updating')
                 : t('creating')
               : bundleRule
-              ? t('update')
-              : t('create')}
+                ? t('update')
+                : t('create')}
           </Button>
         </Sheet.Footer>
       </form>

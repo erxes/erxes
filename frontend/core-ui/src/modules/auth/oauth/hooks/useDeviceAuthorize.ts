@@ -62,7 +62,9 @@ export const useDeviceAuthorize = () => {
         toast({
           title: t('could-not-load-request'),
           description:
-            error instanceof Error ? error.message : t('something-went-wrong-error'),
+            error instanceof Error
+              ? error.message
+              : t('something-went-wrong-error'),
           variant: 'destructive',
         });
       } finally {
@@ -128,9 +130,7 @@ export const useDeviceAuthorize = () => {
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(
-          result?.error_description || t('failed-to-approve'),
-        );
+        throw new Error(result?.error_description || t('failed-to-approve'));
       }
 
       if (result?.redirectUrl) {
@@ -149,7 +149,9 @@ export const useDeviceAuthorize = () => {
       toast({
         title: t('authorization-failed'),
         description:
-          error instanceof Error ? error.message : t('something-went-wrong-error'),
+          error instanceof Error
+            ? error.message
+            : t('something-went-wrong-error'),
         variant: 'destructive',
       });
     } finally {
@@ -173,9 +175,7 @@ export const useDeviceAuthorize = () => {
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(
-          result?.error_description || t('failed-to-cancel'),
-        );
+        throw new Error(result?.error_description || t('failed-to-cancel'));
       }
 
       setDenied(true);
@@ -183,7 +183,9 @@ export const useDeviceAuthorize = () => {
       toast({
         title: t('cancel-failed'),
         description:
-          error instanceof Error ? error.message : t('something-went-wrong-error'),
+          error instanceof Error
+            ? error.message
+            : t('something-went-wrong-error'),
         variant: 'destructive',
       });
     } finally {
