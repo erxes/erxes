@@ -69,7 +69,7 @@ const normalizeValue = (
 ): NormalizedValue => {
   if (mode === 'multiple') {
     if (!Array.isArray(value)) return undefined;
-    return value.map(toDate).filter((date): date is Date => !!date);
+    return value.map(toDate).filter((date): date is Date => Boolean(date));
   }
 
   if (mode === 'range') {
@@ -270,8 +270,8 @@ export const DatePicker = ({
   };
 
   const isDisabled = disabled === true;
-  const showDisplayValue = !isFocused && !!singleDate;
-  const canClear = clearable && !isDisabled && !!singleDate;
+  const showDisplayValue = !isFocused && Boolean(singleDate);
+  const canClear = clearable && !isDisabled && Boolean(singleDate);
   const inputText = showDisplayValue ? formatSingle(displayFormat) : inputValue;
 
   const handleOpenChange = (open: boolean) => {
