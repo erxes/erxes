@@ -1,8 +1,5 @@
 import { notFound } from 'next/navigation';
-import {
-  getTopicArticleList,
-  getTopicWithArticles,
-} from '@/modules/knowledge-base/api';
+import { getTopicArticleList } from '@/modules/knowledge-base/api';
 import { ArticleListItem } from '@/modules/knowledge-base/components/ArticleListItem';
 import {
   findCategory,
@@ -36,8 +33,6 @@ export const generateMetadata = async ({ params }: Props) => {
 };
 
 export default async function CategoryPage({ params }: Props) {
-  void getTopicWithArticles();
-
   const [{ categoryId }, topic, t] = await Promise.all([
     params,
     getTopicArticleList(),
