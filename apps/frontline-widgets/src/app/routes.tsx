@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { App } from './app';
 import { Form } from './form';
+import { KnowledgeBaseWidget } from './knowledgebase/KnowledgeBaseWidget';
 import { LiveForm } from './form/live-form';
 
 /**
@@ -14,6 +15,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/form" element={<Form />} />
+      <Route path="/knowledgebase" element={<KnowledgeBaseWidget />} />
       <Route path="/live/:id/:formId" element={<LiveForm />} />
     </Routes>
   );
