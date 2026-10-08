@@ -1,12 +1,18 @@
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Sidebar, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
+import {
+  Sidebar,
+  useIsMobile,
+  useQueryState,
+  useRemoveQueryStateByKey,
+} from 'erxes-ui';
 
 import { ApprovalLockedBadge } from 'ui-modules';
 import { IDocument } from '../types';
+import { IconArrowLeft } from '@tabler/icons-react';
 
 /** Show document navigation with approval-lock visibility indicators. */
 export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
   const [documentId, setDocumentId] = useQueryState('documentId');
+  const isMobile = useIsMobile();
 
   const removeQuery = useRemoveQueryStateByKey();
 
@@ -23,7 +29,7 @@ export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
             <IconArrowLeft />
             All documents
           </Sidebar.GroupLabel>
-          <Sidebar.PanelTrigger />
+          {isMobile && <Sidebar.PanelTrigger />}
         </div>
         <Sidebar.GroupContent>
           <Sidebar.Menu>

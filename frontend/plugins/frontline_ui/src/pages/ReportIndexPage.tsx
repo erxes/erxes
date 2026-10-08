@@ -4,32 +4,31 @@ import {
   PageContainer,
   Separator,
   ToggleGroup,
-  useIsMobile,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
-import { IconChartHistogram } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { ReportsView } from '@/report/components/ReportsView';
-import { CallReportsView } from '@/report/components/CallReportsView';
-import { TicketReportsList } from '@/report/components/TicketReportsList';
-import { FacebookReportsList } from '@/report/components/FacebookReportsList';
 import {
   OVERVIEW_KPI_DATE_FILTER_ID,
   ReportKpiDateFilter,
   TICKET_PRIORITY_DATE_FILTER_ID,
 } from '@/report/components/filter-popover/ReportKpiDateFilter';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import {
+  REPORT_SECTION_PATHS,
   getReportSection,
   getReportSections,
-  REPORT_SECTION_PATHS,
 } from '@/report/constants/reportSections';
+
+import { CallReportsView } from '@/report/components/CallReportsView';
+import { FacebookReportsList } from '@/report/components/FacebookReportsList';
+import { IconChartHistogram } from '@tabler/icons-react';
+import { ReportsView } from '@/report/components/ReportsView';
+import { TicketReportsList } from '@/report/components/TicketReportsList';
+import { useTranslation } from 'react-i18next';
 
 export default function ReportIndexPage() {
   const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const activeSection = getReportSection(location.pathname);
   const sections = getReportSections(t);
 
@@ -72,45 +71,27 @@ export default function ReportIndexPage() {
                   </Link>
                 </Button>
               </Breadcrumb.Item>
-              {!isMobile && activeSectionLabel && (
-                <>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Button variant="ghost" asChild>
-                      <Link to={REPORT_SECTION_PATHS[activeSection]}>
-                        {activeSectionLabel}
-                      </Link>
-                    </Button>
-                  </Breadcrumb.Item>
-                </>
-              )}
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          {isMobile && (
-            <>
-              <ToggleGroup
-                type="single"
-                value={activeSection}
-                onValueChange={(value) => {
-                  const target = sections.find(
-                    ({ section }) => section === value,
-                  );
+          <ToggleGroup
+            type="single"
+            value={activeSection}
+            onValueChange={(value) => {
+              const target = sections.find(({ section }) => section === value);
 
-                  if (target) {
-                    navigate(REPORT_SECTION_PATHS[target.section]);
-                  }
-                }}
-              >
-                {sections.map(({ section, label }) => (
-                  <ToggleGroup.Item key={section} value={section}>
-                    {label}
-                  </ToggleGroup.Item>
-                ))}
-              </ToggleGroup>
-              <Separator.Inline />
-            </>
-          )}
+              if (target) {
+                navigate(REPORT_SECTION_PATHS[target.section]);
+              }
+            }}
+          >
+            {sections.map(({ section, label }) => (
+              <ToggleGroup.Item key={section} value={section}>
+                {label}
+              </ToggleGroup.Item>
+            ))}
+          </ToggleGroup>
+          <Separator.Inline />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}
             icon="IconChartHistogram"

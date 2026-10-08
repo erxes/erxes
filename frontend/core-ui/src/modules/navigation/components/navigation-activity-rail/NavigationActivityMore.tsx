@@ -1,8 +1,9 @@
-import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
-import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
-import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { Button, Popover, ScrollArea, Sidebar, cn } from 'erxes-ui';
 import { IconApps, IconDots } from '@tabler/icons-react';
-import { Button, cn, Popover, ScrollArea, Separator, Sidebar } from 'erxes-ui';
+
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { NavigationActivityPinButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityPinButton';
+import { NavigationRailLabel } from '@/navigation/components/navigation-activity-rail/NavigationRailLabel';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -24,21 +25,22 @@ const NavigationActivityMoreGroup = ({
   }
 
   return (
-    <section>
-      <h2 className="flex h-5 items-center px-2 font-mono text-[10px] font-semibold uppercase text-accent-foreground">
+    <section className="py-1 first:pt-0">
+      <h2 className="flex h-7 items-center px-2 font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </h2>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-0.5">
         {activities.map((activity) => {
           const Icon = activity.icon || IconApps;
 
           return (
             <div
-              className="flex h-7 min-w-0 items-center rounded-lg hover:bg-accent"
+              className="group/more flex h-8 min-w-0 items-center rounded transition-colors duration-150 hover:bg-accent"
               key={activity.id}
             >
               <Button
-                className="h-7 min-w-0 flex-1 justify-start gap-2 px-2 text-sm"
+                data-nav-row
+                className="h-8 min-w-0 flex-1 justify-start gap-2 px-2 text-sm font-medium hover:bg-transparent"
                 onClick={() => onSelect(activity)}
                 type="button"
                 variant="ghost"
@@ -48,7 +50,7 @@ const NavigationActivityMoreGroup = ({
               </Button>
               <NavigationActivityPinButton
                 activity={activity}
-                className="mr-0.5"
+                className="mr-1 opacity-0 [@media(hover:none)]:opacity-100 transition-opacity duration-150 group-hover/more:opacity-100 focus-visible:opacity-100 motion-reduce:transition-none"
                 pinned={isActivityPinned(activity.id)}
                 onPinnedChange={(pinned) => onPinnedChange(activity.id, pinned)}
               />
@@ -97,17 +99,18 @@ export const NavigationActivityMore = ({
       <Popover.Trigger asChild>
         <Button
           aria-label={t('more-activities')}
+          data-nav-row
           className={cn(
-            'h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [&>svg]:size-4!',
+            'h-7 shrink-0 justify-start gap-2 rounded text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [&>svg]:size-4!',
             expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           )}
           size="default"
           type="button"
           variant="ghost"
         >
-          <IconDots className="size-4 text-accent-foreground" />
+          <IconDots className="size-4" />
           <NavigationRailLabel
-            className="truncate font-normal"
+            className="truncate font-medium"
             expanded={expanded}
           >
             {t('more')}
@@ -116,13 +119,10 @@ export const NavigationActivityMore = ({
       </Popover.Trigger>
       <Popover.Content
         align="start"
-        className="flex max-h-[var(--radix-popover-content-available-height)] w-52 flex-col overflow-hidden p-1"
+        className="flex max-h-[var(--radix-popover-content-available-height)] w-60 flex-col overflow-hidden rounded-xl border-border/60 p-1.5 shadow-lg"
         side={isMobile && expanded ? 'bottom' : 'right'}
-        sideOffset={4}
+        sideOffset={8}
       >
-        <div className="flex h-7 shrink-0 items-center px-2 text-sm font-semibold">
-          {t('more')}
-        </div>
         <ScrollArea className="min-h-0 flex-auto">
           <NavigationActivityMoreGroup
             activities={pluginActivities}
@@ -131,9 +131,6 @@ export const NavigationActivityMore = ({
             onPinnedChange={onPinnedChange}
             onSelect={selectActivity}
           />
-          {pluginActivities.length > 0 && coreActivities.length > 0 && (
-            <Separator className="my-0.5" />
-          )}
           <NavigationActivityMoreGroup
             activities={coreActivities}
             isActivityPinned={isActivityPinned}

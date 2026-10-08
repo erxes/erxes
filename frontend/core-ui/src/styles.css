@@ -314,71 +314,141 @@
   --level: 16px;
 }
 
-/* Main navigation accordion: the tree line runs behind the pills; a colored
-   indicator paints on the pill's left edge for hover/active rows */
-.nav-activity-accordion [data-sidebar='menu-item'],
-.nav-activity-accordion [data-sidebar='menu-sub-item'] {
-  position: relative;
+/* Second sidebar: top-level groups use 0.5rem padding on all sides; groups
+   nested inside a group (like sales board rows) keep their own padding */
+[data-navigation-context]
+  [data-sidebar='group']:not([data-sidebar='group'] [data-sidebar='group']) {
+  padding: 0.5rem;
+}
+/* Second sidebar: the first group starts flush with the title row, however deeply it is wrapped */
+[data-navigation-context] > [data-sidebar='group']:first-child,
+[data-navigation-context] > :first-child [data-sidebar='group']:first-child,
+[data-navigation-context]
+  > [data-sidebar='separator']:first-child
+  + *
+  [data-sidebar='group']:first-child,
+[data-navigation-context]
+  > [data-sidebar='separator']:first-child
+  + [data-sidebar='group'] {
+  padding-top: 0;
+}
+/* Navigation rail: every group title shares one height, including plugin overrides */
+.nav-rail [data-sidebar='group-label'] {
+  height: 2rem;
+}
+/* Main navigation scroll area: soft fade at the edges that can scroll */
+@property --nav-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --nav-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes nav-fade-top {
+  from {
+    --nav-fade-top: 0px;
+  }
+  to {
+    --nav-fade-top: 24px;
+  }
+}
+@keyframes nav-fade-bottom {
+  from {
+    --nav-fade-bottom: 24px;
+  }
+  to {
+    --nav-fade-bottom: 0px;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .nav-scroll-fade {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--nav-fade-top),
+      #000 calc(100% - var(--nav-fade-bottom)),
+      transparent
+    );
+    animation: nav-fade-top linear both, nav-fade-bottom linear both;
+    animation-timeline: scroll(self), scroll(self);
+    animation-range: 0 24px, calc(100% - 24px) 100%;
+  }
+}
+/* All sidebar menus: muted icons, sharper labels */
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ) {
+  transition: color 0.15s ease-out;
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  )
+  svg {
+  color: inherit;
+  transition: color 0.15s ease-out;
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary) {
+  color: color-mix(in oklab, var(--foreground) 85%, transparent);
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary)
+  svg {
+  color: var(--muted-foreground);
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary):hover,
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary):hover
+  svg {
+  color: var(--foreground);
+}
+/* Main navigation accordion: flat rounded items, soft tint when active */
+.nav-activity-accordion [data-sidebar='group'] {
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
 }
 .nav-activity-accordion [data-sidebar='menu-button'],
 .nav-activity-accordion [data-sidebar='menu-sub-button'] {
-  position: relative;
-  padding-left: 2.25rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
   transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
     color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* ::before = base tree-line segment, tucked behind the pill */
-.nav-activity-accordion [data-sidebar='menu-item']::before,
-.nav-activity-accordion [data-sidebar='menu-sub-item']::before {
-  content: '';
-  position: absolute;
-  left: 16px;
-  top: -2px;
-  bottom: -2px;
-  width: 2px;
-  border-radius: 9999px;
-  background-color: var(--border);
-}
-/* ::after = indicator painted over the pill's left edge */
-.nav-activity-accordion [data-sidebar='menu-item']::after,
-.nav-activity-accordion [data-sidebar='menu-sub-item']::after {
-  content: '';
-  position: absolute;
-  left: 16px;
-  top: 4px;
-  bottom: 4px;
-  width: 2px;
-  border-radius: 9999px;
-  background-color: transparent;
-  transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.nav-activity-accordion
-  [data-sidebar='menu-item']:not(:has(> [data-active='true'])):has(
-    > :hover
-  )::after,
-.nav-activity-accordion
-  [data-sidebar='menu-sub-item']:not(
-    :has(> [data-sidebar='menu-sub-button'][data-active='true'])
-  ):has(> [data-sidebar='menu-sub-button']:hover)::after {
-  background-color: color-mix(in oklab, var(--foreground) 30%, transparent);
-}
-.nav-activity-accordion
-  [data-sidebar='menu-item']:has(> [data-active='true'])::after,
-.nav-activity-accordion
-  [data-sidebar='menu-sub-item']:has(
-    > [data-sidebar='menu-sub-button'][data-active='true']
-  )::after {
-  background-color: var(--primary);
+.nav-activity-accordion [data-sidebar='menu-button']:hover,
+.nav-activity-accordion [data-sidebar='menu-sub-button']:hover {
+  background-color: color-mix(in oklab, var(--accent) 60%, transparent);
 }
 .nav-activity-accordion [data-sidebar='menu-button'][data-active='true'],
 .nav-activity-accordion [data-sidebar='menu-sub-button'][data-active='true'] {
-  background-color: var(--background);
+  background-color: color-mix(in oklab, var(--primary) 10%, transparent);
   color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--border);
+}
+.nav-activity-accordion
+  [data-sidebar='menu-item']:has([data-nav-actions])
+  [data-sidebar='menu-button'] {
+  padding-right: 3.75rem;
 }
 @media (prefers-reduced-motion: reduce) {
-  .nav-activity-accordion [data-sidebar='menu-item']::after,
-  .nav-activity-accordion [data-sidebar='menu-sub-item']::after,
   .nav-activity-accordion [data-sidebar='menu-button'],
   .nav-activity-accordion [data-sidebar='menu-sub-button'] {
     transition: none;

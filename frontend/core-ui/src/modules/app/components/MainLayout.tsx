@@ -5,14 +5,14 @@ import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { GlobalSearch } from '@/search/components/GlobalSearch';
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
 import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
-import { NavigationContextPanel } from '@/navigation/components/NavigationContextPanel';
+import { NavigationContextPanel } from '@/navigation/components/navigation-activity-rail/NavigationContextPanel';
 import {
   getSectionKey,
   PAGE_ENTER_KEYFRAMES,
   useEnterAnimation,
 } from '@/navigation/hooks/useEnterAnimation';
-import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
-import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
+import { VisitedPageTabs } from '@/navigation/components/visited-page-tabs/VisitedPageTabs';
+import { VisitedPageTabsOpenButton } from '@/navigation/components/visited-page-tabs/VisitedPageTabsOpenButton';
 import {
   navigationResizingState,
   navigationSidebarOpenState,

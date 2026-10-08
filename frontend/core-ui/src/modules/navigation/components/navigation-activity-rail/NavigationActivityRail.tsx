@@ -6,14 +6,15 @@ import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
 import { NavigationActivityButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityButton';
 import { NavigationActivityGroups } from '@/navigation/components/navigation-activity-rail/NavigationActivityGroups';
-import { NavigationActivityMore } from '@/navigation/components/NavigationActivityMore';
+import { NavigationActivityMore } from '@/navigation/components/navigation-activity-rail/NavigationActivityMore';
 import { NavigationActivitySearchButton } from '@/navigation/components/navigation-activity-rail/NavigationActivitySearchButton';
 import { NavigationFavoritesSection } from '@/navigation/components/navigation-activity-rail/NavigationFavoritesSection';
 import { NavigationInboxButton } from '@/navigation/components/navigation-activity-rail/NavigationInboxButton';
-import { NavigationRailLogo } from '@/navigation/components/NavigationRailLogo';
-import { NavigationResizeHandle } from '@/navigation/components/NavigationResizeHandle';
-import { NavigationSidebarFooter } from '@/navigation/components/NavigationSidebarFooter';
+import { NavigationRailLogo } from '@/navigation/components/navigation-activity-rail/NavigationRailLogo';
+import { NavigationResizeHandle } from '@/navigation/components/navigation-activity-rail/NavigationResizeHandle';
+import { NavigationSidebarFooter } from '@/navigation/components/footer/NavigationSidebarFooter';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
+import { TNavigationActivityMoveDirection } from '@/navigation/utils/navigationActivityOrder';
 import { navigationSidebarWidthState } from '@/navigation/states/navigationPanelState';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
 import { useSetAtom } from 'jotai';
@@ -27,6 +28,11 @@ type TNavigationActivityRailProps = Readonly<{
   isInboxActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
+  onActivityMove: (
+    activityId: string,
+    direction: TNavigationActivityMoveDirection,
+    scopeActivityIds: string[],
+  ) => void;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSearch: () => void;
   onSelectInbox: () => void;
@@ -45,6 +51,7 @@ const NavigationActivityRailMain = ({
   isInboxActive,
   isActivityPinned,
   isSettings,
+  onActivityMove,
   onActivityPinnedChange,
   onSearch,
   onSelectInbox,
@@ -61,14 +68,14 @@ const NavigationActivityRailMain = ({
   return (
     <>
       <div className="mb-1 flex shrink-0 flex-col gap-1">
+        <NavigationActivitySearchButton
+          expanded={expanded}
+          onSearch={onSearch}
+        />
         <NavigationInboxButton
           expanded={expanded}
           isInboxActive={isInboxActive}
           onSelectInbox={onSelectInbox}
-        />
-        <NavigationActivitySearchButton
-          expanded={expanded}
-          onSearch={onSearch}
         />
         {usePromotedRail &&
           promoted.map((activity) => (
@@ -96,6 +103,7 @@ const NavigationActivityRailMain = ({
           hoverEnabled={hoverEnabled}
           isActivityPinned={isActivityPinned}
           isSettings={isSettings}
+          onActivityMove={onActivityMove}
           onActivityPinnedChange={onActivityPinnedChange}
           onSelectActivity={onSelectActivity}
           onToggleActivity={onToggleActivity}
@@ -132,7 +140,7 @@ export const NavigationActivityRail = (props: TNavigationActivityRailProps) => {
     <aside
       ref={asideRef}
       className={cn(
-        'relative flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden border-none bg-sidebar px-2 py-2',
+        'nav-rail relative flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden border-none bg-sidebar px-2 py-2',
         !expanded && 'border-r!',
       )}
     >
@@ -140,6 +148,7 @@ export const NavigationActivityRail = (props: TNavigationActivityRailProps) => {
       <div
         className={cn(
           'min-h-0 flex-1 overflow-x-hidden overflow-y-auto',
+          !showSettings && 'nav-scroll-fade',
           !expanded && 'hide-scroll',
         )}
       >

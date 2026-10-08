@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -498,7 +498,7 @@ owns the setup form and connection actions.
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
-| Report navigation         | `src/modules/report/components/ReportSectionNavigation.tsx`, `src/modules/report/constants/reportSections.ts`                                     | Report board list in the context column (header tabs below 1024px), and the board paths/labels it shares with `ReportIndexPage`                 |
+| Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
 | Settings routes           | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
 | Channel picker            | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
 | Move to channel           | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
@@ -851,10 +851,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- The conversations filter bar header (`ConversationsHeader`) uses
+  `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
+  the sidebar tint.
 - Expandable navigation rows end in the host sidebar's chevron:
   `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
   open, never a filled caret, so the rotation stays on the compositor and
-  matches the main sidebar. Expandable group trigger buttons use `rounded-lg`
+  matches the main sidebar. Expandable group trigger buttons use `rounded`
   like `Sidebar.MenuButton`.
 - The Team Inbox unread `NotificationCount` badge in `FrontlineNavigation.tsx`
   stays the same compact size as the host's My inbox count
@@ -1661,25 +1664,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   and shows its skeleton, otherwise the card flashes unfiltered data before the
   saved filters land.
 - The report boards (overview, ticket, Facebook, call center) are picked from
-  `ReportSectionNavigation`, which `FrontlineSubGroups` returns for
-  `/frontline/reports*` so the host shows it in the context column beside the
-  main sidebar, and `ReportIndexPage` names the open board in its breadcrumb.
-  Below 1024px (`useIsMobile` from `erxes-ui`, the same check the host uses to
-  drop the context column) `ReportSectionNavigation` renders nothing and
-  `ReportIndexPage` shows the boards as header tabs instead, so exactly one of
-  the two is visible. Both read their paths, labels, icons and path matching
-  from `src/modules/report/constants/reportSections.ts` — add a board there,
-  not in either component. The Facebook board lives at
-  `/frontline/reports/facebook`. `ReportsView` also still renders it for
-  `?reportModule=facebook`; keep both, because the query-param path is what the
-  `REPORT_MODULES` entry uses. The KPI row reads the header's
-  `OVERVIEW_KPI_DATE_FILTER_ID` date atom, exactly like the conversation board,
-  so the header filter keeps driving it.
+  the `ToggleGroup` header tabs in `ReportIndexPage`; there is no context-
+  column navigation for `/frontline/reports*`. The boards' paths, labels,
+  icons and path matching live in
+  `src/modules/report/constants/reportSections.ts` — add a board there, not
+  in the page. The Facebook board lives at `/frontline/reports/facebook`.
+  `ReportsView` also still renders it for `?reportModule=facebook`; keep
+  both, because the query-param path is what the `REPORT_MODULES` entry uses.
+  The KPI row reads the header's `OVERVIEW_KPI_DATE_FILTER_ID` date atom,
+  exactly like the conversation board, so the header filter keeps driving it.
 - **`REPORT_MODULES` is not a visible menu.** `ChooseReportModule` renders it,
-  but its only consumer `ReportNavigations` is imported nowhere; the reports
-  sub-group is `ReportSectionNavigation`. Adding an entry to `REPORT_MODULES`
-  therefore ships no clickable surface — a new report board needs a
-  `ReportIndexPage` branch and a `reportSections.ts` entry as well.
+  but its only consumer `ReportNavigations` is imported nowhere; the report
+  boards are the `ReportIndexPage` header tabs. Adding an entry to
+  `REPORT_MODULES` therefore ships no clickable surface — a new report board
+  needs a `reportSections.ts` entry and a `reportContent` branch in
+  `ReportIndexPage`.
 - The posts card's "On Meta" column shows `—` until a sync has run, and the
   signed difference next to Meta's count is `meta − (comments + replies)` — a
   positive number means Meta has comments erxes never received, which is the

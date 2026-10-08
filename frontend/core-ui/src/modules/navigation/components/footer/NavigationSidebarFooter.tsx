@@ -1,16 +1,21 @@
-import { useAuth } from '@/auth/hooks/useAuth';
-import { SelectLanguages } from '@/navigation/components/SelectLanguages';
-import { ThemeSelector } from '@/navigation/components/ThemeSelector';
-import { User } from '@/navigation/components/User';
-import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
+import { Avatar, Button, DropdownMenu, Sidebar, cn, readImage } from 'erxes-ui';
+import {
+  IconChevronRight,
+  IconSelector,
+  IconSettings,
+} from '@tabler/icons-react';
+
 import { AppPath } from '@/types/paths/AppPath';
-import { SettingsPath } from '@/types/paths/SettingsPath';
-import { IconChevronRight, IconSettings } from '@tabler/icons-react';
-import { Avatar, Button, cn, DropdownMenu, readImage, Sidebar } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { NavigationRailLabel } from '@/navigation/components/navigation-activity-rail/NavigationRailLabel';
+import { SelectLanguages } from '@/navigation/components/footer/SelectLanguages';
+import { SettingsPath } from '@/types/paths/SettingsPath';
+import { ThemeSelector } from '@/navigation/components/footer/ThemeSelector';
+import { User } from '@/navigation/components/footer/User';
 import { currentUserState } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { useAuth } from '@/auth/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 export const NavigationSidebarFooter = ({
   expanded,
@@ -29,11 +34,11 @@ export const NavigationSidebarFooter = ({
   const collapsedInSettings = isSettings && !expanded;
 
   return (
-    <div className="mt-1 flex shrink-0 flex-col items-stretch gap-1 border-t pt-2 pb-2">
+    <div className="sticky bottom-0 mt-1 flex shrink-0 flex-col items-stretch gap-1 bg-sidebar pt-2">
       <Button
         asChild
         className={cn(
-          'h-7 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [&>svg]:size-4!',
+          'h-7 shrink-0 justify-start gap-2 rounded text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           collapsedInSettings && 'bg-foreground/5',
         )}
@@ -41,6 +46,7 @@ export const NavigationSidebarFooter = ({
         variant="ghost"
       >
         <Link
+          data-nav-row
           aria-label={organizationT('settings')}
           to={`/${AppPath.Settings}`}
           onClick={(event) => {
@@ -51,13 +57,10 @@ export const NavigationSidebarFooter = ({
           }}
         >
           <IconSettings
-            className={cn(
-              'size-4 text-accent-foreground',
-              collapsedInSettings && 'text-foreground',
-            )}
+            className={cn('size-4', collapsedInSettings && 'text-foreground')}
           />
           <NavigationRailLabel
-            className="truncate font-normal"
+            className="truncate font-medium"
             expanded={expanded}
           >
             {organizationT('settings')}
@@ -69,18 +72,18 @@ export const NavigationSidebarFooter = ({
           <Button
             aria-label={sidebarT('profile')}
             className={cn(
-              'h-10 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
-              expanded ? 'w-full px-1' : 'ml-0.5 w-7 gap-0 px-0.5',
+              'h-12 shrink-0 justify-start gap-2 rounded text-sm transition-[width,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+              expanded ? 'w-full px-2' : 'ml-0.5 w-8 gap-0 px-0',
             )}
             size="default"
             variant="ghost"
           >
-            <Avatar className="size-6">
+            <Avatar className="size-8 shrink-0 rounded-lg">
               <Avatar.Image
                 src={readImage(userDetails?.avatar || '')}
                 alt={userName}
               />
-              <Avatar.Fallback className="text-[10px]">
+              <Avatar.Fallback className="rounded-lg text-xs">
                 {userName.charAt(0)}
               </Avatar.Fallback>
             </Avatar>
@@ -89,15 +92,23 @@ export const NavigationSidebarFooter = ({
               expanded={expanded}
             >
               <span className="truncate font-medium">{userName}</span>
-              <span className="truncate text-[11px] text-muted-foreground">
+              <span className="truncate text-xs text-muted-foreground">
                 {currentUser?.email}
               </span>
             </NavigationRailLabel>
+            {expanded && (
+              <IconSelector className="ml-auto size-4 shrink-0 text-muted-foreground" />
+            )}
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
           align={expanded ? 'start' : 'end'}
-          className="w-48 min-w-48! space-y-1 p-1.5"
+          className={cn(
+            'space-y-1 p-1.5',
+            expanded
+              ? 'w-(--radix-dropdown-menu-trigger-width) min-w-56!'
+              : 'w-48 min-w-48!',
+          )}
           side={expanded ? 'top' : 'right'}
           sideOffset={8}
         >

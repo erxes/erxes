@@ -1,10 +1,11 @@
-import { OrgLogoIcon } from '@/auth/components/Logo';
+import { Button, Sidebar, cn } from 'erxes-ui';
+
 import { AppPath } from '@/types/paths/AppPath';
-import { Button, cn, Sidebar } from 'erxes-ui';
+import { Link } from 'react-router-dom';
+import { OrgLogoIcon } from '@/auth/components/Logo';
+import { currentOrganizationState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { currentOrganizationState } from 'ui-modules';
 
 export const NavigationRailLogo = ({ expanded }: { expanded: boolean }) => {
   const organization = useAtomValue(currentOrganizationState);
@@ -27,7 +28,7 @@ export const NavigationRailLogo = ({ expanded }: { expanded: boolean }) => {
           variant="ghost"
         >
           <Link aria-label={companyName} to={AppPath.Index}>
-            <span className="flex size-5 shrink-0 items-center justify-center [&>img]:size-5! [&>svg]:size-5!">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background shadow-xs [&>img]:size-5! [&>svg]:size-5!">
               <OrgLogoIcon className="text-primary" />
             </span>
             {expanded && <span className="truncate">{companyName}</span>}

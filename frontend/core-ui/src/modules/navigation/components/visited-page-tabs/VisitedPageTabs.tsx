@@ -1,7 +1,7 @@
 import { SortableVisitedPageTab } from '@/navigation/components/visited-page-tabs/SortableVisitedPageTab';
 import { VisitedPageTabsContent } from '@/navigation/components/visited-page-tabs/VisitedPageTabsContent';
 import { VisitedPageTabsNewButton } from '@/navigation/components/visited-page-tabs/VisitedPageTabsNewButton';
-import { VisitedPageTabsShortcutGuide } from '@/navigation/components/VisitedPageTabsShortcutGuide';
+import { VisitedPageTabsShortcutGuide } from '@/navigation/components/visited-page-tabs/VisitedPageTabsShortcutGuide';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePluginsModules } from '@/navigation/hooks/usePluginsModules';
 import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';

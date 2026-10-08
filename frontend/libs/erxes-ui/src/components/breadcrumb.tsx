@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-import { Slot } from 'radix-ui';
 import { IconDots } from '@tabler/icons-react';
-
-import { cn } from '../lib/utils';
 import { Separator } from './separator';
+import { Slot } from 'radix-ui';
+import { cn } from '../lib/utils';
 
 const BreadcrumbRoot = React.forwardRef<
   HTMLElement,
@@ -52,7 +51,10 @@ const BreadcrumbLink = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn('transition-colors hover:text-foreground', className)}
+      className={cn(
+        'text-muted-foreground transition-colors hover:text-foreground',
+        className,
+      )}
       {...props}
     />
   );
@@ -68,7 +70,7 @@ const BreadcrumbPage = React.forwardRef<
     role="link"
     aria-disabled="true"
     aria-current="page"
-    className={cn('font-normal text-foreground', className)}
+    className={cn('font-medium text-foreground', className)}
     {...props}
   />
 ));

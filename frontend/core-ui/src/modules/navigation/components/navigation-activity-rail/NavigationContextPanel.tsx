@@ -1,8 +1,8 @@
 import {
   NavigationPluginContextContent,
   NavigationPluginPanelContent,
-} from '@/navigation/components/NavigationPlugins';
-import { NavigationResizeHandle } from '@/navigation/components/NavigationResizeHandle';
+} from '@/navigation/components/navigation-activity-rail/NavigationPlugins';
+import { NavigationResizeHandle } from '@/navigation/components/navigation-activity-rail/NavigationResizeHandle';
 import {
   CONTEXT_ENTER_KEYFRAMES,
   getSectionKey,
@@ -18,6 +18,12 @@ import {
 } from '@/navigation/states/navigationPanelState';
 import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import {
+  getMatchingNavigationModule,
+  toTitleCase,
+} from '@/navigation/utils/visitedPageTabs';
+import { DocumentsContextNavigation } from '@/documents/components/DocumentsContextNavigation';
+import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
 import { SettingsContextNavigation } from '@/settings/components/SettingsContextNavigation';
 import { AppPath } from '@/types/paths/AppPath';
 import {
@@ -87,7 +93,7 @@ const NavigationContextPanelFrame = ({
             : { duration: 0.3, ease: NAVIGATION_EASE }
         }
         className={cn(
-          'relative flex shrink-0 flex-col overflow-hidden border-r bg-background has-[>[data-navigation-context]:empty]:hidden',
+          'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar has-[>[data-navigation-context]:empty]:hidden',
           !width && 'max-w-80',
           !open && 'border-r-0',
         )}
@@ -99,7 +105,7 @@ const NavigationContextPanelFrame = ({
               !open && 'opacity-0',
             )}
           >
-            <span className="block truncate px-2 text-base font-semibold">
+            <span className="block truncate px-2 text-sm font-medium">
               {title}
             </span>
           </div>
@@ -145,7 +151,7 @@ const NavigationContextPanelFrame = ({
       {!open && hasContent && (
         <div
           data-navigation-context-toggle
-          className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-background pt-1"
+          className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-sidebar pt-1"
         >
           <Button
             aria-expanded={false}
@@ -174,6 +180,9 @@ export const NavigationContextPanel = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const activity = findNavigationActivityByPath(activities, pathname);
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
+  const isSegments = !isSettings && pathname.startsWith(`/${AppPath.Segments}`);
+  const isDocuments =
+    !isSettings && pathname.startsWith(`/${AppPath.Documents}`);
   const pluginActivity =
     !isSettings && activity?.kind === 'plugin' ? activity : undefined;
   const navigationGroup = pluginActivity
@@ -185,19 +194,35 @@ export const NavigationContextPanel = () => {
       getPlacement(pluginActivity.id) === 'context',
   );
   const showSubGroups = Boolean(navigationGroup?.subGroups.length);
+  const activeModule = pluginActivity
+    ? getMatchingNavigationModule(pathname, pluginActivity.modules)
+    : undefined;
+  const pluginTitle = activeModule
+    ? toTitleCase(activeModule.name)
+    : pluginActivity?.label;
 
   useEnterAnimation(bodyRef, getSectionKey(pathname), CONTEXT_ENTER_KEYFRAMES);
 
-  if (!isSettings && !showModules && !showSubGroups) {
+  if (
+    !isSettings &&
+    !showModules &&
+    !showSubGroups &&
+    !isSegments &&
+    !isDocuments
+  ) {
     return null;
   }
 
   return (
     <NavigationContextPanelFrame
       bodyRef={bodyRef}
-      title={isSettings ? t('settings', 'Settings') : pluginActivity?.label}
+      title={
+        isSettings ? t('settings', 'Settings') : pluginTitle ?? activity?.label
+      }
     >
       {isSettings && <SettingsContextNavigation />}
+      {isSegments && <SegmentsContextNavigation />}
+      {isDocuments && <DocumentsContextNavigation />}
       {pluginActivity && showModules && (
         <NavigationPluginPanelContent activityId={pluginActivity.id} />
       )}

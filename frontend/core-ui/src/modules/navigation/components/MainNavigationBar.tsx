@@ -1,20 +1,22 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { startTransition, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
-import { NavigationItemCountProbe } from '@/navigation/components/NavigationPlugins';
+import { NavigationActivityRail } from '@/navigation/components/navigation-activity-rail/NavigationActivityRail';
+import { NavigationItemCountProbe } from '@/navigation/components/navigation-activity-rail/NavigationPlugins';
 import { activePluginState } from 'erxes-ui';
 import { expandedNavigationActivityState } from '@/navigation/states/navigationPanelState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
+import { useNavigationActivityOrder } from '@/navigation/hooks/useNavigationActivityOrder';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
 
 export const MainNavigationBar = () => {
-  const activities = useNavigationActivities();
+  const { orderedActivities: activities, moveActivity } =
+    useNavigationActivityOrder(useNavigationActivities());
   const { isActivityPinned, setActivityPinned, visibleActivities } =
     usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
@@ -84,7 +86,9 @@ export const MainNavigationBar = () => {
 
   const handleSelectActivity = (activity: INavigationActivity) => {
     setActiveActivityId(activity.id);
-    navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
+    startTransition(() => {
+      navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
+    });
   };
 
   const handleToggleActivity = (activity: INavigationActivity) => {
@@ -116,6 +120,7 @@ export const MainNavigationBar = () => {
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
         expandedActivityIds={expandedActivityIds}
+        onActivityMove={moveActivity}
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}

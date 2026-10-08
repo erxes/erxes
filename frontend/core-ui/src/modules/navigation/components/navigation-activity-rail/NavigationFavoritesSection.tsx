@@ -1,5 +1,5 @@
 import { NavigationActivitySection } from '@/navigation/components/navigation-activity-rail/NavigationActivitySection';
-import { SidebarNavigationFavorites } from '@/navigation/components/SidebarNavigationFavorites';
+import { SidebarNavigationFavorites } from '@/navigation/components/favorites/SidebarNavigationFavorites';
 import { useFavorites } from '@/navigation/hooks/useFavorites';
 import { useTranslation } from 'react-i18next';
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Slot } from 'radix-ui';
 
+import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const SidebarGroup = React.forwardRef<
@@ -32,8 +32,8 @@ export const SidebarGroupLabel = React.forwardRef<
       ref={ref}
       data-sidebar="group-label"
       className={cn(
-        'flex h-6 shrink-0 items-center rounded-lg px-2 text-xs font-semibold text-accent-foreground  outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
-        'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 data-[state=open]:hover:bg-accent data-[state=closed]:hover:bg-accent  uppercase font-mono',
+        'flex h-6 shrink-0 items-center rounded-lg px-2 font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 data-[state=open]:hover:bg-accent data-[state=closed]:hover:bg-accent',
         className,
       )}
       {...props}

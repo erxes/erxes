@@ -1,4 +1,4 @@
-import { NavigationDisclosure } from '@/navigation/components/NavigationDisclosure';
+import { NavigationDisclosure } from '@/navigation/components/navigation-activity-rail/NavigationDisclosure';
 import { render } from '@testing-library/react';
 
 jest.mock('erxes-ui', () => ({

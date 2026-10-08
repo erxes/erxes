@@ -1,7 +1,8 @@
+import { Link, useLocation } from 'react-router-dom';
+import { Sidebar, useNavigationMenuItemControls } from 'erxes-ui';
+
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { findActiveNavigationPath } from '@/navigation/utils/navigationPathMatch';
-import { cn, Sidebar } from 'erxes-ui';
-import { Link, useLocation } from 'react-router-dom';
 
 export const NavigationCorePanelContent = ({
   activity,
@@ -9,6 +10,7 @@ export const NavigationCorePanelContent = ({
   activity: INavigationActivity;
 }) => {
   const location = useLocation();
+  const controls = useNavigationMenuItemControls();
   const modules = activity.modules.flatMap((module) =>
     module.submenus?.length ? module.submenus : [module],
   );
@@ -24,28 +26,32 @@ export const NavigationCorePanelContent = ({
           {modules.map((module) => {
             const isActive = module.path === activePath;
             const Icon = module.icon;
+            const fullPath = `/${module.path.replace(/^\/+/, '')}`;
+            const order = controls?.getOrder(fullPath);
 
             return (
-              <Sidebar.MenuItem key={module.path}>
+              <Sidebar.MenuItem
+                key={module.path}
+                data-nav-path={controls ? fullPath : undefined}
+                style={order === undefined ? undefined : { order }}
+              >
                 <Sidebar.MenuButton
                   asChild
-                  className="h-7 px-2 text-[13px]"
+                  className="px-2"
                   isActive={isActive}
                 >
-                  <Link to={`/${module.path.replace(/^\/+/, '')}`}>
-                    {Icon && (
-                      <Icon
-                        className={cn(
-                          'text-accent-foreground',
-                          isActive && 'text-primary',
-                        )}
-                      />
-                    )}
+                  <Link to={fullPath}>
+                    {Icon && <Icon />}
                     <span className="min-w-0 flex-1 truncate capitalize">
                       {module.name}
                     </span>
                   </Link>
                 </Sidebar.MenuButton>
+                {controls?.renderActions({
+                  name: module.name,
+                  path: fullPath,
+                  icon: Icon,
+                })}
               </Sidebar.MenuItem>
             );
           })}

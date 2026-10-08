@@ -6,6 +6,7 @@ import { NavigationActivityButton } from '@/navigation/components/navigation-act
 import { NavigationActivityHover } from '@/navigation/components/navigation-activity-rail/NavigationActivityHover';
 import { NavigationActivitySection } from '@/navigation/components/navigation-activity-rail/NavigationActivitySection';
 import { Sidebar } from 'erxes-ui';
+import { TNavigationActivityMoveDirection } from '@/navigation/utils/navigationActivityOrder';
 import { useNavigationPlacement } from '@/navigation/hooks/useNavigationPlacement';
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ export const NavigationActivityGroups = ({
   hoverEnabled,
   isActivityPinned,
   isSettings,
+  onActivityMove,
   onActivityPinnedChange,
   onSelectActivity,
   onToggleActivity,
@@ -29,6 +31,11 @@ export const NavigationActivityGroups = ({
   hoverEnabled: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
+  onActivityMove: (
+    activityId: string,
+    direction: TNavigationActivityMoveDirection,
+    scopeActivityIds: string[],
+  ) => void;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSelectActivity: (activity: INavigationActivity) => void;
   onToggleActivity: (activity: INavigationActivity) => void;
@@ -73,6 +80,14 @@ export const NavigationActivityGroups = ({
     const handlePinnedChange = (nextPinned: boolean) =>
       onActivityPinnedChange(activity.id, nextPinned);
     const handleSelect = () => onSelectActivity(activity);
+    const scope =
+      activity.kind === 'plugin' ? pluginActivities : coreActivities;
+    const scopeIds = scope.map((item) => item.id);
+    const scopeIndex = scopeIds.indexOf(activity.id);
+    const canMoveUp = scopeIndex > 0;
+    const canMoveDown = scopeIndex < scopeIds.length - 1;
+    const handleMove = (direction: TNavigationActivityMoveDirection) =>
+      onActivityMove(activity.id, direction, scopeIds);
 
     if (expanded && hasInlineModules(activity)) {
       return (
@@ -80,8 +95,11 @@ export const NavigationActivityGroups = ({
           key={activity.id}
           activity={activity}
           active={active}
+          canMoveDown={canMoveDown}
+          canMoveUp={canMoveUp}
           open={expandedActivityIds.includes(activity.id)}
           pinned={pinned}
+          onMove={handleMove}
           onPinnedChange={handlePinnedChange}
           onToggle={() => onToggleActivity(activity)}
         />
@@ -94,8 +112,11 @@ export const NavigationActivityGroups = ({
           key={activity.id}
           activity={activity}
           active={active}
+          canMoveDown={canMoveDown}
+          canMoveUp={canMoveUp}
           expanded={expanded}
           pinned={pinned}
+          onMove={handleMove}
           onPinnedChange={handlePinnedChange}
           onSelect={handleSelect}
         />

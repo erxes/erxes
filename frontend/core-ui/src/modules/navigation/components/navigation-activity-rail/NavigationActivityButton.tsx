@@ -2,33 +2,40 @@ import { Button, cn } from 'erxes-ui';
 import { IconApps, IconChevronRight } from '@tabler/icons-react';
 
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
-import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
+import { NavigationActivityActions } from '@/navigation/components/navigation-activity-rail/NavigationActivityActions';
+import { NavigationRailLabel } from '@/navigation/components/navigation-activity-rail/NavigationRailLabel';
 import type { ReactNode } from 'react';
+import { TNavigationActivityMoveDirection } from '@/navigation/utils/navigationActivityOrder';
 
 export const NavigationActivityButton = ({
   activity,
   active,
+  canMoveDown = false,
+  canMoveUp = false,
   expanded,
   indicator,
   open,
   pinned,
+  onMove,
   onPinnedChange,
   onSelect,
 }: Readonly<{
   activity: INavigationActivity;
   active: boolean;
+  canMoveDown?: boolean;
+  canMoveUp?: boolean;
   expanded: boolean;
   indicator?: ReactNode;
   open?: boolean;
   pinned?: boolean;
+  onMove?: (direction: TNavigationActivityMoveDirection) => void;
   onPinnedChange?: (pinned: boolean) => void;
   onSelect: () => void;
 }>) => {
   const Icon = activity.icon || IconApps;
   const expandable = open !== undefined;
   const showPinButton = Boolean(
-    expanded && onPinnedChange && pinned !== undefined,
+    expanded && onPinnedChange && onMove && pinned !== undefined,
   );
 
   return (
@@ -36,14 +43,14 @@ export const NavigationActivityButton = ({
       <Button
         aria-expanded={expandable ? open : undefined}
         aria-label={activity.label}
+        data-nav-row
         className={cn(
-          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded-lg text-sm transition-[width,margin,padding,color,background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] motion-reduce:active:scale-100 [&>svg]:size-4!',
+          'relative h-7 min-w-0 shrink-0 justify-start gap-2 rounded text-sm transition-[width,margin,padding,color,background-color] duration-200 ease-out motion-reduce:transition-none [&>svg]:size-4!',
           expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
-          showPinButton && !expandable && 'pr-8',
           active && expandable && 'text-primary hover:text-primary',
           active &&
             !expandable &&
-            'bg-background text-primary shadow-[inset_0_0_0_1px_var(--border)] hover:bg-background hover:text-primary',
+            'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary',
         )}
         onClick={onSelect}
         size="default"
@@ -51,7 +58,7 @@ export const NavigationActivityButton = ({
       >
         <Icon
           className={cn(
-            'size-4 text-accent-foreground transition-transform group-active/activity:scale-90',
+            'size-4 text-current',
             active &&
               'animate-icon-pop text-primary motion-reduce:animate-none',
           )}
@@ -59,10 +66,8 @@ export const NavigationActivityButton = ({
         <NavigationRailLabel
           className={cn(
             'truncate text-left',
-            active ? 'font-medium' : 'font-normal',
-            showPinButton &&
-              expandable &&
-              'group-focus-within/activity:mr-6 group-hover/activity:mr-6',
+            'font-medium',
+            showPinButton && 'mr-12',
           )}
           expanded={expanded}
         >
@@ -81,14 +86,14 @@ export const NavigationActivityButton = ({
           </span>
         )}
       </Button>
-      {expanded && onPinnedChange && pinned !== undefined && (
-        <NavigationActivityPinButton
-          activity={activity}
-          className={cn(
-            'absolute top-0 opacity-0 group-focus-within/activity:opacity-100 group-hover/activity:opacity-100',
-            expandable ? 'right-6' : 'right-0',
-          )}
+      {showPinButton && onPinnedChange && onMove && pinned !== undefined && (
+        <NavigationActivityActions
+          canMoveDown={canMoveDown}
+          canMoveUp={canMoveUp}
+          className={expandable ? 'right-6' : 'right-1'}
+          path={`/${activity.defaultPath.replace(/^\/+/, '')}`}
           pinned={pinned}
+          onMove={onMove}
           onPinnedChange={onPinnedChange}
         />
       )}

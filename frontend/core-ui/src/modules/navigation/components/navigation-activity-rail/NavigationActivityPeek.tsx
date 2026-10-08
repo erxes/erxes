@@ -1,6 +1,6 @@
-import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
-import { NavigationCorePanelContent } from '@/navigation/components/NavigationCoreModules';
-import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
+import { NavigationActivityPinButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityPinButton';
+import { NavigationCorePanelContent } from '@/navigation/components/navigation-activity-rail/NavigationCoreModules';
+import { NavigationPluginPanelContent } from '@/navigation/components/navigation-activity-rail/NavigationPlugins';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { HoverCard, ScrollArea } from 'erxes-ui';
 

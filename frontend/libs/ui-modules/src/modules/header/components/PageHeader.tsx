@@ -1,6 +1,7 @@
-import { cn, Separator } from 'erxes-ui';
-import React from 'react';
+import { Separator, cn } from 'erxes-ui';
+
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
+import React from 'react';
 
 export const PageHeaderRoot = React.forwardRef<
   HTMLDivElement,
@@ -14,7 +15,7 @@ export const PageHeaderRoot = React.forwardRef<
     <div ref={ref} {...props}>
       <header
         className={cn(
-          'flex items-center justify-between h-13 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll',
+          'flex items-center justify-between h-12 px-3 box-border shrink-0 bg-background overflow-auto styled-scroll',
           className,
           'pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]',
         )}

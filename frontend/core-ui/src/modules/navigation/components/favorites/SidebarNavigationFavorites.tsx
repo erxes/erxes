@@ -1,6 +1,36 @@
-import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
-import { cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
-import { useFavorites } from '../hooks/useFavorites';
+import { Button, cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+
+import { IconStarFilled } from '@tabler/icons-react';
+import { NavigationRailLabel } from '@/navigation/components/navigation-activity-rail/NavigationRailLabel';
+import { useFavorites } from '@/navigation/hooks/useFavorites';
+import { useNavigationFavorite } from '@/navigation/hooks/useNavigationFavorite';
+import { useTranslation } from 'react-i18next';
+
+const FavoriteRemoveButton = ({
+  breadcrumb,
+  path,
+}: Readonly<{ breadcrumb: string[]; path: string }>) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { toggleFavorite } = useNavigationFavorite({ breadcrumb, path });
+
+  return (
+    <Button
+      aria-label={t('remove-from-favorites', 'Remove from favorites')}
+      className="absolute right-1 top-0.5 size-6 text-yellow-500 hover:bg-yellow-500/10 hover:text-yellow-500"
+      data-sidebar="menu-action"
+      size="icon"
+      type="button"
+      variant="ghost"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleFavorite();
+      }}
+    >
+      <IconStarFilled className="size-3.5" />
+    </Button>
+  );
+};
 
 export function SidebarNavigationFavorites({
   expanded,
@@ -46,6 +76,11 @@ export function SidebarNavigationFavoritesItem({
 
   return (
     <NavigationMenuLinkItem
+      action={
+        expanded ? (
+          <FavoriteRemoveButton breadcrumb={breadcrumb} path={path} />
+        ) : undefined
+      }
       name={name}
       icon={Icon}
       itemClassName={cn(

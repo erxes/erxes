@@ -13,10 +13,10 @@ export const NavigationActivitySection = ({
 }>) => {
   return (
     <section className="w-full shrink-0">
-      <div className="relative h-6 w-full shrink-0">
+      <div className="relative h-8 w-full shrink-0">
         <div
           className={cn(
-            'absolute inset-0 flex w-full items-center gap-2 overflow-hidden whitespace-nowrap px-2 text-left font-sans text-[11px] font-normal uppercase tracking-wider text-muted-foreground transition-opacity duration-100 ease-linear motion-reduce:transition-none',
+            'absolute inset-0 flex w-full items-center gap-2 overflow-hidden whitespace-nowrap px-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground transition-opacity duration-100 ease-linear motion-reduce:transition-none',
             expanded
               ? 'delay-100 opacity-100'
               : 'pointer-events-none delay-0 opacity-0',
@@ -36,7 +36,7 @@ export const NavigationActivitySection = ({
           <Separator className="w-8" />
         </div>
       </div>
-      <div className="flex flex-col gap-1 pt-1">{children}</div>
+      <div className="flex flex-col gap-1">{children}</div>
     </section>
   );
 };
