@@ -319,11 +319,11 @@
 .nav-activity-accordion [data-sidebar='menu-item'],
 .nav-activity-accordion [data-sidebar='menu-sub-item'] {
   position: relative;
-  padding-left: 5px;
 }
 .nav-activity-accordion [data-sidebar='menu-button'],
 .nav-activity-accordion [data-sidebar='menu-sub-button'] {
   position: relative;
+  padding-left: 2.25rem;
   transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
     color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -332,7 +332,7 @@
 .nav-activity-accordion [data-sidebar='menu-sub-item']::before {
   content: '';
   position: absolute;
-  left: 3px;
+  left: 16px;
   top: -2px;
   bottom: -2px;
   width: 2px;
@@ -344,9 +344,9 @@
 .nav-activity-accordion [data-sidebar='menu-sub-item']::after {
   content: '';
   position: absolute;
-  left: 3px;
-  top: -2px;
-  bottom: -2px;
+  left: 16px;
+  top: 4px;
+  bottom: 4px;
   width: 2px;
   border-radius: 9999px;
   background-color: transparent;
@@ -360,7 +360,7 @@
   [data-sidebar='menu-sub-item']:not(
     :has(> [data-sidebar='menu-sub-button'][data-active='true'])
   ):has(> [data-sidebar='menu-sub-button']:hover)::after {
-  background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  background-color: color-mix(in oklab, var(--foreground) 30%, transparent);
 }
 .nav-activity-accordion
   [data-sidebar='menu-item']:has(> [data-active='true'])::after,

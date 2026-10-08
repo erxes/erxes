@@ -40,7 +40,7 @@ export const NavigationActivityAccordion = ({
       <NavigationDisclosure open={open}>
         <div
           className={cn(
-            'nav-activity-accordion relative ml-3.5 **:data-[sidebar=group]:px-0',
+            'nav-activity-accordion relative **:data-[sidebar=group]:px-0',
             '[&_[data-sidebar=menu-button]>svg:first-child]:hidden [&_[data-sidebar=menu-sub-button]>svg:first-child]:hidden',
             '[&_[data-sidebar=menu-button]]:font-normal [&_[data-sidebar=menu-sub-button]]:font-normal [&_[data-sidebar=menu-button][data-active=true]]:font-medium [&_[data-sidebar=menu-sub-button][data-active=true]]:font-medium',
             '[&_[data-sidebar=menu-button]:not([data-active=true]):not(:hover)]:text-muted-foreground',
