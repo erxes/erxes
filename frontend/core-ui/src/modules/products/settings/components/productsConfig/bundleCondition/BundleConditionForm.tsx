@@ -62,7 +62,7 @@ export const BundleConditionForm = ({
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -77,7 +77,7 @@ export const BundleConditionForm = ({
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
+            title: t('success'),
             description: t('bundle-condition-added'),
           });
           form.reset();
@@ -85,7 +85,7 @@ export const BundleConditionForm = ({
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });

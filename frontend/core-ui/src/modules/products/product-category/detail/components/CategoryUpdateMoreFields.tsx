@@ -13,18 +13,19 @@ import {
   useFields,
 } from 'ui-modules';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 
 export const ACCOUNT_CATEGORY_MASK_TYPES = [
-  { label: 'Any', value: 'any' },
-  { label: 'Soft', value: 'soft' },
-  { label: 'Hard', value: 'hard' },
-  { label: 'All', value: 'all' },
+  { labelKey: 'mask-any', value: 'any' },
+  { labelKey: 'mask-soft', value: 'soft' },
+  { labelKey: 'mask-hard', value: 'hard' },
+  { labelKey: 'mask-all', value: 'all' },
 ];
 
 export const PRODUCT_CATEGORIES_STATUS = [
-  { label: 'Active', value: 'active' },
-  { label: 'Disabled', value: 'disabled' },
-  { label: 'Archived', value: 'archived' },
+  { labelKey: 'status-active', value: 'active' },
+  { labelKey: 'status-disabled', value: 'disabled' },
+  { labelKey: 'status-archived', value: 'archived' },
 ];
 
 export const CategoryUpdateMoreFields = ({
@@ -38,6 +39,9 @@ export const CategoryUpdateMoreFields = ({
   attachment?: ProductAttachmentItem | null;
   onAttachmentChange?: (attachment: ProductAttachmentItem | null) => void;
 }) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const isSimilarityChecked = form.watch('isSimilarity');
   const similarities = form.watch('similarities') || [];
   const { fieldGroups } = useFieldGroups({ contentType: 'core:product' });
@@ -104,7 +108,7 @@ export const CategoryUpdateMoreFields = ({
     <>
       <div className="flex items-center my-4">
         <div className="flex-1 border-t" />
-        <Form.Label className="mx-2">More Info</Form.Label>
+        <Form.Label className="mx-2">{t('more-info')}</Form.Label>
         <div className="flex-1 border-t" />
       </div>
       <Form.Field
@@ -112,7 +116,7 @@ export const CategoryUpdateMoreFields = ({
         name="meta"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>META</Form.Label>
+            <Form.Label>{t('label-meta')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -126,7 +130,7 @@ export const CategoryUpdateMoreFields = ({
         name="scopeBrandIds"
         render={({ field }) => (
           <Form.Item className="flex flex-col mb-5">
-            <Form.Label>BRAND</Form.Label>
+            <Form.Label>{t('label-brand')}</Form.Label>
             <Form.Control>
               <SelectBrand
                 value={field.value || []}
@@ -144,7 +148,7 @@ export const CategoryUpdateMoreFields = ({
         name="description"
         render={({ field }) => (
           <Form.Item className="mb-5">
-            <Form.Label>DESCRIPTION</Form.Label>
+            <Form.Label>{t('label-description')}</Form.Label>
             <Form.Control>
               <Editor
                 key={categoryDetail?._id || 'category-description'}
@@ -172,7 +176,7 @@ export const CategoryUpdateMoreFields = ({
                 />
 
                 <Label htmlFor="isSimilarity" className="cursor-pointer">
-                  Has similarities group
+                  {t('has-similarities-group')}
                 </Label>
               </div>
             </Form.Control>
@@ -186,18 +190,18 @@ export const CategoryUpdateMoreFields = ({
           {similarities.map((item: any) => (
             <div key={item.id} className="space-y-2">
               <div className="space-y-2">
-                <Label>Title</Label>
+                <Label>{t('title')}</Label>
                 <Input
                   value={item.title || ''}
                   onChange={(e) =>
                     updateSimilarityRow(item.id, 'title', e.target.value)
                   }
-                  placeholder="Enter title"
+                  placeholder={t('enter-title')}
                 />
               </div>
               <div className="flex gap-3">
                 <div className="flex-1 space-y-2">
-                  <Label>Field group</Label>
+                  <Label>{t('field-group')}</Label>
                   <Select
                     value={item.groupId || ''}
                     onValueChange={(val) =>
@@ -206,7 +210,7 @@ export const CategoryUpdateMoreFields = ({
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value placeholder="Field group" />
+                        <Select.Value placeholder={t('field-group')} />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -220,7 +224,7 @@ export const CategoryUpdateMoreFields = ({
                 </div>
 
                 <div className="flex-1 space-y-2">
-                  <Label>Field</Label>
+                  <Label>{t('field')}</Label>
                   <Select
                     value={item.fieldId || ''}
                     onValueChange={(val) =>
@@ -230,7 +234,7 @@ export const CategoryUpdateMoreFields = ({
                   >
                     <Form.Control>
                       <Select.Trigger>
-                        <Select.Value placeholder="Field" />
+                        <Select.Value placeholder={t('field')} />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -258,7 +262,7 @@ export const CategoryUpdateMoreFields = ({
         name="attachment"
         render={() => (
           <Form.Item className="mb-5">
-            <Form.Label>UPLOAD</Form.Label>
+            <Form.Label>{t('label-upload')}</Form.Label>
             <Form.Control>
               <ProductPrimaryImageUpload
                 value={attachment}
@@ -274,23 +278,21 @@ export const CategoryUpdateMoreFields = ({
         name="status"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>State</Form.Label>
+            <Form.Label>{t('state')}</Form.Label>
             <Select onValueChange={field.onChange} value={field.value}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose type">
-                    {
-                      PRODUCT_CATEGORIES_STATUS.find(
-                        (type) => type.value === field.value,
-                      )?.label
-                    }
+                  <Select.Value placeholder={t('choose-type')}>
+                    {PRODUCT_CATEGORIES_STATUS.filter(
+                      (type) => type.value === field.value,
+                    ).map((type) => t(type.labelKey))}
                   </Select.Value>
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
                 {PRODUCT_CATEGORIES_STATUS.map((type) => (
                   <Select.Item key={type.value} value={type.value}>
-                    {type.label}
+                    {t(type.labelKey)}
                   </Select.Item>
                 ))}
               </Select.Content>

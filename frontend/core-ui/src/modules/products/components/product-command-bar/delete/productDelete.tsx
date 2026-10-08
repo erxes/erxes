@@ -20,18 +20,22 @@ const ProductsDeleteButton = ({
   muted?: boolean;
   trailing?: ReactNode;
   onClick?: () => void;
-}) => (
-  <Button
-    variant="secondary"
-    className={muted ? 'text-muted-foreground' : 'text-destructive'}
-    onClick={onClick}
-    disabled={disabled}
-  >
-    <IconTrash />
-    Delete
-    {trailing}
-  </Button>
-);
+}) => {
+  const { t } = useTranslation('product');
+
+  return (
+    <Button
+      variant="secondary"
+      className={muted ? 'text-muted-foreground' : 'text-destructive'}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <IconTrash />
+      {t('delete')}
+      {trailing}
+    </Button>
+  );
+};
 
 export const ProductsDelete = ({
   productIds,
@@ -61,9 +65,7 @@ export const ProductsDelete = ({
 
     try {
       await confirm({
-        message: `Are you sure you want to delete the ${
-          productIds.length
-        } selected product${productIds.length === 1 ? '' : 's'}?`,
+        message: t('confirm-delete-selected', { count: productIds.length }),
         options: confirmOptions,
       });
 
@@ -71,13 +73,13 @@ export const ProductsDelete = ({
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Products deleted successfully',
+            title: t('products-deleted'),
             variant: 'success',
           });
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -94,6 +96,7 @@ export const ProductsDelete = ({
     removeProducts,
     toast,
     table,
+    t,
   ]);
 
   if (children) {

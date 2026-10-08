@@ -16,21 +16,21 @@ import { useUomsEdit } from '../../hooks/useUomsEdit';
 import { useTranslation } from 'react-i18next';
 
 const TIMELY_OPTIONS = [
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
+  { labelKey: 'period-weekly', value: 'weekly' },
+  { labelKey: 'period-monthly', value: 'monthly' },
 ];
 
 const TIMELY_PERIODS = [
-  { label: 'Daily', value: 'daily' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Seasonally', value: 'seasonally' },
+  { labelKey: 'period-daily', value: 'daily' },
+  { labelKey: 'period-weekly', value: 'weekly' },
+  { labelKey: 'period-monthly', value: 'monthly' },
+  { labelKey: 'period-seasonally', value: 'seasonally' },
 ];
 
 const SUBSCRIPTION_RULES = [
-  { label: 'Start From Paid Date', value: 'startPaidDate' },
-  { label: 'Start from Expired Date', value: 'startExpiredDate' },
-  { label: 'Start from Specific Date', value: 'startSpecificDate' },
+  { labelKey: 'rule-start-paid-date', value: 'startPaidDate' },
+  { labelKey: 'rule-start-expired-date', value: 'startExpiredDate' },
+  { labelKey: 'rule-start-specific-date', value: 'startSpecificDate' },
 ];
 
 const uomFormSchema = z
@@ -167,7 +167,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -182,7 +182,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -294,9 +294,9 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                                   defaultValue: 'Choose period',
                                 })}
                               >
-                                {TIMELY_OPTIONS.find(
+                                {TIMELY_OPTIONS.filter(
                                   (option) => option.value === field.value,
-                                )?.label || ''}
+                                ).map((option) => t(option.labelKey))}
                               </Select.Value>
                             </Select.Trigger>
                           </Form.Control>
@@ -306,7 +306,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                                 key={option.value}
                                 value={option.value}
                               >
-                                {option.label}
+                                {t(option.labelKey)}
                               </Select.Item>
                             ))}
                           </Select.Content>
@@ -346,7 +346,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                                     key={rule.value}
                                     value={rule.value}
                                   >
-                                    {rule.label}
+                                    {t(rule.labelKey)}
                                   </Select.Item>
                                 ))}
                               </Select.Content>
@@ -529,9 +529,9 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                                 defaultValue: 'Choose period',
                               })}
                             >
-                              {TIMELY_PERIODS.find(
+                              {TIMELY_PERIODS.filter(
                                 (option) => option.value === field.value,
-                              )?.label || ''}
+                              ).map((option) => t(option.labelKey))}
                             </Select.Value>
                           </Select.Trigger>
                         </Form.Control>
@@ -541,7 +541,7 @@ export const UomForm = ({ uom, onOpenChange }: IUomFormProps) => {
                               key={option.value}
                               value={option.value}
                             >
-                              {option.label}
+                              {t(option.labelKey)}
                             </Select.Item>
                           ))}
                         </Select.Content>

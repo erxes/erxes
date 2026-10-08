@@ -1,13 +1,15 @@
 import { Filter, DropdownMenu, Select, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const options = [
-  { label: 'Product', value: 'product' },
-  { label: 'Service', value: 'service' },
-  { label: 'Subscription', value: 'subscription' },
-  { label: 'Unique', value: 'unique' },
+  { labelKey: 'product', value: 'product' },
+  { labelKey: 'type-service', value: 'service' },
+  { labelKey: 'type-subscription', value: 'subscription' },
+  { labelKey: 'type-unique', value: 'unique' },
 ];
 
 export const ProductTypeFilterDropdown = ({ onOpenChange }: any) => {
+  const { t } = useTranslation('product');
   const [filter, setFilter] = useQueryState<string>('type');
 
   return (
@@ -22,7 +24,7 @@ export const ProductTypeFilterDropdown = ({ onOpenChange }: any) => {
               onOpenChange(false);
             }}
           >
-            {option.label}
+            {t(option.labelKey)}
           </DropdownMenu.RadioItem>
         ))}
       </DropdownMenu.RadioGroup>
@@ -31,16 +33,17 @@ export const ProductTypeFilterDropdown = ({ onOpenChange }: any) => {
 };
 
 export const ProductTypeFilterBar = () => {
+  const { t } = useTranslation('product');
   const [filter, setFilter] = useQueryState<string>('type');
 
   return (
     <Select value={filter || ''} onValueChange={setFilter}>
       <Filter.BarButton>
-        <Select.Value placeholder="Select type" />
+        <Select.Value placeholder={t('select-type')} />
       </Filter.BarButton>
       <Select.Content>
         {options.map((option) => (
-          <Select.Item value={option.value}>{option.label}</Select.Item>
+          <Select.Item value={option.value}>{t(option.labelKey)}</Select.Item>
         ))}
       </Select.Content>
     </Select>

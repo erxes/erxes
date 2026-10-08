@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   Combobox,
@@ -21,6 +22,7 @@ export const BundleRuleMoreColumn = (
   const bundleRule = props.row.original;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm } = useConfirm();
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-rules' });
   const { toast } = useToast();
   const { removeBundleRules, loading } = useBundleRulesRemove();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -31,14 +33,14 @@ export const BundleRuleMoreColumn = (
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${bundleRule.name}"?`,
+      message: t('confirm-delete', { name: bundleRule.name }),
       options: confirmOptions,
     }).then(() => {
       removeBundleRules({
         variables: { _ids: [bundleRule._id] },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -60,7 +62,7 @@ export const BundleRuleMoreColumn = (
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <Command.Item
                 value="delete"
@@ -68,7 +70,7 @@ export const BundleRuleMoreColumn = (
                 disabled={loading}
               >
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

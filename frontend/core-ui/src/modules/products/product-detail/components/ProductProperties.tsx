@@ -4,6 +4,7 @@ import { Collapsible } from 'erxes-ui';
 import { TagsManager } from './tagsManager';
 import { useParams } from 'react-router-dom';
 import { useProductDetail } from '../hooks/useProductDetail';
+import { useTranslation } from 'react-i18next';
 
 export function ProductProperties() {
   return (
@@ -60,6 +61,9 @@ function HotelSection() {
 }
 
 function TagsSection() {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'detail',
+  });
   const [isOpen, setIsOpen] = useState(true);
   const params = useParams();
   const productId = params?.id as string;
@@ -84,7 +88,7 @@ function TagsSection() {
             strokeLinejoin="round"
           />
         </motion.svg>
-        <span className="text-gray-600 font-medium">Tags</span>
+        <span className="text-gray-600 font-medium">{t('tags')}</span>
       </Collapsible.Trigger>
       <AnimatePresence initial={false}>
         {isOpen && (

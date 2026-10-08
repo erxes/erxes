@@ -7,10 +7,14 @@ import { renderingCategoryDetailAtom } from '@/products/product-category/states/
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CategoryMoreColumnCell = (
   props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>,
 ) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingCategoryDetail = useSetAtom(renderingCategoryDetailAtom);
   const { _id } = props.row.original;
@@ -38,7 +42,7 @@ export const CategoryMoreColumnCell = (
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit className="w-4 h-4" />
-              Edit
+              {t('edit')}
             </Command.Item>
             <CategoriesDelete categories={[props.row.original]}>
               {({ onClick, disabled }) => (
@@ -48,7 +52,7 @@ export const CategoryMoreColumnCell = (
                   disabled={disabled}
                 >
                   <IconTrash className="w-4 h-4" />
-                  Delete
+                  {t('delete')}
                 </Command.Item>
               )}
             </CategoriesDelete>

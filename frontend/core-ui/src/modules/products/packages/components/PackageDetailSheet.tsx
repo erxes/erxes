@@ -26,7 +26,7 @@ import {
 import { usePackageDetail } from '../hooks/usePackageDetail';
 import { useChangePackageStatus, useEditPackage } from '../hooks/usePackageMutations';
 import { usePricing } from '../hooks/usePricing';
-import { IPackage, IPackageProduct, PACKAGE_STATUSES } from '../types/Package';
+import { IPackage, IPackageProduct, PACKAGE_STATUS_OPTIONS } from '../types/Package';
 import { PackageProductPicker } from './PackageProductPicker';
 
 const Label = ({ children }: { children: React.ReactNode }) => (
@@ -191,9 +191,9 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                         <Select.Value />
                       </Select.Trigger>
                       <Select.Content>
-                        {PACKAGE_STATUSES.map((s) => (
-                          <Select.Item key={s} value={s}>
-                            {s}
+                        {PACKAGE_STATUS_OPTIONS.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {t(option.labelKey)}
                           </Select.Item>
                         ))}
                       </Select.Content>

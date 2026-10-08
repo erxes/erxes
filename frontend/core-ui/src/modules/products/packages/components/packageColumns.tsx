@@ -12,7 +12,7 @@ import { TagsSelect } from 'ui-modules';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { IPackage, PACKAGE_STATUSES } from '../types/Package';
+import { IPackage, PACKAGE_STATUS_OPTIONS } from '../types/Package';
 import { useChangePackageStatus, useEditPackage } from '../hooks/usePackageMutations';
 
 const statusVariant = (status?: string) => {
@@ -31,6 +31,9 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
   const [open, setOpen] = useState(false);
   const { changeStatus, loading } = useChangePackageStatus();
   const current = pkg.status || 'draft';
+  const currentOption = PACKAGE_STATUS_OPTIONS.find(
+    (option) => option.value === current,
+  );
 
   const handleSelect = async (next: string) => {
     setOpen(false);
@@ -51,14 +54,22 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <RecordTableInlineCell.Trigger disabled={loading}>
-        <Badge variant={statusVariant(current)}>{current}</Badge>
+        <Badge variant={statusVariant(current)}>
+          {currentOption ? t(currentOption.labelKey) : current}
+        </Badge>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content className="w-36 min-w-0">
         <Command>
           <Command.List>
-            {PACKAGE_STATUSES.map((s) => (
-              <Command.Item key={s} value={s} onSelect={() => handleSelect(s)}>
-                <Badge variant={statusVariant(s)}>{s}</Badge>
+            {PACKAGE_STATUS_OPTIONS.map((option) => (
+              <Command.Item
+                key={option.value}
+                value={option.value}
+                onSelect={() => handleSelect(option.value)}
+              >
+                <Badge variant={statusVariant(option.value)}>
+                  {t(option.labelKey)}
+                </Badge>
               </Command.Item>
             ))}
           </Command.List>

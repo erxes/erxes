@@ -103,7 +103,7 @@ export const BundleRuleForm = ({
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -123,7 +123,7 @@ export const BundleRuleForm = ({
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -206,7 +206,7 @@ export const BundleRuleForm = ({
               onClick={handleOpenDialog}
             >
               <IconPlus />
-              Add Row
+              {t('add-row')}
             </Button>
 
             {rules.length > 0 && (
@@ -214,8 +214,8 @@ export const BundleRuleForm = ({
                 <table className="w-full text-xs">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="px-4 py-2 text-left">Code</th>
-                      <th className="px-4 py-2 text-right">Actions</th>
+                      <th className="px-4 py-2 text-left">{t('code')}</th>
+                      <th className="px-4 py-2 text-right">{t('actions')}</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -22,7 +22,11 @@ import {
   TagsSelect,
   type ProductAttachmentItem,
 } from 'ui-modules';
-import { IPackageProduct, PACKAGE_STATUSES } from '../types/Package';
+import {
+  IPackageProduct,
+  PACKAGE_STATUSES,
+  PACKAGE_STATUS_OPTIONS,
+} from '../types/Package';
 import { useAddPackage } from '../hooks/usePackageMutations';
 import { usePricing } from '../hooks/usePricing';
 import { PackageProductPicker } from './PackageProductPicker';
@@ -143,9 +147,9 @@ export const PackageAddSheet = () => {
                                   </Select.Trigger>
                                 </Form.Control>
                                 <Select.Content>
-                                  {PACKAGE_STATUSES.map((s) => (
-                                    <Select.Item key={s} value={s}>
-                                      {s}
+                                  {PACKAGE_STATUS_OPTIONS.map((option) => (
+                                    <Select.Item key={option.value} value={option.value}>
+                                      {t(option.labelKey)}
                                     </Select.Item>
                                   ))}
                                 </Select.Content>

@@ -1,3 +1,5 @@
+import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { IconHash, IconCircle, IconCircleCheck } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -14,12 +16,13 @@ import { useBundleConditionDefault } from '@/products/settings/hooks/useBundleCo
 
 const DefaultIconCell = ({ row }: { row: any }) => {
   const { confirm } = useConfirm();
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-conditions' });
   const { bundleConditionDefault, loading } = useBundleConditionDefault();
   const bundleCondition = row.original as IBundleCondition;
 
   const handleDefaultClick = () => {
     confirm({
-      message: `This action will make the BundleCondition "${bundleCondition.name}" default. Are you sure?`,
+      message: t('confirm-default', { name: bundleCondition.name }),
     }).then(() => {
       bundleConditionDefault({
         variables: { _id: bundleCondition._id },
@@ -33,7 +36,7 @@ const DefaultIconCell = ({ row }: { row: any }) => {
         onClick={handleDefaultClick}
         disabled={loading}
         variant="ghost"
-        title={bundleCondition.isDefault ? 'Default' : 'Make it default'}
+        title={bundleCondition.isDefault ? t('default') : t('make-default')}
         className="text-success"
       >
         {bundleCondition.isDefault ? (
@@ -46,14 +49,16 @@ const DefaultIconCell = ({ row }: { row: any }) => {
   );
 };
 
-export const bundleConditionColumns: ColumnDef<IBundleCondition>[] = [
+export const bundleConditionColumns = (
+  t: TFunction,
+): ColumnDef<IBundleCondition>[] => [
   bundleConditionMoreColumn,
   bundleConditionNameColumn,
   RecordTable.checkboxColumn as ColumnDef<IBundleCondition>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -63,7 +68,7 @@ export const bundleConditionColumns: ColumnDef<IBundleCondition>[] = [
   },
   {
     id: 'default',
-    header: () => <RecordTable.InlineHead label="Default" />,
+    header: () => <RecordTable.InlineHead label={t('default')} />,
     cell: DefaultIconCell,
     size: 100,
   },

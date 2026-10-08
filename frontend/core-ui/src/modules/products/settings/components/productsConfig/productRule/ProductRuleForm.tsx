@@ -100,14 +100,14 @@ export const ProductRuleForm = ({
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Product rule updated successfully',
+            title: t('success'),
+            description: t('product-rule-updated'),
           });
           onOpenChange?.(false);
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -143,15 +143,15 @@ export const ProductRuleForm = ({
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Product rule created successfully',
+            title: t('success'),
+            description: t('product-rule-created'),
           });
           form.reset();
           onOpenChange?.(false);
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });

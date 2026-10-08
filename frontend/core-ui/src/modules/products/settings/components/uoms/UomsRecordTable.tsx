@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { RecordTable } from 'erxes-ui';
 import { useUoms } from '../../hooks/useUoms';
 import { uomsColumns } from './UomsColumns';
@@ -7,6 +8,7 @@ import { AddUomSheet } from './AddUomSheet';
 
 export const UomsRecordTable = () => {
   const { uoms, loading } = useUoms();
+  const { t } = useTranslation('product', { keyPrefix: 'uoms' });
 
   if (!loading && (uoms?.length ?? 0) === 0) {
     return <EmptyStateRow />;
@@ -14,7 +16,7 @@ export const UomsRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={uomsColumns}
+      columns={uomsColumns(t)}
       data={uoms || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -34,6 +36,7 @@ export const UomsRecordTable = () => {
 };
 
 function EmptyStateRow() {
+  const { t } = useTranslation('product', { keyPrefix: 'uoms' });
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconRulerMeasure
@@ -42,11 +45,9 @@ function EmptyStateRow() {
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No UOMs yet
+        {t('empty-title')}
       </h2>
-      <p className="mb-4 text-md text-muted-foreground">
-        Get started by creating your first UOM.
-      </p>
+      <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
       <AddUomSheet />
     </div>
   );

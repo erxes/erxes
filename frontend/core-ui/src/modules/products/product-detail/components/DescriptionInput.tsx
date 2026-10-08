@@ -6,11 +6,15 @@ import {
 import { BlockEditor, Button, cn, Kbd, useBlockEditor } from 'erxes-ui';
 import { useCallback, useEffect } from 'react';
 import { DescriptionInputProps } from '../types/descriptionTypes';
+import { useTranslation } from 'react-i18next';
 
 export const DescriptionInput = ({
   initialContent,
   onSave,
 }: DescriptionInputProps) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'detail',
+  });
   const editor = useBlockEditor();
 
   useEffect(() => {
@@ -71,7 +75,7 @@ export const DescriptionInput = ({
       <div className="flex px-6 gap-4">
         <Button size="lg" className="ml-auto" onClick={handleSave}>
           <IconArrowUp />
-          Send
+          {t('send')}
           <Kbd className="ml-1">
             <IconCommand size={12} />
             <IconCornerDownLeft size={12} />

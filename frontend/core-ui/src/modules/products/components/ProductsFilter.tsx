@@ -19,52 +19,55 @@ import {
 } from 'ui-modules';
 import { IconBriefcase, IconCheck, IconCircleDot } from '@tabler/icons-react';
 import { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type OptionFilterConfig = {
   queryKey: string;
-  label: string;
-  placeholder: string;
+  labelKey: string;
+  placeholderKey: string;
   icon: ComponentType;
-  options: { label: string; value: string }[];
+  options: { labelKey: string; value: string }[];
 };
 
 const PRODUCT_TYPE_FILTER: OptionFilterConfig = {
   queryKey: 'type',
-  label: 'Type',
-  placeholder: 'Select type',
+  labelKey: 'type',
+  placeholderKey: 'select-type',
   icon: IconBriefcase,
   options: [
-    { label: 'Product', value: 'product' },
-    { label: 'Service', value: 'service' },
-    { label: 'Subscription', value: 'subscription' },
-    { label: 'Unique', value: 'unique' },
+    { labelKey: 'product', value: 'product' },
+    { labelKey: 'type-service', value: 'service' },
+    { labelKey: 'type-subscription', value: 'subscription' },
+    { labelKey: 'type-unique', value: 'unique' },
   ],
 };
 
 const PRODUCT_STATUS_FILTER: OptionFilterConfig = {
   queryKey: 'status',
-  label: 'Status',
-  placeholder: 'Select status',
+  labelKey: 'filter-status',
+  placeholderKey: 'select-status',
   icon: IconCircleDot,
   options: [
-    { label: 'Active', value: 'active' },
-    { label: 'Deleted', value: 'deleted' },
+    { labelKey: 'status-active', value: 'active' },
+    { labelKey: 'status-deleted', value: 'deleted' },
   ],
 };
 
 type OptionFilterProps = Readonly<{ config: OptionFilterConfig }>;
 
 function OptionFilterItem({ config }: OptionFilterProps) {
-  const { queryKey, label, icon: Icon } = config;
+  const { t } = useTranslation('product');
+  const { queryKey, labelKey, icon: Icon } = config;
   return (
     <Filter.Item value={queryKey}>
       <Icon />
-      {label}
+      {t(labelKey)}
     </Filter.Item>
   );
 }
 
 function OptionFilterView({ config }: OptionFilterProps) {
+  const { t } = useTranslation('product');
   const { queryKey, icon: Icon, options } = config;
   const [value, setValue] = useQueryState<string>(queryKey);
   const { resetFilterState } = useFilterContext();
@@ -83,7 +86,7 @@ function OptionFilterView({ config }: OptionFilterProps) {
               }}
             >
               <Icon />
-              {option.label}
+              {t(option.labelKey)}
               {value === option.value && <IconCheck className="ml-auto" />}
             </Command.Item>
           ))}
@@ -94,7 +97,8 @@ function OptionFilterView({ config }: OptionFilterProps) {
 }
 
 function OptionFilterBar({ config }: OptionFilterProps) {
-  const { queryKey, label, placeholder, icon: Icon, options } = config;
+  const { t } = useTranslation('product');
+  const { queryKey, labelKey, placeholderKey, icon: Icon, options } = config;
   const [value, setValue] = useQueryState<string>(queryKey);
 
   if (!value) {
@@ -105,16 +109,16 @@ function OptionFilterBar({ config }: OptionFilterProps) {
     <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <Icon />
-        {label}
+        {t(labelKey)}
       </Filter.BarName>
       <Select value={value} onValueChange={(next) => setValue(next || null)}>
         <Select.Trigger className="h-full rounded-none border-none bg-background px-3 shadow-none focus:shadow-none gap-1">
-          <Select.Value placeholder={placeholder} />
+          <Select.Value placeholder={t(placeholderKey)} />
         </Select.Trigger>
         <Select.Content>
           {options.map((option) => (
             <Select.Item key={option.value} value={option.value}>
-              {option.label}
+              {t(option.labelKey)}
             </Select.Item>
           ))}
         </Select.Content>
@@ -124,6 +128,7 @@ function OptionFilterBar({ config }: OptionFilterProps) {
 }
 
 function VendorFilterBar() {
+  const { t } = useTranslation('product');
   const [vendorId] = useQueryState<string>('vendorId');
 
   if (!vendorId) {
@@ -134,12 +139,13 @@ function VendorFilterBar() {
     <SelectCompany.FilterBar
       mode="single"
       filterKey="vendorId"
-      label="Vendor"
+      label={t('vendor')}
     />
   );
 }
 
 function BrandsFilterBar() {
+  const { t } = useTranslation('product');
   const [brandIds] = useQueryState<string[]>('brandIds');
 
   if (!brandIds?.length) {
@@ -150,12 +156,13 @@ function BrandsFilterBar() {
     <SelectBrands.FilterBar
       mode="multiple"
       filterKey="brandIds"
-      label="Brands"
+      label={t('brands')}
     />
   );
 }
 
 export const ProductsFilter = () => {
+  const { t } = useTranslation('product');
   return (
     <Filter id="products-filter" sessionKey={PRODUCTS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
@@ -168,7 +175,7 @@ export const ProductsFilter = () => {
         <Filter.SearchValueBarItem />
         <SelectCategory.FilterBar
           filterKey="categoryIds"
-          label="Category"
+          label={t('category')}
           mode="multiple"
         />
         <OptionFilterBar config={PRODUCT_TYPE_FILTER} />
@@ -185,6 +192,7 @@ export const ProductsFilter = () => {
 };
 
 export const ProductsFilterPopover = () => {
+  const { t } = useTranslation('product');
   return (
     <>
       <Filter.Popover scope={ProductHotKeyScope.ProductsPage}>
@@ -192,17 +200,23 @@ export const ProductsFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput
+                placeholder={t('filter')}
+                variant="secondary"
+              />
 
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <SelectCategory.FilterItem
                   value="categoryIds"
-                  label="Category"
+                  label={t('category')}
                 />
                 <OptionFilterItem config={PRODUCT_TYPE_FILTER} />
-                <SelectCompany.FilterItem value="vendorId" label="Vendor" />
-                <SelectBrands.FilterItem value="brandIds" label="Brands" />
+                <SelectCompany.FilterItem
+                  value="vendorId"
+                  label={t('vendor')}
+                />
+                <SelectBrands.FilterItem value="brandIds" label={t('brands')} />
                 <TagsFilter />
                 <SegmentsFilter />
                 <PropertiesFilter />

@@ -145,7 +145,7 @@ export const productColumns: (
     ),
     cell: ({ cell }: { cell: any }) => {
       const hasAttachment = Boolean(cell.row.original?.attachment?.url);
-      const value = hasAttachment ? 'Attached' : 'None';
+      const value = hasAttachment ? t('attached') : t('none');
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={value} />

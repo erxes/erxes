@@ -19,11 +19,12 @@ import { useEffect, useState } from 'react';
 import { IProductCategory } from 'ui-modules';
 import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
 import { CategoryTotalCount } from './CategoryTotalCount';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_OPTIONS = [
-  { label: 'Active', value: 'active' },
-  { label: 'Disabled', value: 'disabled' },
-  { label: 'Archived', value: 'archived' },
+  { labelKey: 'status-active', value: 'active' },
+  { labelKey: 'status-disabled', value: 'disabled' },
+  { labelKey: 'status-archived', value: 'archived' },
 ];
 
 const SelectParentCategoryBadge = ({
@@ -69,6 +70,9 @@ const ParentCategoryOptionItem = ({
 };
 
 const ParentCategoryFilterBar = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const [query, setQuery] = useQueryState<string>('parentId');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<IProductCategory>();
@@ -101,18 +105,18 @@ const ParentCategoryFilterBar = () => {
     <Filter.BarItem queryKey="parentId">
       <Filter.BarName>
         <IconFolders />
-        Parent
+        {t('parent')}
       </Filter.BarName>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="parentId">
             <SelectParentCategoryBadge category={selected} />
-            {!selected && <Combobox.Value placeholder="Select parent" />}
+            {!selected && <Combobox.Value placeholder={t('select-parent')} />}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <Command className="outline-hidden">
-            <Command.Input placeholder="Search categories" />
+            <Command.Input placeholder={t('search-categories')} />
             <Command.List>
               {productCategories?.map((category: IProductCategory) => (
                 <ParentCategoryOptionItem
@@ -131,6 +135,9 @@ const ParentCategoryFilterBar = () => {
 };
 
 const ParentCategoryFilterView = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const [query, setQuery] = useQueryState<string>('parentId');
   const { resetFilterState } = useFilterContext();
   const [selected, setSelected] = useState<IProductCategory>();
@@ -168,7 +175,7 @@ const ParentCategoryFilterView = () => {
     return (
       <Command.Empty>
         <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-          No categories found
+          {t('no-categories-found')}
         </div>
       </Command.Empty>
     );
@@ -177,7 +184,7 @@ const ParentCategoryFilterView = () => {
   return (
     <Filter.View filterKey="parentId">
       <Command className="outline-hidden">
-        <Command.Input placeholder="Search categories" />
+        <Command.Input placeholder={t('search-categories')} />
         <Command.List>
           {renderPlaceholder()}
           {productCategories?.map((category: IProductCategory) => (
@@ -195,15 +202,21 @@ const ParentCategoryFilterView = () => {
 };
 
 const StatusFilterItem = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   return (
     <Filter.Item value="status">
       <IconCircleDot />
-      Status
+      {t('filter-status')}
     </Filter.Item>
   );
 };
 
 const StatusFilterView = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const [status, setStatus] = useQueryState<string>('status');
   const { resetFilterState } = useFilterContext();
 
@@ -221,7 +234,7 @@ const StatusFilterView = () => {
               }}
             >
               <IconCircleDot />
-              {option.label}
+              {t(option.labelKey)}
               {status === option.value && <IconCheck className="ml-auto" />}
             </Command.Item>
           ))}
@@ -232,6 +245,9 @@ const StatusFilterView = () => {
 };
 
 const StatusFilterBar = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const [status, setStatus] = useQueryState<string>('status');
 
   if (!status) {
@@ -242,19 +258,19 @@ const StatusFilterBar = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconCircleDot />
-        Status
+        {t('filter-status')}
       </Filter.BarName>
       <Select
         value={status || ''}
         onValueChange={(value) => setStatus(value || null)}
       >
         <Filter.BarButton filterKey="status">
-          <Select.Value placeholder="Select status" />
+          <Select.Value placeholder={t('select-status')} />
         </Filter.BarButton>
         <Select.Content>
           {STATUS_OPTIONS.map((option) => (
             <Select.Item key={option.value} value={option.value}>
-              {option.label}
+              {t(option.labelKey)}
             </Select.Item>
           ))}
         </Select.Content>
@@ -278,6 +294,9 @@ export const CategoryFilter = () => {
 };
 
 export const CategoriesFilterPopover = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   return (
     <>
       <Filter.Popover scope={CategoryHotKeyScope.CategoriesPage}>
@@ -285,16 +304,19 @@ export const CategoriesFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput
+                placeholder={t('filter')}
+                variant="secondary"
+              />
 
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <Filter.Item value="parentId">
                   <IconFolders />
-                  Parent
+                  {t('parent')}
                 </Filter.Item>
                 <StatusFilterItem />
               </Command.List>
