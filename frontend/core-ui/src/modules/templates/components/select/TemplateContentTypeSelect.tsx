@@ -73,7 +73,7 @@ const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
   if (!values) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-status-placeholder')}
+        {placeholder || t('select-type-placeholder')}
       </span>
     );
   }
@@ -141,7 +141,7 @@ const SelectProjectTypesContent = () => {
     <Command id="status-command-menu">
       <Command.Input placeholder="Төрөл сонгоно уу" />
       <Command.List>
-        <Command.Empty>{t('no-status-found')}</Command.Empty>
+        <Command.Empty>{t('no-type-found')}</Command.Empty>
 
         {templateTypes.map((type) => (
           <SelectProjectTypesCommandItem type={type} />
