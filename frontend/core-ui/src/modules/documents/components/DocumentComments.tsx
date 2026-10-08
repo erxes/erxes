@@ -71,13 +71,16 @@ const CommentAction = forwardRef<
             {...props}
             ref={ref}
             className={cn(
-              'document-comment-action px-2 py-1 text-xs font-medium',
+              'document-comment-action',
+              isSave
+                ? 'border! border-[var(--comment-primary)]! bg-[var(--comment-primary)]! [color:var(--comment-primary-foreground)]! px-3! py-1! text-sm! font-medium! shadow-button-primary!'
+                : 'px-2 py-1 text-xs font-medium',
               className,
             )}
             aria-label={label || mainTooltip}
             aria-pressed={isSelected}
             variant={isSave ? 'default' : 'ghost'}
-            size={variant === 'compact' ? 'sm' : 'default'}
+            size={!isSave && variant === 'compact' ? 'sm' : 'default'}
             disabled={isDisabled || saving}
             onMouseDown={(event) => event.preventDefault()}
             onClick={async (event) => {
@@ -238,7 +241,16 @@ export const DocumentCommentsProvider = ({
       HTMLButtonElement,
       NativeComponentProps['Generic']['Badge']['Root']
     >(({ mainTooltip, secondaryTooltip, ...props }, ref) => {
-      const badge = <NativeBadge {...props} ref={ref} />;
+      const badge = (
+        <NativeBadge
+          {...props}
+          ref={ref}
+          className={cn(
+            props.className,
+            props.isSelected && 'border! border-[var(--comment-primary)]!',
+          )}
+        />
+      );
       return mainTooltip ? (
         <Tooltip>
           <Tooltip.Trigger asChild>{badge}</Tooltip.Trigger>
