@@ -7,8 +7,8 @@ import { Button, DropdownMenu, RecordTable, useToast } from 'erxes-ui';
 import { ICustomer } from 'ui-modules';
 
 const LIFECYCLE_STATES = [
-  { label: 'Lead', value: 'lead' },
-  { label: 'Customer', value: 'customer' },
+  { labelKey: 'state-lead', value: 'lead' },
+  { labelKey: 'state-customer', value: 'customer' },
 ];
 
 type CustomerWithState = ICustomer & { state?: string };
@@ -41,8 +41,8 @@ export const CustomersChangeState = ({
         });
       },
       onCompleted: () => {
-        const label =
-          LIFECYCLE_STATES.find((s) => s.value === value)?.label ?? value;
+        const state = LIFECYCLE_STATES.find((s) => s.value === value);
+        const label = state ? t(state.labelKey) : value;
         toast({
           title: t('success-title'),
           variant: 'success',
@@ -69,7 +69,7 @@ export const CustomersChangeState = ({
               currentState === state.value ? 'bg-primary/10 font-medium' : ''
             }
           >
-            {state.label}
+            {t(state.labelKey)}
           </DropdownMenu.Item>
         ))}
       </DropdownMenu.Content>

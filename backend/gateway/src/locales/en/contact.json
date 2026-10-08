@@ -66,6 +66,8 @@
     "action-save": "Save",
     "change-state": "Change State",
     "state-changed": "State changed to \"{{label}}\" successfully",
+    "state-lead": "Lead",
+    "state-customer": "Customer",
     "confirm-delete-selected": "Are you sure you want to delete the {{count}} selected customers?",
     "deleted-success": "Customers deleted successfully",
     "merged-success": "Customers merged successfully",
