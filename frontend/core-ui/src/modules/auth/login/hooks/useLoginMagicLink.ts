@@ -10,8 +10,10 @@ import {
   magicLinkFormSchema,
   MagicLinkFormType,
 } from '@/auth/login/definitions/magicLinkFormDefinitions';
+import { useTranslation } from 'react-i18next';
 
 export const useLoginMagicLink = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [loginWithGoogle] = useMutation(LOGIN_WITH_GOOGLE);
   const [loginWithMagicLink] = useMutation(LOGIN_WITH_MAGIC_LINK);
   const { resetStore } = useApolloClient();
@@ -31,16 +33,18 @@ export const useLoginMagicLink = () => {
       variables: { email },
       onCompleted: () => {
         toast({
-          title: 'We have sent an email containing the magic link to sign in.',
+          title: t('magic-link-sent'),
         });
         resetStore();
       },
       onError: ({ message }) => {
         const isInvalidLogin = message.includes('Invalid login');
         toast({
-          title: isInvalidLogin ? 'Invalid login' : 'Something went wrong',
+          title: isInvalidLogin
+            ? t('invalid-login')
+            : t('something-went-wrong'),
           description: isInvalidLogin
-            ? 'The email address or password you entered is incorrect.'
+            ? t('invalid-login-description')
             : message,
           variant: 'destructive',
         });
@@ -61,8 +65,8 @@ export const useLoginMagicLink = () => {
             }
           } catch (error) {
             toast({
-              title: 'Something went wrong',
-              description: 'Invalid redirect URL received',
+              title: t('something-went-wrong'),
+              description: t('invalid-redirect-url'),
               variant: 'destructive',
             });
           }
@@ -70,7 +74,7 @@ export const useLoginMagicLink = () => {
       },
       onError: ({ message }) => {
         toast({
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: message,
           variant: 'destructive',
         });

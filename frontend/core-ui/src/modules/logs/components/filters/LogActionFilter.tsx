@@ -6,12 +6,14 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const LogActionsFilter = ({
   onValueChange,
 }: {
   onValueChange?: () => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [queries, setQueries] = useMultiQueryState<{
     status: string;
     source: 'mongo' | 'graphql' | 'webhook' | 'auth';
@@ -30,7 +32,7 @@ export const LogActionsFilter = ({
     <Command shouldFilter={false} onSelect={(e) => e.currentTarget}>
       <Command.List className="p-1 ">
         <Combobox.Empty />
-        {actions.map(({ value, label, icon: Icon }) => (
+        {actions.map(({ value, labelKey, icon: Icon }) => (
           <Command.Item
             key={value}
             value={value}
@@ -45,7 +47,7 @@ export const LogActionsFilter = ({
             }}
           >
             <Icon />
-            {label}
+            {t(labelKey)}
             {action === value && <IconCheck className="ml-auto" />}
           </Command.Item>
         ))}

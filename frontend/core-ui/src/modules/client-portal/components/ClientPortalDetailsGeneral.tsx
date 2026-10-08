@@ -15,12 +15,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalGeneral = ({
   clientPortal = {},
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const form = useForm<z.infer<typeof CLIENTPORTAL_EDIT_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_EDIT_SCHEMA),
     defaultValues: {
@@ -46,7 +48,7 @@ export const ClientPortalGeneral = ({
     });
   };
   return (
-    <InfoCard title="General">
+    <InfoCard title={t('general')}>
       <InfoCard.Content>
         <Form {...form}>
           <form
@@ -58,7 +60,7 @@ export const ClientPortalGeneral = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -69,7 +71,7 @@ export const ClientPortalGeneral = ({
               name="domain"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Domain</Form.Label>
+                  <Form.Label>{t('domain')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -80,7 +82,7 @@ export const ClientPortalGeneral = ({
               name="description"
               render={({ field }) => (
                 <Form.Item className="col-span-2">
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description')}</Form.Label>
                   <Textarea {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -98,7 +100,7 @@ export const ClientPortalGeneral = ({
                         onCheckedChange={(checked) => field.onChange(!!checked)}
                       />
                     </Form.Control>
-                    <Form.Label variant="peer">Use B2B</Form.Label>
+                    <Form.Label variant="peer">{t('use-b2b')}</Form.Label>
                   </div>
                   <Form.Message />
                 </Form.Item>
@@ -116,7 +118,7 @@ export const ClientPortalGeneral = ({
                   }
                 >
                   {loading && <Spinner containerClassName="w-auto flex-none" />}
-                  Update
+                  {t('update')}
                 </Button>
               </Can>
             </div>

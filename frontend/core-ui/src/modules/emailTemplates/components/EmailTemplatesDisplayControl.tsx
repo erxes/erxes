@@ -10,6 +10,7 @@ import {
 import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const LAYOUTS: TEmailTemplatesLayout[] = ['list', 'grid'];
 
@@ -20,6 +21,7 @@ export const useEmailTemplatesLayout = () => {
 };
 
 export const EmailTemplatesDisplayControl = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const [isOpen, setIsOpen] = useState(false);
   const { layout, setLayout } = useEmailTemplatesLayout();
 
@@ -37,7 +39,7 @@ export const EmailTemplatesDisplayControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          Display
+          {t('display')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -54,7 +56,7 @@ export const EmailTemplatesDisplayControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconList className="size-5!" />
-              <span className="text-xs font-normal">List</span>
+              <span className="text-xs font-normal">{t('list')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="grid" asChild>
@@ -64,7 +66,7 @@ export const EmailTemplatesDisplayControl = () => {
               className="h-11 flex-col gap-0 border"
             >
               <IconLayoutGrid className="size-5!" />
-              <span className="text-xs font-normal">Grid</span>
+              <span className="text-xs font-normal">{t('grid')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

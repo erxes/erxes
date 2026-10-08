@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_GOOGLE_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   clientPortal: IClientPortal;
 }
 
 export function ClientPortalDetailGoogle({ clientPortal }: Props) {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const form = useForm<
     ReturnType<(typeof CLIENTPORTAL_GOOGLE_SCHEMA)['parse']>
   >({
@@ -56,11 +58,11 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
           name="googleClientId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Google Client ID</Form.Label>
+              <Form.Label>{t('google-client-id')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
-                  placeholder="Enter Google Client ID"
+                  placeholder={t('enter-google-client-id')}
                   disabled={loading}
                 />
               </Form.Control>
@@ -73,12 +75,12 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
           name="googleClientSecret"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Google Client Secret</Form.Label>
+              <Form.Label>{t('google-client-secret')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
                   type="password"
-                  placeholder="Enter Google Client Secret"
+                  placeholder={t('enter-google-client-secret')}
                   disabled={loading}
                   autoComplete="new-password"
                 />
@@ -92,11 +94,11 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
           name="googleCredentials"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Google Credentials (JSON, optional)</Form.Label>
+              <Form.Label>{t('google-credentials')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
-                  placeholder="Paste Google Credentials JSON"
+                  placeholder={t('paste-google-credentials')}
                   disabled={loading}
                 />
               </Form.Control>
@@ -109,11 +111,11 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
           name="googleRedirectUri"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Google Redirect URI</Form.Label>
+              <Form.Label>{t('google-redirect-uri')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
-                  placeholder="Enter Google Redirect URI"
+                  placeholder={t('enter-google-redirect-uri')}
                   disabled={loading}
                 />
               </Form.Control>
@@ -128,7 +130,7 @@ export function ClientPortalDetailGoogle({ clientPortal }: Props) {
           variant="secondary"
         >
           {loading && <Spinner containerClassName="w-auto flex-none" />}
-          Save
+          {t('save')}
         </Button>
       </form>
     </Form>

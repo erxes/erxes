@@ -7,12 +7,14 @@ import {
   useRelations,
 } from 'ui-modules';
 import { IconBuildingSkyscraper, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const CompanyWidgets = ({
   contentId,
   contentType,
   companyId,
 }: IRelationWidgetProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'widgets' });
   const { manageRelations } = useManageRelations();
   const { ownEntities, loading } = useRelations({
     variables: {
@@ -41,11 +43,11 @@ export const CompanyWidgets = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconBuildingSkyscraper />
         </div>
-        <span className="text-sm">No companies to display at the moment.</span>
+        <span className="text-sm">{t('no-companies')}</span>
         <SelectCompaniesBulk onSelect={handleSelectCompanies}>
           <Button variant="outline" size="sm">
             <IconPlus className="mr-2 h-4 w-4" />
-            Add Company
+            {t('add-company')}
           </Button>
         </SelectCompaniesBulk>
       </div>

@@ -1,12 +1,15 @@
 import { IconArchive } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { RecordTable } from 'erxes-ui';
 
 import { LOGS_CURSOR_SESSION_KEY } from '../constants/logFilter';
 import { useLogs } from '../hooks/useLogs';
 import { logColumns } from './LogColumns';
 import { LogDetailSheet } from '@/logs/components/LogDetailSheet';
+import { useTranslation } from 'react-i18next';
 
 export const LogsRecordTable = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const {
     loading,
     totalCount,
@@ -15,10 +18,11 @@ export const LogsRecordTable = () => {
     hasNextPage,
     hasPreviousPage,
   } = useLogs();
+  const columns = useMemo(() => logColumns(t), [t]);
 
   return (
     <RecordTable.Provider
-      columns={logColumns}
+      columns={columns}
       data={list}
       stickyColumns={['detail']}
       className="m-2"
@@ -52,11 +56,12 @@ export const LogsRecordTable = () => {
                   className="mx-auto mb-4 text-muted-foreground"
                 />
 
-                <h3 className="mb-2 text-xl font-semibold">No results found</h3>
+                <h3 className="mb-2 text-xl font-semibold">
+                  {t('no-results-found')}
+                </h3>
 
                 <p className="max-w-md text-muted-foreground">
-                  We couldn't find anything matching your search. Try adjusting
-                  your filters or search query.
+                  {t('no-results-description')}
                 </p>
               </div>
             </div>

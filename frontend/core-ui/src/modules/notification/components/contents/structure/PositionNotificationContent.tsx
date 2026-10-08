@@ -2,6 +2,7 @@ import { usePositionDetailsById } from '@/settings/structure/hooks/usePositionDe
 import { TNotification } from 'ui-modules';
 import { StructureNotificationDetail } from './StructureNotificationDetail';
 import { StructurePositionName } from './StructureReferenceName';
+import { useTranslation } from 'react-i18next';
 
 export const PositionNotificationContent = ({
   action,
@@ -9,6 +10,7 @@ export const PositionNotificationContent = ({
   fromUser,
   contentTypeId,
 }: TNotification) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { positionDetail, loading, error } = usePositionDetailsById({
     variables: { id: contentTypeId },
   });
@@ -19,16 +21,16 @@ export const PositionNotificationContent = ({
       error={error}
       loading={loading}
       name={positionDetail?.title}
-      contentType="position"
-      openLabel="Open position"
+      contentType={t('position')}
+      openLabel={t('open-position')}
       openPath={`/settings/structures/positions?position_id=${contentTypeId}`}
       createdAt={createdAt}
       fromUser={fromUser}
       details={[
-        { label: 'Code', value: positionDetail?.code },
-        { label: 'Status', value: positionDetail?.status },
+        { label: t('code'), value: positionDetail?.code },
+        { label: t('status-label'), value: positionDetail?.status },
         {
-          label: 'Parent position',
+          label: t('parent-position'),
           value: positionDetail?.parentId ? (
             <StructurePositionName positionId={positionDetail.parentId} />
           ) : undefined,

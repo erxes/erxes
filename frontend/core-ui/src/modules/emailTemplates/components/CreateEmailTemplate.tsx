@@ -3,8 +3,10 @@ import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { Link, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const CreateEmailTemplate = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const navigate = useNavigate();
 
   useScopedHotkeys(
@@ -17,7 +19,7 @@ export const CreateEmailTemplate = () => {
     <Button asChild>
       <Link to={EmailTemplatePath.Create}>
         <IconPlus />
-        Create template
+        {t('create-template')}
         <Kbd>C</Kbd>
       </Link>
     </Button>

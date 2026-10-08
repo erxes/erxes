@@ -1,9 +1,11 @@
 import { TemplatesBreadcrumb } from '@/templates/components/TemplatesBreadcrumb';
 import { Separator } from 'erxes-ui';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const TemplatesHeader = () => {
-  const favoriteBreadcrumb = createFavoriteBreadcrumb('Templates');
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('templates'));
 
   return (
     <PageHeader>

@@ -1,9 +1,11 @@
 import { useDocuments } from '@/documents/hooks/useDocuments';
 import { RecordTable } from 'erxes-ui';
+import { useMemo } from 'react';
 import { DocumentsEmptyState } from '../DocumentsEmptyState';
 import { DocumentsErrorState } from '../DocumentsErrorState';
 import { DocumentsColumn } from './DocumentsColumn';
 import { DocumentsRecordTableCommandBar } from './DocumentsRecordTableCommandBar';
+import { useTranslation } from 'react-i18next';
 
 type DocumentsTableProps = {
   handleFetchMore: ReturnType<typeof useDocuments>['handleFetchMore'];
@@ -33,7 +35,8 @@ export function DocumentsRecordTable({
   hasFilters,
   onClearFilters,
 }: DocumentsRecordTableProps) {
-  const columns = DocumentsColumn();
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+  const columns = useMemo(() => DocumentsColumn(t), [t]);
   const { documents, hasError, loading, handleFetchMore, pageInfo, refetch } =
     useDocuments();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};

@@ -2,6 +2,7 @@ import { Polygons } from '@/auth/components/Polygons';
 import { Button } from 'erxes-ui';
 import { motion } from 'motion/react';
 import { FallbackProps } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 type GenericErrorFallbackProps = FallbackProps & {
   title?: string;
@@ -12,6 +13,7 @@ export const GenericErrorFallback = ({
   error,
   title = 'Sorry, something went wrong',
 }: GenericErrorFallbackProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'error-handler' });
   return (
     <div className="h-dvh w-dvw p-2 bg-sidebar">
       <div className="flex flex-col items-center justify-center h-full w-full shadow-sm rounded-lg relative overflow-hidden">
@@ -31,7 +33,7 @@ export const GenericErrorFallback = ({
             {title}
           </h1>
           <p className="mb-4 text-muted-foreground">{error?.message}</p>
-          <Button onClick={resetErrorBoundary}>Try Again</Button>
+          <Button onClick={resetErrorBoundary}>{t('try-again')}</Button>
         </div>
       </div>
     </div>

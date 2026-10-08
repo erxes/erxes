@@ -9,6 +9,7 @@ import {
   TOnboardingStepItem,
   WelcomeNotificationContentLayout,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 const OnboardingSteps: TOnboardingStepItem[] = [
   {
     icon: <IconAddressBook className="size-5" />,
@@ -65,10 +66,11 @@ const OnboardingSteps: TOnboardingStepItem[] = [
 ];
 
 export const WelcomeMessageContent = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
     <WelcomeNotificationContentLayout
-      title="Welcome to erxes"
-      description="A New Experience Begins!"
+      title={t('welcome-title')}
+      description={t('welcome-description')}
       videoSrc="https://youtu.be/W-dkAmrk96Q"
       onboardingSteps={OnboardingSteps}
     />

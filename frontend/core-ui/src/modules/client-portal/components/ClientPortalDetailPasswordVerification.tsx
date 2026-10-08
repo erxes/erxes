@@ -5,12 +5,14 @@ import { z } from 'zod';
 import { CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA } from '../constants/clientPortalEditSchema';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { IClientPortal } from '../types/clientPortal';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetailResetPassword = ({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const resetPasswordConfig = clientPortal?.securityAuthConfig?.resetPasswordConfig;
   const form = useForm<
     z.infer<typeof CLIENTPORTAL_PASSWORD_VERIFICATION_SCHEMA>
@@ -55,7 +57,7 @@ export const ClientPortalDetailResetPassword = ({
           name="verifyByOTP"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Verify by link or code</Form.Label>
+              <Form.Label>{t('verify-by-link-or-code')}</Form.Label>
               <Form.Control>
                 <ToggleGroup
                   type="single"
@@ -63,12 +65,8 @@ export const ClientPortalDetailResetPassword = ({
                   onValueChange={(value) => field.onChange(value === 'code')}
                   variant="outline"
                 >
-                  <ToggleGroup.Item value="link" className="flex-auto">
-                    Link
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item value="code" className="flex-auto">
-                    Code
-                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="link" className="flex-auto">{t('link')}</ToggleGroup.Item>
+                  <ToggleGroup.Item value="code" className="flex-auto">{t('code')}</ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
             </Form.Item>
@@ -79,11 +77,9 @@ export const ClientPortalDetailResetPassword = ({
           name="emailSubject"
           render={({ field }) => (
             <Form.Item className="col-start-1">
-              <Form.Label>Email Subject</Form.Label>
+              <Form.Label>{t('email-subject')}</Form.Label>
               <Input {...field} />
-              <Form.Description>
-                The subject for the reset password email (optional)
-              </Form.Description>
+              <Form.Description>{t('reset-email-subject-description')}</Form.Description>
               <Form.Message />
             </Form.Item>
           )}
@@ -93,15 +89,13 @@ export const ClientPortalDetailResetPassword = ({
           name="emailContent"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Email Content</Form.Label>
+              <Form.Label>{t('email-content')}</Form.Label>
               <Editor
                 initialContent={field.value}
                 onChange={field.onChange}
                 isHTML
               />
-              <Form.Description>
-                Content of the reset password email
-              </Form.Description>
+              <Form.Description>{t('reset-email-content-description')}</Form.Description>
               <Form.Message />
             </Form.Item>
           )}
@@ -113,9 +107,7 @@ export const ClientPortalDetailResetPassword = ({
           disabled={loading}
           variant="secondary"
         >
-          {loading && <Spinner containerClassName="w-auto flex-none" />}
-          Save
-        </Button>
+          {loading && <Spinner containerClassName="w-auto flex-none" />}{t('save')}</Button>
       </form>
     </Form>
   );

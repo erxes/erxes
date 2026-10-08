@@ -33,6 +33,7 @@ import {
   DocumentPrintDialog,
   hasDocumentReplacerSelect,
 } from './DocumentPrintDialog';
+import { useTranslation } from 'react-i18next';
 
 type DocumentsActionsMenuProps = {
   documentItem: IDocument;
@@ -49,6 +50,7 @@ type DocumentsActionsMenuProps = {
 function DocumentLockMenuItem({
   documentItem,
 }: Readonly<{ documentItem: IDocument }>) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const client = useApolloClient();
   const {
     open,
@@ -71,7 +73,7 @@ function DocumentLockMenuItem({
         })
         .catch(() => {
           toast({
-            title: 'Could not refresh document access',
+            title: t('refresh-access-failed'),
             variant: 'destructive',
           });
         });
@@ -85,7 +87,7 @@ function DocumentLockMenuItem({
         disabled={!canRelease || loading}
         onSelect={onRelease}
       >
-        <IconLockOpen /> Unlock
+        <IconLockOpen /> {t('unlock')}
       </Command.Item>
     );
   }
@@ -103,7 +105,7 @@ function DocumentLockMenuItem({
           disabled={loading}
           onSelect={() => setOpen(true)}
         >
-          <IconLock /> Lock
+          <IconLock /> {t('lock')}
         </Command.Item>
       }
     />
@@ -120,15 +122,17 @@ function DocumentsActionsList({
   DocumentsActionsMenuProps,
   'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint'
 >) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+
   return (
     <Command.List>
       <Can action="manageDocuments">
         <Command.Item value="edit" onSelect={onEdit}>
-          <IconEdit /> Edit
+          <IconEdit /> {t('edit')}
         </Command.Item>
       </Can>
       <Command.Item value="print" onSelect={onPrint}>
-        <IconPrinter /> Print
+        <IconPrinter /> {t('print')}
       </Command.Item>
       <Can action="manageDocuments">
         <DocumentLockMenuItem documentItem={documentItem} />
@@ -140,7 +144,7 @@ function DocumentsActionsList({
           disabled={loading}
           className="text-destructive"
         >
-          <IconTrash /> Delete
+          <IconTrash /> {t('delete')}
         </Command.Item>
       </Can>
     </Command.List>
@@ -195,6 +199,7 @@ export function DocumentsActions({
   documentItem: IDocument;
   variant: 'grid' | 'table';
 }) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [open, setOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const setQuery = useSetQueryStateByKey();
@@ -215,11 +220,12 @@ export function DocumentsActions({
   function handleDelete() {
     setOpen(false);
     confirm({
-      message: `Delete "${documentItem.name || 'Untitled'}"?`,
+      message: t('delete-title', {
+        name: documentItem.name || t('untitled'),
+      }),
       options: {
-        description:
-          'This document will be permanently deleted. This action cannot be undone.',
-        okLabel: 'Delete document',
+        description: t('delete-description'),
+        okLabel: t('delete-document'),
       },
     }).then(() =>
       removeDocument({

@@ -115,12 +115,12 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
       <Filter.BarItem queryKey="tagIds">
         <Filter.BarName>
           <IconTags />
-          Tags
+          {t('tags')}
         </Filter.BarName>
         <DocumentTagFilter />
       </Filter.BarItem>
       {createdBy && (
-        <SelectMember.FilterBar queryKey="createdBy" label="Created By" />
+        <SelectMember.FilterBar queryKey="createdBy" label={t('created-by')} />
       )}
     </>
   );
@@ -138,7 +138,7 @@ const DocumentFilterView = () => {
       <Filter.View>
         <Command>
           <Filter.CommandInput
-            placeholder="Filter"
+            placeholder={t('filter-placeholder')}
             variant="secondary"
             className="bg-background"
           />
@@ -150,9 +150,12 @@ const DocumentFilterView = () => {
 
             <Filter.Item value="tagIds">
               <IconTags />
-              Tags
+              {t('tags')}
             </Filter.Item>
-            <SelectMember.FilterItem value="createdBy" label="Created By" />
+            <SelectMember.FilterItem
+              value="createdBy"
+              label={t('created-by')}
+            />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
               <IconCalendarPlus />

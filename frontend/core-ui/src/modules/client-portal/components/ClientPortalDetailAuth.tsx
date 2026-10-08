@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { useUpdateClientPortal } from '@/client-portal/hooks/useUpdateClientPortal';
 import { IClientPortal } from '../types/clientPortal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function stripTypename<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
@@ -41,6 +42,7 @@ export const ClientPortalDetailAuth = ({
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const [activeTab, setActiveTab] = useState<
     'token' | 'email' | 'phone' | 'resend'
   >('token');
@@ -151,7 +153,7 @@ export const ClientPortalDetailAuth = ({
   }
 
   return (
-    <InfoCard title="Authentication Token">
+    <InfoCard title={t('authentication-token')}>
       <InfoCard.Content className="gap-4">
         <ToggleGroup
           type="single"
@@ -162,16 +164,16 @@ export const ClientPortalDetailAuth = ({
           variant="outline"
         >
           <ToggleGroup.Item value="token" className="flex-auto">
-            Token Settings
+            {t('token-settings')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="email" className="flex-auto">
-            Email
+            {t('email')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="phone" className="flex-auto">
-            Phone
+            {t('phone')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="resend" className="flex-auto">
-            OTP Resend
+            {t('otp-resend')}
           </ToggleGroup.Item>
         </ToggleGroup>
 
@@ -193,7 +195,7 @@ export const ClientPortalDetailAuth = ({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label className="block">
-                        Token Pass Method
+                        {t('token-pass-method')}
                       </Form.Label>
                       <ToggleGroup
                         type="single"
@@ -203,10 +205,10 @@ export const ClientPortalDetailAuth = ({
                         className="inline-flex"
                       >
                         <ToggleGroup.Item value="header" className="flex-auto">
-                          Header
+                          {t('header')}
                         </ToggleGroup.Item>
                         <ToggleGroup.Item value="cookie" className="flex-auto">
-                          Cookie
+                          {t('cookie')}
                         </ToggleGroup.Item>
                       </ToggleGroup>
                       <Form.Message />
@@ -220,7 +222,7 @@ export const ClientPortalDetailAuth = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Token expiration duration (days)
+                          {t('token-expiration-description')}
                         </Form.Label>
                         <Input
                           type="number"
@@ -242,7 +244,7 @@ export const ClientPortalDetailAuth = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Refresh Token expiration duration (days)
+                          {t('refresh-token-expiration-description')}
                         </Form.Label>
                         <Input
                           type="number"
@@ -269,7 +271,7 @@ export const ClientPortalDetailAuth = ({
                     }
                   >
                     {loading && <Spinner />}
-                    Update
+                    {t('update')}
                   </Button>
                 </div>
               </form>
@@ -295,7 +297,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Email Verification
+                          {t('enable-email-verification')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -313,7 +315,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Passwordless Login
+                          {t('enable-passwordless-login')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -324,11 +326,13 @@ export const ClientPortalDetailAuth = ({
                     name="email.emailSubject"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Email Subject</Form.Label>
+                        <Form.Label>{t('email-subject')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
-                        <Form.Description>OTP email subject</Form.Description>
+                        <Form.Description>
+                          {t('otp-email-subject')}
+                        </Form.Description>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -338,7 +342,7 @@ export const ClientPortalDetailAuth = ({
                     name="email.codeLength"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
+                        <Form.Label>{t('code-length')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -350,7 +354,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP code length (4-6 digits)
+                          {t('otp-code-length-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -361,12 +365,14 @@ export const ClientPortalDetailAuth = ({
                     name="email.messageTemplate"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
+                        <Form.Label>{t('message-template')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          Email message body with {'{{code}}'} placeholder
+                          {t('email-message-body-description', {
+                            placeholder: '{{code}}',
+                          })}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -377,7 +383,9 @@ export const ClientPortalDetailAuth = ({
                     name="email.duration"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Label>
+                          {t('expiration-duration-minutes')}
+                        </Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -389,7 +397,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP expiration duration in minutes
+                          {t('otp-expiration-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -405,7 +413,7 @@ export const ClientPortalDetailAuth = ({
                   {loading && (
                     <Spinner containerClassName="w-auto flex-none mr-2" />
                   )}
-                  Save
+                  {t('save')}
                 </Button>
               </form>
             </Form>
@@ -430,7 +438,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Phone Verification
+                          {t('enable-phone-verification')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -448,7 +456,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Passwordless Login
+                          {t('enable-passwordless-login')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -459,14 +467,16 @@ export const ClientPortalDetailAuth = ({
                     name="sms.smsProvider"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>SMS Provider</Form.Label>
+                        <Form.Label>{t('sms-provider')}</Form.Label>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
                         >
                           <Form.Control>
                             <Select.Trigger>
-                              <Select.Value placeholder="Select SMS provider" />
+                              <Select.Value
+                                placeholder={t('select-sms-provider')}
+                              />
                             </Select.Trigger>
                           </Form.Control>
                           <Select.Content>
@@ -475,7 +485,7 @@ export const ClientPortalDetailAuth = ({
                           </Select.Content>
                         </Select>
                         <Form.Description>
-                          Select the SMS provider to use for sending OTP codes
+                          {t('select-sms-provider-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -486,7 +496,7 @@ export const ClientPortalDetailAuth = ({
                     name="sms.codeLength"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
+                        <Form.Label>{t('code-length')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -498,7 +508,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP code length (4-6 digits)
+                          {t('otp-code-length-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -509,12 +519,14 @@ export const ClientPortalDetailAuth = ({
                     name="sms.messageTemplate"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
+                        <Form.Label>{t('message-template')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          SMS message body with {'{{code}}'} placeholder
+                          {t('sms-message-body-description', {
+                            placeholder: '{{code}}',
+                          })}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -525,7 +537,9 @@ export const ClientPortalDetailAuth = ({
                     name="sms.duration"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Label>
+                          {t('expiration-duration-minutes')}
+                        </Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -537,7 +551,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP expiration duration in minutes
+                          {t('otp-expiration-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -553,7 +567,7 @@ export const ClientPortalDetailAuth = ({
                   {loading && (
                     <Spinner containerClassName="w-auto flex-none mr-2" />
                   )}
-                  Save
+                  {t('save')}
                 </Button>
               </form>
             </Form>
@@ -571,7 +585,7 @@ export const ClientPortalDetailAuth = ({
                     name="cooldownPeriodInSeconds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Cooldown period (seconds)</Form.Label>
+                        <Form.Label>{t('cooldown-period-seconds')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -588,7 +602,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          Minimum seconds between OTP resend requests
+                          {t('cooldown-period-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -599,7 +613,7 @@ export const ClientPortalDetailAuth = ({
                     name="maxAttemptsPerHour"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Max attempts per hour</Form.Label>
+                        <Form.Label>{t('max-attempts-per-hour')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -616,7 +630,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          Maximum OTP resend requests per hour
+                          {t('max-attempts-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -632,7 +646,7 @@ export const ClientPortalDetailAuth = ({
                   {loading && (
                     <Spinner containerClassName="w-auto flex-none mr-2" />
                   )}
-                  Save
+                  {t('save')}
                 </Button>
               </form>
             </Form>

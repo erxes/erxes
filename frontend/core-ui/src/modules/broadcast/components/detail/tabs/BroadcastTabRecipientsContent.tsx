@@ -122,7 +122,10 @@ const BroadcastRecipients = ({
               <Select.Content>
                 {runs.map((run) => (
                   <Select.Item key={run._id} value={run._id}>
-                    Run {run.runCount} · {run.totalCount} recipients
+                    {t('recipients.run-option', {
+                      runCount: run.runCount,
+                      totalCount: run.totalCount,
+                    })}
                   </Select.Item>
                 ))}
               </Select.Content>

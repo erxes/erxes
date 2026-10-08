@@ -1,8 +1,10 @@
 import { IconDownload } from '@tabler/icons-react';
 import { Button, REACT_APP_API_URL, toast } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateImport = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const [importing, setImporting] = useState(false);
 
   const handleImport = async (file: File) => {
@@ -26,21 +28,21 @@ export const TemplateImport = () => {
 
       if (response.ok) {
         toast({
-          title: 'Success',
-          description: 'Template imported successfully!',
+          title: t('success'),
+          description: t('import-success'),
           variant: 'success',
         });
       } else {
         toast({
-          title: 'Import failed',
+          title: t('import-failed'),
           description: result.error,
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Import failed',
-        description: 'Failed to import template. Please check the file format.',
+        title: t('import-failed'),
+        description: t('import-error'),
         variant: 'destructive',
       });
     } finally {
@@ -66,7 +68,7 @@ export const TemplateImport = () => {
       <Button disabled={importing} variant="outline" asChild>
         <label htmlFor="template-file-upload">
           <IconDownload />
-          {importing ? 'Importing...' : 'Import'}
+          {importing ? t('importing') : t('import')}
         </label>
       </Button>
     </div>

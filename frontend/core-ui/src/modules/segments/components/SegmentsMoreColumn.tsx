@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Can, ISegment } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useRemoveSegments } from '../hooks/useRemoveSegments';
 
 export const SegmentMoreColumnCell = ({
@@ -17,6 +18,7 @@ export const SegmentMoreColumnCell = ({
 }: {
   cell: Cell<ISegment, unknown>;
 }) => {
+  const { t } = useTranslation('segment');
   const { _id, name } = cell.row.original;
   const [, setSegmentId] = useQueryState<string>('segmentId');
   const { confirm } = useConfirm();
@@ -30,14 +32,14 @@ export const SegmentMoreColumnCell = ({
   const handleDelete = async () => {
     if (!_id) {
       toast({
-        title: 'Error',
-        description: 'Segment ID is missing',
+        title: t('error'),
+        description: t('segment-id-missing'),
         variant: 'destructive',
       });
       return;
     }
 
-    let description = 'This cannot be undone.';
+    let description = t('delete-undone');
 
     try {
       const [usage] = await readUsage([_id]);
@@ -48,29 +50,33 @@ export const SegmentMoreColumnCell = ({
           .map((automation) => automation.name || automation._id)
           .join(', ');
 
-        description =
-          `${automations.length} automation(s) use this segment: ${named}. ` +
-          'They will stop enrolling anyone. This cannot be undone.';
+        description = t('delete-in-use', {
+          total: automations.length,
+          names: named,
+        });
       }
     } catch (e) {
-      description =
-        'What uses this segment could not be checked. This cannot be undone.';
+      description = t('delete-usage-unknown');
     }
 
     confirm({
-      message: `Delete "${name}"?`,
-      options: { description, confirmationValue: 'delete', okLabel: 'Delete' },
+      message: t('delete-confirm', { name }),
+      options: {
+        description,
+        confirmationValue: 'delete',
+        okLabel: t('delete'),
+      },
     }).then(async () => {
       try {
         await removeSegments([_id]);
         toast({
-          title: 'Success',
+          title: t('success'),
           variant: 'success',
-          description: 'Segment deleted successfully',
+          description: t('segment-deleted'),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -89,10 +95,10 @@ export const SegmentMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

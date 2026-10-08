@@ -8,6 +8,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
+import { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import {
   Badge,
@@ -15,6 +16,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { MembersInline } from 'ui-modules';
 import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
@@ -22,13 +24,15 @@ import {
   EmailTemplatesEmptyState,
   EmailTemplatesErrorState,
 } from '@/emailTemplates/components/EmailTemplatesStates';
+import { useTranslation } from 'react-i18next';
 
 const FORMAT_LABEL = {
-  maily: 'Email editor',
-  blocks: 'Blocks',
+  maily: 'format-maily',
+  blocks: 'format-blocks',
 };
 
 const NameCell = ({ template }: { template: IEmailTemplate }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const navigate = useNavigate();
 
   return (
@@ -36,13 +40,13 @@ const NameCell = ({ template }: { template: IEmailTemplate }) => {
       onClick={() => navigate(`${EmailTemplatePath.Index}/${template._id}`)}
     >
       <span className="truncate font-medium">
-        {template.name || 'Untitled'}
+        {template.name || t('untitled')}
       </span>
     </RecordTableInlineCell>
   );
 };
 
-const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
+const emailTemplateColumns = (t: TFunction): ColumnDef<IEmailTemplate>[] => [
   {
     id: 'more',
     size: 33,
@@ -54,7 +58,7 @@ const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconMail} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconMail} label={t('name')} />,
     cell: ({ cell }) => <NameCell template={cell.row.original} />,
   },
   {
@@ -63,7 +67,7 @@ const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
     header: () => (
       <RecordTable.InlineHead
         icon={IconFileDescription}
-        label="Description"
+        label={t('description')}
       />
     ),
     cell: ({ cell }) => (
@@ -77,11 +81,11 @@ const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
   {
     id: 'contentFormat',
     accessorKey: 'contentFormat',
-    header: () => <RecordTable.InlineHead icon={IconMail} label="Editor" />,
+    header: () => <RecordTable.InlineHead icon={IconMail} label={t('editor')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="secondary">
-          {FORMAT_LABEL[emailTemplateFormat(cell.row.original)]}
+          {t(FORMAT_LABEL[emailTemplateFormat(cell.row.original)])}
         </Badge>
       </RecordTableInlineCell>
     ),
@@ -89,7 +93,7 @@ const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <MembersInline.Provider
@@ -106,7 +110,7 @@ const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created at" />
+      <RecordTable.InlineHead icon={IconCalendarPlus} label={t('created-at')} />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -123,6 +127,8 @@ const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
 ];
 
 export const EmailTemplatesTable = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
+  const columns = useMemo(() => emailTemplateColumns(t), [t]);
   const { emailTemplates, pageInfo, loading, error, refetch, handleFetchMore } =
     useEmailTemplates();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -137,7 +143,7 @@ export const EmailTemplatesTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={emailTemplateColumns}
+      columns={columns}
       data={emailTemplates}
       className="m-3"
       stickyColumns={['more', 'name']}

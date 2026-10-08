@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { IconBuilding } from '@tabler/icons-react';
 import { Empty, RecordTable } from 'erxes-ui';
 import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
@@ -8,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 export function ClientPortalRecordTable() {
   const { clientPortals, loading, error } = useClientPortals();
   const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
+  const columns = useMemo(() => clientPortalColumns(t), [t]);
 
   if (!loading && !error && !clientPortals?.length) {
     return (
@@ -33,7 +35,7 @@ export function ClientPortalRecordTable() {
   return (
     <RecordTable.Provider
       data={clientPortals || []}
-      columns={clientPortalColumns}
+      columns={columns}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
     >

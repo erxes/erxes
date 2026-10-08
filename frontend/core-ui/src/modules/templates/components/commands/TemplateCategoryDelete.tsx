@@ -4,6 +4,7 @@ import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { useTemplateCategoryRemove } from '../../hooks/useTemplateCategoryRemove';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateCategoryDelete = ({
   templateCategoryIds,
@@ -12,6 +13,7 @@ export const TemplateCategoryDelete = ({
   templateCategoryIds: string[];
   rows: Row<TemplateCategory>[];
 }) => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
   const { confirm } = useConfirm();
   const { templateCategoryRemove } = useTemplateCategoryRemove();
 
@@ -23,13 +25,13 @@ export const TemplateCategoryDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${templateCategoryIds.length} selected template categor${templateCategoryIds.length === 1 ? 'y' : 'ies'}?`,
+          message: t('delete-confirm', { count: templateCategoryIds.length }),
         }).then(() => {
           templateCategoryRemove({
             variables: { _ids: templateCategoryIds },
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -39,9 +41,11 @@ export const TemplateCategoryDelete = ({
                 row.toggleSelected(false);
               });
               toast({
-                title: 'Success',
+                title: t('success'),
                 variant: 'success',
-                description: `Template categor${templateCategoryIds.length === 1 ? 'y' : 'ies'} deleted successfully`,
+                description: t('delete-success', {
+                  count: templateCategoryIds.length,
+                }),
               });
             },
           });
@@ -49,7 +53,7 @@ export const TemplateCategoryDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

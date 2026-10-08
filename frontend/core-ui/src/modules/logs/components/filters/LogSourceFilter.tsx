@@ -11,12 +11,14 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const LogSourceFilter = ({
   onValueChange,
 }: {
   onValueChange?: () => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [queries, setQueries] = useMultiQueryState<{
     source: string;
     sourceOperator: string;
@@ -44,12 +46,12 @@ export const LogSourceFilter = ({
           {
             value: 'auth',
             icon: IconUserCheck,
-            label: 'Authentication',
+            label: t('source-authentication'),
           },
           {
             value: 'webhook',
             icon: IconWebhook,
-            label: 'Api Request',
+            label: t('source-api-request'),
           },
         ].map(({ value, icon: Icon, label }) => (
           <Command.Item

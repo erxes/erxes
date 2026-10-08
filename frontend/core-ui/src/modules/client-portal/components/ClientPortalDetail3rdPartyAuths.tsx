@@ -5,15 +5,17 @@ import { ClientPortalDetailGoogle } from './ClientPortalDetailGoogle';
 import { ClientPortalDetailFacebook } from './ClientPortalDetailFacebook';
 import { ClientPortalDetailSocialPay } from './ClientPortalDetailSocialPay';
 import { ClientPortalDetailToki } from './ClientPortalDetailToki';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetail3rdPartyAuths = ({
   clientPortal = {},
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const [authType, setAuthType] = useState<string>('google');
   return (
-    <InfoCard title="Third Party Authentication">
+    <InfoCard title={t('third-party-authentication')}>
       <InfoCard.Content>
         <ToggleGroup
           type="single"

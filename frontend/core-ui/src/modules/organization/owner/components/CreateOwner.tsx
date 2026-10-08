@@ -9,8 +9,10 @@ import {
   PURPOSE_OPTIONS,
   useCreateOwnerForm,
 } from '@/organization/owner/hooks/useCreateOwnerForm';
+import { useTranslation } from 'react-i18next';
 
 export const CreateOwner = () => {
+  const { t } = useTranslation('organization', { keyPrefix: 'create-owner' });
   const { form } = useCreateOwnerForm();
   const { createOwner } = useCreateOwner();
 
@@ -33,7 +35,7 @@ export const CreateOwner = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <Input type="email" placeholder="Enter email" {...field} />
+                <Input type="email" placeholder={t('enter-email')} {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -46,7 +48,11 @@ export const CreateOwner = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <Input type="text" placeholder="Enter first name" {...field} />
+                <Input
+                  type="text"
+                  placeholder={t('enter-first-name')}
+                  {...field}
+                />
               </Form.Control>
             </Form.Item>
           )}
@@ -58,7 +64,11 @@ export const CreateOwner = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <Input type="text" placeholder="Enter last name" {...field} />
+                <Input
+                  type="text"
+                  placeholder={t('enter-last-name')}
+                  {...field}
+                />
               </Form.Control>
             </Form.Item>
           )}
@@ -72,7 +82,7 @@ export const CreateOwner = () => {
               <Form.Control>
                 <Input
                   type="password"
-                  placeholder="Enter password"
+                  placeholder={t('enter-password')}
                   {...field}
                 />
               </Form.Control>
@@ -89,7 +99,7 @@ export const CreateOwner = () => {
               <Form.Control>
                 <Input
                   type="password"
-                  placeholder="Confirm password"
+                  placeholder={t('confirm-password')}
                   {...field}
                 />
               </Form.Control>
@@ -112,12 +122,12 @@ export const CreateOwner = () => {
                   <Select.Trigger
                     className={!field.value ? 'text-muted-foreground' : ''}
                   >
-                    {field.value || 'Select purpose'}
+                    {field.value || t('select-purpose')}
                   </Select.Trigger>
                   <Select.Content>
                     {PURPOSE_OPTIONS.map((option) => (
                       <Select.Item key={option.value} value={option.value}>
-                        {option.label}
+                        {t(option.labelKey)}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -140,13 +150,13 @@ export const CreateOwner = () => {
                 />
               </Form.Control>
               <div className="space-y-1 leading-none">
-                <Form.Label>Subscribe to email updates</Form.Label>
+                <Form.Label>{t('subscribe-to-email-updates')}</Form.Label>
               </div>
             </Form.Item>
           )}
         />
 
-        <Button type="submit">Create Owner</Button>
+        <Button type="submit">{t('create-owner')}</Button>
       </form>
     </Form>
   );

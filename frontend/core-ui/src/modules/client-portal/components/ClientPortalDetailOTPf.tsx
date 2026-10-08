@@ -15,12 +15,14 @@ import { z } from 'zod';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetailOTP = ({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const otpConfig = clientPortal?.securityAuthConfig?.otpConfig;
   const [activeTab, setActiveTab] = useState<'email' | 'sms'>('email');
 
@@ -108,9 +110,7 @@ export const ClientPortalDetailOTP = ({
           onCheckedChange={handleEnableOTP}
           disabled={loading}
         />
-        <Label variant="peer" htmlFor="enableOTP">
-          Enable OTP
-        </Label>
+        <Label variant="peer" htmlFor="enableOTP">{t('enable-otp')}</Label>
       </div> */}
       {isOpen && (
         <Form {...form}>
@@ -123,8 +123,8 @@ export const ClientPortalDetailOTP = ({
               onValueChange={(val) => setActiveTab(val as 'email' | 'sms')}
             >
               <Tabs.List>
-                <Tabs.Trigger value="email">Email</Tabs.Trigger>
-                <Tabs.Trigger value="sms">SMS/Phone</Tabs.Trigger>
+                <Tabs.Trigger value="email">{t('email')}</Tabs.Trigger>
+                <Tabs.Trigger value="sms">{t('sms-phone')}</Tabs.Trigger>
               </Tabs.List>
 
               <Tabs.Content value="email" className="mt-4">
@@ -141,7 +141,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Email Verification
+                          {t('enable-email-verification')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -159,7 +159,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Passwordless Login
+                          {t('enable-passwordless-login')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -170,11 +170,13 @@ export const ClientPortalDetailOTP = ({
                     name="email.emailSubject"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Email Subject</Form.Label>
+                        <Form.Label>{t('email-subject')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
-                        <Form.Description>OTP email subject</Form.Description>
+                        <Form.Description>
+                          {t('otp-email-subject')}
+                        </Form.Description>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -184,7 +186,7 @@ export const ClientPortalDetailOTP = ({
                     name="email.codeLength"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
+                        <Form.Label>{t('code-length')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -196,7 +198,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP code length (4-6 digits)
+                          {t('otp-code-length-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -207,12 +209,14 @@ export const ClientPortalDetailOTP = ({
                     name="email.messageTemplate"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
+                        <Form.Label>{t('message-template')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          Email message body with {'{{code}}'} placeholder
+                          {t('email-message-body-description', {
+                            placeholder: '{{code}}',
+                          })}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -223,7 +227,9 @@ export const ClientPortalDetailOTP = ({
                     name="email.duration"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Label>
+                          {t('expiration-duration-minutes')}
+                        </Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -235,7 +241,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP expiration duration in minutes
+                          {t('otp-expiration-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -258,7 +264,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Phone Verification
+                          {t('enable-phone-verification')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -276,7 +282,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Label variant="peer">
-                          Enable Passwordless Login
+                          {t('enable-passwordless-login')}
                         </Form.Label>
                         <Form.Message />
                       </Form.Item>
@@ -287,14 +293,16 @@ export const ClientPortalDetailOTP = ({
                     name="sms.smsProvider"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>SMS Provider</Form.Label>
+                        <Form.Label>{t('sms-provider')}</Form.Label>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
                         >
                           <Form.Control>
                             <Select.Trigger>
-                              <Select.Value placeholder="Select SMS provider" />
+                              <Select.Value
+                                placeholder={t('select-sms-provider')}
+                              />
                             </Select.Trigger>
                           </Form.Control>
                           <Select.Content>
@@ -303,7 +311,7 @@ export const ClientPortalDetailOTP = ({
                           </Select.Content>
                         </Select>
                         <Form.Description>
-                          Select the SMS provider to use for sending OTP codes
+                          {t('select-sms-provider-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -314,7 +322,7 @@ export const ClientPortalDetailOTP = ({
                     name="sms.codeLength"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
+                        <Form.Label>{t('code-length')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -326,7 +334,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP code length (4-6 digits)
+                          {t('otp-code-length-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -337,12 +345,14 @@ export const ClientPortalDetailOTP = ({
                     name="sms.messageTemplate"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
+                        <Form.Label>{t('message-template')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          SMS message body with {'{{code}}'} placeholder
+                          {t('sms-message-body-description', {
+                            placeholder: '{{code}}',
+                          })}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -353,7 +363,9 @@ export const ClientPortalDetailOTP = ({
                     name="sms.duration"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
+                        <Form.Label>
+                          {t('expiration-duration-minutes')}
+                        </Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -365,7 +377,7 @@ export const ClientPortalDetailOTP = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          OTP expiration duration in minutes
+                          {t('otp-expiration-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -384,7 +396,7 @@ export const ClientPortalDetailOTP = ({
               {loading && (
                 <Spinner containerClassName="w-auto flex-none mr-2" />
               )}
-              Save
+              {t('save')}
             </Button>
           </form>
         </Form>

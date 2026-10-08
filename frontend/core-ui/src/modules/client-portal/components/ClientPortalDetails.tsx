@@ -10,8 +10,10 @@ import { ClientPortalDetail3rdPartyAuths } from './ClientPortalDetail3rdPartyAut
 import { ClientPortalDetailToken } from './ClientPortalDetailToken';
 import { ClientPortalDetailSMSProviders } from './ClientPortalDetailSMSProviders';
 import { ClientPortalDetailFirebase } from './ClientPortalDetailFirebase';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalDetails = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const { clientPortalId } = useParams<{ clientPortalId: string }>();
 
   const { clientPortal, loading, error } = useClientPortal(
@@ -29,7 +31,7 @@ export const ClientPortalDetails = () => {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full text-destructive">
-        Error: {error.message}
+        {t('error-with-message', { message: error.message })}
       </div>
     );
   }

@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
+import { TFunction } from 'i18next';
 import {
   Badge,
   RecordTable,
@@ -42,12 +43,12 @@ const generateUserName = (user: IUser | undefined) => {
   return user.email || '';
 };
 
-export const logColumns: ColumnDef<ILogDoc>[] = [
+export const logColumns = (t: TFunction): ColumnDef<ILogDoc>[] => [
   {
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconInfoCircle} label="Status" />
+      <RecordTable.InlineHead icon={IconInfoCircle} label={t('status-label')} />
     ),
     cell: ({ cell }) => {
       const status = cell.getValue() as 'failed' | 'success';
@@ -69,7 +70,7 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -83,7 +84,7 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
     id: 'source',
     accessorKey: 'source',
     header: () => (
-      <RecordTable.InlineHead icon={IconSourceCode} label="Source" />
+      <RecordTable.InlineHead icon={IconSourceCode} label={t('source')} />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
@@ -92,7 +93,9 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
   {
     id: 'action',
     accessorKey: 'action',
-    header: () => <RecordTable.InlineHead icon={IconSettings} label="Action" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconSettings} label={t('action')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -100,7 +103,9 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconCode} label="Operation" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCode} label={t('operation')} />
+    ),
     cell: ({ cell }) => {
       const name = cell.getValue() as string | undefined;
       return (
@@ -119,13 +124,13 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
   {
     id: 'userId',
     accessorKey: 'userId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('user')} />,
     cell: ({ cell }) => {
       const { user, userId } = cell?.row?.original || {};
       if (!user) {
         return (
           <RecordTableInlineCell className="text-border">
-            No User
+            {t('no-user')}
           </RecordTableInlineCell>
         );
       }

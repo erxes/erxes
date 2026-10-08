@@ -8,9 +8,11 @@ import { isDefined } from 'erxes-ui';
 import { CreateOwner } from '@/organization/owner/components/CreateOwner';
 import { AppPath } from '@/types/paths/AppPath';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const CreateOwnerPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('organization', { keyPrefix: 'create-owner' });
   const [currentOrganization] = useAtom(currentOrganizationState);
 
   useEffect(() => {
@@ -24,11 +26,9 @@ const CreateOwnerPage = () => {
       <div className="motion-preset-slide-down-md grid gap-5">
         <div className="flex flex-col items-center gap-2">
           <h2 className="font-semibold text-2xl">
-            Initial Configuration Steps
+            {t('initial-configuration-steps')}
           </h2>
-          <p className="text-xs text-muted-foreground">
-            Please fill out the following form to complete your installation
-          </p>
+          <p className="text-xs text-muted-foreground">{t('fill-out-form')}</p>
         </div>
         <CreateOwner />
       </div>

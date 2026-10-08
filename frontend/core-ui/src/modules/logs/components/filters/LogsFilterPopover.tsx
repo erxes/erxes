@@ -19,8 +19,10 @@ import { LogContentTypeFilter } from './LogContentTypeFilter';
 import { LogDocIdFilter } from './LogDocIdFilter';
 import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
+import { useTranslation } from 'react-i18next';
 
 export const LogsFilterPopover = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [queries] = useMultiQueryState<{
     status: string;
     source: string;
@@ -51,41 +53,41 @@ export const LogsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  Status
+                  {t('status-label')}
                 </Filter.Item>
                 <Filter.Item value="source">
                   <IconSourceCode />
-                  Source
+                  {t('source')}
                 </Filter.Item>
                 {queries?.source && (
                   <Filter.Item value="action">
                     <IconProgressCheck />
-                    Action
+                    {t('action')}
                   </Filter.Item>
                 )}
                 <Filter.Item value="userIds">
                   <IconUser />
-                  User
+                  {t('user')}
                 </Filter.Item>
                 <Filter.Item value="contentType">
                   <IconTag />
-                  Content Type
+                  {t('content-type')}
                 </Filter.Item>
                 <Filter.Item value="docId" inDialog>
                   <IconHash />
-                  Document ID
+                  {t('document-id')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdAt">
                   <IconCalendarPlus />
-                  Created At
+                  {t('created-at')}
                 </Filter.Item>
               </Command.List>
             </Command>

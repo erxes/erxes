@@ -5,6 +5,7 @@ import {
   StructureDepartmentName,
   StructureUserName,
 } from './StructureReferenceName';
+import { useTranslation } from 'react-i18next';
 
 export const DepartmentNotificationContent = ({
   action,
@@ -12,6 +13,7 @@ export const DepartmentNotificationContent = ({
   fromUser,
   contentTypeId,
 }: TNotification) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { departmentDetail, loading, error } = useDepartmentDetailsById({
     variables: { id: contentTypeId },
   });
@@ -22,24 +24,24 @@ export const DepartmentNotificationContent = ({
       error={error}
       loading={loading}
       name={departmentDetail?.title}
-      contentType="department"
-      openLabel="Open department"
+      contentType={t('department')}
+      openLabel={t('open-department')}
       openPath={`/settings/structures/departments?department_id=${contentTypeId}`}
       createdAt={createdAt}
       fromUser={fromUser}
       details={[
-        { label: 'Code', value: departmentDetail?.code },
-        { label: 'Status', value: departmentDetail?.status },
-        { label: 'Description', value: departmentDetail?.description },
-        { label: 'Members', value: departmentDetail?.userCount },
+        { label: t('code'), value: departmentDetail?.code },
+        { label: t('status-label'), value: departmentDetail?.status },
+        { label: t('description'), value: departmentDetail?.description },
+        { label: t('members'), value: departmentDetail?.userCount },
         {
-          label: 'Supervisor',
+          label: t('supervisor'),
           value: departmentDetail?.supervisorId ? (
             <StructureUserName userId={departmentDetail.supervisorId} />
           ) : undefined,
         },
         {
-          label: 'Parent department',
+          label: t('parent-department'),
           value: departmentDetail?.parentId ? (
             <StructureDepartmentName departmentId={departmentDetail.parentId} />
           ) : undefined,

@@ -13,6 +13,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 interface SelectProjectTypesContextType {
   templateTypes?: Array<TemplateType>;
   values?: string[];
@@ -66,12 +67,13 @@ export const SelectProjectTypesProvider = ({
 };
 
 const SelectProjectTypesValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const { values, templateTypes = [] } = useSelectProjectTypesContext();
 
   if (!values) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status...'}
+        {placeholder || t('select-status-placeholder')}
       </span>
     );
   }
@@ -128,6 +130,7 @@ const SelectProjectTypesCommandItem = ({ type }: { type: TemplateType }) => {
 };
 
 const SelectProjectTypesContent = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const {
     onValueChange,
     values = [],
@@ -138,7 +141,7 @@ const SelectProjectTypesContent = () => {
     <Command id="status-command-menu">
       <Command.Input placeholder="Төрөл сонгоно уу" />
       <Command.List>
-        <Command.Empty>No status found</Command.Empty>
+        <Command.Empty>{t('no-status-found')}</Command.Empty>
 
         {templateTypes.map((type) => (
           <SelectProjectTypesCommandItem type={type} />
