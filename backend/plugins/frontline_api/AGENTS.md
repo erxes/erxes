@@ -708,6 +708,17 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
     `inbox.integrations.count`, `inbox.getIntegrationKinds` —
     `showIntegrations`
   - `form.submissionsByConversation` — `showFormSubmissions`
+- GraphQL Facebook bot and page contracts read as object types, not `JSON`:
+  `FacebookMessengerBot._id` is non-null; its `account` is `FacebookBotAccount`
+  (`_id`, `name`) and its `page` is `FacebookBotPage` (`id`, `name` from the
+  Graph API, `null` when the page token is rejected).
+  `facebookGetAccounts` returns `[FacebookAccount]` (`_id`, `kind`, `name`,
+  never a token), `facebookGetPages` returns `[FacebookPage]` (`id`, `name`,
+  `isUsed`; `[]` when the Graph API call fails), `facebookGetIntegrations`
+  returns `[FacebookIntegrationRecord]` (`_id`, `kind`, `accountId`,
+  `erxesApiId`, `facebookPageIds`), and `facebookGetBotPosts` /
+  `facebookGetBotPost` return `FacebookPosts`. Bot remove and repair results
+  stay `JSON`.
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,

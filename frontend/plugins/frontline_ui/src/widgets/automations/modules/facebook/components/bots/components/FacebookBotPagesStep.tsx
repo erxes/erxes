@@ -1,15 +1,15 @@
 import { useFacebookBots } from '@/integrations/facebook/hooks/useFacebookBots';
-import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages';
+import {
+  TFacebookPage,
+  useFacebookPages,
+} from '@/integrations/facebook/hooks/useFacebookPages';
 import { selectedFacebookPageAtom } from '@/integrations/facebook/states/facebookStates';
 import { cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-type FacebookPageOption = {
-  id: string;
-  name: string;
-  isUsed: boolean;
+type FacebookPageOption = TFacebookPage & {
   isBotUsed: boolean;
 };
 
@@ -33,7 +33,7 @@ export const FacebookBotPagesStep = () => {
     () =>
       facebookGetPages.map((page) => ({
         ...page,
-        isBotUsed: botPageIds.has(page.id),
+        isBotUsed: !!page.id && botPageIds.has(page.id),
       })),
     [botPageIds, facebookGetPages],
   );
@@ -82,7 +82,7 @@ const FacebookBotPagesStepContent = ({
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
 
   const handleSelect = (page: FacebookPageOption) => {
-    if (page.isBotUsed) {
+    if (page.isBotUsed || !page.id) {
       return;
     }
 
@@ -100,7 +100,7 @@ const FacebookBotPagesStepContent = ({
       <Command.Item
         disabled={page.isBotUsed}
         key={page.id}
-        value={page.name}
+        value={page.name ?? ''}
         onSelect={() => handleSelect(page)}
         className={cn(
           'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3 cursor-pointer',
@@ -109,7 +109,7 @@ const FacebookBotPagesStepContent = ({
         )}
       >
         <RadioGroup.Item
-          value={page.id}
+          value={page.id ?? ''}
           checked={isSelected}
           disabled={page.isBotUsed}
           className="bg-background"

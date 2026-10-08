@@ -2157,7 +2157,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   (`ReportChartFields`). The inbox message inserted and updated
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
-- A module typed from the schema (so far `report` and `integrations/call`) writes every document as
+- A module typed from the schema (so far `report`, `integrations/call` and the
+  Facebook bot widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2183,6 +2184,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `[CallExtension]`, and `callQueueList` is `[CallQueueStatistic]`. Call hooks
   that return a list drop null rows with `isDefined`, and components default
   null integration fields where they render.
+- Facebook bots share one selection: the `FacebookMessengerBotListFields`
+  fragment in `integrations/facebook/graphql/queries/facebookBots.ts` backs
+  `FACEBOOK_BOTS_LIST` and both bot save mutations, so a saved bot is written
+  into the list cache with every field the list reads. A save mutation never
+  selects less than that fragment. `IFacebookBot` is the fragment type,
+  `IFacebookBotDetail` the form query and `IFacebookBotProfile` the trigger
+  profile query.
+- Bot persistent menus and ice breakers without an `_id` cannot be targeted by
+  a trigger, so trigger code drops them with `hasBotItemId`
+  (`widgets/automations/modules/facebook/components/bots/utils`). The bot form
+  narrows a stored menu `type` and `tag` through `facebookBotFormSchema`
+  instead of casting.
+- `useFacebookBotAutomations` reads core `automations` triggers, whose
+  `config` is core-owned `JSON`; `isBotTriggerConfig` narrows it before the
+  bot id is compared.
 - `useTransferCall` refetches the extension list by its document
   (`CALL_EXTENSION_LIST`), not by an operation-name string.
 - `ReportChartFilters` is the `TicketReportFilter` input a card builds and

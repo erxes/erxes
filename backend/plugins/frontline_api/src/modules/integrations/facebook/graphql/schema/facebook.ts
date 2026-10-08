@@ -170,13 +170,43 @@ export const types = `
     question: String
   }
 
+  type FacebookBotAccount {
+    _id: String!
+    name: String
+  }
+
+  type FacebookBotPage {
+    id: String
+    name: String
+  }
+
+  type FacebookAccount {
+    _id: String!
+    kind: String
+    name: String
+  }
+
+  type FacebookPage {
+    id: String
+    name: String
+    isUsed: Boolean
+  }
+
+  type FacebookIntegrationRecord {
+    _id: String!
+    kind: String
+    accountId: String
+    erxesApiId: String
+    facebookPageIds: [String]
+  }
+
   type FacebookMessengerBot {
-    _id: String
+    _id: String!
     name:String
     accountId: String
-    account:JSON
+    account: FacebookBotAccount
     pageId: String
-    page: JSON
+    page: FacebookBotPage
     createdAt: Date
     updatedAt: Date
     createdBy: String
@@ -199,13 +229,13 @@ export const types = `
 `;
 
 export const queries = `
-  facebookGetAccounts(kind: String, integrationKind: String): JSON
-  facebookGetIntegrations(kind: String): JSON
+  facebookGetAccounts(kind: String, integrationKind: String): [FacebookAccount]
+  facebookGetIntegrations(kind: String): [FacebookIntegrationRecord]
   facebookGetIntegrationDetail(erxesApiId: String): JSON
   facebookGetConfigs: JSON
   facebookGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookGetCommentCount(${commentQueryParamDefs}): JSON
-  facebookGetPages(accountId: String! kind: String!): JSON
+  facebookGetPages(accountId: String! kind: String!): [FacebookPage]
   facebookConversationDetail(_id: String!): JSON
   facebookConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookConversationMessage]
   facebookConversationMessagesCount(conversationId: String!): Int
@@ -218,8 +248,8 @@ export const queries = `
   facebookMessengerBot(_id:String):FacebookMessengerBot
   facebookMessengerBotDelivery(_id:String!):FacebookBotDelivery
   facebookMessengerBotCommentReplyStats(_id:String!, limit:Int):[FacebookBotCommentReplyStat]
-  facebookGetBotPosts(botId:String):JSON
-  facebookGetBotPost(botId:String,postId:String):JSON
+  facebookGetBotPosts(botId:String):[FacebookPosts]
+  facebookGetBotPost(botId:String,postId:String):FacebookPosts
 `;
 
 export const mutations = `
