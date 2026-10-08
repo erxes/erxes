@@ -24,6 +24,7 @@ import { KnowledgeBaseView } from './messenger/components/faq/components/Knowled
 import { WebCall } from './messenger/components/web-call';
 import { CustomerFormInline } from './messenger/components/customer-form-inline';
 import { useCustomerData } from './messenger/hooks/useCustomerData';
+import { replayEarlyPublisherMessages } from '@libs/earlyPublisherMessages';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
@@ -103,6 +104,11 @@ export function App() {
       window.removeEventListener('message', handleMessage);
     };
   }, [isMessengerVisible, isSmallContainer]);
+
+  // Runs after the listeners above are attached
+  useEffect(() => {
+    replayEarlyPublisherMessages();
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {

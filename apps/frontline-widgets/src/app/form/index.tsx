@@ -16,6 +16,7 @@ import { getVisitorId, postMessage } from '@libs/utils';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
 import { ErxesFormCallout } from './components/ErxesFormCallout';
 import { isCalloutVisible } from './utils/formUtils';
+import { replayEarlyPublisherMessages } from '@libs/earlyPublisherMessages';
 
 export const Form = () => {
   const [settings, setSettings] = useState<any>({});
@@ -73,6 +74,11 @@ export const Form = () => {
       window.removeEventListener('message', handleMessage);
     };
   }, [loading]);
+
+  // Runs after the listener above is attached
+  useEffect(() => {
+    replayEarlyPublisherMessages();
+  }, []);
 
   useEffect(() => {
     if (settings.form_id && settings.channel_id) {
