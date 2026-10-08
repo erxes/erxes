@@ -14,8 +14,8 @@ const EARLY_CONNECT_DELAY = 2000;
 type LauncherLook = {
   color?: string;
   foreground?: string;
-  backgroundImage: string;
-  hasCustomLogo: boolean;
+  // Empty for the default erxes logo
+  logoUrl: string;
 };
 
 type LauncherCache = LauncherLook & {
@@ -330,8 +330,8 @@ const sendMessageToIframe = (contentWindow: Window) => {
       return;
     }
 
-    backgroundImage = look.backgroundImage;
-    hasCustomLogo = look.hasCustomLogo;
+    hasCustomLogo = Boolean(look.logoUrl);
+    backgroundImage = hasCustomLogo ? `url(${look.logoUrl})` : defaultLogo;
 
     (launcherBtn as HTMLElement).style.cssText = `
       width: 48px;
@@ -522,14 +522,12 @@ const sendMessageToIframe = (contentWindow: Window) => {
       }
 
       const { primary, launcherLogo: logo } = uiOptions;
-      const hasLogo = logo?.length > 0;
       const look: LauncherLook = {
         color: primary?.DEFAULT,
         foreground: primary?.foreground,
-        hasCustomLogo: hasLogo,
-        backgroundImage: hasLogo
-          ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
-          : defaultLogo,
+        logoUrl: logo
+          ? `${baseUrl}/read-file?key=${encodeURIComponent(logo)}`
+          : '',
       };
 
       applyLauncherLook(look);
