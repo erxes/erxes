@@ -27,7 +27,8 @@ export const AiAgentRuntimeForm = () => {
   const { control } = useFormContext<TAiAgentForm>();
   const values = useWatch({ control });
 
-  const temperature = values?.runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
+  const temperature =
+    values?.runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
   const maxTokens = values?.runtime?.maxTokens ?? RUNTIME_DEFAULTS.maxTokens;
   const timeoutMs = values?.runtime?.timeoutMs ?? RUNTIME_DEFAULTS.timeoutMs;
 
@@ -45,7 +46,10 @@ export const AiAgentRuntimeForm = () => {
 
       <Collapsible className="group">
         <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start font-medium">
+          <Button
+            variant="secondary"
+            className="w-full justify-start font-medium"
+          >
             <Collapsible.TriggerIcon />
             <span>{t('settings-agent-advanced-limits')}</span>
           </Button>
@@ -73,7 +77,9 @@ export const AiAgentRuntimeForm = () => {
                     min={0}
                     max={2}
                     value={field.value ?? RUNTIME_DEFAULTS.temperature}
-                    onChange={(event) => field.onChange(toNumber(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(toNumber(event.target.value))
+                    }
                   />
                 </Form.Control>
                 <Form.Description>
@@ -96,7 +102,9 @@ export const AiAgentRuntimeForm = () => {
                     min={1}
                     max={MAX_TOKENS_LIMIT}
                     value={field.value ?? RUNTIME_DEFAULTS.maxTokens}
-                    onChange={(event) => field.onChange(toNumber(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(toNumber(event.target.value))
+                    }
                   />
                 </Form.Control>
                 <Form.Description>
@@ -119,7 +127,9 @@ export const AiAgentRuntimeForm = () => {
                     min={1000}
                     max={30000}
                     value={field.value ?? RUNTIME_DEFAULTS.timeoutMs}
-                    onChange={(event) => field.onChange(toNumber(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(toNumber(event.target.value))
+                    }
                   />
                 </Form.Control>
                 <Form.Description>

@@ -55,8 +55,8 @@ export const AutomationBuilderStatusSwitch = ({
   const ownershipLine = !flowNeedsActor(actions, actionConstMap)
     ? null
     : takingOver
-    ? translate('activate-owner-taking')
-    : translate('activate-owner-existing', { name: ownerName || '' });
+      ? translate('activate-owner-taking')
+      : translate('activate-owner-existing', { name: ownerName || '' });
 
   const isActivatingDuplicate = isActivating && isUntouchedDuplicate;
 
@@ -109,8 +109,8 @@ export const AutomationBuilderStatusSwitch = ({
                       {isActivatingDuplicate
                         ? translate('header-activate-duplicate-title')
                         : isActivating
-                        ? translate('header-activate-title')
-                        : translate('header-deactivate-title')}
+                          ? translate('header-activate-title')
+                          : translate('header-deactivate-title')}
                     </AlertDialog.Title>
                     <AlertDialog.Description>
                       {isActivatingDuplicate
@@ -123,8 +123,8 @@ export const AutomationBuilderStatusSwitch = ({
                             )
                           : translate('header-activate-duplicate-description')
                         : isActivating
-                        ? translate('header-activate-description')
-                        : translate('header-deactivate-description')}
+                          ? translate('header-activate-description')
+                          : translate('header-deactivate-description')}
                       {isActivating && ownershipLine && (
                         <span className="mt-2 block text-foreground">
                           {ownershipLine}
@@ -138,8 +138,8 @@ export const AutomationBuilderStatusSwitch = ({
                       {isActivatingDuplicate
                         ? translate('header-activate-anyway')
                         : isActivating
-                        ? translate('header-save-and-activate')
-                        : translate('header-save-and-deactivate')}
+                          ? translate('header-save-and-activate')
+                          : translate('header-save-and-deactivate')}
                     </AlertDialog.Action>
                   </AlertDialog.Footer>
                 </AlertDialog.Content>

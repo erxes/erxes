@@ -99,7 +99,8 @@ export const AutomationHistories = ({
 }: {
   automationId?: string;
 }) => {
-  const { refetch, error, ...tableProps } = useAutomationHistories(automationId);
+  const { refetch, error, ...tableProps } =
+    useAutomationHistories(automationId);
   const { loading, totalCount } = tableProps;
   const { isSplitView, isVerticalSplit, splitDirection, selectedExecutionId } =
     useAutomationHistoryView();

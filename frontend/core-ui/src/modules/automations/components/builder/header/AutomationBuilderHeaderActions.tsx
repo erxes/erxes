@@ -55,8 +55,8 @@ export const AutomationBuilderHeaderActions = () => {
           {isLibraryOpen
             ? t('header-close-node-library')
             : needsTrigger
-            ? t('header-pick-what-starts')
-            : t('header-pick-what-happens-next')}
+              ? t('header-pick-what-starts')
+              : t('header-pick-what-happens-next')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

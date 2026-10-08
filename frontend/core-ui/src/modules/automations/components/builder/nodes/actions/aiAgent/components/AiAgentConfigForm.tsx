@@ -126,7 +126,9 @@ export const AIAgentConfigForm = ({
                             ? `${AutomationSettingsPath.Agents}/${field.value}`
                             : AutomationSettingsPath.Agents
                         }
-                        onClick={() => setAutomationSettingsReturnPath(pathname)}
+                        onClick={() =>
+                          setAutomationSettingsReturnPath(pathname)
+                        }
                       >
                         <Button
                           variant="outline"

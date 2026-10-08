@@ -45,8 +45,8 @@ export const useAutomationVariableExpansion = (
   const expandLabel = expanded
     ? t('sidebar-hide-fields')
     : variable.exposure === 'reference'
-    ? t('sidebar-reference')
-    : t('sidebar-fields');
+      ? t('sidebar-reference')
+      : t('sidebar-fields');
 
   const toggleExpanded = (event: React.MouseEvent) => {
     event.stopPropagation();
