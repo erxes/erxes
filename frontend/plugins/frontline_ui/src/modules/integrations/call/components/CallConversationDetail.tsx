@@ -61,14 +61,17 @@ export function CallConversationDetail() {
     setOnlyInternal(true);
   }, []);
 
-  const syncRecord = async (acctId: string, inboxId: string) => {
+  const syncRecord = async (
+    acctId?: string | null,
+    inboxId?: string | null,
+  ) => {
     try {
       if (acctId && inboxId)
         await callSyncRecordFile({ variables: { acctId, inboxId } });
-    } catch (e: any) {
+    } catch (e) {
       toast({
         title: t('something-went-wrong'),
-        description: e.message,
+        description: e instanceof Error ? e.message : undefined,
         variant: 'destructive',
       });
     }
@@ -148,7 +151,7 @@ export function CallConversationDetail() {
                       {t('duration')}
                     </div>
                     <div className="font-medium">
-                      {formatSeconds(callDuration)}
+                      {formatSeconds(callDuration ?? 0)}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1 text-sm">

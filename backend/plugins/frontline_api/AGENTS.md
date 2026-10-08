@@ -781,7 +781,19 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - GraphQL `callQueueList(integrationId)` — the queues configured on the call
   integration, each merged with its `CallQueueStatistics` row when the PBX has
   reported one. A queue with no live statistics is still listed, as
-  `{ queue, integrationId }`.
+  `{ queue, integrationId }`. It returns `[CallQueueStatistic]`, and every
+  counter stays nullable because that fallback row carries none.
+- GraphQL `callsGetConfigs` returns `[CallConfig]` (`_id`, `code`, `value`).
+  `value` stays `JSON` because the model stores it as a free-form `Object`.
+- GraphQL `callsIntegrationDetail` and `callUserIntegrations` return
+  `operators` as `[CallOperator]` (`userId`, `gsUsername`, `gsPassword`,
+  `gsForwardAgent`), all nullable because the model stores operators as a
+  free-form `Object`. The `CallIntegrationConfigs` input keeps
+  `operators: JSON`.
+- GraphQL `callExtensionList(integrationId)` returns `[CallExtension]`
+  (`extension`, `fullname`, `status`) read from the PBX `listAccount` reply,
+  filtered to the integration's operators. It returns `[]` when the PBX has no
+  accounts and throws when the PBX request fails, never a string.
 - GraphQL call reports — `callGetQueueStats`, `callGetAgentStats`,
   `getCallbackStats`, `callKpiScorecard`, `callVolumeSeries`,
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read

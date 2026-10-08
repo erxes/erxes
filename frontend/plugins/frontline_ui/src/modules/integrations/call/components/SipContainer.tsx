@@ -48,8 +48,8 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   const sipConfig = {
     host,
     pathname: '/ws',
-    user: operator?.gsUsername,
-    password: operator?.gsPassword,
+    user: operator?.gsUsername ?? null,
+    password: operator?.gsPassword ?? undefined,
     port: Number.parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {

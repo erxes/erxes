@@ -143,8 +143,6 @@ const callQueries = {
       },
       user,
     )) as any;
-    console.log(queueData, 'extension list queueData');
-
     if (queueData?.response) {
       const { account } = queueData.response;
 
@@ -163,7 +161,8 @@ const callQueries = {
       }
       return [];
     }
-    return 'request failed';
+
+    throw new Error('Failed to load extensions from the PBX');
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
     const integration = await models.CallIntegrations.getIntegration(

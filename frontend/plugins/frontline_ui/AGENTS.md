@@ -2157,7 +2157,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   (`ReportChartFields`). The inbox message inserted and updated
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
-- A module typed from the schema (so far `report`) writes every document as
+- A module typed from the schema (so far `report` and `integrations/call`) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2171,6 +2171,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Components default null scalars where they render or compute. Tightening a
   report output to non-null is a `frontline_api` contract change, not a UI
   cast.
+- Call notes stream through `CALL_CONVERSATION_NOTE_INSERTED`
+  (`CallConversationNoteInserted`), the call module's own subscription to
+  `conversationMessageInserted` with exactly the note selection.
+  `useCallConversationNotes` consumes it with `useSubscription` and writes the
+  note into the `callConversationNotes` cache entry with `cache.updateQuery`;
+  it does not share the inbox `CONVERSATION_MESSAGE_INSERTED` document.
+- Call integrations come back typed: `operators` is `[CallOperator]`,
+  `callsGetConfigs` is `[CallConfig]` whose `value` is `JSON` (only string
+  values become `callConfigs` entries), `callExtensionList` is
+  `[CallExtension]`, and `callQueueList` is `[CallQueueStatistic]`. Call hooks
+  that return a list drop null rows with `isDefined`, and components default
+  null integration fields where they render.
+- `useTransferCall` refetches the extension list by its document
+  (`CALL_EXTENSION_LIST`), not by an operation-name string.
 - `ReportChartFilters` is the `TicketReportFilter` input a card builds and
   sends; `SavedReportChartFilters` is the `ReportChartFields` selection a card
   restores from. Restoring reads the saved shape and drops null items before
