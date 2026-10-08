@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EmailDeliveryChoiceFilter } from '@/settings/email-deliveries/components/filters/EmailDeliveryChoiceFilter';
 import {
   EMAIL_DELIVERY_PROVIDER_OPTIONS,
@@ -13,6 +14,7 @@ import {
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 
 export const EmailDeliveriesFilterPopover = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
   const [queries] = useMultiQueryState<{
     status: string;
     source: string;
@@ -33,28 +35,28 @@ export const EmailDeliveriesFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  Status
+                  {t('status')}
                 </Filter.Item>
                 <Filter.Item value="source">
                   <IconSourceCode />
-                  Source
+                  {t('source')}
                 </Filter.Item>
                 <Filter.Item value="provider">
                   <IconSend />
-                  Provider
+                  {t('provider')}
                 </Filter.Item>
                 <Filter.SearchValueTrigger />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdAt">
                   <IconCalendarPlus />
-                  Date
+                  {t('date')}
                 </Filter.Item>
               </Command.List>
             </Command>

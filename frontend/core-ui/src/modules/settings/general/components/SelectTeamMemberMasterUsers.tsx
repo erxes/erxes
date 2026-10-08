@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Checkbox, Form } from 'erxes-ui';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
 import { TGeneralSettingsProps } from '../types';
 
 export function SelectTeamMemberMasterUsers() {
+  const { t } = useTranslation('settings', { keyPrefix: 'general' });
   const form = useFormContext<TGeneralSettingsProps>();
   const checkMasterUsers = useWatch({
     control: form.control,
@@ -23,7 +25,7 @@ export function SelectTeamMemberMasterUsers() {
                 onCheckedChange={(checked) => field.onChange(!!checked)}
               />
             </Form.Control>
-            <Form.Label>With team member restrictions</Form.Label>
+            <Form.Label>{t('with-team-member-restrictions')}</Form.Label>
             <Form.Message />
           </Form.Item>
         )}
@@ -35,7 +37,7 @@ export function SelectTeamMemberMasterUsers() {
             name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Team members who can access every branches</Form.Label>
+                <Form.Label>{t('team-members-every-branches')}</Form.Label>
                 <Form.Control>
                   <SelectMember.FormItem
                     mode="multiple"
@@ -54,7 +56,7 @@ export function SelectTeamMemberMasterUsers() {
             name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Team members who can access every departments</Form.Label>
+                <Form.Label>{t('team-members-every-departments')}</Form.Label>
                 <Form.Control>
                   <SelectMember.FormItem
                     mode="multiple"

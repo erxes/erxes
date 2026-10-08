@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEditPermissionGroup } from '@/settings/permissions/hooks/useEditPermissionGroup';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { IPermissionGroup } from '@/settings/permissions/types';
@@ -12,6 +13,7 @@ export const PermissionGroupEdit = ({
   group: IPermissionGroup;
   trigger?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
   const [open, setOpen] = useState<boolean>(false);
 
   const { editPermissionGroup, loading } = useEditPermissionGroup();
@@ -27,19 +29,19 @@ export const PermissionGroupEdit = ({
           permissions: data.permissions,
         },
         onCompleted: () => {
-          toast({ title: 'Permission group updated', variant: 'success' });
+          toast({ title: t('group-updated'), variant: 'success' });
           setOpen(false);
         },
         onError: (error) => {
           toast({
-            title: 'Error updating permission group',
+            title: t('error-updating-group'),
             variant: 'destructive',
             description: error.message,
           });
         },
       });
     },
-    [loading, editPermissionGroup, group._id],
+    [loading, editPermissionGroup, group._id, t],
   );
 
   const defaultValues: Partial<IPermissionGroupSchema> = {
@@ -55,12 +57,12 @@ export const PermissionGroupEdit = ({
       ) : (
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">
-            Edit
+            {t('edit')}
           </Button>
         </Sheet.Trigger>
       )}
       <FocusSheet.View>
-        <FocusSheet.Header title="Edit Permission Group" />
+        <FocusSheet.Header title={t('edit-permission-group')} />
         <FocusSheet.Content>
           <PermissionGroupForm
             key={group._id}

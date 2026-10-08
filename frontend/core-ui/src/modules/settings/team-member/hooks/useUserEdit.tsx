@@ -5,6 +5,7 @@ import {
 } from '@apollo/client';
 import { mutations } from '@/settings/team-member/graphql';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useUsersDetailEdit = () => {
   const [_usersDetailEdit, { loading }] = useMutation(
@@ -51,12 +52,13 @@ export const useUsersDetailEdit = () => {
 };
 
 export const useUserEdit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
   const [_usersEdit, { loading }] = useMutation(mutations.USERS_INLINE_EDIT, {
-    onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
+    onCompleted: () => toast({ title: t('updated'), variant: 'success' }),
     onError(error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -97,6 +99,7 @@ export const useUserCustomFieldEdit = () => {
 };
 
 export const useUsersStatusEdit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
   const [editStatus, { loading }] = useMutation(
     mutations.USERS_SET_ACTIVE_STATUS,
@@ -106,10 +109,10 @@ export const useUsersStatusEdit = () => {
     editStatus({
       ...options,
       variables,
-      onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
+      onCompleted: () => toast({ title: t('updated'), variant: 'success' }),
       onError(error) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

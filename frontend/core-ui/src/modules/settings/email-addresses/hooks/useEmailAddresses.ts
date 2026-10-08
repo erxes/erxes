@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EMAIL_ADDRESSES_CURSOR_SESSION_KEY } from '@/settings/email-addresses/constants';
 import {
   EMAIL_ADDRESSES,
@@ -86,6 +87,7 @@ export const useEmailAddresses = (
 
 export const useReleaseEmailAddress = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'email-addresses' });
 
   const [mutate, { loading }] = useMutation(EMAIL_ADDRESS_RELEASE, {
     refetchQueries: ['EmailAddresses'],
@@ -95,7 +97,12 @@ export const useReleaseEmailAddress = () => {
     mutate({
       variables: { email, note },
       onCompleted: () =>
-        toast({ title: `${email} can be mailed again`, variant: 'success' }),
+        toast({
+          title: t('can-be-mailed-again', {
+            email,
+          }),
+          variant: 'success',
+        }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),
     });

@@ -6,10 +6,12 @@ import { MemberDetailMainContents } from './MemberDetailMainContents';
 import { MemberDetailErrorState } from './MemberDetailErrorState';
 import { RelationWidgetSideTabs } from 'ui-modules';
 import { MemberDetailEmptyState } from './MemberDetailEmptyState';
+import { useTranslation } from 'react-i18next';
 
 export const MemberDetail = () => {
   const [open, setOpen] = useQueryState<string>('user_id');
   const { error, userDetail, loading } = useUserDetail();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     <FocusSheet open={!!open} onOpenChange={() => setOpen(null)}>
@@ -20,7 +22,7 @@ export const MemberDetail = () => {
         notFoundState={<MemberDetailEmptyState />}
         errorState={<MemberDetailErrorState />}
       >
-        <FocusSheet.Header title="Member Detail" />
+        <FocusSheet.Header title={t('member-detail')} />
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <MemberDetailSidebar />

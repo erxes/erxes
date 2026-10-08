@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 
 import {
@@ -11,6 +12,7 @@ import { useRemovePosition } from '../../hooks/usePositionActions';
 import { Can } from 'ui-modules';
 
 export const PositionsCommandBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { table } = RecordTable.useRecordTable();
   const { handleRemove } = useRemovePosition();
   const { confirm } = useConfirm();
@@ -22,7 +24,7 @@ export const PositionsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -41,13 +43,15 @@ export const PositionsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected-count', {
+            total: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="positionsManage">
           <Button variant="secondary" onClick={onRemove}>
             <IconTrash />
-            Delete
+            {t('delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

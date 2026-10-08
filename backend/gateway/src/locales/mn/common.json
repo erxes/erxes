@@ -101,7 +101,9 @@
     "exit-settings": "Тохиргооноос гарах",
     "approval-requests": "Зөвшөөрлийн хүсэлтүүд",
     "favorites": "Дуртай",
-    "my-inbox": "Миний инбокс"
+    "my-inbox": "Миний инбокс",
+    "experience": "Туршлага",
+    "appearance": "Харагдац"
   },
   "plugin": {
     "_": "Плагин",

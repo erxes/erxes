@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCheck, IconCopy, IconKey } from '@tabler/icons-react';
 import { Button, Dialog, Input, useToast } from 'erxes-ui';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ export const OAuthClientSecretDialog = ({
   clientName: string;
   secret?: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -23,7 +25,7 @@ export const OAuthClientSecretDialog = ({
     setCopied(true);
     toast({
       variant: 'success',
-      title: 'Client secret copied to clipboard',
+      title: t('secret-copied'),
     });
 
     window.setTimeout(() => setCopied(false), 2000);
@@ -35,28 +37,27 @@ export const OAuthClientSecretDialog = ({
         <Dialog.Header>
           <Dialog.Title className="flex items-center gap-2">
             <IconKey size={18} />
-            Client secret created
+            {t('secret-created')}
           </Dialog.Title>
           <Dialog.Description>
-            Save this secret for {clientName}. It will not be shown again after
-            closing this dialog.
+            {t('secret-save-notice', { clientName })}
           </Dialog.Description>
         </Dialog.Header>
 
         <div className="space-y-3">
           <Input readOnly value={secret || ''} className="font-mono text-xs" />
           <div className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-            Keep this secret in a secure server-side store before you continue.
+            {t('secret-keep-safe')}
           </div>
         </div>
 
         <Dialog.Footer>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            Close
+            {t('close')}
           </Button>
           <Button onClick={handleCopy} disabled={!secret}>
             {copied ? <IconCheck /> : <IconCopy />}
-            {copied ? 'Copied' : 'Copy secret'}
+            {copied ? t('copied') : t('copy-secret')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

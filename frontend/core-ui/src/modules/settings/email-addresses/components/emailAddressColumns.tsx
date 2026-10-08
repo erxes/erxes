@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   EMAIL_LANE_OPTIONS,
   EMAIL_SUPPRESSION_REASON_OPTIONS,
@@ -18,6 +19,7 @@ import {
   IconTargetArrow,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Badge,
   Button,
@@ -41,12 +43,14 @@ const reasonLabel = (reason: TEmailSuppressionReason) =>
   EMAIL_SUPPRESSION_REASON_OPTIONS.find((option) => option.value === reason)
     ?.label ?? reason;
 
-export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
+export const emailAddressColumns = (
+  t: TFunction,
+): ColumnDef<IEmailAddress>[] => [
   {
     id: 'lane',
     accessorKey: 'lane',
     header: () => (
-      <RecordTable.InlineHead icon={IconTargetArrow} label="Standing" />
+      <RecordTable.InlineHead icon={IconTargetArrow} label={t('standing')} />
     ),
     cell: ({ cell }) => {
       const lane = cell.getValue() as TEmailLane;
@@ -61,7 +65,7 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
   {
     id: 'email',
     accessorKey: 'email',
-    header: () => <RecordTable.InlineHead icon={IconAt} label="Address" />,
+    header: () => <RecordTable.InlineHead icon={IconAt} label={t('address')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -71,7 +75,10 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
     id: 'lastDeliveredAt',
     accessorKey: 'lastDeliveredAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMailCheck} label="Last delivered" />
+      <RecordTable.InlineHead
+        icon={IconMailCheck}
+        label={t('last-delivered')}
+      />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as string | undefined;
@@ -79,7 +86,7 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
       if (!value) {
         return (
           <RecordTableInlineCell>
-            <span className="text-muted-foreground">Never</span>
+            <span className="text-muted-foreground">{t('never')}</span>
           </RecordTableInlineCell>
         );
       }
@@ -96,7 +103,9 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
   {
     id: 'deliveredCount',
     accessorKey: 'deliveredCount',
-    header: () => <RecordTable.InlineHead icon={IconSend} label="Delivered" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconSend} label={t('delivered')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as number) || 0}
@@ -107,7 +116,10 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
     id: 'softBounceCount',
     accessorKey: 'softBounceCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMailExclamation} label="Soft bounces" />
+      <RecordTable.InlineHead
+        icon={IconMailExclamation}
+        label={t('soft-bounces')}
+      />
     ),
     cell: ({ cell }) => {
       const count = (cell.getValue() as number) || 0;
@@ -126,7 +138,9 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
   {
     id: 'suppressionReason',
     accessorKey: 'suppressionReason',
-    header: () => <RecordTable.InlineHead icon={IconBan} label="Closed for" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBan} label={t('closed-for')} />
+    ),
     cell: ({ cell }) => {
       const reason = cell.getValue() as TEmailSuppressionReason | undefined;
 
@@ -156,7 +170,7 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
         <RecordTableInlineCell>
           <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
             <IconLockOpen className="size-4" />
-            Reopen
+            {t('reopen')}
           </Button>
           <ReleaseEmailAddressDialog
             address={address}

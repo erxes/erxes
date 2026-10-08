@@ -248,7 +248,7 @@ const MailConfigForm = () => {
             type="submit"
             className="w-full col-span-1 col-start-4"
           >
-            {isLoading ? <IconLoader2 className="animate-spin" /> : 'Update'}
+            {isLoading ? <IconLoader2 className="animate-spin" /> : t('update')}
           </Button>
         </Form.Item>
       </form>

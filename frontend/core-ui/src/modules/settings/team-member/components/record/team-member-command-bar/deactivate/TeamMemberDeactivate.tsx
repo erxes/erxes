@@ -4,6 +4,7 @@ import { IconToggleLeft } from '@tabler/icons-react';
 import { Command, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { Can, currentUserState } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberDeactivate = ({
   teamMembers,
@@ -17,6 +18,7 @@ export const TeamMemberDeactivate = ({
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   const currentUserId = useAtomValue(currentUserState)?._id;
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const teamMemberIds = currentUserId
     ? teamMembers
@@ -33,24 +35,28 @@ export const TeamMemberDeactivate = ({
         disabled={loading || teamMemberIds.length === 0}
         onSelect={() =>
           confirm({
-            message: `Are you sure you want to deactivate the ${teamMemberIds.length} selected team member?`,
+            message: t('confirm-deactivate-team-members', {
+              memberCount: teamMemberIds.length,
+            }),
           }).then(async () => {
             try {
               await deactivateTeamMembers(teamMemberIds);
               table.setRowSelection({});
               onCompleted();
               toast({
-                title: 'Success',
+                title: t('success'),
                 variant: 'success',
-                description: `${teamMemberIds.length} team member(s) deactivated successfully`,
+                description: t('team-members-deactivated', {
+                  memberCount: teamMemberIds.length,
+                }),
               });
             } catch (error) {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description:
                   error instanceof Error
                     ? error.message
-                    : 'Something went wrong',
+                    : t('something-went-wrong'),
                 variant: 'destructive',
               });
             }
@@ -58,7 +64,7 @@ export const TeamMemberDeactivate = ({
         }
       >
         {loading ? <Spinner size="sm" /> : <IconToggleLeft />}
-        Deactivate
+        {t('deactivate')}
       </Command.Item>
     </Can>
   );

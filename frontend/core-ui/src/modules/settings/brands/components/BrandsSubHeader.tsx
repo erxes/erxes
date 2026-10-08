@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { BrandsTotalCount } from './BrandsTotalCount';
 
 export const BrandsSubHeader = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'brands' });
   return (
     <Filter id="brands">
       <PageSubHeader>
@@ -12,7 +14,7 @@ export const BrandsSubHeader = () => {
               <Filter.View>
                 <Command>
                   <Filter.CommandInput
-                    placeholder="Filter"
+                    placeholder={t('filter')}
                     variant="secondary"
                     className="bg-background"
                   />

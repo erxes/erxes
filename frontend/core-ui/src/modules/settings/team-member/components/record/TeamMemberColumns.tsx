@@ -91,7 +91,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
               },
               onError: (error: ApolloError) => {
                 toast({
-                  title: 'Failed to update user details',
+                  title: t('failed-to-update-user-details'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -352,7 +352,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
                 !status || status === 'Not verified' ? 'destructive' : 'success'
               }
             >
-              {status ? (cell.getValue() as string) : 'Not verified'}
+              {status ? (cell.getValue() as string) : t('not-verified')}
             </Badge>
           </RecordTableInlineCell>
         );

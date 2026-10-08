@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useVerifySender } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
@@ -17,6 +18,7 @@ export const useSenderForm = ({
   onOpenChange: (open: boolean) => void;
 }) => {
   const { verifySender, loading } = useVerifySender();
+  const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
 
   const form = useForm<TSenderForm>({
     resolver: zodResolver(SENDER_SCHEMA),
@@ -27,8 +29,8 @@ export const useSenderForm = ({
     await verifySender(values, {
       onCompleted: () => {
         toast({
-          title: 'Confirmation sent',
-          description: `Ask the owner of ${values.email} to open the link and confirm.`,
+          title: t('confirmation-sent'),
+          description: t('ask-owner-confirm', { email: values.email }),
           variant: 'success',
         });
 

@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useEmailAddresses } from '@/settings/email-addresses/hooks/useEmailAddresses';
 import { Skeleton } from 'erxes-ui';
 
 export const EmailAddressesTotalCount = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-addresses' });
   const { totalCount, loading } = useEmailAddresses();
 
   if (loading) {
@@ -10,7 +12,7 @@ export const EmailAddressesTotalCount = () => {
 
   return (
     <div className="text-sm text-accent-foreground ml-auto">
-      {totalCount} addresses
+      {t('addresses-count', { totalCount })}
     </div>
   );
 };

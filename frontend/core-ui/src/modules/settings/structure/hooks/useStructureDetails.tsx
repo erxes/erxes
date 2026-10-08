@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@apollo/client';
 import {
   ADD_STRUCTURE,
@@ -16,6 +17,7 @@ export const useStructureDetails = () => {
 };
 
 export const useEditStructureDetail = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { toast } = useToast();
   const [handleEdit, { loading, error }] = useMutation<
     { structuresEdit: { _id: string } },
@@ -23,10 +25,10 @@ export const useEditStructureDetail = () => {
   >(EDIT_STRUCTURE, {
     refetchQueries: [{ query: GET_STRUCTURE_DETAILS }],
     awaitRefetchQueries: true,
-    onCompleted: () => toast({ title: 'Updated', variant: 'success' }),
+    onCompleted: () => toast({ title: t('updated'), variant: 'success' }),
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -36,6 +38,7 @@ export const useEditStructureDetail = () => {
 };
 
 export const useAddStructureDetail = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { toast } = useToast();
   const [handleAdd, { loading, error }] = useMutation<
     { structuresAdd: { _id: string } },
@@ -44,10 +47,13 @@ export const useAddStructureDetail = () => {
     refetchQueries: [{ query: GET_STRUCTURE_DETAILS }],
     awaitRefetchQueries: true,
     onCompleted: () =>
-      toast({ title: 'Created successfully!', variant: 'success' }),
+      toast({
+        title: t('created-successfully'),
+        variant: 'success',
+      }),
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),

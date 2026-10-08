@@ -80,13 +80,13 @@ export const CreateBrand = () => {
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
       });
     },
-    [brandsAdd, toast, reset, onClose],
+    [brandsAdd, toast, reset, onClose, t],
   );
 
   return (

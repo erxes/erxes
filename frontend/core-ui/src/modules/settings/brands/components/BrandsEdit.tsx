@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconChessKnight } from '@tabler/icons-react';
 import {
   Button,
@@ -24,6 +25,7 @@ export const BrandsEdit = () => {
   } = useBrandsForm();
   const { handleEdit, loading: isLoading } = useBrandsEdit();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'brands' });
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [brandId] = useQueryState('brand_id');
@@ -49,13 +51,16 @@ export const BrandsEdit = () => {
             ...data,
           },
           onCompleted: () => {
-            toast({ title: 'Brand updated successfully', variant: 'success' });
+            toast({
+              title: t('brand-updated-successfully'),
+              variant: 'success',
+            });
             methods.reset();
             setOpen(null);
           },
           onError: (error: ApolloError) =>
             toast({
-              title: 'Error',
+              title: t('error'),
               description: error.message,
               variant: 'destructive',
             }),
@@ -63,7 +68,7 @@ export const BrandsEdit = () => {
         ['name', 'description'],
       );
     },
-    [handleEdit, methods, toast, brandId, setOpen],
+    [handleEdit, methods, toast, brandId, setOpen, t],
   );
 
   React.useEffect(() => {
@@ -93,7 +98,7 @@ export const BrandsEdit = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>Edit brand</Sheet.Title>
+              <Sheet.Title>{t('edit-brand')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -107,10 +112,10 @@ export const BrandsEdit = () => {
                   setOpen(null);
                 }}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Spinner /> : 'Update'}
+                {isLoading ? <Spinner /> : t('update')}
               </Button>
             </Sheet.Footer>
           </form>

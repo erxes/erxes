@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Control, FieldValues, Path } from 'react-hook-form';
 import { Form, Input, Textarea } from 'erxes-ui';
 import { SelectStructureStatus } from './SelectStructureStatus';
@@ -10,15 +11,20 @@ export function TitleField<T extends FieldValues>({
 }: Readonly<{
   control: Control<T>;
 }>) {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <Form.Field
       control={control}
       name={'title' as Path<T>}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Title</Form.Label>
+          <Form.Label>{t('title')}</Form.Label>
           <Form.Control>
-            <Input {...field} value={field.value ?? ''} placeholder="Title" />
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              placeholder={t('title')}
+            />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -32,15 +38,20 @@ export function CodeField<T extends FieldValues>({
 }: Readonly<{
   control: Control<T>;
 }>) {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <Form.Field
       control={control}
       name={'code' as Path<T>}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Code</Form.Label>
+          <Form.Label>{t('code')}</Form.Label>
           <Form.Control>
-            <Input {...field} value={field.value ?? ''} placeholder="Code" />
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              placeholder={t('code')}
+            />
           </Form.Control>
           <Form.Message />
         </Form.Item>
@@ -54,18 +65,19 @@ export function DescriptionField<T extends FieldValues>({
 }: Readonly<{
   control: Control<T>;
 }>) {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <Form.Field
       control={control}
       name={'description' as Path<T>}
       render={({ field }) => (
         <Form.Item className="col-span-2">
-          <Form.Label>Description</Form.Label>
+          <Form.Label>{t('description')}</Form.Label>
           <Form.Control>
             <Textarea
               {...field}
               value={field.value ?? ''}
-              placeholder="Description"
+              placeholder={t('description')}
             />
           </Form.Control>
           <Form.Message />
@@ -82,13 +94,14 @@ export function DeletedStatusField<T extends FieldValues>({
 }: Readonly<{
   control: Control<T>;
 }>) {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <Form.Field
       control={control}
       name={'status' as Path<T>}
       render={({ field }) => (
         <Form.Item className="col-span-2">
-          <Form.Label>Status</Form.Label>
+          <Form.Label>{t('status')}</Form.Label>
           <SelectStructureStatus.FormItem
             value={field.value}
             onValueChange={field.onChange}

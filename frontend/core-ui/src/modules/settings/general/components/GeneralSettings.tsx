@@ -53,9 +53,11 @@ const GeneralSettings = () => {
 
     handleLanguage(data.languageCode).then(() => {
       toast({
-        title: 'Updated successfully',
+        title: t('updated-successfully'),
         variant: 'success',
-        description: `Language switched to (${data.languageCode})`,
+        description: t('language-switched', {
+          code: data.languageCode,
+        }),
       });
     });
   };
@@ -115,7 +117,7 @@ const GeneralSettings = () => {
           options={LANGUAGES.filter((lang) =>
             languages.some((lng) => lang.value === lng),
           )}
-          placeholder="Languages"
+          placeholder={t('languages')}
           label={t('language')}
         />
         <SelectMainCurrency />

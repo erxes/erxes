@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconUsersGroup } from '@tabler/icons-react';
 import {
   Button,
@@ -19,6 +20,7 @@ import { UnitForm } from './UnitForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateUnit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const {
     methods,
     methods: { handleSubmit },
@@ -57,16 +59,16 @@ export const CreateUnit = () => {
         variables: data,
         onCompleted: () => {
           toast({
-            title: 'Success!',
+            title: t('success'),
             variant: 'success',
-            description: 'Unit created successfully',
+            description: t('unit-created'),
           });
           methods.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -79,7 +81,7 @@ export const CreateUnit = () => {
       <Can action="unitsManage">
         <Sheet.Trigger asChild>
           <Button>
-            <IconPlus /> Create Unit
+            <IconPlus /> {t('create-unit')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -98,7 +100,7 @@ export const CreateUnit = () => {
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconUsersGroup size={16} />
-                Create unit
+                {t('create-unit-title')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -107,10 +109,10 @@ export const CreateUnit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

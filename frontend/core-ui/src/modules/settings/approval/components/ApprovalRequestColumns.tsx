@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import {
   IconCalendarTime,
   IconEye,
@@ -26,7 +27,7 @@ export const approvalRequestColumns = ({
   t,
   onCompleted,
 }: {
-  t: (key: string) => string;
+  t: TFunction;
   onCompleted: () => void;
 }): ColumnDef<ApprovalRequest>[] => [
   {

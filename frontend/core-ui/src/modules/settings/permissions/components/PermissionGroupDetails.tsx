@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconLock, IconShield, IconUsers } from '@tabler/icons-react';
 import {
   Avatar,
@@ -52,6 +53,7 @@ export const PermissionGroupDetails = ({
   isDefault,
   trigger,
 }: Props) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'permissions' | 'members'>('permissions');
   const { permissionModulesByPlugin, loading: modulesLoading } =
@@ -92,7 +94,7 @@ export const PermissionGroupDetails = ({
       <Dialog.Trigger asChild>
         {trigger || (
           <Button variant="ghost" size="sm">
-            View
+            {t('view')}
           </Button>
         )}
       </Dialog.Trigger>
@@ -111,7 +113,7 @@ export const PermissionGroupDetails = ({
                 <h2 className="text-lg font-semibold">{group.name}</h2>
                 {isDefault && (
                   <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                    Default
+                    {t('default')}
                   </span>
                 )}
               </div>
@@ -132,7 +134,7 @@ export const PermissionGroupDetails = ({
             size="sm"
             onClick={() => setTab('permissions')}
           >
-            Permissions
+            {t('permissions')}
           </Button>
           <Button
             variant={tab === 'members' ? 'default' : 'ghost'}
@@ -140,7 +142,7 @@ export const PermissionGroupDetails = ({
             onClick={() => setTab('members')}
           >
             <IconUsers size={14} className="mr-1" />
-            Members
+            {t('members')}
             {members.length > 0 && (
               <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5">
                 {members.length}
@@ -153,9 +155,11 @@ export const PermissionGroupDetails = ({
           {tab === 'members' ? (
             members.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-muted-foreground font-medium">No members</p>
+                <p className="text-muted-foreground font-medium">
+                  {t('no-members')}
+                </p>
                 <p className="text-sm text-muted-foreground/70 mt-1">
-                  No team members are assigned to this group
+                  {t('no-members-description')}
                 </p>
               </div>
             ) : (
@@ -199,10 +203,10 @@ export const PermissionGroupDetails = ({
           ) : permissions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-muted-foreground font-medium">
-                No permissions configured
+                {t('no-permissions-configured')}
               </p>
               <p className="text-sm text-muted-foreground/70 mt-1">
-                This group has no module permissions assigned
+                {t('no-permissions-description')}
               </p>
             </div>
           ) : (
@@ -216,7 +220,8 @@ export const PermissionGroupDetails = ({
                     <Collapsible.TriggerIcon className="mr-2 shrink-0 transition-transform duration-200 ease-out" />
                     <span className="font-medium text-sm">{plugin}</span>
                     <span className="ml-auto text-xs text-muted-foreground">
-                      {items.length} {items.length === 1 ? 'module' : 'modules'}
+                      {items.length}{' '}
+                      {items.length === 1 ? t('module') : t('modules')}
                     </span>
                   </Button>
                 </Collapsible.Trigger>
@@ -297,7 +302,7 @@ export const PermissionGroupDetails = ({
                                           : 'text-muted-foreground'
                                       }`}
                                     >
-                                      {hasPermission ? 'Yes' : 'No'}
+                                      {hasPermission ? t('yes') : t('no')}
                                     </span>
                                   </div>
                                 );
@@ -321,7 +326,7 @@ export const PermissionGroupDetails = ({
 
         <div className="px-6 py-4 flex justify-end">
           <Button variant="secondary" onClick={() => setOpen(false)}>
-            Close
+            {t('close')}
           </Button>
         </div>
       </Dialog.Content>

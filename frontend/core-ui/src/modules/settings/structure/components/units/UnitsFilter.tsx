@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { UnitsTotalCount } from './UnitsTotalCount';
 
 export const UnitsFilter = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <PageSubHeader>
       <Filter id="units">
@@ -13,7 +15,7 @@ export const UnitsFilter = () => {
               <Filter.View>
                 <Command>
                   <Filter.CommandInput
-                    placeholder="Filter"
+                    placeholder={t('filter')}
                     variant="secondary"
                     className="bg-background"
                   />

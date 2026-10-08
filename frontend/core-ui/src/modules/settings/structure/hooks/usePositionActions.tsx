@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationHookOptions,
   OperationVariables,
@@ -43,10 +44,14 @@ export function usePositionEdit(
 }
 
 export function useRemovePosition() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_POSITIONS, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully'),
+        variant: 'success',
+      }),
     refetchQueries: ['Positions'],
   });
 
@@ -58,6 +63,7 @@ export function useRemovePosition() {
 }
 
 export function usePositionInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_positionsEdit, { loading }] = useMutation(EDIT_POSITION);
   const { toast } = useToast();
 
@@ -82,7 +88,9 @@ export function usePositionInlineEdit() {
       onCompleted: (data) => {
         if (data?.positionsEdit) {
           toast({
-            title: `Position ${data.positionsEdit.code} updated successfully.`,
+            title: t('position-code-updated', {
+              code: data.positionsEdit.code,
+            }),
           });
         }
       },

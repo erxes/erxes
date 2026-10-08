@@ -26,12 +26,13 @@ export const TeamMemberAssignPermissionsTrigger = ({
 }: {
   onSelect: () => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   return (
     <Can action="permissionsManage">
       <Command.Item className="w-full justify-between" onSelect={onSelect}>
         <span className="flex items-center gap-2">
           <IconShieldCheck />
-          Assign Permissions
+          {t('assign-permissions')}
         </span>
         <IconChevronRight />
       </Command.Item>
@@ -92,8 +93,10 @@ export const TeamMemberAssignPermissionsContent = ({
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
-          title: 'Permission groups assigned',
-          description: `Updated ${teamMemberIds.length} team member(s)`,
+          title: t('permission-groups-assigned'),
+          description: t('updated-team-members', {
+            memberCount: teamMemberIds.length,
+          }),
           variant: 'success',
         });
         setSelectedGroupIds([]);
@@ -102,7 +105,7 @@ export const TeamMemberAssignPermissionsContent = ({
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -160,7 +163,7 @@ export const TeamMemberAssignPermissionsContent = ({
             ))}
 
             {permissionGroups.length > 0 && (
-              <Command.Group heading="Custom Permission Groups">
+              <Command.Group heading={t('custom-permission-groups')}>
                 {permissionGroups.map((group) => (
                   <Command.Item
                     key={group._id}
@@ -183,14 +186,17 @@ export const TeamMemberAssignPermissionsContent = ({
       </Command.List>
       <div className="flex items-center justify-between gap-2 border-t p-3">
         <span className="text-xs text-muted-foreground">
-          {selectedGroupIds.length} group(s) · {teamMemberIds.length} member(s)
+          {t('groups-members-count', {
+            groupCount: selectedGroupIds.length,
+            memberCount: teamMemberIds.length,
+          })}
         </span>
         <Button
           size="sm"
           onClick={handleApply}
           disabled={!selectedGroupIds.length || updateLoading}
         >
-          {updateLoading ? <Spinner size="sm" /> : 'Apply'}
+          {updateLoading ? <Spinner size="sm" /> : t('apply')}
         </Button>
       </div>
     </Command>

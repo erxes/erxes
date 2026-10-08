@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EmailDeliveryDetailSheet } from '@/settings/email-deliveries/components/EmailDeliveryDetailSheet';
 import { emailDeliveryColumns } from '@/settings/email-deliveries/components/emailDeliveryColumns';
 import { EMAIL_DELIVERIES_CURSOR_SESSION_KEY } from '@/settings/email-deliveries/constants';
@@ -12,6 +13,7 @@ const memberColumns = emailDeliveryColumns.filter(
 export const EmailDeliveriesRecordTable = ({
   email,
 }: { email?: string } = {}): JSX.Element => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
   const {
     list,
     loading,
@@ -54,7 +56,7 @@ export const EmailDeliveriesRecordTable = ({
             )
           }
         >
-          Retry
+          {t('retry')}
         </Button>
       </div>
     );
@@ -100,10 +102,11 @@ export const EmailDeliveriesRecordTable = ({
                   size={64}
                   className="mx-auto mb-4 text-muted-foreground"
                 />
-                <h3 className="mb-2 text-xl font-semibold">No emails yet</h3>
+                <h3 className="mb-2 text-xl font-semibold">
+                  {t('no-emails-yet')}
+                </h3>
                 <p className="max-w-md text-muted-foreground">
-                  Every message erxes hands to your email provider shows up
-                  here, along with what the provider said about it.
+                  {t('no-emails-description')}
                 </p>
               </div>
             </div>

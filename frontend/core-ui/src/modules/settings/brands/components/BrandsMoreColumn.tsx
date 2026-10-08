@@ -1,6 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, useConfirm, useQueryState, useToast } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useQueryState,
+  useToast,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { Can } from 'ui-modules';
 import { useBrandsRemove } from '../hooks/useBrandsRemove';
@@ -17,17 +26,18 @@ export const BrandsMoreColumnCell = ({
   const { _id, name } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'brands' });
   const { brandsRemove } = useBrandsRemove();
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${name}"?`,
+      message: t('confirm-delete-brand', { name }),
     }).then(async () => {
       try {
         await brandsRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -53,12 +63,12 @@ export const BrandsMoreColumnCell = ({
                   setBrandDetail(_id);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit')}
               </Command.Item>
             </Can>
             <Can action="brandsDelete">
               <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete')}
               </Command.Item>
             </Can>
           </Command.List>
