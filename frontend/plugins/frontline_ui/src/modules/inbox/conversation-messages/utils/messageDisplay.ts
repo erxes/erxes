@@ -130,12 +130,22 @@ export const getMessageDisplay = ({
   const legacyReplyPreview = legacyReply
     ? stripHtml(legacyReply.preview) || 'Attachment'
     : '';
-  const effectiveReplyTo = getEffectiveReplyTo(
-    Boolean(forwardedSnapshot),
-    replyTo,
-    legacyReplyPreview,
-    legacyReplyAuthor,
-  );
+  const telegramReply =
+    integrationKind === IntegrationType.TELEGRAM_MESSENGER
+      ? extraData?.telegram?.replyTo
+      : undefined;
+  const effectiveReplyTo = telegramReply
+    ? {
+        messageId: telegramReply.messageId,
+        authorName: telegramReply.senderName,
+        content: telegramReply.content,
+      }
+    : getEffectiveReplyTo(
+        Boolean(forwardedSnapshot),
+        replyTo,
+        legacyReplyPreview,
+        legacyReplyAuthor,
+      );
   const contentWithoutQuotedReply = legacyReply
     ? content.slice(legacyReply.length)
     : content;

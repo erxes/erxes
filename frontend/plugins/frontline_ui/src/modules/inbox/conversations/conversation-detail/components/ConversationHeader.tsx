@@ -1,3 +1,7 @@
+import {
+  telegramChatLabel,
+  useTelegramChats,
+} from '@/integrations/telegram/useTelegramChats';
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
 import { useConversationAutomatedReplyControl } from '@/inbox/conversations/hooks/useConversationAutomatedReplyControl';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
@@ -76,13 +80,21 @@ const ConversationListToggle = () => {
 
 const ConversationHeaderProfile = () => {
   const { _id, integration, customer, customerId } = useConversationContext();
+  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
+  const { chats, loading: telegramLoading } = useTelegramChats(
+    isTelegram && _id ? [_id] : [],
+  );
+  const telegramName = telegramChatLabel(chats.get(_id));
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const { channel, loading } = useDiscordConversationChannel(
     _id,
     !_id || !isDiscord,
   );
 
-  if (isDiscord && loading && !channel?.channelName) {
+  if (
+    (isDiscord && loading && !channel?.channelName) ||
+    (isTelegram && telegramLoading && !chats.has(_id))
+  ) {
     return (
       <div className="flex items-center gap-2 flex-none">
         <Skeleton className="size-6 rounded-full" />
@@ -90,6 +102,13 @@ const ConversationHeaderProfile = () => {
       </div>
     );
   }
+
+  if (telegramName)
+    return (
+      <span className="text-sm font-medium truncate" title={telegramName}>
+        {telegramName}
+      </span>
+    );
 
   if (isDiscord && channel?.channelName) {
     const letter = channel.channelName.trim().charAt(0).toUpperCase();
@@ -134,9 +153,9 @@ const AutomatedReplyStatusBadge = () => {
   const label = isActive
     ? 'Automation active'
     : status === 'human_active' &&
-      automatedReplyControl?.reason === 'operator_reply'
-    ? 'Automation paused: operator active'
-    : 'Automation paused';
+        automatedReplyControl?.reason === 'operator_reply'
+      ? 'Automation paused: operator active'
+      : 'Automation paused';
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
