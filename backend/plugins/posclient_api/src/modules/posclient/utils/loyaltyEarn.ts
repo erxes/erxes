@@ -107,7 +107,17 @@ export const previewLoyaltyEarn = async (
     items: { productId: string; amount: number }[];
   },
 ) => {
-  const rules = await findEarnRules(subdomain, config, orderType);
+  // The POS's own earning campaign, then any automation's; one per campaign.
+  const rules = [
+    ...(config.earnScoreCampaignId
+      ? [{ campaignId: config.earnScoreCampaignId }]
+      : []),
+    ...(await findEarnRules(subdomain, config, orderType)),
+  ].filter(
+    (rule, index, all) =>
+      all.findIndex(({ campaignId }) => campaignId === rule.campaignId) ===
+      index,
+  );
 
   if (!rules.length || !customerId) {
     return { hasRules: rules.length > 0, earns: [] };

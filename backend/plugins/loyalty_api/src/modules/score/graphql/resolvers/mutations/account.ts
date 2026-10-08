@@ -7,7 +7,7 @@ export const loyaltyAccountMutations = {
     { _id, reason }: { _id: string; reason: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreLogChange');
+    await checkPermission('loyaltyAccountFreeze');
 
     return models.LoyaltyAccounts.setFrozen({
       accountId: _id,
@@ -22,7 +22,7 @@ export const loyaltyAccountMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreLogChange');
+    await checkPermission('loyaltyAccountFreeze');
 
     return models.LoyaltyAccounts.setFrozen({
       accountId: _id,
@@ -40,7 +40,7 @@ export const loyaltyAccountMutations = {
     }: { _id: string; accountTypeId: string; tier?: string | null },
     { models, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreLogChange');
+    await checkPermission('loyaltyAccountSetTier');
 
     const { account } = await setAccountTier({
       models,

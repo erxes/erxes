@@ -4,19 +4,15 @@ import {
   automationReturnLinkSearch,
   buildAutomationSeedLink,
   generateAutomationElementId,
-  TAutomationSeedAction,
 } from 'ui-modules';
 import { useLoyaltyAccountTypes } from '../../../account-type/hooks/useLoyaltyAccountTypes';
 import { activeTiers } from '../../../account-type/types';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
-import {
-  ADJUST_SCORE_ACTION_TYPE,
-  SET_TIER_ACTION_TYPE,
-} from '../constants/campaignAutomations';
+import { buildTierSeedActions } from '../../../account-type/utils/tierSeedActions';
+import { ADJUST_SCORE_ACTION_TYPE } from '../constants/campaignAutomations';
 import { useScoreCampaignContext } from '../contexts/ScoreCampaignContext';
 
 const CUSTOMER_TRIGGER_TYPE = 'core:contacts.customers';
-const SPLIT_ACTION_TYPE = 'split';
 
 /** Opens the builder on an unsaved flow already pointing at this campaign. */
 export const useCampaignAutomationSeeds = (
@@ -69,41 +65,7 @@ export const useCampaignAutomationSeeds = (
       return;
     }
 
-    const taken: string[] = [];
-    const nextId = () => {
-      const id = generateAutomationElementId(taken);
-      taken.push(id);
-      return id;
-    };
-    const splitId = nextId();
-    const branches = tiers.map((tier) => ({ tier, actionId: nextId() }));
-
-    const actions: TAutomationSeedAction[] = [
-      {
-        id: splitId,
-        type: SPLIT_ACTION_TYPE,
-        config: {
-          options: tiers.map(({ key, name }) => ({
-            id: key,
-            label: name,
-            config: { conditionsConjunction: 'and', conditions: [] },
-          })),
-          optionalConnects: branches.map(({ tier, actionId }) => ({
-            optionalConnectId: tier.key,
-            actionId,
-          })),
-        },
-      },
-      ...branches.map(({ tier, actionId }) => ({
-        id: actionId,
-        type: SET_TIER_ACTION_TYPE,
-        config: {
-          attribution: '{{ trigger._id }}',
-          accountTypeId: accountType._id,
-          tier: tier.key,
-        },
-      })),
-    ];
+    const actions = buildTierSeedActions(accountType, '{{ trigger._id }}');
 
     navigate(
       buildAutomationSeedLink({

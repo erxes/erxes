@@ -14,6 +14,7 @@ const commonFields = `
   $cashierIds: [String]
   $paymentIds: [String]
   $paymentTypes: [JSON]
+  $earnScoreCampaignId: String
   $isOnline: Boolean
   $onServer: Boolean
   $branchId: String
@@ -54,6 +55,7 @@ const commonVariables = `
   cashierIds: $cashierIds,
   paymentIds: $paymentIds,
   paymentTypes: $paymentTypes,
+  earnScoreCampaignId: $earnScoreCampaignId,
   isOnline: $isOnline,
   onServer: $onServer,
   branchId: $branchId,

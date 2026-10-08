@@ -42,6 +42,7 @@ export interface IScoreLogParams extends ICursorPaginateParams {
   fromDate?: string;
   toDate?: string;
   campaignId?: string;
+  targetId?: string;
   action?: string;
   clientPortal?: string;
   orderType?: string;

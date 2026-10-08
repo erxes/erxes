@@ -14,7 +14,11 @@ import {
 } from '@/score/@types/purchase';
 import { IModels } from '~/connectionResolvers';
 import { setAccountTier } from '@/score/services/accountTier';
-import { matchesTierChanged } from '@/score/services/tierChanged';
+import { tierForAmount } from '@/score/services/tierBands';
+import {
+  matchesTierChanged,
+  tierDirection,
+} from '@/score/services/tierChanged';
 import {
   ACCOUNT_OWNER_TYPES,
   resolveBalanceOwner,
@@ -146,18 +150,20 @@ const earnScore = async ({
   return { result };
 };
 
-// Tiers are decided elsewhere (segments, webhooks, thresholds); this action
-// only writes the decision onto each owner's account.
+// Tiers are decided elsewhere (segments, webhooks, thresholds) or by the
+// purchase's amount against the action's bands; this only writes the result.
 const setTier = async ({
   models,
   subdomain,
   action,
   execution,
+  inputs,
 }: {
   models: IModels;
   subdomain: string;
   action: LoyaltyAutomationAction;
   execution: LoyaltyAutomationExecution;
+  inputs?: Record<string, unknown>;
 }) => {
   const config = action.config as SetTierActionConfig;
 
@@ -173,6 +179,25 @@ const setTier = async ({
     config.accountTypeId,
   );
   const ownerType = getOwnerTypeFromAttribution(config.attribution);
+  const byAmount = !!config.bands?.length;
+  const tierOrder = (key: string) =>
+    accountType.tiers.find((tier) => tier.key === key)?.order ?? -1;
+  // Where two ranges meet, the higher tier wins, however they were entered.
+  const outcome = byAmount
+    ? tierForAmount(
+        {
+          ...config,
+          bands: [...(config.bands || [])].sort(
+            (a, b) => tierOrder(b.tier) - tierOrder(a.tier),
+          ),
+        },
+        inputs?.totalAmount,
+      )
+    : { tier: config.tier || '' };
+
+  if ('skip' in outcome) {
+    return buildSkippedAction(outcome.skip, outcome);
+  }
 
   if (
     ACCOUNT_OWNER_TYPES[accountType.ownerType] !==
@@ -204,17 +229,28 @@ const setTier = async ({
         ownerType: accountOwnerType,
         ownerId: recordId,
       });
+      const current = account.balances?.get(accountType._id)?.tier || null;
+
+      // A smaller purchase later must not undo a tier an earlier one earned.
+      if (
+        byAmount &&
+        config.onlyUpgrade &&
+        tierDirection(accountType.tiers, current, outcome.tier) === 'down'
+      ) {
+        return { ownerId, from: current, to: current, changed: false };
+      }
+
       const { from, to, changed } = await setAccountTier({
         models,
         subdomain,
         accountId: account._id,
         accountTypeId: accountType._id,
-        tier: config.tier || null,
+        tier: outcome.tier || null,
       });
 
       return { ownerId, from, to, changed };
     }),
-  );
+  ).then((result) => ({ result }));
 };
 
 export const scoreAutomationProducers = {
@@ -244,9 +280,7 @@ export const scoreAutomationProducers = {
     }
 
     if (collectionType === 'tier') {
-      return {
-        result: await setTier({ models, subdomain, action, execution }),
-      };
+      return setTier({ models, subdomain, action, execution, inputs });
     }
 
     return earnScore({ models, subdomain, action, execution, inputs });

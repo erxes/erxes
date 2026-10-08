@@ -117,6 +117,7 @@ export interface IPos {
     icon: string;
     config?: string;
   }>;
+  earnScoreCampaignId?: string;
   adminIds?: string[];
   cashierIds?: string[];
   permissionConfig?: {

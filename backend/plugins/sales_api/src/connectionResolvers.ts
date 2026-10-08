@@ -9,6 +9,7 @@ import {
   IChecklistItemDocument,
   IDealDocument,
   IPipelineDocument,
+  ILoyaltyRuleDocument,
   IPipelineLabelDocument,
   IStageDocument,
 } from './modules/sales/@types';
@@ -29,6 +30,10 @@ import {
   loadPipelineClass,
 } from './modules/sales/db/models/Pipelines';
 import { IStageModel, loadStageClass } from './modules/sales/db/models/Stages';
+import {
+  ILoyaltyRuleModel,
+  loadLoyaltyRuleClass,
+} from './modules/sales/db/models/LoyaltyRules';
 
 // pos section
 import { ICoverDocument } from './modules/pos/@types/covers';
@@ -81,6 +86,7 @@ export interface IModels {
   Checklists: IChecklistModel;
   ChecklistItems: IChecklistItemModel;
   PipelineLabels: IPipelineLabelModel;
+  LoyaltyRules: ILoyaltyRuleModel;
 
   // pos section
   Pos: IPosModel;
@@ -164,6 +170,15 @@ export const loadClasses = (
       models,
       subdomain,
       salesEventHandlers('sales', 'pipelineLabels'),
+    ),
+  );
+
+  models.LoyaltyRules = db.model<ILoyaltyRuleDocument, ILoyaltyRuleModel>(
+    'sales_loyalty_rules',
+    loadLoyaltyRuleClass(
+      models,
+      subdomain,
+      salesEventHandlers('sales', 'loyaltyRules'),
     ),
   );
 

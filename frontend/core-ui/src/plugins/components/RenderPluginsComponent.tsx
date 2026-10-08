@@ -8,6 +8,9 @@ import {
   resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
+import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
+import { ErrorBoundary } from 'react-error-boundary';
+import * as Sentry from '@sentry/react';
 
 export function RenderPluginsComponent({
   pluginName,
@@ -90,7 +93,22 @@ export function RenderPluginsComponent({
         </div>
       }
     >
-      <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+      {/* One plugin breaking while drawing must not take its host down. */}
+      <ErrorBoundary
+        FallbackComponent={RenderPluginsComponentCrashState}
+        resetKeys={[pluginName, remoteModuleName]}
+        onError={(error, info) =>
+          Sentry.captureException(error, {
+            extra: {
+              pluginName,
+              remoteModuleName,
+              componentStack: info.componentStack,
+            },
+          })
+        }
+      >
+        <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+      </ErrorBoundary>
     </Suspense>
   );
 }

@@ -9,6 +9,7 @@ const REASON_TEXT: Record<string, string> = {
   "no-amount": "тооцох дүн алга",
   "rounded-to-zero": "дүн бага тул 0 болсон",
   "held-past-reset": "хүлээгдэх хугацаа reset-ээс хойш дуусна",
+  "not-eligible": "энэ wallet-д оноо авах шаардлага хангаагүй",
 }
 
 const reasonText = (reasons: string[]) =>

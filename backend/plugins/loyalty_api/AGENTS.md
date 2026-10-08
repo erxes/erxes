@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -42,6 +42,7 @@
 - Product conditions (core ids) price only through fixed plans: each `pricing_fixed_values` row keeps `conditionPrices [{conditionId, price}]` (cleaned in the model: empty cells dropped, no negatives). Plans hold no condition list; a filled cell is the whole decision. In `checkPricing` a line carrying `conditionId` (optional on `checkPricing` products) takes that condition's price when the row has one, else plain `newPrice`. `pricingFixedValuesPage` returns each product's core `conditionGroupId` and `productStatus`, plus `conditionGroupIds` (distinct groups of every non-deleted plan product, ignoring search/page) for the columns. Loyalty only matches ids; core owns the conditions.
 - `posBase` plans are baked into POS unit prices at sync (`prioritizeRule: 'only'`). At checkout (`'exclude'`) a `posBase` fixed plan is still queried when a line has a condition, but prices only lines whose condition has its own cell, skipping price/quantity/expiry rules; everything else stays as synced.
 - tRPC `score.earnPreview({ ownerType, ownerId, rules: [{campaignId, earnRowKeys}], purchase })` answers what `earn` would give, writing nothing (`ScoreCampaigns.previewEarnRules` → `previewEarn`). It shares `evaluatePurchase` with `earn`, so a preview cannot disagree with a real earn; a zero carries `explainEmptyEarn` reasons (and `held-past-reset`), a rule that cannot earn (missing campaign, wrong owner type) returns `error` instead of failing the others. Callers say which rules apply; loyalty never reads automations.
+- Set tier (`loyalty:score.tier.create`) has two modes: a fixed `tier`, or amount `bands [{tier, min?, max?}]` (+ optional `startDate`/`endDate`, `onlyUpgrade`) read against `inputs.totalAmount`, which the trigger's plugin declares in its `actionInputs` like Adjust score's. `tierForAmount` (`services/tierBands.ts`, unit-tested) picks the first band holding the amount, ends inclusive — the producer orders bands highest tier first, so where ranges meet the higher tier wins; outside the dates, without an amount or with no band it returns a skip (`buildSkippedAction`), and `onlyUpgrade` leaves an owner whose tier would go down (`tierDirection`) unchanged. Loyalty still never decides tiers from its own data.
 - Pricing plan updates remove persisted start and end dates when their enabled flags are disabled.
 - Pricing plan lists honor `page` and `perPage`, with deterministic `_id`
   tie-breaking after the requested or default sort field.
@@ -49,6 +50,7 @@
 - Core product create and update events recalculate that product's active public and base pricing discounts, clearing stale discounts when it leaves every plan filter.
 - Voucher, coupon, lottery, spin, and agent modules provide their plugin-owned loyalty behaviors.
 - A voucher campaign may cap what one owner receives (`perOwnerLimit {count, period: campaign|year|month}`, calendar periods in the organization's time zone via `loyaltyTimeZone`). Every issue path enforces it in `modules/voucher/services/ownerLimit.ts`: `createVoucher` throws `VoucherOwnerLimitError`, `createVouchers` leaves those owners out, and the Issue voucher automation action reports them as `skipped` (all refused) or `refusedOwnerIds` (some refused). Vouchers, spins and lotteries issued from the campaign all count; a `score` voucher cannot be limited.
+- A voucher campaign records how it is handed out on its own in `autoIssue[] {kind, segmentId, parts[{engine: broadcast|automation, id}]}` (one entry per kind; only `birthday` today). Loyalty only stores the bundle: the core segment, broadcast and automation are created, switched and deleted by loyalty_ui through core's public GraphQL.
 - `loyaltyScoreSpendLimit(campaignId, ownerType, ownerId, totalAmount, targetId)` tells a paying screen the most money points may pay on an order (`ScoreCampaigns.spendLimit`, rules in `maxSpendMoney` beside `checkSpendRules` so the offer always passes the check): balance including what this target already spent, point value, step, and `blocked` (`frozen`, `belowMin`, `empty`).
 - Each earning row in a score log's `breakdown` keeps how it was counted (`calc`: value type and value, the tier column it came from, the money counted, money per point, base points for a multiplier bonus, the cap that cut it, and what a point pays), written by `evaluateEarnTable` so earnings and `scoreCampaignEarnPreview` explain themselves the same way; logs written before have no `calc`.
 - tRPC `loyalty.ownerSummary({ ownerType: customer|company|user, ownerId, totalAmount? })` (`utils/ownerSummary.ts`) tells a selling screen what the owner it serves holds: account number and status, non-archived wallet balances with pending, tier and points expiring soon (the same `resolveAccountBalances` the `LoyaltyAccount.balances` resolver uses), and the owner's `new` sale vouchers (`bonus`/`discount` marked `autoApplied`, since `directVoucher` applies them to any sale; `reward` ones run `Vouchers.checkVoucher` against `totalAmount` and carry `applicable` + `reason`). A customer's vouchers held by their client portal user are included. Coupons have no owner, so none are listed.
@@ -77,7 +79,8 @@
 ### Provides
 
 - GraphQL contracts for loyalty modules registered through `src/apollo`, including `loyaltyAccountOfOwner`, `loyaltyAccountFreeze`, `loyaltyAccountUnfreeze`, `loyaltyAccountSetTier`, `loyaltyAccountTypes`, `loyaltyAccountType`, `loyaltyAccountTypeLegacyFieldCount`, `loyaltyAccountTypeAdd`, `loyaltyAccountTypeEdit`, `loyaltyAccountTypeArchive`, `loyaltyAccountTypeUnarchive`, and `loyaltyAccountTypesAdoptCampaignFields`; `ScoreCampaign` exposes `accountTypeId` and `accountType`.
-- tRPC procedures in `src/trpc/init-trpc.ts`, including `loyalty.ownerSummary`, `score.scoreCampaign`, `score.checkSpend`, `score.spend`, `score.refund` and `pricing.checkPricing`.
+- tRPC procedures in `src/trpc/init-trpc.ts`, including `loyalty.ownerSummary`, `score.scoreCampaign`, `score.checkSpend`, `score.spend`, `score.earn` (a purchase as it stands now: the standing entry per campaign and target is moved, not added to; returns `changeScore` and `skips`), `score.refund` and `pricing.checkPricing`.
+- `VoucherCampaign.autoIssue`, mutations `voucherCampaignSetAutoIssue(_id, kind, segmentId, parts)` / `voucherCampaignRemoveAutoIssue(_id, kind)` (permission `loyaltyCampaignUpdate`).
 - Automation action `loyalty:score.score.create` declares `inputs` `totalAmount`, `paidAmount`, `items`.
 - Automation trigger `loyalty:score.tier` (Tier changed) with output `_id`, `ownerType`, `customerId` (reference to `core:customer`), `accountTypeName`, `fromTier`, `toTier`, `direction`.
 - Metadata, permission, automation, and after-process handlers under `src/meta`.
@@ -109,7 +112,7 @@
 - Preserve tenant isolation by using the request `subdomain` for every model and service access.
 - Base pricing synchronization must skip plans without any branch, department, or pipeline scope; queries match the supplied location fields without requiring omitted fields, then use the greatest matching base discount so overlapping plans return the cheapest final price.
 - Public, base, and POS-base pricing adjustments may be negative; base pricing may therefore return a price above the product's original unit price.
-- Loyalty never interprets another plugin's records (stages, `tickUsed`, payment types): purchases arrive as action `inputs`, spending and refunds as `score.spend` / `score.refund`.
+- Loyalty never interprets another plugin's records (stages, `tickUsed`, payment types): purchases arrive as action `inputs` or `score.earn`, spending and refunds as `score.spend` / `score.refund`.
 - Score changes must keep owner score caches and score logs consistent; a purchase recalculated to zero refunds its standing entry.
 - Pricing eligibility must fail closed when required core lookups are unavailable.
 - Disabled pricing date bounds must not retain stale `startDate` or `endDate` values.
@@ -117,6 +120,11 @@
 - Pricing plan list ordering must include `_id` as a deterministic tie-breaker
   so records do not repeat or move between adjacent pages.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
+- A wallet may limit who earns into it (`earnEligibility {who: all|clientPortal|segment, segmentId}`; client portal only on customer wallets): `earn` and the earn previews skip with `not-eligible` (`services/earnEligibility.ts`: core `cpUsers.get` / `segments.isInSegment`). Spending and refunds are never gated.
+- Freezing/unfreezing an account needs `loyaltyAccountFreeze`, setting a tier by hand `loyaltyAccountSetTier` (both in the `scoreLog` permission module, granted to `loyalty:admin`); `scoreLogChange` is only for adjusting score.
+- `scoreLogs(targetId)` lists what one record (deal, order) moved across owners.
+- Earning, spending and previews need an active campaign (`status: 'active'`); a draft or archived one fails with an error naming the campaign and its status, not "Campaign not found".
+- `autoIssue` is written only through `setVoucherAutoIssue` / `removeVoucherAutoIssue` (validated kind, segment, at most one part per engine); `voucherCampaignsEdit` never touches it. Loyalty never calls core to create or delete the parts.
 - A voucher campaign's per-owner limit is checked only through `ownersWithinLimit`; no issue path may create a voucher, spin or lottery for a campaign without it.
 - Every balance change goes through `changeBalance` in `scoreLedger.ts`: keyed balances (an account type, or `default` for the top-level score) change with one atomic `$inc`/`$set` on `loyalty_accounts.balances` (floor-checked for subtractions), and the featured field or owner `score` is only a copy that re-reads the account until it matches; never compute a new balance from an owner snapshot. Every read of a balance goes through `getOwnerBalance`: the account first, otherwise the featured field (typed) or the ledger sum (default score — customers have no `score` field, so `owner.score` is never a source). Repair writes ledger-derived balances through `updateOwnerScoreCache`; never `$set` a whole `propertiesData` object on an owner.
 - Invariant: available lots' `remaining` sums to `max(0, balance)` and pending lots to `pending`. Only `changeBalance`, the lot jobs and repair (`reconcileAvailable`) move lots; lot consumption is one atomic pipeline update per lot. Production runs MongoDB 4.4: no operators newer than 4.4 (`$dateAdd`, `$getField`, `$setWindowFields` …); dates are computed in Node.
@@ -138,6 +146,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-08` — Earn called by the selling side
+
+- **Summary:** Sales and POS restate a purchase with `score.earn` on every save in an earning stage or paid sync; loyalty keeps one standing entry per campaign and target.
+- **Affected areas:** `trpc/init-trpc.ts`.
+- **Contracts changed:** tRPC `score.earn`.
+
+### `2026-10-07` — Voucher auto-issue bundles (birthday)
+
+- **Summary:** A voucher campaign keeps the ids of the core broadcast and automation that hand it out on birthdays, so the pair is shown, switched and removed as one.
+- **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/VoucherCampaign.ts,graphql/schemas/voucherCamapign.ts,graphql/resolvers/{mutations,queries}/voucherCampaign.ts}`.
+- **Contracts changed:** `VoucherCampaign.autoIssue`, `voucherCampaignSetAutoIssue`, `voucherCampaignRemoveAutoIssue`.
 
 ### `2026-10-01` — Spend limit for paying screens
 
@@ -186,15 +206,3 @@
 - **Summary:** The hourly job for every organization became a nightly run only for organizations whose wallets move with time; resets keep what moved after midnight, and lot moves are claimed so they never run twice.
 - **Affected areas:** `src/worker/index.ts`, `services/{periodSchedule,accountReset,lotJobs}.ts`, `db/models/AccountType.ts`, lot schema, `services/__tests__/accountReset.test.ts`.
 - **Contracts changed:** Queue `loyalty-periods` replaces `loyalty-daily-check` / `loyalty-resetPeriods`; lots gain `releasingAt`, `expiringAt`.
-
-### `2026-09-29` — Purchases as a contract
-
-- **Summary:** Earning reads a purchase from the automation action's `inputs`; spending and refunds come from the selling side over `score.spend` / `score.refund`; stage rules removed; every score change writes activity logs.
-- **Affected areas:** `ScoreCampaign.ts` (`earn`, `spend`, `checkSpend`, `refundTarget`), `ScoreLog.ts` (`recordActivity`), `earnContext.ts`, `meta/automations`, `trpc/init-trpc.ts`, `utils/utils.ts`.
-- **Contracts changed:** tRPC `score.doScoreCampaign`, `checkScoreAviableSubtract`, `consumeTargetChange`, `refundLoyaltyScore`, `getScoreCampaignsByStage` removed; `score.checkSpend`, `score.spend`, `score.refund` added; Adjust score action `inputs`; `score_logs.targetType`.
-
-### `2026-09-28` — Two row kinds
-
-- **Summary:** Earning rows are base or bonus; the former multiplier row is a bonus that multiplies the base, and every such bonus now adds (capped) instead of only the highest applying.
-- **Affected areas:** `services/earnTable.ts` (`evaluateEarnTable`, `normalizeEarnTable`), `@types/earnTable.ts`, earn table tests.
-- **Contracts changed:** Earning row `kind` is `base | bonus` (a `multiplier` row is saved as bonus `multiplier`); bonus `valueType` adds `multiplier`.

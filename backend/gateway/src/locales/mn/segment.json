@@ -20,9 +20,9 @@
   "a-segment": "сегмент",
   "detail": {
     "automations": "Automation",
-    "automations-title": "Орох, гарах automation",
-    "automations-hint": "Бичлэг энэ segment-д орох эсвэл гарах үед эхэлдэг automation-ууд.",
-    "automations-empty": "Энэ segment-ийг сонсож буй automation алга.",
+    "automations-title": "Automation ба broadcast",
+    "automations-hint": "Энэ segment-ээр ажилладаг зүйлс: segment-д орох/гарах үед эхэлдэг automation болон гишүүдэд нь илгээдэг broadcast.",
+    "automations-empty": "Энэ segment-ээр одоогоор юу ч ажиллахгүй байна.",
     "automations-create": "Automation үүсгэх",
     "automations-unsupported": "Энэ төрлийн бичлэгт automation trigger байхгүй.",
     "add-condition": "Нөхцөл нэмэх",
@@ -87,7 +87,10 @@
     "visibility-hint": "Энэ segment-ийг хэн жагсаалтаасаа олохыг заана. Тохирсон бичлэгүүдийг хэн харахыг өөрчлөхгүй.",
     "visible-to-everyone": "Байгууллагын бүх хүн",
     "visible-to-me": "Зөвхөн би",
-    "broadcast-create": "Шөнө бүрийн broadcast"
+    "broadcast-create": "Шөнө бүрийн broadcast",
+    "automation-kind": "Automation",
+    "broadcast-kind": "Broadcast",
+    "broadcast-kind-nightly": "Шөнийн broadcast"
   },
   "filter": {
     "segments": "Сегмент",

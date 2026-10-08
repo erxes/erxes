@@ -14,6 +14,7 @@ import {
 } from '~/modules/pricing/utils/rule';
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
 import { getOwnerSummary } from '~/utils/ownerSummary';
+import { TScoreSkip } from '@/score/@types/earnTable';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
@@ -146,6 +147,33 @@ const spendInput = z.object({
   actorId: z.string().optional(),
 });
 
+const purchaseInput = z.object({
+  totalAmount: z.number().min(0),
+  paidAmount: z.number().min(0),
+  items: z
+    .array(
+      z.object({
+        productId: z.string(),
+        amount: z.number(),
+        discounted: z.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
+// What a purchase earns as it stands now; saying it again moves the standing
+// entry to the new amount instead of adding another.
+const earnInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  campaignId: z.string(),
+  targetId: z.string(),
+  targetType: z.string(),
+  serviceName: z.string().optional(),
+  actorId: z.string().optional(),
+  purchase: purchaseInput,
+});
+
 // What a purchase would earn, asked before it is paid; nothing is written.
 const earnPreviewInput = z.object({
   ownerType: z.string(),
@@ -156,19 +184,7 @@ const earnPreviewInput = z.object({
       earnRowKeys: z.array(z.string()).optional(),
     }),
   ),
-  purchase: z.object({
-    totalAmount: z.number().min(0),
-    paidAmount: z.number().min(0),
-    items: z
-      .array(
-        z.object({
-          productId: z.string(),
-          amount: z.number(),
-          discounted: z.boolean().optional(),
-        }),
-      )
-      .optional(),
-  }),
+  purchase: purchaseInput,
 });
 
 const refundInput = z.object({
@@ -414,6 +430,15 @@ export const appRouter = t.router({
       .mutation(async ({ ctx, input }) =>
         ctx.models.ScoreCampaigns.spend(input),
       ),
+
+    earn: t.procedure.input(earnInput).mutation(async ({ ctx, input }) => {
+      const skips: TScoreSkip[] = [];
+      const log = await ctx.models.ScoreCampaigns.earn(input, (found) =>
+        skips.push(...found),
+      );
+
+      return { changeScore: Number(log?.changeScore) || 0, skips };
+    }),
 
     earnPreview: t.procedure
       .input(earnPreviewInput)

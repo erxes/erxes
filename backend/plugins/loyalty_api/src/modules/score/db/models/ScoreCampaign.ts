@@ -1,3 +1,4 @@
+import { mayEarn } from '@/score/services/earnEligibility';
 import {
   IScoreCampaign,
   IScoreCampaignDocument,
@@ -337,13 +338,17 @@ export const loadScoreCampaignClass = (
       throw new Error('Owner not found');
     }
 
-    const campaign = await models.ScoreCampaigns.findOne({
-      _id: campaignId,
-      status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
-    });
+    const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
 
     if (!campaign) {
       throw new Error('Campaign not found');
+    }
+
+    // A draft or archived campaign: say so instead of "not found".
+    if (campaign.status !== SCORE_CAMPAIGN_STATUSES.PUBLISHED) {
+      throw new Error(
+        `Score campaign "${campaign.title}" is ${campaign.status}, not active; activate it to give or take points`,
+      );
     }
 
     if (campaign.ownerType !== ownerType) {
@@ -538,6 +543,30 @@ export const loadScoreCampaignClass = (
     });
 
     return activeScoreLog;
+  };
+
+  // The wallet may let only some owners earn; spending is never gated here.
+  const earnBlockedFor = async (
+    campaign: IScoreCampaignDocument,
+    { ownerType, ownerId }: { ownerType: string; ownerId: string },
+  ): Promise<TScoreSkip | null> => {
+    if (!campaign.accountTypeId) {
+      return null;
+    }
+
+    const accountType = await models.LoyaltyAccountTypes.findOne(
+      { _id: campaign.accountTypeId },
+      { earnEligibility: 1 },
+    ).lean();
+    const eligibility = accountType?.earnEligibility;
+
+    if (!eligibility || eligibility.who === 'all') {
+      return null;
+    }
+
+    return (await mayEarn({ subdomain, eligibility, ownerType, ownerId }))
+      ? null
+      : { reason: 'not-eligible', who: eligibility.who };
   };
 
   class ScoreCampaign {
@@ -807,6 +836,12 @@ export const loadScoreCampaignClass = (
         return { points: 0, skips: [{ reason: 'no-rows' }] };
       }
 
+      const blocked = await earnBlockedFor(campaign, input);
+
+      if (blocked) {
+        return { points: 0, skips: [blocked] };
+      }
+
       const { earned, skips } = await evaluatePurchase(
         campaign,
         earnTable,
@@ -907,6 +942,14 @@ export const loadScoreCampaignClass = (
 
       if (!earnTable?.rows?.length) {
         throw new Error('Set up the earning table of this campaign first');
+      }
+
+      const blocked = await earnBlockedFor(campaign, input);
+
+      if (blocked) {
+        onSkip?.([blocked]);
+
+        return null;
       }
 
       const activeScoreLog = await findActiveScoreLog({

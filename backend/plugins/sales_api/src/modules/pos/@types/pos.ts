@@ -22,6 +22,7 @@ export interface IPos {
   serviceCharge?: number;
   serviceChargeApplicableProductId?: string;
   paymentTypes?: any[];
+  earnScoreCampaignId?: string;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

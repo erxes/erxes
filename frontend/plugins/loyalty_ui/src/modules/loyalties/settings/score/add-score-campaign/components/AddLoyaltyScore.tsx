@@ -16,8 +16,14 @@ import {
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
+  onCreated,
+  status,
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
+  // A campaign made while setting up something else gets picked there.
+  onCreated?: (campaignId: string) => void;
+  // Unset keeps the server's draft; set where the campaign is used at once.
+  status?: string;
 }>) {
   const { t } = useTranslation('loyalty');
   const { scoreCampaignAdd, loading: editLoading } = useAddScoreCampaign();
@@ -64,11 +70,18 @@ export function AddLoyaltyScoreForm({
       add: toAddInput(data.add),
       subtract: toSubtractInput(data.subtract),
       accountTypeId: data.accountTypeId || '',
+      ...(status ? { status } : {}),
     };
 
     scoreCampaignAdd({
       variables,
-      onCompleted: () => {
+      onCompleted: (data) => {
+        const createdId = data?.scoreCampaignAdd?._id;
+
+        if (createdId) {
+          onCreated?.(createdId);
+        }
+
         form.reset();
         onOpenChange(false);
       },
@@ -83,7 +96,12 @@ export function AddLoyaltyScoreForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        // Opened from inside another form, its submit must not submit that
+        // form too: React events cross the sheet's portal.
+        onSubmit={(event) => {
+          event.stopPropagation();
+          form.handleSubmit(onSubmit)(event);
+        }}
         className="flex flex-col flex-1 min-h-0 overflow-hidden"
       >
         <ScoreCampaignFormLayout form={form} />

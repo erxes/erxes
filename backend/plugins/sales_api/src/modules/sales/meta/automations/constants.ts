@@ -11,7 +11,9 @@ import { generateTotalAmount } from './action/generateTotalAmount';
 import {
   dealPaidAmount,
   dealPurchaseItems,
+  dealScoreTotal,
   LOYALTY_ADJUST_SCORE_ACTION,
+  LOYALTY_SET_TIER_ACTION,
 } from './purchase';
 import { IDeal, IProductData } from '../../@types';
 import { buildDealAmountAttributes } from '../../documents/dealContent';
@@ -400,17 +402,7 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     paidAmount: async ({ subdomain, source }) =>
       dealPaidAmount(await generateModels(subdomain), source),
     purchaseItems: ({ source }) => dealPurchaseItems(source),
-    unUsedTotalAmount: ({ source }) => {
-      let totalAmount = 0;
-
-      (source.productsData || []).forEach((product) => {
-        if (product.tickUsed) {
-          totalAmount += product?.amount || 0;
-        }
-      });
-
-      return totalAmount;
-    },
+    unUsedTotalAmount: ({ source }) => dealScoreTotal(source),
     bothTotalAmount: ({ source }) => {
       let totalAmount = 0;
 
@@ -444,6 +436,7 @@ const DEAL_ACTION_INPUTS: TAutomationTriggerActionInputs = {
     paidAmount: 'paidAmount',
     items: 'purchaseItems',
   },
+  [LOYALTY_SET_TIER_ACTION]: { totalAmount: 'unUsedTotalAmount' },
 };
 
 export const salesAutomationContants = {

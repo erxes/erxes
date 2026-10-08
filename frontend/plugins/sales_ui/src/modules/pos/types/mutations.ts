@@ -49,6 +49,7 @@ export interface PosData {
   cashierIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  earnScoreCampaignId?: string;
   user?: {
     _id: string;
     details: {
@@ -107,6 +108,7 @@ export interface AddPosDetailVariables {
   cashierIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  earnScoreCampaignId?: string;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -52,6 +52,15 @@
 - The "Tier changed" trigger is configured by `TierChangedTriggerConfigForm` / `useTierChangedTriggerForm` (wallet required, direction up/down/any defaulting to up, target tier or any) and summarized on its node by `TierChangedTriggerNodeContent`, both registered in `LoyaltyRemoteEntry` (`triggerForm`, `triggerConfigContent`).
 - Loyalty action nodes report what their config still misses (`useLoyaltyActionNodeIssues`: the action's own zod form schema, reported through `useReportNodeIssues` from `ui-modules`); the builder draws the warning and blocks activation.
 - `/loyalty/accounts` ("Accounts" in the loyalty navigation) lists loyalty accounts: owner, owner type, account number, status, one column per active account type with its balance and an inline tier select, joined date. Filters: search (account number or owner name), status, owner type, account type and tier. Row menu: freeze (reason dialog) / unfreeze (confirm), score history (scores page filtered by owner), owner profile. Freeze, unfreeze and tier changes refetch `LoyaltyAccounts`.
+- The Set tier builder form has a mode: a fixed tier, or by purchase amount (`TierBandsFields`, `toSetTierConfig` keeps only the chosen mode's fields; the node shows "By purchase amount"). The campaign page's tier seed still uses `buildTierSeedActions` (customer trigger, split per tier).
+- The score campaign form's wallet field has "New wallet" (`LoyaltyAccountTypeFormSheet` with `onCreated`); `useAddScoreCampaign` also refetches `ScoreCampaignsSimple` so pickers see a new campaign.
+- Voucher campaign edit sheet has a "Birthday" tab (`settings/birthday/components/VoucherBirthdayReward.tsx`, outside the form steps, no footer submit): "Give on birthdays" makes the whole bundle in order — the shared "birthday today" customer segment (found by its `birthDate annt` root, created if missing), a workflow broadcast to it with an Issue voucher step following the segment's nightly refresh (`afterSegment`), an active automation on that segment's membership trigger (`joined`) with the same step (both steps have recipient `{{ trigger._id }}`), then `voucherCampaignSetAutoIssue`; any failure deletes what was made. Once connected the tab shows both parts as one row: next/last nightly run, links to the broadcast and the automation, one switch for both (schedule/cancel schedule + automation status) and Disconnect deleting both and the bundle record. Warns when the saved campaign has no per-customer limit, flags a bundle whose parts are missing or disagree.
+- `LoyaltyScoreCreateSheet` (the campaign form opened from other places: the record picker, the relation settings "New campaign") creates the campaign active, since it is picked and used at once; the settings page's own Add keeps the server's draft default. Pickers that must give points pass `status="active"` to `SelectScoreCampaign`.
+- The relation widget (`./relationWidget`, `Widgets.tsx`) shows an owner's score summary on customers, companies and users, and on any other record (a deal, a POS order) tabs (`RecordLoyaltyWidget`): first the points that record moved — campaign, owner, earned/spent/given back, when, description, total (`ScoreTargetHistoryWidget`, query `LoyaltyTargetScoreLogs` = `scoreLogs(targetId)`, polled every 10 s while open since the record's plugin writes them), then one tab per customer linked to it through core relations (`useRecordLoyaltyTabs` / `useRelations`, plus the host's `customerId`) with that customer's score summary. Before this, a deal's id was read as an owner id and the summary showed nothing.
+- The wallet form's General section sets who may earn (everyone, client portal members on customer wallets, or a segment's members via the loyalty `SelectSegment`); the automation result and the cashier preview name the `not-eligible` skip.
+- Account controls follow permissions (`useLoyaltyAccountPermissions` over `usePermissionCheck`): freeze/unfreeze (card and row menu) only with `loyaltyAccountFreeze`; without `loyaltyAccountSetTier` the tier shows as a read-only badge.
+- Record picker widget (`./recordPickerWidget`, declared as `widgets.recordPickerWidgets` `{ name: 'scoreCampaign', contentType: 'loyalty:score.campaigns' }`): other plugins' forms render it through `ui-modules` `RecordPickerWidget` to pick a score campaign; it is `SelectScoreCampaign` limited to active campaigns (`status="active"`) plus New (`LoyaltyScoreCreateSheet`, picks what it creates) and Edit (mounts `LoyaltyScoreEditSheet` only in the picker that asked, via `editScoreId`) (`widgets/recordPicker`).
+- Relation settings widget (`./relationSettingsWidget`, declared as `widgets.relationSettingsWidgets` in `config.tsx`): shown as its own "Loyalty" tab on other plugins' settings pages (`RelationSettingsWidget`). Given a purchase context (trigger type, scopes, buyer attribution, `returnTo`) it lists the connections first and folds the setup behind "Add loyalty workflow" (`AddLoyaltyWorkflow`: a kind tab, scope picker and the kind's fields; "New campaign" / "New wallet" open `LoyaltyScoreCreateSheet` / `LoyaltyAccountTypeFormSheet` in place and pick what they create via `onCreated`, so nothing needs leaving the source's page) — Give points (Adjust score, campaign picker) and Set tier (wallets with active tiers; the shared `TierBandsFields` takes an amount range per tier, dates and only-upgrade, and the seed is one Set tier in amount mode with the source's buyer attribution) — and shows connections in loyalty terms ("campaign ← scope", status, an on/off switch that sets the automation's status through `automationsEdit` (`LoyaltySourceAutomationSetStatus`; core validates activation, off for an incomplete step), Details opens the builder, Disconnect deletes the automation after a confirm) for the automations that run loyalty Adjust score on that trigger, matching a trigger to the scope whose every key it shares (query `LoyaltySourceAutomations`), warns when none is active with a campaign, disconnecting through `LoyaltySourceAutomationRemove` (evicted from the Apollo cache), and "Connect" seeds the builder with the scope's trigger and an Adjust score already holding the chosen campaign. It renders nothing without a trigger and never knows which plugin hosts it.
 - A saved score campaign's sheet has an Automations tab (`ScoreCampaignAutomations` / `useScoreCampaignAutomations`) listing the automations giving its points (Adjust score with this `campaignId`) and, when its account type has tiers, the ones setting those tiers (Set tier with that `accountTypeId`), each linking to the builder, with a create button under each list (a point automation from here counts every row). Automations are also started where the rule lives (`useCampaignAutomationSeeds`, campaign id from `ScoreCampaignProvider`): each base/bonus row of the earning table has, in its row menu (`EarnRowActions`, with delete), an item that opens an unsaved builder with only an Adjust score action (campaign, add, that row's `earnRowKeys`) and no trigger, enabled once the row is saved; a "Create tier automation" button above the table seeds an empty customer trigger, a split with one branch per active tier (highest first) and a Set tier on each branch. Both seeds and the Automations tab's edit links carry `returnTo` (this page, labelled with the campaign title) so the builder offers a way back, kept after the first save. Account types carry no automation section.
 - Pricing list loads filtered plans in 20-record pages as users scroll and
   shows the full filtered record count from the API.
@@ -83,11 +92,13 @@
   `LoyaltyAccountTypeArchive`, `LoyaltyAccountTypeUnarchive`,
   `LoyaltyAccountTypesAdoptCampaignFields`, `LoyaltyAccountOfOwner`,
   `LoyaltyAccountFreeze`, `LoyaltyAccountUnfreeze`, and `LoyaltyAccountSetTier`.
+- Birthday reward operations `LoyaltyBirthdayVoucherCampaign`, `LoyaltyBirthdaySegments`, `LoyaltyBirthdayBroadcast`, `LoyaltyBirthdayAutomation`, `LoyaltyBirthdayBroadcastAdd`, `LoyaltyBirthdayBroadcastFollow`, `LoyaltyBirthdayBroadcastUnfollow`, `LoyaltyBirthdayBroadcastRemove`, `LoyaltyBirthdayAutomationAdd`, `LoyaltyBirthdayAutomationSetStatus`, `LoyaltyBirthdayAutomationRemove`, `LoyaltyBirthdayRewardSet`, `LoyaltyBirthdayRewardRemove`.
 - `PricingPlans` queries request `pricingPlansCount` with the same filters as
   the list and page through `page`/`perPage`.
 
 ### Consumes
 
+- Core segments (`segments`, `SEGMENT_ADD` from `ui-modules`), broadcasts (`engageMessageAdd` with `method: workflow` + `workflow`, `engageMessageSetSchedule(afterSegment)`, `engageMessageCancelSchedule`, `engageMessageDetail`, `engageMessageRemove`) and automations (`automationsAdd`, `automationsEdit` status, `automationDetail`, `automationsRemove`) for the birthday bundle.
 - Core `productConditionGroups` (product condition groups owned by core products).
 
 - Public components and hooks from `erxes-ui` and `ui-modules`.
@@ -143,6 +154,16 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-08` — Score campaign picker for other plugins
+
+- **Summary:** Loyalty offers a score campaign field with create and edit to other plugins' forms (first used by sales' score earn configuration).
+- **Affected areas:** `widgets/recordPicker/**`, `config.tsx`, `module-federation.config.ts`.
+
+### `2026-10-07` — Birthday tab on voucher campaigns
+
+- **Summary:** A voucher campaign's edit sheet connects it to birthdays: the nightly broadcast and the daytime segment-entry automation are made, switched and removed together.
+- **Affected areas:** `settings/birthday/{constants,graphql,hooks,components}`, `settings/voucher/voucher-detail/components/EditVoucherTabs.tsx`; `birthday-reward-*` translations.
+
 ### `2026-09-30` — Per-customer voucher limit
 
 - **Summary:** Voucher campaigns can be limited to N per customer per year, month or campaign from the Restriction tab; empty means no limit.
@@ -185,16 +206,4 @@
 
 - **Summary:** Score campaigns no longer edit deal-stage rules (`cardBasedRule`); the Adjust score action only gives points (older subtract configs save back as add) and its node still marks a legacy subtract.
 - **Affected areas:** `settings/score/add-score-campaign/components/{ServiceConfigFields,ScoreCampaignSourceSection,AddLoyaltyScore}.tsx`, `score-detail/components/{LoyaltyScoreEditSheet,EditScoreForm}.tsx`, `constants/formSchema.ts`, `widgets/automations/modules/loyalty/{components/action,states,constants}`, `hooks/useScoreActionResult.ts`.
-- **Contracts changed:** None
-
-### `2026-09-30` — Tier changed trigger form
-
-- **Summary:** The Tier changed trigger has its own config form, node summary and history name; Issue voucher runs show the campaign and recipients instead of raw JSON.
-- **Affected areas:** `widgets/automations/modules/loyalty/components/{trigger/*,common/LoyaltyOwnerInline.tsx,action/voucher/IssueVoucherActionResult.tsx,action/LoyaltyActionResult.tsx}`, `hooks/{useTierChangedTriggerForm,useIssueVoucherActionResult}.ts`, `issue-voucher-result` translations, `states/tierChangedTriggerConfigFormDefinitions.ts`, `LoyaltyRemoteEntry.tsx`; `tier-changed-*` translations.
-- **Contracts changed:** None
-
-### `2026-09-29` — Set tier history result
-
-- **Summary:** Set tier runs show `from → to` tier names, or a skipped line when the tier was already set, instead of raw JSON.
-- **Affected areas:** `widgets/automations/modules/loyalty/components/action/LoyaltyActionResult.tsx`, `set-tier/SetTierActionResult.tsx`, `hooks/useSetTierActionResult.ts`, `LoyaltyRemoteEntry.tsx`; `set-tier-result-*` translations.
 - **Contracts changed:** None

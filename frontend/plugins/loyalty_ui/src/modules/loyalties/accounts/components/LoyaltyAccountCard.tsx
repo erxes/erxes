@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoyaltyAccountFreeze } from '../hooks/useLoyaltyAccountFreeze';
 import { useLoyaltyAccountOfOwner } from '../hooks/useLoyaltyAccountOfOwner';
+import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissions';
 import { TLoyaltyAccountStatus } from '../types';
 import { FreezeAccountDialog } from './FreezeAccountDialog';
 import { LoyaltyAccountTierSelect } from './LoyaltyAccountTierSelect';
@@ -29,6 +30,7 @@ export const LoyaltyAccountCard = ({
   const [freezing, setFreezing] = useState(false);
   const { account, loading } = useLoyaltyAccountOfOwner({ ownerType, ownerId });
   const { unfreeze, loading: unfreezing } = useLoyaltyAccountFreeze();
+  const { canFreeze } = useLoyaltyAccountPermissions();
 
   if (loading && !account) {
     return <Spinner containerClassName="py-6" />;
@@ -57,7 +59,7 @@ export const LoyaltyAccountCard = ({
         <Badge variant={STATUS_VARIANTS[account.status]}>
           {t(`loyalty-account-status-${account.status}`)}
         </Badge>
-        {account.status === 'active' && (
+        {canFreeze && account.status === 'active' && (
           <Button
             variant="ghost"
             size="sm"
@@ -68,7 +70,7 @@ export const LoyaltyAccountCard = ({
             {t('loyalty-account-freeze')}
           </Button>
         )}
-        {account.status === 'frozen' && (
+        {canFreeze && account.status === 'frozen' && (
           <Button
             variant="ghost"
             size="sm"

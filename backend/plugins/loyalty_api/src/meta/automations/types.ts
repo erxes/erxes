@@ -1,3 +1,4 @@
+import { TTierBandsConfig } from '@/score/services/tierBands';
 import {
   TAutomationProducers,
   TAutomationProducersInput,
@@ -59,11 +60,13 @@ export type AdjustScoreActionConfig = {
   earnRowKeys?: string[];
 };
 
-export type SetTierActionConfig = {
+export type SetTierActionConfig = TTierBandsConfig & {
   attribution?: string;
   accountTypeId?: string;
-  // A tier key of the account type; empty clears the tier.
+  // A tier key of the account type; empty clears the tier. Unused with bands.
   tier?: string;
+  // With bands, a purchase never moves the owner to a lower tier.
+  onlyUpgrade?: boolean;
 };
 
 export type IssueVoucherActionConfig = {

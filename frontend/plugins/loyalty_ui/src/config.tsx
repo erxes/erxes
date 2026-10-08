@@ -83,11 +83,21 @@ export const CONFIG: IUIConfig = {
     },
   ],
   widgets: {
+    relationSettingsWidgets: [
+      {
+        name: 'loyalty',
+        label: 'Loyalty',
+        icon: IconAward,
+      },
+    ],
     relationWidgets: [
       {
         name: 'loyalty',
         icon: IconAward,
       },
+    ],
+    recordPickerWidgets: [
+      { name: 'scoreCampaign', contentType: 'loyalty:score.campaigns' },
     ],
   },
   searchProviders: SEARCH_PROVIDERS,

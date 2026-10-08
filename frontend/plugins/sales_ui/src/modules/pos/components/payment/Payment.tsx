@@ -7,6 +7,7 @@ import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { OtherPaymentsField, PaymentIdsField } from '@/payments';
 import { type PaymentConfigItem } from '@/payments';
 import { useTranslation } from 'react-i18next';
+import { EarnScoreCampaignsField } from './EarnScoreCampaignsField';
 
 interface PaymentProps {
   posId?: string;
@@ -17,6 +18,7 @@ interface PaymentProps {
 export interface PaymentFormData {
   paymentIds: string[];
   paymentTypes: PaymentConfigItem[];
+  earnScoreCampaignId: string;
 }
 
 const PAYMENT_FORM_ID = 'pos-payment-form';
@@ -24,6 +26,7 @@ const PAYMENT_FORM_ID = 'pos-payment-form';
 const DEFAULT_FORM_VALUES: PaymentFormData = {
   paymentIds: [],
   paymentTypes: [],
+  earnScoreCampaignId: '',
 };
 
 const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
@@ -55,6 +58,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     reset({
       paymentIds: posDetail.paymentIds ?? [],
       paymentTypes: validPaymentTypes,
+      earnScoreCampaignId: posDetail.earnScoreCampaignId ?? '',
     });
   }, [posDetail, reset]);
 
@@ -84,6 +88,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
                 scoreCampaignId,
               }),
             ),
+            earnScoreCampaignId: data.earnScoreCampaignId || null,
           },
         });
 
@@ -157,6 +162,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
         >
           <PaymentIdsField control={control} />
           <OtherPaymentsField control={control} />
+          <EarnScoreCampaignsField control={control} posId={posId} />
         </form>
       </Form>
     );

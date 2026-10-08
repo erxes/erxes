@@ -106,12 +106,38 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
 `;
 
 export const SCORE_CAMPAIGNS_SIMPLE_QUERY = gql`
-  query ScoreCampaignsSimple($searchValue: String, $limit: Int) {
-    scoreCampaigns(searchValue: $searchValue, limit: $limit) {
+  query ScoreCampaignsSimple(
+    $searchValue: String
+    $limit: Int
+    $status: String
+  ) {
+    scoreCampaigns(searchValue: $searchValue, limit: $limit, status: $status) {
       list {
         _id
         title
         ownerType
+      }
+    }
+  }
+`;
+
+// Everything one record (a deal, an order) moved, whoever owned the points.
+export const LOYALTY_TARGET_SCORE_LOGS = gql`
+  query LoyaltyTargetScoreLogs($targetId: String) {
+    scoreLogs(targetId: $targetId, limit: 100) {
+      list {
+        _id
+        ownerId
+        ownerType
+        owner
+        change
+        action
+        description
+        createdAt
+        campaign {
+          _id
+          title
+        }
       }
     }
   }

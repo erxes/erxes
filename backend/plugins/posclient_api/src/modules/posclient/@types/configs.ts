@@ -79,6 +79,7 @@ export interface IConfig {
   cashierIds: string[];
   paymentIds: string[];
   paymentTypes: any[];
+  earnScoreCampaignId?: string;
   beginNumber?: string;
   maxSkipNumber?: number;
   kitchenScreen?: any;

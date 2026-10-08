@@ -86,6 +86,9 @@ export const CANVAS = {
   HEIGHT: 1000,
 } as const;
 
+// Tabs other plugins add (`relationSettingsWidgets`) are keyed under this.
+export const POS_RELATION_TAB_PREFIX = 'relation.';
+
 export const getSteps = () => {
   return [
     { value: 'properties', title: 'general-information' },
@@ -93,12 +96,13 @@ export const getSteps = () => {
     { value: 'payments', title: 'payments' },
     { value: 'permission', title: 'permission' },
     { value: 'customer', title: 'customer-registration' },
-    { value: 'automations', title: 'pos-automations' },
     { value: 'product', title: 'product-and-service' },
     { value: 'appearance', title: 'brand-color-and-logo' },
     { value: 'screen', title: 'screen' },
     { value: 'delivery', title: 'delivery' },
     { value: 'sync', title: 'sync-card' },
+    // Last, so it sits beside the tabs other plugins add (Loyalty).
+    { value: 'automations', title: 'pos-automations' },
   ];
 };
 

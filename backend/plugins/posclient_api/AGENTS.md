@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -19,6 +19,8 @@
 - Sales POS settings UI, sales API persistence, shared core services, gateway routing, or other plugin data models.
 
 ## Current Capabilities
+
+- The cashier's earn preview (`previewLoyaltyEarn`) counts the POS's own earning campaigns (`config.earnScoreCampaignId`, synced from the sales POS) first, then any active automation's Adjust score, one rule per campaign.
 
 - Syncs and exposes `isShowRemainder` independently from stock validation.
 - Authenticates POS users against POS client context.

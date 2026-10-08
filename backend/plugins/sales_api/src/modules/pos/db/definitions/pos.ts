@@ -32,6 +32,8 @@ export const posSchema = schemaWrapper(
       label: 'Service Charge Applicable Product',
     },
     paymentTypes: { type: [Object], label: 'Other Payments' },
+    // The one score campaign a paid order earns in; two would both earn.
+    earnScoreCampaignId: { type: String, label: 'Earn score campaign' },
     onServer: {
       type: Boolean,
       optional: true,

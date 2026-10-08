@@ -79,6 +79,8 @@ export const configSchema = new Schema({
   cashierIds: field({ type: [String] }),
   paymentIds: field({ type: [String] }),
   paymentTypes: field({ type: [Object] }),
+  // The score campaign a paid order earns in, set on the POS in sales.
+  earnScoreCampaignId: field({ type: String, optional: true }),
   beginNumber: field({ type: String, optional: true }),
   maxSkipNumber: field({ type: Number }),
   waitingScreen: field({ type: Object }),

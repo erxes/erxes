@@ -123,6 +123,11 @@ const generateFilter = async (
     filter.campaignId = params.campaignId;
   }
 
+  // Everything one record (a deal, an order) moved, across owners.
+  if (params.targetId) {
+    filter.targetId = params.targetId;
+  }
+
   if (params.action) {
     const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
       action: { $in: ['refund', 'return'] },

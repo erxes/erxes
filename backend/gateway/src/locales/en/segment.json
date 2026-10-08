@@ -20,9 +20,9 @@
   "a-segment": "a segment",
   "detail": {
     "automations": "Automations",
-    "automations-title": "Enter and exit automations",
-    "automations-hint": "Flows that start when a record enters or leaves this segment.",
-    "automations-empty": "No automation listens to this segment yet.",
+    "automations-title": "Automations and broadcasts",
+    "automations-hint": "What runs for this segment: flows that start when a record enters or leaves it, and broadcasts sent to its members.",
+    "automations-empty": "Nothing runs for this segment yet.",
     "automations-create": "Create automation",
     "automations-unsupported": "This record type has no automation trigger.",
     "add-condition": "Add condition",
@@ -87,7 +87,10 @@
     "visibility-hint": "Decides who finds this segment in their list. It does not change who can see the records it matches.",
     "visible-to-everyone": "Everyone in the organization",
     "visible-to-me": "Only me",
-    "broadcast-create": "Send nightly broadcast"
+    "broadcast-create": "Send nightly broadcast",
+    "automation-kind": "Automation",
+    "broadcast-kind": "Broadcast",
+    "broadcast-kind-nightly": "Nightly broadcast"
   },
   "filter": {
     "segments": "Segments",

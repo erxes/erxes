@@ -10,6 +10,28 @@ export interface IVoucherOwnerLimit {
   period: TVoucherOwnerLimitPeriod;
 }
 
+export const VOUCHER_AUTO_ISSUE_KINDS = ['birthday'] as const;
+export type TVoucherAutoIssueKind = (typeof VOUCHER_AUTO_ISSUE_KINDS)[number];
+
+export const VOUCHER_AUTO_ISSUE_ENGINES = ['broadcast', 'automation'] as const;
+export type TVoucherAutoIssueEngine =
+  (typeof VOUCHER_AUTO_ISSUE_ENGINES)[number];
+
+export interface IVoucherAutoIssuePart {
+  engine: TVoucherAutoIssueEngine;
+  id: string;
+}
+
+/**
+ * One way this campaign is handed out on its own: the core broadcast and
+ * automation that do it, kept together so they are switched and removed as one.
+ */
+export interface IVoucherAutoIssue {
+  kind: TVoucherAutoIssueKind;
+  segmentId: string;
+  parts: IVoucherAutoIssuePart[];
+}
+
 export interface IVoucherCampaign extends ICommonCampaignFields {
   buyScore: number;
 
@@ -37,6 +59,7 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
   value: number;
   restrictions: any;
   perOwnerLimit?: IVoucherOwnerLimit | null;
+  autoIssue?: IVoucherAutoIssue[];
 }
 
 export interface IVoucherCampaignDocument

@@ -6,6 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissions';
 import { useLoyaltyAccountRowActions } from '../hooks/useLoyaltyAccountRowActions';
 import { ILoyaltyAccount } from '../types';
 import { FreezeAccountDialog } from './FreezeAccountDialog';
@@ -28,6 +29,7 @@ export const LoyaltyAccountMoreCell = ({
     openScoreHistory,
     openProfile,
   } = useLoyaltyAccountRowActions(account);
+  const { canFreeze } = useLoyaltyAccountPermissions();
 
   return (
     <>
@@ -38,20 +40,22 @@ export const LoyaltyAccountMoreCell = ({
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>
-              <Command.Item
-                value="freeze"
-                onSelect={toggleFreeze}
-                disabled={loading}
-              >
-                {isFrozen ? (
-                  <IconSnowflakeOff size={14} />
-                ) : (
-                  <IconSnowflake size={14} />
-                )}
-                {isFrozen
-                  ? t('loyalty-account-unfreeze')
-                  : t('loyalty-account-freeze')}
-              </Command.Item>
+              {canFreeze && (
+                <Command.Item
+                  value="freeze"
+                  onSelect={toggleFreeze}
+                  disabled={loading}
+                >
+                  {isFrozen ? (
+                    <IconSnowflakeOff size={14} />
+                  ) : (
+                    <IconSnowflake size={14} />
+                  )}
+                  {isFrozen
+                    ? t('loyalty-account-unfreeze')
+                    : t('loyalty-account-freeze')}
+                </Command.Item>
+              )}
               <Command.Item
                 value="score-history"
                 onSelect={openScoreHistory}

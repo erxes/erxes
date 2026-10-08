@@ -51,6 +51,7 @@ export const types = `
 const queryParams = `
   searchValue: String,
   campaignId: String,
+  targetId: String,
   ownerType: String,
   ownerId: String,
   status: String,

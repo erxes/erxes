@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -33,10 +33,30 @@
   to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
-- When the pipeline has a payment type with a score campaign, each stage shows
-  "Refund loyalty points" (`PipelineStageRefundPoints` /
-  `usePipelineStageRefundPoints`): checked by default on `Lost` stages while
-  `refundPoints` is unset, and every change asks for confirmation first.
+- "Score earn configuration" (`deals/loyaltyRules`, button beside Add
+  pipeline, dialog state in `loyaltyRulesDialogOpenAtom`) edits the whole
+  `salesLoyaltyRules` list at once in three groups — every board and every
+  pipeline of a board by probability, specific stages of one pipeline by id —
+  the campaign field is loyalty's picker (`RecordPickerWidget` for
+  `loyalty:score.campaigns`, with New and Edit; absent without loyalty),
+  validated per row (zod, translated issue keys), warning where a row replaces
+  a wider rule of its campaign and when active deal automations already give
+  points in the same campaigns (`useLoyaltyRuleNotes`), and on rows whose
+  campaign is not active (`SalesScoreCampaignOptions`; only active campaigns
+  give points). Each stage of the
+  pipeline being edited shows what the saved rules make of it
+  (`PipelineStageLoyaltyBadge`, query `SalesStageLoyaltyPoints`, only asked by
+  the editor) with a link back to the dialog; stages no longer carry a refund
+  setting.
+- The POS Payment tab picks the score campaigns paid orders earn in
+  (`EarnScoreCampaignsField`, `Pos.earnScoreCampaignId`): one campaign only,
+  since two would both earn on the same order; chosen with loyalty's picker
+  (`RecordPickerWidget`, New/Edit included), clearable, with warnings when
+  inactive. Payment types'
+  score campaign field (`OtherPaymentsField`, POS and deal product config) is
+  the same picker. A chosen campaign that an active POS-order automation (this POS or
+  any) also gives points in is flagged (`usePosEarnAutomations`). The POS
+  Automations tab is listed last, beside the Loyalty tab.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
@@ -66,17 +86,26 @@
   show a warning and are stripped on the next save. "Add field" (gated by
   `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
   `core:customer` and places the new property on the form, visible.
-- POS "Automations" tab (`PosAutomations` / `usePosAutomations`) lists the
-  automations whose `sales:pos.orders.event` trigger config names this `posId`
-  or no POS at all (those run on every POS and carry an "All POS" badge)
-  (core `automations(triggerTypes)` query `PosOrderAutomations`, narrowed
-  client-side) and opens new ones through the `ui-modules`
-  `buildAutomationSeedLink`: "Give points on purchase" seeds an `eventType:
-  'paid'` trigger plus loyalty Adjust score (`{{ trigger.customerId }}`; the
-  campaign is picked in the builder) and shows only when `isEnabled('loyalty')`;
-  "Other automation" seeds the trigger with `posId` alone. Both seeds and the
-  list's edit links carry `returnTo` (this tab, labelled with the POS name) so
-  the builder header offers a way back. Nothing is saved until the user saves in the builder.
+- POS and pipeline "Automations" tabs (`PosAutomations`, `PipelineAutomations`)
+  share `modules/automations` (`SourceAutomations` / `useSourceAutomations`,
+  query `SalesSourceAutomations`): they list the automations whose trigger runs
+  on this record or on every record of its kind (no `posId` / `pipelineId`,
+  "All POS" / "All pipelines" badge), open new ones through
+  `buildAutomationSeedLink` ("Other automation"), and carry `returnTo` on seeds
+  and edit links; each row deletes its automation after a confirm
+  (`SalesSourceAutomationRemove`, evicted from the Apollo cache so every list
+  showing it drops it).
+- Other plugins' sections (`relationSettingsWidgets`, from `ui-modules`
+  `useRelationSettingsModules`) become their own tabs: POS sidebar items keyed
+  `relation.<pluginName>.<name>` (`POS_RELATION_TAB_PREFIX`, saved POS only)
+  and pipeline form tabs (saved pipeline only). Each renders
+  `RelationSettingsWidget` (`PosRelationSettings` / `PipelineRelationSettings`)
+  with a purchase context from `usePosPurchaseContext` /
+  `usePipelinePurchaseContext`: the trigger a plugin may use (POS paid order
+  event; `sales:sales.deals.probability` Won — registered deal trigger types
+  are plural, the Automations list also matches legacy singular ones), scopes
+  (this record / all), how the trigger names the buyer, and `returnTo`. Sales
+  never names those plugins; tab labels come from their config.
 
 ## Architecture
 
@@ -97,14 +126,13 @@
 
 ### Provides
 
+- Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
+  `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
+  silently narrows the trigger.
 - POS order event trigger form: the POS field (`SelectPos.FormItem` with
   `emptyLabel`) lists "Any POS" first; choosing it clears `posId` so the
   trigger matches every POS (single-mode `SelectPos` otherwise cannot be
   unselected).
-- The POS "Automations" tab warns (`noActivePointsRule`) when loyalty is on but
-  no active automation listed there gives points on a paid order with a score
-  campaign set, and badges rows whose Adjust score has no campaign
-  (`missingCampaign`); the query reads `actions` for this.
 - Sales routes and Module Federation UI entries registered by `src/config.tsx`.
 - Product table view state through local React state only; no backend contract
   changes are required for expanded product management.
@@ -112,6 +140,7 @@
 ### Consumes
 
 - `sales_api` GraphQL pipeline, deal, product, and POS contracts.
+- `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `SalesStage.loyaltyPoints`; core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
 - Core properties through public `ui-modules` property hooks with
   `contentType: 'sales:deal'` and, for the POS customer form,
   `contentType: 'core:customer'`.
@@ -175,6 +204,6 @@
 - POS customer smoke scenario: open the "Customer registration" tab, enable it,
   hide e-mail (phone stays locked on), add a property, rearrange in Edit
   layout, save, and verify the layout persists after reload.
-- POS automations smoke scenario: open the "Automations" tab, click "Give
-  points on purchase", pick a score campaign in the builder, save, come back
-  and verify the automation is listed with its status.
+- Source automations smoke scenario: open a POS's or a pipeline's
+  "Automations" tab, connect a score campaign in the loyalty section, save in
+  the builder, use the back link, and verify the automation is listed.
