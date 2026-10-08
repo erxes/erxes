@@ -1,12 +1,14 @@
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { isAddingAppAtom } from '@/settings/apps/state';
-import { useAppsAdd } from '@/settings/apps/hooks/useAppsAdd';
+import { addingClientPortalAtom } from '@/client-portal/state';
+import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
+import { useNavigate } from 'react-router-dom';
 
-export const AppsAddRow = () => {
-  const setIsAddingApp = useSetAtom(isAddingAppAtom);
-  const { appsAdd, loading } = useAppsAdd();
+export const ClientPortalAddRow = () => {
+  const navigate = useNavigate();
+  const setIsAddingClientPortal = useSetAtom(addingClientPortalAtom);
+  const { clientPortalAdd, loading } = useCreateClientPortal();
   const { toast } = useToast();
   const [value, setValue] = useState('');
   const handledRef = useRef(false);
@@ -19,7 +21,7 @@ export const AppsAddRow = () => {
   const cancel = () => {
     if (handledRef.current) return;
     handledRef.current = true;
-    setIsAddingApp(false);
+    setIsAddingClientPortal(false);
   };
 
   const submit = () => {
@@ -30,9 +32,17 @@ export const AppsAddRow = () => {
       return;
     }
     handledRef.current = true;
-    appsAdd({
+    clientPortalAdd({
       variables: { name },
-      onCompleted: () => setIsAddingApp(false),
+      onCompleted: (data) => {
+        setIsAddingClientPortal(false);
+        toast({
+          title: 'Success!',
+          variant: 'success',
+          description: 'Client portal created successfully',
+        });
+        navigate(`${data.clientPortalAdd._id}`);
+      },
       onError: (error) => {
         handledRef.current = false;
         toast({
@@ -48,12 +58,12 @@ export const AppsAddRow = () => {
     <Table.Row>
       <Table.Cell />
       <Table.Cell />
-      <Table.Cell colSpan={1} className="p-1">
-        <div className="h-full w-full flex items-center bg-accent rounded-lg">
+      <Table.Cell className="p-1">
+        <div className="h-full flex items-center w-full bg-accent max-w-none rounded-lg">
           <input
             ref={inputRef}
             disabled={loading}
-            value={value}
+            value={value ?? ''}
             onChange={(e) => setValue(e.target.value)}
             onBlur={submit}
             onKeyDown={(e) => {
@@ -66,8 +76,8 @@ export const AppsAddRow = () => {
                 cancel();
               }
             }}
-            placeholder="My App"
-            className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none"
+            placeholder="Create client portal"
+            className="w-full bg-transparent px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium"
           />
         </div>
       </Table.Cell>

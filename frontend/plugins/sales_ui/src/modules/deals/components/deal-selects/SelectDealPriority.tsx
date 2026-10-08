@@ -32,10 +32,12 @@ export const SelectDealPriority = ({
   dealId,
   value,
   variant,
+  label,
 }: {
   dealId: string;
   value: string;
   variant: `${SelectTriggerVariant}`;
+  label?: React.ReactNode;
 }) => {
   const { editDeals } = useDealsEdit();
   const priority = useOptimisticField({
@@ -55,6 +57,7 @@ export const SelectDealPriority = ({
   return (
     <SelectPriority
       variant={variant}
+      label={label}
       value={priority.value}
       onValueChange={priority.setValue}
     />

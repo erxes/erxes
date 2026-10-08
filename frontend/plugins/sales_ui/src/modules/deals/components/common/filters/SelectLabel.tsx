@@ -387,6 +387,7 @@ export const SelectLabelsFilterBar = ({
   targetId,
   initialValue,
   showLabels,
+  label,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -395,6 +396,7 @@ export const SelectLabelsFilterBar = ({
   targetId?: string;
   initialValue?: string[];
   showLabels?: boolean;
+  label?: React.ReactNode;
 }) => {
   const isCardVariant = variant === 'card' || variant === 'detail';
 
@@ -464,7 +466,7 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         {variant === 'detail' ? (
-          <DealChipTrigger>
+          <DealChipTrigger label={label}>
             <SelectLabelsValue showLabels={showLabels} />
           </DealChipTrigger>
         ) : (

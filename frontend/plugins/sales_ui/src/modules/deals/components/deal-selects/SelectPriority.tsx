@@ -128,11 +128,13 @@ const SelectPriorityRoot = ({
   onValueChange,
   scope,
   variant,
+  label,
 }: {
   value?: number;
   onValueChange: (value: number) => void;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
+  label?: React.ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -146,7 +148,7 @@ const SelectPriorityRoot = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         {variant === SelectTriggerVariant.DETAIL ? (
-          <DealChipTrigger>
+          <DealChipTrigger label={label}>
             <SelectPriorityValue />
           </DealChipTrigger>
         ) : (

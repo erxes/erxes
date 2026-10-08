@@ -106,7 +106,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
           </Button>
         )}
         <MoveDealDropdown deal={deal} />
-        <DealsActions deals={[deal]} variant="watch" />
+        <DealsActions deals={[deal]} triggerLabel={t('actions', 'Actions')} />
       </div>
       <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
         <Sheet.Close className="ml-0" />
