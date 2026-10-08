@@ -79,7 +79,7 @@ export default async function ArticlePage({ params }: Props) {
       ? [
           {
             label: section.title,
-            href: `/knowledge-base#section-${section._id}`,
+            href: `/knowledge-base/category/${section._id}`,
           },
         ]
       : []),

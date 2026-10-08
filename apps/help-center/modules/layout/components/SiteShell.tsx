@@ -84,9 +84,7 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
       items:
         topic.state === 'ready'
           ? topic.data.sections.map((section) => ({
-              href: section.children.length
-                ? `/knowledge-base#section-${section._id}`
-                : `/knowledge-base/category/${section._id}`,
+              href: `/knowledge-base/category/${section._id}`,
               label: section.title,
               count: sectionArticleCount(section),
               children: section.children.map((category) => ({

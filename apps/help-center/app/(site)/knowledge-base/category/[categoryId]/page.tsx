@@ -1,9 +1,12 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTopicArticleList } from '@/modules/knowledge-base/api';
 import { ArticleListItem } from '@/modules/knowledge-base/components/ArticleListItem';
 import {
   findCategory,
+  findGroupSection,
   findSectionOf,
+  sectionArticleCount,
   sortByRecency,
 } from '@/modules/knowledge-base/utils/selectors';
 import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
@@ -64,7 +67,15 @@ export default async function CategoryPage({ params }: Props) {
   }
 
   const section = findSectionOf(topic.data, categoryId);
+  const group = findGroupSection(topic.data, categoryId);
   const articles = sortByRecency(category.articles);
+  const blocks = group
+    ? [group, ...group.children].filter((block) => block.articles.length)
+    : [];
+  const hasArticles = group ? blocks.length > 0 : articles.length > 0;
+  const articleCount = group
+    ? sectionArticleCount(group)
+    : category.articleCount;
 
   const crumbs: Crumb[] = [
     {
@@ -75,7 +86,7 @@ export default async function CategoryPage({ params }: Props) {
       ? [
           {
             label: section.title,
-            href: `/knowledge-base#section-${section._id}`,
+            href: `/knowledge-base/category/${section._id}`,
           },
         ]
       : []),
@@ -89,25 +100,60 @@ export default async function CategoryPage({ params }: Props) {
       description={category.description || undefined}
       meta={
         <CountBadge
-          count={category.articleCount}
-          label={t('kb.articlesLabel', { count: category.articleCount })}
+          count={articleCount}
+          label={t('kb.articlesLabel', { count: articleCount })}
         />
       }
     >
       <div className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500">
-        {articles.length ? (
+        {hasArticles ? (
           <>
-            <Card className="p-2">
-              <ul className="divide-y divide-line-soft">
-                {articles.map((article, index) => (
-                  <ArticleListItem
-                    key={article._id}
-                    article={article}
-                    index={index}
-                  />
+            {group ? (
+              <div className="space-y-8">
+                {blocks.map((block) => (
+                  <section key={block._id} aria-label={block.title}>
+                    {block._id !== group._id ? (
+                      <div className="mb-3 flex items-baseline justify-between gap-3">
+                        <h2 className="text-[15px] font-semibold text-ink">
+                          <Link
+                            href={`/knowledge-base/category/${block._id}`}
+                            className="transition-colors duration-200 hover:text-brand"
+                          >
+                            {block.title}
+                          </Link>
+                        </h2>
+                        <span className="shrink-0 text-[13px] tabular-nums text-muted-foreground">
+                          {t('kb.articles', { count: block.articleCount })}
+                        </span>
+                      </div>
+                    ) : null}
+                    <Card className="p-2">
+                      <ul className="divide-y divide-line-soft">
+                        {sortByRecency(block.articles).map((article, index) => (
+                          <ArticleListItem
+                            key={article._id}
+                            article={article}
+                            index={index}
+                          />
+                        ))}
+                      </ul>
+                    </Card>
+                  </section>
                 ))}
-              </ul>
-            </Card>
+              </div>
+            ) : (
+              <Card className="p-2">
+                <ul className="divide-y divide-line-soft">
+                  {articles.map((article, index) => (
+                    <ArticleListItem
+                      key={article._id}
+                      article={article}
+                      index={index}
+                    />
+                  ))}
+                </ul>
+              </Card>
+            )}
 
             <Card className="mt-5 flex flex-wrap items-center justify-between gap-4 px-6 py-5">
               <div className="flex items-center gap-3.5">

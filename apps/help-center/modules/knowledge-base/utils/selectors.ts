@@ -90,7 +90,6 @@ export const searchArticles = (
 export type BrowseEntry = {
   category: PortalCategory;
   group: string | null;
-  anchor: string | null;
 };
 
 export const browseCategories = (topic: PortalTopic): BrowseEntry[] =>
@@ -98,17 +97,41 @@ export const browseCategories = (topic: PortalTopic): BrowseEntry[] =>
     if (section.children.length) {
       return section.children
         .filter((category) => category.articleCount)
-        .map((category, index) => ({
-          category,
-          group: section.title,
-          anchor: index === 0 ? `section-${section._id}` : null,
-        }));
+        .map((category) => ({ category, group: section.title }));
     }
 
-    return section.articleCount
-      ? [{ category: section, group: null, anchor: null }]
-      : [];
+    return section.articleCount ? [{ category: section, group: null }] : [];
   });
+
+export type BrowseGroup = {
+  section: PortalSection | null;
+  categories: PortalCategory[];
+};
+
+export const browseGroups = (topic: PortalTopic): BrowseGroup[] => {
+  const ungrouped = topic.sections.filter(
+    (section) => !section.children.length && section.articleCount,
+  );
+  const groups = topic.sections
+    .filter((section) => section.children.length)
+    .map((section) => ({
+      section,
+      categories: section.children.filter((category) => category.articleCount),
+    }))
+    .filter((group) => group.categories.length);
+
+  return ungrouped.length
+    ? [{ section: null, categories: ungrouped }, ...groups]
+    : groups;
+};
+
+export const findGroupSection = (
+  topic: PortalTopic,
+  categoryId: string,
+): PortalSection | null =>
+  topic.sections.find(
+    (section) => section._id === categoryId && section.children.length,
+  ) ?? null;
 
 export const sectionCards = (section: PortalSection): PortalCategory[] =>
   section.children.length

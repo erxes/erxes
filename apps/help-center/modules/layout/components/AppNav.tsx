@@ -2,7 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import { storedFileUrl } from '@/modules/apollo/utils/file';
 import { Popover } from 'erxes-ui/components/popover';
 import { ACCOUNT_LINKS } from '@/modules/auth/components/AccountAside';
@@ -72,20 +78,15 @@ const Wordmark = ({
 
 const Collapse = ({
   open,
-  animate,
   children,
 }: {
   open: boolean;
-  animate: boolean;
   children: ReactNode;
 }) => (
   <div
     inert={!open}
     className={cn(
-      'grid',
-      animate
-        ? 'transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none'
-        : 'transition-none',
+      'grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none',
       open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
     )}
   >
@@ -100,13 +101,15 @@ const Leaf = ({
   pathname,
   onNavigate,
   muted = false,
+  className,
 }: {
   href: string;
   label: string;
   count?: number;
   pathname: string;
-  onNavigate?: () => void;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
   muted?: boolean;
+  className?: string;
 }) => {
   const active = pathname === href;
 
@@ -122,6 +125,7 @@ const Leaf = ({
           : muted
             ? 'text-white/50 hover:bg-shell-soft/70 hover:text-white'
             : 'text-white/75 hover:bg-shell-soft/70 hover:text-white',
+        className,
       )}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -134,6 +138,37 @@ const Leaf = ({
   );
 };
 
+const ChevronToggle = ({
+  expanded,
+  label,
+  onToggle,
+}: {
+  expanded: boolean;
+  label: string;
+  onToggle: () => void;
+}) => {
+  const t = useT();
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={expanded}
+      aria-label={t(expanded ? 'nav.collapse' : 'nav.expand', { label })}
+      className="absolute right-1 flex size-7 items-center justify-center rounded-md text-white/35 transition-colors duration-100 hover:bg-white/10 hover:text-white"
+    >
+      <Icon
+        name="chevronRight"
+        size={14}
+        className={cn(
+          'transition-transform duration-200 ease-out motion-reduce:transition-none',
+          expanded && 'rotate-90',
+        )}
+      />
+    </button>
+  );
+};
+
 const GroupTree = ({
   group,
   pathname,
@@ -143,6 +178,32 @@ const GroupTree = ({
   pathname: string;
   onNavigate?: () => void;
 }) => {
+  const current =
+    group.items.find(
+      (entry) =>
+        entry.href === pathname ||
+        entry.children?.some((child) => child.href === pathname),
+    )?.href ?? '';
+  const [toggled, setToggled] = useState<{
+    current: string;
+    open: Record<string, boolean>;
+  }>({ current, open: {} });
+
+  let open = toggled.open;
+
+  if (toggled.current !== current) {
+    open = Object.fromEntries(
+      Object.entries(toggled.open).filter(([href]) => href !== current),
+    );
+    setToggled({ current, open });
+  }
+
+  const setOpen = (href: string, next: boolean) =>
+    setToggled((state) => ({
+      ...state,
+      open: { ...state.open, [href]: next },
+    }));
+
   if (!group.items.length) {
     return (
       <p className="ml-4.5 mt-0.5 border-l border-shell-line py-1.5 pl-4.5 text-[12px] leading-relaxed text-white/35">
@@ -153,34 +214,69 @@ const GroupTree = ({
 
   return (
     <ul className="ml-4.5 mt-0.5 flex flex-col gap-0.5 border-l border-shell-line pl-2">
-      {group.items.map((entry) => (
-        <li key={entry.href}>
-          <Leaf
-            href={entry.href}
-            label={entry.label}
-            count={entry.count}
-            pathname={pathname}
-            onNavigate={onNavigate}
-          />
+      {group.items.map((entry) => {
+        if (!entry.children?.length) {
+          return (
+            <li key={entry.href}>
+              <Leaf
+                href={entry.href}
+                label={entry.label}
+                count={entry.count}
+                pathname={pathname}
+                onNavigate={onNavigate}
+              />
+            </li>
+          );
+        }
 
-          {entry.children?.length ? (
-            <ul className="ml-2.5 mt-0.5 flex flex-col gap-0.5 border-l border-shell-line pl-2.5">
-              {entry.children.map((child) => (
-                <li key={child.href}>
-                  <Leaf
-                    href={child.href}
-                    label={child.label}
-                    count={child.count}
-                    pathname={pathname}
-                    onNavigate={onNavigate}
-                    muted
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </li>
-      ))}
+        const expanded = open[entry.href] ?? entry.href === current;
+
+        return (
+          <li key={entry.href}>
+            <div className="relative flex items-center">
+              <Leaf
+                href={entry.href}
+                label={entry.label}
+                count={entry.count}
+                pathname={pathname}
+                className="flex-1 pr-9"
+                onNavigate={(event) => {
+                  if (pathname === entry.href) {
+                    event.preventDefault();
+                    setOpen(entry.href, !expanded);
+
+                    return;
+                  }
+
+                  onNavigate?.();
+                }}
+              />
+              <ChevronToggle
+                expanded={expanded}
+                label={entry.label}
+                onToggle={() => setOpen(entry.href, !expanded)}
+              />
+            </div>
+
+            <Collapse open={expanded}>
+              <ul className="ml-2.5 mt-0.5 flex flex-col gap-0.5 border-l border-shell-line pl-2.5">
+                {entry.children.map((child) => (
+                  <li key={child.href}>
+                    <Leaf
+                      href={child.href}
+                      label={child.label}
+                      count={child.count}
+                      pathname={pathname}
+                      onNavigate={onNavigate}
+                      muted
+                    />
+                  </li>
+                ))}
+              </ul>
+            </Collapse>
+          </li>
+        );
+      })}
     </ul>
   );
 };
@@ -196,7 +292,6 @@ const RootList = ({
   pathname: string;
   onNavigate?: () => void;
 }) => {
-  const t = useT();
   const section =
     groups.find((group) => linkActive(group.href, pathname))?.key ?? '';
   const [toggled, setToggled] = useState<{
@@ -207,7 +302,9 @@ const RootList = ({
   let open = toggled.open;
 
   if (toggled.section !== section) {
-    open = {};
+    open = Object.fromEntries(
+      Object.entries(toggled.open).filter(([key]) => key !== section),
+    );
     setToggled({ section, open });
   }
 
@@ -217,20 +314,14 @@ const RootList = ({
       open: { ...current.open, [key]: next },
     }));
 
-  const followUrl = (key: string) =>
-    setToggled((current) => ({
-      ...current,
-      open: Object.fromEntries(
-        Object.entries(current.open).filter(([entry]) => entry !== key),
-      ),
-    }));
-
   return (
     <ul className="flex flex-col gap-0.5">
       {links.map((link) => {
         const active = linkActive(link.href, pathname);
         const group = groups.find((item) => item.href === link.href);
-        const expanded = group ? (open[group.key] ?? active) : false;
+        const expanded = group
+          ? (open[group.key] ?? group.key === section)
+          : false;
 
         return (
           <li key={link.href}>
@@ -239,15 +330,10 @@ const RootList = ({
                 href={link.href}
                 onClick={(event) => {
                   if (group && pathname === link.href) {
-                    if (event.detail <= 1) {
-                      setOpen(group.key, !expanded);
-                    }
+                    event.preventDefault();
+                    setOpen(group.key, !expanded);
 
                     return;
-                  }
-
-                  if (group) {
-                    followUrl(group.key);
                   }
 
                   onNavigate?.();
@@ -272,29 +358,16 @@ const RootList = ({
               </Link>
 
               {group ? (
-                <button
-                  type="button"
-                  onClick={() => setOpen(group.key, !expanded)}
-                  aria-expanded={expanded}
-                  aria-label={t(expanded ? 'nav.collapse' : 'nav.expand', {
-                    label: link.label,
-                  })}
-                  className="absolute right-1 flex size-7 items-center justify-center rounded-md text-white/35 transition-colors duration-100 hover:bg-white/10 hover:text-white"
-                >
-                  <Icon
-                    name="chevronRight"
-                    size={14}
-                    className={cn(
-                      'transition-transform duration-200 ease-out motion-reduce:transition-none',
-                      expanded && 'rotate-90',
-                    )}
-                  />
-                </button>
+                <ChevronToggle
+                  expanded={expanded}
+                  label={link.label}
+                  onToggle={() => setOpen(group.key, !expanded)}
+                />
               ) : null}
             </div>
 
             {group ? (
-              <Collapse open={expanded} animate={group.key in open}>
+              <Collapse open={expanded}>
                 <GroupTree
                   group={group}
                   pathname={pathname}
