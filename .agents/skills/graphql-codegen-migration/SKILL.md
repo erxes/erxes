@@ -1,105 +1,113 @@
 ---
 name: graphql-codegen-migration
-description: Migrate an erxes plugin to schema-generated GraphQL types. Use when converting a plugin's frontend GraphQL documents to `gql()` from `~/gql`, adding codegen or `schema:print` to a plugin, replacing handwritten GraphQL response types or `useQuery<T>` generics, or tightening a plugin's SDL nullability to match its data.
+description: Codegen for erxes GraphQL against the composed schema. Use when migrating a plugin UI to `gql()` from `~/gql`, fixing a codegen or `schema:compose` error, or adding a backend to the composed schema.
 ---
 
 # GraphQL codegen migration
 
-The backend SDL is the **contract**. Codegen checks every frontend document against it and generates the result and variable types, so **drift** between SDL, resolvers and UI goes **red** at build time instead of surfacing as a runtime Apollo error.
+Each backend prints its subgraph SDL offline with the `schema:print` Nx target. `gateway:schema:compose` composes every backend that has that target into the **composed schema**, `backend/gateway/generated/schema.graphql`. Frontend codegen checks documents against the composed schema, so a plugin's queries for core, operation or content fields type-check.
 
-`operation` is the finished **reference plugin**. Read its files before writing anything, and copy their shape:
+The composed schema is the repo-wide codegen schema. No single deployment serves it. Each deployment's router composes core plus its enabled plugins at runtime. `@apollo/composition` is pinned to 2.9.3, the federation version the runtime router composes with, so a set of subgraphs that fails offline compose also fails in the router.
 
-- `scripts/print-subgraph-schema.ts` and the `schema:print` default in `nx.json`, which `backend/plugins/operation_api/project.json` turns on with `"schema:print": {}`
-- `backend/gateway/compose-schema.ts` and the `schema:compose` target in `backend/gateway/project.json`, which compose every printed subgraph into `backend/gateway/generated/schema.graphql`
-- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` target and the `codegen` entries in `dependsOn` for `build` and `serve`, and the `dependentTasksOutputFiles` input on `build`, in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
-- `frontend/plugins/operation_ui/eslint.config.js` for the enforcement rules
-- `frontend/plugins/operation_ui/src/modules/task/types/index.ts` for types derived from generated queries
+**Drift** is any mismatch between a document and the composed schema. Fix drift at its source: the query, or the backend SDL and resolver that own the field. Keep every type as strict as the composed schema says.
 
-Work only inside `backend/plugins/<name>_api` and `frontend/plugins/<name>_ui`. The codegen packages already sit in the root `devDependencies`, and every gateway subgraph already has `schema:print`. Codegen reads the **composed** schema, because a plugin's frontend also queries fields that core and other plugins own. Update both plugin `AGENTS.md` guides in every layer.
+`operation_ui` is the finished reference. Copy its `codegen.ts`, the `codegen`, `build` and `serve` targets in its `project.json`, its `eslint.config.js`, and its `src/modules/task/types/index.ts` for types derived from generated queries.
+
+Work inside `backend/plugins/<name>_api` and `frontend/plugins/<name>_ui`, plus the plugin's `ci-ui-<name>.yml`.
 
 ## Steps
 
-Ship each step as one **layer**: a PR stacked on the one before. Each layer builds, type-checks and passes lint by itself.
+Ship each step as its own PR when the plugin is large. Each one builds and type-checks by itself.
 
-### 1. Setup layer
+### 1. Join
 
-Add `codegen.ts`, the `codegen` target, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend. Copy the `build` target's `inputs` too: `src/gql/` is gitignored, so without `{ "dependentTasksOutputFiles": "**/*.ts" }` Nx replays a cached bundle after a backend-only SDL change. The schema path is `backend/gateway/generated/schema.graphql`, and the `codegen` target depends on `gateway:schema:compose`. A new backend plugin gets `"schema:print": {}` in its `project.json`; the print script picks up `src/apollo/typeDefs.ts` and, when present, `src/apollo/subscription.ts`.
+- Backend: add `"schema:print": {}` to the plugin's `project.json`. `nx.json` supplies the target, and compose picks the backend up from it.
+- Frontend: copy operation's `codegen.ts` and its `codegen` target, which depends on `gateway:schema:compose`. Add `codegen` to `dependsOn` for `build` and `serve`.
+- Copy operation's `build` `inputs`, including `{ "dependentTasksOutputFiles": "**/*.ts" }`. `src/gql/` is gitignored, so Nx hashes it only through that input. Without it, a backend-only SDL change replays a cached bundle built against stale types.
+- Add `src/gql/` to the plugin's `.gitignore`.
+- Copy the backend `paths` block from `ci-ui-operation.yml` into the plugin's CI workflow. It watches every backend's `src/**`, because SDL strings import constants from anywhere in `src`.
 
-Codegen validates every document in the plugin from the first run, typed or not, so it goes **red** on documents that already drift. Fix each one in this layer: a misspelled field, a field the SDL never had, a wrong argument, an operation name used twice.
+Done when `nx run gateway:schema:compose` passes and `nx run <name>_ui:codegen --skip-nx-cache` runs as far as validating documents. Validation errors are expected at this point.
 
-Done when `pnpm nx run <name>_ui:codegen --skip-nx-cache` passes, and `pnpm nx build <name>_ui` passes from a clean `src/gql/`.
+### 2. Make every document parse
 
-### 2. Type-error layer
+Codegen reads documents statically and validates every one of them from the first run. A `${...}` interpolation inside a document fails to parse. Rewrite each one with the patterns in [fragments.md](fragments.md).
 
-Run `npx tsc -p frontend/plugins/<name>_ui/tsconfig.app.json --noEmit | rg <name>_ui`. Fix every error it prints that points into this plugin. The shared libraries print errors of their own, and the filter hides them.
+Done when codegen reports no syntax errors.
 
-Done when the filtered output is empty.
+### 3. Clear validation errors
 
-### 3. Backend contract layers
+Sort each error with [errors.md](errors.md). Fix query mistakes in this plugin. Fix drift in this plugin's backend in its own PR, ahead of the frontend PR that needs it.
 
-Converting documents exposes where the SDL disagrees with the resolvers and the stored data. Fix the backend in its own layers, ahead of the frontend layers that depend on it. Split them by concern, for example required arguments, resolver behavior, and regex escaping. Follow the rules under **Nullability** and **Contract fixes**.
+Operation names are unique repo-wide and named after the plugin and module (`frontlineConversationDetail`). Codegen turns a shared name like `mutation Mutation` into colliding types, and 122 names collide across the repo today.
 
-Done when every SDL change has the matching resolver change, and `npx tsc --noEmit -p backend/plugins/<name>_api/tsconfig.json` is clean.
+Done when `nx run <name>_ui:codegen --skip-nx-cache` exits 0, or every remaining error is listed in the PR as drift in another team's subgraph with that owner's issue linked.
 
-### 4. Module layers
+### 4. Convert modules
 
-Convert one module per layer, largest first. In each module:
+Convert one module per PR, largest first. In each module:
 
-- Every document is `gql(\`...\`)`imported from`~/gql`, written as a function call with no `${}` interpolation.
-- Every Apollo hook infers from its document: `useQuery(GET_X)`, never `useQuery<XResponse>(GET_X)`.
-- Every handwritten response interface is a type derived from the generated query type:
+- Every document is `gql(\`...\`)`imported from`~/gql`, a static string.
+- Every Apollo hook infers from its document: `useQuery(GET_X)`.
+- Every handwritten response interface becomes a type derived from the generated query:
 
   ```ts
   export type IDeal = NonNullable<NonNullable<NonNullable<GetDealsQuery['getDeals']>['list']>[number]>;
   ```
 
-- Every `subscribeToMore` and `updateQuery` takes its types from the generated subscription and query types.
+- Component props take the generated types, `null` included, so values pass through as they are, with no `?? undefined` conversions.
+- Live updates use `useSubscription(DOC, { variables, onData })` or `subscribeToMore`, typed by the generated subscription and query types. `operation_ui/src/modules/task/hooks/useGetTask.tsx` shows the shape.
 
-Run codegen and the filtered `tsc` after each module, then click through the module in the browser. Every create, update and delete shows up without a reload, and the console stays free of Apollo cache or missing-field warnings.
+After each module, click through it in the browser. Every create, update and delete shows up without a reload, and the console has no Apollo cache or missing-field warnings.
 
-Done when this prints nothing for the module, codegen passes, and the filtered `tsc` is empty:
+Done when this prints nothing for the module, and codegen and the filtered `tsc` from **Verify** are clean:
 
 ```bash
 rg -U -l "graphql-tag|\bgql\b[^}]*\}\s*from\s*['\"]@apollo/client['\"]|use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)<|subscribeToMore<" \
   frontend/plugins/<name>_ui/src/modules/<module>
 ```
 
-### 5. Enforcement layer
+### 5. Enforce
 
-Copy the `no-restricted-imports` and `no-restricted-syntax` rules and the `src/gql/**` ignore from the reference `eslint.config.js`.
+Copy the `no-restricted-imports` and `no-restricted-syntax` rules and the `src/gql/**` ignore from operation's `eslint.config.js`.
 
-Done when the step 4 `rg`, run on `frontend/plugins/<name>_ui/src`, prints nothing, and `pnpm nx lint <name>_ui` reports no new errors.
+Done when the step 4 `rg` over all of `frontend/plugins/<name>_ui/src` prints nothing, so every document in the plugin goes through `gql()` from `~/gql`, and `nx lint <name>_ui` reports no new errors.
 
 ## Nullability
 
-The generated types follow the SDL. A field that is nullable in the SDL comes out `T | null`, and a field typed `Int` comes out `number`, even where a handwritten interface claimed `string`. Treat every new type error as a question: is the SDL wrong, or was the UI wrong?
+Generated types follow the composed schema. A nullable field comes out `T | null`, and an `Int` comes out `number`. Each new type error asks whether the SDL or the UI is wrong.
 
 Tighten an output field to non-null only when all three hold:
 
-1. The Mongoose schema marks it `required`, or it comes from `timestamps`, or it is `_id`.
-2. A count against real tenant data finds zero documents where it is null or missing. Arrays need a separate check, because `$type: 'string'` also matches an array that contains a string.
-3. Every write path upholds it. `findOneAndUpdate` and `updateOne` skip Mongoose validators, so an update resolver can still store null. Add a guard in the model's write method when it can.
+1. The Mongoose schema marks it `required`, it comes from `timestamps`, or it is `_id`.
+2. A count against real tenant data finds zero documents where it is null or missing. For arrays, check separately, because `$type: 'string'` also matches an array holding a string.
+3. Every write path upholds it. `findOneAndUpdate` and `updateOne` skip Mongoose validators, so add a guard in the model's write method.
 
-Fields with only a Mongoose `default` stay nullable. List queries use `.lean()`, which skips defaults on older documents.
+Fields with only a Mongoose `default` stay nullable, because `.lean()` list queries skip defaults on older documents. A non-null field that resolves to null nulls its parent, and in a list that blanks the whole query. When in doubt, the field stays nullable and the UI handles `null`.
 
-A non-null field that resolves to null nulls its parent, and in a list that blanks the whole query. When in doubt, keep the field nullable and handle `null` in the UI.
+## Ground rules
 
-## Contract fixes
+- SDL stays as template strings in TypeScript, which the print script imports from `src/apollo/typeDefs.ts` and `src/apollo/subscription.ts`. A subscription field lives in `subscription.ts` only. Declaring it in the subgraph SDL too fails `schema:print`.
+- Generated output (`src/gql/`, `backend/**/generated/`) is gitignored and built by Nx.
+- Backend changes stay inside the plugin's own `src`. Dockerfiles, `erxes-api-shared` and the shared print and compose scripts are platform work with their own PRs.
+- Resolvers keep their current typing. Codegen types the frontend only, for now.
 
-- **Required arguments.** An argument the resolver cannot run without is non-null in the SDL. Keep a runtime guard for empty strings, which GraphQL validation lets through.
-- **JSON outputs.** When the UI reads structure out of a `JSON` field, replace it with SDL object types. The resolver then returns that shape every time, with zero-valued objects or empty arrays instead of `{}`.
-- **Resolver parity.** Every SDL field has a resolver, and every resolver is declared in the SDL.
-- **Regex input.** Request-controlled text that reaches `new RegExp()` or `$regex` goes through `escapeRegExp` from `erxes-api-shared/utils`. The operation plugin's backend `eslint.config.js` has a rule that enforces this.
+## Verify
+
+Run from the repo root, scoped to the plugin. On a shared machine, wrap each command as [shared-box.md](shared-box.md) describes.
+
+```bash
+pnpm nx run gateway:schema:compose --parallel=2
+pnpm nx run <name>_ui:codegen --skip-nx-cache --parallel=2
+npx tsc -p frontend/plugins/<name>_ui/tsconfig.app.json --noEmit | rg <name>_ui
+pnpm nx build <name>_ui --parallel=2
+pnpm nx lint <name>_ui
+```
+
+`--skip-nx-cache` keeps Nx from replaying a cached codegen pass. The `rg` filter hides type errors that belong to `erxes-ui` and `ui-modules`.
 
 ## Gotchas
 
-- `scripts/print-subgraph-schema.ts` ends with `process.exit`. `erxes-api-shared/utils` opens Redis on import and keeps the process alive.
-- One subgraph breaking composition fails every plugin's codegen. Run `pnpm nx run gateway:schema:compose --parallel=2` after changing any SDL. The composed file is the repo-wide codegen schema with every opted-in subgraph. A deployment's router composes only the plugins it enables, so a composition error here may not show up in a given deployment, and a clean compose doesn't prove one deployment's config composes.
-- `posclient_api` has no `schema:print` target, so it is not composed. posclient-front talks to it directly, not through the gateway.
-- Codegen reads documents statically. A `${FRAGMENT}` interpolation hides the fragment's fields from it, so write fields inline, or define a GraphQL fragment with `gql()` and spread it by name.
-- Operation names must be unique. A name like `mutation Mutation` generates `MutationMutation` types, so name every operation after the plugin and module.
-- A subscription that evicts cache entries needs `__typename` in its selection, or `cache.identify` finds nothing.
-- The shared `PageInfo` SDL marks its booleans nullable, and list items come out nullable. The `erxes-ui` cursor helpers expect non-null values. The reference plugin adapts them in `@/operation/utils/cursorList`, a workaround that stays until core tightens `PageInfo`. Stop and report before copying it into another plugin.
-- Pass `--skip-nx-cache` when checking codegen. Otherwise Nx can replay a cached pass.
-- From inside a plugin folder, `npx nx codegen --skip-nx-cache` runs that plugin's target. Use `npx` there, because frontend plugins have no `package.json` and `pnpm nx` jumps to the workspace root, where Nx can't tell which project you mean.
-- `src/gql/` is gitignored. Running `pnpm nx build` or `serve` regenerates it, and calling rspack directly skips that step.
+- A subscription that evicts cache entries selects `__typename`, so `cache.identify` finds the entry.
+- The shared `PageInfo` SDL has nullable booleans, and list items come out nullable. `erxes-ui` cursor helpers expect non-null values. Operation adapts them in `@/operation/utils/cursorList`. Stop and report before copying that into another plugin, because the real fix is tightening `PageInfo` in core.
+- Frontend plugins have no `package.json`, so `pnpm nx` from inside a plugin folder runs at the workspace root. Run Nx from the repo root with the project name.
