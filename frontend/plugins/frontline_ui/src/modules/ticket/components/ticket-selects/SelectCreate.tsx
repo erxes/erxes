@@ -27,9 +27,7 @@ export const SelectCreateCommandItem = ({
     className="font-medium"
   >
     <IconPlus />
-    <span className="truncate">
-      {label}: "{search.trim()}"
-    </span>
+    <span className="truncate">{`${label}: "${search.trim()}"`}</span>
   </Command.Item>
 );
 

@@ -190,7 +190,8 @@ export const orderToTrs = async ({
       continue;
     }
 
-    const payConfig = config.payments[type];
+    diffAmount = diffAmount - amount;
+    const payConfig = config.payments?.[type];
     if (!payConfig) {
       continue;
     }
@@ -201,7 +202,6 @@ export const orderToTrs = async ({
     }
 
     const { side, accountId, lastAmount, journal } = payResp;
-    diffAmount = diffAmount - amount;
     paymentTrs.push({
       _id: nanoid(),
       ptrId,

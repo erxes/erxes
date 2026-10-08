@@ -422,6 +422,110 @@ const orderQueries: Record<string, Resolver<any, any, IContext>> = {
 
     return info;
   },
+
+  async orderChangeLogs(
+    _root,
+    {
+      orderId,
+      orderNumber,
+      source,
+      userId,
+      startDate,
+      endDate,
+      page = 1,
+      perPage = 50,
+    }: {
+      orderId?: string;
+      orderNumber?: string;
+      source?: string;
+      userId?: string;
+      startDate?: Date;
+      endDate?: Date;
+      page?: number;
+      perPage?: number;
+    },
+    { models, config, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    if (!(config.adminIds || []).includes(posUser?._id || '')) {
+      throw new Error('Permission denied');
+    }
+
+    if (source && !['cart', 'order'].includes(source)) {
+      throw new Error('Invalid log source');
+    }
+
+    const number = orderNumber?.trim();
+    const matchingOrderIds = number
+      ? await models.Orders.find({
+          number: { $regex: new RegExp(escapeRegExp(number), 'i') },
+          $or: [{ posToken: config.token }, { subToken: config.token }],
+        }).distinct('_id')
+      : undefined;
+
+    if (
+      matchingOrderIds &&
+      (!matchingOrderIds.length ||
+        (orderId && !matchingOrderIds.includes(orderId)))
+    ) {
+      return [];
+    }
+
+    if (orderId) {
+      const order = await models.Orders.findOne({ _id: orderId }).lean();
+
+      if (
+        order &&
+        order.posToken !== config.token &&
+        order.subToken !== config.token
+      ) {
+        return [];
+      }
+    }
+
+    if (
+      !Number.isInteger(page) ||
+      page < 1 ||
+      !Number.isInteger(perPage) ||
+      perPage < 1 ||
+      perPage > 100
+    ) {
+      throw new Error('Invalid log pagination');
+    }
+    const range = {
+      ...(startDate ? { $gte: new Date(startDate) } : {}),
+      ...(endDate ? { $lte: new Date(endDate) } : {}),
+    };
+    if (
+      Object.values(range).some((date) => !Number.isFinite(date.valueOf())) ||
+      (range.$gte && range.$lte && range.$gte > range.$lte)
+    ) {
+      throw new Error('Invalid log date range');
+    }
+
+    return models.OrderChangeLogs.find({
+      ...(matchingOrderIds ? { orderId: { $in: matchingOrderIds } } : {}),
+      ...(orderId ? { orderId } : {}),
+      ...(source === 'cart' ? { source: 'cart' } : {}),
+      ...(source === 'order'
+        ? {
+            $or: [
+              { source: { $exists: false } },
+              { source: null },
+              { source: 'order' },
+            ],
+          }
+        : {}),
+      ...(userId ? { userId } : {}),
+      ...(startDate || endDate ? { occurredAt: range } : {}),
+      posToken: config.token,
+    })
+      .sort({ occurredAt: -1, _id: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+  },
 };
 markResolvers<IContext>(orderQueries, {
   wrapperConfig: {

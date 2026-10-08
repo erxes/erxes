@@ -56,6 +56,14 @@
           "serveTarget": "frontline_ui:serve:production"
         }
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/frontend/plugins/frontline_ui"],
+      "options": {
+        "jestConfig": "frontend/plugins/frontline_ui/jest.config.ts",
+        "runInBand": true
+      }
     }
   }
 }

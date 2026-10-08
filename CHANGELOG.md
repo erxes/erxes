@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.2.15](https://github.com/erxes/erxes/compare/3.2.14...3.2.15) (2026-10-07)
+
+
+### Bug Fixes
+
+* adjust customer handling logic to prevent overwriting existing customer data ([9c0b87b](https://github.com/erxes/erxes/commit/9c0b87b7f192567628c60e3e8e5a8b5074a187ba))
+* improve logging format for new customer creation ([108d0ee](https://github.com/erxes/erxes/commit/108d0eef644f243761ac251a7e179b2049ec7dc4))
+* posclient citytax calculator ([3151816](https://github.com/erxes/erxes/commit/315181651dbdcce0d01f12cdb5e69c203593a73e))
+* posclient taxRule sync from sales ([07bcbff](https://github.com/erxes/erxes/commit/07bcbfffeccd8f9e2852b9827c38847b2cdc3420))
+* reorder customer retrieval logic to prioritize email check before cached ID ([b1d4399](https://github.com/erxes/erxes/commit/b1d4399bf0de6d05a159a394427306e0a8f85818))
+* update customer retrieval logic to check for non-existing customer with email ([2124d9a](https://github.com/erxes/erxes/commit/2124d9acf4c9d9187f38a9b024b46457cefda3cd))
+* update support messenger configuration to use correct environment variable ([9f5c5d3](https://github.com/erxes/erxes/commit/9f5c5d386559efe9ffe769cdef68def45bf65fb6))
+
+
+### Features
+
+* add logging for customer and widget mutations to aid debugging ([1092ee6](https://github.com/erxes/erxes/commit/1092ee6ecd728c9a999cdce8dbf3a0a8c7a455d7))
+* add segment field namespaces for custom properties in various plugins ([9bce1db](https://github.com/erxes/erxes/commit/9bce1dbe62402c0c06dcbe1d6485125c048acb08))
+* enhance logging for widget mutations and customer handling ([0145f1b](https://github.com/erxes/erxes/commit/0145f1bd7730ac1784742579718e4e05620df956))
+* **posclient:** posclient order log and order cancel and return up ([#9549](https://github.com/erxes/erxes/issues/9549)) ([a1eac5c](https://github.com/erxes/erxes/commit/a1eac5c16ec7c8765660e78a2691b026e1d5f12b))
+
+
+### Reverts
+
+* Revert "Make shared libraries consumable packages for external plugins (#9547)" (#9585) ([bbbfa3a](https://github.com/erxes/erxes/commit/bbbfa3a23296eb9498bbeb59414332d823b07041)), closes [#9547](https://github.com/erxes/erxes/issues/9547) [#9585](https://github.com/erxes/erxes/issues/9585)
+
 ## [3.2.14](https://github.com/erxes/erxes/compare/3.2.12...3.2.14) (2026-10-06)
 
 

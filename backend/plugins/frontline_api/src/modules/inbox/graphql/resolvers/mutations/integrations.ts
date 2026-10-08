@@ -37,6 +37,10 @@ import {
   discordRepairIntegrations,
 } from '@/integrations/discord/messageBroker';
 import {
+  telegramCreateIntegrations,
+  telegramRemoveIntegration,
+} from '@/integrations/telegram/messageBroker';
+import {
   callProCreateIntegration,
   callProRemoveIntegration,
   callProUpdateIntegration,
@@ -92,6 +96,9 @@ export const sendCreateIntegration = async (
       case 'discord':
         return await discordCreateIntegrations({ subdomain, data });
 
+      case 'telegram':
+        return await telegramCreateIntegrations({ subdomain, data });
+
       case 'callpro': {
         const result = await callProCreateIntegration({ subdomain, data });
 
@@ -134,6 +141,10 @@ export const sendUpdateIntegration = async (
       case 'callpro':
         return await callProUpdateIntegration({ subdomain, data });
 
+      case 'telegram':
+        // Common fields belong to erxes; bot credentials use telegramUpdateBot.
+        break;
+
       case 'mobinetSms':
         break;
 
@@ -154,6 +165,8 @@ export const sendRemoveIntegration = async (
 ) => {
   try {
     switch (serviceName) {
+      case 'telegram':
+        return await telegramRemoveIntegration({ subdomain, data });
       case 'facebook':
         return await facebookRemoveIntegrations({ subdomain, data });
       case 'calls':
