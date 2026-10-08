@@ -1,17 +1,17 @@
 import {
   Input,
   Separator,
-  useBlockEditor,
   BlockEditor,
   Dialog,
   Button,
+  Spinner,
+  type IBlockEditor,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
-import { Block } from '@blocknote/core';
-import { ITriageDetail } from '@/triage/types/triage';
+import type { ITriageDetail } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from './triage-selects/ConvertToTask';
@@ -20,6 +20,8 @@ import { SelectStatus } from '@/operation/components/SelectStatus';
 import { useConvertTriage } from '../hooks/useConvertTriage';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
+import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
 import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 import { isGithubTriage } from '@/operation/utils/isGithubTriage';
 
@@ -34,17 +36,13 @@ export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
     githubRepoName,
   } = triage;
 
-  const description = triage?.description;
-  const initialDescriptionContent = parseDescriptionBlocks(description);
-
-  const [descriptionContent, setDescriptionContent] = useState<
-    Block[] | undefined
-  >(initialDescriptionContent);
-
-  const editor = useBlockEditor({
-    initialContent: descriptionContent,
-    placeholder: t('description-placeholder'),
-  });
+  const description = triage.description;
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
+  const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
+    description,
+    t('description-placeholder'),
+  );
   const { updateTriage } = useUpdateTriage();
   const { convertTriageToTask } = useConvertTriage();
 
@@ -53,12 +51,8 @@ export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
 
   const [name, setName] = useState(_name);
 
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
-    }
+  const handleDescriptionChange = (): void => {
+    setDescriptionContent(normalizeDescriptionBlocks(editor.document));
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
@@ -161,11 +155,15 @@ export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
       </div>
       <Separator className="my-4" />
       <div className="min-h-56 overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          onChange={handleDescriptionChange}
-          className="min-h-full read-only"
-        />
+        {isDescriptionReady ? (
+          <BlockEditor
+            editor={editor}
+            onChange={handleDescriptionChange}
+            className="min-h-full read-only"
+          />
+        ) : (
+          <Spinner />
+        )}
       </div>
       <ActivityList contentId={triageId} contentDetail={triage} />
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
