@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import {
   EMAIL_LANE_OPTIONS,
   EMAIL_SUPPRESSION_REASON_OPTIONS,
