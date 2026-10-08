@@ -1,10 +1,14 @@
+import { useTranslation } from 'react-i18next';
 import { ClientPortalUsersCommandBar } from '@/contacts/client-portal-users/components/client-portal-users-command-bar/ClientPortalUsersCommandBar';
 import { clientPortalUserColumns } from '@/contacts/client-portal-users/components/ClientPortalUserColumns';
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { useClientPortalUsers } from '@/contacts/client-portal-users/hooks/useClientPortalUsers';
 import { Label, RecordTable } from 'erxes-ui';
+import { useMemo } from 'react';
 
 export const ClientPortalUsersRecordTable = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'clientPortalUser' });
+  const columns = useMemo(() => clientPortalUserColumns(t), [t]);
   const {
     list,
     handleFetchMore,
@@ -22,7 +26,7 @@ export const ClientPortalUsersRecordTable = () => {
         <tr className="h-[40vh]">
           <td colSpan={9} className="py-10 text-center">
             <div className="flex flex-col items-center justify-center text-muted-foreground">
-              <Label>No client portal users</Label>
+              <Label>{t('no-users')}</Label>
             </div>
           </td>
         </tr>
@@ -32,7 +36,7 @@ export const ClientPortalUsersRecordTable = () => {
   };
   return (
     <RecordTable.Provider
-      columns={clientPortalUserColumns}
+      columns={columns}
       data={list}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"

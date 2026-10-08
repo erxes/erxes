@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconEdit } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -16,11 +17,12 @@ export const ClientPortalUserMoreColumnCell = ({
 }: {
   cell: Cell<ICPUser, unknown>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'clientPortalUser' });
   const [, setCpUserId] = useQueryState<string>('cpUserId');
   const { _id } = cell.row.original;
   const editMenuItem = (
     <Command.Item value="edit" onSelect={() => setCpUserId(_id)}>
-      <IconEdit /> Edit
+      <IconEdit /> {t('action-edit')}
     </Command.Item>
   );
   const commandList = <Command.List>{editMenuItem}</Command.List>;

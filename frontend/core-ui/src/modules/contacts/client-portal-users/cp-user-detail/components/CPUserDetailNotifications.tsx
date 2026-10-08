@@ -160,7 +160,7 @@ export function CPUserDetailNotifications() {
           {cpUser?.clientPortalId && (
             <Button onClick={() => setSendDialogOpen(true)}>
               <IconBell className="w-4 h-4" />
-              {t('sendNotification', { defaultValue: 'Send notification' })}
+              {t('send-notification', { defaultValue: 'Send notification' })}
             </Button>
           )}
         </div>
@@ -189,7 +189,7 @@ export function CPUserDetailNotifications() {
             onClick={() => setSendDialogOpen(true)}
           >
             <IconBell className="w-4 h-4" />
-            {t('sendNotification', { defaultValue: 'Send notification' })}
+            {t('send-notification', { defaultValue: 'Send notification' })}
           </Button>
         )}
       </div>

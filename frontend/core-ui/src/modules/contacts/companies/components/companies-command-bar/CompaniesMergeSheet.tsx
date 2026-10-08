@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowMerge,
   IconLayoutSidebarLeftCollapse,
@@ -25,12 +26,13 @@ export const CompaniesMergeSheet = ({
   onSave = noop,
   ...props
 }: CompaniesMergeSheetProps) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   return (
     <Sheet {...props}>
       <Sheet.Trigger asChild>
         <Button variant={'secondary'} disabled={disabled}>
           <IconArrowMerge />
-          Merge
+          {t('action-merge')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
@@ -68,6 +70,7 @@ const CompaniesMergeSheetFooter = ({
   onDiscard,
   onSave,
 }: CompaniesMergeSheetFooterProps) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   return (
     <Sheet.Footer className="flex justify-end p-5">
       <Button
@@ -76,14 +79,14 @@ const CompaniesMergeSheetFooter = ({
         }}
         variant="secondary"
       >
-        Discard
+        {t('action-discard')}
       </Button>
       <Button
         onClick={() => {
           onSave();
         }}
       >
-        Save
+        {t('action-save')}
       </Button>
     </Sheet.Footer>
   );
@@ -94,11 +97,12 @@ export const CompaniesMergeSheetTrigger = ({
 }: {
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   return (
     <CompaniesMergeTooltip disabled={!disabled}>
       <Button variant={'secondary'} disabled={disabled}>
         <IconArrowMerge />
-        Merge
+        {t('action-merge')}
       </Button>
     </CompaniesMergeTooltip>
   );

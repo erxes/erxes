@@ -5,7 +5,7 @@ import { useIsCustomerLeadSessionKey } from '@/contacts/customers/hooks/useCusto
 import { useTranslation } from 'react-i18next';
 
 export const CustomersHeader = () => {
-  const { t } = useTranslation('contact');
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { isLead } = useIsCustomerLeadSessionKey();
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     isLead ? t('leads') : t('customers'),

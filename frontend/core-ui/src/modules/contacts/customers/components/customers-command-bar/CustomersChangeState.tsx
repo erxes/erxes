@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { IconUserCheck } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
@@ -22,6 +23,7 @@ export const CustomersChangeState = ({
   const { changeCustomerState } = useChangeCustomerState();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
 
   const currentState = rows.length === 1 ? rows[0].original.state : undefined;
 
@@ -33,7 +35,7 @@ export const CustomersChangeState = ({
     await changeCustomerState(customerIds, value, {
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error-title'),
           description: e.message,
           variant: 'destructive',
         });
@@ -42,9 +44,9 @@ export const CustomersChangeState = ({
         const label =
           LIFECYCLE_STATES.find((s) => s.value === value)?.label ?? value;
         toast({
-          title: 'Success',
+          title: t('success-title'),
           variant: 'success',
-          description: `State changed to "${label}" successfully`,
+          description: t('state-changed', { label }),
         });
       },
     });
@@ -55,7 +57,7 @@ export const CustomersChangeState = ({
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary">
           <IconUserCheck />
-          Change State
+          {t('change-state')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

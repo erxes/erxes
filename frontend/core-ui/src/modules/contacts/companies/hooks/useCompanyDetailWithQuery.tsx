@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { GET_COMPANY_DETAIL } from '@/contacts/companies/graphql/queries/getCompanyDetail';
 import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailStates';
@@ -6,6 +7,7 @@ import { toast, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 
 export const useCompanyDetailWithQuery = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const [_id] = useQueryState('companyId');
   const setRendering = useSetAtom(renderingCompanyDetailAtom);
   const { data, loading, error } = useQuery(GET_COMPANY_DETAIL, {
@@ -20,7 +22,7 @@ export const useCompanyDetailWithQuery = () => {
       setRendering(false);
       if (error) {
         toast({
-          title: 'Error',
+          title: t('error-title'),
           description: error.message,
           variant: 'destructive',
         });
