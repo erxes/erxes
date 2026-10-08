@@ -1,5 +1,5 @@
 import { IconCube, IconLayoutGrid } from '@tabler/icons-react';
-import { Sidebar, useMultiQueryState } from 'erxes-ui';
+import { Button, Sidebar, Spinner, useMultiQueryState } from 'erxes-ui';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
 import { IDocumentType } from '../types';
@@ -64,7 +64,7 @@ export function DocumentsTypes() {
     'documentId',
   ]);
 
-  const { documentsTypes } = useDocumentsTypes();
+  const { documentsTypes, loading, error, refetch } = useDocumentsTypes();
 
   function handleAllDocumentsSelect() {
     setQueries({ contentType: null, documentId: null });
@@ -87,6 +87,20 @@ export function DocumentsTypes() {
           Document types
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
+          {loading && <Spinner />}
+          {error && (
+            <div role="alert" className="px-2 text-sm text-destructive">
+              Could not load document types.{' '}
+              <Button
+                variant="link"
+                onClick={() => {
+                  void refetch().catch(() => undefined);
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          )}
           <DocumentsTypeMenu
             contentType={contentType}
             documentsTypes={documentsTypes}

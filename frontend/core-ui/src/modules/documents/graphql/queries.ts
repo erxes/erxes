@@ -90,6 +90,7 @@ export const GET_DOCUMENT_DETAIL = gql(`
       name
       content
       replacer
+      commentData
     }
   }
 `);

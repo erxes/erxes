@@ -82,7 +82,7 @@ export function hasDocumentReplacerSelect(contentType: string) {
 }
 
 type DocumentPrintDialogContentProps = {
-  documentItem: IDocument;
+  documentItem: Pick<IDocument, 'contentType'>;
   onCancel: () => void;
   onContinue: () => void;
   replacerId: string;
@@ -138,7 +138,7 @@ export function DocumentPrintDialog({
   open,
   onOpenChange,
 }: {
-  documentItem: IDocument;
+  documentItem: Pick<IDocument, 'contentType' | 'name'> & { _id?: string };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -184,10 +184,11 @@ export function DocumentPrintDialog({
         <PrintDocument
           items={[{ _id: printReplacerId }]}
           contentType={documentItem.contentType}
-          document={{
-            _id: documentItem._id,
-            name: documentItem.name,
-          }}
+          document={
+            documentItem._id
+              ? { _id: documentItem._id, name: documentItem.name }
+              : undefined
+          }
           open={printOpen}
           onOpenChange={setPrintOpen}
           trigger={null}

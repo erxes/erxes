@@ -11,6 +11,9 @@ import { BroadcastTabLogContent } from './tabs/BroadcastTabLogContent';
 import { BroadcastTabPreviewContent } from './tabs/BroadcastTabPreviewContent';
 import { BroadcastTabRecipientsContent } from './tabs/BroadcastTabRecipientsContent';
 import { BroadcastTabStatisticContent } from './tabs/BroadcastTabStatisticContent';
+import { BroadcastPrintDocument } from './BroadcastPrintDocument';
+import { campaignActions } from '../../utils/campaignActions';
+import { Can } from 'ui-modules';
 
 const BROADCAST_TAB_CONTENTS = {
   statistic: BroadcastTabStatisticContent,
@@ -45,7 +48,16 @@ export const BroadcastDetail = () => {
         setActiveTab={setActiveTab}
       />
 
-      <BroadcastTabContent message={message} />
+      <div className="flex flex-1 flex-col min-w-0 min-h-0">
+        {!campaignActions(message).locked && (
+          <Can action="documentsRead">
+            <div className="flex flex-wrap items-center gap-2 px-8 pt-5">
+              <BroadcastPrintDocument />
+            </div>
+          </Can>
+        )}
+        <BroadcastTabContent message={message} />
+      </div>
     </div>
   );
 };

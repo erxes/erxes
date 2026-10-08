@@ -9,6 +9,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
+  Can,
+  PrintDocument,
   AddInternalNote,
   FieldsInDetail,
   RelationWidgetSideTabs,
@@ -50,6 +52,16 @@ export const CustomerDetail = () => {
           </FocusSheet.SideBar>
           <div className="flex-1 flex flex-col overflow-hidden">
             <CustomerDetailGeneral />
+            {customerDetail?._id && (
+              <Can action="documentsRead">
+                <div className="flex flex-wrap items-center gap-2 px-8 pb-5">
+                  <PrintDocument
+                    items={[{ _id: customerDetail._id }]}
+                    contentType="core:contact.customer"
+                  />
+                </div>
+              </Can>
+            )}
             <Separator />
             <div className="flex-1 min-h-0">
               <Tabs

@@ -10,6 +10,10 @@ export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
+  comments?: {
+    threadStore: NonNullable<IBlockEditor['comments']>['threadStore'];
+  };
+  resolveUsers?: IBlockEditor['resolveUsers'];
 }): IBlockEditor => {
   const { placeholder, uploadFile, ...restArgs } = args || {};
 
@@ -50,16 +54,19 @@ export const useBlockEditor = (args?: {
     [uploadEditorFile, uploadVideo],
   );
 
-  const editor = useCreateBlockNote({
-    schema: BLOCK_SCHEMA,
-    tables: TABLE_SCHEMA,
-    placeholders: {
-      default: placeholder || "Type '/' for commands...",
+  const editor = useCreateBlockNote(
+    {
+      schema: BLOCK_SCHEMA,
+      tables: TABLE_SCHEMA,
+      placeholders: {
+        default: placeholder || "Type '/' for commands...",
+      },
+      uploadFile: uploadFile ?? defaultUploadFile,
+      resolveFileUrl: (url) => Promise.resolve(readImage(url)),
+      ...restArgs,
     },
-    uploadFile: uploadFile ?? defaultUploadFile,
-    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
-    ...restArgs,
-  });
+    [restArgs.comments?.threadStore],
+  );
 
   return editor;
 };

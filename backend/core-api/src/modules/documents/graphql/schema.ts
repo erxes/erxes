@@ -13,6 +13,7 @@ export const types = `
     subType: String
     name: String!
     content: String
+    commentData: String
     replacer: String
 
     approvalLockState: ApprovalLockState
@@ -67,6 +68,8 @@ const mutationParams = `
   subType: String, 
   name: String!, 
   content: String, 
+  commentData: String,
+  tagIds: [String],
   replacer: String, 
   code: String
 `;

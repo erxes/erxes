@@ -1,10 +1,8 @@
 import { IContext } from '~/connectionResolvers';
 import { IDocument } from '../types';
+import { validateDocumentCommentData } from '../commentData';
 
 export const documentMutations = {
-  /**
-   * Save document configuration
-   */
   documentsSave: async (
     _parent: undefined,
     params: { _id?: string } & IDocument,
@@ -13,6 +11,7 @@ export const documentMutations = {
     await checkPermission('manageDocuments');
 
     const { _id, ...doc } = params;
+    validateDocumentCommentData(doc.commentData);
 
     return await models.Documents.saveDocument({
       _id,

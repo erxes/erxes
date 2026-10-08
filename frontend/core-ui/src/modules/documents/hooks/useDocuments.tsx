@@ -16,6 +16,7 @@ type DocumentsQueryResponse = {
   documents: {
     list?: IDocument[];
     pageInfo?: IRecordTableCursorPageInfo;
+    totalCount?: number;
   };
 };
 
@@ -65,7 +66,7 @@ export const useDocuments = () => {
       variables,
     });
 
-  const { list: documents = [], pageInfo } = data?.documents || {};
+  const { list: documents = [], pageInfo, totalCount } = data?.documents || {};
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   function handleFetchMore({ direction }: { direction: EnumCursorDirection }) {
@@ -103,6 +104,7 @@ export const useDocuments = () => {
     documents,
     hasError,
     loading,
+    totalCount,
     pageInfo,
     handleFetchMore,
     refetch,

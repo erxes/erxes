@@ -1,28 +1,40 @@
 import { BlockEditor, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
+import type { IDocument } from '@/documents/types';
+import {
+  normalizeDocumentBlocks,
+  StoredDocumentBlock,
+} from '@/documents/utils/normalizeDocumentBlocks';
 
-export const DocumentPreview = ({ document }: any) => {
+export const DocumentPreview = ({
+  document,
+}: {
+  document: Pick<IDocument, '_id' | 'content'>;
+}) => {
   const editor = useBlockEditor();
 
   useEffect(() => {
+    const content = document.content;
+    if (!content) return;
+
     const loadInitialContent = async () => {
-      let blocks;
+      let blocks: StoredDocumentBlock[];
 
       try {
-        blocks = JSON.parse(document.content);
-      } catch (_error) {
+        blocks = JSON.parse(content);
+      } catch {
         try {
-          blocks = await editor.tryParseHTMLToBlocks(document.content);
-        } catch (_htmlError) {
-          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+          blocks = await editor.tryParseHTMLToBlocks(content);
+        } catch {
+          blocks = await editor.tryParseMarkdownToBlocks(content);
         }
       }
 
-      editor.replaceBlocks(editor.document, blocks);
+      editor.replaceBlocks(editor.document, normalizeDocumentBlocks(blocks));
     };
 
     loadInitialContent();
-  }, [document._id, editor]);
+  }, [document._id, document.content, editor]);
 
   return (
     <div className="relative w-full h-full overflow-hidden">

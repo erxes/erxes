@@ -1,6 +1,8 @@
 import { useApolloClient } from '@apollo/client';
 import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
+import { useDocumentDuplicate } from '@/documents/hooks/useDocumentDuplicate';
 import {
+  IconCopy,
   IconDotsVertical,
   IconEdit,
   IconLock,
@@ -29,6 +31,7 @@ import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 import { IDocument } from '../types';
+import { DocumentTypeDialog } from './DocumentTypeDialog';
 import {
   DocumentPrintDialog,
   hasDocumentReplacerSelect,
@@ -39,13 +42,13 @@ type DocumentsActionsMenuProps = {
   loading: boolean;
   open: boolean;
   onDelete: () => void;
+  onDuplicate: () => void;
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
   onPrint: () => void;
   variant: 'grid' | 'table';
 };
 
-/** Offer approval lock controls in grid and record-table document menus. */
 function DocumentLockMenuItem({
   documentItem,
 }: Readonly<{ documentItem: IDocument }>) {
@@ -114,17 +117,25 @@ function DocumentsActionsList({
   documentItem,
   loading,
   onDelete,
+  onDuplicate,
   onEdit,
   onPrint,
 }: Pick<
   DocumentsActionsMenuProps,
-  'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint'
+  'documentItem' | 'loading' | 'onDelete' | 'onDuplicate' | 'onEdit' | 'onPrint'
 >) {
   return (
     <Command.List>
       <Can action="manageDocuments">
         <Command.Item value="edit" onSelect={onEdit}>
           <IconEdit /> Edit
+        </Command.Item>
+        <Command.Item
+          value="duplicate"
+          onSelect={onDuplicate}
+          disabled={loading}
+        >
+          <IconCopy /> Duplicate
         </Command.Item>
       </Can>
       <Command.Item value="print" onSelect={onPrint}>
@@ -152,6 +163,7 @@ function DocumentsActionsMenu({
   loading,
   open,
   onDelete,
+  onDuplicate,
   onEdit,
   onOpenChange,
   onPrint,
@@ -179,6 +191,7 @@ function DocumentsActionsMenu({
             documentItem={documentItem}
             loading={loading}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
             onEdit={onEdit}
             onPrint={onPrint}
           />
@@ -196,10 +209,17 @@ export function DocumentsActions({
   variant: 'grid' | 'table';
 }) {
   const [open, setOpen] = useState(false);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const setQuery = useSetQueryStateByKey();
   const { confirm } = useConfirm();
   const { removeDocument, loading } = useDocumentRemove();
+  const { duplicateDocument, loading: duplicating } = useDocumentDuplicate();
+
+  function handleDuplicate() {
+    setOpen(false);
+    setDuplicateOpen(true);
+  }
 
   function handleEdit() {
     setOpen(false);
@@ -224,7 +244,6 @@ export function DocumentsActions({
     }).then(() =>
       removeDocument({
         variables: { id: documentItem._id },
-        refetchQueries: ['Documents'],
       }),
     );
   }
@@ -234,17 +253,30 @@ export function DocumentsActions({
   }
 
   return (
-    <>
+    <div className="contents" onClick={(event) => event.stopPropagation()}>
       <DocumentsActionsMenu
         documentItem={documentItem}
-        loading={loading}
+        loading={loading || duplicating}
         open={open}
         onDelete={handleDelete}
+        onDuplicate={handleDuplicate}
         onEdit={handleEdit}
         onOpenChange={setOpen}
         onPrint={handlePrint}
         variant={variant}
       />
+      {duplicateOpen && (
+        <DocumentTypeDialog
+          open
+          onOpenChange={setDuplicateOpen}
+          duplicating
+          initialType={documentItem.contentType}
+          loading={duplicating}
+          onSelect={(contentType) =>
+            duplicateDocument(documentItem._id, contentType)
+          }
+        />
+      )}
       {hasDocumentReplacerSelect(documentItem.contentType) ? (
         <DocumentPrintDialog
           documentItem={documentItem}
@@ -264,6 +296,6 @@ export function DocumentsActions({
           trigger={null}
         />
       )}
-    </>
+    </div>
   );
 }
