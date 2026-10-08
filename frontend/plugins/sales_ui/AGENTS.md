@@ -130,6 +130,9 @@
   discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
+- Deal detail start/close dates use the erxes-ui `DatePicker` input with
+  `allowNull`; typing uses `YYYY-MM-DD`, the unfocused value shows as
+  `MMM D, YYYY`, and clearing sends `null` so the backend unsets the date.
 
 ## Validation
 

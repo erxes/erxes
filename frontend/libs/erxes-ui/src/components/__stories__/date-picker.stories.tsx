@@ -31,6 +31,23 @@ export const Default: Story = {
   },
 };
 
+export const Clearable: Story = {
+  render: () => {
+    const [date, setDate] = useState<Date | undefined>(new Date());
+
+    return (
+      <div className="w-72">
+        <DatePicker
+          value={date}
+          onChange={(date) => setDate(date instanceof Date ? date : undefined)}
+          allowNull
+          placeholder="Pick a date"
+        />
+      </div>
+    );
+  },
+};
+
 export const WithPastDatesOnly: Story = {
   render: () => {
     const [date, setDate] = useState<Date | undefined>(new Date());

@@ -4,7 +4,7 @@ const DEAL_DATE_FORMAT = 'yyyy-MM-dd';
 
 export const formatDealDateForMutation = (date?: Date) => {
   if (!date || !isValid(date)) {
-    return undefined;
+    return null;
   }
 
   return format(date, DEAL_DATE_FORMAT);

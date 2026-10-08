@@ -8,6 +8,8 @@ import {
   Popover,
   Button,
   Form,
+  DatePicker,
+  cn,
 } from 'erxes-ui';
 import {
   IconCalendarPlus,
@@ -25,7 +27,6 @@ import {
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -120,10 +121,8 @@ const DateSelectContent = () => {
 };
 
 export const DateSelectTrigger = ({
-  label,
   children,
 }: {
-  label?: React.ReactNode;
   children: React.ReactNode;
 }) => {
   const { variant } = useDateSelectContext();
@@ -145,9 +144,6 @@ export const DateSelectTrigger = ({
         </Button>
       </Popover.Trigger>
     );
-  }
-  if (variant === DateSelectVariant.DETAIL) {
-    return <DealChipTrigger label={label}>{children}</DealChipTrigger>;
   }
   return (
     <Combobox.TriggerBase className="w-fit h-7">
@@ -212,6 +208,33 @@ export const DateSelectDealRoot = ({
     setOpen(false);
   };
 
+  if (variant === DateSelectVariant.DETAIL) {
+    return (
+      <div className="flex h-7 w-fit items-center overflow-hidden rounded border bg-background text-sm focus-within:border-primary/40">
+        {label && (
+          <span className="flex h-full shrink-0 items-center whitespace-nowrap px-3 text-muted-foreground bg-muted/40 border-r">
+            {label}
+          </span>
+        )}
+        <div className="w-36">
+          <DatePicker
+            value={dateValue}
+            onChange={(date) =>
+              optimisticDate.setValue(date instanceof Date ? date : undefined)
+            }
+            allowNull
+            placeholder={placeholder || t('select-date')}
+            clearLabel={t('clear', 'Clear')}
+            className={cn(
+              'h-6 rounded-none border-0 bg-transparent px-2.5 font-medium focus-within:ring-0 focus-within:ring-offset-0',
+              isEnded && 'text-destructive',
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
+
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;
 
@@ -225,7 +248,7 @@ export const DateSelectDealRoot = ({
         error={error}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <DateSelectTrigger label={label}>
+          <DateSelectTrigger>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
               {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
@@ -249,7 +272,7 @@ export const DateSelectDealRoot = ({
       error={error}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <DateSelectTrigger label={label}>
+        <DateSelectTrigger>
           <DateSelectValue placeholder={placeholder} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

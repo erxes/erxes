@@ -1,3 +1,4 @@
+import { IconCalendar, IconX } from '@tabler/icons-react';
 import { DateRange, Matcher } from 'react-day-picker';
 import { Calendar, CalendarProps } from 'erxes-ui/components/calendar';
 import { Button } from 'erxes-ui/components/button';
@@ -9,22 +10,85 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 dayjs.extend(customParseFormat);
 
+type DateInput = Date | string | number;
+
+/**
+ * Accepts what forms and APIs actually hold: Date objects, ISO strings,
+ * timestamps, arrays of those, or a `{ from, to }` range of those.
+ */
+export type DatePickerValue =
+  | DateInput
+  | DateInput[]
+  | DateRange
+  | { from?: DateInput | null; to?: DateInput | null }
+  | null
+  | undefined;
+
 export type DatePickerProps = {
-  value: Date | Date[] | DateRange | undefined;
-  onChange: (date?: Date | Date[] | DateRange | undefined) => void;
+  value?: DatePickerValue;
+  /** Receives `null` when the value is cleared. */
+  onChange: (date?: Date | Date[] | DateRange | null) => void;
   placeholder?: string;
   withPresent?: boolean;
   minDate?: Date;
   maxDate?: Date;
   mode?: 'single' | 'multiple' | 'range';
   format?: string;
+  displayFormat?: string;
   formatMultiple?: (count: number) => string;
   variant?: 'outline' | 'default' | 'ghost';
   allowNull?: boolean;
+  /** Shows an inline clear button in single mode; disable for required dates. */
+  clearable?: boolean;
   clearLabel?: string;
   calendarClassName?: string;
   popoverContentProps?: React.ComponentPropsWithoutRef<typeof Popover.Content>;
 } & Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'>;
+
+const DEFAULT_FORMAT = 'YYYY-MM-DD';
+const DEFAULT_DISPLAY_FORMAT = 'MMM D, YYYY';
+
+const toDate = (value: unknown): Date | undefined => {
+  if (value === null || value === undefined || value === '') return undefined;
+  if (
+    !(value instanceof Date) &&
+    typeof value !== 'string' &&
+    typeof value !== 'number'
+  ) {
+    return undefined;
+  }
+  const parsed = dayjs(value);
+  return parsed.isValid() ? parsed.toDate() : undefined;
+};
+
+type NormalizedValue = Date | Date[] | DateRange | undefined;
+
+const normalizeValue = (
+  value: DatePickerValue,
+  mode: 'single' | 'multiple' | 'range',
+): NormalizedValue => {
+  if (mode === 'multiple') {
+    if (!Array.isArray(value)) return undefined;
+    return value.map(toDate).filter((date): date is Date => !!date);
+  }
+
+  if (mode === 'range') {
+    if (!value || typeof value !== 'object' || value instanceof Date) {
+      return undefined;
+    }
+    if (Array.isArray(value)) return undefined;
+    const from = toDate(value.from);
+    return from ? { from, to: toDate(value.to) } : undefined;
+  }
+
+  return toDate(value);
+};
+
+const getAnchorDate = (value: NormalizedValue) => {
+  if (value instanceof Date) return value;
+  if (Array.isArray(value)) return value[0];
+  return value?.from;
+};
 
 const defaultFormatMultiple = (count: number) =>
   `${count} ${count > 1 ? 'Days' : 'Day'}`;
@@ -74,27 +138,41 @@ export const DatePicker = ({
   disabled,
   className,
   mode = 'single',
-  format = 'YYYY-MM-DD',
+  format = DEFAULT_FORMAT,
+  displayFormat = format === DEFAULT_FORMAT ? DEFAULT_DISPLAY_FORMAT : format,
   formatMultiple = defaultFormatMultiple,
   variant = 'outline',
   allowNull = false,
+  clearable = true,
   clearLabel = 'Clear',
   calendarClassName,
   popoverContentProps,
+  defaultMonth,
   ...props
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
+  const [isFocused, setIsFocused] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const maxInputLength = format.length;
 
+  const normalizedValue = normalizeValue(value, mode);
+  const singleDate =
+    mode === 'single' && normalizedValue instanceof Date
+      ? normalizedValue
+      : undefined;
+  const singleTime = singleDate?.getTime();
+  const formatSingle = () =>
+    singleDate ? dayjs(singleDate).format(format) : '';
+
+  // Keyed on the timestamp so a parent re-creating the same Date each render
+  // does not wipe what the user is typing.
   React.useEffect(() => {
-    if (value && mode === 'single') {
-      setInputValue(dayjs(value as Date).format(format));
-    } else if (!value) {
-      setInputValue('');
-    }
-  }, [value, format, mode]);
+    setInputValue(
+      singleTime === undefined ? '' : dayjs(singleTime).format(format),
+    );
+  }, [singleTime, format]);
 
   const minBound =
     minDate ?? (withPresent ? new Date('1900-01-01') : undefined);
@@ -109,13 +187,13 @@ export const DatePicker = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const formattedText =
-      format === 'YYYY-MM-DD'
+      format === DEFAULT_FORMAT
         ? formatDateMask(rawValue)
         : rawValue.slice(0, maxInputLength);
     setInputValue(formattedText);
     if (mode !== 'single') return;
-    if (!formattedText && allowNull) {
-      onChange();
+    if (!formattedText) {
+      if (allowNull && singleDate) onChange(null);
       return;
     }
     if (formattedText.length !== maxInputLength) return;
@@ -157,51 +235,89 @@ export const DatePicker = ({
 
   const handleClear = () => {
     setInputValue('');
-    onChange();
+    onChange(null);
     setIsOpen(false);
+    // A parent that rejects null keeps its value; the focused empty input lets
+    // the user type a replacement and restores the old date on blur.
+    if (mode === 'single') inputRef.current?.focus();
+  };
+
+  const isDisabled = disabled === true;
+  const showDisplayValue = !isFocused && !!singleDate;
+  const canClear = clearable && !isDisabled && !!singleDate;
+
+  const handleOpenChange = (open: boolean) => {
+    if (open && isDisabled) return;
+    setIsOpen(open);
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <div className="relative inline-block w-full">
         {mode === 'single' ? (
           <Popover.Trigger asChild>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              maxLength={maxInputLength}
-              placeholder={placeholder}
-              disabled={disabled === true}
-              onBlur={() => {
-                if (inputValue === '' && allowNull) return;
-
-                const parsedDate = dayjs(inputValue, format, true);
-                const isWithinBounds =
-                  parsedDate.isValid() &&
-                  !(minBound && parsedDate.isBefore(dayjs(minBound), 'day')) &&
-                  !(maxBound && parsedDate.isAfter(dayjs(maxBound), 'day'));
-
-                if (!isWithinBounds) {
-                  setInputValue(
-                    value && mode === 'single'
-                      ? dayjs(value as Date).format(format)
-                      : '',
-                  );
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsOpen(true);
-                }
-              }}
+            <div
+              aria-disabled={isDisabled}
               className={cn(
-                'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                'flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+                isDisabled && 'cursor-not-allowed opacity-50',
                 className,
               )}
-            />
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={
+                  showDisplayValue && singleDate
+                    ? dayjs(singleDate).format(displayFormat)
+                    : inputValue
+                }
+                onChange={handleInputChange}
+                maxLength={showDisplayValue ? undefined : maxInputLength}
+                placeholder={placeholder}
+                disabled={isDisabled}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => {
+                  setIsFocused(false);
+
+                  const parsedDate = dayjs(inputValue, format, true);
+                  const isWithinBounds =
+                    parsedDate.isValid() &&
+                    !(
+                      minBound && parsedDate.isBefore(dayjs(minBound), 'day')
+                    ) &&
+                    !(maxBound && parsedDate.isAfter(dayjs(maxBound), 'day'));
+
+                  if (!isWithinBounds) {
+                    setInputValue(formatSingle());
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsOpen(true);
+                  }
+                }}
+                className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed"
+              />
+              {canClear ? (
+                <button
+                  type="button"
+                  aria-label={clearLabel}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleClear();
+                  }}
+                  className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <IconX className="size-4" />
+                </button>
+              ) : (
+                <IconCalendar className="size-4 shrink-0 text-muted-foreground" />
+              )}
+            </div>
           </Popover.Trigger>
         ) : (
           <Popover.Trigger asChild>
@@ -214,7 +330,7 @@ export const DatePicker = ({
               )}
             >
               {renderButtonContent(
-                value,
+                normalizedValue,
                 mode,
                 format,
                 formatMultiple,
@@ -234,12 +350,14 @@ export const DatePicker = ({
             ...props,
             disabled: calendarDisabled,
             mode,
-            selected: value,
+            selected: normalizedValue,
             onSelect: handleDateChange,
+            defaultMonth:
+              toDate(defaultMonth) ?? getAnchorDate(normalizedValue),
             className: cn('text-foreground', calendarClassName),
           } as React.ComponentProps<typeof Calendar>)}
         />
-        {allowNull && value && (
+        {allowNull && normalizedValue && mode !== 'single' && (
           <div className="border-t p-1">
             <Button
               type="button"
@@ -258,7 +376,7 @@ export const DatePicker = ({
 };
 
 function renderButtonContent(
-  value: Date | Date[] | DateRange | undefined,
+  value: NormalizedValue,
   mode: string,
   format: string,
   formatMultiple: (count: number) => string,
