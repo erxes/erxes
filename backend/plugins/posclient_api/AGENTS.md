@@ -20,6 +20,10 @@
 
 ## Current Capabilities
 
+- `cpOrdersAdd` and `cpOrdersEdit` require client portal context and accept
+  `customerType: visitor` without a logged-in portal user. Other customer
+  types require an authenticated `cpUser`. All orders still run
+  the existing POS order validation and tenant-scoped creation flow.
 - Order audit events have independent `source` and `action` fields: new backend
   logs use `source: order`, cart logs use `source: cart`, and operations are
   `create`, `update`, `cancel`, or `return`. Order creation includes its items
@@ -131,6 +135,9 @@
 
 ## Local Invariants
 
+- `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
+  only `customerType: visitor` bypasses the portal user requirement.
+  The regular `ordersAdd` mutation continues to require an authenticated POS user.
 - GraphQL `ordersReturn` delegates to `returnPosOrder`; payment, permission,
   receipt and sync logic belongs to the service, not the resolver. Receipt
   selectors/checks are shared with cancellation through `orderReceipts.ts`.
@@ -175,11 +182,15 @@
 
 ## Validation
 
+- CP creation/edit smoke: with client portal context, visitors without a
+  portal user reach order validation; non-visitors require `cpUser`.
+  Without client portal context, both mutations are rejected by the wrapper.
 - Audit action smoke: create, edit, cancel and return an order; each event has
   the matching action and `source: order`. Cart removals/reductions have
   `source: cart`, `action: update` and item-specific details. Admin audit UI
   displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
+- `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/orders.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/customResolvers/__tests__/orderChangeLog.test.cjs`
 - Audit number smoke: existing and cancelled orders show their order number;
