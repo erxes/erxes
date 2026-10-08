@@ -69,13 +69,13 @@ const needsEarlyConnect = () => {
 
   return Boolean(
     settings.email ||
-      settings.phone ||
-      settings.code ||
-      settings.data ||
-      settings.companyData ||
-      !cache?.savedAt ||
-      cache.engaged ||
-      Date.now() - cache.savedAt > LAUNCHER_CACHE_MAX_AGE,
+    settings.phone ||
+    settings.code ||
+    settings.data ||
+    settings.companyData ||
+    !cache?.savedAt ||
+    cache.engaged ||
+    Date.now() - cache.savedAt > LAUNCHER_CACHE_MAX_AGE,
   );
 };
 
