@@ -2158,7 +2158,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call` and the
-  Facebook bot widgets) writes every document as
+  Facebook and Instagram bot widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2191,11 +2191,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   selects less than that fragment. `IFacebookBot` is the fragment type,
   `IFacebookBotDetail` the form query and `IFacebookBotProfile` the trigger
   profile query.
+- Instagram bots save through `ADD_INSTAGRAM_BOT` / `UPDATE_INSTAGRAM_BOT`,
+  whose results stay `JSON`, so a save refetches `INSTAGRAM_BOTS_LIST` and
+  `INSTAGRAM_BOTS_TOTAL_COUNT` instead of writing the cache. `IInstagramBot` is
+  the list row, `IInstagramBotDetail` the form query (also the form context's
+  `instagramMessengerBot`) and `IInstagramBotProfile` the trigger profile
+  query.
+- Facebook and Instagram bot tables read a row's `account` / `page` name from
+  `cell.row.original` (falling back to `-`), never from a cast of
+  `cell.getValue()`.
 - Bot persistent menus and ice breakers without an `_id` cannot be targeted by
-  a trigger, so trigger code drops them with `hasBotItemId`
-  (`widgets/automations/modules/facebook/components/bots/utils`). The bot form
-  narrows a stored menu `type` and `tag` through `facebookBotFormSchema`
-  instead of casting.
+  a trigger, so Facebook and Instagram trigger code drops them with
+  `hasBotItemId` (`widgets/automations/modules/facebook/components/bots/utils`).
+  The bot forms narrow a stored menu `type` and `tag` through
+  `facebookBotFormSchema` / `instagramBotFormSchema` instead of casting.
 - `useFacebookBotAutomations` reads core `automations` triggers, whose
   `config` is core-owned `JSON`; `isBotTriggerConfig` narrows it before the
   bot id is compared.

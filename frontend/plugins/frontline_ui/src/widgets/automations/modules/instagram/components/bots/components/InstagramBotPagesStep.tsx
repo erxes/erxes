@@ -5,7 +5,10 @@ import {
 import { cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPages';
+import {
+  TInstagramPage,
+  useInstagramPages,
+} from '@/integrations/instagram/hooks/useInstagramPages';
 
 export const InstagramBotPagesStep = () => {
   const { t } = useTranslation('frontline');
@@ -55,11 +58,7 @@ const InstagramBotPagesStepContent = ({
   instagramGetPages,
 }: {
   loading: boolean;
-  instagramGetPages: {
-    id: string;
-    name: string;
-    isUsed: boolean;
-  }[];
+  instagramGetPages: TInstagramPage[];
 }) => {
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
 
@@ -70,16 +69,18 @@ const InstagramBotPagesStepContent = ({
   return instagramGetPages.map((page) => (
     <Command.Item
       key={page.id}
-      value={page.name}
+      value={page.name ?? ''}
       onSelect={() =>
-        setSelectedPage(selectedPage === page.id ? undefined : page.id)
+        setSelectedPage(
+          selectedPage === page.id ? undefined : page.id ?? undefined,
+        )
       }
       className={cn(
         'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',
         selectedPage === page.id && 'text-pink-600',
       )}
     >
-      <RadioGroup.Item value={page.id} className="bg-background" />
+      <RadioGroup.Item value={page.id ?? ''} className="bg-background" />
       <div className="font-semibold">{page.name}</div>
     </Command.Item>
   ));

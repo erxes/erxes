@@ -719,6 +719,16 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `erxesApiId`, `facebookPageIds`), and `facebookGetBotPosts` /
   `facebookGetBotPost` return `FacebookPosts`. Bot remove and repair results
   stay `JSON`.
+- GraphQL Instagram bot contracts mirror Facebook's: `InstagramMessengerBot._id`
+  is non-null; its `account` is `InstagramBotAccount` (`_id`, `name`) and its
+  `page` is `InstagramBotPage` (`id`, `name` from the Graph API, `null` when
+  the call fails). `instagramGetAccounts` returns `[InstagramAccount]` (`_id`,
+  `kind`, `name`; the resolver still loads the whole account, so the object
+  type is what keeps the token off the wire), `instagramGetPages` returns
+  `[InstagramPage]` (`id`, `name`, `isUsed`), and `instagramGetBotPosts` /
+  `instagramGetBotPost` return `InstagramPosts`. Bot add, update, remove and
+  repair results, `instagramGetIntegrations` and
+  `instagramGetIntegrationDetail` stay `JSON`.
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,

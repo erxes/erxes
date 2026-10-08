@@ -1,26 +1,22 @@
 import { GET_IG_PAGES } from '@/integrations/instagram/graphql/queries/igAccounts';
 import { useQuery } from '@apollo/client';
+import { isDefined } from 'erxes-ui';
 import { useMemo } from 'react';
 
 export const useInstagramBotPages = (accountId: string, pageId: string) => {
-  const { data, loading } = useQuery<{
-    instagramGetPages: {
-      id: string;
-      name: string;
-      isUsed: boolean;
-    }[];
-  }>(GET_IG_PAGES, {
+  const { data, loading } = useQuery(GET_IG_PAGES, {
     variables: {
       accountId,
       kind: 'instagram',
     },
   });
 
-  const instagramGetPages = data?.instagramGetPages || [];
-
   const page = useMemo(
-    () => instagramGetPages.find(({ id }) => pageId === id),
-    [instagramGetPages, pageId],
+    () =>
+      data?.instagramGetPages
+        ?.filter(isDefined)
+        .find(({ id }) => pageId === id),
+    [data, pageId],
   );
 
   return {

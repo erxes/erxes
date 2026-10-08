@@ -57,7 +57,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     accessorKey: 'account',
     header: () => <RecordTable.InlineHead label="Account" />,
     cell: ({ cell }) => {
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.account?.name ?? '-';
       return (
         <RecordTableInlineCell className="truncate">
           {name}
@@ -72,7 +72,7 @@ export const automationFacebookBotsColumns: ColumnDef<IFacebookBot>[] = [
     header: () => <RecordTable.InlineHead label="Page" />,
     cell: ({ cell }) => {
       const { profileUrl = '' } = cell.row.original || {};
-      const { name = '-' } = cell.getValue() || ({} as any);
+      const name = cell.row.original.page?.name ?? '-';
       return (
         <RecordTableInlineCell className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
