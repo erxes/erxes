@@ -8,18 +8,23 @@ import {
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
-import { RecordTable, RecordTableInlineCell, useQueryState } from 'erxes-ui';
+import {
+  Badge,
+  RecordTable,
+  RecordTableInlineCell,
+  useQueryState,
+} from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { categoriesMoreColumn } from '@/knowledgebase/categories/components/CategoriesMoreColumn';
 import { useEditCategoryField } from '@/knowledgebase/categories/hooks/useCategoryMutations';
 import { TCategoryRow } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
+import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
 import { IconPicker } from '@/knowledgebase/shared/components/IconPicker';
 import {
   kbColumn,
-  kbCountColumn,
   kbDateColumn,
   KbTextCell,
 } from '@/knowledgebase/shared/components/kbColumns';
@@ -73,7 +78,10 @@ const TitleCell = ({
         className="flex gap-1 items-center"
         style={{ paddingLeft: category.depth * 12 }}
       >
-        <RecordTableInlineCell.Anchor onClick={() => setEditId(category._id)}>
+        <RecordTableInlineCell.Anchor
+          onClick={() => setEditId(category._id)}
+          className={clsx(category.hasChildren && 'font-semibold')}
+        >
           {category.title || t('unnamed-category')}
         </RecordTableInlineCell.Anchor>
       </span>
@@ -96,6 +104,30 @@ const IconCell = ({ cell }: { cell: Cell<TCategoryRow, unknown> }) => {
       value={category.icon}
       onChange={(icon) => editCategoryField(category, { icon })}
     />
+  );
+};
+
+const ArticleCountCell = ({
+  cell,
+  t,
+}: {
+  cell: Cell<TCategoryRow, unknown>;
+  t: TFunction;
+}) => {
+  const { topicId = '' } = useParams();
+  const category = cell.row.original;
+
+  return (
+    <RecordTableInlineCell>
+      <Link
+        to={`${KNOWLEDGE_BASE_PATH}/${topicId}/articles?categoryId=${category._id}`}
+        title={t('kb-view-articles', 'View articles')}
+      >
+        <Badge variant="secondary" className="hover:bg-border">
+          {category.totalArticles}
+        </Badge>
+      </Link>
+    </RecordTableInlineCell>
   );
 };
 
@@ -122,11 +154,12 @@ const createCategoriesColumns = (t: TFunction): ColumnDef<TCategoryRow>[] => [
       />
     ),
   }),
-  kbCountColumn<TCategoryRow>({
+  kbColumn<TCategoryRow>({
     id: 'numOfArticles',
+    size: 140,
     label: t('articles', 'Articles'),
     icon: IconFileText,
-    count: (category) => category.numOfArticles ?? 0,
+    render: (cell) => <ArticleCountCell cell={cell} t={t} />,
   }),
   kbColumn<TCategoryRow>({
     id: 'icon',

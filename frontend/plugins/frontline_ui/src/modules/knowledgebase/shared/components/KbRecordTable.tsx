@@ -11,6 +11,9 @@ export const KbRecordTable = <T,>({
   tableId,
   empty,
   commandBar,
+  hasMore,
+  fetchingMore,
+  onLoadMore,
 }: {
   columns: ColumnDef<T>[];
   data: T[];
@@ -19,6 +22,9 @@ export const KbRecordTable = <T,>({
   tableId: string;
   empty: ReactNode;
   commandBar: ReactNode;
+  hasMore?: boolean;
+  fetchingMore?: boolean;
+  onLoadMore?: () => void;
 }) => {
   if (error) {
     return <KbErrorState message={error.message} />;
@@ -43,7 +49,13 @@ export const KbRecordTable = <T,>({
             {loading ? (
               <RecordTable.RowSkeleton rows={10} />
             ) : (
-              <RecordTable.RowList />
+              <>
+                <RecordTable.RowList />
+                {fetchingMore && <RecordTable.RowSkeleton rows={3} />}
+                {hasMore && !fetchingMore && (
+                  <RecordTable.RowSkeleton rows={1} handleInView={onLoadMore} />
+                )}
+              </>
             )}
           </RecordTable.Body>
         </RecordTable>

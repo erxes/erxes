@@ -163,6 +163,7 @@ export const ARTICLES = gql`
       topicIds: $topicIds
       categoryIds: $categoryIds
       status: $status
+      searchValue: $searchValue
     )
   }
 `;

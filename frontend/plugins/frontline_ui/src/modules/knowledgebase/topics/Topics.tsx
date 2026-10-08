@@ -9,11 +9,13 @@ import {
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
+import { useKbCreateHotkey } from '@/knowledgebase/shared/hooks/useKbCreateHotkey';
 import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import { TopicsFilter } from '@/knowledgebase/topics/components/TopicsFilter';
 import { TopicsGrid } from '@/knowledgebase/topics/components/TopicsGrid';
 import { TopicsRecordTable } from '@/knowledgebase/topics/components/TopicsRecordTable';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
+import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 type TTopicsView = 'list' | 'thumbnail';
 
@@ -33,6 +35,12 @@ export const Topics = () => {
   }, [createTopic, setCreateTopic]);
 
   const editing = (topics ?? []).find((topic) => topic._id === editId);
+
+  useKbCreateHotkey({
+    scope: KnowledgeBaseHotKeyScope.TopicsPage,
+    isSheetOpen: isCreateOpen || !!editing,
+    onCreate: () => setIsCreateOpen(true),
+  });
 
   const handleClose = () => {
     setIsCreateOpen(false);

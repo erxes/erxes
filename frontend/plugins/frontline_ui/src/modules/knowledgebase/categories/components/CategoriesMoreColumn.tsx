@@ -1,4 +1,4 @@
-import { IconFileText } from '@tabler/icons-react';
+import { IconFilePlus, IconFileText } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -20,6 +20,7 @@ const CategoriesMoreColumnCell = ({
   const { _id, title } = cell.row.original;
   const { topicId = '' } = useParams();
   const navigate = useNavigate();
+  const articlesPath = `${KNOWLEDGE_BASE_PATH}/${topicId}/articles?categoryId=${_id}`;
   const { removeCategories } = useRemoveCategories();
   const confirmRemove = useKbConfirmRemove();
 
@@ -31,10 +32,13 @@ const CategoriesMoreColumnCell = ({
           value: 'articles',
           icon: IconFileText,
           label: t('kb-view-articles', 'View articles'),
-          onSelect: () =>
-            navigate(
-              `${KNOWLEDGE_BASE_PATH}/${topicId}/articles?categoryId=${_id}`,
-            ),
+          onSelect: () => navigate(articlesPath),
+        },
+        {
+          value: 'new-article',
+          icon: IconFilePlus,
+          label: t('kb-write-article-here', 'Write an article here'),
+          onSelect: () => navigate(`${articlesPath}&createArticle=true`),
         },
       ]}
       onDelete={() =>

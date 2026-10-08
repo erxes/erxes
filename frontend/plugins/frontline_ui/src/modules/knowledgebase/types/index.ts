@@ -11,15 +11,13 @@ export interface IKbPdfAttachment {
   pages?: IKbAttachment[];
 }
 
-export type TKnowledgeBaseSection =
-  | 'articles'
-  | 'categories'
-  | 'kbsettings';
+export type TKnowledgeBaseSection = 'articles' | 'categories' | 'kbsettings';
 
 export enum KnowledgeBaseHotKeyScope {
   TopicsPage = 'knowledge-base-topics-page',
   CategoriesPage = 'knowledge-base-categories-page',
   ArticlesPage = 'knowledge-base-articles-page',
+  FormSheet = 'knowledge-base-form-sheet',
 }
 
 export interface IKnowledgeBaseAuthor {
@@ -117,10 +115,12 @@ export interface IArticleDoc {
   status: string;
   isPrivate: boolean;
   reactionChoices: string[];
+  topicId?: string;
   categoryId: string;
   image?: IKbAttachment;
   attachments?: IKbAttachment[];
   pdfAttachment?: IKbPdfAttachment;
+  scheduledDate?: string;
 }
 
 export interface ITopicListResponse {

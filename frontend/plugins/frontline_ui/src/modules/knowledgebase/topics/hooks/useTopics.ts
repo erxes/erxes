@@ -15,6 +15,8 @@ export const useTopics = (options?: QueryHookOptions<ITopicListResponse>) => {
   const { data, loading, error, refetch } = useQuery<ITopicListResponse>(
     TOPICS,
     {
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
       ...options,
       variables: {
         page: 1,

@@ -18,6 +18,7 @@ export interface ICategoryModel extends Model<ICategoryDocument> {
     docFields: ICategoryCreate,
     userId?: string
   ): Promise<ICategoryDocument>;
+  getSubtreeIds(_id: string): Promise<string[]>;
   removeDoc(categoryId: string): Promise<void>;
 }
 
@@ -57,7 +58,10 @@ export const loadCategoryClass = (models: IModels) => {
         throw new Error('userId must be supplied');
       }
 
+      const current = await models.Category.getCategory(_id);
       const parentId = docFields.parentCategoryId;
+      const topicId = docFields.topicId || current.topicId;
+      const movesTopic = topicId !== current.topicId;
 
       if (parentId) {
         if (_id === parentId) {
@@ -71,6 +75,14 @@ export const loadCategoryClass = (models: IModels) => {
         if (childrenCounts > 0) {
           throw new Error('Cannot change category. this is parent tag');
         }
+
+        const parent = await models.Category.getCategory(parentId);
+
+        if (parent.topicId !== topicId) {
+          throw new Error(
+            'Parent category must belong to the same knowledge base'
+          );
+        }
       }
 
       await models.Category.updateOne(
@@ -78,15 +90,49 @@ export const loadCategoryClass = (models: IModels) => {
         {
           $set: {
             ...docFields,
+            ...(movesTopic && !parentId ? { parentCategoryId: '' } : {}),
             modifiedBy: userId,
             modifiedDate: new Date()
           }
         }
       );
 
+      if (movesTopic) {
+        const subtreeIds = await models.Category.getSubtreeIds(_id);
+
+        await models.Category.updateMany(
+          { _id: { $in: subtreeIds } },
+          { $set: { topicId } }
+        );
+
+        await models.Article.updateMany(
+          { categoryId: { $in: subtreeIds } },
+          { $set: { topicId } }
+        );
+      }
+
       const category = await models.Category.getCategory(_id);
 
       return category;
+    }
+
+    public static async getSubtreeIds(_id: string) {
+      const ids = [_id];
+
+      for (let index = 0; index < ids.length; index++) {
+        const children = await models.Category.find(
+          { parentCategoryId: ids[index] },
+          { _id: 1 }
+        ).lean();
+
+        children.forEach((child) => {
+          if (!ids.includes(child._id)) {
+            ids.push(child._id);
+          }
+        });
+      }
+
+      return ids;
     }
 
     public static async removeDoc(_id: string) {

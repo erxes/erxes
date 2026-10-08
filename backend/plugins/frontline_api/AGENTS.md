@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -29,8 +29,8 @@
 - Forms: form definitions, fields, and form submissions (with submission export).
 - Surveys: channel-scoped survey definitions, the snapshot an agent posts into a
   messenger conversation, and the per-voter vote ledger behind the tallies.
-- Knowledge base: topics, categories, articles, and the AI knowledge source
-  provider that indexes articles.
+- Knowledge base: topics, categories, articles, scheduled article publishing,
+  and the AI knowledge source provider that indexes articles.
 - Help centers: the client portal config record behind a published help center
   site — its general settings (name, description, website, the knowledge base,
   ticket and form feature groups, and the CMS behind its announcements), its
@@ -1081,6 +1081,33 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- A `scheduled` article is published by a delayed BullMQ job on the
+  `knowledgeBaseScheduledPublish` queue (`frontline`), never by a cross-tenant
+  cron. `knowledgeBaseArticlesAdd` / `Edit` call `scheduleArticlePublish` with
+  the saved article; each job carries its own `subdomain` and `articleId`, and
+  `startScheduledPublishWorker` (started in `main.ts`) publishes only while the
+  article is still `scheduled` with `scheduledDate <= now`. A reschedule
+  therefore never cancels the old job: a stale job finds a later date or another
+  status and does nothing. A queue failure is logged and never fails the save.
+  Publishing sets `publishedAt` and queues the AI knowledge source refresh
+  through `utils/refreshKnowledgeArticle.ts`, the one helper both the mutations
+  and the worker use.
+- Article `searchValue` matches `title`, `code`, `summary` and `content`
+  (`buildQuery` in `knowledgeBaseQueries.ts`, shared with topics and
+  categories, which also match `description`).
+  `knowledgeBaseArticlesTotalCount` accepts the same `searchValue`, so a
+  searched list and its count agree.
+- `knowledgeBaseArticles` and `knowledgeBaseArticlesTotalCount` both build
+  their selector with `buildArticleQuery`, which turns `topicIds` into the
+  topics' category ids. An article's own `topicId` is never the filter: older
+  and duplicated articles may lack it, and the list and its count must agree.
+- `Category.updateDoc` moves a category to another topic (`doc.topicId`
+  differing from the stored one) together with its whole subtree
+  (`getSubtreeIds`) and every article in it (their `topicId` too). A moved
+  category without a parent in the doc becomes a root (`parentCategoryId:
+  ''`), and a parent from another topic is rejected. `''` and a missing
+  `parentCategoryId` both mean a root category.
+
 - A ticket property option marked `deprecated` (archived) in core is never
   sent to the widget; records that already hold it keep it.
 
@@ -1134,6 +1161,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
   (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
   `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- Knowledge base: schedule an article a few minutes ahead, confirm it stays
+  `scheduled` and absent from the help center, then becomes `publish` with
+  `publishedAt` at that time; reschedule another one later and confirm the old
+  time does not publish it. Search articles by a word that appears only in a
+  body and confirm the list and its total count both find it. Move a parent
+  category to another topic and confirm its subcategories and their articles
+  follow it, and that each topic's article list and total count agree.
 - Mail agent: build an automation Email Received → AI Agent → Draft Email
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
