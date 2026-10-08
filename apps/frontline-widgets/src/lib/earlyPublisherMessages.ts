@@ -23,7 +23,11 @@ export const replayEarlyPublisherMessages = () => {
   replayed = true;
   window.removeEventListener('message', holdEarlyMessage);
 
-  earlyMessages.splice(0).forEach(({ data, origin, source }) =>
-    window.dispatchEvent(new MessageEvent('message', { data, origin, source })),
-  );
+  earlyMessages
+    .splice(0)
+    .forEach(({ data, origin, source }) =>
+      window.dispatchEvent(
+        new MessageEvent('message', { data, origin, source }),
+      ),
+    );
 };

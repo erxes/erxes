@@ -324,7 +324,8 @@ const sendMessageToIframe = (contentWindow: Window) => {
   };
 
   const applyLauncherLook = (look: LauncherLook) => {
-    const launcherBtn = launcherIframeDocument?.querySelector('.erxes-launcher');
+    const launcherBtn =
+      launcherIframeDocument?.querySelector('.erxes-launcher');
 
     if (!launcherBtn) {
       return;
