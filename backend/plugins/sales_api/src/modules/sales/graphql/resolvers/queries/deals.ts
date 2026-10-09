@@ -246,8 +246,8 @@ export const generateFilter = async (
     status
       ? { status }
       : noSkipArchive
-      ? {}
-      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+        ? {}
+        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
