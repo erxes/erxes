@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/node';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { withStableFingerprint } from './sentryFingerprint';
+import { scrubSentryEvent } from './sentryScrub';
 
 function findUp(startDir: string, predicate: (dir: string) => boolean) {
   let dir = startDir;
@@ -124,8 +125,11 @@ export function initErxesSentry(
     release: getSentryRelease(),
     serverName: serverName || process.env.SENTRY_SERVER_NAME,
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
+    sendDefaultPii: false,
+    beforeSendTransaction: (event) => scrubSentryEvent(event),
     beforeSend: (event, hint) => {
-      const result = beforeSend ? beforeSend(event, hint) : event;
+      const scrubbed = scrubSentryEvent(event);
+      const result = beforeSend ? beforeSend(scrubbed, hint) : scrubbed;
       if (result && typeof (result as PromiseLike<Sentry.ErrorEvent | null>).then === 'function') {
         return (result as PromiseLike<Sentry.ErrorEvent | null>).then((e) => (e ? withStableFingerprint(e) : null));
       }
