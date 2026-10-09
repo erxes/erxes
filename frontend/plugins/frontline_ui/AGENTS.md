@@ -20,7 +20,7 @@
 - Channel settings (list, detail, members, integrations) and channel forms.
 - The `Move to channel` action on every channel-owned resource: integrations,
   ticket pipelines, forms, surveys and response templates.
-- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
+- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord, Telegram,
   calls, Call Pro, and the erxes messenger.
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
@@ -104,6 +104,22 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Telegram setup derives its public address from `REACT_APP_API_URL` and the
+  existing `/pl:frontline` gateway route. Local/non-public API addresses require
+  an explicit HTTPS tunnel; custom deployments can override the address.
+  Existing connections retain their registered callback. Connection names are
+  optional and default to the verified bot's name. Create/edit preview the
+  generated callback URL. Bot
+  health/webhook actions, chat/topic labels, quotes, polls, media, edits,
+  observed reactions and safe link cards integrate with the existing inbox.
+- Telegram Disconnect remains available after a webhook status failure. It
+  reports local deactivation separately from unconfirmed provider cleanup and
+  refetches active setup/integration queries; status errors remain inline.
+- Integrations config includes a Telegram section with setup instructions and
+  links to personal and team inbox settings. Each bot is configured through
+  the existing inbox integration sheet; no workspace-wide bot credentials are
+  duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
   (`SelectErxesMessenger`, saved as `config.integrationId`); empty means every
@@ -410,7 +426,8 @@
 - The inbox composer is note-only (Reply tab disabled, Internal Note selected)
   for `lead`, `calls`, `callpro` and `mail` conversations — the first three
   cannot carry an outbound reply, and mail replies go through the mail compose
-  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in `MessageInput.tsx`.
+  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
+  `conversation-detail/constants/composer.ts`.
 - The ticket list/board filter offers Branch and Department multi-selects
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
@@ -478,6 +495,20 @@
   including property columns. It is disabled until the table has rendered.
 
 ## Architecture
+
+Telegram setup and provider-specific presentation live in
+`src/modules/integrations/telegram/`. It reuses `ComposerShell`, `ComposerEditor`,
+`ComposerToolbar`, `useComposerSend`, `messageReplyState` and `MessageAttachments`.
+Composer components live in `conversation-detail/components/composer/` and
+their hooks in `conversation-detail/hooks/composer/`. `MessageInput` composes
+the shared draft, attachment, gallery and send hooks; Telegram keeps its
+provider flags at those existing entry points.
+`TelegramMessageAttachments.tsx` only adds the Cloudflare Stream player and
+media open links; native audio/video/image/file rendering remains shared within
+Frontline. No separate Telegram editor or reply atom is needed.
+`TelegramConfig.tsx` provides the Integrations config entry and links to the
+existing personal/team inbox routes, where `TelegramIntegrationDetail.tsx`
+owns the setup form and connection actions.
 
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                                |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -768,6 +799,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Data and State
 
+- Telegram reply selection uses the inbox `messageReplyState`; provider IDs
+  come from `extraData.telegram.messageId` or the first outbound `messageIds`
+  receipt. The existing conversation-change cleanup and user/conversation
+  scoped session drafts apply to Telegram too.
+
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -831,6 +867,27 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Telegram consumes existing message/attachment/poll contracts and adds only
+  optional `extraData.telegram` display metadata. Use native message actions
+  and reply previews. Telegram poll labels name Telegram; other providers keep
+  their defaults. Observed Telegram reactions do not enable send-reaction UI.
+- Keep Telegram linkification, authenticated preview lookup and Stream-origin
+  validation inside its module. Quotes render literal provider text. Never
+  put Telegram bot tokens or token-bearing download URLs in browser data.
+- Reconcile a saved Telegram bot with the server before retrying inbox linking;
+  a lost mutation response may hide an already-committed integration.
+- Telegram chat-label loads explicitly settle both success and rejection;
+  failed metadata reads preserve existing labels or the inbox/customer fallback.
+- Telegram attachment selection enforces both the configured upload limit
+  (20 MiB by default) and 50 MiB total across uploaded and pending files.
+  Immediate refs must account for rapid selections before the next render.
+- Cloudflare Stream players use the validated cross-origin host and a sandbox
+  permitting scripts, their own origin and presentation, without top navigation.
+- Telegram suppresses automatic response-template suggestions while typing;
+  the explicit template selector remains available. Preserve other providers'
+  composer behavior, Facebook partial-delivery recovery, Instagram error
+  feedback and stale-send/draft guards.
 
 - The inbox and ticket composers pick their mode through the one
   `ComposerModeTabs`; a composer that separates a customer reply from an
@@ -1257,7 +1314,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   document because `Survey.results` runs two aggregations per survey; the
   management list must not select it.
 - The composer shows two different controls by integration kind:
-  `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
+  `PollComposer` (ad-hoc, provider-native) for `discord-messenger` and
+  `telegram-messenger`, and
   `SendSurveyDialog` (saved survey) for `messenger`. Neither is a fallback for
   the other.
 - Discord polls and erxes surveys are separate all the way down. Discord writes
@@ -1810,11 +1868,22 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   confirm the drawer opens on that article. Search by a word that appears only
   in an article body and confirm the row and the count both update.
 - `pnpm nx build frontline_ui`
-- `npx eslint src/...` on touched files — the project carries pre-existing lint
-  errors and TypeScript errors elsewhere, so lint and typecheck the files you
-  changed rather than the whole project.
-- `project.json` defines only `build`, `serve`, and `serve-static` — there is no
-  `test` target for this project; do not invent one.
+- `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
+  distinguish existing baseline failures from regressions in touched files.
+- `pnpm nx test frontline_ui` — the project defines a Jest test target for
+  Telegram setup/rendering and inbox composer regression coverage.
+  Composer send regression tests import `hooks/composer/useComposerSend`;
+  keep them aligned with the production hook when composer paths change.
+- Telegram smoke: config-page personal/team inbox links, production callback
+  defaults, local tunnel validation, saved callback preservation, optional
+  connection names, private/group/topic history,
+  native replies, note isolation, media playback/open links, link cards and
+  poll labels. Verify switching conversations during a send preserves the new
+  draft, and other providers retain their reply and partial-delivery behavior.
+- Telegram recovery smoke: retry setup after a lost integration-create response
+  and confirm it resumes webhook registration without another integration;
+  select files in quick succession and confirm the combined size guard includes
+  pending uploads and releases capacity after removal or composer reset.
 - Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
   Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
   `Move to channel`, pick another channel and confirm the row leaves this list
@@ -1912,3 +1981,37 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram metadata promise handling
+
+- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
+- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
+- **Contracts changed:** None.
+
+### `2026-10-06` — Telegram setup recovery and attachment guards
+
+- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
+- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
+- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
+- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
+- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
+
+### `2026-10-06` — Telegram config entry and automatic setup defaults
+
+- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
+- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
+- **Contracts changed:** None; existing routes and per-bot setup are reused.
+
+### `2026-10-06` — Telegram on the native composer and message components
+
+- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
+- **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.

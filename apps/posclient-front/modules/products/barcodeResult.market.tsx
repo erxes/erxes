@@ -8,6 +8,7 @@ import { useAtom, useSetAtom } from "jotai"
 import { Loader2 } from "lucide-react"
 
 import { IProduct } from "@/types/product.types"
+import { richTextToPlainText } from "@/lib/richText"
 import { formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -68,7 +69,7 @@ const BarcodeResult = () => {
           {products.map((product: IProduct) => (
             <Button
               key={product._id}
-              className="justify-between text-left"
+              className="h-auto justify-between gap-3 whitespace-normal py-3 text-left"
               variant="outline"
               onClick={() => {
                 handleAddToCart(product)
@@ -76,7 +77,14 @@ const BarcodeResult = () => {
               }}
             >
               <div className="flex-1">
-                {product.code + " - " + product.name}
+                <div>{product.code + " - " + product.name}</div>
+                {!!(product.barcodeDescription || product.description) && (
+                  <div className="mt-1 text-xs font-normal text-muted-foreground">
+                    {richTextToPlainText(
+                      product.barcodeDescription || product.description
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex-none">{formatNum(product.unitPrice)}₮</div>
             </Button>
