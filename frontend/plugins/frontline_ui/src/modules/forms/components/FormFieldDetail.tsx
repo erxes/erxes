@@ -277,7 +277,8 @@ export const FormFieldDetail = ({
               />
             </div>
             {/* Validator Configuration */}
-            {draft.type?.startsWith('core:customer') ? null : (
+            {draft.type?.startsWith('core:customer') ||
+            draft.type?.startsWith('core:company') ? null : (
               <div className="space-y-3 col-span-2">
                 <Label>{t('validation', 'Validation')}</Label>
                 <ToggleGroup
@@ -343,24 +344,24 @@ export const FormFieldDetail = ({
                   />
                 )}
 
-                {draft.validator?.type &&
-                  draft.validator.type !== 'NONE' && (
-                    <Input
-                      value={draft.validator.errorMessage ?? ''}
-                      onChange={(e) =>
-                        handleChangeValidator({ errorMessage: e.target.value })
-                      }
-                      placeholder={t(
-                        'error-message-placeholder',
-                        'Error message shown to the user',
-                      )}
-                    />
-                  )}
+                {draft.validator?.type && draft.validator.type !== 'NONE' && (
+                  <Input
+                    value={draft.validator.errorMessage ?? ''}
+                    onChange={(e) =>
+                      handleChangeValidator({ errorMessage: e.target.value })
+                    }
+                    placeholder={t(
+                      'error-message-placeholder',
+                      'Error message shown to the user',
+                    )}
+                  />
+                )}
               </div>
             )}
 
             {(draft?.type === 'select' ||
-              draft?.type === 'select:countries') && (
+              draft?.type === 'select:countries' ||
+              draft?.type === 'core:company:industry') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
                   {t('allow-search', 'Allow search')}
@@ -393,6 +394,7 @@ export const FormFieldDetail = ({
             )}
             {(draft?.type === 'select' ||
               draft?.type === 'select:countries' ||
+              draft?.type === 'core:company:industry' ||
               draft?.type === 'radio' ||
               draft?.type === 'check' ||
               draft?.type === 'core:customer:sex') && (

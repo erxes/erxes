@@ -1,5 +1,7 @@
 import {
   IconAt,
+  IconBriefcase,
+  IconBuilding,
   IconCalendarEvent,
   IconCheck,
   IconChevronDown,
@@ -12,8 +14,11 @@ import {
   IconTextScan2,
   IconTextSize,
   IconUserCircle,
+  IconUsersGroup,
   IconWorld,
+  IconWorldWww,
 } from '@tabler/icons-react';
+import { DEFAULT_COMPANY_INDUSTRY_TYPES } from 'ui-modules/modules/contacts/constants/companyConstants';
 
 export const COUNTRIES = [
   'Afghanistan',
@@ -265,11 +270,54 @@ export const FORM_FIELD_TYPES = [
     label: 'Birth date',
     icon: <IconCalendarEvent />,
   },
+
+  {
+    value: 'core:company:primaryName',
+    label: 'Company Name',
+    icon: <IconBuilding />,
+  },
+  {
+    value: 'core:company:primaryEmail',
+    label: 'Company Email',
+    icon: <IconAt />,
+  },
+  {
+    value: 'core:company:primaryPhone',
+    label: 'Company Phone',
+    icon: <IconPhoneSpark />,
+  },
+  {
+    value: 'core:company:website',
+    label: 'Website',
+    icon: <IconWorldWww />,
+  },
+  {
+    value: 'core:company:industry',
+    label: 'Industry',
+    icon: <IconBriefcase />,
+    defaultOptions: DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean),
+    defaultAllowSearch: true,
+  },
+  {
+    value: 'core:company:size',
+    label: 'Company Size',
+    icon: <IconUsersGroup />,
+  },
+  {
+    value: 'core:company:description',
+    label: 'Company Description',
+    icon: <IconTextSize />,
+  },
+  {
+    value: 'core:company:avatar',
+    label: 'Company Logo',
+    icon: <IconUserCircle />,
+  },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];
 
-export type FormGroupKey = 'basic' | 'core:customer';
+export type FormGroupKey = 'basic' | 'core:customer' | 'core:company';
 export type GroupedFields = Record<FormGroupKey, FormFieldType[]>;
 
 export interface FormGroupMetadata {

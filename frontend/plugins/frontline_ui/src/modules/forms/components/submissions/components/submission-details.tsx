@@ -48,11 +48,16 @@ const SubmissionFieldDisplay = ({
   const { t } = useTranslation('frontline');
   const { formFieldType } = item;
 
-  if (formFieldType === 'core:customer:avatar') {
+  if (
+    formFieldType === 'core:customer:avatar' ||
+    formFieldType === 'core:company:avatar'
+  ) {
     return (
       <Avatar size="xl">
         <Avatar.Image
-          src={readImage(decodeURIComponent(String(value ?? '')))}
+          src={readImage(
+            decodeURIComponent(parseFilesAsAttachments(value)[0]?.url ?? ''),
+          )}
           alt="avatar"
         />
         <Avatar.Fallback>C</Avatar.Fallback>

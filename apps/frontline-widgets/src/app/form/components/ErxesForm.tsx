@@ -331,6 +331,7 @@ export const ErxesForm = ({
 
                   if (
                     erxesField.type === 'select' ||
+                    erxesField.type === 'core:company:industry' ||
                     erxesField.allowSearch === true
                   ) {
                     if (erxesField.allowSearch) {
@@ -498,8 +499,8 @@ export const ErxesForm = ({
                           <Upload.Root
                             value={
                               Array.isArray(field.value)
-                                ? field.value[field.value.length - 1] ?? ''
-                                : field.value ?? ''
+                                ? (field.value[field.value.length - 1] ?? '')
+                                : (field.value ?? '')
                             }
                             onChange={(fileInfo) => {
                               if (typeof fileInfo === 'string') {
@@ -550,7 +551,10 @@ export const ErxesForm = ({
                       </ErxesFormItem>
                     );
                   }
-                  if (erxesField.type === 'core:customer:avatar') {
+                  if (
+                    erxesField.type === 'core:customer:avatar' ||
+                    erxesField.type === 'core:company:avatar'
+                  ) {
                     return (
                       <ErxesFormItem span={erxesField.column}>
                         <Form.Label className="text-widget-label">
@@ -561,12 +565,16 @@ export const ErxesForm = ({
                         </Form.Label>
                         <Form.Control>
                           <Upload.Root
-                            value={field.value}
+                            value={field.value?.url ?? ''}
                             onChange={(fileInfo) => {
-                              if (typeof fileInfo === 'string') {
-                                field.onChange('');
-                              } else if ('url' in fileInfo) {
-                                field.onChange(fileInfo.url);
+                              if (
+                                typeof fileInfo !== 'string' &&
+                                'url' in fileInfo &&
+                                fileInfo.url
+                              ) {
+                                field.onChange({ url: fileInfo.url });
+                              } else {
+                                field.onChange(null);
                               }
                             }}
                           >
