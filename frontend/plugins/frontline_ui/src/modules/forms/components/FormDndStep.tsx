@@ -10,10 +10,12 @@ import { Button, InfoCard, Input, Label, Textarea } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react';
 import { AddField, FormDndField } from './FormDndField';
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
   const { t } = useTranslation('frontline');
+  const titleInputId = useId();
   const { fields, steps, handleChangeStepValue, getStepValue } = useFormDnd();
   const stepFields = fields[step];
   const { attributes, listeners, setNodeRef, transition, transform } =
@@ -33,32 +35,43 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
       ref={setNodeRef}
       className="p-0 relative gap-0"
     >
-      <div className="flex items-center p-4 pb-0 gap-2">
+      <div className="px-4 pt-4 space-y-2">
         {isMultipleSteps && (
-          <Input
-            value={getStepValue(step).name}
-            className="w-1/3"
-            onChange={(e) =>
-              handleChangeStepValue(step, 'name', e.target.value)
-            }
-          />
+          <Label htmlFor={titleInputId}>{t('title-label', 'Title')}</Label>
         )}
-        <AddField step={step} />
-        {isMultipleSteps && (
-          <>
-            <Button variant="ghost" size="icon" {...attributes} {...listeners}>
-              <IconGripVertical />
-            </Button>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="bg-destructive/10 text-destructive hover:bg-destructive/20"
-              onClick={() => removeStep(step)}
-            >
-              <IconTrash />
-            </Button>
-          </>
-        )}
+        <div className="flex items-center gap-2">
+          {isMultipleSteps && (
+            <Input
+              id={titleInputId}
+              value={getStepValue(step).name}
+              className="w-1/2 text-ellipsis"
+              onChange={(e) =>
+                handleChangeStepValue(step, 'name', e.target.value)
+              }
+            />
+          )}
+          <AddField step={step} />
+          {isMultipleSteps && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                {...attributes}
+                {...listeners}
+              >
+                <IconGripVertical />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="bg-destructive/10 text-destructive hover:bg-destructive/20"
+                onClick={() => removeStep(step)}
+              >
+                <IconTrash />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
       {isMultipleSteps && (
         <div className="mx-4 mt-4 w-auto space-y-2">

@@ -2,7 +2,7 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
-import { Button, cn, DropdownMenu } from 'erxes-ui';
+import { Button, cn, DropdownMenu, Input } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
   IconCheck,
@@ -27,7 +27,7 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +40,9 @@ export const FormDndField = ({
   step: UniqueIdentifier;
 }) => {
   const [open, setOpen] = useState(false);
+  const [isEditingLabel, setIsEditingLabel] = useState(false);
+  const [labelDraft, setLabelDraft] = useState('');
+  const isLabelEditCancelled = useRef(false);
   const { setNodeRef, listeners, isDragging, transform, transition } =
     useSortable({
       id: field,
@@ -49,6 +52,21 @@ export const FormDndField = ({
   const mounted = useMountStatus();
 
   const mountedWhileDragging = isDragging && !mounted;
+
+  const startLabelEdit = () => {
+    isLabelEditCancelled.current = false;
+    setLabelDraft(fieldData?.label ?? '');
+    setIsEditingLabel(true);
+  };
+
+  const finishLabelEdit = () => {
+    setIsEditingLabel(false);
+    const label = labelDraft.trim();
+    if (isLabelEditCancelled.current || !fieldData || !label) return;
+    if (label !== fieldData.label) {
+      handleChangeField(step, field, { ...fieldData, label });
+    }
+  };
 
   // const handleChangeSpan = (span: number) => {
   //   fieldData &&
@@ -71,7 +89,31 @@ export const FormDndField = ({
         {...listeners}
       >
         <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
-        <span className="truncate min-w-0">{fieldData?.label}</span>
+        {isEditingLabel ? (
+          <Input
+            autoFocus
+            value={labelDraft}
+            className="h-6 min-w-0 flex-1 px-1"
+            onChange={(e) => setLabelDraft(e.target.value)}
+            onBlur={finishLabelEdit}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.nativeEvent.isComposing) return;
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              } else if (e.key === 'Escape') {
+                isLabelEditCancelled.current = true;
+                e.currentTarget.blur();
+              }
+            }}
+          />
+        ) : (
+          <span className="truncate min-w-0" onDoubleClick={startLabelEdit}>
+            {fieldData?.label}
+          </span>
+        )}
         <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
