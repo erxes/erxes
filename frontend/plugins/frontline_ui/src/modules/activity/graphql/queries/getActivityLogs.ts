@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_ACTIVITIES = gql`
+export const GET_ACTIVITIES = gql(`
   query getTicketActivities(
     $contentId: String!
     $cursor: String
@@ -46,4 +46,4 @@ export const GET_ACTIVITIES = gql`
       totalCount
     }
   }
-`;
+`);

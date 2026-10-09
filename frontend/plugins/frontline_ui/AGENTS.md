@@ -2159,8 +2159,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
-  `knowledgebase`, `helpcenter`, `forms`, and the Facebook, Instagram and
-  knowledge base automation widgets) writes every document as
+  `knowledgebase`, `helpcenter`, `forms`, `activity`, and the Facebook,
+  Instagram and knowledge base automation widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2227,6 +2227,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `compactList`, page info with `toCursorPageInfo`, and merge `fetchMore`
   pages with `mergeCursorList`. Delete the adapter once the shared `PageInfo`
   is non-null.
+- Ticket activities stream through `useSubscription(ACTIVITY_CHANGED)` with
+  `ignoreResults`: `created` appends to the `getTicketActivities` cache entry
+  and bumps `totalCount`, `removed` evicts the `TicketActivity` and lowers
+  it, and `updated` lands through the normalized cache. `IActivity`, `INote`,
+  `ITicketNoteAttachment`, `ITicketNoteMailDelivery` and `ITicketReplyTarget`
+  are derived from the activity and note documents; a read-only note renders
+  its stored attachments with their nullable fields rather than as
+  `IAttachment`.
 - Form `leadData` stays `JSON` (the frontline widgets read it too); the form
   UI reads it only through `LEAD_DATA_SCHEMA`, whose every leaf falls back on
   its own so a malformed value never drops the rest of a form. `IForm` is a

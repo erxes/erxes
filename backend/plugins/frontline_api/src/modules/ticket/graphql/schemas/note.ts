@@ -1,6 +1,6 @@
 export const types = `
     type TicketNote {
-        _id: String
+        _id: String!
         content: String
         contentId: String
         createdBy: String

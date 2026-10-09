@@ -20,7 +20,8 @@ export const ActivityStatus = ({
   metadata: IActivity['metadata'];
 }) => {
   const { t } = useTranslation('frontline');
-  const { previousValue, newValue } = metadata;
+  const previousValue = metadata?.previousValue;
+  const newValue = metadata?.newValue;
   const contentDetail = useActivityListContext();
 
   const { statuses } = useGetAccessibleTicketStatuses({
@@ -61,9 +62,9 @@ export const ActivityStatus = ({
   return (
     <div className="flex items-center gap-1">
       {t('changed-status', 'changed status')}
-      {renderStatusBadge(previousValue)}
+      {renderStatusBadge(previousValue ?? undefined)}
       {t('to', 'to')}
-      {renderStatusBadge(newValue)}
+      {renderStatusBadge(newValue ?? undefined)}
     </div>
   );
 };

@@ -604,6 +604,10 @@ The root router mounts its authenticated webhook at `/telegram`.
   config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- GraphQL ticket activity and notes: `TicketActivity._id` and `TicketNote._id`
+  are non-null — every activity list, subscription payload, and note query or
+  mutation (`ticketGetNote`, `ticketCreateNote`, `mailTicketNoteRetry`)
+  resolves a stored document.
 - GraphQL knowledge base: `KnowledgeBaseCategory._id` and
   `KnowledgeBaseParentCategory._id` are non-null — every category field
   (`categories`, `parentCategories`, `childrens`, list, detail, add, edit)
