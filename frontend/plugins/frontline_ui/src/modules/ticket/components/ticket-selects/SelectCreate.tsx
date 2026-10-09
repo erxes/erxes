@@ -46,8 +46,6 @@ export const SelectCreateContainer = ({
 }) => {
   const { t } = useTranslation('frontline');
 
-  // The select lives inside the ticket form, and React bubbles submit events
-  // through portals, so the nested form must not reach the outer one.
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
