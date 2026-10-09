@@ -21,7 +21,7 @@ export const useDocumentComments = (): {
   const currentUser = useAtomValue(currentUserState);
   const { hasActionPermission } = usePermissionCheck();
   const canEdit = hasActionPermission('manageDocuments');
-  const { setValue } = useFormContext<FormType>();
+  const { getValues, setValue } = useFormContext<FormType>();
   const threadStore = useMemo(
     () =>
       new DocumentThreadStore(canEdit ? currentUser?._id || '' : '', canEdit),
@@ -65,10 +65,13 @@ export const useDocumentComments = (): {
 
   const connectEditor = useCallback(
     (editor: IBlockEditor): (() => void) => {
-      const updateComments = () =>
-        setValue('commentData', threadStore.serialize(editor), {
+      const updateComments = () => {
+        const commentData = threadStore.serialize(editor);
+        if (getValues('commentData') === commentData) return;
+        setValue('commentData', commentData, {
           shouldDirty: true,
         });
+      };
       threadStore.onMutation = () => {
         updateComments();
         toast({
@@ -82,7 +85,7 @@ export const useDocumentComments = (): {
         threadStore.onMutation = undefined;
       };
     },
-    [setValue, threadStore],
+    [getValues, setValue, threadStore],
   );
 
   return { threadStore, resolveUsers, connectEditor };

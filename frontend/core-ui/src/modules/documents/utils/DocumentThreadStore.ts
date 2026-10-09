@@ -276,6 +276,7 @@ export class DocumentThreadStore extends ThreadStore {
 
   serialize(editor: CommentEditor): string {
     const anchors: CommentAnchor[] = [];
+    const lastAnchors = new Map<string, CommentAnchor>();
     editor.prosemirrorView?.state.doc.descendants((node, from) => {
       node.marks.forEach((mark) => {
         const threadId: unknown = mark.attrs.threadId;
@@ -284,12 +285,14 @@ export class DocumentThreadStore extends ThreadStore {
           typeof threadId === 'string' &&
           this.threads.has(threadId)
         ) {
-          const last = anchors[anchors.length - 1];
+          const last = lastAnchors.get(threadId);
           const to = from + node.nodeSize;
-          if (last && last.threadId === threadId && last.to === from) {
+          if (last && last.to === from) {
             last.to = to;
           } else {
-            anchors.push({ threadId, from, to });
+            const anchor = { threadId, from, to };
+            anchors.push(anchor);
+            lastAnchors.set(threadId, anchor);
           }
         }
       });

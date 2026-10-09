@@ -193,7 +193,7 @@ const DocumentContentEditor = ({
       (loadedDocument.current?.id === document._id &&
         loadedDocument.current.editor === editor)
     )
-      return;
+      return undefined;
     const content = document.content || '';
     let cancelled = false;
 

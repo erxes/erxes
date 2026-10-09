@@ -232,8 +232,9 @@ const CommentPopoverContent = ({
   </Popover.Content>
 );
 
-const NativeCommentComponentsContext =
-  createContext<ReturnType<typeof useComponentsContext>>(undefined);
+const NativeCommentComponentsContext = createContext<ReturnType<
+  typeof useComponentsContext
+> | null>(null);
 
 /** Render a native reaction badge with the document tooltip and selection styling. */
 const CommentBadge = forwardRef<
