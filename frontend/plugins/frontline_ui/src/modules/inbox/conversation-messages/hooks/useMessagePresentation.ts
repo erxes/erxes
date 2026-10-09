@@ -61,9 +61,9 @@ export const useMessagePresentation = (): MessagePresentationState => {
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER ||
       telegramAuthor) &&
-      !userId &&
-      (customerId || telegramAuthor) &&
-      separatePrevious,
+    !userId &&
+    (customerId || telegramAuthor) &&
+    separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;

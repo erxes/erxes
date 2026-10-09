@@ -17,9 +17,8 @@ export const authorizeConversationAccess = async (
     return;
   }
 
-  const conversation = await models.Conversations.getConversation(
-    conversationId,
-  );
+  const conversation =
+    await models.Conversations.getConversation(conversationId);
   const integration = await models.Integrations.findOne({
     _id: conversation.integrationId,
     isActive: { $ne: false },
