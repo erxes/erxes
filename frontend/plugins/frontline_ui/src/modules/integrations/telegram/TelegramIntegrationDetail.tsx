@@ -30,7 +30,6 @@ import {
   TELEGRAM_UPDATE_BOT,
   TELEGRAM_WEBHOOK_INFO,
   type TelegramBot,
-  type TelegramWebhookInfo,
 } from './graphql';
 import { useTelegramTranslation } from './translations';
 import {
@@ -88,7 +87,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   const [progress, setProgress] = useState<'saved' | 'linked' | undefined>();
   const defaultAddress = getTelegramDefaultServerAddress(REACT_APP_API_URL);
   const [showAddress, setShowAddress] = useState(!defaultAddress);
-  const botsQuery = useQuery<{ telegramBots: TelegramBot[] }>(TELEGRAM_BOTS, {
+  const botsQuery = useQuery(TELEGRAM_BOTS, {
     fetchPolicy: 'cache-and-network',
   });
   const form = useForm<SetupValues>({
@@ -111,14 +110,11 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
           : item._id === chosenId,
     ) ?? savedBot;
   const needsLink = !bot?.erxesApiId;
-  const statusQuery = useQuery<{ telegramBotWebhookInfo: TelegramWebhookInfo }>(
-    TELEGRAM_WEBHOOK_INFO,
-    {
-      variables: { _id: bot?._id ?? '' },
-      skip: !bot?.erxesApiId,
-      fetchPolicy: 'network-only',
-    },
-  );
+  const statusQuery = useQuery(TELEGRAM_WEBHOOK_INFO, {
+    variables: { _id: bot?._id ?? '' },
+    skip: !bot?.erxesApiId,
+    fetchPolicy: 'network-only',
+  });
   const status = statusQuery.data?.telegramBotWebhookInfo;
   useEffect(() => {
     if (status && !form.getFieldState('url').isDirty)
@@ -129,18 +125,10 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
           : (defaultAddress ?? ''),
       );
   }, [status, defaultAddress, form]);
-  const [addBot] = useMutation<{ telegramAddBot: TelegramBot }>(
-    TELEGRAM_ADD_BOT,
-  );
-  const [updateBot] = useMutation<{ telegramUpdateBot: TelegramBot }>(
-    TELEGRAM_UPDATE_BOT,
-  );
-  const [register] = useMutation<{ telegramSetWebhook: boolean }>(
-    TELEGRAM_SET_WEBHOOK,
-  );
-  const [disconnect] = useMutation<{ telegramDisconnectBot: boolean }>(
-    TELEGRAM_DISCONNECT,
-  );
+  const [addBot] = useMutation(TELEGRAM_ADD_BOT);
+  const [updateBot] = useMutation(TELEGRAM_UPDATE_BOT);
+  const [register] = useMutation(TELEGRAM_SET_WEBHOOK);
+  const [disconnect] = useMutation(TELEGRAM_DISCONNECT);
   const [addIntegration] = useMutation<{
     integrationsCreateExternalIntegration: { _id: string };
   }>(ADD_INTEGRATION);

@@ -581,6 +581,10 @@ The root router mounts its authenticated webhook at `/telegram`.
   the existing content/attachment/poll contracts plus `extraData.telegram`.
   `telegramDisconnectBot` pauses locally before provider cleanup; its Boolean
   reports whether remote webhook removal was confirmed.
+  `telegramMessageLinkPreviews` returns `[TelegramLinkPreview!]!` (`type`,
+  `url`, `title`, optional `description`, `provider { name }`, optional
+  `image { url }`), never `JSON`; it is `[]` when the message is missing,
+  internal, outside the user's visible channels, or has no links.
 
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,

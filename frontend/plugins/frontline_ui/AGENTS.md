@@ -1018,6 +1018,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   Immediate refs must account for rapid selections before the next render.
 - Cloudflare Stream players use the validated cross-origin host and a sandbox
   permitting scripts, their own origin and presentation, without top navigation.
+- Telegram bot reads and saves share the `frontlineTelegramBotFields`
+  fragment in `integrations/telegram/graphql.ts`, spread by name.
+  `TelegramBot`, `TelegramWebhookInfo` and `TelegramChat` derive from the
+  generated query types. Link cards select the `TelegramLinkPreview` fields and
+  map them to the inbox `IMessageEmbed`, turning a null `description` or
+  `image` into `undefined`. Setup still passes a type argument to the
+  integrations `ADD_INTEGRATION` mutation, which is not a `gql()` document yet.
 - Telegram suppresses automatic response-template suggestions while typing;
   the explicit template selector remains available. Preserve other providers'
   composer behavior, Facebook partial-delivery recovery, Instagram error
@@ -2163,9 +2170,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
-  `integrations/erxes-messenger`, the Facebook and Instagram settings (config,
-  repair, page post), and the Facebook, Instagram and knowledge base
-  automation widgets) writes every document as
+  `integrations/erxes-messenger`, `integrations/telegram`, the Facebook and
+  Instagram settings (config, repair, page post), and the Facebook, Instagram
+  and knowledge base automation widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
