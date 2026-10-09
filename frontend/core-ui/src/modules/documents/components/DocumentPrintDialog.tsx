@@ -1,6 +1,8 @@
 import { IconPrinter } from '@tabler/icons-react';
-import { Button, Dialog } from 'erxes-ui';
+import { Button, Combobox, Command, Dialog, Popover, Spinner } from 'erxes-ui';
 import { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+import { useGlobalSearch } from '@/search/hooks/useGlobalSearch';
 import {
   PrintDocument,
   SelectCompany,
@@ -17,12 +19,99 @@ const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
   'core:product': 'Product',
   'core:user': 'Team member',
   'core:broadcast': 'Customer',
+  'operation:task': 'Task',
 };
 
 type ReplacerValue = string | string[] | null;
 
 function getReplacerId(value: ReplacerValue) {
   return Array.isArray(value) ? value[0] || '' : value || '';
+}
+
+/** Select a task through the plugin's existing search provider and pagination. */
+function DocumentTaskSelect({
+  value,
+  onValueChange,
+}: Readonly<{
+  value: string;
+  onValueChange: (value: string) => void;
+}>) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [label, setLabel] = useState('');
+  const [query] = useDebounce(search.trim(), 300);
+  const { groups, loading, hasFailure, refetch, loadMore } = useGlobalSearch(
+    query.length >= 2 ? `Tasks ${query}` : '',
+    'newest',
+  );
+  const tasks = groups.find((group) => group.key === 'operation-tasks');
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>
+        <Button variant="outline" className="w-full justify-start">
+          {value ? label || value : 'Select a task'}
+        </Button>
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search tasks..."
+          />
+          <Command.List>
+            {loading && <Spinner />}
+            {hasFailure && (
+              <div role="alert" className="p-2 text-sm text-destructive">
+                Could not load tasks.{' '}
+                <Button
+                  variant="link"
+                  onClick={async () => {
+                    try {
+                      await refetch();
+                    } catch {
+                      return;
+                    }
+                  }}
+                >
+                  Retry
+                </Button>
+              </div>
+            )}
+            {!loading && !hasFailure && (
+              <Command.Empty>
+                {query.length < 2
+                  ? 'Type at least two characters to find a task.'
+                  : 'No tasks found.'}
+              </Command.Empty>
+            )}
+            {tasks?.items.map((task) => (
+              <Command.Item
+                key={task.id}
+                value={task.id}
+                onSelect={() => {
+                  setLabel(task.title);
+                  onValueChange(task.id);
+                  setOpen(false);
+                }}
+              >
+                {task.title}
+              </Command.Item>
+            ))}
+            {tasks?.pageInfo.hasNextPage && (
+              <Button
+                variant="ghost"
+                disabled={tasks.loadingMore}
+                onClick={() => loadMore(tasks.key)}
+              >
+                Load more
+              </Button>
+            )}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
 }
 
 function DocumentReplacerSelect({
@@ -39,6 +128,8 @@ function DocumentReplacerSelect({
   }
 
   switch (contentType) {
+    case 'operation:task':
+      return <DocumentTaskSelect value={value} onValueChange={onValueChange} />;
     case 'core:contact.customer':
     case 'core:broadcast':
       return (

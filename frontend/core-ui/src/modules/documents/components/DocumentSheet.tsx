@@ -32,6 +32,7 @@ export const DocumentSheet = () => {
 
   const hasChanges = formState.isDirty;
 
+  /** Reset the form before opening a new template with its selected type. */
   const createDocument = (nextType: string): boolean => {
     resetForm({
       name: '',

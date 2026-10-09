@@ -11,7 +11,16 @@ export const documentMutations = {
     await checkPermission('manageDocuments');
 
     const { _id, ...doc } = params;
-    validateDocumentCommentData(doc.commentData);
+    if (doc.commentData) {
+      const existing = _id
+        ? await models.Documents.getDocument({ _id, user, action: 'edit' })
+        : null;
+      validateDocumentCommentData(
+        doc.commentData,
+        user._id,
+        existing?.commentData,
+      );
+    }
 
     return await models.Documents.saveDocument({
       _id,

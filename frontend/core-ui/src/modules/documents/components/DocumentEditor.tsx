@@ -184,25 +184,42 @@ const DocumentContentEditor = ({
   threadStore: DocumentThreadStore;
 }) => {
   const { control, setValue } = useFormContext<FormType>();
+  const loadedDocument = useRef<{ id: string; editor: IBlockEditor }>();
 
   useEffect(() => {
-    const content = document?.content;
-    if (!content || !editor) return;
+    if (
+      !document ||
+      !editor ||
+      (loadedDocument.current?.id === document._id &&
+        loadedDocument.current.editor === editor)
+    )
+      return;
+    const content = document.content || '';
+    let cancelled = false;
 
     const loadInitialContent = async () => {
-      let blocks: StoredDocumentBlock[];
+      let blocks: StoredDocumentBlock[] = [];
 
-      try {
-        blocks = JSON.parse(content);
-      } catch {
+      if (content) {
         try {
-          blocks = await editor.tryParseHTMLToBlocks(content);
+          blocks = JSON.parse(content);
         } catch {
-          blocks = await editor.tryParseMarkdownToBlocks(content);
+          try {
+            blocks = await editor.tryParseHTMLToBlocks(content);
+          } catch {
+            blocks = await editor.tryParseMarkdownToBlocks(content);
+          }
         }
       }
 
-      editor.replaceBlocks(editor.document, normalizeDocumentBlocks(blocks));
+      if (cancelled) return;
+      editor.replaceBlocks(
+        editor.document,
+        blocks.length
+          ? normalizeDocumentBlocks(blocks)
+          : [{ type: 'paragraph' }],
+      );
+      loadedDocument.current = { id: document._id, editor };
       try {
         threadStore.load(document?.commentData, editor);
         setValue('commentData', threadStore.serialize(editor));
@@ -216,8 +233,19 @@ const DocumentContentEditor = ({
       }
     };
 
-    loadInitialContent();
-  }, [document?.content, document?.commentData, editor, threadStore, setValue]);
+    loadInitialContent().catch((error: unknown) => {
+      if (!cancelled)
+        toast({
+          title: 'Could not load document',
+          description:
+            error instanceof Error ? error.message : 'Please try again.',
+          variant: 'destructive',
+        });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [document, editor, threadStore, setValue]);
 
   return (
     <Controller

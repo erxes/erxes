@@ -2,6 +2,7 @@ import { Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDocuments } from '../hooks/useDocuments';
 
+/** Display the filtered list total using the existing records-found label. */
 export function DocumentsTotalCount() {
   const { totalCount, loading, hasError } = useDocuments();
   const { t } = useTranslation();

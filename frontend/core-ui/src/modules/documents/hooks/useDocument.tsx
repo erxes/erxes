@@ -5,13 +5,14 @@ import {
   useQuery,
 } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormType } from './useDocumentForm';
 import { IDocument } from '../types';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
+/** Load and save the selected document while keeping its form and list current. */
 export const useDocument = (): {
   document: IDocument | null;
   documentId: string | undefined;
@@ -39,19 +40,24 @@ export const useDocument = (): {
     skip: !cleanDocumentId,
   });
 
-  const document = data?.documentsDetail || null;
+  const hydratedDocumentId = useRef<string>();
+  const document =
+    data?.documentsDetail && data.documentsDetail._id === cleanDocumentId
+      ? data.documentsDetail
+      : null;
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   useEffect(() => {
-    if (data?.documentsDetail) {
-      const fields = data.documentsDetail;
+    if (document && hydratedDocumentId.current !== document._id) {
+      const fields = document;
 
       setValue('name', fields.name || '');
       setValue('content', fields.content || '');
       setValue('contentType', fields.contentType);
       setValue('commentData', fields.commentData || '');
+      hydratedDocumentId.current = fields._id;
     }
-  }, [data, setValue]);
+  }, [document, setValue]);
 
   const [saveDocument, { loading: saving }] = useMutation<{
     documentsSave: IDocument | null;
@@ -76,7 +82,13 @@ export const useDocument = (): {
       onCompleted: (data) => {
         const savedDocument = data.documentsSave;
         if (savedDocument) {
-          reset(document);
+          const hasNewEdits = (
+            ['name', 'content', 'contentType', 'commentData'] as const
+          ).some((field) => getValues(field) !== document[field]);
+          reset(
+            document,
+            hasNewEdits ? { keepValues: true, keepDirty: true } : undefined,
+          );
           if (!cleanDocumentId) {
             setTimeout(() => {
               setDocumentId(savedDocument._id);

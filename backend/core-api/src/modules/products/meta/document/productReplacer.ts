@@ -125,11 +125,11 @@ export const buildProductReplacer = async ({
     if (path === 'barcode') {
       const width = Math.min(
         600,
-        Math.max(1, typeof props.width === 'number' ? props.width : 150),
+        Math.max(1, typeof props.width === 'number' ? props.width : 300),
       );
       const height = Math.min(
         300,
-        Math.max(1, typeof props.height === 'number' ? props.height : 50),
+        Math.max(1, typeof props.height === 'number' ? props.height : 100),
       );
       const barcode = generateBarcodeSvg(barcodeValue || '123456789012', {
         width,

@@ -21,11 +21,13 @@ import { cn } from 'erxes-ui/lib';
 import { toast } from 'erxes-ui';
 import type { IBlockEditor } from 'erxes-ui';
 import {
+  createContext,
   forwardRef,
   type ForwardRefExoticComponent,
   memo,
   ReactNode,
   type RefAttributes,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -34,6 +36,7 @@ import {
 
 const Composer = memo(FloatingComposer);
 
+/** Identify portaled comment controls so outside clicks keep their thread open. */
 export const isDocumentCommentOverlay = (target: EventTarget | null): boolean =>
   target instanceof Element &&
   Boolean(target.closest('.document-comments-overlay'));
@@ -125,6 +128,7 @@ const CommentAction = forwardRef<
 );
 CommentAction.displayName = 'DocumentCommentAction';
 
+/** Apply the document card layout to floating discussions and the sidebar. */
 const CommentCard = ({
   className,
   headerText,
@@ -154,6 +158,7 @@ const CommentCard = ({
   </Card>
 );
 
+/** Arrange the author, timestamp and native comment actions in a compact row. */
 const CommentFrame = ({
   authorInfo,
   timeString,
@@ -194,6 +199,7 @@ const CommentFrame = ({
   );
 };
 
+/** Reuse the platform popover for native reaction and comment controls. */
 const CommentPopover = ({
   opened,
   children,
@@ -209,6 +215,7 @@ const CommentPopoverTrigger = forwardRef<
   </Popover.Trigger>
 ));
 CommentPopoverTrigger.displayName = 'DocumentCommentPopoverTrigger';
+/** Place comment popovers above the editor without stealing its selection. */
 const CommentPopoverContent = ({
   children,
   className,
@@ -225,6 +232,63 @@ const CommentPopoverContent = ({
   </Popover.Content>
 );
 
+const NativeCommentComponentsContext =
+  createContext<ReturnType<typeof useComponentsContext>>(undefined);
+
+/** Render a native reaction badge with the document tooltip and selection styling. */
+const CommentBadge = forwardRef<
+  HTMLButtonElement,
+  NativeComponentProps['Generic']['Badge']['Root']
+>(({ mainTooltip, secondaryTooltip, ...props }, ref) => {
+  const native = useContext(NativeCommentComponentsContext);
+  if (!native) return null;
+  const NativeBadge = native.Generic.Badge.Root as ForwardRefExoticComponent<
+    NativeComponentProps['Generic']['Badge']['Root'] &
+      RefAttributes<HTMLButtonElement>
+  >;
+  const badge = (
+    <NativeBadge
+      {...props}
+      ref={ref}
+      className={cn(
+        props.className,
+        props.isSelected && 'border! border-[var(--comment-primary)]!',
+      )}
+    />
+  );
+  return mainTooltip ? (
+    <Tooltip>
+      <Tooltip.Trigger asChild>{badge}</Tooltip.Trigger>
+      <Tooltip.Content className="z-[7000]">
+        {mainTooltip}
+        {secondaryTooltip && <span>{secondaryTooltip}</span>}
+      </Tooltip.Content>
+    </Tooltip>
+  ) : (
+    badge
+  );
+});
+CommentBadge.displayName = 'DocumentCommentBadge';
+
+/** Keep native comment menus above the thread while using the document theme. */
+const CommentMenuDropdown = (
+  props: NativeComponentProps['Generic']['Menu']['Dropdown'],
+) => {
+  const native = useContext(NativeCommentComponentsContext);
+  if (!native) return null;
+  const NativeMenuDropdown = native.Generic.Menu.Dropdown;
+  return (
+    <NativeMenuDropdown
+      {...props}
+      className={cn(
+        'document-comments-overlay z-[6000] bg-[var(--comment-background)]! text-[var(--comment-foreground)]!',
+        props.className,
+      )}
+    />
+  );
+};
+
+/** Adapt native comment components to the existing erxes UI primitives. */
 export const DocumentCommentsProvider = ({
   children,
 }: {
@@ -233,49 +297,6 @@ export const DocumentCommentsProvider = ({
   const native = useComponentsContext();
   const components = useMemo(() => {
     if (!native) return undefined;
-    const NativeBadge = native.Generic.Badge.Root as ForwardRefExoticComponent<
-      NativeComponentProps['Generic']['Badge']['Root'] &
-        RefAttributes<HTMLButtonElement>
-    >;
-    const Badge = forwardRef<
-      HTMLButtonElement,
-      NativeComponentProps['Generic']['Badge']['Root']
-    >(({ mainTooltip, secondaryTooltip, ...props }, ref) => {
-      const badge = (
-        <NativeBadge
-          {...props}
-          ref={ref}
-          className={cn(
-            props.className,
-            props.isSelected && 'border! border-[var(--comment-primary)]!',
-          )}
-        />
-      );
-      return mainTooltip ? (
-        <Tooltip>
-          <Tooltip.Trigger asChild>{badge}</Tooltip.Trigger>
-          <Tooltip.Content className="z-[7000]">
-            {mainTooltip}
-            {secondaryTooltip && <span>{secondaryTooltip}</span>}
-          </Tooltip.Content>
-        </Tooltip>
-      ) : (
-        badge
-      );
-    });
-    Badge.displayName = 'DocumentCommentBadge';
-    const NativeMenuDropdown = native.Generic.Menu.Dropdown;
-    const MenuDropdown = (
-      props: NativeComponentProps['Generic']['Menu']['Dropdown'],
-    ) => (
-      <NativeMenuDropdown
-        {...props}
-        className={cn(
-          'document-comments-overlay z-[6000] bg-[var(--comment-background)]! text-[var(--comment-foreground)]!',
-          props.className,
-        )}
-      />
-    );
     return {
       ...native,
       Comments: {
@@ -285,9 +306,9 @@ export const DocumentCommentsProvider = ({
       },
       Generic: {
         ...native.Generic,
-        Badge: { ...native.Generic.Badge, Root: Badge },
+        Badge: { ...native.Generic.Badge, Root: CommentBadge },
         Toolbar: { ...native.Generic.Toolbar, Button: CommentAction },
-        Menu: { ...native.Generic.Menu, Dropdown: MenuDropdown },
+        Menu: { ...native.Generic.Menu, Dropdown: CommentMenuDropdown },
         Popover: {
           Root: CommentPopover,
           Trigger: CommentPopoverTrigger,
@@ -297,22 +318,25 @@ export const DocumentCommentsProvider = ({
     };
   }, [native]);
   return (
-    <ComponentsContext.Provider value={components}>
-      <Tooltip.Provider>
-        <div
-          className="document-comments"
-          onBlurCapture={(event) => {
-            if (isDocumentCommentOverlay(event.relatedTarget))
-              event.stopPropagation();
-          }}
-        >
-          {children}
-        </div>
-      </Tooltip.Provider>
-    </ComponentsContext.Provider>
+    <NativeCommentComponentsContext.Provider value={native}>
+      <ComponentsContext.Provider value={components}>
+        <Tooltip.Provider>
+          <div
+            className="document-comments"
+            onBlurCapture={(event) => {
+              if (isDocumentCommentOverlay(event.relatedTarget))
+                event.stopPropagation();
+            }}
+          >
+            {children}
+          </div>
+        </Tooltip.Provider>
+      </ComponentsContext.Provider>
+    </NativeCommentComponentsContext.Provider>
   );
 };
 
+/** Show one floating composer or thread and avoid duplicating sidebar discussions. */
 export const DocumentComments = ({
   editor,
   panelOpen,
@@ -332,7 +356,7 @@ export const DocumentComments = ({
             onOpenChange: (open, event) => {
               if (open || isDocumentCommentOverlay(event?.target || null))
                 return;
-              editor.comments?.selectThread(undefined);
+              editor.comments?.selectThread(undefined, false);
               editor.focus();
             },
           }}
@@ -342,6 +366,7 @@ export const DocumentComments = ({
   );
 };
 
+/** List document discussions or explain how to create the first one. */
 export const DocumentCommentsPanel = ({ editor }: { editor: IBlockEditor }) => {
   const threads = useThreads(editor);
   return threads.size ? (

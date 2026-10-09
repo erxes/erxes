@@ -65,6 +65,7 @@ export const DocumentsFilter = () => {
   );
 };
 
+/** Apply the shared tag selector to the document list filter. */
 const DocumentTagFilter = () => {
   const [{ tagIds }, setQueries] = useMultiQueryState<DocumentFilterState>([
     'tagIds',

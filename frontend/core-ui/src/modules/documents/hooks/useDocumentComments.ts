@@ -4,7 +4,7 @@ import { IBlockEditor, readImage, toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { currentUserState, IUser } from 'ui-modules';
+import { currentUserState, IUser, usePermissionCheck } from 'ui-modules';
 import { DocumentThreadStore } from '../utils/DocumentThreadStore';
 import { FormType } from './useDocumentForm';
 
@@ -19,10 +19,13 @@ export const useDocumentComments = (): {
 } => {
   const client = useApolloClient();
   const currentUser = useAtomValue(currentUserState);
+  const { hasActionPermission } = usePermissionCheck();
+  const canEdit = hasActionPermission('manageDocuments');
   const { setValue } = useFormContext<FormType>();
   const threadStore = useMemo(
-    () => new DocumentThreadStore(currentUser?._id || ''),
-    [currentUser?._id],
+    () =>
+      new DocumentThreadStore(canEdit ? currentUser?._id || '' : '', canEdit),
+    [currentUser?._id, canEdit],
   );
 
   const resolveUsers = useCallback(

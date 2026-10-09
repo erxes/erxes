@@ -3,7 +3,7 @@ import { Button, Empty } from 'erxes-ui';
 
 type DocumentsErrorStateProps = Readonly<{
   description?: string;
-  onRetry: () => void | Promise<unknown>;
+  onRetry: () => unknown;
   title?: string;
 }>;
 

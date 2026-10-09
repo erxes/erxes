@@ -5,6 +5,7 @@ export const documents = {
   types: [{ label: 'Task', contentType: TASK_CONTENT_TYPE }],
 };
 
+/** Reuse task export headers for document attributes, including custom properties. */
 export const taskDocumentEditorAttributes = async (
   subdomain: string,
   models: IModels,

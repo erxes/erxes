@@ -34,8 +34,8 @@ export const normalizeDocumentBlocks = (
             props: {
               name: block.props?.name ?? 'Unknown',
               value: block.props?.value ?? '',
-              width: block.props?.width ?? 150,
-              height: block.props?.height ?? 50,
+              width: block.props?.width ?? 300,
+              height: block.props?.height ?? 100,
             },
           },
         ],

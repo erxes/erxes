@@ -94,7 +94,7 @@ export function DocumentsTypes() {
               <Button
                 variant="link"
                 onClick={() => {
-                  void refetch().catch(() => undefined);
+                  refetch().catch(() => undefined);
                 }}
               >
                 Retry

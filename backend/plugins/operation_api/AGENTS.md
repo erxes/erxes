@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -53,6 +53,7 @@
   counting, materialised membership on the record, and two relations from a
   team member (`user.assignedTasks`, `user.createdTasks`).
 - Task import/export through the platform's import-export producers.
+- Task document templates expose task fields and render selected tasks through `task.replaceContent`; rendering requires an authenticated acting user with `taskRead` permission and rejects missing tasks.
 - GraphQL subscriptions for live task and project updates.
 - `pnpm schema:print` writes the full subgraph schema, including the subscription fields from `src/apollo/subscription.ts`, to `generated/schema.graphql` without Redis, Mongo or a running service.
 - Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.

@@ -61,19 +61,7 @@ const BarcodeSizeControls = ({
 
   return (
     <Form {...form}>
-      <div
-        className="space-y-3"
-        onKeyDown={(event) => {
-          if (
-            event.key === 'Enter' &&
-            event.target instanceof HTMLInputElement
-          ) {
-            event.preventDefault();
-            event.stopPropagation();
-            void applySize();
-          }
-        }}
-      >
+      <div className="space-y-3">
         <span className="text-sm font-semibold">Barcode size</span>
         <div className="space-y-1">
           <Label htmlFor={presetId}>Preset (px)</Label>
@@ -126,6 +114,13 @@ const BarcodeSizeControls = ({
                   <Form.Control>
                     <Input
                       {...field}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          applySize();
+                        }
+                      }}
                       type="number"
                       min={dimension === 'width' ? MIN_WIDTH : MIN_HEIGHT}
                       max={dimension === 'width' ? MAX_WIDTH : MAX_HEIGHT}
@@ -138,11 +133,7 @@ const BarcodeSizeControls = ({
             />
           ))}
         </div>
-        <Button
-          type="button"
-          className="w-full"
-          onClick={() => void applySize()}
-        >
+        <Button type="button" className="w-full" onClick={applySize}>
           Apply size
         </Button>
       </div>

@@ -61,6 +61,7 @@ export const GET_DOCUMENTS = gql(`
           hasAccess
         }
       }
+      totalCount
       ${GQL_PAGE_INFO}
     }
   }

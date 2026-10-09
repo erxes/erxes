@@ -8,6 +8,7 @@ const documentTypeSchema = z.object({
   contentType: z.string().min(1, 'Select a document type'),
 });
 
+/** Ask for an available document type before creating or duplicating a template. */
 export function DocumentTypeDialog({
   open,
   onOpenChange,
@@ -15,14 +16,14 @@ export function DocumentTypeDialog({
   initialType = '',
   duplicating = false,
   loading = false,
-}: {
+}: Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (contentType: string) => Promise<boolean> | boolean;
   initialType?: string;
   duplicating?: boolean;
   loading?: boolean;
-}) {
+}>) {
   const {
     documentsTypes,
     loading: typesLoading,
@@ -51,7 +52,10 @@ export function DocumentTypeDialog({
         if (!pending) onOpenChange(nextOpen);
       }}
     >
-      <Dialog.Content className="max-w-md">
+      <Dialog.Content
+        className="max-w-md"
+        onClick={(event) => event.stopPropagation()}
+      >
         <Dialog.Header>
           <Dialog.Title>
             {duplicating ? 'Duplicate document' : 'Add document'}
@@ -70,7 +74,7 @@ export function DocumentTypeDialog({
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
-                  disabled={pending || typesLoading || !!error}
+                  disabled={pending || typesLoading || Boolean(error)}
                 >
                   <Form.Control>
                     <Select.Trigger>
@@ -101,7 +105,7 @@ export function DocumentTypeDialog({
               type="button"
               variant="link"
               onClick={() => {
-                void refetch().catch(() => undefined);
+                refetch().catch(() => undefined);
               }}
             >
               Retry
@@ -125,10 +129,13 @@ export function DocumentTypeDialog({
           <Button
             type="button"
             disabled={
-              pending || typesLoading || !!error || !documentsTypes.length
+              pending ||
+              typesLoading ||
+              Boolean(error) ||
+              !documentsTypes.length
             }
             onClick={() => {
-              void submit();
+              submit();
             }}
           >
             {pending && <Spinner />}

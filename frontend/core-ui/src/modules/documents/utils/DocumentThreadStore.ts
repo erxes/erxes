@@ -3,7 +3,6 @@ import type { IBlockEditor } from 'erxes-ui';
 type NativeThreadStore = NonNullable<IBlockEditor['comments']>['threadStore'];
 type ThreadData = ReturnType<NativeThreadStore['getThread']>;
 type CommentData = ThreadData['comments'][number];
-type ThreadStore = NativeThreadStore;
 type CommentEditor = Pick<IBlockEditor, 'prosemirrorView' | 'transact'>;
 
 const { ThreadStore, DefaultThreadStoreAuth } =
@@ -18,13 +17,42 @@ const { ThreadStore, DefaultThreadStoreAuth } =
 type CommentAnchor = { threadId: string; from: number; to: number };
 type DocumentComments = { threads: ThreadData[]; anchors: CommentAnchor[] };
 
+/** Restore valid timestamps without allowing invalid dates into saved comment data. */
+function parseCommentDate(value: unknown): Date {
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime()))
+    throw new TypeError('Invalid comment timestamp');
+  return date;
+}
+
+/** Persist BlockNote discussions and their text anchors in a document's JSON payload. */
 export class DocumentThreadStore extends ThreadStore {
   onMutation?: () => void;
   private threads = new Map<string, ThreadData>();
-  private listeners = new Set<(threads: Map<string, ThreadData>) => void>();
+  private readonly listeners = new Set<
+    (threads: Map<string, ThreadData>) => void
+  >();
 
-  constructor(private readonly userId: string) {
+  constructor(
+    private readonly userId: string,
+    private readonly canEdit = true,
+  ) {
     super(new DefaultThreadStoreAuth(userId, 'editor'));
+    if (!canEdit) {
+      for (const action of [
+        'canCreateThread',
+        'canAddComment',
+        'canUpdateComment',
+        'canDeleteComment',
+        'canDeleteThread',
+        'canResolveThread',
+        'canUnresolveThread',
+        'canAddReaction',
+        'canDeleteReaction',
+      ] as const) {
+        this.auth[action] = () => false;
+      }
+    }
   }
 
   addThreadToDocument = undefined;
@@ -50,7 +78,7 @@ export class DocumentThreadStore extends ThreadStore {
   }
 
   private assertAllowed(allowed: boolean): void {
-    if (!this.userId || !allowed)
+    if (!this.userId || !this.canEdit || !allowed)
       throw new Error('Not authorized to change this comment');
   }
 
@@ -68,47 +96,49 @@ export class DocumentThreadStore extends ThreadStore {
     };
   }
 
-  createThread = async (
-    options: Parameters<ThreadStore['createThread']>[0],
-  ): Promise<ThreadData> => {
-    this.assertAllowed(this.auth.canCreateThread());
-    const now = new Date();
-    const thread: ThreadData = {
-      type: 'thread',
-      id: crypto.randomUUID(),
-      createdAt: now,
-      updatedAt: now,
-      comments: [
-        this.comment(
-          options.initialComment.body,
-          options.initialComment.metadata,
-        ),
-      ],
-      resolved: false,
-      metadata: options.metadata,
-    };
-    this.threads.set(thread.id, thread);
-    this.emit();
-    return thread;
-  };
-
-  addComment = async (
-    options: Parameters<ThreadStore['addComment']>[0],
-  ): Promise<CommentData> => {
-    const thread = this.getThread(options.threadId);
-    this.assertAllowed(this.auth.canAddComment(thread));
-    const comment = this.comment(
-      options.comment.body,
-      options.comment.metadata,
-    );
-    this.threads.set(thread.id, {
-      ...thread,
-      comments: [...thread.comments, comment],
-      updatedAt: new Date(),
+  createThread = (
+    options: Parameters<NativeThreadStore['createThread']>[0],
+  ): Promise<ThreadData> =>
+    Promise.resolve().then(() => {
+      this.assertAllowed(this.auth.canCreateThread());
+      const now = new Date();
+      const thread: ThreadData = {
+        type: 'thread',
+        id: crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+        comments: [
+          this.comment(
+            options.initialComment.body,
+            options.initialComment.metadata,
+          ),
+        ],
+        resolved: false,
+        metadata: options.metadata,
+      };
+      this.threads.set(thread.id, thread);
+      this.emit();
+      return thread;
     });
-    this.emit();
-    return comment;
-  };
+
+  addComment = (
+    options: Parameters<NativeThreadStore['addComment']>[0],
+  ): Promise<CommentData> =>
+    Promise.resolve().then(() => {
+      const thread = this.getThread(options.threadId);
+      this.assertAllowed(this.auth.canAddComment(thread));
+      const comment = this.comment(
+        options.comment.body,
+        options.comment.metadata,
+      );
+      this.threads.set(thread.id, {
+        ...thread,
+        comments: [...thread.comments, comment],
+        updatedAt: new Date(),
+      });
+      this.emit();
+      return comment;
+    });
 
   private getComment(threadId: string, commentId: string): CommentData {
     const comment = this.getThread(threadId).comments.find(
@@ -130,46 +160,51 @@ export class DocumentThreadStore extends ThreadStore {
     this.emit();
   }
 
-  updateComment = async (
-    options: Parameters<ThreadStore['updateComment']>[0],
-  ): Promise<void> => {
-    const comment = this.getComment(options.threadId, options.commentId);
-    this.assertAllowed(this.auth.canUpdateComment(comment));
-    if (comment.deletedAt) throw new Error('Comment has been deleted');
-    this.replaceComment(options.threadId, {
-      ...comment,
-      ...options.comment,
-      updatedAt: new Date(),
-    });
-  };
-
-  deleteComment = async (
-    options: Parameters<ThreadStore['deleteComment']>[0],
-  ): Promise<void> => {
-    const thread = this.getThread(options.threadId);
-    this.assertAllowed(
-      this.auth.canDeleteComment(this.getComment(thread.id, options.commentId)),
-    );
-    const comments = thread.comments.filter(
-      (comment) => comment.id !== options.commentId,
-    );
-    if (comments.length) {
-      this.threads.set(thread.id, {
-        ...thread,
-        comments,
+  updateComment = (
+    options: Parameters<NativeThreadStore['updateComment']>[0],
+  ): Promise<void> =>
+    Promise.resolve().then(() => {
+      const comment = this.getComment(options.threadId, options.commentId);
+      this.assertAllowed(this.auth.canUpdateComment(comment));
+      if (comment.deletedAt) throw new Error('Comment has been deleted');
+      this.replaceComment(options.threadId, {
+        ...comment,
+        ...options.comment,
         updatedAt: new Date(),
       });
-    } else {
-      this.threads.delete(thread.id);
-    }
-    this.emit();
-  };
+    });
 
-  deleteThread = async ({ threadId }: { threadId: string }): Promise<void> => {
-    this.assertAllowed(this.auth.canDeleteThread(this.getThread(threadId)));
-    this.threads.delete(threadId);
-    this.emit();
-  };
+  deleteComment = (
+    options: Parameters<NativeThreadStore['deleteComment']>[0],
+  ): Promise<void> =>
+    Promise.resolve().then(() => {
+      const thread = this.getThread(options.threadId);
+      this.assertAllowed(
+        this.auth.canDeleteComment(
+          this.getComment(thread.id, options.commentId),
+        ),
+      );
+      const comments = thread.comments.filter(
+        (comment) => comment.id !== options.commentId,
+      );
+      if (comments.length) {
+        this.threads.set(thread.id, {
+          ...thread,
+          comments,
+          updatedAt: new Date(),
+        });
+      } else {
+        this.threads.delete(thread.id);
+      }
+      this.emit();
+    });
+
+  deleteThread = ({ threadId }: { threadId: string }): Promise<void> =>
+    Promise.resolve().then(() => {
+      this.assertAllowed(this.auth.canDeleteThread(this.getThread(threadId)));
+      this.threads.delete(threadId);
+      this.emit();
+    });
 
   private setResolved(threadId: string, resolved: boolean): void {
     const thread = this.getThread(threadId);
@@ -188,53 +223,56 @@ export class DocumentThreadStore extends ThreadStore {
     this.emit();
   }
 
-  resolveThread = async ({ threadId }: { threadId: string }): Promise<void> =>
-    this.setResolved(threadId, true);
-  unresolveThread = async ({ threadId }: { threadId: string }): Promise<void> =>
-    this.setResolved(threadId, false);
+  resolveThread = ({ threadId }: { threadId: string }): Promise<void> =>
+    Promise.resolve().then(() => this.setResolved(threadId, true));
+  unresolveThread = ({ threadId }: { threadId: string }): Promise<void> =>
+    Promise.resolve().then(() => this.setResolved(threadId, false));
 
-  addReaction = async (
-    options: Parameters<ThreadStore['addReaction']>[0],
-  ): Promise<void> => {
-    const comment = this.getComment(options.threadId, options.commentId);
-    this.assertAllowed(this.auth.canAddReaction(comment, options.emoji));
-    const existing = comment.reactions.find(
-      (reaction) => reaction.emoji === options.emoji,
-    );
-    const reactions = existing
-      ? comment.reactions.map((reaction) =>
-          reaction === existing
-            ? { ...reaction, userIds: [...reaction.userIds, this.userId] }
+  addReaction = (
+    options: Parameters<NativeThreadStore['addReaction']>[0],
+  ): Promise<void> =>
+    Promise.resolve().then(() => {
+      const comment = this.getComment(options.threadId, options.commentId);
+      const existing = comment.reactions.find(
+        (reaction) => reaction.emoji === options.emoji,
+      );
+      if (existing?.userIds.includes(this.userId)) return;
+      this.assertAllowed(this.auth.canAddReaction(comment, options.emoji));
+      const reactions = existing
+        ? comment.reactions.map((reaction) =>
+            reaction === existing
+              ? { ...reaction, userIds: [...reaction.userIds, this.userId] }
+              : reaction,
+          )
+        : [
+            ...comment.reactions,
+            {
+              emoji: options.emoji,
+              userIds: [this.userId],
+              createdAt: new Date(),
+            },
+          ];
+      this.replaceComment(options.threadId, { ...comment, reactions });
+    });
+
+  deleteReaction = (
+    options: Parameters<NativeThreadStore['deleteReaction']>[0],
+  ): Promise<void> =>
+    Promise.resolve().then(() => {
+      const comment = this.getComment(options.threadId, options.commentId);
+      this.assertAllowed(this.auth.canDeleteReaction(comment, options.emoji));
+      const reactions = comment.reactions
+        .map((reaction) =>
+          reaction.emoji === options.emoji
+            ? {
+                ...reaction,
+                userIds: reaction.userIds.filter((id) => id !== this.userId),
+              }
             : reaction,
         )
-      : [
-          ...comment.reactions,
-          {
-            emoji: options.emoji,
-            userIds: [this.userId],
-            createdAt: new Date(),
-          },
-        ];
-    this.replaceComment(options.threadId, { ...comment, reactions });
-  };
-
-  deleteReaction = async (
-    options: Parameters<ThreadStore['deleteReaction']>[0],
-  ): Promise<void> => {
-    const comment = this.getComment(options.threadId, options.commentId);
-    this.assertAllowed(this.auth.canDeleteReaction(comment, options.emoji));
-    const reactions = comment.reactions
-      .map((reaction) =>
-        reaction.emoji === options.emoji
-          ? {
-              ...reaction,
-              userIds: reaction.userIds.filter((id) => id !== this.userId),
-            }
-          : reaction,
-      )
-      .filter((reaction) => reaction.userIds.length);
-    this.replaceComment(options.threadId, { ...comment, reactions });
-  };
+        .filter((reaction) => reaction.userIds.length);
+      this.replaceComment(options.threadId, { ...comment, reactions });
+    });
 
   serialize(editor: CommentEditor): string {
     const anchors: CommentAnchor[] = [];
@@ -246,7 +284,13 @@ export class DocumentThreadStore extends ThreadStore {
           typeof threadId === 'string' &&
           this.threads.has(threadId)
         ) {
-          anchors.push({ threadId, from, to: from + node.nodeSize });
+          const last = anchors[anchors.length - 1];
+          const to = from + node.nodeSize;
+          if (last && last.threadId === threadId && last.to === from) {
+            last.to = to;
+          } else {
+            anchors.push({ threadId, from, to });
+          }
         }
       });
     });
@@ -258,25 +302,25 @@ export class DocumentThreadStore extends ThreadStore {
       ? JSON.parse(value)
       : { threads: [], anchors: [] };
     if (!Array.isArray(data.threads) || !Array.isArray(data.anchors)) {
-      throw new Error('Invalid document comments');
+      throw new TypeError('Invalid document comments');
     }
     this.threads = new Map(
       data.threads.map((thread) => [
         thread.id,
         {
           ...thread,
-          createdAt: new Date(String(thread.createdAt)),
-          updatedAt: new Date(String(thread.updatedAt)),
+          createdAt: parseCommentDate(thread.createdAt),
+          updatedAt: parseCommentDate(thread.updatedAt),
           resolvedUpdatedAt: thread.resolvedUpdatedAt
-            ? new Date(String(thread.resolvedUpdatedAt))
+            ? parseCommentDate(thread.resolvedUpdatedAt)
             : undefined,
           comments: thread.comments.map((comment) => ({
             ...comment,
-            createdAt: new Date(String(comment.createdAt)),
-            updatedAt: new Date(String(comment.updatedAt)),
+            createdAt: parseCommentDate(comment.createdAt),
+            updatedAt: parseCommentDate(comment.updatedAt),
             reactions: comment.reactions.map((reaction) => ({
               ...reaction,
-              createdAt: new Date(String(reaction.createdAt)),
+              createdAt: parseCommentDate(reaction.createdAt),
             })),
           })),
         },

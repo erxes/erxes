@@ -3,6 +3,7 @@ import { IconPrinter } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useState } from 'react';
 
+/** Open the existing record-selection and template-print workflow for a broadcast. */
 export function BroadcastPrintDocument() {
   const [open, setOpen] = useState(false);
 
