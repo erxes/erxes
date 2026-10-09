@@ -14,7 +14,7 @@ const castEvent = (id: string) =>
       ],
     },
     tags: { 'graphql.field': 'emailDeliveryDetail', service: 'core' },
-  }) as any;
+  } as any);
 
 describe('sentryFingerprint', () => {
   test('the same CastError with different ids gets ONE fingerprint', () => {
@@ -66,6 +66,9 @@ describe('sentryFingerprint', () => {
     ],
     ['user mFQSnGxoA3izrxMkE has no access', 'user <id> has no access'],
     ['sent to ops@erxes.io 3 times', 'sent to <email> <n> times'],
+    // a long local part used to be eaten by the id rule first ("<id>@x.mn"), splitting one bug per user
+    ['user averyLongUsername123@x.mn not found', 'user <email> not found'],
+    ['Field `firstName` is invalid', 'Field `<v>` is invalid'],
     ['Unexpected end of JSON input', 'Unexpected end of JSON input'],
   ])('normalizes "%s"', (input, expected) => {
     expect(normalizeErrorMessage(input)).toBe(expected);

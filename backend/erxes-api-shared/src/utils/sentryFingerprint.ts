@@ -3,10 +3,12 @@ import type * as Sentry from '@sentry/node';
 const PLACEHOLDER_ID = '<id>';
 
 export function normalizeErrorMessage(message: string): string {
+  // emails before ids: a long local part would otherwise become "<id>@host"
   return message
     .replace(/"[^"\n]*"/g, '"<v>"')
     .replace(/'[^'\n]*'/g, "'<v>'")
     .replace(/`[^`\n]*`/g, '`<v>`')
+    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '<email>')
     .replace(
       /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
       PLACEHOLDER_ID,
@@ -17,7 +19,6 @@ export function normalizeErrorMessage(message: string): string {
       (token) =>
         /[A-Za-z]/.test(token) && /\d/.test(token) ? PLACEHOLDER_ID : token,
     )
-    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '<email>')
     .replace(/\b\d+(?:\.\d+)?\b/g, '<n>')
     .replace(/\s+/g, ' ')
     .trim()

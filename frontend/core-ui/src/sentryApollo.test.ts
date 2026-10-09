@@ -88,6 +88,20 @@ describe('sentryApollo', () => {
     );
   });
 
+  test('emails and backtick-quoted values do not split one failure into many', () => {
+    expect(normalizeMessage('Email foo.bar@prius.mn is already taken')).toBe(
+      'Email <email> is already taken',
+    );
+    expect(
+      normalizeMessage(
+        'Email averyLongUsername123@example.com is already taken',
+      ),
+    ).toBe('Email <email> is already taken');
+    expect(normalizeMessage('Field `firstName` is invalid')).toBe(
+      normalizeMessage('Field `lastName` is invalid'),
+    );
+  });
+
   test('throttle: once a minute per failure, 20 per 5 minutes per page', () => {
     const t0 = 1_000_000;
     expect(shouldReport('a', t0)).toBe(true);

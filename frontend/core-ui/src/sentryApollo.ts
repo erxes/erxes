@@ -44,9 +44,12 @@ const EXPECTED_CODES = new Set([
 ]);
 
 export function normalizeMessage(message: string): string {
+  // emails before ids: a long local part would otherwise become "<id>@host"
   return message
     .replace(/"[^"\n]*"/g, '"<v>"')
     .replace(/'[^'\n]*'/g, "'<v>'")
+    .replace(/`[^`\n]*`/g, '`<v>`')
+    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '<email>')
     .replace(
       /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
       '<id>',
