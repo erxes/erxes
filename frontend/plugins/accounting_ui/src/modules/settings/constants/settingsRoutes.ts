@@ -14,6 +14,10 @@ export const SETTINGS_ROUTES = {
   '/settings/accounting/config/sync-order': 'Pos order дүрэм',
 };
 
+export const INVENTORY_SETTINGS_ROUTES = {
+  '/settings/accounting/inventories/tech-cards': 'Дамжлага',
+};
+
 export enum ACCOUNTING_SETTINGS_CODES {
   SYNC_DEAL = 'syncDeal',
   SYNC_DEAL_MOVEMENT = 'syncDealMovement',

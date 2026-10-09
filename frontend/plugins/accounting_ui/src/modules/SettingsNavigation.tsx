@@ -1,4 +1,8 @@
-import { IconAdjustmentsAlt, IconBuildingWarehouse } from '@tabler/icons-react';
+import {
+  IconAdjustmentsAlt,
+  IconBuildingWarehouse,
+  IconPackages,
+} from '@tabler/icons-react';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +23,12 @@ export const SettingsNavigation = () => {
             name="Үндсэн хөрөнгө"
             icon={IconBuildingWarehouse}
             path="/fixed-assets"
+            pathPrefix="accounting/"
+          />
+          <SettingsNavigationMenuLinkItem
+            name="Бараа материал"
+            icon={IconPackages}
+            path="/inventories"
             pathPrefix="accounting/"
           />
         </Sidebar.Menu>

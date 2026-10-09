@@ -1,6 +1,9 @@
 import { Separator, Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
-import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
+import {
+  INVENTORY_SETTINGS_ROUTES,
+  SETTINGS_ROUTES,
+} from '../constants/settingsRoutes';
 
 const FIXED_ASSET_SETTINGS_ROUTES = {
   '/settings/accounting/fixed-assets/accounts-config': 'Дансны багц',
@@ -12,6 +15,8 @@ export const AccountingSidebar = () => {
   const { pathname } = useLocation();
   const routes = pathname.startsWith('/settings/accounting/fixed-assets')
     ? FIXED_ASSET_SETTINGS_ROUTES
+    : pathname.startsWith('/settings/accounting/inventories')
+    ? INVENTORY_SETTINGS_ROUTES
     : SETTINGS_ROUTES;
 
   return (

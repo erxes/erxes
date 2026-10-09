@@ -151,6 +151,11 @@ export const CONFIG: IUIConfig = {
       icon: IconCashBanknote,
       path: 'settings/accounting/fixed-assets',
     },
+    {
+      name: 'inventory-tech-cards',
+      icon: IconFlagStar,
+      path: 'settings/accounting/inventories',
+    },
   ],
   widgets: {
     relationWidgets: [

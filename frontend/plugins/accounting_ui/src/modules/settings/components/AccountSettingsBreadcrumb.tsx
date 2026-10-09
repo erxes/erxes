@@ -2,7 +2,15 @@ import { IconCashBanknote } from '@tabler/icons-react';
 import { Button, Separator } from 'erxes-ui';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
+import {
+  INVENTORY_SETTINGS_ROUTES,
+  SETTINGS_ROUTES,
+} from '../constants/settingsRoutes';
+
+const routes = { ...SETTINGS_ROUTES, ...INVENTORY_SETTINGS_ROUTES };
+
+const routeLabel = (pathname: string) =>
+  routes[pathname as keyof typeof routes] || '';
 
 export const AccountSettingsBreadcrumb = () => {
   const { t } = useTranslation('accounting');
@@ -11,11 +19,13 @@ export const AccountSettingsBreadcrumb = () => {
     <>
       <Button variant="ghost" className="font-semibold">
         <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
-        {t('accounting-settings')}
+        {pathname.startsWith('/settings/accounting/inventories')
+          ? 'Бараа материал'
+          : t('accounting-settings')}
       </Button>
       <Separator.Inline />
       <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES]}
+        {routeLabel(pathname)}
       </Button>
     </>
   );
