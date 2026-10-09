@@ -37,17 +37,22 @@ type EditorBlock = ReturnType<
   BlockEditorProps['editor']['getTextCursorPosition']
 >['block'];
 
-const isEmptyBlock = (block?: EditorBlock) =>
-  !!block &&
-  Array.isArray(block.content) &&
-  !block.content.length &&
-  !block.children?.length;
+const isEmptyBlock = (block?: EditorBlock) => {
+  if (!block) {
+    return false;
+  }
+
+  return (
+    Array.isArray(block.content) &&
+    !block.content.length &&
+    !block.children?.length
+  );
+};
 
 export const BlockEditor = ({
   editor,
   onFocus,
   onBlur,
-  onPaste,
   onChange,
   readonly,
   children,
