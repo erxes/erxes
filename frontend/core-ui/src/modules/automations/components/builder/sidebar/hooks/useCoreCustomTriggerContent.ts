@@ -20,7 +20,7 @@ export const useCoreCustomTriggerContent = (activeNode: NodeData) => {
       setQueryParams({ activeNodeId: null });
       toggleSideBarOpen();
       toast({
-        title: t('sidebar-action-configuration-added'),
+        title: t('sidebar-trigger-configuration-added'),
         variant: 'success',
       });
     },
