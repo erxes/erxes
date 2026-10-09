@@ -35,6 +35,12 @@ import { DiscordMessageActions } from '@/integrations/discord/components/Discord
 import type { IMessageSticker } from '@/inbox/types/Conversation';
 import { getMessageDisplay } from '@/inbox/conversation-messages/utils/messageDisplay';
 import {
+  TelegramLinkPreviews,
+  TelegramMessageContent,
+} from '@/integrations/telegram/TelegramMessageContent';
+import { TelegramMessageStatus } from '@/integrations/telegram/TelegramMessageDetails';
+import { TelegramMessageAttachments } from '@/integrations/telegram/TelegramMessageAttachments';
+import {
   DeletedMessage,
   MessageForwardedIndicator,
   MessageMobileActions,
@@ -50,6 +56,7 @@ export const MessageItem = () => {
   const [actionsOpen, setActionsOpen] = useState(false);
   const { previousMessage, ...message } = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
+  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
   const {
     _id,
     userId,
@@ -121,11 +128,16 @@ export const MessageItem = () => {
       />
     );
 
+  const telegramAuthor =
+    isTelegram && !userId && extraData?.telegram?.chatType !== 'private'
+      ? extraData?.telegram?.senderName
+      : undefined;
   const showAuthorName = Boolean(
     (isGroupConversation ||
-      integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
+      integration?.kind === IntegrationType.DISCORD_MESSENGER ||
+      telegramAuthor) &&
     !userId &&
-    customerId &&
+    (customerId || telegramAuthor) &&
     separatePrevious,
   );
 
@@ -161,6 +173,7 @@ export const MessageItem = () => {
         previousCreatedAt={previousMessage?.createdAt}
       />
       <MessageAuthorHeader
+        authorName={showAuthorName ? telegramAuthor : undefined}
         customerId={showAuthorName ? customerId : undefined}
         showBotName={showBotName}
       />
@@ -239,10 +252,16 @@ export const MessageItem = () => {
               asChild
             >
               <div>
-                <MessageContent
-                  content={normalizedDisplayContent}
-                  internal={internal}
-                />
+                {isTelegram && !internal ? (
+                  <TelegramMessageContent
+                    content={normalizedDisplayContent || ''}
+                  />
+                ) : (
+                  <MessageContent
+                    content={normalizedDisplayContent}
+                    internal={internal}
+                  />
+                )}
                 {separateNext && (
                   <div className="text-muted-foreground mt-1 flex items-center gap-1">
                     <RelativeDateDisplay value={createdAt}>
@@ -308,6 +327,8 @@ export const MessageItem = () => {
                 integrationKind={postIntegrationKind}
                 fallbackUrl={displayAttachments[0]?.url}
               />
+            ) : isTelegram ? (
+              <TelegramMessageAttachments attachments={displayAttachments} />
             ) : (
               <Attachments
                 attachments={forwardedSnapshot ? undefined : displayAttachments}
@@ -341,9 +362,23 @@ export const MessageItem = () => {
             !isStory &&
             !socialShareAttachment &&
             fallbackText && <UnsupportedMessage text={fallbackText} />}
-          {!isDeleted && poll && <MessagePoll poll={poll} />}
+          {!isDeleted && poll && (
+            <MessagePoll
+              poll={poll}
+              provider={isTelegram ? 'Telegram' : 'Discord'}
+            />
+          )}
           {!isDeleted && survey && <MessageSurvey survey={survey} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
+          {!isDeleted && isTelegram && !internal && (
+            <>
+              <TelegramLinkPreviews
+                messageId={_id}
+                content={message.content || ''}
+              />
+              <TelegramMessageStatus data={extraData?.telegram} />
+            </>
+          )}
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&

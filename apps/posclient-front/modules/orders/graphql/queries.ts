@@ -194,6 +194,24 @@ const historyDetail = gql`
   }
 `
 
+const orderChangeLogs = gql`
+  query posclientOrderChangeLogs($orderId: String!) {
+    orderChangeLogs(orderId: $orderId) {
+      _id
+      createdAt
+      changes {
+        field
+        oldValue
+        newValue
+      }
+      user {
+        email
+        primaryEmail
+      }
+    }
+  }
+`
+
 const ebarimtDetail = gql`
   query EbarimtDetail($_id: String) {
     orderDetail(_id: $_id) {
@@ -428,6 +446,7 @@ const queries = {
   ordersHistory,
   activeOrders,
   historyDetail,
+  orderChangeLogs,
   progressHistory,
   progressDoneOrders,
   progressDetail,

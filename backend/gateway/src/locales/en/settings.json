@@ -2,7 +2,11 @@
   "account": "Account",
   "workspace": "Workspace",
   "developer": "Developer",
-  "client-portal": "Client Portal",
+  "client-portal": {
+    "_": "Client Portal",
+    "client-portal": "Client Portal",
+    "no-client-portal-found": "No client portal found"
+  },
   "core-modules": "Core Modules",
   "products": "Products",
   "automations": "Automations",
@@ -310,5 +314,20 @@
     "option-archived-in-use_one": "Archived, but {{count}} record still holds it. Review the settings that use it, then replace it or delete it once unused."
   },
   "owner-permissions-title": "The Don of this workspace",
-  "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family."
+  "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family.",
+  "app-tokens": {
+    "_": "App Tokens",
+    "app-tokens": "App Tokens",
+    "no-app-tokens-found": "No app tokens found"
+  },
+  "system-logs": {
+    "_": "System Logs",
+    "no-system-logs-found": "No results found yet",
+    "system-logs-description": "We couldn't find anything matching your search. Try adjusting your filters or search query."
+  },
+  "email-deliveries": {
+    "_": "Email Deliveries",
+    "no-email-deliveries-found": "No emails found yet",
+    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it."
+  }
 }

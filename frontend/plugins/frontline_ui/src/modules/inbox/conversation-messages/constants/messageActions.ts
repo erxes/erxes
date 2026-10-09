@@ -21,6 +21,7 @@ export const REACTION_EMOJI: Record<string, string> = {
 };
 
 export const NATIVE_REPLY_KINDS = new Set<string>([
+  IntegrationType.TELEGRAM_MESSENGER,
   IntegrationType.FACEBOOK_MESSENGER,
   IntegrationType.DISCORD_MESSENGER,
   IntegrationType.INSTAGRAM_MESSENGER,

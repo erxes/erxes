@@ -73,6 +73,7 @@ const products = gql`
       unitPrice
       type
       description
+      barcodeDescription
       remainder
       remainders
       discount(discountConditions: $discountConditions)
@@ -91,6 +92,7 @@ const productSimilarities = gql`
       products {
         _id
         description
+        barcodeDescription
         unitPrice
         name
         remainder
@@ -152,6 +154,7 @@ const productBulkSimilarity = gql`
         name
         code
         description
+        barcodeDescription
         unitPrice
         remainder
         remainders
