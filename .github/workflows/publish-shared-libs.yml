@@ -1,0 +1,159 @@
+name: Publish shared libs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/erxes-api-shared/**'
+      - 'frontend/libs/erxes-ui/**'
+      - 'frontend/libs/ui-modules/**'
+      - '.github/workflows/publish-shared-libs.yml'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Build, pack and stage without publishing to npm'
+        required: false
+        type: boolean
+        default: false
+      otp:
+        description: 'npm one-time password (leave empty when using an automation token)'
+        required: false
+        type: string
+
+env:
+  NX_DAEMON: false
+
+concurrency:
+  group: publish-shared-libs
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish-shared-libs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@53751a9789c7351e4924f01fe68370252a4f1f18 # v2.4.1
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
+
+      - name: Compute publish version
+        id: version
+        run: |
+          VERSION=$(node -e '
+            const { execFileSync } = require("child_process");
+            const base = require("./package.json").version;
+            const names = ["@erxes/api-shared", "@erxes/ui", "@erxes/ui-modules"];
+            const re = new RegExp("^" + base.replace(/\./g, "\\.") + "-(\\d+)$");
+            let n = 0;
+            for (const name of names) {
+              let versions = [];
+              try {
+                const out = execFileSync("npm", ["view", name, "versions", "--json"]).toString();
+                versions = JSON.parse(out.trim() || "[]");
+              } catch (e) {
+                const t = `${e.stdout || ""}${e.stderr || ""}${e.message}`;
+                if (!t.includes("E404")) throw e;
+              }
+              if (!Array.isArray(versions)) versions = [versions];
+              for (const v of versions) {
+                const m = re.exec(v);
+                if (m) n = Math.max(n, Number(m[1]));
+              }
+            }
+            console.log(`${base}-${n + 1}`);
+          ')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "publish version: $VERSION"
+
+      - name: Build libraries
+        run: |
+          rm -rf backend/erxes-api-shared/dist frontend/libs/erxes-ui/dist frontend/libs/ui-modules/dist
+          pnpm nx build erxes-api-shared
+          test -f backend/erxes-api-shared/dist/erxes-api-shared.cjs.js
+          pnpm --filter erxes-ui run build:dts || true
+          test -f frontend/libs/erxes-ui/dist/index.d.ts
+          pnpm --filter ui-modules run build:dts || true
+          test -f frontend/libs/ui-modules/dist/index.d.ts
+
+      - name: Pack and stage libraries
+        env:
+          PUBLISH_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          WORK="$GITHUB_WORKSPACE/tmp/shared-libs-publish"
+
+          stage() {
+            local dir="$1" npm_name="$2"
+            rm -rf "$WORK/pack" && mkdir -p "$WORK/pack"
+            (cd "$dir" && pnpm pack --pack-destination "$WORK/pack")
+
+            local staged="$WORK/staged/$npm_name"
+            rm -rf "$staged" && mkdir -p "$staged"
+            tar -xzf "$WORK"/pack/*.tgz -C "$staged" --strip-components=1
+
+            (cd "$staged" && \
+              npm pkg set "name=$npm_name" "version=$PUBLISH_VERSION" \
+                "publishConfig.access=public" \
+                "repository.type=git" \
+                "repository.url=git+https://github.com/erxes/erxes.git" \
+                "repository.directory=$dir" && \
+              npm pkg delete devDependencies scripts)
+            echo "staged $npm_name@$PUBLISH_VERSION at $staged"
+          }
+
+          stage backend/erxes-api-shared @erxes/api-shared
+          stage frontend/libs/erxes-ui @erxes/ui
+          stage frontend/libs/ui-modules @erxes/ui-modules
+
+          (cd "$WORK/staged/@erxes/ui-modules" && \
+            npm pkg set "peerDependencies.erxes-ui=$PUBLISH_VERSION")
+
+          rm -rf "$WORK/pack"
+
+      - name: Publish to npm
+        if: github.event.inputs.dry_run != true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OTP: ${{ github.event.inputs.otp }}
+        run: |
+          set -euo pipefail
+          for dir in tmp/shared-libs-publish/staged/@erxes/*/; do
+            npm publish "$dir" --tag latest --access public ${OTP:+--otp="$OTP"}
+          done
+
+      - name: Dry-run publish to npm
+        if: github.event.inputs.dry_run == true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OTP: ${{ github.event.inputs.otp }}
+        run: |
+          set -euo pipefail
+          for dir in tmp/shared-libs-publish/staged/@erxes/*/; do
+            npm publish "$dir" --tag latest --access public --dry-run ${OTP:+--otp="$OTP"}
+            npm pack "$dir" --pack-destination tmp/shared-libs-publish
+          done
+          ls -l tmp/shared-libs-publish/*.tgz
+
+      - name: Upload staged packages
+        if: github.event.inputs.dry_run == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-libs-staged
+          path: tmp/shared-libs-publish/
+          if-no-files-found: ignore

@@ -73,8 +73,6 @@
     "operation": "Operation",
     "user": "User",
     "no-user": "No User",
-    "no-results-found": "No results found",
-    "no-results-description": "We couldn't find anything matching your search. Try adjusting your filters or search query.",
     "system-logs": "System Logs",
     "records-found": "{{total}} records found",
     "filter": "Filter",

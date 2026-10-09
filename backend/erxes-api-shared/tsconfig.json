@@ -1,11 +1,27 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "allowJs": false,
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2021", "dom"],
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "useUnknownInCatchVariables": false,
+    "allowJs": false,
     "strict": true,
     "noEmit": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
@@ -20,6 +36,5 @@
       "path": "./tsconfig.spec.json"
     }
   ],
-  "extends": "../../tsconfig.base.json",
-  "exclude": ["frontend"]
+  "exclude": ["frontend", "node_modules"]
 }

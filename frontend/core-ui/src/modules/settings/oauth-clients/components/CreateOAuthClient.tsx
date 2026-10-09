@@ -18,6 +18,7 @@ export const CreateOAuthClient = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [revealedSecret, setRevealedSecret] = useState<{
     clientName: string;
+    clientId?: string;
     secret?: string;
   } | null>(null);
 
@@ -37,6 +38,7 @@ export const CreateOAuthClient = () => {
           if (oauthClientApp?.generatedSecret) {
             setRevealedSecret({
               clientName: oauthClientApp.name,
+              clientId: oauthClientApp.clientId,
               secret: oauthClientApp.generatedSecret,
             });
           }
@@ -94,6 +96,7 @@ export const CreateOAuthClient = () => {
         open={!!revealedSecret}
         onOpenChange={(nextOpen) => !nextOpen && setRevealedSecret(null)}
         clientName={revealedSecret?.clientName || 'OAuth client'}
+        clientId={revealedSecret?.clientId}
         secret={revealedSecret?.secret}
       />
     </>

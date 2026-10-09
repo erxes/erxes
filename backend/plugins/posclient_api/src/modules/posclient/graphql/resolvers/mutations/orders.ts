@@ -29,6 +29,7 @@ import {
   getPureDate,
   sendTRPCMessage,
   markResolvers,
+  ExpectedError,
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
@@ -673,8 +674,12 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, cpUser }: IContext,
   ) {
+    if (doc.customerType !== 'visitor' && !cpUser) {
+      throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
+    }
+
     const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
       posUser,
       config,
@@ -691,8 +696,12 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersEdit(
     _root,
     doc: IOrderEditParams,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, cpUser }: IContext,
   ) {
+    if (doc.customerType !== 'visitor' && !cpUser) {
+      throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
+    }
+
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
 
