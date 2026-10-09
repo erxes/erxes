@@ -21,6 +21,7 @@ const posCommonFields = `
   serviceChargeApplicableProductId: String
   paymentTypes: [JSON]
   earnScoreCampaignId: String
+  earnTier: JSON
   isOnline: Boolean
   onServer: Boolean
   branchId: String

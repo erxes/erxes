@@ -116,6 +116,7 @@ export const SCORE_CAMPAIGNS_SIMPLE_QUERY = gql`
         _id
         title
         ownerType
+        status
       }
     }
   }

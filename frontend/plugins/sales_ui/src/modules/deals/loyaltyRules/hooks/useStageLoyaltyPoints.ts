@@ -7,6 +7,7 @@ type TStageLoyaltyPoints = {
   loyaltyPoints?: {
     earns?: { campaignId: string; ruleType?: string }[];
     refunds?: boolean;
+    tier?: { accountTypeId: string; ruleType?: string } | null;
   } | null;
 };
 
@@ -28,5 +29,9 @@ export const useStageLoyaltyPoints = (stageId: string) => {
     ({ _id }) => _id === stageId,
   )?.loyaltyPoints;
 
-  return { earns: points?.earns || [], refunds: !!points?.refunds };
+  return {
+    earns: points?.earns || [],
+    refunds: !!points?.refunds,
+    tier: points?.tier || null,
+  };
 };

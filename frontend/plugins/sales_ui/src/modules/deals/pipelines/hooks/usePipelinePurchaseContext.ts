@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { usePipelineLoyaltyBuiltIn } from '@/deals/loyaltyRules/hooks/usePipelineLoyaltyBuiltIn';
 import {
   IRelationSettingsPurchaseHistory,
   IRelationSettingsWidgetContext,
@@ -43,6 +44,7 @@ export const usePipelinePurchaseContext = (
   const { t } = useTranslation('sales');
   const { pathname, search } = useLocation();
   const label = pipelineName || t('pipeline', 'Pipeline');
+  const config = usePipelineLoyaltyBuiltIn(pipelineId);
 
   return {
     triggerType: DEAL_WON_TRIGGER_TYPE,
@@ -63,5 +65,6 @@ export const usePipelinePurchaseContext = (
     ],
     label,
     returnTo: { path: `${pathname}${search}`, label },
+    config,
   };
 };

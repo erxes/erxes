@@ -1,5 +1,5 @@
 import { IconLink, IconPlus } from '@tabler/icons-react';
-import { Button, Label, RadioGroup, Select, Tabs } from 'erxes-ui';
+import { Button, Label, Select, Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IRelationSettingsTriggerScope } from 'ui-modules';
 import { SelectScoreCampaign } from '~/modules/loyalties/scores/components/selects/SelectScoreCampaign';
@@ -39,8 +39,6 @@ export const AddLoyaltyWorkflow = ({
     creating,
     setCreating,
     historyOffered,
-    tierBasis,
-    setTierBasis,
     tierHistory,
     setTierHistory,
     tierHistoryIssue,
@@ -49,7 +47,8 @@ export const AddLoyaltyWorkflow = ({
   const canConnect =
     kind === 'points'
       ? !!campaignId
-      : !!selectedWallet &&
+      : historyOffered &&
+        !!selectedWallet &&
         !!tierBands.bands.length &&
         !tierHistoryIssue &&
         !seeding;
@@ -112,7 +111,14 @@ export const AddLoyaltyWorkflow = ({
         </div>
       )}
 
+      {kind === 'tier' && !historyOffered && (
+        <p className="text-sm text-muted-foreground">
+          {t('loyalty-source-tiers-no-history')}
+        </p>
+      )}
+
       {kind === 'tier' &&
+        historyOffered &&
         (tierWallets.length ? (
           <>
             <div className="flex flex-col gap-1">
@@ -140,29 +146,7 @@ export const AddLoyaltyWorkflow = ({
                 </Button>
               </div>
             </div>
-            {selectedWallet && historyOffered && (
-              <div className="flex flex-col gap-2">
-                <Label>{t('tier-basis')}</Label>
-                <RadioGroup
-                  value={tierBasis}
-                  onValueChange={(value) =>
-                    setTierBasis(value === 'history' ? 'history' : 'purchase')
-                  }
-                  className="flex gap-4"
-                >
-                  {(['purchase', 'history'] as const).map((basis) => (
-                    <label
-                      key={basis}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <RadioGroup.Item value={basis} />
-                      {t(`tier-basis-${basis}`)}
-                    </label>
-                  ))}
-                </RadioGroup>
-              </div>
-            )}
-            {selectedWallet && tierBasis === 'history' && (
+            {selectedWallet && (
               <TierHistoryFields
                 value={tierHistory}
                 onChange={setTierHistory}

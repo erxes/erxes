@@ -32,7 +32,8 @@ export const scoreCampaignSchema = schemaWrapper(
       status: {
         type: String,
         enum: Object.values(SCORE_CAMPAIGN_STATUSES),
-        default: SCORE_CAMPAIGN_STATUSES.DRAFT,
+        // A new campaign gives points at once; draft is chosen, not assumed.
+        default: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       },
       serviceName: {
         type: String,

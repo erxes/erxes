@@ -13,6 +13,7 @@ export const useLoyaltyAccountRowActions = (account: ILoyaltyAccount) => {
   const { unfreeze, loading } = useLoyaltyAccountFreeze();
   const [menuOpen, setMenuOpen] = useState(false);
   const [freezeOpen, setFreezeOpen] = useState(false);
+  const [tierHistoryOpen, setTierHistoryOpen] = useState(false);
   const { _id, number, ownerId, ownerType, status } = account;
 
   const run = (action: () => void) => () => {
@@ -25,6 +26,8 @@ export const useLoyaltyAccountRowActions = (account: ILoyaltyAccount) => {
     setMenuOpen,
     freezeOpen,
     setFreezeOpen,
+    tierHistoryOpen,
+    setTierHistoryOpen,
     loading,
     isFrozen: status === 'frozen',
     hasOwner: !!ownerId && !!ownerType,
@@ -35,6 +38,7 @@ export const useLoyaltyAccountRowActions = (account: ILoyaltyAccount) => {
           }).then(() => unfreeze(_id))
         : setFreezeOpen(true),
     ),
+    openTierHistory: run(() => setTierHistoryOpen(true)),
     openScoreHistory: run(() =>
       navigate(
         `/loyalty/scores?scoreOwnerType=${ownerType}&scoreOwnerId=${ownerId}`,

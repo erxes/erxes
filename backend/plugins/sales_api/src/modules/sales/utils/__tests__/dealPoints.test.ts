@@ -1,7 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { planDealPoints, syncWrittenDealPoints } from '../dealPoints';
 import { getCustomerIds } from '~/modules/sales/utils';
-import { TLoyaltyRule } from '../loyaltyRules';
+import { TLoyaltyRule, TLoyaltyTierRule } from '../loyaltyRules';
 
 jest.mock('erxes-api-shared/utils', () => ({ sendTRPCMessage: jest.fn() }));
 jest.mock('~/modules/sales/utils', () => ({ getCustomerIds: jest.fn() }));
@@ -22,7 +22,10 @@ const EVERY_BOARD: TLoyaltyRule = {
   refund: { probability: 'Lost' },
 };
 
-const buildModels = (rules: TLoyaltyRule[] = [EVERY_BOARD]) =>
+const buildModels = (
+  rules: TLoyaltyRule[] = [EVERY_BOARD],
+  tierRules: TLoyaltyTierRule[] = [],
+) =>
   ({
     Stages: {
       findOne: ({ _id }: { _id: string }) => ({
@@ -40,6 +43,9 @@ const buildModels = (rules: TLoyaltyRule[] = [EVERY_BOARD]) =>
     },
     LoyaltyRules: {
       find: () => ({ lean: async () => rules }),
+    },
+    LoyaltyTierRules: {
+      find: () => ({ lean: async () => tierRules }),
     },
   } as never);
 
@@ -59,10 +65,15 @@ const deal = (stageId: string, amount = 100_000, extra = {}): TDealDoc => ({
   ...extra,
 });
 
-const plan = (current: TDealDoc, previous?: TDealDoc, rules?: TLoyaltyRule[]) =>
+const plan = (
+  current: TDealDoc,
+  previous?: TDealDoc,
+  rules?: TLoyaltyRule[],
+  tierRules?: TLoyaltyTierRule[],
+) =>
   planDealPoints({
     subdomain: 'test',
-    models: buildModels(rules),
+    models: buildModels(rules, tierRules),
     dealId: 'deal-1',
     deal: current as never,
     oldDeal: previous as never,
@@ -242,5 +253,68 @@ describe('syncWrittenDealPoints — writes outside the deal mutations count too'
     );
 
     expect(askedOf()).toEqual([]);
+  });
+});
+
+const WON_TIER: TLoyaltyTierRule = {
+  _id: 'tier-board',
+  type: 'everyBoard',
+  accountTypeId: 'w1',
+  bands: [{ tier: 'gold', min: 50_000 }],
+  onlyUpgrade: true,
+  earn: { probability: 'Won' },
+};
+
+describe('planDealPoints — the tier a purchase sets', () => {
+  it('sets the tier by the score total where the rule says', async () => {
+    expect(
+      await plan(deal('won', 80_000), deal('start'), [], [WON_TIER]),
+    ).toMatchObject({
+      kind: 'sync',
+      customerId: 'customer-a',
+      earns: [],
+      tier: {
+        accountTypeId: 'w1',
+        bands: WON_TIER.bands,
+        onlyUpgrade: true,
+        totalAmount: 80_000,
+      },
+    });
+  });
+
+  it('sets no tier elsewhere and never in a refund stage', async () => {
+    expect(await plan(deal('start'), deal('won'), [], [WON_TIER])).toEqual({
+      kind: 'none',
+    });
+    expect(
+      await plan(deal('lost'), deal('won'), [EVERY_BOARD], [WON_TIER]),
+    ).toEqual({ kind: 'refund' });
+  });
+
+  it('asks loyalty for the tier after the points', async () => {
+    (sendTRPCMessage as jest.Mock).mockReset();
+
+    await syncWrittenDealPoints({
+      subdomain: 'test',
+      models: {
+        ...(buildModels([EVERY_BOARD], [WON_TIER]) as unknown as Record<
+          string,
+          unknown
+        >),
+        Deals: {
+          find: () => ({
+            lean: async () => [{ _id: 'deal-1', ...deal('won') }],
+          }),
+        },
+      } as never,
+      dealIds: ['deal-1'],
+    });
+
+    expect(
+      (sendTRPCMessage as jest.Mock).mock.calls.map(([call]) => call.action),
+    ).toEqual(['earn', 'applyPurchaseTier']);
+    expect((sendTRPCMessage as jest.Mock).mock.calls[1][0].input).toMatchObject(
+      { targetId: 'deal-1', targetName: 'deal-1', totalAmount: 100_000 },
+    );
   });
 });

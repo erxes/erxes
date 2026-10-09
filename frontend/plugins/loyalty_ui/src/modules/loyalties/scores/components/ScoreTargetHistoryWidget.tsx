@@ -3,12 +3,15 @@ import { Button, cn, ScrollArea, Separator, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SafeRelativeDate } from '../../components/SafeRelativeDate';
 import { useTargetScoreLogs } from '../hooks/useTargetScoreLogs';
+import { LoyaltyTierLogItem } from '../../accounts/components/LoyaltyTierLogItem';
+import { useLoyaltyTierLogs } from '../../accounts/hooks/useLoyaltyTierLogs';
 import { getOwnerName } from './ScoreColumns';
 
 const formatChange = (change: number) =>
   `${change > 0 ? '+' : ''}${change.toLocaleString()}`;
 
-// What a record (a deal, an order) earned, spent and gave back, and for whom.
+// What a record (a deal, an order) earned, spent and gave back, the tiers it
+// moved, and for whom.
 export const ScoreTargetHistoryWidget = ({
   targetId,
 }: {
@@ -17,6 +20,8 @@ export const ScoreTargetHistoryWidget = ({
   const { t } = useTranslation('loyalty');
   const { logs, total, loading, error, refetching, refetch } =
     useTargetScoreLogs(targetId);
+  // Same reason to poll as the points: the record's plugin writes them.
+  const tiers = useLoyaltyTierLogs({ targetId, pollInterval: 10_000 });
 
   return (
     <>
@@ -27,7 +32,10 @@ export const ScoreTargetHistoryWidget = ({
           size="icon"
           className="size-7"
           disabled={refetching}
-          onClick={refetch}
+          onClick={() => {
+            refetch();
+            tiers.refetch();
+          }}
           aria-label={t('refresh')}
         >
           <IconRefresh className={cn('size-4', refetching && 'animate-spin')} />
@@ -95,6 +103,30 @@ export const ScoreTargetHistoryWidget = ({
               </div>
             );
           })}
+          {tiers.logs.length > 0 && (
+            <>
+              <span className="mt-2 text-xs font-medium text-muted-foreground">
+                {t('target-tier-history')}
+              </span>
+              {tiers.logs.map((log) => (
+                <LoyaltyTierLogItem
+                  key={log._id}
+                  log={log}
+                  ownerName={
+                    getOwnerName(
+                      log.owner || undefined,
+                      log.ownerType || undefined,
+                    ) ||
+                    log.ownerId ||
+                    undefined
+                  }
+                />
+              ))}
+            </>
+          )}
+          {tiers.error && (
+            <p className="text-sm text-destructive">{tiers.error.message}</p>
+          )}
         </div>
       </ScrollArea>
     </>

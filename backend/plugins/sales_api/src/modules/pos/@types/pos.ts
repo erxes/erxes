@@ -1,10 +1,18 @@
 import { Document } from 'mongoose';
+import { TLoyaltyTierBand } from '~/modules/sales/utils/loyaltyRules';
 
 export interface IPosCustomerCreateConfig {
   enabled: boolean;
   assignCashierAsOwner?: boolean;
   // Rows of system field codes and 'property:<fieldId>' entries.
   layout: string[][];
+}
+
+// The tier a paid order sets by its amount, the deal tier rule's POS twin.
+export interface IPosEarnTier {
+  accountTypeId: string;
+  bands: TLoyaltyTierBand[];
+  onlyUpgrade?: boolean;
 }
 
 export interface IPos {
@@ -23,6 +31,7 @@ export interface IPos {
   serviceChargeApplicableProductId?: string;
   paymentTypes?: any[];
   earnScoreCampaignId?: string;
+  earnTier?: IPosEarnTier | null;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

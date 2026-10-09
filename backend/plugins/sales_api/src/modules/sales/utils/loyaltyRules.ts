@@ -12,14 +12,31 @@ export const LOYALTY_RULE_TYPE_VALUES = Object.values(LOYALTY_RULE_TYPES);
 // Wider types name stages by probability; a pipeline's own stages by id.
 export type TLoyaltyRulePlace = { probability?: string; stageIds?: string[] };
 
-export type TLoyaltyRule = {
+// Where a rule reaches; points and tier rules share it.
+type TPlacedRule = {
   _id: string;
   type: TLoyaltyRuleType;
-  scoreCampaignId: string;
   boardId?: string;
   pipelineId?: string;
   earn?: TLoyaltyRulePlace;
+};
+
+export type TLoyaltyRule = TPlacedRule & {
+  scoreCampaignId: string;
   refund?: TLoyaltyRulePlace;
+};
+
+export type TLoyaltyTierBand = {
+  tier: string;
+  min?: number | null;
+  max?: number | null;
+};
+
+// The tier a purchase earns by its amount, set where `earn` points.
+export type TLoyaltyTierRule = TPlacedRule & {
+  accountTypeId: string;
+  bands: TLoyaltyTierBand[];
+  onlyUpgrade?: boolean;
 };
 
 export type TStagePlace = {
@@ -36,6 +53,13 @@ export type TLoyaltyRuleIssue =
   | 'no-earn'
   | 'earn-and-refund';
 
+export type TLoyaltyTierRuleIssue =
+  | 'no-wallet'
+  | 'no-bands'
+  | 'no-board'
+  | 'no-pipeline'
+  | 'no-earn';
+
 export type TResolvedLoyaltyRules = {
   earns: { campaignId: string; ruleId: string }[];
   refunds: boolean;
@@ -48,7 +72,7 @@ const SPECIFICITY: Record<TLoyaltyRuleType, number> = {
   [LOYALTY_RULE_TYPES.SPECIFIC_STAGES]: 2,
 };
 
-const reaches = (rule: TLoyaltyRule, place: TStagePlace) => {
+const reaches = (rule: TPlacedRule, place: TStagePlace) => {
   switch (rule.type) {
     case LOYALTY_RULE_TYPES.EVERY_BOARD:
       return true;
@@ -62,13 +86,38 @@ const reaches = (rule: TLoyaltyRule, place: TStagePlace) => {
 };
 
 const covers = (
-  rule: TLoyaltyRule,
+  rule: TPlacedRule,
   target: TLoyaltyRulePlace | undefined,
   place: TStagePlace,
 ) =>
   rule.type === LOYALTY_RULE_TYPES.SPECIFIC_STAGES
     ? !!target?.stageIds?.includes(place.stageId)
     : !!target?.probability && target.probability === place.probability;
+
+// Per key only the narrowest rule reaching the place counts.
+const narrowestByKey = <T extends TPlacedRule>(
+  rules: T[],
+  place: TStagePlace,
+  keyOf: (rule: T) => string | undefined,
+) => {
+  const governing = new Map<string, T>();
+
+  for (const rule of rules) {
+    const key = keyOf(rule);
+
+    if (!key || !reaches(rule, place)) {
+      continue;
+    }
+
+    const current = governing.get(key);
+
+    if (!current || SPECIFICITY[rule.type] > SPECIFICITY[current.type]) {
+      governing.set(key, rule);
+    }
+  }
+
+  return [...governing.values()];
+};
 
 /**
  * What the rules say about one stage. Per campaign only the narrowest rule
@@ -79,21 +128,7 @@ export const resolveLoyaltyRules = (
   rules: TLoyaltyRule[],
   place: TStagePlace,
 ): TResolvedLoyaltyRules => {
-  const governing = new Map<string, TLoyaltyRule>();
-
-  for (const rule of rules) {
-    if (!rule.scoreCampaignId || !reaches(rule, place)) {
-      continue;
-    }
-
-    const current = governing.get(rule.scoreCampaignId);
-
-    if (!current || SPECIFICITY[rule.type] > SPECIFICITY[current.type]) {
-      governing.set(rule.scoreCampaignId, rule);
-    }
-  }
-
-  const chosen = [...governing.values()];
+  const chosen = narrowestByKey(rules, place, (rule) => rule.scoreCampaignId);
 
   return {
     earns: chosen
@@ -103,14 +138,22 @@ export const resolveLoyaltyRules = (
   };
 };
 
-/** Why a rule cannot be saved, or null when it can. */
-export const loyaltyRuleIssue = (
-  rule: Omit<TLoyaltyRule, '_id'>,
-): TLoyaltyRuleIssue | null => {
-  if (!rule.scoreCampaignId) {
-    return 'no-campaign';
-  }
+/**
+ * The one tier rule a stage sets, if any: the narrowest rule reaching it,
+ * whichever wallet it names, decides alone.
+ */
+export const resolveLoyaltyTierRule = (
+  rules: TLoyaltyTierRule[],
+  place: TStagePlace,
+): TLoyaltyTierRule | null => {
+  const [rule] = narrowestByKey(rules, place, () => 'tier');
 
+  return rule && covers(rule, rule.earn, place) ? rule : null;
+};
+
+const placeIssue = (
+  rule: Omit<TPlacedRule, '_id'>,
+): 'no-board' | 'no-pipeline' | 'no-earn' | null => {
   const specific = rule.type === LOYALTY_RULE_TYPES.SPECIFIC_STAGES;
 
   if (rule.type !== LOYALTY_RULE_TYPES.EVERY_BOARD && !rule.boardId) {
@@ -125,6 +168,24 @@ export const loyaltyRuleIssue = (
     return 'no-earn';
   }
 
+  return null;
+};
+
+/** Why a rule cannot be saved, or null when it can. */
+export const loyaltyRuleIssue = (
+  rule: Omit<TLoyaltyRule, '_id'>,
+): TLoyaltyRuleIssue | null => {
+  if (!rule.scoreCampaignId) {
+    return 'no-campaign';
+  }
+
+  const issue = placeIssue(rule);
+
+  if (issue) {
+    return issue;
+  }
+
+  const specific = rule.type === LOYALTY_RULE_TYPES.SPECIFIC_STAGES;
   const overlaps = specific
     ? (rule.earn?.stageIds || []).some((id) =>
         rule.refund?.stageIds?.includes(id),
@@ -132,4 +193,19 @@ export const loyaltyRuleIssue = (
     : rule.earn?.probability === rule.refund?.probability;
 
   return overlaps ? 'earn-and-refund' : null;
+};
+
+/** Why a tier rule cannot be saved, or null when it can. */
+export const loyaltyTierRuleIssue = (
+  rule: Omit<TLoyaltyTierRule, '_id'>,
+): TLoyaltyTierRuleIssue | null => {
+  if (!rule.accountTypeId) {
+    return 'no-wallet';
+  }
+
+  if (!rule.bands?.length || rule.bands.some(({ tier }) => !tier)) {
+    return 'no-bands';
+  }
+
+  return placeIssue(rule);
 };

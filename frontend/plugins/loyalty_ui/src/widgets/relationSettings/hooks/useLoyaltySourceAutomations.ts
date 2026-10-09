@@ -25,6 +25,7 @@ import {
 } from '~/modules/loyalties/settings/score/add-score-campaign/constants/campaignAutomations';
 import { SCORE_CAMPAIGNS_SIMPLE_QUERY } from '~/modules/loyalties/scores/graphql/queries';
 import { LOYALTY_SOURCE_AUTOMATIONS } from '../graphql/loyaltySourceAutomationsQuery';
+import { readLoyaltyBuiltIn } from '../utils/loyaltyBuiltIn';
 import {
   DEFAULT_TIER_HISTORY,
   TIER_HISTORY_SUM_PATH,
@@ -38,8 +39,6 @@ const CUSTOMER_TRIGGER_TYPE = 'core:contacts.customers';
 const SPLIT_ACTION_TYPE = 'split';
 // Conditions the automation keeps to itself, as the builder's own are.
 const AUTOMATION_SEGMENT_OWNER = 'automation';
-
-export type TTierBasis = 'purchase' | 'history';
 
 // A history automation runs on the buyer, not the purchase; this names the
 // source it was made for so it is listed here.
@@ -67,7 +66,19 @@ export type TLoyaltySourceConnection = {
   target: string;
   // A step left without its campaign or wallet does nothing.
   incomplete: boolean;
+  // The source already feeds the same campaign or wallet on its own.
+  alsoBuiltIn: boolean;
 };
+
+// Something the source does without an automation; shown, not edited here.
+export type TLoyaltyBuiltInConnection = {
+  id: string;
+  target: string;
+  // An inactive campaign gives nothing, built in or not.
+  inactive: boolean;
+};
+
+const ACTIVE = 'active';
 
 const valueOf = (config: Record<string, unknown> | undefined, key: string) =>
   String(config?.[key] ?? '');
@@ -83,7 +94,9 @@ export const useLoyaltySourceAutomations = ({
   buyerAttribution,
   label,
   returnTo,
+  config,
 }: IRelationSettingsWidgetContext) => {
+  const builtIn = readLoyaltyBuiltIn(config);
   const navigate = useNavigate();
   const [scopeKey, setScopeKey] = useState(scopes[0]?.key || '');
   const [campaignId, setCampaignId] = useState('');
@@ -94,7 +107,6 @@ export const useLoyaltySourceAutomations = ({
   // Making what is missing without leaving: a campaign, or a wallet.
   const [creating, setCreating] = useState<'campaign' | 'wallet' | null>(null);
   const [tierBands, setTierBands] = useState<TTierBandsValue>(EMPTY_TIER_BANDS);
-  const [tierBasis, setTierBasis] = useState<TTierBasis>('purchase');
   const [tierHistory, setTierHistory] =
     useState<TTierHistoryValue>(DEFAULT_TIER_HISTORY);
   const [seeding, setSeeding] = useState(false);
@@ -117,7 +129,9 @@ export const useLoyaltySourceAutomations = ({
   });
 
   const { data: campaignsData } = useQuery<{
-    scoreCampaigns?: { list?: { _id: string; title: string }[] };
+    scoreCampaigns?: {
+      list?: { _id: string; title: string; status?: string }[];
+    };
   }>(SCORE_CAMPAIGNS_SIMPLE_QUERY, {
     variables: { limit: 100 },
     skip: !triggerType,
@@ -129,9 +143,9 @@ export const useLoyaltySourceAutomations = ({
   // Only a wallet with tiers can have one set.
   const tierWallets = accounts.filter(({ tiers }) => activeTiers(tiers).length);
 
-  const campaignTitle = (id: unknown) =>
-    campaignsData?.scoreCampaigns?.list?.find(({ _id }) => _id === id)?.title ||
-    '';
+  const campaignOf = (id: unknown) =>
+    campaignsData?.scoreCampaigns?.list?.find(({ _id }) => _id === id);
+  const campaignTitle = (id: unknown) => campaignOf(id)?.title || '';
   const walletName = (id: unknown) =>
     accounts.find(({ _id }) => _id === id)?.name || '';
 
@@ -149,6 +163,7 @@ export const useLoyaltySourceAutomations = ({
     actionType: string,
     targetKey: 'campaignId' | 'accountTypeId',
     nameOf: (id: unknown) => string,
+    builtInIds: string[],
   ): TLoyaltySourceConnection[] =>
     (data?.automations || []).flatMap(
       ({ _id, name, status, triggers, actions }) => {
@@ -189,6 +204,9 @@ export const useLoyaltySourceAutomations = ({
               .filter(Boolean)
               .join(', '),
             incomplete: steps.some(({ config }) => !config?.[targetKey]),
+            alsoBuiltIn: steps.some(({ config }) =>
+              builtInIds.includes(String(config?.[targetKey] ?? '')),
+            ),
           },
         ];
       },
@@ -198,11 +216,24 @@ export const useLoyaltySourceAutomations = ({
     ADJUST_SCORE_ACTION_TYPE,
     'campaignId',
     campaignTitle,
+    builtIn.campaignIds,
   );
   const tierConnections = connectionsOf(
     SET_TIER_ACTION_TYPE,
     'accountTypeId',
     walletName,
+    builtIn.walletIds,
+  );
+  // Unknown until loaded: not flagged inactive rather than falsely so.
+  const builtInPoints: TLoyaltyBuiltInConnection[] = builtIn.campaignIds.map(
+    (id) => ({
+      id,
+      target: campaignTitle(id),
+      inactive: !!campaignOf(id) && campaignOf(id)?.status !== ACTIVE,
+    }),
+  );
+  const builtInTiers: TLoyaltyBuiltInConnection[] = builtIn.walletIds.map(
+    (id) => ({ id, target: walletName(id), inactive: false }),
   );
 
   const editPath = (automationId: string) =>
@@ -252,9 +283,9 @@ export const useLoyaltySourceAutomations = ({
   };
 
   const selectedScope = scopes.find(({ key }) => key === scopeKey);
-  // Only a source that says how its purchases read as a segment offers history.
+  // A tier from one purchase is the source's own setting; here a tier follows
+  // purchase history, offered only where the source says how it reads.
   const historyOffered = !!selectedScope?.history;
-  const basis: TTierBasis = historyOffered ? tierBasis : 'purchase';
 
   // A buyer trigger on purchases reaching the lowest band, re-run whenever
   // their sum moves, and a branch per tier on that same sum.
@@ -369,34 +400,6 @@ export const useLoyaltySourceAutomations = ({
     }
   };
 
-  // One Set tier reading the purchase total against the bands entered here.
-  const connectTier = () => {
-    const wallet = tierWallets.find(({ _id }) => _id === walletId);
-
-    if (basis === 'history') {
-      connectTierHistory();
-      return;
-    }
-
-    if (!wallet || !tierBands.bands.length) {
-      return;
-    }
-
-    openSeed(`${label || ''} · ${wallet.name}`, [
-      {
-        id: generateAutomationElementId(),
-        type: SET_TIER_ACTION_TYPE,
-        config: {
-          ...(buyerAttribution ? { attribution: buyerAttribution } : {}),
-          accountTypeId: wallet._id,
-          mode: 'amount',
-          tier: '',
-          ...tierBands,
-        },
-      },
-    ]);
-  };
-
   return {
     adding,
     setAdding,
@@ -408,11 +411,13 @@ export const useLoyaltySourceAutomations = ({
     tierConnections,
     loading,
     error,
+    // Built-in points count too; only a source giving none is warned.
     noActivePoints:
       !loading &&
       !error &&
+      !builtInPoints.some(({ inactive }) => !inactive) &&
       !pointConnections.some(
-        ({ status, incomplete }) => status === 'active' && !incomplete,
+        ({ status, incomplete }) => status === ACTIVE && !incomplete,
       ),
     editPath,
     scopeKey,
@@ -426,14 +431,13 @@ export const useLoyaltySourceAutomations = ({
     selectedWallet: tierWallets.find(({ _id }) => _id === walletId),
     tierBands,
     setTierBands,
-    connectTier,
+    connectTier: connectTierHistory,
     historyOffered,
-    tierBasis: basis,
-    setTierBasis,
     tierHistory,
     setTierHistory,
-    tierHistoryIssue:
-      basis === 'history' ? tierHistoryIssue(tierHistory) : null,
+    tierHistoryIssue: tierHistoryIssue(tierHistory),
     seeding,
+    builtInPoints,
+    builtInTiers,
   };
 };

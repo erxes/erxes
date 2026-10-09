@@ -47,7 +47,21 @@
   pipeline being edited shows what the saved rules make of it
   (`PipelineStageLoyaltyBadge`, query `SalesStageLoyaltyPoints`, only asked by
   the editor) with a link back to the dialog; stages no longer carry a refund
-  setting.
+  setting. With loyalty enabled (`isEnabled('loyalty')`) the dialog has a
+  Points and a Tier tab (`useLoyaltyRulesDialog`): the Tier tab edits
+  `salesLoyaltyTierRules` in the same three groups (`LoyaltyTierRuleRow`,
+  `useLoyaltyTierRulesForm`), each row a customer wallet with tiers
+  (`SalesLoyaltyTierWallets` → loyalty `loyaltyAccountTypes`), where the
+  tier is set, a From/To band per tier and "only upgrade"
+  (`TierBandsFields`, `tierBands.ts`); changing the wallet clears its bands,
+  and a narrower row is flagged since one tier rule decides a stage. Stage
+  badges also show the tier a stage sets (`SalesStageLoyaltyPoints.tier`).
+  Loyalty's settings tab on a pipeline or POS gets what sales already does
+  there as `context.config.loyalty` (`loyaltyBuiltInConfig`: a pipeline's
+  stages' earning campaigns and tier wallets via `usePipelineLoyaltyBuiltIn`,
+  a POS's `earnScoreCampaignId` and `earnTier` wallet via `usePosDetail`). Save
+  validates and saves only the changed forms, switches to the tab holding
+  an error, and closes once both are saved.
 - The POS Payment tab picks the score campaigns paid orders earn in
   (`EarnScoreCampaignsField`, `Pos.earnScoreCampaignId`): one campaign only,
   since two would both earn on the same order; chosen with loyalty's picker
@@ -55,7 +69,10 @@
   inactive. Payment types'
   score campaign field (`OtherPaymentsField`, POS and deal product config) is
   the same picker. A chosen campaign that an active POS-order automation (this POS or
-  any) also gives points in is flagged (`usePosEarnAutomations`). The POS
+  any) also gives points in is flagged (`usePosEarnAutomations`). Below it,
+  with loyalty enabled, one wallet's tier set by the paid amount
+  (`PosEarnTierField`, `Pos.earnTier` JSON `{accountTypeId, bands,
+  onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both come from the `posDetail` query (`graphql/queries.ts` `posCommonFields`), which the tab loads and saves back; a field missing there is saved as empty. The POS
   Automations tab is listed last, beside the Loyalty tab.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - Deal detail renders only the properties selected on the deal's pipeline;
@@ -145,7 +162,7 @@
 ### Consumes
 
 - `sales_api` GraphQL pipeline, deal, product, and POS contracts.
-- `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `SalesStage.loyaltyPoints`; core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
+- `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `SalesStage.loyaltyPoints`, `Pos.earnTier`; loyalty `loyaltyAccountTypes` (tier wallets); core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
 - Core properties through public `ui-modules` property hooks with
   `contentType: 'sales:deal'` and, for the POS customer form,
   `contentType: 'core:customer'`.
@@ -209,6 +226,9 @@
 - POS customer smoke scenario: open the "Customer registration" tab, enable it,
   hide e-mail (phone stays locked on), add a property, rearrange in Edit
   layout, save, and verify the layout persists after reload.
+- Tier rules smoke scenario: open "Score earn configuration", switch to Tier,
+  add an every-board row, pick a wallet, set bands, save, reopen and verify
+  the row; set a POS's tier in its Payment tab, save and verify after reload.
 - Source automations smoke scenario: open a POS's or a pipeline's
   "Automations" tab, connect a score campaign in the loyalty section, save in
   the builder, use the back link, and verify the automation is listed.

@@ -1,5 +1,15 @@
 import { Schema } from 'mongoose';
 import { mongoStringRequired, schemaWrapper } from 'erxes-api-shared/utils';
+import { tierBandSchema } from '~/modules/sales/db/definitions/loyaltyRules';
+
+const earnTierSchema = new Schema(
+  {
+    accountTypeId: { type: String, required: true, label: 'Wallet' },
+    bands: { type: [tierBandSchema], label: 'Bands' },
+    onlyUpgrade: { type: Boolean, label: 'Only upgrade' },
+  },
+  { _id: false },
+);
 
 export const posSchema = schemaWrapper(
   new Schema({
@@ -34,6 +44,7 @@ export const posSchema = schemaWrapper(
     paymentTypes: { type: [Object], label: 'Other Payments' },
     // The one score campaign a paid order earns in; two would both earn.
     earnScoreCampaignId: { type: String, label: 'Earn score campaign' },
+    earnTier: { type: earnTierSchema, label: 'Earn tier' },
     onServer: {
       type: Boolean,
       optional: true,

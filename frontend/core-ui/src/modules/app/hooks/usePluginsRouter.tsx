@@ -18,6 +18,7 @@ export const getPluginsRoutes = () => {
           <RenderPluginsComponent
             pluginName={`${module.name}_ui`}
             remoteModuleName={module.name}
+            withMascot
           />
         </PermissionRouteGuard>
       }
@@ -38,6 +39,7 @@ export const getPluginsSettingsRoutes = () => {
           <RenderPluginsComponent
             pluginName={`${plugin.name}_ui`}
             remoteModuleName={`${plugin.name}Settings`}
+            withMascot
           />
         </PermissionRouteGuard>
       }

@@ -5,7 +5,9 @@ import { getAmountsMap } from '~/modules/sales/utils';
 import { generateFilter } from '../queries/deals';
 import {
   resolveLoyaltyRules,
+  resolveLoyaltyTierRule,
   TLoyaltyRule,
+  TLoyaltyTierRule,
 } from '~/modules/sales/utils/loyaltyRules';
 
 export default {
@@ -15,22 +17,31 @@ export default {
 
   // What the loyalty rules make of this stage, as saved.
   async loyaltyPoints(stage: IStageDocument, _args, { models }: IContext) {
-    const [pipeline, rules] = await Promise.all([
+    const [pipeline, rules, tierRules] = await Promise.all([
       models.Pipelines.findOne(
         { _id: stage.pipelineId },
         { boardId: 1 },
       ).lean(),
       models.LoyaltyRules.find({}).lean() as Promise<TLoyaltyRule[]>,
+      models.LoyaltyTierRules.find({}).lean() as Promise<TLoyaltyTierRule[]>,
     ]);
-    const { earns, refunds } = resolveLoyaltyRules(rules, {
+    const place = {
       boardId: pipeline?.boardId,
       pipelineId: stage.pipelineId,
       stageId: stage._id,
       probability: stage.probability,
-    });
+    };
+    const { earns, refunds } = resolveLoyaltyRules(rules, place);
+    // A refund stage sets no tier, as the deal sync skips it.
+    const tierRule = refunds ? null : resolveLoyaltyTierRule(tierRules, place);
 
     return {
       refunds,
+      tier: tierRule && {
+        accountTypeId: tierRule.accountTypeId,
+        ruleId: tierRule._id,
+        ruleType: tierRule.type,
+      },
       earns: earns.map((earn) => ({
         ...earn,
         ruleType: rules.find(({ _id }) => _id === earn.ruleId)?.type,

@@ -1,6 +1,7 @@
 import {
   IconExternalLink,
   IconHistory,
+  IconStairsUp,
   IconSnowflake,
   IconSnowflakeOff,
 } from '@tabler/icons-react';
@@ -10,6 +11,7 @@ import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissi
 import { useLoyaltyAccountRowActions } from '../hooks/useLoyaltyAccountRowActions';
 import { ILoyaltyAccount } from '../types';
 import { FreezeAccountDialog } from './FreezeAccountDialog';
+import { LoyaltyTierHistoryDialog } from './LoyaltyTierHistoryDialog';
 
 export const LoyaltyAccountMoreCell = ({
   account,
@@ -22,10 +24,13 @@ export const LoyaltyAccountMoreCell = ({
     setMenuOpen,
     freezeOpen,
     setFreezeOpen,
+    tierHistoryOpen,
+    setTierHistoryOpen,
     loading,
     isFrozen,
     hasOwner,
     toggleFreeze,
+    openTierHistory,
     openScoreHistory,
     openProfile,
   } = useLoyaltyAccountRowActions(account);
@@ -64,6 +69,10 @@ export const LoyaltyAccountMoreCell = ({
                 <IconHistory size={14} />
                 {t('loyalty-account-score-history')}
               </Command.Item>
+              <Command.Item value="tier-history" onSelect={openTierHistory}>
+                <IconStairsUp size={14} />
+                {t('loyalty-tier-history')}
+              </Command.Item>
               <Command.Item
                 value="see-profile"
                 onSelect={openProfile}
@@ -80,6 +89,12 @@ export const LoyaltyAccountMoreCell = ({
         accountId={account._id}
         open={freezeOpen}
         onOpenChange={setFreezeOpen}
+      />
+      <LoyaltyTierHistoryDialog
+        accountId={account._id}
+        number={account.number}
+        open={tierHistoryOpen}
+        onOpenChange={setTierHistoryOpen}
       />
     </>
   );

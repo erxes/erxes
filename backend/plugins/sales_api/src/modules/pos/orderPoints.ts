@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { IPosOrder } from './@types/orders';
+import { IPosEarnTier } from './@types/pos';
 import {
   posOrderPaidAmount,
   posOrderPurchaseItems,
@@ -15,7 +16,12 @@ type TOrderEarn = {
 type TOrderPointsPlan =
   | { kind: 'none' }
   | { kind: 'refund' }
-  | { kind: 'sync'; customerId?: string; earns: TOrderEarn[] };
+  | {
+      kind: 'sync';
+      customerId?: string;
+      earns: TOrderEarn[];
+      tier?: IPosEarnTier & { totalAmount: number };
+    };
 
 const RETURNED = 'return';
 
@@ -40,23 +46,46 @@ export const planOrderPoints = async ({
 
   const pos = await models.Pos.findOne(
     { token: order.posToken },
-    { earnScoreCampaignId: 1 },
+    { earnScoreCampaignId: 1, earnTier: 1 },
   ).lean();
   const campaignId = pos?.earnScoreCampaignId;
+  const earnTier = pos?.earnTier;
 
-  if (!campaignId) {
+  if (!campaignId && !earnTier) {
     return { kind: 'none' };
   }
 
-  const purchase = {
-    totalAmount: Number(order.totalAmount) || 0,
-    paidAmount: await posOrderPaidAmount(models, order),
-    items: posOrderPurchaseItems(order),
-  };
+  const totalAmount = Number(order.totalAmount) || 0;
+  const earns = campaignId
+    ? [
+        {
+          campaignId,
+          totalAmount,
+          paidAmount: await posOrderPaidAmount(models, order),
+          items: posOrderPurchaseItems(order),
+        },
+      ]
+    : [];
 
   return {
     kind: 'sync',
     customerId: order.customerId || undefined,
-    earns: [{ campaignId, ...purchase }],
+    earns,
+    tier: earnTier ? { ...earnTier, totalAmount } : undefined,
   };
+};
+
+/** A POS tier needs a wallet and a tier on every band; none clears it. */
+export const validateEarnTier = (earnTier?: IPosEarnTier | null) => {
+  if (!earnTier) {
+    return;
+  }
+
+  if (!earnTier.accountTypeId) {
+    throw new Error('Choose a wallet for the tier');
+  }
+
+  if (!earnTier.bands?.length || earnTier.bands.some(({ tier }) => !tier)) {
+    throw new Error('Give every tier band a tier');
+  }
 };

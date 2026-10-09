@@ -16,10 +16,12 @@ export function RenderPluginsComponent({
   pluginName,
   remoteModuleName,
   props,
+  withMascot,
 }: {
   pluginName: string;
   remoteModuleName: string;
   props?: RemoteComponentProps;
+  withMascot?: boolean;
 }) {
   const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,28 +73,18 @@ export function RenderPluginsComponent({
     );
   }
 
+  const loader = (
+    <div className="flex justify-center items-center h-full">
+      <Spinner withMascot={withMascot} />
+    </div>
+  );
+
   if (isLoading || !Plugin) {
-    return (
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center h-full">
-            <Spinner />
-          </div>
-        }
-      >
-        <div />
-      </Suspense>
-    );
+    return loader;
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-full">
-          <Spinner />
-        </div>
-      }
-    >
+    <Suspense fallback={loader}>
       {/* One plugin breaking while drawing must not take its host down. */}
       <ErrorBoundary
         FallbackComponent={RenderPluginsComponentCrashState}

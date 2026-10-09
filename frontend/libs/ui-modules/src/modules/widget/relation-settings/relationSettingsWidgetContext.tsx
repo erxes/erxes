@@ -30,6 +30,9 @@ export interface IRelationSettingsWidgetContext {
   buyerAttribution?: string;
   label?: string;
   returnTo?: TAutomationReturnLink;
+  // What the host already does on its own, keyed by the plugin that reads
+  // it (e.g. `config.loyalty`); the shape is between those two plugins.
+  config?: Record<string, unknown>;
 }
 
 export interface IRelationSettingsWidgetProps {

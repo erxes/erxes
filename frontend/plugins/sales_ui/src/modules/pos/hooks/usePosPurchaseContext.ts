@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { loyaltyBuiltInConfig } from '@/deals/loyaltyRules/loyaltyBuiltIn';
+import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import {
   IRelationSettingsPurchaseHistory,
   IRelationSettingsWidgetContext,
@@ -49,6 +51,7 @@ export const usePosPurchaseContext = (
   const { t } = useTranslation('sales');
   const { pathname, search } = useLocation();
   const label = posName || 'POS';
+  const { posDetail } = usePosDetail(posId);
 
   return {
     triggerType: POS_ORDER_TRIGGER_TYPE,
@@ -69,5 +72,9 @@ export const usePosPurchaseContext = (
     ],
     label,
     returnTo: { path: `${pathname}${search}`, label },
+    config: loyaltyBuiltInConfig({
+      earnCampaignIds: [posDetail?.earnScoreCampaignId || ''],
+      tierWalletIds: [posDetail?.earnTier?.accountTypeId || ''],
+    }),
   };
 };

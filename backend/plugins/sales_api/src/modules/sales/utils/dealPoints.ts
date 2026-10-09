@@ -9,7 +9,10 @@ import {
 import { getCustomerIds } from '~/modules/sales/utils';
 import {
   resolveLoyaltyRules,
+  resolveLoyaltyTierRule,
   TLoyaltyRule,
+  TLoyaltyTierBand,
+  TLoyaltyTierRule,
   TResolvedLoyaltyRules,
 } from './loyaltyRules';
 
@@ -26,6 +29,13 @@ type TDealEarn = {
   items: ReturnType<typeof dealPurchaseItems>;
 };
 
+type TDealTier = {
+  accountTypeId: string;
+  bands: TLoyaltyTierBand[];
+  onlyUpgrade?: boolean;
+  totalAmount: number;
+};
+
 type TDealPointsPlan =
   | { kind: 'none' }
   | { kind: 'refund' }
@@ -35,6 +45,7 @@ type TDealPointsPlan =
       totalAmount: number;
       spends: TDealSpend[];
       earns: TDealEarn[];
+      tier?: TDealTier;
     };
 
 const NOTHING: TDealPointsPlan = { kind: 'none' };
@@ -44,6 +55,13 @@ const NO_RULES: TResolvedLoyaltyRules = { earns: [], refunds: false };
 const toPlain = (deal?: IDeal): IDeal | undefined =>
   (deal as (IDeal & { toObject?: () => IDeal }) | undefined)?.toObject?.() ||
   deal;
+
+// What loyalty shows the deal as, kept with the change it made.
+const dealName = (deal: IDeal, dealId: string) => {
+  const { name, number } = toPlain(deal) || {};
+
+  return name || (number ? `#${number}` : dealId);
+};
 
 const pointPaymentCampaigns = (pipeline?: { paymentTypes?: any[] } | null) =>
   new Map<string, string>(
@@ -79,6 +97,19 @@ const rulesAt = (
       })
     : NO_RULES;
 
+const tierAt = (
+  rules: TLoyaltyTierRule[],
+  { stage, pipeline }: Awaited<ReturnType<typeof loadStagePlace>>,
+) =>
+  stage
+    ? resolveLoyaltyTierRule(rules, {
+        boardId: pipeline?.boardId,
+        pipelineId: stage.pipelineId,
+        stageId: stage._id,
+        probability: stage.probability,
+      })
+    : null;
+
 /**
  * What moving from `oldDeal` to `deal` asks of loyalty. Earning follows where
  * the deal stands, not how it got there: every save in an earning stage
@@ -108,12 +139,13 @@ export const planDealPoints = async ({
   }
 
   const moved = !!previous && previous.stageId !== current.stageId;
-  const [here, before, rules] = await Promise.all([
+  const [here, before, rules, tierRules] = await Promise.all([
     loadStagePlace(models, current.stageId),
     moved
       ? loadStagePlace(models, previous?.stageId)
       : Promise.resolve({ stage: null, pipeline: null }),
     models.LoyaltyRules.find({}).lean() as Promise<TLoyaltyRule[]>,
+    models.LoyaltyTierRules.find({}).lean() as Promise<TLoyaltyTierRule[]>,
   ]);
   const now = rulesAt(rules, here);
   const leftRefund = moved && rulesAt(rules, before).refunds;
@@ -151,7 +183,17 @@ export const planDealPoints = async ({
       }))
     : [];
 
-  if (!spends.length && !earns.length) {
+  const tierRule = tierAt(tierRules, here);
+  const tier: TDealTier | undefined = tierRule
+    ? {
+        accountTypeId: tierRule.accountTypeId,
+        bands: tierRule.bands,
+        onlyUpgrade: tierRule.onlyUpgrade,
+        totalAmount: dealScoreTotal(current),
+      }
+    : undefined;
+
+  if (!spends.length && !earns.length && !tier) {
     return NOTHING;
   }
 
@@ -164,13 +206,14 @@ export const planDealPoints = async ({
       throw new Error('Attach a customer to pay with points');
     }
 
-    return earns.length
+    return earns.length || tier
       ? {
           kind: 'sync',
           customerId: undefined,
           totalAmount: Number(current.totalAmount) || 0,
           spends: [],
           earns,
+          tier,
         }
       : NOTHING;
   }
@@ -181,6 +224,7 @@ export const planDealPoints = async ({
     totalAmount: Number(current.totalAmount) || 0,
     spends,
     earns,
+    tier,
   };
 };
 
@@ -207,7 +251,7 @@ export const withoutPointPayments = async (
 
 const askLoyalty = (
   subdomain: string,
-  action: 'checkSpend' | 'spend' | 'earn' | 'refund',
+  action: 'checkSpend' | 'spend' | 'earn' | 'refund' | 'applyPurchaseTier',
   input: Record<string, unknown>,
 ) =>
   sendTRPCMessage({
@@ -335,6 +379,24 @@ export const syncDealPoints = async ({
       serviceName: 'sales',
       actorId: userId,
       purchase: { totalAmount, paidAmount, items },
+    });
+  }
+
+  // Never given back: a tier is set again by the next purchase, not undone.
+  if (plan.tier) {
+    const { accountTypeId, bands, onlyUpgrade, totalAmount } = plan.tier;
+
+    await askLoyalty(subdomain, 'applyPurchaseTier', {
+      ownerType: 'customer',
+      ownerId: plan.customerId,
+      accountTypeId,
+      bands,
+      onlyUpgrade,
+      totalAmount,
+      targetId: dealId,
+      targetType: DEAL_TARGET_TYPE,
+      targetName: dealName(deal, dealId),
+      actorId: userId,
     });
   }
 };

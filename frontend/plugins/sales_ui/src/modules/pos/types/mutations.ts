@@ -1,3 +1,5 @@
+import { IPosEarnTier } from './pos';
+
 export interface SlotInput {
   _id?: string;
   name: string;
@@ -50,6 +52,7 @@ export interface PosData {
   paymentIds?: string[];
   paymentTypes?: any[];
   earnScoreCampaignId?: string;
+  earnTier?: IPosEarnTier | null;
   user?: {
     _id: string;
     details: {
@@ -109,6 +112,7 @@ export interface AddPosDetailVariables {
   paymentIds?: string[];
   paymentTypes?: any[];
   earnScoreCampaignId?: string;
+  earnTier?: IPosEarnTier | null;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

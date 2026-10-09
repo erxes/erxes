@@ -26,7 +26,7 @@ export const AutomationBuilderWorkspace = () => {
 
   useScopedHotkeys(`mod+i`, () => onOpen(), AutomationsHotKeyScope.Builder);
   if (loading) {
-    return <Spinner />;
+    return <Spinner withMascot />;
   }
 
   if (editingWorkflowId) {

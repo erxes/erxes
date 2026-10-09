@@ -67,3 +67,66 @@ export type TLoyaltyRule = {
   earn?: TPlace | null;
   refund?: TPlace | null;
 };
+
+const tierRowSchema = z
+  .object({
+    _id: z.string().optional(),
+    type: z.nativeEnum(LOYALTY_RULE_TYPES),
+    accountTypeId: z.string(),
+    bands: z.array(
+      z.object({
+        tier: z.string(),
+        min: z.number().optional(),
+        max: z.number().optional(),
+      }),
+    ),
+    onlyUpgrade: z.boolean(),
+    boardId: z.string().optional(),
+    pipelineId: z.string().optional(),
+    earnProbability: z.string().optional(),
+    earnStageIds: z.array(z.string()),
+  })
+  .superRefine((row, ctx) => {
+    const specific = row.type === LOYALTY_RULE_TYPES.SPECIFIC_STAGES;
+    const issue = (path: string, message: string) =>
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
+
+    if (!row.accountTypeId) {
+      issue('accountTypeId', 'loyalty-tier-no-wallet');
+    } else if (!row.bands.length) {
+      issue('bands', 'loyalty-tier-no-bands');
+    }
+
+    if (row.type !== LOYALTY_RULE_TYPES.EVERY_BOARD && !row.boardId) {
+      issue('boardId', 'loyalty-rules-no-board');
+    }
+
+    if (specific && !row.pipelineId) {
+      issue('pipelineId', 'loyalty-rules-no-pipeline');
+    }
+
+    if (specific ? !row.earnStageIds.length : !row.earnProbability) {
+      issue(
+        specific ? 'earnStageIds' : 'earnProbability',
+        'loyalty-tier-no-place',
+      );
+    }
+  });
+
+export const loyaltyTierRulesFormSchema = z.object({
+  rules: z.array(tierRowSchema),
+});
+
+export type TLoyaltyTierRulesForm = z.infer<typeof loyaltyTierRulesFormSchema>;
+export type TLoyaltyTierRuleRow = TLoyaltyTierRulesForm['rules'][number];
+
+export type TLoyaltyTierRule = {
+  _id: string;
+  type: TLoyaltyTierRuleRow['type'];
+  accountTypeId: string;
+  bands: { tier: string; min?: number | null; max?: number | null }[];
+  onlyUpgrade?: boolean | null;
+  boardId?: string | null;
+  pipelineId?: string | null;
+  earn?: TPlace | null;
+};

@@ -1,7 +1,8 @@
-import { IconArrowBackUp, IconCoins } from '@tabler/icons-react';
+import { IconArrowBackUp, IconCoins, IconStairs } from '@tabler/icons-react';
 import { Badge, Button } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useLoyaltyTierWallets } from '../hooks/useLoyaltyTierWallets';
 import { useScoreCampaignTitles } from '../hooks/useScoreCampaignTitles';
 import { useStageLoyaltyPoints } from '../hooks/useStageLoyaltyPoints';
 import { loyaltyRulesDialogOpenAtom } from '../states';
@@ -17,12 +18,13 @@ export const PipelineStageLoyaltyBadge = ({
   probability?: string;
 }) => {
   const { t } = useTranslation('sales');
-  const { earns, refunds } = useStageLoyaltyPoints(stageId);
+  const { earns, refunds, tier } = useStageLoyaltyPoints(stageId);
   const { titleOf } = useScoreCampaignTitles();
+  const { walletName } = useLoyaltyTierWallets();
   const openRules = useSetAtom(loyaltyRulesDialogOpenAtom);
 
   // A Won stage that earns nothing is the case worth pointing out.
-  if (!earns.length && !refunds && probability !== WON) {
+  if (!earns.length && !refunds && !tier && probability !== WON) {
     return null;
   }
 
@@ -37,13 +39,22 @@ export const PipelineStageLoyaltyBadge = ({
           })}
         </Badge>
       ))}
+      {tier && (
+        <Badge variant="secondary">
+          <IconStairs />
+          {t('loyalty-tier-badge-sets', {
+            wallet: walletName(tier.accountTypeId),
+            rule: t(`loyalty-rules-${tier.ruleType}`),
+          })}
+        </Badge>
+      )}
       {refunds && (
         <Badge variant="destructive">
           <IconArrowBackUp />
           {t('loyalty-rules-badge-refunds')}
         </Badge>
       )}
-      {!earns.length && !refunds && (
+      {!earns.length && !refunds && !tier && (
         <Badge variant="secondary">{t('loyalty-rules-badge-none')}</Badge>
       )}
       <Button

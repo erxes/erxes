@@ -38,7 +38,7 @@ export const loyaltyAccountMutations = {
       accountTypeId,
       tier,
     }: { _id: string; accountTypeId: string; tier?: string | null },
-    { models, subdomain, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('loyaltyAccountSetTier');
 
@@ -48,6 +48,7 @@ export const loyaltyAccountMutations = {
       accountId: _id,
       accountTypeId,
       tier: tier || null,
+      via: { createdBy: user?._id },
     });
 
     return account;

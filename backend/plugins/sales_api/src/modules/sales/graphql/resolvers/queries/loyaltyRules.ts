@@ -9,4 +9,12 @@ export const loyaltyRuleQueries: Record<string, Resolver> = {
   ) {
     return models.LoyaltyRules.find({}).sort({ createdAt: 1 }).lean();
   },
+
+  async salesLoyaltyTierRules(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return models.LoyaltyTierRules.find({}).sort({ createdAt: 1 }).lean();
+  },
 };

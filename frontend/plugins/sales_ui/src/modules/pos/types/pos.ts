@@ -1,3 +1,12 @@
+import { TTierBand } from '@/deals/loyaltyRules/tierBands';
+
+// The tier a paid order sets by its amount.
+export interface IPosEarnTier {
+  accountTypeId: string;
+  bands: TTierBand[];
+  onlyUpgrade: boolean;
+}
+
 export interface IUser {
   _id: string;
   details: {
@@ -118,6 +127,7 @@ export interface IPos {
     config?: string;
   }>;
   earnScoreCampaignId?: string;
+  earnTier?: IPosEarnTier | null;
   adminIds?: string[];
   cashierIds?: string[];
   permissionConfig?: {

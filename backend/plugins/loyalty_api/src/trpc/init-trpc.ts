@@ -15,6 +15,7 @@ import {
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
 import { getOwnerSummary } from '~/utils/ownerSummary';
 import { TScoreSkip } from '@/score/@types/earnTable';
+import { applyOwnerTier, tierForPurchase } from '@/score/services/purchaseTier';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
@@ -185,6 +186,29 @@ const earnPreviewInput = z.object({
     }),
   ),
   purchase: purchaseInput,
+});
+
+// The tier one purchase earns by amount, written straight to the owner.
+const applyPurchaseTierInput = z.object({
+  ownerType: z.string(),
+  ownerId: z.string(),
+  accountTypeId: z.string(),
+  bands: z
+    .array(
+      z.object({
+        tier: z.string(),
+        min: z.number().nullish(),
+        max: z.number().nullish(),
+      }),
+    )
+    .min(1),
+  onlyUpgrade: z.boolean().optional(),
+  totalAmount: z.number().min(0),
+  // The record paid for and who saved it, kept on the tier log.
+  targetId: z.string().optional(),
+  targetType: z.string().optional(),
+  targetName: z.string().optional(),
+  actorId: z.string().optional(),
 });
 
 const refundInput = z.object({
@@ -445,6 +469,40 @@ export const appRouter = t.router({
       .query(async ({ ctx, input }) =>
         ctx.models.ScoreCampaigns.previewEarnRules(input),
       ),
+
+    applyPurchaseTier: t.procedure
+      .input(applyPurchaseTierInput)
+      .mutation(async ({ ctx, input }) => {
+        const accountType =
+          await ctx.models.LoyaltyAccountTypes.getActiveAccountType(
+            input.accountTypeId,
+          );
+        const outcome = tierForPurchase(
+          accountType.tiers,
+          { bands: input.bands },
+          input.totalAmount,
+        );
+
+        if ('skip' in outcome) {
+          return { changed: false, skip: outcome.skip };
+        }
+
+        return applyOwnerTier({
+          models: ctx.models,
+          subdomain: ctx.subdomain,
+          accountType,
+          ownerType: input.ownerType,
+          ownerId: input.ownerId,
+          tier: outcome.tier,
+          keepHigher: input.onlyUpgrade,
+          via: {
+            createdBy: input.actorId,
+            targetId: input.targetId,
+            targetType: input.targetType,
+            targetName: input.targetName,
+          },
+        });
+      }),
 
     refund: t.procedure
       .input(refundInput)

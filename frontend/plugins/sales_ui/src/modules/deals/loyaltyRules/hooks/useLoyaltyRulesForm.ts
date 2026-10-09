@@ -1,16 +1,12 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { LOYALTY_RULE_TYPES, TLoyaltyRuleType } from '../constants';
 import {
   SALES_LOYALTY_RULES,
   SALES_LOYALTY_RULES_SAVE,
 } from '../graphql/loyaltyRulesQueries';
-import { loyaltyRulesDialogOpenAtom } from '../states';
 import {
   loyaltyRulesFormSchema,
   TLoyaltyRule,
@@ -60,11 +56,8 @@ const emptyRow = (type: TLoyaltyRuleType): TLoyaltyRuleRow => ({
   refundStageIds: [],
 });
 
-/** The whole configuration, edited in the dialog and saved at once. */
-export const useLoyaltyRulesForm = () => {
-  const { t } = useTranslation('sales');
-  const [open, setOpen] = useAtom(loyaltyRulesDialogOpenAtom);
-
+/** The whole points configuration, edited in the dialog and saved at once. */
+export const useLoyaltyRulesForm = (open: boolean) => {
   const { data, loading, error } = useQuery<{
     salesLoyaltyRules: TLoyaltyRule[];
   }>(SALES_LOYALTY_RULES, { skip: !open, fetchPolicy: 'cache-and-network' });
@@ -87,36 +80,15 @@ export const useLoyaltyRulesForm = () => {
     }
   }, [open, rules, form]);
 
-  const [save, { loading: saving }] = useMutation(SALES_LOYALTY_RULES_SAVE, {
-    refetchQueries: ['SalesLoyaltyRules', 'SalesStageLoyaltyPoints'],
-    awaitRefetchQueries: true,
-  });
-
-  const submit = form.handleSubmit(
-    ({ rules: rows }) =>
-      save({
-        variables: { rules: rows.map(toInput) },
-        onCompleted: () => {
-          toast({ title: t('loyalty-rules-saved'), variant: 'success' });
-          setOpen(false);
-        },
-        onError: (saveError) =>
-          toast({
-            title: t('error'),
-            description: saveError.message,
-            variant: 'destructive',
-          }),
-      }),
-    () =>
-      toast({
-        title: t('loyalty-rules-invalid'),
-        variant: 'destructive',
-      }),
+  const [saveRules, { loading: saving }] = useMutation(
+    SALES_LOYALTY_RULES_SAVE,
+    {
+      refetchQueries: ['SalesLoyaltyRules', 'SalesStageLoyaltyPoints'],
+      awaitRefetchQueries: true,
+    },
   );
 
   return {
-    open,
-    setOpen,
     form,
     fields,
     loading: loading && !rules,
@@ -124,6 +96,7 @@ export const useLoyaltyRulesForm = () => {
     saving,
     add: (type: TLoyaltyRuleType) => append(emptyRow(type)),
     remove,
-    submit,
+    save: ({ rules: rows }: TLoyaltyRulesForm) =>
+      saveRules({ variables: { rules: rows.map(toInput) } }),
   };
 };

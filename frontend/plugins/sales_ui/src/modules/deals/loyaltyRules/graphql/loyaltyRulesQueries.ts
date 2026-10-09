@@ -68,6 +68,10 @@ export const SALES_STAGE_LOYALTY_POINTS = gql`
           ruleType
         }
         refunds
+        tier {
+          accountTypeId
+          ruleType
+        }
       }
     }
   }
@@ -81,6 +85,56 @@ export const SALES_SCORE_CAMPAIGN_OPTIONS = gql`
         _id
         title
         status
+      }
+    }
+  }
+`;
+
+const LOYALTY_TIER_RULE_FIELDS = `
+  _id
+  type
+  accountTypeId
+  bands {
+    tier
+    min
+    max
+  }
+  onlyUpgrade
+  boardId
+  pipelineId
+  earn {
+    probability
+    stageIds
+  }
+`;
+
+export const SALES_LOYALTY_TIER_RULES = gql`
+  query SalesLoyaltyTierRules {
+    salesLoyaltyTierRules {
+      ${LOYALTY_TIER_RULE_FIELDS}
+    }
+  }
+`;
+
+export const SALES_LOYALTY_TIER_RULES_SAVE = gql`
+  mutation SalesLoyaltyTierRulesSave($rules: [SalesLoyaltyTierRuleInput!]!) {
+    salesLoyaltyTierRulesSave(rules: $rules) {
+      ${LOYALTY_TIER_RULE_FIELDS}
+    }
+  }
+`;
+
+// Deals and POS orders belong to customers, so only their wallets with tiers.
+export const SALES_LOYALTY_TIER_WALLETS = gql`
+  query SalesLoyaltyTierWallets {
+    loyaltyAccountTypes(status: "active", ownerType: "customer") {
+      _id
+      name
+      tiers {
+        key
+        name
+        order
+        deprecated
       }
     }
   }

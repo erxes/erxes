@@ -33,7 +33,7 @@ type TRowProps = {
   index: number;
 };
 
-const toIds = (value: string[] | string) =>
+export const toIds = (value: string[] | string) =>
   Array.isArray(value) ? value : value ? [value] : [];
 
 const RowField = ({
@@ -71,7 +71,7 @@ const RowField = ({
   );
 };
 
-const ProbabilitySelect = ({
+export const ProbabilitySelect = ({
   value,
   onChange,
   optional,

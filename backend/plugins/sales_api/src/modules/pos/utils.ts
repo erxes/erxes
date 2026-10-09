@@ -215,6 +215,31 @@ export const earnOrderPoints = async (
       },
     });
   }
+
+  // A return leaves the tier alone; the next purchase sets it again.
+  if (plan.tier) {
+    const { accountTypeId, bands, onlyUpgrade, totalAmount } = plan.tier;
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'applyPurchaseTier',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: plan.customerId,
+        accountTypeId,
+        bands,
+        onlyUpgrade,
+        totalAmount,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        targetName: `POS #${order.number}`,
+        actorId: order.userId,
+      },
+    });
+  }
 };
 
 // A returned order takes back what it earned and gives back what it spent.

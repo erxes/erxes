@@ -1,8 +1,11 @@
 import {
   LOYALTY_RULE_TYPES,
   loyaltyRuleIssue,
+  loyaltyTierRuleIssue,
   resolveLoyaltyRules,
+  resolveLoyaltyTierRule,
   TLoyaltyRule,
+  TLoyaltyTierRule,
 } from '../loyaltyRules';
 
 const place = (
@@ -199,5 +202,65 @@ describe('loyaltyRuleIssue', () => {
         }),
       ),
     ).toBe('earn-and-refund');
+  });
+});
+
+const tierRule = (
+  overrides: Partial<TLoyaltyTierRule> = {},
+): TLoyaltyTierRule => ({
+  _id: 'tier-board',
+  type: LOYALTY_RULE_TYPES.EVERY_BOARD,
+  accountTypeId: 'w1',
+  bands: [{ tier: 'gold', min: 1_000_000 }],
+  earn: { probability: 'Won' },
+  ...overrides,
+});
+
+describe('resolveLoyaltyTierRule', () => {
+  it('sets no tier without rules or outside where the rule sets it', () => {
+    expect(resolveLoyaltyTierRule([], place('won', 'Won'))).toBeNull();
+    expect(
+      resolveLoyaltyTierRule([tierRule()], place('start', '10%')),
+    ).toBeNull();
+  });
+
+  it('lets only the narrowest rule decide, whatever wallet it names', () => {
+    const pipelineRule = tierRule({
+      _id: 'tier-pipeline',
+      type: LOYALTY_RULE_TYPES.EVERY_PIPELINE,
+      boardId: 'b1',
+      accountTypeId: 'w2',
+      earn: { probability: '90%' },
+    });
+
+    expect(
+      resolveLoyaltyTierRule([tierRule(), pipelineRule], place('won', 'Won')),
+    ).toBeNull();
+    expect(
+      resolveLoyaltyTierRule([tierRule(), pipelineRule], place('s', '90%')),
+    ).toMatchObject({ _id: 'tier-pipeline', accountTypeId: 'w2' });
+    expect(
+      resolveLoyaltyTierRule(
+        [tierRule(), pipelineRule],
+        place('won', 'Won', 'p1', 'b2'),
+      ),
+    ).toMatchObject({ _id: 'tier-board' });
+  });
+});
+
+describe('loyaltyTierRuleIssue', () => {
+  it('needs a wallet and a tier on every band', () => {
+    expect(loyaltyTierRuleIssue(tierRule())).toBeNull();
+    expect(loyaltyTierRuleIssue(tierRule({ accountTypeId: '' }))).toBe(
+      'no-wallet',
+    );
+    expect(loyaltyTierRuleIssue(tierRule({ bands: [] }))).toBe('no-bands');
+    expect(loyaltyTierRuleIssue(tierRule({ bands: [{ tier: '' }] }))).toBe(
+      'no-bands',
+    );
+  });
+
+  it('needs somewhere to set the tier', () => {
+    expect(loyaltyTierRuleIssue(tierRule({ earn: {} }))).toBe('no-earn');
   });
 });

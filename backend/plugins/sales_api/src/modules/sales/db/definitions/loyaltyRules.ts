@@ -30,3 +30,34 @@ export const loyaltyRuleSchema = new Schema(
   },
   { timestamps: true },
 );
+
+export const tierBandSchema = new Schema(
+  {
+    tier: { type: String, required: true, label: 'Tier' },
+    min: { type: Number, label: 'From' },
+    max: { type: Number, label: 'To' },
+  },
+  { _id: false },
+);
+
+// Where deals set a wallet's tier by the purchase amount.
+export const loyaltyTierRuleSchema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    type: {
+      type: String,
+      enum: LOYALTY_RULE_TYPE_VALUES,
+      required: true,
+      label: 'Type',
+    },
+    accountTypeId: { type: String, required: true, label: 'Wallet' },
+    bands: { type: [tierBandSchema], label: 'Bands' },
+    onlyUpgrade: { type: Boolean, label: 'Only upgrade' },
+    boardId: { type: String, label: 'Board' },
+    pipelineId: { type: String, label: 'Pipeline' },
+    earn: { type: placeSchema, label: 'Set at' },
+    createdBy: { type: String, label: 'Created by' },
+    updatedBy: { type: String, label: 'Updated by' },
+  },
+  { timestamps: true },
+);

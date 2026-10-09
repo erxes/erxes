@@ -17,13 +17,10 @@ import {
 export function AddLoyaltyScoreForm({
   onOpenChange,
   onCreated,
-  status,
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
   // A campaign made while setting up something else gets picked there.
   onCreated?: (campaignId: string) => void;
-  // Unset keeps the server's draft; set where the campaign is used at once.
-  status?: string;
 }>) {
   const { t } = useTranslation('loyalty');
   const { scoreCampaignAdd, loading: editLoading } = useAddScoreCampaign();
@@ -70,7 +67,6 @@ export function AddLoyaltyScoreForm({
       add: toAddInput(data.add),
       subtract: toSubtractInput(data.subtract),
       accountTypeId: data.accountTypeId || '',
-      ...(status ? { status } : {}),
     };
 
     scoreCampaignAdd({

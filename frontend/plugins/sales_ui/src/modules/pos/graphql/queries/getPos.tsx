@@ -13,6 +13,7 @@ export const posCommonFields = `
   paymentIds
   paymentTypes
   earnScoreCampaignId
+  earnTier
   user {
     _id
     details {

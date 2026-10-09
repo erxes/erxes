@@ -13,16 +13,8 @@ import {
   ILoyaltyPurchaseItem,
 } from '@/score/@types/purchase';
 import { IModels } from '~/connectionResolvers';
-import { setAccountTier } from '@/score/services/accountTier';
-import { tierForAmount } from '@/score/services/tierBands';
-import {
-  matchesTierChanged,
-  tierDirection,
-} from '@/score/services/tierChanged';
-import {
-  ACCOUNT_OWNER_TYPES,
-  resolveBalanceOwner,
-} from '@/score/services/scoreLedger';
+import { applyOwnerTier, tierForPurchase } from '@/score/services/purchaseTier';
+import { matchesTierChanged } from '@/score/services/tierChanged';
 import {
   AdjustScoreActionConfig,
   LoyaltyAutomationAction,
@@ -180,32 +172,12 @@ const setTier = async ({
   );
   const ownerType = getOwnerTypeFromAttribution(config.attribution);
   const byAmount = !!config.bands?.length;
-  const tierOrder = (key: string) =>
-    accountType.tiers.find((tier) => tier.key === key)?.order ?? -1;
-  // Where two ranges meet, the higher tier wins, however they were entered.
   const outcome = byAmount
-    ? tierForAmount(
-        {
-          ...config,
-          bands: [...(config.bands || [])].sort(
-            (a, b) => tierOrder(b.tier) - tierOrder(a.tier),
-          ),
-        },
-        inputs?.totalAmount,
-      )
+    ? tierForPurchase(accountType.tiers, config, inputs?.totalAmount)
     : { tier: config.tier || '' };
 
   if ('skip' in outcome) {
     return buildSkippedAction(outcome.skip, outcome);
-  }
-
-  if (
-    ACCOUNT_OWNER_TYPES[accountType.ownerType] !==
-    ACCOUNT_OWNER_TYPES[ownerType]
-  ) {
-    throw new Error(
-      `${accountType.name} belongs to ${accountType.ownerType} owners, not ${ownerType}`,
-    );
   }
 
   const ownerIds = await resolveOwnerIds({
@@ -219,36 +191,20 @@ const setTier = async ({
   }
 
   return Promise.all(
-    ownerIds.map(async (ownerId) => {
-      const { accountOwnerType, recordId } = await resolveBalanceOwner(
-        subdomain,
-        ownerType,
-        ownerId,
-      );
-      const account = await models.LoyaltyAccounts.ensureOwnerAccount({
-        ownerType: accountOwnerType,
-        ownerId: recordId,
-      });
-      const current = account.balances?.get(accountType._id)?.tier || null;
-
+    ownerIds.map(async (ownerId) => ({
+      ownerId,
       // A smaller purchase later must not undo a tier an earlier one earned.
-      if (
-        (byAmount ? config.onlyUpgrade : config.keepHigherTier) &&
-        tierDirection(accountType.tiers, current, outcome.tier) === 'down'
-      ) {
-        return { ownerId, from: current, to: current, changed: false };
-      }
-
-      const { from, to, changed } = await setAccountTier({
+      ...(await applyOwnerTier({
         models,
         subdomain,
-        accountId: account._id,
-        accountTypeId: accountType._id,
-        tier: outcome.tier || null,
-      });
-
-      return { ownerId, from, to, changed };
-    }),
+        accountType,
+        ownerType,
+        ownerId,
+        tier: outcome.tier,
+        keepHigher: byAmount ? config.onlyUpgrade : config.keepHigherTier,
+        via: { createdVia: execution.createdVia },
+      })),
+    })),
   ).then((result) => ({ result }));
 };
 

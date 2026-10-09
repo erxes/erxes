@@ -107,6 +107,13 @@
   `score.earn` (`dealScoreTotal`, `dealPaidAmount`, `dealPurchaseItems`) for the
   first customer, so edits and a return from a refund stage are counted; no
   customer means no earn and no error. Stage `refundPoints` is no longer read.
+  A purchase also sets one wallet's tier by its amount from
+  `sales_loyalty_tier_rules` (same places as points rules, but only the
+  single narrowest tier rule reaching a stage counts, whatever wallet it
+  names: `resolveLoyaltyTierRule`): after the earns, `syncDealPoints` calls
+  loyalty `score.applyPurchaseTier` with the rule's bands and `onlyUpgrade`
+  and `dealScoreTotal`, naming the deal (`targetName`: its name, else
+  `#number`) and the saving user so loyalty logs the change. Tiers are never refunded or set in a refund stage.
   Deals written outside the deal mutations go through `syncWrittenDealPoints`
   (read before, compared after): tRPC `deal.create` / `deal.updateOne`,
   invoice-created deals, automation create-deal actions (after the source
@@ -116,8 +123,11 @@
   with loyalty disabled they do nothing. POS order sync calls `score.spend`
   (`spendOrderPoints`, also after `posOrderChangePayments`), `score.earn` for
   the POS's one `earnScoreCampaignId` once paid (`planOrderPoints` /
-  `earnOrderPoints`), and `score.refund` for returned orders, still without
-  throwing.
+  `earnOrderPoints`), `score.applyPurchaseTier` for the POS's one `earnTier`
+  (`{accountTypeId, bands, onlyUpgrade}`, checked by `validateEarnTier`) with
+  the order's `totalAmount` (with the order, named `POS #number`, and its
+  cashier as target and actor), and `score.refund` for returned orders (the tier
+  stays), still without throwing.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
@@ -312,8 +322,12 @@
   directories for platform and cross-plugin callers (not agent-visible).
 - GraphQL `salesLoyaltyRules` and `salesLoyaltyRulesSave(rules)` (whole
   configuration replaced at once, `pipelinesEdit` permission, validated by
-  `loyaltyRuleIssue`); `Pos.earnScoreCampaignId`; `SalesStage.loyaltyPoints`
-  (what the saved rules make of a stage, for the pipeline editor's badges).
+  `loyaltyRuleIssue`); `salesLoyaltyTierRules` and
+  `salesLoyaltyTierRulesSave(rules)` (same, validated by
+  `loyaltyTierRuleIssue`); `Pos.earnScoreCampaignId`; `Pos.earnTier` (JSON);
+  `SalesStage.loyaltyPoints`
+  (what the saved rules make of a stage, for the pipeline editor's badges:
+  `earns`, `refunds`, and the `tier` rule it sets, none in a refund stage).
 - Record reference resolvers under `src/modules/sales/meta/references`.
 - Sales metadata and automation contracts under `src/modules/sales/meta`.
 
@@ -342,6 +356,9 @@
   `paymentsData`.
 - Pipeline payment type configuration may attach `scoreCampaignId` to payment
   types used by loyalty-related references.
+- Loyalty rules live in `sales_loyalty_rules` (points) and
+  `sales_loyalty_tier_rules` (tier by amount); a POS keeps its own
+  `earnScoreCampaignId` and `earnTier`.
 
 ## Local Invariants
 
@@ -456,6 +473,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-09` — Purchases set a tier without automations
+
+- **Summary:** One tier per purchase, configured beside the points rules: deals by the narrowest tier rule at their stage, POS orders by the POS's `earnTier`; both call loyalty `score.applyPurchaseTier` and never undo it.
+- **Affected areas:** `modules/sales/utils/{loyaltyRules,dealPoints}.ts` (+ tests), `modules/sales/db/{definitions/loyaltyRules.ts,models/LoyaltyTierRules.ts}`, `modules/sales/graphql/{schemas/loyaltyRule.ts,resolvers/*/loyaltyRules.ts}`, `connectionResolvers.ts`, `modules/pos/{orderPoints.ts,utils.ts,@types/pos.ts,db/definitions/pos.ts,db/models/Pos.ts,graphql/schemas/pos.ts}` (+ tests).
+- **Contracts changed:** `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `Pos.earnTier`; calls loyalty `score.applyPurchaseTier`.
+
 ### `2026-10-08` — Deals and POS earn without automations
 
 - **Summary:** Earning follows where a deal stands, configured as board/pipeline/stage rules in sales; paid POS orders earn in the POS's campaigns. Rules replace the stage `refundPoints` setting.
@@ -526,16 +549,3 @@
 - **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
 - **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
 - **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from both the sales and POS module handlers; automation
-  target matching now runs through the segment engine, so the Elasticsearch-era
-  selector round-trip has no caller left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/sales/meta/automations/automationHandlers.ts`,
-  `src/modules/pos/meta/automations/automationHandlers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
