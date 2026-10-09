@@ -1593,6 +1593,9 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   `!customerId && callProPotentialCustomerIds.length > 1`; once a customer is
   attached the same component reappears as the confirm/switch list built from
   `callProCustomersByPhone`, and only when that returns more than one match.
+  That query selects the core `Customer` inline fields, and
+  `useCallProCustomersByPhone` drops rows without an `_id` and maps null
+  fields to `undefined` so the rows are `ICustomer`s.
 - Call Pro follows the `call` module's integration-form shape: `callProAddSheetAtom`
   (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
   single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
@@ -2159,8 +2162,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
-  `knowledgebase`, `helpcenter`, `forms`, `activity`, and the Facebook,
-  Instagram and knowledge base automation widgets) writes every document as
+  `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
+  and the Facebook, Instagram and knowledge base automation widgets) writes
+  every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
