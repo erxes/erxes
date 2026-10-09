@@ -2,7 +2,11 @@
   "account": "Миний бүртгэл",
   "workspace": "Ажлын орчин",
   "developer": "Хөгжүүлэгч",
-  "client-portal": "Харилцагчийн портал",
+  "client-portal": {
+    "_": "Харилцагчийн портал",
+    "client-portal": "Харилцагчийн портал",
+    "no-client-portal-found": "Харилцагчийн порталууд олдсонгүй"
+  },
   "core-modules": "Үндсэн модулиуд",
   "products": "Бүтээгдэхүүнүүд",
   "automations": "Автоматжуулалтууд",
@@ -303,5 +307,20 @@
     "archive-option-segments": "Segment: {{names}}",
     "archive-option-check": "Энэ property-г ашигладаг automation, broadcast, гадны form-уудаа мөн шалгана уу.",
     "option-archived-in-use": "Archive хийсэн ч {{count}} record хадгалсаар байна. Ашигладаг тохиргоонуудаа шалгаад, солих эсвэл ашиглалтгүй болсон үед нь устгана уу."
+  },
+  "app-tokens": {
+    "_": "Апп токен",
+    "app-tokens": "Апп токенууд",
+    "no-app-tokens-found": "Апп токен олдсонгүй"
+  },
+  "system-logs": {
+    "_": "Системийн бүртгэл",
+    "no-system-logs-found": "Одоо системийн бүртгэл олдсонгүй",
+    "system-logs-description": "Таны хайлтад тохирсон зүйл олдсонгүй. Шүүлтүүрийг орлуулж, хайлтын тэмдэгтийг өөрчилж үзнэ үү."
+  },
+  "email-deliveries": {
+    "_": "Имэйл хүргэлтүүд",
+    "no-email-deliveries-found": "Имэйл олдсонгүй",
+    "email-deliveries-description": "Имэйл хүргэлтүүд энд харагдах болно, таны имэйл өгөгдөл оруулсны дараа."
   }
 }

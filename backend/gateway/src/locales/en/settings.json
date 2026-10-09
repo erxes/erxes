@@ -2,7 +2,11 @@
   "account": "Account",
   "workspace": "Workspace",
   "developer": "Developer",
-  "client-portal": "Client Portal",
+  "client-portal": {
+    "_": "Client Portal",
+    "client-portal": "Client Portal",
+    "no-client-portal-found": "No client portal found"
+  },
   "core-modules": "Core Modules",
   "products": "Products",
   "automations": "Automations",
@@ -308,5 +312,20 @@
     "archive-option-check": "Also check automations, broadcasts and external forms that use this property.",
     "option-archived-in-use": "Archived, but {{count}} records still hold it. Review the settings that use it, then replace it or delete it once unused.",
     "option-archived-in-use_one": "Archived, but {{count}} record still holds it. Review the settings that use it, then replace it or delete it once unused."
+  },
+  "app-tokens": {
+    "_": "App Tokens",
+    "app-tokens": "App Tokens",
+    "no-app-tokens-found": "No app tokens found"
+  },
+  "system-logs": {
+    "_": "System Logs",
+    "no-system-logs-found": "No results found yet",
+    "system-logs-description": "We couldn't find anything matching your search. Try adjusting your filters or search query."
+  },
+  "email-deliveries": {
+    "_": "Email Deliveries",
+    "no-email-deliveries-found": "No emails found yet",
+    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it."
   }
 }
