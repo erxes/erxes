@@ -21,6 +21,25 @@ type DispatchedMessageData = {
   'messageKind' | 'providerData' | 'replyTo' | 'deliveryStatus'
 >;
 
+const getDispatchedMessageExtraData = (
+  extraData: DispatchedMessageData['extraData'],
+  forwardedSnapshot: Record<string, unknown> | undefined,
+  doc: IConversationMessageAdd,
+): { extraData?: Record<string, unknown> } => {
+  if (!extraData && !forwardedSnapshot) {
+    return {};
+  }
+  return {
+    extraData: {
+      ...extraData,
+      ...(forwardedSnapshot && {
+        forwardedSnapshot,
+        forwardedFrom: doc.extraInfo?.forwardedFrom,
+      }),
+    },
+  };
+};
+
 export const storeDispatchedMessage = async ({
   data,
   doc,
@@ -71,17 +90,7 @@ export const storeDispatchedMessage = async ({
     ...(forwardedSnapshot
       ? { content: doc.extraInfo?.forwardedNote || '' }
       : {}),
-    ...(extraData || forwardedSnapshot
-      ? {
-          extraData: {
-            ...extraData,
-            ...(forwardedSnapshot && {
-              forwardedSnapshot,
-              forwardedFrom: doc.extraInfo?.forwardedFrom,
-            }),
-          },
-        }
-      : {}),
+    ...getDispatchedMessageExtraData(extraData, forwardedSnapshot, doc),
     ...(messageKind ? { messageKind } : {}),
     ...(providerData ? { providerData } : {}),
     ...(replyTo ? { replyTo } : {}),

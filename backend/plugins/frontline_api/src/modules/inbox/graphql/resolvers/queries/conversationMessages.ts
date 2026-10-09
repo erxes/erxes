@@ -3,12 +3,23 @@ import { authorizeConversationAccess } from '@/inbox/utils/conversationAccess';
 import { IContext } from '~/connectionResolvers';
 
 export const conversationMessageQueries = {
-  conversationMessage(
+  async conversationMessage(
     _root: unknown,
     { _id }: { _id: string },
-    { models }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
-    return models.ConversationMessages.findOne({ _id });
+    await checkPermission('showConversations');
+    const message = await models.ConversationMessages.findOne({ _id });
+    if (!message) {
+      return message;
+    }
+    await authorizeConversationAccess(
+      models,
+      user,
+      message.conversationId,
+      subdomain,
+    );
+    return message;
   },
   async conversationPinnedMessages(
     _root: unknown,
@@ -39,8 +50,10 @@ export const conversationMessageQueries = {
       limit: number;
       getFirst: boolean;
     },
-    { models }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('showConversations');
+    await authorizeConversationAccess(models, user, conversationId, subdomain);
     const query = { conversationId };
 
     let messages: IMessageDocument[] = [];
@@ -67,11 +80,13 @@ export const conversationMessageQueries = {
   /**
    *  Get all conversation messages count. We will use it in pager
    */
-  conversationMessagesTotalCount(
+  async conversationMessagesTotalCount(
     _root: unknown,
     { conversationId }: { conversationId: string },
-    { models }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('showConversations');
+    await authorizeConversationAccess(models, user, conversationId, subdomain);
     return models.ConversationMessages.countDocuments({ conversationId });
   },
 };

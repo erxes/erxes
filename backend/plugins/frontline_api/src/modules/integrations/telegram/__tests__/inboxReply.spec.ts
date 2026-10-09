@@ -57,7 +57,7 @@ const addMessage = jest.fn();
 const context = {
   subdomain: 'test-tenant',
   user: { _id: 'staff' },
-  checkPermission: jest.fn().mockResolvedValue(undefined),
+  checkPermission: jest.fn(),
   models: {
     Conversations: {
       getConversation,

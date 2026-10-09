@@ -1,21 +1,20 @@
 import type { MessagePresentationState } from '@/inbox/conversation-messages/types/MessagePresentation';
-import { stripHtml } from 'erxes-ui';
-import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
-import { IntegrationType } from '@/types/Integration';
 import { getMessageDisplay } from '@/inbox/conversation-messages/utils/messageDisplay';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import {
+  getAuthorPresentation,
+  hasVisibleText,
+} from '@/inbox/conversation-messages/utils/messagePresentation';
+
 export const useMessagePresentation = (): MessagePresentationState => {
   const { previousMessage, ...message } = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
   const {
-    userId,
-    customerId,
     attachments,
     extraData,
     fromBot,
     separatePrevious,
-    isGroupConversation,
     isBotMessage,
     messageKind,
     providerData,
@@ -43,27 +42,10 @@ export const useMessagePresentation = (): MessagePresentationState => {
     Boolean(extraData?.discordDeletedAt) ||
     messageKind === 'deleted' ||
     deliveryStatus === 'deleted';
-  const hasTextBubble =
-    !isDeleted &&
-    Boolean(normalizedDisplayContent) &&
-    normalizedDisplayContent !== HAS_ATTACHMENT &&
-    Boolean(
-      normalizedDisplayContent
-        ? stripHtml(normalizedDisplayContent).replace(/\s/g, '')
-        : '',
-    );
-  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
-  const telegramAuthor =
-    isTelegram && !userId && extraData?.telegram?.chatType !== 'private'
-      ? extraData?.telegram?.senderName
-      : undefined;
-  const showAuthorName = Boolean(
-    (isGroupConversation ||
-      integration?.kind === IntegrationType.DISCORD_MESSENGER ||
-      telegramAuthor) &&
-    !userId &&
-    (customerId || telegramAuthor) &&
-    separatePrevious,
+  const hasTextBubble = hasVisibleText(normalizedDisplayContent, isDeleted);
+  const { isTelegram, telegramAuthor, showAuthorName } = getAuthorPresentation(
+    message,
+    integration,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -73,19 +55,20 @@ export const useMessagePresentation = (): MessagePresentationState => {
     messageKind === 'story_mention' || messageKind === 'story_reply';
   const fallbackText = providerData?.fallbackReason;
 
-  const hasRenderableContent =
-    isDeleted ||
-    hasTextBubble ||
-    Boolean(attachments?.length) ||
-    messageKind === 'share' ||
-    Boolean(extraData?.voiceMessage) ||
-    Boolean(poll) ||
-    Boolean(survey) ||
-    Boolean(embeds?.length) ||
-    Boolean(stickers?.length) ||
-    Boolean(forwardedSnapshot) ||
-    Boolean(fallbackText) ||
-    isStory;
+  const hasRenderableContent = [
+    isDeleted,
+    hasTextBubble,
+    attachments?.length,
+    messageKind === 'share',
+    extraData?.voiceMessage,
+    poll,
+    survey,
+    embeds?.length,
+    stickers?.length,
+    forwardedSnapshot,
+    fallbackText,
+    isStory,
+  ].some(Boolean);
 
   return {
     message,
