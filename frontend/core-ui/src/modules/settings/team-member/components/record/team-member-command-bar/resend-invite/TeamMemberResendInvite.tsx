@@ -28,7 +28,7 @@ export const TeamMemberResendInvite = ({
       toast({
         title: t('success'),
         variant: 'success',
-        description: t('invitations-resent', { sentCount: sent }),
+        description: t('invitations-resent', { count: sent }),
       });
       table.setRowSelection({});
       onCompleted();
@@ -39,7 +39,7 @@ export const TeamMemberResendInvite = ({
         title: t('error'),
         variant: 'destructive',
         description: `${t('failed-to-resend-invitations', {
-          failedCount: failed,
+          count: failed,
         })}${firstError ? `: ${firstError}` : ''}`,
       });
     }

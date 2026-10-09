@@ -23,7 +23,7 @@ export const TeamMemberDelete = ({
         onSelect={() =>
           confirm({
             message: t('confirm-delete-team-members', {
-              memberCount: teamMemberIds.length,
+              count: teamMemberIds.length,
             }),
           }).then(async () => {
             try {

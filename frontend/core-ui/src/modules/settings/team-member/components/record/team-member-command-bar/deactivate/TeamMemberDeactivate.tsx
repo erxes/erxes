@@ -36,7 +36,7 @@ export const TeamMemberDeactivate = ({
         onSelect={() =>
           confirm({
             message: t('confirm-deactivate-team-members', {
-              memberCount: teamMemberIds.length,
+              count: teamMemberIds.length,
             }),
           }).then(async () => {
             try {
@@ -47,7 +47,7 @@ export const TeamMemberDeactivate = ({
                 title: t('success'),
                 variant: 'success',
                 description: t('team-members-deactivated', {
-                  memberCount: teamMemberIds.length,
+                  count: teamMemberIds.length,
                 }),
               });
             } catch (error) {

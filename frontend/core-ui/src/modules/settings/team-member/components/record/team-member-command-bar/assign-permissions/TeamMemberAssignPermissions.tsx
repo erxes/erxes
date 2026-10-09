@@ -95,7 +95,7 @@ export const TeamMemberAssignPermissionsContent = ({
         toast({
           title: t('permission-groups-assigned'),
           description: t('updated-team-members', {
-            memberCount: teamMemberIds.length,
+            count: teamMemberIds.length,
           }),
           variant: 'success',
         });
@@ -186,10 +186,8 @@ export const TeamMemberAssignPermissionsContent = ({
       </Command.List>
       <div className="flex items-center justify-between gap-2 border-t p-3">
         <span className="text-xs text-muted-foreground">
-          {t('groups-members-count', {
-            groupCount: selectedGroupIds.length,
-            memberCount: teamMemberIds.length,
-          })}
+          {t('groups-count', { count: selectedGroupIds.length })} ·{' '}
+          {t('members-count', { count: teamMemberIds.length })}
         </span>
         <Button
           size="sm"
