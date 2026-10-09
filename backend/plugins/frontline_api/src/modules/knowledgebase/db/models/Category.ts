@@ -11,12 +11,12 @@ export interface ICategoryModel extends Model<ICategoryDocument> {
   getCategory(_id: string): Promise<ICategoryDocument>;
   createDoc(
     docFields: ICategoryCreate,
-    userId?: string
+    userId?: string,
   ): Promise<ICategoryDocument>;
   updateDoc(
     _id: string,
     docFields: ICategoryCreate,
-    userId?: string
+    userId?: string,
   ): Promise<ICategoryDocument>;
   getSubtreeIds(_id: string): Promise<string[]>;
   removeDoc(categoryId: string): Promise<void>;
@@ -43,7 +43,7 @@ export const loadCategoryClass = (models: IModels) => {
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
-        modifiedDate: new Date()
+        modifiedDate: new Date(),
       });
 
       return category;
@@ -52,7 +52,7 @@ export const loadCategoryClass = (models: IModels) => {
     public static async updateDoc(
       _id: string,
       docFields: ICategoryCreate,
-      userId?: string
+      userId?: string,
     ) {
       if (!userId) {
         throw new Error('userId must be supplied');
@@ -69,7 +69,7 @@ export const loadCategoryClass = (models: IModels) => {
         }
 
         const childrenCounts = await models.Category.countDocuments({
-          parentCategoryId: _id
+          parentCategoryId: _id,
         });
 
         if (childrenCounts > 0) {
@@ -80,7 +80,7 @@ export const loadCategoryClass = (models: IModels) => {
 
         if (parent.topicId !== topicId) {
           throw new Error(
-            'Parent category must belong to the same knowledge base'
+            'Parent category must belong to the same knowledge base',
           );
         }
       }
@@ -92,9 +92,9 @@ export const loadCategoryClass = (models: IModels) => {
             ...docFields,
             ...(movesTopic && !parentId ? { parentCategoryId: '' } : {}),
             modifiedBy: userId,
-            modifiedDate: new Date()
-          }
-        }
+            modifiedDate: new Date(),
+          },
+        },
       );
 
       if (movesTopic) {
@@ -102,12 +102,12 @@ export const loadCategoryClass = (models: IModels) => {
 
         await models.Category.updateMany(
           { _id: { $in: subtreeIds } },
-          { $set: { topicId } }
+          { $set: { topicId } },
         );
 
         await models.Article.updateMany(
           { categoryId: { $in: subtreeIds } },
-          { $set: { topicId } }
+          { $set: { topicId } },
         );
       }
 
@@ -122,7 +122,7 @@ export const loadCategoryClass = (models: IModels) => {
       for (let index = 0; index < ids.length; index++) {
         const children = await models.Category.find(
           { parentCategoryId: ids[index] },
-          { _id: 1 }
+          { _id: 1 },
         ).lean();
 
         children.forEach((child) => {
@@ -143,7 +143,7 @@ export const loadCategoryClass = (models: IModels) => {
       }
 
       await models.Category.deleteMany({
-        categoryId: _id
+        categoryId: _id,
       });
 
       return models.Category.deleteOne({ _id });

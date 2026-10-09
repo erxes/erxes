@@ -26,9 +26,7 @@ import {
   TKbTopic,
 } from './utils';
 
-type TView =
-  | { type: 'category'; id: string }
-  | { type: 'article'; id: string };
+type TView = { type: 'category'; id: string } | { type: 'article'; id: string };
 
 const ARTICLE_BODY_CLASS = cn(
   'text-sm leading-relaxed text-foreground',

@@ -64,7 +64,9 @@
   opacity: 0;
   transform: translateY(12px) scale(0.98);
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .erxes-kb-right .erxes-kb-panel {

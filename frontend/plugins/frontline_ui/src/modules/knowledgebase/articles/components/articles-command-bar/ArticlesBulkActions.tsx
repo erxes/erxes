@@ -3,14 +3,7 @@ import {
   IconProgressCheck,
   type Icon,
 } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-} from 'erxes-ui';
+import { Button, cn, Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';

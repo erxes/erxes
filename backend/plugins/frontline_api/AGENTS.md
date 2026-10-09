@@ -1105,7 +1105,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   differing from the stored one) together with its whole subtree
   (`getSubtreeIds`) and every article in it (their `topicId` too). A moved
   category without a parent in the doc becomes a root (`parentCategoryId:
-  ''`), and a parent from another topic is rejected. `''` and a missing
+''`), and a parent from another topic is rejected. `''` and a missing
   `parentCategoryId` both mean a root category.
 
 - A ticket property option marked `deprecated` (archived) in core is never

@@ -180,36 +180,39 @@ export const useDuplicateArticle = (topicId: string) => {
   });
 
   const duplicateArticle = (article: IArticle) =>
-    run(async () => {
-      const detail = await fetchDetail(article._id);
+    run(
+      async () => {
+        const detail = await fetchDetail(article._id);
 
-      if (!detail) {
-        throw new Error(t('kb-article-not-found', 'Article not found'));
-      }
+        if (!detail) {
+          throw new Error(t('kb-article-not-found', 'Article not found'));
+        }
 
-      const pdf = toAttachmentInput(detail.pdfAttachment?.pdf);
+        const pdf = toAttachmentInput(detail.pdfAttachment?.pdf);
 
-      await addArticle({
-        variables: {
-          doc: {
-            title: t('kb-article-copy-title', {
-              title: detail.title,
-              defaultValue: '{{title}} (copy)',
-            }),
-            summary: detail.summary,
-            content: detail.content || '<p></p>',
-            status: 'draft',
-            isPrivate: detail.isPrivate ?? false,
-            reactionChoices: detail.reactionChoices ?? [],
-            topicId,
-            categoryId: detail.categoryId,
-            image: toAttachmentInput(detail.image),
-            attachments: (detail.attachments ?? []).map(toAttachmentInput),
-            pdfAttachment: pdf ? { pdf } : undefined,
+        await addArticle({
+          variables: {
+            doc: {
+              title: t('kb-article-copy-title', {
+                title: detail.title,
+                defaultValue: '{{title}} (copy)',
+              }),
+              summary: detail.summary,
+              content: detail.content || '<p></p>',
+              status: 'draft',
+              isPrivate: detail.isPrivate ?? false,
+              reactionChoices: detail.reactionChoices ?? [],
+              topicId,
+              categoryId: detail.categoryId,
+              image: toAttachmentInput(detail.image),
+              attachments: (detail.attachments ?? []).map(toAttachmentInput),
+              pdfAttachment: pdf ? { pdf } : undefined,
+            },
           },
-        },
-      });
-    }, t('kb-article-duplicated', 'Article duplicated as a draft'));
+        });
+      },
+      t('kb-article-duplicated', 'Article duplicated as a draft'),
+    );
 
   return { duplicateArticle, loading };
 };
