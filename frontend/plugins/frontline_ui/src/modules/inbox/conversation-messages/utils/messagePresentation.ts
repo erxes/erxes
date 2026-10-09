@@ -36,9 +36,9 @@ export const getAuthorPresentation = (
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER ||
       telegramAuthor) &&
-      !userId &&
-      (customerId || telegramAuthor) &&
-      separatePrevious,
+    !userId &&
+    (customerId || telegramAuthor) &&
+    separatePrevious,
   );
   return { isTelegram, telegramAuthor, showAuthorName };
 };
