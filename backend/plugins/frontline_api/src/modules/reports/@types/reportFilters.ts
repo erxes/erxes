@@ -1,5 +1,14 @@
 export type IReportFilters = {
   date?: string;
+  statusChangedDate?: string;
+  updatedAtDate?: string;
+  statusChangedFromDate?: string;
+  statusChangedToDate?: string;
+  updatedFromDate?: string;
+  updatedToDate?: string;
+  description?: string;
+  statusChangedByIds?: string[];
+  updatedByIds?: string[];
   fromDate?: string;
   channelIds?: string[];
   memberIds?: string[];

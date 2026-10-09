@@ -6,6 +6,16 @@ export const types = `
   }
 
   input TicketReportFilter {
+    statusChangedDate: String
+    updatedAtDate: String
+    statusChangedFromDate: String
+    statusChangedToDate: String
+    updatedFromDate: String
+    updatedToDate: String
+    description: String
+    statusChangedByIds: [String]
+    updatedByIds: [String]
+
     date: String
     fromDate: String
     toDate: String
@@ -104,6 +114,10 @@ export const types = `
     startDate: Date
     targetDate: Date
     updatedAt: Date
+    description: String
+    statusChangedDate: Date
+    statusChangedByName: String
+    updatedByName: String
     number: String
     statusName: String
     createdByName: String

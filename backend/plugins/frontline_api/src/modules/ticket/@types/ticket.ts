@@ -38,6 +38,8 @@ export interface ITicket {
   assigneeId?: string;
   assignedMembers?: string[];
   createdBy?: string;
+  updatedBy?: string;
+  statusChangedBy?: string;
   userId?: string;
   startDate?: Date;
   targetDate?: Date;

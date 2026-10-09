@@ -886,7 +886,12 @@ export const reportTicketQueries = {
       ...new Set(tickets.map((t: any) => t[key]).filter(Boolean)),
     ];
     const memberIds = [
-      ...new Set([...uniqueIds('assigneeId'), ...uniqueIds('createdBy')]),
+      ...new Set([
+        ...uniqueIds('assigneeId'),
+        ...uniqueIds('createdBy'),
+        ...uniqueIds('statusChangedBy'),
+        ...uniqueIds('updatedBy'),
+      ]),
     ];
     const pipelineIds = uniqueIds('pipelineId');
     const statusIds = uniqueIds('statusId');
@@ -979,6 +984,14 @@ export const reportTicketQueries = {
       startDate: ticket.startDate,
       targetDate: ticket.targetDate,
       updatedAt: ticket.updatedAt,
+      description: ticket.description,
+      statusChangedDate: ticket.statusChangedDate,
+      statusChangedByName: ticket.statusChangedBy
+        ? memberMap.get(ticket.statusChangedBy.toString()) || 'Unknown'
+        : '',
+      updatedByName: ticket.updatedBy
+        ? memberMap.get(ticket.updatedBy.toString()) || 'Unknown'
+        : '',
       statusName: ticket.statusId
         ? statusNameMap.get(ticket.statusId.toString()) || ''
         : '',
