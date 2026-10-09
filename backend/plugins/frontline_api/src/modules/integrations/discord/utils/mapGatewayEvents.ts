@@ -4,12 +4,15 @@ import type {
   GatewayMessagePollVoteDispatchData,
   GatewayMessageReactionAddDispatchData,
   GatewayMessageReactionRemoveDispatchData,
+  GatewayMessageReactionRemoveAllDispatchData,
+  GatewayMessageReactionRemoveEmojiDispatchData,
   GatewayTypingStartDispatchData,
 } from 'discord-api-types/v10';
 import type {
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
   DiscordReactionEvent,
+  DiscordReactionClearEvent,
   DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 
@@ -27,6 +30,16 @@ export const mapPollVoteToEvent = (
   raw: payload,
 });
 
+const reactionEmoji = (
+  emoji: GatewayMessageReactionAddDispatchData['emoji'],
+): string => {
+  const animatedPrefix = emoji.animated ? 'a' : '';
+  const emojiName = emoji.name || 'emoji';
+  return emoji.id
+    ? `<${animatedPrefix}:${emojiName}:${emoji.id}>`
+    : emoji.name || '♥';
+};
+
 /** Convert a gateway reaction event into an inbox reaction event. */
 export const mapReactionToEvent = (
   payload:
@@ -34,20 +47,28 @@ export const mapReactionToEvent = (
     | GatewayMessageReactionRemoveDispatchData,
   added: boolean,
 ): DiscordReactionEvent => {
-  const animatedPrefix = payload.emoji.animated ? 'a' : '';
-  const emojiName = payload.emoji.name || 'emoji';
   return {
     source: 'discord',
     messageId: payload.message_id,
     channelId: payload.channel_id,
     userId: payload.user_id,
-    emoji: payload.emoji.id
-      ? `<${animatedPrefix}:${emojiName}:${payload.emoji.id}>`
-      : payload.emoji.name || '♥',
+    emoji: reactionEmoji(payload.emoji),
     added,
     raw: payload,
   };
 };
+
+export const mapReactionClearToEvent = (
+  payload:
+    | GatewayMessageReactionRemoveAllDispatchData
+    | GatewayMessageReactionRemoveEmojiDispatchData,
+): DiscordReactionClearEvent => ({
+  source: 'discord',
+  messageId: payload.message_id,
+  channelId: payload.channel_id,
+  ...('emoji' in payload && { emoji: reactionEmoji(payload.emoji) }),
+  raw: payload,
+});
 
 export const mapTypingStartToEvent = (
   payload: GatewayTypingStartDispatchData,

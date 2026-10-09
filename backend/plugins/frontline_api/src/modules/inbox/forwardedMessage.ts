@@ -13,6 +13,7 @@ export const resolveForwardedSnapshotForMessage = async (
   models: IModels,
   user: IAuthUser | null | undefined,
   extraInfo: unknown,
+  subdomain: string,
 ): Promise<Record<string, unknown> | undefined> => {
   const forwardInfo = isRecord(extraInfo) ? extraInfo : undefined;
   if (!forwardInfo?.forwardedFrom && !forwardInfo?.forwardedSnapshot) {
@@ -35,7 +36,12 @@ export const resolveForwardedSnapshotForMessage = async (
     throw new Error('A forwarded message needs a valid source');
   }
 
-  await authorizeConversationAccess(models, user, sourceConversationId);
+  await authorizeConversationAccess(
+    models,
+    user,
+    sourceConversationId,
+    subdomain,
+  );
   const sourceMessage = await models.ConversationMessages.findOne({
     _id: sourceMessageId,
     conversationId: sourceConversationId,

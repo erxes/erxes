@@ -21,11 +21,11 @@ export const types = `
 `;
 
 export const queries = `
-  frontlineCustomDomain: FrontlineCustomDomain
+  frontlineCustomDomain(helpCenterId: String!): FrontlineCustomDomain
 `;
 
 export const mutations = `
-  frontlineCustomDomainSave(hostname: String!): FrontlineCustomDomain
-  frontlineCustomDomainRefresh: FrontlineCustomDomain
-  frontlineCustomDomainReset: FrontlineCustomDomain
+  frontlineCustomDomainSave(helpCenterId: String!, hostname: String!): FrontlineCustomDomain
+  frontlineCustomDomainRefresh(helpCenterId: String!): FrontlineCustomDomain
+  frontlineCustomDomainReset(helpCenterId: String!): FrontlineCustomDomain
 `;

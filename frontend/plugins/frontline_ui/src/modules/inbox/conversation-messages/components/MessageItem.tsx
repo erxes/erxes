@@ -92,6 +92,7 @@ export const MessageItem = () => {
     showBotName,
     emptyMessageSpacing,
     hasRenderableContent,
+    telegramAuthor,
   } = presentation;
   const {
     _id,
@@ -136,6 +137,7 @@ export const MessageItem = () => {
         previousCreatedAt={previousMessage?.createdAt}
       />
       <MessageAuthorHeader
+        authorName={showAuthorName ? telegramAuthor : undefined}
         customerId={showAuthorName ? customerId : undefined}
         showBotName={showBotName}
       />

@@ -10,6 +10,7 @@ import {
   mapMessageDeleteToEvent,
   mapPollVoteToEvent,
   mapReactionToEvent,
+  mapReactionClearToEvent,
   mapTypingStartToEvent,
 } from '@/integrations/discord/utils/mapGatewayEvents';
 import {
@@ -17,6 +18,7 @@ import {
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
   DiscordReactionEvent,
+  DiscordReactionClearEvent,
   DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
@@ -83,6 +85,7 @@ export type DiscordGatewayHandlers = {
   onMessageDelete?: (event: DiscordMessageDeleteEvent) => void | Promise<void>;
   onPollVote?: (event: DiscordPollVoteEvent) => void | Promise<void>;
   onReaction?: (event: DiscordReactionEvent) => void | Promise<void>;
+  onReactionClear?: (event: DiscordReactionClearEvent) => void | Promise<void>;
   onTyping?: (event: DiscordTypingEvent) => void | Promise<void>;
   onFatalClose?: (info: DiscordGatewayFatalClose) => void | Promise<void>;
 };
@@ -95,6 +98,7 @@ export const connectGateway = async ({
   onMessageDelete,
   onPollVote,
   onReaction,
+  onReactionClear,
   onTyping,
   onFatalClose,
 }: {
@@ -163,6 +167,14 @@ export const connectGateway = async ({
         break;
       case GatewayDispatchEvents.MessageReactionRemove:
         safely('onReaction', onReaction, mapReactionToEvent(payload.d, false));
+        break;
+      case GatewayDispatchEvents.MessageReactionRemoveAll:
+      case GatewayDispatchEvents.MessageReactionRemoveEmoji:
+        safely(
+          'onReactionClear',
+          onReactionClear,
+          mapReactionClearToEvent(payload.d),
+        );
         break;
       case GatewayDispatchEvents.TypingStart:
         safely('onTyping', onTyping, mapTypingStartToEvent(payload.d));

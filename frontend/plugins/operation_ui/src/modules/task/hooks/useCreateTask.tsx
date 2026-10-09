@@ -20,7 +20,7 @@ export const useCreateTask = () => {
           description: t('task-created-successfully'),
           variant: 'default',
         });
-        setCursor(null);
+        setCursor('');
       },
       onError: (e) => {
         toast({

@@ -25,7 +25,12 @@ export const conversationMessageMutations = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('conversationMessageAdd');
-    await authorizeConversationAccess(models, user, doc.conversationId);
+    await authorizeConversationAccess(
+      models,
+      user,
+      doc.conversationId,
+      subdomain,
+    );
     try {
       const conversation = await models.Conversations.getConversation(
         doc.conversationId,
@@ -47,7 +52,12 @@ export const conversationMessageMutations = {
       const { _id: userId } = user;
       const forwardedSnapshot =
         !internal && integration.kind === 'discord-messenger'
-          ? await resolveForwardedSnapshotForMessage(models, user, extraInfo)
+          ? await resolveForwardedSnapshotForMessage(
+              models,
+              user,
+              extraInfo,
+              subdomain,
+            )
           : undefined;
 
       await sendNotifications(subdomain, {
@@ -72,11 +82,14 @@ export const conversationMessageMutations = {
           })
         : null;
 
-      if (!customer) {
+      if (
+        !customer &&
+        !(kind === 'telegram-messenger' && !conversation.customerId)
+      ) {
         throw new Error('Customer not found for the conversation');
       }
 
-      const email = customer.primaryEmail;
+      const email = customer?.primaryEmail;
 
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({

@@ -11,6 +11,7 @@ import {
 import { ICoverDocument } from '~/modules/posclient/@types/cover';
 import { IOrderItemDocument } from '~/modules/posclient/@types/orderItems';
 import { IOrderDocument } from '~/modules/posclient/@types/orders';
+import { IOrderChangeLogDocument } from '~/modules/posclient/@types/orderChangeLogs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IEbarimtDocument } from '~/modules/posclient/@types/putResponses';
@@ -34,6 +35,10 @@ import {
   loadOrderClass,
 } from '~/modules/posclient/db/models/Orders';
 import {
+  IOrderChangeLogModel,
+  loadOrderChangeLogClass,
+} from '~/modules/posclient/db/models/OrderChangeLogs';
+import {
   IPosUserModel,
   loadPosUserClass,
 } from '~/modules/posclient/db/models/PosUsers';
@@ -56,6 +61,7 @@ export interface IModels {
   Configs: IConfigModel;
   OrderItems: IOrderItemModel;
   Orders: IOrderModel;
+  OrderChangeLogs: IOrderChangeLogModel;
   Products: IProductModel;
   ProductCategories: IProductCategoryModel;
   PutResponses: IPutResponseModel;
@@ -92,6 +98,10 @@ export const loadClasses = (
     'posclient_orders',
     loadOrderClass(models),
   );
+  models.OrderChangeLogs = db.model<
+    IOrderChangeLogDocument,
+    IOrderChangeLogModel
+  >('posclient_order_change_logs', loadOrderChangeLogClass(models));
   models.Products = db.model<IProductDocument, IProductModel>(
     'posclient_products',
     loadProductClass(models),

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-03`
+- **Last synchronized:** `2026-10-05`
 
 ## Scope
 
@@ -48,6 +48,9 @@
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
   tables.
+- Deal product bulk add passes the deal pipeline id into the shared product
+  chooser so enabled plugin remainder providers can resolve pipeline-scoped
+  stock without sales importing those plugins.
 - Deal product advanced view manages only product-level manual `hand` discounts
   while preserving automatic discount sources in `discountInfos`.
 - Deal product tax controls live behind a separate Tax view toggle; Advanced
@@ -105,6 +108,8 @@
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
 - Deal product create, update, and delete flows must keep the table responsive
   without requiring a manual refresh.
+- Deal product selectors may pass sales context such as `pipelineId` into
+  shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline
   view so filters, table edits, add products, totals, and save behavior remain
   identical.

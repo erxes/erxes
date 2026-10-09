@@ -45,7 +45,9 @@ export const executeMessageProAction = async (
 
   const { target, triggerType = '' } = execution;
   const itemId = target?._id;
-  const relationContentType = RELATION_CONTENT_TYPES[triggerType];
+  const relationContentType = Object.entries(RELATION_CONTENT_TYPES).find(
+    ([type]) => triggerType === type || triggerType.startsWith(`${type}.`),
+  )?.[1];
 
   if (!documentId || !itemId) {
     return buildSkippedAction('no-document-or-target', {

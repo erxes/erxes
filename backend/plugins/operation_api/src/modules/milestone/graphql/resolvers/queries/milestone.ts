@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -32,7 +32,7 @@ export const milestoneQueries = {
     };
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
     }
 
     const { list, totalCount, pageInfo } =

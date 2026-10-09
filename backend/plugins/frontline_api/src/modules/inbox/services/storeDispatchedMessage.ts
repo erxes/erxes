@@ -92,6 +92,11 @@ export const storeDispatchedMessage = async ({
     messageDoc,
     userId,
   );
+  if (kind === 'telegram-messenger' && responseConversationId && content) {
+    await models.Conversations.updateConversation(responseConversationId, {
+      content,
+    });
+  }
   await publishUnreadCountsSafely({
     conversationId: conversation._id,
     integrationId,

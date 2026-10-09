@@ -1,3 +1,4 @@
+import { TelegramMessageContent } from '@/integrations/telegram/TelegramMessageContent';
 import { Button, RelativeDateDisplay } from 'erxes-ui';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import {
@@ -13,6 +14,7 @@ export const MessageTextBubble = ({
 }) => {
   const {
     message,
+    isTelegram,
     normalizedDisplayContent,
     showAuthorName,
     showBotName,
@@ -46,10 +48,14 @@ export const MessageTextBubble = ({
       asChild
     >
       <div>
-        <MessageContent
-          content={normalizedDisplayContent}
-          internal={internal}
-        />
+        {isTelegram && !internal ? (
+          <TelegramMessageContent content={normalizedDisplayContent || ''} />
+        ) : (
+          <MessageContent
+            content={normalizedDisplayContent}
+            internal={internal}
+          />
+        )}
         {separateNext && (
           <div className="text-muted-foreground mt-1 flex items-center gap-1">
             <RelativeDateDisplay value={createdAt}>

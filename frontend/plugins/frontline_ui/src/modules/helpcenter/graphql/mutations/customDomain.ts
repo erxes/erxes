@@ -3,8 +3,14 @@ import { CUSTOM_DOMAIN_FIELDS } from '@/helpcenter/graphql/queries/getCustomDoma
 
 export const SAVE_CUSTOM_DOMAIN = gql`
   ${CUSTOM_DOMAIN_FIELDS}
-  mutation frontlineCustomDomainSave($hostname: String!) {
-    frontlineCustomDomainSave(hostname: $hostname) {
+  mutation frontlineCustomDomainSave(
+    $helpCenterId: String!
+    $hostname: String!
+  ) {
+    frontlineCustomDomainSave(
+      helpCenterId: $helpCenterId
+      hostname: $hostname
+    ) {
       ...CustomDomainFields
     }
   }
@@ -12,8 +18,8 @@ export const SAVE_CUSTOM_DOMAIN = gql`
 
 export const REFRESH_CUSTOM_DOMAIN = gql`
   ${CUSTOM_DOMAIN_FIELDS}
-  mutation frontlineCustomDomainRefresh {
-    frontlineCustomDomainRefresh {
+  mutation frontlineCustomDomainRefresh($helpCenterId: String!) {
+    frontlineCustomDomainRefresh(helpCenterId: $helpCenterId) {
       ...CustomDomainFields
     }
   }
@@ -21,8 +27,8 @@ export const REFRESH_CUSTOM_DOMAIN = gql`
 
 export const RESET_CUSTOM_DOMAIN = gql`
   ${CUSTOM_DOMAIN_FIELDS}
-  mutation frontlineCustomDomainReset {
-    frontlineCustomDomainReset {
+  mutation frontlineCustomDomainReset($helpCenterId: String!) {
+    frontlineCustomDomainReset(helpCenterId: $helpCenterId) {
       ...CustomDomainFields
     }
   }

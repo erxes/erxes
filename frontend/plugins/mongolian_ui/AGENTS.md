@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-10-06`
 
 ## Scope
 
@@ -29,6 +29,9 @@
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
+- Mongolian settings shells preserve a bounded content height so settings
+  tables and forms scroll inside their main pane rather than escaping the host
+  settings viewport.
 - POS-in eBarimt settings include receipt behavior toggles for copy printing,
   summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
@@ -54,6 +57,9 @@
   floating widget and opens printable receipt HTML for the current user.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- Registers a product remainder provider that lets shared product choosers
+  overlay Erkhet remainders when a `remainderConfig` exists for the active
+  sales pipeline.
 - Prints deal eBarimt responses in a popup receipt template that supports
   configured `headerText`, `footerText`, and optional receipt logo images.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
@@ -63,21 +69,22 @@
 
 ## Architecture
 
-| Area              | Path                                                              | Responsibility                                                   |
-| ----------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Module Federation | `frontend/plugins/mongolian_ui/module-federation.config.ts`       | Public exposes for config, routes, widgets, and floating widget. |
-| Dev server config | `frontend/plugins/mongolian_ui/rspack.config.ts`                  | Module Federation development serving and watch ignore rules.    |
-| Navigation config | `frontend/plugins/mongolian_ui/src/config.tsx`                    | Plugin navigation groups and module paths.                       |
-| Main routes       | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`     | Route tree mounted under `/mongolian`.                           |
-| Settings routes   | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx` | Settings route tree mounted in the core settings shell.          |
-| eBarimt           | `frontend/plugins/mongolian_ui/src/modules/ebarimt`               | eBarimt put responses, filters, tables, and settings UI.         |
-| eBarimt print     | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`     | Popup receipt HTML for deal eBarimt responses.                   |
-| Erkhet sync       | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`           | Erkhet checking, sync, and settings UI.                          |
-| MS Dynamic        | `frontend/plugins/mongolian_ui/src/modules/msdynamic`             | MS Dynamic checking, sync history, and settings UI.              |
-| Product places    | `frontend/plugins/mongolian_ui/src/modules/productplaces`         | Product place settings and UI.                                   |
-| Exchange rates    | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`         | Exchange rate list and related UI.                               |
-| Pages             | `frontend/plugins/mongolian_ui/src/pages`                         | Route-level page composition.                                    |
-| Widgets           | `frontend/plugins/mongolian_ui/src/widgets`                       | Plugin widget exports only.                                      |
+| Area               | Path                                                                       | Responsibility                                                     |
+| ------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Module Federation  | `frontend/plugins/mongolian_ui/module-federation.config.ts`                | Public exposes for config, routes, widgets, and floating widget.   |
+| Dev server config  | `frontend/plugins/mongolian_ui/rspack.config.ts`                           | Module Federation development serving and watch ignore rules.      |
+| Navigation config  | `frontend/plugins/mongolian_ui/src/config.tsx`                             | Plugin navigation groups and module paths.                         |
+| Main routes        | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`              | Route tree mounted under `/mongolian`.                             |
+| Settings routes    | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx`          | Settings route tree mounted in the core settings shell.            |
+| eBarimt            | `frontend/plugins/mongolian_ui/src/modules/ebarimt`                        | eBarimt put responses, filters, tables, and settings UI.           |
+| eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML for deal eBarimt responses.                     |
+| Erkhet sync        | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`                    | Erkhet checking, sync, and settings UI.                            |
+| Product remainders | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync/product-remainders` | Provides the Module Federation product chooser remainder provider. |
+| MS Dynamic         | `frontend/plugins/mongolian_ui/src/modules/msdynamic`                      | MS Dynamic checking, sync history, and settings UI.                |
+| Product places     | `frontend/plugins/mongolian_ui/src/modules/productplaces`                  | Product place settings and UI.                                     |
+| Exchange rates     | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`                  | Exchange rate list and related UI.                                 |
+| Pages              | `frontend/plugins/mongolian_ui/src/pages`                                  | Route-level page composition.                                      |
+| Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only.                                        |
 
 ## Contracts
 
@@ -93,6 +100,7 @@
 - Floating product-places response widget that listens for
   `productPlacesResponded` and prints the JSON receipt content returned by the
   backend.
+- Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
@@ -110,6 +118,7 @@
   segment and assignee selection.
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
+- Shared `ui-modules` product chooser remainder provider contract.
 - React Router host mounting contracts from core UI Module Federation.
 - Translation namespace `mongolian`.
 
@@ -117,12 +126,17 @@
 
 - Apollo Client owns server state for queries and mutations in each feature's
   `graphql` folder.
+- Product chooser remainder overlays are fetched on demand through Apollo
+  queries and are not stored in plugin-local Jotai state.
 - Jotai atoms are used only for plugin-local shared UI state such as detail
   rendering flags and table total counts.
 - URL query state powers filters, detail sheets, and cursor controls through
   existing filter and cursor hooks.
 - Cursor-paginated tables use `RecordTable.CursorProvider`, feature-specific
   session keys, and unique `tableId` values prefixed with `mongolian_`.
+- Sync Erkhet settings config tables share `ErkhetConfigRecordTable`, which owns
+  row selection, sticky structural columns, and vertical scrolling for the list
+  pane.
 
 ## Local Invariants
 
@@ -138,6 +152,10 @@
   definitions must stay aligned.
 - Do not modify backend contracts or shared libraries from a frontend-only
   Mongolian UI task.
+- Settings route shells must keep `min-h-0`/bounded overflow on flex content
+  panes so nested tables and forms remain scrollable.
+- The product remainder provider must no-op when no sales `pipelineId` or no
+  `remainderConfig` exists for that pipeline.
 
 ## Validation
 

@@ -15,7 +15,7 @@ import { GithubSection } from './GithubSection';
 export const TeamDetails = () => {
   const { t } = useTranslation('operation');
   const { id: teamId } = useParams();
-  const { team, loading } = useGetTeam({ variables: { _id: teamId } });
+  const { team, loading } = useGetTeam(teamId);
 
   if (loading) return null;
   if (!team) return <div>{t('not-found')}</div>;

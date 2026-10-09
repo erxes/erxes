@@ -1,3 +1,4 @@
+import { useTelegramTranslation } from '@/integrations/telegram/translations';
 import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { IntegrationsRecordTable } from '@/integrations/components/IntegrationsRecordTable';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
@@ -64,8 +65,15 @@ const DiscordIntegrationDetail = lazy(() =>
   ),
 );
 
+const TelegramIntegrationDetail = lazy(() =>
+  import('@/integrations/telegram/TelegramIntegrationDetail').then(
+    (module) => ({ default: module.TelegramIntegrationDetail }),
+  ),
+);
+
 export const IntegrationDetailPage = () => {
   const { t } = useTranslation('frontline');
+  useTelegramTranslation();
   const { integrationType, id } = useParams<{
     integrationType: string;
     id: string;
@@ -101,11 +109,14 @@ export const IntegrationDetailPage = () => {
         <div className="flex flex-col gap-1">
           <h6 className="font-semibold text-sm">{integration?.name}</h6>
           <span className="text-sm text-muted-foreground font-medium">
-            {integration?.description}
+            {integration && t(integration.descriptionKey)}
           </span>
         </div>
       </div>
-      <Suspense fallback={<div />}>
+      <Suspense fallback={<span>{t('loading', 'Loading…')}</span>}>
+        {integrationType === IntegrationType.TELEGRAM_MESSENGER && (
+          <TelegramIntegrationDetail />
+        )}
         {integrationType === IntegrationType.ERXES_MESSENGER && (
           <ErxesMessengerDetail />
         )}

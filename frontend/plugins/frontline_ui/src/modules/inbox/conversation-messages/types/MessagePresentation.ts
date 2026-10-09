@@ -8,6 +8,8 @@ export type MessagePresentationState = ReturnType<typeof getMessageDisplay> & {
   previousMessage: MessageContext['previousMessage'];
   conversationId: ConversationContext['_id'];
   integration: ConversationContext['integration'];
+  isTelegram: boolean;
+  telegramAuthor?: string;
   isDeleted: boolean;
   hasTextBubble: boolean;
   showAuthorName: boolean;

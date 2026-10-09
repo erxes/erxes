@@ -7,7 +7,7 @@ export const SelectProjectStatus = ({
   inInlineCell = false,
 }: {
   projectId: string;
-  value?: number;
+  value?: number | null;
   inInlineCell?: boolean;
 }) => {
   const { updateProject } = useUpdateProject();

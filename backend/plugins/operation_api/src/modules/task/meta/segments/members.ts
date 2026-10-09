@@ -10,11 +10,18 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { taskCollection } from './collections';
 import { TASK_SEGMENT_FIELD_MAP } from './fields';
+import { TASK_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 
 const compile = (contentType: string, node: SegmentNode, timeZone?: string) => {
   const fields = TASK_SEGMENT_FIELD_MAP[contentType];
 
-  return fields ? compileSegmentMongoFilter(node, { fields, timeZone }) : null;
+  return fields
+    ? compileSegmentMongoFilter(node, {
+        fields,
+        namespaces: TASK_SEGMENT_FIELD_NAMESPACES[contentType],
+        timeZone,
+      })
+    : null;
 };
 
 export const listTaskSegmentMembers = async (

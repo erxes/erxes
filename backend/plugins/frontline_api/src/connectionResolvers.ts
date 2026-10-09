@@ -143,6 +143,36 @@ import {
   loadDiscordConversationMessageClass,
 } from '@/integrations/discord/db/models/ConversationMessages';
 
+import {
+  ITelegramReactionDocument,
+  ITelegramReactionModel,
+} from '@/integrations/telegram/@types/reactions';
+import { loadTelegramReactionClass } from '@/integrations/telegram/db/models/Reactions';
+
+//Telegram imports
+import { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
+import {
+  ITelegramBotModel,
+  loadTelegramBotClass,
+} from '@/integrations/telegram/db/models/Bots';
+import { ITelegramCustomerDocument } from '@/integrations/telegram/@types/customers';
+import {
+  ITelegramCustomerModel,
+  loadTelegramCustomerClass,
+} from '@/integrations/telegram/db/models/Customers';
+import { ITelegramConversationDocument } from '@/integrations/telegram/@types/conversations';
+import {
+  ITelegramConversationModel,
+  loadTelegramConversationClass,
+} from '@/integrations/telegram/db/models/Conversations';
+import { ITelegramConversationMessageDocument } from '@/integrations/telegram/@types/conversationMessages';
+import {
+  ITelegramConversationMessageModel,
+  loadTelegramConversationMessageClass,
+} from '@/integrations/telegram/db/models/ConversationMessages';
+
+//Callpro imports
+
 import { ICallProIntegrationDocument } from '@/integrations/callpro/@types/integrations';
 import { ICallProCustomerDocument } from '@/integrations/callpro/@types/customers';
 import { ICallProConversationDocument } from '@/integrations/callpro/@types/conversations';
@@ -399,6 +429,13 @@ export interface IModels {
   MailMessages: IMailMessageModel;
   MailDrafts: IMailDraftModel;
   MailCloudflare: IMailCloudflareModel;
+
+  // telegram
+  TelegramReactions: ITelegramReactionModel;
+  TelegramBots: ITelegramBotModel;
+  TelegramCustomers: ITelegramCustomerModel;
+  TelegramConversations: ITelegramConversationModel;
+  TelegramConversationMessages: ITelegramConversationMessageModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -670,6 +707,33 @@ export const loadClasses = (
   >(
     'conversation_messages_discord',
     loadDiscordConversationMessageClass(models),
+  );
+
+  models.TelegramReactions = db.model<
+    ITelegramReactionDocument,
+    ITelegramReactionModel
+  >('telegram_reactions', loadTelegramReactionClass());
+  // telegram models
+  models.TelegramBots = db.model<ITelegramBotDocument, ITelegramBotModel>(
+    'telegram_bots',
+    loadTelegramBotClass(models),
+  );
+  models.TelegramCustomers = db.model<
+    ITelegramCustomerDocument,
+    ITelegramCustomerModel
+  >('customers_telegram', loadTelegramCustomerClass(models));
+
+  models.TelegramConversations = db.model<
+    ITelegramConversationDocument,
+    ITelegramConversationModel
+  >('conversations_telegram', loadTelegramConversationClass(models));
+
+  models.TelegramConversationMessages = db.model<
+    ITelegramConversationMessageDocument,
+    ITelegramConversationMessageModel
+  >(
+    'conversation_messages_telegram',
+    loadTelegramConversationMessageClass(models),
   );
 
   models.CallProIntegrations = db.model<

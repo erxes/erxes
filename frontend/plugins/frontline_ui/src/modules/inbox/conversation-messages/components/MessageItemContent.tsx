@@ -1,3 +1,6 @@
+import { TelegramLinkPreviews } from '@/integrations/telegram/TelegramMessageContent';
+import { TelegramMessageStatus } from '@/integrations/telegram/TelegramMessageDetails';
+import { TelegramMessageAttachments } from '@/integrations/telegram/TelegramMessageAttachments';
 import { RelativeDateDisplay, cn } from 'erxes-ui';
 import type { MessagePresentationState } from '@/inbox/conversation-messages/types/MessagePresentation';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
@@ -63,6 +66,7 @@ const MessageMediaCard = ({ presentation }: MessageContentProps) => {
   const {
     message,
     conversationId,
+    isTelegram,
     postIntegrationKind,
     displayAttachments,
     socialShareAttachment,
@@ -81,6 +85,9 @@ const MessageMediaCard = ({ presentation }: MessageContentProps) => {
         fallbackUrl={displayAttachments[0]?.url}
       />
     );
+  }
+  if (isTelegram) {
+    return <TelegramMessageAttachments attachments={displayAttachments} />;
   }
   return (
     <Attachments
@@ -137,6 +144,7 @@ export const MessageItemContent = ({ presentation }: MessageContentProps) => {
     message,
     socialShareAttachment,
     forwardedSnapshot,
+    isTelegram,
     poll,
     survey,
     embeds,
@@ -178,9 +186,23 @@ export const MessageItemContent = ({ presentation }: MessageContentProps) => {
       {!hasTextBubble && !isStory && !socialShareAttachment && fallbackText && (
         <UnsupportedMessage text={fallbackText} />
       )}
-      {poll && <MessagePoll poll={poll} />}
+      {poll && (
+        <MessagePoll
+          poll={poll}
+          provider={isTelegram ? 'Telegram' : 'Discord'}
+        />
+      )}
       {survey && <MessageSurvey survey={survey} />}
       <MessageEmbeds embeds={embeds} />
+      {isTelegram && !internal && (
+        <>
+          <TelegramLinkPreviews
+            messageId={message._id}
+            content={message.content || ''}
+          />
+          <TelegramMessageStatus data={extraData?.telegram} />
+        </>
+      )}
       <MessageItemFooter presentation={presentation} />
     </>
   );

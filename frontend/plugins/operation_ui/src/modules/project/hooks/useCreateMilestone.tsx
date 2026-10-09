@@ -31,6 +31,8 @@ export const useCreateMilestone = () => {
         });
       },
       update: (cache, { data }) => {
+        if (!data?.createMilestone) return;
+
         const newMilestone = {
           ...data.createMilestone,
           totalScope: 0,
@@ -38,19 +40,19 @@ export const useCreateMilestone = () => {
           totalCompletedScope: 0,
         };
 
-        const existingData = cache.readQuery<{ milestoneProgress: any[] }>({
+        const existingData = cache.readQuery({
           query: GET_PROJECT_PROGRESS_BY_MILESTONE,
-          variables: { projectId: data?.createMilestone?.projectId },
+          variables: { projectId: data.createMilestone.projectId },
         });
         if (!existingData) return;
 
         cache.writeQuery({
           query: GET_PROJECT_PROGRESS_BY_MILESTONE,
-          variables: { projectId: data?.createMilestone?.projectId },
+          variables: { projectId: data.createMilestone.projectId },
           data: {
             milestoneProgress: [
               newMilestone,
-              ...existingData.milestoneProgress,
+              ...(existingData.milestoneProgress ?? []),
             ],
           },
         });

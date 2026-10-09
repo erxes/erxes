@@ -23,8 +23,14 @@ const votesLabel = (count: number) =>
 const percentageLabel = (count: number, totalVotes: number) =>
   totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
 
-/** Renders a Discord poll with per-answer tallies and totals. */
-export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
+/** Renders a native poll with per-answer tallies and totals. */
+export const MessagePoll = ({
+  poll,
+  provider = 'Discord',
+}: {
+  poll: IMessagePoll;
+  provider?: 'Discord' | 'Telegram';
+}) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!poll.expiry) return undefined;
@@ -45,7 +51,9 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
   const countById = new Map<string | number, number>(
     (poll.results?.answerCounts ?? []).map((c) => [c.id, c.count]),
   );
-  const totalVotes = [...countById.values()].reduce((sum, n) => sum + n, 0);
+  const totalVotes =
+    poll.results?.totalVoters ??
+    [...countById.values()].reduce((sum, n) => sum + n, 0);
 
   const closed =
     Boolean(poll.results?.isFinalized) ||
@@ -72,7 +80,7 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
         </div>
         <p className="text-xs text-muted-foreground">
           {poll.allowMultiselect ? 'Multiple answers allowed' : 'Choose one'}
-          {' · Vote in Discord'}
+          {` · Vote in ${provider}`}
         </p>
       </div>
 

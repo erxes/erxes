@@ -11,6 +11,7 @@ import {
   FileBarChart2Icon,
   HistoryIcon,
   HourglassIcon,
+  LucideIcon,
   MenuIcon,
   PackagePlus,
   SettingsIcon,
@@ -36,8 +37,15 @@ const HeaderMenu = () => {
     useAtomValue(configAtom) || {}
 
   const getMenu = () => {
-    if (mode === "market") return supermarketMenu
     const menu = [...supermarketMenu]
+    if (adminIds?.includes(user?._id || "")) {
+      menu.push({
+        href: "order-logs",
+        Icon: HistoryIcon,
+        text: "Өөрчлөлтийн лог",
+      })
+    }
+    if (mode === "market") return menu
     if (kitchenScreen?.isActive) {
       menu.push(progressMenu)
     }
@@ -79,7 +87,15 @@ const HeaderMenu = () => {
   )
 }
 
-const MenuItem = ({ href, Icon, text }: any) => (
+const MenuItem = ({
+  href,
+  Icon,
+  text,
+}: {
+  href: string
+  Icon: LucideIcon
+  text: string
+}) => (
   <DropdownMenuItem asChild>
     <Button
       className="w-full justify-start mb-1"

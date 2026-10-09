@@ -11,6 +11,13 @@ import { IModels } from '~/connectionResolvers';
 import { IEbarimtConfig } from '~/modules/posclient/@types/configs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 
+type ReturnBillInput = {
+  contentType: string;
+  contentId: string;
+  number: string;
+};
+type ReturnBillResult = IEbarimtDocument[] | { error: string };
+
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IDoc,
@@ -19,10 +26,10 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
     user?: IPosUserDocument,
   ): Promise<{ putData?: IEbarimtDocument; innerData?: IEbarimtFull }>;
   returnBill(
-    doc: { contentType: string; contentId: string; number: string },
+    doc: ReturnBillInput,
     config: IEbarimtConfig,
     user?: IPosUserDocument,
-  ): Promise<IEbarimtDocument[]>;
+  ): Promise<ReturnBillResult>;
   putHistory({
     contentType,
     contentId,
@@ -178,7 +185,11 @@ export const loadPutResponseClass = (models: IModels) => {
       return result;
     }
 
-    public static async returnBill(doc, config, user?) {
+    public static async returnBill(
+      doc: ReturnBillInput,
+      config: IEbarimtConfig,
+      user?: IPosUserDocument,
+    ): Promise<ReturnBillResult> {
       const url = config.ebarimtUrl || '';
       const { contentType, contentId } = doc;
 
@@ -188,17 +199,28 @@ export const loadPutResponseClass = (models: IModels) => {
       });
 
       if (!prePutResponses.length) {
-        return {
-          error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.',
-        };
+        // A retry may follow successful receipt returns but a failed order write.
+        const returnedReceipt = await models.PutResponses.exists({
+          contentType,
+          contentId,
+          status: 'SUCCESS',
+          inactiveId: { $nin: ['', null] },
+          id: null,
+          'sendInfo.id': { $exists: true },
+        });
+        if (!returnedReceipt) {
+          return { error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.' };
+        }
       }
 
-      const resultObjIds: string[] = [];
       for (const prePutResponse of prePutResponses) {
         const { date } = prePutResponse;
 
         if (!prePutResponse.id || !date) {
-          continue;
+          return {
+            error:
+              'Баримтын дугаар эсвэл огноо дутуу тул буцаалт хийх боломжгүй.',
+          };
         }
 
         const data = {
@@ -215,19 +237,26 @@ export const loadPutResponseClass = (models: IModels) => {
           userId: user?._id,
         });
 
-        const delResponse = await fetch(`${url}/rest/receipt`, {
+        const delResponse: {
+          status: number | string;
+          message?: string;
+          date?: string;
+        } = await fetch(`${url}/rest/receipt`, {
           method: 'DELETE',
           body: JSON.stringify({ ...data }),
           headers: {
             'Content-Type': 'application/json',
           },
+          timeout: 10000,
         })
           .then(async (r) => {
             if (r.status === 200) {
               return { status: 200 };
             }
             try {
-              return r.json();
+              const response: { message?: string; date?: string } =
+                await r.json();
+              return { ...response, status: 'ERROR' };
             } catch (e) {
               return {
                 status: 'ERROR',
@@ -245,7 +274,7 @@ export const loadPutResponseClass = (models: IModels) => {
         if (delResponse.status === 200) {
           await models.PutResponses.updateOne(
             { _id: prePutResponse._id },
-            { $set: { state: 'inactive' } },
+            { $set: { state: 'inactive', synced: false } },
           );
 
           await models.PutResponses.updateOne(
@@ -268,11 +297,10 @@ export const loadPutResponseClass = (models: IModels) => {
             error: `Буцаалтын хүсэлт бүтэлгүй боллоо. ${delResponse.message}`,
           };
         }
-
-        resultObjIds.push(resObj._id);
       }
 
-      return models.PutResponses.find({ _id: { $in: resultObjIds } })
+      // Sync both inactive originals and all return attempts, including retries.
+      return models.PutResponses.find({ contentType, contentId })
         .sort({ createdAt: -1 })
         .lean();
     }

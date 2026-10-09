@@ -22,9 +22,10 @@ export const conversationMessageActionMutations = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('conversationMessageAdd');
-    await authorizeConversationAccess(models, user, conversationId);
-    const conversation =
-      await models.Conversations.getConversation(conversationId);
+    await authorizeConversationAccess(models, user, conversationId, subdomain);
+    const conversation = await models.Conversations.getConversation(
+      conversationId,
+    );
     const integration = await models.Integrations.getIntegration({
       _id: conversation.integrationId,
     });
@@ -63,10 +64,11 @@ export const conversationMessageActionMutations = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('conversationMessageAdd');
-    await authorizeConversationAccess(models, user, conversationId);
+    await authorizeConversationAccess(models, user, conversationId, subdomain);
     try {
-      const conversation =
-        await models.Conversations.getConversation(conversationId);
+      const conversation = await models.Conversations.getConversation(
+        conversationId,
+      );
       if (!conversation?.integrationId) {
         return false;
       }

@@ -9,7 +9,10 @@ import {
   receiveDiscordPollVote,
   receiveDiscordTyping,
 } from '@/integrations/discord/controller/receiveActivityEvents';
-import { receiveDiscordReaction } from '@/integrations/discord/controller/receiveReactions';
+import {
+  receiveDiscordReaction,
+  receiveDiscordReactionClear,
+} from '@/integrations/discord/controller/receiveReactions';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
 import {
   getChannel,
@@ -208,6 +211,17 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
         } catch (e) {
           debugError(
             `Discord reaction routing failed: ${(e as Error).message}`,
+          );
+        }
+      },
+      onReactionClear: async (event) => {
+        try {
+          const bot = await resolveBot(event.channelId);
+          if (!bot) return;
+          await receiveDiscordReactionClear({ models, subdomain, event });
+        } catch (e) {
+          debugError(
+            `Discord reaction-clear routing failed: ${(e as Error).message}`,
           );
         }
       },

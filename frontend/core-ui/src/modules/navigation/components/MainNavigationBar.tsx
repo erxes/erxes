@@ -1,15 +1,16 @@
+import { Sidebar, activePluginState } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { AppPath } from '@/types/paths/AppPath';
 import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
+import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
+import { useEffect } from 'react';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
-import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
-import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { AppPath } from '@/types/paths/AppPath';
-import { activePluginState, Sidebar } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
@@ -40,8 +41,8 @@ export const MainNavigationBar = () => {
       : undefined;
   const hasNavigationPanel = Boolean(
     isSettings ||
-    activeNavigationGroup?.contents.length ||
-    activeNavigationGroup?.subGroups.length,
+      activeNavigationGroup?.contents.length ||
+      activeNavigationGroup?.subGroups.length,
   );
 
   useEffect(() => {

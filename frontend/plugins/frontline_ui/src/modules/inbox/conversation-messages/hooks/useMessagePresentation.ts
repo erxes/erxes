@@ -52,12 +52,18 @@ export const useMessagePresentation = (): MessagePresentationState => {
         ? stripHtml(normalizedDisplayContent).replace(/\s/g, '')
         : '',
     );
+  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
+  const telegramAuthor =
+    isTelegram && !userId && extraData?.telegram?.chatType !== 'private'
+      ? extraData?.telegram?.senderName
+      : undefined;
   const showAuthorName = Boolean(
     (isGroupConversation ||
-      integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-    !userId &&
-    customerId &&
-    separatePrevious,
+      integration?.kind === IntegrationType.DISCORD_MESSENGER ||
+      telegramAuthor) &&
+      !userId &&
+      (customerId || telegramAuthor) &&
+      separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -86,6 +92,8 @@ export const useMessagePresentation = (): MessagePresentationState => {
     previousMessage,
     conversationId,
     integration,
+    isTelegram,
+    telegramAuthor,
     poll,
     survey,
     embeds,

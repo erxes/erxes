@@ -45,6 +45,11 @@ export const ConversationMessages = ({
   }, [lastMessage?._id, lastMessage?.customerId, clearTypist]);
 
   const isGroupConversation =
+    (messages || []).some(
+      (message) =>
+        message.extraData?.telegram?.chatType &&
+        message.extraData.telegram.chatType !== 'private',
+    ) ||
     new Set((messages || []).map((m: IMessage) => m.customerId).filter(Boolean))
       .size > 1;
 

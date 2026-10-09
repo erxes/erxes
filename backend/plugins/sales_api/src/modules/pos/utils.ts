@@ -891,7 +891,10 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 
 export const calcProductsTaxRule = async (
   subdomain: string,
-  config,
+  config: {
+    reverseVatRules?: string[];
+    reverseCtaxRules?: string[];
+  } | undefined,
   products,
 ) => {
   const vatRules =
@@ -902,7 +905,7 @@ export const calcProductsTaxRule = async (
         pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
-        input: { _id: { $in: config.reverseVatRules } },
+        input: { data: { _id: { $in: config.reverseVatRules } } },
         defaultValue: [],
       }))) ||
     [];
@@ -915,7 +918,7 @@ export const calcProductsTaxRule = async (
         pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
-        input: { _id: { $in: config.reverseCtaxRules } },
+        input: { data: { _id: { $in: config.reverseCtaxRules } } },
         defaultValue: [],
       }))) ||
     [];

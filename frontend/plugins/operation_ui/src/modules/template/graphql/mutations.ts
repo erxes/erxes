@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const templateAddMutation = gql`
+export const templateAddMutation = gql(`
   mutation operationTemplateAdd(
     $name: String!
     $defaults: JSON!
@@ -14,9 +14,9 @@ export const templateAddMutation = gql`
       _id
     }
   }
-`;
+`);
 
-export const templateEditMutation = gql`
+export const templateEditMutation = gql(`
   mutation operationTemplateEdit(
     $_id: String!
     $name: String
@@ -30,10 +30,10 @@ export const templateEditMutation = gql`
       _id
     }
   }
-`;
+`);
 
-export const templateRemoveMutation = gql`
+export const templateRemoveMutation = gql(`
   mutation operationTemplateRemove($_id: String!) {
     operationTemplateRemove(_id: $_id)
   }
-`;
+`);

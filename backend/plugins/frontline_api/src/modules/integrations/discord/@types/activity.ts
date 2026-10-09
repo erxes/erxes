@@ -5,6 +5,8 @@ import {
   GatewayMessagePollVoteDispatchData,
   GatewayMessageReactionAddDispatchData,
   GatewayMessageReactionRemoveDispatchData,
+  GatewayMessageReactionRemoveAllDispatchData,
+  GatewayMessageReactionRemoveEmojiDispatchData,
   Snowflake,
 } from 'discord-api-types/v10';
 
@@ -148,6 +150,16 @@ export type DiscordReactionEvent = {
   raw:
     | GatewayMessageReactionAddDispatchData
     | GatewayMessageReactionRemoveDispatchData;
+};
+
+export type DiscordReactionClearEvent = {
+  source: 'discord';
+  messageId: string;
+  channelId: string;
+  emoji?: string;
+  raw:
+    | GatewayMessageReactionRemoveAllDispatchData
+    | GatewayMessageReactionRemoveEmojiDispatchData;
 };
 
 export type DiscordMessageDeleteEvent = {

@@ -1,15 +1,13 @@
-import { IModels } from '~/connectionResolvers';
+import { visibleChannelsFilter } from '@/channel/utils';
+import type { IContext, IModels } from '~/connectionResolvers';
 
-export interface IAuthUser {
-  _id: string;
-  role?: string;
-}
+export type IAuthUser = IContext['user'];
 
-/** Require membership of the active integration owning a conversation. */
 export const authorizeConversationAccess = async (
   models: IModels,
   user: IAuthUser | null | undefined,
   conversationId: string,
+  subdomain: string,
 ): Promise<void> => {
   if (!user) {
     throw new Error('Authentication required');
@@ -19,19 +17,25 @@ export const authorizeConversationAccess = async (
     return;
   }
 
-  const conversation =
-    await models.Conversations.getConversation(conversationId);
-  const memberships = await models.ChannelMembers.find({
-    memberId: user._id,
-  }).lean();
-  const channelIds = memberships.map((membership) => membership.channelId);
+  const conversation = await models.Conversations.getConversation(
+    conversationId,
+  );
   const integration = await models.Integrations.findOne({
     _id: conversation.integrationId,
     isActive: { $ne: false },
-    channelId: { $in: channelIds },
   }).lean();
 
-  if (!integration) {
+  const visibleChannels = await visibleChannelsFilter({
+    models,
+    subdomain,
+    user,
+  });
+  if (
+    !integration?.channelId ||
+    !(await models.Channels.exists({
+      $and: [{ _id: integration.channelId }, visibleChannels],
+    }))
+  ) {
     throw new Error('You do not have permission to access this conversation');
   }
 };

@@ -13,10 +13,10 @@ export const conversationMessageQueries = {
   async conversationPinnedMessages(
     _root: unknown,
     { conversationId }: { conversationId: string },
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('showConversations');
-    await authorizeConversationAccess(models, user, conversationId);
+    await authorizeConversationAccess(models, user, conversationId, subdomain);
     return models.ConversationMessages.find({
       conversationId,
       'extraData.discordPinned': true,

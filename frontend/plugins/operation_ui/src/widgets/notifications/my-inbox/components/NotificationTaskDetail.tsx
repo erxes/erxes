@@ -1,3 +1,4 @@
+import { isRecord } from '@/operation/utils/isRecord';
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 import { useGetTask } from '@/task/hooks/useGetTask';
@@ -22,9 +23,7 @@ const useScrollViewportHeight = () => {
       return;
     }
 
-    const observer = new ResizeObserver(() =>
-      setHeight(viewport.clientHeight),
-    );
+    const observer = new ResizeObserver(() => setHeight(viewport.clientHeight));
 
     observer.observe(viewport);
 
@@ -42,11 +41,8 @@ export const NotificationTaskDetail = ({
   showOpenTask: boolean;
 }) => {
   const { t } = useTranslation('operation');
-  const { task, loading: loadingTask } = useGetTask({
-    variables: { _id: contentTypeId },
-  });
-  const { triage } = useGetTriage({
-    variables: { _id: contentTypeId },
+  const { task, loading: loadingTask } = useGetTask(contentTypeId);
+  const { triage } = useGetTriage(contentTypeId, {
     skip: loadingTask || !!task,
   });
   const { ref, height } = useScrollViewportHeight();
@@ -71,11 +67,18 @@ export const NotificationTaskDetail = ({
         </div>
       </div>
       {sideContentId && !!height && (
-        <div className="sticky top-0 flex shrink-0 self-start" style={{ height }}>
+        <div
+          className="sticky top-0 flex shrink-0 self-start"
+          style={{ height }}
+        >
           <FocusSheet>
             <TaskSideWidgets
               contentId={sideContentId}
-              propertiesData={task?.propertiesData}
+              propertiesData={
+                task?.propertiesData && isRecord(task.propertiesData)
+                  ? task.propertiesData
+                  : undefined
+              }
             />
           </FocusSheet>
         </div>

@@ -1,7 +1,8 @@
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 import {
   IconCalendarEventFilled,
   IconCaretLeftRight,
+  IconBrandGithub,
 } from '@tabler/icons-react';
 import { Badge, Button, Card, Separator, Sheet, Spinner } from 'erxes-ui';
 import { format } from 'date-fns';
@@ -9,6 +10,7 @@ import { PriorityBadge } from '@/operation/components/PriorityInline';
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityActor } from '@/activity/components/ActivityActor';
+import { isGithubTriage } from '@/operation/utils/isGithubTriage';
 
 const TriageContent = lazy(() =>
   import('@/triage/components/TriageContent').then((module) => ({
@@ -16,7 +18,7 @@ const TriageContent = lazy(() =>
   })),
 );
 
-export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
+export const TriageWidgetCard = ({ triage }: { triage: ITriageDetail }) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
 
@@ -30,11 +32,22 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
               size="sm"
               className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
             >
-              <ActivityActor.Provider actorId={triage.createdBy}>
-                <ActivityActor.Avatar />
-                <ActivityActor.Name />
-              </ActivityActor.Provider>{' '}
-              created
+              {isGithubTriage(triage) ? (
+                <>
+                  <IconBrandGithub className="size-4" />
+                  {t('created-from-github-issue', {
+                    defaultValue: 'Created from GitHub issue',
+                  })}
+                </>
+              ) : (
+                <>
+                  <ActivityActor.Provider actorId={triage.createdBy}>
+                    <ActivityActor.Avatar />
+                    <ActivityActor.Name />
+                  </ActivityActor.Provider>{' '}
+                  created
+                </>
+              )}
             </Button>
           </div>
           <Separator />
