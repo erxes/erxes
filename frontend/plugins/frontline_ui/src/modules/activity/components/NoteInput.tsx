@@ -1,3 +1,4 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import {
   BlockEditor,
   cn,
@@ -40,7 +41,9 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const { channels: availableChannels } = useGetChannels();
+  const { channels: availableChannels } = useGetChannels({
+    skip: isInternalNote,
+  });
   const {
     suggestions,
     showSuggestions,
@@ -151,7 +154,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
       className={cn(
         'relative flex flex-col overflow-hidden border rounded-lg px-4 py-3 gap-1',
         'transition-colors duration-150',
-        isInternalNote && 'border-warning/50 bg-warning/20',
+        isInternalNote && ['border-border', INTERNAL_NOTE_BACKGROUND],
       )}
     >
       <div className="flex flex-col gap-1.5 border-b border-border/50 pb-2 mb-1">
@@ -183,7 +186,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
             setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.NoteInput)
           }
           onBlur={() => goBackToPreviousHotkeyScope()}
-          className="read-only min-h-30 overflow-y-auto"
+          className={cn('read-only min-h-30 overflow-y-auto')}
         >
           {isInternalNote && <AssignMemberInEditor editor={editor} />}
         </BlockEditor>

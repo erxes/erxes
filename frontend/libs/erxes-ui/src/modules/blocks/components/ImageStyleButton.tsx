@@ -7,47 +7,36 @@ import {
   IconAlignLeft,
   IconAlignRight,
   IconArrowsMaximize,
-  IconCheck,
   IconPhoto,
-  TablerIconsProps,
 } from '@tabler/icons-react';
 import { IMAGE_STYLE_PRESETS, ImageStyle } from './CustomImageBlock';
-
-type IconComponent = (props: TablerIconsProps) => JSX.Element;
+import { cn } from 'erxes-ui/lib';
+import type { IBlockEditor } from '../types';
 
 const IMAGE_STYLE_OPTIONS: Array<{
   label: string;
   value: ImageStyle;
-  Icon: IconComponent;
+  Icon: typeof IconPhoto;
 }> = [
-  { label: 'Normal',      value: 'normal',      Icon: IconPhoto },
-  { label: 'Wide',        value: 'wide',        Icon: IconArrowsMaximize },
-  { label: 'Float Left',  value: 'float-left',  Icon: IconAlignLeft },
+  { label: 'Normal', value: 'normal', Icon: IconPhoto },
+  { label: 'Wide', value: 'wide', Icon: IconArrowsMaximize },
+  { label: 'Float Left', value: 'float-left', Icon: IconAlignLeft },
   { label: 'Float Right', value: 'float-right', Icon: IconAlignRight },
 ];
 
-type ImageBlock = {
-  id: string;
-  type: string;
-  props?: {
-    imageStyle?: string;
-  };
-};
-
-const ALL_STYLES: ImageStyle[] = ['normal', 'wide', 'float-left', 'float-right'];
-
 export const ImageStyleButton = () => {
-  const editor = useBlockNoteEditor();
+  const editor = useBlockNoteEditor<
+    IBlockEditor['schema']['blockSchema'],
+    IBlockEditor['schema']['inlineContentSchema'],
+    IBlockEditor['schema']['styleSchema']
+  >();
   const Components = useComponentsContext();
   const selectedBlocks = useSelectedBlocks(editor);
-  const selectedBlock =
-    (selectedBlocks.find((block) => block.type === 'image') as
-      | ImageBlock
-      | undefined) ?? null;
-  const rawStyle = selectedBlock?.props?.imageStyle ?? '';
-  const currentStyle: ImageStyle = ALL_STYLES.includes(rawStyle as ImageStyle)
-    ? (rawStyle as ImageStyle)
-    : 'normal';
+  const selectedBlock = selectedBlocks.find((block) => block.type === 'image');
+  const currentStyle =
+    IMAGE_STYLE_OPTIONS.find(
+      (option) => option.value === selectedBlock?.props.imageStyle,
+    )?.value ?? 'normal';
 
   if (!Components || !editor || !selectedBlock) {
     return null;
@@ -81,14 +70,13 @@ export const ImageStyleButton = () => {
         {IMAGE_STYLE_OPTIONS.map(({ value, label, Icon }) => (
           <Components.Generic.Menu.Item
             key={value}
+            className={cn(
+              'focus:bg-primary/15! focus:text-primary! hover:bg-primary/15! hover:text-primary!',
+              currentStyle === value && 'bg-primary/10! text-primary!',
+            )}
             onClick={() => handleStyleChange(value)}
           >
             <div className="flex items-center gap-2 w-full">
-              {currentStyle === value ? (
-                <IconCheck size={14} />
-              ) : (
-                <span className="w-[14px]" />
-              )}
               <Icon size={14} />
               {label}
             </div>

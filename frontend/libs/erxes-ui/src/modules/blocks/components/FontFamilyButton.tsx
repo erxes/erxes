@@ -4,7 +4,8 @@ import {
   useEditorContentOrSelectionChange,
 } from '@blocknote/react';
 import { useState } from 'react';
-import { IconTypography, IconCheck } from '@tabler/icons-react';
+import { IconTypography } from '@tabler/icons-react';
+import { cn } from 'erxes-ui/lib';
 
 interface FontStyles {
   fontFamily?: string;
@@ -46,7 +47,10 @@ const FONT_FAMILIES = [
 export const FontFamilyButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
-  const [currentFont, setCurrentFont] = useState('');
+  const [currentFont, setCurrentFont] = useState(() => {
+    const styles = editor.getActiveStyles() as FontStyles;
+    return styles.fontFamily || '';
+  });
   const [isFileBlock, setIsFileBlock] = useState(false);
 
   useEditorContentOrSelectionChange(() => {
@@ -77,17 +81,14 @@ export const FontFamilyButton = () => {
         typedEditor.addStyles({ fontFamily: fontValue });
       }
       editor.focus();
-    } catch (error) {
-      console.error('Error changing font:', error);
+    } catch {
+      // ignore
     }
   };
 
   if (!Components || isFileBlock) {
     return null;
   }
-
-  const currentFontName =
-    FONT_FAMILIES.find((f) => f.value === currentFont)?.name || 'Default';
 
   return (
     <Components.Generic.Menu.Root>
@@ -103,14 +104,17 @@ export const FontFamilyButton = () => {
         {FONT_FAMILIES.map((font) => (
           <Components.Generic.Menu.Item
             key={font.value || 'default'}
+            checked={currentFont === font.value}
+            className={cn(
+              'focus:bg-primary/15! focus:text-primary! hover:bg-primary/15! hover:text-primary!',
+              currentFont === font.value && 'bg-primary/10! text-primary!',
+            )}
             onClick={() => handleFontChange(font.value)}
           >
             <div
               className="flex items-center gap-2 w-full"
               style={{ fontFamily: font.value }}
             >
-              {currentFont === font.value && <IconCheck size={14} />}
-              {currentFont !== font.value && <span className="w-[14px]" />}
               {font.name}
             </div>
           </Components.Generic.Menu.Item>

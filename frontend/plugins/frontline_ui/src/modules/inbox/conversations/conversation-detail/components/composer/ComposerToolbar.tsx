@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { INTERNAL_NOTE_BUTTON } from '@/inbox/constants/internalNoteStyles';
 
 import {
   PollComposer,
@@ -65,7 +66,7 @@ export const ComposerToolbar = ({
   return (
     <div
       data-composer-footer
-      className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:gap-2 sm:px-3"
+      className="flex min-w-0 flex-none items-center gap-1 px-3 py-2 sm:gap-2"
     >
       {!isInternalNote && (
         <ResponseTemplateSelector onSelect={onTemplateSelect} disabled={isBusy}>
@@ -74,7 +75,7 @@ export const ComposerToolbar = ({
             variant="ghost"
             size="icon"
             aria-label={t('response-templates', 'Response templates')}
-            className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="size-8 rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             disabled={isBusy}
           >
             <IconMessage2 className="size-4" />
@@ -87,7 +88,7 @@ export const ComposerToolbar = ({
         variant="ghost"
         size="icon"
         aria-label={t('attach-file', 'Attach file')}
-        className="size-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="size-8 flex-none rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
         onClick={() => fileInputRef.current?.click()}
         disabled={isBusy}
       >
@@ -116,25 +117,24 @@ export const ComposerToolbar = ({
         />
       )}
 
-      <div className="ml-auto flex min-w-0 items-center justify-end gap-1 sm:gap-2">
+      <div className="ml-auto flex min-w-0 items-center justify-end gap-3">
+        <Kbd className="hidden gap-0.5 border-0 bg-transparent px-0 text-muted-foreground opacity-100 sm:inline-flex">
+          <IconCommand size={12} />
+          <IconCornerDownLeft size={12} />
+        </Kbd>
         <Button
           type="button"
           size="sm"
           aria-label={submitLabel}
           className={cn(
-            'h-9 flex-none rounded-lg px-2.5 sm:px-4',
-            isInternalNote &&
-              'border-warning bg-warning text-foreground hover:bg-warning/80',
+            'h-8 flex-none gap-1.5 rounded-lg px-3 shadow-none',
+            isInternalNote && INTERNAL_NOTE_BUTTON,
           )}
           disabled={sendDisabled}
           onClick={onSubmit}
         >
           {submitIcon}
           <span>{submitLabel}</span>
-          <Kbd className="ml-1 hidden lg:flex">
-            <IconCommand size={12} />
-            <IconCornerDownLeft size={12} />
-          </Kbd>
         </Button>
       </div>
     </div>

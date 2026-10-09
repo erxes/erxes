@@ -9,8 +9,8 @@ import {
 } from '@tabler/icons-react';
 import { Button, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-const FILE_INPUT_ID = 'ticket-note-file-upload';
+import { useRef } from 'react';
+import { INTERNAL_NOTE_BUTTON } from '@/inbox/constants/internalNoteStyles';
 
 interface NoteInputToolbarProps {
   isInternalNote: boolean;
@@ -28,6 +28,7 @@ export const NoteInputToolbar = ({
   isSending,
 }: NoteInputToolbarProps) => {
   const { t } = useTranslation('frontline');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -48,13 +49,16 @@ export const NoteInputToolbar = ({
   }
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-1 mt-2 sm:gap-4">
+    <div className="mt-2 flex min-w-0 items-center gap-1 py-1 sm:gap-2">
       {!isInternalNote && (
         <ResponseTemplateSelector onSelect={onTemplateSelect}>
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label={t('response-templates', 'Response templates')}
+            disabled={isSending}
+            className="size-8 rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
           >
             <IconMessage2 className="h-4 w-4" />
           </Button>
@@ -62,37 +66,43 @@ export const NoteInputToolbar = ({
       )}
 
       <Button
+        type="button"
         variant="ghost"
         size="icon"
-        className="h-8 w-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-        onClick={() => document.getElementById(FILE_INPUT_ID)?.click()}
+        aria-label={t('attach-file', 'Attach file')}
+        disabled={isSending}
+        className="size-8 flex-none rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+        onClick={() => fileInputRef.current?.click()}
       >
         <IconPaperclip className="h-4 w-4" />
-        <Input
-          type="file"
-          id={FILE_INPUT_ID}
-          className="hidden"
-          onChange={handleFileInput}
-          multiple
-        />
       </Button>
+      <Input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileInput}
+        multiple
+      />
 
-      <Button
-        size="lg"
-        className={cn(
-          'ml-auto flex-none',
-          isInternalNote && 'bg-warning text-foreground hover:bg-warning/80',
-        )}
-        disabled={isSending}
-        onClick={onSend}
-      >
-        {submitIcon}
-        {submitLabel}
-        <Kbd className="ml-1">
+      <div className="ml-auto flex min-w-0 items-center gap-3">
+        <Kbd className="hidden gap-0.5 border-0 bg-transparent px-0 text-muted-foreground opacity-100 sm:inline-flex">
           <IconCommand size={12} />
           <IconCornerDownLeft size={12} />
         </Kbd>
-      </Button>
+        <Button
+          type="button"
+          size="sm"
+          className={cn(
+            'h-8 flex-none gap-1.5 rounded-lg px-3 shadow-none',
+            isInternalNote && INTERNAL_NOTE_BUTTON,
+          )}
+          disabled={isSending}
+          onClick={onSend}
+        >
+          {submitIcon}
+          {submitLabel}
+        </Button>
+      </div>
     </div>
   );
 };
