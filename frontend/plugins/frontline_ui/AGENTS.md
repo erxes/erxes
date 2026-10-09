@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -48,7 +48,8 @@
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
 - Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
-  and a record table behind one list/thumbnail toggle — and,
+  and a record table behind one list/thumbnail toggle that keeps the last
+  choice per browser — and,
   per topic, the `articles`, `categories` and `kbsettings` routes switched by
   `Articles / Categories / Settings` tabs in the page header — record tables
   with inline editing, filters, command bar bulk delete, and the topic,
@@ -66,7 +67,7 @@
   A parent category's count and article filter include its subcategories, and
   parent categories render bold in the categories table and category pickers.
   The topics table shows each topic's category and article counts, like the
-  card grid.
+  card grid, and lists the `Code` column before `Brand`.
   The article and category drawers pick the knowledge base first, so an
   article or a whole category (with its subcategories and their articles) can
   be moved to another topic.
@@ -1012,6 +1013,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   patch on top, and refuses the write when `title` would end up empty. `title`
   is the only required field — `brandId` is optional, and a brand-less help
   center stays inline-editable.
+- Help center save feedback uses its own `help-center-saved`,
+  `help-center-created` and `help-center-needs-name` keys in
+  `useSaveHelpCenter` and `useEditHelpCenter`; never reuse the knowledge base
+  `kb-topic-*` keys, whose defaults say "Topic".
 - The table's ticket channel/pipeline/status cells reuse the ticket module's
   `Select*` components in their `table` variant, but pass their own
   `onValueChange` — those components' roots save onto a ticket, and
@@ -1733,7 +1738,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
   default, mirroring the CMS website list) and the record table
   (`TopicsRecordTable`), switched by the header toggle and sharing one
-  `useTopics` query and filter bar. Never drop one of the two. Both show each
+  `useTopics` query and filter bar. Never drop one of the two. The toggle reads
+  and writes `topicsViewAtom` (`topics/states/topicsViewState.ts`, an
+  `atomWithStorage` under `kbTopicsView`), never component state, so leaving a
+  topic and returning to the index keeps the chosen view. Both show each
   topic's category and article counts; the article count is
   `countTopicArticles` over the topic's categories in either view.
 - `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics

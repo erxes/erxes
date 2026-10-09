@@ -166,8 +166,8 @@ const fetchConfig = async (
 };
 
 const sharedConfig = createSharedCache<PortalResult<PortalConfig>>({
-  ttlMs: 60_000,
-  staleMs: 10 * 60_000,
+  ttlMs: 5_000,
+  staleMs: 0,
   maxEntries: 1_000,
   keep: (result) => result.state === 'ready' || result.state === 'unpublished',
   timedOut: () => ({ state: 'error', message: TIMED_OUT }),

@@ -126,13 +126,6 @@ const createTopicsColumns = (t: TFunction): ColumnDef<ITopic>[] => [
     count: (topic) => countTopicArticles(topic.categories || []),
   }),
   kbColumn<ITopic>({
-    id: 'brandId',
-    size: 200,
-    label: t('brand', 'Brand'),
-    icon: IconTag,
-    render: (cell) => <BrandCell cell={cell} />,
-  }),
-  kbColumn<ITopic>({
     id: 'code',
     size: 160,
     label: t('kb-code', 'Code'),
@@ -140,6 +133,13 @@ const createTopicsColumns = (t: TFunction): ColumnDef<ITopic>[] => [
     render: (cell) => (
       <TextCell cell={cell} field="code" placeholder={t('kb-code', 'Code')} />
     ),
+  }),
+  kbColumn<ITopic>({
+    id: 'brandId',
+    size: 200,
+    label: t('brand', 'Brand'),
+    icon: IconTag,
+    render: (cell) => <BrandCell cell={cell} />,
   }),
   kbColumn<ITopic>({
     id: 'languageCode',

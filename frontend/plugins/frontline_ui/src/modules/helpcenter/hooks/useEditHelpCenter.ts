@@ -42,7 +42,7 @@ export const useEditHelpCenter = () => {
     if (!config.title) {
       toast({
         title: t('error'),
-        description: t('kb-topic-needs-title', 'A help center needs a name.'),
+        description: t('help-center-needs-name', 'A help center needs a name.'),
         variant: 'destructive',
       });
       return;
@@ -53,7 +53,7 @@ export const useEditHelpCenter = () => {
       onCompleted: () => {
         toast({
           title: t('success'),
-          description: t('kb-topic-saved', 'Help center saved'),
+          description: t('help-center-saved', 'Help center saved'),
           variant: 'success',
         });
       },

@@ -6,6 +6,7 @@ import {
   ToggleGroup,
   useQueryState,
 } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
@@ -15,13 +16,15 @@ import { TopicsFilter } from '@/knowledgebase/topics/components/TopicsFilter';
 import { TopicsGrid } from '@/knowledgebase/topics/components/TopicsGrid';
 import { TopicsRecordTable } from '@/knowledgebase/topics/components/TopicsRecordTable';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
+import {
+  topicsViewAtom,
+  TTopicsView,
+} from '@/knowledgebase/topics/states/topicsViewState';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
-
-type TTopicsView = 'list' | 'thumbnail';
 
 export const Topics = () => {
   const { t } = useTranslation('frontline');
-  const [view, setView] = useState<TTopicsView>('thumbnail');
+  const [view, setView] = useAtom(topicsViewAtom);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editId, setEditId] = useQueryState<string>('editId');
   const [createTopic, setCreateTopic] = useQueryState<string>('createTopic');

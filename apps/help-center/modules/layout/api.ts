@@ -22,10 +22,10 @@ export const getPortalIdentity = async (): Promise<PortalIdentity> => {
   ]);
 
   return {
-    title: copy?.name?.trim() || config?.title || t('site.fallbackTitle'),
+    title: config?.title || copy?.name?.trim() || t('site.fallbackTitle'),
     headline:
-      copy?.description?.trim() ||
       config?.description ||
+      copy?.description?.trim() ||
       t('site.fallbackHeadline'),
   };
 };
