@@ -59,7 +59,7 @@ export const BoardForm = () => {
         },
       });
     },
-    [addBoard, editBoard, boardId, handleClose],
+    [addBoard, editBoard, boardId, handleClose, t],
   );
 
   return (
@@ -100,12 +100,12 @@ export const BoardForm = () => {
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Board Name</Form.Label>
+                      <Form.Label>{t('board-name')}</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           type="text"
-                          placeholder="Enter board name"
+                          placeholder={t('enter-board-name')}
                           className="input"
                           value={field.value || boardDetail?.name || ''}
                         />

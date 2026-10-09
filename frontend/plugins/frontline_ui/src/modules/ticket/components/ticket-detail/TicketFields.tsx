@@ -11,24 +11,17 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
-import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
-import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { ITicket } from '@/ticket/types';
 import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
-import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
 import {
   BlockEditor,
-  Button,
-  DropdownMenu,
   Input,
   Separator,
   Tooltip,
   useBlockEditor,
-  useConfirm,
-  useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -51,17 +44,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     branchId,
     departmentId,
     tagIds,
-    isSubscribed: _isSubscribed,
-    state: ticketState,
     attachments,
   } = ticket || {};
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
-  const isFirstRun = React.useRef(true);
-  const isRemovedRef = React.useRef(false);
-  const [state, setState] = useState(ticketState || 'active');
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
   const parseDescription = (desc: string | undefined): Block[] | undefined => {
     if (!desc) return undefined;
     try {
@@ -138,12 +124,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   });
 
   const { updateTicket } = useUpdateTicket();
-  const { removeTicket } = useTicketRemove();
-  const { toggleArchive } = useToggleTicketArchive();
   const [name, setName] = useState(_name);
-  const [isSubscribed, setSubscribe] = useState<boolean>(
-    _isSubscribed || false,
-  );
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
@@ -153,79 +134,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     }
   };
 
-  const FieldSubscribeSwitch = ({
-    isSubscribed,
-  }: {
-    isSubscribed: boolean;
-  }) => {
-    return (
-      <div
-        className="space-x-2 flex items-center gap-2"
-        onClick={() => {
-          setSubscribe(!isSubscribed);
-        }}
-      >
-        <Button variant="ghost">
-          <legend>
-            {isSubscribed
-              ? t('unsubscribe', 'UnSubscribe')
-              : t('subscribe', 'Subscribe')}
-          </legend>
-        </Button>
-      </div>
-    );
-  };
-
-  const [debouncedDescriptionContent, descriptionDebounce] = useDebounce(
-    descriptionContent,
-    1000,
-  );
-  const [debouncedName, nameDebounce] = useDebounce(name, 1000);
-
-  const handleArchiveToggle = () => {
-    const previousState = state;
-
-    // Optimistically update the UI
-    setState(state === 'active' ? 'archived' : 'active');
-
-    toggleArchive([ticketId], state === 'archived', {
-      onError: () => setState(previousState),
-    });
-  };
-
-  const handleDeleteTicket = async () => {
-    confirm({
-      message: t(
-        'confirm-delete-ticket',
-        'Are you sure you want to delete this ticket?',
-      ),
-    }).then(async () => {
-      isRemovedRef.current = true;
-      nameDebounce.cancel();
-      descriptionDebounce.cancel();
-      try {
-        await removeTicket([ticketId]);
-        toast({
-          title: t('success', 'Success!'),
-          variant: 'success',
-          description: t(
-            'ticket-deleted-successfully',
-            'Ticket deleted successfully',
-          ),
-        });
-      } catch (e: any) {
-        isRemovedRef.current = false;
-        toast({
-          title: t('error', 'Error'),
-          description: e.message,
-          variant: 'destructive',
-        });
-      }
-    });
-  };
+  const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
+  const [debouncedName] = useDebounce(name, 1000);
 
   useEffect(() => {
-    if (isRemovedRef.current || !ticketId) return;
+    if (!ticketId) return;
     if (!debouncedName || debouncedName === _name) return;
     updateTicket({
       variables: {
@@ -236,7 +149,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedName]);
   useEffect(() => {
-    if (isRemovedRef.current || !ticketId) return;
+    if (!ticketId) return;
     if (!debouncedDescriptionContent) return;
     if (debouncedDescriptionContent === loadedDescriptionRef.current) return;
     const currentParsed = parseDescription(description);
@@ -255,23 +168,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
 
-  useEffect(() => {
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-      return;
-    }
-    if (isRemovedRef.current || !ticketId) return;
-    if (isSubscribed === _isSubscribed) return;
-    if (isSubscribed !== undefined) {
-      updateTicket({
-        variables: {
-          _id: ticketId,
-          isSubscribed: isSubscribed,
-        },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubscribed, _isSubscribed, ticketId]);
   return (
     <AttachmentProvider
       ticketId={ticketId}
@@ -383,32 +279,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             variant="detail"
             disabled={!canEditTicket}
           />
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <Button variant="ghost" size="sm">
-                <IconSquareToggle />
-                {state === 'active'
-                  ? t('archive', 'Archive')
-                  : t('unarchive', 'Unarchive')}
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-              <DropdownMenu.Item onSelect={handleArchiveToggle}>
-                <IconSquareToggle />
-                {state === 'active'
-                  ? t('archive', 'Archive')
-                  : t('unarchive', 'Unarchive')}
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                onSelect={handleDeleteTicket}
-                className="text-destructive"
-              >
-                <IconTrash />
-                {t('delete', 'Delete')}
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu>
-          <FieldSubscribeSwitch isSubscribed={isSubscribed} />
         </div>
         <AttachmentUploader
           id={ticketId}

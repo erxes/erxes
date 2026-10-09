@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -426,6 +426,13 @@
   `addTicketStatus` succeeds. Pipeline creation needs a selected channel and
   status creation a selected pipeline. Other variants (filters, table/detail
   cells) keep select-only behaviour.
+- Ticket detail groups Archive/Unarchive, Subscribe/Unsubscribe and Delete in a
+  single **Actions** dropdown in the `Sheet.Header` of `TicketDetailSheet`,
+  opposite the title. As in the sales deal header, the close button sits in its
+  own `w-16 border-l` column aligned with the relation side tabs, and the
+  actions stay left of that line. It reads `state` / `isSubscribed`
+  from the cached ticket; `TicketFields` holds no archive, subscribe or delete
+  controls.
 - Ticket tag selection (board card, detail sheet, create form) shows a single
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
