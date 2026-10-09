@@ -107,8 +107,7 @@ export const types = `
     productImgUrl: String
     status: String
     manufacturedDate: String
-    conditionId: String
-    conditionGroupId: String
+    conditionCode: String
     description: String
     attachment: JSON
     byDevice: JSON
@@ -179,7 +178,7 @@ export const types = `
     isTake: Boolean
     status: String
     manufacturedDate: String
-    conditionId: String
+    conditionCode: String
     description: String
     attachment: JSON
   }

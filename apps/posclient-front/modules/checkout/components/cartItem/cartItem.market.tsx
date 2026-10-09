@@ -27,8 +27,7 @@ const CartItem = ({
   unitPrice,
   productId,
   discountInfos,
-  conditionGroupId,
-  conditionId,
+  conditionCode,
 }: OrderItem & { index: number }) => {
   const updateCart = useSetAtom(updateCartAtom)
   const formattedIndex = (index + 1).toString().padStart(2, "0")
@@ -54,8 +53,8 @@ const CartItem = ({
           {productName}
           <CartItemConditionSelect
             _id={_id}
-            conditionGroupId={conditionGroupId}
-            conditionId={conditionId}
+            productId={productId}
+            conditionCode={conditionCode}
             className="mt-0.5 h-6 w-36 px-2 text-xs"
           />
         </div>

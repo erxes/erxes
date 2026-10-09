@@ -1,6 +1,7 @@
 import {
   AUTOMATION_ERROR_CODES,
   evaluateSegmentBatch,
+  measureSegmentSubject,
   SegmentNode,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -140,4 +141,41 @@ export const isInSegment = async (
     `Could not decide whether "${targetId}" is in segment "${segmentId}": a service holding the definition or the values did not answer`,
     AUTOMATION_ERROR_CODES.PLUGIN_ACTION_FAILED,
   );
+};
+
+/**
+ * What the trigger segment's watched relation conditions measure for the
+ * target now, by rule path. Undefined when it cannot be told, so a lost
+ * answer never counts as a change.
+ */
+export const measureWatched = async (
+  subdomain: string,
+  segmentId: string,
+  targetId: string,
+  paths: string[],
+): Promise<Record<string, unknown> | undefined> => {
+  if (!segmentId || !paths.length) {
+    return undefined;
+  }
+
+  try {
+    const segment = await loadSegment(subdomain, segmentId);
+
+    return segment
+      ? await measureSegmentSubject(
+          automationSegmentGateway(subdomain),
+          segment,
+          targetId,
+          paths,
+        )
+      : undefined;
+  } catch (e) {
+    debugError(
+      `Watched values of segment "${segmentId}" could not be measured: ${
+        e instanceof Error ? e.message : String(e)
+      }`,
+    );
+
+    return undefined;
+  }
 };

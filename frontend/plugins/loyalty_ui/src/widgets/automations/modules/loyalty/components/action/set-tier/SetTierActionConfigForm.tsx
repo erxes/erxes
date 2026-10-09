@@ -1,4 +1,4 @@
-import { Form, Select } from 'erxes-ui';
+import { Checkbox, Form, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
@@ -159,6 +159,27 @@ export const SetTierActionConfigForm = ({
                 </Select>
                 <Form.Description>{t('set-tier-hint')}</Form.Description>
                 <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+        {mode === 'fixed' && (
+          <Form.Field
+            control={control}
+            name="keepHigherTier"
+            render={({ field }) => (
+              <Form.Item className="flex items-center gap-2 space-y-0">
+                <Form.Control>
+                  <Checkbox
+                    checked={!!field.value}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                  />
+                </Form.Control>
+                <Form.Label variant="peer">
+                  {t('set-tier-keep-higher')}
+                </Form.Label>
               </Form.Item>
             )}
           />

@@ -6,7 +6,7 @@ import { RecordTable, Popover, Command, Combobox } from 'erxes-ui';
 import { renderingCategoryDetailAtom } from '@/products/product-category/states/ProductCategory';
 import { IconEdit, IconListDetails, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { CategoryConditionGroupDialog } from './CategoryConditionGroupDialog';
+import { CategoryConditionsDialog } from './CategoryConditionsDialog';
 import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
 import { Can } from 'ui-modules';
 
@@ -45,11 +45,11 @@ export const CategoryMoreColumnCell = (
                 Edit
               </Command.Item>
               <Command.Item
-                value="condition-group"
+                value="conditions"
                 onSelect={() => setConditionOpen(true)}
               >
                 <IconListDetails className="w-4 h-4" />
-                Condition group
+                Conditions
               </Command.Item>
               <CategoriesDelete categories={[props.row.original]}>
                 {({ onClick, disabled }) => (
@@ -67,7 +67,7 @@ export const CategoryMoreColumnCell = (
           </Command>
         </Combobox.Content>
       </Popover>
-      <CategoryConditionGroupDialog
+      <CategoryConditionsDialog
         categoryId={_id}
         categoryName={name}
         open={conditionOpen}

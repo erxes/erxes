@@ -82,23 +82,29 @@ export const types = `
     title: String
   }
 
+  type PosLoyaltyPreviewBonus {
+    productId: String!
+    name: String!
+    count: Float!
+  }
+
+  type PosLoyaltyPreview {
+    lines: [PosLoyaltyPreviewLine!]!
+    bonuses: [PosLoyaltyPreviewBonus!]!
+  }
+
   input PosLoyaltyPreviewItem {
     key: String!
     productId: String!
     count: Float!
     unitPrice: Float!
-    conditionId: String
+    conditionCode: String
   }
 
   type PosProductCondition {
     _id: String!
+    code: String!
     name: String!
-  }
-
-  type PosProductConditionGroup {
-    _id: String!
-    name: String!
-    conditions: [PosProductCondition]
   }
 
   type PosCustomerAddResult {
@@ -112,9 +118,9 @@ export const queries = `
   poscCustomerDetail(_id: String!, type: String): PosCustomer
   poscCustomerForm: PosCustomerForm
   poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty
-  poscProductConditionGroups(ids: [String!]!): [PosProductConditionGroup]
+  poscProductConditions(productId: String!): [PosProductCondition]
   poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String
-  poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String): [PosLoyaltyPreviewLine]
+  poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String): PosLoyaltyPreview
   poscLoyaltyEarnPreview(items: [PosLoyaltyEarnItem!]!, totalAmount: Float!, customerId: String, orderType: String): PosLoyaltyEarnPreview
 `;
 

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -134,7 +134,7 @@
   "Order customer" (`targetField` on `customerId`), so a POS automation can
   update the buyer's properties, e.g. a purchase counter a reward is built on.
 - Product changes reach POS clients through `afterMutation` (`meta/productUtils.ts`);
-  core's bulk `productsSetConditionGroup` / `productCategorySetConditionGroup`
+  core's bulk `productsSetConditionCodes` / `productCategorySetConditionCodes`
   bypass `productsEdit`, so each touched product in a POS's groups is resent.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
@@ -197,7 +197,7 @@
   `discountInfos`, `totalAmount`, `unUsedTotalAmount`, `bothTotalAmount`,
   `mobileAmount`, `mobileAmounts`, and `paymentsData`.
 - Pipeline documents store validated Core deal field ids in `propertyIds`.
-- POS order items keep the optional `conditionId` (core product condition) the POS client sold a line under, for reporting.
+- POS order items keep the optional `conditionCode` (core product condition code) the POS client sold a line under, for reporting.
 - POS `customerCreateConfig.layout` rows hold customer system field codes from
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 

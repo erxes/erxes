@@ -233,8 +233,7 @@ const setTier = async ({
 
       // A smaller purchase later must not undo a tier an earlier one earned.
       if (
-        byAmount &&
-        config.onlyUpgrade &&
+        (byAmount ? config.onlyUpgrade : config.keepHigherTier) &&
         tierDirection(accountType.tiers, current, outcome.tier) === 'down'
       ) {
         return { ownerId, from: current, to: current, changed: false };

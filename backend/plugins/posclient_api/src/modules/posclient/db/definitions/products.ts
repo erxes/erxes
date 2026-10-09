@@ -115,8 +115,8 @@ export const productSchema = schemaWrapper(
     }),
     sameMasks: field({ type: [String] }),
     sameDefault: field({ type: [String] }),
-    // Synced from core: which conditions a sold unit may be marked with.
-    conditionGroupId: field({ type: String, optional: true }),
+    // Synced from core: codes of the conditions a sold unit may be marked with.
+    conditionCodes: field({ type: [String], optional: true }),
     similarityId: field({
       type: String,
       optional: true,

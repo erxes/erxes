@@ -10,34 +10,34 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { useProductConditionGroup } from "../../hooks/useProductConditionGroup"
+import { useProductConditions } from "../../hooks/useProductConditions"
 
 // Select items cannot carry an empty value, so a plain sale has its own key.
 const NONE = "__none__"
 
 type ConditionProps = {
   _id: string
-  conditionGroupId?: string | null
-  conditionId?: string | null
+  productId: string
+  conditionCode?: string | null
 }
 
 // Optional: a unit sold as it is needs no condition.
 export const CartItemConditionSelect = ({
   _id,
-  conditionGroupId,
-  conditionId,
+  productId,
+  conditionCode,
   className,
 }: ConditionProps & { className?: string }) => {
   const changeItem = useSetAtom(updateCartAtom)
-  const { group } = useProductConditionGroup(conditionGroupId)
+  const { conditions } = useProductConditions(productId)
 
-  if (!group?.conditions.length) return null
+  if (!conditions.length) return null
 
   return (
     <Select
-      value={conditionId || NONE}
+      value={conditionCode || NONE}
       onValueChange={(value) =>
-        changeItem({ _id, conditionId: value === NONE ? null : value })
+        changeItem({ _id, conditionCode: value === NONE ? null : value })
       }
     >
       <SelectTrigger className={className}>
@@ -45,8 +45,8 @@ export const CartItemConditionSelect = ({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value={NONE}>Энгийн</SelectItem>
-        {group.conditions.map((condition) => (
-          <SelectItem key={condition._id} value={condition._id}>
+        {conditions.map((condition) => (
+          <SelectItem key={condition._id} value={condition.code}>
             {condition.name}
           </SelectItem>
         ))}
@@ -56,9 +56,9 @@ export const CartItemConditionSelect = ({
 }
 
 export const CartItemCondition = (props: ConditionProps) => {
-  const { group } = useProductConditionGroup(props.conditionGroupId)
+  const { conditions } = useProductConditions(props.productId)
 
-  if (!group?.conditions.length) return null
+  if (!conditions.length) return null
 
   return (
     <div>
@@ -69,16 +69,14 @@ export const CartItemCondition = (props: ConditionProps) => {
 }
 
 export const CartItemConditionBadge = ({
-  conditionGroupId,
-  conditionId,
+  productId,
+  conditionCode,
 }: {
-  conditionGroupId?: string | null
-  conditionId?: string | null
+  productId: string
+  conditionCode?: string | null
 }) => {
-  const { group } = useProductConditionGroup(
-    conditionId ? conditionGroupId : null
-  )
-  const name = group?.conditions.find(({ _id }) => _id === conditionId)?.name
+  const { conditions } = useProductConditions(conditionCode ? productId : null)
+  const name = conditions.find(({ code }) => code === conditionCode)?.name
 
   if (!name) return null
 

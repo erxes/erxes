@@ -18,6 +18,7 @@ import {
   type BadgeProps,
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
+import { ProductConditionsCell } from './ProductConditionsCell';
 import { ProductNameCell } from './ProductNameCell';
 import { productMoreColumn } from './ProductMoreCell';
 
@@ -201,21 +202,20 @@ export const productColumns: (
     size: 200,
   },
   {
-    id: 'conditionGroup',
-    accessorKey: 'conditionGroup',
+    id: 'conditions',
+    accessorKey: 'conditionCodes',
     header: () => (
       <RecordTable.InlineHead
         icon={IconListDetails}
-        label={t('condition-group')}
+        label={t('conditions')}
       />
     ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={cell.row.original.conditionGroup?.name || ''}
-        />
-      </RecordTableInlineCell>
+      <ProductConditionsCell
+        productId={cell.row.original._id}
+        conditionCodes={cell.row.original.conditionCodes || []}
+      />
     ),
-    size: 200,
+    size: 240,
   },
 ];

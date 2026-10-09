@@ -7,6 +7,7 @@ import {
   PRIORITY_TYPES,
   STATUS_TYPES,
 } from './constants';
+import { conditionRuleSchema } from './conditionRule';
 import { expiryRuleSchema } from './expiryRule';
 import { priceRuleSchema } from './priceRule';
 import { quantityRuleSchema } from './quantityRule';
@@ -111,6 +112,8 @@ export const pricingPlanSchema = schemaWrapper(
 
       isRepeatEnabled: { type: Boolean, default: false },
       repeatRules: { type: [repeatRuleSchema], default: [] },
+
+      conditionRules: { type: [conditionRuleSchema], default: [] },
 
       createdBy: { type: String },
       updatedBy: { type: String },

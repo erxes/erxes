@@ -148,6 +148,38 @@ describe('decideSegmentNode · operators', () => {
   });
 });
 
+describe('decideSegmentNode · calendar periods', () => {
+  it('matches a date inside this year and nothing outside it', () => {
+    const node = field('closeDate', SegmentOperator.DateThisYear);
+
+    expect(decide(node, { closeDate: '2026-02-01T00:00:00Z' })).toBe('matched');
+    expect(decide(node, { closeDate: '2025-12-31T23:00:00Z' })).toBe(
+      'notMatched',
+    );
+    expect(decide(node, { closeDate: '2027-01-01T00:00:00Z' })).toBe(
+      'notMatched',
+    );
+  });
+
+  it('matches this month and this quarter around now', () => {
+    expect(
+      decide(field('closeDate', SegmentOperator.DateThisMonth), {
+        closeDate: '2026-08-02T00:00:00Z',
+      }),
+    ).toBe('matched');
+    expect(
+      decide(field('closeDate', SegmentOperator.DateThisMonth), {
+        closeDate: '2026-07-31T00:00:00Z',
+      }),
+    ).toBe('notMatched');
+    expect(
+      decide(field('closeDate', SegmentOperator.DateThisQuarter), {
+        closeDate: '2026-07-01T00:00:00Z',
+      }),
+    ).toBe('matched');
+  });
+});
+
 describe('decideSegmentNode · trees', () => {
   const group = (
     conjunction: 'and' | 'or',

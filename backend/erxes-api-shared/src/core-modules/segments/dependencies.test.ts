@@ -146,6 +146,15 @@ describe('segmentDependsOnClock', () => {
     );
   });
 
+  it('spots a calendar period, which moves on at the turn of each one', () => {
+    expect(segmentDependsOnClock(dated(SegmentOperator.DateThisMonth))).toBe(
+      true,
+    );
+    expect(segmentDependsOnClock(dated(SegmentOperator.DateThisYear))).toBe(
+      true,
+    );
+  });
+
   it('leaves a fixed date alone - it means the same thing tomorrow', () => {
     expect(segmentDependsOnClock(dated(SegmentOperator.DateGte))).toBe(false);
     expect(segmentDependsOnClock(dated(SegmentOperator.Equals))).toBe(false);

@@ -109,7 +109,6 @@ export const ProductDetailSheet = () => {
       attachment,
       attachmentMore,
       subUoms,
-      conditionGroupId: data.conditionGroupId || null,
     };
   };
 

@@ -11,18 +11,12 @@ import {
   Input,
   Select,
   Button,
-  Popover,
   useToast,
 } from 'erxes-ui';
 import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
-import { useSetProductConditionGroup } from '@/pricing/hooks/useSetProductConditionGroup';
-import {
-  IConditionColumn,
-  usePricingConditionColumns,
-} from '@/pricing/hooks/usePricingConditionGroups';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
@@ -34,18 +28,9 @@ interface IPageItem {
   uom: string;
   unitPrice: number;
   newPrice: number;
-  conditionGroupId: string | null;
-  conditionPrices: { conditionId: string; price: number }[];
   productStatus: string | null;
   status: FixedPricingStatus;
 }
-
-const toConditionPriceMap = (
-  prices: { conditionId: string; price: number }[] = [],
-) =>
-  Object.fromEntries(
-    prices.map(({ conditionId, price }) => [conditionId, price]),
-  );
 
 interface IProductRow {
   _id: string;
@@ -53,7 +38,6 @@ interface IProductRow {
   uom: string;
   unitPrice: number;
   code?: string;
-  conditionGroupId: string | null;
   // Deleted products are never sold, so their row is shown but not editable.
   isDeleted: boolean;
 }
@@ -157,49 +141,6 @@ const NotAvailableBadge = () => (
   </span>
 );
 
-// The product cannot be sold under this condition; the popover says how to change that.
-const ConditionUnavailableCell = ({
-  productId,
-  column,
-  currentGroupName,
-}: {
-  productId: string;
-  column: IConditionColumn;
-  currentGroupName?: string;
-}) => {
-  const { setGroup, loading } = useSetProductConditionGroup();
-
-  return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <button
-          type="button"
-          className="mx-2 rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground"
-        >
-          N/A
-        </button>
-      </Popover.Trigger>
-      <Popover.Content className="w-60 p-3 text-sm space-y-1">
-        <p className="font-medium">Not available for this product</p>
-        <p className="text-muted-foreground">
-          Add the "{column.groupName}" condition group to this product to set a
-          discount here.
-          {currentGroupName && ` It replaces "${currentGroupName}".`}
-        </p>
-        <Button
-          type="button"
-          size="sm"
-          className="mt-2 w-full"
-          disabled={loading}
-          onClick={() => setGroup(productId, column.groupId, column.groupName)}
-        >
-          Add "{column.groupName}"
-        </Button>
-      </Popover.Content>
-    </Popover>
-  );
-};
-
 const applyCustomPageSize = (
   raw: string,
   setPageSize: (n: number) => void,
@@ -263,13 +204,7 @@ export const FixedPricingTable = ({
   const pageItems: IPageItem[] = pageResult?.list || [];
   const totalCount: number = pageResult?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
-  const { conditionColumns, groupNames } = usePricingConditionColumns(
-    pageResult?.conditionGroupIds || [],
-  );
-  // A product gaining a condition group must not reset unsaved edits on the page.
-  const pageItemsKey = JSON.stringify(
-    pageItems.map((item) => ({ ...item, conditionGroupId: undefined })),
-  );
+  const pageItemsKey = JSON.stringify(pageItems);
 
   useEffect(() => {
     if (!pageItems.length) return;
@@ -281,30 +216,16 @@ export const FixedPricingTable = ({
         uom: item.uom,
         unitPrice: item.unitPrice,
         newPrice: item.newPrice,
-        conditionPriceMap: toConditionPriceMap(item.conditionPrices),
       })),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageItemsKey, replace]);
 
   const handlePageChange = (newPage: number) => {
-    const hasDirtyRows = watchedFixedValues?.some(
-      (
-        fv: {
-          newPrice?: number;
-          conditionPriceMap?: Record<string, number | null>;
-        },
-        index: number,
-      ) => {
-        const item = pageItems[index];
-        return (
-          item &&
-          (fv?.newPrice !== item.newPrice ||
-            JSON.stringify(fv?.conditionPriceMap || {}) !==
-              JSON.stringify(toConditionPriceMap(item.conditionPrices)))
-        );
-      },
-    );
+    const hasDirtyRows = watchedFixedValues?.some((fv, index) => {
+      const item = pageItems[index];
+      return item && fv?.newPrice !== item.newPrice;
+    });
     if (hasDirtyRows) onSave();
     setCurrentPage(newPage);
   };
@@ -367,7 +288,7 @@ export const FixedPricingTable = ({
       return (
         <Table.Row>
           <Table.Cell
-            colSpan={7 + conditionColumns.length}
+            colSpan={7}
             style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}
           >
             Loading...
@@ -379,7 +300,7 @@ export const FixedPricingTable = ({
       return (
         <Table.Row>
           <Table.Cell
-            colSpan={7 + conditionColumns.length}
+            colSpan={7}
             style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}
           >
             No products found.
@@ -396,7 +317,6 @@ export const FixedPricingTable = ({
         uom: item.uom,
         unitPrice: item.unitPrice,
         code: item.sortField,
-        conditionGroupId: item.conditionGroupId,
         isDeleted: item.productStatus === 'deleted',
       };
       return (
@@ -407,8 +327,6 @@ export const FixedPricingTable = ({
           control={control}
           product={product}
           status={item.status}
-          conditionColumns={conditionColumns}
-          groupNames={groupNames}
           onSave={onSave}
         />
       );
@@ -569,9 +487,6 @@ export const FixedPricingTable = ({
                 <Table.Head>UOM</Table.Head>
                 <Table.Head>Unit Price</Table.Head>
                 <Table.Head>New Price</Table.Head>
-                {conditionColumns.map((column) => (
-                  <Table.Head key={column._id}>{column.name}</Table.Head>
-                ))}
                 <Table.Head>Diff Price</Table.Head>
                 <Table.Head>Status</Table.Head>
               </Table.Row>
@@ -629,8 +544,6 @@ const FixedPricingRow = ({
   control,
   product,
   status,
-  conditionColumns,
-  groupNames,
   onSave,
 }: {
   rowId: string;
@@ -638,8 +551,6 @@ const FixedPricingRow = ({
   control: Control<any>;
   product: IProductRow;
   status: FixedPricingStatus;
-  conditionColumns: IConditionColumn[];
-  groupNames: Record<string, string>;
   onSave: () => void;
 }) => {
   const watchedValue = useWatch({ control, name: `fixedValues.${index}` });
@@ -720,55 +631,6 @@ const FixedPricingRow = ({
           </Table.Cell>
         </RecordTableHotKeyControl>
       )}
-
-      {/* Only the product's own condition group can be sold under. */}
-      {conditionColumns.map((column) => (
-        <Table.Cell key={column._id}>
-          {product.isDeleted ? (
-            <NotAvailableBadge />
-          ) : product.conditionGroupId === column.groupId ? (
-            <Form.Field
-              control={control}
-              name={`fixedValues.${index}.conditionPriceMap.${column._id}`}
-              render={({ field }) => (
-                <PopoverScoped
-                  scope={`fixedValues.${index}.condition.${column._id}`}
-                  closeOnEnter
-                >
-                  <Form.Control>
-                    <RecordTableInlineCell.Trigger>
-                      {field.value != null ? (
-                        field.value.toLocaleString()
-                      ) : (
-                        <span className="text-muted-foreground">Set price</span>
-                      )}
-                    </RecordTableInlineCell.Trigger>
-                  </Form.Control>
-                  <RecordTableInlineCell.Content>
-                    <InputNumber
-                      value={field.value ?? undefined}
-                      min={0}
-                      // An emptied input clears the cell back to the new price.
-                      onChange={(v) => field.onChange(v ?? null)}
-                      onKeyDown={handleNewPriceKeyDown}
-                    />
-                  </RecordTableInlineCell.Content>
-                </PopoverScoped>
-              )}
-            />
-          ) : (
-            <ConditionUnavailableCell
-              productId={product._id}
-              column={column}
-              currentGroupName={
-                product.conditionGroupId
-                  ? groupNames[product.conditionGroupId]
-                  : undefined
-              }
-            />
-          )}
-        </Table.Cell>
-      ))}
 
       <Table.Cell>
         <RecordTableInlineCell>

@@ -21,7 +21,7 @@ export interface IOrderItem {
   isTake?: boolean;
   status?: string;
   manufacturedDate?: string;
-  conditionId?: string;
+  conditionCode?: string;
   description?: string;
   attachment?: IAttachment;
   closeDate?: Date;

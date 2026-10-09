@@ -29,10 +29,10 @@ import {
 } from './rule';
 
 import {
-  mutations as ConditionGroupMutations,
-  queries as ConditionGroupQueries,
-  types as ConditionGroupTypes,
-} from './conditionGroup';
+  mutations as ConditionMutations,
+  queries as ConditionQueries,
+  types as ConditionTypes,
+} from './condition';
 
 import {
   mutations as PackageMutations,
@@ -52,7 +52,7 @@ export const types = `
   ${ConfigTypes}
   ${UomTypes}
   ${RuleTypes}
-  ${ConditionGroupTypes}
+  ${ConditionTypes}
   ${PackageTypes}
   ${SimilarityTypes}
 `;
@@ -63,7 +63,7 @@ export const queries = `
   ${ConfigQueries}
   ${UomQueries}
   ${RuleQueries}
-  ${ConditionGroupQueries}
+  ${ConditionQueries}
   ${PackageQueries}
   ${SimilarityQueries}
 `;
@@ -74,7 +74,7 @@ export const mutations = `
   ${ConfigMutations}
   ${UomMutations}
   ${RuleMutations}
-  ${ConditionGroupMutations}
+  ${ConditionMutations}
   ${PackageMutations}
   ${SimilarityMutations}
 `;

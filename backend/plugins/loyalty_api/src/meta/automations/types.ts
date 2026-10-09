@@ -67,6 +67,9 @@ export type SetTierActionConfig = TTierBandsConfig & {
   tier?: string;
   // With bands, a purchase never moves the owner to a lower tier.
   onlyUpgrade?: boolean;
+  // The same for a fixed tier; separate because older fixed steps were saved
+  // with `onlyUpgrade` on and must keep lowering.
+  keepHigherTier?: boolean;
 };
 
 export type IssueVoucherActionConfig = {

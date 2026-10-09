@@ -13,7 +13,7 @@ export interface IPosOrderItem {
   isPackage?: boolean;
   isTake?: boolean;
   manufacturedDate?: string;
-  conditionId?: string;
+  conditionCode?: string;
   description?: string;
   attachment?: IAttachment;
   closeDate?: Date;

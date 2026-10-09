@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { IPricingConditionRule } from '@/pricing/@types/pricingPlan';
 import {
   checkRepeatRule,
   calculatePriceRule,
@@ -105,9 +107,9 @@ const applyPriorityConditions = (
       {
         $or: [
           { priority: { $nin: ['posBase', 'pipelineBase'] } },
-          // Their condition prices are the one part sync could not bake in.
+          // Their condition discounts are the one part sync could not bake in.
           ...(hasConditionItems
-            ? [{ priority: 'posBase', type: 'fixed' }]
+            ? [{ priority: 'posBase', 'conditionRules.0': { $exists: true } }]
             : []),
         ],
       },
@@ -116,47 +118,28 @@ const applyPriorityConditions = (
 };
 
 // Helper function to calculate default discount value
-// null: the plan does not price this line at all.
 const calculateDefaultDiscount = async (
   plan: any,
   item: any,
   models: IModels,
-  conditionOnly: boolean,
-): Promise<number | null> => {
+): Promise<number> => {
   if (plan.type === 'fixed') {
     const fixedValue = await models.PricingFixedValues.findOne({
       pricingPlanId: plan._id.toString(),
       productId: item.productId,
     });
 
-    // A line sold under a condition takes that condition's price when it has one.
-    const conditionPrice = item.conditionId
-      ? fixedValue?.conditionPrices?.find(
-          ({ conditionId }) => conditionId === item.conditionId,
-        )?.price
-      : undefined;
-
-    if (conditionOnly && conditionPrice == null) {
-      return null;
-    }
-
     if (fixedValue?.newPrice == null) {
       return 0;
     }
 
-    const newPrice = conditionPrice ?? fixedValue.newPrice;
-
-    const discount = item.price - newPrice;
+    const discount = item.price - fixedValue.newPrice;
     return calculatePriceAdjust(
       item.price,
       discount,
       plan.priceAdjustType,
       plan.priceAdjustFactor,
     );
-  }
-
-  if (conditionOnly) {
-    return null;
   }
 
   let defaultValue = calculateDiscountValue(plan.type, plan.value, item.price);
@@ -167,6 +150,73 @@ const calculateDefaultDiscount = async (
     plan.priceAdjustFactor,
   );
   return defaultValue;
+};
+
+const findConditionRule = (
+  plan: { conditionRules?: IPricingConditionRule[] },
+  item: OrderItem,
+) =>
+  item.conditionCode
+    ? plan.conditionRules?.find(
+        ({ conditionCode }) => conditionCode === item.conditionCode,
+      )
+    : undefined;
+
+// Evaluated like a quantity rule, but it overrides rather than competes, so a
+// condition can also give less than the plan's own rules would.
+// defaultValue: the plan's default discount off `price`.
+const calculateConditionRule = (
+  rule: IPricingConditionRule,
+  price: number,
+  defaultValue: number,
+  planType: string,
+): { type: string; value: number; bonusProducts: string[] } => {
+  if (rule.discountType === 'bonus') {
+    return {
+      type: 'bonus',
+      value: 0,
+      bonusProducts: rule.discountBonusProduct
+        ? [rule.discountBonusProduct]
+        : [],
+    };
+  }
+
+  const discount =
+    rule.discountType === 'default'
+      ? defaultValue
+      : calculateDiscountValue(rule.discountType, rule.discountValue, price);
+
+  return {
+    type: rule.discountType === 'default' ? planType : rule.discountType,
+    value: calculatePriceAdjust(
+      price,
+      discount,
+      rule.priceAdjustType,
+      rule.priceAdjustFactor,
+    ),
+    bonusProducts: [],
+  };
+};
+
+// Core unit prices, before POS sync baked its plans into the lines' prices.
+const loadBasePrices = async (subdomain: string, productIds: string[]) => {
+  const products: { _id: string; unitPrice?: number }[] = await sendTRPCMessage(
+    {
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: {
+        query: { _id: { $in: productIds } },
+        fields: { unitPrice: 1 },
+      },
+      defaultValue: [],
+    },
+  );
+
+  return new Map(
+    products.map(({ _id, unitPrice }) => [String(_id), unitPrice ?? 0]),
+  );
 };
 
 // Helper function to check if any rule has bonus products
@@ -407,7 +457,7 @@ export const checkPricing = async (params: {
   applyPriorityConditions(
     conditions,
     prioritizeRule,
-    orderItems.some((item) => item.conditionId),
+    orderItems.some((item) => item.conditionCode),
   );
 
   // Fix: Use proper sort order type for MongoDB
@@ -421,6 +471,18 @@ export const checkPricing = async (params: {
   if (plans.length === 0) {
     return;
   }
+
+  let basePrices: Map<string, number> | undefined;
+  const getBasePrice = async (item: OrderItem) => {
+    basePrices ??= await loadBasePrices(
+      subdomain,
+      orderItems
+        .filter((orderItem) => orderItem.conditionCode)
+        .map((orderItem) => orderItem.productId),
+    );
+
+    return basePrices.get(item.productId) ?? item.price;
+  };
 
   // Memoize segment + entity-fact lookups across every plan in this request.
   const eligibilityCache: EligibilityCache = new Map();
@@ -461,7 +523,8 @@ export const checkPricing = async (params: {
       continue;
     }
 
-    // POS sync already baked this plan's new prices into unit prices.
+    // POS sync already baked this plan into unit prices; only its condition
+    // discount is left, measured against what the line costs now.
     const bakedAtSync =
       prioritizeRule === 'exclude' && plan.priority === 'posBase';
 
@@ -474,15 +537,9 @@ export const checkPricing = async (params: {
         continue;
       }
 
-      // Calculate discount
-      const defaultValue = await calculateDefaultDiscount(
-        plan,
-        item,
-        models,
-        bakedAtSync,
-      );
+      const conditionRule = findConditionRule(plan, item);
 
-      if (defaultValue === null) {
+      if (bakedAtSync && !conditionRule) {
         continue;
       }
 
@@ -491,15 +548,59 @@ export const checkPricing = async (params: {
         appliedBundleCounts = item.quantity;
       }
 
-      // Process item with plan rules
-      const { type, value, bonusProducts, shouldApply } = bakedAtSync
-        ? {
-            type: plan.type,
-            value: defaultValue,
-            bonusProducts: [],
-            shouldApply: true,
-          }
-        : processItemWithPlan(item, plan, totalAmount, defaultValue, result);
+      let type: string;
+      let value: number;
+      let bonusProducts: string[];
+      let shouldApply: boolean;
+
+      if (bakedAtSync && conditionRule) {
+        const basePrice = await getBasePrice(item);
+        const planDiscount = basePrice - item.price;
+        const outcome = calculateConditionRule(
+          conditionRule,
+          basePrice,
+          planDiscount,
+          plan.type,
+        );
+
+        if (outcome.type === 'bonus') {
+          // The bonus replaces the plan discount sync baked into the price.
+          updateResultWithCalculations(
+            item.itemId,
+            plan.type,
+            -planDiscount,
+            [],
+            plan,
+            result,
+          );
+        }
+
+        type = outcome.type;
+        value = outcome.type === 'bonus' ? 0 : outcome.value - planDiscount;
+        bonusProducts = outcome.bonusProducts;
+        shouldApply = true;
+      } else {
+        // Calculate discount
+        const defaultValue = await calculateDefaultDiscount(plan, item, models);
+
+        // Process item with plan rules
+        ({ type, value, bonusProducts, shouldApply } = processItemWithPlan(
+          item,
+          plan,
+          totalAmount,
+          defaultValue,
+          result,
+        ));
+
+        if (shouldApply && conditionRule) {
+          ({ type, value, bonusProducts } = calculateConditionRule(
+            conditionRule,
+            item.price,
+            defaultValue,
+            plan.type,
+          ));
+        }
+      }
 
       if (shouldApply) {
         // Update result with calculated values

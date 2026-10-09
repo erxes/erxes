@@ -46,7 +46,10 @@ jest.mock('erxes-api-shared/utils', () => ({
 }));
 
 import { IModels } from '~/connectionResolvers';
-import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import {
+  IPricingConditionRule,
+  IPricingPlanDocument,
+} from '@/pricing/@types/pricingPlan';
 import { checkPricing, getMainConditions } from '../index';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
@@ -91,18 +94,12 @@ const plan = (
     // Boundary cast: a full Mongoose document is impractical to build in a unit test.
   } as unknown as IPricingPlanDocument);
 
-const makeModels = (
-  plans: IPricingPlanDocument[],
-  fixedValue: unknown = null,
-): IModels =>
+const makeModels = (plans: IPricingPlanDocument[]): IModels =>
   ({
     PricingPlans: {
       find: jest.fn(() => ({ sort: jest.fn().mockResolvedValue(plans) })),
     },
-    PricingFixedValues: {
-      findOne: jest.fn().mockResolvedValue(fixedValue),
-    },
-    // Boundary cast: only these two lookups are exercised by checkPricing.
+    // Boundary cast: only PricingPlans.find is exercised by checkPricing.
   } as unknown as IModels);
 
 const run = (
@@ -159,37 +156,106 @@ describe('checkPricing — applies eligible plans', () => {
   });
 });
 
-describe('checkPricing — POS-base fixed plans at checkout', () => {
-  const fixedPlan = plan({ priority: 'posBase', type: 'fixed' });
-  const fixedValue = {
-    newPrice: 80,
-    conditionPrices: [{ conditionId: 'dented', price: 50 }],
-  };
-  // Sync already lowered the unit price to the new price.
-  const checkout = (conditionId?: string) =>
+describe('checkPricing — condition discounts', () => {
+  const dented = (rule: Partial<IPricingConditionRule> = {}) => ({
+    conditionRules: [
+      {
+        conditionCode: 'dented',
+        discountType: 'percentage',
+        discountValue: 30,
+        priceAdjustType: 'none',
+        priceAdjustFactor: 0,
+        ...rule,
+      } as IPricingConditionRule,
+    ],
+  });
+  const line = (price: number, conditionCode?: string) => [
+    { itemId: 'i1', productId: 'p1', quantity: 1, price, conditionCode },
+  ];
+  const sell = (
+    rule?: Partial<IPricingConditionRule>,
+    conditionCode = 'dented',
+  ) =>
     checkPricing({
-      models: makeModels([fixedPlan], fixedValue),
+      models: makeModels([plan(dented(rule))]),
       subdomain: 'test',
       prioritizeRule: 'exclude',
-      totalAmount: 80,
-      orderItems: [
-        { itemId: 'i1', productId: 'p1', quantity: 1, price: 80, conditionId },
-      ],
+      totalAmount: 100,
+      orderItems: line(100, conditionCode),
     });
 
-  it('prices a line sold under a condition at that condition price', async () => {
-    const result = await checkout('dented');
+  it('prices the line by the condition rule instead of the plan', async () => {
+    const result = await sell();
     expect(result?.i1?.value).toBe(30);
   });
 
-  it('leaves plain lines alone, their new price is already baked in', async () => {
-    const result = await checkout();
+  it('can give less than the plan would', async () => {
+    const result = await sell({
+      discountType: 'subtraction',
+      discountValue: 5,
+    });
+    expect(result?.i1?.value).toBe(5);
+  });
+
+  it('keeps the plan discount for the default type', async () => {
+    const result = await sell({ discountType: 'default' });
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+
+  it('gives the bonus product instead of a discount', async () => {
+    const result = await sell({
+      discountType: 'bonus',
+      discountBonusProduct: 'gift',
+    });
+    expect(result?.i1?.bonusProducts).toEqual(['gift']);
     expect(result?.i1?.value).toBe(0);
   });
 
-  it('leaves a condition without its own price alone', async () => {
-    const result = await checkout('broken');
-    expect(result?.i1?.value).toBe(0);
+  it('leaves a line under another condition at the plan discount', async () => {
+    const result = await sell({}, 'broken');
+    expect(result?.i1?.value).toBe(DISCOUNT);
+  });
+
+  describe('POS-base plans at checkout', () => {
+    // Sync already took the plan's 10 off the core price of 100.
+    const checkout = (
+      rule?: Partial<IPricingConditionRule>,
+      conditionCode?: string,
+    ) => {
+      mockedTRPC.mockResolvedValue([{ _id: 'p1', unitPrice: 100 }]);
+
+      return checkPricing({
+        models: makeModels([plan({ priority: 'posBase', ...dented(rule) })]),
+        subdomain: 'test',
+        prioritizeRule: 'exclude',
+        totalAmount: 90,
+        orderItems: line(90, conditionCode),
+      });
+    };
+
+    it('prices against the core price, minus what sync took', async () => {
+      const result = await checkout({}, 'dented');
+      expect(result?.i1?.value).toBe(20);
+    });
+
+    it('adds nothing for the default type, sync already applied it', async () => {
+      const result = await checkout({ discountType: 'default' }, 'dented');
+      expect(result?.i1?.value).toBe(0);
+    });
+
+    it('gives back what sync took when the condition is a bonus', async () => {
+      const result = await checkout(
+        { discountType: 'bonus', discountBonusProduct: 'gift' },
+        'dented',
+      );
+      expect(result?.i1?.value).toBe(-10);
+      expect(result?.i1?.bonusProducts).toEqual(['gift']);
+    });
+
+    it('leaves plain lines alone, the plan is already baked in', async () => {
+      const result = await checkout();
+      expect(result?.i1?.value).toBe(0);
+    });
   });
 });
 

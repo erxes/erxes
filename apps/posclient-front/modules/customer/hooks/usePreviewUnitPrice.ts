@@ -5,7 +5,8 @@ import { useAtomValue } from "jotai"
 export const usePreviewUnitPrice = (itemId: string, unitPrice: number) => {
   const preview = useAtomValue(loyaltyPreviewAtom)
   const previewPrice = preview[itemId]?.unitPrice
-  const isPreviewed = previewPrice != null && previewPrice < unitPrice
+  // Higher too: a condition may give less than the plan baked into the price.
+  const isPreviewed = previewPrice != null && previewPrice !== unitPrice
 
   return {
     price: isPreviewed ? previewPrice : unitPrice,

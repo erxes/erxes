@@ -21,7 +21,7 @@ export const ProductFormSchema = z
     description: z.string().optional(),
     barcodeDescription: z.string().optional(),
     vendorId: z.string().optional(),
-    conditionGroupId: z.string().optional(),
+    conditionCodes: z.array(z.string()).optional().catch([]),
     scopeBrandIds: z.array(z.string()).optional().catch([]),
     unitPrice: z.coerce.number().min(0, {
       message: 'Unit price must be greater than or equal to 0',
@@ -74,7 +74,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormValues = {
   description: '',
   barcodeDescription: '',
   vendorId: '',
-  conditionGroupId: '',
+  conditionCodes: [],
   scopeBrandIds: [],
   unitPrice: 0,
   weight: undefined,

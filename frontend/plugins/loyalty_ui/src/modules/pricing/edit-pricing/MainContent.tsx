@@ -70,6 +70,7 @@ export const PricingMainContent: React.FC<MainContentProps> = ({
       case 'quantity':
       case 'price':
       case 'expiry':
+      case 'conditions':
         return (
           <RulesInfo
             pricingId={pricingId}

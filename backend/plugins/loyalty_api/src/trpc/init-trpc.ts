@@ -83,7 +83,7 @@ const pricingProductSchema = z.object({
   price: z.number().nonnegative().optional(),
   quantity: z.number().int().positive(),
   manufacturedDate: z.string().nullish(),
-  conditionId: z.string().nullish(),
+  conditionCode: z.string().nullish(),
 });
 
 const participantKindSchema = z.preprocess(
@@ -295,7 +295,7 @@ export const appRouter = t.router({
           price: p.unitPrice ?? p.price ?? 0,
           quantity: p.quantity,
           manufacturedDate: p.manufacturedDate || new Date().toISOString(),
-          conditionId: p.conditionId || undefined,
+          conditionCode: p.conditionCode || undefined,
         }));
 
         return await checkPricing({

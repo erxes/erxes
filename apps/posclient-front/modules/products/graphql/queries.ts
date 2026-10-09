@@ -78,7 +78,6 @@ const products = gql`
       discount(discountConditions: $discountConditions)
       isCheckRem
       hasSimilarity
-      conditionGroupId
       attachment {
         url
       }

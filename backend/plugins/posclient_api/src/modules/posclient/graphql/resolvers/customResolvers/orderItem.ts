@@ -28,17 +28,4 @@ export default {
 
     return product?.attachment?.url;
   },
-  // A reopened line needs its product's conditions to stay pickable.
-  async conditionGroupId(
-    orderItem: IOrderItemDocument,
-    _args,
-    { models }: IContext,
-  ) {
-    const product = await models.Products.findOne(
-      { _id: orderItem.productId },
-      { conditionGroupId: 1 },
-    ).lean();
-
-    return product?.conditionGroupId || null;
-  },
 };

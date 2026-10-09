@@ -319,7 +319,8 @@ const bridgesQueries = {
     return campaign.title || code;
   },
 
-  // The pricing and loyalty discount a save would give each line, without saving.
+  // What a save would give, without saving: each line's pricing and loyalty
+  // discount, and the bonus products pricing would add.
   async poscLoyaltyPreview(
     _root,
     {
@@ -333,13 +334,13 @@ const bridgesQueries = {
         productId: string;
         count: number;
         unitPrice: number;
-        conditionId?: string;
+        conditionCode?: string;
       }[];
       customerId?: string;
       couponCode?: string;
       voucherId?: string;
     },
-    { subdomain, posUser, config }: IContext,
+    { subdomain, models, posUser, config }: IContext,
   ) {
     assertPosUser(posUser);
 
@@ -361,33 +362,64 @@ const bridgesQueries = {
       voucherId,
     });
 
-    // Bonus lines pricing adds have no key and are left out.
-    return doc.items.flatMap(({ _id, productId, unitPrice, discountInfos }) => {
-      const original = originalByKey.get(_id);
+    // A line can also cost more than before: a condition may give less than
+    // the plan sync already baked into its price.
+    const lines = doc.items.flatMap(
+      ({ _id, productId, unitPrice, discountInfos }) => {
+        const original = originalByKey.get(_id);
 
-      if (!original?.unitPrice || unitPrice == null) {
-        return [];
-      }
+        if (!original?.unitPrice || unitPrice == null) {
+          return [];
+        }
 
-      const percent =
-        Math.round((1 - unitPrice / original.unitPrice) * 1000) / 10;
+        const percent =
+          Math.round((1 - unitPrice / original.unitPrice) * 1000) / 10;
 
-      return percent > 0
-        ? [
-            {
-              key: _id,
-              productId,
-              percent,
-              unitPrice,
-              title: (discountInfos || [])
-                .filter(({ type }) => type !== 'hand')
-                .map(({ title }) => title)
-                .filter(Boolean)
-                .join(', '),
-            },
-          ]
-        : [];
-    });
+        return percent !== 0
+          ? [
+              {
+                key: _id,
+                productId,
+                percent,
+                unitPrice,
+                title: (discountInfos || [])
+                  .filter(({ type }) => type !== 'hand')
+                  .map(({ title }) => title)
+                  .filter(Boolean)
+                  .join(', '),
+              },
+            ]
+          : [];
+      },
+    );
+
+    // Pricing appends a bonus as a new line; one already in the cart is
+    // discounted in place and shows up in `lines` instead.
+    const bonusItems = doc.items.filter(({ _id }) => !originalByKey.has(_id));
+    const products = bonusItems.length
+      ? await models.Products.find(
+          { _id: { $in: bonusItems.map(({ productId }) => productId) } },
+          { name: 1, code: 1 },
+        ).lean()
+      : [];
+    const productById = new Map(
+      products.map((product) => [String(product._id), product]),
+    );
+
+    return {
+      lines,
+      bonuses: bonusItems.map(({ productId, count }) => {
+        const product = productById.get(productId);
+
+        return {
+          productId,
+          name: product
+            ? [product.code, product.name].filter(Boolean).join(' - ')
+            : productId,
+          count,
+        };
+      }),
+    };
   },
 
   async poscLoyaltyEarnPreview(
@@ -405,14 +437,21 @@ const bridgesQueries = {
     return previewLoyaltyEarn(subdomain, config, args);
   },
 
-  async poscProductConditionGroups(
+  // Read from the synced product each time, so a cart line never holds a stale list.
+  async poscProductConditions(
     _root,
-    { ids }: { ids: string[] },
-    { subdomain, posUser }: IContext,
+    { productId }: { productId: string },
+    { subdomain, models, posUser }: IContext,
   ) {
     assertPosUser(posUser);
 
-    if (!ids.length) {
+    const product = await models.Products.findOne(
+      { _id: productId },
+      { conditionCodes: 1 },
+    ).lean();
+    const codes = product?.conditionCodes || [];
+
+    if (!codes.length) {
       return [];
     }
 
@@ -420,9 +459,9 @@ const bridgesQueries = {
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'productConditionGroups',
+      module: 'productConditions',
       action: 'find',
-      input: { ids },
+      input: { codes },
       defaultValue: [],
     });
   },

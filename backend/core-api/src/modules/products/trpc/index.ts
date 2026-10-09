@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 
 import { productCategoryTrpcRouter } from '@/products/trpc/category';
-import { productConditionGroupTrpcRouter } from '@/products/trpc/conditionGroup';
+import { productConditionTrpcRouter } from '@/products/trpc/condition';
 import { productConfigTrpcRouter } from '@/products/trpc/config';
 import { productsTrpcRouter } from '@/products/trpc/product';
 import { uomTrpcRouter } from '@/products/trpc/uom';
@@ -14,5 +14,5 @@ export const productTrpcRouter = t.mergeRouters(
   uomTrpcRouter,
   productCategoryTrpcRouter,
   productConfigTrpcRouter,
-  productConditionGroupTrpcRouter,
+  productConditionTrpcRouter,
 );

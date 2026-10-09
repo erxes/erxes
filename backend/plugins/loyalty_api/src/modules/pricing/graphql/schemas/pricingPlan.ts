@@ -34,6 +34,15 @@ export const types = `
     value: String,
   }
 
+  type PricingConditionRule {
+    conditionCode: String!
+    discountType: String!
+    discountValue: Float
+    discountBonusProduct: String
+    priceAdjustType: String
+    priceAdjustFactor: Int
+  }
+
   type RepeatRule {
     type: String,
     dayStartValue: Date,
@@ -119,6 +128,8 @@ export const types = `
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRule],
 
+    conditionRules: [PricingConditionRule],
+
     createdAt: Date,
     createdBy: String,
     createdUser: User,
@@ -131,11 +142,6 @@ export const types = `
    fixedValues: [PricingFixedValue]    
      
   }
-     type PricingConditionPrice {
-      conditionId: String!
-      price: Float!
-    }
-
      type PricingFixedValue {
       _id: String
       pricingPlanId: String
@@ -144,7 +150,6 @@ export const types = `
       uom: String
       unitPrice: Float
       newPrice: Float
-      conditionPrices: [PricingConditionPrice]
       createdBy: String
       updatedBy: String
       createdAt: Date
@@ -159,8 +164,6 @@ export const types = `
       uom: String
       unitPrice: Float
       newPrice: Float
-      conditionGroupId: String
-      conditionPrices: [PricingConditionPrice]
       productStatus: String
       status: String
     }
@@ -168,7 +171,6 @@ export const types = `
     type PricingFixedValuePageResult {
       list: [PricingFixedValuePageItem]
       totalCount: Int
-      conditionGroupIds: [String]
     }
   input QuantityRuleInput {
     type: String,
@@ -213,6 +215,15 @@ export const types = `
     monthValue: [RepeatValueInput],
     yearStartValue: Date,
     yearEndValue: Date,
+  }
+
+  input PricingConditionRuleInput {
+    conditionCode: String!
+    discountType: String!
+    discountValue: Float
+    discountBonusProduct: String
+    priceAdjustType: String
+    priceAdjustFactor: Int
   }
 
   input PricingPlanAddInput {
@@ -289,6 +300,8 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
+
+    conditionRules: [PricingConditionRuleInput],
   }
 
   input PricingPlanEditInput {
@@ -365,12 +378,9 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
-  }
 
-  input PricingConditionPriceInput {
-      conditionId: String!
-      price: Float!
-    }
+    conditionRules: [PricingConditionRuleInput],
+  }
 
   input PricingFixedValueInput {
       productId: String
@@ -378,7 +388,6 @@ export const types = `
       uom: String
       unitPrice: Float
       newPrice: Float
-      conditionPrices: [PricingConditionPriceInput]
     }
 
   input PricingCheckProduct {

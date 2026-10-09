@@ -44,8 +44,7 @@ const CartItem = ({
   idx,
   productId,
   discountInfos,
-  conditionId,
-  conditionGroupId,
+  conditionCode,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
   const banFractions = useAtomValue(banFractionsAtom)
@@ -124,8 +123,8 @@ const CartItem = ({
               />
               <StrikedPrice price={originalPrice} />
               <CartItemConditionBadge
-                conditionGroupId={conditionGroupId}
-                conditionId={conditionId}
+                productId={productId}
+                conditionCode={conditionCode}
               />
               <LoyaltyDiscountBadge
                 itemId={_id}
@@ -171,8 +170,8 @@ const CartItem = ({
         <CollapsibleContent className="w-full pb-3 space-y-2">
           <CartItemCondition
             _id={_id}
-            conditionGroupId={conditionGroupId}
-            conditionId={conditionId}
+            productId={productId}
+            conditionCode={conditionCode}
           />
           <div>
             <Label htmlFor="description">Тайлбар</Label>

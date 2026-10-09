@@ -193,6 +193,14 @@ export const PRICING_PLAN_DETAIL = gql`
         priceAdjustType
         priceAdjustFactor
       }
+      conditionRules {
+        conditionCode
+        discountType
+        discountValue
+        discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
+      }
       isRepeatEnabled
       repeatRules {
         type
@@ -264,7 +272,6 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
       search: $search
     ) {
       totalCount
-      conditionGroupIds
       list {
         _id
         productId
@@ -273,28 +280,20 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
         uom
         unitPrice
         newPrice
-        conditionGroupId
         productStatus
-        conditionPrices {
-          conditionId
-          price
-        }
         status
       }
     }
   }
 `;
 
-// Core product conditions a plan can give its own price columns.
-export const PRICING_PRODUCT_CONDITION_GROUPS = gql`
-  query pricingProductConditionGroups {
-    productConditionGroups {
+// Core product conditions a plan can give a discount to, matched by code.
+export const PRICING_PRODUCT_CONDITIONS = gql`
+  query pricingProductConditions {
+    productConditions {
       _id
+      code
       name
-      conditions {
-        _id
-        name
-      }
     }
   }
 `;

@@ -1,16 +1,18 @@
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debugger';
 import { resolveAutomationErrorCode } from './errorCodes';
-import { isInSegment } from '../utils/isInSegment';
+import { isInSegment, measureWatched } from '../utils/isInSegment';
 import { isDiffValue } from '../utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationDocument,
   IAutomationExecutionDocument,
   AUTOMATION_RE_ENROLL_EVERY_TIME,
+  AUTOMATION_RE_ENROLL_RELATION_PREFIX,
   IAutomationTrigger,
   isReEnrollableTrigger,
   isReEnrollingTrigger,
+  reEnrollmentRelationPaths,
   reEnrollsEveryTime,
   splitType,
   TAutomationProducers,
@@ -184,6 +186,20 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
+  // A relation condition (the sum of a customer's deals) changes without the
+  // customer changing, so its value is measured and kept on the run.
+  const relationPaths = reEnrollment
+    ? reEnrollmentRelationPaths(reEnrollmentRules)
+    : [];
+  const watched = relationPaths.length
+    ? await measureWatched(
+        subdomain,
+        config?.contentId,
+        executionTarget._id,
+        relationPaths,
+      )
+    : undefined;
+
   if (latestExecution && !(await isReEnrollingTrigger(type))) {
     if (!reEnrollment || !reEnrollmentRules.length) {
       return;
@@ -193,15 +209,21 @@ export const calculateExecution = async ({
     const everyTime =
       reEnrollsEveryTime(config) && (await isReEnrollableTrigger(type));
 
-    const isChanged =
-      everyTime ||
-      reEnrollmentRules.some(
-        (rule) =>
-          rule !== AUTOMATION_RE_ENROLL_EVERY_TIME &&
-          isDiffValue(latestExecution.target, executionTarget, rule),
+    const fieldChanged = reEnrollmentRules.some(
+      (rule) =>
+        rule !== AUTOMATION_RE_ENROLL_EVERY_TIME &&
+        !rule.startsWith(AUTOMATION_RE_ENROLL_RELATION_PREFIX) &&
+        isDiffValue(latestExecution.target, executionTarget, rule),
+    );
+    const relationChanged =
+      !!watched &&
+      relationPaths.some(
+        (path) =>
+          JSON.stringify(latestExecution.watched?.[path] ?? null) !==
+          JSON.stringify(watched[path] ?? null),
       );
 
-    if (!isChanged) {
+    if (!everyTime && !fieldChanged && !relationChanged) {
       return;
     }
   }
@@ -213,6 +235,7 @@ export const calculateExecution = async ({
     triggerConfig: config,
     targetId: executionTarget._id,
     target: executionTarget,
+    ...(watched ? { watched } : {}),
     status: AUTOMATION_EXECUTION_STATUS.ACTIVE,
     description: `Met enrollment criteria`,
     createdVia: buildTriggeredVia(automation),

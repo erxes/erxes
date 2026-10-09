@@ -100,11 +100,18 @@ const poscLoyaltyPreview = gql`
       couponCode: $couponCode
       voucherId: $voucherId
     ) {
-      key
-      productId
-      percent
-      unitPrice
-      title
+      lines {
+        key
+        productId
+        percent
+        unitPrice
+        title
+      }
+      bonuses {
+        productId
+        name
+        count
+      }
     }
   }
 `

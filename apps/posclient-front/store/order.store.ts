@@ -61,6 +61,10 @@ export const couponCodeAtom = atom<string | null>(null)
 export const loyaltyPreviewAtom = atom<
   Record<string, { percent: number; unitPrice: number }>
 >({})
+// Bonus products a save would add as new lines, shown under the cart until then.
+export const loyaltyPreviewBonusesAtom = atom<
+  { productId: string; name: string; count: number }[]
+>([])
 // Display only: payments always use the saved order's amounts.
 export const previewTotalAmountAtom = atom<number>((get) => {
   const preview = get(loyaltyPreviewAtom)

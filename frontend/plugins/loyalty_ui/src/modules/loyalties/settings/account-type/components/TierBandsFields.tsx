@@ -1,5 +1,5 @@
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Checkbox, DatePicker, Input, Label } from 'erxes-ui';
+import { Checkbox, Input, Label } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   setTierBand,
@@ -9,14 +9,9 @@ import {
 } from '../tierBands';
 import { ILoyaltyTier } from '../types';
 
-const toDate = (value?: string) => (value ? new Date(value) : undefined);
-
-const toIso = (value: unknown) =>
-  value instanceof Date ? value.toISOString() : undefined;
-
 /**
- * Which tier one purchase earns: an amount range per tier, the dates the rule
- * runs between, and whether a smaller purchase may lower a tier.
+ * Which tier an amount earns: a range per tier, and whether a smaller amount
+ * may lower a tier.
  */
 export const TierBandsFields = ({
   tiers,
@@ -33,22 +28,6 @@ export const TierBandsFields = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
-        <Label>{t('tier-bands-dates')}</Label>
-        <div className="grid grid-cols-2 gap-2">
-          <DatePicker
-            value={toDate(value.startDate)}
-            onChange={(date) => onChange({ ...value, startDate: toIso(date) })}
-            placeholder={t('tier-bands-from-date')}
-          />
-          <DatePicker
-            value={toDate(value.endDate)}
-            onChange={(date) => onChange({ ...value, endDate: toIso(date) })}
-            placeholder={t('tier-bands-to-date')}
-          />
-        </div>
-      </div>
-
       <div className="flex flex-col gap-2">
         <Label>{t('tier-bands-amounts')}</Label>
         <div className="grid grid-cols-[minmax(5rem,8rem)_1fr_1fr] items-center gap-x-2 gap-y-1.5">

@@ -11,6 +11,6 @@ export type OrderItem = {
   quantity: number;
   price: number;
   manufacturedDate?: string;
-  // The core product condition the line is sold under, if any.
-  conditionId?: string;
+  // Code of the core product condition the line is sold under, if any.
+  conditionCode?: string;
 };

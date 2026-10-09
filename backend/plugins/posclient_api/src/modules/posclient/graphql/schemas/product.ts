@@ -22,7 +22,7 @@ export const types = `
 
   type PoscProduct {
     ${commonFieldDefs}
-    conditionGroupId: String
+    conditionCodes: [String]
     shortName: String
     type: String
     barcodes: [String]

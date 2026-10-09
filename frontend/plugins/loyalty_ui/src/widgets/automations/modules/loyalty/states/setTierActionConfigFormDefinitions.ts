@@ -15,10 +15,12 @@ export const setTierActionConfigFormSchema = z
     mode: z.enum(['fixed', 'amount']),
     // Empty clears the tier.
     tier: z.string(),
+    // Older steps may hold a date window; leaving it out of the schema drops
+    // it on the next save.
     bands: z.array(tierBandSchema),
-    startDate: z.string().optional(),
-    endDate: z.string().optional(),
     onlyUpgrade: z.boolean(),
+    // A fixed tier never lowers the owner's tier.
+    keepHigherTier: z.boolean().optional(),
   })
   .superRefine(({ mode, bands }, ctx) => {
     if (mode !== 'amount') {

@@ -2,13 +2,11 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { pricingFixedValueSchema } from '../definitions/pricingFixedValue';
 import {
-  IPricingConditionPrice,
   IPricingFixedValue,
   IPricingFixedValueDocument,
 } from '@/pricing/@types/pricingFixedValue';
 
-export interface IPricingFixedValueModel
-  extends Model<IPricingFixedValueDocument> {
+export interface IPricingFixedValueModel extends Model<IPricingFixedValueDocument> {
   createFixedValue(
     doc: IPricingFixedValue,
     userId: string,
@@ -22,42 +20,6 @@ export interface IPricingFixedValueModel
   removeByPlanId(pricingPlanId: string): Promise<void>;
 }
 
-// Drops empty cells; a condition keeps one price.
-const cleanConditionPrices = (
-  prices?: IPricingConditionPrice[],
-): IPricingConditionPrice[] | undefined => {
-  if (!prices) {
-    return undefined;
-  }
-
-  const byCondition = new Map<string, number>();
-
-  for (const { conditionId, price } of prices) {
-    if (!conditionId || price == null) {
-      continue;
-    }
-
-    if (price < 0) {
-      throw new Error('A condition price cannot be negative');
-    }
-
-    byCondition.set(conditionId, price);
-  }
-
-  return [...byCondition].map(([conditionId, price]) => ({
-    conditionId,
-    price,
-  }));
-};
-
-const prepareDoc = <T extends Partial<IPricingFixedValue>>(doc: T): T =>
-  doc.conditionPrices === undefined
-    ? doc
-    : {
-        ...doc,
-        conditionPrices: cleanConditionPrices(doc.conditionPrices),
-      };
-
 export const loadPricingFixedValueClass = (models: IModels) => {
   class PricingFixedValue {
     public static async createFixedValue(
@@ -67,7 +29,7 @@ export const loadPricingFixedValueClass = (models: IModels) => {
       const result = await models.PricingFixedValues.findOneAndUpdate(
         { pricingPlanId: doc.pricingPlanId, productId: doc.productId },
         {
-          $set: { ...prepareDoc(doc), updatedBy: userId },
+          $set: { ...doc, updatedBy: userId },
           $setOnInsert: { createdBy: userId },
         },
         { upsert: true, new: true },
@@ -84,7 +46,7 @@ export const loadPricingFixedValueClass = (models: IModels) => {
       if (!existing) throw new Error(`Can't find fixed value`);
 
       await models.PricingFixedValues.findByIdAndUpdate(id, {
-        $set: { ...prepareDoc(doc), updatedBy: userId },
+        $set: { ...doc, updatedBy: userId },
       });
       return models.PricingFixedValues.findById(id);
     }

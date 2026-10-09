@@ -274,7 +274,7 @@ export const updateOrderItems = async (
       isPackage: item.isPackage,
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
-      conditionId: item.conditionId,
+      conditionCode: item.conditionCode,
       description: item.description,
       attachment: item.attachment,
       byDevice: item.byDevice,

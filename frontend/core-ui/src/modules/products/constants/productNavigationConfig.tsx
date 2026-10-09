@@ -28,6 +28,6 @@ export const PRODUCT_NAVIGATION_ICONS: Record<
   [ProductsPath.BundleCondition]: IconFilter,
   [ProductsPath.BundleRule]: IconListCheck,
   [ProductsPath.ProductRule]: IconCertificate,
-  [ProductsPath.ConditionGroups]: IconListDetails,
+  [ProductsPath.Conditions]: IconListDetails,
   [ProductsPath.Packages]: IconPackage,
 };

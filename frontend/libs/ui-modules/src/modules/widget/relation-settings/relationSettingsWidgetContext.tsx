@@ -1,6 +1,7 @@
 import { Icon } from '@tabler/icons-react';
 import { createContext, useContext } from 'react';
 import { TAutomationReturnLink } from '../../automations/utils/automationSeedLink';
+import { TSegmentFieldNode } from '../../segments/types/segmentNode';
 
 // A purchase source's own trigger, offered at a few scopes ("this POS",
 // "every POS"); the widget never learns what the source is.
@@ -8,6 +9,18 @@ export interface IRelationSettingsTriggerScope {
   key: string;
   label: string;
   triggerConfig: Record<string, unknown>;
+  history?: IRelationSettingsPurchaseHistory;
+}
+
+// How the source's past purchases in a scope read as a segment on the buyer.
+export interface IRelationSettingsPurchaseHistory {
+  subjectType: string;
+  relationKey: string;
+  relatedType: string;
+  amountField: string;
+  dateField: string;
+  // What makes a related record a purchase in this scope.
+  conditions: TSegmentFieldNode[];
 }
 
 export interface IRelationSettingsWidgetContext {

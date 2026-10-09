@@ -2,11 +2,9 @@ import { activeTiers, ILoyaltyTier } from './types';
 
 export type TTierBand = { tier: string; min?: number; max?: number };
 
-// What a Set tier step needs to pick a tier from one purchase's amount.
+// What a Set tier step needs to pick a tier from an amount.
 export type TTierBandsValue = {
   bands: TTierBand[];
-  startDate?: string;
-  endDate?: string;
   onlyUpgrade: boolean;
 };
 

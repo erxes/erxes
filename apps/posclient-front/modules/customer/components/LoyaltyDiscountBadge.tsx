@@ -38,6 +38,14 @@ export const LoyaltyDiscountBadge = ({
 
   if (!percent) return null
 
+  if (percent < 0) {
+    return (
+      <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-700">
+        +{fixNum(-percent, 1)}%
+      </span>
+    )
+  }
+
   return (
     <span className="ml-1 rounded bg-green-100 px-1 text-[10px] font-semibold text-green-700">
       −{fixNum(percent, 1)}%

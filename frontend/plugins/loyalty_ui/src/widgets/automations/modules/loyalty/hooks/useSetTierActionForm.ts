@@ -13,13 +13,8 @@ export const toSetTierConfig = (
   values: TSetTierActionConfigForm,
 ): TSetTierActionConfigForm =>
   values.mode === 'amount'
-    ? { ...values, tier: '' }
-    : {
-        ...values,
-        bands: [],
-        startDate: undefined,
-        endDate: undefined,
-      };
+    ? { ...values, tier: '', keepHigherTier: undefined }
+    : { ...values, bands: [] };
 
 export const useSetTierActionForm = (
   currentConfig?: Partial<TSetTierActionConfigForm>,
@@ -37,22 +32,12 @@ export const useSetTierActionForm = (
       mode: currentConfig?.bands?.length ? 'amount' : 'fixed',
     },
   });
-  const [accountTypeId, mode, bands, startDate, endDate, onlyUpgrade] =
-    useWatch({
-      control: form.control,
-      name: [
-        'accountTypeId',
-        'mode',
-        'bands',
-        'startDate',
-        'endDate',
-        'onlyUpgrade',
-      ],
-    });
+  const [accountTypeId, mode, bands, onlyUpgrade] = useWatch({
+    control: form.control,
+    name: ['accountTypeId', 'mode', 'bands', 'onlyUpgrade'],
+  });
   const setBandsValue = (value: TTierBandsValue) => {
     form.setValue('bands', value.bands, { shouldValidate: true });
-    form.setValue('startDate', value.startDate);
-    form.setValue('endDate', value.endDate);
     form.setValue('onlyUpgrade', value.onlyUpgrade);
   };
   const { accounts } = useLoyaltyAccountTypes({ status: 'active' });
@@ -60,7 +45,7 @@ export const useSetTierActionForm = (
   return {
     form,
     mode,
-    bandsValue: { bands, startDate, endDate, onlyUpgrade },
+    bandsValue: { bands, onlyUpgrade },
     setBandsValue,
     tiers: activeTiers(
       accounts.find(({ _id }) => _id === accountTypeId)?.tiers,

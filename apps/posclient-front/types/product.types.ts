@@ -15,7 +15,6 @@ export interface IProduct extends IProductBase {
   type?: string | null
   description?: string | null
   attachment?: { url?: string } | null
-  conditionGroupId?: string | null
   remainder?: number
   remainders?: { location: string; remainder: number }[]
   discount?: {

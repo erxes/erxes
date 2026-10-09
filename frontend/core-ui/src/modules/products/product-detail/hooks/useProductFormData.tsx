@@ -65,7 +65,7 @@ export function getProductFormDefaultValues(
     description: productDetail.description || '',
     barcodeDescription: productDetail.barcodeDescription || '',
     vendorId: productDetail.vendorId || '',
-    conditionGroupId: productDetail.conditionGroupId || '',
+    conditionCodes: productDetail.conditionCodes || [],
     scopeBrandIds: productDetail.scopeBrandIds || [],
     unitPrice: productDetail.unitPrice ?? 0,
     weight: productDetail.weight,

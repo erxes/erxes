@@ -1,5 +1,5 @@
 import { IconLink, IconPlus } from '@tabler/icons-react';
-import { Button, Label, Select, Tabs } from 'erxes-ui';
+import { Button, Label, RadioGroup, Select, Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IRelationSettingsTriggerScope } from 'ui-modules';
 import { SelectScoreCampaign } from '~/modules/loyalties/scores/components/selects/SelectScoreCampaign';
@@ -7,6 +7,7 @@ import { LoyaltyAccountTypeFormSheet } from '~/modules/loyalties/settings/accoun
 import { TierBandsFields } from '~/modules/loyalties/settings/account-type/components/TierBandsFields';
 import { LoyaltyScoreCreateSheet } from '~/modules/loyalties/settings/score/components/LoyaltyScoreCreateSheet';
 import { useLoyaltySourceAutomations } from '../hooks/useLoyaltySourceAutomations';
+import { TierHistoryFields } from './TierHistoryFields';
 
 type TLoyaltySourceState = ReturnType<typeof useLoyaltySourceAutomations>;
 
@@ -37,11 +38,21 @@ export const AddLoyaltyWorkflow = ({
     connectTier,
     creating,
     setCreating,
+    historyOffered,
+    tierBasis,
+    setTierBasis,
+    tierHistory,
+    setTierHistory,
+    tierHistoryIssue,
+    seeding,
   } = state;
   const canConnect =
     kind === 'points'
       ? !!campaignId
-      : !!selectedWallet && !!tierBands.bands.length;
+      : !!selectedWallet &&
+        !!tierBands.bands.length &&
+        !tierHistoryIssue &&
+        !seeding;
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border bg-muted/30 p-4">
@@ -129,6 +140,35 @@ export const AddLoyaltyWorkflow = ({
                 </Button>
               </div>
             </div>
+            {selectedWallet && historyOffered && (
+              <div className="flex flex-col gap-2">
+                <Label>{t('tier-basis')}</Label>
+                <RadioGroup
+                  value={tierBasis}
+                  onValueChange={(value) =>
+                    setTierBasis(value === 'history' ? 'history' : 'purchase')
+                  }
+                  className="flex gap-4"
+                >
+                  {(['purchase', 'history'] as const).map((basis) => (
+                    <label
+                      key={basis}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <RadioGroup.Item value={basis} />
+                      {t(`tier-basis-${basis}`)}
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+            {selectedWallet && tierBasis === 'history' && (
+              <TierHistoryFields
+                value={tierHistory}
+                onChange={setTierHistory}
+                issue={tierHistoryIssue}
+              />
+            )}
             {selectedWallet && (
               <TierBandsFields
                 tiers={selectedWallet.tiers}

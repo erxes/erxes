@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -104,8 +104,13 @@
   `usePipelinePurchaseContext`: the trigger a plugin may use (POS paid order
   event; `sales:sales.deals.probability` Won — registered deal trigger types
   are plural, the Automations list also matches legacy singular ones), scopes
-  (this record / all), how the trigger names the buyer, and `returnTo`. Sales
-  never names those plugins; tab labels come from their config.
+  (this record / all), how the trigger names the buyer, and `returnTo`. Each
+  scope also carries `history`: how the buyer's past purchases there read as
+  a customer segment (deals: `customer.deals`, `stageProbability` Won, the
+  pipeline when scoped, dated by `stageChangedDate`; POS: `customer.posOrders`,
+  not returned, the POS when scoped, dated by `paidDate`; both sum
+  `totalAmount`). Sales never names those plugins; tab labels come from their
+  config.
 
 ## Architecture
 

@@ -5,10 +5,10 @@ import { IPosDocument } from '~/modules/pos/@types/pos';
 import { getProductsData } from '~/modules/pos/routes';
 import { getChildCategories } from '~/modules/pos/utils';
 
-// Bulk condition-group writes bypass productsEdit, so they need their own resend.
-const posConditionGroupSyncMutationNames = [
-  'productsSetConditionGroup',
-  'productCategorySetConditionGroup',
+// Bulk condition writes bypass productsEdit, so they need their own resend.
+const posConditionSyncMutationNames = [
+  'productsSetConditionCodes',
+  'productCategorySetConditionCodes',
 ];
 
 export const posSyncMutationNames = [
@@ -19,7 +19,7 @@ export const posSyncMutationNames = [
   'productCategoriesAdd',
   'productCategoriesEdit',
   'productCategoriesRemove',
-  ...posConditionGroupSyncMutationNames,
+  ...posConditionSyncMutationNames,
 ];
 
 const posProductSyncMutationNames = [
@@ -37,7 +37,7 @@ const posProductCategorySyncMutationNames = [
 const createOrUpdateProductMutations = [
   'productsAdd',
   'productsEdit',
-  ...posConditionGroupSyncMutationNames,
+  ...posConditionSyncMutationNames,
 ];
 const createOrUpdateProductCategoryMutations = [
   'productCategoriesAdd',
@@ -503,7 +503,7 @@ const syncProductCategories = async (
   }
 };
 
-const syncConditionGroupProducts = async (
+const syncConditionProducts = async (
   subdomain: string,
   models: IModels,
   mutationName: string,
@@ -557,7 +557,7 @@ export const syncPosProductGroups = async (
     return;
   }
 
-  if (posConditionGroupSyncMutationNames.includes(mutationName)) {
-    await syncConditionGroupProducts(subdomain, models, mutationName, args);
+  if (posConditionSyncMutationNames.includes(mutationName)) {
+    await syncConditionProducts(subdomain, models, mutationName, args);
   }
 };

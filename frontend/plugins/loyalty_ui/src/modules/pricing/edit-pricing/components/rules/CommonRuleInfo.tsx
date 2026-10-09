@@ -96,19 +96,7 @@ export const CommonRuleInfo = ({
       if (values.discountType === 'fixed') {
         await Promise.all(
           values.fixedValues
-            .map((fv) => ({
-              ...fv,
-              conditionPrices: Object.entries(fv.conditionPriceMap || {})
-                .filter((entry): entry is [string, number] => entry[1] != null)
-                .map(([conditionId, price]) => ({ conditionId, price })),
-            }))
-            // A saved row may need its condition cells cleared, so it always goes.
-            .filter(
-              (fv) =>
-                fv._id ||
-                fv.newPrice !== fv.unitPrice ||
-                fv.conditionPrices.length,
-            )
+            .filter((fv) => fv.newPrice !== fv.unitPrice)
             .map((fv) => {
               const doc = {
                 productId: fv.productId,
@@ -116,7 +104,6 @@ export const CommonRuleInfo = ({
                 uom: fv.uom,
                 unitPrice: fv.unitPrice,
                 newPrice: fv.newPrice,
-                conditionPrices: fv.conditionPrices,
               };
               if (fv._id) {
                 return editFixedValue({ variables: { id: fv._id, doc } });

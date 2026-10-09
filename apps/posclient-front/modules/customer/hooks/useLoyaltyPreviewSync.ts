@@ -5,6 +5,7 @@ import {
   customerAtom,
   customerTypeAtom,
   loyaltyPreviewAtom,
+  loyaltyPreviewBonusesAtom,
   voucherIdAtom,
 } from "@/store/order.store"
 import { useQuery } from "@apollo/client"
@@ -15,9 +16,10 @@ import { OrderItem } from "@/types/order.types"
 import { queries } from "../graphql"
 
 interface PreviewResponse {
-  poscLoyaltyPreview?:
-    | { key: string; percent: number; unitPrice: number }[]
-    | null
+  poscLoyaltyPreview?: {
+    lines: { key: string; percent: number; unitPrice: number }[]
+    bonuses: { productId: string; name: string; count: number }[]
+  } | null
 }
 
 const CART_DEBOUNCE_MS = 500
@@ -34,15 +36,18 @@ export const useLoyaltyPreviewSync = () => {
   const couponCode = useAtomValue(couponCodeAtom)
   const voucherId = useAtomValue(voucherIdAtom)
   const setPreview = useSetAtom(loyaltyPreviewAtom)
+  const setPreviewBonuses = useSetAtom(loyaltyPreviewBonusesAtom)
 
+  // Free lines go too: a bonus the saved order already holds merges into its
+  // line instead of being previewed as a new one.
   const items = cart
-    .filter((item) => !hasAutoDiscount(item) && item.unitPrice > 0)
-    .map(({ _id, productId, count, unitPrice, conditionId }) => ({
+    .filter((item) => !hasAutoDiscount(item))
+    .map(({ _id, productId, count, unitPrice, conditionCode }) => ({
       key: _id,
       productId,
       count,
       unitPrice,
-      conditionId: conditionId || undefined,
+      conditionCode: conditionCode || undefined,
     }))
   const itemsKey = JSON.stringify(items)
   const [settledKey, setSettledKey] = useState(itemsKey)
@@ -71,14 +76,15 @@ export const useLoyaltyPreviewSync = () => {
   })
 
   useEffect(() => {
-    const lines = skip ? [] : data?.poscLoyaltyPreview || []
+    const preview = skip ? null : data?.poscLoyaltyPreview
     setPreview(
       Object.fromEntries(
-        lines.map(({ key, percent, unitPrice }) => [
+        (preview?.lines || []).map(({ key, percent, unitPrice }) => [
           key,
           { percent, unitPrice },
         ])
       )
     )
-  }, [data, skip, setPreview])
+    setPreviewBonuses(preview?.bonuses || [])
+  }, [data, skip, setPreview, setPreviewBonuses])
 }
