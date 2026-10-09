@@ -4,6 +4,7 @@ import {
   endOfQuarter,
   endOfWeek,
   endOfYear,
+  isValid,
   parse,
   startOfDay,
   startOfMonth,
@@ -134,6 +135,15 @@ export function getDateRange(value: string) {
     }
   }
 
+  if (
+    !fromDate ||
+    !toDate ||
+    !isValid(fromDate) ||
+    !isValid(toDate) ||
+    fromDate > toDate
+  ) {
+    return { fromDate: undefined, toDate: undefined };
+  }
   return { fromDate, toDate };
 }
 
