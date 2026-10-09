@@ -1,7 +1,14 @@
 import { Alert, Button, RecordTable } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
-import { memo, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import {
+  memo,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IconChevronLeft,

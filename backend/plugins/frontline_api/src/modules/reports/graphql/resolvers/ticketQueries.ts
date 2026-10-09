@@ -265,9 +265,8 @@ async function reportTicketFieldsForGroupValue({
     { $sort: { count: -1 } },
   ];
 
-  const valueCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-    pipeline,
-  );
+  const valueCounts: ReportPropertyCount[] =
+    await models.Ticket.aggregate(pipeline);
 
   if (!valueCounts.length) {
     return [];
@@ -649,9 +648,8 @@ export const reportTicketQueries = {
       { $sort: { count: -1 } },
     ];
 
-    const propertyCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-      pipeline,
-    );
+    const propertyCounts: ReportPropertyCount[] =
+      await models.Ticket.aggregate(pipeline);
 
     if (!propertyCounts.length) {
       return [];
@@ -807,7 +805,7 @@ export const reportTicketQueries = {
         statusType,
         name: status?.name || category?.name || 'unknown',
         color: category?.color || status?.color || '#6B7280',
-        group: status ? category?.name ?? null : null,
+        group: status ? (category?.name ?? null) : null,
         order: status?.order ?? 0,
         count,
       });

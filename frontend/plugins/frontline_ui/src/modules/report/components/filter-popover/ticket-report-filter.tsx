@@ -326,23 +326,23 @@ export const TicketReportFilter = ({
   ];
   const hasFilters = Boolean(
     channelFilter.length ||
-      memberFilter.length ||
-      pipelineFilter.length ||
-      ticketStatusFilter.length ||
-      priorityFilter.length ||
-      ticketTagFilter.length ||
-      customerFilter.length ||
-      companyFilter.length ||
-      propertyFilter.length ||
-      groupPropertyFilter ||
-      stateFilter !== 'active' ||
-      frequency !== 'day' ||
-      dateValue ||
-      statusChangedDate ||
-      updatedAtDate ||
-      description ||
-      statusChangedByIds.length ||
-      updatedByIds.length,
+    memberFilter.length ||
+    pipelineFilter.length ||
+    ticketStatusFilter.length ||
+    priorityFilter.length ||
+    ticketTagFilter.length ||
+    customerFilter.length ||
+    companyFilter.length ||
+    propertyFilter.length ||
+    groupPropertyFilter ||
+    stateFilter !== 'active' ||
+    frequency !== 'day' ||
+    dateValue ||
+    statusChangedDate ||
+    updatedAtDate ||
+    description ||
+    statusChangedByIds.length ||
+    updatedByIds.length,
   );
   return (
     <Filter
