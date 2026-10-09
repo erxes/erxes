@@ -41,7 +41,9 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const { channels: availableChannels } = useGetChannels({ skip: isInternalNote });
+  const { channels: availableChannels } = useGetChannels({
+    skip: isInternalNote,
+  });
   const {
     suggestions,
     showSuggestions,
@@ -184,9 +186,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
             setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.NoteInput)
           }
           onBlur={() => goBackToPreviousHotkeyScope()}
-          className={cn(
-            'read-only min-h-30 overflow-y-auto',
-          )}
+          className={cn('read-only min-h-30 overflow-y-auto')}
         >
           {isInternalNote && <AssignMemberInEditor editor={editor} />}
         </BlockEditor>
