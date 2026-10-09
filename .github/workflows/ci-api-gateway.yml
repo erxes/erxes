@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/3.2.7.1-erkhet-remainders
     paths:
       - 'backend/gateway/**'
       - 'backend/erxes-api-shared/**'
@@ -32,7 +33,7 @@ jobs:
           version: 9
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && '--frozen-lockfile' || '' }}
 
       - name: Set environment variables
         run: |
@@ -42,10 +43,14 @@ jobs:
       - name: Build shared module
         run: |
           export NX_DAEMON=false
-          pnpm nx build erxes-api-shared
+          pnpm nx build erxes-api-shared ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && '--excludeTaskDependencies' || '' }}
+
+      - name: Build hotfix gateway
+        if: github.event_name == 'push' && github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders'
+        run: NX_DAEMON=false pnpm nx build gateway --excludeTaskDependencies
 
       - name: Login to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders')
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -60,3 +65,9 @@ jobs:
           docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:${{ github.sha }}
           docker push erxes/erxes-next-gateway:latest
           docker push erxes/erxes-next-gateway:${{ github.sha }}
+
+      - name: Build and push hotfix gateway image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders'
+        run: |
+          docker build -f backend/gateway/Dockerfile . -t erxes/erxes-next-gateway:3.2.7.1
+          docker push erxes/erxes-next-gateway:3.2.7.1
