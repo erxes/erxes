@@ -44,7 +44,7 @@ export const ClientPortalHeader = () => {
             onClick={() => setIsAddingClientPortal(true)}
           >
             <IconPlus />
-            Create Client Portal
+            {t('create-client-portal-button')}
             <Kbd>C</Kbd>
           </Button>
         </Can>
