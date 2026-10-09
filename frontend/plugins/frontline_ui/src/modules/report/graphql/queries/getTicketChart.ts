@@ -71,6 +71,11 @@ export const GET_TICKET_LIST = gql`
         priority
         assigneeId
         createdAt
+        description
+        updatedAt
+        statusChangedDate
+        statusChangedBy
+        updatedBy
         targetDate
         startDate
         tagIds
@@ -135,6 +140,10 @@ export const GET_TICKET_EXPORT = gql`
       startDate
       targetDate
       updatedAt
+      description
+      statusChangedDate
+      statusChangedByName
+      updatedByName
       number
       statusName
       createdByName
