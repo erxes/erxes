@@ -10,15 +10,14 @@ export const conversationMessageQueries = {
   ) {
     await checkPermission('showConversations');
     const message = await models.ConversationMessages.findOne({ _id });
-    if (!message) {
-      return message;
+    if (message) {
+      await authorizeConversationAccess(
+        models,
+        user,
+        message.conversationId,
+        subdomain,
+      );
     }
-    await authorizeConversationAccess(
-      models,
-      user,
-      message.conversationId,
-      subdomain,
-    );
     return message;
   },
   async conversationPinnedMessages(
