@@ -52,12 +52,12 @@ export const TicketDetailSheet = ({
 
   const handleArchiveToggle = () => {
     if (!ticket) return;
-    toggleArchive([ticket._id], isArchived);
+    void toggleArchive([ticket._id], isArchived);
   };
 
   const handleSubscribeToggle = () => {
     if (!ticket) return;
-    updateTicket({
+    void updateTicket({
       variables: { _id: ticket._id, isSubscribed: !isSubscribed },
       onCompleted: () => {
         toast({
@@ -73,7 +73,7 @@ export const TicketDetailSheet = ({
 
   const handleDeleteTicket = () => {
     if (!ticket) return;
-    confirm({
+    void confirm({
       message: t(
         'confirm-delete-ticket',
         'Are you sure you want to delete this ticket?',

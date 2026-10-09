@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -184,6 +184,9 @@
 
 ## Local Invariants
 
+- The `noCloseDate` filter (deal list and board grouping) matches
+  `closeDate: null`, so it covers both a missing field and a cleared date the
+  UI saved as `null`; never narrow it back to `$exists: false`.
 - Non-array synced eBarimt receipt results throw `TypeError` before deletion.
 - POS cancellation requires matching `posId` and `posToken`; paid orders
   (`paidDate` set), including internal/temporary receipts without eBarimt,

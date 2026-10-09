@@ -400,7 +400,7 @@ export const generateFilter = async (
     }
 
     if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
-      filter.closeDate = { $exists: false };
+      filter.closeDate = null;
     }
 
     if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {
