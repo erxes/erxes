@@ -8,7 +8,7 @@ import { IPaymentDocument } from '../../../payment/types/Payment';
 
 const CONFIGS_QUERY = gql`
   query TdbConfigsList($page: Int, $perPage: Int) {
-    tdbConfigsList(page: $page, perPage: $perPage) {
+    tdbConfigsList(limit: $limit, cursor: $cursor) {
       list {
         _id
         name
@@ -48,8 +48,7 @@ const TdbCGWForm: React.FC<Props> = ({ payment, form }) => {
 
   const { loading, data } = useQuery(CONFIGS_QUERY, {
     variables: {
-      page: 1,
-      perPage: 999,
+      limit: 100,
     },
   });
 

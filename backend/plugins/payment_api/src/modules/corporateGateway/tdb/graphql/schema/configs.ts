@@ -31,8 +31,8 @@ export const mutations = `
 `;
 
 const qryParams = `
-    page: Int
-    perPage: Int
+    limit: Int
+    cursor: String
 `;
 
 export const queries = `

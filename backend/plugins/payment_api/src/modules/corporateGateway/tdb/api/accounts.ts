@@ -82,7 +82,18 @@ export class AccountsApi extends BaseApi {
       },
     });
 
-    throw new Error(`TDB STATEMENT RAW: ${JSON.stringify(response)}`);
+    const header = Array.isArray(response.header)
+      ? response.header
+      : response.header
+      ? [response.header]
+      : [];
+
+    return {
+      success: response.success,
+      msg: response.msg || response.message || '',
+      header,
+      txn: Array.isArray(response.txn) ? response.txn : [],
+    };
   }
   async findTransaction(args: {
     accountNumberOrIban: string;
