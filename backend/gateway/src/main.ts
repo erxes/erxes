@@ -26,6 +26,7 @@ import {
 import {
   applyTrustProxy,
   DEFAULT_JOB_OPTIONS,
+  errorLogger,
   getPlugin,
   getPlugins,
   getSubdomain,
@@ -247,6 +248,8 @@ async function start() {
     applyProxyToCore(app, global.currentTargets);
 
     Sentry.setupExpressErrorHandler(app);
+    // after Sentry: unhandled errors become one JSON line instead of a plain stack trace
+    app.use(errorLogger());
 
     // Start the HTTP server
     httpServer = http.createServer(app);

@@ -5,6 +5,7 @@ import { AddressInfo } from 'net';
 import { Writable } from 'stream';
 import {
   createLogger,
+  errorLogger,
   getRequestId,
   maskLogLine,
   requestLogger,
@@ -299,6 +300,116 @@ describe('requestLogger', () => {
       const res = await fetch(`${base}/fail`);
       expect(res.headers.get('x-request-id')).toBeTruthy();
       expect(lines).toHaveLength(0);
+    } finally {
+      await stop(server);
+    }
+  });
+});
+
+describe('errorLogger', () => {
+  const start = async () => {
+    const { lines, raw, destination } = capture();
+    const log = createLogger({ service: 'sales', destination });
+    const app = express();
+
+    app.use(requestLogger({ log, mode: 'off' }));
+    app.get('/boom', () => {
+      throw new Error('boom at mongodb://erxes:TopSecret@db:27017/erxes');
+    });
+    app.get('/missing', (_req, _res, next) =>
+      next(Object.assign(new Error('no such deal'), { status: 404 })),
+    );
+    app.get('/odd', (_req, _res, next) =>
+      next(Object.assign(new Error('odd status'), { status: 200 })),
+    );
+    app.get('/late', (_req, res, next) => {
+      res.write('partial');
+      next(new Error('failed after the headers were sent'));
+    });
+    app.use(errorLogger({ log }));
+
+    const server = http.createServer(app);
+    await new Promise<void>((resolve) =>
+      server.listen(0, '127.0.0.1', resolve),
+    );
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+
+    return { lines, raw, base, server };
+  };
+
+  const stop = (server: http.Server) =>
+    new Promise<void>((resolve) => {
+      server.closeAllConnections();
+      server.close(() => resolve());
+    });
+
+  let consoleError: jest.SpyInstance;
+  beforeEach(() => {
+    consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+  });
+  afterEach(() => consoleError.mockRestore());
+
+  it('turns a thrown error into one masked JSON line and a plain 500', async () => {
+    const { lines, raw, base, server } = await start();
+    try {
+      const res = await fetch(`${base}/boom?token=abc`, {
+        headers: { 'x-request-id': 'gw-err' },
+      });
+
+      expect(res.status).toBe(500);
+      expect(await res.text()).toBe('Internal Server Error');
+      expect(lines).toHaveLength(1);
+      expect(lines[0]).toMatchObject({
+        level: 'error',
+        msg: 'unhandled error',
+        requestId: 'gw-err',
+        path: '/boom',
+        status: 500,
+      });
+      expect(lines[0].err.stack).toContain('Error: boom at');
+      expect(raw.join('\n')).not.toContain('TopSecret');
+      expect(raw.join('\n')).not.toContain('token=abc');
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      await stop(server);
+    }
+  });
+
+  it('keeps a 4xx status from the error and logs it as a warning', async () => {
+    const { lines, base, server } = await start();
+    try {
+      const res = await fetch(`${base}/missing`);
+
+      expect(res.status).toBe(404);
+      expect(await res.text()).toBe('Not Found');
+      expect(lines[0]).toMatchObject({ level: 'warn', status: 404 });
+    } finally {
+      await stop(server);
+    }
+  });
+
+  it('answers 500 when the error carries a status that is not an error', async () => {
+    const { lines, base, server } = await start();
+    try {
+      expect((await fetch(`${base}/odd`)).status).toBe(500);
+      expect(lines[0]).toMatchObject({ level: 'error', status: 500 });
+    } finally {
+      await stop(server);
+    }
+  });
+
+  it('closes the connection when the response had already started', async () => {
+    const { lines, base, server } = await start();
+    try {
+      const body = await fetch(`${base}/late`)
+        .then((res) => res.text())
+        .catch((e: Error) => `failed: ${e.message}`);
+
+      expect(body).not.toBe('Internal Server Error');
+      expect(lines[0]).toMatchObject({ level: 'error', path: '/late' });
+      expect(consoleError).not.toHaveBeenCalled();
     } finally {
       await stop(server);
     }

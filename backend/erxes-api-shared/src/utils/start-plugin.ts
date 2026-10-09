@@ -54,7 +54,7 @@ import {
 import { createTRPCContext } from './trpc';
 import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
-import { logger, requestLogger, setLoggerService } from './logger';
+import { errorLogger, logger, requestLogger, setLoggerService } from './logger';
 import * as Sentry from '@sentry/node';
 
 export const MAX_HEADER_BYTES = 64 * 1024;
@@ -477,6 +477,8 @@ export async function startPlugin(
   //   debugInfo(`${name} server is running on port: ${PORT}`);
 
   Sentry.setupExpressErrorHandler(app);
+  // after Sentry: unhandled errors become one JSON line instead of a plain stack trace
+  app.use(errorLogger());
 
   return app;
 }

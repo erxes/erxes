@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { STATUS_CODES } from 'http';
 import type { NextFunction, Request, Response } from 'express';
 import pino, { DestinationStream, Logger, LoggerOptions } from 'pino';
 
@@ -184,5 +185,42 @@ export function requestLogger(options: RequestLoggerOptions = {}) {
     });
 
     next();
+  };
+}
+
+/**
+ * Last error handler (mount after Sentry's): one JSON line with the request id and the whole error,
+ * then the same short answer Express would give (status from `err.status`, else 500; never a stack).
+ * Without it Express prints a plain-text stack trace that log tools can neither parse nor tie to the
+ * request.
+ */
+export function errorLogger(options: { log?: Logger } = {}) {
+  const base = options.log || logger;
+
+  return (err: any, req: Request, res: Response, _next: NextFunction) => {
+    const declared = Number(err?.status || err?.statusCode);
+    const status = declared >= 400 && declared < 600 ? declared : 500;
+    const log: Logger = (req as any).log || base;
+
+    log[status >= 500 ? 'error' : 'warn'](
+      {
+        err,
+        method: req.method,
+        path: (req.originalUrl || req.url).split('?')[0],
+        status,
+      },
+      'unhandled error',
+    );
+
+    if (res.headersSent) {
+      // too late for a status: close the connection, as Express does
+      req.socket?.destroy();
+      return;
+    }
+
+    res
+      .status(status)
+      .type('text')
+      .send(STATUS_CODES[status] || 'Error');
   };
 }
