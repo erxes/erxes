@@ -12,10 +12,6 @@ dayjs.extend(customParseFormat);
 
 type DateInput = Date | string | number;
 
-/**
- * Accepts what forms and APIs actually hold: Date objects, ISO strings,
- * timestamps, arrays of those, or a `{ from, to }` range of those.
- */
 export type DatePickerValue =
   | DateInput
   | DateInput[]
@@ -26,7 +22,6 @@ export type DatePickerValue =
 
 export type DatePickerProps = {
   value?: DatePickerValue;
-  /** Receives `null` when the value is cleared. */
   onChange: (date?: Date | Date[] | DateRange | null) => void;
   placeholder?: string;
   withPresent?: boolean;
@@ -38,7 +33,6 @@ export type DatePickerProps = {
   formatMultiple?: (count: number) => string;
   variant?: 'outline' | 'default' | 'ghost';
   allowNull?: boolean;
-  /** Shows an inline clear button in single mode; defaults to `allowNull`. */
   clearable?: boolean;
   clearLabel?: string;
   calendarClassName?: string;
@@ -162,7 +156,6 @@ const getCalendarDisabled = (
   ...(maxBound ? [{ after: maxBound }] : []),
 ];
 
-/** Returns the typed date once it is complete, valid and within bounds. */
 const parseInputDate = (
   text: string,
   format: string,
@@ -208,8 +201,6 @@ export const DatePicker = ({
   const formatSingle = (outputFormat = format) =>
     singleDate ? dayjs(singleDate).format(outputFormat) : '';
 
-  // Keyed on the timestamp so a parent re-creating the same Date each render
-  // does not wipe what the user is typing.
   React.useEffect(() => {
     setInputValue(
       singleTime === undefined ? '' : dayjs(singleTime).format(format),
@@ -264,8 +255,6 @@ export const DatePicker = ({
     setInputValue('');
     onChange(null);
     setIsOpen(false);
-    // A parent that rejects null keeps its value; the focused empty input lets
-    // the user type a replacement and restores the old date on blur.
     if (mode === 'single') inputRef.current?.focus();
   };
 

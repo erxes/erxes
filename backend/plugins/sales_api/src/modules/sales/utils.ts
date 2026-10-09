@@ -321,7 +321,7 @@ export const getCloseDateByType = (closeDateType: string) => {
   }
 
   if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
-    return null;
+    return { $exists: false };
   }
 
   if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {

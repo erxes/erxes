@@ -246,8 +246,8 @@ export const generateFilter = async (
     status
       ? { status }
       : noSkipArchive
-        ? {}
-        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
@@ -400,7 +400,7 @@ export const generateFilter = async (
     }
 
     if (closeDateType === CLOSE_DATE_TYPES.NO_CLOSE_DATE) {
-      filter.closeDate = null;
+      filter.closeDate = { $exists: false };
     }
 
     if (closeDateType === CLOSE_DATE_TYPES.OVERDUE) {
