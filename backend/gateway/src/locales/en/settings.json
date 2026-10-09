@@ -267,8 +267,6 @@
     "secret-save-notice": "Save this secret for {{clientName}}. It will not be shown again after closing this dialog.",
     "secret-keep-safe": "Keep this secret in a secure server-side store before you continue.",
     "close": "Close",
-    "copied": "Copied",
-    "copy-secret": "Copy secret",
     "confirm-remove-selected": "Are you sure you want to remove the selected ({{total}})?",
     "selected-count": "{{total}} selected",
     "delete": "Delete",

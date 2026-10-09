@@ -42,6 +42,7 @@ export const EditOAuthClient = () => {
   });
   const [revealedSecret, setRevealedSecret] = React.useState<{
     clientName: string;
+    clientId?: string;
     secret?: string;
   } | null>(null);
 
@@ -82,6 +83,7 @@ export const EditOAuthClient = () => {
           if (oauthClientApp?.generatedSecret) {
             setRevealedSecret({
               clientName: oauthClientApp.name,
+              clientId: oauthClientApp.clientId,
               secret: oauthClientApp.generatedSecret,
             });
           }
@@ -135,6 +137,7 @@ export const EditOAuthClient = () => {
         open={!!revealedSecret}
         onOpenChange={(nextOpen) => !nextOpen && setRevealedSecret(null)}
         clientName={revealedSecret?.clientName || t('oauth-client')}
+        clientId={revealedSecret?.clientId}
         secret={revealedSecret?.secret}
       />
     </>

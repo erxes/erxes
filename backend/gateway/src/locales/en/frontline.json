@@ -483,6 +483,8 @@
   "force-logout-description": "If an operator resolve the conversation from inbox then client session will end automatically",
   "notify-customer": "Notify customer",
   "notify-customer-description": "If customer is offline and inserted email, it will send email when operator respond",
+  "save-as-customer": "Save as customer",
+  "save-as-customer-description": "Forcibly turn lead to customer.",
   "show-video-call-request": "Show video call request",
   "in-app-view": "In-app view",
   "in-app-view-description": "Chat will appear on the welcome screen",
