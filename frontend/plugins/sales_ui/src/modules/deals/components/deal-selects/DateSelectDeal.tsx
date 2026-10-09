@@ -8,6 +8,8 @@ import {
   Popover,
   Button,
   Form,
+  DatePicker,
+  cn,
 } from 'erxes-ui';
 import {
   IconCalendarPlus,
@@ -183,7 +185,7 @@ export const DateSelectDealRoot = ({
         editDeals({
           variables: {
             _id: id,
-            [type]: formatDealDateForMutation(nextValue),
+            [type]: formatDealDateForMutation(nextValue) ?? null,
           },
         }),
       );
@@ -203,6 +205,34 @@ export const DateSelectDealRoot = ({
     optimisticDate.setValue(value);
     setOpen(false);
   };
+
+  if (variant === DateSelectVariant.DETAIL) {
+    return (
+      <div className="flex h-7 w-fit items-center overflow-hidden rounded border bg-background text-sm focus-within:border-primary/40">
+        <div className="w-36">
+          <DatePicker
+            value={dateValue}
+            onChange={(date) =>
+              optimisticDate.setValue(date instanceof Date ? date : undefined)
+            }
+            placeholder={placeholder || t('select-date')}
+            clearLabel={t('clear', 'Clear')}
+            className={cn(
+              'h-6 rounded-none border-0 bg-transparent px-2.5 font-medium focus-within:ring-0 focus-within:ring-offset-0',
+              isEnded && 'text-destructive',
+            )}
+          />
+        </div>
+        {isEnded && (
+          <span className="flex h-full shrink-0 items-center gap-1 whitespace-nowrap border-l bg-red-50 px-2 text-xs text-red-400">
+            <IconAlertCircleFilled className="size-4" />
+            {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
+            {t('ago')}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;
