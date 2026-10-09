@@ -85,8 +85,8 @@ export class AccountsApi extends BaseApi {
     const header = Array.isArray(response.header)
       ? response.header
       : response.header
-      ? [response.header]
-      : [];
+        ? [response.header]
+        : [];
 
     return {
       success: response.success,
