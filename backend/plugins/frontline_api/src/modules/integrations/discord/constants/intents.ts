@@ -1,0 +1,7 @@
+export const GATEWAY_MESSAGE_CONTENT = 1 << 18;
+
+export const GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19;
+
+export const GATEWAY_GUILD_MEMBERS = 1 << 14;
+
+export const GATEWAY_GUILD_MEMBERS_LIMITED = 1 << 15;

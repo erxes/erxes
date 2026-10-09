@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { stripHtml, toast, type useBlockEditor } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-import type { Block } from '@blocknote/core';
-
+import type { PartialBlock } from '@blocknote/core';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
@@ -67,12 +66,12 @@ export const useResponseTemplateSuggestions = ({
   const selectTemplate = useCallback(
     async (templateContent: string, templateId?: string) => {
       try {
-        let blocks: Block[];
+        let blocks: PartialBlock[];
 
         try {
           const parsed: unknown = JSON.parse(templateContent);
           blocks = Array.isArray(parsed)
-            ? (parsed as Block[])
+            ? (parsed as PartialBlock[])
             : [{ type: 'paragraph', content: templateContent, props: {} }];
         } catch {
           blocks = [
@@ -99,8 +98,8 @@ export const useResponseTemplateSuggestions = ({
   );
 
   const handleKeyDown = useCallback(
-    (event: Pick<KeyboardEvent, 'key' | 'preventDefault'>) => {
-      if (!showSuggestions) return;
+    (event: Pick<KeyboardEvent, 'key' | 'preventDefault' | 'isComposing'>) => {
+      if (!showSuggestions || event.isComposing) return;
 
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
