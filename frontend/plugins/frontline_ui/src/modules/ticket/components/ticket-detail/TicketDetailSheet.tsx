@@ -52,12 +52,12 @@ export const TicketDetailSheet = ({
 
   const handleArchiveToggle = () => {
     if (!ticket) return;
-    void toggleArchive([ticket._id], isArchived);
+    toggleArchive([ticket._id], isArchived).catch(() => undefined);
   };
 
   const handleSubscribeToggle = () => {
     if (!ticket) return;
-    void updateTicket({
+    updateTicket({
       variables: { _id: ticket._id, isSubscribed: !isSubscribed },
       onCompleted: () => {
         toast({
@@ -68,35 +68,37 @@ export const TicketDetailSheet = ({
             : t('ticket-subscribed', 'Subscribed to ticket'),
         });
       },
-    });
+    }).catch(() => undefined);
   };
 
   const handleDeleteTicket = () => {
     if (!ticket) return;
-    void confirm({
+    confirm({
       message: t(
         'confirm-delete-ticket',
         'Are you sure you want to delete this ticket?',
       ),
-    }).then(async () => {
-      try {
-        await removeTicket([ticket._id]);
-        toast({
-          title: t('success', 'Success!'),
-          variant: 'success',
-          description: t(
-            'ticket-deleted-successfully',
-            'Ticket deleted successfully',
-          ),
-        });
-      } catch (e) {
-        toast({
-          title: t('error', 'Error'),
-          description: e instanceof Error ? e.message : String(e),
-          variant: 'destructive',
-        });
-      }
-    });
+    })
+      .then(async () => {
+        try {
+          await removeTicket([ticket._id]);
+          toast({
+            title: t('success', 'Success!'),
+            variant: 'success',
+            description: t(
+              'ticket-deleted-successfully',
+              'Ticket deleted successfully',
+            ),
+          });
+        } catch (e) {
+          toast({
+            title: t('error', 'Error'),
+            description: e instanceof Error ? e.message : String(e),
+            variant: 'destructive',
+          });
+        }
+      })
+      .catch(() => undefined);
   };
 
   return (
