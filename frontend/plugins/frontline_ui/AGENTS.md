@@ -2163,8 +2163,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
-  and the Facebook, Instagram and knowledge base automation widgets) writes
-  every document as
+  the Facebook and Instagram settings (config, repair, page post), and the
+  Facebook, Instagram and knowledge base automation widgets) writes every
+  document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2245,6 +2246,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   forms-list row, `IFormDetail` the form detail, and a stored field validator
   is narrowed through `FIELD_VALIDATOR_SCHEMA`. A form's `numberOfPages` is the
   number of steps in its `steps` record.
+- Facebook and Instagram config hooks keep only string config values, the
+  same way `useCallGetConfigs` does. Facebook integration repair always sends
+  a `kind` (the route's integration type, falling back to
+  `facebook-messenger`, the same kind its re-auth URL uses).
 - Knowledge base article attachments follow `AttachmentInput`: `name` is
   required on input though nullable on output, so the article drawer and
   article duplication map stored attachments through `toKbAttachment`

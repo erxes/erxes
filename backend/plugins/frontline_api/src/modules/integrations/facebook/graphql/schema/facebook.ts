@@ -170,6 +170,17 @@ export const types = `
     question: String
   }
 
+  type FacebookConfig {
+    _id: String!
+    code: String
+    value: JSON
+  }
+
+  type FacebookCreatePostResult {
+    postId: String!
+    permalinkUrl: String
+  }
+
   type FacebookBotAccount {
     _id: String!
     name: String
@@ -232,7 +243,7 @@ export const queries = `
   facebookGetAccounts(kind: String, integrationKind: String): [FacebookAccount]
   facebookGetIntegrations(kind: String): [FacebookIntegrationRecord]
   facebookGetIntegrationDetail(erxesApiId: String): JSON
-  facebookGetConfigs: JSON
+  facebookGetConfigs: [FacebookConfig]
   facebookGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookGetCommentCount(${commentQueryParamDefs}): JSON
   facebookGetPages(accountId: String! kind: String!): [FacebookPage]
@@ -256,7 +267,7 @@ export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
-  facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String, imageKeys: [String]): JSON
+  facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String, imageKeys: [String]): FacebookCreatePostResult
   facebookMessengerAddBot(${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerRemoveBot(_id:String):JSON

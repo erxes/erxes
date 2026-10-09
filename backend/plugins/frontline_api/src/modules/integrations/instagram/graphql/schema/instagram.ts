@@ -123,6 +123,12 @@ export const types = `
     link: String
   }
 
+  type InstagramConfig {
+    _id: String!
+    code: String
+    value: JSON
+  }
+
   type InstagramBotAccount {
     _id: String!
     name: String
@@ -167,7 +173,7 @@ export const queries = `
   instagramGetAccounts(kind: String): [InstagramAccount]
   instagramGetIntegrations(kind: String): JSON
   instagramGetIntegrationDetail(erxesApiId: String): JSON
-  instagramGetConfigs: JSON
+  instagramGetConfigs: [InstagramConfig]
   instagramGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
   instagramGetCommentCount(${commentQueryParamDefs}): JSON
   instagramGetPages(accountId: String! kind: String!): [InstagramPage]

@@ -604,6 +604,12 @@ The root router mounts its authenticated webhook at `/telegram`.
   config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- GraphQL Facebook and Instagram settings: `facebookGetConfigs` /
+  `instagramGetConfigs` return `[FacebookConfig]` / `[InstagramConfig]`
+  (`_id`, `code`, `value: JSON`, like `CallConfig`), and `facebookCreatePost`
+  returns `FacebookCreatePostResult` (`postId`, `permalinkUrl`). The
+  `*UpdateConfigs`, `integrationsRepair` and `instagramRepair` results stay
+  `JSON`.
 - GraphQL Call Pro: `callProCustomersByPhone` returns `[Customer]`, the core
   federated entity this plugin extends by `_id`; the resolver still returns the
   core customer documents and the gateway resolves the selected fields from
