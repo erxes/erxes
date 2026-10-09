@@ -29,6 +29,22 @@ import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
 import AttachmentUploader from '../attachments/AttachmentUploader';
 
+const LockedField = ({
+  message,
+  children,
+}: {
+  message: string;
+  children: React.ReactNode;
+}) => (
+  <Tooltip>
+    <div className="relative">
+      <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+      {children}
+    </div>
+    <Tooltip.Content>{message}</Tooltip.Content>
+  </Tooltip>
+);
+
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const { t } = useTranslation('frontline');
   const {
@@ -182,58 +198,48 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           disabled={!canEditTicket}
         />{' '}
         <div className="gap-2 flex flex-wrap w-full items-center">
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <SelectChannel value={channelId} variant="detail" disabled />
-            </div>
-            <Tooltip.Content>
-              {t('channel-cannot-be-changed', 'Channel cannot be changed')}
-            </Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <SelectPipeline
-                value={pipelineId}
-                variant="detail"
-                channelId={channelId}
-                disabled
-              />
-            </div>
-            <Tooltip.Content>
-              {t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}
-            </Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <SelectBranchTicket
-                value={branchId || ''}
-                variant="detail"
-                disabled
-              />
-            </div>
-            <Tooltip.Content>
-              {t('branch-cannot-be-changed', 'Branch cannot be changed')}
-            </Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <SelectDepartmentTicket
-                value={departmentId || ''}
-                variant="detail"
-                disabled
-              />
-            </div>
-            <Tooltip.Content>
-              {t(
-                'department-cannot-be-changed',
-                'Department cannot be changed',
-              )}
-            </Tooltip.Content>
-          </Tooltip>
+          <LockedField
+            message={t(
+              'channel-cannot-be-changed',
+              'Channel cannot be changed',
+            )}
+          >
+            <SelectChannel value={channelId} variant="detail" disabled />
+          </LockedField>
+          <LockedField
+            message={t(
+              'pipeline-cannot-be-changed',
+              'Pipeline cannot be changed',
+            )}
+          >
+            <SelectPipeline
+              value={pipelineId}
+              variant="detail"
+              channelId={channelId}
+              disabled
+            />
+          </LockedField>
+          <LockedField
+            message={t('branch-cannot-be-changed', 'Branch cannot be changed')}
+          >
+            <SelectBranchTicket
+              value={branchId || ''}
+              variant="detail"
+              disabled
+            />
+          </LockedField>
+          <LockedField
+            message={t(
+              'department-cannot-be-changed',
+              'Department cannot be changed',
+            )}
+          >
+            <SelectDepartmentTicket
+              value={departmentId || ''}
+              variant="detail"
+              disabled
+            />
+          </LockedField>
           <SelectStatusTicket
             variant="detail"
             value={statusId}
