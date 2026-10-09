@@ -12,6 +12,11 @@ const FAKE_MONGO_URL = [
   '//app:FAKE-DB-PASSWORD@mongo.example:27017/erxes',
 ].join(':');
 
+// What the gateway forwards to plugins: the signed-in user as base64 JSON.
+const USER_HEADER = Buffer.from(
+  JSON.stringify({ _id: 'u1', email: 'boss@corp.mn', isOwner: true }),
+).toString('base64');
+
 const leakedEvent = () =>
   ({
     exception: {
@@ -34,6 +39,7 @@ const leakedEvent = () =>
         authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.payload.sig',
         'erxes-app-token': 'app-token-value',
         'x-api-key': 'api-key-value',
+        user: USER_HEADER,
         'content-type': 'application/json',
         referer: 'https://office.example.io/reset-password?token=reset-abc123',
         'user-agent': 'Mozilla/5.0',
@@ -93,6 +99,7 @@ describe('sentryScrub', () => {
       'New-Pw1',
       'k-123',
       'abc.def.ghi',
+      USER_HEADER,
     ]) {
       expect(out).not.toContain(secret);
     }
@@ -104,6 +111,7 @@ describe('sentryScrub', () => {
     expect(event.request.headers['content-type']).toBe('application/json');
     expect(event.request.headers['user-agent']).toBe('Mozilla/5.0');
     expect(event.request.headers.authorization).toBe(FILTERED);
+    expect(event.request.headers.user).toBe(FILTERED);
     expect(event.request.url).toBe(
       `https://office.example.io/graphql?token=${FILTERED}&tab=inbox`,
     );

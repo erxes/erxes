@@ -33,6 +33,9 @@ const SENSITIVE_PAIRS =
 
 const SENSITIVE_URL_PARAMS = new Set(['code', 'state', 'sig', 'signature']);
 
+// The gateway passes the signed-in user to plugins as a base64 JSON `user` header.
+const SENSITIVE_HEADERS = new Set(['user']);
+
 export function isSensitiveKey(key: string): boolean {
   const tokens = key
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -142,7 +145,9 @@ export function scrubSentryEvent<T extends Sentry.Event>(event: T): T {
       request.headers = Object.fromEntries(
         Object.entries(request.headers).map(([k, v]) => [
           k,
-          isSensitiveKey(k) ? FILTERED : maskSecrets(String(v)),
+          isSensitiveKey(k) || SENSITIVE_HEADERS.has(k.toLowerCase())
+            ? FILTERED
+            : maskSecrets(String(v)),
         ]),
       );
     }
