@@ -90,8 +90,13 @@ export const AddStep = () => {
   const { steps, setSteps, fields } = useFormDnd();
 
   function getNextStepId() {
-    const stepIds = Object.keys(fields).length;
-    return (stepIds + 1).toString();
+    const existingIds = new Set([
+      ...Object.keys(fields),
+      ...steps.map((step) => step.toString()),
+    ]);
+    let nextId = existingIds.size + 1;
+    while (existingIds.has(nextId.toString())) nextId++;
+    return nextId.toString();
   }
   const handleAddStep = () => {
     const newStepId = getNextStepId();

@@ -53,6 +53,7 @@ export interface ICallout {
 export interface ILeadData {
   appearance: string;
   loadType: string;
+  saveAsCustomer?: boolean;
   callout?: ICallout;
   thankTitle: string;
   thankContent: string;
