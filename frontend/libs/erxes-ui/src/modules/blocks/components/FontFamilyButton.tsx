@@ -47,7 +47,10 @@ const FONT_FAMILIES = [
 export const FontFamilyButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
-  const [currentFont, setCurrentFont] = useState('');
+  const [currentFont, setCurrentFont] = useState(() => {
+    const styles = editor.getActiveStyles() as FontStyles;
+    return styles.fontFamily || '';
+  });
   const [isFileBlock, setIsFileBlock] = useState(false);
 
   useEditorContentOrSelectionChange(() => {
@@ -101,6 +104,7 @@ export const FontFamilyButton = () => {
         {FONT_FAMILIES.map((font) => (
           <Components.Generic.Menu.Item
             key={font.value || 'default'}
+            checked={currentFont === font.value}
             className={cn(
               'focus:bg-primary/15! focus:text-primary! hover:bg-primary/15! hover:text-primary!',
               currentFont === font.value && 'bg-primary/10! text-primary!',
