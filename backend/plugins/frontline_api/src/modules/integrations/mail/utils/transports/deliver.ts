@@ -6,6 +6,7 @@ import {
   MAIL_DELIVERY_SOURCE,
 } from '@/integrations/mail/utils/emailPorts';
 import { MailSendError } from '@/integrations/mail/utils/transports/common';
+import { assertVerifiedMailRecipients } from '@/integrations/mail/utils/recipients';
 import {
   IMailTransport,
   ISendMailInput,
@@ -57,6 +58,8 @@ export const deliver = async (
   if (!input.to.length) {
     throw new MailSendError('This reply has no recipient', false);
   }
+
+  await assertVerifiedMailRecipients(subdomain, input);
 
   const { input: sendable, suppressed } = await withoutSuppressed(
     subdomain,

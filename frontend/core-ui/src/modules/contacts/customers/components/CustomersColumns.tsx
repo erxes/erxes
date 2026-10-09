@@ -1,5 +1,4 @@
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { useEmailLane } from '@/settings/email-addresses/contexts/EmailLanes';
 import {
   IconCalendarPlus,
   IconChartBar,
@@ -24,7 +23,6 @@ import {
   useQueryState,
   PopoverScoped,
   FullNameValue,
-  ValidationStatus,
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
@@ -41,26 +39,32 @@ import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailSta
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { customerMoreColumn } from './CustomerMoreColumn';
+import { useFloatingWidgets } from '@/widgets/hooks/useFloatingWidgets';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
-const LANE_AS_STATUS: Record<string, ValidationStatus | undefined> = {
-  proven: ValidationStatus.Valid,
-  suppressed: ValidationStatus.Invalid,
-  unknown: undefined,
-};
-
 const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
-  const laneOf = useEmailLane();
+  const hasMailComposer = useFloatingWidgets().some(
+    (plugin) => plugin.name === 'frontline',
+  );
+
+  const handleEmailClick = (email: string) => {
+    window.dispatchEvent(
+      new CustomEvent('frontline:compose-email', {
+        detail: { customerId: customer._id, email },
+      }),
+    );
+  };
 
   return (
     <CustomerEmails
       primaryEmail={customer.primaryEmail || ''}
       _id={customer._id}
-      emailValidationStatus={LANE_AS_STATUS[laneOf(customer.primaryEmail)]}
+      emailValidationStatus={customer.emailValidationStatus}
       emails={customer.emails || []}
       scope={ContactsHotKeyScope.CustomersTableInlinePopover}
       Trigger={RecordTableInlineCell.Trigger}
+      onEmailClick={hasMailComposer ? handleEmailClick : undefined}
     />
   );
 };

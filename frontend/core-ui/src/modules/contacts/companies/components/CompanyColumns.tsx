@@ -4,7 +4,6 @@ import {
   IconBuildingFactory,
   IconChartBar,
   IconClock,
-  IconCreditCard,
   IconLabelFilled,
   IconMail,
   IconMapPin,
@@ -40,6 +39,32 @@ import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailState
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { companyMoreColumn } from './CompanyMoreColumn';
+import { useFloatingWidgets } from '@/widgets/hooks/useFloatingWidgets';
+
+const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
+  const hasMailComposer = useFloatingWidgets().some(
+    (plugin) => plugin.name === 'frontline',
+  );
+  const handleEmailClick = (email: string) => {
+    window.dispatchEvent(
+      new CustomEvent('frontline:compose-email', {
+        detail: { companyId: company._id, email },
+      }),
+    );
+  };
+
+  return (
+    <CompanyEmails
+      primaryEmail={company.primaryEmail || ''}
+      _id={company._id}
+      scope={`${ContactsHotKeyScope.CompaniesPage}.${company._id}.Emails`}
+      emailValidationStatus={company.emailValidationStatus}
+      emails={company.emails || []}
+      Trigger={RecordTableInlineCell.Trigger}
+      onEmailClick={hasMailComposer ? handleEmailClick : undefined}
+    />
+  );
+};
 
 export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
   return [
@@ -103,19 +128,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
         <RecordTable.InlineHead icon={IconMail} label={t('emails')} />
       ),
       cell: ({ cell }) => {
-        const { primaryEmail, _id, emails, emailValidationStatus } =
-          cell.row.original;
-
-        return (
-          <CompanyEmails
-            primaryEmail={primaryEmail || ''}
-            _id={_id}
-            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Emails'}
-            emailValidationStatus={emailValidationStatus}
-            emails={emails || []}
-            Trigger={RecordTableInlineCell.Trigger}
-          />
-        );
+        return <CompanyEmailsCell company={cell.row.original} />;
       },
     },
     {

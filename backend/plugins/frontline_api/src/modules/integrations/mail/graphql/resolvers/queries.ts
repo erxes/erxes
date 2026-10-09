@@ -12,10 +12,22 @@ import {
 } from '@/integrations/mail/utils/tickets';
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
 import { assertMailConversationAccess } from '@/integrations/mail/utils/access';
-import { readMailVerifiedContacts } from '@/integrations/mail/utils/recipients';
+import {
+  readMailVerifiedContacts,
+  readUnverifiedMailRecipients,
+} from '@/integrations/mail/utils/recipients';
 import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
 
 export const mailQueries = {
+  async mailUnverifiedRecipients(
+    _root: undefined,
+    { emails }: { emails: string[] },
+    { subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+    if (!user?._id) throw new Error('Authentication required');
+    return readUnverifiedMailRecipients(subdomain, emails);
+  },
   async mailVerifiedContacts(
     _root: undefined,
     args: { searchValue?: string; cursor?: string },

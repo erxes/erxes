@@ -38,16 +38,11 @@ const VerifiedEmailSelect = ({
       variables: { searchValue: searchValue || undefined },
       skip: !open,
     });
-  const { emails, targetCustomerId } = useDirectMailComposerFields();
   const options = useMemo(() => {
     const byEmail = new Map<
       string,
       { email: string; customerId?: string; name?: string }
     >();
-    if (value) byEmail.set(value.toLowerCase(), { email: value });
-    for (const email of emails) {
-      byEmail.set(email.toLowerCase(), { email, customerId: targetCustomerId });
-    }
     for (const contact of data?.customers.list ?? []) {
       if (
         !['valid', 'verified'].includes(contact.emailValidationStatus ?? '')
@@ -57,7 +52,7 @@ const VerifiedEmailSelect = ({
       const name = [contact.firstName, contact.lastName]
         .filter(Boolean)
         .join(' ');
-      for (const email of [contact.primaryEmail, ...(contact.emails ?? [])]) {
+      for (const email of [contact.primaryEmail]) {
         if (email)
           byEmail.set(email.toLowerCase(), {
             email,
@@ -72,7 +67,7 @@ const VerifiedEmailSelect = ({
         email.toLowerCase().includes(normalizedSearch) ||
         Boolean(name?.toLowerCase().includes(normalizedSearch)),
     );
-  }, [data, emails, search, targetCustomerId, value]);
+  }, [data, search]);
 
   useEffect(() => {
     setLoadMoreError(false);
