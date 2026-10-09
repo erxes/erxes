@@ -7,6 +7,7 @@ import {
 } from '@/posclient/db/definitions/constants';
 
 import { IDoc } from '@/posclient/db/models/PutData';
+import type { UpdateQuery } from 'mongoose';
 import { Resolver } from 'erxes-api-shared/core-types';
 import {
   checkCouponCode,
@@ -28,10 +29,15 @@ import {
   getPureDate,
   sendTRPCMessage,
   markResolvers,
+  ExpectedError,
 } from 'erxes-api-shared/utils';
 import { IContext, IOrderInput } from '@/posclient/@types/types';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
-import { IOrder, IPaidAmount } from '~/modules/posclient/@types/orders';
+import {
+  IOrder,
+  IOrderDocument,
+  IPaidAmount,
+} from '~/modules/posclient/@types/orders';
 import {
   ICartChangeLogInput,
   IOrderChangeEntry,
@@ -158,6 +164,31 @@ const buildOrderChangeEntries = (
 
     return [...entries, { field, oldValue, newValue }];
   }, []);
+};
+
+const buildAddPaymentModifier = (
+  cashAmount?: number,
+  paidAmounts: IPaidAmount[] = [],
+): UpdateQuery<IOrderDocument> => {
+  const modifier: UpdateQuery<IOrderDocument> = {
+    $set: {
+      saleStatus: ORDER_SALE_STATUS.CONFIRMED,
+    },
+  };
+
+  if (cashAmount) {
+    modifier.$inc = {
+      cashAmount: Number(cashAmount.toFixed(2)),
+    };
+  }
+
+  if (paidAmounts.length) {
+    modifier.$push = {
+      paidAmounts: { $each: paidAmounts },
+    };
+  }
+
+  return modifier;
 };
 
 const getTaxInfo = (config: IConfig) => {
@@ -643,8 +674,12 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, cpUser }: IContext,
   ) {
+    if (doc.customerType !== 'visitor' && !cpUser) {
+      throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
+    }
+
     const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
       posUser,
       config,
@@ -661,8 +696,12 @@ const orderMutations: Record<string, Resolver> = {
   async cpOrdersEdit(
     _root,
     doc: IOrderEditParams,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain, cpUser }: IContext,
   ) {
+    if (doc.customerType !== 'visitor' && !cpUser) {
+      throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
+    }
+
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
 
@@ -1016,15 +1055,7 @@ const orderMutations: Record<string, Resolver> = {
     );
     await checkCouponCode({ subdomain, order });
 
-    const modifier: any = {
-      $set: {
-        cashAmount: cashAmount
-          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
-        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
-      },
-    };
+    const modifier = buildAddPaymentModifier(cashAmount, paidAmounts);
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
@@ -1052,7 +1083,7 @@ const orderMutations: Record<string, Resolver> = {
           input: {
             posToken: config.token,
             action: 'makePayment',
-            order,
+            order: newOrder,
             items,
           },
         });
@@ -1093,15 +1124,7 @@ const orderMutations: Record<string, Resolver> = {
     );
     await checkCouponCode({ subdomain, order });
 
-    const modifier: any = {
-      $set: {
-        cashAmount: cashAmount
-          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
-        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
-        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
-      },
-    };
+    const modifier = buildAddPaymentModifier(cashAmount, paidAmounts);
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
@@ -1129,7 +1152,7 @@ const orderMutations: Record<string, Resolver> = {
           input: {
             posToken: config.token,
             action: 'makePayment',
-            order,
+            order: newOrder,
             items,
           },
         });

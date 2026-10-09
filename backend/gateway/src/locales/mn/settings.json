@@ -2,7 +2,11 @@
   "account": "Миний бүртгэл",
   "workspace": "Ажлын орчин",
   "developer": "Хөгжүүлэгч",
-  "client-portal": "Харилцагчийн портал",
+  "client-portal": {
+    "_": "Харилцагчийн портал",
+    "client-portal": "Харилцагчийн портал",
+    "no-client-portal-found": "Харилцагчийн порталууд олдсонгүй"
+  },
   "core-modules": "Үндсэн модулиуд",
   "products": "Бүтээгдэхүүнүүд",
   "automations": "Автоматжуулалтууд",
@@ -207,7 +211,6 @@
     "edit-brand": "Брэнд засах",
     "update": "Хадгалах",
     "delete": "Устгах",
-    "edit": "Засах",
     "selected-count": "{{total}} сонгосон",
     "confirm-remove-selected": "Сонгосон ({{total}}) брэндийг устгахдаа итгэлтэй байна уу?",
     "confirm-delete-brand": "\"{{name}}\" брэндийг устгахдаа итгэлтэй байна уу?",
@@ -526,7 +529,6 @@
     "create-app": "Апп үүсгэх",
     "app-name": "Аппын нэр",
     "my-app": "Миний апп",
-    "no-apps-found": "Апп олдсонгүй",
     "error": "Алдаа",
     "remove-selected-confirm": "Сонгосон ({{selectedCount}}) -г устгахдаа итгэлтэй байна уу?",
     "selected-count": "{{selectedCount}} сонгосон",
@@ -540,6 +542,16 @@
     "token": "Токен",
     "status": "Төлөв",
     "created-at": "Үүсгэсэн огноо"
+  },
+  "app-tokens": {
+    "_": "Апп токен",
+    "app-tokens": "Апп токенууд",
+    "no-app-tokens-found": "Апп токен олдсонгүй"
+  },
+  "system-logs": {
+    "_": "Системийн бүртгэл",
+    "no-system-logs-found": "Одоо системийн бүртгэл олдсонгүй",
+    "system-logs-description": "Таны хайлтад тохирсон зүйл олдсонгүй. Шүүлтүүрийг орлуулж, хайлтын тэмдэгтийг өөрчилж үзнэ үү."
   },
   "email-addresses": {
     "can-be-mailed-again": "{{email}} хаяг руу дахин имэйл илгээх боломжтой боллоо",
@@ -565,9 +577,8 @@
     "filter": "Шүүлтүүр"
   },
   "email-deliveries": {
+    "_": "Имэйл хүргэлтүүд",
     "retry": "Дахин оролдох",
-    "no-emails-yet": "Имэйл алга",
-    "no-emails-description": "erxes-ээс имэйл үйлчилгээ үзүүлэгчид шилжүүлсэн мессеж бүр үйлчилгээ үзүүлэгчийн хариутай хамт энд харагдана.",
     "records-found": "{{totalCount}} бичлэг олдлоо",
     "not-found": "Олдсонгүй.",
     "subject": "Гарчиг",
@@ -594,7 +605,9 @@
     "email-delivery": "Имэйл хүргэлт",
     "set-value": "Утга сонгох",
     "date": "Огноо",
-    "filter": "Шүүлтүүр"
+    "filter": "Шүүлтүүр",
+    "no-email-deliveries-found": "Имэйл олдсонгүй",
+    "email-deliveries-description": "Имэйл хүргэлтүүд энд харагдах болно, таны имэйл өгөгдөл оруулсны дараа."
   },
   "email-ramp": {
     "sending-resumed": "Илгээлт сэргээгдлээ",

@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -20,6 +20,10 @@
 
 ## Current Capabilities
 
+- `cpOrdersAdd` and `cpOrdersEdit` require client portal context and accept
+  `customerType: visitor` without a logged-in portal user. Other customer
+  types require an authenticated `cpUser`. All orders still run
+  the existing POS order validation and tenant-scoped creation flow.
 - Order audit events have independent `source` and `action` fields: new backend
   logs use `source: order`, cart logs use `source: cart`, and operations are
   `create`, `update`, `cancel`, or `return`. Order creation includes its items
@@ -44,6 +48,7 @@
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
+- Adds POS order payments through atomic cash increments and paid-amount pushes so concurrent order updates do not overwrite recorded card payments.
 
 ## Architecture
 
@@ -57,6 +62,7 @@
 | Order snapshots    | `backend/plugins/posclient_api/src/modules/posclient/utils/orderChangeLogs.ts`              | Compares persisted order fields and sorted item snapshots, excluding item creation timestamps and Mongo metadata.    |
 | Order cancellation | `backend/plugins/posclient_api/src/modules/posclient/utils/cancelOrder.ts`                  | Validates cancellation, requires sales acknowledgement when synced, and cleans local order/item/receipt data.        |
 | Order return       | `backend/plugins/posclient_api/src/modules/posclient/utils/returnOrder.ts`                  | Runs authenticated admin returns, validates payment totals, preserves the order, records audit, publishes and syncs. |
+| Order payment      | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/orders.ts` | Validates and records POS order payments, then syncs prepaid orders to sales when required.                          |
 | Order receipts     | `backend/plugins/posclient_api/src/modules/posclient/utils/orderReceipts.ts`                | Shared POS receipt selector, success/unresolved checks, and validated fiscal return responses.                       |
 | Discount utils     | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                           |
 | Sync utilities     | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                         |
@@ -129,6 +135,9 @@
 
 ## Local Invariants
 
+- `cpOrdersAdd` and `cpOrdersEdit` always require client portal context;
+  only `customerType: visitor` bypasses the portal user requirement.
+  The regular `ordersAdd` mutation continues to require an authenticated POS user.
 - GraphQL `ordersReturn` delegates to `returnPosOrder`; payment, permission,
   receipt and sync logic belongs to the service, not the resolver. Receipt
   selectors/checks are shared with cancellation through `orderReceipts.ts`.
@@ -169,14 +178,19 @@
 - POS order item `unitPrice` is stored after discounts; discount base
   calculations must reconstruct the pre-discount base as
   `count * unitPrice + discountAmount`.
+- Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
 
 ## Validation
 
+- CP creation/edit smoke: with client portal context, visitors without a
+  portal user reach order validation; non-visitors require `cpUser`.
+  Without client portal context, both mutations are rejected by the wrapper.
 - Audit action smoke: create, edit, cancel and return an order; each event has
   the matching action and `source: order`. Cart removals/reductions have
   `source: cart`, `action: update` and item-specific details. Admin audit UI
   displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
+- `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/orders.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/customResolvers/__tests__/orderChangeLog.test.cjs`
 - Audit number smoke: existing and cancelled orders show their order number;

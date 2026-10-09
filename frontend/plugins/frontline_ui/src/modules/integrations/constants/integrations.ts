@@ -1,6 +1,11 @@
 import { IntegrationType } from '@/types/Integration';
 
 export const INTEGRATIONS = {
+  [IntegrationType.TELEGRAM_MESSENGER]: {
+    name: 'Telegram',
+    descriptionKey: 'frontline-telegram:description',
+    img: 'telegram.svg',
+  },
   [IntegrationType.ERXES_MESSENGER]: {
     name: 'erxes Messenger',
     descriptionKey: 'integration-desc-erxes-messenger',

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import {
   Combobox,
@@ -7,22 +7,17 @@ import {
   Popover,
   RecordTable,
   useConfirm,
-  useQueryState,
   useToast,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { Can } from 'ui-modules';
-import { useBrandsRemove } from '../hooks/useBrandsRemove';
-import { renderingBrandDetailAtom } from '../state';
-import { IBrand } from '../types';
+import { useBrandsRemove } from '@/settings/brands/hooks/useBrandsRemove';
+import { IBrand } from '@/settings/brands/types';
 
 export const BrandsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IBrand, unknown>;
 }) => {
-  const [, setBrandDetail] = useQueryState('brand_id');
-  const setRenderingBrandDetail = useSetAtom(renderingBrandDetailAtom);
   const { _id, name } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -55,17 +50,6 @@ export const BrandsMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Can action="brandsUpdate">
-              <Command.Item
-                value="edit"
-                onSelect={() => {
-                  setRenderingBrandDetail(true);
-                  setBrandDetail(_id);
-                }}
-              >
-                <IconEdit /> {t('edit')}
-              </Command.Item>
-            </Can>
             <Can action="brandsDelete">
               <Command.Item value="delete" onSelect={handleDelete}>
                 <IconTrash /> {t('delete')}

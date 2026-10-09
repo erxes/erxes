@@ -63,13 +63,23 @@ export const BranchBadge = React.forwardRef<
       return null;
     }
 
+    const code = branchValue.code && (
+      <span className="text-muted-foreground shrink-0">{branchValue.code}</span>
+    );
+
     if (renderAsPlainText) {
-      return <TextOverflowTooltip value={branchValue?.title} />;
+      return (
+        <span className="flex overflow-hidden gap-2 items-center">
+          {code}
+          <TextOverflowTooltip value={branchValue.title} />
+        </span>
+      );
     }
 
     return (
       <Badge ref={ref} {...props}>
-        <TextOverflowTooltip value={branchValue?.title} />
+        {code}
+        <TextOverflowTooltip value={branchValue.title} />
       </Badge>
     );
   },

@@ -1,3 +1,4 @@
+import { useTelegramTranslation } from '../telegram/translations';
 import { Card, Command, getPluginAssetsUrl, Skeleton } from 'erxes-ui';
 import { INTEGRATIONS } from '../constants/integrations';
 import { Link, useParams } from 'react-router-dom';
@@ -17,6 +18,7 @@ export const IntegrationList = ({
   heading?: string;
 } = {}) => {
   const { t } = useTranslation('frontline');
+  useTelegramTranslation();
   const { enabled: callProEnabled } = useCallProConfig();
 
   const entries = Object.entries(INTEGRATIONS).filter(
@@ -83,6 +85,7 @@ export const IntegrationIntro = ({
   channelId?: string;
 }) => {
   const { t } = useTranslation('frontline');
+  useTelegramTranslation();
   if (!integration) {
     return null;
   }

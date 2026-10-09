@@ -68,12 +68,24 @@ export const DepartmentBadge = React.forwardRef<
       return null;
     }
 
+    const code = departmentValue.code && (
+      <span className="text-muted-foreground shrink-0">
+        {departmentValue.code}
+      </span>
+    );
+
     if (renderAsPlainText) {
-      return <TextOverflowTooltip value={departmentValue?.title} />;
+      return (
+        <span className="flex overflow-hidden gap-2 items-center">
+          {code}
+          <TextOverflowTooltip value={departmentValue?.title} />
+        </span>
+      );
     }
 
     return (
       <Badge ref={ref} {...props}>
+        {code}
         <TextOverflowTooltip value={departmentValue?.title} />
       </Badge>
     );

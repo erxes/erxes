@@ -1,11 +1,11 @@
 import { currentAmountAtom } from "@/store"
 import { activeOrderIdAtom } from "@/store/order.store"
+import { paymentSheetAtom } from "@/store/ui.store"
 import { useAtom, useSetAtom } from "jotai"
 
 import { paidAmounts } from "@/lib/utils"
 
 import useAddPayment from "./useAddPayment"
-import { paymentSheetAtom } from '@/store/ui.store'
 
 const useTransaction = (type: string) => {
   const [amount] = useAtom(currentAmountAtom)
@@ -17,14 +17,19 @@ const useTransaction = (type: string) => {
     onError: closePaymentSheet,
   })
 
-  const handleAddPayment = (info?: any) =>
-    addPayment({
+  const handleAddPayment = async (info?: unknown) => {
+    if (!_id) {
+      throw new Error("Order not found")
+    }
+
+    await addPayment({
       variables: {
         _id,
         paidAmounts: paidAmounts(type, amount, info),
       },
       onCompleted: closePaymentSheet,
     })
+  }
 
   return { amount, _id, closePaymentSheet, handleAddPayment }
 }

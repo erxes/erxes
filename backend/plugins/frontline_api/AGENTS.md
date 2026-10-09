@@ -61,6 +61,13 @@
 
 ## Current Capabilities
 
+- Telegram bot setup and webhook status; private chats, groups, channels and
+  forum topics; text, files, media, polls, edits, observed reactions and visible
+  fallbacks. Long replies split into complete ordered text chunks, with caption
+  overflow sent after the media. Inbox replies use the provider dispatcher in
+  `inbox/graphql/resolvers/mutations/conversationAutomation.ts`, while
+  `conversationMessageMutations.ts` owns canonical storage and publication.
+
 - Messenger `uiOptions` stores the appearance step: logo pair, colours,
   `heroStyleVariant`, `navigationVariant`, and the `isSupportInAppView` flag.
   `saveMessengerAppearanceData` lists every field explicitly — a new
@@ -461,6 +468,11 @@
 
 ## Architecture
 
+Telegram lives in `src/modules/integrations/telegram/`: `controller/` ingests,
+reconciles and sends messages; `db/` owns provider mappings; `client.ts` owns
+Bot API calls; `graphql/` owns bot setup, status, chat labels and link previews.
+The root router mounts its authenticated webhook at `/telegram`.
+
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
@@ -542,6 +554,15 @@
 ## Contracts
 
 ### Provides
+
+- Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
+  secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
+  `telegramMessageLinkPreviews` expose permission-checked setup/status and
+  message metadata. `telegramAddBot`, `telegramUpdateBot`, `telegramDisconnectBot`
+  and `telegramSetWebhook` own bot lifecycle. Canonical inbox messages retain
+  the existing content/attachment/poll contracts plus `extraData.telegram`.
+  `telegramDisconnectBot` pauses locally before provider cleanup; its Boolean
+  reports whether remote webhook removal was confirmed.
 
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
@@ -1079,7 +1100,45 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
   typo here fails silently.
 
+## Data and State
+
+- Models are generated per request subdomain. Telegram owns `telegram_bots`,
+  `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
+  and `telegram_reactions`; canonical inbox history stays in Frontline's
+  existing conversation collections and Core owns customer records.
+- Telegram bot tokens and webhook secrets are server-only. Provider IDs are
+  strings; deduplication, poll/reaction updates and reply lookup are scoped by
+  tenant, integration and chat, with topic identity included where applicable.
+
 ## Local Invariants
+
+- Keep Telegram as an additive dispatcher case. Preserve other providers'
+  delivery receipts, notifications, human-handoff state and message storage.
+  Only Telegram chats without `customerId` may reply without a Core customer;
+  a broken customer link must still fail. Internal notes never call Telegram.
+- Telegram downloads enforce size/time/host bounds, persist to workspace
+  storage and never expose token-bearing file URLs. Unsupported content gets
+  a visible fallback. Transient ingestion failures remain retryable; uncertain
+  outbound delivery must not be retried automatically.
+- Absolute attachment URLs always use the bounded public HTTPS downloader,
+  including URLs whose path is `/read-file`. Only relative `/read-file?key=`
+  references and validated storage keys use workspace storage.
+- A group upgrade stores `migratedToChatId` even when its service message is
+  the first message seen for that group. Subsequent supergroup messages reuse
+  the existing history, and replies target the new provider ID.
+- Telegram text chunks contain at most 4096 code points; the first media caption
+  contains at most 1024. Never truncate remaining text or trim chunk boundaries.
+  Store every provider ID in one inbox message's `extraData.telegram.messageIds`;
+  `textChunked` tells edit synchronization to concatenate without added separators.
+  Common-field integration edits require no Telegram API call.
+- Captionless Telegram media and polls still need conversation-list previews.
+  Keep the filename/type/question fallback separate from message content so
+  native attachment and poll bubbles do not gain artificial captions. Write
+  the preview before publishing a new inbox message, including retry recovery.
+- Disconnect must pause locally even when Telegram rejects the token. Removal
+  detaches the bot and rotates its webhook secret before best-effort provider
+  cleanup. Database failures still propagate. Inbox kind discovery includes
+  `telegram-messenger`; URL/metadata parsing must avoid repeated suffix rescans.
 
 - A ticket property option marked `deprecated` (archived) in core is never
   sent to the widget; records that already hold it keep it.
@@ -1131,9 +1190,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 - `pnpm nx lint frontline_api`
 - `pnpm nx build frontline_api`
-- `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
-  (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
-  `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
+  Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
+  Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
+  new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
 - Mail agent: build an automation Email Received → AI Agent → Draft Email
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
@@ -1159,3 +1219,37 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   rejection throws instead of silently keeping the unvalidated input, and
   clearing every property to `{}` stays `{}` on the next read rather than
   reverting to any legacy value.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram group upgrades and attachment URLs
+
+- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
+- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
+- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
+
+### `2026-10-06` — Telegram previews and review hygiene
+
+- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
+- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
+- **Contracts changed:** None; previews use the existing conversation content field.
+
+### `2026-10-06` — Complete long Telegram replies and connection edits
+
+- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
+- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
+- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
+- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
+- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
+
+### `2026-10-06` — Telegram integration on the current inbox architecture
+
+- **Summary:** Adds Telegram setup, webhook ingestion and replies through the existing provider dispatcher and inbox persistence flow.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider dispatch, model registration and routes.
+- **Contracts changed:** Telegram bot lifecycle/status GraphQL and `/telegram/receive/:_id`; provider metadata uses `extraData.telegram`.

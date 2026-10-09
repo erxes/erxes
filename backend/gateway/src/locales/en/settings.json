@@ -2,7 +2,11 @@
   "account": "Account",
   "workspace": "Workspace",
   "developer": "Developer",
-  "client-portal": "Client Portal",
+  "client-portal": {
+    "_": "Client Portal",
+    "client-portal": "Client Portal",
+    "no-client-portal-found": "No client portal found"
+  },
   "core-modules": "Core Modules",
   "products": "Products",
   "automations": "Automations",
@@ -207,7 +211,6 @@
     "edit-brand": "Edit brand",
     "update": "Update",
     "delete": "Delete",
-    "edit": "Edit",
     "selected-count": "{{total}} selected",
     "confirm-remove-selected": "Are you sure you want to remove the selected({{total}})?",
     "confirm-delete-brand": "Are you sure you want to delete \"{{name}}\"?",
@@ -531,7 +534,6 @@
     "create-app": "Create App",
     "app-name": "App Name",
     "my-app": "My App",
-    "no-apps-found": "No apps found",
     "error": "Error",
     "remove-selected-confirm": "Are you sure you want to remove the selected ({{selectedCount}})?",
     "selected-count": "{{selectedCount}} selected",
@@ -545,6 +547,16 @@
     "token": "Token",
     "status": "Status",
     "created-at": "Created At"
+  },
+  "app-tokens": {
+    "_": "App Tokens",
+    "app-tokens": "App Tokens",
+    "no-app-tokens-found": "No app tokens found"
+  },
+  "system-logs": {
+    "_": "System Logs",
+    "no-system-logs-found": "No results found yet",
+    "system-logs-description": "We couldn't find anything matching your search. Try adjusting your filters or search query."
   },
   "email-addresses": {
     "can-be-mailed-again": "{{email}} can be mailed again",
@@ -570,9 +582,8 @@
     "filter": "Filter"
   },
   "email-deliveries": {
+    "_": "Email Deliveries",
     "retry": "Retry",
-    "no-emails-yet": "No emails yet",
-    "no-emails-description": "Every message erxes hands to your email provider shows up here, along with what the provider said about it.",
     "records-found": "{{totalCount}} records found",
     "not-found": "Not found.",
     "subject": "Subject",
@@ -599,7 +610,9 @@
     "email-delivery": "Email delivery",
     "set-value": "Set value",
     "date": "Date",
-    "filter": "Filter"
+    "filter": "Filter",
+    "no-email-deliveries-found": "No emails found yet",
+    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it."
   },
   "email-ramp": {
     "sending-resumed": "Sending resumed",

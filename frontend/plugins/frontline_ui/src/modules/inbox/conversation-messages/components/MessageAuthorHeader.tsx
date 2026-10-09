@@ -4,18 +4,23 @@ import { CustomersInline } from 'ui-modules';
 
 export const MessageAuthorHeader = ({
   customerId,
+  authorName,
   showBotName,
 }: {
   customerId?: string;
+  authorName?: string;
   showBotName: boolean;
 }) => {
   const { t } = useTranslation('frontline');
 
   return (
     <>
-      {customerId && (
+      {(authorName || customerId) && (
         <div className="pl-11 pt-4 pb-0.5 text-xs font-medium text-muted-foreground">
-          <CustomersInline customerIds={[customerId]} hideAvatar />
+          {authorName ||
+            (customerId && (
+              <CustomersInline customerIds={[customerId]} hideAvatar />
+            ))}
         </div>
       )}
       {showBotName && (
