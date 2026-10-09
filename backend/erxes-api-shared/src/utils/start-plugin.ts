@@ -192,7 +192,7 @@ export async function startPlugin(
     }),
   );
   app.use(cookieParser());
-  // request id (x-request-id, kept from the gateway) + one log line per failed, slow or aborted request
+  // request id (x-erxes-request-id, kept from the gateway) + one log line per failed, slow or aborted request
   app.use(requestLogger());
 
   // for health check
