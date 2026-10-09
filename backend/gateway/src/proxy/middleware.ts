@@ -1,7 +1,8 @@
 import * as dotenv from 'dotenv';
-import { Express } from 'express';
+import { Express, Request, Response } from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
-import { Agent } from 'http';
+import { Agent, ClientRequest, IncomingMessage, ServerResponse } from 'http';
+import { Socket } from 'net';
 import { apolloRouterPort } from '~/apollo-router';
 import { ErxesProxyTarget } from '~/proxy/targets';
 
@@ -10,14 +11,39 @@ dotenv.config();
 const { NODE_ENV } = process.env;
 const DEBUG_GATEWAY_AUTH = process.env.DEBUG_GATEWAY_AUTH === 'true';
 
+// The agent's own `timeout` only emits an event; without `proxyTimeout` a
+// stalled download holds its pooled socket forever and starves core traffic.
+const PROXY_IDLE_TIMEOUT_MS = 60_000;
+
 const proxyAgent = new Agent({
   keepAlive: true,
   maxSockets: 100,
   maxFreeSockets: 20,
-  timeout: 60000,
+  timeout: PROXY_IDLE_TIMEOUT_MS,
 });
 
-export const proxyReq = (proxyReq, req: any) => {
+type GatewayRequest = Request & {
+  socket: Request['socket'] & {
+    encrypted?: boolean;
+  };
+  user?: {
+    _id?: string;
+  };
+};
+
+export const proxyReq = (
+  proxyReq: ClientRequest,
+  req: GatewayRequest,
+  res?: ServerResponse,
+) => {
+  if (res) {
+    res.once('close', () => {
+      if (!res.writableEnded && !proxyReq.destroyed) {
+        proxyReq.destroy();
+      }
+    });
+  }
+
   if (proxyReq.headersSent) {
     return;
   }
@@ -75,7 +101,17 @@ export const proxyReq = (proxyReq, req: any) => {
   }
 };
 
-export const proxyRes = (proxyRes, req: any) => {
+export const proxyRes = (
+  proxyRes: IncomingMessage,
+  req: GatewayRequest,
+  res?: ServerResponse,
+) => {
+  proxyRes.on('close', () => {
+    if (res && !res.writableEnded) {
+      res.destroy();
+    }
+  });
+
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
     console.log(
       JSON.stringify({
@@ -92,7 +128,14 @@ export const proxyRes = (proxyRes, req: any) => {
   }
 };
 
-export const proxyError = (error, req: any, res?: any) => {
+export const proxyError = (
+  error: Error,
+  req: GatewayRequest,
+  res?: Response | Socket,
+) => {
+  const errorCode =
+    'code' in error && typeof error.code === 'string' ? error.code : undefined;
+
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
     console.log(
       JSON.stringify({
@@ -100,7 +143,7 @@ export const proxyError = (error, req: any, res?: any) => {
         event: 'proxy-graphql-error',
         method: req.method,
         path: req.originalUrl,
-        code: error?.code,
+        code: errorCode,
         message: error?.message,
         hasUser: Boolean(req.user?._id),
         userId: req.user?._id || '',
@@ -109,10 +152,10 @@ export const proxyError = (error, req: any, res?: any) => {
     );
   }
 
-  if (res && !res.headersSent) {
+  if (res instanceof ServerResponse && !res.headersSent) {
     res.status(502).json({
       error: 'Gateway proxy error',
-      code: error?.code,
+      code: errorCode,
     });
   }
 };
@@ -144,6 +187,7 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
       target:
         NODE_ENV === 'production' ? core.address : 'http://localhost:3300',
       agent: proxyAgent,
+      proxyTimeout: PROXY_IDLE_TIMEOUT_MS,
       on: {
         proxyReq,
         proxyRes,
