@@ -641,6 +641,7 @@ owns the setup form and connection actions.
 | Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
+| Cursor list adapter       | `src/modules/shared/utils/cursorList.ts`                                                                                                          | `toCursorPageInfo`, `compactList`, `mergeCursorList` for cursor lists typed from the schema                                                     |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                   |
 | Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel            |
@@ -2158,8 +2159,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   subscriptions share `FrontlineConversationMessageFields`, so an update
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
-  `knowledgebase`, `helpcenter`, and the Facebook, Instagram and knowledge
-  base automation widgets) writes every document as
+  `knowledgebase`, `helpcenter`, `forms`, and the Facebook, Instagram and
+  knowledge base automation widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2219,6 +2220,19 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   styles, header and footer interfaces stay the local form/input shapes;
   `toHelpCenterConfigInput` drops null list items and defaults null scalars
   when it turns a stored config into that input.
+- Cursor lists typed from the schema go through
+  `@/shared/utils/cursorList` (a copy of operation's adapter): the shared
+  `PageInfo` SDL from `erxes-api-shared` declares its booleans nullable, while
+  the `erxes-ui` record table helpers need booleans. Hooks read rows with
+  `compactList`, page info with `toCursorPageInfo`, and merge `fetchMore`
+  pages with `mergeCursorList`. Delete the adapter once the shared `PageInfo`
+  is non-null.
+- Form `leadData` stays `JSON` (the frontline widgets read it too); the form
+  UI reads it only through `LEAD_DATA_SCHEMA`, whose every leaf falls back on
+  its own so a malformed value never drops the rest of a form. `IForm` is a
+  forms-list row, `IFormDetail` the form detail, and a stored field validator
+  is narrowed through `FIELD_VALIDATOR_SCHEMA`. A form's `numberOfPages` is the
+  number of steps in its `steps` record.
 - Knowledge base article attachments follow `AttachmentInput`: `name` is
   required on input though nullable on output, so the article drawer and
   article duplication map stored attachments through `toKbAttachment`
