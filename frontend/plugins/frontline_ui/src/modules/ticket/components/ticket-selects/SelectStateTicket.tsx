@@ -61,7 +61,9 @@ const SelectStateProvider = ({
 };
 
 const SelectStateValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('frontline');
   const { value } = useSelectStateContext();
+  if (value === 'all') return <span>{t('all-states', 'All States')}</span>;
   const selected = STATES.find((s) => s.value === value);
 
   if (!selected) {
@@ -104,13 +106,24 @@ const SelectStateCommandItem = ({
   );
 };
 
-const SelectStateContent = () => {
+const SelectStateContent = ({
+  includeAll = false,
+}: {
+  includeAll?: boolean;
+}) => {
   const { t } = useTranslation('frontline');
+  const { value, onValueChange } = useSelectStateContext();
   return (
     <Command>
       <Command.Input placeholder={t('search-state', 'Search state')} />
       <Command.Empty>{t('no-state-found', 'No state found')}</Command.Empty>
       <Command.List>
+        {includeAll && (
+          <Command.Item value="all" onSelect={() => onValueChange('all')}>
+            {t('all-states', 'All States')}
+            <Combobox.Check checked={value === 'all'} />
+          </Command.Item>
+        )}
         {STATES.map((state) => (
           <SelectStateCommandItem key={state.value} state={state} />
         ))}
@@ -241,6 +254,9 @@ const SelectStateFormItem = ({
 };
 
 export const SelectStateTicket = Object.assign(SelectStateTicketRoot, {
+  Provider: SelectStateProvider,
+  Content: SelectStateContent,
+  Value: SelectStateValue,
   FilterBar: SelectStateTicketFilterBar,
   FormItem: SelectStateFormItem,
   FilterView: SelectStateFilterView,
