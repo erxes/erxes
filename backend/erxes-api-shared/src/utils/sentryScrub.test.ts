@@ -71,7 +71,7 @@ const leakedEvent = () =>
       },
     ],
     tags: { 'graphql.field': 'login', service: 'core' },
-  } as any);
+  }) as any;
 
 describe('sentryScrub', () => {
   test('nothing secret survives a leaky event', () => {

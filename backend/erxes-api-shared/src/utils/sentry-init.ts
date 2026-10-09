@@ -113,7 +113,10 @@ function getSentryRelease() {
  * @param serverName - Optional server name override (defaults to env or 'erxes')
  */
 export function initErxesSentry(
-  beforeSend?: (event: Sentry.ErrorEvent, hint?: Sentry.EventHint) => PromiseLike<Sentry.ErrorEvent | null> | Sentry.ErrorEvent | null,
+  beforeSend?: (
+    event: Sentry.ErrorEvent,
+    hint?: Sentry.EventHint,
+  ) => PromiseLike<Sentry.ErrorEvent | null> | Sentry.ErrorEvent | null,
   serverName?: string,
 ) {
   const dsn = process.env.SENTRY_DSN;
@@ -130,8 +133,14 @@ export function initErxesSentry(
     beforeSend: (event, hint) => {
       const scrubbed = scrubSentryEvent(event);
       const result = beforeSend ? beforeSend(scrubbed, hint) : scrubbed;
-      if (result && typeof (result as PromiseLike<Sentry.ErrorEvent | null>).then === 'function') {
-        return (result as PromiseLike<Sentry.ErrorEvent | null>).then((e) => (e ? withStableFingerprint(e) : null));
+      if (
+        result &&
+        typeof (result as PromiseLike<Sentry.ErrorEvent | null>).then ===
+          'function'
+      ) {
+        return (result as PromiseLike<Sentry.ErrorEvent | null>).then((e) =>
+          e ? withStableFingerprint(e) : null,
+        );
       }
       return result ? withStableFingerprint(result as Sentry.ErrorEvent) : null;
     },

@@ -14,7 +14,7 @@ const castEvent = (id: string) =>
       ],
     },
     tags: { 'graphql.field': 'emailDeliveryDetail', service: 'core' },
-  } as any);
+  }) as any;
 
 describe('sentryFingerprint', () => {
   test('the same CastError with different ids gets ONE fingerprint', () => {
