@@ -4,6 +4,7 @@ import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { Agent } from 'http';
 import { apolloRouterPort } from '~/apollo-router';
 import { ErxesProxyTarget } from '~/proxy/targets';
+import { REQUEST_ID_HEADER } from 'erxes-api-shared/utils';
 
 dotenv.config();
 
@@ -30,9 +31,10 @@ export const proxyReq = (proxyReq, req: any) => {
 
   safeSetHeader('hostname', req.hostname || '');
   safeSetHeader('userid', req.user?._id || '');
-  // set by requestLogger(): lets one request be followed from the gateway into every plugin
+  // set by requestLogger(): lets one request be followed from the gateway into every plugin.
+  // Its own header: x-request-id stays the sender's (automations webhooks use it as an idempotency key).
   if (req.requestId) {
-    safeSetHeader('x-request-id', req.requestId);
+    safeSetHeader(REQUEST_ID_HEADER, req.requestId);
   }
 
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {

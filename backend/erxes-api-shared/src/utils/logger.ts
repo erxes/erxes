@@ -1,7 +1,11 @@
 import { randomUUID } from 'crypto';
+import * as dotenv from 'dotenv';
 import { STATUS_CODES } from 'http';
 import type { NextFunction, Request, Response } from 'express';
 import pino, { DestinationStream, Logger, LoggerOptions } from 'pino';
+
+// SERVICE_NAME / LOG_LEVEL may come from a .env file: load it before the logger below reads them
+dotenv.config();
 
 /**
  * Shared structured logger: one JSON line per event on stdout, read by the host's log agent.
@@ -94,16 +98,27 @@ export const setLoggerService = (service: string) => {
 
 // ------------------------------------------------------------------ request logging
 
-const REQUEST_ID_HEADER = 'x-request-id';
+/**
+ * Our own header, never `x-request-id`: incoming webhooks (automations) use a sender's `x-request-id` as their
+ * idempotency key, so a generated value there would make every retry look new. `x-request-id` is only READ, as the
+ * id a client or proxy may already have chosen.
+ */
+export const REQUEST_ID_HEADER = 'x-erxes-request-id';
+const CLIENT_REQUEST_ID_HEADER = 'x-request-id';
 const VALID_REQUEST_ID = /^[A-Za-z0-9._:-]{1,128}$/;
 
-/** The incoming x-request-id (set by the gateway, propagated by the router) or a new one. */
-export const getRequestId = (req: Request): string => {
-  const header = req.headers[REQUEST_ID_HEADER];
+const headerValue = (req: Request, name: string): string | undefined => {
+  const header = req.headers[name];
   const value = Array.isArray(header) ? header[0] : header;
 
-  return value && VALID_REQUEST_ID.test(value) ? value : randomUUID();
+  return value && VALID_REQUEST_ID.test(value) ? value : undefined;
 };
+
+/** The id the gateway passed on (x-erxes-request-id), else a client's x-request-id, else a new one. */
+export const getRequestId = (req: Request): string =>
+  headerValue(req, REQUEST_ID_HEADER) ||
+  headerValue(req, CLIENT_REQUEST_ID_HEADER) ||
+  randomUUID();
 
 /** Logger bound to the current request's id (falls back to the process logger). */
 export const getRequestLogger = (req: Request): Logger =>
@@ -128,8 +143,8 @@ const operationOf = (req: Request): string | undefined => {
 
 /**
  * One line per request that matters: method, path (no query string), status, duration,
- * GraphQL operation and requestId. The id is taken from x-request-id or generated, echoed in
- * the response and passed on by the gateway, so one request can be followed across services.
+ * GraphQL operation and requestId. The id comes from x-erxes-request-id (or a client's x-request-id) or is
+ * generated, is echoed in the response and passed on by the gateway, so one request can be followed across services.
  * A request the client gave up on (e.g. nginx timing out after 60 s) is logged as "aborted".
  */
 export function requestLogger(options: RequestLoggerOptions = {}) {

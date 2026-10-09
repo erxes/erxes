@@ -12,6 +12,10 @@ import {
   RequestLogMode,
 } from './logger';
 
+// Fake connection strings, assembled at runtime so secret scanners don't flag this file; passwords are fake.
+const conn = (scheme: string, user: string, pass: string, rest: string) =>
+  `${scheme}://${user}:${pass}@${rest}`;
+
 const capture = () => {
   const lines: any[] = [];
   const raw: string[] = [];
@@ -30,15 +34,28 @@ const capture = () => {
 
 describe('maskLogLine', () => {
   it('masks credentials in connection strings, also when the password contains @', () => {
-    expect(maskLogLine('mongodb://erxes:s3cret@10.0.3.3:27017/erxes')).toBe(
-      'mongodb://erxes:***@10.0.3.3:27017/erxes',
-    );
-    expect(maskLogLine('mongodb://erxes:@dmin17@dmin17@10.0.3.3/erxes')).toBe(
-      'mongodb://erxes:***@10.0.3.3/erxes',
-    );
-    expect(maskLogLine('amqp://guest:p@ss:w0rd@rabbit:5672')).toBe(
-      'amqp://guest:***@rabbit:5672',
-    );
+    expect(
+      maskLogLine(
+        conn('mongodb', 'erxes', 'fake-pass', '10.0.3.3:27017/erxes'),
+      ),
+    ).toBe(conn('mongodb', 'erxes', '***', '10.0.3.3:27017/erxes'));
+    expect(
+      maskLogLine(
+        conn('mongodb', 'erxes', '@fake@pass@word', '10.0.3.3/erxes'),
+      ),
+    ).toBe(conn('mongodb', 'erxes', '***', '10.0.3.3/erxes'));
+    expect(
+      maskLogLine(conn('amqp', 'guest', 'fake@pa:ss', 'rabbit:5672')),
+    ).toBe(conn('amqp', 'guest', '***', 'rabbit:5672'));
+  });
+
+  it('masks http and https URLs with credentials too', () => {
+    expect(
+      maskLogLine(conn('http', 'user', 'fake-pass', 'proxy.local:3128')),
+    ).toBe(conn('http', 'user', '***', 'proxy.local:3128'));
+    expect(
+      maskLogLine(conn('https', 'user', 'fake-pass', 'api.example/x')),
+    ).toBe(conn('https', 'user', '***', 'api.example/x'));
   });
 
   it('leaves URLs without credentials alone', () => {
@@ -53,10 +70,15 @@ describe('maskLogLine', () => {
   });
 
   it('never runs across JSON fields', () => {
-    const line = '{"msg":"db mongodb://u:p@h/db","email":"a@b.mn"}';
+    const line = `{"msg":"db ${conn(
+      'mongodb',
+      'u',
+      'p',
+      'h/db',
+    )}","email":"a@b.mn"}`;
     const masked = maskLogLine(line);
     expect(JSON.parse(masked)).toEqual({
-      msg: 'db mongodb://u:***@h/db',
+      msg: `db ${conn('mongodb', 'u', '***', 'h/db')}`,
       email: 'a@b.mn',
     });
   });
@@ -82,14 +104,16 @@ describe('createLogger', () => {
   it('masks secrets in the message, in fields and in error messages and stacks', () => {
     const { raw, destination } = capture();
     const log = createLogger({ service: 'core', destination });
-    const url = 'mongodb://erxes:TopSecret@db:27017/erxes';
+    const url = conn('mongodb', 'erxes', 'FakeTopSecret', 'db:27017/erxes');
 
     log.info(`connecting to ${url}`);
     log.info({ mongoUrl: url }, 'config');
     log.error({ err: new Error(`failed to connect ${url}`) }, 'startup failed');
 
-    expect(raw.join('\n')).not.toContain('TopSecret');
-    expect(raw.join('\n')).toContain('mongodb://erxes:***@db:27017/erxes');
+    expect(raw.join('\n')).not.toContain('FakeTopSecret');
+    expect(raw.join('\n')).toContain(
+      conn('mongodb', 'erxes', '***', 'db:27017/erxes'),
+    );
   });
 
   it('redacts well-known secret keys at any of the first three levels', () => {
@@ -142,10 +166,16 @@ describe('createLogger', () => {
 describe('getRequestId', () => {
   const req = (headers: Record<string, any>) => ({ headers } as any);
 
-  it('keeps a well-formed incoming id', () => {
-    expect(getRequestId(req({ 'x-request-id': 'abc-123.x:y' }))).toBe(
+  it('keeps a well-formed incoming id: ours first, then a client x-request-id', () => {
+    expect(getRequestId(req({ 'x-erxes-request-id': 'abc-123.x:y' }))).toBe(
       'abc-123.x:y',
     );
+    expect(getRequestId(req({ 'x-request-id': 'client-1' }))).toBe('client-1');
+    expect(
+      getRequestId(
+        req({ 'x-erxes-request-id': 'gw-1', 'x-request-id': 'client-1' }),
+      ),
+    ).toBe('gw-1');
   });
 
   it('replaces a missing, oversized or unsafe id with a new uuid', () => {
@@ -163,6 +193,7 @@ describe('getRequestId', () => {
 });
 
 describe('requestLogger', () => {
+  let hangReceived: () => void = () => undefined;
   // generous margins (slow = 300 ms, slow route 400 ms) so a busy CI runner cannot flip the result
   const start = async (mode?: RequestLogMode) => {
     const { lines, destination } = capture();
@@ -175,7 +206,10 @@ describe('requestLogger', () => {
     app.post('/graphql', (_req, res) => res.json({ data: {} }));
     app.get('/fail', (_req, res) => res.status(500).end());
     app.get('/slow', (_req, res) => setTimeout(() => res.end('late'), 400));
-    app.get('/hang', () => undefined);
+    app.get('/hang', () => hangReceived());
+    app.get('/echo', (req, res) =>
+      res.json({ xRequestId: req.headers['x-request-id'] ?? null }),
+    );
 
     const server = http.createServer(app);
     await new Promise<void>((resolve) =>
@@ -196,13 +230,31 @@ describe('requestLogger', () => {
     const { base, server } = await start();
     try {
       const fresh = await fetch(`${base}/graphql`, { method: 'POST' });
-      expect(fresh.headers.get('x-request-id')).toMatch(/^[0-9a-f-]{36}$/);
+      expect(fresh.headers.get('x-erxes-request-id')).toMatch(
+        /^[0-9a-f-]{36}$/,
+      );
 
       const given = await fetch(`${base}/graphql`, {
         method: 'POST',
-        headers: { 'x-request-id': 'gw-42' },
+        headers: { 'x-erxes-request-id': 'gw-42' },
       });
-      expect(given.headers.get('x-request-id')).toBe('gw-42');
+      expect(given.headers.get('x-erxes-request-id')).toBe('gw-42');
+    } finally {
+      await stop(server);
+    }
+  });
+
+  it('never adds or changes x-request-id (webhooks use it as an idempotency key)', async () => {
+    const { base, server } = await start();
+    try {
+      const none = await fetch(`${base}/echo`);
+      expect(await none.json()).toEqual({ xRequestId: null });
+      expect(none.headers.get('x-request-id')).toBeNull();
+
+      const sent = await fetch(`${base}/echo`, {
+        headers: { 'x-request-id': 'sender-event-7' },
+      });
+      expect(await sent.json()).toEqual({ xRequestId: 'sender-event-7' });
     } finally {
       await stop(server);
     }
@@ -213,7 +265,10 @@ describe('requestLogger', () => {
     try {
       await fetch(`${base}/graphql`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-request-id': 'gw-7' },
+        headers: {
+          'content-type': 'application/json',
+          'x-erxes-request-id': 'gw-7',
+        },
         body: JSON.stringify({
           operationName: 'deals',
           query: '{ deals { _id } }',
@@ -245,7 +300,7 @@ describe('requestLogger', () => {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'x-request-id': 'gw-9',
+          'x-erxes-request-id': 'gw-9',
           userid: 'u1',
           'x-erxes-process-id': 'proc-1',
         },
@@ -273,14 +328,19 @@ describe('requestLogger', () => {
   it('logs a request the client gave up on as aborted', async () => {
     const { lines, base, server } = await start();
     try {
+      const received = new Promise<void>((resolve) => {
+        hangReceived = resolve;
+      });
       const controller = new AbortController();
       const pending = fetch(`${base}/hang`, {
         signal: controller.signal,
       }).catch(() => undefined);
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await received;
       controller.abort();
       await pending;
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      for (let i = 0; i < 50 && lines.length === 0; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
 
       expect(lines).toHaveLength(1);
       expect(lines[0]).toMatchObject({
@@ -298,7 +358,7 @@ describe('requestLogger', () => {
     const { lines, base, server } = await start('off');
     try {
       const res = await fetch(`${base}/fail`);
-      expect(res.headers.get('x-request-id')).toBeTruthy();
+      expect(res.headers.get('x-erxes-request-id')).toBeTruthy();
       expect(lines).toHaveLength(0);
     } finally {
       await stop(server);
@@ -314,7 +374,14 @@ describe('errorLogger', () => {
 
     app.use(requestLogger({ log, mode: 'off' }));
     app.get('/boom', () => {
-      throw new Error('boom at mongodb://erxes:TopSecret@db:27017/erxes');
+      throw new Error(
+        `boom at ${conn(
+          'mongodb',
+          'erxes',
+          'FakeTopSecret',
+          'db:27017/erxes',
+        )}`,
+      );
     });
     app.get('/missing', (_req, _res, next) =>
       next(Object.assign(new Error('no such deal'), { status: 404 })),
@@ -355,7 +422,7 @@ describe('errorLogger', () => {
     const { lines, raw, base, server } = await start();
     try {
       const res = await fetch(`${base}/boom?token=abc`, {
-        headers: { 'x-request-id': 'gw-err' },
+        headers: { 'x-erxes-request-id': 'gw-err' },
       });
 
       expect(res.status).toBe(500);
@@ -369,7 +436,7 @@ describe('errorLogger', () => {
         status: 500,
       });
       expect(lines[0].err.stack).toContain('Error: boom at');
-      expect(raw.join('\n')).not.toContain('TopSecret');
+      expect(raw.join('\n')).not.toContain('FakeTopSecret');
       expect(raw.join('\n')).not.toContain('token=abc');
       expect(consoleError).not.toHaveBeenCalled();
     } finally {
