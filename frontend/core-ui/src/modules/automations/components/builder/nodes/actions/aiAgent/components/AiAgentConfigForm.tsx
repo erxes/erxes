@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
 import { AiAgentInputFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputFields';
 import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';

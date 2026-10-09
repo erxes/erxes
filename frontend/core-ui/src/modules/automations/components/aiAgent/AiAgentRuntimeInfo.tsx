@@ -42,6 +42,15 @@ export const AiAgentRuntimeInfo = ({
 
   const summary = buildAiAgentRuntimeSummary({ agent, actionConfig });
 
+  let goalItemsSuffix = '';
+  if (summary.goalItemCount) {
+    goalItemsSuffix = ` ${
+      summary.goalItemCount > 1
+        ? t('ai-agent-runtime-across-items', { value: summary.goalItemCount })
+        : t('ai-agent-runtime-across-item')
+    }`;
+  }
+
   return (
     <Card className="border-dashed bg-muted/20 shadow-none">
       <Card.Content className="grid gap-4 p-4">
@@ -82,15 +91,7 @@ export const AiAgentRuntimeInfo = ({
             <span>{t('ai-agent-runtime-goal-prompt')}</span>
             <span className="text-foreground">
               {t('ai-agent-runtime-chars', { value: summary.goalPromptChars })}
-              {summary.goalItemCount
-                ? ` ${
-                    summary.goalItemCount > 1
-                      ? t('ai-agent-runtime-across-items', {
-                          value: summary.goalItemCount,
-                        })
-                      : t('ai-agent-runtime-across-item')
-                  }`
-                : ''}
+              {goalItemsSuffix}
             </span>
           </div>
           <div className="flex items-center justify-between gap-4">
