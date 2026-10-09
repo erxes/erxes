@@ -1,3 +1,4 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { cn } from 'erxes-ui';
 
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
@@ -51,7 +52,7 @@ export const getMessageBubbleClassName = ({
     !userId &&
       'rounded-bl-md border-border/60 bg-background hover:bg-background',
     isBotMessage && 'border-border/60 bg-muted hover:bg-muted',
-    internal && 'bg-warning/20 hover:bg-warning/5',
+    internal && INTERNAL_NOTE_BACKGROUND,
     fromBot && 'bg-primary/5 hover:bg-primary/5 border-l-2 border-primary',
     separatePrevious &&
       !hasReply &&

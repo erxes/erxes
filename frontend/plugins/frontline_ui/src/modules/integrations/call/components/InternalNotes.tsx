@@ -1,3 +1,4 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
@@ -28,7 +29,7 @@ export const InternalNotes = (): JSX.Element => {
             className={cn(
               'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
-              internal && 'bg-warning/20 hover:bg-warning/5',
+              internal && INTERNAL_NOTE_BACKGROUND,
               separatePrevious && 'mt-8',
             )}
             asChild

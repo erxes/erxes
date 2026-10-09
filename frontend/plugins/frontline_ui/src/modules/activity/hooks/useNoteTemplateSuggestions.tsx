@@ -74,14 +74,14 @@ export const useNoteTemplateSuggestions = ({
   );
 
   const handleEditorChange = useCallback(async () => {
-    if (!editor) return;
+    if (!editor || !enabled) return;
 
     const html = await editor.blocksToHTMLLossy(editor.document);
     const plain = html?.replace(/<[^<>]*>/g, '')?.trim() || '';
 
     setSearchValue(plain);
     if (!plain) setIsDropdownDismissed(false);
-  }, [editor]);
+  }, [editor, enabled]);
 
   const handleKeyDown = useCallback(
     (e: Pick<KeyboardEvent, 'key' | 'preventDefault'>) => {

@@ -1,0 +1,15 @@
+export const FORMATTING_TOOLBAR_STATES = [
+  '[&_.bn-formatting-toolbar_button:not(:disabled)]:pointer-events-auto!',
+  '[&_.bn-formatting-toolbar_button:not(:disabled):hover]:bg-primary/15! [&_.bn-formatting-toolbar_button:not(:disabled):hover]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=combobox]:hover]:bg-primary/15! [&_.bn-formatting-toolbar_[role=combobox]:hover]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=menuitem]:hover]:bg-primary/15! [&_.bn-formatting-toolbar_[role=menuitem]:hover]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=option]:hover]:bg-primary/15! [&_.bn-formatting-toolbar_[role=option]:hover]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=menuitemcheckbox]:hover]:bg-primary/15! [&_.bn-formatting-toolbar_[role=menuitemcheckbox]:hover]:text-primary!',
+  '[&_.bn-formatting-toolbar_button[data-state=open]]:bg-primary/10! [&_.bn-formatting-toolbar_button[data-state=open]]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=option][data-state=checked]]:bg-primary/10! [&_.bn-formatting-toolbar_[role=option][data-state=checked]]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=menuitemcheckbox][data-state=checked]]:bg-primary/10! [&_.bn-formatting-toolbar_[role=menuitemcheckbox][data-state=checked]]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=option]:focus]:bg-primary/15! [&_.bn-formatting-toolbar_[role=option]:focus]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=menuitemcheckbox]:focus]:bg-primary/15! [&_.bn-formatting-toolbar_[role=menuitemcheckbox]:focus]:text-primary!',
+  '[&_.bn-formatting-toolbar_[role=option]]:pl-2! [&_.bn-formatting-toolbar_[role=menuitemcheckbox]]:pl-2!',
+  '[&_.bn-formatting-toolbar_[role=option]>.bn-absolute]:hidden! [&_.bn-formatting-toolbar_[role=menuitemcheckbox]>.bn-absolute]:hidden!',
+].join(' ');

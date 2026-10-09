@@ -13,13 +13,14 @@ import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { KeyboardEvent, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 import { ToolbarToggle } from './ToolbarToggle';
+import { FORMATTING_TOOLBAR_STATES } from '../constant/toolbarStyles';
 
 const editorUIComponents = {
   Button: { Button },
@@ -144,8 +145,19 @@ export const BlockEditor = ({
   return (
     <div
       onKeyDownCapture={handleKeyDownCapture}
+      onMouseDownCapture={(event: MouseEvent<HTMLDivElement>) => {
+        if (
+          event.button === 0 &&
+          event.target instanceof Element &&
+          event.target.closest('.bn-formatting-toolbar button:not(:disabled)')
+        ) {
+          // Toolbar clicks must preserve the editor selection for formatting.
+          event.preventDefault();
+        }
+      }}
       className={cn(
         'erxes-blocknote',
+        FORMATTING_TOOLBAR_STATES,
         'transition-shadow',
         variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,

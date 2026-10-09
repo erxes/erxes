@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { stripHtml, toast, type useBlockEditor } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-import type { Block } from '@blocknote/core';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
@@ -25,7 +24,7 @@ export const useResponseTemplateSuggestions = ({
   enabled: boolean;
 }) => {
   const { t } = useTranslation('frontline');
-  const { channels: availableChannels } = useGetChannels();
+  const { channels: availableChannels } = useGetChannels({ skip: !enabled });
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -67,12 +66,12 @@ export const useResponseTemplateSuggestions = ({
   const selectTemplate = useCallback(
     async (templateContent: string, templateId?: string) => {
       try {
-        let blocks: Block[];
+        let blocks: Parameters<MessageEditor['replaceBlocks']>[1];
 
         try {
           const parsed: unknown = JSON.parse(templateContent);
           blocks = Array.isArray(parsed)
-            ? (parsed as Block[])
+            ? (parsed as typeof blocks)
             : [{ type: 'paragraph', content: templateContent, props: {} }];
         } catch {
           blocks = [

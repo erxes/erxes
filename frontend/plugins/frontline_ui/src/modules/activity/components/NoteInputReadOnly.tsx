@@ -1,3 +1,4 @@
+import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { useGetTicketNote } from '@/activity/hooks/useGetTicketNote';
 import { useRetryTicketNoteMail } from '@/activity/hooks/useRetryTicketNoteMail';
 import {
@@ -237,7 +238,7 @@ export const NoteInputReadOnly = ({ newValueId }: NoteInputReadOnlyProps) => {
     <div
       className={cn(
         'relative flex flex-col overflow-hidden border rounded-lg min-h-14 px-4 py-3 gap-2 ml-4',
-        kind === 'internal' && 'border-warning/50 bg-warning/20',
+        kind === 'internal' && ['border-border', INTERNAL_NOTE_BACKGROUND],
         hasDeliveryIssue(note?.mailDelivery) && 'border-destructive/40',
       )}
     >

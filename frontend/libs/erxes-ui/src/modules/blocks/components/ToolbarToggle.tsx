@@ -9,7 +9,7 @@ export const ToolbarToggle = forwardRef<
   <Toggle
     ref={ref}
     className={cn(
-      'transition-none active:bg-primary/30 data-[state=on]:bg-primary/20 data-[state=on]:text-primary data-[state=on]:ring-1 data-[state=on]:ring-primary/40 data-[state=on]:ring-inset',
+      'transition-none hover:bg-primary/15! hover:text-primary! active:bg-primary/15! data-[state=on]:bg-primary/10! data-[state=on]:text-primary!',
       className,
     )}
     {...props}
