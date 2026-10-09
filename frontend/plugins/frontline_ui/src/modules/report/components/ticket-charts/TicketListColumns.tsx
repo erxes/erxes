@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { IconTicket } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { ticketDescriptionText } from '@/report/utils/ticketDescription';
 import { TicketListItem } from '@/report/hooks/useTicketList';
 import { TicketExportItem } from '@/report/hooks/useTicketExport';
 import { TicketExportColumn } from '@/report/utils/exportCsv';
@@ -57,6 +58,12 @@ const TICKET_EXPORT_VALUES: Partial<
   Record<string, (ticket: TicketExportItem) => string>
 > = {
   name: (ticket) => ticket.name ?? '',
+  description: (ticket) => ticketDescriptionText(ticket.description),
+  statusChangedDate: (ticket) =>
+    formatDateValue(ticket.statusChangedDate, EXPORT_DATE_FORMAT),
+  updatedAt: (ticket) => formatDateValue(ticket.updatedAt, EXPORT_DATE_FORMAT),
+  statusChangedBy: (ticket) => ticket.statusChangedByName ?? '',
+  updatedBy: (ticket) => ticket.updatedByName ?? '',
   number: (ticket) => ticket.number ?? '',
   createdAt: (ticket) => formatDateValue(ticket.createdAt, EXPORT_DATE_FORMAT),
   status: (ticket) => ticket.statusName || ticket.statusLabel || '',
@@ -121,6 +128,41 @@ const PropertyCell = ({ field, value }: { field: IField; value: unknown }) => {
     </RecordTableInlineCell>
   );
 };
+
+const DateCell = ({
+  value,
+  pattern = 'dd/MM/yyyy HH:mm',
+  emptyValue = '—',
+}: {
+  value: unknown;
+  pattern?: string;
+  emptyValue?: string;
+}) => (
+  <RecordTableInlineCell className="text-xs text-muted-foreground">
+    {formatDateValue(value, pattern) || emptyValue}
+  </RecordTableInlineCell>
+);
+
+const MemberCell = ({
+  memberId,
+  emptyValue,
+}: {
+  memberId?: string;
+  emptyValue?: string;
+}) => (
+  <RecordTableInlineCell>
+    {memberId ? (
+      <MembersInline.Provider memberIds={[memberId]}>
+        <MembersInline.Avatar size="sm" />
+        <MembersInline.Title className="text-xs text-muted-foreground" />
+      </MembersInline.Provider>
+    ) : emptyValue ? (
+      <span className="text-xs text-muted-foreground">{emptyValue}</span>
+    ) : (
+      <EmptyValue />
+    )}
+  </RecordTableInlineCell>
+);
 
 const PipelineCell = ({ pipelineId }: { pipelineId?: string }) => {
   const { pipeline } = useGetPipeline(pipelineId);
@@ -202,11 +244,11 @@ export const TicketListColumnDefaults = ({
 
     if (
       order.includes(TICKET_LIST_ACTION_COLUMN) &&
-      order[order.length - 1] !== TICKET_LIST_ACTION_COLUMN
+      order[0] !== TICKET_LIST_ACTION_COLUMN
     ) {
       table.setColumnOrder([
-        ...order.filter((id) => id !== TICKET_LIST_ACTION_COLUMN),
         TICKET_LIST_ACTION_COLUMN,
+        ...order.filter((id) => id !== TICKET_LIST_ACTION_COLUMN),
       ]);
     }
   }, [orderKey, table]);
@@ -277,6 +319,12 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
 
     return [
       {
+        id: TICKET_LIST_ACTION_COLUMN,
+        header: () => <RecordTable.ColumnSelector align="start" />,
+        size: 33,
+        cell: ({ cell }) => <TicketMoreCell cell={cell} />,
+      },
+      {
         id: 'name',
         header: t('name', 'Name'),
         accessorKey: 'name',
@@ -304,13 +352,7 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         id: 'createdAt',
         header: t('created', 'Created'),
         accessorKey: 'createdAt',
-        cell: ({ cell }) => (
-          <RecordTableInlineCell>
-            <span className="text-xs text-muted-foreground">
-              {formatDateValue(cell.getValue(), 'dd/MM/yyyy HH:mm')}
-            </span>
-          </RecordTableInlineCell>
-        ),
+        cell: ({ cell }) => <DateCell value={cell.getValue()} emptyValue="" />,
       },
       {
         id: 'status',
@@ -384,43 +426,18 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         id: 'assigneeId',
         header: t('assigned', 'Assigned'),
         accessorKey: 'assigneeId',
-        cell: ({ cell }) => {
-          const assigneeId = cell.getValue() as string;
-          if (!assigneeId)
-            return (
-              <RecordTableInlineCell className="text-xs text-muted-foreground">
-                {t('unassigned', 'Unassigned')}
-              </RecordTableInlineCell>
-            );
-          return (
-            <RecordTableInlineCell>
-              <MembersInline.Provider memberIds={[assigneeId]}>
-                <MembersInline.Avatar size="sm" />
-                <MembersInline.Title className="text-xs text-muted-foreground" />
-              </MembersInline.Provider>
-            </RecordTableInlineCell>
-          );
-        },
+        cell: ({ row }) => (
+          <MemberCell
+            memberId={row.original.assigneeId}
+            emptyValue={t('unassigned', 'Unassigned')}
+          />
+        ),
       },
       {
         id: 'createdBy',
         header: t('created-by', 'Created by'),
         accessorKey: 'createdBy',
-        cell: ({ cell }) => {
-          const createdBy = cell.getValue() as string | undefined;
-          return (
-            <RecordTableInlineCell>
-              {createdBy ? (
-                <MembersInline.Provider memberIds={[createdBy]}>
-                  <MembersInline.Avatar size="sm" />
-                  <MembersInline.Title className="text-xs text-muted-foreground" />
-                </MembersInline.Provider>
-              ) : (
-                <EmptyValue />
-              )}
-            </RecordTableInlineCell>
-          );
-        },
+        cell: ({ row }) => <MemberCell memberId={row.original.createdBy} />,
       },
       {
         id: 'channel',
@@ -507,9 +524,7 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         accessorKey: 'startDate',
         size: 100,
         cell: ({ cell }) => (
-          <RecordTableInlineCell className="text-xs text-muted-foreground">
-            {formatDateValue(cell.getValue(), 'dd/MM/yyyy') || '—'}
-          </RecordTableInlineCell>
+          <DateCell value={cell.getValue()} pattern="dd/MM/yyyy" />
         ),
       },
       {
@@ -518,18 +533,60 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         accessorKey: 'targetDate',
         size: 100,
         cell: ({ cell }) => (
-          <RecordTableInlineCell className="text-xs text-muted-foreground">
-            {formatDateValue(cell.getValue(), 'dd/MM/yyyy') || '—'}
-          </RecordTableInlineCell>
+          <DateCell value={cell.getValue()} pattern="dd/MM/yyyy" />
         ),
       },
-      ...propertyColumns,
       {
-        id: TICKET_LIST_ACTION_COLUMN,
-        header: () => <RecordTable.ColumnSelector align="end" />,
-        size: 33,
-        cell: ({ cell }) => <TicketMoreCell cell={cell} />,
+        id: 'description',
+        header: t('description', 'Description'),
+        accessorKey: 'description',
+        size: 280,
+        cell: ({ row }) => {
+          const text = ticketDescriptionText(row.original.description);
+          return (
+            <RecordTableInlineCell className="text-xs">
+              {text ? (
+                <span className="truncate" title={text}>
+                  {text}
+                </span>
+              ) : (
+                <EmptyValue />
+              )}
+            </RecordTableInlineCell>
+          );
+        },
       },
+      {
+        id: 'statusChangedDate',
+        header: t('stage-changed-date', 'Stage changed date'),
+        accessorKey: 'statusChangedDate',
+        size: 170,
+        cell: ({ row }) => <DateCell value={row.original.statusChangedDate} />,
+      },
+      {
+        id: 'updatedAt',
+        header: t('modified-at', 'Modified at'),
+        accessorKey: 'updatedAt',
+        size: 170,
+        cell: ({ row }) => <DateCell value={row.original.updatedAt} />,
+      },
+      {
+        id: 'statusChangedBy',
+        header: t('stage-moved-user', 'Stage moved user'),
+        accessorKey: 'statusChangedBy',
+        size: 200,
+        cell: ({ row }) => (
+          <MemberCell memberId={row.original.statusChangedBy} />
+        ),
+      },
+      {
+        id: 'updatedBy',
+        header: t('modified-by', 'Modified by'),
+        accessorKey: 'updatedBy',
+        size: 200,
+        cell: ({ row }) => <MemberCell memberId={row.original.updatedBy} />,
+      },
+      ...propertyColumns,
     ];
   }, [t, channels, fields]);
 };
