@@ -30,6 +30,10 @@ export const proxyReq = (proxyReq, req: any) => {
 
   safeSetHeader('hostname', req.hostname || '');
   safeSetHeader('userid', req.user?._id || '');
+  // set by requestLogger(): lets one request be followed from the gateway into every plugin
+  if (req.requestId) {
+    safeSetHeader('x-request-id', req.requestId);
+  }
 
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
     console.log(

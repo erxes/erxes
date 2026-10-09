@@ -54,6 +54,7 @@ import {
 import { createTRPCContext } from './trpc';
 import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
+import { logger, requestLogger, setLoggerService } from './logger';
 import * as Sentry from '@sentry/node';
 
 export const MAX_HEADER_BYTES = 64 * 1024;
@@ -176,6 +177,7 @@ export async function startPlugin(
     plugin: name,
     service: name,
   });
+  setLoggerService(name);
 
   const app = express();
   applyTrustProxy(app);
@@ -190,6 +192,8 @@ export async function startPlugin(
     }),
   );
   app.use(cookieParser());
+  // request id (x-request-id, kept from the gateway) + one log line per failed, slow or aborted request
+  app.use(requestLogger());
 
   // for health check
   app.get('/health', async (_req, res) => {
@@ -337,16 +341,16 @@ export async function startPlugin(
         });
       });
     } catch (e) {
-      console.error(e);
+      logger.error({ err: e }, 'closing the http server failed');
     }
   }
 
   async function leaveServiceDiscovery() {
     try {
       await leaveErxesGateway(name, PORT);
-      console.log(`Left service discovery. name=${name} port=${PORT}`);
+      logger.info({ port: PORT }, 'left service discovery');
     } catch (e) {
-      console.error(e);
+      logger.error({ err: e }, 'leaving service discovery failed');
     }
   }
 
@@ -396,9 +400,7 @@ export async function startPlugin(
     httpServer.listen({ port: PORT }, resolve),
   );
 
-  console.log(
-    `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
-  );
+  logger.info({ port: PORT }, `${name} graphql api ready`);
 
   await joinErxesGateway({
     name,

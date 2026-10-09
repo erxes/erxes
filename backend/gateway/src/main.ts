@@ -31,6 +31,7 @@ import {
   getSubdomain,
   isDev,
   redis,
+  requestLogger,
   setActivePlugins,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
@@ -90,6 +91,8 @@ const app = express();
 applyTrustProxy(app);
 
 app.use(cookieParser());
+// first thing: the request id every plugin will see (router propagates all headers) + failed/slow/aborted lines
+app.use(requestLogger());
 
 const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
