@@ -3,7 +3,7 @@ import {
   IImportExportContext,
   buildExportCursorQuery,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildProjectExportRow, IProject } from './buildProjectExportRow';
 import { stringifyId, buildIdNameMap, buildUserMap } from '../utils';
@@ -11,16 +11,20 @@ import { stringifyId, buildIdNameMap, buildUserMap } from '../utils';
 /**
  * Builds the project query object based on the active filters.
  */
-function buildProjectQuery(filters?: Record<string, unknown>): Record<string, unknown> {
+function buildProjectQuery(
+  filters?: Record<string, unknown>,
+): Record<string, unknown> {
   const query: Record<string, unknown> = {};
   if (!filters || Object.keys(filters).length === 0) {
     return query;
   }
-  if (filters.name) {
-    query.name = { $regex: filters.name, $options: 'i' };
+  if (typeof filters.name === 'string' && filters.name) {
+    query.name = { $regex: escapeRegExp(filters.name), $options: 'i' };
   }
   if (filters.teamIds) {
-    query.teamIds = { $in: Array.isArray(filters.teamIds) ? filters.teamIds : [filters.teamIds] };
+    query.teamIds = {
+      $in: Array.isArray(filters.teamIds) ? filters.teamIds : [filters.teamIds],
+    };
   }
   if (filters.leadId) {
     query.leadId = filters.leadId;
@@ -38,7 +42,9 @@ function buildProjectQuery(filters?: Record<string, unknown>): Record<string, un
     query.status = Number(filters.status);
   }
   if (filters.tagIds) {
-    query.tagIds = { $in: Array.isArray(filters.tagIds) ? filters.tagIds : [filters.tagIds] };
+    query.tagIds = {
+      $in: Array.isArray(filters.tagIds) ? filters.tagIds : [filters.tagIds],
+    };
   }
   return query;
 }
@@ -68,8 +74,6 @@ function extractProjectIds(projects: IProject[]) {
 
   return { allTeamIds, allUserIds, allTagIds };
 }
-
-
 
 /**
  * Retrieves and formats projects for export.

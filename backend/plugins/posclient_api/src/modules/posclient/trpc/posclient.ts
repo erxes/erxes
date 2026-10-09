@@ -3,10 +3,10 @@ import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { PosTRPCContext } from '~/init-trpc';
 import {
-  cancelPosOrder,
   ordersAdd,
   ordersEdit,
 } from '@/posclient/graphql/resolvers/mutations/orders';
+import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
 import { updateMobileAmount } from '~/modules/posclient/utils';
 import {
   importProducts,
@@ -263,9 +263,9 @@ export const posclientTrpcRouter = t.router({
       return ordersEdit(doc, { models, subdomain, config, posUser: undefined });
     }),
     ordersCancel: t.procedure
-      .input(z.any())
+      .input(z.object({ posToken: z.string().min(1), _id: z.string().min(1) }))
       .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
+        const { models, subdomain } = ctx;
         const { posToken, _id } = input || {};
 
         const config = await models.Configs.findOne({ token: posToken });
@@ -274,7 +274,7 @@ export const posclientTrpcRouter = t.router({
           throw new Error('Cannot find pos config');
         }
 
-        return cancelPosOrder(models, _id);
+        return cancelPosOrder(models, _id, subdomain, config.token);
       }),
   }),
 });

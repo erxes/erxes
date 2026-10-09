@@ -1,5 +1,5 @@
 {
-  "//": "Self-contained config for emitting consumer-facing type declarations (dist/). Runs during `prepare` for git-dependency consumers and before npm publish; not used by Nx builds inside the monorepo (those resolve src/ via tsconfig paths). Emit is intentionally tolerant: declaration files are emitted even if type errors are reported, because consumers compile against these declarations with skipLibCheck. prepare therefore succeeds iff dist/index.d.ts exists.",
+  "//": "Self-contained config for emitting consumer-facing type declarations (dist/). Runs via `build:dts` before npm publish (see scripts/publish-shared-libs.js); not used by Nx builds inside the monorepo (those resolve src/ via tsconfig paths). Emit is intentionally tolerant: declaration files are emitted even if type errors are reported, because consumers compile against these declarations with skipLibCheck. The publish script verifies dist/index.d.ts exists after this runs.",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",

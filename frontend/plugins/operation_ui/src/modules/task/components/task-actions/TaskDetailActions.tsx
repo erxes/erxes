@@ -21,7 +21,7 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const { t } = useTranslation('operation');
   const [open, setOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('main');
-  const { task } = useGetTask({ variables: { _id: taskId } });
+  const { task } = useGetTask(taskId);
   const { teamId } = useParams();
   const { removeTask } = useRemoveTask();
   const navigate = useNavigate();
@@ -81,7 +81,9 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                       onError: () => {
                         toast({
                           title: t('error'),
-                          description: t('failed-to-delete-task', { name: task?.name }),
+                          description: t('failed-to-delete-task', {
+                            name: task?.name,
+                          }),
                           variant: 'destructive',
                         });
                       },

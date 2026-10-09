@@ -1,5 +1,6 @@
 import { noteSchema } from '@/note/db/definitions/note';
 import { INote, INoteDocument } from '@/note/types';
+import { DeleteResult } from 'mongodb';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
@@ -21,7 +22,7 @@ export interface INoteModel extends Model<INoteDocument> {
   }: {
     _id: string;
     userId: string;
-  }): Promise<{ ok: number }>;
+  }): Promise<DeleteResult>;
 }
 
 export const loadNoteClass = (models: IModels) => {

@@ -1,28 +1,29 @@
+import { Button, cn } from 'erxes-ui';
 import {
-  IconBrandInstagramFilled,
-  IconBrandLinkedinFilled,
-  IconMailFilled,
+  IconArrowRight,
   IconBrandDiscordFilled,
   IconBrandGithubFilled,
-  IconArrowRight,
-  IconTicket,
+  IconBrandInstagramFilled,
+  IconBrandLinkedinFilled,
   IconBriefcase,
-  IconMessageCircle,
-  IconMessage2,
   IconMail,
+  IconMailFilled,
+  IconMessage2,
+  IconMessageCircle,
+  IconTicket,
 } from '@tabler/icons-react';
-import { WelcomeMessageBackground } from './WelcomeMessageBackground';
-import { currentUserState, currentOrganizationState } from 'ui-modules/states';
-import { useAtomValue } from 'jotai';
-import { Button, cn } from 'erxes-ui';
-import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  TSocialItem,
   TOnboardingStepItem,
+  TSocialItem,
   TVideoTabItem,
 } from 'ui-modules/modules/notifications/types/welcome';
+import { currentOrganizationState, currentUserState } from 'ui-modules/states';
+import { useRef, useState } from 'react';
+
+import { Link } from 'react-router-dom';
+import { WelcomeMessageBackground } from './WelcomeMessageBackground';
+import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 
 const Socials: TSocialItem[] = [
   {
@@ -250,6 +251,17 @@ const OnboardingStepsSection = ({
   );
 };
 
+const YOUTUBE_URL_RE =
+  /(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/))([\w-]{6,})/;
+
+const getYoutubeEmbedSrc = (src: string) => {
+  const match = src.match(YOUTUBE_URL_RE);
+
+  return match
+    ? `https://www.youtube-nocookie.com/embed/${match[1]}?autoplay=1&playsinline=1&loop=1&playlist=${match[1]}&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3`
+    : null;
+};
+
 const VideoPlayerWithTabs = ({
   src,
   tabItems,
@@ -263,6 +275,7 @@ const VideoPlayerWithTabs = ({
   const [currentTime, setCurrentTime] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const youtubeEmbedSrc = getYoutubeEmbedSrc(src);
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
@@ -360,18 +373,32 @@ const VideoPlayerWithTabs = ({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         )}
-        <video
-          ref={videoRef}
-          src={src}
-          controls
-          poster={poster}
-          className={`w-full h-full transition-opacity duration-300 bg-background rounded-xl border border-foreground/10 overflow-hidden ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoadedData={() => setIsLoaded(true)}
-          onTimeUpdate={handleTimeUpdate}
-          preload="metadata"
-        />
+        {youtubeEmbedSrc ? (
+          <div className="relative w-full aspect-video rounded-xl border border-foreground/10 overflow-hidden bg-background">
+            <iframe
+              src={youtubeEmbedSrc}
+              title="Welcome video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              className={`absolute left-0 -top-[15%] w-full h-[130%] transition-opacity duration-300 ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setIsLoaded(true)}
+            />
+          </div>
+        ) : (
+          <video
+            ref={videoRef}
+            src={src}
+            controls
+            poster={poster}
+            className={`w-full h-full transition-opacity duration-300 bg-background rounded-xl border border-foreground/10 overflow-hidden ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            onLoadedData={() => setIsLoaded(true)}
+            onTimeUpdate={handleTimeUpdate}
+            preload="metadata"
+          />
+        )}
       </div>
     </div>
   );

@@ -1,36 +1,26 @@
 import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '@/project/graphql/queries/getProjectProgressByMilestone';
-import { IMilestone, IMilestoneProgress } from '@/project/types';
 import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
-import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useQuery, useSubscription } from '@apollo/client';
 
-interface IGetMilestoneProgressQueryResponse {
-  milestoneProgress: Array<IMilestone & IMilestoneProgress>;
-}
+export const useGetProjectProgressByMilestone = (projectId?: string | null) => {
+  const { data, loading, refetch } = useQuery(
+    GET_PROJECT_PROGRESS_BY_MILESTONE,
+    {
+      variables: projectId ? { projectId } : undefined,
+      skip: !projectId,
+    },
+  );
 
-export const useGetProjectProgressByMilestone = (options: QueryHookOptions) => {
-  const { data, loading, refetch, subscribeToMore } =
-    useQuery<IGetMilestoneProgressQueryResponse>(
-      GET_PROJECT_PROGRESS_BY_MILESTONE,
-      options,
-    );
+  const projectProgressByMilestone = data?.milestoneProgress;
 
-  const projectProgressByMilestone =
-    data?.milestoneProgress || ([] as Array<IMilestone & IMilestoneProgress>);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
-      document: TASK_LIST_CHANGED,
-      variables: { projectId: options.variables?.projectId },
-      updateQuery: () => {
-        refetch();
-      },
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [options.variables?._id, subscribeToMore, refetch]);
+  useSubscription(TASK_LIST_CHANGED, {
+    variables: { filter: { projectId } },
+    skip: !projectId,
+    ignoreResults: true,
+    onData: () => {
+      refetch();
+    },
+  });
 
   return { projectProgressByMilestone, loading, refetch };
 };

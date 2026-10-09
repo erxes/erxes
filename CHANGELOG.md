@@ -1,5 +1,66 @@
 # Changelog
 
+## [3.2.15](https://github.com/erxes/erxes/compare/3.2.14...3.2.15) (2026-10-07)
+
+
+### Bug Fixes
+
+* adjust customer handling logic to prevent overwriting existing customer data ([9c0b87b](https://github.com/erxes/erxes/commit/9c0b87b7f192567628c60e3e8e5a8b5074a187ba))
+* improve logging format for new customer creation ([108d0ee](https://github.com/erxes/erxes/commit/108d0eef644f243761ac251a7e179b2049ec7dc4))
+* posclient citytax calculator ([3151816](https://github.com/erxes/erxes/commit/315181651dbdcce0d01f12cdb5e69c203593a73e))
+* posclient taxRule sync from sales ([07bcbff](https://github.com/erxes/erxes/commit/07bcbfffeccd8f9e2852b9827c38847b2cdc3420))
+* reorder customer retrieval logic to prioritize email check before cached ID ([b1d4399](https://github.com/erxes/erxes/commit/b1d4399bf0de6d05a159a394427306e0a8f85818))
+* update customer retrieval logic to check for non-existing customer with email ([2124d9a](https://github.com/erxes/erxes/commit/2124d9acf4c9d9187f38a9b024b46457cefda3cd))
+* update support messenger configuration to use correct environment variable ([9f5c5d3](https://github.com/erxes/erxes/commit/9f5c5d386559efe9ffe769cdef68def45bf65fb6))
+
+
+### Features
+
+* add logging for customer and widget mutations to aid debugging ([1092ee6](https://github.com/erxes/erxes/commit/1092ee6ecd728c9a999cdce8dbf3a0a8c7a455d7))
+* add segment field namespaces for custom properties in various plugins ([9bce1db](https://github.com/erxes/erxes/commit/9bce1dbe62402c0c06dcbe1d6485125c048acb08))
+* enhance logging for widget mutations and customer handling ([0145f1b](https://github.com/erxes/erxes/commit/0145f1bd7730ac1784742579718e4e05620df956))
+* **posclient:** posclient order log and order cancel and return up ([#9549](https://github.com/erxes/erxes/issues/9549)) ([a1eac5c](https://github.com/erxes/erxes/commit/a1eac5c16ec7c8765660e78a2691b026e1d5f12b))
+
+
+### Reverts
+
+* Revert "Make shared libraries consumable packages for external plugins (#9547)" (#9585) ([bbbfa3a](https://github.com/erxes/erxes/commit/bbbfa3a23296eb9498bbeb59414332d823b07041)), closes [#9547](https://github.com/erxes/erxes/issues/9547) [#9585](https://github.com/erxes/erxes/issues/9585)
+
+## [3.2.14](https://github.com/erxes/erxes/compare/3.2.12...3.2.14) (2026-10-06)
+
+
+### Bug Fixes
+
+* added messenger and onboarding welcome improvement ([#9575](https://github.com/erxes/erxes/issues/9575)) ([73435f8](https://github.com/erxes/erxes/commit/73435f8c1cc6b1a4373367ebd5c035dc9b2b310f))
+* allow client portal ticket reads in private pipelines ([ceb0ea0](https://github.com/erxes/erxes/commit/ceb0ea00041941649872f90c2f8ace24d101b531))
+* **automations:** resolve customer phone for sub-event deal/ticket triggers ([21e9757](https://github.com/erxes/erxes/commit/21e975751ce6998c2209201679fbe4b93c2d8660))
+* **content:** show total count in CMS record count label ([#9572](https://github.com/erxes/erxes/issues/9572)) ([f99e7fc](https://github.com/erxes/erxes/commit/f99e7fc0cac96e5f15f625507ed694ac17e35207))
+* empty state added on segments ([#9521](https://github.com/erxes/erxes/issues/9521)) ([17b89e4](https://github.com/erxes/erxes/commit/17b89e45721b9d70909cbb8e43f6c11852fc57b1))
+* **erxes-api-shared:** make the package loadable from Node ESM ([#9550](https://github.com/erxes/erxes/issues/9550)) ([c784d4d](https://github.com/erxes/erxes/commit/c784d4d4133b2dd81fab89dc1c4d8a181e3a79d5))
+* mongolian settings with scroll ([337e6ac](https://github.com/erxes/erxes/commit/337e6ac45bb39da9f373864400465ad7164cd9a7))
+* prevent duplicate gallery previews and restore composer scrolling ([#9531](https://github.com/erxes/erxes/issues/9531)) ([9850e30](https://github.com/erxes/erxes/commit/9850e30e952261ae12dbc6119ad2297e6acf4d0e))
+* products remainder from erkhet on sales ([#9562](https://github.com/erxes/erxes/issues/9562)) ([3eb86c6](https://github.com/erxes/erxes/commit/3eb86c68b5ef33d7397d98a67cd491b9ddb6d399))
+* update activity log to display actor avatars and names ([#9527](https://github.com/erxes/erxes/issues/9527)) ([45e13e9](https://github.com/erxes/erxes/commit/45e13e90dc2f2613677b14f216516f7412745294))
+
+
+### Features
+
+* **frontline:** a custom domain per help center ([#9567](https://github.com/erxes/erxes/issues/9567)) ([1891e07](https://github.com/erxes/erxes/commit/1891e07b5c6d5affb8bb48bd61dd793abea902cf))
+* **frontline:** add integrationId support for messenger triggers and update documentation ([75ac9ea](https://github.com/erxes/erxes/commit/75ac9eaa5b0182a6566e959bfbf8cfe040bf95cf))
+* github integration improvements on operation ([#9515](https://github.com/erxes/erxes/issues/9515)) ([bf59c71](https://github.com/erxes/erxes/commit/bf59c719a2f47d8e5615cd59642431c488491f66))
+* **operation:** catch GraphQL drift in operation_ui at build time ([#9489](https://github.com/erxes/erxes/issues/9489)) ([9444e07](https://github.com/erxes/erxes/commit/9444e07ced69e2a119414fe5571e3032059c742e))
+* **operation:** make the backend schema the contract for every operation GraphQL query ([#9566](https://github.com/erxes/erxes/issues/9566)) ([113e01e](https://github.com/erxes/erxes/commit/113e01ea92afd31008106ade54a2523ff55dbe63))
+
+
+### Performance Improvements
+
+* update onboarding ([#9568](https://github.com/erxes/erxes/issues/9568)) ([af19084](https://github.com/erxes/erxes/commit/af190849bbbcaeeddcc3fd62c4c0b464fd125fa1))
+
+
+### Reverts
+
+* Revert "fix(erxes-api-shared): make the package loadable from Node ESM (#9550)" (#9557) ([8358836](https://github.com/erxes/erxes/commit/83588368e9d7cf52e1561cdefb73e8e4b90dd0b7)), closes [#9550](https://github.com/erxes/erxes/issues/9550) [#9557](https://github.com/erxes/erxes/issues/9557)
+
 ## [3.2.12](https://github.com/erxes/erxes/compare/3.2.11...3.2.12) (2026-10-04)
 
 

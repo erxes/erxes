@@ -2,9 +2,7 @@ import { useGetProject } from '@/project/hooks/useGetProject';
 import { ProjectFields } from '@/project/components/details/ProjectFields';
 
 export const ProjectDetails = ({ projectId }: { projectId: string }) => {
-  const { project } = useGetProject({
-    variables: { _id: projectId },
-  });
+  const { project } = useGetProject(projectId);
 
   if (!project) {
     return null;

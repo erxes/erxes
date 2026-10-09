@@ -5,13 +5,29 @@ import {
   TR_SIDES,
 } from '~/modules/accounting/@types/constants';
 
+type TPayConfig = {
+  accountId?: string;
+} | null | undefined;
+
 export const getJournal = async (
   models: IModels,
-  payConfig: { accountId: string },
+  payConfig: TPayConfig,
   amount: number,
   isReturn = false,
-) => {
-  const { accountId } = payConfig;
+): Promise<
+  | {
+      journal: string;
+      accountId: string;
+      side: string;
+      lastAmount: number;
+    }
+  | undefined
+> => {
+  const accountId = payConfig?.accountId?.trim();
+  if (!accountId) {
+    return;
+  }
+
   const account = await models.Accounts.findOne({ _id: accountId }).lean();
 
   if (!account) {

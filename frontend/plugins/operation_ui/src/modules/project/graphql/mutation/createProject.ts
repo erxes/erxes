@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_PROJECT_MUTATION = gql`
+export const CREATE_PROJECT_MUTATION = gql(`
   mutation CreateProject(
     $name: String!
     $teamIds: [String!]!
@@ -46,4 +46,4 @@ export const CREATE_PROJECT_MUTATION = gql`
       convertedFromId
     }
   }
-`;
+`);

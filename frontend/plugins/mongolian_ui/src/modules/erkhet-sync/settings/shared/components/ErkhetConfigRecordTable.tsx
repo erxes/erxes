@@ -1,5 +1,5 @@
 import { IconSettings2 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, type TableOptions } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,14 +20,18 @@ export const ErkhetConfigRecordTable = <T extends object>({
   tableId,
 }: Props<T>) => {
   const { t } = useTranslation('mongolian');
+  const tableOptions = {
+    enableRowSelection: true,
+  } as TableOptions<T>;
+
   return (
     <RecordTable.Provider
       columns={columns}
       data={configs}
-      className="m-3"
+      className="m-3 min-h-0 flex-1 overflow-y-auto"
       stickyColumns={['more', 'checkbox']}
       tableId={tableId}
-      tableOptions={{ enableRowSelection: true } as any}
+      tableOptions={tableOptions}
     >
       <RecordTable>
         <RecordTable.Header />

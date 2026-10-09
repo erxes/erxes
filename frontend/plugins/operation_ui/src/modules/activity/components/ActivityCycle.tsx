@@ -17,7 +17,7 @@ export const ActivityCycle = ({
       <div className="inline-flex items-center gap-1">
         {t('added-cycle')}
         <span className="font-bold">
-          <CycleInline cycleId={metadata.newValue} />
+          <CycleInline cycleId={metadata?.newValue} />
         </span>
       </div>
     );
@@ -26,11 +26,11 @@ export const ActivityCycle = ({
     <div className="inline-flex items-center gap-1">
       {t('changed-cycle')}
       <span className="font-bold">
-        <CycleInline cycleId={metadata.previousValue || ''} />
+        <CycleInline cycleId={metadata?.previousValue} />
       </span>
       {t('to')}
       <span className="font-bold">
-        <CycleInline cycleId={metadata.newValue} />
+        <CycleInline cycleId={metadata?.newValue} />
       </span>
     </div>
   );
