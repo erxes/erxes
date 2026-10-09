@@ -43,9 +43,11 @@ export const useEditMessenger = () => {
         ...createVariables,
       },
       async onCompleted({ integrationsEditMessengerIntegration }) {
+        if (!integrationsEditMessengerIntegration) return;
+
         const { _id: integrationId } = integrationsEditMessengerIntegration;
 
-        const saves: Promise<any>[] = [
+        const saves: Promise<unknown>[] = [
           saveConfigsMutation({
             variables: {
               _id: integrationId,

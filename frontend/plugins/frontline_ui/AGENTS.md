@@ -2163,9 +2163,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
-  the Facebook and Instagram settings (config, repair, page post), and the
-  Facebook, Instagram and knowledge base automation widgets) writes every
-  document as
+  `integrations/erxes-messenger`, the Facebook and Instagram settings (config,
+  repair, page post), and the Facebook, Instagram and knowledge base
+  automation widgets) writes every document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
@@ -2246,6 +2246,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   forms-list row, `IFormDetail` the form detail, and a stored field validator
   is narrowed through `FIELD_VALIDATOR_SCHEMA`. A form's `numberOfPages` is the
   number of steps in its `steps` record.
+- An Erxes Messenger's `messengerData` and `uiOptions` stay `JSON` (the
+  messenger widget and the shared integration detail read them as scalars);
+  the setup reads them only through `EM_MESSENGER_DATA_SCHEMA` /
+  `EM_UI_OPTIONS_SCHEMA`, where every leaf, list item and map entry falls back
+  on its own. `IEMIntegrationDetail` is the setup's integration detail.
+- An Erxes Messenger needs a brand: `EM_CONFIG_SCHEMA.brandId` is required,
+  matching the `brandId: String!` of the create, edit and save mutations
+  (the brand field's own `rules` never ran under `zodResolver`). The create and
+  edit variables carry only the arguments those mutations declare; ticket
+  configs go through `integrationsSaveMessengerTicketData`.
 - Facebook and Instagram config hooks keep only string config values, the
   same way `useCallGetConfigs` does. Facebook integration repair always sends
   a `kind` (the route's integration type, falling back to

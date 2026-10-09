@@ -1,4 +1,4 @@
-import { useApolloClient, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import {
   CREATE_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
@@ -14,8 +14,6 @@ import { erxesMessengerSetupValuesAtom } from '@/integrations/erxes-messenger/st
 
 export const useCreateMessenger = () => {
   const { t } = useTranslation('frontline');
-  const client = useApolloClient();
-
   const [createMessengerMutation, { loading: createLoading }] = useMutation(
     CREATE_EM_MESSENGER_MUTATION,
   );
@@ -40,6 +38,8 @@ export const useCreateMessenger = () => {
       variables: createVariables,
       refetchQueries: ['Integrations', 'ErxesMessengerIntegrationDetail'],
       async onCompleted({ integrationsCreateMessengerIntegration }) {
+        if (!integrationsCreateMessengerIntegration) return;
+
         const { _id } = integrationsCreateMessengerIntegration;
 
         // Run all three saves in parallel and wait for every one to finish
