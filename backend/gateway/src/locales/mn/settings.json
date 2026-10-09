@@ -272,7 +272,10 @@
     "status": "Төлөв",
     "created": "Үүсгэсэн",
     "client-id-copied": "Клиент ID санах ойд хуулагдлаа",
-    "client-id-copy-failed": "Клиент ID хуулахад амжилтгүй боллоо"
+    "client-id-copy-failed": "Клиент ID хуулахад амжилтгүй боллоо",
+    "client-secret": "Клиентийн нууц түлхүүр",
+    "copy-to-clipboard-failed": "Санах ойд хуулж чадсангүй",
+    "copy-label": "{{label}} хуулах"
   },
   "file-upload": {
     "_": "Файл байршуулах",

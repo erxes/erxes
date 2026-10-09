@@ -14,6 +14,7 @@ const CopyableField = ({
   value?: string;
   copiedMessage: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -26,7 +27,7 @@ const CopyableField = ({
       toast({ variant: 'success', title: copiedMessage });
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy to clipboard' });
+      toast({ variant: 'destructive', title: t('copy-to-clipboard-failed') });
     }
   };
 
@@ -45,7 +46,7 @@ const CopyableField = ({
           size="icon"
           onClick={handleCopy}
           disabled={!value}
-          aria-label={`Copy ${label}`}
+          aria-label={t('copy-label', { label })}
         >
           {copied ? <IconCheck /> : <IconCopy />}
         </Button>
@@ -91,7 +92,7 @@ export const OAuthClientSecretDialog = ({
           />
           <CopyableField
             id="oauth-client-secret"
-            label="Client secret"
+            label={t('client-secret')}
             value={secret}
             copiedMessage={t('secret-copied')}
           />

@@ -280,7 +280,10 @@
     "status": "Status",
     "created": "Created",
     "client-id-copied": "Client ID copied to clipboard",
-    "client-id-copy-failed": "Failed to copy client ID"
+    "client-id-copy-failed": "Failed to copy client ID",
+    "client-secret": "Client secret",
+    "copy-to-clipboard-failed": "Failed to copy to clipboard",
+    "copy-label": "Copy {{label}}"
   },
   "file-upload": {
     "_": "File Upload",
