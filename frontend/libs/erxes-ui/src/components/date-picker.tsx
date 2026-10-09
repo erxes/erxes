@@ -38,7 +38,7 @@ export type DatePickerProps = {
   formatMultiple?: (count: number) => string;
   variant?: 'outline' | 'default' | 'ghost';
   allowNull?: boolean;
-  /** Shows an inline clear button in single mode; disable for required dates. */
+  /** Shows an inline clear button in single mode; defaults to `allowNull`. */
   clearable?: boolean;
   clearLabel?: string;
   calendarClassName?: string;
@@ -190,7 +190,7 @@ export const DatePicker = ({
   formatMultiple = defaultFormatMultiple,
   variant = 'outline',
   allowNull = false,
-  clearable = true,
+  clearable = allowNull,
   clearLabel = 'Clear',
   calendarClassName,
   popoverContentProps,

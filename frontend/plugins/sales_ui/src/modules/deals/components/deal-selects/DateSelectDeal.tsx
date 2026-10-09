@@ -231,6 +231,13 @@ export const DateSelectDealRoot = ({
             )}
           />
         </div>
+        {isEnded && (
+          <span className="flex h-full shrink-0 items-center gap-1 whitespace-nowrap border-l bg-red-50 px-2 text-xs text-red-400">
+            <IconAlertCircleFilled className="size-4" />
+            {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
+            {t('ago')}
+          </span>
+        )}
       </div>
     );
   }
