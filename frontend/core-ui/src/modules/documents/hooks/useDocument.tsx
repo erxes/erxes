@@ -13,7 +13,7 @@ import { SAVE_DOCUMENT } from '../graphql/documentMutations';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 /** Load and save the selected document while keeping its form and list current. */
-export const useDocument = (): {
+export const useDocument = ({ hydrate = true }: { hydrate?: boolean } = {}): {
   document: IDocument | null;
   documentId: string | undefined;
   documentSave: () => void;
@@ -54,16 +54,18 @@ export const useDocument = (): {
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   useEffect(() => {
-    if (document && getValues('_id') !== document._id) {
+    if (hydrate && document && getValues('_id') !== document._id) {
       const fields = document;
 
-      setValue('name', fields.name || '');
-      setValue('content', fields.content || '');
-      setValue('contentType', fields.contentType);
-      setValue('commentData', fields.commentData || '');
-      setValue('_id', fields._id);
+      reset({
+        _id: fields._id,
+        name: fields.name || '',
+        content: fields.content || '',
+        contentType: fields.contentType,
+        commentData: fields.commentData || '',
+      });
     }
-  }, [document, getValues, setValue]);
+  }, [document, getValues, hydrate, reset]);
 
   const [saveDocument, { loading: saving }] = useMutation<{
     documentsSave: IDocument | null;

@@ -1,7 +1,13 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
+import {
+  Controller,
+  FormProvider,
+  UseFormReturn,
+  useForm,
+  useFormContext,
+} from 'react-hook-form';
 import { toast } from 'erxes-ui';
 import { IDocument } from '../../types';
 import { useDocument } from '../useDocument';
@@ -44,6 +50,33 @@ function Wrapper({ children }: Readonly<{ children: ReactNode }>) {
   return <FormProvider {...form}>{children}</FormProvider>;
 }
 
+function DocumentHeader() {
+  useDocument({ hydrate: false });
+  return null;
+}
+
+function DocumentFields() {
+  const { loading } = useDocument();
+  const { control } = useFormContext<FormType>();
+  return loading ? null : (
+    <Controller
+      control={control}
+      name="name"
+      render={({ field }) => <input aria-label="Document title" {...field} />}
+    />
+  );
+}
+
+function ExistingDocumentPage() {
+  const methods = useForm<FormType>();
+  return (
+    <FormProvider {...methods}>
+      <DocumentHeader />
+      <DocumentFields />
+    </FormProvider>
+  );
+}
+
 describe('document save selection and hydration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -57,6 +90,20 @@ describe('document save selection and hydration', () => {
   afterEach(() => {
     jest.clearAllTimers();
     jest.useRealTimers();
+  });
+
+  it('hydrates the title when header and editor share a form after loading', () => {
+    mockSelection.documentId = 'saved-document';
+    (useQuery as jest.Mock).mockReturnValue({ loading: true });
+    const { rerender } = render(<ExistingDocumentPage />);
+    (useQuery as jest.Mock).mockReturnValue({
+      data: { documentsDetail: { ...draft, _id: 'saved-document' } },
+      loading: false,
+    });
+    rerender(<ExistingDocumentPage />);
+    expect(
+      screen.getByRole('textbox', { name: 'Document title' }),
+    ).toHaveProperty('value', draft.name);
   });
 
   it('preserves edits made during the first save when the saved ID loads', () => {

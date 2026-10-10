@@ -25,7 +25,9 @@ export const DocumentSheet = () => {
   } = useFormContext<FormType>();
 
   const client = useApolloClient();
-  const { document, documentSave, hasError, loading, saving } = useDocument();
+  const { document, documentSave, hasError, loading, saving } = useDocument({
+    hydrate: false,
+  });
   const cleanDocumentId = documentId?.trim();
 
   const submitHandler: SubmitHandler<FormType> = useCallback(async () => {

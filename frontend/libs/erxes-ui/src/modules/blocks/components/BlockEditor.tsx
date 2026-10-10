@@ -140,7 +140,7 @@ export const BlockEditor = ({
       )}
     >
       <BlockNoteView
-        theme={theme as 'light' | 'dark'}
+        theme={theme === 'system' ? undefined : theme}
         editor={editor}
         slashMenu={false}
         sideMenu={sideMenu}
