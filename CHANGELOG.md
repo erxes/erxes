@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.17](https://github.com/erxes/erxes/compare/3.2.16...3.2.17) (2026-10-10)
+
+
+### Features
+
+* **loyalty, sales, pos:** built-in earn and tier rules, tier history, condition groups, POS customer registration ([#9628](https://github.com/erxes/erxes/issues/9628)) ([ec4f1c3](https://github.com/erxes/erxes/commit/ec4f1c37477c2ff66c91cb4622049d09fb7aa3f1))
+
 ## [3.2.16](https://github.com/erxes/erxes/compare/3.2.15...3.2.16) (2026-10-10)
 
 

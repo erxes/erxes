@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.2.16",
+  "version": "3.2.17",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
