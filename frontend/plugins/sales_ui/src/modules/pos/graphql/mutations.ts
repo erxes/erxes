@@ -16,6 +16,7 @@ const commonFields = `
   $paymentTypes: [JSON]
   $earnScoreCampaignId: String
   $earnTier: JSON
+  $acceptCoupons: Boolean
   $isOnline: Boolean
   $onServer: Boolean
   $branchId: String
@@ -58,6 +59,7 @@ const commonVariables = `
   paymentTypes: $paymentTypes,
   earnScoreCampaignId: $earnScoreCampaignId,
   earnTier: $earnTier,
+  acceptCoupons: $acceptCoupons,
   isOnline: $isOnline,
   onServer: $onServer,
   branchId: $branchId,

@@ -958,6 +958,8 @@
   "loyalty-tier-overrides-board": "Replaces the every-board tier rule in this board",
   "loyalty-tier-overrides-stages": "Replaces wider tier rules in this pipeline",
   "pos-earn-tier": "Set tier by",
+  "pos-accept-coupons": "Accept coupons",
+  "pos-accept-coupons-hint": "Shows a coupon code input at the till.",
   "pos-earn-tier-hint": "A paid order sets the customer's tier in this wallet by its amount; a return keeps it.",
   "loyalty-tier-badge-sets": "Sets tier → {{wallet}} · {{rule}}",
   "loyalty-deal-points": "Loyalty points"

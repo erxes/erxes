@@ -45,6 +45,8 @@ export const posSchema = schemaWrapper(
     // The one score campaign a paid order earns in; two would both earn.
     earnScoreCampaignId: { type: String, label: 'Earn score campaign' },
     earnTier: { type: earnTierSchema, label: 'Earn tier' },
+    // Off by default: a POS without coupons should not ask for one.
+    acceptCoupons: { type: Boolean, optional: true, label: 'Accept coupons' },
     onServer: {
       type: Boolean,
       optional: true,

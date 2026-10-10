@@ -90,13 +90,9 @@ export const CustomerLoyaltyPanel = () => {
 
   const { wallets, vouchers, status } = loyalty
 
+  // Nothing held yet: only what this purchase would earn, if anything.
   if (!wallets.length && !vouchers.length) {
-    return (
-      <div className="mt-2 space-y-1">
-        <div className="text-xs text-neutral-500">Оноо, voucher байхгүй</div>
-        <LoyaltyEarnPreview />
-      </div>
-    )
+    return <LoyaltyEarnPreview className="mt-2 border-t-0 pt-0" />
   }
 
   return (

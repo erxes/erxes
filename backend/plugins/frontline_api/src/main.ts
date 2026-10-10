@@ -74,7 +74,7 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
-    initDiscord();
+    // initDiscord();
     startFacebookCommentOutboxWorker();
     startCustomDomainWorker();
   },

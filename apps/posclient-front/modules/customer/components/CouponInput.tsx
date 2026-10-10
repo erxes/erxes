@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { acceptCouponsAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 import { TicketIcon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -13,6 +15,7 @@ export const CouponInput = () => {
   const [value, setValue] = useState("")
   // Known only for a code applied here; a reopened order shows the code alone.
   const [title, setTitle] = useState<string | null>(null)
+  const acceptCoupons = useAtomValue(acceptCouponsAtom)
 
   if (couponCode) {
     return (
@@ -39,6 +42,9 @@ export const CouponInput = () => {
       </div>
     )
   }
+
+  // An order that already holds a code still shows it, so it can be removed.
+  if (!acceptCoupons) return null
 
   const submit = async () => {
     const applied = await applyCoupon(value)

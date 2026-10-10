@@ -298,9 +298,13 @@ const bridgesQueries = {
       customerId,
       totalAmount,
     }: { code: string; customerId?: string; totalAmount?: number },
-    { subdomain, posUser }: IContext,
+    { subdomain, posUser, config }: IContext,
   ) {
     assertPosUser(posUser);
+
+    if (!config.acceptCoupons) {
+      throw new Error('Coupons are not available on this POS');
+    }
 
     const campaign = await sendTRPCMessage({
       subdomain,

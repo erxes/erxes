@@ -53,6 +53,7 @@ export interface PosData {
   paymentTypes?: any[];
   earnScoreCampaignId?: string;
   earnTier?: IPosEarnTier | null;
+  acceptCoupons?: boolean;
   user?: {
     _id: string;
     details: {
@@ -113,6 +114,7 @@ export interface AddPosDetailVariables {
   paymentTypes?: any[];
   earnScoreCampaignId?: string;
   earnTier?: IPosEarnTier | null;
+  acceptCoupons?: boolean;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

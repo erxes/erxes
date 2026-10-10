@@ -32,6 +32,7 @@ export interface IPos {
   paymentTypes?: any[];
   earnScoreCampaignId?: string;
   earnTier?: IPosEarnTier | null;
+  acceptCoupons?: boolean;
   isOnline?: boolean;
   onServer?: boolean;
   branchId?: string;

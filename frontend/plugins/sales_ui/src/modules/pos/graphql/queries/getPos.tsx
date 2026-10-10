@@ -14,6 +14,7 @@ export const posCommonFields = `
   paymentTypes
   earnScoreCampaignId
   earnTier
+  acceptCoupons
   user {
     _id
     details {

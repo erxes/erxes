@@ -80,6 +80,7 @@ export interface IConfig {
   paymentIds: string[];
   paymentTypes: any[];
   earnScoreCampaignId?: string;
+  acceptCoupons?: boolean;
   beginNumber?: string;
   maxSkipNumber?: number;
   kitchenScreen?: any;

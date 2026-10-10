@@ -214,8 +214,11 @@ const loadBasePrices = async (subdomain: string, productIds: string[]) => {
     },
   );
 
+  // A product without a core price is left out, so the line's own price stands.
   return new Map(
-    products.map(({ _id, unitPrice }) => [String(_id), unitPrice ?? 0]),
+    products.flatMap(({ _id, unitPrice }) =>
+      typeof unitPrice === 'number' ? [[String(_id), unitPrice] as const] : [],
+    ),
   );
 };
 

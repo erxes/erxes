@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-10`
 
 ## Scope
 
@@ -324,7 +324,8 @@
   configuration replaced at once, `pipelinesEdit` permission, validated by
   `loyaltyRuleIssue`); `salesLoyaltyTierRules` and
   `salesLoyaltyTierRulesSave(rules)` (same, validated by
-  `loyaltyTierRuleIssue`); `Pos.earnScoreCampaignId`; `Pos.earnTier` (JSON);
+  `loyaltyTierRuleIssue`); `Pos.earnScoreCampaignId`; `Pos.earnTier` (JSON); `Pos.acceptCoupons`
+  (Boolean, off by default; synced to posclient, where it shows the coupon input);
   `SalesStage.loyaltyPoints`
   (what the saved rules make of a stage, for the pipeline editor's badges:
   `earns`, `refunds`, and the `tier` rule it sets, none in a refund stage).

@@ -958,6 +958,8 @@
   "loyalty-tier-overrides-board": "Энэ board-д бүх board-ийн tier дүрмийг орлоно",
   "loyalty-tier-overrides-stages": "Энэ pipeline-д илүү өргөн tier дүрмүүдийг орлоно",
   "pos-earn-tier": "Tier тогтоох",
+  "pos-accept-coupons": "Coupon хүлээн авах",
+  "pos-accept-coupons-hint": "Касс дээр coupon код оруулах талбар харагдана.",
   "pos-earn-tier-hint": "Төлөгдсөн захиалга дүнгээрээ энэ хэтэвчийн tier-ийг тогтооно; буцаалт tier-т хүрэхгүй.",
   "loyalty-tier-badge-sets": "Tier тогтооно → {{wallet}} · {{rule}}",
   "loyalty-deal-points": "Лоялти оноо"

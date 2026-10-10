@@ -9,6 +9,7 @@ import { type PaymentConfigItem } from '@/payments';
 import { useTranslation } from 'react-i18next';
 import { EarnScoreCampaignsField } from './EarnScoreCampaignsField';
 import { PosEarnTierField } from './PosEarnTierField';
+import { AcceptCouponsField } from './AcceptCouponsField';
 import { IPosEarnTier } from '@/pos/types/pos';
 import { toTierBands } from '@/deals/loyaltyRules/tierBands';
 
@@ -23,6 +24,7 @@ export interface PaymentFormData {
   paymentTypes: PaymentConfigItem[];
   earnScoreCampaignId: string;
   earnTier: IPosEarnTier | null;
+  acceptCoupons: boolean;
 }
 
 const PAYMENT_FORM_ID = 'pos-payment-form';
@@ -32,6 +34,7 @@ const DEFAULT_FORM_VALUES: PaymentFormData = {
   paymentTypes: [],
   earnScoreCampaignId: '',
   earnTier: null,
+  acceptCoupons: false,
 };
 
 const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
@@ -71,6 +74,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
             onlyUpgrade: !!posDetail.earnTier.onlyUpgrade,
           }
         : null,
+      acceptCoupons: !!posDetail.acceptCoupons,
     });
   }, [posDetail, reset]);
 
@@ -111,6 +115,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
             ),
             earnScoreCampaignId: data.earnScoreCampaignId || null,
             earnTier: data.earnTier,
+            acceptCoupons: data.acceptCoupons,
           },
         });
 
@@ -186,6 +191,7 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
           <OtherPaymentsField control={control} />
           <EarnScoreCampaignsField control={control} posId={posId} />
           <PosEarnTierField control={control} />
+          <AcceptCouponsField control={control} />
         </form>
       </Form>
     );

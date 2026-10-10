@@ -1,4 +1,4 @@
-import { formatNum } from "@/lib/utils"
+import { cn, formatNum } from "@/lib/utils"
 
 import { useLoyaltyEarnPreview } from "../hooks/useLoyaltyEarnPreview"
 
@@ -16,29 +16,22 @@ const reasonText = (reasons: string[]) =>
   reasons.map((reason) => REASON_TEXT[reason] || reason).join(", ")
 
 // Said before paying, so a rule that stopped giving points shows at the till.
-export const LoyaltyEarnPreview = () => {
+export const LoyaltyEarnPreview = ({ className }: { className?: string }) => {
   const { result, error } = useLoyaltyEarnPreview()
 
   if (error) {
     return (
-      <div className="text-xs text-red-500">
+      <div className={cn("text-xs text-red-500", className)}>
         Оноог урьдчилан тооцож чадсангүй: {error.message}
       </div>
     )
   }
 
-  if (!result) return null
-
-  if (!result.hasRules) {
-    return (
-      <div className="text-xs text-amber-600">
-        Энэ POS дээр оноо өгөх идэвхтэй дүрэм алга
-      </div>
-    )
-  }
+  // Setup is the admin's to fix; the cashier sees nothing without rules.
+  if (!result?.hasRules) return null
 
   return (
-    <div className="space-y-0.5 border-t pt-1">
+    <div className={cn("space-y-0.5 border-t pt-1", className)}>
       {result.earns.map(({ walletName, points, reasons, error }, index) => (
         <div
           key={`${walletName}-${index}`}

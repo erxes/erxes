@@ -128,6 +128,7 @@ export interface IPos {
   }>;
   earnScoreCampaignId?: string;
   earnTier?: IPosEarnTier | null;
+  acceptCoupons?: boolean;
   adminIds?: string[];
   cashierIds?: string[];
   permissionConfig?: {

@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-10`
 
 ## Scope
 
@@ -107,7 +107,7 @@
 - `poscLoyaltyPreview(items, customerId, couponCode, voucherId): PosLoyaltyPreview { lines, bonuses }` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving. `lines` holds each line whose price changes, keyed by the caller's line `key` (a product can sit on several lines under different conditions), with its discount percent and resulting `unitPrice`; the percent is negative when the line costs more (a condition may give less than a `posBase` plan baked in at sync). `bonuses` are the bonus products pricing would append as new lines (`{productId, name, count}`, name from the synced product); a bonus whose product is already a cart line is discounted in place and shows in `lines`. Display only; the saved order stays authoritative.
 - `poscLoyaltyEarnPreview(items, totalAmount, customerId, orderType)` (`utils/loyaltyEarn.ts`) reads core tRPC `automation.findActive` for active `sales:pos.orders.event` automations with a loyalty Adjust score, keeps the triggers a paid order of this POS would start (event `paid` or unset, `posId`/`posToken` this POS or empty, order type if set; payment type and branches before the action are not evaluated), and asks loyalty `score.earnPreview` with the actions' `campaignId`/`earnRowKeys`, counting the whole total as paid. Returns `{ hasRules, earns: [{walletName, points, reasons, error}] }`; without a customer only `hasRules`. Lookups use `throwOnError` so a broken preview shows instead of a silent zero.
 - `poscProductConditions(productId)` reads the synced product's `conditionCodes` and resolves them through core tRPC `productConditions.find` (codes with no condition are left out), so a cart line can pick one. Cart lines never keep the product's codes themselves; a stored copy went stale when conditions changed after the line was added.
-- `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order.
+- `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order. It refuses every code unless `config.acceptCoupons` (synced from the sales POS, off by default) is on.
 - `poscCustomersAdd(doc: JSON!): PosCustomerAddResult` returns either the
   created `customer` or an existing `duplicate` (same e-mail, phone, or code).
 

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-10`
 
 ## Scope
 
@@ -69,6 +69,8 @@
   a POS's `earnScoreCampaignId` and `earnTier` wallet via `usePosDetail`). Save
   validates and saves only the changed forms, switches to the tab holding
   an error, and closes once both are saved.
+- The POS Payment tab's `AcceptCouponsField` turns on the till's coupon
+  input (`Pos.acceptCoupons`, off by default).
 - The POS Payment tab picks the score campaigns paid orders earn in
   (`EarnScoreCampaignsField`, `Pos.earnScoreCampaignId`): one campaign only,
   since two would both earn on the same order; chosen with loyalty's picker

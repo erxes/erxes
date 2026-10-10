@@ -81,6 +81,7 @@ export const configSchema = new Schema({
   paymentTypes: field({ type: [Object] }),
   // The score campaign a paid order earns in, set on the POS in sales.
   earnScoreCampaignId: field({ type: String, optional: true }),
+  acceptCoupons: field({ type: Boolean, optional: true }),
   beginNumber: field({ type: String, optional: true }),
   maxSkipNumber: field({ type: Number }),
   waitingScreen: field({ type: Object }),
