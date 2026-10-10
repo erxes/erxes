@@ -11,10 +11,6 @@ export const SCORE_LOGS_QUERY = gql`
     $orderType: String
     $fromDate: String
     $toDate: String
-    $boardId: String
-    $pipelineId: String
-    $stageId: String
-    $number: String
     $description: String
     $limit: Int
     $cursor: String
@@ -30,10 +26,6 @@ export const SCORE_LOGS_QUERY = gql`
       orderType: $orderType
       fromDate: $fromDate
       toDate: $toDate
-      boardId: $boardId
-      pipelineId: $pipelineId
-      stageId: $stageId
-      number: $number
       description: $description
       limit: $limit
       cursor: $cursor
@@ -81,10 +73,6 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
     $action: String
     $fromDate: String
     $toDate: String
-    $boardId: String
-    $pipelineId: String
-    $stageId: String
-    $number: String
     $description: String
   ) {
     scoreLogStatistics(
@@ -96,10 +84,6 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
       action: $action
       fromDate: $fromDate
       toDate: $toDate
-      boardId: $boardId
-      pipelineId: $pipelineId
-      stageId: $stageId
-      number: $number
       description: $description
     )
   }

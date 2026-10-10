@@ -30,10 +30,15 @@ import { Model, SortOrder } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
+const MAX_TARGET_TOTALS = 500;
+
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
+  getTargetTotals(
+    targetIds: string[],
+  ): Promise<{ targetId: string; total: number }[]>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument[]>;
   repairOwnerScore(
@@ -146,22 +151,6 @@ const generateFilter = async (
     } else {
       filter.action = params.action;
     }
-  }
-
-  if (params.stageId) {
-    filter['target.stageId'] = params.stageId;
-  }
-
-  if (params.pipelineId) {
-    filter['target.pipelineId'] = params.pipelineId;
-  }
-
-  if (params.boardId) {
-    filter['target.boardId'] = params.boardId;
-  }
-
-  if (params.number) {
-    filter['target.number'] = params.number;
   }
 
   if (params.description) {
@@ -298,7 +287,6 @@ export const loadScoreLogClass = (
     }
 
     public static async getScoreLogs(doc: IScoreLogParams) {
-      const { stageId, pipelineId, boardId, number } = doc;
       const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
       const direction = doc.direction === 'backward' ? 'backward' : 'forward';
 
@@ -317,29 +305,10 @@ export const loadScoreLogClass = (
 
       const filter = await generateFilter(doc, models, subdomain);
 
-      const filterAggregate: any[] = [];
-
-      if (stageId || pipelineId || boardId || number) {
-        filterAggregate.push(
-          {
-            $lookup: {
-              from: 'deals',
-              localField: 'targetId',
-              foreignField: '_id',
-              as: 'target',
-            },
-          },
-          {
-            $unwind: '$target',
-          },
-        );
-      }
-
       // Each score log is returned as an individual row (no per-owner
       // grouping). A single person can therefore appear on multiple rows;
       // their detail is derived on demand from these rows by owner.
       const basePipeline: any[] = [
-        ...filterAggregate,
         {
           $match: { ...filter },
         },
@@ -417,10 +386,33 @@ export const loadScoreLogClass = (
       };
     }
 
+    // One page of a source's list at a time; a record moving nothing is left
+    // out, so the caller shows nothing for it.
+    public static async getTargetTotals(targetIds: string[]) {
+      const ids = [...new Set(targetIds)].slice(0, MAX_TARGET_TOTALS);
+
+      if (!ids.length) {
+        return [];
+      }
+
+      const totals = await models.ScoreLogs.aggregate<{
+        _id: string;
+        total: number;
+      }>([
+        { $match: { targetId: { $in: ids } } },
+        { $group: { _id: '$targetId', total: { $sum: '$changeScore' } } },
+      ]);
+
+      return totals.map(({ _id, total }) => ({
+        targetId: _id,
+        total: fixScoreNumber(total),
+      }));
+    }
+
     public static async getStatistic(doc: IScoreLogParams) {
       const filter = await generateFilter(doc, models, subdomain);
 
-      return scoreStatistic({ doc, models, filter });
+      return scoreStatistic({ models, filter });
     }
 
     public static async changeOwnersScore(doc: IScoreLog) {
