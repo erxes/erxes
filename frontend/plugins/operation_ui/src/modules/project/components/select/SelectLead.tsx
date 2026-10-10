@@ -65,6 +65,9 @@ export const SelectTeamMemberContent = ({
     : [currentUser, ...users].filter(
         (user) => !members.find((member) => member._id === user._id),
       );
+  const selectableMembers = members.filter(
+    (member) => member.isActive !== false && !member.isDeleted,
+  );
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -77,13 +80,13 @@ export const SelectTeamMemberContent = ({
 
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.map((member) => (
+        {selectableMembers.map((member) => (
           <SelectMember.CommandItem key={member._id} user={member} />
         ))}
-        {members.length > 0 &&
-          members.some((member) => !memberIds?.includes(member._id)) && (
-            <Command.Separator className="my-1" />
-          )}
+        {selectableMembers.length > 0 &&
+          selectableMembers.some(
+            (member) => !memberIds?.includes(member._id),
+          ) && <Command.Separator className="my-1" />}
         {!loading &&
           membersList.map((user) => (
             <SelectMember.CommandItem key={user._id} user={user} />

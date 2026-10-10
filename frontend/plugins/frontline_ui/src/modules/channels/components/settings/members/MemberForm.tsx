@@ -113,6 +113,9 @@ export const MemberFormContent = ({
           !excludeIds?.find((excludeId) => excludeId === user._id),
       )
     : users;
+  const selectableMembers = members.filter(
+    (member) => member.isActive !== false && !member.isDeleted,
+  );
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -124,7 +127,7 @@ export const MemberFormContent = ({
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.map((member) => (
+        {selectableMembers.map((member) => (
           <SelectMember.CommandItem key={member._id} user={member} />
         ))}
         <Command.Separator className="my-1" />
