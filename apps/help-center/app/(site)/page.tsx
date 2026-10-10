@@ -7,10 +7,6 @@ import { getTopicArticleList } from '@/modules/knowledge-base/api';
 import type { PortalCategory } from '@/modules/knowledge-base/utils/normalize';
 import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
 import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
-import {
-  articleEntries,
-  sortByReadership,
-} from '@/modules/knowledge-base/utils/selectors';
 import { getT } from '@/modules/i18n/server';
 import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
@@ -40,7 +36,6 @@ import {
 } from '@/modules/ui/components/PortalState';
 
 const CATEGORY_PREVIEW = 5;
-const SUGGESTION_COUNT = 4;
 
 export default async function HomePage() {
   const [{ title, headline }, settings, topic, announcements, forms, t] =
@@ -78,9 +73,6 @@ export default async function HomePage() {
     ? [lead, ...previewed.filter((category) => category._id !== lead._id)]
     : previewed;
 
-  const entries = topic.state === 'ready' ? articleEntries(topic.data) : [];
-  const readMost = sortByReadership(entries);
-
   const articleCount = allCategories.reduce(
     (sum, category) => sum + category.articleCount,
     0,
@@ -105,10 +97,6 @@ export default async function HomePage() {
   ];
 
   const stats = allStats.filter((stat) => stat.value > 0);
-
-  const searchSuggestions = readMost
-    .slice(0, SUGGESTION_COUNT)
-    .map(({ article }) => article.title);
 
   const lede = ticketsEnabled
     ? t('home.ledeTickets', { kb: knowledgeBase.inline })
@@ -142,7 +130,6 @@ export default async function HomePage() {
         headline={headline}
         eyebrow={title}
         lede={lede}
-        searchSuggestions={searchSuggestions}
         meta={stats.length ? <HeroStats stats={stats} /> : undefined}
       >
         {quickLinks.length ? <QuickLinks links={quickLinks} /> : null}

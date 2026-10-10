@@ -1,5 +1,6 @@
 import {
   IconCalendarPlus,
+  IconFileText,
   IconFolders,
   IconHash,
   IconLabelFilled,
@@ -15,6 +16,7 @@ import { ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { SelectBrand } from 'ui-modules';
+import { countTopicArticles } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
 import { KNOWLEDGE_BASE_PATH, LANGUAGES } from '@/knowledgebase/constants';
 import {
   kbColumn,
@@ -80,7 +82,7 @@ const BrandCell = ({ cell }: { cell: Cell<ITopic, unknown> }) => {
   return (
     <SelectBrand.InlineCell
       scope={clsx(KnowledgeBaseHotKeyScope.TopicsPage, topic._id, 'brandId')}
-      value={topic.brandId ?? topic.brand?._id ?? ''}
+      value={topic.brand?.name ? topic.brand._id : ''}
       onValueChange={(value) =>
         editTopicField(topic, { brandId: value as string })
       }
@@ -117,12 +119,11 @@ const createTopicsColumns = (t: TFunction): ColumnDef<ITopic>[] => [
     icon: IconFolders,
     count: (topic) => (topic.categories || []).length,
   }),
-  kbColumn<ITopic>({
-    id: 'brandId',
-    size: 200,
-    label: t('brand', 'Brand'),
-    icon: IconTag,
-    render: (cell) => <BrandCell cell={cell} />,
+  kbCountColumn<ITopic>({
+    id: 'categories.numOfArticles',
+    label: t('articles', 'Articles'),
+    icon: IconFileText,
+    count: (topic) => countTopicArticles(topic.categories || []),
   }),
   kbColumn<ITopic>({
     id: 'code',
@@ -132,6 +133,13 @@ const createTopicsColumns = (t: TFunction): ColumnDef<ITopic>[] => [
     render: (cell) => (
       <TextCell cell={cell} field="code" placeholder={t('kb-code', 'Code')} />
     ),
+  }),
+  kbColumn<ITopic>({
+    id: 'brandId',
+    size: 200,
+    label: t('brand', 'Brand'),
+    icon: IconTag,
+    render: (cell) => <BrandCell cell={cell} />,
   }),
   kbColumn<ITopic>({
     id: 'languageCode',

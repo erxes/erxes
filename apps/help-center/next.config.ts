@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: repoRoot,
   experimental: {
     externalDir: true,
+    staleTimes: {
+      dynamic: 30,
+    },
   },
   turbopack: {
     root: repoRoot,

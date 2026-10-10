@@ -7,7 +7,7 @@ declare global {
 
 const getDefaultUrl = () => {
   if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:4000';
+    return 'http://localhost:4200';
   } else {
     return `${window.location.protocol}//${window.location.hostname}/gateway`;
   }

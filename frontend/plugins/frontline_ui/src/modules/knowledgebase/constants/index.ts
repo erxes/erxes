@@ -83,9 +83,14 @@ export const ARTICLES_FILTER_ID = 'frontline-kb-articles-filter';
 
 export const ARTICLE_STATUSES = [
   { value: 'draft', key: 'kb-draft', label: 'Draft' },
+  { value: 'scheduled', key: 'kb-scheduled', label: 'Scheduled' },
   { value: 'publish', key: 'kb-published', label: 'Published' },
   { value: 'archived', key: 'archived', label: 'Archived' },
 ] as const;
+
+export const QUICK_ARTICLE_STATUSES = ARTICLE_STATUSES.filter(
+  (status) => status.value !== 'scheduled',
+);
 
 const ICON_ENTRIES: [string, Icon, string?][] = [
   ['alarm', IconAlarm],

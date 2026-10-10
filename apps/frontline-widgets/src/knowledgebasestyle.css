@@ -1,0 +1,120 @@
+#erxes-kb-root {
+  --erxes-kb-color: #4f33af;
+  position: fixed;
+  bottom: 16px;
+  z-index: 2147483646;
+}
+
+#erxes-kb-root.erxes-kb-right {
+  right: 16px;
+}
+
+#erxes-kb-root.erxes-kb-left {
+  left: 16px;
+}
+
+.erxes-kb-launcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--erxes-kb-color);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15, 15, 30, 0.24);
+  transition: transform 0.2s ease;
+}
+
+.erxes-kb-launcher:hover {
+  transform: scale(1.05);
+}
+
+.erxes-kb-launcher:focus-visible {
+  outline: 3px solid rgba(79, 51, 175, 0.4);
+  outline-offset: 2px;
+}
+
+.erxes-kb-launcher svg {
+  width: 26px;
+  height: 26px;
+}
+
+.erxes-kb-icon-close,
+.erxes-kb-open .erxes-kb-icon-open {
+  display: none;
+}
+
+.erxes-kb-open .erxes-kb-icon-close {
+  display: block;
+}
+
+.erxes-kb-panel {
+  position: absolute;
+  bottom: 72px;
+  width: min(400px, calc(100vw - 32px));
+  height: min(640px, calc(100vh - 104px));
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 48px rgba(15, 15, 30, 0.28);
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.erxes-kb-right .erxes-kb-panel {
+  right: 0;
+  transform-origin: bottom right;
+}
+
+.erxes-kb-left .erxes-kb-panel {
+  left: 0;
+  transform-origin: bottom left;
+}
+
+.erxes-kb-open .erxes-kb-panel {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.erxes-kb-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  color-scheme: light;
+}
+
+[data-erxes-kbase] .erxes-kb-iframe {
+  min-height: 560px;
+  border-radius: 12px;
+}
+
+@media (max-width: 480px) {
+  .erxes-kb-panel {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .erxes-kb-open .erxes-kb-launcher {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .erxes-kb-launcher,
+  .erxes-kb-panel {
+    transition: none;
+  }
+}

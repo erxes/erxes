@@ -2,37 +2,9 @@ import { ITopic } from '@/knowledgebase/@types/topic';
 import { IArticleCreate } from '@/knowledgebase/db/models/Article';
 import { ICategoryCreate } from '@/knowledgebase/db/models/Category';
 import { IContext } from '~/connectionResolvers';
-import {
-  enqueueAiKnowledgeSourceRefreshJob,
-  markResolvers,
-} from 'erxes-api-shared/utils';
-import { FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY } from '@/knowledgebase/meta/automations';
-
-const refreshKnowledgeArticle = async ({
-  subdomain,
-  articleId,
-}: {
-  subdomain: string;
-  articleId: string;
-}) => {
-  try {
-    await enqueueAiKnowledgeSourceRefreshJob({
-      subdomain,
-      source: {
-        pluginName: 'frontline',
-        moduleName: 'knowledgebase',
-        key: FRONTLINE_KNOWLEDGEBASE_ARTICLE_SOURCE_KEY,
-        sourceId: articleId,
-        updatedAt: new Date().toISOString(),
-      },
-    });
-  } catch (error) {
-    console.error(
-      `Failed to queue knowledge base article refresh for ${articleId}:`,
-      error,
-    );
-  }
-};
+import { markResolvers } from 'erxes-api-shared/utils';
+import { refreshKnowledgeArticle } from '@/knowledgebase/utils/refreshKnowledgeArticle';
+import { scheduleArticlePublish } from '@/knowledgebase/utils/scheduledPublish';
 
 export const knowledgeBaseMutations = {
   async knowledgeBaseTopicsAdd(
@@ -123,6 +95,8 @@ export const knowledgeBaseMutations = {
 
     const kbArticle = await models.Article.createDoc(doc, user._id);
 
+    await scheduleArticlePublish(subdomain, kbArticle);
+
     await refreshKnowledgeArticle({
       subdomain,
       articleId: kbArticle._id,
@@ -151,6 +125,8 @@ export const knowledgeBaseMutations = {
     }
 
     const updated = await models.Article.updateDoc(_id, doc, user._id);
+
+    await scheduleArticlePublish(subdomain, updated);
 
     await refreshKnowledgeArticle({ subdomain, articleId: _id });
 

@@ -7,6 +7,7 @@ import {
 import { Button, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { countTopicArticles } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
 import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
 import { KbErrorState } from '@/knowledgebase/shared/components/KbStates';
 import { TopicsEmptyState } from '@/knowledgebase/topics/components/TopicsEmptyState';
@@ -31,10 +32,7 @@ const TopicCard = ({
 }) => {
   const { t } = useTranslation('frontline');
   const categories = topic.categories ?? [];
-  const articleCount = categories.reduce(
-    (total, category) => total + (category.numOfArticles ?? 0),
-    0,
-  );
+  const articleCount = countTopicArticles(categories);
 
   return (
     <div className="flex relative flex-col gap-4 p-5 rounded-xl border transition group bg-background hover:border-primary/30 hover:shadow-md">

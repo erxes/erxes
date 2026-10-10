@@ -9,7 +9,6 @@ export const Hero = async ({
   eyebrow,
   lede,
   searchQuery,
-  searchSuggestions,
   as: Heading = 'h1',
   meta,
   children,
@@ -18,7 +17,6 @@ export const Hero = async ({
   eyebrow?: string;
   lede?: string;
   searchQuery?: string;
-  searchSuggestions?: string[];
   as?: 'h1' | 'p';
   meta?: ReactNode;
   children?: ReactNode;
@@ -65,7 +63,6 @@ export const Hero = async ({
             <SearchBar
               initialQuery={searchQuery}
               placeholder={header.searchPlaceholder}
-              suggestions={searchSuggestions}
             />
           </div>
 

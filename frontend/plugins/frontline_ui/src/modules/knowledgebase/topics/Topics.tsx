@@ -6,20 +6,25 @@ import {
   ToggleGroup,
   useQueryState,
 } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
+import { useKbCreateHotkey } from '@/knowledgebase/shared/hooks/useKbCreateHotkey';
 import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import { TopicsFilter } from '@/knowledgebase/topics/components/TopicsFilter';
 import { TopicsGrid } from '@/knowledgebase/topics/components/TopicsGrid';
 import { TopicsRecordTable } from '@/knowledgebase/topics/components/TopicsRecordTable';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
-
-type TTopicsView = 'list' | 'thumbnail';
+import {
+  topicsViewAtom,
+  TTopicsView,
+} from '@/knowledgebase/topics/states/topicsViewState';
+import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 export const Topics = () => {
   const { t } = useTranslation('frontline');
-  const [view, setView] = useState<TTopicsView>('thumbnail');
+  const [view, setView] = useAtom(topicsViewAtom);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editId, setEditId] = useQueryState<string>('editId');
   const [createTopic, setCreateTopic] = useQueryState<string>('createTopic');
@@ -33,6 +38,12 @@ export const Topics = () => {
   }, [createTopic, setCreateTopic]);
 
   const editing = (topics ?? []).find((topic) => topic._id === editId);
+
+  useKbCreateHotkey({
+    scope: KnowledgeBaseHotKeyScope.TopicsPage,
+    isSheetOpen: isCreateOpen || !!editing,
+    onCreate: () => setIsCreateOpen(true),
+  });
 
   const handleClose = () => {
     setIsCreateOpen(false);

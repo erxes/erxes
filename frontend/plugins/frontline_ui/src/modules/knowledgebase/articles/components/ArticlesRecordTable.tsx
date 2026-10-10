@@ -18,7 +18,8 @@ export const ArticlesRecordTable = ({
   onCreate: () => void;
 }) => {
   const { t } = useTranslation('frontline');
-  const { articles, loading, error } = useArticles(topicId);
+  const { articles, loading, error, hasMore, fetchingMore, handleFetchMore } =
+    useArticles(topicId);
   const columns = useArticlesColumns(topicId);
 
   return (
@@ -28,6 +29,9 @@ export const ArticlesRecordTable = ({
       loading={loading}
       error={error}
       tableId={ARTICLES_TABLE_ID}
+      hasMore={hasMore}
+      fetchingMore={fetchingMore}
+      onLoadMore={handleFetchMore}
       empty={
         <KbEmptyState
           icon={IconFileText}

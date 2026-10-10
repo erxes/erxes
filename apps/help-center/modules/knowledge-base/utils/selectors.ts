@@ -55,6 +55,20 @@ export const sortByRecency = (articles: PortalArticle[]): PortalArticle[] =>
     (b.modifiedAt ?? '').localeCompare(a.modifiedAt ?? ''),
   );
 
+const ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  nbsp: ' ',
+};
+
+const visibleText = (html: string): string =>
+  html
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&(amp|lt|gt|quot|nbsp);/g, (_, name: string) => ENTITIES[name]);
+
 export const searchArticles = (
   topic: PortalTopic,
   term: string,
@@ -66,7 +80,7 @@ export const searchArticles = (
   }
 
   return allArticles(topic).filter((article) =>
-    [article.title, article.summary, article.content]
+    [article.title, article.summary, visibleText(article.content)]
       .join(' ')
       .toLowerCase()
       .includes(needle),
@@ -88,6 +102,36 @@ export const browseCategories = (topic: PortalTopic): BrowseEntry[] =>
 
     return section.articleCount ? [{ category: section, group: null }] : [];
   });
+
+export type BrowseGroup = {
+  section: PortalSection | null;
+  categories: PortalCategory[];
+};
+
+export const browseGroups = (topic: PortalTopic): BrowseGroup[] => {
+  const ungrouped = topic.sections.filter(
+    (section) => !section.children.length && section.articleCount,
+  );
+  const groups = topic.sections
+    .filter((section) => section.children.length)
+    .map((section) => ({
+      section,
+      categories: section.children.filter((category) => category.articleCount),
+    }))
+    .filter((group) => group.categories.length);
+
+  return ungrouped.length
+    ? [{ section: null, categories: ungrouped }, ...groups]
+    : groups;
+};
+
+export const findGroupSection = (
+  topic: PortalTopic,
+  categoryId: string,
+): PortalSection | null =>
+  topic.sections.find(
+    (section) => section._id === categoryId && section.children.length,
+  ) ?? null;
 
 export const sectionCards = (section: PortalSection): PortalCategory[] =>
   section.children.length
