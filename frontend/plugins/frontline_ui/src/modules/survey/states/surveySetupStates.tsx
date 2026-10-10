@@ -184,6 +184,7 @@ export const surveySetSetupAtom = atom(null, (_, set, payload: ISurvey) => {
   set(surveySetupGeneralAtom, {
     title: payload.title ?? '',
     brandId: payload.brandId ?? null,
+    channelId: payload.channelId ?? '',
   });
   set(surveySetupContentAtom, { steps: toSurveyContentSteps(payload) });
   set(surveySetupConfirmationAtom, {

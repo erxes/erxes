@@ -1,23 +1,49 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router';
 import { SelectBrands } from 'ui-modules';
 import { FormValueEffectComponent } from '@/forms/components/FormValueEffectComponent';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { SurveyMutateLayout } from '@/survey/components/mutate/SurveyMutateLayout';
 import { SURVEY_GENERAL_DEFAULT_VALUES } from '@/survey/constants/surveySetupDefaultValues';
 import {
+  SURVEY_GENERAL_CREATE_SCHEMA,
   SURVEY_GENERAL_SCHEMA,
   TSurveyGeneral,
 } from '@/survey/constants/surveySetupSchema';
-import { surveySetupGeneralAtom } from '@/survey/states/surveySetupStates';
+import { useSurveySetupChannel } from '@/survey/hooks/useSurveySetupChannel';
+import {
+  surveySetupContentAtom,
+  surveySetupGeneralAtom,
+} from '@/survey/states/surveySetupStates';
 
 export const SurveyGeneral = () => {
   const { t } = useTranslation('frontline');
+  const { surveyId } = useParams<{ surveyId: string }>();
+  const { isChannelRoute } = useSurveySetupChannel();
+  const showChannelSelect = !isChannelRoute && !surveyId;
   const form = useForm<TSurveyGeneral>({
-    resolver: zodResolver(SURVEY_GENERAL_SCHEMA),
+    resolver: zodResolver(
+      showChannelSelect ? SURVEY_GENERAL_CREATE_SCHEMA : SURVEY_GENERAL_SCHEMA,
+    ),
     defaultValues: SURVEY_GENERAL_DEFAULT_VALUES,
   });
+  const setSurveyContent = useSetAtom(surveySetupContentAtom);
+
+  const clearTicketTargets = () =>
+    setSurveyContent((content) => ({
+      steps: content.steps.map((step) => ({
+        ...step,
+        options: step.options.map((option) => ({
+          ...option,
+          ticketPipelineId: null,
+          ticketStatusId: null,
+        })),
+      })),
+    }));
 
   return (
     <SurveyMutateLayout
@@ -69,6 +95,33 @@ export const SurveyGeneral = () => {
             </Form.Item>
           )}
         />
+        {showChannelSelect && (
+          <Form.Field
+            control={form.control}
+            name="channelId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
+                <SelectChannel.FormItem
+                  value={field.value ?? ''}
+                  mode="single"
+                  onValueChange={(value) => {
+                    const channelId = Array.isArray(value)
+                      ? (value[0] ?? '')
+                      : value;
+
+                    if (channelId !== field.value) {
+                      clearTicketTargets();
+                    }
+
+                    field.onChange(channelId);
+                  }}
+                />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
       </div>
     </SurveyMutateLayout>
   );

@@ -12,7 +12,13 @@ const SurveysCreateButton: FC<React.ComponentProps<typeof Button>> = (
 
   return (
     <Button asChild {...props}>
-      <Link to={`/settings/frontline/channels/${channelId}/surveys/create`}>
+      <Link
+        to={
+          channelId
+            ? `/settings/frontline/channels/${channelId}/surveys/create`
+            : '/frontline/surveys/create'
+        }
+      >
         <IconPlus />
         {t('create-survey', 'Create survey')}
       </Link>
