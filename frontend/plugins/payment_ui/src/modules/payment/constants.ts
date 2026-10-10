@@ -249,7 +249,12 @@ export const PAYMENT_KINDS = {
       // Optional: apiUrl field could be added if needed, but default is set in backend
     ],
   },
-
+  [PaymentKind.TDB_CGW]: {
+    name: 'TDB Corporate Gateway',
+    description: 'connect-tdb-corporate-gateway',
+    active: true,
+    fields: [],
+  },
   [PaymentKind.KHANBANK]: {
     name: 'Khanbank',
     description: 'Connect your Khanbank Corporate Gateway account.',

@@ -1,79 +1,140 @@
-import fetch from 'node-fetch';
-import type { RequestInit, HeadersInit } from 'node-fetch';
+import fetch, { HeadersInit, RequestInit } from 'node-fetch';
+import { TdbTokenResponse } from '@/corporateGateway/tdb/@types/tdb';
 
 export class BaseApi {
   protected config: {
     apiUrl: string;
-    username: string;
-    password: string;
+    clientId: string;
+    clientSecret: string;
   };
 
-  constructor(config: { apiUrl: string; username: string; password: string }) {
+  private accessToken?: string;
+  private tokenExpiresAt = 0;
+
+  constructor(config: {
+    apiUrl: string;
+    clientId: string;
+    clientSecret: string;
+  }) {
     this.config = config;
   }
 
-  protected getBasicAuthHeaders(): HeadersInit {
-    const auth = Buffer.from(
-      `${this.config.username}:${this.config.password}`,
-    ).toString('base64');
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Basic ${auth}`,
-    };
-  }
-
-  protected async request(args: {
-    method: string;
-    path?: string;
-    params?: Record<string, string>;
-    data?: any;
-    useBasicAuth?: boolean;
-  }): Promise<any> {
-    const { method, path = '', params, data, useBasicAuth = true } = args;
-
-    let url = this.config.apiUrl;
-    if (path) {
-      url = `${this.config.apiUrl}/${path}`;
+  /**
+   * Get CGW OAuth access token.
+   *
+   * Token lifetime according to TDB CGW documentation:
+   * 5 minutes.
+   */
+  protected async getAccessToken(): Promise<string> {
+    if (this.accessToken && Date.now() < this.tokenExpiresAt) {
+      return this.accessToken;
     }
 
-    if (params) {
-      const searchParams = new URLSearchParams(params);
+    const response = await fetch(`${this.config.apiUrl}/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+      }),
+    });
+
+    const responseText = await response.text();
+
+    let result: TdbTokenResponse;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(`TDB token response is not valid JSON: ${responseText}`);
+    }
+
+    const token = result.data?.token || (result as any).token;
+
+    if (!response.ok || !result.success || !token) {
+      throw new Error(
+        result.msg ||
+          (result as any).message ||
+          `TDB OAuth failed with status ${response.status}: ${responseText}`,
+      );
+    }
+
+    this.accessToken = token;
+
+    // TDB CGW access token is valid for 5 minutes.
+    // Cache it for 4 minutes to avoid using an almost-expired token.
+    this.tokenExpiresAt = Date.now() + 4 * 60 * 1000;
+
+    return token;
+  }
+
+  protected async request<T>(args: {
+    method: string;
+    path: string;
+    params?: Record<string, string | number>;
+    data?: unknown;
+  }): Promise<T> {
+    const token = await this.getAccessToken();
+
+    let url = `${this.config.apiUrl}/${args.path}`;
+
+    if (args.params) {
+      const searchParams = new URLSearchParams();
+
+      Object.entries(args.params).forEach(([key, value]) => {
+        searchParams.append(key, String(value));
+      });
+
       url = `${url}?${searchParams.toString()}`;
     }
 
-    const headers = useBasicAuth
-      ? this.getBasicAuthHeaders()
-      : { 'Content-Type': 'application/json' };
+    const headers: HeadersInit = {
+      accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
 
-    const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
-      method,
+    const requestOptions: RequestInit = {
+      method: args.method,
       headers,
     };
 
-    if (data && (method === 'POST' || method === 'PUT')) {
-      requestOptions.body = JSON.stringify(data);
+    if (
+      args.data !== undefined &&
+      ['POST', 'PUT', 'PATCH'].includes(args.method)
+    ) {
+      requestOptions.body = JSON.stringify(args.data);
     }
+
+    const response = await fetch(url, requestOptions);
+
+    const responseText = await response.text();
+    let result: any;
 
     try {
-      const response = await fetch(url, requestOptions);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = errorText;
-        try {
-          const errorJson = JSON.parse(errorText);
-          errorMessage =
-            errorJson.errorDescription || errorJson.errorCode || errorText;
-        } catch {
-          // Keep original error text
-        }
-        throw new Error(errorMessage);
-      }
-
-      return await response.json();
-    } catch (e) {
-      console.error('TDB API request failed:', e);
-      throw new Error(e.message);
+      result = JSON.parse(responseText);
+    } catch {
+      throw new Error(`TDB API returned invalid JSON: ${responseText}`);
     }
+
+    if (!response.ok) {
+      throw new Error(
+        result?.msg ||
+          result?.message ||
+          `TDB API request failed with status ${response.status}`,
+      );
+    }
+
+    if (result?.success === false) {
+      throw new Error(
+        result?.msg || result?.message || 'TDB API request failed',
+      );
+    }
+
+    return result as T;
   }
 }

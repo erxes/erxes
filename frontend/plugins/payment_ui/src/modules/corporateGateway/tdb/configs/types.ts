@@ -3,6 +3,7 @@ export interface ITdbConfig {
   name: string;
   description?: string;
   apiUrl: string;
-  username: string;
-  testMode: boolean;
+  clientId: string;
+  clientSecret?: string;
+  testMode?: boolean;
 }

@@ -1,7 +1,7 @@
 import configMutations from './configs';
-import orderMutations from './orders';
+import transferMutations from './transfers';
 
 export default {
   ...configMutations,
-  ...orderMutations,
+  ...transferMutations,
 };

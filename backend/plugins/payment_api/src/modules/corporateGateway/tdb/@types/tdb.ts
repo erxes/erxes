@@ -4,10 +4,11 @@ export interface ITdbConfig {
   name: string;
   description?: string;
 
-  // TDB E-Commerce credentials
+  // TDB Corporate Gateway
   apiUrl: string;
-  username: string;
-  password: string;
+  clientId: string;
+  clientSecret: string;
+
   testMode?: boolean;
 }
 
@@ -16,94 +17,135 @@ export interface ITdbConfigDocument extends ITdbConfig, Document {
   createdAt: Date;
 }
 
-// Order types
-export interface TdbOrderInput {
-  typeRid?: string; // default 'purch'
-  amount: number;
-  currency: string;
-  description: string;
-  language?: string; // 'en' or 'mn'
-  hppRedirectUrl: string;
-}
+/**
+ * OAuth
+ */
 
-export interface TdbOrderCreateResponse {
-  order: {
-    id: number;
-    password: string;
-    hppUrl: string;
-    typeRid: string;
-    amount: number;
-    currency: string;
-    description: string;
-    language: string;
-    hppRedirectUrl: string;
+export interface TdbTokenResponse {
+  success: boolean;
+  msg?: string;
+  token?: string;
+  data?: {
+    token: string;
   };
 }
 
-export interface TdbOrderDetail {
-  order: {
-    id: number;
-    typeRid: string;
-    status: string;
-    prevStatus: string;
-    lastStatusLogin: string;
-    amount: number;
-    currency: string;
-    createTime: string;
-    type: {
-      title: string;
-    };
-  };
+/**
+ * Accounts
+ */
+
+export interface TdbAccount {
+  ACNTNO: string;
+  IBAN?: string;
+  iban?: string;
+  ACNTNAME: string;
+  ACNTMODE: string;
+  CURCODE: string;
+  BALANCE: number;
+  CUSTNO: string;
+  AVAILABLEBAL: number;
+  HOLDBAL: number;
 }
 
-export interface TdbOrderStatusResponse {
-  orderId: number;
-  status: string;
-  amount: number;
-  currency: string;
-  createTime: string;
-  isSuccessful: boolean;
+export interface TdbAccountsResponse {
+  success: boolean;
+  msg: string;
+  data: TdbAccount[];
 }
 
-export type TdbOrderStatus =
-  | 'PREPARING'
-  | 'EXPIRED'
-  | 'CANCELLED'
-  | 'REJECTED'
-  | 'REFUSED'
-  | 'CLOSED'
-  | 'VOIDED'
-  | 'REFUNDED'
-  | 'DECLINED'
-  | 'FULLYPAID'
-  | 'PARTPAID'
-  | 'AUTHORIZED'
-  | 'PAID';
-
-export const SUCCESSFUL_STATUSES: TdbOrderStatus[] = [
-  'FULLYPAID',
-  'PARTPAID',
-  'AUTHORIZED',
-  'PAID',
-];
-
-export interface ITdbOrder {
-  orderId: number;
-  password: string;
-  hppUrl?: string;
-  amount: number;
-  currency: string;
-  description: string;
-  language?: string;
-  status: TdbOrderStatus;
-  createTime: string;
-  typeRid?: string;
-  hppRedirectUrl?: string;
-  paymentId?: string;
-  invoiceId?: string;
+/**
+ * Account balance
+ */
+export interface TdbBalanceAccount {
+  acntno: number;
+  iban: string;
+  ACNTNAME: string;
+  ACNTMODE: string;
+  CURCODE: string;
+  BALANCE: number;
+  CUSTNO: string;
+  AVAILABLEBAL: number;
+  HOLDBAL: number;
 }
 
-export interface ITdbOrderDocument extends ITdbOrder, Document {
-  _id: string;
-  createdAt: Date;
+export interface TdbBalanceResponse {
+  success: boolean;
+  msg: string;
+  data: {
+    invoice: TdbBalanceAccount;
+  } | null;
+}
+
+/**
+ * Account statement
+ */
+
+export interface TdbStatementHeader {
+  startbalance: number;
+  total_credit: number;
+  endbalance: number;
+  total_debit: number;
+  totalrecords: number;
+}
+
+export interface TdbStatementTransaction {
+  txndate: string;
+  refno: number;
+  txndesc: string;
+  credit: number;
+  debit: number;
+  balance: number;
+  contacntno: string;
+  currate: number;
+  contacntname: string;
+  fee: string;
+  bankcode: string;
+}
+
+export interface TdbStatementResponse {
+  success: boolean;
+  msg: string;
+  header: TdbStatementHeader[];
+  txn: TdbStatementTransaction[];
+}
+
+/**
+ * Domestic transfer
+ */
+
+export interface TdbDomesticTransferInput {
+  debtorAccount: string;
+  creditorAccount: string;
+  txnAmount: number;
+  txnDesc: string;
+}
+
+export interface TdbTransferResponse {
+  success: boolean;
+  requestid: number;
+  transactionNumber: string;
+  message: string;
+}
+
+/**
+ * Interbank transfer
+ */
+
+export interface TdbInterbankTransferInput {
+  debtorAccount: string;
+  creditorAccount: string;
+  creditorCurrency: string;
+  creditorAccountName: string;
+  beneficiaryBankCode: number;
+  txnAmount: number;
+  txnDesc: string;
+}
+
+/**
+ * Bank
+ */
+
+export interface TdbBank {
+  code: string;
+  name: string;
 }

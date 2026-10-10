@@ -4,25 +4,29 @@ import {
   mutations as ConfigMutations,
 } from './configs';
 
+import { types as AccountTypes, queries as AccountQueries } from './accounts';
+
 import {
-  types as OrderTypes,
-  queries as OrderQueries,
-  mutations as OrderMutations,
-} from './orders';
+  types as TransferTypes,
+  mutations as TransferMutations,
+  inputs as TransferInputs,
+} from './transfers';
 
 export const types = `
   ${ConfigTypes}
-  ${OrderTypes}
+  ${AccountTypes}
+  ${TransferTypes}
+  ${TransferInputs}
 `;
 
 export const queries = `
   ${ConfigQueries}
-  ${OrderQueries}
+  ${AccountQueries}
 `;
 
 export const mutations = `
   ${ConfigMutations}
-  ${OrderMutations}
+  ${TransferMutations}
 `;
 
 export default {

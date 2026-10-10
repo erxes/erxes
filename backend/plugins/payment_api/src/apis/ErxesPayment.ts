@@ -13,6 +13,7 @@ import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
 import { TokiAPI } from './toki/api';
 import { TDBAPI } from './tdb/api';
+import { TdbCgwAPI } from '~/modules/corporateGateway/tdb/api/tdbCgw/api';
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
@@ -23,7 +24,7 @@ class ErxesPayment {
   private readonly payment: IPaymentDocument;
   private readonly api: any;
 
-  constructor(payment: IPaymentDocument, subdomain?: string, models?: IModels,) {
+  constructor(payment: IPaymentDocument, subdomain?: string, models?: IModels) {
     this.payment = payment;
 
     const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -78,6 +79,9 @@ class ErxesPayment {
       case 'tdb':
         this.api = new TDBAPI(payment.config, this.domain);
         break;
+      case 'tdb_cgw':
+        this.api = new TdbCgwAPI(payment.config, models!, this.domain);
+        break;
       default:
         this.api = null;
         break;
@@ -115,13 +119,11 @@ class ErxesPayment {
       amount: invoiceAmount,
     };
 
-
     try {
       const response = await this.api.createInvoice(
         invoicePayload,
         this.payment,
       );
-
 
       return response;
     } catch (e: any) {

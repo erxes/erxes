@@ -17,7 +17,7 @@ export const loadTdbConfigClass = (models: IModels) => {
   class TdbConfig {
     public static async createConfig(doc: ITdbConfig) {
       const tdbConfig = await models.TdbConfigs.findOne({
-        username: doc.username,
+        clientId: doc.clientId,
         apiUrl: doc.apiUrl,
       });
 
@@ -30,11 +30,11 @@ export const loadTdbConfigClass = (models: IModels) => {
 
     public static async updateConfig(_id: string, doc: any) {
       const tdbConfig = await models.TdbConfigs.findOne({
-        username: doc.username,
+        clientId: doc.clientId,
         apiUrl: doc.apiUrl,
       });
 
-      if (tdbConfig && tdbConfig._id !== _id) {
+      if (tdbConfig && tdbConfig._id.toString() !== _id) {
         throw new Error('Config exists with same credentials');
       }
 
