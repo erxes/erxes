@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
 import { useTagTypes } from 'ui-modules/modules/tags-new/hooks/useTagTypes';
 
 export const TagsSidebar = ({ className }: { className?: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { types } = useTagTypes();
   const [type, setType] = useQueryState<string>('tagType');
 
@@ -10,7 +12,7 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
       {Object.entries(types).map(([key, value]) => (
         <Sidebar.Group key={key}>
           <Sidebar.GroupLabel>
-            {key === 'core' ? 'Core tags' : `${key} tags`}
+            {key === 'core' ? t('core-tags') : t('type-tags', { type: key })}
           </Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
@@ -20,7 +22,7 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
                     isActive={type === null}
                     onClick={() => setType(null)}
                   >
-                    Workspace tags
+                    {t('workspace-tags')}
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               )}
@@ -30,7 +32,9 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
                     isActive={type === _type.contentType}
                     onClick={() => setType(_type.contentType)}
                   >
-                    {_type.description} tags
+                    {t('type-tags', {
+                      type: _type.description,
+                    })}
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               ))}

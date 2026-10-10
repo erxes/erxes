@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { ColumnDef } from '@tanstack/table-core';
 import { IconHash } from '@tabler/icons-react';
@@ -14,13 +15,13 @@ import { IUnitListItem } from '../../types/unit';
 import { useUnitInlineEdit } from '../../hooks/useUnitActions';
 import { UnitsMoreColumn } from './UnitsMoreColumn';
 
-export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
+export const UnitsColumns = (t: TFunction): ColumnDef<IUnitListItem>[] => [
   UnitsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IUnitListItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     cell: ({ cell }) => {
       const { unitsEdit, loading } = useUnitInlineEdit();
       const { _id, code } = cell.row.original;
@@ -69,7 +70,7 @@ export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="title" />,
+    header: () => <RecordTable.InlineHead label={t('title')} />,
     cell: ({ cell }) => {
       const { unitsEdit, loading } = useUnitInlineEdit();
       const { _id, title, code } = cell.row.original;
@@ -117,7 +118,7 @@ export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
   {
     id: 'supervisorId',
     accessorKey: 'supervisorId',
-    header: () => <RecordTable.InlineHead label="supervisor" />,
+    header: () => <RecordTable.InlineHead label={t('supervisor')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original;
       const { unitsEdit } = useUnitInlineEdit();
@@ -147,7 +148,7 @@ export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
   {
     id: 'departmentId',
     accessorKey: 'departmentId',
-    header: () => <RecordTable.InlineHead label="department" />,
+    header: () => <RecordTable.InlineHead label={t('department')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original;
       const { unitsEdit } = useUnitInlineEdit();
@@ -174,7 +175,7 @@ export const UnitsColumns: ColumnDef<IUnitListItem>[] = [
   {
     id: 'userCount',
     accessorKey: 'userCount',
-    header: () => <RecordTable.InlineHead label="team member count" />,
+    header: () => <RecordTable.InlineHead label={t('team-member-count')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="justify-center">

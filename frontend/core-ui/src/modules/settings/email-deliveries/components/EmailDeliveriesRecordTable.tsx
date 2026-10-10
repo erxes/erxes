@@ -14,6 +14,7 @@ const memberColumns = emailDeliveryColumns.filter(
 export const EmailDeliveriesRecordTable = ({
   email,
 }: { email?: string } = {}): JSX.Element => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
   const {
     list,
     loading,
@@ -42,7 +43,6 @@ export const EmailDeliveriesRecordTable = ({
       )
     : list;
 
-  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
   const isEmpty = email ? !deliveries.length && !hasNextPage : !totalCount;
 
   if (error) {
@@ -58,7 +58,7 @@ export const EmailDeliveriesRecordTable = ({
             )
           }
         >
-          Retry
+          {t('retry')}
         </Button>
       </div>
     );

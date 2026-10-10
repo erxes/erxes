@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { RecordTable } from 'erxes-ui';
 import { useMemo } from 'react';
 import { TagTableRow } from './useTagsView';
 
 export const useTagsBulkActions = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table
     .getFilteredSelectedRowModel()
@@ -28,10 +30,8 @@ export const useTagsBulkActions = () => {
       onlyStandalone,
       onlyChildren,
       canMove,
-      moveDisabledReason: canMove
-        ? ''
-        : 'Only standalone tags or only child tags can be moved together.',
+      moveDisabledReason: canMove ? '' : t('move-disabled-reason'),
       clearSelection: () => table.setRowSelection({}),
     };
-  }, [selectedRows, table]);
+  }, [selectedRows, table, t]);
 };

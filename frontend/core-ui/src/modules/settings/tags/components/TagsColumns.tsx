@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useTagsContext } from '@/settings/tags/context/TagsContext';
 import { useTagsCrud } from '@/settings/tags/hooks/useTagsCrud';
 import { TagTableRow, useTagsView } from '@/settings/tags/hooks/useTagsView';
@@ -151,6 +152,7 @@ const DraftNameCell = ({ row }: { row: TagTableRow }) => {
   const { draft, updateDraft, closeDraft } = useTagsContext();
   const { type } = useTagsView();
   const { addTag, editTag } = useTagsCrud(type);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -165,8 +167,8 @@ const DraftNameCell = ({ row }: { row: TagTableRow }) => {
 
     if (!draft.name.trim()) {
       toast({
-        title: 'Error',
-        description: 'Tag name is required',
+        title: t('error'),
+        description: t('tag-name-required'),
         variant: 'destructive',
       });
       return null;
@@ -216,7 +218,7 @@ const DraftNameCell = ({ row }: { row: TagTableRow }) => {
           ref={inputRef}
           value={draft.name}
           placeholder={
-            draft.kind === 'group' ? 'Add group name' : 'Add tag name'
+            draft.kind === 'group' ? t('add-group-name') : t('add-tag-name')
           }
           className="h-8 w-full border-transparent bg-transparent px-0 shadow-none focus-visible:ring-0"
           onChange={(event) => updateDraft({ name: event.currentTarget.value })}
@@ -251,8 +253,8 @@ const DraftNameCell = ({ row }: { row: TagTableRow }) => {
 
               if (!draft.name.trim()) {
                 toast({
-                  title: 'Error',
-                  description: 'Tag name is required',
+                  title: t('error'),
+                  description: t('tag-name-required'),
                   variant: 'destructive',
                 });
                 return;
@@ -275,6 +277,7 @@ const DraftDescriptionCell = ({ row }: { row: TagTableRow }) => {
   const { draft, updateDraft, closeDraft } = useTagsContext();
   const { type } = useTagsView();
   const { addTag, editTag } = useTagsCrud(type);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
 
   if (!draft) return null;
 
@@ -304,7 +307,7 @@ const DraftDescriptionCell = ({ row }: { row: TagTableRow }) => {
       <Textarea
         data-tags-draft-field="description"
         value={draft.description}
-        placeholder="Add tag description..."
+        placeholder={t('add-tag-description')}
         disabled={!draft.name.trim() && !draft.savedId}
         className="min-h-0 w-full resize-none border-transparent bg-transparent px-0 py-2 text-sm shadow-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
         onFocus={() => {
@@ -346,6 +349,7 @@ const DraftDescriptionCell = ({ row }: { row: TagTableRow }) => {
 const EditableNameCell = ({ row }: { row: TagTableRow }) => {
   const { type } = useTagsView();
   const { editTag } = useTagsCrud(type);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [value, setValue] = useState(row.name || '');
   const [open, setOpen] = useState(false);
 
@@ -392,7 +396,7 @@ const EditableNameCell = ({ row }: { row: TagTableRow }) => {
               <TextOverflowTooltip value={row.name || ''} />
 
               {(row.rowType === 'group' || row.rowType === 'context-group') && (
-                <Badge className="shrink-0 text-[10px]">Group</Badge>
+                <Badge className="shrink-0 text-[10px]">{t('group')}</Badge>
               )}
             </div>
           </RecordTableTree.Trigger>
@@ -412,6 +416,7 @@ const EditableNameCell = ({ row }: { row: TagTableRow }) => {
 const EditableDescriptionCell = ({ row }: { row: TagTableRow }) => {
   const { type } = useTagsView();
   const { editTag } = useTagsCrud(type);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [value, setValue] = useState(row.description || '');
   const [open, setOpen] = useState(false);
 
@@ -435,7 +440,7 @@ const EditableDescriptionCell = ({ row }: { row: TagTableRow }) => {
             <TextOverflowTooltip value={value} />
           ) : (
             <span className="text-muted-foreground">
-              Add tag description...
+              {t('add-tag-description')}
             </span>
           )}
         </div>
@@ -452,6 +457,7 @@ const EditableDescriptionCell = ({ row }: { row: TagTableRow }) => {
 };
 
 export const useTagsColumns = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { draft, openDraft } = useTagsContext();
   const { type, tagGroups } = useTagsView();
   const { removeTag } = useTagsCrud(type);
@@ -491,7 +497,9 @@ export const useTagsColumns = () => {
       {
         id: 'name',
         accessorKey: 'name',
-        header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
+        header: () => (
+          <RecordTable.InlineHead icon={IconTag} label={t('name')} />
+        ),
         cell: ({ cell }) => <EditableNameCell row={cell.row.original} />,
         size: 460,
       },
@@ -499,7 +507,7 @@ export const useTagsColumns = () => {
         id: 'description',
         accessorKey: 'description',
         header: () => (
-          <RecordTable.InlineHead icon={IconWriting} label="Description" />
+          <RecordTable.InlineHead icon={IconWriting} label={t('description')} />
         ),
         cell: ({ cell }) => <EditableDescriptionCell row={cell.row.original} />,
         size: 420,
@@ -507,7 +515,7 @@ export const useTagsColumns = () => {
       {
         id: 'createdAt',
         accessorKey: 'createdAt',
-        header: () => <RecordTable.InlineHead label="Created At" />,
+        header: () => <RecordTable.InlineHead label={t('created-at')} />,
         cell: ({ cell }) => {
           const row = cell.row.original;
 
@@ -530,6 +538,6 @@ export const useTagsColumns = () => {
         size: 140,
       },
     ],
-    [openDraft, tagGroups],
+    [openDraft, tagGroups, t],
   );
 };

@@ -66,7 +66,7 @@ export const CustomerAddSheet = () => {
           <FocusSheet.SideBar>
             <SheetNavSidebar
               tabs={['overview', 'properties']}
-              groupLabel="General"
+              groupLabel={t('general')}
             />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1">

@@ -3,6 +3,7 @@ import { Roles } from '@/settings/team-member/constants/roles';
 import { useRoleUpsert } from '@/settings/team-member/hooks/useRoleUpsert';
 import { IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberRoleSelect = ({
   value,
@@ -13,6 +14,7 @@ export const TeamMemberRoleSelect = ({
 }) => {
   const { roleUpsert } = useRoleUpsert();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const handleRoleChange = (role: string) => {
     roleUpsert({
       variables: {
@@ -30,9 +32,9 @@ export const TeamMemberRoleSelect = ({
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Command>
-          <Command.Input placeholder="Search role" />
+          <Command.Input placeholder={t('search-role')} />
           <Command.List>
-            <Command.Empty>No results found.</Command.Empty>
+            <Command.Empty>{t('no-results-found')}</Command.Empty>
             {Object.values(Roles)
               .filter((role) => role !== 'owner')
               .map((role) => (

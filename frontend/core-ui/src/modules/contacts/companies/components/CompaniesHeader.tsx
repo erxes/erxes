@@ -4,7 +4,7 @@ import { CompanyAddSheet } from './CompanyAddSheet';
 import { useTranslation } from 'react-i18next';
 
 export const CompaniesHeader = () => {
-  const { t } = useTranslation('contact');
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const favoriteBreadcrumb = createFavoriteBreadcrumb(t('companies'));
 
   return (

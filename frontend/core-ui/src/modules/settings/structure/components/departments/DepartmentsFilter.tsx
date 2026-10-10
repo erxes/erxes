@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { DepartmentsTotalCount } from './DepartmentsTotalCount';
@@ -5,6 +6,7 @@ import { SelectDepartments } from 'ui-modules';
 import { SelectStructureStatus } from '../SelectStructureStatus';
 
 export const DepartmentsFilter = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   return (
     <PageSubHeader>
       <Filter id="departments">
@@ -15,7 +17,7 @@ export const DepartmentsFilter = () => {
               <Filter.View>
                 <Command>
                   <Filter.CommandInput
-                    placeholder="Filter"
+                    placeholder={t('filter')}
                     variant="secondary"
                     className="bg-background"
                   />
@@ -23,7 +25,7 @@ export const DepartmentsFilter = () => {
                     <Filter.SearchValueTrigger />
                     <SelectDepartments.FilterItem
                       value="parentId"
-                      label="By Parent"
+                      label={t('by-parent')}
                     />
                     <SelectStructureStatus.FilterItem />
                   </Command.List>
@@ -43,7 +45,7 @@ export const DepartmentsFilter = () => {
           <SelectDepartments.FilterBar
             mode="single"
             filterKey="parentId"
-            label="By Parent"
+            label={t('by-parent')}
           />
           <SelectStructureStatus.FilterBar />
           <DepartmentsTotalCount />

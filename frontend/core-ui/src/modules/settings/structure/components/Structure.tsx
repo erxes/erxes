@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Form,
@@ -17,6 +18,7 @@ import { StructureDetailsFormT } from '../types/structure';
 import { Can, SelectMember } from 'ui-modules';
 
 export const Structure = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const {
     structureDetail,
     loading: detailsLoading,
@@ -40,7 +42,9 @@ export const Structure = () => {
   if (error)
     return (
       <div role="alert" className="text-destructive">
-        Error loading structure: {error.message}
+        {t('error-loading-structure', {
+          message: error.message,
+        })}
       </div>
     );
 
@@ -48,7 +52,9 @@ export const Structure = () => {
     <ScrollArea className="w-full min-h-svh">
       <div className="w-full overflow-hidden flex flex-col">
         <div className="mx-auto max-w-2xl w-full relative">
-          <h2 className="font-semibold text-lg mt-4 mb-12 px-4">Structure</h2>
+          <h2 className="font-semibold text-lg mt-4 mb-12 px-4">
+            {t('structure')}
+          </h2>
           <Form {...methods}>
             <form
               className="grid grid-cols-2 gap-3"
@@ -59,7 +65,7 @@ export const Structure = () => {
                 name={'title'}
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
-                    <Form.Label>{'Name'}</Form.Label>
+                    <Form.Label>{t('name')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -72,7 +78,7 @@ export const Structure = () => {
                 name={'description'}
                 render={({ field }) => (
                   <Form.Item className="col-span-2">
-                    <Form.Label>{'description'}</Form.Label>
+                    <Form.Label>{t('description')}</Form.Label>
                     <Form.Control>
                       <Textarea {...field} rows={10} className="resize-none" />
                     </Form.Control>
@@ -85,11 +91,11 @@ export const Structure = () => {
                 name={'supervisorId'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{'supervisor'}</Form.Label>
+                    <Form.Label>{t('supervisor')}</Form.Label>
                     <SelectMember.FormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select supervisor"
+                      placeholder={t('select-supervisor')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -100,7 +106,7 @@ export const Structure = () => {
                 name={'code'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{field.name}</Form.Label>
+                    <Form.Label>{t('code')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -113,7 +119,7 @@ export const Structure = () => {
                 name={'phoneNumber'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{'Phone number'}</Form.Label>
+                    <Form.Label>{t('phone-number')}</Form.Label>
                     <Form.Control>
                       <PhoneInput
                         {...field}
@@ -132,7 +138,7 @@ export const Structure = () => {
                 name={'email'}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{'Email'}</Form.Label>
+                    <Form.Label>{t('email')}</Form.Label>
                     <Form.Control>
                       <Input {...field} type="email" />
                     </Form.Control>
@@ -146,7 +152,7 @@ export const Structure = () => {
                   className="w-1/2 ml-auto col-start-2"
                   type="submit"
                 >
-                  Update
+                  {t('update')}
                 </Button>
               </Can>
             </form>

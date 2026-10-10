@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@apollo/client';
 
 import { useConfirm, useToast } from 'erxes-ui';
@@ -10,6 +11,7 @@ import {
 const useConfig = () => {
   const { toast } = useToast();
   const { confirm } = useConfirm();
+  const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
   const confirmOptions = { confirmationValue: 'update' };
 
   const { data, loading } = useQuery(fileSettingsQueries.GET_CONFIGS, {
@@ -25,15 +27,15 @@ const useConfig = () => {
         // A silently failed save reads as a saved one, and the admin walks
         // away believing a setting is in effect that never reached the server.
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
       },
       onCompleted() {
         toast({
-          title: 'Success',
-          description: 'Configs updated successfully',
+          title: t('success'),
+          description: t('configs-updated-successfully'),
           variant: 'success',
         });
       },
@@ -51,7 +53,7 @@ const useConfig = () => {
     }
 
     confirm({
-      message: 'Are you sure you want to update file configs?',
+      message: t('confirm-update-configs'),
       options: confirmOptions,
     })
       .then(() => update({ variables: { configsMap: { ...args } } }))

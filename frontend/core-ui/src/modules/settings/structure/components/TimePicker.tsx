@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useRef, useState } from 'react';
 import { IMask, IMaskInput } from 'react-imask';
 import { parse, isValid, format } from 'date-fns';
@@ -16,6 +17,7 @@ export const TimePicker: React.FC<
   > &
     TimeInputProps
 > = ({ value, onChange, className, ...props }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [inputValue, setInputValue] = useState(format(value, 'hh:mm a'));
   const [error, setError] = useState<string | null>(null);
   const ref = useRef(null);
@@ -26,7 +28,7 @@ export const TimePicker: React.FC<
       setError(null);
       onChange?.(parsed);
     } else {
-      setError('Invalid time');
+      setError(t('invalid-time'));
     }
   };
 

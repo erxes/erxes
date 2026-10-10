@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/table-core';
 import { IPositionListItem } from '../../types/position';
 import {
@@ -17,13 +18,15 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { PositionsMoreColumn } from './PositionsMoreColumn';
 
-export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
+export const PositionsColumns = (
+  t: TFunction,
+): ColumnDef<IPositionListItem>[] => [
   PositionsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IPositionListItem>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original || {};
       const { positionsEdit, loading } = usePositionInlineEdit();
@@ -77,7 +80,7 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="title" />,
+    header: () => <RecordTable.InlineHead label={t('title')} />,
     cell: ({ cell }) => {
       const { _id, code, title } = cell.row.original || {};
       const { positionsEdit, loading } = usePositionInlineEdit();
@@ -126,7 +129,7 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="parent" />,
+    header: () => <RecordTable.InlineHead label={t('parent')} />,
     cell: ({ cell }) => {
       const { _id, code } = cell.row.original || {};
       const { positionsEdit } = usePositionInlineEdit();
@@ -155,7 +158,7 @@ export const PositionsColumns: ColumnDef<IPositionListItem>[] = [
   {
     id: 'userCount',
     accessorKey: 'userCount',
-    header: () => <RecordTable.InlineHead label="team member count" />,
+    header: () => <RecordTable.InlineHead label={t('team-member-count')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="justify-center">

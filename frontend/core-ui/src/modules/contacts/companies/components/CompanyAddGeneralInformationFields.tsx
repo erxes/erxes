@@ -12,12 +12,17 @@ import {
 } from 'erxes-ui';
 import { SelectCompany, SelectMember } from 'ui-modules';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
-import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from 'ui-modules/modules/contacts/constants/companyConstants';
+import {
+  COMPANY_BUSINESS_TYPES,
+  DEFAULT_COMPANY_INDUSTRY_TYPES,
+} from 'ui-modules/modules/contacts/constants/companyConstants';
 
-const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter((i) => i).map((i) => ({
-  label: i,
-  value: i,
-}));
+const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter((i) => i).map(
+  (i) => ({
+    label: i,
+    value: i,
+  }),
+);
 
 export const CompanyAddGeneralInformationFields = ({
   form,
@@ -56,7 +61,10 @@ export const CompanyAddGeneralInformationFields = ({
                     />
                   </div>
                   <Form.Description>
-                    {t('upload-description', 'Upload an avatar for the company')}
+                    {t(
+                      'upload-description',
+                      'Upload an avatar for the company',
+                    )}
                   </Form.Description>
                 </div>
               </Upload.Root>
@@ -105,7 +113,10 @@ export const CompanyAddGeneralInformationFields = ({
                   <SelectMember.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder={t('company.field.owner-placeholder', 'Select owner')}
+                    placeholder={t(
+                      'company.field.owner-placeholder',
+                      'Select owner',
+                    )}
                   />
                 </div>
               </Form.Control>
@@ -189,7 +200,10 @@ export const CompanyAddGeneralInformationFields = ({
                   defaultOptions={INDUSTRY_OPTIONS}
                   value={field.value}
                   onChange={field.onChange}
-                  placeholder={t('company.field.industry-placeholder', 'Select industries')}
+                  placeholder={t(
+                    'company.field.industry-placeholder',
+                    'Select industries',
+                  )}
                 />
               </Form.Control>
               <Form.Message />
@@ -208,7 +222,9 @@ export const CompanyAddGeneralInformationFields = ({
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <Form.Control>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select country" />
+                    <Select.Value
+                      placeholder={t('company.field.location-placeholder')}
+                    />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
@@ -245,7 +261,7 @@ export const CompanyAddGeneralInformationFields = ({
                       <Select.Item key={index} value={type}>
                         {type}
                       </Select.Item>
-                    )
+                    ),
                   )}
                 </Select.Content>
               </Select>
@@ -274,7 +290,9 @@ export const CompanyAddGeneralInformationFields = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('company.field.description', 'Description')}</Form.Label>
+            <Form.Label>
+              {t('company.field.description', 'Description')}
+            </Form.Label>
             <Form.Control>
               <Editor
                 initialContent={field.value}

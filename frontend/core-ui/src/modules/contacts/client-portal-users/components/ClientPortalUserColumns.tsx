@@ -8,6 +8,7 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TFunction } from 'i18next';
 import {
   Badge,
   RecordTable,
@@ -25,13 +26,13 @@ function displayName(user: ICPUser) {
   return user.email || user.phone || user.username || '-';
 }
 
-export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
+export const clientPortalUserColumns = (t: TFunction): ColumnDef<ICPUser>[] => [
   clientPortalUserMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICPUser>,
   {
     id: 'name',
     accessorKey: 'firstName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
     cell: ({ cell }) => {
       const row = cell.row.original;
       const [, setCpUserId] = useQueryState<string>('cpUserId');
@@ -48,7 +49,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'email',
     accessorKey: 'email',
-    header: () => <RecordTable.InlineHead icon={IconMail} label="Email" />,
+    header: () => <RecordTable.InlineHead icon={IconMail} label={t('email')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -58,7 +59,9 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'phone',
     accessorKey: 'phone',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Phone" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconPhone} label={t('phone')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -68,7 +71,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'type',
     accessorKey: 'type',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Type" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('type')} />,
     cell: ({ cell }) => {
       const type = cell.getValue() as string;
       return (
@@ -86,7 +89,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'companyName',
     accessorKey: 'companyName',
     header: () => (
-      <RecordTable.InlineHead icon={IconBuilding} label="Company" />
+      <RecordTable.InlineHead icon={IconBuilding} label={t('company')} />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -98,7 +101,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'clientPortal',
     accessorKey: 'clientPortal',
     header: () => (
-      <RecordTable.InlineHead icon={IconWorld} label="Client portal" />
+      <RecordTable.InlineHead icon={IconWorld} label={t('client-portal')} />
     ),
     cell: ({ cell }) => {
       const clientPortal = cell.getValue() as ICPUser['clientPortal'];
@@ -112,13 +115,15 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
   {
     id: 'isVerified',
     accessorKey: 'isVerified',
-    header: () => <RecordTable.InlineHead icon={IconCheck} label="Verified" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCheck} label={t('verified')} />
+    ),
     cell: ({ cell }) => {
       const isVerified = cell.getValue() as boolean;
       return (
         <RecordTableInlineCell>
           <Badge variant={isVerified ? 'success' : 'secondary'}>
-            {isVerified ? 'Yes' : 'No'}
+            {isVerified ? t('yes') : t('no')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -128,7 +133,7 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created')} />
     ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>

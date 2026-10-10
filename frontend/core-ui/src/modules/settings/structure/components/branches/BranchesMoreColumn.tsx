@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { IconEdit, IconClock, IconTrash } from '@tabler/icons-react';
@@ -20,6 +21,7 @@ export const BranchesMoreColumnCell = ({
 }: {
   cell: Cell<IBranchListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original;
   const [, setOpenBranch] = useQueryState('branch_id');
   const [, setOpenWorkingHours] = useQueryState('workingHoursId');
@@ -29,13 +31,13 @@ export const BranchesMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${title}"?`,
+      message: t('confirm-delete-item', { title }),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +62,7 @@ export const BranchesMoreColumnCell = ({
                   setRenderingBranchDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit')}
               </Command.Item>
             </Can>
             <Can action="branchesManage">
@@ -71,7 +73,7 @@ export const BranchesMoreColumnCell = ({
                   setRenderingBranchDetail(false);
                 }}
               >
-                <IconClock /> Working Hours
+                <IconClock /> {t('working-hours')}
               </Command.Item>
             </Can>
             <Can action="branchesManage">
@@ -80,7 +82,7 @@ export const BranchesMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete')}
               </Command.Item>
             </Can>
           </Command.List>

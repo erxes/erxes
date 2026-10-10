@@ -66,6 +66,9 @@ export function CPUserDetail() {
 }
 
 function CPUserDetailEmptyState() {
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'clientPortalUser.detail',
+  });
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -73,10 +76,8 @@ function CPUserDetailEmptyState() {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>Client Portal User not found</Empty.Title>
-          <Empty.Description>
-            There seems to be no client portal user with this ID.
-          </Empty.Description>
+          <Empty.Title>{t('not-found')}</Empty.Title>
+          <Empty.Description>{t('not-found-description')}</Empty.Description>
         </Empty.Header>
       </Empty>
     </div>
@@ -84,6 +85,9 @@ function CPUserDetailEmptyState() {
 }
 
 function CPUserDetailErrorState() {
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'clientPortalUser.detail',
+  });
   const { error } = useClientPortalUser();
   return (
     <div className="flex items-center justify-center h-full">
@@ -92,7 +96,7 @@ function CPUserDetailErrorState() {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error-title')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

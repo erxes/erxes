@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Table, useToast } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
@@ -5,6 +6,7 @@ import { isAddingAppAtom } from '@/settings/apps/state';
 import { useAppsAdd } from '@/settings/apps/hooks/useAppsAdd';
 
 export const AppsAddRow = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const setIsAddingApp = useSetAtom(isAddingAppAtom);
   const { appsAdd, loading } = useAppsAdd();
   const { toast } = useToast();
@@ -36,7 +38,7 @@ export const AppsAddRow = () => {
       onError: (error) => {
         handledRef.current = false;
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -66,7 +68,7 @@ export const AppsAddRow = () => {
                 cancel();
               }
             }}
-            placeholder="My App"
+            placeholder={t('my-app')}
             className="w-full bg-transparent text-sm px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset focus:ring-primary rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none"
           />
         </div>

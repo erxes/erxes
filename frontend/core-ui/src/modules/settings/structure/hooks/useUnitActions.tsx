@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationHookOptions,
   OperationVariables,
@@ -42,10 +43,14 @@ export function useUnitEdit(options?: MutationHookOptions<AddUnitResult, any>) {
 }
 
 export function useRemoveUnit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_UNITS, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully'),
+        variant: 'success',
+      }),
     refetchQueries: ['Units'],
   });
 
@@ -57,6 +62,7 @@ export function useRemoveUnit() {
 }
 
 export function useUnitInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_unitsEdit, { loading }] = useMutation(EDIT_UNIT);
   const { toast } = useToast();
 
@@ -83,7 +89,7 @@ export function useUnitInlineEdit() {
       onCompleted: (data) => {
         if (data?.unitsEdit) {
           toast({
-            title: 'Unit updated successfully!',
+            title: t('unit-updated-toast'),
             variant: 'success',
           });
         }

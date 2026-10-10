@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   REMOVE_VERIFIED_SENDER,
   SENDER_OPTIONS,
@@ -64,6 +65,7 @@ export const useSenderOptions = () => {
 
 export const useVerifySender = () => {
   const scope = useEmailSenderScope();
+  const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
   const [_verifySender, { loading }] = useMutation(VERIFY_SENDER);
 
   const verifySender = async (
@@ -76,7 +78,7 @@ export const useVerifySender = () => {
       refetchQueries: [SENDER_OPTIONS],
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -89,6 +91,7 @@ export const useVerifySender = () => {
 
 export const useRemoveVerifiedSender = () => {
   const scope = useEmailSenderScope();
+  const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
   const [_removeVerifiedSender, { loading }] = useMutation(
     REMOVE_VERIFIED_SENDER,
   );
@@ -103,13 +106,13 @@ export const useRemoveVerifiedSender = () => {
       refetchQueries: [SENDER_OPTIONS],
       onCompleted: () => {
         toast({
-          title: 'Sender removed successfully',
+          title: t('sender-removed-successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import {
   Button,
@@ -19,6 +20,7 @@ import { useBranchAdd } from '../../hooks/useBranchActions';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateBranch = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const {
     methods,
     methods: { handleSubmit },
@@ -57,16 +59,16 @@ export const CreateBranch = () => {
         variables: data,
         onCompleted: () => {
           toast({
-            title: 'Success!',
+            title: t('success'),
             variant: 'success',
-            description: 'Branch created successfully',
+            description: t('branch-created'),
           });
           methods.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -79,7 +81,7 @@ export const CreateBranch = () => {
       <Can action="branchesManage">
         <Sheet.Trigger asChild>
           <Button>
-            <IconPlus /> Create Branch
+            <IconPlus /> {t('create-branch')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -98,7 +100,7 @@ export const CreateBranch = () => {
             <Sheet.Header>
               <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconGitBranch size={16} />
-                Create branch
+                {t('create-branch-title')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -107,10 +109,10 @@ export const CreateBranch = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Create'}
+                {loading ? <Spinner /> : t('create')}
               </Button>
             </Sheet.Footer>
           </form>

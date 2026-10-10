@@ -100,7 +100,9 @@
     "exit-settings": "Exit Settings",
     "approval-requests": "Approval Requests",
     "favorites": "Favorites",
-    "my-inbox": "My inbox"
+    "my-inbox": "My inbox",
+    "experience": "Experience",
+    "appearance": "Appearance"
   },
   "plugin": {
     "_": "Plugin",

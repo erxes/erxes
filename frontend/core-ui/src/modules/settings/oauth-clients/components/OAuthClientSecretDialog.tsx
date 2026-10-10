@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCheck, IconCopy, IconKey } from '@tabler/icons-react';
 import { Button, Dialog, Input, Label, useToast } from 'erxes-ui';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ const CopyableField = ({
   value?: string;
   copiedMessage: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -25,7 +27,7 @@ const CopyableField = ({
       toast({ variant: 'success', title: copiedMessage });
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy to clipboard' });
+      toast({ variant: 'destructive', title: t('copy-to-clipboard-failed') });
     }
   };
 
@@ -44,7 +46,7 @@ const CopyableField = ({
           size="icon"
           onClick={handleCopy}
           disabled={!value}
-          aria-label={`Copy ${label}`}
+          aria-label={t('copy-label', { label })}
         >
           {copied ? <IconCheck /> : <IconCopy />}
         </Button>
@@ -66,41 +68,42 @@ export const OAuthClientSecretDialog = ({
   clientId?: string;
   secret?: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-xl">
         <Dialog.Header>
           <Dialog.Title className="flex items-center gap-2">
             <IconKey size={18} />
-            Client secret created
+            {t('secret-created')}
           </Dialog.Title>
           <Dialog.Description>
-            Save this secret for {clientName}. It will not be shown again after
-            closing this dialog.
+            {t('secret-save-notice', { clientName })}
           </Dialog.Description>
         </Dialog.Header>
 
         <div className="space-y-3">
           <CopyableField
             id="oauth-client-id"
-            label="Client ID"
+            label={t('client-id')}
             value={clientId}
-            copiedMessage="Client ID copied to clipboard"
+            copiedMessage={t('client-id-copied')}
           />
           <CopyableField
             id="oauth-client-secret"
-            label="Client secret"
+            label={t('client-secret')}
             value={secret}
-            copiedMessage="Client secret copied to clipboard"
+            copiedMessage={t('secret-copied')}
           />
           <div className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-            Keep this secret in a secure server-side store before you continue.
+            {t('secret-keep-safe')}
           </div>
         </div>
 
         <Dialog.Footer>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            Close
+            {t('close')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

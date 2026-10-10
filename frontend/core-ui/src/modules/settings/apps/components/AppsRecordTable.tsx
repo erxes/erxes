@@ -12,10 +12,16 @@ import { EmptyState } from '@/settings/components/EmptyState';
 import { useTranslation } from 'react-i18next';
 
 export function AppsRecordTable() {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const { apps, loading, error } = useApps();
-  const { t } = useTranslation('settings', { keyPrefix: 'app-tokens' });
+  const { t: tAppTokens } = useTranslation('settings', {
+    keyPrefix: 'app-tokens',
+  });
   const isAddingApp = useAtomValue(isAddingAppAtom);
-  const columns = useMemo(() => [...appsSettingsColumns, appsMoreColumn], []);
+  const columns = useMemo(
+    () => [...appsSettingsColumns(t), appsMoreColumn],
+    [t],
+  );
 
   const isEmpty = !loading && !error && !isAddingApp && apps.length === 0;
 
@@ -36,7 +42,10 @@ export function AppsRecordTable() {
           </RecordTable.Body>
         </RecordTable>
         {isEmpty && (
-          <EmptyState icon={IconArchiveOff} title={t('no-app-tokens-found')} />
+          <EmptyState
+            icon={IconArchiveOff}
+            title={tAppTokens('no-app-tokens-found')}
+          />
         )}
       </RecordTable.Scroll>
       <AppsCommandBar />

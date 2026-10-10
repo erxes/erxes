@@ -154,8 +154,12 @@ export function AddCPUserForm({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">Customer</Select.Item>
-                          <Select.Item value="company">Company</Select.Item>
+                          <Select.Item value="customer">
+                            {t('type-customer')}
+                          </Select.Item>
+                          <Select.Item value="company">
+                            {t('type-company')}
+                          </Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -172,7 +176,7 @@ export function AddCPUserForm({
                   field: ControllerRenderProps<CPUserAddFormType, 'email'>;
                 }) => (
                   <Form.Item>
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label>{t('email')}</Form.Label>
                     <Form.Control>
                       <Input {...field} placeholder="email@example.com" />
                     </Form.Control>

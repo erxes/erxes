@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { QueryHookOptions } from '@apollo/client';
 
 import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
@@ -9,6 +10,7 @@ import { useEffect } from 'react';
 export const useCustomerDetailWithQuery = (
   options?: QueryHookOptions<{ customerDetail: ICustomerDetail }>,
 ) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [_id] = useQueryState('contactId');
   const setRendering = useSetAtom(renderingCustomerDetailAtom);
 
@@ -25,7 +27,7 @@ export const useCustomerDetailWithQuery = (
       setRendering(false);
       if (error) {
         toast({
-          title: 'Error',
+          title: t('error-title'),
           description: error.message,
           variant: 'destructive',
         });

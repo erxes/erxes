@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -5,6 +6,7 @@ import { IconApi } from '@tabler/icons-react';
 import { CreateOAuthClient } from './CreateOAuthClient';
 
 export function OAuthClientsHeader() {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -14,7 +16,7 @@ export function OAuthClientsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/oauth-clients">
                   <IconApi />
-                  OAuth clients
+                  {t('title')}
                 </Link>
               </Button>
             </Breadcrumb.Item>

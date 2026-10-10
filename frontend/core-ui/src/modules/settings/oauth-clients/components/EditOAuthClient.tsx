@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconApi } from '@tabler/icons-react';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React from 'react';
@@ -22,6 +23,7 @@ const getDefaultAccessTokenLifetime = (
 };
 
 export const EditOAuthClient = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { toast } = useToast();
   const [editingOAuthClient, setEditingOAuthClient] = useAtom(
     editingOAuthClientAtom,
@@ -76,7 +78,7 @@ export const EditOAuthClient = () => {
         onCompleted: ({ oauthClientAppsEdit: oauthClientApp }) => {
           toast({
             variant: 'success',
-            title: 'OAuth client updated successfully',
+            title: t('client-updated'),
           });
           if (oauthClientApp?.generatedSecret) {
             setRevealedSecret({
@@ -89,13 +91,13 @@ export const EditOAuthClient = () => {
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
       });
     },
-    [oauthClientAppsEdit, editingOAuthClient, toast],
+    [oauthClientAppsEdit, editingOAuthClient, toast, t],
   );
 
   return (
@@ -112,7 +114,7 @@ export const EditOAuthClient = () => {
             >
               <Sheet.Header>
                 <IconApi />
-                <Sheet.Title>Edit OAuth client</Sheet.Title>
+                <Sheet.Title>{t('edit-oauth-client')}</Sheet.Title>
                 <Sheet.Close />
               </Sheet.Header>
               <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -120,10 +122,10 @@ export const EditOAuthClient = () => {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant="secondary" onClick={onClose}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : 'Update client'}
+                  {loading ? <Spinner /> : t('update-client')}
                 </Button>
               </Sheet.Footer>
             </form>
@@ -134,7 +136,7 @@ export const EditOAuthClient = () => {
       <OAuthClientSecretDialog
         open={!!revealedSecret}
         onOpenChange={(nextOpen) => !nextOpen && setRevealedSecret(null)}
-        clientName={revealedSecret?.clientName || 'OAuth client'}
+        clientName={revealedSecret?.clientName || t('oauth-client')}
         clientId={revealedSecret?.clientId}
         secret={revealedSecret?.secret}
       />

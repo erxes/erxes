@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   EMAIL_LANE_OPTIONS,
   EMAIL_SUPPRESSION_REASON_OPTIONS,
@@ -7,6 +8,7 @@ import { IconBan, IconTargetArrow } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 
 export const EmailAddressesFilterPopover = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-addresses' });
   const [queries] = useMultiQueryState<{
     lane: string;
     suppressionReason: string;
@@ -25,18 +27,18 @@ export const EmailAddressesFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="lane">
                   <IconTargetArrow />
-                  Standing
+                  {t('standing')}
                 </Filter.Item>
                 <Filter.Item value="suppressionReason">
                   <IconBan />
-                  Closed for
+                  {t('closed-for')}
                 </Filter.Item>
                 <Filter.SearchValueTrigger />
               </Command.List>

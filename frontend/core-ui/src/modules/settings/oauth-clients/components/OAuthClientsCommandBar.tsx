@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -11,6 +12,7 @@ import { useOAuthClientsRemove } from '../hooks/useOAuthClientsRemove';
 import { Can } from 'ui-modules';
 
 export const OAuthClientsCommandBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { table } = RecordTable.useRecordTable();
   const { oauthClientAppsRemove } = useOAuthClientsRemove();
   const { confirm } = useConfirm();
@@ -21,7 +23,7 @@ export const OAuthClientsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: `Are you sure you want to remove the selected (${ids.length})?`,
+      message: t('confirm-remove-selected', { total: ids.length }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {
@@ -31,7 +33,7 @@ export const OAuthClientsCommandBar = () => {
               variables: { _id },
               onError: (error) => {
                 toast({
-                  title: 'Error',
+                  title: t('error'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -51,14 +53,16 @@ export const OAuthClientsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={handleClose}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected-count', {
+            total: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Can action="appsManage">
           <>
             <Separator.Inline />
             <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete')}
             </Button>
           </>
         </Can>

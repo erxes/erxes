@@ -12,6 +12,9 @@ export const CustomerMoreColumnCell = ({
   cell: Cell<ICustomer, unknown>;
 }) => {
   const { t } = useTranslation('broadcasts');
+  const { t: tContact } = useTranslation('contact', {
+    keyPrefix: 'customer',
+  });
   const { setContacts } = useBroadcastContacts();
   const [searchParams, setSearchParams] = useSearchParams();
   const { _id } = cell.row.original;
@@ -41,7 +44,7 @@ export const CustomerMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => setOpen(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {tContact('action-edit')}
             </Command.Item>
             <Can action="broadcastCreate">
               <Command.Item

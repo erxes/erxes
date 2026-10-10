@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPhoto, IconTrash, IconUpload } from '@tabler/icons-react';
 import { useRef } from 'react';
 
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const inputRef = useRef<HTMLInputElement>(null);
   const { isLoading, upload } = useUpload();
 
@@ -71,7 +73,7 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
             onClick={handleClick}
           >
             {isLoading ? <Spinner /> : <IconUpload className="size-4" />}
-            {value ? 'Change' : 'Upload'}
+            {value ? t('change') : t('upload')}
           </Button>
 
           {value ? (
@@ -83,14 +85,12 @@ export const OAuthClientLogoUpload = ({ value, onChange, disabled }: Props) => {
               onClick={handleRemove}
             >
               <IconTrash className="size-4" />
-              Remove
+              {t('remove')}
             </Button>
           ) : null}
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          PNG, JPG, SVG — max 2 MB
-        </p>
+        <p className="text-xs text-muted-foreground">{t('logo-hint')}</p>
       </div>
 
       <input

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AddSenderDialog } from '@/settings/mail-config/components/AddSenderDialog';
 import { useSenderCreation } from '@/settings/mail-config/hooks/useSenderCreation';
 import {
@@ -18,6 +19,7 @@ export const SelectVerifiedSender = ({
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
   const [search, setSearch] = useState('');
 
   const { singleSenders, loading, refetch } = useSenderOptions();
@@ -47,14 +49,14 @@ export const SelectVerifiedSender = ({
             <Command.Input
               value={search}
               onValueChange={setSearch}
-              placeholder="Search senders..."
+              placeholder={t('search-senders-ellipsis')}
             />
             <Command.List className="max-h-[300px] overflow-y-auto">
               <Combobox.Empty loading={loading} />
 
               {!loading && confirmed.length === 0 && (
                 <div className="p-4 text-center text-muted-foreground text-sm">
-                  No confirmed senders yet.
+                  {t('no-confirmed-senders')}
                 </div>
               )}
 
@@ -89,7 +91,7 @@ export const SelectVerifiedSender = ({
                     onClick={handleAdd}
                   >
                     <IconMailPlus />
-                    Add a sender address
+                    {t('add-sender-address')}
                   </Button>
                   <Button variant="ghost" onClick={refetch}>
                     <IconRefresh />

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconFolder } from '@tabler/icons-react';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React, { useEffect } from 'react';
@@ -11,6 +12,7 @@ import { DepartmentForm } from '../DepartmentForm';
 import { Can } from 'ui-modules';
 
 export const DepartmentEdit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('department_id');
@@ -45,16 +47,16 @@ export const DepartmentEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success'),
           variant: 'success',
-          description: 'Department updated successfully',
+          description: t('department-updated'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -97,11 +99,11 @@ export const DepartmentEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Can action="departmentsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save')}
                 </Button>
               </Can>
             </Sheet.Footer>

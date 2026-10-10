@@ -20,9 +20,7 @@ export const CompanyAddSheet = () => {
 
   const onOpen = () => {
     setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(
-      ContactsHotKeyScope.CompanyAddSheet,
-    );
+    setHotkeyScopeAndMemorizePreviousScope(ContactsHotKeyScope.CompanyAddSheet);
   };
 
   const onClose = () => {
@@ -31,11 +29,7 @@ export const CompanyAddSheet = () => {
   };
 
   useScopedHotkeys(`c`, () => onOpen(), ContactsHotKeyScope.CompaniesPage);
-  useScopedHotkeys(
-    `esc`,
-    () => onClose(),
-    ContactsHotKeyScope.CompanyAddSheet,
-  );
+  useScopedHotkeys(`esc`, () => onClose(), ContactsHotKeyScope.CompanyAddSheet);
 
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
@@ -54,7 +48,9 @@ export const CompanyAddSheet = () => {
       >
         <Sheet.Header className="p-5">
           <Sheet.Title>{t('company.add._', 'Add company')}</Sheet.Title>
-          <Sheet.Description className="sr-only">Add a new company</Sheet.Description>
+          <Sheet.Description className="sr-only">
+            {t('company.add.description')}
+          </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
         <AddCompanyForm onOpenChange={setOpen} />
@@ -69,7 +65,7 @@ export const CompanyAddSheetHeader = () => {
     <Sheet.Header className="p-5">
       <Sheet.Title>{t('_', 'Add Company')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new company
+        {t('description')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

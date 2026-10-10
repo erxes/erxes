@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useTagsContext } from '@/settings/tags/context/TagsContext';
 import { useTagsBulkActions } from '@/settings/tags/hooks/useTagsBulkActions';
 import { TagTableRow, useTagsView } from '@/settings/tags/hooks/useTagsView';
@@ -31,6 +32,7 @@ const MoveToGroupButton = ({
   canMove: boolean;
   moveDisabledReason: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { type } = useTagsView();
   const { editTag } = useTagsCrud(type);
   const { clearSelection } = useTagsBulkActions();
@@ -53,12 +55,12 @@ const MoveToGroupButton = ({
       <Popover.Trigger asChild>
         <Button variant="secondary" disabled={!canMove}>
           <IconArrowsMove />
-          Move to Group
+          {t('move-to-group')}
         </Button>
       </Popover.Trigger>
       <Combobox.Content className="min-w-56">
         <Command>
-          <Command.Input placeholder="Select destination group" />
+          <Command.Input placeholder={t('select-destination-group')} />
           <Command.List>
             {/* <Command.Item onSelect={() => handleMove(null)}>
               No group
@@ -96,6 +98,7 @@ const MoveToGroupButton = ({
 };
 
 export const TagsCommandBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { table } = RecordTable.useRecordTable();
   const { draft } = useTagsContext();
   const { type, tagGroups } = useTagsView();
@@ -106,7 +109,7 @@ export const TagsCommandBar = () => {
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete the selected (${count}) tags?`,
+      message: t('confirm-delete-selected', { total: count }),
       options: {
         confirmationValue: 'delete',
       },
@@ -120,14 +123,14 @@ export const TagsCommandBar = () => {
     <CommandBar open={!draft && count > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {count} selected
+          {t('selected-count', { total: count })}
         </CommandBar.Value>
         <Can action="tagsDelete">
           <>
             <Separator.Inline />
             <Button variant="secondary" onClick={handleDelete}>
               <IconTrash />
-              Delete
+              {t('delete')}
             </Button>
           </>
         </Can>

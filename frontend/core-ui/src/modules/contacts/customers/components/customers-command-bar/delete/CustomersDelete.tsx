@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import { Command, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useRemoveCustomers } from '@/contacts/customers/hooks/useRemoveCustomers';
@@ -14,17 +15,18 @@ export const CustomersDelete = ({
   const { removeCustomers } = useRemoveCustomers();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
     <Command.Item
       className="text-destructive"
       onSelect={() =>
         confirm({
-          message: `Are you sure you want to delete the ${customerIds.length} selected customers?`,
+          message: t('confirm-delete-selected', { count: customerIds.length }),
         }).then(() => {
           removeCustomers(customerIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error-title'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -33,9 +35,9 @@ export const CustomersDelete = ({
               table.setRowSelection({});
               onCompleted();
               toast({
-                title: 'Success',
+                title: t('success-title'),
                 variant: 'success',
-                description: 'Customers deleted successfully',
+                description: t('deleted-success'),
               });
             },
           });
@@ -43,7 +45,7 @@ export const CustomersDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('action-delete')}
     </Command.Item>
   );
 };

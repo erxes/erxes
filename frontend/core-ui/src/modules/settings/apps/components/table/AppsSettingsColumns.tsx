@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { IApp } from '@/settings/apps/types';
 import { useAppsEdit } from '@/settings/apps/hooks/useAppsEdit';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { Cell } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import {
@@ -20,6 +22,7 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(name);
   const { appsEdit, loading } = useAppsEdit();
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const { toast } = useToast();
 
   const onSave = () => {
@@ -34,7 +37,7 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
         onError: (error) => {
           setValue(name);
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -83,6 +86,7 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
 };
 
 const TokenCell = ({ token }: { token: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const masked = `${token.slice(0, 6)}...................`;
@@ -91,10 +95,16 @@ const TokenCell = ({ token }: { token: string }) => {
     try {
       await navigator.clipboard.writeText(token);
       setCopied(true);
-      toast({ variant: 'success', title: 'Token copied to clipboard' });
+      toast({
+        variant: 'success',
+        title: t('token-copied'),
+      });
       setTimeout(() => setCopied(false), 1000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy token' });
+      toast({
+        variant: 'destructive',
+        title: t('failed-to-copy-token'),
+      });
     }
   };
 
@@ -111,24 +121,24 @@ const TokenCell = ({ token }: { token: string }) => {
   );
 };
 
-export const appsSettingsColumns: ColumnDef<IApp>[] = [
+export const appsSettingsColumns = (t: TFunction): ColumnDef<IApp>[] => [
   { ...RecordTable.checkboxColumn, size: 33 } as ColumnDef<IApp>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'App Name',
+    header: t('app-name'),
     cell: ({ cell }) => <AppNameCell cell={cell} />,
   },
   {
     id: 'token',
     accessorKey: 'token',
-    header: 'Token',
+    header: t('token'),
     cell: ({ cell }) => <TokenCell token={cell.getValue() as string} />,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: 'Status',
+    header: t('status'),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (
@@ -143,7 +153,7 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: 'Created At',
+    header: t('created-at'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {format(new Date(cell.getValue() as string), 'yyyy/MM/dd') ||

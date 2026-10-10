@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { Breadcrumb, Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { isAddingAppAtom } from '../state';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 
 export function AppsHeader() {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const [isAddingApp, setIsAddingApp] = useAtom(isAddingAppAtom);
 
   useScopedHotkeys(
@@ -26,7 +28,7 @@ export function AppsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/app-tokens">
                   <IconShieldCog />
-                  Apps
+                  {t('apps')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -37,7 +39,7 @@ export function AppsHeader() {
         <Can action="appsManage">
           <Button disabled={isAddingApp} onClick={() => setIsAddingApp(true)}>
             <IconPlus />
-            Create App
+            {t('create-app')}
             <Kbd>C</Kbd>
           </Button>
         </Can>

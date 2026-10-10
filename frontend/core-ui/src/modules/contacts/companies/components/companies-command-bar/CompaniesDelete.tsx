@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, useConfirm, useToast, RecordTable } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
@@ -7,6 +8,7 @@ export const CompaniesDelete = ({ companyIds }: { companyIds: string[] }) => {
   const { confirm } = useConfirm();
   const { removeCompanies } = useRemoveCompanies();
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { table } = RecordTable.useRecordTable();
   return (
     <Button
@@ -14,7 +16,7 @@ export const CompaniesDelete = ({ companyIds }: { companyIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${companyIds.length} selected companies?`,
+          message: t('confirm-delete-selected', { count: companyIds.length }),
         }).then(() => {
           removeCompanies({
             variables: {
@@ -22,7 +24,7 @@ export const CompaniesDelete = ({ companyIds }: { companyIds: string[] }) => {
             },
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error-title'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -30,9 +32,9 @@ export const CompaniesDelete = ({ companyIds }: { companyIds: string[] }) => {
             onCompleted: () => {
               table.setRowSelection({});
               toast({
-                title: 'Success',
+                title: t('success-title'),
                 variant: 'success',
-                description: 'Companies deleted successfully',
+                description: t('deleted-success'),
               });
             },
           });
@@ -40,7 +42,7 @@ export const CompaniesDelete = ({ companyIds }: { companyIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('action-delete')}
     </Button>
   );
 };
