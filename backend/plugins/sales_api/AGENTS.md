@@ -32,8 +32,10 @@
 
 ## Current Capabilities
 
-- POS catalog sync checks loyalty base pricing sequentially in batches of 100
-  products and merges discounts by product id before applying them to prices.
+- POS catalog sync checks loyalty base pricing in batches of 100 products,
+  with at most four concurrent requests, and merges discounts by product id
+  before applying them to prices. Product-group pushes propagate POS client
+  transport/import errors instead of silently reporting success.
 - Internal POS cancellation removes token-owned unpaid synced POS orders without
   successful/unresolved eBarimt receipts and refunds their loyalty points.
   Returned orders are retained; missing orders allow idempotent retries.
@@ -229,6 +231,9 @@
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.
+- Catalog pricing may have at most four requests in flight; never launch all
+  catalog batches at once. Product-group sync opts into `throwOnError` when
+  sending through `sendPosclientMessage`.
 - Non-array synced eBarimt receipt results throw `TypeError` before deletion.
 - POS cancellation requires matching `posId` and `posToken`; paid orders
   (`paidDate` set), including internal/temporary receipts without eBarimt,

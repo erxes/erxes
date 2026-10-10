@@ -15,29 +15,35 @@ export const getProductPricing = async (
   const pricing: ProductPricing = {};
 
   // Query inputs travel in the URL; keep catalog sync requests small.
-  for (const batch of chunkArray(products, 100)) {
-    const batchPricing: ProductPricing = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      module: 'pricing',
-      action: 'checkPricing',
-      throwOnError: true,
-      input: {
-        prioritizeRule: 'only',
-        totalAmount: 0,
-        departmentId: pos.departmentId,
-        branchId: pos.branchId,
-        products: batch.map((product) => ({
-          itemId: product._id,
-          productId: product._id,
-          quantity: 1,
-          price: product.unitPrice,
-        })),
-      },
-      defaultValue: {},
-    });
+  for (const batches of chunkArray(chunkArray(products, 100), 4)) {
+    const batchResults: ProductPricing[] = await Promise.all(
+      batches.map((batch) =>
+        sendTRPCMessage({
+          subdomain,
+          pluginName: 'loyalty',
+          module: 'pricing',
+          action: 'checkPricing',
+          throwOnError: true,
+          input: {
+            prioritizeRule: 'only',
+            totalAmount: 0,
+            departmentId: pos.departmentId,
+            branchId: pos.branchId,
+            products: batch.map((product) => ({
+              itemId: product._id,
+              productId: product._id,
+              quantity: 1,
+              price: product.unitPrice,
+            })),
+          },
+          defaultValue: {},
+        }),
+      ),
+    );
 
-    Object.assign(pricing, batchPricing);
+    for (const batchPricing of batchResults) {
+      Object.assign(pricing, batchPricing);
+    }
   }
 
   return pricing;

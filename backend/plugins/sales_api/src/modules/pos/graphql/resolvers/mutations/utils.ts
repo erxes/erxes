@@ -47,6 +47,7 @@ export const syncProductGroupsToClient = async (
     subdomain,
     action: 'crudData',
     method: 'mutation',
+    throwOnError: true,
     input: {
       type: 'productGroups',
       token: pos.token,
