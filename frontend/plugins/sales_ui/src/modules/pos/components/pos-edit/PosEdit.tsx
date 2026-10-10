@@ -26,7 +26,11 @@ export const PosEdit = ({ id }: PosEditProps) => {
 
   return (
     <div className="flex h-full min-h-0">
-      <PosEditSidebar posType={posDetail?.type} activeTab={activeTab} />
+      <PosEditSidebar
+        posType={posDetail?.type}
+        activeTab={activeTab}
+        posId={id}
+      />
       <MainContent
         activeStep={activeTab}
         posId={id}

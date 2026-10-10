@@ -32,3 +32,30 @@ export interface ILoyaltyAccount {
   ownerId?: string;
   owner?: IScoreOwner | null;
 }
+
+export interface ILoyaltyTierLog {
+  _id: string;
+  ownerType?: string | null;
+  ownerId?: string | null;
+  owner?: IScoreOwner | null;
+  accountTypeId: string;
+  accountType?: {
+    _id: string;
+    name: string;
+    tiers?: ILoyaltyTier[] | null;
+  } | null;
+  fromTier?: string | null;
+  toTier?: string | null;
+  direction: 'up' | 'down';
+  createdBy?: string | null;
+  createdVia?: {
+    source?: string;
+    sourceId?: string;
+    sourceName?: string;
+    actorId?: string;
+  } | null;
+  targetId?: string | null;
+  targetType?: string | null;
+  targetName?: string | null;
+  createdAt: string;
+}

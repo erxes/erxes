@@ -14,6 +14,9 @@ const commonFields = `
   $cashierIds: [String]
   $paymentIds: [String]
   $paymentTypes: [JSON]
+  $earnScoreCampaignId: String
+  $earnTier: JSON
+  $acceptCoupons: Boolean
   $isOnline: Boolean
   $onServer: Boolean
   $branchId: String
@@ -32,6 +35,7 @@ const commonFields = `
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
   $permissionConfig: JSON
+  $customerCreateConfig: JSON
   $allowTypes: [String]
   $isShowRemainder: Boolean
   $isCheckRemainder: Boolean
@@ -53,6 +57,9 @@ const commonVariables = `
   cashierIds: $cashierIds,
   paymentIds: $paymentIds,
   paymentTypes: $paymentTypes,
+  earnScoreCampaignId: $earnScoreCampaignId,
+  earnTier: $earnTier,
+  acceptCoupons: $acceptCoupons,
   isOnline: $isOnline,
   onServer: $onServer,
   branchId: $branchId,
@@ -71,6 +78,7 @@ const commonVariables = `
   deliveryConfig: $deliveryConfig,
   cardsConfig: $cardsConfig,
   permissionConfig: $permissionConfig,
+  customerCreateConfig: $customerCreateConfig,
   allowTypes: $allowTypes,
   isShowRemainder: $isShowRemainder,
   isCheckRemainder: $isCheckRemainder,

@@ -11,11 +11,14 @@ import {
 import { IconArrowLeft, IconPlus, IconX } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFields, useFieldGroups } from 'ui-modules';
-import { PropertyForm } from '@/properties/components/PropertyForm';
-import { FIELD_TYPES_OBJECT } from '@/properties/constants/fieldTypes';
-import { useAddProperty } from '@/properties/hooks/useAddProperty';
-import { IPropertyForm } from '@/properties/types/Properties';
+import {
+  FIELD_TYPES_OBJECT,
+  IPropertyForm,
+  PropertyForm,
+  useAddProperty,
+  useFieldGroups,
+  useFields,
+} from 'ui-modules';
 import { useVariantFields } from '../hooks/useVariantFields';
 
 const CONTENT_TYPE = 'core:product';

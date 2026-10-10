@@ -79,6 +79,8 @@ export const orderItemSchema = schemaHooksWrapper(
       default: false,
     }),
     manufacturedDate: field({ type: String, label: 'manufactured' }),
+    // Code of the core product condition the line was sold under, if any.
+    conditionCode: field({ type: String, optional: true, label: 'Condition' }),
     description: field({ type: String, label: 'Description' }),
     attachment: field({ type: Object, label: 'Attachment' }),
     closeDate: field({

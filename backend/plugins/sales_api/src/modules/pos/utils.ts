@@ -8,6 +8,7 @@ import { IModels, generateModels } from '~/connectionResolvers';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
+import { planOrderPoints } from './orderPoints';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { IDeal } from '~/modules/sales/@types';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
@@ -173,6 +174,69 @@ export const spendOrderPoints = async (
         pointsPaymentAmount,
         totalAmount: Number(order.totalAmount) || 0,
         actorId: userId || order.userId,
+      },
+    });
+  }
+};
+
+/** Tells loyalty what a paid order earns as it stands now. */
+export const earnOrderPoints = async (
+  subdomain: string,
+  models: IModels,
+  order: IPosOrder & { _id?: string },
+) => {
+  if (!order._id) {
+    return;
+  }
+
+  const plan = await planOrderPoints({ models, order });
+
+  // Nobody to earn for without a customer.
+  if (plan.kind !== 'sync' || !plan.customerId) {
+    return;
+  }
+
+  for (const { campaignId, totalAmount, paidAmount, items } of plan.earns) {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'earn',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: plan.customerId,
+        campaignId,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        serviceName: 'pos',
+        actorId: order.userId,
+        purchase: { totalAmount, paidAmount, items },
+      },
+    });
+  }
+
+  // A return leaves the tier alone; the next purchase sets it again.
+  if (plan.tier) {
+    const { accountTypeId, bands, onlyUpgrade, totalAmount } = plan.tier;
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'applyPurchaseTier',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: plan.customerId,
+        accountTypeId,
+        bands,
+        onlyUpgrade,
+        totalAmount,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        targetName: `POS #${order.number}`,
+        actorId: order.userId,
       },
     });
   }
@@ -725,6 +789,7 @@ export const syncOrderFromClient = async ({
         await refundOrderPoints(subdomain, newOrder);
       } else {
         await confirmLoyalties(subdomain, newOrder);
+        await earnOrderPoints(subdomain, models, newOrder);
       }
     } catch (e) {
       console.log(subdomain, e.message);

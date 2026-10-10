@@ -1,12 +1,19 @@
-import { IconLock, IconLockOpen, IconWallet } from '@tabler/icons-react';
+import {
+  IconHistory,
+  IconLock,
+  IconLockOpen,
+  IconWallet,
+} from '@tabler/icons-react';
 import { Badge, Button, Card, Spinner, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoyaltyAccountFreeze } from '../hooks/useLoyaltyAccountFreeze';
 import { useLoyaltyAccountOfOwner } from '../hooks/useLoyaltyAccountOfOwner';
+import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissions';
 import { TLoyaltyAccountStatus } from '../types';
 import { FreezeAccountDialog } from './FreezeAccountDialog';
 import { LoyaltyAccountTierSelect } from './LoyaltyAccountTierSelect';
+import { LoyaltyTierHistoryDialog } from './LoyaltyTierHistoryDialog';
 
 const STATUS_VARIANTS: Record<
   TLoyaltyAccountStatus,
@@ -27,8 +34,10 @@ export const LoyaltyAccountCard = ({
   const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const [freezing, setFreezing] = useState(false);
+  const [tierHistoryOpen, setTierHistoryOpen] = useState(false);
   const { account, loading } = useLoyaltyAccountOfOwner({ ownerType, ownerId });
   const { unfreeze, loading: unfreezing } = useLoyaltyAccountFreeze();
+  const { canFreeze } = useLoyaltyAccountPermissions();
 
   if (loading && !account) {
     return <Spinner containerClassName="py-6" />;
@@ -57,22 +66,25 @@ export const LoyaltyAccountCard = ({
         <Badge variant={STATUS_VARIANTS[account.status]}>
           {t(`loyalty-account-status-${account.status}`)}
         </Badge>
-        {account.status === 'active' && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto"
-            onClick={() => setFreezing(true)}
-          >
+        <Button
+          variant="ghost"
+          size="sm"
+          className="ml-auto"
+          onClick={() => setTierHistoryOpen(true)}
+        >
+          <IconHistory />
+          {t('loyalty-tier-history')}
+        </Button>
+        {canFreeze && account.status === 'active' && (
+          <Button variant="ghost" size="sm" onClick={() => setFreezing(true)}>
             <IconLock />
             {t('loyalty-account-freeze')}
           </Button>
         )}
-        {account.status === 'frozen' && (
+        {canFreeze && account.status === 'frozen' && (
           <Button
             variant="ghost"
             size="sm"
-            className="ml-auto"
             disabled={unfreezing}
             onClick={onUnfreeze}
           >
@@ -127,6 +139,12 @@ export const LoyaltyAccountCard = ({
         accountId={account._id}
         open={freezing}
         onOpenChange={setFreezing}
+      />
+      <LoyaltyTierHistoryDialog
+        accountId={account._id}
+        number={account.number}
+        open={tierHistoryOpen}
+        onOpenChange={setTierHistoryOpen}
       />
     </Card>
   );

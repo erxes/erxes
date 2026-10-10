@@ -1,4 +1,5 @@
 import { TCreatedVia } from 'erxes-api-shared/core-types';
+import { TScoreSkip } from './earnTable';
 
 /**
  * What loyalty needs to know about a purchase to earn points on it. The
@@ -47,3 +48,20 @@ export interface ISpendInput extends ILoyaltyScoreSource {
   pointsPaymentAmount: number;
   totalAmount: number;
 }
+
+export type TEarnRulesPreviewInput = {
+  ownerType: string;
+  ownerId: string;
+  // What the selling side's automations would hand to Adjust score.
+  rules: { campaignId: string; earnRowKeys?: string[] }[];
+  purchase: ILoyaltyPurchase;
+};
+
+export type TEarnRulePreview = {
+  campaignId: string;
+  campaignTitle: string;
+  accountTypeName: string;
+  points: number;
+  skips: TScoreSkip[];
+  error?: string;
+};

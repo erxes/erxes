@@ -3,7 +3,7 @@ import {
   IProductDocument,
   IPropertyField,
 } from 'erxes-api-shared/core-types';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
@@ -32,7 +32,8 @@ export interface IProductModel extends Model<IProductDocument> {
   ): Promise<IProductDocument | null>;
   updateProducts(
     query: any,
-    doc: IProduct,
+    doc: Partial<IProduct>,
+    modifier?: UpdateQuery<IProductDocument>,
   ): Promise<{ n: number; nModified: number; ok: number }>;
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
@@ -366,10 +367,18 @@ export const loadProductClass = (
       return updatedProduct;
     }
 
-    public static async updateProducts(query: any, doc: IProduct) {
+    // modifier replaces the plain $set when the change is not a set (e.g. $addToSet).
+    public static async updateProducts(
+      query: any,
+      doc: Partial<IProduct>,
+      modifier?: UpdateQuery<IProductDocument>,
+    ) {
       const products = await models.Products.find(query).lean();
 
-      const result = await models.Products.updateMany(query, { $set: doc });
+      const result = await models.Products.updateMany(
+        query,
+        modifier || { $set: doc },
+      );
 
       const updatedProducts = await models.Products.find({
         _id: { $in: products.map((product) => product._id) },

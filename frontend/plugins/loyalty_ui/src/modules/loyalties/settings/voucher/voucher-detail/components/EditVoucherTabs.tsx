@@ -20,6 +20,11 @@ import { AddVoucherLotteryForm } from '../../add-voucher-campaign/components/Add
 import { AddVoucherProductBonusForm } from '../../add-voucher-campaign/components/AddVoucherProductBonusForm';
 import { AddVoucherRestrictionForm } from '../../add-voucher-campaign/components/AddVoucherRestrictionForm';
 import { AddVoucherSpinForm } from '../../add-voucher-campaign/components/AddVoucherSpinForm';
+import { VoucherBirthdayReward } from '../../../birthday/components/VoucherBirthdayReward';
+
+// Not a form step: what it sets up is saved on its own.
+const BIRTHDAY_TAB = 'birthday';
+type TEditVoucherTab = VoucherTab | typeof BIRTHDAY_TAB;
 
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -28,7 +33,7 @@ type Props = {
 
 export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   const { t } = useTranslation('loyalty');
-  const [activeTab, setActiveTab] = useState<VoucherTab>('campaign');
+  const [activeTab, setActiveTab] = useState<TEditVoucherTab>('campaign');
 
   const selectedType = form.watch('type');
 
@@ -40,9 +45,13 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   const showLotteryTab = selectedType === 'lottery';
   const showSpinTab = selectedType === 'spin';
 
+  const formTab = activeTab === BIRTHDAY_TAB ? null : activeTab;
+
   const handleNext = () => {
+    if (!formTab) return;
+
     const next = getNextVoucherTab({
-      activeTab,
+      activeTab: formTab,
       showProductBonusTab,
       showLotteryTab,
       showSpinTab,
@@ -51,12 +60,14 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
     if (next) setActiveTab(next);
   };
 
-  const isLast = isLastVoucherTab({
-    activeTab,
-    showProductBonusTab,
-    showLotteryTab,
-    showSpinTab,
-  });
+  const isLast =
+    !!formTab &&
+    isLastVoucherTab({
+      activeTab: formTab,
+      showProductBonusTab,
+      showLotteryTab,
+      showSpinTab,
+    });
 
   const toNumber = (value: any) =>
     value === '' || value == null ? undefined : Number(value);
@@ -156,7 +167,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(value) => setActiveTab(value as VoucherTab)}
+      onValueChange={(value) => setActiveTab(value as TEditVoucherTab)}
       className="flex flex-col h-full"
     >
       <Tabs.List className="flex justify-center">
@@ -185,6 +196,10 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
             <Button variant="outline">{t('spin-campaign')}</Button>
           </Tabs.Trigger>
         )}
+
+        <Tabs.Trigger asChild value={BIRTHDAY_TAB}>
+          <Button variant="outline">{t('birthday-reward-tab')}</Button>
+        </Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="campaign" className="flex-1 min-h-0">
@@ -232,12 +247,21 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
         </Tabs.Content>
       )}
 
+      <Tabs.Content
+        value={BIRTHDAY_TAB}
+        className="flex-1 min-h-0 overflow-y-auto"
+      >
+        {voucherDetail?._id && (
+          <VoucherBirthdayReward campaignId={voucherDetail._id} />
+        )}
+      </Tabs.Content>
+
       <Sheet.Footer className="flex justify-end gap-2 p-2">
         <Button variant="ghost" onClick={() => onOpenChange(false)}>
           {t('cancel')}
         </Button>
 
-        {isLast ? (
+        {!formTab ? null : isLast ? (
           <Button onClick={handleSubmit} disabled={loading}>
             {loading ? t('updating') : t('update')}
           </Button>

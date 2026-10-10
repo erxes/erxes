@@ -41,6 +41,7 @@ const currentConfig = gql`
       }
       allowTypes
       banFractions
+      acceptCoupons
       paymentIds
       paymentTypes
       permissionConfig

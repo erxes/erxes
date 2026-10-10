@@ -9,5 +9,6 @@ export enum ProductsPath {
   BundleCondition = '/settings/products/bundle-condition',
   BundleRule = '/settings/products/bundle-rule',
   ProductRule = '/settings/products/product-rule',
+  Conditions = '/settings/products/conditions',
   Packages = '/settings/products/packages',
 }

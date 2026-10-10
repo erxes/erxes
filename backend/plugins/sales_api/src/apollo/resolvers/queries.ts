@@ -2,6 +2,7 @@ import { boardQueries } from '@/sales/graphql/resolvers/queries/boards';
 import { checklistQueries } from '@/sales/graphql/resolvers/queries/checklists';
 import { dealQueries } from '@/sales/graphql/resolvers/queries/deals';
 import { pipelineLabelQueries } from '@/sales/graphql/resolvers/queries/labels';
+import { loyaltyRuleQueries } from '@/sales/graphql/resolvers/queries/loyaltyRules';
 import { pipelineQueries } from '@/sales/graphql/resolvers/queries/pipelines';
 import { stageQueries } from '@/sales/graphql/resolvers/queries/stages';
 import { addressQueries } from '@/ecommerce/graphql/resolvers/queries/address';
@@ -20,6 +21,7 @@ export const queries = {
   ...stageQueries,
   ...dealQueries,
   ...pipelineLabelQueries,
+  ...loyaltyRuleQueries,
   ...checklistQueries,
   ...QueriesPos,
   ...QueriesPosOrders,

@@ -7,7 +7,11 @@ export const useLoyaltyAccountSetTier = () => {
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const [mutate, { loading }] = useMutation(LOYALTY_ACCOUNT_SET_TIER, {
-    refetchQueries: ['LoyaltyAccountOfOwner', 'LoyaltyAccounts'],
+    refetchQueries: [
+      'LoyaltyAccountOfOwner',
+      'LoyaltyAccounts',
+      'LoyaltyTierLogs',
+    ],
   });
 
   const setTier = ({

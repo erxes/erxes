@@ -9,6 +9,7 @@ import {
   IconSettings,
   IconStack2,
   IconLayoutGrid,
+  IconListDetails,
 } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
 import { ProductsPath } from '@/types/paths/ProductsPath';
@@ -27,5 +28,6 @@ export const PRODUCT_NAVIGATION_ICONS: Record<
   [ProductsPath.BundleCondition]: IconFilter,
   [ProductsPath.BundleRule]: IconListCheck,
   [ProductsPath.ProductRule]: IconCertificate,
+  [ProductsPath.Conditions]: IconListDetails,
   [ProductsPath.Packages]: IconPackage,
 };

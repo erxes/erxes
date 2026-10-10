@@ -32,6 +32,25 @@ export const types = `
     owner: JSON
   }
 
+  type LoyaltyTierLog {
+    _id: String!
+    accountId: String!
+    ownerType: String
+    ownerId: String
+    owner: JSON
+    accountTypeId: String!
+    accountType: LoyaltyAccountType
+    fromTier: String
+    toTier: String
+    direction: String!
+    createdBy: String
+    createdVia: JSON
+    targetId: String
+    targetType: String
+    targetName: String
+    createdAt: Date
+  }
+
   type LoyaltyAccountListResponse {
     list: [LoyaltyAccount]
     pageInfo: PageInfo
@@ -49,6 +68,12 @@ export const queries = `
     tier: String
     ${GQL_CURSOR_PARAM_DEFS}
   ): LoyaltyAccountListResponse
+  loyaltyTierLogs(
+    accountId: String
+    targetId: String
+    accountTypeId: String
+    limit: Int
+  ): [LoyaltyTierLog]
 `;
 
 export const mutations = `

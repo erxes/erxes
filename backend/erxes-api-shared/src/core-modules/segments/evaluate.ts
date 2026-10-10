@@ -3,7 +3,11 @@ import {
   segmentReferenceRef,
   segmentRelationRef,
 } from './nodeRefs';
-import { SegmentOperator, normalizeSegmentOperator } from './operators';
+import {
+  PERIOD_OPERATORS,
+  SegmentOperator,
+  normalizeSegmentOperator,
+} from './operators';
 
 import { SegmentFieldNode, SegmentNode, SegmentValue } from './nodes';
 import {
@@ -11,6 +15,7 @@ import {
   isAnniversary,
   shiftZonedDays,
   zonedDate,
+  zonedPeriodRange,
 } from './zonedTime';
 
 export type SegmentEvaluationState = 'matched' | 'notMatched' | 'unknown';
@@ -198,6 +203,18 @@ const matchesOperator = (
       return matchesAnniversary(value, expected, now, timeZone, 0);
     default:
       break;
+  }
+
+  const period = PERIOD_OPERATORS[operator];
+
+  if (period) {
+    const { gte, lt } = zonedPeriodRange(now, timeZone, period);
+
+    return toList(value).some((item) => {
+      const at = toOrdinal(item);
+
+      return at !== undefined && at >= gte.getTime() && at < lt.getTime();
+    });
   }
 
   if (expected === undefined) {

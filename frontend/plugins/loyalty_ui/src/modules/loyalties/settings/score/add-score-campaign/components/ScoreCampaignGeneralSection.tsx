@@ -1,6 +1,9 @@
-import { Form, Input, Textarea } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, Form, Input, Textarea } from 'erxes-ui';
+import { useState } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LoyaltyAccountTypeFormSheet } from '../../../account-type/components/LoyaltyAccountTypeFormSheet';
 import { SelectLoyaltyAccountType } from '../../../account-type/components/SelectLoyaltyAccountType';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 import { ScoreCampaignActionTabs } from './ScoreCampaignActionTabs';
@@ -11,6 +14,7 @@ export const ScoreCampaignGeneralSection = ({
   form: UseFormReturn<LoyaltyScoreFormValues>;
 }) => {
   const { t } = useTranslation('loyalty');
+  const [creatingWallet, setCreatingWallet] = useState(false);
   const legacyDefaultScore =
     useWatch({ control: form.control, name: 'legacyDefaultScore' }) ?? false;
 
@@ -72,11 +76,27 @@ export const ScoreCampaignGeneralSection = ({
           name="accountTypeId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('loyalty-account-type')}</Form.Label>
+              <div className="flex items-center justify-between">
+                <Form.Label>{t('loyalty-account-type')}</Form.Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCreatingWallet(true)}
+                >
+                  <IconPlus />
+                  {t('loyalty-new-wallet')}
+                </Button>
+              </div>
               <SelectLoyaltyAccountType
                 value={field.value || ''}
                 onValueChange={field.onChange}
                 allowDefaultScore={legacyDefaultScore}
+              />
+              <LoyaltyAccountTypeFormSheet
+                open={creatingWallet}
+                onOpenChange={setCreatingWallet}
+                onCreated={field.onChange}
               />
               <Form.Description>
                 {t('loyalty-account-type-campaign-hint')}

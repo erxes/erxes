@@ -11,6 +11,7 @@ import {
 import {
   ILoyaltyAccountTypeAdoption,
   ILoyaltyAccountTypeExpiry,
+  ILoyaltyEarnEligibility,
   ILoyaltyAccountTypeReset,
   TLoyaltyFrozenBlocks,
   TLoyaltyOwnerType,
@@ -25,6 +26,7 @@ type TLoyaltyAccountTypeSettings = {
   pendingDays: number;
   currencyRatio: number;
   pointValue: number;
+  earnEligibility: ILoyaltyEarnEligibility;
 };
 
 // Account type changes show up in the account type list, the legacy banner and the
@@ -68,7 +70,7 @@ const useAccountMutation = <TData, TVariables extends Record<string, unknown>>(
 
 export const useLoyaltyAccountTypeAdd = () =>
   useAccountMutation<
-    unknown,
+    { loyaltyAccountTypeAdd?: { _id: string } },
     TLoyaltyAccountTypeSettings & { ownerType: TLoyaltyOwnerType }
   >(LOYALTY_ACCOUNT_TYPE_ADD, 'loyalty-account-type-created');
 

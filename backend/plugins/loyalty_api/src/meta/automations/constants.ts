@@ -66,6 +66,9 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconStairs',
       label: 'Set tier',
       description: "Set a loyalty tier on the owner's account",
+      // With amount bands the tier comes from the purchase; the trigger's own
+      // plugin fills it (its `actionInputs`).
+      inputs: [{ key: 'totalAmount', label: 'Total amount', type: 'number' }],
     },
     {
       moduleName: 'spin',

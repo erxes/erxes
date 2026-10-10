@@ -313,6 +313,7 @@ export const resetAccountType = async ({
             tier: tierAfterReset,
             // A reset moves everyone at once; it is not a member's news.
             notify: false,
+            via: { createdVia: walletRunVia(accountType, runId) },
           });
         }
       }

@@ -20,7 +20,8 @@ type TScoreSkip =
     }
   | { reason: 'no-amount'; amountSource: 'paid' | 'total' }
   | { reason: 'rounded-to-zero' }
-  | { reason: 'held-past-reset'; availableAt: string; resetsAt: string };
+  | { reason: 'held-past-reset'; availableAt: string; resetsAt: string }
+  | { reason: 'not-eligible'; who: 'clientPortal' | 'segment' };
 
 type TSkippedOwner = { ownerId: string; skips: TScoreSkip[] };
 
@@ -60,6 +61,8 @@ export const useScoreActionResult = (action: IAutomationHistoryAction) => {
           availableAt: formatAt(skip.availableAt),
           resetsAt: formatAt(skip.resetsAt),
         });
+      case 'not-eligible':
+        return t(`score-skip-not-eligible-${skip.who}`);
       case 'no-amount':
         return t('score-skip-no-amount', {
           amount: t(`score-skip-amount-${skip.amountSource}`),

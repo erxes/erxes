@@ -21,3 +21,14 @@ export const segmentMembershipRunsEveryTime = (config?: TReEnrollmentConfig) =>
   config?.reEnrollment === undefined
     ? !config?.once
     : reEnrollsEveryTime(config);
+
+/**
+ * A rule watching one of the trigger segment's relation conditions — a sum
+ * of the customer's deals — by its place in the tree: `relation:children.0`.
+ */
+export const AUTOMATION_RE_ENROLL_RELATION_PREFIX = 'relation:';
+
+export const reEnrollmentRelationPaths = (rules: string[] = []) =>
+  rules
+    .filter((rule) => rule.startsWith(AUTOMATION_RE_ENROLL_RELATION_PREFIX))
+    .map((rule) => rule.slice(AUTOMATION_RE_ENROLL_RELATION_PREFIX.length));

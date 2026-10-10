@@ -323,6 +323,7 @@ export const pricingPlanQueries = {
         uom: product?.uom || fixedValue?.uom || '',
         unitPrice: product?.unitPrice ?? fixedValue?.unitPrice ?? 0,
         newPrice: fixedValue?.newPrice ?? product?.unitPrice ?? 0,
+        productStatus: product?.status || null,
         status,
       };
     });

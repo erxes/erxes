@@ -11,8 +11,24 @@ import { OrganizationProviderEffect } from '@/organization/providers/Organizatio
 import { PermissionProviderEffect } from '@/auth/providers/PermissionProviderEffect';
 import { WidgetsComponent } from '@/widgets/components/WidgetsComponent';
 import { useRelationWidgetsModules } from '@/widgets/hooks/useRelationWidgets';
-import { RelationWidgetProvider } from 'ui-modules';
+import { RelationSettingsWidgetsComponent } from '@/widgets/components/RelationSettingsWidgetsComponent';
+import { useRelationSettingsWidgetsModules } from '@/widgets/hooks/useRelationSettingsWidgets';
+import { RecordPickerWidgetsComponent } from '@/widgets/components/RecordPickerWidgetsComponent';
+import { useRecordPickerWidgetsModules } from '@/widgets/hooks/useRecordPickerWidgets';
+import {
+  RecordPickerWidgetProvider,
+  RelationSettingsWidgetProvider,
+  RelationWidgetProvider,
+} from 'ui-modules';
 import { IconsProvider } from 'erxes-ui';
+import { optionalProvider } from '@/widgets/utils/optionalProvider';
+
+const SafeRelationSettingsWidgetProvider = optionalProvider(
+  RelationSettingsWidgetProvider,
+);
+const SafeRecordPickerWidgetProvider = optionalProvider(
+  RecordPickerWidgetProvider,
+);
 
 export const Providers = () => {
   return (
@@ -26,9 +42,19 @@ export const Providers = () => {
           RelationWidget={WidgetsComponent}
           relationWidgetsModules={useRelationWidgetsModules()}
         >
-          <Suspense fallback={<div>Loading...</div>}>
-            <Outlet />
-          </Suspense>
+          <SafeRelationSettingsWidgetProvider
+            RelationSettingsWidget={RelationSettingsWidgetsComponent}
+            relationSettingsWidgetsModules={useRelationSettingsWidgetsModules()}
+          >
+            <SafeRecordPickerWidgetProvider
+              RecordPickerWidget={RecordPickerWidgetsComponent}
+              recordPickerWidgetsModules={useRecordPickerWidgetsModules()}
+            >
+              <Suspense fallback={<div>Loading...</div>}>
+                <Outlet />
+              </Suspense>
+            </SafeRecordPickerWidgetProvider>
+          </SafeRelationSettingsWidgetProvider>
         </RelationWidgetProvider>
       </IconsProvider>
     </ApolloProvider>

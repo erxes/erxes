@@ -2,6 +2,7 @@ import { cartAtom } from "@/store/cart.store"
 import { useAtomValue } from "jotai"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { PreviewBonusItems } from "@/modules/customer/components/PreviewBonusItems"
 
 import CartItem from "../cartItem/cartItem.market"
 
@@ -24,6 +25,7 @@ const Cart = () => {
         {cart.map((item, idx) => (
           <CartItem key={item.productId} {...item} index={idx} />
         ))}
+        <PreviewBonusItems />
       </ScrollArea>
     </>
   )

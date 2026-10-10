@@ -2,6 +2,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types/deal';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
+import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 
 const getString = (
   data: Record<string, any>,
@@ -105,6 +106,12 @@ export const handleCreateDealFromPayment = async (
   });
 
   await subscriptionWrapper(models, { action: 'create', deal });
+  await syncWrittenDealPoints({
+    subdomain,
+    models,
+    dealIds: [deal._id],
+    userId,
+  });
 
   return deal;
 };

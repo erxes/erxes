@@ -50,7 +50,10 @@ async function initFederation() {
       </StrictMode>,
     );
   } else {
-    fetch(`${REACT_APP_API_URL}/get-frontend-plugins`)
+    // A hung gateway must surface ClientConfigError, not a blank page.
+    fetch(`${REACT_APP_API_URL}/get-frontend-plugins`, {
+      signal: AbortSignal.timeout(15000),
+    })
       .then((res) => res.json())
       .then((data) => {
         init({

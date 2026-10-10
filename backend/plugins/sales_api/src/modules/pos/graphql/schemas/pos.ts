@@ -20,6 +20,9 @@ const posCommonFields = `
   serviceCharge: Float
   serviceChargeApplicableProductId: String
   paymentTypes: [JSON]
+  earnScoreCampaignId: String
+  earnTier: JSON
+  acceptCoupons: Boolean
   isOnline: Boolean
   onServer: Boolean
   branchId: String
@@ -38,6 +41,7 @@ const posCommonFields = `
   deliveryConfig: JSON
   cardsConfig: JSON
   permissionConfig: JSON
+  customerCreateConfig: JSON
   allowTypes: [String]
   isShowRemainder: Boolean
   isCheckRemainder: Boolean

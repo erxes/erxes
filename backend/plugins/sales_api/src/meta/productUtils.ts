@@ -5,6 +5,12 @@ import { IPosDocument } from '~/modules/pos/@types/pos';
 import { getProductsData } from '~/modules/pos/routes';
 import { getChildCategories } from '~/modules/pos/utils';
 
+// Bulk condition writes bypass productsEdit, so they need their own resend.
+const posConditionSyncMutationNames = [
+  'productsSetConditionCodes',
+  'productCategorySetConditionCodes',
+];
+
 export const posSyncMutationNames = [
   'productsAdd',
   'productsEdit',
@@ -13,6 +19,7 @@ export const posSyncMutationNames = [
   'productCategoriesAdd',
   'productCategoriesEdit',
   'productCategoriesRemove',
+  ...posConditionSyncMutationNames,
 ];
 
 const posProductSyncMutationNames = [
@@ -27,7 +34,11 @@ const posProductCategorySyncMutationNames = [
   'productCategoriesRemove',
 ];
 
-const createOrUpdateProductMutations = ['productsAdd', 'productsEdit'];
+const createOrUpdateProductMutations = [
+  'productsAdd',
+  'productsEdit',
+  ...posConditionSyncMutationNames,
+];
 const createOrUpdateProductCategoryMutations = [
   'productCategoriesAdd',
   'productCategoriesEdit',
@@ -492,6 +503,43 @@ const syncProductCategories = async (
   }
 };
 
+const syncConditionProducts = async (
+  subdomain: string,
+  models: IModels,
+  mutationName: string,
+  args: Record<string, unknown>,
+) => {
+  const productIds = stringArray(args.productIds);
+  const categoryIds = isString(args.categoryId)
+    ? await getChildCategories(subdomain, [args.categoryId])
+    : [];
+
+  const isTouched = (
+    product: ProductSnapshot,
+  ): product is ProductSnapshot & { _id: string } =>
+    !!product._id &&
+    (productIds.includes(product._id) ||
+      (!!product.categoryId && categoryIds.includes(product.categoryId)));
+
+  for (const pos of await getProductGroupPos(models)) {
+    const productGroups = await getPosProductData(subdomain, models, pos);
+
+    for (const group of productGroups) {
+      for (const category of group.categories || []) {
+        for (const product of (category.products || []).filter(isTouched)) {
+          await sendProductToPosClient({
+            subdomain,
+            pos,
+            mutationName,
+            productId: product._id,
+            product,
+          });
+        }
+      }
+    }
+  }
+};
+
 export const syncPosProductGroups = async (
   subdomain: string,
   models: IModels,
@@ -506,5 +554,10 @@ export const syncPosProductGroups = async (
 
   if (posProductCategorySyncMutationNames.includes(mutationName)) {
     await syncProductCategories(subdomain, models, mutationName, args, result);
+    return;
+  }
+
+  if (posConditionSyncMutationNames.includes(mutationName)) {
+    await syncConditionProducts(subdomain, models, mutationName, args);
   }
 };

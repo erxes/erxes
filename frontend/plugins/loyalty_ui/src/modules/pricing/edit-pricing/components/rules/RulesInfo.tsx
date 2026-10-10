@@ -14,9 +14,15 @@ import { CommonRuleInfo } from '@/pricing/edit-pricing/components/rules/CommonRu
 import { QuantityInfo } from '@/pricing/edit-pricing/components/quantity/QuantityInfo';
 import { PriceInfo } from '@/pricing/edit-pricing/components/price/PriceInfo';
 import { ExpiryInfo } from '@/pricing/edit-pricing/components/expiry/ExpiryInfo';
+import { ConditionRulesInfo } from '@/pricing/edit-pricing/components/conditions/ConditionRulesInfo';
 
-export type PricingRuleType = 'common' | 'quantity' | 'price' | 'expiry';
-type EnabledRuleType = Exclude<PricingRuleType, 'common'>;
+export type PricingRuleType =
+  | 'common'
+  | 'quantity'
+  | 'price'
+  | 'expiry'
+  | 'conditions';
+type EnabledRuleType = Exclude<PricingRuleType, 'common' | 'conditions'>;
 
 interface RulesInfoProps {
   pricingId?: string;
@@ -30,6 +36,7 @@ const RULE_TABS: { value: PricingRuleType; label: string }[] = [
   { value: 'quantity', label: 'quantity' },
   { value: 'price', label: 'price' },
   { value: 'expiry', label: 'expiry' },
+  { value: 'conditions', label: 'conditions' },
 ];
 
 const isPricingRuleType = (value?: string): value is PricingRuleType =>
@@ -50,6 +57,7 @@ export const RulesInfo = ({
     quantity: null,
     price: null,
     expiry: null,
+    conditions: null,
   });
   const [enabledRules, setEnabledRules] = useState<
     Record<EnabledRuleType, boolean>
@@ -95,6 +103,7 @@ export const RulesInfo = ({
       quantity: handleSaveActionChange('quantity'),
       price: handleSaveActionChange('price'),
       expiry: handleSaveActionChange('expiry'),
+      conditions: handleSaveActionChange('conditions'),
     }),
     [handleSaveActionChange],
   );
@@ -150,7 +159,9 @@ export const RulesInfo = ({
                 <Tabs.Trigger key={tab.value} value={tab.value}>
                   <span className="inline-flex items-center gap-1.5">
                     {t(tab.label)}
-                    {tab.value !== 'common' && enabledRules[tab.value] && (
+                    {tab.value !== 'common' &&
+                      tab.value !== 'conditions' &&
+                      enabledRules[tab.value] && (
                       <IconCircleCheckFilled className="size-3 text-success" />
                     )}
                   </span>
@@ -210,6 +221,18 @@ export const RulesInfo = ({
                 embedded
                 onSaveActionChange={saveActionHandlers.expiry}
                 onEnabledChange={enabledChangeHandlers.expiry}
+              />
+            </Tabs.Content>
+
+            <Tabs.Content
+              value="conditions"
+              forceMount
+              className="pt-4 border-t data-[state=inactive]:hidden"
+            >
+              <ConditionRulesInfo
+                pricingId={pricingId}
+                pricingDetail={pricingDetail}
+                onSaveActionChange={saveActionHandlers.conditions}
               />
             </Tabs.Content>
           </Tabs>

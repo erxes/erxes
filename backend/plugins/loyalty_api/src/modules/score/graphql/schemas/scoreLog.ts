@@ -41,6 +41,11 @@ export const types = `
     totalCount: Int
   }
 
+  type LoyaltyScoreTargetTotal {
+    targetId: String!
+    total: Float!
+  }
+
   type ScoreLogListResponse {
     list: [ScoreLogItem]
     pageInfo: PageInfo
@@ -51,6 +56,7 @@ export const types = `
 const queryParams = `
   searchValue: String,
   campaignId: String,
+  targetId: String,
   ownerType: String,
   ownerId: String,
   status: String,
@@ -58,10 +64,6 @@ const queryParams = `
   orderType: String,
   fromDate: String,
   toDate: String,
-  boardId: String,
-  pipelineId: String,
-  stageId: String,
-  number: String,
   description: String,
   logsPerOwner: Int,
 `;
@@ -71,6 +73,7 @@ export const queries = `
   scoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
   cpScoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
   scoreLogStatistics(${queryParams}): JSON
+  loyaltyScoreTargetTotals(targetIds: [String!]!): [LoyaltyScoreTargetTotal]
 `;
 
 const mutationParams = `

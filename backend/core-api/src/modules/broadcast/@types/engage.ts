@@ -124,4 +124,6 @@ export interface IEngageQueryParams extends ICursorPaginateParams {
   brandId?: string;
   fromUserId?: string;
   searchValue?: string;
+  // Campaigns sent to this segment, e.g. a segment's own page listing them.
+  segmentId?: string;
 }

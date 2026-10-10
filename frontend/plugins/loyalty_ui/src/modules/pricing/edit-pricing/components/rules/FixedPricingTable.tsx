@@ -28,6 +28,7 @@ interface IPageItem {
   uom: string;
   unitPrice: number;
   newPrice: number;
+  productStatus: string | null;
   status: FixedPricingStatus;
 }
 
@@ -37,6 +38,8 @@ interface IProductRow {
   uom: string;
   unitPrice: number;
   code?: string;
+  // Deleted products are never sold, so their row is shown but not editable.
+  isDeleted: boolean;
 }
 
 const readFileAsText = (file: File): Promise<string> => file.text();
@@ -131,6 +134,12 @@ const DiffPrice = ({ diff }: { diff: number }) => {
   }
   return <span style={{ color, fontWeight }}>{text}</span>;
 };
+
+const NotAvailableBadge = () => (
+  <span className="mx-2 rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+    Not available
+  </span>
+);
 
 const applyCustomPageSize = (
   raw: string,
@@ -308,6 +317,7 @@ export const FixedPricingTable = ({
         uom: item.uom,
         unitPrice: item.unitPrice,
         code: item.sortField,
+        isDeleted: item.productStatus === 'deleted',
       };
       return (
         <FixedPricingRow
@@ -586,33 +596,41 @@ const FixedPricingRow = ({
         />
       </Table.Cell>
 
-      <RecordTableHotKeyControl rowId={rowId} rowIndex={index}>
+      {product.isDeleted ? (
         <Table.Cell>
-          <Form.Field
-            control={control}
-            name={`fixedValues.${index}.newPrice`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`fixedValues.${index}.newPrice`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <InputNumber
-                    value={field.value ?? 0}
-                    onChange={(v) => field.onChange(v || 0)}
-                    onKeyDown={handleNewPriceKeyDown}
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
+          <RecordTableInlineCell className="text-muted-foreground">
+            {newPrice.toLocaleString()}
+          </RecordTableInlineCell>
         </Table.Cell>
-      </RecordTableHotKeyControl>
+      ) : (
+        <RecordTableHotKeyControl rowId={rowId} rowIndex={index}>
+          <Table.Cell>
+            <Form.Field
+              control={control}
+              name={`fixedValues.${index}.newPrice`}
+              render={({ field }) => (
+                <PopoverScoped
+                  scope={`fixedValues.${index}.newPrice`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger>
+                      {field.value?.toLocaleString() || 0}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <InputNumber
+                      value={field.value ?? 0}
+                      onChange={(v) => field.onChange(v || 0)}
+                      onKeyDown={handleNewPriceKeyDown}
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+              )}
+            />
+          </Table.Cell>
+        </RecordTableHotKeyControl>
+      )}
 
       <Table.Cell>
         <RecordTableInlineCell>
@@ -622,7 +640,11 @@ const FixedPricingRow = ({
 
       <Table.Cell>
         <RecordTableInlineCell>
-          <StatusBadge status={status} />
+          {product.isDeleted ? (
+            <NotAvailableBadge />
+          ) : (
+            <StatusBadge status={status} />
+          )}
         </RecordTableInlineCell>
       </Table.Cell>
     </Table.Row>

@@ -124,7 +124,6 @@ export const createPipelineFormSchema = (
                 messages.invalidStageVisibility,
               ),
             defaultTick: z.boolean().optional(),
-            refundPoints: z.boolean().optional(),
           }),
         )
         .superRefine((stages, context) => {

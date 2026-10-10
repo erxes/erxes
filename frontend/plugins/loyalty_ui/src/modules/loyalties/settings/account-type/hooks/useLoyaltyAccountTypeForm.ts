@@ -49,8 +49,28 @@ export const loyaltyAccountTypeFormSchema = z
     pendingDays: z.coerce.number().int().min(0, 'Must be zero or more'),
     currencyRatio: z.coerce.number().positive('Must be more than zero'),
     pointValue: z.coerce.number().positive('Must be more than zero'),
+    earnEligibility: z.object({
+      who: z.enum(['all', 'clientPortal', 'segment']),
+      segmentId: z.string().optional(),
+    }),
   })
-  .superRefine(({ expiry, reset }, ctx) => {
+  .superRefine(({ expiry, reset, earnEligibility, ownerType }, ctx) => {
+    if (earnEligibility.who === 'segment' && !earnEligibility.segmentId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Choose a segment',
+        path: ['earnEligibility', 'segmentId'],
+      });
+    }
+
+    if (earnEligibility.who === 'clientPortal' && ownerType !== 'customer') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Only a customer wallet can require a client portal account',
+        path: ['earnEligibility', 'who'],
+      });
+    }
+
     if (expiry.mode === 'calendar' && reset.period === 'never') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -82,6 +102,7 @@ const DEFAULT_VALUES: TLoyaltyAccountTypeFormValues = {
   pendingDays: 0,
   currencyRatio: 1,
   pointValue: 1,
+  earnEligibility: { who: 'all' },
 };
 
 const toFormValues = (
@@ -102,16 +123,23 @@ const toFormValues = (
   pendingDays: accountType.pendingDays ?? 0,
   currencyRatio: accountType.currencyRatio ?? 1,
   pointValue: accountType.pointValue ?? 1,
+  earnEligibility: {
+    who: accountType.earnEligibility?.who || 'all',
+    segmentId: accountType.earnEligibility?.segmentId || undefined,
+  },
 });
 
 export const useLoyaltyAccountTypeForm = ({
   accountType,
   open,
   onDone,
+  onCreated,
 }: {
   accountType?: ILoyaltyAccountType;
   open: boolean;
   onDone: () => void;
+  // A wallet made while setting up something else gets picked there.
+  onCreated?: (accountTypeId: string) => void;
 }) => {
   const form = useForm<TLoyaltyAccountTypeFormValues>({
     resolver: zodResolver(loyaltyAccountTypeFormSchema),
@@ -126,22 +154,37 @@ export const useLoyaltyAccountTypeForm = ({
     }
   }, [open, accountType, form]);
 
-  const onSubmit = form.handleSubmit(({ ownerType, expiry, ...rest }) => {
-    const values = {
-      ...rest,
-      expiry:
-        expiry.mode === 'rolling'
-          ? { mode: expiry.mode, months: expiry.months }
-          : { mode: expiry.mode },
-    };
+  const onSubmit = form.handleSubmit(
+    ({ ownerType, expiry, earnEligibility, ...rest }) => {
+      const values = {
+        ...rest,
+        // "Everyone" keeps no segment behind it.
+        earnEligibility:
+          earnEligibility.who === 'segment'
+            ? earnEligibility
+            : { who: earnEligibility.who },
+        expiry:
+          expiry.mode === 'rolling'
+            ? { mode: expiry.mode, months: expiry.months }
+            : { mode: expiry.mode },
+      };
 
-    if (accountType) {
-      edit({ _id: accountType._id, ...values }, onDone);
-      return;
-    }
+      if (accountType) {
+        edit({ _id: accountType._id, ...values }, onDone);
+        return;
+      }
 
-    add({ ownerType, ...values }, onDone);
-  });
+      add({ ownerType, ...values }, (data) => {
+        const createdId = data?.loyaltyAccountTypeAdd?._id;
+
+        if (createdId) {
+          onCreated?.(createdId);
+        }
+
+        onDone();
+      });
+    },
+  );
 
   // What a point is worth back to the customer, as a share of their spend.
   const [currencyRatio, pointValue] = useWatch({

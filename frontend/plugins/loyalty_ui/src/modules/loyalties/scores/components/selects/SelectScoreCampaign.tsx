@@ -25,9 +25,9 @@ interface CampaignOption {
   label: string;
 }
 
-const useScoreCampaignOptions = (searchValue?: string) => {
+const useScoreCampaignOptions = (searchValue?: string, status?: string) => {
   const { data, loading } = useQuery(SCORE_CAMPAIGNS_SIMPLE_QUERY, {
-    variables: { limit: 50, searchValue },
+    variables: { limit: 50, searchValue, status },
   });
 
   const options = useMemo<CampaignOption[]>(
@@ -68,14 +68,18 @@ const useSelectScoreCampaignContext = () => {
 export const SelectScoreCampaignProvider = ({
   value,
   onValueChange,
+  status,
   children,
 }: {
   value: string;
   onValueChange: (val: string) => void;
+  // Only campaigns in this status are offered, e.g. `active` where one must
+  // give points right away.
+  status?: string;
   children: React.ReactNode;
 }) => {
   const [search, setSearch] = useState('');
-  const { options, loading } = useScoreCampaignOptions(search);
+  const { options, loading } = useScoreCampaignOptions(search, status);
 
   const handleChange = useCallback(
     (val: string) => {
@@ -267,17 +271,20 @@ const SelectScoreCampaignRoot = ({
   onValueChange,
   placeholder,
   className,
+  status,
 }: {
   value: string;
   onValueChange?: (val: string) => void;
   placeholder?: string;
   className?: string;
+  status?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <SelectScoreCampaignProvider
       value={value}
+      status={status}
       onValueChange={(val) => {
         onValueChange?.(val);
         setOpen(false);

@@ -35,10 +35,12 @@ export const LoyaltyAccountTypeFormSheet = ({
   accountType,
   open,
   onOpenChange,
+  onCreated,
 }: {
   accountType?: ILoyaltyAccountType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreated?: (accountTypeId: string) => void;
 }) => {
   const { t } = useTranslation('loyalty');
   const { form, onSubmit, isEdit, loading, cashbackPercent } =
@@ -46,6 +48,7 @@ export const LoyaltyAccountTypeFormSheet = ({
       accountType,
       open,
       onDone: () => onOpenChange(false),
+      onCreated,
     });
   const { active, setActive, withErrors } = useLoyaltyAccountTypeSections(form);
   const { control } = form;
@@ -63,7 +66,13 @@ export const LoyaltyAccountTypeFormSheet = ({
         </Sheet.Header>
         <Form {...form}>
           <form
-            onSubmit={onSubmit}
+            // Opened from inside another form (a campaign, a settings tab),
+            // its submit must not submit that form too: React events cross
+            // the sheet's portal.
+            onSubmit={(event) => {
+              event.stopPropagation();
+              onSubmit(event);
+            }}
             className="flex flex-col flex-1 min-h-0 overflow-hidden"
           >
             <SectionedSheetForm

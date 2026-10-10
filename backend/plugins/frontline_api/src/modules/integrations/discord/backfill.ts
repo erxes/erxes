@@ -1,14 +1,12 @@
 import { APIMessage } from 'discord-api-types/v10';
 import { IModels } from '~/connectionResolvers';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import { mapMessageCreateToActivity } from '@/integrations/discord/activity';
+import { mapMessageCreateToActivity } from '@/integrations/discord/utils/messages/activity';
 import { receiveDiscordMessage } from '@/integrations/discord/controller/receiveMessage';
-import {
-  DiscordApiError,
-  getErrorMessage,
-  listActiveThreads,
-  listChannelMessages,
-} from '@/integrations/discord/utils';
+import { DiscordApiError } from '@/integrations/discord/errors/DiscordApiError';
+import { getErrorMessage } from '@/integrations/discord/utils/request';
+import { listActiveThreads } from '@/integrations/discord/utils/channels';
+import { listChannelMessages } from '@/integrations/discord/utils/outbound/actions';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
 const PAGE_SIZE = 100;

@@ -1,5 +1,15 @@
 import { Schema } from 'mongoose';
 import { mongoStringRequired, schemaWrapper } from 'erxes-api-shared/utils';
+import { tierBandSchema } from '~/modules/sales/db/definitions/loyaltyRules';
+
+const earnTierSchema = new Schema(
+  {
+    accountTypeId: { type: String, required: true, label: 'Wallet' },
+    bands: { type: [tierBandSchema], label: 'Bands' },
+    onlyUpgrade: { type: Boolean, label: 'Only upgrade' },
+  },
+  { _id: false },
+);
 
 export const posSchema = schemaWrapper(
   new Schema({
@@ -32,6 +42,11 @@ export const posSchema = schemaWrapper(
       label: 'Service Charge Applicable Product',
     },
     paymentTypes: { type: [Object], label: 'Other Payments' },
+    // The one score campaign a paid order earns in; two would both earn.
+    earnScoreCampaignId: { type: String, label: 'Earn score campaign' },
+    earnTier: { type: earnTierSchema, label: 'Earn tier' },
+    // Off by default: a POS without coupons should not ask for one.
+    acceptCoupons: { type: Boolean, optional: true, label: 'Accept coupons' },
     onServer: {
       type: Boolean,
       optional: true,
@@ -79,6 +94,11 @@ export const posSchema = schemaWrapper(
       type: Object,
       optional: true,
       label: 'Permission',
+    },
+    customerCreateConfig: {
+      type: Object,
+      optional: true,
+      label: 'Customer create config',
     },
     allowTypes: { type: [String], label: 'Allow Types' },
     isShowRemainder: { type: Boolean, label: 'Show Remainder' },

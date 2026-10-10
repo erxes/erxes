@@ -81,6 +81,12 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'Main unit of measurement',
       },
+      conditionCodes: {
+        type: [String],
+        optional: true,
+        label: 'Conditions',
+        index: true,
+      },
       subUoms: {
         type: [subUomSchema],
         optional: true,

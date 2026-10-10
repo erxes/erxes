@@ -29,6 +29,12 @@ import {
 } from './rule';
 
 import {
+  mutations as ConditionMutations,
+  queries as ConditionQueries,
+  types as ConditionTypes,
+} from './condition';
+
+import {
   mutations as PackageMutations,
   queries as PackageQueries,
   types as PackageTypes,
@@ -46,6 +52,7 @@ export const types = `
   ${ConfigTypes}
   ${UomTypes}
   ${RuleTypes}
+  ${ConditionTypes}
   ${PackageTypes}
   ${SimilarityTypes}
 `;
@@ -56,6 +63,7 @@ export const queries = `
   ${ConfigQueries}
   ${UomQueries}
   ${RuleQueries}
+  ${ConditionQueries}
   ${PackageQueries}
   ${SimilarityQueries}
 `;
@@ -66,6 +74,7 @@ export const mutations = `
   ${ConfigMutations}
   ${UomMutations}
   ${RuleMutations}
+  ${ConditionMutations}
   ${PackageMutations}
   ${SimilarityMutations}
 `;
