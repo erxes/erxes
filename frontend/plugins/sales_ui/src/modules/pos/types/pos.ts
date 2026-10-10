@@ -1,3 +1,12 @@
+import { TTierBand } from '@/deals/loyaltyRules/tierBands';
+
+// The tier a paid order sets by its amount.
+export interface IPosEarnTier {
+  accountTypeId: string;
+  bands: TTierBand[];
+  onlyUpgrade: boolean;
+}
+
 export interface IUser {
   _id: string;
   details: {
@@ -65,6 +74,13 @@ export interface DeliveryConfig {
   mapCustomField?: string;
 }
 
+export interface IPosCustomerCreateConfig {
+  enabled: boolean;
+  assignCashierAsOwner?: boolean;
+  // Rows of system field codes and 'property:<fieldId>' entries.
+  layout: string[][];
+}
+
 export interface IPos {
   _id: string;
   name: string;
@@ -110,6 +126,8 @@ export interface IPos {
     icon: string;
     config?: string;
   }>;
+  earnScoreCampaignId?: string;
+  earnTier?: IPosEarnTier | null;
   adminIds?: string[];
   cashierIds?: string[];
   permissionConfig?: {
@@ -121,8 +139,10 @@ export interface IPos {
     cashiers?: {
       isTempBill?: boolean;
       seeReport?: boolean;
+      createCustomer?: boolean;
       directDiscount?: boolean;
       directDiscountLimit?: number;
     };
   };
+  customerCreateConfig?: IPosCustomerCreateConfig;
 }

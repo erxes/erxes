@@ -13,7 +13,7 @@ const MyInboxIndexPage = lazy(() =>
 
 export const NotificationsRoutes = () => {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Spinner withMascot />}>
       <Routes>
         <Route path={NotificationsPath.Index} element={<MyInboxIndexPage />} />
         <Route path={NotificationsPath.Detail} element={<MyInboxIndexPage />} />

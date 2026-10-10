@@ -13,6 +13,7 @@ export const LOYALTY_ACCOUNT_TYPE_ADD = gql`
     $pendingDays: Int
     $currencyRatio: Float
     $pointValue: Float
+    $earnEligibility: LoyaltyEarnEligibilityInput
   ) {
     loyaltyAccountTypeAdd(
       name: $name
@@ -24,6 +25,7 @@ export const LOYALTY_ACCOUNT_TYPE_ADD = gql`
       pendingDays: $pendingDays
       currencyRatio: $currencyRatio
       pointValue: $pointValue
+      earnEligibility: $earnEligibility
     ) {
       ...LoyaltyAccountTypeFields
     }
@@ -42,6 +44,7 @@ export const LOYALTY_ACCOUNT_TYPE_EDIT = gql`
     $pendingDays: Int
     $currencyRatio: Float
     $pointValue: Float
+    $earnEligibility: LoyaltyEarnEligibilityInput
   ) {
     loyaltyAccountTypeEdit(
       _id: $_id
@@ -53,6 +56,7 @@ export const LOYALTY_ACCOUNT_TYPE_EDIT = gql`
       pendingDays: $pendingDays
       currencyRatio: $currencyRatio
       pointValue: $pointValue
+      earnEligibility: $earnEligibility
     ) {
       ...LoyaltyAccountTypeFields
     }

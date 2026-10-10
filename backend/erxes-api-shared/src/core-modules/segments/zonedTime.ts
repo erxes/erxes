@@ -83,6 +83,41 @@ export const zonedDayStart = (date: ZonedDate, timeZone: string): Date => {
   return new Date(instant);
 };
 
+export type ZonedPeriod = 'month' | 'quarter' | 'year';
+
+const PERIOD_MONTHS: Record<ZonedPeriod, number> = {
+  month: 1,
+  quarter: 3,
+  year: 12,
+};
+
+/**
+ * The calendar month, quarter or year holding `now` in the zone, as
+ * [start, next start): "this month" on 10/08 is 10/01 up to 11/01.
+ */
+export const zonedPeriodRange = (
+  now: Date,
+  timeZone: string,
+  period: ZonedPeriod,
+): { gte: Date; lt: Date } => {
+  const { year, month } = zonedDate(now, timeZone);
+  const span = PERIOD_MONTHS[period];
+  const startMonth = Math.floor((month - 1) / span) * span + 1;
+  const nextIndex = startMonth - 1 + span;
+
+  return {
+    gte: zonedDayStart({ year, month: startMonth, day: 1 }, timeZone),
+    lt: zonedDayStart(
+      {
+        year: year + Math.floor(nextIndex / 12),
+        month: (nextIndex % 12) + 1,
+        day: 1,
+      },
+      timeZone,
+    ),
+  };
+};
+
 export const shiftZonedDays = (date: ZonedDate, days: number): ZonedDate => {
   const at = new Date(0);
 
@@ -104,8 +139,8 @@ const daysInMonth = (year: number, month: number): number =>
       ? 29
       : 28
     : [4, 6, 9, 11].includes(month)
-      ? 30
-      : 31;
+    ? 30
+    : 31;
 
 const WINDOW_BACK = 150;
 const WINDOW_FORWARD = 20;

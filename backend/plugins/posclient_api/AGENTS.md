@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -19,6 +19,8 @@
 - Sales POS settings UI, sales API persistence, shared core services, gateway routing, or other plugin data models.
 
 ## Current Capabilities
+
+- The cashier's earn preview (`previewLoyaltyEarn`) counts the POS's own earning campaigns (`config.earnScoreCampaignId`, synced from the sales POS) first, then any active automation's Adjust score, one rule per campaign.
 
 - `cpOrdersAdd` and `cpOrdersEdit` require client portal context and accept
   `customerType: visitor` without a logged-in portal user. Other customer
@@ -47,11 +49,24 @@
   and `isCleanTaxPrice`, in POS client config.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
+- Order items keep an optional `conditionCode` (code of the core product condition a unit is sold under; saved by ordersAdd/Edit and the order-utils item writer, passed to loyalty `checkPricing`, synced to sales). Synced products keep core's `conditionCodes` (schema field; products synced before it existed need a re-sync).
+- Shows the cashier the order's chosen customer's loyalty: `poscCustomerLoyalty` passes loyalty's `ownerSummary` through (wallets, tiers, sale vouchers); null when loyalty is not running.
+- Lets POS admins, and cashiers with `permissionConfig.cashiers.createCustomer`,
+  register Core customers through the synced `customerCreateConfig` layout.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
 - Adds POS order payments through atomic cash increments and paid-amount pushes so concurrent order updates do not overwrite recorded card payments.
 
 ## Architecture
 
+| Area             | Path                                                                                        | Responsibility                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| GraphQL reports  | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/report.ts`   | Calculates daily POS report totals and product summaries.                                                      |
+| GraphQL products | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts` | Builds tenant-scoped POS product/category filters, sorting, counts, similarity grouping, and remainder checks. |
+| GraphQL schemas  | `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas`                       | Declares POS client GraphQL types and operations.                                                              |
+| Config models    | `backend/plugins/posclient_api/src/modules/posclient/db`                                    | Stores synced POS client configuration and runtime data.                                                       |
+| Discount utils   | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                     |
+| Customer create  | `backend/plugins/posclient_api/src/modules/posclient/utils/customerCreate.ts`               | Resolves the POS customer form, filters input to the layout, validates, and finds duplicates.                  |
+| Sync utilities   | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                   |
 | Area               | Path                                                                                        | Responsibility                                                                                                       |
 | ------------------ | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | GraphQL reports    | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/report.ts`   | Calculates daily POS report totals and product summaries.                                                            |
@@ -86,6 +101,15 @@
 - `poscProducts(..., propertiesData: String): [PoscProduct]` and `poscProductsTotalCount(..., propertiesData: String): Int` GraphQL queries.
 - POS client GraphQL and tRPC contracts for order, cover, config, and user flows.
 - `OrderItemInput`, `PosOrderItem`, and stored order items may include `discountInfos: JSON`.
+- `poscCustomerForm: PosCustomerForm` returns `canCreate` and the resolved
+  form `rows` (system fields plus live `core:customer` properties).
+- `poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty` (logged-in POS user).
+- `poscLoyaltyPreview(items, customerId, couponCode, voucherId): PosLoyaltyPreview { lines, bonuses }` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving. `lines` holds each line whose price changes, keyed by the caller's line `key` (a product can sit on several lines under different conditions), with its discount percent and resulting `unitPrice`; the percent is negative when the line costs more (a condition may give less than a `posBase` plan baked in at sync). `bonuses` are the bonus products pricing would append as new lines (`{productId, name, count}`, name from the synced product); a bonus whose product is already a cart line is discounted in place and shows in `lines`. Display only; the saved order stays authoritative.
+- `poscLoyaltyEarnPreview(items, totalAmount, customerId, orderType)` (`utils/loyaltyEarn.ts`) reads core tRPC `automation.findActive` for active `sales:pos.orders.event` automations with a loyalty Adjust score, keeps the triggers a paid order of this POS would start (event `paid` or unset, `posId`/`posToken` this POS or empty, order type if set; payment type and branches before the action are not evaluated), and asks loyalty `score.earnPreview` with the actions' `campaignId`/`earnRowKeys`, counting the whole total as paid. Returns `{ hasRules, earns: [{walletName, points, reasons, error}] }`; without a customer only `hasRules`. Lookups use `throwOnError` so a broken preview shows instead of a silent zero.
+- `poscProductConditions(productId)` reads the synced product's `conditionCodes` and resolves them through core tRPC `productConditions.find` (codes with no condition are left out), so a cart line can pick one. Cart lines never keep the product's codes themselves; a stored copy went stale when conditions changed after the line was added.
+- `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order.
+- `poscCustomersAdd(doc: JSON!): PosCustomerAddResult` returns either the
+  created `customer` or an existing `duplicate` (same e-mail, phone, or code).
 
 ### Consumes
 
@@ -95,7 +119,10 @@
   from sales POS configuration.
 - Loyalty `score.checkSpend` validates point payment amounts against the order
   total before payment completion.
-- Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
+- Synced POS config fields including `adminIds`, `cashierIds`, `token`, `permissionConfig`, and `customerCreateConfig`.
+- Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
+- Core tRPC `fields.find`, `customers.findActiveCustomers`, and
+  `customers.createCustomer`.
 - Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
   `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
@@ -164,6 +191,8 @@
   Core inventory balances with display disabled. `saveRemainder` controls
   remainder persistence and the existing hourly sync.
 - POS client report queries must require a logged-in POS user.
+- `checkLoyalties` sends loyalty `undefined`, never `null`, for an unchosen `couponCode`/`voucherId`: loyalty's zod input rejects null and the swallowed error would drop every loyalty discount.
+- `sendTRPCMessage` swallows errors unless `throwOnError` is set; a check whose failure must reach the cashier (like `poscCouponCheck`) passes it.
 - `orderChangeLogs` must require a logged-in POS admin, filter by the current
   POS token, and verify any existing specified order belongs to the POS/sub-token scope.
   Removed orders remain searchable through POS-owned logs; unknown IDs return
@@ -173,6 +202,7 @@
   actor IDs must match. Client timestamps are reported data, not trusted server
   receipt times. Snapshots are limited to 500 items and 512 KiB per event.
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
+- `poscCustomersAdd` sends Core only fields placed in `customerCreateConfig.layout`, requires e-mail or phone, and always sets `state: 'customer'`, `createdVia: { source: 'pos', sourceId: posId, sourceName: posName, actorId: posUserId }` (the `schemaWrapper` provenance field; no core change); `ownerId` is the POS user only when `assignCashierAsOwner` is on. No offline queue: Core must be reachable.
 - `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
 - Automatic pricing and loyalty/voucher recalculation must preserve existing `hand` discounts and replace only the matching automatic source entry.
 - POS order item `unitPrice` is stored after discounts; discount base
@@ -208,6 +238,7 @@
   check-only validates Core balances with display disabled; category-excluded
   products bypass validation; enabling `saveRemainder` persists fetched stock.
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
+- POS customer smoke scenario: as a cashier with `createCustomer`, `poscCustomerForm.canCreate` is true; `poscCustomersAdd` with a new phone creates a customer with `createdVia.sourceId` = POS id; repeating it returns `duplicate` instead.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.
 - POS order change log smoke scenario: changing a paid order's due date,
   branch, delivery info, or description creates a POS-local log entry; a

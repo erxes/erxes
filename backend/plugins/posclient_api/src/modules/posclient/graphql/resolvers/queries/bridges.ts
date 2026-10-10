@@ -1,5 +1,13 @@
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
+import { checkLoyalties } from '~/modules/posclient/utils/loyalties';
+import { previewLoyaltyEarn } from '~/modules/posclient/utils/loyaltyEarn';
+import { checkPricing } from '~/modules/posclient/utils/pricing';
+import {
+  canCreateCustomer,
+  resolveCustomerForm,
+} from '~/modules/posclient/utils/customerCreate';
 
 export interface IListArgs {
   searchValue: string;
@@ -261,6 +269,219 @@ const bridgesQueries = {
       };
     }
     return;
+  },
+
+  // Shown to the cashier only for the customer chosen on the order.
+  async poscCustomerLoyalty(
+    _root,
+    { customerId, totalAmount }: { customerId: string; totalAmount?: number },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'query',
+      module: 'loyalty',
+      action: 'ownerSummary',
+      input: { ownerType: 'customer', ownerId: customerId, totalAmount },
+      defaultValue: null,
+    });
+  },
+
+  // Checked when typed in, so a bad code never sticks to the order; returns the campaign title.
+  async poscCouponCheck(
+    _root,
+    {
+      code,
+      customerId,
+      totalAmount,
+    }: { code: string; customerId?: string; totalAmount?: number },
+    { subdomain, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const campaign = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'query',
+      module: 'coupon',
+      action: 'checkCoupon',
+      input: { code, ownerId: customerId, totalAmount },
+      throwOnError: true,
+    });
+
+    if (!campaign) {
+      throw new Error('Coupons are not available on this POS');
+    }
+
+    return campaign.title || code;
+  },
+
+  // What a save would give, without saving: each line's pricing and loyalty
+  // discount, and the bonus products pricing would add.
+  async poscLoyaltyPreview(
+    _root,
+    {
+      items,
+      customerId,
+      couponCode,
+      voucherId,
+    }: {
+      items: {
+        key: string;
+        productId: string;
+        count: number;
+        unitPrice: number;
+        conditionCode?: string;
+      }[];
+      customerId?: string;
+      couponCode?: string;
+      voucherId?: string;
+    },
+    { subdomain, models, posUser, config }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const originalByKey = new Map(items.map((item) => [item.key, item]));
+    const priced = await checkPricing(
+      subdomain,
+      {
+        items: items.map(({ key, ...item }) => ({ ...item, _id: key })),
+        customerId,
+        totalAmount: 0,
+        type: '',
+        description: '',
+      },
+      config,
+    );
+    const doc = await checkLoyalties(subdomain, {
+      ...priced,
+      couponCode,
+      voucherId,
+    });
+
+    // A line can also cost more than before: a condition may give less than
+    // the plan sync already baked into its price.
+    const lines = doc.items.flatMap(
+      ({ _id, productId, unitPrice, discountInfos }) => {
+        const original = originalByKey.get(_id);
+
+        if (!original?.unitPrice || unitPrice == null) {
+          return [];
+        }
+
+        const percent =
+          Math.round((1 - unitPrice / original.unitPrice) * 1000) / 10;
+
+        return percent !== 0
+          ? [
+              {
+                key: _id,
+                productId,
+                percent,
+                unitPrice,
+                title: (discountInfos || [])
+                  .filter(({ type }) => type !== 'hand')
+                  .map(({ title }) => title)
+                  .filter(Boolean)
+                  .join(', '),
+              },
+            ]
+          : [];
+      },
+    );
+
+    // Pricing appends a bonus as a new line; one already in the cart is
+    // discounted in place and shows up in `lines` instead.
+    const bonusItems = doc.items.filter(({ _id }) => !originalByKey.has(_id));
+    const products = bonusItems.length
+      ? await models.Products.find(
+          { _id: { $in: bonusItems.map(({ productId }) => productId) } },
+          { name: 1, code: 1 },
+        ).lean()
+      : [];
+    const productById = new Map(
+      products.map((product) => [String(product._id), product]),
+    );
+
+    return {
+      lines,
+      bonuses: bonusItems.map(({ productId, count }) => {
+        const product = productById.get(productId);
+
+        return {
+          productId,
+          name: product
+            ? [product.code, product.name].filter(Boolean).join(' - ')
+            : productId,
+          count,
+        };
+      }),
+    };
+  },
+
+  async poscLoyaltyEarnPreview(
+    _root,
+    args: {
+      items: { productId: string; amount: number }[];
+      totalAmount: number;
+      customerId?: string;
+      orderType?: string;
+    },
+    { subdomain, posUser, config }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    return previewLoyaltyEarn(subdomain, config, args);
+  },
+
+  // Read from the synced product each time, so a cart line never holds a stale list.
+  async poscProductConditions(
+    _root,
+    { productId }: { productId: string },
+    { subdomain, models, posUser }: IContext,
+  ) {
+    assertPosUser(posUser);
+
+    const product = await models.Products.findOne(
+      { _id: productId },
+      { conditionCodes: 1 },
+    ).lean();
+    const codes = product?.conditionCodes || [];
+
+    if (!codes.length) {
+      return [];
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'productConditions',
+      action: 'find',
+      input: { codes },
+      defaultValue: [],
+    });
+  },
+
+  async poscCustomerForm(
+    _root,
+    _args,
+    { subdomain, config, posUser }: IContext,
+  ) {
+    if (!canCreateCustomer(config, posUser)) {
+      return { canCreate: false, rows: [] };
+    }
+
+    return {
+      canCreate: true,
+      rows: await resolveCustomerForm(
+        subdomain,
+        config.customerCreateConfig?.layout || [],
+      ),
+    };
   },
 };
 

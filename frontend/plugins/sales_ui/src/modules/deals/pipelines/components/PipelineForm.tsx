@@ -5,16 +5,27 @@ import { ProductConfig } from '@/deals/cards/components/detail/product/component
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 import type { UseFormReturn } from 'react-hook-form';
+import {
+  relationSettingsModuleKey,
+  useRelationSettingsModules,
+} from 'ui-modules';
+import { PipelineAutomations } from './PipelineAutomations';
+import { PipelineRelationSettings } from './PipelineRelationSettings';
 import { PipelinePropertySelector } from './PipelinePropertySelector';
 
 type Props = {
   form: UseFormReturn<TPipelineForm>;
   stagesLoading: boolean;
+  // Only a saved pipeline has deals for automations to run on.
+  pipelineId?: string | null;
 };
 
-export const PipelineForm = ({ form, stagesLoading }: Props) => {
+export const PipelineForm = ({ form, stagesLoading, pipelineId }: Props) => {
   const { t } = useTranslation('sales');
   const [activeTab, setActiveTab] = useQueryState<string>('tab');
+  // Other plugins' tabs, e.g. loyalty's, keyed `pluginName.name`.
+  const modules = useRelationSettingsModules();
+  const relationModules = pipelineId ? modules : [];
 
   return (
     <Tabs
@@ -55,6 +66,30 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             {t('properties')}
           </Button>
         </Tabs.Trigger>
+        {pipelineId && (
+          <Tabs.Trigger asChild value="automations">
+            <Button
+              variant={'outline'}
+              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
+            >
+              {t('pos-automations', 'Automations')}
+            </Button>
+          </Tabs.Trigger>
+        )}
+        {relationModules.map((module) => (
+          <Tabs.Trigger
+            key={relationSettingsModuleKey(module)}
+            asChild
+            value={relationSettingsModuleKey(module)}
+          >
+            <Button
+              variant={'outline'}
+              className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
+            >
+              {module.label || module.name}
+            </Button>
+          </Tabs.Trigger>
+        ))}
       </Tabs.List>
       <Tabs.Content value="general" className="h-full py-4 px-5 overflow-auto">
         <GeneralForm form={form} />
@@ -74,6 +109,28 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
       >
         <PipelinePropertySelector form={form} />
       </Tabs.Content>
+      {pipelineId && (
+        <Tabs.Content value="automations" className="h-full overflow-auto">
+          <PipelineAutomations
+            pipelineId={pipelineId}
+            pipelineName={form.watch('name')}
+          />
+        </Tabs.Content>
+      )}
+      {pipelineId &&
+        relationModules.map((module) => (
+          <Tabs.Content
+            key={relationSettingsModuleKey(module)}
+            value={relationSettingsModuleKey(module)}
+            className="h-full overflow-auto py-6"
+          >
+            <PipelineRelationSettings
+              moduleKey={relationSettingsModuleKey(module)}
+              pipelineId={pipelineId}
+              pipelineName={form.watch('name')}
+            />
+          </Tabs.Content>
+        ))}
     </Tabs>
   );
 };

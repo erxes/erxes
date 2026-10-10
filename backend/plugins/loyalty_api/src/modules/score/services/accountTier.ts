@@ -1,10 +1,12 @@
+import { TTierChangeVia } from '@/score/@types/tierLog';
 import { writeAccountTier } from '@/score/services/accountBalance';
 import { sendTierChanged } from '@/score/services/tierChanged';
 import { IModels } from '~/connectionResolvers';
 
 // The single place a tier changes: the account holds it, the owner record's
-// tier field mirrors it. Whatever decided the tier is the caller's business;
-// a change starts the "Tier changed" trigger unless `notify` is off.
+// tier field mirrors it, the tier log records who moved it (`via`). Whatever
+// decided the tier is the caller's business; a change starts the "Tier
+// changed" trigger unless `notify` is off.
 export const setAccountTier = async ({
   models,
   subdomain,
@@ -12,6 +14,7 @@ export const setAccountTier = async ({
   accountTypeId,
   tier,
   notify = true,
+  via,
 }: {
   models: IModels;
   subdomain: string;
@@ -19,6 +22,7 @@ export const setAccountTier = async ({
   accountTypeId: string;
   tier: string | null;
   notify?: boolean;
+  via?: TTierChangeVia;
 }) => {
   const accountType = await models.LoyaltyAccountTypes.getActiveAccountType(
     accountTypeId,
@@ -69,6 +73,16 @@ export const setAccountTier = async ({
 
       projected = current;
     }
+  }
+
+  if (result.changed) {
+    await models.LoyaltyTierLogs.record({
+      account,
+      accountType,
+      from: result.from,
+      to: result.to,
+      via,
+    });
   }
 
   if (notify && result.changed) {

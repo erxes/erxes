@@ -53,6 +53,7 @@ const generateFilter = async (
     brandId,
     fromUserId,
     searchValue,
+    segmentId,
   } = params;
 
   const filter: FilterQuery<IEngageQueryParams> = {};
@@ -89,6 +90,11 @@ const generateFilter = async (
 
   if (fromUserId) {
     filter.fromUserId = fromUserId;
+  }
+
+  if (segmentId) {
+    filter.targetType = 'segment';
+    filter.targetIds = segmentId;
   }
 
   if (brandId) {

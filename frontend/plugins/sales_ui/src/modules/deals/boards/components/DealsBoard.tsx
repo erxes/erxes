@@ -1,5 +1,6 @@
 'use client';
 
+import { DealLoyaltyTotalsProvider } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
 import {
   DealsBoardItem,
   DealsBoardState,
@@ -291,24 +292,26 @@ export const DealsBoard = () => {
   }
 
   return (
-    <GenericBoard<DealsBoardItem, BoardDealColumn>
-      key={pipelineId}
-      initialState={boardState}
-      onStateChange={handleStateChange}
-      renderCard={(deal) => <DealsBoardCard deal={deal} />}
-      renderColumnHeader={(column, count) => (
-        <DealsBoardColumn
-          column={column}
-          count={count}
-          pipelineId={pipelineId || ''}
-          queryVariables={queryVariables}
-          fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
-          onFetchComplete={handleFetchComplete}
-          locallyMovedIdsRef={locallyMovedIdsRef}
-        />
-      )}
-      columnPagination={columnPaginationState}
-      onLoadMore={handleLoadMore}
-    />
+    <DealLoyaltyTotalsProvider dealIds={Object.keys(boardState.items)}>
+      <GenericBoard<DealsBoardItem, BoardDealColumn>
+        key={pipelineId}
+        initialState={boardState}
+        onStateChange={handleStateChange}
+        renderCard={(deal) => <DealsBoardCard deal={deal} />}
+        renderColumnHeader={(column, count) => (
+          <DealsBoardColumn
+            column={column}
+            count={count}
+            pipelineId={pipelineId || ''}
+            queryVariables={queryVariables}
+            fetchMoreTrigger={fetchMoreTriggers[column._id] || 0}
+            onFetchComplete={handleFetchComplete}
+            locallyMovedIdsRef={locallyMovedIdsRef}
+          />
+        )}
+        columnPagination={columnPaginationState}
+        onLoadMore={handleLoadMore}
+      />
+    </DealLoyaltyTotalsProvider>
   );
 };

@@ -49,6 +49,13 @@ export interface ILoyaltyAccountTypeResetState
   lastBoundary?: Date;
 }
 
+// Who may earn into the wallet: everyone, customers with a client portal
+// account, or members of a segment.
+export type TLoyaltyEarnEligibility = {
+  who: 'all' | 'clientPortal' | 'segment';
+  segmentId?: string;
+};
+
 export interface ILoyaltyAccountType {
   name: string;
   ownerType: TLoyaltyOwnerType;
@@ -62,6 +69,7 @@ export interface ILoyaltyAccountType {
   currencyRatio?: number;
   // Spending: 1 point pays pointValue of money.
   pointValue?: number;
+  earnEligibility?: TLoyaltyEarnEligibility;
 }
 
 export interface ILoyaltyAccountTypeDocument

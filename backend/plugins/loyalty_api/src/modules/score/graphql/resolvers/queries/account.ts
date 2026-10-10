@@ -35,4 +35,20 @@ export const loyaltyAccountQueries = {
 
     return models.LoyaltyAccounts.getOwnerAccount({ ownerType, ownerId });
   },
+
+  // Newest first; a tier moves rarely, so a page is the whole story.
+  async loyaltyTierLogs(
+    _root: undefined,
+    params: {
+      accountId?: string;
+      targetId?: string;
+      accountTypeId?: string;
+      limit?: number;
+    },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreLogView');
+
+    return models.LoyaltyTierLogs.getTierLogs(params);
+  },
 };

@@ -22,6 +22,7 @@ export const orderFields = `
   isPre
   directDiscount
   directIsAmount
+  extraInfo
 `
 export const orderItemBaseFields = `
  _id
@@ -41,6 +42,7 @@ export const orderItemFields = `
     discountPercent
     bonusCount
     manufacturedDate
+    conditionCode
     description
     attachment
 `

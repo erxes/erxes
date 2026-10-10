@@ -10,6 +10,19 @@ const AUTOMATION_SEED_PARAMS = {
   name: 'seedName',
 } as const;
 
+// Kept apart from the seed: the builder still needs it after the first save
+// turns the seed link into an edit link.
+const AUTOMATION_RETURN_PARAMS = {
+  path: 'returnTo',
+  label: 'returnLabel',
+} as const;
+
+// The page a seeded automation was opened from, offered as the way back.
+export type TAutomationReturnLink = {
+  path: string;
+  label: string;
+};
+
 // A node of a seeded flow. The builder takes its label and icon from the
 // registered action, so a seed names only what it configures.
 export type TAutomationSeedAction = {
@@ -44,12 +57,14 @@ export const buildAutomationSeedLink = ({
   actionType,
   actions,
   name,
+  returnTo,
 }: {
   triggerType?: string;
   triggerConfig?: Record<string, unknown>;
   actionType?: string;
   actions?: TAutomationSeedAction[];
   name?: string;
+  returnTo?: TAutomationReturnLink;
 }) => {
   const triggerId = generateAutomationElementId();
   const params = new URLSearchParams();
@@ -82,7 +97,46 @@ export const buildAutomationSeedLink = ({
     params.set(AUTOMATION_SEED_PARAMS.name, name);
   }
 
+  if (returnTo) {
+    params.set(AUTOMATION_RETURN_PARAMS.path, returnTo.path);
+    params.set(AUTOMATION_RETURN_PARAMS.label, returnTo.label);
+  }
+
   return `/automations/create?${params}`;
+};
+
+// Only a path inside this app: a link must not be able to send people elsewhere.
+const isInternalPath = (path: string) =>
+  path.startsWith('/') && !path.startsWith('//') && !path.startsWith('/\\');
+
+export const parseAutomationReturnLink = (
+  searchParams: URLSearchParams,
+): TAutomationReturnLink | undefined => {
+  const path = searchParams.get(AUTOMATION_RETURN_PARAMS.path) || '';
+
+  if (!isInternalPath(path)) {
+    return undefined;
+  }
+
+  return {
+    path,
+    label: searchParams.get(AUTOMATION_RETURN_PARAMS.label) || '',
+  };
+};
+
+/** The query string that carries a return link onto another builder URL. */
+export const automationReturnLinkSearch = (
+  returnTo?: TAutomationReturnLink,
+) => {
+  if (!returnTo) {
+    return '';
+  }
+
+  const params = new URLSearchParams();
+  params.set(AUTOMATION_RETURN_PARAMS.path, returnTo.path);
+  params.set(AUTOMATION_RETURN_PARAMS.label, returnTo.label);
+
+  return `?${params}`;
 };
 
 const parseSeedConfig = (value: string | null): Record<string, unknown> => {

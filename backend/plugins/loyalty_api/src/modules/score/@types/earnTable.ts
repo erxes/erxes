@@ -105,4 +105,6 @@ export type TScoreSkip =
   | { reason: 'no-amount'; amountSource: IEarnTable['amountSource'] }
   | { reason: 'rounded-to-zero' }
   // Spendable only after the next reset, which would clear it first.
-  | { reason: 'held-past-reset'; availableAt: string; resetsAt: string };
+  | { reason: 'held-past-reset'; availableAt: string; resetsAt: string }
+  // The wallet lets only client portal members or a segment earn.
+  | { reason: 'not-eligible'; who: 'clientPortal' | 'segment' };

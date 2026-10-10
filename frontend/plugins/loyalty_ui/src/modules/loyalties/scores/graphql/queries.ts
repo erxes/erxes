@@ -11,10 +11,6 @@ export const SCORE_LOGS_QUERY = gql`
     $orderType: String
     $fromDate: String
     $toDate: String
-    $boardId: String
-    $pipelineId: String
-    $stageId: String
-    $number: String
     $description: String
     $limit: Int
     $cursor: String
@@ -30,10 +26,6 @@ export const SCORE_LOGS_QUERY = gql`
       orderType: $orderType
       fromDate: $fromDate
       toDate: $toDate
-      boardId: $boardId
-      pipelineId: $pipelineId
-      stageId: $stageId
-      number: $number
       description: $description
       limit: $limit
       cursor: $cursor
@@ -81,10 +73,6 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
     $action: String
     $fromDate: String
     $toDate: String
-    $boardId: String
-    $pipelineId: String
-    $stageId: String
-    $number: String
     $description: String
   ) {
     scoreLogStatistics(
@@ -96,22 +84,45 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
       action: $action
       fromDate: $fromDate
       toDate: $toDate
-      boardId: $boardId
-      pipelineId: $pipelineId
-      stageId: $stageId
-      number: $number
       description: $description
     )
   }
 `;
 
 export const SCORE_CAMPAIGNS_SIMPLE_QUERY = gql`
-  query ScoreCampaignsSimple($searchValue: String, $limit: Int) {
-    scoreCampaigns(searchValue: $searchValue, limit: $limit) {
+  query ScoreCampaignsSimple(
+    $searchValue: String
+    $limit: Int
+    $status: String
+  ) {
+    scoreCampaigns(searchValue: $searchValue, limit: $limit, status: $status) {
       list {
         _id
         title
         ownerType
+        status
+      }
+    }
+  }
+`;
+
+// Everything one record (a deal, an order) moved, whoever owned the points.
+export const LOYALTY_TARGET_SCORE_LOGS = gql`
+  query LoyaltyTargetScoreLogs($targetId: String) {
+    scoreLogs(targetId: $targetId, limit: 100) {
+      list {
+        _id
+        ownerId
+        ownerType
+        owner
+        change
+        action
+        description
+        createdAt
+        campaign {
+          _id
+          title
+        }
       }
     }
   }

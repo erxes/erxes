@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -37,6 +37,9 @@
   Returned orders are retained; missing orders allow idempotent retries.
 - POS configuration exposes `isShowRemainder` for remainder display separately
   from `isCheckRemainder` and validation category exclusions.
+- POS configuration stores `customerCreateConfig` (`enabled`,
+  `assignCashierAsOwner`, `layout`) for POS client customer registration and
+  syncs it to POS client.
 
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
@@ -96,11 +99,35 @@
   removed instead). A copied deal drops its point payments
   (`withoutPointPayments`): it is a new order, not a second payment. Entering a stage
   that refunds calls `score.refund`; leaving one spends the point payments
-  again. A stage refunds when `refundPoints` is true, or when it is unset and
-  the stage is `Lost`. Removing deals refunds them (`Deals.removeDeals`). All
-  loyalty calls throw; with loyalty disabled they do nothing. POS order sync
-  calls `score.spend` (`spendOrderPoints`, also after `posOrderChangePayments`)
-  and `score.refund` for returned orders, still without throwing.
+  again. Where deals earn and refund comes from `sales_loyalty_rules`
+  (`utils/loyaltyRules.ts`): `everyBoard` and `everyPipeline` (one board) rules
+  name stages by probability, `specificStages` rules (one pipeline) by id, and
+  per campaign only the narrowest rule reaching a stage counts (override, not
+  union). In an earning stage every save restates the purchase with
+  `score.earn` (`dealScoreTotal`, `dealPaidAmount`, `dealPurchaseItems`) for the
+  first customer, so edits and a return from a refund stage are counted; no
+  customer means no earn and no error. Stage `refundPoints` is no longer read.
+  A purchase also sets one wallet's tier by its amount from
+  `sales_loyalty_tier_rules` (same places as points rules, but only the
+  single narrowest tier rule reaching a stage counts, whatever wallet it
+  names: `resolveLoyaltyTierRule`): after the earns, `syncDealPoints` calls
+  loyalty `score.applyPurchaseTier` with the rule's bands and `onlyUpgrade`
+  and `dealScoreTotal`, naming the deal (`targetName`: its name, else
+  `#number`) and the saving user so loyalty logs the change. Tiers are never refunded or set in a refund stage.
+  Deals written outside the deal mutations go through `syncWrittenDealPoints`
+  (read before, compared after): tRPC `deal.create` / `deal.updateOne`,
+  invoice-created deals, automation create-deal actions (after the source
+  relation, so its customer earns) and set-property updates. A new write path
+  that puts a deal into a stage must do the same.
+  Removing deals refunds them (`Deals.removeDeals`). All loyalty calls throw;
+  with loyalty disabled they do nothing. POS order sync calls `score.spend`
+  (`spendOrderPoints`, also after `posOrderChangePayments`), `score.earn` for
+  the POS's one `earnScoreCampaignId` once paid (`planOrderPoints` /
+  `earnOrderPoints`), `score.applyPurchaseTier` for the POS's one `earnTier`
+  (`{accountTypeId, bands, onlyUpgrade}`, checked by `validateEarnTier`) with
+  the order's `totalAmount` (with the order, named `POS #number`, and its
+  cashier as target and actor), and `score.refund` for returned orders (the tier
+  stays), still without throwing.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
@@ -112,6 +139,16 @@
   order description with `deliveryInfo.description`.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
+- POS order and deal triggers declare `actionInputs` for loyalty's Adjust score
+  and Set tier (`LOYALTY_SET_TIER_ACTION`, `totalAmount`: the order total /
+  the deal's `unUsedTotalAmount`), so tier bands read the purchase without
+  loyalty knowing sales.
+- The POS order event trigger's set-property targets are the order itself and
+  "Order customer" (`targetField` on `customerId`), so a POS automation can
+  update the buyer's properties, e.g. a purchase counter a reward is built on.
+- Product changes reach POS clients through `afterMutation` (`meta/productUtils.ts`);
+  core's bulk `productsSetConditionCodes` / `productCategorySetConditionCodes`
+  bypass `productsEdit`, so each touched product in a POS's groups is resent.
 - POS product sync calculates tax rules from the POS-specific `posInEbarimt`
   config document's `value`; selected VAT and city-tax rules are fetched through
   Mongolian `productRules.find` with a `data` filter before sending products.
@@ -181,6 +218,9 @@
   `discountInfos`, `totalAmount`, `unUsedTotalAmount`, `bothTotalAmount`,
   `mobileAmount`, `mobileAmounts`, and `paymentsData`.
 - Pipeline documents store validated Core deal field ids in `propertyIds`.
+- POS order items keep the optional `conditionCode` (core product condition code) the POS client sold a line under, for reporting.
+- POS `customerCreateConfig.layout` rows hold customer system field codes from
+  `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
 
@@ -194,6 +234,9 @@
   converted deals or Mongolian-owned receipt copies.
 - Preserve tenant isolation through the request `subdomain` for every model and
   service access.
+- `posAdd`/`posEdit` reject an enabled `customerCreateConfig` whose layout lacks
+  both `primaryEmail` and `primaryPhone` or places an unknown code
+  (`validateCustomerCreateConfig`).
 - Cross-service access must use published GraphQL, tRPC, HTTP, event, or
   federation contracts.
 - Deal stage-list indexes must retain cursor ordering and keep the common
@@ -277,6 +320,14 @@
   - `pos.ordersDeliveryInfo`, `orders.findOne`, `orders.find` — `posOrderRead`
 - tRPC service contracts under `src/trpc` and module-specific `trpc`
   directories for platform and cross-plugin callers (not agent-visible).
+- GraphQL `salesLoyaltyRules` and `salesLoyaltyRulesSave(rules)` (whole
+  configuration replaced at once, `pipelinesEdit` permission, validated by
+  `loyaltyRuleIssue`); `salesLoyaltyTierRules` and
+  `salesLoyaltyTierRulesSave(rules)` (same, validated by
+  `loyaltyTierRuleIssue`); `Pos.earnScoreCampaignId`; `Pos.earnTier` (JSON);
+  `SalesStage.loyaltyPoints`
+  (what the saved rules make of a stage, for the pipeline editor's badges:
+  `earns`, `refunds`, and the `tier` rule it sets, none in a refund stage).
 - Record reference resolvers under `src/modules/sales/meta/references`.
 - Sales metadata and automation contracts under `src/modules/sales/meta`.
 
@@ -286,8 +337,8 @@
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Public platform contracts for products, customers, companies, users,
   branches, departments, and related records.
-- Loyalty tRPC `score.spend` / `score.refund` with loyalty-owned inputs; sales
-  never sends whole deals or orders to loyalty.
+- Loyalty tRPC `score.spend` / `score.earn` / `score.refund` with
+  loyalty-owned inputs; sales never sends whole deals or orders to loyalty.
 - Mongolian `mnConfigs` values for `EBARIMT` and POS-specific
   `posInEbarimt` eBarimt settings.
 - Loyalty-facing sales deal payloads through published target/reference
@@ -305,6 +356,9 @@
   `paymentsData`.
 - Pipeline payment type configuration may attach `scoreCampaignId` to payment
   types used by loyalty-related references.
+- Loyalty rules live in `sales_loyalty_rules` (points) and
+  `sales_loyalty_tier_rules` (tier by amount); a POS keeps its own
+  `earnScoreCampaignId` and `earnTier`.
 
 ## Local Invariants
 
@@ -389,6 +443,12 @@
 - Paid POS order smoke: `pos.cancelOrder` rejects an order with `paidDate`
   before receipt/refund service calls or deletion, including `billType: '9'`.
 - `pnpm nx build:packageJson sales_api`
+- `pnpm nx test sales_api`
+- Smoke scenario: with an `everyBoard` rule (Won earns, Lost refunds) move a
+  deal with a customer to Won, edit its products, move it to Lost and back;
+  the customer's points follow the current amount and end equal to one Won.
+- Smoke scenario: an automation sets a deal's stage to Won (set property) or
+  creates one there; the deal's customer earns as from the deal form.
 - Smoke scenario: query deals by `stageId` and verify `totalCount` does not
   fetch deal documents.
 - Smoke scenario: query deals without a stage using default order and verify
@@ -412,6 +472,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-09` — Purchases set a tier without automations
+
+- **Summary:** One tier per purchase, configured beside the points rules: deals by the narrowest tier rule at their stage, POS orders by the POS's `earnTier`; both call loyalty `score.applyPurchaseTier` and never undo it.
+- **Affected areas:** `modules/sales/utils/{loyaltyRules,dealPoints}.ts` (+ tests), `modules/sales/db/{definitions/loyaltyRules.ts,models/LoyaltyTierRules.ts}`, `modules/sales/graphql/{schemas/loyaltyRule.ts,resolvers/*/loyaltyRules.ts}`, `connectionResolvers.ts`, `modules/pos/{orderPoints.ts,utils.ts,@types/pos.ts,db/definitions/pos.ts,db/models/Pos.ts,graphql/schemas/pos.ts}` (+ tests).
+- **Contracts changed:** `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `Pos.earnTier`; calls loyalty `score.applyPurchaseTier`.
+
+### `2026-10-08` — Deals and POS earn without automations
+
+- **Summary:** Earning follows where a deal stands, configured as board/pipeline/stage rules in sales; paid POS orders earn in the POS's campaigns. Rules replace the stage `refundPoints` setting.
+- **Affected areas:** `modules/sales/utils/{loyaltyRules,dealPoints}.ts` (+ tests), `modules/sales/db/{definitions,models}/loyaltyRules`, `modules/sales/graphql/{schemas/loyaltyRule.ts,resolvers/*/loyaltyRules.ts}`, `modules/sales/meta/automations/purchase.ts`, `modules/pos/{orderPoints.ts,utils.ts}` (+ tests), POS schema, `trpc/deal.ts`, `meta/payments/createDealFromPayment.ts`, `meta/automations/{automationHandlers.ts,action/createDealAction.ts,action/createAction.ts}`; jest test target added.
+- **Contracts changed:** `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `SalesStage.loyaltyPoints`, `Pos.earnScoreCampaignId`; calls loyalty `score.earn`.
 
 ### `2026-10-01` — POS card conversion reuses deals
 
@@ -477,27 +549,3 @@
 - **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
 - **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
 - **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from both the sales and POS module handlers; automation
-  target matching now runs through the segment engine, so the Elasticsearch-era
-  selector round-trip has no caller left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/sales/meta/automations/automationHandlers.ts`,
-  `src/modules/pos/meta/automations/automationHandlers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
-
-### `2026-09-01` — Deal document print order follows the selection
-
-- **Summary:** Printing multiple deals emitted pages in Mongo natural order
-  instead of the order the deals were selected in, so the deal in the first
-  row of the print table could land many pages in (verified locally: row 1
-  `min min` printed as page 13); `replaceDealContent` now reindexes the loaded
-  deals by `replacerIds` before processing.
-- **Affected areas:** `src/modules/sales/documents/dealContent.ts`.
-- **Contracts changed:** None (`deal.replaceContent` still returns one entry
-  per resolvable `replacerId`, now ordered).

@@ -7,6 +7,10 @@ import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { OtherPaymentsField, PaymentIdsField } from '@/payments';
 import { type PaymentConfigItem } from '@/payments';
 import { useTranslation } from 'react-i18next';
+import { EarnScoreCampaignsField } from './EarnScoreCampaignsField';
+import { PosEarnTierField } from './PosEarnTierField';
+import { IPosEarnTier } from '@/pos/types/pos';
+import { toTierBands } from '@/deals/loyaltyRules/tierBands';
 
 interface PaymentProps {
   posId?: string;
@@ -17,6 +21,8 @@ interface PaymentProps {
 export interface PaymentFormData {
   paymentIds: string[];
   paymentTypes: PaymentConfigItem[];
+  earnScoreCampaignId: string;
+  earnTier: IPosEarnTier | null;
 }
 
 const PAYMENT_FORM_ID = 'pos-payment-form';
@@ -24,6 +30,8 @@ const PAYMENT_FORM_ID = 'pos-payment-form';
 const DEFAULT_FORM_VALUES: PaymentFormData = {
   paymentIds: [],
   paymentTypes: [],
+  earnScoreCampaignId: '',
+  earnTier: null,
 };
 
 const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
@@ -55,6 +63,14 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
     reset({
       paymentIds: posDetail.paymentIds ?? [],
       paymentTypes: validPaymentTypes,
+      earnScoreCampaignId: posDetail.earnScoreCampaignId ?? '',
+      earnTier: posDetail.earnTier
+        ? {
+            accountTypeId: posDetail.earnTier.accountTypeId,
+            bands: toTierBands(posDetail.earnTier.bands),
+            onlyUpgrade: !!posDetail.earnTier.onlyUpgrade,
+          }
+        : null,
     });
   }, [posDetail, reset]);
 
@@ -64,6 +80,15 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
         toast({
           title: t('error'),
           description: t('pos-id-required'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (data.earnTier && !data.earnTier.bands.length) {
+        toast({
+          title: t('error'),
+          description: t('loyalty-tier-no-bands'),
           variant: 'destructive',
         });
         return;
@@ -84,6 +109,8 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
                 scoreCampaignId,
               }),
             ),
+            earnScoreCampaignId: data.earnScoreCampaignId || null,
+            earnTier: data.earnTier,
           },
         });
 
@@ -157,6 +184,8 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
         >
           <PaymentIdsField control={control} />
           <OtherPaymentsField control={control} />
+          <EarnScoreCampaignsField control={control} posId={posId} />
+          <PosEarnTierField control={control} />
         </form>
       </Form>
     );

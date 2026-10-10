@@ -4,6 +4,7 @@ import {
   shiftZonedDays,
   zonedDate,
   zonedDayStart,
+  zonedPeriodRange,
 } from './zonedTime';
 
 const UB = 'Asia/Ulaanbaatar';
@@ -117,5 +118,46 @@ describe('isAnniversary', () => {
     expect(isAnniversary(born, { year: 2028, month: 2, day: 29 }, UB)).toBe(
       true,
     );
+  });
+});
+
+describe('zonedPeriodRange', () => {
+  const at = (iso: string, period: 'month' | 'quarter' | 'year', zone = UB) => {
+    const { gte, lt } = zonedPeriodRange(new Date(iso), zone, period);
+
+    return [gte.toISOString(), lt.toISOString()];
+  };
+
+  it('holds the whole local month, quarter or year around now', () => {
+    expect(at('2026-10-08T03:00:00Z', 'month')).toEqual([
+      '2026-09-30T16:00:00.000Z',
+      '2026-10-31T16:00:00.000Z',
+    ]);
+    expect(at('2026-10-08T03:00:00Z', 'quarter')).toEqual([
+      '2026-09-30T16:00:00.000Z',
+      '2026-12-31T16:00:00.000Z',
+    ]);
+    expect(at('2026-10-08T03:00:00Z', 'year')).toEqual([
+      '2025-12-31T16:00:00.000Z',
+      '2026-12-31T16:00:00.000Z',
+    ]);
+  });
+
+  it('rolls over into the next year at the end of December', () => {
+    expect(at('2026-12-15T00:00:00Z', 'month', 'UTC')).toEqual([
+      '2026-12-01T00:00:00.000Z',
+      '2027-01-01T00:00:00.000Z',
+    ]);
+    expect(at('2026-12-15T00:00:00Z', 'quarter', 'UTC')).toEqual([
+      '2026-10-01T00:00:00.000Z',
+      '2027-01-01T00:00:00.000Z',
+    ]);
+  });
+
+  it("takes the period of the organization's day, not the UTC one", () => {
+    expect(at('2026-08-31T17:00:00Z', 'month')).toEqual([
+      '2026-08-31T16:00:00.000Z',
+      '2026-09-30T16:00:00.000Z',
+    ]);
   });
 });

@@ -19,6 +19,8 @@ export interface OrderItemInput {
     percent?: number
   }[]
   manufacturedDate?: string
+  // Code of the product condition this unit is sold under, one of the product's codes.
+  conditionCode?: string | null
 }
 
 export interface IAddToCartInput extends IProduct {
@@ -189,6 +191,7 @@ export interface IOrder extends IOrderCommon {
   sloteCode?: string
   isPre?: boolean
   deliveryInfo?: { description?: string }
+  extraInfo?: { voucherId?: string | null; couponCode?: string | null } | null
 }
 
 export interface IOrderHistory {

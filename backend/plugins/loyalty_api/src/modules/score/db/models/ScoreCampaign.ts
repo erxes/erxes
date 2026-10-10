@@ -1,3 +1,4 @@
+import { mayEarn } from '@/score/services/earnEligibility';
 import {
   IScoreCampaign,
   IScoreCampaignDocument,
@@ -7,6 +8,8 @@ import {
   ILoyaltyPurchaseItem,
   ILoyaltyScoreSource,
   ISpendInput,
+  TEarnRulePreview,
+  TEarnRulesPreviewInput,
 } from '@/score/@types/purchase';
 import { IScoreLogDocument } from '@/score/@types/scoreLog';
 import { SCORE_ACTION, SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
@@ -95,6 +98,10 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
     input: IEarnInput,
     onSkip?: (skips: TScoreSkip[]) => void,
   ): Promise<IScoreLogDocument | null>;
+  previewEarn(
+    input: IEarnInput,
+  ): Promise<{ points: number; skips: TScoreSkip[] }>;
+  previewEarnRules(input: TEarnRulesPreviewInput): Promise<TEarnRulePreview[]>;
   refundTarget(args: {
     targetId: string;
     ownerType?: string;
@@ -331,13 +338,17 @@ export const loadScoreCampaignClass = (
       throw new Error('Owner not found');
     }
 
-    const campaign = await models.ScoreCampaigns.findOne({
-      _id: campaignId,
-      status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
-    });
+    const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
 
     if (!campaign) {
       throw new Error('Campaign not found');
+    }
+
+    // A draft or archived campaign: say so instead of "not found".
+    if (campaign.status !== SCORE_CAMPAIGN_STATUSES.PUBLISHED) {
+      throw new Error(
+        `Score campaign "${campaign.title}" is ${campaign.status}, not active; activate it to give or take points`,
+      );
     }
 
     if (campaign.ownerType !== ownerType) {
@@ -369,6 +380,49 @@ export const loadScoreCampaignClass = (
       }),
       discountCheck: campaign.additionalConfig?.discountCheck === true,
       requireTickUsed: false,
+    };
+  };
+
+  // What a purchase earns under a campaign's table; shared by earning and
+  // by previewing, so a preview can never disagree with what is given.
+  const evaluatePurchase = async (
+    campaign: IScoreCampaignDocument,
+    earnTable: IEarnTable,
+    input: IEarnInput,
+  ) => {
+    const { purchase } = input;
+    const productScope = purchase.items?.length
+      ? await buildPurchaseProductScope(campaign, purchase.items)
+      : undefined;
+    const earnCtx = await buildEarnContext({
+      models,
+      subdomain,
+      campaign,
+      ownerType: input.ownerType,
+      ownerId: input.ownerId,
+      targetId: input.targetId,
+      serviceName: input.serviceName,
+      table: earnTable,
+      totalAmount: productScope
+        ? generateTargetTotalAmountDeal(productScope.rows, productScope)
+        : Number(purchase.totalAmount) || 0,
+      paidAmount: Number(purchase.paidAmount) || 0,
+      productScope,
+    });
+    const earned = evaluateEarnTable({
+      table: earnTable,
+      ctx: earnCtx,
+      activeRowKeys: input.earnRowKeys,
+    });
+
+    return {
+      earned,
+      skips: () =>
+        explainEmptyEarn({
+          table: earnTable,
+          ctx: earnCtx,
+          activeRowKeys: input.earnRowKeys,
+        }),
     };
   };
 
@@ -489,6 +543,30 @@ export const loadScoreCampaignClass = (
     });
 
     return activeScoreLog;
+  };
+
+  // The wallet may let only some owners earn; spending is never gated here.
+  const earnBlockedFor = async (
+    campaign: IScoreCampaignDocument,
+    { ownerType, ownerId }: { ownerType: string; ownerId: string },
+  ): Promise<TScoreSkip | null> => {
+    if (!campaign.accountTypeId) {
+      return null;
+    }
+
+    const accountType = await models.LoyaltyAccountTypes.findOne(
+      { _id: campaign.accountTypeId },
+      { earnEligibility: 1 },
+    ).lean();
+    const eligibility = accountType?.earnEligibility;
+
+    if (!eligibility || eligibility.who === 'all') {
+      return null;
+    }
+
+    return (await mayEarn({ subdomain, eligibility, ownerType, ownerId }))
+      ? null
+      : { reason: 'not-eligible', who: eligibility.who };
   };
 
   class ScoreCampaign {
@@ -744,6 +822,116 @@ export const loadScoreCampaignClass = (
       });
     }
 
+    /**
+     * What `earn` would give this purchase, written nowhere. A zero carries
+     * its reasons, as a skipped earn would.
+     */
+    public static async previewEarn(
+      input: IEarnInput,
+    ): Promise<{ points: number; skips: TScoreSkip[] }> {
+      const { campaign } = await loadCampaignOwner(input);
+      const earnTable = campaign.add?.table;
+
+      if (!earnTable?.rows?.length) {
+        return { points: 0, skips: [{ reason: 'no-rows' }] };
+      }
+
+      const blocked = await earnBlockedFor(campaign, input);
+
+      if (blocked) {
+        return { points: 0, skips: [blocked] };
+      }
+
+      const { earned, skips } = await evaluatePurchase(
+        campaign,
+        earnTable,
+        input,
+      );
+
+      if (!earned.total) {
+        return { points: 0, skips: skips() };
+      }
+
+      const held = await heldPastReset({
+        models,
+        subdomain,
+        accountTypeId: campaign.accountTypeId,
+      });
+
+      return held
+        ? {
+            points: 0,
+            skips: [
+              {
+                reason: 'held-past-reset',
+                availableAt: held.availableAt.toISOString(),
+                resetsAt: held.resetsAt.toISOString(),
+              },
+            ],
+          }
+        : { points: earned.total, skips: [] };
+    }
+
+    /**
+     * Previews every rule a selling side says would earn on one purchase.
+     * A rule that cannot earn (campaign gone, wrong owner type) says why
+     * instead of failing the others.
+     */
+    public static async previewEarnRules({
+      ownerType,
+      ownerId,
+      rules,
+      purchase,
+    }: TEarnRulesPreviewInput): Promise<TEarnRulePreview[]> {
+      const campaigns = await models.ScoreCampaigns.find(
+        { _id: { $in: rules.map(({ campaignId }) => campaignId) } },
+        { title: 1, accountTypeId: 1 },
+      ).lean();
+      const accountTypes = await models.LoyaltyAccountTypes.find(
+        {
+          _id: {
+            $in: campaigns.flatMap(({ accountTypeId }) =>
+              accountTypeId ? [accountTypeId] : [],
+            ),
+          },
+        },
+        { name: 1 },
+      ).lean();
+
+      return Promise.all(
+        rules.map(async ({ campaignId, earnRowKeys }) => {
+          const campaign = campaigns.find(({ _id }) => _id === campaignId);
+          const accountType = accountTypes.find(
+            ({ _id }) => _id === campaign?.accountTypeId,
+          );
+          const base = {
+            campaignId,
+            campaignTitle: campaign?.title || '',
+            accountTypeName: accountType?.name || '',
+          };
+
+          try {
+            const preview = await models.ScoreCampaigns.previewEarn({
+              ownerType,
+              ownerId,
+              campaignId,
+              earnRowKeys,
+              purchase,
+            });
+
+            return { ...base, ...preview };
+          } catch (e) {
+            return {
+              ...base,
+              points: 0,
+              skips: [],
+              error: e instanceof Error ? e.message : String(e),
+            };
+          }
+        }),
+      );
+    }
+
     /** Points a purchase earns under the campaign's earning table. */
     public static async earn(
       input: IEarnInput,
@@ -756,10 +944,14 @@ export const loadScoreCampaignClass = (
         throw new Error('Set up the earning table of this campaign first');
       }
 
-      const { purchase } = input;
-      const productScope = purchase.items?.length
-        ? await buildPurchaseProductScope(campaign, purchase.items)
-        : undefined;
+      const blocked = await earnBlockedFor(campaign, input);
+
+      if (blocked) {
+        onSkip?.([blocked]);
+
+        return null;
+      }
+
       const activeScoreLog = await findActiveScoreLog({
         models,
         targetId: input.targetId,
@@ -768,35 +960,14 @@ export const loadScoreCampaignClass = (
         campaignId: campaign._id,
         action: 'add',
       });
-      const earnCtx = await buildEarnContext({
-        models,
-        subdomain,
+      const { earned, skips } = await evaluatePurchase(
         campaign,
-        ownerType: input.ownerType,
-        ownerId: input.ownerId,
-        targetId: input.targetId,
-        serviceName: input.serviceName,
-        table: earnTable,
-        totalAmount: productScope
-          ? generateTargetTotalAmountDeal(productScope.rows, productScope)
-          : Number(purchase.totalAmount) || 0,
-        paidAmount: Number(purchase.paidAmount) || 0,
-        productScope,
-      });
-      const earned = evaluateEarnTable({
-        table: earnTable,
-        ctx: earnCtx,
-        activeRowKeys: input.earnRowKeys,
-      });
+        earnTable,
+        input,
+      );
 
       if (!earned.total && !activeScoreLog) {
-        onSkip?.(
-          explainEmptyEarn({
-            table: earnTable,
-            ctx: earnCtx,
-            activeRowKeys: input.earnRowKeys,
-          }),
-        );
+        onSkip?.(skips());
 
         return null;
       }

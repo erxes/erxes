@@ -23,6 +23,10 @@ export const LOYALTY_ACCOUNT_TYPE_FIELDS = gql`
     pendingDays
     currencyRatio
     pointValue
+    earnEligibility {
+      who
+      segmentId
+    }
     fieldId
     status
     campaignCount

@@ -1,11 +1,10 @@
 import { Sheet, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { buildGroupRows, useFields } from 'ui-modules';
+import { buildGroupRows, LayoutEditor, useFields } from 'ui-modules';
 import { useGroupLayoutSave } from '../hooks/useGroupLayoutSave';
 import { activeLayoutGroupState } from '../states/activeLayoutGroupState';
 import { IFieldGroup } from '../types/Properties';
-import { LayoutEditor } from './LayoutEditor';
 
 export const PropertyGroupLayoutSheet = () => {
   const [group, setGroup] = useAtom(activeLayoutGroupState);

@@ -1,6 +1,7 @@
 import { SegmentRelationMeta } from './relationRegistry';
 import { decideSegmentNode, SegmentEvaluationState } from './evaluate';
 
+import { segmentRelationRef } from './nodeRefs';
 import { SegmentNode } from './nodes';
 import {
   buildSegmentEvaluationPlan,
@@ -203,4 +204,60 @@ export const evaluateSegmentBatch = async (
   }
 
   return result;
+};
+
+// A condition's place in a segment tree, e.g. `children.0`; empty is the root.
+export const segmentNodeAt = (
+  root: SegmentNode,
+  path: string,
+): SegmentNode | undefined =>
+  path
+    .split('.')
+    .filter(Boolean)
+    .reduce<unknown>(
+      (node, key) =>
+        node && typeof node === 'object'
+          ? (node as Record<string, unknown>)[key]
+          : undefined,
+      root,
+    ) as SegmentNode | undefined;
+
+/**
+ * What a segment's relation conditions measure for one subject (a sum of
+ * deals, a count), keyed by each condition's place in the tree. A trigger's
+ * re-enrollment watches these: the subject's own fields do not change when
+ * its deals do.
+ */
+export const measureSegmentSubject = async (
+  gateway: SegmentEvaluationGateway,
+  segment: { _id: string; contentType: string; root: SegmentNode },
+  subjectId: string,
+  paths: string[],
+): Promise<Record<string, unknown>> => {
+  const watched = paths.flatMap((path) => {
+    const node = segmentNodeAt(segment.root, path);
+
+    return node?.kind === 'relation'
+      ? [{ path, ref: segmentRelationRef(node) }]
+      : [];
+  });
+
+  if (!watched.length) {
+    return {};
+  }
+
+  const { owners, relations } = await gateway.relationsFor(segment.contentType);
+  const plan = buildSegmentEvaluationPlan({
+    subjectType: segment.contentType,
+    subjectIds: [subjectId],
+    segments: [{ _id: segment._id, root: segment.root }],
+    relationOwners: owners,
+  });
+  const timeZone = (await gateway.timeZone?.()) || DEFAULT_SEGMENT_TIME_ZONE;
+  const { table } = await resolveValues(gateway, plan, relations, timeZone);
+  const values = table.get(subjectId) || new Map();
+
+  return Object.fromEntries(
+    watched.map(({ path, ref }) => [path, values.get(ref) ?? null]),
+  );
 };

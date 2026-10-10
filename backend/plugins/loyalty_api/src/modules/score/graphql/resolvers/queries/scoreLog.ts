@@ -8,10 +8,9 @@ export const scoreLogQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('scoreLogView');
-    // Delegate to the model so every filter (date range, deal number,
-    // board/pipeline/stage, description, action) is applied consistently.
-    // The previous inline filter ignored `number` and `fromDate`/`toDate`,
-    // so those filters silently did nothing.
+    // Delegate to the model so every filter (date range, description,
+    // action) is applied consistently. A source's own fields (a deal's
+    // board or number) are filtered on the source's side.
     return models.ScoreLogs.getScoreLogs(params);
   },
 
@@ -30,6 +29,17 @@ export const scoreLogQueries = {
     { models }: IContext,
   ) {
     return models.ScoreLogs.getScoreLogs(params);
+  },
+
+  // Net points each record moved, for a source listing its own records.
+  async loyaltyScoreTargetTotals(
+    _root: undefined,
+    { targetIds }: { targetIds: string[] },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreLogView');
+
+    return models.ScoreLogs.getTargetTotals(targetIds);
   },
 
   async scoreLogStatistics(

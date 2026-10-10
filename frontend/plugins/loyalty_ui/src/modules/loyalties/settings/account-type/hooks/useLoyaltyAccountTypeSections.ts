@@ -20,7 +20,12 @@ const SECTION_HAS_ERROR: Record<
   (errors: FieldErrors<TLoyaltyAccountTypeFormValues>) => boolean
 > = {
   general: (errors) =>
-    !!(errors.name || errors.ownerType || errors.frozenBlocks),
+    !!(
+      errors.name ||
+      errors.ownerType ||
+      errors.frozenBlocks ||
+      errors.earnEligibility
+    ),
   points: (errors) =>
     !!(errors.currencyRatio || errors.pointValue || errors.pendingDays),
   tiers: (errors) => !!errors.tiers,

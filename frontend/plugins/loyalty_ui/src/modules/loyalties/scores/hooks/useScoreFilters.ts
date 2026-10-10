@@ -16,10 +16,6 @@ export const useScoreFilters = () => {
       scoreCampaignId,
       scoreDate,
       scoreAction,
-      scoreBoardId,
-      scorePipelineId,
-      scoreStageId,
-      number,
       description,
     },
   ] = useMultiQueryState<{
@@ -28,10 +24,6 @@ export const useScoreFilters = () => {
     scoreCampaignId: string;
     scoreDate: string;
     scoreAction: string;
-    scoreBoardId: string;
-    scorePipelineId: string;
-    scoreStageId: string;
-    number: string;
     description: string;
   }>([
     'scoreOwnerType',
@@ -39,10 +31,6 @@ export const useScoreFilters = () => {
     'scoreCampaignId',
     'scoreDate',
     'scoreAction',
-    'scoreBoardId',
-    'scorePipelineId',
-    'scoreStageId',
-    'number',
     'description',
   ]);
 
@@ -56,10 +44,6 @@ export const useScoreFilters = () => {
       fromDate: dateRange?.from?.toISOString() || undefined,
       toDate: dateRange?.to?.toISOString() || undefined,
       action: scoreAction || undefined,
-      boardId: scoreBoardId || undefined,
-      pipelineId: scorePipelineId || undefined,
-      stageId: scoreStageId || undefined,
-      number: number != null && number !== '' ? String(number) : undefined,
       description: description || undefined,
     }),
     [
@@ -69,10 +53,6 @@ export const useScoreFilters = () => {
       dateRange?.from,
       dateRange?.to,
       scoreAction,
-      scoreBoardId,
-      scorePipelineId,
-      scoreStageId,
-      number,
       description,
     ],
   );

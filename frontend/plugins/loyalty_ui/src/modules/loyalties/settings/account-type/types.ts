@@ -27,6 +27,14 @@ export interface ILoyaltyAccountTypeExpiry {
   months?: number | null;
 }
 
+// Who may earn into the wallet.
+export type TLoyaltyEarnWho = 'all' | 'clientPortal' | 'segment';
+
+export interface ILoyaltyEarnEligibility {
+  who: TLoyaltyEarnWho;
+  segmentId?: string | null;
+}
+
 export interface ILoyaltyAccountType {
   _id: string;
   name: string;
@@ -38,6 +46,7 @@ export interface ILoyaltyAccountType {
   pendingDays?: number | null;
   currencyRatio?: number | null;
   pointValue?: number | null;
+  earnEligibility?: ILoyaltyEarnEligibility | null;
   fieldId?: string;
   status: TLoyaltyAccountTypeStatus;
   campaignCount?: number;

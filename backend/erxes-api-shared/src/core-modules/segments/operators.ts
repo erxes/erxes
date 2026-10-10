@@ -1,3 +1,5 @@
+import type { ZonedPeriod } from './zonedTime';
+
 export enum SegmentOperator {
   Equals = 'e',
   NotEquals = 'dne',
@@ -32,6 +34,10 @@ export enum SegmentOperator {
   DateIsNotSet = 'dateins',
   NumberEquals = 'numbere',
   NumberNotEquals = 'numberdne',
+  DateThisMonth = 'dtm',
+  DateThisQuarter = 'dtq',
+  DateThisYear = 'dty',
+
   DateRelativeLt = 'drlt',
   DateRelativeGt = 'drgt',
 }
@@ -151,6 +157,24 @@ export const SEGMENT_OPERATOR_SPECS: Record<
     input: 'none',
     hint: 'The day and month, in any year - a birthday rather than the date itself. Re-checked every night, so it holds only for the day.',
   },
+  [SegmentOperator.DateThisMonth]: {
+    value: SegmentOperator.DateThisMonth,
+    label: 'is in this month',
+    input: 'none',
+    hint: 'From the 1st of the current month; moves on by itself each month.',
+  },
+  [SegmentOperator.DateThisQuarter]: {
+    value: SegmentOperator.DateThisQuarter,
+    label: 'is in this quarter',
+    input: 'none',
+    hint: 'From the first day of the current quarter; moves on by itself.',
+  },
+  [SegmentOperator.DateThisYear]: {
+    value: SegmentOperator.DateThisYear,
+    label: 'is in this year',
+    input: 'none',
+    hint: 'From January 1st of the current year; moves on by itself each year.',
+  },
   [SegmentOperator.AnniversaryFromNow]: {
     value: SegmentOperator.AnniversaryFromNow,
     label: 'anniversary in day(s)',
@@ -210,3 +234,10 @@ export const SEGMENT_IMPLICIT_OPERATORS: SegmentOperator[] = [
 export const normalizeSegmentOperator = (
   operator: SegmentOperator,
 ): SegmentOperator => SEGMENT_OPERATOR_SPECS[operator]?.deprecated || operator;
+
+// Calendar periods holding "now", moving on by themselves.
+export const PERIOD_OPERATORS: Partial<Record<SegmentOperator, ZonedPeriod>> = {
+  [SegmentOperator.DateThisMonth]: 'month',
+  [SegmentOperator.DateThisQuarter]: 'quarter',
+  [SegmentOperator.DateThisYear]: 'year',
+};

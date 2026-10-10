@@ -348,6 +348,7 @@ const filterParams = `
   brandId: String
   fromUserId: String
   searchValue: String
+  segmentId: String
 `;
 
 const queryParams = `

@@ -5,7 +5,10 @@ import {
   TAutomationTriggerActionInputs,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
-import { LOYALTY_ADJUST_SCORE_ACTION } from '~/modules/sales/meta/automations/purchase';
+import {
+  LOYALTY_ADJUST_SCORE_ACTION,
+  LOYALTY_SET_TIER_ACTION,
+} from '~/modules/sales/meta/automations/purchase';
 import { IPosOrder } from '~/modules/pos/@types/orders';
 import { posOrderPaidAmount, posOrderPurchaseItems } from './purchase';
 import { resolvePosOrderPaymentUrl } from './resolvers/resolvePosOrderPaymentUrl';
@@ -45,6 +48,14 @@ const POS_ORDER_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
     label: 'POS order',
     type: 'sales:pos.orders',
     source: 'target',
+    cardinality: 'one',
+  },
+  // The buyer's own record, e.g. a purchase counter a reward is built on.
+  {
+    label: 'Order customer',
+    type: 'core:contacts.customers',
+    source: 'targetField',
+    targetPath: 'customerId',
     cardinality: 'one',
   },
 ];
@@ -150,6 +161,7 @@ const POS_ORDER_ACTION_INPUTS: TAutomationTriggerActionInputs = {
     paidAmount: 'paidAmount',
     items: 'purchaseItems',
   },
+  [LOYALTY_SET_TIER_ACTION]: { totalAmount: 'totalAmount' },
 };
 
 export const posAutomationConstants = {

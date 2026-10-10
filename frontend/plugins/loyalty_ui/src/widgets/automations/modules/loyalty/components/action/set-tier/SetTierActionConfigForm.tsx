@@ -1,4 +1,4 @@
-import { Form, Select } from 'erxes-ui';
+import { Checkbox, Form, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
@@ -8,7 +8,11 @@ import {
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { SelectLoyaltyAccountType } from '~/modules/loyalties/settings/account-type/components/SelectLoyaltyAccountType';
-import { useSetTierActionForm } from '../../../hooks/useSetTierActionForm';
+import { TierBandsFields } from '~/modules/loyalties/settings/account-type/components/TierBandsFields';
+import {
+  toSetTierConfig,
+  useSetTierActionForm,
+} from '../../../hooks/useSetTierActionForm';
 import { TSetTierActionConfigForm } from '../../../states/setTierActionConfigFormDefinitions';
 
 // Select items cannot hold an empty value; an empty tier clears it.
@@ -21,7 +25,9 @@ export const SetTierActionConfigForm = ({
   targetType,
 }: AutomationActionFormProps<TSetTierActionConfigForm>) => {
   const { t } = useTranslation('loyalty');
-  const { form, tiers } = useSetTierActionForm(currentAction?.config);
+  const { form, mode, tiers, bandsValue, setBandsValue } = useSetTierActionForm(
+    currentAction?.config,
+  );
   const { control, handleSubmit } = form;
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Set tier configuration',
@@ -30,7 +36,10 @@ export const SetTierActionConfigForm = ({
   useAutomationRemoteFormSubmit({
     formRef,
     callback: () => {
-      handleSubmit(onSaveActionConfig, handleValidationErrors)();
+      handleSubmit(
+        (values) => onSaveActionConfig(toSetTierConfig(values)),
+        handleValidationErrors,
+      )();
     },
   });
 
@@ -80,37 +89,101 @@ export const SetTierActionConfigForm = ({
         />
         <Form.Field
           control={control}
-          name="tier"
+          name="mode"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('loyalty-tier')}</Form.Label>
-              <Select
-                value={field.value || NO_TIER}
-                onValueChange={(value) =>
-                  field.onChange(value === NO_TIER ? '' : value)
-                }
-              >
+              <Form.Label>{t('set-tier-mode')}</Form.Label>
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
-                  <Select.Item value={NO_TIER}>
-                    {t('loyalty-tier-none')}
+                  <Select.Item value="fixed">
+                    {t('set-tier-mode-fixed')}
                   </Select.Item>
-                  {tiers.map(({ key, name }) => (
-                    <Select.Item key={key} value={key}>
-                      {name}
-                    </Select.Item>
-                  ))}
+                  <Select.Item value="amount">
+                    {t('set-tier-mode-amount')}
+                  </Select.Item>
                 </Select.Content>
               </Select>
-              <Form.Description>{t('set-tier-hint')}</Form.Description>
-              <Form.Message />
             </Form.Item>
           )}
         />
+        {mode === 'amount' && (
+          <Form.Field
+            control={control}
+            name="bands"
+            render={() => (
+              <Form.Item>
+                <Form.Label>{t('set-tier-bands')}</Form.Label>
+                <TierBandsFields
+                  tiers={tiers}
+                  value={bandsValue}
+                  onChange={setBandsValue}
+                />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+        {mode === 'fixed' && (
+          <Form.Field
+            control={control}
+            name="tier"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('loyalty-tier')}</Form.Label>
+                <Select
+                  value={field.value || NO_TIER}
+                  onValueChange={(value) =>
+                    field.onChange(value === NO_TIER ? '' : value)
+                  }
+                >
+                  <Form.Control>
+                    <Select.Trigger>
+                      <Select.Value />
+                    </Select.Trigger>
+                  </Form.Control>
+                  <Select.Content>
+                    <Select.Item value={NO_TIER}>
+                      {t('loyalty-tier-none')}
+                    </Select.Item>
+                    {tiers.map(({ key, name }) => (
+                      <Select.Item key={key} value={key}>
+                        {name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+                <Form.Description>{t('set-tier-hint')}</Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+        {mode === 'fixed' && (
+          <Form.Field
+            control={control}
+            name="keepHigherTier"
+            render={({ field }) => (
+              <Form.Item className="flex items-center gap-2 space-y-0">
+                <Form.Control>
+                  <Checkbox
+                    checked={!!field.value}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                  />
+                </Form.Control>
+                <Form.Label variant="peer">
+                  {t('set-tier-keep-higher')}
+                </Form.Label>
+              </Form.Item>
+            )}
+          />
+        )}
       </div>
     </Form>
   );
