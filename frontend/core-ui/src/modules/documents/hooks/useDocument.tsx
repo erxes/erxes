@@ -1,50 +1,85 @@
-import { NetworkStatus, useMutation, useQuery } from '@apollo/client';
+import {
+  NetworkStatus,
+  QueryResult,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { FormType } from './useDocumentForm';
+import { IDocument } from '../types';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
-import { GET_DOCUMENT_DETAIL } from '../graphql/queries';
+import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
-export const useDocument = () => {
-  const [documentId, setDocumentId] = useQueryState('documentId');
-  const [contentType] = useQueryState('contentType');
+/** Load and save the selected document while keeping its form and list current. */
+export const useDocument = ({ hydrate = true }: { hydrate?: boolean } = {}): {
+  document: IDocument | null;
+  documentId: string | undefined;
+  documentSave: () => void;
+  hasError: boolean;
+  loading: boolean;
+  refetch: QueryResult<{ documentsDetail: IDocument | null }>['refetch'];
+  saving: boolean;
+} => {
+  const [documentId, setDocumentId] = useQueryState<string>('documentId');
+  const [contentType] = useQueryState<string>('contentType');
 
-  const cleanDocumentId = (documentId as string)?.trim();
+  const cleanDocumentId = documentId?.trim();
+  const currentDocument = useRef({ documentId, contentType });
+  useLayoutEffect(() => {
+    currentDocument.current = { documentId, contentType };
+    return () => {
+      currentDocument.current = { documentId: null, contentType: null };
+    };
+  }, [documentId, contentType]);
 
-  const { getValues, setValue } = useFormContext();
+  const { getValues, setValue, reset } = useFormContext<FormType>();
 
-  const { data, error, loading, networkStatus, refetch } = useQuery(
-    GET_DOCUMENT_DETAIL,
-    {
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      variables: {
-        _id: cleanDocumentId,
-      },
-      skip: !cleanDocumentId,
+  const { data, error, loading, networkStatus, refetch } = useQuery<{
+    documentsDetail: IDocument | null;
+  }>(GET_DOCUMENT_DETAIL, {
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    variables: {
+      _id: cleanDocumentId,
     },
-  );
+    skip: !cleanDocumentId,
+  });
 
-  const document = data?.documentsDetail || null;
+  const document =
+    data?.documentsDetail && data.documentsDetail._id === cleanDocumentId
+      ? data.documentsDetail
+      : null;
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   useEffect(() => {
-    if (data?.documentsDetail) {
-      const fields = data.documentsDetail;
+    if (hydrate && document && getValues('_id') !== document._id) {
+      const fields = document;
 
-      Object.entries(fields).forEach(([key, value]) => {
-        setValue(key, value);
+      reset({
+        _id: fields._id,
+        name: fields.name || '',
+        content: fields.content || '',
+        contentType: fields.contentType,
+        commentData: fields.commentData || '',
       });
     }
-  }, [data, setValue]);
+  }, [document, getValues, hydrate, reset]);
 
-  const [saveDocument, { loading: saving }] = useMutation(SAVE_DOCUMENT);
+  const [saveDocument, { loading: saving }] = useMutation<{
+    documentsSave: IDocument | null;
+  }>(SAVE_DOCUMENT);
 
   const documentSave = () => {
-    const document: any = {
+    const isCurrentDocument = () =>
+      currentDocument.current.documentId === documentId &&
+      currentDocument.current.contentType === contentType;
+    const document: FormType = {
       name: getValues('name'),
       content: getValues('content'),
-      contentType,
+      contentType: contentType || getValues('contentType'),
+      commentData: getValues('commentData'),
     };
 
     if (cleanDocumentId) {
@@ -53,38 +88,33 @@ export const useDocument = () => {
 
     saveDocument({
       variables: { ...document },
-      update: (cache, { data: { documentsSave } }) => {
-        const docId = cache.identify(documentsSave);
-
-        if (cleanDocumentId) {
-          return cache.modify({
-            id: docId,
-            fields: Object.keys(document || {}).reduce((fields: any, field) => {
-              fields[field] = () => document?.[field];
-              return fields;
-            }, {}),
-          });
+      update: (cache, { data }) => {
+        if (data?.documentsSave) {
+          cache.evict({ fieldName: 'documents' });
         }
-
-        cache.modify({
-          fields: {
-            documents(existingDocs) {
-              const { list = [] } = existingDocs || {};
-
-              return [...list, documentsSave];
-            },
-          },
-        });
       },
+      refetchQueries: [GET_DOCUMENTS],
+      awaitRefetchQueries: true,
       onCompleted: (data) => {
-        if (data.documentsSave) {
+        const savedDocument = data.documentsSave;
+        if (savedDocument) {
+          if (!isCurrentDocument()) return;
+          toast({ title: 'Successfully saved document', variant: 'success' });
+          const hasNewEdits = (
+            ['name', 'content', 'contentType', 'commentData'] as const
+          ).some((field) => getValues(field) !== document[field]);
+          reset(
+            { ...document, _id: savedDocument._id },
+            hasNewEdits ? { keepValues: true, keepDirty: true } : undefined,
+          );
+          setValue('_id', savedDocument._id);
           if (!cleanDocumentId) {
             setTimeout(() => {
-              setDocumentId(data.documentsSave._id);
+              if (isCurrentDocument()) setDocumentId(savedDocument._id);
             }, 0);
           }
-
-          toast({ title: 'Successfully saved document', variant: 'success' });
+        } else {
+          toast({ title: 'Could not save document', variant: 'destructive' });
         }
       },
       onError: (error) => {

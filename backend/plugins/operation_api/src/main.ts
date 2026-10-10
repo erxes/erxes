@@ -7,6 +7,7 @@ import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
 import { permissions } from './meta/permissions';
 import { properties } from './meta/properties';
+import { documents } from './meta/documents';
 import { notifications } from './meta/notifications';
 import { automations } from './meta/automations';
 import segments from './meta/segments';
@@ -71,6 +72,7 @@ startPlugin({
   expressRouter: router,
 
   meta: {
+    documents,
     importExport: {
       import: {
         types: [

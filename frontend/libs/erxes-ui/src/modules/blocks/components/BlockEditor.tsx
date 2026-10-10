@@ -34,7 +34,6 @@ export const BlockEditor = ({
   editor,
   onFocus,
   onBlur,
-  onPaste,
   onChange,
   readonly,
   children,
@@ -44,6 +43,7 @@ export const BlockEditor = ({
   variant = 'default',
   sideMenu = true,
   linkToolbar = true,
+  comments,
   slashMenuOnTop = false,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
@@ -140,11 +140,12 @@ export const BlockEditor = ({
       )}
     >
       <BlockNoteView
-        theme={theme as 'light' | 'dark'}
+        theme={theme === 'system' ? undefined : theme}
         editor={editor}
         slashMenu={false}
         sideMenu={sideMenu}
         linkToolbar={linkToolbar}
+        comments={comments}
         onFocus={() => {
           setFocus(true);
           onFocus?.();
@@ -217,10 +218,10 @@ export const Attribute = createReactInlineContentSpec(
         default: '',
       },
       width: {
-        default: 150,
+        default: 300,
       },
       height: {
-        default: 50,
+        default: 100,
       },
     },
     content: 'none',

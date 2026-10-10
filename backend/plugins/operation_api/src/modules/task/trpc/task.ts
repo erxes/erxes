@@ -3,6 +3,8 @@ import { graphqlPubsub, ITRPCContext } from 'erxes-api-shared/utils';
 import { Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
+import { TASK_CONTENT_TYPE } from '~/meta/import-export/utils';
+import { replaceTaskContent } from '../documents/replaceTaskContent';
 
 export type TaskTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -10,6 +12,22 @@ const t = initTRPC.context<TaskTRPCContext>().create();
 
 export const taskTrpcRouter = t.router({
   task: t.router({
+    replaceContent: t.procedure
+      .input(
+        z.object({
+          contentType: z.literal(TASK_CONTENT_TYPE),
+          content: z.string().min(1),
+          replacerIds: z
+            .array(
+              z
+                .string()
+                .refine((id) => Types.ObjectId.isValid(id), 'Invalid task ID.'),
+            )
+            .default([]),
+        }),
+      )
+      .query(({ ctx, input }) => replaceTaskContent(input, ctx)),
+
     tag: t.procedure
       .input(
         z.object({

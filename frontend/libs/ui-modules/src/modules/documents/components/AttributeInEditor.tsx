@@ -192,6 +192,12 @@ function getAttributeMenuItems(
           props: {
             name: attribute.label || attribute.name,
             value: attribute.value || attribute.name,
+            width:
+              editor.schema.inlineContentSchema.attribute.propSchema.width
+                .default,
+            height:
+              editor.schema.inlineContentSchema.attribute.propSchema.height
+                .default,
           },
         },
         ' ',

@@ -24,7 +24,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { TagsSelect } from 'ui-modules';
+import { Can, PrintDocument, TagsSelect } from 'ui-modules';
 import {
   IconBrandGithub,
   IconExternalLink,
@@ -207,6 +207,12 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
             variant="detail"
           />
           <ConvertToProject task={task} />
+          <Can action="documentsRead">
+            <PrintDocument
+              items={[{ _id: taskId }]}
+              contentType="operation:task"
+            />
+          </Can>
           <IconTags className="size-5 ml-2"></IconTags>
           <TagsSelect.SelectedList />
           <TagsSelect.Trigger variant="ICON" />

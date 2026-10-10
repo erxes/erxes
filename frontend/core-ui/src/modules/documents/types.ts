@@ -3,8 +3,12 @@ import type { ApprovalLockState, IUser } from 'ui-modules';
 export type IDocument = {
   _id: string;
   contentType: string;
+  subType?: string | null;
+  replacer?: string | null;
+  code?: string | null;
   name?: string;
   content?: string | null;
+  commentData?: string | null;
   approvalLockState?: ApprovalLockState;
   createdAt?: string;
   createdUser?: IUser;
@@ -12,7 +16,6 @@ export type IDocument = {
 };
 
 export type IDocumentType = {
-  name: string;
   label: string;
   contentType: string;
   subTypes?: string[];
