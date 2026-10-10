@@ -92,6 +92,7 @@ These must hold in any new or modified code.
 ### Before declaring a task done
 
 - `pnpm nx lint <project>` passes
+- `pnpm nx typecheck <project>` passes for the projects you changed (errors inside `frontend/libs` are pre-existing)
 - `pnpm nx build <project>` passes
 - `pnpm nx test <project>` passes (when tests exist or are touched)
 - TypeScript compiles with no errors and no new lint/Sonar warnings
