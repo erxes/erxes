@@ -373,7 +373,7 @@ export const widgetQueries: Record<string, Resolver> = {
       },
     });
 
-    const ticketContentIds = relations.flatMap((r) =>
+    const ticketContentIds = (relations ?? []).flatMap((r) =>
       r.entities
         .filter((e) => e.contentType === 'frontline:ticket')
         .map((e) => e.contentId),
