@@ -7,6 +7,7 @@ import { IDocumentType } from '../types';
 type DocumentsTypeQuery = {
   contentType: string;
   documentId: string;
+  listContentType: string;
 };
 
 function AllDocumentsMenu({
@@ -62,16 +63,21 @@ export function DocumentsTypes() {
   const [{ contentType }, setQueries] = useMultiQueryState<DocumentsTypeQuery>([
     'contentType',
     'documentId',
+    'listContentType',
   ]);
 
   const { documentsTypes, loading, error, refetch } = useDocumentsTypes();
 
   function handleAllDocumentsSelect() {
-    setQueries({ contentType: null, documentId: null });
+    setQueries({ contentType: null, documentId: null, listContentType: null });
   }
 
   function handleDocumentTypeSelect(nextContentType: string) {
-    setQueries({ contentType: nextContentType, documentId: null });
+    setQueries({
+      contentType: nextContentType,
+      documentId: null,
+      listContentType: null,
+    });
   }
 
   return (

@@ -8,12 +8,14 @@ import { ApprovalLockButton } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 import { useDocument } from '../hooks/useDocument';
+import { useDocumentNavigation } from '../hooks/useDocumentNavigation';
 
 export const DocumentSheet = () => {
-  const [{ documentId, contentType }, setQueries] = useMultiQueryState<{
+  const [{ documentId, contentType }] = useMultiQueryState<{
     contentType: string;
     documentId: string;
   }>(['contentType', 'documentId']);
+  const { openDocument } = useDocumentNavigation();
   const [typeOpen, setTypeOpen] = useState(false);
 
   const {
@@ -40,7 +42,7 @@ export const DocumentSheet = () => {
       contentType: nextType,
       commentData: '',
     });
-    setQueries({ contentType: nextType, documentId: ' ' });
+    openDocument({ contentType: nextType, _id: ' ' });
     return true;
   };
 

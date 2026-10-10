@@ -5,6 +5,29 @@ import {
 } from 'erxes-ui';
 import gql from 'graphql-tag';
 
+export const GET_DOCUMENT_PRINT_SALES_DEALS = gql(`
+  query documentsPrintSalesDeals(
+    $pipelineId: String!
+    $stageId: String!
+    $search: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    deals(
+      pipelineId: $pipelineId
+      stageId: $stageId
+      search: $search
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      list {
+        _id
+        name
+        number
+      }
+      ${GQL_PAGE_INFO}
+    }
+  }
+`);
+
 export const GET_DOCUMENTS_TYPES = gql(`
   query DocumentsTypes {
     documentsTypes {

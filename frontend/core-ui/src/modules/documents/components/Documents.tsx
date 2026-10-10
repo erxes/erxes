@@ -1,5 +1,7 @@
 import { useAtomValue } from 'jotai';
-import { useMultiQueryState } from 'erxes-ui';
+import { EnumCursorDirection, Spinner, useMultiQueryState } from 'erxes-ui';
+import { useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { useDocuments } from '../hooks/useDocuments';
 import { documentsViewAtom } from '../states/documentsViewState';
 import { DocumentFilterState, IDocument } from '../types';
@@ -31,7 +33,20 @@ function DocumentsContent({
   onClearFilters,
   viewType,
 }: DocumentsContentProps) {
-  const { documents, hasError, loading, refetch } = useDocuments();
+  const { documents, hasError, loading, refetch, pageInfo, handleFetchMore } =
+    useDocuments();
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const { ref: loadMoreRef } = useInView({
+    root: scrollElement,
+    skip: !scrollElement || loading || hasError || !pageInfo?.hasNextPage,
+    onChange: (inView) => {
+      if (inView) {
+        handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+      }
+    },
+  });
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
 
   if (hasError) {
@@ -48,8 +63,13 @@ function DocumentsContent({
   }
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div ref={setScrollElement} className="h-full overflow-y-auto">
       <Component documents={documents} />
+      {(loading || pageInfo?.hasNextPage) && (
+        <div ref={loadMoreRef} className="flex justify-center p-4">
+          <Spinner containerClassName="h-8 flex-none" />
+        </div>
+      )}
     </div>
   );
 }

@@ -47,6 +47,11 @@ export const useDocumentDuplicate = (): {
           code: document.code,
           tagIds: document.tagIds,
         },
+        update: (cache, { data }) => {
+          if (data?.documentsSave) {
+            cache.evict({ fieldName: 'documents' });
+          }
+        },
         refetchQueries: [GET_DOCUMENTS],
         awaitRefetchQueries: true,
       });

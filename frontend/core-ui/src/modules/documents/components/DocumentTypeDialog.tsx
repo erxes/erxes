@@ -1,5 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Dialog, Form, Select, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Combobox,
+  Command,
+  Dialog,
+  Form,
+  Popover,
+  Spinner,
+} from 'erxes-ui';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
@@ -24,6 +33,7 @@ export function DocumentTypeDialog({
   duplicating?: boolean;
   loading?: boolean;
 }>) {
+  const [typeOpen, setTypeOpen] = useState(false);
   const {
     documentsTypes,
     loading: typesLoading,
@@ -71,27 +81,51 @@ export function DocumentTypeDialog({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>Document type</Form.Label>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={pending || typesLoading || Boolean(error)}
-                >
+                <Popover open={typeOpen} onOpenChange={setTypeOpen}>
                   <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Select a document type" />
-                    </Select.Trigger>
+                    <Combobox.Trigger
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      disabled={pending || typesLoading || Boolean(error)}
+                    >
+                      <Combobox.Value
+                        value={
+                          documentsTypes.find(
+                            (type) => type.contentType === field.value,
+                          )?.label
+                        }
+                        placeholder="Select a document type"
+                      />
+                    </Combobox.Trigger>
                   </Form.Control>
-                  <Select.Content>
-                    {documentsTypes.map((type) => (
-                      <Select.Item
-                        key={type.contentType}
-                        value={type.contentType}
-                      >
-                        {type.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
+                  <Combobox.Content
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <Command label="Search document types">
+                      <Command.Input placeholder="Search document types..." />
+                      <Command.List>
+                        <Command.Empty>No document types found.</Command.Empty>
+                        {documentsTypes.map((type) => (
+                          <Command.Item
+                            key={type.contentType}
+                            value={type.contentType}
+                            keywords={[type.label]}
+                            disabled={pending || typesLoading || Boolean(error)}
+                            onSelect={() => {
+                              field.onChange(type.contentType);
+                              setTypeOpen(false);
+                            }}
+                          >
+                            {type.label}
+                            <Combobox.Check
+                              checked={field.value === type.contentType}
+                            />
+                          </Command.Item>
+                        ))}
+                      </Command.List>
+                    </Command>
+                  </Combobox.Content>
+                </Popover>
                 <Form.Message />
               </Form.Item>
             )}

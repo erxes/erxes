@@ -18,7 +18,6 @@ import {
   RecordTable,
   toast,
   useConfirm,
-  useSetQueryStateByKey,
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
@@ -29,6 +28,7 @@ import {
 } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
+import { useDocumentNavigation } from '../hooks/useDocumentNavigation';
 
 import { IDocument } from '../types';
 import { DocumentTypeDialog } from './DocumentTypeDialog';
@@ -212,7 +212,7 @@ export function DocumentsActions({
   const [open, setOpen] = useState(false);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
-  const setQuery = useSetQueryStateByKey();
+  const { openDocument } = useDocumentNavigation();
   const { confirm } = useConfirm();
   const { removeDocument, loading } = useDocumentRemove();
   const { duplicateDocument, loading: duplicating } = useDocumentDuplicate();
@@ -225,8 +225,7 @@ export function DocumentsActions({
 
   function handleEdit() {
     setOpen(false);
-    setQuery('documentId', documentItem._id);
-    setQuery('contentType', documentItem.contentType);
+    openDocument(documentItem);
   }
 
   function handlePrint() {

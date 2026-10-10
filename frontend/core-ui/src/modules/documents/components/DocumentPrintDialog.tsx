@@ -12,6 +12,7 @@ import {
 } from 'ui-modules';
 
 import { IDocument } from '../types';
+import { DocumentSalesSelect } from './DocumentSalesSelect';
 
 const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
   'core:contact.customer': 'Customer',
@@ -20,6 +21,7 @@ const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
   'core:user': 'Team member',
   'core:broadcast': 'Customer',
   'operation:task': 'Task',
+  'sales:deal': 'Deal',
 };
 
 type ReplacerValue = string | string[] | null;
@@ -128,6 +130,10 @@ function DocumentReplacerSelect({
   }
 
   switch (contentType) {
+    case 'sales:deal':
+      return (
+        <DocumentSalesSelect value={value} onValueChange={onValueChange} />
+      );
     case 'operation:task':
       return <DocumentTaskSelect value={value} onValueChange={onValueChange} />;
     case 'core:contact.customer':
@@ -203,7 +209,9 @@ function DocumentPrintDialogContent({
       </Dialog.Header>
 
       <div className="grid gap-2">
-        <span className="text-sm font-medium">{replacerLabel}</span>
+        {documentItem.contentType !== 'sales:deal' && (
+          <span className="text-sm font-medium">{replacerLabel}</span>
+        )}
         <DocumentReplacerSelect
           contentType={documentItem.contentType}
           value={replacerId}

@@ -1,26 +1,28 @@
 import { IconArrowLeft } from '@tabler/icons-react';
-import { Sidebar, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
+import { Sidebar, useQueryState } from 'erxes-ui';
 
 import { ApprovalLockedBadge } from 'ui-modules';
+import { useDocumentNavigation } from '../hooks/useDocumentNavigation';
 import { IDocument } from '../types';
 
 /** Show document navigation with approval-lock visibility indicators. */
 export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
-  const [documentId, setDocumentId] = useQueryState('documentId');
+  const [documentId, setDocumentId] = useQueryState<string>('documentId');
 
-  const removeQuery = useRemoveQueryStateByKey();
+  const { returnToDocuments } = useDocumentNavigation();
 
   return (
-    <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
+    <Sidebar
+      collapsible="none"
+      className="h-auto min-h-full w-full border-r bg-muted/20"
+    >
       <Sidebar.Group>
         <Sidebar.GroupLabel
           className="h-12 cursor-pointer gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
-          onClick={() => {
-            removeQuery('documentId');
-          }}
+          onClick={returnToDocuments}
         >
           <IconArrowLeft />
-          All documents
+          Back to documents
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>

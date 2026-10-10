@@ -77,6 +77,11 @@ export const useDocument = (): {
 
     saveDocument({
       variables: { ...document },
+      update: (cache, { data }) => {
+        if (data?.documentsSave) {
+          cache.evict({ fieldName: 'documents' });
+        }
+      },
       refetchQueries: [GET_DOCUMENTS],
       awaitRefetchQueries: true,
       onCompleted: (data) => {

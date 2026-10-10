@@ -1,4 +1,5 @@
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { NetworkStatus, QueryResult, useQuery } from '@apollo/client';
+import { useRef, useState } from 'react';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -20,7 +21,21 @@ type DocumentsQueryResponse = {
   };
 };
 
-export const useDocuments = () => {
+type UseDocumentsResult = {
+  documents: IDocument[];
+  hasError: boolean;
+  loading: boolean;
+  totalCount?: number;
+  pageInfo?: IRecordTableCursorPageInfo;
+  handleFetchMore: (params: {
+    direction: EnumCursorDirection;
+  }) => Promise<void>;
+  refetch: QueryResult<DocumentsQueryResponse>['refetch'];
+};
+
+export const useDocuments = (): UseDocumentsResult => {
+  const fetchingMore = useRef(new Set<string>());
+  const [paginationError, setPaginationError] = useState<string>();
   const [{ createdAt, createdBy, contentType, searchValue, tagIds }] =
     useMultiQueryState<DocumentFilterState>([
       'createdAt',
@@ -60,6 +75,10 @@ export const useDocuments = () => {
     });
   }
 
+  const queryKey = JSON.stringify(variables);
+  const currentQueryKey = useRef(queryKey);
+  currentQueryKey.current = queryKey;
+
   const { data, error, loading, fetchMore, networkStatus, refetch } =
     useQuery<DocumentsQueryResponse>(GET_DOCUMENTS, {
       notifyOnNetworkStatusChange: true,
@@ -67,38 +86,66 @@ export const useDocuments = () => {
     });
 
   const { list: documents = [], pageInfo, totalCount } = data?.documents || {};
-  const hasError = Boolean(error || networkStatus === NetworkStatus.error);
+  const hasError = Boolean(
+    error ||
+      networkStatus === NetworkStatus.error ||
+      paginationError === queryKey,
+  );
 
-  function handleFetchMore({ direction }: { direction: EnumCursorDirection }) {
-    if (!pageInfo || !validateFetchMore({ direction, pageInfo })) {
+  async function handleFetchMore({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }): Promise<void> {
+    if (
+      fetchingMore.current.has(queryKey) ||
+      loading ||
+      !pageInfo ||
+      !validateFetchMore({ direction, pageInfo })
+    ) {
       return;
     }
 
-    fetchMore({
-      variables: {
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo.endCursor
-            : pageInfo.startCursor,
-        direction,
-        limit: DOCUMENTS_PER_PAGE,
-      },
-      updateQuery: (previousResult, { fetchMoreResult }) => {
-        if (!fetchMoreResult) {
-          return previousResult;
-        }
+    fetchingMore.current.add(queryKey);
 
-        return {
-          ...previousResult,
-          documents: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.documents,
-            prevResult: previousResult.documents,
-          }),
-        };
-      },
-    });
+    try {
+      await fetchMore({
+        variables: {
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo.endCursor
+              : pageInfo.startCursor,
+          direction,
+          limit: DOCUMENTS_PER_PAGE,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || currentQueryKey.current !== queryKey) {
+            return previousResult;
+          }
+
+          return {
+            ...previousResult,
+            documents: mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.documents,
+              prevResult: previousResult.documents,
+            }),
+          };
+        },
+      });
+    } catch {
+      if (currentQueryKey.current === queryKey) {
+        setPaginationError(queryKey);
+      }
+    } finally {
+      fetchingMore.current.delete(queryKey);
+    }
   }
+
+  const refetchDocuments: typeof refetch = (...args) => {
+    setPaginationError(undefined);
+    return refetch(...args);
+  };
 
   return {
     documents,
@@ -107,6 +154,6 @@ export const useDocuments = () => {
     totalCount,
     pageInfo,
     handleFetchMore,
-    refetch,
+    refetch: refetchDocuments,
   };
 };

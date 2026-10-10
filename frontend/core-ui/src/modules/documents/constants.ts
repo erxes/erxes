@@ -48,7 +48,7 @@ export const DOCUMENTS_TYPES_SET: Record<string, DocumentTypeConfig> = {
   'operation:task': {
     icon: IconCheckbox,
     label: 'Task',
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
+    color: 'bg-rose-100 text-rose-800 border-rose-200',
   },
 };
 
