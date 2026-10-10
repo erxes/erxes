@@ -32,18 +32,24 @@ export const AiAgentRuntimeInfo = ({
     return (
       <Alert className="bg-muted/20">
         <IconInfoCircle />
-        <Alert.Title>Runtime Snapshot</Alert.Title>
+        <Alert.Title>{t('runtime-snapshot')}</Alert.Title>
         <Alert.Description>
-          <p>
-            Select an AI agent to preview its timeout, token budget, prompt
-            size, and context load.
-          </p>
+          <p>{t('ai-agent-runtime-select-agent')}</p>
         </Alert.Description>
       </Alert>
     );
   }
 
   const summary = buildAiAgentRuntimeSummary({ agent, actionConfig });
+
+  let goalItemsSuffix = '';
+  if (summary.goalItemCount) {
+    goalItemsSuffix = ` ${
+      summary.goalItemCount > 1
+        ? t('ai-agent-runtime-across-items', { value: summary.goalItemCount })
+        : t('ai-agent-runtime-across-item')
+    }`;
+  }
 
   return (
     <Card className="border-dashed bg-muted/20 shadow-none">
@@ -59,36 +65,45 @@ export const AiAgentRuntimeInfo = ({
               {summary.model}
             </Badge>
           ) : null}
-          <Badge variant="secondary">{summary.maxTokens} max tokens</Badge>
-          <Badge variant="secondary">{summary.timeoutMs} ms timeout</Badge>
           <Badge variant="secondary">
-            temp {summary.temperature.toFixed(1)}
+            {t('ai-agent-runtime-max-tokens', { value: summary.maxTokens })}
+          </Badge>
+          <Badge variant="secondary">
+            {t('ai-agent-runtime-timeout', { value: summary.timeoutMs })}
+          </Badge>
+          <Badge variant="secondary">
+            {t('ai-agent-runtime-temp', {
+              value: summary.temperature.toFixed(1),
+            })}
           </Badge>
         </div>
 
         <div className="grid gap-2 text-xs text-muted-foreground">
           <div className="flex items-center justify-between gap-4">
-            <span>System prompt</span>
+            <span>{t('ai-agent-runtime-system-prompt')}</span>
             <span className="text-foreground">
-              {summary.systemPromptChars} chars
+              {t('ai-agent-runtime-chars', {
+                value: summary.systemPromptChars,
+              })}
             </span>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span>Goal prompt</span>
+            <span>{t('ai-agent-runtime-goal-prompt')}</span>
             <span className="text-foreground">
-              {summary.goalPromptChars} chars
-              {summary.goalItemCount
-                ? ` across ${summary.goalItemCount} item${
-                    summary.goalItemCount > 1 ? 's' : ''
-                  }`
-                : ''}
+              {t('ai-agent-runtime-chars', { value: summary.goalPromptChars })}
+              {goalItemsSuffix}
             </span>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span>Context files</span>
+            <span>{t('ai-agent-runtime-context-files')}</span>
             <span className="text-foreground">
-              {summary.contextFileCount} file
-              {summary.contextFileCount === 1 ? '' : 's'}
+              {summary.contextFileCount === 1
+                ? t('ai-agent-runtime-file', {
+                    value: summary.contextFileCount,
+                  })
+                : t('ai-agent-runtime-files', {
+                    value: summary.contextFileCount,
+                  })}
               {summary.contextBytes
                 ? ` / ${formatAiAgentByteSize(summary.contextBytes)}`
                 : ''}
@@ -98,7 +113,7 @@ export const AiAgentRuntimeInfo = ({
             <div className="flex items-center justify-between gap-4">
               <span>{t('ai-agent-input')}</span>
               <span className="text-foreground">
-                {summary.inputChars} chars
+                {t('ai-agent-runtime-chars', { value: summary.inputChars })}
               </span>
             </div>
           ) : null}

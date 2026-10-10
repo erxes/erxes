@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAutomationTrigger } from 'ui-modules';
 import { WAIT_EVENT_TYPES } from '@/automations/components/builder/nodes/actions/waitEvent/constants/waitEventConstants';
 import { WaitEventTargetTypes } from '@/automations/components/builder/nodes/actions/waitEvent/type/waitEvent';
@@ -7,6 +8,7 @@ export const useWaitEventAviableOptions = (
   trigger: TAutomationTrigger | undefined,
   currentActionId: string,
 ) => {
+  const { t } = useTranslation('automations');
   const { actionsCanBeTarget } = useActionTarget({
     actionId: currentActionId,
   });
@@ -17,7 +19,7 @@ export const useWaitEventAviableOptions = (
       {
         id: trigger.id,
         type: WaitEventTargetTypes.Trigger,
-        label: `${trigger.label} (Trigger)`,
+        label: t('wait-event-trigger-option', { label: trigger.label }),
         icon: trigger.icon,
       },
       ...waitEventOptions,
@@ -30,7 +32,7 @@ export const useWaitEventAviableOptions = (
       ...actionsCanBeTarget.map((action) => ({
         id: action.id,
         type: WaitEventTargetTypes.Action,
-        label: `${action.label} (Action)`,
+        label: t('wait-event-action-option', { label: action.label }),
         icon: action.icon,
       })),
     ];

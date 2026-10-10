@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
 import { SendEmailEmailContentEditorSheet } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailEmailContentEditorSheet';
 import { SendEmailEmailContentPreview } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailEmailContentPreview';
@@ -23,6 +24,7 @@ export const SendEmailEmailContentBuilder = ({
   variableSourceNodes,
   onChange,
 }: SendEmailEmailContentBuilderProps) => {
+  const { t } = useTranslation('automations');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { watch, setValue } = useFormContext<TAutomationSendEmailConfig>();
   const { confirm } = useConfirm();
@@ -58,8 +60,7 @@ export const SendEmailEmailContentBuilder = ({
     }
 
     confirm({
-      message:
-        'Switching editors clears the current email content. Do you want to continue?',
+      message: t('send-email-switch-editor-confirm'),
     }).then(apply);
   };
 
@@ -71,7 +72,9 @@ export const SendEmailEmailContentBuilder = ({
       className="h-5 self-end px-1 font-normal text-muted-foreground"
       onClick={switchEditor}
     >
-      {format === 'maily' ? 'Use block editor' : 'Use email editor'}
+      {format === 'maily'
+        ? t('send-email-use-block-editor')
+        : t('send-email-use-email-editor')}
     </Button>
   );
 

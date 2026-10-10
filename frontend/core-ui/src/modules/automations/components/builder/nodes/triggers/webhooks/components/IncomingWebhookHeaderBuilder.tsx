@@ -1,6 +1,7 @@
 import { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingWebhookHeadersBuilder = ({
   headers = [],
@@ -9,6 +10,7 @@ export const IncomingWebhookHeadersBuilder = ({
   headers: TIncomingWebhookForm['headers'];
   onChange: (...event: any[]) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const handleChange = (
     index: number,
     field: 'key' | 'value' | 'description',
@@ -31,14 +33,14 @@ export const IncomingWebhookHeadersBuilder = ({
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
-          <Form.Label>Headers</Form.Label>
+          <Form.Label>{t('headers')}</Form.Label>
           <IncomingWebhookHeaderAddButton
             onChange={onChange}
             headers={headers}
           />
         </div>
         <div className="text-sm text-muted-foreground text-center py-8">
-          No headers added yet. Click "Add Header" to get started.
+          {t('webhook-headers-empty')}
         </div>
       </div>
     );
@@ -47,13 +49,15 @@ export const IncomingWebhookHeadersBuilder = ({
   return (
     <>
       <div className="flex flex-row justify-between">
-        <Form.Label>Headers</Form.Label>
+        <Form.Label>{t('headers')}</Form.Label>
         <IncomingWebhookHeaderAddButton onChange={onChange} headers={headers} />
       </div>
       <div>
-        <Form.Label className="w-1/4">Key</Form.Label>
-        <Form.Label className="w-2/4">Value</Form.Label>
-        <Form.Label className="w-1/4">Description</Form.Label>
+        <Form.Label className="w-1/4">
+          {t('webhook-trigger-header-key')}
+        </Form.Label>
+        <Form.Label className="w-2/4">{t('value')}</Form.Label>
+        <Form.Label className="w-1/4">{t('description')}</Form.Label>
       </div>
       {headers.map((header, index) => (
         <IncomingWebhookHeadersItem
@@ -75,6 +79,7 @@ const IncomingWebhookHeaderAddButton = ({
   onChange: (headers: TIncomingWebhookForm['headers']) => void;
   headers: TIncomingWebhookForm['headers'];
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <Button
       size="sm"
@@ -83,7 +88,7 @@ const IncomingWebhookHeaderAddButton = ({
         onChange([...(headers || []), { key: '', value: '', description: '' }])
       }
     >
-      <IconPlus /> Add Header
+      <IconPlus /> {t('webhook-add-header')}
     </Button>
   );
 };
@@ -103,23 +108,24 @@ const IncomingWebhookHeadersItem = ({
   ) => void;
   handleRemove: (index: number) => void;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <div key={index} className="flex flex-row items-center gap-2 p-2">
       <Input
         value={key}
-        placeholder="Key"
+        placeholder={t('webhook-trigger-header-key')}
         className="w-1/4"
         onChange={(e) => handleChange(index, 'key', e.target.value)}
       />
       <Input
         value={value}
-        placeholder="Value"
+        placeholder={t('value')}
         className="w-2/4"
         onChange={(e) => handleChange(index, 'value', e.target.value)}
       />
       <Input
         value={description}
-        placeholder="Description (Optional)"
+        placeholder={t('webhook-trigger-header-description-placeholder')}
         className="w-1/4"
         onChange={(e) => handleChange(index, 'description', e.target.value)}
       />

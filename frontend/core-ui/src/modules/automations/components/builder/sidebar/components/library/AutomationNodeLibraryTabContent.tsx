@@ -10,6 +10,7 @@ import {
   IAutomationsTriggerConfigConstants,
 } from 'ui-modules';
 import { useAutomationNodeLibraryProvider } from '../../context/AutomationNodeLibraryProvider';
+import { useTranslation } from 'react-i18next';
 
 interface AutomationNodeLibraryTabContentProps {
   type: AutomationNodeType.Trigger | AutomationNodeType.Action;
@@ -25,6 +26,7 @@ export const AutomationNodeLibraryTabContent = ({
   type,
   list,
 }: AutomationNodeLibraryTabContentProps) => {
+  const { t } = useTranslation('automations');
   const { onDragStart, onSelectNode } = useAutomationNodeLibraryProvider();
   const groups = useAutomationNodeLibraryGroups({ type, list });
   const { isEmpty } = useAutomationNodes();
@@ -39,16 +41,18 @@ export const AutomationNodeLibraryTabContent = ({
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
         <IconPointerBolt className="size-8 text-muted-foreground" />
         <div className="space-y-1">
-          <p className="text-sm font-medium">Start with a trigger</p>
+          <p className="text-sm font-medium">
+            {t('sidebar-start-with-trigger')}
+          </p>
           <p className="text-sm text-muted-foreground">
-            Actions run after something starts this automation.
+            {t('sidebar-actions-run-after-trigger')}
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => openNodeLibrary(AutomationNodeType.Trigger)}
         >
-          Choose a trigger
+          {t('choose-a-trigger')}
         </Button>
       </div>
     );

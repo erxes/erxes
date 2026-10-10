@@ -99,7 +99,8 @@ export const AutomationHistories = ({
 }: {
   automationId?: string;
 }) => {
-  const { refetch, error, ...tableProps } = useAutomationHistories(automationId);
+  const { refetch, error, ...tableProps } =
+    useAutomationHistories(automationId);
   const { loading, totalCount } = tableProps;
   const { isSplitView, isVerticalSplit, splitDirection, selectedExecutionId } =
     useAutomationHistoryView();
@@ -123,7 +124,7 @@ export const AutomationHistories = ({
       </PageSubHeader>
       {error ? (
         <AutomationErrorEmptyState
-          title="Couldn't load the run history"
+          title={t('history-load-error')}
           error={error}
           onRetry={() => refetch()}
         />

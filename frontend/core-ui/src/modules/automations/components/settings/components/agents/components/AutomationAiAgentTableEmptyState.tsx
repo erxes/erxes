@@ -2,22 +2,23 @@ import { IconPlus, IconRobot } from '@tabler/icons-react';
 import { Button, Empty } from 'erxes-ui';
 import { Link } from 'react-router';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationAiAgentTableEmptyState = ({
   toCreateUrl,
 }: {
   toCreateUrl: string;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <Empty className="my-8">
       <Empty.Header>
         <Empty.Media variant="icon">
           <IconRobot />
         </Empty.Media>
-        <Empty.Title>No AI agents found</Empty.Title>
+        <Empty.Title>{t('settings-agents-empty-title')}</Empty.Title>
         <Empty.Description>
-          Create your first AI agent to start automating conversations with your
-          customers.
+          {t('settings-agents-empty-description')}
         </Empty.Description>
       </Empty.Header>
       <Can action="automationsAiAgentAdd">
@@ -25,7 +26,7 @@ export const AutomationAiAgentTableEmptyState = ({
           <Button asChild>
             <Link to={toCreateUrl}>
               <IconPlus className="size-4" />
-              Create First Agent
+              {t('settings-agents-create-first')}
             </Link>
           </Button>
         </Empty.Content>

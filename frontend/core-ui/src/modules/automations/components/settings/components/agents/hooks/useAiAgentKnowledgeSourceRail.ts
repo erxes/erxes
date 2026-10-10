@@ -11,6 +11,7 @@ import { useQuery } from '@apollo/client';
 import { IconFileText, IconPaperclip } from '@tabler/icons-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { TAiKnowledgeSourceConfig } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type TAiKnowledgeSourcesResponse = {
   automationConstants?: {
@@ -34,6 +35,7 @@ export const useAiAgentKnowledgeSourceRail = (
   knowledgeSources: TAiAgentKnowledgeSourceSelections,
 ) => {
   const { control } = useFormContext<TAiAgentForm>();
+  const { t } = useTranslation('automations');
   const files = useWatch({ control, name: 'context.files' }) || [];
   const { data } = useQuery<TAiKnowledgeSourcesResponse>(AUTOMATION_CONSTANTS);
   const sources = data?.automationConstants?.aiKnowledgeSourcesConst || [];
@@ -46,7 +48,7 @@ export const useAiAgentKnowledgeSourceRail = (
   const railItems: TAiAgentKnowledgeSourceRailItem[] = [
     {
       key: CONTEXT_FILES_KEY,
-      label: 'Context files',
+      label: t('ai-agent-runtime-context-files'),
       count: String(files.length),
       icon: IconPaperclip,
     },

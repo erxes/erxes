@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TIncomingWebhookJSONPropertySchema } from '@/automations/components/builder/nodes/triggers/webhooks/types/incomingWebhookJsonBuilder';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, DatePicker, Form, Input, Label, Select } from 'erxes-ui';
@@ -25,35 +26,35 @@ type TOutputVariableField = {
 };
 
 const STRING_OPERATORS = [
-  { value: 'e', label: 'equals to' },
-  { value: 'dne', label: 'does not equal' },
-  { value: 'c', label: 'contains' },
-  { value: 'dnc', label: 'does not contain' },
-  { value: 'is', label: 'is set' },
-  { value: 'ins', label: 'is not set' },
+  { value: 'e', labelKey: 'split-operator-equals' },
+  { value: 'dne', labelKey: 'split-operator-not-equals' },
+  { value: 'c', labelKey: 'split-operator-contains' },
+  { value: 'dnc', labelKey: 'split-operator-not-contains' },
+  { value: 'is', labelKey: 'split-operator-is-set' },
+  { value: 'ins', labelKey: 'split-operator-is-not-set' },
 ];
 
 const NUMBER_OPERATORS = [
-  { value: 'numbere', label: 'equals to' },
-  { value: 'numberdne', label: 'does not equal' },
-  { value: 'numberigt', label: 'is greater than' },
-  { value: 'numberilt', label: 'is less than' },
-  { value: 'is', label: 'is set' },
-  { value: 'ins', label: 'is not set' },
+  { value: 'numbere', labelKey: 'split-operator-equals' },
+  { value: 'numberdne', labelKey: 'split-operator-not-equals' },
+  { value: 'numberigt', labelKey: 'split-operator-greater-than' },
+  { value: 'numberilt', labelKey: 'split-operator-less-than' },
+  { value: 'is', labelKey: 'split-operator-is-set' },
+  { value: 'ins', labelKey: 'split-operator-is-not-set' },
 ];
 
 const BOOLEAN_OPERATORS = [
-  { value: 'it', label: 'is true' },
-  { value: 'if', label: 'is false' },
-  { value: 'is', label: 'is set' },
-  { value: 'ins', label: 'is not set' },
+  { value: 'it', labelKey: 'split-operator-is-true' },
+  { value: 'if', labelKey: 'split-operator-is-false' },
+  { value: 'is', labelKey: 'split-operator-is-set' },
+  { value: 'ins', labelKey: 'split-operator-is-not-set' },
 ];
 
 const DATE_OPERATORS = [
-  { value: 'dateigt', label: 'is greater than' },
-  { value: 'dateilt', label: 'is less than' },
-  { value: 'dateis', label: 'is set' },
-  { value: 'dateins', label: 'is not set' },
+  { value: 'dateigt', labelKey: 'split-operator-greater-than' },
+  { value: 'dateilt', labelKey: 'split-operator-less-than' },
+  { value: 'dateis', labelKey: 'split-operator-is-set' },
+  { value: 'dateins', labelKey: 'split-operator-is-not-set' },
 ];
 
 const getOperators = (type?: string) => {
@@ -129,6 +130,7 @@ export const SplitConditionByOutputVariables = ({
   optionIndex: number;
   outputVariables?: unknown;
 }) => {
+  const { t } = useTranslation('automations');
   const form = useFormContext<TSplitConditionsConfigForm>();
   const conditionFieldsPath =
     `options.${optionIndex}.config.conditions` as const;
@@ -156,9 +158,9 @@ export const SplitConditionByOutputVariables = ({
     <div className="p-3">
       <div className="rounded-md bg-accent">
         <div className="grid grid-cols-[2fr_1fr_2fr_auto] items-center gap-2 px-4 py-2">
-          <Label>Property</Label>
-          <Label>Condition</Label>
-          <Label>Value</Label>
+          <Label>{t('split-property')}</Label>
+          <Label>{t('split-condition')}</Label>
+          <Label>{t('value')}</Label>
           <div />
         </div>
         <div className="m-1 rounded-md bg-background p-2">
@@ -168,7 +170,9 @@ export const SplitConditionByOutputVariables = ({
               name={conditionsConjunctionPath}
               render={({ field }) => (
                 <div className="mb-2 flex items-center gap-2 text-xs">
-                  <span className="text-muted-foreground">Match</span>
+                  <span className="text-muted-foreground">
+                    {t('split-match')}
+                  </span>
                   <Select
                     value={field.value || 'and'}
                     onValueChange={field.onChange}
@@ -177,8 +181,12 @@ export const SplitConditionByOutputVariables = ({
                       <Select.Value />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="and">All</Select.Item>
-                      <Select.Item value="or">Any</Select.Item>
+                      <Select.Item value="and">
+                        {t('split-match-all')}
+                      </Select.Item>
+                      <Select.Item value="or">
+                        {t('split-match-any')}
+                      </Select.Item>
                     </Select.Content>
                   </Select>
                 </div>
@@ -204,7 +212,7 @@ export const SplitConditionByOutputVariables = ({
             onClick={addCondition}
           >
             <IconPlus />
-            Add condition
+            {t('split-add-condition')}
           </Button>
         </div>
       </div>
@@ -225,6 +233,7 @@ const OutputVariableConditionRow = ({
   outputFields: TOutputVariableField[];
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   const form = useFormContext<TSplitConditionsConfigForm>();
   const conditionPath =
     `options.${optionIndex}.config.conditions.${conditionIndex}` as const;
@@ -273,7 +282,7 @@ const OutputVariableConditionRow = ({
               }}
             >
               <Select.Trigger className="w-full min-w-0">
-                <Select.Value placeholder="Select an field" />
+                <Select.Value placeholder={t('split-select-field')} />
               </Select.Trigger>
               <Select.Content>
                 {outputFields.map(({ name, label }) => (
@@ -303,12 +312,12 @@ const OutputVariableConditionRow = ({
               }}
             >
               <Select.Trigger className="w-full min-w-0">
-                <Select.Value placeholder="Select an operator" />
+                <Select.Value placeholder={t('split-select-operator')} />
               </Select.Trigger>
               <Select.Content>
-                {operators.map(({ value, label }) => (
+                {operators.map(({ value, labelKey }) => (
                   <Select.Item key={value} value={value}>
-                    {label}
+                    {t(labelKey)}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -353,6 +362,8 @@ const OutputVariableConditionValueInput = ({
   selectedField?: TOutputVariableField;
   disabled: boolean;
 }) => {
+  const { t } = useTranslation('automations');
+
   if (disabled) {
     return <Input className="w-full min-w-0" disabled />;
   }
@@ -363,7 +374,7 @@ const OutputVariableConditionValueInput = ({
         className="w-full"
         value={field.value}
         onChange={(date) => field.onChange(date as Date)}
-        placeholder="Select date"
+        placeholder={t('split-select-date')}
       />
     );
   }

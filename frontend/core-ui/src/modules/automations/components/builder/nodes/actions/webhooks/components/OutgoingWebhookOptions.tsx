@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OutgoinWebhookLabeledSeparator } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoinWebhookLabeledSeparator';
 import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
 import { Form, Input, Select, Switch } from 'erxes-ui';
@@ -5,6 +6,7 @@ import { useFormContext } from 'react-hook-form';
 
 export const OutgoingWebhookOptions = () => {
   const { control, getValues } = useFormContext<TOutgoingWebhookForm>();
+  const { t } = useTranslation('automations');
 
   return (
     <div className="flex flex-col gap-6">
@@ -14,10 +16,9 @@ export const OutgoingWebhookOptions = () => {
         render={({ field }) => (
           <Form.Item className="flex flex-row justify-between">
             <div>
-              <Form.Label>Enable SSL certificate verification </Form.Label>
+              <Form.Label>{t('webhook-ssl-verification')} </Form.Label>
               <Form.Description>
-                Verify SSL certificates when sending a request. Verification
-                failures will result in the request being aborted.{' '}
+                {t('webhook-ssl-verification-description')}{' '}
               </Form.Description>
             </div>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -31,11 +32,9 @@ export const OutgoingWebhookOptions = () => {
         render={({ field }) => (
           <Form.Item className="flex flex-row justify-between">
             <div>
-              <Form.Label>Treat 4xx and 5xx as a real answer</Form.Label>
+              <Form.Label>{t('webhook-continue-on-http-error')}</Form.Label>
               <Form.Description>
-                By default an error response fails this step. Turn this on when
-                the status itself is the answer you want to read — what happens
-                after a failure is set under Error handling.
+                {t('webhook-continue-on-http-error-description')}
               </Form.Description>
             </div>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -48,7 +47,7 @@ export const OutgoingWebhookOptions = () => {
         name="options.timeout"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Timeout (ms)</Form.Label>
+            <Form.Label>{t('webhook-timeout')}</Form.Label>
 
             <Input {...field} />
             <Form.Message />
@@ -61,9 +60,9 @@ export const OutgoingWebhookOptions = () => {
         render={({ field }) => (
           <Form.Item className="flex flex-row justify-between">
             <div>
-              <Form.Label>Automatically follow redirects </Form.Label>
+              <Form.Label>{t('webhook-follow-redirects')} </Form.Label>
               <Form.Description>
-                Follow HTTP 3xx responses as redirects.
+                {t('webhook-follow-redirects-description')}
               </Form.Description>
             </div>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -82,9 +81,9 @@ export const OutgoingWebhookOptions = () => {
               render={({ field }) => (
                 <Form.Item>
                   <div>
-                    <Form.Label>Maximum number of redirects</Form.Label>
+                    <Form.Label>{t('webhook-max-redirects')}</Form.Label>
                     <Form.Description>
-                      Set a cap on the maximum number of redirects to follow.
+                      {t('webhook-max-redirects-description')}
                     </Form.Description>
                   </div>
                   <Input {...field} />
@@ -99,7 +98,7 @@ export const OutgoingWebhookOptions = () => {
       />
 
       <OutgoinWebhookLabeledSeparator>
-        Retry Configuration
+        {t('webhook-retry-configuration')}
       </OutgoinWebhookLabeledSeparator>
 
       <Form.Field
@@ -107,7 +106,7 @@ export const OutgoingWebhookOptions = () => {
         name="options.retry.attempts"
         render={({ field }) => (
           <Form.Item className="space-y-2">
-            <Form.Label>Retry Attempts</Form.Label>
+            <Form.Label>{t('webhook-retry-attempts')}</Form.Label>
             <Input
               value={field.value}
               onChange={(e) => {
@@ -119,7 +118,7 @@ export const OutgoingWebhookOptions = () => {
               max="10"
             />
             <Form.Description>
-              Number of retry attempts (0 = no retry)
+              {t('webhook-retry-attempts-description')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -130,7 +129,7 @@ export const OutgoingWebhookOptions = () => {
         name="options.retry.delay"
         render={({ field }) => (
           <Form.Item className="space-y-2">
-            <Form.Label>Retry Delay (ms)</Form.Label>
+            <Form.Label>{t('webhook-retry-delay')}</Form.Label>
             <Input
               value={field.value}
               onChange={(e) => {
@@ -142,7 +141,7 @@ export const OutgoingWebhookOptions = () => {
               max="60000"
             />
             <Form.Description className="text-xs text-gray-500">
-              Delay between retry attempts
+              {t('webhook-retry-delay-description')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -153,15 +152,21 @@ export const OutgoingWebhookOptions = () => {
         name="options.retry.backoff"
         render={() => (
           <Form.Item className="space-y-2">
-            <Form.Label>Backoff Strategy</Form.Label>
+            <Form.Label>{t('webhook-backoff-strategy')}</Form.Label>
             <Select defaultValue="none">
               <Select.Trigger>
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="none">None</Select.Item>
-                <Select.Item value="linear">Linear</Select.Item>
-                <Select.Item value="exponential">Exponential</Select.Item>
+                <Select.Item value="none">
+                  {t('webhook-backoff-none')}
+                </Select.Item>
+                <Select.Item value="linear">
+                  {t('webhook-backoff-linear')}
+                </Select.Item>
+                <Select.Item value="exponential">
+                  {t('webhook-backoff-exponential')}
+                </Select.Item>
               </Select.Content>
             </Select>
             <Form.Message />
@@ -169,7 +174,7 @@ export const OutgoingWebhookOptions = () => {
         )}
       />
       <OutgoinWebhookLabeledSeparator>
-        Proxy Configuration
+        {t('webhook-proxy-configuration')}
       </OutgoinWebhookLabeledSeparator>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -178,7 +183,7 @@ export const OutgoingWebhookOptions = () => {
             name="options.proxy.host"
             render={({ field }) => (
               <Form.Item className="space-y-2">
-                <Form.Label>Proxy Host</Form.Label>
+                <Form.Label>{t('webhook-proxy-host')}</Form.Label>
                 <Input {...field} placeholder="proxy.example.com" />
                 <Form.Message />
               </Form.Item>
@@ -189,7 +194,7 @@ export const OutgoingWebhookOptions = () => {
             name="options.proxy.port"
             render={({ field }) => (
               <Form.Item className="space-y-2">
-                <Form.Label>Proxy Port</Form.Label>
+                <Form.Label>{t('webhook-proxy-port')}</Form.Label>
                 <Input
                   value={field.value}
                   onChange={(e) => {
@@ -210,8 +215,11 @@ export const OutgoingWebhookOptions = () => {
             name="options.proxy.auth.username"
             render={({ field }) => (
               <Form.Item className="space-y-2">
-                <Form.Label>Proxy Username</Form.Label>
-                <Input {...field} placeholder="Optional" />
+                <Form.Label>{t('webhook-proxy-username')}</Form.Label>
+                <Input
+                  {...field}
+                  placeholder={t('webhook-optional-placeholder')}
+                />
                 <Form.Message />
               </Form.Item>
             )}
@@ -221,8 +229,11 @@ export const OutgoingWebhookOptions = () => {
             name="options.proxy.auth.password"
             render={({ field }) => (
               <Form.Item className="space-y-2">
-                <Form.Label>Proxy Password</Form.Label>
-                <Input {...field} placeholder="Optional" />
+                <Form.Label>{t('webhook-proxy-password')}</Form.Label>
+                <Input
+                  {...field}
+                  placeholder={t('webhook-optional-placeholder')}
+                />
                 <Form.Message />
               </Form.Item>
             )}

@@ -15,6 +15,7 @@ import {
   IconTournament,
 } from '@tabler/icons-react';
 import { Button, Resizable, Tabs } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 /**
  * A result payload can be far larger than a fixed sidebar, so the reader sets
@@ -58,6 +59,7 @@ const AutomationExecutionDetailBody = () => {
 };
 
 export const AutomationExecutionBackButton = () => {
+  const { t } = useTranslation('automations');
   const { canGoBack, backToParentExecution } = useAutomationHistoryDetail();
 
   if (!canGoBack) {
@@ -68,7 +70,7 @@ export const AutomationExecutionBackButton = () => {
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Back to parent execution"
+      aria-label={t('history-back-to-parent')}
       onClick={backToParentExecution}
     >
       <IconArrowLeft className="size-4" />
@@ -77,9 +79,10 @@ export const AutomationExecutionBackButton = () => {
 };
 
 export const useAutomationExecutionDetailTitle = () => {
+  const { t } = useTranslation('automations');
   const { canGoBack } = useAutomationHistoryDetail();
 
-  return canGoBack ? 'Workflow run' : 'Execution history';
+  return canGoBack ? t('history-workflow-run') : t('history-execution-history');
 };
 
 const AutomationExecutionResultName = () => {
@@ -103,12 +106,13 @@ export const AutomationExecutionDetailTabs = ({
 }: {
   defaultTab?: 'table' | 'flow';
 }) => {
+  const { t } = useTranslation('automations');
   const { error, refetch } = useAutomationExecutionDetail();
 
   if (error) {
     return (
       <AutomationErrorEmptyState
-        title="Couldn't load this run"
+        title={t('history-load-run-error')}
         error={error}
         onRetry={() => refetch()}
       />
@@ -125,14 +129,14 @@ export const AutomationExecutionDetailTabs = ({
               className="h-7 gap-1.5 px-2.5 text-xs [&>svg]:size-3.5"
             >
               <IconAutomaticGearbox />
-              Table
+              {t('history-table')}
             </Tabs.Trigger>
             <Tabs.Trigger
               value="flow"
               className="h-7 gap-1.5 px-2.5 text-xs [&>svg]:size-3.5"
             >
               <IconTournament className="scale-x-[-1]" />
-              Flow
+              {t('history-flow')}
             </Tabs.Trigger>
           </Tabs.List>
           <AutomationExecutionResultName />

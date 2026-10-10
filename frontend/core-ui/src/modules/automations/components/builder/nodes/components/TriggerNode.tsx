@@ -18,6 +18,7 @@ import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Node, NodeProps } from '@xyflow/react';
 import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Configuration content wrapper
 const ConfigurationContent = ({
@@ -90,11 +91,12 @@ const TriggerNodeSourceHandler = ({
 };
 
 const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
+  const { t } = useTranslation('automations');
   const { beforeTitleContent } = data;
 
   return (
     <NodeFrame
-      label="Trigger"
+      label={t('trigger')}
       actions={!data.readOnly && <NodeDropdownActions id={id} data={data} />}
       className={cn({
         'ring-2 ring-primary': selected,

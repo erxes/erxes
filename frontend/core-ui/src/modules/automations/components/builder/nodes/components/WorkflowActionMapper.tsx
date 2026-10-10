@@ -24,8 +24,10 @@ import '@xyflow/react/dist/style.css';
 import { Card, Spinner, themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { TAutomationAction } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const WorkflowActionMapper = ({ id }: { id?: string }) => {
+  const { t } = useTranslation('automations');
   const { detail, loading } = useAutomationWorkflowActionMapper(id);
 
   if (loading) {
@@ -33,7 +35,7 @@ export const WorkflowActionMapper = ({ id }: { id?: string }) => {
   }
 
   if (!detail) {
-    return 'Not found';
+    return t('workflow-not-found');
   }
 
   return (

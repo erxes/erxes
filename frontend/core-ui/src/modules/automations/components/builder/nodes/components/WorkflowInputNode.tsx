@@ -3,12 +3,14 @@ import { IconArrowBarToRight, IconPlus } from '@tabler/icons-react';
 import { Handle, Position } from '@xyflow/react';
 import { Button, Input, Popover } from 'erxes-ui';
 import { FormEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const WORKFLOW_INPUT_NODE_ID = 'workflow-input';
 
 // Entry stub inside the workflow edit sheet: documents the derived input
 // contract and lets the user register a new named input.
 export const WorkflowInputNode = () => {
+  const { t } = useTranslation('automations');
   const workflowEditScope = useWorkflowEditScope();
   const inputNames = Object.keys(workflowEditScope?.inputs || {});
 
@@ -16,7 +18,7 @@ export const WorkflowInputNode = () => {
     <div className="relative flex flex-col rounded-md border bg-background px-4 py-3 font-mono shadow-md">
       <div className="flex items-center gap-2 text-info">
         <IconArrowBarToRight className="size-4" />
-        <span className="text-sm font-medium">Input</span>
+        <span className="text-sm font-medium">{t('workflow-input-title')}</span>
         <WorkflowAddInputButton />
       </div>
       {inputNames.length > 0 && (
@@ -39,6 +41,7 @@ export const WorkflowInputNode = () => {
 };
 
 const WorkflowAddInputButton = () => {
+  const { t } = useTranslation('automations');
   const workflowEditScope = useWorkflowEditScope();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -65,7 +68,7 @@ const WorkflowAddInputButton = () => {
           variant="ghost"
           size="icon"
           className="nodrag ml-auto size-6"
-          aria-label="Add input"
+          aria-label={t('workflow-input-add-label')}
         >
           <IconPlus className="size-3.5" />
         </Button>
@@ -74,11 +77,11 @@ const WorkflowAddInputButton = () => {
         <form className="flex items-center gap-2" onSubmit={handleSubmit}>
           <Input
             value={name}
-            placeholder="Input name"
+            placeholder={t('workflow-input-name-placeholder')}
             onChange={(event) => setName(event.currentTarget.value)}
           />
           <Button type="submit" size="sm">
-            Add
+            {t('workflow-input-add')}
           </Button>
         </form>
       </Popover.Content>

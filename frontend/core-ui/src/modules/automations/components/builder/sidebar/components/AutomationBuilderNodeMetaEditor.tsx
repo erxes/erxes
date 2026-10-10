@@ -2,6 +2,7 @@ import { useNodeMetaEdit } from '@/automations/components/builder/sidebar/hooks/
 import { NodeData } from '@/automations/types';
 import { Input, Popover } from 'erxes-ui';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Popup-style inline editing of the active node's label/description in the
 // sidebar header, for every node type (trigger, action, workflow).
@@ -10,6 +11,7 @@ export const AutomationBuilderNodeMetaEditor = ({
 }: {
   activeNode: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const { updateMeta, activeNodeId } = useNodeMetaEdit(activeNode);
 
   const [meta, setMeta] = useState({
@@ -53,14 +55,14 @@ export const AutomationBuilderNodeMetaEditor = ({
             className="-mx-1 w-fit max-w-full truncate rounded px-1 text-left hover:bg-accent"
           >
             <h2 className="w-full truncate text-xl font-semibold leading-none tracking-tight">
-              {meta.label || 'Untitled'}
+              {meta.label || t('sidebar-untitled')}
             </h2>
           </button>
         </Popover.Trigger>
         <Popover.Content align="start" className="w-80 p-3">
           <Input
             value={meta.label}
-            placeholder="Name"
+            placeholder={t('name')}
             onChange={handleLabelChange}
           />
         </Popover.Content>
@@ -73,7 +75,7 @@ export const AutomationBuilderNodeMetaEditor = ({
             className="-mx-1 w-fit max-w-full truncate rounded px-1 text-left hover:bg-accent"
           >
             <span className="w-full truncate text-sm font-normal text-muted-foreground">
-              {meta.description || 'Add description...'}
+              {meta.description || t('sidebar-add-description')}
             </span>
           </button>
         </Popover.Trigger>
@@ -81,7 +83,7 @@ export const AutomationBuilderNodeMetaEditor = ({
           <Input
             type="textarea"
             value={meta.description}
-            placeholder="Description"
+            placeholder={t('description')}
             onChange={handleDescriptionChange}
           />
         </Popover.Content>

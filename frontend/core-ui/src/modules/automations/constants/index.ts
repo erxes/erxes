@@ -141,13 +141,13 @@ export const AUTOMATION_APPROVAL_CONTENT_TYPES = {
 export const AUTOMATION_LIBRARY_TABS = [
   {
     value: AutomationNodeType.Trigger,
-    label: 'Triggers',
+    labelKey: 'triggers',
     icon: IconPointerBolt,
   },
-  { value: AutomationNodeType.Action, label: 'Actions', icon: IconBolt },
+  { value: AutomationNodeType.Action, labelKey: 'actions', icon: IconBolt },
   {
     value: AutomationNodeType.Workflow,
-    label: 'Workflows',
+    labelKey: 'library-tab-workflows',
     icon: IconArrowsSplit2,
   },
 ];

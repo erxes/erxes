@@ -52,13 +52,31 @@ export const AutomationBuilderStatusSwitch = ({
   const ownerName =
     detail?.ownerUser?.details?.fullName || detail?.ownerUser?.email;
   const takingOver = !detail?.ownerId;
-  const ownershipLine = !flowNeedsActor(actions, actionConstMap)
-    ? null
-    : takingOver
-    ? translate('activate-owner-taking')
-    : translate('activate-owner-existing', { name: ownerName || '' });
+  let ownershipLine: string | null = null;
+  if (flowNeedsActor(actions, actionConstMap)) {
+    ownershipLine = takingOver
+      ? translate('activate-owner-taking')
+      : translate('activate-owner-existing', { name: ownerName || '' });
+  }
 
   const isActivatingDuplicate = isActivating && isUntouchedDuplicate;
+
+  const pickDialogText = (
+    duplicateText: string,
+    activateText: string,
+    deactivateText: string,
+  ) => {
+    if (isActivatingDuplicate) {
+      return duplicateText;
+    }
+    return isActivating ? activateText : deactivateText;
+  };
+
+  const duplicateDescription = duplicatedFromName
+    ? translate('header-activate-duplicate-description-from', {
+        name: duplicatedFromName,
+      })
+    : translate('header-activate-duplicate-description');
 
   return (
     <Form.Field
@@ -106,22 +124,18 @@ export const AutomationBuilderStatusSwitch = ({
                 <AlertDialog.Content>
                   <AlertDialog.Header>
                     <AlertDialog.Title>
-                      {isActivatingDuplicate
-                        ? 'Activate an unchanged duplicate?'
-                        : isActivating
-                        ? 'Activate this automation?'
-                        : 'Deactivate this automation?'}
+                      {pickDialogText(
+                        translate('header-activate-duplicate-title'),
+                        translate('header-activate-title'),
+                        translate('header-deactivate-title'),
+                      )}
                     </AlertDialog.Title>
                     <AlertDialog.Description>
-                      {isActivatingDuplicate
-                        ? `Nothing has changed since this was duplicated${
-                            duplicatedFromName
-                              ? ` from “${duplicatedFromName}”`
-                              : ''
-                          }. Activating it will run the same flow a second time on the same triggers.`
-                        : isActivating
-                        ? 'This will save your latest changes and start running this automation.'
-                        : 'This will save your latest changes and stop this automation from running.'}
+                      {pickDialogText(
+                        duplicateDescription,
+                        translate('header-activate-description'),
+                        translate('header-deactivate-description'),
+                      )}
                       {isActivating && ownershipLine && (
                         <span className="mt-2 block text-foreground">
                           {ownershipLine}
@@ -132,11 +146,11 @@ export const AutomationBuilderStatusSwitch = ({
                   <AlertDialog.Footer>
                     <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
                     <AlertDialog.Action onClick={handleConfirm}>
-                      {isActivatingDuplicate
-                        ? 'Activate anyway'
-                        : isActivating
-                        ? 'Save and activate'
-                        : 'Save and deactivate'}
+                      {pickDialogText(
+                        translate('header-activate-anyway'),
+                        translate('header-save-and-activate'),
+                        translate('header-save-and-deactivate'),
+                      )}
                     </AlertDialog.Action>
                   </AlertDialog.Footer>
                 </AlertDialog.Content>

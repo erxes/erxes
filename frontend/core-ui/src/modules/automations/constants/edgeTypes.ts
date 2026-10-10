@@ -1,8 +1,8 @@
 export const AUTOMATION_EDGE_TYPES = [
-  { value: 'default', label: 'Bezier' },
-  { value: 'straight', label: 'Straight' },
-  { value: 'step', label: 'Step' },
-  { value: 'smoothstep', label: 'Smooth step' },
+  { value: 'default', labelKey: 'edge-type-bezier' },
+  { value: 'straight', labelKey: 'edge-type-straight' },
+  { value: 'step', labelKey: 'edge-type-step' },
+  { value: 'smoothstep', labelKey: 'edge-type-smoothstep' },
 ] as const;
 
 export type TAutomationEdgeType =

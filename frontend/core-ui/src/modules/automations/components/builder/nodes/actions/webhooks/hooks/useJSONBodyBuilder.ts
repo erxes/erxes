@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { toast } from 'erxes-ui';
 
 export function useJSONBodyBuilder(name: string, value: any) {
   const { getValues, setValue } = useFormContext();
+  const { t } = useTranslation('automations');
   const [rawOpen, setRawOpen] = useState(false);
   const [rawValue, setRawValue] = useState(() => {
     try {
@@ -31,12 +33,12 @@ export function useJSONBodyBuilder(name: string, value: any) {
       setRawOpen(false);
     } catch (e) {
       toast({
-        title: 'Invalid JSON',
+        title: t('webhook-invalid-json'),
         description: e.message,
         variant: 'destructive',
       });
     }
-  }, [rawValue, setValue, name]);
+  }, [rawValue, setValue, name, t]);
 
   const onRawValueChange = useCallback((value: string) => {
     setRawValue(value);

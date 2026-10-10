@@ -36,12 +36,14 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const WorkflowNodeContent = ({
   data,
   selected,
   id,
 }: NodeProps<Node<NodeData & WorkflowNodeData>>) => {
+  const { t } = useTranslation('automations');
   const {
     isOpenDialog,
     isOpenDropDown,
@@ -66,7 +68,7 @@ const WorkflowNodeContent = ({
 
   return (
     <NodeFrame
-      label="Workflow"
+      label={t('workflow-label')}
       actions={
         <>
           {data.automationId ? (
@@ -89,17 +91,17 @@ const WorkflowNodeContent = ({
             <DropdownMenu.Content className="w-42">
               <DropdownMenu.Item onSelect={() => setOpenDialog(true)}>
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
               </DropdownMenu.Item>
               {!data.automationId && hasMemberActions && (
                 <>
                   <DropdownMenu.Item onSelect={() => unconvertWorkflow(id)}>
                     <IconArrowBackUp className="size-4" />
-                    Convert back to actions
+                    {t('workflow-convert-back')}
                   </DropdownMenu.Item>
                   <DropdownMenu.Item onSelect={() => saveAsTemplate(id)}>
                     <IconTemplate className="size-4" />
-                    Save as template
+                    {t('workflow-save-as-template')}
                   </DropdownMenu.Item>
                 </>
               )}
@@ -108,7 +110,7 @@ const WorkflowNodeContent = ({
                 onSelect={() => setOpenRemoveAlert(true)}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu>
@@ -126,22 +128,23 @@ const WorkflowNodeContent = ({
           >
             <AlertDialog.Content>
               <AlertDialog.Header>
-                <AlertDialog.Title>Delete workflow?</AlertDialog.Title>
+                <AlertDialog.Title>
+                  {t('workflow-delete-title')}
+                </AlertDialog.Title>
                 <AlertDialog.Description>
-                  Delete the workflow together with its member actions, or
-                  unconvert it to keep the member actions on the canvas.
+                  {t('workflow-delete-description')}
                 </AlertDialog.Description>
               </AlertDialog.Header>
               <AlertDialog.Footer>
-                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
                 <AlertDialog.Action onClick={handleUnconvertAndRemove}>
-                  Unconvert, keep actions
+                  {t('workflow-unconvert-keep-actions')}
                 </AlertDialog.Action>
                 <AlertDialog.Action
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   onClick={onRemoveNode}
                 >
-                  Delete workflow & actions
+                  {t('workflow-delete-with-actions')}
                 </AlertDialog.Action>
               </AlertDialog.Footer>
             </AlertDialog.Content>
@@ -191,6 +194,7 @@ const WorkflowNodeContent = ({
 };
 
 const WorkflowMemberSummary = () => {
+  const { t } = useTranslation('automations');
   const { memberCount, entryLabel } = useWorkflowNodeContext();
 
   if (!memberCount) {
@@ -199,8 +203,8 @@ const WorkflowMemberSummary = () => {
 
   return (
     <p className="mt-1 text-xs text-muted-foreground">
-      {memberCount} action{memberCount > 1 ? 's' : ''}
-      {entryLabel ? ` · entry: ${entryLabel}` : ''}
+      {t('workflow-member-actions', { count: memberCount })}
+      {entryLabel ? ` · ${t('workflow-entry', { label: entryLabel })}` : ''}
     </p>
   );
 };
@@ -241,6 +245,7 @@ const WorkflowSelectedNodes = ({
 };
 
 const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
+  const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -252,9 +257,9 @@ const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
       <Sheet.View className="p-0 md:w-[calc(80vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
         <Sheet.Header>
           <div>
-            <Sheet.Title>Workflow</Sheet.Title>
+            <Sheet.Title>{t('workflow-label')}</Sheet.Title>
             <Sheet.Description>
-              Select workflow action for connection
+              {t('workflow-select-action-description')}
             </Sheet.Description>
           </div>
           <Sheet.Close />

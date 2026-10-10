@@ -11,6 +11,7 @@ import {
   TAutomationOutputPropertySource,
   TAutomationVariablePayloadBuilder,
 } from '../AutomationVariableBrowserTypes';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationOutputPropertySourceFields = ({
   source,
@@ -27,6 +28,7 @@ export const AutomationOutputPropertySourceFields = ({
   buildVariablePayload: TAutomationVariablePayloadBuilder;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { fields, loading } = useFields({
     contentType: source.propertyType,
   });
@@ -43,7 +45,7 @@ export const AutomationOutputPropertySourceFields = ({
       {loading ? (
         <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-muted-foreground">
           <Spinner size="sm" />
-          Loading property fields...
+          {t('sidebar-loading-property-fields')}
         </div>
       ) : filteredFields.length > 0 ? (
         <div className="space-y-2">
@@ -78,8 +80,8 @@ export const AutomationOutputPropertySourceFields = ({
         <AutomationVariableBrowserEmptyState
           text={
             searchQuery
-              ? 'No matching property fields.'
-              : 'No property fields available.'
+              ? t('sidebar-no-matching-property-fields')
+              : t('sidebar-no-property-fields')
           }
         />
       )}

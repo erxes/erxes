@@ -2,8 +2,10 @@ import { Command } from 'erxes-ui';
 import { useAutomationVariableBrowserContext } from '../context/AutomationVariableBrowserContext';
 import { AutomationOutputVariableList } from './AutomationOutputVariableList';
 import { AutomationVariableBrowserSection } from './AutomationVariableBrowserSection';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationVariableBrowserOutputVariables = () => {
+  const { t } = useTranslation('automations');
   const {
     activeSourceNode,
     buildVariablePath,
@@ -29,12 +31,12 @@ export const AutomationVariableBrowserOutputVariables = () => {
       <Command.Input
         value={searchValue}
         onValueChange={setSearchValue}
-        placeholder="Search variables..."
+        placeholder={t('sidebar-search-variables')}
         className="h-9"
         wrapperClassName="rounded-md border"
       />
 
-      <AutomationVariableBrowserSection title="Output Variables">
+      <AutomationVariableBrowserSection title={t('sidebar-output-variables')}>
         <AutomationOutputVariableList
           buildVariablePath={buildVariablePath}
           buildVariablePayload={buildVariablePayload}

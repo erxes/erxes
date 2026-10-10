@@ -18,6 +18,7 @@ import {
   TAutomationTrigger,
 } from 'ui-modules';
 import { useNodeErrorHandler } from '../../hooks/useNodeErrorHandler';
+import { useTranslation } from 'react-i18next';
 
 const getTargetType = (
   actionConstMap: Map<string, IAutomationsActionConfigConstants>,
@@ -37,6 +38,7 @@ const getTargetType = (
 };
 
 export const useAutomationActionContentSidebar = () => {
+  const { t } = useTranslation('automations');
   const {
     queryParams,
     setQueryParams,
@@ -97,7 +99,7 @@ export const useAutomationActionContentSidebar = () => {
     setQueryParams({ activeNodeId: null });
     toggleSideBarOpen();
     toast({
-      title: 'Action configuration added successfully.',
+      title: t('sidebar-action-configuration-added'),
       variant: 'success',
     });
     currentAction && clearNodeError(currentAction.id);

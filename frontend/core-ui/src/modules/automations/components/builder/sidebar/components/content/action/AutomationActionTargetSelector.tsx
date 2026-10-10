@@ -3,12 +3,14 @@ import { NodeData } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Form, IconComponent, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationActionTargetSelector = ({
   activeNode,
 }: {
   activeNode: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAutomationBuilderForm>();
   const {
     allowTargetFromActions,
@@ -29,13 +31,13 @@ export const AutomationActionTargetSelector = ({
       control={control}
       render={({ field }) => (
         <Form.Item className="px-4 mb-2">
-          <Form.Label>Select target</Form.Label>
+          <Form.Label>{t('sidebar-select-target')}</Form.Label>
           <Select
             value={field.value ?? list[0]?.id}
             onValueChange={(value) => handleChangeTarget(value, field.onChange)}
           >
             <Select.Trigger className="mt-1">
-              <Select.Value placeholder="Select target type" />
+              <Select.Value placeholder={t('select-target-type')} />
             </Select.Trigger>
             <Select.Content>
               {list.map(({ id, label, icon }) => (
@@ -49,7 +51,7 @@ export const AutomationActionTargetSelector = ({
             </Select.Content>
           </Select>
           <Form.Description>
-            Select which action or trigger to use as the target.
+            {t('sidebar-select-target-description')}
           </Form.Description>
           <Form.Message />
         </Form.Item>

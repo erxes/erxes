@@ -125,7 +125,9 @@ export const AIAgentConfigForm = ({
                             ? `${AutomationSettingsPath.Agents}/${field.value}`
                             : AutomationSettingsPath.Agents
                         }
-                        onClick={() => setAutomationSettingsReturnPath(pathname)}
+                        onClick={() =>
+                          setAutomationSettingsReturnPath(pathname)
+                        }
                       >
                         <Button
                           variant="outline"
@@ -156,9 +158,9 @@ export const AIAgentConfigForm = ({
                         <Select.Value placeholder={t('select-goal-type')} />
                       </Select.Trigger>
                       <Select.Content>
-                        {AI_AGENT_NODE_GOAL_TYPES.map(({ type, label }) => (
+                        {AI_AGENT_NODE_GOAL_TYPES.map(({ type, labelKey }) => (
                           <Select.Item key={type} value={type}>
-                            {label}
+                            {t(labelKey)}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -232,7 +234,7 @@ export const AIAgentConfigForm = ({
               <AiAgentToolBuilder />
             ) : (
               <p className="p-2 text-sm text-muted-foreground">
-                Tools are available for the generate text goal type.
+                {t('ai-agent-tools-unavailable')}
               </p>
             )}
           </Tabs.Content>

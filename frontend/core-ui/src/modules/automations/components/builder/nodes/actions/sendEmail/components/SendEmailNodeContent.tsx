@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
@@ -19,40 +20,44 @@ export const SendEmailNodeContent = ({
   } = config || {};
 
   const { alignedFrom } = useSenderOptions();
+  const { t } = useTranslation('automations');
 
   const from = alignedFrom
     ? `${sender || ''} <${alignedFrom}>`.trim()
     : type === 'default'
-    ? 'COMPANY EMAIL'
-    : fromEmailPlaceHolder;
+      ? t('send-email-company-email')
+      : fromEmailPlaceHolder;
 
   const replyTo = alignedFrom ? fromEmailPlaceHolder : replyToEmail;
 
   return (
     <>
-      <AutomationNodeMetaInfoRow fieldName="From" content={from} />
+      <AutomationNodeMetaInfoRow fieldName={t('from')} content={from} />
       {replyTo && (
-        <AutomationNodeMetaInfoRow fieldName="Reply to" content={replyTo} />
+        <AutomationNodeMetaInfoRow
+          fieldName={t('reply-to')}
+          content={replyTo}
+        />
       )}
       <AutomationNodeMetaInfoRow
-        fieldName="Reciepents"
+        fieldName={t('send-email-recipients')}
         content={
           <Popover>
             <Popover.Trigger asChild>
               <Button variant="ghost">
-                See Emails
+                {t('send-email-see-emails')}
                 <IconEye />
               </Button>
             </Popover.Trigger>
             <Popover.Content>
-              <Label>Recipient emails</Label>
+              <Label>{t('send-email-recipient-emails')}</Label>
               <AutomationNodeMetaInfoRow
-                fieldName="To"
+                fieldName={t('to')}
                 content={toEmailsPlaceHolders}
               />
               {ccEmailsPlaceHolders && (
                 <AutomationNodeMetaInfoRow
-                  fieldName="CC"
+                  fieldName={t('cc')}
                   content={ccEmailsPlaceHolders}
                 />
               )}
@@ -60,7 +65,7 @@ export const SendEmailNodeContent = ({
           </Popover>
         }
       />
-      <AutomationNodeMetaInfoRow fieldName="Subject" content={subject} />
+      <AutomationNodeMetaInfoRow fieldName={t('subject')} content={subject} />
     </>
   );
 };

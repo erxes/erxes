@@ -2,6 +2,7 @@ import { useConvertSelectionToWorkflowDialog } from '@/automations/components/bu
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { IconArrowsSplit2 } from '@tabler/icons-react';
 import { Button, Dialog, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const MarqueeConvertToWorkflowAction = ({
   actionIds,
@@ -13,19 +14,20 @@ export const MarqueeConvertToWorkflowAction = ({
   const { canConvert, doc, isOpen, onConvert, setDoc, setOpen } =
     useConvertSelectionToWorkflowDialog({ actionIds, onConverted });
   const { isReadOnly } = useAutomation();
+  const { t } = useTranslation('automations');
 
   return (
     <>
       <Button disabled={isReadOnly} onClick={() => setOpen(true)}>
         <IconArrowsSplit2 />
-        Convert to workflow
+        {t('marquee-convert-to-workflow')}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setOpen}>
         <Dialog.Content>
-          <Dialog.Title>Convert to workflow</Dialog.Title>
+          <Dialog.Title>{t('marquee-convert-to-workflow')}</Dialog.Title>
           <Dialog.Description>
-            Name the workflow before converting the selected actions.
+            {t('marquee-convert-description')}
           </Dialog.Description>
           <Input
             name="name"
@@ -37,7 +39,7 @@ export const MarqueeConvertToWorkflowAction = ({
           <Input
             type="textarea"
             name="description"
-            placeholder="Description"
+            placeholder={t('description')}
             value={doc.description}
             onChange={(event) =>
               setDoc({ ...doc, description: event.currentTarget.value })
@@ -45,7 +47,7 @@ export const MarqueeConvertToWorkflowAction = ({
           />
           <Dialog.Footer>
             <Button onClick={onConvert} disabled={!canConvert}>
-              Convert
+              {t('marquee-convert')}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

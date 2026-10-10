@@ -8,12 +8,14 @@ import { Button } from 'erxes-ui';
 import { CustomCoreTriggerContentProps } from '@/automations/components/builder/sidebar/types/sidebarContentTypes';
 import { TriggerContentWrapper } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentWrapper';
 import { TriggerContentLoadingFallback } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentLoadingFallback';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Custom core trigger content component for built-in core triggers
  */
 export const CustomCoreTriggerContent =
   React.memo<CustomCoreTriggerContentProps>(({ activeNode, moduleName }) => {
+    const { t } = useTranslation('automations');
     const { formRef, handleSave } = useCoreCustomTriggerContent(activeNode);
 
     const Component = getCoreAutomationTriggerComponent(
@@ -27,14 +29,14 @@ export const CustomCoreTriggerContent =
           onClick={() => {
             formRef.current?.submit();
           }}
-          aria-label={`Save ${
-            activeNode?.type || 'core trigger'
-          } configuration`}
+          aria-label={t('sidebar-save-trigger-configuration-aria', {
+            type: activeNode?.type || 'core trigger',
+          })}
         >
-          Save Configuration
+          {t('save-configuration')}
         </Button>
       ),
-      [activeNode?.type],
+      [activeNode?.type, t],
     );
 
     const updatedProps = { formRef, activeNode, handleSave };
@@ -42,7 +44,9 @@ export const CustomCoreTriggerContent =
     return (
       <TriggerContentWrapper
         footer={footerContent}
-        aria-label={`Configure ${activeNode?.type || 'core trigger'} settings`}
+        aria-label={t('sidebar-configure-trigger-settings-aria', {
+          type: activeNode?.type || 'core trigger',
+        })}
       >
         <Suspense fallback={<TriggerContentLoadingFallback />}>
           {Component && <Component {...updatedProps} />}

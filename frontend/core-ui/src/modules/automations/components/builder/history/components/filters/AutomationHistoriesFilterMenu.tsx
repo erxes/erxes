@@ -6,39 +6,41 @@ import {
   IconTargetArrow,
 } from '@tabler/icons-react';
 import { Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoriesFilterMenu = () => {
+  const { t } = useTranslation('automations');
   return (
     <Filter.View>
       <Command>
         <Filter.CommandInput
-          placeholder="Filter"
+          placeholder={t('stats-filter-placeholder')}
           variant="secondary"
           className="bg-background"
         />
         <Command.List className="p-1">
-          <Command.Group heading="Run">
+          <Command.Group heading={t('history-group-run')}>
             <Filter.Item value="status">
               <IconProgressCheck />
-              Status
+              {t('status')}
             </Filter.Item>
             <Filter.Item value="createdAt">
               <IconCalendar />
-              Filter by created
+              {t('stats-filter-by-created')}
             </Filter.Item>
           </Command.Group>
-          <Command.Group heading="Where it stopped">
+          <Command.Group heading={t('history-group-where-it-stopped')}>
             <Filter.Item value="failedActionId">
               <IconTargetArrow />
-              Failed at action
+              {t('history-failed-at-action')}
             </Filter.Item>
             <Filter.Item value="errorCode">
               <IconAlertTriangle />
-              Error code
+              {t('history-error-code')}
             </Filter.Item>
             <Filter.Item value="waitingActionId">
               <IconClockPause />
-              Waiting at action
+              {t('history-waiting-at-action')}
             </Filter.Item>
           </Command.Group>
         </Command.List>

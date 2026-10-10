@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { copyText } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { IconCopy } from '@tabler/icons-react';
@@ -10,17 +11,18 @@ export const WaitEventActionResult = ({
   result,
   action,
 }: ActionResultComponentProps<TWaitEventResult>) => {
+  const { t } = useTranslation('automations');
   const { waiting, description } = result || {};
   const isWaitingWebhookEvent = action?.actionConfig?.targetType === 'custom';
 
   return (
     <>
       <ActionResult.Status status="waiting">
-        {description || 'Waiting for an event'}
+        {description || t('wait-event-waiting-for-event')}
       </ActionResult.Status>
       <ActionResult.Fields>
         <ActionResult.Field
-          label="Waiting"
+          label={t('wait-event-waiting')}
           value={
             isWaitingWebhookEvent ? (
               <Button
@@ -28,7 +30,7 @@ export const WaitEventActionResult = ({
                 size="sm"
                 onClick={() => copyText(waiting)}
               >
-                <IconCopy /> Copy url
+                <IconCopy /> {t('wait-event-copy-url')}
               </Button>
             ) : (
               waiting

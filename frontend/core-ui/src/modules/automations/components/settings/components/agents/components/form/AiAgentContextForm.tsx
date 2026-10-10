@@ -4,10 +4,12 @@ import { useSessionTab } from '@/automations/hooks/useSessionTab';
 import { Form, Tabs, Textarea } from 'erxes-ui';
 import { IconBooks, IconMessageCog } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const AI_AGENT_CONTEXT_TABS = ['instructions', 'knowledge'];
 
 export const AiAgentContextForm = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
   const [activeTab, setActiveTab] = useSessionTab(
     'aiAgentContext',
@@ -24,11 +26,11 @@ export const AiAgentContextForm = () => {
       <Tabs.List variant="segment">
         <Tabs.Trigger value="instructions">
           <IconMessageCog className="size-4" />
-          Instructions
+          {t('settings-agent-context-instructions')}
         </Tabs.Trigger>
         <Tabs.Trigger value="knowledge">
           <IconBooks className="size-4" />
-          Knowledge
+          {t('settings-agent-context-knowledge')}
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -38,17 +40,16 @@ export const AiAgentContextForm = () => {
           name="context.systemPrompt"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>System Prompt</Form.Label>
+              <Form.Label>{t('settings-agent-system-prompt')}</Form.Label>
               <Form.Control>
                 <Textarea
                   rows={10}
-                  placeholder="You are an automation AI bridge. Use the provided context, follow the requested output format, and never invent facts."
+                  placeholder={t('settings-agent-system-prompt-placeholder')}
                   {...field}
                 />
               </Form.Control>
               <Form.Description>
-                Define the runtime rules that every AI action should follow
-                before user input and context files are injected.
+                {t('settings-agent-system-prompt-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>

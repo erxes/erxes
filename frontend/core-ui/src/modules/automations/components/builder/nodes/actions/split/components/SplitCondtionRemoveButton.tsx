@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm, useToast } from 'erxes-ui';
@@ -15,22 +16,23 @@ export const SplitCondtionRemoveButton = ({
   disabled?: boolean;
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const [removeSegment] = useMutation(SEGMENT_REMOVE);
 
   const removeOptionWithConfirmation = async () => {
-    const optionLabel = option?.label || `Option ${index + 1}`;
+    const optionLabel =
+      option?.label || t('split-option-default-label', { number: index + 1 });
 
     try {
       if (option?.segmentId) {
         await confirm({
-          message: `Delete "${optionLabel}"?`,
+          message: t('split-delete-option-confirm', { label: optionLabel }),
           options: {
-            description:
-              'This action cannot be undone. The split option and its associated segment will be permanently removed.',
-            okLabel: 'Delete',
-            cancelLabel: 'Cancel',
+            description: t('split-delete-option-description'),
+            okLabel: t('delete'),
+            cancelLabel: t('cancel'),
           },
         });
 
@@ -45,7 +47,7 @@ export const SplitCondtionRemoveButton = ({
     } catch (error) {
       if (error instanceof Error) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

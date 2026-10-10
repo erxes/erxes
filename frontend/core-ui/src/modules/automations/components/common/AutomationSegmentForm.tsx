@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   IconBookmarkPlus,
   IconListSearch,
@@ -68,6 +69,7 @@ const UseExistingSegment = ({
   segmentId?: string;
   onSelect: (contentId: string) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
 
   return (
@@ -75,7 +77,7 @@ const UseExistingSegment = ({
       <Popover.Trigger asChild>
         <Button variant="ghost" size="sm" type="button">
           <IconListSearch />
-          Use an existing segment
+          {t('common-use-existing-segment')}
         </Button>
       </Popover.Trigger>
       <Popover.Content
@@ -83,13 +85,12 @@ const UseExistingSegment = ({
         className="w-[420px] max-w-[calc(100vw-2rem)]"
       >
         <p className="text-sm text-muted-foreground pb-3">
-          The segment stays the organization&apos;s: editing or deleting this
-          automation leaves it alone.
+          {t('common-segment-stays-organizations')}
         </p>
         <SelectSegment
           contentType={contentType}
           selected={segmentId}
-          unnamedLabel="Current conditions"
+          unnamedLabel={t('common-current-conditions')}
           onSelect={(id) => {
             if (id) {
               onSelect(id);
@@ -136,6 +137,7 @@ const KeepAsSegment = ({
 }: {
   callback: (contentId: string) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { form, ownedBy } = useSegment();
   const [open, setOpen] = useState(false);
 
@@ -168,18 +170,17 @@ const KeepAsSegment = ({
       <Dialog.Trigger asChild>
         <Button variant="ghost" size="sm" type="button">
           <IconBookmarkPlus />
-          Keep as a segment
+          {t('common-keep-as-segment')}
         </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
         className="max-w-[640px]"
-        title="Keep as a segment"
-        description="Name these conditions to keep them as a segment of its own"
+        title={t('common-keep-as-segment')}
+        description={t('common-keep-as-segment-description')}
       >
         <div className="p-4">
           <p className="text-sm text-muted-foreground pb-3">
-            Name these conditions to keep them as a segment of their own. It
-            then appears in the segment list and outlives this automation.
+            {t('common-keep-as-segment-body')}
           </p>
           <SegmentForm.Header />
         </div>
@@ -194,10 +195,10 @@ const KeepAsSegment = ({
             {saving ? (
               <>
                 <IconLoader2 className="animate-spin" />
-                Saving...
+                {t('common-saving')}
               </>
             ) : (
-              'Save'
+              t('save')
             )}
           </Button>
         </Dialog.Footer>

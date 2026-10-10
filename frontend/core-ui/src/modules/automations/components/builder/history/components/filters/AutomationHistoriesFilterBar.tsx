@@ -16,6 +16,7 @@ import {
   Popover,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const NodeFilterBarItem = ({
   filterKey,
@@ -40,6 +41,7 @@ const NodeFilterBarItem = ({
 );
 
 export const AutomationHistoriesFilterBar = () => {
+  const { t } = useTranslation('automations');
   const { queries: nodeQueries, getActionLabel } =
     useAutomationHistoryFilterOptions();
   const [queries, setQueries] = useMultiQueryState<{
@@ -52,7 +54,7 @@ export const AutomationHistoriesFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          Status
+          {t('status')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
@@ -96,7 +98,7 @@ export const AutomationHistoriesFilterBar = () => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Filter by created at
+          {t('stats-filter-by-created-at')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
@@ -104,19 +106,19 @@ export const AutomationHistoriesFilterBar = () => {
       <NodeFilterBarItem
         filterKey="failedActionId"
         icon={<IconTargetArrow />}
-        label="Failed at"
+        label={t('history-failed-at')}
         value={getActionLabel(nodeQueries.failedActionId)}
       />
       <NodeFilterBarItem
         filterKey="errorCode"
         icon={<IconAlertTriangle />}
-        label="Error"
+        label={t('error')}
         value={nodeQueries.errorCode}
       />
       <NodeFilterBarItem
         filterKey="waitingActionId"
         icon={<IconClockPause />}
-        label="Waiting at"
+        label={t('history-waiting-at')}
         value={getActionLabel(nodeQueries.waitingActionId)}
       />
     </Filter.Bar>

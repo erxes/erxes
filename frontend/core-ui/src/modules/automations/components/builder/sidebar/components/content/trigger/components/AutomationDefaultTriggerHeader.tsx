@@ -12,6 +12,7 @@ export const AutomationDefaultTriggerHeader = ({
 }: {
   activeNode: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const { control, setValue } = useFormContext<TAutomationBuilderForm>();
   const configFieldNamePrefix: `triggers.${number}.config` = `triggers.${activeNode.nodeIndex}.config`;
   const config = useWatch<TAutomationBuilderForm>({
@@ -28,12 +29,14 @@ export const AutomationDefaultTriggerHeader = ({
         }}
       >
         <Select.Trigger>
-          <Select.Value placeholder="Every records" />
+          <Select.Value placeholder={t('sidebar-records-every')} />
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="every">Every records</Select.Item>
-          <Select.Item value="new">New records only</Select.Item>
-          <Select.Item value="existing">Existing records only</Select.Item>
+          <Select.Item value="every">{t('sidebar-records-every')}</Select.Item>
+          <Select.Item value="new">{t('sidebar-records-new')}</Select.Item>
+          <Select.Item value="existing">
+            {t('sidebar-records-existing')}
+          </Select.Item>
         </Select.Content>
       </Select>
       {recordType !== 'new' && (

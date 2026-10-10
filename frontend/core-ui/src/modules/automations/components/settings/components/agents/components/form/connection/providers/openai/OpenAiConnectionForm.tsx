@@ -9,12 +9,14 @@ import {
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const OpenAiConnectionForm = ({
   existingApiKeyMask,
 }: {
   existingApiKeyMask?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control, watch } = useFormContext<TAiAgentForm>();
   const provider = watch('connection.provider') as TAiAgentProvider;
   const providerLabel =
@@ -27,10 +29,10 @@ export const OpenAiConnectionForm = ({
 
       <AiAgentSecretField
         name="connection.config.apiKey"
-        label="API Key"
+        label={t('settings-connection-api-key')}
         placeholder={AI_AGENT_PROVIDER_API_KEY_PLACEHOLDERS[provider]}
         existingSecretMask={existingApiKeyMask}
-        description="Existing secrets stay masked. Replace the key only when you want to rotate it."
+        description={t('settings-connection-api-key-description')}
       />
 
       <Form.Field
@@ -38,13 +40,14 @@ export const OpenAiConnectionForm = ({
         name="connection.config.baseUrl"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Base URL</Form.Label>
+            <Form.Label>{t('settings-connection-base-url')}</Form.Label>
             <Form.Control>
               <Input placeholder={defaultBaseUrl} {...field} />
             </Form.Control>
             <Form.Description>
-              Direct OpenAI-compatible endpoint for this {providerLabel}
-              connection.
+              {t('settings-connection-base-url-description', {
+                provider: providerLabel,
+              })}
             </Form.Description>
             <Form.Message />
           </Form.Item>

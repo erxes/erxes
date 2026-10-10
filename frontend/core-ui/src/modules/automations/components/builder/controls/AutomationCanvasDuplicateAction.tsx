@@ -3,8 +3,10 @@ import { useAutomationDuplicateAction } from '@/automations/components/builder/h
 import { IconCopy } from '@tabler/icons-react';
 import { AlertDialog, Input, Label, Spinner } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationCanvasDuplicateAction = () => {
+  const { t } = useTranslation('automations');
   const {
     duplicating,
     isOpen,
@@ -19,7 +21,7 @@ export const AutomationCanvasDuplicateAction = () => {
   return (
     <Can action="automationsCreate">
       <AutomationCanvasControlButton
-        label="Duplicate automation"
+        label={t('controls-duplicate-automation')}
         disabled={duplicating}
         onClick={open}
       >
@@ -29,15 +31,16 @@ export const AutomationCanvasDuplicateAction = () => {
       <AlertDialog open={isOpen} onOpenChange={setOpen}>
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>Duplicate this automation?</AlertDialog.Title>
+            <AlertDialog.Title>
+              {t('controls-duplicate-title')}
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              The copy is created as a draft, so it never starts running on the
-              same triggers by itself.
+              {t('controls-duplicate-description')}
             </AlertDialog.Description>
           </AlertDialog.Header>
 
           <div className="space-y-2">
-            <Label htmlFor="duplicate-name">Name</Label>
+            <Label htmlFor="duplicate-name">{t('name')}</Label>
             <Input
               id="duplicate-name"
               autoFocus
@@ -52,12 +55,12 @@ export const AutomationCanvasDuplicateAction = () => {
               }}
             />
             <p className="text-xs text-muted-foreground">
-              Leave it empty to use “{suggestedName}”.
+              {t('controls-duplicate-name-hint', { name: suggestedName })}
             </p>
           </div>
 
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
             <AlertDialog.Action
               disabled={duplicating}
               onClick={(event) => {
@@ -66,7 +69,7 @@ export const AutomationCanvasDuplicateAction = () => {
               }}
             >
               {duplicating ? <Spinner /> : null}
-              Duplicate
+              {t('duplicate')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>
