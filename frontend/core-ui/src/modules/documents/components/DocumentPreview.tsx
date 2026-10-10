@@ -1,4 +1,4 @@
-import { BlockEditor, useBlockEditor } from 'erxes-ui';
+import { BlockEditor, toast, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
 import type { IDocument } from '@/documents/types';
 import {
@@ -14,8 +14,8 @@ export const DocumentPreview = ({
   const editor = useBlockEditor();
 
   useEffect(() => {
-    const content = document.content;
-    if (!content) return;
+    const content = document.content || '[]';
+    let cancelled = false;
 
     const loadInitialContent = async () => {
       let blocks: StoredDocumentBlock[];
@@ -30,10 +30,26 @@ export const DocumentPreview = ({
         }
       }
 
-      editor.replaceBlocks(editor.document, normalizeDocumentBlocks(blocks));
+      if (cancelled) return;
+      editor.replaceBlocks(
+        editor.document,
+        blocks.length
+          ? normalizeDocumentBlocks(blocks)
+          : [{ type: 'paragraph' }],
+      );
     };
 
-    loadInitialContent();
+    loadInitialContent().catch(() => {
+      if (cancelled) return;
+      editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
+      toast({
+        title: 'Could not load document preview',
+        variant: 'destructive',
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [document._id, document.content, editor]);
 
   return (

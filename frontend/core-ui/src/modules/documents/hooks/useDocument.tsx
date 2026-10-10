@@ -26,6 +26,13 @@ export const useDocument = (): {
   const [contentType] = useQueryState<string>('contentType');
 
   const cleanDocumentId = documentId?.trim();
+  const currentDocument = useRef({ documentId, contentType });
+  useEffect(() => {
+    currentDocument.current = { documentId, contentType };
+    return () => {
+      currentDocument.current = { documentId: null, contentType: null };
+    };
+  }, [documentId, contentType]);
 
   const { getValues, setValue, reset } = useFormContext<FormType>();
 
@@ -64,6 +71,9 @@ export const useDocument = (): {
   }>(SAVE_DOCUMENT);
 
   const documentSave = () => {
+    const isCurrentDocument = () =>
+      currentDocument.current.documentId === documentId &&
+      currentDocument.current.contentType === contentType;
     const document: FormType & { _id?: string } = {
       name: getValues('name'),
       content: getValues('content'),
@@ -87,6 +97,8 @@ export const useDocument = (): {
       onCompleted: (data) => {
         const savedDocument = data.documentsSave;
         if (savedDocument) {
+          toast({ title: 'Successfully saved document', variant: 'success' });
+          if (!isCurrentDocument()) return;
           const hasNewEdits = (
             ['name', 'content', 'contentType', 'commentData'] as const
           ).some((field) => getValues(field) !== document[field]);
@@ -96,11 +108,9 @@ export const useDocument = (): {
           );
           if (!cleanDocumentId) {
             setTimeout(() => {
-              setDocumentId(savedDocument._id);
+              if (isCurrentDocument()) setDocumentId(savedDocument._id);
             }, 0);
           }
-
-          toast({ title: 'Successfully saved document', variant: 'success' });
         } else {
           toast({ title: 'Could not save document', variant: 'destructive' });
         }
