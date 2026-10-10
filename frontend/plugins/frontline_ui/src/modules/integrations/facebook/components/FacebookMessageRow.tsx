@@ -2,10 +2,8 @@ import { normalizeFacebookAttachments } from '@/integrations/facebook/utils/mess
 import { FbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
 import { FbMessengerMessage } from '@/integrations/facebook/components/FbMessengerMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
-import {
-  MessageDaySeparator,
-  MessageItem,
-} from '@/inbox/conversation-messages/components/MessageItem';
+import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
+import { MessageDaySeparator } from '@/inbox/conversation-messages/components/messages/MessageStatus';
 import { useMemo } from 'react';
 import type { FacebookMessageRowProps } from '@/integrations/facebook/types/FacebookMessageRow';
 

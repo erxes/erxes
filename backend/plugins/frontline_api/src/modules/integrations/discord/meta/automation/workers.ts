@@ -12,11 +12,9 @@ import {
   TDiscordTriggerConfig,
   TDiscordTriggerTarget,
 } from '@/integrations/discord/meta/automation/types';
-import {
-  AUTOMATION_TYPING_MAX_MS,
-  getErrorMessage,
-  startTypingIndicator,
-} from '@/integrations/discord/utils';
+import { AUTOMATION_TYPING_MAX_MS } from '@/integrations/discord/constants/typing';
+import { startTypingIndicator } from '@/integrations/discord/utils/typing';
+import { getErrorMessage } from '@/integrations/discord/utils/request';
 import { debugError } from '@/integrations/discord/debuggers';
 
 const toFilterList = (value: unknown): string[] =>

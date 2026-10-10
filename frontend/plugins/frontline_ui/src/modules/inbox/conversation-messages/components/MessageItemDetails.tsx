@@ -76,7 +76,7 @@ export const MessageReactions = () => {
     reactions,
     loading,
     providerMessageId,
-    ownReactionKey,
+    ownReactionKeys,
     conversationId,
     toggleReaction,
   } = useMessageReactions();
@@ -92,7 +92,7 @@ export const MessageReactions = () => {
           className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted disabled:cursor-wait"
           disabled={loading || !providerMessageId}
           aria-label={`${
-            ownReactionKey === reaction.reaction ? 'Remove' : 'Add'
+            ownReactionKeys.includes(reaction.reaction) ? 'Remove' : 'Add'
           } ${reaction.reaction} reaction`}
           onClick={() => {
             if (!providerMessageId) return;
@@ -100,7 +100,7 @@ export const MessageReactions = () => {
               conversationId,
               messageId: providerMessageId,
               reaction: reaction.reaction,
-              remove: ownReactionKey === reaction.reaction,
+              remove: ownReactionKeys.includes(reaction.reaction),
             });
           }}
         >

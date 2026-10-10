@@ -1,137 +1,13 @@
-import * as _ from 'underscore';
+import {
+  buildUserRelevanceQueries,
+  buildParticipatingQuery,
+  buildDateQueries,
+} from '@/inbox/utils/conversationCountFilters';
+import { intersection, pluck } from 'underscore';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { IListArgs } from '~/conversationQueryBuilder';
-import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { getIntegrationsKinds } from '@/inbox/utils';
-
-export interface ICountBy {
-  [index: string]: number;
-}
-
-interface IUserArgs {
-  _id: string;
-  code?: string;
-  starredConversationIds?: string[];
-}
-
-// Count conversatio  by channel
-const countByChannels = async (
-  models: IModels,
-  qb: any,
-  counts: ICountBy,
-): Promise<ICountBy> => {
-  const channels = await models.Channels.find({});
-
-  for (const channel of channels) {
-    await qb.buildAllQueries();
-    await qb.channelFilter(channel._id);
-
-    counts[channel._id as string] = await qb.runQueries();
-  }
-
-  return counts;
-};
-
-// Count converstaion by tag
-const countByTags = async (
-  subdomain: string,
-  qb: any,
-  counts: ICountBy,
-): Promise<ICountBy> => {
-  const tags = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query', // this is a mutation, not a query
-    module: 'tags',
-    action: 'find',
-    input: {
-      query: {
-        type: 'inbox:conversation',
-      },
-    },
-  });
-  for (const tag of tags) {
-    await qb.buildAllQueries();
-    await qb.tagFilter(tag._id);
-
-    counts[tag._id] = await qb.runQueries();
-  }
-
-  return counts;
-};
-
-// Count conversation by integration
-const countByIntegrationTypes = async (
-  qb: any,
-  counts: ICountBy,
-): Promise<ICountBy> => {
-  const kindsMap = await getIntegrationsKinds();
-
-  for (const type of Object.keys(kindsMap)) {
-    await qb.buildAllQueries();
-    await qb.integrationTypeFilter(type);
-
-    counts[type] = await qb.runQueries();
-  }
-
-  return counts;
-};
-
-// Count conversations per individual Discord channel (each Discord channel is
-// its own integration), keyed by integration id. Used by the inbox sidebar's
-// "Discord Channels" section to badge each channel with its open count.
-const countByIntegrations = async (
-  qb: CommonBuilder<IListArgs>,
-  counts: ICountBy,
-): Promise<ICountBy> => {
-  const integrations = await qb.models.Integrations.findIntegrations({
-    kind: 'discord-messenger',
-  });
-
-  for (const integration of integrations) {
-    await qb.buildAllQueries();
-    qb.integrationFilter(integration._id);
-
-    counts[integration._id as string] = await qb.runQueries();
-  }
-
-  return counts;
-};
-
-export const countByConversations = async (
-  models: IModels,
-  subdomain: string,
-  params: IListArgs,
-  integrationIds: string[],
-  user: IUserArgs,
-  only: string,
-): Promise<ICountBy> => {
-  const counts: ICountBy = {};
-
-  const qb = new CommonBuilder(models, subdomain, params, integrationIds, user);
-
-  switch (only) {
-    case 'byChannels':
-      await countByChannels(models, qb, counts);
-      break;
-
-    case 'byIntegrationTypes':
-      await countByIntegrationTypes(qb, counts);
-      break;
-
-    case 'byTags':
-      await countByTags(subdomain, qb, counts);
-      break;
-
-    case 'byIntegrations':
-      await countByIntegrations(qb, counts);
-      break;
-  }
-
-  return counts;
-};
+import { type IUserArgs } from '@/inbox/@types/conversationCounts';
 
 export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
@@ -139,8 +15,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public params: IArgs;
   public user: IUserArgs;
   public integrationIds: string[];
-  public positiveList: any[];
-  public filterList: any[];
+  public positiveList: Record<string, unknown>[];
+  public filterList: Record<string, unknown>[];
   public activeIntegrationIds: string[] = [];
 
   constructor(
@@ -160,35 +36,15 @@ export class CommonBuilder<IArgs extends IListArgs> {
     this.filterList = [];
 
     this.resetPositiveList();
-    this.defaultFilters();
   }
 
   // filter by segment
 
   public resetPositiveList() {
-    const userRelevanceQuery = [
-      {
-        regexp: {
-          userRelevance: `${this.user.code}..`,
-        },
-      },
-      {
-        bool: {
-          must_not: [
-            {
-              exists: {
-                field: 'userRelevance',
-              },
-            },
-          ],
-        },
-      },
-    ];
-
-    this.positiveList = [{ bool: { should: userRelevanceQuery } }];
+    this.positiveList = buildUserRelevanceQueries(this.user.code);
   }
 
-  public async defaultFilters(): Promise<any> {
+  public async defaultFilters(): Promise<void> {
     this.filterList = [
       {
         terms: {
@@ -265,9 +121,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
       return;
     }
 
-    const integrationIds: string[] = _.intersection(
+    const integrationIds: string[] = intersection(
       this.integrationIds,
-      _.pluck(integrations, '_id'),
+      pluck(integrations, '_id'),
     );
 
     if (integrationIds.length === 0) {
@@ -299,22 +155,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by participating
   public participatingFilter() {
-    this.filterList.push({
-      bool: {
-        should: [
-          {
-            match: {
-              participatedUserIds: this.user._id,
-            },
-          },
-          {
-            match: {
-              assignedUserId: this.user._id,
-            },
-          },
-        ],
-      },
-    });
+    this.filterList.push(buildParticipatingQuery(this.user._id));
   }
 
   // filter by starred
@@ -353,25 +194,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
     });
   }
 
-  public async dateFilter(startDate: string, endDate: string) {
-    this.positiveList.push(
-      {
-        range: {
-          createdAt: {
-            gte: fixDate(startDate),
-            lte: fixDate(endDate),
-          },
-        },
-      },
-      {
-        range: {
-          updatedAt: {
-            gte: fixDate(startDate),
-            lte: fixDate(endDate),
-          },
-        },
-      },
-    );
+  public dateFilter(startDate: string, endDate: string) {
+    this.positiveList.push(...buildDateQueries(startDate, endDate));
   }
 
   // filter by integration type
@@ -382,7 +206,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
     this.filterList.push({
       terms: {
-        'integrationId.keyword': _.pluck(integrations, '_id'),
+        'integrationId.keyword': pluck(integrations, '_id'),
       },
     });
   }
@@ -441,7 +265,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     }
 
     if (this.params.startDate && this.params.endDate) {
-      await this.dateFilter(this.params.startDate, this.params.endDate);
+      this.dateFilter(this.params.startDate, this.params.endDate);
     }
   }
 
@@ -451,7 +275,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
    * count has been empty. The clause builders above are kept as the seam a
    * Mongo implementation fills; until then the answer is honestly zero.
    */
-  public async runQueries(): Promise<number> {
+  public static runQueries(): number {
     return 0;
   }
 }

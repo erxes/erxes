@@ -129,6 +129,7 @@ const updateBotParams = `
 `;
 
 export const queries = `
+  discordStickerAnimation(stickerId: String!): JSON
   discordBots: [DiscordBot]
   discordBot(_id: String!): DiscordBot
   discordBotsTotalCount: Int
