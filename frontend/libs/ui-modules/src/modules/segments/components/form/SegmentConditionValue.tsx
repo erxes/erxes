@@ -59,6 +59,15 @@ const onlyStrings = (meta: TPropertyInputMeta): Record<string, string> =>
     ),
   );
 
+const getDateValue = (value: unknown): Date | undefined => {
+  if (value instanceof Date) return value;
+
+  // Saved dates arrive as strings from GraphQL.
+  if (typeof value === 'string' && value) return new Date(value);
+
+  return undefined;
+};
+
 export const SegmentConditionValue = ({
   path,
   field: declared,
@@ -129,7 +138,7 @@ export const SegmentConditionValue = ({
               ) : declared.input === 'date' ? (
                 <DatePicker
                   className="w-full"
-                  value={field.value as Date | undefined}
+                  value={getDateValue(field.value)}
                   onChange={(date) => {
                     field.onChange(date);
                     countSettled();
