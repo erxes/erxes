@@ -32,6 +32,8 @@ const NOISE_PATTERNS: RegExp[] = [
   /Non-Error promise rejection captured/i,
   /Network request failed/i,
   /Load failed/i,
+  /ChunkLoadError/i,
+  /Loading .* chunk \d+ failed/i,
   // expected business/auth conditions (kept in sync with the backend classifier)
   /login required/i,
   /permission required/i,
@@ -57,9 +59,11 @@ export function initSentry() {
     // Full traces locally, light sampling in prod.
     tracesSampleRate: NODE_ENV === 'development' ? 1.0 : 0.1,
     beforeSend(event) {
-      const message =
-        event.exception?.values?.[0]?.value || event.message || '';
-      if (NOISE_PATTERNS.some((pattern) => pattern.test(message))) {
+      const exception = event.exception?.values?.[0];
+      const textToCheck = `${exception?.type || ''} ${
+        exception?.value || event.message || ''
+      }`;
+      if (NOISE_PATTERNS.some((pattern) => pattern.test(textToCheck))) {
         return null;
       }
       return event;
