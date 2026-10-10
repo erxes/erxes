@@ -38,6 +38,8 @@ export interface ITicket {
   assigneeId?: string;
   assignedMembers?: string[];
   createdBy?: string;
+  updatedBy?: string;
+  statusChangedBy?: string;
   userId?: string;
   startDate?: Date;
   targetDate?: Date;
@@ -66,8 +68,7 @@ export interface ITicketDocument extends ITicket, Document {
 }
 
 export interface ITicketFilter
-  extends IListParams,
-    Omit<ITicket, 'propertiesData'> {
+  extends IListParams, Omit<ITicket, 'propertiesData'> {
   segmentIds?: string[];
   createdStartDate?: Date;
   createdEndDate?: Date;

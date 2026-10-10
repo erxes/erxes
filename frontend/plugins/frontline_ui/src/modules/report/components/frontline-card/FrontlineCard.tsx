@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, cn, Empty, Skeleton } from 'erxes-ui';
+import { Card, cn, Empty } from 'erxes-ui';
 import {
   IconChartHistogram,
   IconGripVertical,
@@ -99,7 +99,13 @@ export function FrontlineCardRoot({
   );
 }
 
-export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
+export function FrontlineCardHeader({
+  filter,
+  titleAccessory,
+}: {
+  filter?: React.ReactNode;
+  titleAccessory?: React.ReactNode;
+}) {
   const { t } = useTranslation('frontline');
   const { title, dragHandleProps, colSpan, onColSpanChange } =
     useFrontlineCardContext();
@@ -109,9 +115,19 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
   };
 
   return (
-    <Card.Header className="flex items-center justify-between flex-row overflow-x-hidden p-0 pt-1 pb-3 flex-none">
+    <Card.Header
+      className={cn(
+        'flex items-center justify-between flex-row gap-2 overflow-x-hidden p-0 pt-1 pb-3 flex-none',
+        titleAccessory && 'space-y-0',
+      )}
+    >
       {/* Accent bar + title — matches SectionCard style */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div
+        className={cn(
+          'flex items-center gap-2 flex-1 min-w-0',
+          titleAccessory && 'flex-wrap',
+        )}
+      >
         <button
           type="button"
           className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded shrink-0"
@@ -120,9 +136,15 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
           <IconGripVertical className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
         <div className="h-4 w-1 rounded-full bg-(--primary) shrink-0" />
-        <Card.Title className="text-sm font-semibold leading-tight truncate">
+        <Card.Title
+          className={cn(
+            'text-sm font-semibold leading-tight truncate',
+            titleAccessory && 'leading-7',
+          )}
+        >
           {title}
         </Card.Title>
+        {titleAccessory}
       </div>
 
       <div className="flex items-center gap-1 shrink-0 [&_button]:h-7">

@@ -1,4 +1,7 @@
 import {
+  Button,
+  Dialog,
+  Input,
   cn,
   Combobox,
   Command,
@@ -6,16 +9,39 @@ import {
   Filter,
   useFilterContext,
 } from 'erxes-ui';
-import { IconCalendar, IconCheck } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconCheck,
+  IconUser,
+  IconUsers,
+  IconTag,
+  IconFileText,
+  IconArrowsExchange,
+  IconProgressCheck,
+  IconArchive,
+  IconFlag,
+  IconBuilding,
+  IconChartBar,
+  IconColumns,
+  IconHierarchy,
+} from '@tabler/icons-react';
 import { format } from 'date-fns';
+import { toggleFilterValue, toFilterIds } from '@/ticket/utils/filterValues';
+import { ReportDateFilterMenu as DateView } from './ReportDateFilterMenu';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { IChannel } from '@/inbox/types/Channel';
+import { ReportChannelFilter } from './ReportChannelFilter';
 import { type TicketPropertyFilter } from '@/report/types';
 import { getDateRange } from '@/report/utils/dateFilters';
 import {
+  getReportStatusChangedDateFilterAtom,
+  getReportUpdatedAtDateFilterAtom,
+  getReportDescriptionFilterAtom,
+  getReportStatusChangedByFilterAtom,
+  getReportUpdatedByFilterAtom,
   getReportChannelFilterAtom,
   getReportDateFilterAtom,
   getReportFrequencyFilterAtom,
@@ -30,32 +56,32 @@ import {
   getReportPropertyFilterAtom,
   getReportGroupPropertyFilterAtom,
 } from '@/report/states';
-import { MemberFormContent } from '../frontline-card/MemberFormContent';
 import {
-  SelectMember,
+  TicketReportFilterChip,
+  TicketReportPipelineValue,
+  TicketReportStatusValue,
+} from './TicketReportFilterChip';
+import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStateTicket } from '@/ticket/components/ticket-selects/SelectStateTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import {
+  PriorityIcon,
+  PriorityTitle,
+} from '@/ticket/components/ticket-selects/PriorityInline';
+import {
+  MembersInline,
+  CustomersInline,
+  CompaniesInline,
+  TagBadge,
   SelectCustomer,
   SelectCompany,
   SelectTags,
   useFields,
 } from 'ui-modules';
-import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
-import { StatusInlineIcon } from '@/status/components/StatusInline';
-import { ITicketStatusChoice } from '@/status/types';
-import { type IField } from 'ui-modules/modules/properties';
-import {
-  getReportDisplayValue,
-  REPORT_FIXED_DATES,
-  ReportDateFilter,
-} from './ReportDateFilter';
+import { type IField } from 'ui-modules';
+import { getReportDisplayValue, ReportDateFilter } from './ReportDateFilter';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
-import { IPipeline } from '@/pipelines/types';
-import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
-
-const TICKET_STATE_OPTIONS = [
-  { value: 'active', label: 'active' },
-  { value: 'archived', label: 'archived' },
-  { value: 'deleted', label: 'deleted' },
-];
 
 const FREQUENCY_OPTIONS = [
   { value: 'day', label: 'daily' },
@@ -63,11 +89,6 @@ const FREQUENCY_OPTIONS = [
   { value: 'month', label: 'monthly' },
   { value: 'year', label: 'yearly' },
 ];
-
-const PRIORITY_OPTIONS = PROJECT_PRIORITIES_OPTIONS.map((label, index) => ({
-  value: index,
-  label,
-}));
 
 const PROPERTY_FILTER_FIELD_TYPES = new Set([
   'select',
@@ -80,10 +101,31 @@ const GROUP_PROPERTY_FIELD_TYPES = new Set(['select', 'multiSelect', 'radio']);
 
 interface TicketReportFilterProps {
   cardId: string;
+  showBar?: boolean;
+  children?: ReactNode;
 }
 
-export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
+export const TicketReportFilter = ({
+  cardId,
+  showBar = false,
+  children,
+}: TicketReportFilterProps) => {
   const { t } = useTranslation('frontline');
+  const [statusChangedDate, setStatusChangedDate] = useAtom(
+    getReportStatusChangedDateFilterAtom(cardId),
+  );
+  const [updatedAtDate, setUpdatedAtDate] = useAtom(
+    getReportUpdatedAtDateFilterAtom(cardId),
+  );
+  const [description, setDescription] = useAtom(
+    getReportDescriptionFilterAtom(cardId),
+  );
+  const [statusChangedByIds, setStatusChangedBy] = useAtom(
+    getReportStatusChangedByFilterAtom(cardId),
+  );
+  const [updatedByIds, setUpdatedBy] = useAtom(
+    getReportUpdatedByFilterAtom(cardId),
+  );
   const [channelFilter, setChannelFilter] = useAtom(
     getReportChannelFilterAtom(cardId),
   );
@@ -128,27 +170,17 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   });
   const filterablePropertyFields = fields.filter((field) =>
     PROPERTY_FILTER_FIELD_TYPES.has(field.type),
-  ) as IField[];
+  );
   const groupablePropertyFields = fields.filter((field) =>
     GROUP_PROPERTY_FIELD_TYPES.has(field.type),
-  ) as IField[];
-
-  const hasFilters = Boolean(
-    (channelFilter && channelFilter.length > 0) ||
-    (memberFilter && memberFilter.length > 0) ||
-    (dateValue && dateValue.length > 0) ||
-    (pipelineFilter && pipelineFilter.length > 0) ||
-    (ticketTagFilter && ticketTagFilter.length > 0) ||
-    (stateFilter && stateFilter !== 'active') ||
-    (ticketStatusFilter && ticketStatusFilter.length > 0) ||
-    (priorityFilter && priorityFilter.length > 0) ||
-    (customerFilter && customerFilter.length > 0) ||
-    (companyFilter && companyFilter.length > 0) ||
-    (propertyFilter && propertyFilter.length > 0) ||
-    Boolean(groupPropertyFilter),
   );
 
   const handleClear = () => {
+    setStatusChangedDate('');
+    setUpdatedAtDate('');
+    setDescription('');
+    setStatusChangedBy([]);
+    setUpdatedBy([]);
     setChannelFilter([]);
     setMemberFilter([]);
     setDateValue('');
@@ -164,219 +196,629 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     setGroupPropertyFilter('');
   };
 
+  const selectedCount = (count: number) =>
+    t('selected-count', '{{count}} selected', { count });
+  const memberValue = (ids: string[]) => (
+    <MembersInline.Provider
+      memberIds={ids}
+      placeholder={selectedCount(ids.length)}
+    >
+      <MembersInline.Avatar size="sm" />
+      <MembersInline.Title />
+    </MembersInline.Provider>
+  );
+  const commandEditor = (content: ReactNode) => (
+    <Command shouldFilter={false}>{content}</Command>
+  );
+
+  const renderChannelEditor = () => (
+    <ReportChannelFilter
+      value={channelFilter}
+      onValueChange={setChannelFilter}
+      channels={channels || []}
+    />
+  );
+  const renderMemberEditor = () => (
+    <MemberFilterView value={memberFilter} onValueChange={setMemberFilter} />
+  );
+  const renderPipelineEditor = () =>
+    commandEditor(
+      <PipelineFilterView
+        value={pipelineFilter}
+        onValueChange={setPipelineFilter}
+        channelIds={channelFilter}
+      />,
+    );
+  const renderTicketStatusEditor = () => (
+    <TicketStatusFilterView
+      value={ticketStatusFilter}
+      onValueChange={setTicketStatusFilter}
+      pipelineId={pipelineFilter[0]}
+    />
+  );
+  const renderStateEditor = () => (
+    <StateFilterView value={stateFilter} onValueChange={setStateFilter} />
+  );
+  const renderPriorityEditor = () => (
+    <PriorityFilterView
+      value={priorityFilter}
+      onValueChange={setPriorityFilter}
+    />
+  );
+  const renderTagEditor = () => (
+    <SelectTags.Provider
+      mode="multiple"
+      tagType="frontline:ticket"
+      value={ticketTagFilter}
+      onValueChange={(value) => setTicketTagFilter(toFilterIds(value))}
+    >
+      <SelectTags.Content />
+    </SelectTags.Provider>
+  );
+  const renderCustomerEditor = () => (
+    <SelectCustomer.Provider
+      mode="multiple"
+      value={customerFilter}
+      onValueChange={(value) => setCustomerFilter(toFilterIds(value))}
+    >
+      <SelectCustomer.Content />
+    </SelectCustomer.Provider>
+  );
+  const renderCompanyEditor = () => (
+    <SelectCompany.Provider
+      mode="multiple"
+      value={companyFilter}
+      onValueChange={(value) => setCompanyFilter(toFilterIds(value))}
+    >
+      <SelectCompany.Content />
+    </SelectCompany.Provider>
+  );
+  const renderPropertiesEditor = () =>
+    commandEditor(
+      <PropertyFilterView
+        value={propertyFilter}
+        onValueChange={setPropertyFilter}
+        fields={filterablePropertyFields}
+        loading={fieldsLoading}
+      />,
+    );
+  const renderGroupEditor = () =>
+    commandEditor(
+      <GroupByFilterView
+        value={groupPropertyFilter}
+        onValueChange={setGroupPropertyFilter}
+        fields={groupablePropertyFields}
+        loading={fieldsLoading}
+      />,
+    );
+  const renderFrequencyEditor = () =>
+    commandEditor(
+      <FrequencyFilterView value={frequency} onValueChange={setFrequency} />,
+    );
+  const renderStatusChangedByEditor = () => (
+    <MemberFilterView
+      value={statusChangedByIds}
+      onValueChange={setStatusChangedBy}
+    />
+  );
+  const renderUpdatedByEditor = () => (
+    <MemberFilterView value={updatedByIds} onValueChange={setUpdatedBy} />
+  );
+  const dateFilters = [
+    {
+      key: 'date',
+      label: t('created', 'Created'),
+      value: dateValue,
+      onChange: setDateValue,
+    },
+    {
+      key: 'statusChangedDate',
+      label: t('stage-changed-date', 'Stage changed date'),
+      value: statusChangedDate,
+      onChange: setStatusChangedDate,
+    },
+    {
+      key: 'updatedAtDate',
+      label: t('modified-at', 'Modified at'),
+      value: updatedAtDate,
+      onChange: setUpdatedAtDate,
+    },
+  ];
+  const hasFilters = Boolean(
+    channelFilter.length ||
+    memberFilter.length ||
+    pipelineFilter.length ||
+    ticketStatusFilter.length ||
+    priorityFilter.length ||
+    ticketTagFilter.length ||
+    customerFilter.length ||
+    companyFilter.length ||
+    propertyFilter.length ||
+    groupPropertyFilter ||
+    stateFilter !== 'active' ||
+    frequency !== 'day' ||
+    dateValue ||
+    statusChangedDate ||
+    updatedAtDate ||
+    description ||
+    statusChangedByIds.length ||
+    updatedByIds.length,
+  );
   return (
     <Filter
       id={`ticket-report-filter-${cardId}`}
       sessionKey={`ticket-report-filter-${cardId}`}
     >
-      <Filter.Popover scope={`ticket-report-filter-${cardId}`}>
-        <Filter.Trigger isFiltered={hasFilters} />
-        <Combobox.Content>
-          <Filter.View>
-            <Command>
-              <Command.List>
-                <Filter.Item value="channel">
-                  {t('channel-label', 'Channel')}
-                </Filter.Item>
-                <Filter.Item value="member">
-                  {t('assigned-user', 'Assigned User')}
-                </Filter.Item>
-                <Filter.Item value="pipeline">
-                  {t('pipelines', 'Pipelines')}
-                </Filter.Item>
-                <Filter.Item value="ticketStatus">
-                  {t('status', 'Status')}
-                </Filter.Item>
-                <Filter.Item value="state">
-                  {t('state-label', 'State')}
-                </Filter.Item>
-                <Filter.Item value="priority">
-                  {t('priority-label', 'Priority')}
-                </Filter.Item>
-                <Filter.Item value="tag">{t('tags-label', 'Tags')}</Filter.Item>
-                <Filter.Item value="customer">
-                  {t('customer-label', 'Customer')}
-                </Filter.Item>
-                <Filter.Item value="company">
-                  {t('company-label', 'Company')}
-                </Filter.Item>
-                <Filter.Item value="properties">
-                  {t('properties-label', 'Properties')}
-                </Filter.Item>
-                <Filter.Item value="group">
-                  {t('group-by-label', 'Group by')}
-                </Filter.Item>
-                <Filter.Item value="frequency">
-                  {t('frequency-label', 'Frequency')}
-                </Filter.Item>
-                <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
-                {hasFilters && (
-                  <>
-                    <Command.Separator />
-                    <Command.Item
-                      value="clear"
-                      onSelect={handleClear}
-                      className="text-destructive"
-                    >
-                      {t('clear-all', 'Clear all')}
-                    </Command.Item>
-                  </>
-                )}
-              </Command.List>
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="channel">
-            <Command shouldFilter={false}>
-              <ChannelFilterView
-                value={channelFilter}
-                onValueChange={setChannelFilter}
-                channels={channels || []}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="member">
-            <Command shouldFilter={false}>
-              <MemberFilterView
-                value={memberFilter}
-                onValueChange={setMemberFilter}
-                channelIds={channelFilter}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="pipeline">
-            <Command shouldFilter={false}>
-              <PipelineFilterView
-                value={pipelineFilter}
-                onValueChange={setPipelineFilter}
-                channelIds={channelFilter}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="ticketStatus">
-            <Command shouldFilter={false}>
-              <TicketStatusFilterView
-                value={ticketStatusFilter}
-                onValueChange={setTicketStatusFilter}
-                pipelineId={pipelineFilter[0]}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="state">
-            <Command shouldFilter={false}>
-              <StateFilterView
-                value={stateFilter}
-                onValueChange={setStateFilter}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="priority">
-            <Command shouldFilter={false}>
-              <PriorityFilterView
-                value={priorityFilter}
-                onValueChange={setPriorityFilter}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="tag">
-            <Command shouldFilter={false}>
-              <SelectTags.Provider
-                mode="multiple"
-                tagType="frontline:ticket"
-                value={ticketTagFilter}
-                onValueChange={(val) => setTicketTagFilter(val as string[])}
-              >
-                <SelectTags.Content />
-              </SelectTags.Provider>
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="customer">
-            <Command shouldFilter={false}>
-              <SelectCustomer.Provider
-                mode="multiple"
-                value={customerFilter}
-                onValueChange={(val) => setCustomerFilter(val as string[])}
-              >
-                <SelectCustomer.Content />
-              </SelectCustomer.Provider>
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="company">
-            <Command shouldFilter={false}>
-              <SelectCompany.Provider
-                mode="multiple"
-                value={companyFilter}
-                onValueChange={(val) => setCompanyFilter(val as string[])}
-              >
-                <SelectCompany.Content />
-              </SelectCompany.Provider>
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="properties">
-            <Command shouldFilter={false}>
-              <PropertyFilterView
-                value={propertyFilter}
-                onValueChange={setPropertyFilter}
-                fields={filterablePropertyFields}
-                loading={fieldsLoading}
-              />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="group">
-            <Command shouldFilter={false}>
-              <GroupByFilterView
-                value={groupPropertyFilter}
-                onValueChange={setGroupPropertyFilter}
-                fields={groupablePropertyFields}
-                loading={fieldsLoading}
-              />
-            </Command>
-          </Filter.View>
-
-          {filterablePropertyFields.map((field) => (
-            <Filter.View key={field._id} filterKey={`property:${field._id}`}>
-              <Command shouldFilter={false}>
-                <PropertyValueFilterView
-                  field={field}
-                  value={propertyFilter}
-                  onValueChange={setPropertyFilter}
+      <Filter.Bar
+        className={showBar ? 'flex-none min-w-0 max-w-full' : 'flex-none'}
+      >
+        <Filter.Popover scope={`ticket-report-filter-${cardId}`}>
+          <Filter.Trigger
+            isFiltered={showBar || hasFilters}
+            aria-label={t('filter', 'Filter')}
+            className={showBar ? 'size-7 shrink-0' : undefined}
+          />
+          <Combobox.Content>
+            <Filter.View>
+              <Command>
+                <Filter.CommandInput
+                  placeholder={t('filter', 'Filter')}
+                  variant="secondary"
+                  className="bg-background"
                 />
+                <Command.List className="p-1">
+                  <Filter.Item
+                    value="channel"
+                    keywords={[t('channel-label', 'Channel')]}
+                  >
+                    <IconUsers />
+                    {t('channel-label', 'Channel')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="member"
+                    keywords={[t('assigned-user', 'Assigned User')]}
+                  >
+                    <IconUser />
+                    {t('assigned-user', 'Assigned User')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="pipeline"
+                    keywords={[t('pipelines', 'Pipelines')]}
+                  >
+                    <IconHierarchy />
+                    {t('pipelines', 'Pipelines')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="ticketStatus"
+                    keywords={[t('status', 'Status')]}
+                  >
+                    <IconProgressCheck />
+                    {t('status', 'Status')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="state"
+                    keywords={[t('state-label', 'State')]}
+                  >
+                    <IconArchive />
+                    {t('state-label', 'State')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="priority"
+                    keywords={[t('priority-label', 'Priority')]}
+                  >
+                    <IconFlag />
+                    {t('priority-label', 'Priority')}
+                  </Filter.Item>
+                  <Filter.Item value="tag" keywords={[t('tags-label', 'Tags')]}>
+                    <IconTag />
+                    {t('tags-label', 'Tags')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="customer"
+                    keywords={[t('customer-label', 'Customer')]}
+                  >
+                    <IconUser />
+                    {t('customer-label', 'Customer')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="company"
+                    keywords={[t('company-label', 'Company')]}
+                  >
+                    <IconBuilding />
+                    {t('company-label', 'Company')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="properties"
+                    keywords={[t('properties-label', 'Properties')]}
+                  >
+                    <IconColumns />
+                    {t('properties-label', 'Properties')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="group"
+                    keywords={[t('group-by-label', 'Group by')]}
+                  >
+                    <IconColumns />
+                    {t('group-by-label', 'Group by')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="frequency"
+                    keywords={[t('frequency-label', 'Frequency')]}
+                  >
+                    <IconChartBar />
+                    {t('frequency-label', 'Frequency')}
+                  </Filter.Item>
+                  {dateFilters.map(({ key, label }) => (
+                    <Filter.Item key={key} value={key} keywords={[label]}>
+                      <IconCalendar />
+                      {label}
+                    </Filter.Item>
+                  ))}
+                  <Filter.Item
+                    value="description"
+                    keywords={[t('description', 'Description')]}
+                    inDialog
+                  >
+                    <IconFileText />
+                    {t('description', 'Description')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="statusChangedByIds"
+                    keywords={[t('stage-moved-user', 'Stage moved user')]}
+                  >
+                    <IconArrowsExchange />
+                    {t('stage-moved-user', 'Stage moved user')}
+                  </Filter.Item>
+                  <Filter.Item
+                    value="updatedByIds"
+                    keywords={[t('modified-by', 'Modified by')]}
+                  >
+                    <IconUser />
+                    {t('modified-by', 'Modified by')}
+                  </Filter.Item>
+                  {hasFilters && (
+                    <>
+                      <Command.Separator />
+                      <Command.Item
+                        value="clear"
+                        onSelect={handleClear}
+                        className="text-destructive"
+                      >
+                        {t('clear-all', 'Clear all')}
+                      </Command.Item>
+                    </>
+                  )}
+                </Command.List>
               </Command>
             </Filter.View>
-          ))}
 
-          <Filter.View filterKey="frequency">
-            <Command shouldFilter={false}>
-              <FrequencyFilterView
-                value={frequency}
-                onValueChange={setFrequency}
+            <Filter.View filterKey="channel">
+              {renderChannelEditor()}
+            </Filter.View>
+            <Filter.View filterKey="member">{renderMemberEditor()}</Filter.View>
+            <Filter.View filterKey="pipeline">
+              {renderPipelineEditor()}
+            </Filter.View>
+            <Filter.View filterKey="ticketStatus">
+              {renderTicketStatusEditor()}
+            </Filter.View>
+            <Filter.View filterKey="state">{renderStateEditor()}</Filter.View>
+            <Filter.View filterKey="priority">
+              {renderPriorityEditor()}
+            </Filter.View>
+            <Filter.View filterKey="tag">{renderTagEditor()}</Filter.View>
+            <Filter.View filterKey="customer">
+              {renderCustomerEditor()}
+            </Filter.View>
+            <Filter.View filterKey="company">
+              {renderCompanyEditor()}
+            </Filter.View>
+            <Filter.View filterKey="properties">
+              {renderPropertiesEditor()}
+            </Filter.View>
+            <Filter.View filterKey="group">{renderGroupEditor()}</Filter.View>
+            <Filter.View filterKey="frequency">
+              {renderFrequencyEditor()}
+            </Filter.View>
+            {filterablePropertyFields.map((field) => (
+              <Filter.View key={field._id} filterKey={`property:${field._id}`}>
+                <Command shouldFilter={false}>
+                  <PropertyValueFilterView
+                    field={field}
+                    value={propertyFilter}
+                    onValueChange={setPropertyFilter}
+                  />
+                </Command>
+              </Filter.View>
+            ))}
+            {dateFilters.map(({ key, label, value, onChange }) => (
+              <Filter.View key={key} filterKey={key}>
+                <DateFilterView
+                  filterKey={key}
+                  label={label}
+                  value={value}
+                  onChange={onChange}
+                />
+              </Filter.View>
+            ))}
+            <Filter.View filterKey="statusChangedByIds">
+              {renderStatusChangedByEditor()}
+            </Filter.View>
+            <Filter.View filterKey="updatedByIds">
+              {renderUpdatedByEditor()}
+            </Filter.View>
+          </Combobox.Content>
+        </Filter.Popover>
+        {children}
+        {showBar && (
+          <>
+            {channelFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="channel"
+                label={t('channel-label', 'Channel')}
+                IconComponent={IconUsers}
+                value={channelFilter
+                  .map(
+                    (id) =>
+                      channels?.find((channel) => channel._id === id)?.name ||
+                      t('unknown', 'Unknown'),
+                  )
+                  .join(', ')}
+                onRemove={() => setChannelFilter([])}
+                renderEditor={renderChannelEditor}
               />
-            </Command>
-          </Filter.View>
-
-          <Filter.View filterKey="date">
-            <DateView
-              filterKey="date"
-              selected={dateValue}
-              onSelect={setDateValue}
-            />
-          </Filter.View>
-        </Combobox.Content>
-      </Filter.Popover>
+            )}
+            {memberFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="member"
+                label={t('assigned-user', 'Assigned User')}
+                IconComponent={IconUser}
+                value={memberValue(memberFilter)}
+                onRemove={() => setMemberFilter([])}
+                renderEditor={renderMemberEditor}
+              />
+            )}
+            {pipelineFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="pipeline"
+                label={t('pipelines', 'Pipelines')}
+                IconComponent={IconHierarchy}
+                value={<TicketReportPipelineValue ids={pipelineFilter} />}
+                onRemove={() => setPipelineFilter([])}
+                renderEditor={renderPipelineEditor}
+              />
+            )}
+            {ticketStatusFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="ticketStatus"
+                label={t('status', 'Status')}
+                IconComponent={IconProgressCheck}
+                value={<TicketReportStatusValue ids={ticketStatusFilter} />}
+                onRemove={() => setTicketStatusFilter([])}
+                renderEditor={renderTicketStatusEditor}
+              />
+            )}
+            {stateFilter !== 'active' && (
+              <TicketReportFilterChip
+                filterKey="state"
+                label={t('state-label', 'State')}
+                IconComponent={IconArchive}
+                value={
+                  <SelectStateTicket.Provider
+                    value={stateFilter}
+                    onValueChange={setStateFilter}
+                  >
+                    <SelectStateTicket.Value />
+                  </SelectStateTicket.Provider>
+                }
+                onRemove={() => setStateFilter('active')}
+                renderEditor={renderStateEditor}
+              />
+            )}
+            {priorityFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="priority"
+                label={t('priority-label', 'Priority')}
+                IconComponent={IconFlag}
+                value={priorityFilter.map((priority, index) => (
+                  <span
+                    key={priority}
+                    className="inline-flex items-center gap-1"
+                  >
+                    {index > 0 && ', '}
+                    <PriorityIcon priority={priority} />
+                    <PriorityTitle priority={priority} />
+                  </span>
+                ))}
+                onRemove={() => setPriorityFilter([])}
+                renderEditor={renderPriorityEditor}
+              />
+            )}
+            {ticketTagFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="tag"
+                label={t('tags-label', 'Tags')}
+                IconComponent={IconTag}
+                value={
+                  <>
+                    <TagBadge tagId={ticketTagFilter[0]} variant="secondary" />
+                    {ticketTagFilter.length > 1 &&
+                      ` +${ticketTagFilter.length - 1}`}
+                  </>
+                }
+                onRemove={() => setTicketTagFilter([])}
+                renderEditor={renderTagEditor}
+              />
+            )}
+            {customerFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="customer"
+                label={t('customer-label', 'Customer')}
+                IconComponent={IconUser}
+                value={
+                  <CustomersInline.Provider
+                    customerIds={customerFilter}
+                    placeholder={selectedCount(customerFilter.length)}
+                  >
+                    <CustomersInline.Title />
+                  </CustomersInline.Provider>
+                }
+                onRemove={() => setCustomerFilter([])}
+                renderEditor={renderCustomerEditor}
+              />
+            )}
+            {companyFilter.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="company"
+                label={t('company-label', 'Company')}
+                IconComponent={IconBuilding}
+                value={
+                  <CompaniesInline.Provider
+                    companyIds={companyFilter}
+                    placeholder={selectedCount(companyFilter.length)}
+                  >
+                    <CompaniesInline.Title />
+                  </CompaniesInline.Provider>
+                }
+                onRemove={() => setCompanyFilter([])}
+                renderEditor={renderCompanyEditor}
+              />
+            )}
+            {Boolean(groupPropertyFilter) && (
+              <TicketReportFilterChip
+                filterKey="group"
+                label={t('group-by-label', 'Group by')}
+                IconComponent={IconColumns}
+                value={
+                  fields.find((field) => field._id === groupPropertyFilter)
+                    ?.name || t('unknown', 'Unknown')
+                }
+                onRemove={() => setGroupPropertyFilter('')}
+                renderEditor={renderGroupEditor}
+              />
+            )}
+            {frequency !== 'day' && (
+              <TicketReportFilterChip
+                filterKey="frequency"
+                label={t('frequency-label', 'Frequency')}
+                IconComponent={IconChartBar}
+                value={t(
+                  FREQUENCY_OPTIONS.find((option) => option.value === frequency)
+                    ?.label || frequency,
+                )}
+                onRemove={() => setFrequency('day')}
+                renderEditor={renderFrequencyEditor}
+              />
+            )}
+            {propertyFilter.map((property) => {
+              const field = fields.find(
+                (item) => item._id === property.propertyId,
+              );
+              return (
+                <TicketReportFilterChip
+                  key={property.propertyId}
+                  filterKey={`property:${property.propertyId}`}
+                  label={field?.name || t('properties-label', 'Properties')}
+                  IconComponent={IconColumns}
+                  value={
+                    field
+                      ? getPropertyFilterLabel(propertyFilter, field)
+                      : selectedCount(property.values.length)
+                  }
+                  onRemove={() =>
+                    setPropertyFilter(
+                      clearPropertyFilter(propertyFilter, property.propertyId),
+                    )
+                  }
+                  renderEditor={(close) =>
+                    commandEditor(
+                      field ? (
+                        <PropertyValueFilterView
+                          field={field}
+                          value={propertyFilter}
+                          onValueChange={setPropertyFilter}
+                          onClose={close}
+                        />
+                      ) : (
+                        <Command.Empty>
+                          {t(
+                            'no-custom-properties-found',
+                            'No custom properties found.',
+                          )}
+                        </Command.Empty>
+                      ),
+                    )
+                  }
+                />
+              );
+            })}
+            {dateFilters.map(
+              ({ key, label, value, onChange }) =>
+                value && (
+                  <TicketReportFilterChip
+                    key={key}
+                    filterKey={key}
+                    label={label}
+                    IconComponent={IconCalendar}
+                    value={getReportDisplayValue(value)}
+                    onRemove={() => onChange('')}
+                    renderEditor={(close) => (
+                      <DateFilterView
+                        filterKey={key}
+                        label={label}
+                        value={value}
+                        onChange={onChange}
+                        onClose={close}
+                      />
+                    )}
+                  />
+                ),
+            )}
+            {description && (
+              <TicketReportFilterChip
+                filterKey="description"
+                label={t('description', 'Description')}
+                IconComponent={IconFileText}
+                value={description}
+                inDialog
+                onRemove={() => setDescription('')}
+              />
+            )}
+            {statusChangedByIds.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="statusChangedByIds"
+                label={t('stage-moved-user', 'Stage moved user')}
+                IconComponent={IconArrowsExchange}
+                value={memberValue(statusChangedByIds)}
+                onRemove={() => setStatusChangedBy([])}
+                renderEditor={renderStatusChangedByEditor}
+              />
+            )}
+            {updatedByIds.length > 0 && (
+              <TicketReportFilterChip
+                filterKey="updatedByIds"
+                label={t('modified-by', 'Modified by')}
+                IconComponent={IconUser}
+                value={memberValue(updatedByIds)}
+                onRemove={() => setUpdatedBy([])}
+                renderEditor={renderUpdatedByEditor}
+              />
+            )}
+          </>
+        )}
+      </Filter.Bar>
       <Filter.Dialog>
-        <Filter.View filterKey="date" inDialog>
-          <ReportDateFilter value={dateValue} onChange={setDateValue} />
+        <Filter.View filterKey="description" inDialog>
+          <DescriptionFilterDialog
+            value={description}
+            onChange={setDescription}
+          />
         </Filter.View>
+        {dateFilters.map(({ key, label, value, onChange }) => (
+          <Filter.View key={key} filterKey={key} inDialog>
+            <ReportDateFilter label={label} value={value} onChange={onChange} />
+          </Filter.View>
+        ))}
         {filterablePropertyFields
           .filter((field) => field.type === 'date')
           .map((field) => (
@@ -397,67 +839,49 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   );
 };
 
-const ChannelFilterView = ({
+const DateFilterView = ({
+  filterKey,
+  label,
   value,
-  onValueChange,
-  channels,
+  onChange,
+  onClose,
 }: {
-  value: string[];
-  onValueChange: (value: string[]) => void;
-  channels: IChannel[];
+  filterKey: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onClose?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
-  const handleSelect = (id: string) => {
-    if (id === 'all') {
-      onValueChange([]);
-      return;
-    }
-    const isSelected = value.includes(id);
-    onValueChange(isSelected ? value.filter((v) => v !== id) : [...value, id]);
-  };
-
+  const { setOpen } = useFilterContext();
+  const close = onClose || (() => setOpen(false));
   return (
-    <Command.List className="max-h-[500px] overflow-y-auto">
-      <Command.Item value="all" onSelect={() => handleSelect('all')}>
-        <div className="flex items-center gap-2">
-          {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>{t('all-channels', 'All Channels')}</span>
-        </div>
-      </Command.Item>
-      {channels.map((channel) => (
-        <Command.Item
-          key={channel._id}
-          value={channel._id}
-          onSelect={() => handleSelect(channel._id)}
-        >
-          <div className="flex items-center gap-2">
-            {value.includes(channel._id) && <IconCheck className="size-4" />}
-            <span>{channel.name}</span>
-          </div>
-        </Command.Item>
-      ))}
-    </Command.List>
+    <DateView
+      filterKey={filterKey}
+      label={label}
+      selected={value}
+      onClose={close}
+      onSelect={(selected) => {
+        onChange(selected);
+        close();
+      }}
+    />
   );
 };
 
 const MemberFilterView = ({
   value,
   onValueChange,
-  channelIds,
 }: {
   value: string[];
   onValueChange: (value: string[]) => void;
-  channelIds: string[];
 }) => (
-  <Command.List className="max-h-[500px] overflow-y-auto">
-    <SelectMember.Provider
-      value={value}
-      mode="multiple"
-      onValueChange={(val) => onValueChange(val as string[])}
-    >
-      <MemberFormContent channelIds={channelIds} exclude={true} />
-    </SelectMember.Provider>
-  </Command.List>
+  <SelectAssigneeTicket.Provider
+    value={value}
+    mode="multiple"
+    onValueChange={(selected) => onValueChange(toFilterIds(selected))}
+  >
+    <SelectAssigneeTicket.Content showUnassigned={false} />
+  </SelectAssigneeTicket.Provider>
 );
 
 const PipelineFilterView = ({
@@ -479,15 +903,6 @@ const PipelineFilterView = ({
     skip: channelIds.length === 0,
   });
 
-  const handleSelect = (id: string) => {
-    if (id === 'all') {
-      onValueChange([]);
-      return;
-    }
-    const isSelected = value.includes(id);
-    onValueChange(isSelected ? value.filter((v) => v !== id) : [...value, id]);
-  };
-
   const { t: tPipeline } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
@@ -501,11 +916,13 @@ const PipelineFilterView = ({
               <span>{tPipeline('all-pipelines')}</span>
             </div>
           </Command.Item>
-          {(pipelines as IPipeline[] | undefined)?.map((pipeline) => (
+          {pipelines?.map((pipeline) => (
             <Command.Item
               key={pipeline._id}
               value={pipeline._id}
-              onSelect={() => handleSelect(pipeline._id)}
+              onSelect={() =>
+                onValueChange(toggleFilterValue(value, pipeline._id))
+              }
             >
               <div className="flex items-center gap-2">
                 {value.includes(pipeline._id) && (
@@ -529,66 +946,18 @@ const TicketStatusFilterView = ({
   value: string[];
   onValueChange: (value: string[]) => void;
   pipelineId?: string;
-}) => {
-  const { t } = useTranslation('frontline');
-  const { statuses, loading } = useGetAccessibleTicketStatuses({
-    variables: { pipelineId },
-    skip: !pipelineId,
-  });
-
-  const handleSelect = (statusId: string) => {
-    const isSelected = value.includes(statusId);
-    onValueChange(
-      isSelected ? value.filter((id) => id !== statusId) : [...value, statusId],
-    );
-  };
-
-  return (
-    <Command.List className="max-h-[500px] overflow-y-auto">
-      {!pipelineId ? (
-        <Command.Empty>
-          {t('pipeline-not-selected', 'Pipeline not selected')}
-        </Command.Empty>
-      ) : loading ? (
-        <Command.Empty>{t('loading', 'Loading...')}</Command.Empty>
-      ) : (
-        <>
-          <Command.Item value="all" onSelect={() => onValueChange([])}>
-            <div className="flex items-center gap-2">
-              {value.length === 0 && <IconCheck className="size-4" />}
-              <span>{t('all-statuses', 'All Statuses')}</span>
-            </div>
-          </Command.Item>
-          {statuses.length === 0 && (
-            <Command.Empty>
-              {t('no-status-found', 'No status found')}
-            </Command.Empty>
-          )}
-          {(statuses as ITicketStatusChoice[]).map((status) => (
-            <Command.Item
-              key={status.value}
-              value={status.value}
-              onSelect={() => handleSelect(status.value)}
-            >
-              <div className="flex items-center gap-2">
-                {value.includes(status.value) ? (
-                  <IconCheck className="size-4" />
-                ) : (
-                  <StatusInlineIcon
-                    statusType={status.type}
-                    color={status.color}
-                    className="size-4"
-                  />
-                )}
-                <span className="capitalize">{status.label}</span>
-              </div>
-            </Command.Item>
-          ))}
-        </>
-      )}
-    </Command.List>
-  );
-};
+}) => (
+  <SelectStatusTicket.Provider
+    value={value[0] || ''}
+    selectedValues={value}
+    pipelineId={pipelineId}
+    onValueChange={(selected) =>
+      onValueChange(toggleFilterValue(value, selected))
+    }
+  >
+    <SelectStatusTicket.Content onClear={() => onValueChange([])} />
+  </SelectStatusTicket.Provider>
+);
 
 const StateFilterView = ({
   value,
@@ -596,31 +965,11 @@ const StateFilterView = ({
 }: {
   value: string;
   onValueChange: (value: string) => void;
-}) => {
-  const { t } = useTranslation('frontline');
-  return (
-    <Command.List className="max-h-[500px] overflow-y-auto">
-      <Command.Item value="all" onSelect={() => onValueChange('all')}>
-        <div className="flex items-center gap-2">
-          {value === 'all' && <IconCheck className="size-4" />}
-          <span>{t('all-states', 'All States')}</span>
-        </div>
-      </Command.Item>
-      {TICKET_STATE_OPTIONS.map((option) => (
-        <Command.Item
-          key={option.value}
-          value={option.value}
-          onSelect={() => onValueChange(option.value)}
-        >
-          <div className="flex items-center gap-2">
-            {value === option.value && <IconCheck className="size-4" />}
-            <span>{t(option.label)}</span>
-          </div>
-        </Command.Item>
-      ))}
-    </Command.List>
-  );
-};
+}) => (
+  <SelectStateTicket.Provider value={value} onValueChange={onValueChange}>
+    <SelectStateTicket.Content includeAll />
+  </SelectStateTicket.Provider>
+);
 
 const PriorityFilterView = ({
   value,
@@ -628,38 +977,17 @@ const PriorityFilterView = ({
 }: {
   value: number[];
   onValueChange: (value: number[]) => void;
-}) => {
-  const { t } = useTranslation('frontline');
-  const handleSelect = (priority: number) => {
-    const isSelected = value.includes(priority);
-    onValueChange(
-      isSelected ? value.filter((v) => v !== priority) : [...value, priority],
-    );
-  };
-
-  return (
-    <Command.List className="max-h-[500px] overflow-y-auto">
-      <Command.Item value="all" onSelect={() => onValueChange([])}>
-        <div className="flex items-center gap-2">
-          {value.length === 0 && <IconCheck className="size-4" />}
-          <span>{t('all-priorities', 'All Priorities')}</span>
-        </div>
-      </Command.Item>
-      {PRIORITY_OPTIONS.map((option) => (
-        <Command.Item
-          key={option.value}
-          value={String(option.value)}
-          onSelect={() => handleSelect(option.value)}
-        >
-          <div className="flex items-center gap-2">
-            {value.includes(option.value) && <IconCheck className="size-4" />}
-            <span>{option.label}</span>
-          </div>
-        </Command.Item>
-      ))}
-    </Command.List>
-  );
-};
+}) => (
+  <SelectPriorityTicket.Provider
+    value={value[0] ?? 0}
+    selectedValues={value}
+    onValueChange={(selected) =>
+      onValueChange(toggleFilterValue(value, selected))
+    }
+  >
+    <SelectPriorityTicket.Content onClear={() => onValueChange([])} />
+  </SelectPriorityTicket.Provider>
+);
 
 const PropertyFilterView = ({
   value,
@@ -777,7 +1105,15 @@ const getPropertyFilterLabel = (
     return filter.values[0] || 'Selected';
   }
 
-  return `${filter.values.length} selected`;
+  return (
+    filter.values
+      .map(
+        (value) =>
+          field.options?.find((option) => option.value === value)?.label ||
+          value,
+      )
+      .join(', ') || 'Selected'
+  );
 };
 
 const getPropertyFilterValues = (
@@ -815,10 +1151,12 @@ const PropertyValueFilterView = ({
   field,
   value,
   onValueChange,
+  onClose,
 }: {
   field: IField;
   value: TicketPropertyFilter[];
   onValueChange: (value: TicketPropertyFilter[]) => void;
+  onClose?: () => void;
 }) => {
   const { t } = useTranslation('frontline');
   if (field.type === 'date') {
@@ -827,6 +1165,7 @@ const PropertyValueFilterView = ({
         field={field}
         value={value}
         onValueChange={onValueChange}
+        onClose={onClose}
       />
     );
   }
@@ -843,9 +1182,7 @@ const PropertyValueFilterView = ({
     let nextValues: string[];
 
     if (supportsMultipleValues) {
-      nextValues = isSelected
-        ? selectedValues.filter((item) => item !== optionValue)
-        : [...selectedValues, optionValue];
+      nextValues = toggleFilterValue(selectedValues, optionValue);
     } else {
       nextValues = isSelected ? [] : [optionValue];
     }
@@ -907,10 +1244,12 @@ const PropertyDateFilter = ({
   field,
   value,
   onValueChange,
+  onClose,
 }: {
   field: IField;
   value: TicketPropertyFilter[];
   onValueChange: (value: TicketPropertyFilter[]) => void;
+  onClose?: () => void;
 }) => {
   const { t } = useTranslation('frontline');
   const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
@@ -926,6 +1265,7 @@ const PropertyDateFilter = ({
       : 'Custom range...';
 
   const openRangeDialog = () => {
+    onClose?.();
     setDialogView(`property-date-range:${field._id}`);
     setOpenDialog(true);
     setOpen(false);
@@ -1057,61 +1397,44 @@ const FrequencyFilterView = ({
   );
 };
 
-const DateView = ({
-  filterKey,
-  selected,
-  onSelect,
+const DescriptionFilterDialog = ({
+  value,
+  onChange,
 }: {
-  filterKey: string;
-  selected?: string;
-  onSelect?: (value: string) => void;
+  value: string;
+  onChange: (value: string) => void;
 }) => {
   const { t } = useTranslation('frontline');
-  const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
-
-  const isCustomDate = selected && !REPORT_FIXED_DATES.includes(selected);
-
-  const handleCustomRange = () => {
-    setDialogView('date');
-    setOpenDialog(true);
-    setOpen(false);
-  };
+  const { setDialogView, setOpenDialog } = useFilterContext();
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
 
   return (
-    <Command>
-      <Command.Input
-        placeholder={
-          filterKey.charAt(0).toUpperCase() + filterKey.slice(1) + ' date'
-        }
-        focusOnMount
-      />
-      <Command.List>
-        {REPORT_FIXED_DATES.map((date) => (
-          <Command.Item
-            key={date}
-            value={date}
-            onSelect={() => onSelect?.(date)}
-            className={cn('h-8', selected === date && 'text-primary')}
-          >
-            {getReportDisplayValue(date)}
-            <Combobox.Check
-              checked={selected === date}
-              className="text-primary"
-            />
-          </Command.Item>
-        ))}
-        <Command.Separator className="my-1" />
-        <Command.Item
-          value="custom-range"
-          onSelect={handleCustomRange}
-          className={cn('h-8', isCustomDate && 'text-primary')}
-        >
-          <IconCalendar className="size-4" />
-          {isCustomDate
-            ? getReportDisplayValue(selected)
-            : t('custom-range', 'Custom Range...')}
-        </Command.Item>
-      </Command.List>
-    </Command>
+    <Dialog.Content>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onChange(draft.trim());
+          setDialogView('root');
+          setOpenDialog(false);
+        }}
+      >
+        <Dialog.Header>
+          <Dialog.Title>{t('description', 'Description')}</Dialog.Title>
+        </Dialog.Header>
+        <Input
+          aria-label={t('description', 'Description')}
+          className="my-4"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+        />
+        <Dialog.Footer>
+          <Dialog.Close asChild>
+            <Button variant="outline">{t('cancel', 'Cancel')}</Button>
+          </Dialog.Close>
+          <Button type="submit">{t('apply', 'Apply')}</Button>
+        </Dialog.Footer>
+      </form>
+    </Dialog.Content>
   );
 };

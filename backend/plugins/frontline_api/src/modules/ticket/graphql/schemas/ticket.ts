@@ -34,6 +34,8 @@ export const types = `
     targetDate: Date
     createdAt: Date
     updatedAt: Date
+    updatedBy: String
+    statusChangedBy: String
     channelId: String
     statusChangedDate: Date
     number: String

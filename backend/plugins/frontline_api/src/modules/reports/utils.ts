@@ -22,13 +22,20 @@ export const calculatePercentage = (value: number, total: number) => {
 
 export function buildDateMatch(
   filters: IReportFilters,
-  field: 'createdAt' | 'closedAt',
+  field: 'createdAt' | 'closedAt' | 'statusChangedDate' | 'updatedAt',
 ) {
   if (!filters.fromDate && !filters.toDate) return {};
 
   const range: { $gte?: Date; $lte?: Date } = {};
   if (filters.fromDate) range.$gte = new Date(filters.fromDate);
   if (filters.toDate) range.$lte = new Date(filters.toDate);
+
+  if (Object.values(range).some((date) => Number.isNaN(date.getTime()))) {
+    throw new Error(`Invalid ${field} date range`);
+  }
+  if (range.$gte && range.$lte && range.$gte > range.$lte) {
+    throw new Error(`The ${field} start date must precede the end date`);
+  }
 
   return { [field]: range };
 }
@@ -363,6 +370,22 @@ export function buildTicketMatch(filters: IReportFilters) {
     match.assigneeId = { $in: filters.memberIds };
   }
 
+  if (filters.statusChangedByIds?.length) {
+    match.statusChangedBy = { $in: filters.statusChangedByIds };
+  }
+
+  if (filters.updatedByIds?.length) {
+    match.updatedBy = { $in: filters.updatedByIds };
+  }
+
+  const description = filters.description?.trim();
+  if (description) {
+    match.description = {
+      $regex: description.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+      $options: 'i',
+    };
+  }
+
   if (filters.pipelineIds?.length) {
     match.pipelineId = { $in: filters.pipelineIds };
   }
@@ -499,6 +522,26 @@ export function buildTicketMatch(filters: IReportFilters) {
   }
 
   Object.assign(match, buildDateMatch(filters, 'createdAt'));
+  Object.assign(
+    match,
+    buildDateMatch(
+      {
+        fromDate: filters.statusChangedFromDate,
+        toDate: filters.statusChangedToDate,
+      },
+      'statusChangedDate',
+    ),
+  );
+  Object.assign(
+    match,
+    buildDateMatch(
+      {
+        fromDate: filters.updatedFromDate,
+        toDate: filters.updatedToDate,
+      },
+      'updatedAt',
+    ),
+  );
 
   if (andConditions.length) {
     match.$and = andConditions;
@@ -569,6 +612,15 @@ export function buildTicketTagMatch(filters: IReportFilters) {
 }
 
 const REPORT_CHART_FILTER_KEYS = [
+  'statusChangedDate',
+  'updatedAtDate',
+  'statusChangedFromDate',
+  'statusChangedToDate',
+  'updatedFromDate',
+  'updatedToDate',
+  'description',
+  'statusChangedByIds',
+  'updatedByIds',
   'date',
   'fromDate',
   'toDate',

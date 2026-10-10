@@ -1,7 +1,14 @@
 import { Alert, Button, RecordTable } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
-import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  memo,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IconChevronLeft,
@@ -15,6 +22,7 @@ import { ReportChartActions } from '../report-chart/ReportChartActions';
 import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
 import { ReportChart } from '@/report/types';
 import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
+import { TicketsTotalCountContent } from '@/ticket/components/TicketsTotalCount';
 import {
   TicketListColumnDefaults,
   TicketListVisibleColumn,
@@ -83,10 +91,12 @@ export const TicketList = ({
     }
   }, [fetchExport, queryFilters, getExportColumns, visibleColumns]);
 
+  const canExport = Boolean(
+    filtersRestored && !error && ticketList?.totalCount && visibleColumns,
+  );
   const filterEl = useMemo(
     () => (
       <>
-        <TicketReportFilter cardId={id} />
         <ReportChartActions
           chartType={TICKET_CHART_TYPES.list}
           colSpan={colSpan}
@@ -98,7 +108,7 @@ export const TicketList = ({
           size="icon"
           className="size-7"
           onClick={handleExport}
-          disabled={exportLoading || !visibleColumns}
+          disabled={exportLoading || !canExport}
           title={t('export-excel', 'Export Excel')}
         >
           <IconDownload className="size-3.5" />
@@ -106,10 +116,9 @@ export const TicketList = ({
       </>
     ),
     [
-      id,
       handleExport,
       exportLoading,
-      visibleColumns,
+      canExport,
       t,
       colSpan,
       filterConfig,
@@ -117,75 +126,28 @@ export const TicketList = ({
     ],
   );
 
+  let description = t('ticket-list', 'Ticket list');
+  let content: ReactNode;
   if (isInitialLoad || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('ticket-list', 'Ticket list')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
+    content = <FrontlineCard.Skeleton />;
+  } else if (error) {
+    content = (
+      <Alert variant="destructive">
+        <Alert.Title>
+          {t('error-loading-data', 'Error loading data')}
+        </Alert.Title>
+        <Alert.Description>{error.message}</Alert.Description>
+      </Alert>
     );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('ticket-list', 'Ticket list')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>{error.message}</Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!ticketList?.list || ticketList.list.length === 0) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description={t('no-tickets-found', 'No tickets found')}
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  const { totalCount, totalPages } = ticketList;
-
-  return (
-    <FrontlineCard
-      id={id}
-      title={title}
-      description={t('ticket-count', '{{count}} tickets', {
-        count: totalCount,
-      })}
-      colSpan={colSpan}
-      onColSpanChange={onColSpanChange}
-    >
-      <FrontlineCard.Header filter={filterEl} />
-      <FrontlineCard.Content>
+  } else if (!ticketList?.list.length) {
+    description = t('no-tickets-found', 'No tickets found');
+    content = <FrontlineCard.Empty />;
+  } else {
+    description = t('ticket-count', '{{count}} tickets', {
+      count: ticketList.totalCount,
+    });
+    content = (
+      <>
         <div
           className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
         >
@@ -196,12 +158,40 @@ export const TicketList = ({
         </div>
         <Pagination
           page={page}
-          totalPages={totalPages}
-          totalCount={totalCount}
+          totalPages={ticketList.totalPages}
+          totalCount={ticketList.totalCount}
           onPrev={handlePrev}
           onNext={handleNext}
         />
-      </FrontlineCard.Content>
+      </>
+    );
+  }
+
+  return (
+    <FrontlineCard
+      id={id}
+      title={title}
+      description={description}
+      colSpan={colSpan}
+      onColSpanChange={onColSpanChange}
+    >
+      <FrontlineCard.Header
+        filter={filterEl}
+        titleAccessory={
+          <TicketReportFilter cardId={id} showBar>
+            {!error && (
+              <TicketsTotalCountContent
+                totalCount={
+                  filtersRestored && !isFetching
+                    ? ticketList?.totalCount
+                    : undefined
+                }
+              />
+            )}
+          </TicketReportFilter>
+        }
+      />
+      <FrontlineCard.Content>{content}</FrontlineCard.Content>
     </FrontlineCard>
   );
 };
@@ -268,7 +258,7 @@ const TicketListTable = memo(function TicketListTable({
 }) {
   const columns = useTicketListColumns();
   return (
-    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
+    <div className="bg-sidebar w-full rounded-lg">
       <RecordTable.Provider
         data={tickets}
         columns={columns}

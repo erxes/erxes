@@ -265,9 +265,8 @@ async function reportTicketFieldsForGroupValue({
     { $sort: { count: -1 } },
   ];
 
-  const valueCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-    pipeline,
-  );
+  const valueCounts: ReportPropertyCount[] =
+    await models.Ticket.aggregate(pipeline);
 
   if (!valueCounts.length) {
     return [];
@@ -649,9 +648,8 @@ export const reportTicketQueries = {
       { $sort: { count: -1 } },
     ];
 
-    const propertyCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-      pipeline,
-    );
+    const propertyCounts: ReportPropertyCount[] =
+      await models.Ticket.aggregate(pipeline);
 
     if (!propertyCounts.length) {
       return [];
@@ -807,7 +805,7 @@ export const reportTicketQueries = {
         statusType,
         name: status?.name || category?.name || 'unknown',
         color: category?.color || status?.color || '#6B7280',
-        group: status ? category?.name ?? null : null,
+        group: status ? (category?.name ?? null) : null,
         order: status?.order ?? 0,
         count,
       });
@@ -886,7 +884,12 @@ export const reportTicketQueries = {
       ...new Set(tickets.map((t: any) => t[key]).filter(Boolean)),
     ];
     const memberIds = [
-      ...new Set([...uniqueIds('assigneeId'), ...uniqueIds('createdBy')]),
+      ...new Set([
+        ...uniqueIds('assigneeId'),
+        ...uniqueIds('createdBy'),
+        ...uniqueIds('statusChangedBy'),
+        ...uniqueIds('updatedBy'),
+      ]),
     ];
     const pipelineIds = uniqueIds('pipelineId');
     const statusIds = uniqueIds('statusId');
@@ -979,6 +982,14 @@ export const reportTicketQueries = {
       startDate: ticket.startDate,
       targetDate: ticket.targetDate,
       updatedAt: ticket.updatedAt,
+      description: ticket.description,
+      statusChangedDate: ticket.statusChangedDate,
+      statusChangedByName: ticket.statusChangedBy
+        ? memberMap.get(ticket.statusChangedBy.toString()) || 'Unknown'
+        : '',
+      updatedByName: ticket.updatedBy
+        ? memberMap.get(ticket.updatedBy.toString()) || 'Unknown'
+        : '',
       statusName: ticket.statusId
         ? statusNameMap.get(ticket.statusId.toString()) || ''
         : '',

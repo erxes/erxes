@@ -1,6 +1,11 @@
 import { useAtomValue, useStore, WritableAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  getReportStatusChangedDateFilterAtom,
+  getReportUpdatedAtDateFilterAtom,
+  getReportDescriptionFilterAtom,
+  getReportStatusChangedByFilterAtom,
+  getReportUpdatedByFilterAtom,
   getReportChannelFilterAtom,
   getReportChartTypeAtom,
   getReportCompanyFilterAtom,
@@ -35,6 +40,15 @@ const dropEmptyFilters = (filters: ReportChartFilters): ReportChartFilters =>
 export const useTicketChartFilterConfig = (
   cardId: string,
 ): ReportChartFilters => {
+  const statusChangedDate = useAtomValue(
+    getReportStatusChangedDateFilterAtom(cardId),
+  );
+  const updatedAtDate = useAtomValue(getReportUpdatedAtDateFilterAtom(cardId));
+  const description = useAtomValue(getReportDescriptionFilterAtom(cardId));
+  const statusChangedByIds = useAtomValue(
+    getReportStatusChangedByFilterAtom(cardId),
+  );
+  const updatedByIds = useAtomValue(getReportUpdatedByFilterAtom(cardId));
   const date = useAtomValue(getReportDateFilterAtom(cardId));
   const state = useAtomValue(getReportStateFilterAtom(cardId));
   const statusIds = useAtomValue(getReportTicketStatusFilterAtom(cardId));
@@ -54,6 +68,11 @@ export const useTicketChartFilterConfig = (
   return useMemo(
     () =>
       dropEmptyFilters({
+        statusChangedDate,
+        updatedAtDate,
+        description,
+        statusChangedByIds,
+        updatedByIds,
         date,
         state,
         statusIds,
@@ -72,6 +91,11 @@ export const useTicketChartFilterConfig = (
         ),
       }),
     [
+      statusChangedDate,
+      updatedAtDate,
+      description,
+      statusChangedByIds,
+      updatedByIds,
       date,
       state,
       statusIds,
@@ -132,6 +156,11 @@ export const useRestoreTicketChartFilters = (
       value: T,
     ) => store.set(getAtom(cardId), value);
 
+    set(getReportStatusChangedDateFilterAtom, filters.statusChangedDate || '');
+    set(getReportUpdatedAtDateFilterAtom, filters.updatedAtDate || '');
+    set(getReportDescriptionFilterAtom, filters.description || '');
+    set(getReportStatusChangedByFilterAtom, filters.statusChangedByIds || []);
+    set(getReportUpdatedByFilterAtom, filters.updatedByIds || []);
     set(getReportDateFilterAtom, filters.date || '');
     set(getReportStateFilterAtom, filters.state || DEFAULT_STATE);
     set(getReportTicketStatusFilterAtom, filters.statusIds || []);
