@@ -289,7 +289,7 @@ export const PermissionsFilter = ({
         <SelectActions.BarItem />
         {!!groupId && <SelectUsersGroup.FilterBar />}
         {!!userId && <SelectMember.FilterBar queryKey="userId" iconOnly />}
-        <PermissionsTotalCount module={module ? module : moduleName} />
+        <PermissionsTotalCount module={module || moduleName} />
       </Filter.Bar>
     </Filter>
   );

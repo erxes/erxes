@@ -72,7 +72,9 @@ export const ActionsInlineProvider = ({
   updateActions?: (actions: IPermissionAction[]) => void;
   module?: string;
 }) => {
-  const [_actions, _setActions] = useState<IPermissionAction[]>(actions || []);
+  const [internalActions, setInternalActions] = useState<IPermissionAction[]>(
+    actions || [],
+  );
   const [, setAction] = useQueryState<string>('action');
   useEffect(() => {
     setAction(null);
@@ -82,11 +84,11 @@ export const ActionsInlineProvider = ({
   return (
     <ActionsInlineContext.Provider
       value={{
-        actions: actions || _actions,
+        actions: actions || internalActions,
         loading: false,
         actionsNames: actionsNames || [],
         placeholder: placeholder || 'Select actions',
-        updateActions: updateActions || _setActions,
+        updateActions: updateActions || setInternalActions,
         module: module || '',
       }}
     >
