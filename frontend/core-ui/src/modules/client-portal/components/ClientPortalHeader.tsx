@@ -1,5 +1,5 @@
 import { Breadcrumb, Button, Kbd, useScopedHotkeys } from 'erxes-ui';
-import { Can, PageHeader } from 'ui-modules';
+import { Can, PageHeader, usePermissionCheck } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconPlus, IconTerminal2 } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
@@ -10,11 +10,13 @@ export const ClientPortalHeader = () => {
   const [isAddingClientPortal, setIsAddingClientPortal] = useAtom(
     addingClientPortalAtom,
   );
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canCreateClientPortal = isLoaded && hasActionPermission('appsManage');
 
   useScopedHotkeys(
     'c',
     () => {
-      setIsAddingClientPortal(true);
+      if (canCreateClientPortal) setIsAddingClientPortal(true);
     },
     SettingsHotKeyScope.ClientPortalsPage,
   );

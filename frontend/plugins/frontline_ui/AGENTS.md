@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -417,6 +417,22 @@
 - The same filter carries the shared `PropertiesFilter` from `ui-modules`
   scoped to `frontline:ticket`; its `propertiesData` query param is sent
   unchanged as `ITicketFilter.propertiesData`.
+- The `FormItem` variants of `SelectChannel`, `SelectPipeline` and
+  `SelectStatusTicket` (ticket create form, conversation convert) create a
+  missing option in place: typing a name with no exact match offers
+  `Create new …: "<name>"`, which swaps the popover to an inline form
+  (`ChannelForm`, `CreatePipelineForm`, or name + colour + status type) and
+  selects the new record once `channelAdd` / `createPipeline` /
+  `addTicketStatus` succeeds. Pipeline creation needs a selected channel and
+  status creation a selected pipeline. Other variants (filters, table/detail
+  cells) keep select-only behaviour.
+- Ticket detail groups Archive/Unarchive, Subscribe/Unsubscribe and Delete in a
+  single **Actions** dropdown in the `Sheet.Header` of `TicketDetailSheet`,
+  opposite the title. As in the sales deal header, the close button sits in its
+  own `w-16 border-l` column aligned with the relation side tabs, and the
+  actions stay left of that line. It reads `state` / `isSubscribed`
+  from the cached ticket; `TicketFields` holds no archive, subscribe or delete
+  controls.
 - Ticket tag selection (board card, detail sheet, create form) shows a single
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
@@ -1761,6 +1777,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Instagram send/reaction toasts map provider errors through ordered
   `InstagramErrorRule` lists; adding a case means adding a rule with its own
   `instagram-*` i18n key, keeping existing keys and fallback copy unchanged.
+- Inline create inside the ticket selects goes through
+  `ticket-selects/SelectCreate.tsx`; its `SelectCreateContainer` stops submit
+  propagation because React bubbles the nested form's submit through the
+  portal into the outer ticket form. New selects reuse it rather than
+  linking out to settings.
 
 ## Validation
 
@@ -1793,6 +1814,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   at once, shows up under the destination channel, and is still there after a
   reload. Select two forms and move them from the command bar; selecting forms
   from two channels on `/frontline/forms` must leave that button disabled.
+- Smoke (inline create): open the add-ticket form, type a new name in the
+  Channel select and choose `Create new channel`, submit; the channel is
+  selected and the ticket form stays open and unsubmitted. Repeat for Pipeline
+  (then the new pipeline's default status is picked) and Status.
 - Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
   `…a deal` and `…a task`; each save shows a success toast, the entry turns
   into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.

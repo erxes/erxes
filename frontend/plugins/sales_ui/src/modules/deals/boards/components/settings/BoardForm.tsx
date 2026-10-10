@@ -18,10 +18,11 @@ import {
 } from '@/deals/boards/hooks/useBoards';
 import { TBoardForm } from '@/deals/types/boards';
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState('boardId');
-
+  const { t } = useTranslation('sales');
   const { methods } = useAddBoardForm();
   const { handleSubmit, reset } = methods;
 
@@ -46,7 +47,7 @@ export const BoardForm = () => {
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
     async (data) => {
       const manageBoard = boardId ? editBoard : addBoard;
-      const successTitle = boardId ? 'Updated a board' : 'Created a board';
+      const successTitle = boardId ? t('board-updated') : t('board-created');
 
       manageBoard({
         variables: {
@@ -58,7 +59,7 @@ export const BoardForm = () => {
         },
       });
     },
-    [addBoard, editBoard, boardId, handleClose],
+    [addBoard, editBoard, boardId, handleClose, t],
   );
 
   return (
@@ -99,12 +100,12 @@ export const BoardForm = () => {
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Board Name</Form.Label>
+                      <Form.Label>{t('board-name')}</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           type="text"
-                          placeholder="Enter board name"
+                          placeholder={t('enter-board-name')}
                           className="input"
                           value={field.value || boardDetail?.name || ''}
                         />

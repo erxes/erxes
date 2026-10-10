@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -44,6 +44,11 @@
 - Deal detail broker selection shows `Broker: None` until a broker type is
   chosen, then renders a matching entity selector with a `Select broker`
   placeholder.
+- Deal detail header exposes an `Actions` dropdown (`DealsActions`) with
+  duplicate, watch/unwatch, print, archive/restore, and remove; the same
+  component is the bulk action menu in the deals list command bar. Print opens
+  the shared `ui-modules` `PrintDocument` sheet (`sales:deal` content type)
+  rendered outside the dropdown so closing the menu does not unmount it.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
@@ -125,6 +130,12 @@
   discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
+- Deal detail start/close dates use the erxes-ui `DatePicker` input with
+  `allowNull`; typing uses `YYYY-MM-DD`, the unfocused value shows as
+  `MMM D, YYYY`, and clearing sends `null` (stored as `closeDate: null`, which
+  the backend `noCloseDate` filter matches). A past close date turns the value
+  red and appends an "Ended N days ago" segment to the labeled pill, matching
+  the badge the table and card variants show.
 
 ## Validation
 
