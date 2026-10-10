@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { AccountingHeader } from '~/modules/layout/components/Header';
 import { AccountingLayout } from '~/modules/layout/components/Layout';
@@ -7,11 +8,12 @@ import { ReCalcRemainderForm } from '~/modules/inventories/remainders/components
 import { RemainderDetailSheet } from '~/modules/inventories/remainders/components/RemainderDetailSheet';
 
 export const RemaindersPage = () => {
+  const { t } = useTranslation('accounting');
   return (
     <AccountingLayout>
       <AccountingHeader
         returnLink="/accounting/inventories/remainders"
-        returnText="Live Remainders"
+        returnText={t('Live Remainders')}
         skipSettings={true}
       >
         <ReCalcRemainderForm />

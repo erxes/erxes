@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { RecordTableInlineCell, RecordTable } from 'erxes-ui';
 import {
@@ -22,7 +23,9 @@ const AdjustFundRateMoreColumnCell = ({
   );
 };
 
-export const adjustFundRateColumns: ColumnDef<IAdjustFundRate>[] = [
+export const adjustFundRateColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAdjustFundRate>[] => [
   {
     id: 'more',
     cell: AdjustFundRateMoreColumnCell,
@@ -30,7 +33,9 @@ export const adjustFundRateColumns: ColumnDef<IAdjustFundRate>[] = [
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     accessorKey: 'date',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -41,7 +46,7 @@ export const adjustFundRateColumns: ColumnDef<IAdjustFundRate>[] = [
   {
     id: 'mainCurrency',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Main" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('main')} />
     ),
     accessorKey: 'mainCurrency',
     cell: ({ getValue }) => (
@@ -51,7 +56,7 @@ export const adjustFundRateColumns: ColumnDef<IAdjustFundRate>[] = [
   {
     id: 'currency',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Foreign" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('Foreign')} />
     ),
     accessorKey: 'currency',
     cell: ({ getValue }) => (
@@ -60,7 +65,7 @@ export const adjustFundRateColumns: ColumnDef<IAdjustFundRate>[] = [
   },
   {
     id: 'spotRate',
-    header: () => <RecordTable.InlineHead label="Rate" />,
+    header: () => <RecordTable.InlineHead label={t('Rate')} />,
     accessorKey: 'spotRate',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -71,7 +76,7 @@ export const adjustFundRateColumns: ColumnDef<IAdjustFundRate>[] = [
   {
     id: 'description',
     header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
     cell: ({ getValue }) => (

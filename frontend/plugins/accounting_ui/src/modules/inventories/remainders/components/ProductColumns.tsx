@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import {
   IconCategory,
   IconCurrencyDollar,
@@ -17,7 +18,7 @@ import { IProduct } from 'ui-modules';
 import { selectedRemainderProductAtom } from '../states/productDetailStates';
 
 export const productColumns: (
-  t: (key: string) => string,
+  t: TFunction<'accounting'>,
 ) => ColumnDef<IProduct>[] = (t) => [
   RecordTable.checkboxColumn as ColumnDef<IProduct>,
   {

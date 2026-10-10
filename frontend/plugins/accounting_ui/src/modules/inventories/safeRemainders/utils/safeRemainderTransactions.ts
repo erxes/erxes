@@ -25,27 +25,21 @@ const getTargetCost = (item: ISafeRemainderItem) => {
   }
 
   if (activeCost === 0 && item.count > item.preCount) {
-    return (
-      (item.count - item.preCount) * (item.trInfo?.lastIncomePrice ?? 0)
-    );
+    return (item.count - item.preCount) * (item.trInfo?.lastIncomePrice ?? 0);
   }
 
-  return item.preCount > 0
-    ? (activeCost / item.preCount) * item.count
-    : 0;
+  return item.preCount > 0 ? (activeCost / item.preCount) * item.count : 0;
 };
 
 const TRANSACTION_LABELS: Record<TSafeRemainderTransactionType, string> = {
-  [SAFE_REMAINDER_TRANSACTION_TYPES.INCOME]: 'Орлого',
-  [SAFE_REMAINDER_TRANSACTION_TYPES.OUT]: 'Зарлага',
-  [SAFE_REMAINDER_TRANSACTION_TYPES.SALE]: 'Борлуулалт',
-  [SAFE_REMAINDER_TRANSACTION_TYPES.COST_INCREASE]: 'Залруулга нэмэх',
-  [SAFE_REMAINDER_TRANSACTION_TYPES.COST_DECREASE]: 'Залруулга хасах',
+  [SAFE_REMAINDER_TRANSACTION_TYPES.INCOME]: 'receipt',
+  [SAFE_REMAINDER_TRANSACTION_TYPES.OUT]: 'issue',
+  [SAFE_REMAINDER_TRANSACTION_TYPES.SALE]: 'sales',
+  [SAFE_REMAINDER_TRANSACTION_TYPES.COST_INCREASE]: 'increase-adjustment',
+  [SAFE_REMAINDER_TRANSACTION_TYPES.COST_DECREASE]: 'decrease-adjustment',
 };
 
-export const getSafeRemainderCostDifference = (
-  item: ISafeRemainderItem,
-) => {
+export const getSafeRemainderCostDifference = (item: ISafeRemainderItem) => {
   const targetCost = getTargetCost(item);
   return targetCost - (item.trInfo?.activeCost ?? 0);
 };
@@ -89,9 +83,7 @@ export const getSafeRemainderCostAdjustmentDifference = (
   return Math.abs(difference) <= COST_ADJUSTMENT_TOLERANCE ? 0 : difference;
 };
 
-export const getSafeRemainderTransactionTypes = (
-  item: ISafeRemainderItem,
-) => {
+export const getSafeRemainderTransactionTypes = (item: ISafeRemainderItem) => {
   const types: TSafeRemainderTransactionType[] = [];
 
   if (item.count > item.preCount) {
@@ -116,12 +108,10 @@ export const getSafeRemainderTransactionTypes = (
   return types;
 };
 
-export const getSafeRemainderTransactionLabels = (
-  item: ISafeRemainderItem,
-) => {
+export const getSafeRemainderTransactionLabels = (item: ISafeRemainderItem) => {
   const labels = getSafeRemainderTransactionTypes(item).map(
     (type) => TRANSACTION_LABELS[type],
   );
 
-  return labels.length ? labels : ['Гүйлгээ үүсэхгүй'];
+  return labels.length ? labels : ['no-transaction-will-be-generated'];
 };

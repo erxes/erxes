@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
@@ -11,6 +12,7 @@ import { TFixedAssetForm } from '../types/FixedAsset';
 import { FixedAssetForm } from './FixedAssetForm';
 
 export const AddFixedAsset = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,10 +20,10 @@ export const AddFixedAsset = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Хөрөнгө нэмэх
+          {t('add-asset')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Үндсэн хөрөнгө нэмэх" className="md:max-w-4xl">
+      <AccountingSheet title={t('add-fixed-asset')} className="md:max-w-4xl">
         <AddFixedAssetForm setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>

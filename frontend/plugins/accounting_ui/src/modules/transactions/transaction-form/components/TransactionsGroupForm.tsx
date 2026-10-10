@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -42,6 +43,7 @@ const FormFields = memo(
     form: ReturnType<typeof useForm<TAddTransactionGroup>>;
     currentUserId?: string;
   }) => {
+    const { t } = useTranslation('accounting');
     const status = form.watch('status');
     const mentionOwnerId = form.watch('mentionOwnerId');
     const mentionUserIds = form.watch('mentionUserIds');
@@ -73,7 +75,7 @@ const FormFields = memo(
           name="date"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Огноо</Form.Label>
+              <Form.Label>{t('date')}</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -89,7 +91,7 @@ const FormFields = memo(
           name="number"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Дугаар</Form.Label>
+              <Form.Label>{t('number')}</Form.Label>
               <Form.Control>
                 <Input {...field} value={field.value ?? ''} />
               </Form.Control>
@@ -101,7 +103,7 @@ const FormFields = memo(
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Төлөв</Form.Label>
+              <Form.Label>{t('status')}</Form.Label>
               <Form.Control>
                 <Select
                   value={field.value}
@@ -131,10 +133,14 @@ const FormFields = memo(
                   <Select.Content>
                     {statusGroups.map((group, groupIndex) => (
                       <Select.Group key={group.label}>
-                        {group.label && <Select.Label>{group.label}</Select.Label>}
+                        {t(group.label || '', { nsSeparator: false }) && (
+                          <Select.Label>
+                            {t(group.label || '', { nsSeparator: false })}
+                          </Select.Label>
+                        )}
                         {group.options.map((side) => (
                           <Select.Item key={side.value} value={side.value}>
-                            {side.label}
+                            {t(side.label || '', { nsSeparator: false })}
                           </Select.Item>
                         ))}
                         {groupIndex < statusGroups.length - 1 && (
@@ -153,7 +159,7 @@ const FormFields = memo(
           name="mentionOwnerId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Үйлдэгч</Form.Label>
+              <Form.Label>{t('performed-by')}</Form.Label>
               <Form.Control>
                 <SelectMember.FormItem
                   onValueChange={(user) => field.onChange(user || '')}
@@ -170,7 +176,7 @@ const FormFields = memo(
           name="mentionUserIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Баталгаажуулах</Form.Label>
+              <Form.Label>{t('approve')}</Form.Label>
               <Form.Control>
                 <SelectMember.FormItem
                   onValueChange={(users) => field.onChange(users || [])}
@@ -190,6 +196,7 @@ const FormFields = memo(
 FormFields.displayName = 'FormFields';
 
 export const TransactionsGroupForm = () => {
+  const { t } = useTranslation('accounting');
   // const parentId = useParams().parentId;
   const currentUser = useAtomValue(currentUserState) as IUser;
   const [parentId] = useQueryState<string>('parentId');
@@ -308,7 +315,7 @@ export const TransactionsGroupForm = () => {
       >
         <div className="flex justify-between">
           <h3 className="text-lg font-bold">
-            {parentId ? `Гүйлгээ засах` : `Гүйлгээ үүсгэх`}
+            {parentId ? t('edit-transaction') : t('create-transaction')}
           </h3>
           <div className="">
             <Summary errorMessage={error?.message} form={form} />

@@ -1,14 +1,14 @@
 import { JournalEnum } from '@/settings/account/types/Account';
 
 export const JOURNAL_LABELS = {
-  [JournalEnum.MAIN]: 'Ерөнхий',
-  [JournalEnum.TAX]: 'Татвар',
-  [JournalEnum.BANK]: 'Банк',
-  [JournalEnum.CASH]: 'Касс',
-  [JournalEnum.DEBT]: 'Өр, авлага',
-  [JournalEnum.EXCHANGE_DIFF]: 'Ханшийн зөрүү',
-  [JournalEnum.INVENTORY]: 'Бараа материал',
-  [JournalEnum.INV_FOLLOW]: 'Бараа материал дагалдах',
-  [JournalEnum.FIXED_ASSET]: 'Үндсэн хөрөнгө',
-  [JournalEnum.FXA_FOLLOW]: 'Үндсэн хөрөнгө дагалдах',
+  [JournalEnum.MAIN]: 'general',
+  [JournalEnum.TAX]: 'tax',
+  [JournalEnum.BANK]: 'bank-label',
+  [JournalEnum.CASH]: 'cash-label',
+  [JournalEnum.DEBT]: 'payables-and-receivables',
+  [JournalEnum.EXCHANGE_DIFF]: 'exchange-rate-difference',
+  [JournalEnum.INVENTORY]: 'inventory-label',
+  [JournalEnum.INV_FOLLOW]: 'related-inventory-entries',
+  [JournalEnum.FIXED_ASSET]: 'fixed-assets',
+  [JournalEnum.FXA_FOLLOW]: 'related-fixed-asset-entries',
 };

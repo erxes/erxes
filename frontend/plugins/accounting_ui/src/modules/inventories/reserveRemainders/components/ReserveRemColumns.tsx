@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import {
   IconBox,
   IconBuildingWarehouse,
@@ -33,13 +34,17 @@ const RemainderField = ({ reserveRem }: { reserveRem: IReserveRem }) => {
   );
 };
 
-export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
+export const reserveRemColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IReserveRem>[] => [
   reserveRemMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IReserveRem>,
   {
     id: 'product',
     accessorKey: 'product',
-    header: () => <RecordTable.InlineHead icon={IconBox} label="Бараа" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBox} label={t('inventory')} />
+    ),
     cell: ({ row }) => {
       const code = row.original.product?.code;
       const name = row.original.product?.name;
@@ -56,7 +61,10 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
     id: 'branch',
     accessorKey: 'branch',
     header: () => (
-      <RecordTable.InlineHead icon={IconBuildingWarehouse} label="Салбар" />
+      <RecordTable.InlineHead
+        icon={IconBuildingWarehouse}
+        label={t('branch')}
+      />
     ),
     cell: ({ row }) => {
       const code = row.original.branch?.code;
@@ -74,7 +82,7 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
     id: 'department',
     accessorKey: 'department',
     header: () => (
-      <RecordTable.InlineHead icon={IconHierarchy2} label="Хэлтэс" />
+      <RecordTable.InlineHead icon={IconHierarchy2} label={t('department')} />
     ),
     cell: ({ row }) => {
       const code = row.original.department?.code;
@@ -92,7 +100,10 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
     id: 'uom',
     accessorKey: 'uom',
     header: () => (
-      <RecordTable.InlineHead icon={IconRuler2} label="Хэмжих нэгж" />
+      <RecordTable.InlineHead
+        icon={IconRuler2}
+        label={t('unit-of-measure-label-2')}
+      />
     ),
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -105,7 +116,10 @@ export const reserveRemColumns: ColumnDef<IReserveRem>[] = [
     id: 'remainder',
     accessorKey: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconStack2} label="Нөөц үлдэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconStack2}
+        label={t('reserved-inventory')}
+      />
     ),
     cell: ({ row }) => <RemainderField reserveRem={row.original} />,
     size: 160,

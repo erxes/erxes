@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Separator, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -17,12 +18,13 @@ const parseQueryDate = (value?: string): string => {
 };
 
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
+  const { t } = useTranslation('accounting');
   const [currentOrganization] = useAtom(currentOrganizationState);
   const [report] = useQueryState('report');
   const [fromDate] = useQueryState('fromDate');
   const [toDate] = useQueryState('toDate');
 
-  const title = ReportRules[(report as string) || '']?.title;
+  const title = t(ReportRules[(report as string) || '']?.title || '');
   const from = parseQueryDate(fromDate as string);
   const to = parseQueryDate(toDate as string);
 
@@ -40,11 +42,11 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
         <div className="flex flex-col gap-1">
           <p className="font-bold">{currentOrganization?.name ?? 'OrgName'}</p>
           <Separator className="print:bg-foreground bg-border" />
-          <p>(Аж ахуй нэгж албан байгууллагын нэр)</p>
+          <p>{t('organization-name')}</p>
         </div>
         <div className="flex flex-col gap-1 text-right">
           <p>{[from, to].filter((d) => d).join(' - ')}</p>
-          <p>(төгрөгөөр)</p>
+          <p>{t('in-mnt')}</p>
         </div>
       </div>
     </>

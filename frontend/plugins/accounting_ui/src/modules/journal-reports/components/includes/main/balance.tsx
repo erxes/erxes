@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { displayNum, ReportTable } from 'erxes-ui';
 import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
 import { TR_SIDES } from '~/modules/transactions/types/constants';
@@ -24,6 +25,7 @@ export const HandleBalanceReport = (
   _groupRule: IGroupRule,
   attr: string,
 ): CalcReportResult => {
+  const { t } = useTranslation('accounting');
   const items = getItems(dic);
   let [opening, debit, credit, closing] = [0, 0, 0, 0];
   let [currencyOpening, currencyDebit, currencyCredit, currencyClosing] = [
@@ -79,7 +81,7 @@ export const HandleBalanceReport = (
         className="bg-muted/40 text-right italic"
       >
         <ReportTable.Cell colSpan={2} className="text-left">
-          Валютаар {currency}
+          {t('by-currency')} {currency}
         </ReportTable.Cell>
         <ReportTable.Cell>{displayNum(currencyOpeningDebit)}</ReportTable.Cell>
         <ReportTable.Cell>{displayNum(currencyOpeningCredit)}</ReportTable.Cell>

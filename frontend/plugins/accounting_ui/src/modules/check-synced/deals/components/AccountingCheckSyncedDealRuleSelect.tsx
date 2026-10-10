@@ -8,7 +8,6 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import i18n from 'i18next';
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,28 +24,28 @@ type AccountingSyncDealRulesQueryResult = {
 export type AccountingCheckSyncedDealRuleScope = 'deal' | 'movement';
 
 const DEAL_RETURN_TYPE_LABELS = {
-  delete: 'Устгах',
-  fullTr: 'Бүтэн гүйлгээ',
-  onlySale: 'Зөвхөн борлуулалт',
+  delete: 'delete',
+  fullTr: 'full-transaction',
+  onlySale: 'sales-only',
 };
 
-const getRuleLabel = (rule?: AccountingDealRule) =>
-  rule?.value?.title || rule?.subId || rule?._id || 'Select rule';
+const getRuleLabel = (rule: AccountingDealRule | undefined, fallback: string) =>
+  rule?.value?.title || rule?.subId || rule?._id || fallback;
 
-const getRuleTypeLabel = (rule: AccountingDealRule) => {
+const getRuleTypeLabelKeys = (rule: AccountingDealRule) => {
   if (rule.code !== ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN) {
     if (rule.code === ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT) {
-      return 'Хөдөлгөөн';
+      return ['movement'];
     }
 
-    return i18n.t('accounting:sale');
+    return ['sale'];
   }
 
   const returnType = rule.value?.returnType;
 
   return returnType
-    ? `${i18n.t('accounting:return')} / ${DEAL_RETURN_TYPE_LABELS[returnType]}`
-    : i18n.t('accounting:return');
+    ? ['return', DEAL_RETURN_TYPE_LABELS[returnType]]
+    : ['return'];
 };
 
 const useAccountingCheckSyncedDealRules = () =>
@@ -147,9 +146,13 @@ const AccountingCheckSyncedDealRuleContent = ({
             }}
           >
             <span className="flex flex-col">
-              <span className="font-medium">{getRuleLabel(rule)}</span>
+              <span className="font-medium">
+                {getRuleLabel(rule, t('Select rule'))}
+              </span>
               <span className="text-xs text-muted-foreground">
-                {getRuleTypeLabel(rule)}
+                {getRuleTypeLabelKeys(rule)
+                  .map((label) => t(label))
+                  .join(' / ')}
               </span>
             </span>
             <Combobox.Check checked={ruleId === rule._id} />
@@ -236,7 +239,7 @@ export const AccountingCheckSyncedDealRuleFilterBar = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="ruleId">
-            {getRuleLabel(rule)}
+            {getRuleLabel(rule, t('Select rule'))}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

@@ -117,7 +117,7 @@ export const SyncOrderConfigForm = ({
               name="posId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>POS</Form.Label>
+                  <Form.Label>{t('POS')}</Form.Label>
                   <Form.Control>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger>
@@ -126,7 +126,7 @@ export const SyncOrderConfigForm = ({
                       <Select.Content>
                         {posOptions.map((opt) => (
                           <Select.Item key={opt.value} value={opt.value}>
-                            {opt.label}
+                            {t(opt.label || '', { nsSeparator: false })}
                           </Select.Item>
                         ))}
                       </Select.Content>

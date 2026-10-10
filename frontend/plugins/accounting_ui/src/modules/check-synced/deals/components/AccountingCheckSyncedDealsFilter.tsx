@@ -226,7 +226,7 @@ export const AccountingCheckSyncedDealsFilter = ({
         <AccountingDealBoardFilterBar />
         <AccountingDealPipelineFilterBar boardId={boardId || undefined} />
         <AccountingDealStageFilterBar pipelineId={pipelineId || undefined} />
-        <SelectMember.FilterBar queryKey="user" label="Assigned To" />
+        <SelectMember.FilterBar queryKey="user" label={t('Assigned To')} />
         <AccountingDealDateTypeFilterBar />
         <AccountingCheckSyncedDealsTotalCount />
       </Filter.Bar>

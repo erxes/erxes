@@ -21,18 +21,20 @@ const Sentence = ({ children }: { children: ReactNode }) => (
 );
 
 const StatusBadge = ({ status }: { status?: string }) => {
+  const { t } = useTranslation('accounting');
   if (!status) {
     return null;
   }
 
   return (
     <Badge variant="secondary" className="font-medium">
-      {TR_STATUS_LABELS[status] || status}
+      {t(TR_STATUS_LABELS[status] || '') || status}
     </Badge>
   );
 };
 
 const MentionMembers = ({ memberIds }: { memberIds?: string[] }) => {
+  const { t } = useTranslation('accounting');
   const ids = [...new Set((memberIds || []).filter(Boolean))];
 
   if (!ids.length) {
@@ -42,19 +44,20 @@ const MentionMembers = ({ memberIds }: { memberIds?: string[] }) => {
   return (
     <MembersInline
       memberIds={ids}
-      placeholder="Тодорхойгүй хэрэглэгч"
+      placeholder={t('unknown-user')}
       className="font-medium"
     />
   );
 };
 
 const TrCreatedActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('accounting');
   const current = activity.changes?.current || {};
 
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">баримт үүсгэв</span>
+      <span className="text-muted-foreground">{t('created-a-voucher')}</span>
       <StatusBadge status={current.status || activity.metadata?.status} />
       <MentionMembers memberIds={current.mentionUserIds} />
     </Sentence>
@@ -62,13 +65,14 @@ const TrCreatedActivityRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const TrStatusActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('accounting');
   const prev = activity.changes?.prev || {};
   const current = activity.changes?.current || {};
 
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">төлөв өөрчлөв</span>
+      <span className="text-muted-foreground">{t('changed-the-status')}</span>
       <StatusBadge status={prev.status} />
       <span className="text-muted-foreground">-&gt;</span>
       <StatusBadge status={current.status} />
@@ -77,6 +81,7 @@ const TrStatusActivityRow = ({ activity }: { activity: TActivityLog }) => {
 };
 
 const TrMentionActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('accounting');
   const prev = activity.changes?.prev || {};
   const current = activity.changes?.current || {};
 
@@ -84,12 +89,18 @@ const TrMentionActivityRow = ({ activity }: { activity: TActivityLog }) => {
     <div className="flex flex-col gap-1">
       <Sentence>
         <ActivityLogs.ActorName activity={activity} />
-        <span className="text-muted-foreground">батлуулах хэрэглэгч өөрчлөв</span>
+        <span className="text-muted-foreground">
+          {t('changed-the-approver')}
+        </span>
       </Sentence>
       <div className="flex flex-wrap items-center gap-2 pl-0 text-sm">
-        <span className="text-muted-foreground">Өмнө:</span>
+        <span className="text-muted-foreground">
+          {t('previous', { nsSeparator: false })}
+        </span>
         <MentionMembers memberIds={prev.mentionUserIds} />
-        <span className="text-muted-foreground">Одоо:</span>
+        <span className="text-muted-foreground">
+          {t('current', { nsSeparator: false })}
+        </span>
         <MentionMembers memberIds={current.mentionUserIds} />
       </div>
     </div>
@@ -131,14 +142,14 @@ const isPosOrderContent = (contentType?: string) =>
 
 const getRelatedContentLabel = (contentType?: string) => {
   if (isDealContent(contentType)) {
-    return 'Deal рүү очих';
+    return 'open-deal';
   }
 
   if (isPosOrderContent(contentType)) {
-    return 'POS order рүү очих';
+    return 'open-pos-order';
   }
 
-  return 'Холбоотой бичлэг рүү очих';
+  return 'open-related-record';
 };
 
 export const TrRightSidebar = ({ form }: { form: ITransactionGroupForm }) => {
@@ -177,7 +188,7 @@ export const TrRightSidebar = ({ form }: { form: ITransactionGroupForm }) => {
                 <Button variant="secondary" asChild>
                   <a href={relatedContentHref} target="_blank" rel="noreferrer">
                     <IconExternalLink />
-                    {getRelatedContentLabel(contentType)}
+                    {t(getRelatedContentLabel(contentType))}
                   </a>
                 </Button>
               </div>

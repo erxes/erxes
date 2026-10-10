@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconEditCircle, IconEyeCheck } from '@tabler/icons-react';
 import { Button, Input, Label, Separator } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
@@ -21,6 +22,7 @@ const relatedAccountCodes = (
 };
 
 export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
+  const { t } = useTranslation('accounting');
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const trDoc = useWatch({
     control: form.control,
@@ -177,10 +179,18 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
           onClick={() => setShowEdit(true)}
         >
           <IconEditCircle />
-          {`Харилцсан данс засах`}
+          {t('edit-corresponding-accounts')}
         </Button>
-        {dtStr && <Label className="ml-1">Дебет: {dtStr}</Label>}
-        {ctStr && <Label className="ml-1">Кредит: {ctStr}</Label>}
+        {dtStr && (
+          <Label className="ml-1">
+            {t('debit-label', { nsSeparator: false })} {dtStr}
+          </Label>
+        )}
+        {ctStr && (
+          <Label className="ml-1">
+            {t('credit-label', { nsSeparator: false })} {ctStr}
+          </Label>
+        )}
       </div>
     );
   }
@@ -189,7 +199,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
     <>
       <Separator />
       <div className="flex flex-auto mt-2">
-        <Label> Дебет:</Label>
+        <Label> {t('debit-label', { nsSeparator: false })}</Label>
         {customDts?.map((code, ind) => (
           <Input
             className="ml-4 max-w-36"
@@ -200,7 +210,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         ))}
       </div>
       <div className="flex flex-auto mt-2">
-        <Label>Кредит:</Label>
+        <Label>{t('credit-label', { nsSeparator: false })}</Label>
         {customCts?.map((code, ind) => (
           <Input
             className="ml-4 max-w-36"
@@ -217,7 +227,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         onClick={() => setShowEdit(false)}
       >
         <IconEyeCheck />
-        {`Хадгалаад хаах`}
+        {t('save-and-close')}
       </Button>
       <Separator />
     </>

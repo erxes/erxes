@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCalendar, IconSearch, IconToggleRight } from '@tabler/icons-react';
 import {
   Button,
@@ -13,16 +14,17 @@ import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixed
 import { SelectFixedAssetCategory } from '@/settings/fixed-assets/components/SelectFixedAssetCategory';
 
 const OWNER_RECORD_STATUSES = [
-  { value: 'active', label: 'Идэвхтэй' },
-  { value: 'inactive', label: 'Идэвхгүй' },
+  { value: 'active', label: 'active' },
+  { value: 'inactive', label: 'inactive' },
 ];
 
 const OWNER_RECORD_ACTIONS = [
-  { value: 'received', label: 'Хүлээж авсан' },
-  { value: 'handedOver', label: 'Хүлээлгэж өгсөн' },
+  { value: 'received', label: 'received' },
+  { value: 'handedOver', label: 'handed-over' },
 ];
 
 const FxaOwnerRecordStatusFilter = () => {
+  const { t } = useTranslation('accounting');
   const [status, setStatus] = useQueryState<string>('status');
   const [open, setOpen] = useState(false);
   const selectedStatus = OWNER_RECORD_STATUSES.find(
@@ -34,7 +36,8 @@ const FxaOwnerRecordStatusFilter = () => {
       <Popover.Trigger asChild>
         <Button variant="outline" className="h-8">
           <IconToggleRight />
-          {selectedStatus?.label || 'Төлөв'}
+          {t(selectedStatus?.label || '', { nsSeparator: false }) ||
+            t('status')}
         </Button>
       </Popover.Trigger>
       <Combobox.Content>
@@ -47,7 +50,7 @@ const FxaOwnerRecordStatusFilter = () => {
                 setOpen(false);
               }}
             >
-              Бүгд
+              {t('all')}
             </Command.Item>
             {OWNER_RECORD_STATUSES.map((item) => (
               <Command.Item
@@ -58,7 +61,7 @@ const FxaOwnerRecordStatusFilter = () => {
                   setOpen(false);
                 }}
               >
-                {item.label}
+                {t(item.label || '', { nsSeparator: false })}
               </Command.Item>
             ))}
           </Command.List>
@@ -69,6 +72,7 @@ const FxaOwnerRecordStatusFilter = () => {
 };
 
 const FxaOwnerRecordAssetFilter = () => {
+  const { t } = useTranslation('accounting');
   const [fixedAssetId, setFixedAssetId] = useQueryState<string>('fixedAssetId');
 
   return (
@@ -81,7 +85,7 @@ const FxaOwnerRecordAssetFilter = () => {
             Array.isArray(value) ? value[0] || null : value || null,
           )
         }
-        placeholder="Үндсэн хөрөнгө"
+        placeholder={t('fixed-asset')}
         className="h-8"
       />
     </div>
@@ -104,6 +108,7 @@ const FxaOwnerRecordCategoryFilter = () => {
 };
 
 const FxaOwnerRecordMemberFilter = () => {
+  const { t } = useTranslation('accounting');
   const [ownerId, setOwnerId] = useQueryState<string>('ownerId');
 
   return (
@@ -114,7 +119,7 @@ const FxaOwnerRecordMemberFilter = () => {
         onValueChange={(value) =>
           setOwnerId(Array.isArray(value) ? value[0] || null : value || null)
         }
-        placeholder="Эд хариуцагч"
+        placeholder={t('asset-custodian')}
         className="h-8"
       />
     </div>
@@ -122,6 +127,7 @@ const FxaOwnerRecordMemberFilter = () => {
 };
 
 const FxaOwnerRecordActionFilter = () => {
+  const { t } = useTranslation('accounting');
   const [action, setAction] = useQueryState<string>('action');
   const [open, setOpen] = useState(false);
   const selectedAction = OWNER_RECORD_ACTIONS.find(
@@ -133,7 +139,8 @@ const FxaOwnerRecordActionFilter = () => {
       <Popover.Trigger asChild>
         <Button variant="outline" className="h-8">
           <IconToggleRight />
-          {selectedAction?.label || 'Чиглэл'}
+          {t(selectedAction?.label || '', { nsSeparator: false }) ||
+            t('direction')}
         </Button>
       </Popover.Trigger>
       <Combobox.Content>
@@ -146,7 +153,7 @@ const FxaOwnerRecordActionFilter = () => {
                 setOpen(false);
               }}
             >
-              Бүгд
+              {t('all')}
             </Command.Item>
             {OWNER_RECORD_ACTIONS.map((item) => (
               <Command.Item
@@ -157,7 +164,7 @@ const FxaOwnerRecordActionFilter = () => {
                   setOpen(false);
                 }}
               >
-                {item.label}
+                {t(item.label || '', { nsSeparator: false })}
               </Command.Item>
             ))}
           </Command.List>
@@ -167,34 +174,38 @@ const FxaOwnerRecordActionFilter = () => {
   );
 };
 
-const FxaOwnerRecordFilterPopover = () => (
-  <Filter.Popover scope="fxa-owner-records-filter">
-    <Filter.Trigger isFiltered={false} />
-    <Combobox.Content>
-      <Filter.View>
-        <Command>
-          <Filter.CommandInput
-            placeholder="Шүүлт"
-            variant="secondary"
-            className="bg-background"
-          />
-          <Command.List className="p-1">
-            <Filter.Item value="searchValue" inDialog>
-              <IconSearch />
-              Хайлт
-            </Filter.Item>
-            <Filter.Item value="createdDate" inDialog>
-              <IconCalendar />
-              Огноо
-            </Filter.Item>
-          </Command.List>
-        </Command>
-      </Filter.View>
-    </Combobox.Content>
-  </Filter.Popover>
-);
+const FxaOwnerRecordFilterPopover = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Popover scope="fxa-owner-records-filter">
+      <Filter.Trigger isFiltered={false} />
+      <Combobox.Content>
+        <Filter.View>
+          <Command>
+            <Filter.CommandInput
+              placeholder={t('filter-label')}
+              variant="secondary"
+              className="bg-background"
+            />
+            <Command.List className="p-1">
+              <Filter.Item value="searchValue" inDialog>
+                <IconSearch />
+                {t('search-label')}
+              </Filter.Item>
+              <Filter.Item value="createdDate" inDialog>
+                <IconCalendar />
+                {t('date')}
+              </Filter.Item>
+            </Command.List>
+          </Command>
+        </Filter.View>
+      </Combobox.Content>
+    </Filter.Popover>
+  );
+};
 
 export const FxaOwnerRecordFilters = () => {
+  const { t } = useTranslation('accounting');
   const [searchValue] = useQueryState<string>('searchValue');
 
   return (
@@ -203,7 +214,7 @@ export const FxaOwnerRecordFilters = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Хайлт
+            {t('search-label')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -217,7 +228,7 @@ export const FxaOwnerRecordFilters = () => {
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />
-            Огноо
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDate" />
         </Filter.BarItem>

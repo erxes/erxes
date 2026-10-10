@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconLock, IconX, IconZoomExclamation } from '@tabler/icons-react';
 import { IAccount } from '@/settings/account/types/Account';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
@@ -44,8 +45,8 @@ import { TBalance } from './TBalance';
 const isHiddenTransaction = (transaction?: object) =>
   Boolean(
     transaction &&
-      'permission' in transaction &&
-      transaction.permission === 'hidden',
+    'permission' in transaction &&
+    transaction.permission === 'hidden',
   );
 
 // Separate the transaction form component to prevent unnecessary re-renders
@@ -92,13 +93,18 @@ const TransactionForm = ({
 };
 
 const HiddenTransactionContent = () => {
+  const { t } = useTranslation('accounting');
   return (
     <div className="border border-dashed rounded-md bg-muted/30 p-8 text-sm text-muted-foreground flex items-start gap-3">
       <IconLock className="size-5 mt-0.5" />
       <div className="space-y-1">
-        <div className="font-medium text-foreground">Эрхгүй гүйлгээ</div>
+        <div className="font-medium text-foreground">
+          {t('restricted-transaction')}
+        </div>
         <div>
-          Энэ гүйлгээний дансыг унших эрх хүрэхгүй тул мэдээллийг нуусан байна.
+          {t(
+            'this-information-is-hidden-because-you-do-not-have-permission-to-view-the-transaction-account',
+          )}
         </div>
       </div>
     </div>
@@ -177,6 +183,7 @@ export const TransactionsTabsList = ({
 }: {
   form: ITransactionGroupForm;
 }) => {
+  const { t } = useTranslation('accounting');
   const [activeJournal, setActiveJournal] = useAtom(activeJournalState);
   const [isPerfect, setIsPerfect] = useAtom(isPerfectState);
 
@@ -266,8 +273,8 @@ export const TransactionsTabsList = ({
           {fields.map((field, index) => {
             const isHidden = isHiddenTransaction(field);
             const label =
-              TR_JOURNAL_LABELS[field.journal as TrJournalEnum] ||
-              'Эрхгүй гүйлгээ';
+              t(TR_JOURNAL_LABELS[field.journal as TrJournalEnum] || '') ||
+              t('restricted-transaction');
 
             return (
               <Tabs.Trigger
@@ -308,13 +315,13 @@ export const TransactionsTabsList = ({
             )}
             asChild
           >
-            <div>{'Т баланс'}</div>
+            <div>{t('t-account-balance')}</div>
           </Tabs.Trigger>
 
           {!isPerfect && !hasHiddenTransaction && (
             <div className="inline-flex items-center justify-center rounded-sm px-3 text-sm font-medium hover:bg-accent capitalize py-1 gap-2 pr-1 h-8">
               <AddTransaction inForm onClick={handleAddTransaction}>
-                <div>{'+ Шинэ гүйлгээ'}</div>
+                <div>{t('new-transaction')}</div>
               </AddTransaction>
             </div>
           )}
@@ -332,10 +339,10 @@ export const TransactionsTabsList = ({
             }}
             variant="secondary"
           >
-            Баримт хэвлэх
+            {t('print-voucher')}
           </Button>
         ) : (
-          <Button variant="secondary">Гүйлгээний загвар хадгалах</Button>
+          <Button variant="secondary">{t('save-transaction-template')}</Button>
         )}
       </div>
       {fields.map((field, index) => (

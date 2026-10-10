@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
@@ -19,12 +21,12 @@ const PosSelect = ({ posId }: { posId: string }) => {
   return <span>{data?.posDetail?.name || ''}</span>;
 };
 
-export const columns: ColumnDef<IConfig>[] = [
-  ...syncBaseColumns,
+export const columns = (t: TFunction<'accounting'>): ColumnDef<IConfig>[] => [
+  ...syncBaseColumns(t),
   {
     id: 'pos',
     accessorKey: 'pos',
-    header: () => <RecordTable.InlineHead label="POS" />,
+    header: () => <RecordTable.InlineHead label={t('POS')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <PosSelect posId={cell.row.original.value?.posId} />
@@ -33,9 +35,12 @@ export const columns: ColumnDef<IConfig>[] = [
   },
 ];
 
-export const SettingSyncOrderTable = () => (
-  <SyncConfigTable
-    code={ACCOUNTING_SETTINGS_CODES.SYNC_ORDER}
-    columns={columns}
-  />
-);
+export const SettingSyncOrderTable = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <SyncConfigTable
+      code={ACCOUNTING_SETTINGS_CODES.SYNC_ORDER}
+      columns={columns(t)}
+    />
+  );
+};

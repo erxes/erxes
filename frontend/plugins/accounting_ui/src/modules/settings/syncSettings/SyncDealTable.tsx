@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
@@ -5,12 +7,12 @@ import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { IConfig } from '../types/Config';
 import { syncBaseColumns, SyncConfigTable } from './SyncTableShared';
 
-export const columns: ColumnDef<IConfig>[] = [
-  ...syncBaseColumns,
+export const columns = (t: TFunction<'accounting'>): ColumnDef<IConfig>[] => [
+  ...syncBaseColumns(t),
   {
     id: 'board',
     accessorKey: 'board',
-    header: () => <RecordTable.InlineHead label="Board" />,
+    header: () => <RecordTable.InlineHead label={t('board')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <BoardSelect boardId={cell.row.original.value?.boardId} />
@@ -20,7 +22,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'pipeline',
     accessorKey: 'pipeline',
-    header: () => <RecordTable.InlineHead label="Pipeline" />,
+    header: () => <RecordTable.InlineHead label={t('pipeline')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <PipelineSelect pipelineId={cell.row.original.value?.pipelineId} />
@@ -30,7 +32,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'stage',
     accessorKey: 'stage',
-    header: () => <RecordTable.InlineHead label="Stage" />,
+    header: () => <RecordTable.InlineHead label={t('stage')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <StageSelect
@@ -42,9 +44,12 @@ export const columns: ColumnDef<IConfig>[] = [
   },
 ];
 
-export const SettingSyncDealTable = () => (
-  <SyncConfigTable
-    code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL}
-    columns={columns}
-  />
-);
+export const SettingSyncDealTable = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <SyncConfigTable
+      code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL}
+      columns={columns(t)}
+    />
+  );
+};

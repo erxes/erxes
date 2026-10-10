@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Form, Select, Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
@@ -8,12 +9,14 @@ const getFieldLabel = (field: any) => field.name || field.code || field._id;
 export const SyncResponseFieldSelect = ({
   form,
   name = 'responseFieldId',
-  label = 'Sync хариу бичих талбар',
+  label: labelProp,
 }: {
   form: UseFormReturn<any>;
   name?: string;
   label?: string;
 }) => {
+  const { t } = useTranslation('accounting');
+  const label = labelProp ?? t('sync-response-field');
   const { data, loading } = useQuery(DEAL_FIELD_GROUPS_WITH_FIELDS, {
     variables: { contentType: 'sales:deal' },
   });
@@ -41,7 +44,7 @@ export const SyncResponseFieldSelect = ({
             >
               <Select.Trigger>
                 <Select.Value
-                  placeholder={loading ? 'Уншиж байна' : 'Талбар сонгох'}
+                  placeholder={loading ? t('loading-label') : t('select-field')}
                 />
               </Select.Trigger>
               <Select.Content>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   AccountsFilterCurrency,
   AccountsFilterTrJournal,
@@ -23,6 +24,7 @@ import { SelectAccount } from '~/modules/settings/account/components/SelectAccou
 import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 
 const TransactionsFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const queryParams = useTransactionsQueryParams();
   const hasFilters = Object.values(queryParams || {}).some(
     (value) => value !== null,
@@ -36,90 +38,93 @@ const TransactionsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Шүүлтүүр"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Хайх
+                  {t('search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconNumber />
-                  Дугаар
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="date" inDialog>
                   <IconCalendar />
-                  Огноо
+                  {t('date')}
                 </Filter.Item>
-                <SelectBranches.FilterItem value="branchId" label="Салбар" />
+                <SelectBranches.FilterItem
+                  value="branchId"
+                  label={t('branch')}
+                />
                 <SelectDepartments.FilterItem
                   value="departmentId"
-                  label="Хэлтэс"
+                  label={t('department')}
                 />
                 <Filter.Item value="currency">
                   <IconCoins />
-                  Валют
+                  {t('currency')}
                 </Filter.Item>
                 <Filter.Item value="journal">
                   <IconNotebook />
-                  Журнал
+                  {t('journal')}
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
                 <Filter.Item value="statuses">
                   <IconToggleRightFilled />
-                  Төлөв
+                  {t('status')}
                 </Filter.Item>
                 <SelectMember.FilterItem
                   value="mentionOwnerId"
-                  label="Үйлдэгч"
+                  label={t('performed-by')}
                 />
                 <SelectMember.FilterItem
                   value="mentionUserId"
-                  label="Баталгаажуулагч"
+                  label={t('approver')}
                 />
 
                 <Command.Separator className="my-1" />
                 <SelectAccount.FilterItem value="accountIds" />
                 <Filter.Item value="accountKind" disabled={true}>
                   <IconToggleRightFilled />
-                  Дансны төрөл
+                  {t('account-type')}
                 </Filter.Item>
                 <Filter.Item value="accountStatus" disabled={true}>
                   <IconToggleRightFilled />
-                  Дансны төлөв
+                  {t('account-status')}
                 </Filter.Item>
                 <Filter.Item value="accountCategoryId" disabled={true}>
                   <IconLayoutGridAdd />
-                  Дансны ангилал
+                  {t('account-category')}
                 </Filter.Item>
                 <Filter.Item value="accountSearchValue" inDialog>
                   <IconSearch />
-                  Данс хайх
+                  {t('search-accounts')}
                 </Filter.Item>
                 <Filter.Item value="isOutBalance" disabled={true}>
                   <IconToggleRightFilled />
-                  Баланс бус эсэх
+                  {t('off-balance-sheet-account')}
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
                 <SelectMember.FilterItem
                   value="createdUserId"
-                  label="Үүсгэсэн"
+                  label={t('date-type-created')}
                 />
                 <SelectMember.FilterItem
                   value="modifiedUserId"
-                  label="Өөрчилсөн"
+                  label={t('modified')}
                 />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
-                  Өөрчилсөн
+                  {t('modified')}
                 </Filter.Item>
                 <Filter.Item value="createdDate" inDialog>
                   <IconCalendar />
-                  Үүсгэсэн
+                  {t('date-type-created')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -185,6 +190,7 @@ export const TransactionsFilter = ({
 }: {
   afterBar?: React.ReactNode;
 }) => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
     number: string;
     searchValue: string;
@@ -199,7 +205,7 @@ export const TransactionsFilter = ({
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Хайх
+            {t('search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -208,7 +214,7 @@ export const TransactionsFilter = ({
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Дугаар
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -217,17 +223,17 @@ export const TransactionsFilter = ({
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />
-            Огноо
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
         <SelectBranches.FilterBar
-          label="Салбар"
+          label={t('branch')}
           filterKey="branchId"
           mode="single"
         />
         <SelectDepartments.FilterBar
-          label="Хэлтэс"
+          label={t('department')}
           filterKey="departmentId"
           mode="single"
         />
@@ -239,7 +245,7 @@ export const TransactionsFilter = ({
         <Filter.BarItem queryKey="accountSearchValue">
           <Filter.BarName>
             <IconLabelFilled />
-            Данс хайх
+            {t('search-accounts')}
           </Filter.BarName>
           <Filter.BarButton filterKey="accountSearchValue" inDialog>
             {accountSearchValue}
@@ -248,35 +254,35 @@ export const TransactionsFilter = ({
 
         <SelectMember.FilterBar
           queryKey="mentionOwnerId"
-          label="Үйлдэгч"
+          label={t('performed-by')}
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="mentionUserId"
-          label="Баталгаажуулагч"
+          label={t('approver')}
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="createdUserId"
-          label="Үүсгэсэн"
+          label={t('date-type-created')}
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="modifiedUserId"
-          label="Өөрчилсөн"
+          label={t('modified')}
           mode="single"
         />
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />
-            Үүсгэсэн огноо
+            {t('created-date')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDate" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="updatedDate">
           <Filter.BarName>
             <IconCalendar />
-            Өөрчилсөн огноо
+            {t('modified-date')}
           </Filter.BarName>
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>

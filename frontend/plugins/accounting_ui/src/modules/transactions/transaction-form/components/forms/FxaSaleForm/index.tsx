@@ -39,7 +39,7 @@ export const FxaSaleForm = ({
           form={form}
           index={index}
           allDetails
-          labelTxt="Борлуулалтын орлогын данс"
+          labelTxt="sales-revenue-account"
           filter={{
             journals: [JournalEnum.FXA_FOLLOW],
           }}

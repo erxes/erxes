@@ -17,15 +17,15 @@ import { useTranslation } from 'react-i18next';
 import { SelectCategory } from 'ui-modules';
 
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'Шинэ' },
-  { value: 'checked', label: 'Шалгасан' },
+  { value: 'new', label: 'new' },
+  { value: 'checked', label: 'checked-label' },
 ];
 
 const DIFF_OPTIONS = [
-  { value: 'eq', label: 'Тэнцүү' },
-  { value: 'ne', label: 'Ялгаатай' },
-  { value: 'gt', label: 'Илүү' },
-  { value: 'lt', label: 'Дутуу' },
+  { value: 'eq', label: 'equal' },
+  { value: 'ne', label: 'different' },
+  { value: 'gt', label: 'surplus' },
+  { value: 'lt', label: 'shortage' },
 ];
 
 const labelOf = (
@@ -42,6 +42,7 @@ const EnumFilterView = ({
   options: { value: string; label: string }[];
   placeholder: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const [value, setValue] = useQueryState<string>(filterKey);
   const { resetFilterState } = useFilterContext();
 
@@ -59,7 +60,7 @@ const EnumFilterView = ({
                 resetFilterState();
               }}
             >
-              {option.label}
+              {t(option.label || '', { nsSeparator: false })}
               <Combobox.Check checked={value === option.value} />
             </Command.Item>
           ))}
@@ -80,6 +81,7 @@ const EnumFilterBar = ({
   icon: React.ReactNode;
   options: { value: string; label: string }[];
 }) => {
+  const { t } = useTranslation('accounting');
   const [value, setValue] = useQueryState<string>(filterKey);
   const [open, setOpen] = useState(false);
 
@@ -94,7 +96,7 @@ const EnumFilterBar = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey={filterKey}>
-            {labelOf(options, value)}
+            {t(labelOf(options, value))}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -109,7 +111,7 @@ const EnumFilterBar = ({
                     setOpen(false);
                   }}
                 >
-                  {option.label}
+                  {t(option.label || '', { nsSeparator: false })}
                   <Combobox.Check checked={value === option.value} />
                 </Command.Item>
               ))}
@@ -128,12 +130,7 @@ const SafeRemainderDetailFilterPopover = () => {
     status?: string;
     diffType?: string;
     category?: string | string[];
-  }>([
-    'searchValue',
-    'status',
-    'diffType',
-    'category',
-  ]);
+  }>(['searchValue', 'status', 'diffType', 'category']);
   const hasFilters = Object.values(queryParams || {}).some(
     (value) => value !== null && value !== undefined && value !== '',
   );

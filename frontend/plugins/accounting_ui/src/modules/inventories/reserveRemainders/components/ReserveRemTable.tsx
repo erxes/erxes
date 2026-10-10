@@ -15,6 +15,7 @@ import { useReserveRemsRemove } from '../hooks/useReserveRemsRemove';
 import { reserveRemColumns } from './ReserveRemColumns';
 
 const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const { t } = useTranslation('accounting');
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, (_, i) => `skeleton-row-${i}`),
     [rows],
@@ -23,7 +24,7 @@ const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {reserveRemColumns.map((col, colIndex) => (
+          {reserveRemColumns(t).map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -38,6 +39,7 @@ const ReserveRemInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const ReserveRemTable = () => {
+  const { t } = useTranslation('accounting');
   const { reserveRems, loading, totalCount, handleFetchMore } =
     useReserveRems();
 
@@ -46,7 +48,7 @@ export const ReserveRemTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={reserveRemColumns}
+      columns={reserveRemColumns(t)}
       data={isInitialLoading ? [] : reserveRems || []}
       stickyColumns={['more', 'checkbox', 'product']}
       tableId="accounting_inventory_reserve_remainders_record_table"

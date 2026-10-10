@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
@@ -30,72 +31,6 @@ interface ISafeRemainderTableTab {
   filter: (item: ISafeRemainderItem) => boolean;
 }
 
-const TABLE_TABS: ISafeRemainderTableTab[] = [
-  {
-    value: CENSUS_TABS.CENSUS.value,
-    columns: safeRemDetailTableColumns,
-    columnLength: 4,
-    tableId: 'accounting_safe_remainder_census_record_table_v2',
-    showColumnSelector: true,
-    filter: () => true,
-  },
-  {
-    value: CENSUS_TABS.INCOME.value,
-    columns: safeRemDetailColumnsIncome,
-    columnLength: 4,
-    tableId: 'accounting_safe_remainder_income_record_table_v2',
-    showColumnSelector: true,
-    filter: (item) =>
-      getSafeRemainderTransactionTypes(item).includes(
-        SAFE_REMAINDER_TRANSACTION_TYPES.INCOME,
-      ),
-  },
-  {
-    value: CENSUS_TABS.OUT.value,
-    columns: safeRemDetailColumnsOut,
-    columnLength: 4,
-    tableId: 'accounting_safe_remainder_out_record_table_v2',
-    showColumnSelector: true,
-    filter: (item) =>
-      getSafeRemainderTransactionTypes(item).includes(
-        SAFE_REMAINDER_TRANSACTION_TYPES.OUT,
-      ),
-  },
-  {
-    value: CENSUS_TABS.SALE.value,
-    columns: safeRemDetailColumnsSale,
-    columnLength: 6,
-    tableId: 'accounting_safe_remainder_sale_record_table_v2',
-    showColumnSelector: true,
-    filter: (item) =>
-      getSafeRemainderTransactionTypes(item).includes(
-        SAFE_REMAINDER_TRANSACTION_TYPES.SALE,
-      ),
-  },
-  {
-    value: CENSUS_TABS.COST_INCREASE.value,
-    columns: safeRemDetailColumnsCost,
-    columnLength: 1,
-    tableId: 'accounting_safe_remainder_cost_increase_record_table_v2',
-    showColumnSelector: true,
-    filter: (item) =>
-      getSafeRemainderTransactionTypes(item).includes(
-        SAFE_REMAINDER_TRANSACTION_TYPES.COST_INCREASE,
-      ),
-  },
-  {
-    value: CENSUS_TABS.COST_DECREASE.value,
-    columns: safeRemDetailColumnsCost,
-    columnLength: 1,
-    tableId: 'accounting_safe_remainder_cost_decrease_record_table_v2',
-    showColumnSelector: true,
-    filter: (item) =>
-      getSafeRemainderTransactionTypes(item).includes(
-        SAFE_REMAINDER_TRANSACTION_TYPES.COST_DECREASE,
-      ),
-  },
-];
-
 interface ISafeRemainderDetailTabsProps {
   activeTab: string;
   items: ISafeRemainderItem[];
@@ -113,6 +48,73 @@ export const SafeRemainderDetailTabs = ({
   onActiveTabChange,
   onFetchMore,
 }: ISafeRemainderDetailTabsProps) => {
+  const { t } = useTranslation('accounting');
+  const TABLE_TABS: ISafeRemainderTableTab[] = [
+    {
+      value: CENSUS_TABS.CENSUS.value,
+      columns: safeRemDetailTableColumns(t),
+      columnLength: 4,
+      tableId: 'accounting_safe_remainder_census_record_table_v2',
+      showColumnSelector: true,
+      filter: () => true,
+    },
+    {
+      value: CENSUS_TABS.INCOME.value,
+      columns: safeRemDetailColumnsIncome(t),
+      columnLength: 4,
+      tableId: 'accounting_safe_remainder_income_record_table_v2',
+      showColumnSelector: true,
+      filter: (item) =>
+        getSafeRemainderTransactionTypes(item).includes(
+          SAFE_REMAINDER_TRANSACTION_TYPES.INCOME,
+        ),
+    },
+    {
+      value: CENSUS_TABS.OUT.value,
+      columns: safeRemDetailColumnsOut(t),
+      columnLength: 4,
+      tableId: 'accounting_safe_remainder_out_record_table_v2',
+      showColumnSelector: true,
+      filter: (item) =>
+        getSafeRemainderTransactionTypes(item).includes(
+          SAFE_REMAINDER_TRANSACTION_TYPES.OUT,
+        ),
+    },
+    {
+      value: CENSUS_TABS.SALE.value,
+      columns: safeRemDetailColumnsSale(t),
+      columnLength: 6,
+      tableId: 'accounting_safe_remainder_sale_record_table_v2',
+      showColumnSelector: true,
+      filter: (item) =>
+        getSafeRemainderTransactionTypes(item).includes(
+          SAFE_REMAINDER_TRANSACTION_TYPES.SALE,
+        ),
+    },
+    {
+      value: CENSUS_TABS.COST_INCREASE.value,
+      columns: safeRemDetailColumnsCost(t),
+      columnLength: 1,
+      tableId: 'accounting_safe_remainder_cost_increase_record_table_v2',
+      showColumnSelector: true,
+      filter: (item) =>
+        getSafeRemainderTransactionTypes(item).includes(
+          SAFE_REMAINDER_TRANSACTION_TYPES.COST_INCREASE,
+        ),
+    },
+    {
+      value: CENSUS_TABS.COST_DECREASE.value,
+      columns: safeRemDetailColumnsCost(t),
+      columnLength: 1,
+      tableId: 'accounting_safe_remainder_cost_decrease_record_table_v2',
+      showColumnSelector: true,
+      filter: (item) =>
+        getSafeRemainderTransactionTypes(item).includes(
+          SAFE_REMAINDER_TRANSACTION_TYPES.COST_DECREASE,
+        ),
+    },
+  ];
+
   const setHotkeyScope = useSetHotkeyScope();
 
   return (
@@ -135,7 +137,7 @@ export const SafeRemainderDetailTabs = ({
               value={field.value}
               className="capitalize"
             >
-              {field.label}
+              {t(field.label || '', { nsSeparator: false })}
             </ToggleGroup.Item>
           ))}
         </ToggleGroup>

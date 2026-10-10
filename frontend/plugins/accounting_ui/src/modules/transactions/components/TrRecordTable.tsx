@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { RecordTable, useQueryState } from 'erxes-ui';
 import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTrRecords } from '../hooks/useTrRecords';
@@ -9,6 +10,7 @@ const hasInventoryLikeDetails = (journal?: string) =>
   journal?.includes('inv') || journal?.includes('fxa');
 
 export const TrRecordTable = () => {
+  const { t } = useTranslation('accounting');
   const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -17,9 +19,9 @@ export const TrRecordTable = () => {
   const columns = useMemo(
     () =>
       showsInventoryDetails
-        ? trRecordColumns
-        : trRecordColumns.filter((column) => !column.id?.includes('inv')),
-    [showsInventoryDetails],
+        ? trRecordColumns(t)
+        : trRecordColumns(t).filter((column) => !column.id?.includes('inv')),
+    [showsInventoryDetails, t],
   );
 
   return (

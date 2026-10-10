@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ADJUST_DEBT_RATE_ADD } from '../graphql/adjustDebtRateAdd';
 import { toast } from 'erxes-ui';
 import { ADJUST_DEBT_RATE_QUERY } from '../graphql/adjustDebtRateQueries';
 
 export const useAdjustDebtRateAdd = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
   const [_addAdjustDebtRate, { loading }] = useMutation(
     ADJUST_DEBT_RATE_ADD,
     options,
@@ -14,7 +16,7 @@ export const useAdjustDebtRateAdd = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -22,8 +24,8 @@ export const useAdjustDebtRateAdd = (options?: OperationVariables) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Debt Rate Adjustment created successfully',
+          title: t('success'),
+          description: t('Debt Rate Adjustment created successfully'),
         });
         options?.onCompleted?.(data);
       },

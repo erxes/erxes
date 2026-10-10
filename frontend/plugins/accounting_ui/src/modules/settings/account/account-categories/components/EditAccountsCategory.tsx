@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
@@ -73,6 +74,7 @@ export const EditAccountCategoryForm = ({
 };
 
 export const EditAccountCategory = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useQueryState<string>('accountCategoryId');
   return (
     <Sheet
@@ -81,7 +83,7 @@ export const EditAccountCategory = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <AccountingSheet title="Дансны ангилал засах">
+      <AccountingSheet title={t('edit-account-category')}>
         <EditAccountCategoryForm onClose={() => setOpen(null)} />
       </AccountingSheet>
     </Sheet>

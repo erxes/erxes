@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
@@ -59,6 +60,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
 };
 
 export const EditCtaxRow = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useQueryState<string>('ctax_row_id');
   return (
     <Sheet
@@ -67,7 +69,7 @@ export const EditCtaxRow = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <AccountingSheet title="НХАТ-ын мөр засах">
+      <AccountingSheet title={t('edit-city-tax-row')}>
         <EditCtaxRowForm onClose={() => setOpen(null)} />
       </AccountingSheet>
     </Sheet>

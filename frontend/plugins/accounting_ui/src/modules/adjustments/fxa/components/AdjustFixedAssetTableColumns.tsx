@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import { IconCalendar, IconFile, IconProgressCheck } from '@tabler/icons-react';
 import dayjs from 'dayjs';
@@ -17,7 +18,9 @@ const MoreColumnCell = ({ row }: { row: { original: IAdjustFixedAsset } }) => (
   </Link>
 );
 
-export const adjustFixedAssetTableColumns: ColumnDef<IAdjustFixedAsset>[] = [
+export const adjustFixedAssetTableColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAdjustFixedAsset>[] => [
   {
     id: 'more',
     cell: MoreColumnCell,
@@ -25,13 +28,17 @@ export const adjustFixedAssetTableColumns: ColumnDef<IAdjustFixedAsset>[] = [
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     accessorKey: 'date',
     cell: ({ getValue }) => <DateCell value={getValue<Date>()} />,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
     accessorKey: 'description',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -43,11 +50,11 @@ export const adjustFixedAssetTableColumns: ColumnDef<IAdjustFixedAsset>[] = [
   {
     id: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconProgressCheck} label="Төлөв" />
+      <RecordTable.InlineHead icon={IconProgressCheck} label={t('status')} />
     ),
     accessorKey: 'status',
     cell: ({ getValue }) => (
-      <RecordTableInlineCell>{getValue<string>()}</RecordTableInlineCell>
+      <RecordTableInlineCell>{t(getValue<string>())}</RecordTableInlineCell>
     ),
   },
 ];

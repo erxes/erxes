@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
@@ -11,6 +12,7 @@ import { TFixedAssetCategoryForm } from '../types/FixedAsset';
 import { FixedAssetCategoryForm } from './FixedAssetCategoryForm';
 
 export const AddFixedAssetCategory = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,11 +20,11 @@ export const AddFixedAssetCategory = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Бүлэг нэмэх
+          {t('add-category')}
         </Button>
       </Sheet.Trigger>
       <AccountingSheet
-        title="Үндсэн хөрөнгийн бүлэг нэмэх"
+        title={t('add-fixed-asset-category')}
         className="md:max-w-4xl"
       >
         <AddFixedAssetCategoryForm setOpen={setOpen} />

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   MoreActionsCell,
@@ -48,16 +49,18 @@ export const ctaxRowMoreColumn = {
   cell: CtaxMoreColumnCell,
 };
 
-export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = getSharedRowColumns(
-  ctaxRowMoreColumn as ColumnDef<ICtaxRow>,
-);
+export const ctaxRowsColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ICtaxRow>[] =>
+  getSharedRowColumns(ctaxRowMoreColumn as ColumnDef<ICtaxRow>, t);
 
 export const CtaxRowsTable = () => {
+  const { t } = useTranslation('accounting');
   const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
 
   return (
     <SettingsRowsTable
-      columns={ctaxRowsColumns}
+      columns={ctaxRowsColumns(t)}
       data={ctaxRows || []}
       loading={loading}
       totalCount={totalCount}
