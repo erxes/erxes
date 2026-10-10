@@ -32,6 +32,9 @@ const NOISE_PATTERNS: RegExp[] = [
   /Non-Error promise rejection captured/i,
   /Network request failed/i,
   /Load failed/i,
+  // WebSocket close events from graphql-ws subscriptions are expected network
+  // churn and are handled by the client's retry logic.
+  /CloseEvent/i,
   // expected business/auth conditions (kept in sync with the backend classifier)
   /login required/i,
   /permission required/i,
