@@ -6,9 +6,11 @@ import { useToast } from 'erxes-ui';
 import { CreateOwner } from '@/organization/owner/graphql/mutation/createOwner';
 import { CreateOwnerFormType } from '@/organization/owner/hooks/useCreateOwnerForm';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const useCreateOwner = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('organization', { keyPrefix: 'create-owner' });
 
   const [createOwnerMutation] = useMutation(CreateOwner);
   const [currentOrganization, setCurrentOrganization] = useAtom(
@@ -19,8 +21,8 @@ export const useCreateOwner = () => {
     await createOwnerMutation({ variables: input })
       .then(() => {
         toast({
-          title: 'Success',
-          description: 'Owner has been created successfully',
+          title: t('success'),
+          description: t('owner-created'),
           variant: 'success',
         });
 
@@ -30,7 +32,7 @@ export const useCreateOwner = () => {
       })
       .catch((e) => {
         toast({
-          title: 'Uh oh! Something went wrong.',
+          title: t('something-went-wrong'),
           description: e.message,
           variant: 'destructive',
         });

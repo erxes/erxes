@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { IconBuilding } from '@tabler/icons-react';
 import { Empty, RecordTable } from 'erxes-ui';
 import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
@@ -12,13 +13,14 @@ export function ClientPortalRecordTable() {
   const { clientPortals, loading, error } = useClientPortals();
   const isAddingClientPortal = useAtomValue(addingClientPortalAtom);
   const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
+  const columns = useMemo(() => clientPortalColumns(t), [t]);
 
   const isEmpty = !loading && !error && !clientPortals?.length;
 
   return (
     <RecordTable.Provider
       data={clientPortals || []}
-      columns={clientPortalColumns}
+      columns={columns}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
     >

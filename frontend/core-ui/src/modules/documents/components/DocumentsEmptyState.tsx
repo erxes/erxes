@@ -11,7 +11,7 @@ export function DocumentsEmptyState({
   hasFilters,
   onClearFilters,
 }: DocumentsEmptyStateProps) {
-  const { t } = useTranslation('documents');
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
 
   return (
     <Empty className="h-full min-h-[400px] border-0 bg-transparent">

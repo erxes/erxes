@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, cn, Empty, useMultiQueryState } from 'erxes-ui';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 /**
  * An empty list because of a filter needs the filter loosened; an empty list
@@ -19,6 +20,7 @@ export const EmailTemplatesEmptyState = ({
 }: {
   className?: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const [queries] = useMultiQueryState<{ searchValue: string }>([
     'searchValue',
   ]);
@@ -30,13 +32,9 @@ export const EmailTemplatesEmptyState = ({
         <Empty.Media variant="icon">
           {isFiltered ? <IconSearchOff /> : <IconMail />}
         </Empty.Media>
-        <Empty.Title>
-          {isFiltered ? 'No template matches' : 'No email templates yet'}
-        </Empty.Title>
+        <Empty.Title>{isFiltered ? t('no-match') : t('none-yet')}</Empty.Title>
         <Empty.Description>
-          {isFiltered
-            ? 'Try a different search, or clear the filter.'
-            : 'Write one once and reuse it in campaigns and automations.'}
+          {isFiltered ? t('try-different-search') : t('write-one-once')}
         </Empty.Description>
       </Empty.Header>
       {!isFiltered && (
@@ -44,7 +42,7 @@ export const EmailTemplatesEmptyState = ({
           <Button asChild>
             <Link to={EmailTemplatePath.Create}>
               <IconPlus />
-              Create template
+              {t('create-template')}
             </Link>
           </Button>
         </Empty.Content>

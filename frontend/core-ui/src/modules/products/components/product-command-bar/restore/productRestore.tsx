@@ -4,6 +4,7 @@ import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useCallback, type ReactNode } from 'react';
 import { Can } from 'ui-modules';
 import { useRestoreProducts } from '@/products/product-detail/hooks/useRestoreProduct';
+import { useTranslation } from 'react-i18next';
 
 export const ProductsRestore = ({
   productIds,
@@ -16,6 +17,7 @@ export const ProductsRestore = ({
   const { restoreProducts, loading } = useRestoreProducts();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('product');
 
   const disabled = loading || !productIds?.length;
 
@@ -26,22 +28,20 @@ export const ProductsRestore = ({
 
     try {
       await confirm({
-        message: `Are you sure you want to restore the ${
-          productIds.length
-        } selected product${productIds.length === 1 ? '' : 's'}?`,
+        message: t('confirm-restore-selected', { count: productIds.length }),
       });
 
       await restoreProducts(productIds, {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Products restored successfully',
+            title: t('products-restored'),
             variant: 'success',
           });
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -50,7 +50,7 @@ export const ProductsRestore = ({
     } catch {
       // User cancelled the confirmation
     }
-  }, [disabled, confirm, productIds, restoreProducts, toast, table]);
+  }, [disabled, confirm, productIds, restoreProducts, toast, table, t]);
 
   if (children) {
     return (
@@ -69,7 +69,7 @@ export const ProductsRestore = ({
         disabled={disabled}
       >
         <IconRestore />
-        Restore
+        {t('restore')}
       </Button>
     </Can>
   );

@@ -5,8 +5,10 @@ import { IconPlus, IconTerminal2 } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { addingClientPortalAtom } from '@/client-portal/state';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalHeader = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const [isAddingClientPortal, setIsAddingClientPortal] = useAtom(
     addingClientPortalAtom,
   );
@@ -28,7 +30,7 @@ export const ClientPortalHeader = () => {
               <Button variant="ghost" asChild>
                 <Link to="/settings/client-portals">
                   <IconTerminal2 />
-                  Client portal
+                  {t('client-portal')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -42,7 +44,7 @@ export const ClientPortalHeader = () => {
             onClick={() => setIsAddingClientPortal(true)}
           >
             <IconPlus />
-            Create Client Portal
+            {t('create-client-portal-button')}
             <Kbd>C</Kbd>
           </Button>
         </Can>

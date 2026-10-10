@@ -8,15 +8,15 @@ import { PASSWORD_REGEX } from 'erxes-ui';
 export const PURPOSE_OPTIONS = [
   {
     value: 'manage a personal project',
-    label: 'Manage a personal project',
+    labelKey: 'purpose-personal-project',
   },
   {
     value: 'manage an internal company use case',
-    label: 'Manage an internal company use case',
+    labelKey: 'purpose-internal-company',
   },
   {
     value: 'attract new businesses',
-    label: 'Attract new businesses',
+    labelKey: 'purpose-attract-businesses',
   },
 ];
 

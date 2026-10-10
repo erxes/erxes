@@ -32,6 +32,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 const emailTemplateFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -69,6 +70,7 @@ const uploadEmailTemplateImage = async (file: File) => {
  * converted, so nothing is lost.
  */
 export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEditing = !!templateId;
@@ -175,7 +177,7 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
 
       toast({
         variant: 'success',
-        title: isEditing ? 'Email template saved' : 'Email template created',
+        title: isEditing ? t('saved') : t('created'),
       });
 
       navigate(EmailTemplatePath.Index);
@@ -203,7 +205,7 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
         <PageHeaderEnd>
           <Button onClick={handleSave} disabled={saving}>
             <IconDeviceFloppy className="size-4" />
-            {saving ? 'Saving...' : 'Save template'}
+            {saving ? t('saving') : t('save-template')}
           </Button>
         </PageHeaderEnd>
       </PageHeader>
@@ -220,10 +222,10 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
               )}
             >
               <span className="truncate font-medium">
-                {form.watch('name') || 'Untitled template'}
+                {form.watch('name') || t('untitled-template')}
               </span>
               <span className="truncate text-sm text-muted-foreground">
-                {form.watch('description') || 'Add a description'}
+                {form.watch('description') || t('add-description')}
               </span>
             </button>
           </Popover.Trigger>
@@ -233,9 +235,9 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
-                    <Input placeholder="Template name" {...field} />
+                    <Input placeholder={t('name-placeholder')} {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -246,10 +248,10 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description')}</Form.Label>
                   <Form.Control>
                     <Textarea
-                      placeholder="What this template is for"
+                      placeholder={t('description-placeholder')}
                       {...field}
                     />
                   </Form.Control>
@@ -266,7 +268,7 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
             onClick={() => setIsPreviewOpen((open) => !open)}
           >
             {isPreviewOpen ? <IconEyeOff /> : <IconEye />}
-            {isPreviewOpen ? 'Hide preview' : 'Preview'}
+            {isPreviewOpen ? t('hide-preview') : t('preview')}
           </Button>
         </div>
       </PageSubHeader>
@@ -298,7 +300,7 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
         {isPreviewOpen && (
           <aside className="flex w-[45%] min-w-0 shrink-0 flex-col border-l bg-background">
             <div className="flex h-10 shrink-0 items-center justify-between border-b pl-4 pr-2 font-mono text-xs uppercase text-accent-foreground">
-              Preview
+              {t('preview')}
               <EmailPreviewDeviceToggle
                 value={previewDevice}
                 onChange={setPreviewDevice}

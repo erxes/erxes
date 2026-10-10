@@ -10,13 +10,14 @@ import {
 } from 'ui-modules';
 
 import { IDocument } from '../types';
+import { useTranslation } from 'react-i18next';
 
 const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
-  'core:contact.customer': 'Customer',
-  'core:contact.company': 'Company',
-  'core:product': 'Product',
-  'core:user': 'Team member',
-  'core:broadcast': 'Customer',
+  'core:contact.customer': 'customer',
+  'core:contact.company': 'company',
+  'core:product': 'product',
+  'core:user': 'team-member',
+  'core:broadcast': 'customer',
 };
 
 type ReplacerValue = string | string[] | null;
@@ -98,16 +99,19 @@ function DocumentPrintDialogContent({
   replacerLabel,
   setReplacerId,
 }: DocumentPrintDialogContentProps) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+
   return (
     <Dialog.Content
       className="max-w-md"
       onClick={(event) => event.stopPropagation()}
     >
       <Dialog.Header>
-        <Dialog.Title>Print document</Dialog.Title>
+        <Dialog.Title>{t('print-document')}</Dialog.Title>
         <Dialog.Description>
-          Select a {replacerLabel.toLowerCase()} to fill this document with its
-          attributes.
+          {t('select-replacer-description', {
+            label: replacerLabel.toLowerCase(),
+          })}
         </Dialog.Description>
       </Dialog.Header>
 
@@ -122,11 +126,11 @@ function DocumentPrintDialogContent({
 
       <Dialog.Footer>
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('cancel')}
         </Button>
         <Button type="button" disabled={!replacerId} onClick={onContinue}>
           <IconPrinter />
-          Print
+          {t('print')}
         </Button>
       </Dialog.Footer>
     </Dialog.Content>
@@ -142,12 +146,14 @@ export function DocumentPrintDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [replacerId, setReplacerId] = useState('');
   const [printReplacerId, setPrintReplacerId] = useState('');
   const [printOpen, setPrintOpen] = useState(false);
 
-  const replacerLabel =
-    DOCUMENT_REPLACER_LABELS[documentItem.contentType] || 'Record';
+  const replacerLabel = t(
+    DOCUMENT_REPLACER_LABELS[documentItem.contentType] || 'record',
+  );
 
   function handleOpenChange(nextOpen: boolean) {
     onOpenChange(nextOpen);

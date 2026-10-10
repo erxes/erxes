@@ -1,23 +1,24 @@
 import { IconBox, IconDeviceMobile, IconMail } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
 import { useNotificationSettingsContext } from '../context/NotificationSettingsProvider';
+import { useTranslation } from 'react-i18next';
 
 const NOTIFICATION_CHANNELS = [
   {
     key: 'email',
-    label: 'Email',
+    labelKey: 'channel-email',
     icon: IconMail,
     available: true,
   },
   {
     key: 'mobile',
-    label: 'Mobile',
+    labelKey: 'channel-mobile',
     icon: IconDeviceMobile,
     available: false,
   },
   {
     key: 'other',
-    label: 'Other',
+    labelKey: 'channel-other',
     icon: IconBox,
     available: false,
   },
@@ -25,7 +26,7 @@ const NOTIFICATION_CHANNELS = [
 
 type NotificationChannel = {
   key: string;
-  label: string;
+  labelKey: string;
   icon: any;
   available: boolean;
 };
@@ -35,16 +36,19 @@ const ChannelChip = ({
 }: {
   channel: (typeof NOTIFICATION_CHANNELS)[0];
 }) => {
-  const { key, label, icon: Icon, available } = channel;
+  const { key, labelKey, icon: Icon, available } = channel;
 
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const { plugin, toggleChannel } = useNotificationSettingsContext();
 
   if (!available) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-border border-dashed rounded text-[11px] text-muted-foreground/40 cursor-default select-none">
         <Icon size={11} strokeWidth={1.5} />
-        {label}
-        <span className="font-medium text-[9px] tracking-wide">soon</span>
+        {t(labelKey)}
+        <span className="font-medium text-[9px] tracking-wide">
+          {t('soon')}
+        </span>
       </span>
     );
   }
@@ -63,7 +67,7 @@ const ChannelChip = ({
       )}
     >
       <Icon size={10} />
-      {label}
+      {t(labelKey)}
     </Button>
   );
 };

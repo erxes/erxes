@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_TOKI_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   clientPortal: IClientPortal;
 }
 
 export function ClientPortalDetailToki({ clientPortal }: Props) {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const form = useForm<ReturnType<(typeof CLIENTPORTAL_TOKI_SCHEMA)['parse']>>({
     resolver: zodResolver(CLIENTPORTAL_TOKI_SCHEMA),
     defaultValues: {
@@ -53,10 +55,10 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
           name="merchantId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Toki Merchant ID</Form.Label>
+              <Form.Label>{t('toki-merchant-id')}</Form.Label>
               <Input {...field} autoComplete="off" />
               <Form.Description>
-                Your Toki Client ID (provided by Toki)
+                {t('toki-merchant-id-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -67,10 +69,10 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
           name="apiKey"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Toki API Key</Form.Label>
+              <Form.Label>{t('toki-api-key')}</Form.Label>
               <Input {...field} type="password" autoComplete="off" />
               <Form.Description>
-                Your Toki API Key (provided by Toki)
+                {t('toki-api-key-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -81,10 +83,10 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
           name="username"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Toki Username</Form.Label>
+              <Form.Label>{t('toki-username')}</Form.Label>
               <Input {...field} autoComplete="off" />
               <Form.Description>
-                Your Toki Username (provided by Toki)
+                {t('toki-username-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -95,10 +97,10 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
           name="password"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Toki Password</Form.Label>
+              <Form.Label>{t('toki-password')}</Form.Label>
               <Input {...field} type="password" autoComplete="new-password" />
               <Form.Description>
-                Your Toki Password (provided by Toki)
+                {t('toki-password-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -111,7 +113,7 @@ export function ClientPortalDetailToki({ clientPortal }: Props) {
           disabled={loading}
         >
           {loading && <Spinner containerClassName="w-auto flex-none" />}
-          Save
+          {t('save')}
         </Button>
       </form>
     </Form>

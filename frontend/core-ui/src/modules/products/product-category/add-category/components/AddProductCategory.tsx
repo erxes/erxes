@@ -13,12 +13,16 @@ import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm'
 import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
 import { ProductCategoryAddMoreFields } from './CategoryAddMoreFields';
 import { useAddCategory } from '../hooks/useAddCategory';
+import { useTranslation } from 'react-i18next';
 
 export function AddCategoryForm({
   onOpenChange,
 }: {
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   const { productCategoriesAdd, loading: editLoading } = useAddCategory();
   const [attachment, setAttachment] = useState<ProductAttachmentItem | null>(
     null,
@@ -66,15 +70,15 @@ export function AddCategoryForm({
       },
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Category added successfully',
+          title: t('success'),
+          description: t('category-added'),
         });
         form.reset();
         setAttachment(null);
@@ -118,14 +122,14 @@ export function AddCategoryForm({
             className="bg-background hover:bg-background/90"
             onClick={handleCancel}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={editLoading}
           >
-            {editLoading ? 'Saving...' : 'Save'}
+            {editLoading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </form>

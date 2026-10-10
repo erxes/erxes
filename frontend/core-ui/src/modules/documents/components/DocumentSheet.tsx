@@ -7,8 +7,10 @@ import { ApprovalLockButton } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 import { useDocument } from '../hooks/useDocument';
+import { useTranslation } from 'react-i18next';
 
 export const DocumentSheet = () => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [documentId, setDocumentId] = useQueryState<string>('documentId');
   const [contentType] = useQueryState<string>('contentType');
 
@@ -43,7 +45,7 @@ export const DocumentSheet = () => {
           setValue('contentType', contentType);
         }}
       >
-        Add Document
+        {t('add-document')}
       </Button>
     );
   }
@@ -67,9 +69,8 @@ export const DocumentSheet = () => {
               })
               .catch(() => {
                 toast({
-                  title: 'Could not refresh document access',
-                  description:
-                    'Reload the page to see the latest access state.',
+                  title: t('refresh-access-failed'),
+                  description: t('refresh-access-failed-description'),
                   variant: 'destructive',
                 });
               });
@@ -80,7 +81,7 @@ export const DocumentSheet = () => {
         onClick={handleSubmit(submitHandler)}
         disabled={!hasChanges || loading || hasError}
       >
-        Save Document
+        {t('save-document')}
       </Button>
     </div>
   );

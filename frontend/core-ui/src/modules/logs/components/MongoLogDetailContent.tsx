@@ -3,6 +3,7 @@ import { Badge } from 'erxes-ui';
 import { ILogDoc } from '../types';
 import { maskFields } from '../utils/logFormUtils';
 import { LogDetailJsonPanel, LogDetailSection } from './LogDetailPrimitives';
+import { useTranslation } from 'react-i18next';
 
 interface IMongoLogPayload {
   collectionName?: string;
@@ -28,19 +29,21 @@ function MongoUpdateLogDetailContent({
 }: {
   payload: IMongoLogPayload;
 }) {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const { updateDescription } = payload;
 
   return (
     <LogDetailJsonPanel
-      title="Change Set"
-      description="Updated fields, removed fields, and array truncations."
+      title={t('change-set')}
+      description={t('change-set-description')}
       src={maskFields(updateDescription, ['password'])}
-      emptyMessage="No field-level diff was captured for this update."
+      emptyMessage={t('no-diff')}
     />
   );
 }
 
 export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const mongoPayload = (payload || {}) as IMongoLogPayload;
   const { collectionName, fullDocument } = mongoPayload;
   const actionLabel = formatLabel(action);
@@ -49,11 +52,14 @@ export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
 
   return (
     <LogDetailSection
-      title={action === 'update' ? 'Changes' : 'Document Snapshot'}
+      title={action === 'update' ? t('changes') : t('document-snapshot')}
       description={
         collectionName
-          ? `${actionLabel} event captured for ${collectionLabel}.`
-          : 'Mongo document change captured by the log service.'
+          ? t('event-captured', {
+              action: actionLabel,
+              collection: collectionLabel,
+            })
+          : t('mongo-change-captured')
       }
       icon={IconDatabase}
     >
@@ -75,10 +81,10 @@ export const MongoLogDetailContent = ({ payload, action }: ILogDoc) => {
         <MongoUpdateLogDetailContent payload={mongoPayload} />
       ) : (
         <LogDetailJsonPanel
-          title={action === 'delete' ? 'Removed Document' : 'Document'}
-          description="Snapshot stored with this Mongo change event."
+          title={action === 'delete' ? t('removed-document') : t('document')}
+          description={t('snapshot-description')}
           src={currentDocument}
-          emptyMessage="No document snapshot was captured for this event."
+          emptyMessage={t('no-snapshot')}
         />
       )}
     </LogDetailSection>

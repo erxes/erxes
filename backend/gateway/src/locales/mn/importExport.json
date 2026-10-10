@@ -159,5 +159,7 @@
   "entity-leads": "Потенциал харилцагчид",
   "entity-companies": "Компаниуд",
   "entity-product": "Бүтээгдэхүүн",
-  "entity-users": "Багийн гишүүд"
+  "entity-users": "Багийн гишүүд",
+  "exports": "Экспортууд",
+  "imports": "Импортууд"
 }

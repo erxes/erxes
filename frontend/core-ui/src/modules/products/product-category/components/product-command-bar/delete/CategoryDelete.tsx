@@ -182,14 +182,11 @@ export const CategoriesDelete = ({
       }
     }
 
-    const deletableCategoryLabel =
-      deletableCategoryCount === 1 ? 'category' : 'categories';
-
     confirm({
       message:
         categoryCount === 1
-          ? 'Are you sure you want to delete this category?'
-          : `Are you sure you want to delete the ${deletableCategoryCount} empty ${deletableCategoryLabel}?`,
+          ? t('confirm-delete-one')
+          : t('confirm-delete-many', { count: deletableCategoryCount }),
       options: CONFIRM_OPTIONS,
     })
       .then(() => {
@@ -198,16 +195,19 @@ export const CategoriesDelete = ({
             const failedCount = deletableCategoryCount - succeededIds.length;
             const failureReason =
               failedCount === 1
-                ? errors[0]?.message || 'Failed to delete category.'
+                ? errors[0]?.message || t('failed-delete-one')
                 : errors.map(({ message }) => message).join(' ') ||
-                  'Failed to delete categories.';
+                  t('failed-delete-many');
             const partialSuccess =
               succeededIds.length > 0
-                ? `${succeededIds.length} deleted, ${failedCount} failed. `
+                ? t('partial-success', {
+                    succeeded: succeededIds.length,
+                    failed: failedCount,
+                  })
                 : '';
 
             toast({
-              title: 'Error',
+              title: t('error'),
               description: `${partialSuccess}${failureReason}`,
               variant: 'destructive',
             });
@@ -216,10 +216,8 @@ export const CategoriesDelete = ({
             const succeededCount = succeededIds.length;
 
             toast({
-              title: 'Success',
-              description: `${succeededCount} ${
-                succeededCount === 1 ? 'category' : 'categories'
-              } deleted successfully.`,
+              title: t('success'),
+              description: t('deleted-success', { count: succeededCount }),
               variant: 'success',
             });
 
@@ -260,7 +258,7 @@ export const CategoriesDelete = ({
         disabled={disabled}
       >
         <IconTrash />
-        Delete
+        {t('delete')}
       </Button>
     </Can>
   );

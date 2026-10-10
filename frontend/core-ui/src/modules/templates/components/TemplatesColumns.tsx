@@ -2,6 +2,7 @@ import { templateMoreColumn } from '@/templates/components/TemplateMoreCell';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { IconLabelFilled } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Badge,
   RecordTable,
@@ -11,15 +12,16 @@ import {
 import { IUser, MembersInline } from 'ui-modules';
 import { TemplateCategoriesInline } from 'ui-modules/modules/templates/components/TemplateCategoryInline';
 import { useTemplateTypes } from '../hooks/useTemplateTypes';
+import { useTranslation } from 'react-i18next';
 
-export const templateColumns: ColumnDef<any>[] = [
+export const templateColumns = (t: TFunction): ColumnDef<any>[] => [
   templateMoreColumn,
   RecordTable.checkboxColumn,
   {
     id: 'name',
     accessorKey: 'name',
     header: () => (
-      <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       return (
@@ -33,7 +35,7 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'contentType',
     accessorKey: 'contentType',
     header: () => (
-      <RecordTable.InlineHead label="Type" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('type')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       const { templateTypes } = useTemplateTypes();
@@ -55,7 +57,7 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'categories',
     accessorKey: 'categories',
     header: () => (
-      <RecordTable.InlineHead label="Category" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('category')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       const categories = (cell.getValue() || []) as TemplateCategory[];
@@ -64,7 +66,7 @@ export const templateColumns: ColumnDef<any>[] = [
         <RecordTableInlineCell>
           <TemplateCategoriesInline
             categories={categories}
-            placeholder="No Category"
+            placeholder={t('no-category')}
           />
         </RecordTableInlineCell>
       );
@@ -74,18 +76,18 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'createdBy',
     accessorKey: 'createdBy',
     header: () => (
-      <RecordTable.InlineHead label="Created By" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('created-by')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       const member = cell.getValue() as IUser;
 
       if (!member) {
-        return <RecordTableInlineCell>Import</RecordTableInlineCell>;
+        return <RecordTableInlineCell>{t('import')}</RecordTableInlineCell>;
       }
 
       return (
         <RecordTableInlineCell>
-          <MembersInline members={[member]} placeholder="No Member" />
+          <MembersInline members={[member]} placeholder={t('no-member')} />
         </RecordTableInlineCell>
       );
     },
@@ -95,7 +97,7 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('created-at')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       return (
@@ -111,14 +113,17 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'updatedBy',
     accessorKey: 'updatedBy',
     header: () => (
-      <RecordTable.InlineHead label="Updated By" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('updated-by')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       const member = (cell.getValue() || {}) as IUser;
 
       return (
         <RecordTableInlineCell>
-          <MembersInline members={[member]} placeholder="Not updated yet" />
+          <MembersInline
+            members={[member]}
+            placeholder={t('not-updated-yet')}
+          />
         </RecordTableInlineCell>
       );
     },
@@ -127,13 +132,15 @@ export const templateColumns: ColumnDef<any>[] = [
     id: 'updatedAt',
     accessorKey: 'updatedAt',
     header: () => (
-      <RecordTable.InlineHead label="Updated At" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('updated-at')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       const updatedBy = cell.row.original.updatedBy || undefined;
 
       if (!updatedBy) {
-        return <MembersInline placeholder="Not updated yet" className="px-3" />;
+        return (
+          <MembersInline placeholder={t('not-updated-yet')} className="px-3" />
+        );
       }
 
       return (

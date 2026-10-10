@@ -2,6 +2,7 @@ import { TEMPLATE_CATEGORY_UPDATE } from '@/templates/graphql/mutations';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { QUERY_TEMPLATE_CATEGORIES } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export interface ITemplateCategoryEdit {
   _id?: string;
@@ -31,6 +32,7 @@ export interface ITemplateCategoryEditResponse {
 }
 
 export const useTemplateCategoryEdit = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
   const [mutate, { loading }] = useMutation<
     ITemplateCategoryEditResponse,
     ITemplateCategoryEdit
@@ -55,8 +57,8 @@ export const useTemplateCategoryEdit = () => {
           onCompleted(data);
         }
         toast({
-          title: 'Success',
-          description: 'Category updated successfully',
+          title: t('success'),
+          description: t('update-success'),
           variant: 'default',
         });
       },
@@ -65,7 +67,7 @@ export const useTemplateCategoryEdit = () => {
           onError(error);
         }
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

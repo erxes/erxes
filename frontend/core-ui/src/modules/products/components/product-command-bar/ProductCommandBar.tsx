@@ -91,7 +91,9 @@ export const ProductCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {t('selected', { count: selectedRows.length })}
+        </CommandBar.Value>
         <Can action="productsExportManage">
           <Separator.Inline />
           <Export
@@ -106,7 +108,7 @@ export const ProductCommandBar = () => {
           <Separator.Inline />
           <Button variant="secondary">
             <IconPlus />
-            Create
+            {t('create')}
           </Button>
         </Can>
         <Separator.Inline />
@@ -204,7 +206,7 @@ export const ProductCommandBar = () => {
                     ),
                   onError: (e: ApolloError) => {
                     toast({
-                      title: 'Error',
+                      title: t('error'),
                       description: e.message,
                       variant: 'destructive',
                     });

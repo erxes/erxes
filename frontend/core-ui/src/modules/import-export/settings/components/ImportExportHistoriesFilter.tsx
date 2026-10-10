@@ -22,7 +22,7 @@ const StatusBarItem = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconProgressCheck />
-        Status
+        {t('status')}
       </Filter.BarName>
       <Popover>
         <Popover.Trigger>

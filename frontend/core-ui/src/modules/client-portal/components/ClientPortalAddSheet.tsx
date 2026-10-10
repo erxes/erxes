@@ -22,8 +22,10 @@ import { SubmitHandler } from 'react-hook-form';
 import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { useNavigate } from 'react-router-dom';
 import { Can, usePermissionCheck } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const CreateClientPortalSheet = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const { toast } = useToast();
   const { clientPortalAdd, loading } = useCreateClientPortal();
   const {
@@ -71,9 +73,9 @@ export const CreateClientPortalSheet = () => {
         variables: data,
         onCompleted: (data) => {
           toast({
-            title: 'Success!',
+            title: t('success-exclamation'),
             variant: 'success',
-            description: 'Client portal created successfully',
+            description: t('client-portal-created'),
           });
           navigate(`${data.clientPortalAdd._id}`);
         },
@@ -88,7 +90,7 @@ export const CreateClientPortalSheet = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create client portal
+            {t('create-client-portal')}
             <Kbd>C</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -101,7 +103,7 @@ export const CreateClientPortalSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>Create client portal</Sheet.Title>
+              <Sheet.Title>{t('create-client-portal')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -113,9 +115,11 @@ export const CreateClientPortalSheet = () => {
                 onClick={onClose}
                 disabled={loading}
               >
-                Cancel
+                {t('cancel')}
               </Button>
-              <Button type="submit">{loading ? <Spinner /> : 'Create'}</Button>
+              <Button type="submit">
+                {loading ? <Spinner /> : t('create')}
+              </Button>
             </Sheet.Footer>
           </form>
         </Form>

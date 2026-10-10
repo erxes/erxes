@@ -8,5 +8,23 @@
   "dark": "Dark",
   "light": "Light",
   "system": "System",
-  "version": "Version"
+  "version": "Version",
+  "create-owner": {
+    "enter-email": "Enter email",
+    "enter-first-name": "Enter first name",
+    "enter-last-name": "Enter last name",
+    "enter-password": "Enter password",
+    "confirm-password": "Confirm password",
+    "select-purpose": "Select purpose",
+    "subscribe-to-email-updates": "Subscribe to email updates",
+    "create-owner": "Create Owner",
+    "purpose-personal-project": "Manage a personal project",
+    "purpose-internal-company": "Manage an internal company use case",
+    "purpose-attract-businesses": "Attract new businesses",
+    "success": "Success",
+    "owner-created": "Owner has been created successfully",
+    "something-went-wrong": "Uh oh! Something went wrong.",
+    "initial-configuration-steps": "Initial Configuration Steps",
+    "fill-out-form": "Please fill out the following form to complete your installation"
+  }
 }

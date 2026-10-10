@@ -9,39 +9,39 @@ import {
 
 interface DocumentTypeConfig {
   icon: React.ElementType;
-  label: string;
+  labelKey: string;
   color: string;
 }
 
 export const DOCUMENTS_TYPES_SET: Record<string, DocumentTypeConfig> = {
   'core:contact.customer': {
     icon: IconUser,
-    label: 'Customer',
+    labelKey: 'customer',
     color: 'bg-blue-100 text-blue-800 border-blue-200',
   },
   'core:contact.company': {
     icon: IconBuilding,
-    label: 'Company',
+    labelKey: 'company',
     color: 'bg-violet-100 text-violet-800 border-violet-200',
   },
   'core:product': {
     icon: IconShoppingCart,
-    label: 'Product',
+    labelKey: 'product',
     color: 'bg-amber-100 text-amber-800 border-amber-200',
   },
   'core:user': {
     icon: IconUsersGroup,
-    label: 'Team Member',
+    labelKey: 'team-member',
     color: 'bg-indigo-100 text-indigo-800 border-indigo-200',
   },
   'core:broadcast': {
     icon: IconBroadcast,
-    label: 'Broadcast',
+    labelKey: 'broadcast',
     color: 'bg-cyan-100 text-cyan-800 border-cyan-200',
   },
   'sales:deal': {
     icon: IconCurrencyDollar,
-    label: 'Sales',
+    labelKey: 'sales',
     color: 'bg-green-100 text-green-800 border-green-200',
   },
 };

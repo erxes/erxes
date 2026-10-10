@@ -148,7 +148,7 @@ export const exportHistoryColumns = ({
                 className="w-auto max-w-xs text-xs break-words"
               >
                 <p className="font-medium text-destructive mb-1">
-                  Export failed
+                  {t('export-failed')}
                 </p>
                 <p className="text-muted-foreground">{errorMessage}</p>
               </Popover.Content>

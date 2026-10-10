@@ -58,7 +58,11 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
     ),
-    cell: ({ row: { original: { type } } }) => (
+    cell: ({
+      row: {
+        original: { type },
+      },
+    }) => (
       <RecordTableInlineCell>
         {type && (
           <Badge variant={PRODUCT_TYPE_VARIANTS[type] ?? 'secondary'}>
@@ -145,7 +149,7 @@ export const productColumns: (
     ),
     cell: ({ cell }: { cell: any }) => {
       const hasAttachment = Boolean(cell.row.original?.attachment?.url);
-      const value = hasAttachment ? 'Attached' : 'None';
+      const value = hasAttachment ? t('attached') : t('none');
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={value} />

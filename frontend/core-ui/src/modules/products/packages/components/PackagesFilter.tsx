@@ -9,14 +9,10 @@ import {
 import { IconCheck, IconTag } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { SelectTags } from 'ui-modules';
-import { PACKAGE_STATUSES } from '../types/Package';
-
-const STATUS_OPTIONS = PACKAGE_STATUSES.map((s) => ({
-  label: s.charAt(0).toUpperCase() + s.slice(1),
-  value: s,
-}));
+import { PACKAGE_STATUS_OPTIONS } from '../types/Package';
 
 function StatusFilterView() {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const [status, setStatus] = useQueryState<string>('status');
   const { resetFilterState } = useFilterContext();
 
@@ -24,7 +20,7 @@ function StatusFilterView() {
     <Filter.View filterKey="status">
       <Command className="outline-hidden">
         <Command.List className="p-1">
-          {STATUS_OPTIONS.map((option) => (
+          {PACKAGE_STATUS_OPTIONS.map((option) => (
             <Command.Item
               key={option.value}
               value={option.value}
@@ -34,7 +30,7 @@ function StatusFilterView() {
               }}
             >
               <IconTag />
-              {option.label}
+              {t(option.labelKey)}
               {status === option.value && <IconCheck className="ml-auto" />}
             </Command.Item>
           ))}
@@ -64,9 +60,9 @@ function StatusFilterBar() {
           <Select.Value placeholder={t('select-status', 'Select status')} />
         </Filter.BarButton>
         <Select.Content>
-          {STATUS_OPTIONS.map((option) => (
+          {PACKAGE_STATUS_OPTIONS.map((option) => (
             <Select.Item key={option.value} value={option.value}>
-              {option.label}
+              {t(option.labelKey)}
             </Select.Item>
           ))}
         </Select.Content>
@@ -118,7 +114,10 @@ export const PackagesFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('filter', 'Filter')} variant="secondary" />
+              <Filter.CommandInput
+                placeholder={t('filter', 'Filter')}
+                variant="secondary"
+              />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <Filter.Item value="status">

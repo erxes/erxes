@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { Can, ISegment } from 'ui-modules';
 import { Row } from '@tanstack/table-core';
+import { useTranslation } from 'react-i18next';
 import { useRemoveSegments } from '../hooks/useRemoveSegments';
 
 export const SegmentRemoveButtonCommandBar = ({
@@ -12,6 +13,7 @@ export const SegmentRemoveButtonCommandBar = ({
   segmentIds: string[];
   rows: Row<ISegment>[];
 }) => {
+  const { t } = useTranslation('segment');
   const { confirm } = useConfirm();
   const { removeSegments } = useRemoveSegments();
   const { toast } = useToast();
@@ -22,12 +24,14 @@ export const SegmentRemoveButtonCommandBar = ({
         className="text-destructive"
         onClick={() =>
           confirm({
-            message: `Are you sure you want to delete the ${segmentIds.length} selected segments?`,
+            message: t('delete-selected-confirm', {
+              total: segmentIds.length,
+            }),
           }).then(() => {
             removeSegments(segmentIds, {
               onError: (e: ApolloError) => {
                 toast({
-                  title: 'Error',
+                  title: t('error'),
                   description: e.message,
                   variant: 'destructive',
                 });
@@ -37,9 +41,9 @@ export const SegmentRemoveButtonCommandBar = ({
                   row.toggleSelected(false);
                 });
                 toast({
-                  title: 'Success',
+                  title: t('success'),
                   variant: 'success',
-                  description: 'Segments deleted successfully',
+                  description: t('segments-deleted'),
                 });
               },
             });
@@ -47,7 +51,7 @@ export const SegmentRemoveButtonCommandBar = ({
         }
       >
         <IconTrash />
-        Delete
+        {t('delete')}
       </Button>
     </Can>
   );

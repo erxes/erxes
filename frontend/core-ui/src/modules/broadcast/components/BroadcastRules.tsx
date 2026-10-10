@@ -1,5 +1,6 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 import { BROADCAST_RULES } from '../constants';
@@ -8,6 +9,7 @@ import { BroadcastSelectRule } from './common/select/BroadcastSelectRule';
 import { BroadcastSelectRuleCondition } from './common/select/BroadcastSelectRuleCondition';
 
 export const BroadcastRules = () => {
+  const { t } = useTranslation('broadcasts');
   const { control } = useFormContext<z.infer<typeof broadcastSchema>>();
 
   const { fields, append, remove } = useFieldArray({
@@ -19,12 +21,12 @@ export const BroadcastRules = () => {
     <div className="flex flex-col gap-3">
       {fields.length > 0 ? (
         <div className="grid grid-cols-2 gap-3">
-          <Label>Condition</Label>
-          <Label>Value</Label>
+          <Label>{t('rules.condition')}</Label>
+          <Label>{t('rules.value')}</Label>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
-          <Label>Add rules</Label>
+          <Label>{t('rules.add-rules')}</Label>
         </div>
       )}
       {fields.map(({ id, kind }, index) => {

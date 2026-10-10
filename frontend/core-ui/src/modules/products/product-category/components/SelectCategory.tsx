@@ -11,6 +11,7 @@ import {
 
 import { useProductCategories } from '@/products/product-category/hooks/useProductCategories';
 import { IProductCategory } from '@/products/types/productTypes';
+import { useTranslation } from 'react-i18next';
 
 export const SelectCategory = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -147,10 +148,15 @@ export const SelectCategoryTrigger = React.forwardRef<
     loading: boolean;
   }
 >(({ selectedCategory, loading, className, ...props }, ref) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   return (
     <Combobox.Trigger ref={ref} className={className} {...props}>
       <SelectCategoryBadge category={selectedCategory} />
-      {!selectedCategory && <Combobox.Value placeholder="Select category" />}
+      {!selectedCategory && (
+        <Combobox.Value placeholder={t('select-category')} />
+      )}
       {loading && (
         <>
           <Skeleton className="w-4 h-4" />

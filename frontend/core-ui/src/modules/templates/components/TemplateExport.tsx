@@ -2,8 +2,10 @@ import { Template } from '@/templates/types/Template';
 import { IconFileDownload } from '@tabler/icons-react';
 import { Command, REACT_APP_API_URL, toast } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateExport = ({ template }: { template: Template }) => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const [exporting, setExporting] = useState(false);
 
   const handleExport = () => {
@@ -17,15 +19,14 @@ export const TemplateExport = ({ template }: { template: Template }) => {
           window.open(exportUrl, '_blank');
         } else if (response.status === 401) {
           toast({
-            title: 'Authentication required',
-            description:
-              'Please login to export templates. Redirecting to login...',
+            title: t('auth-required'),
+            description: t('auth-required-description'),
             variant: 'destructive',
           });
         } else {
           toast({
-            title: 'Export failed',
-            description: 'Failed to export template. Please try again.',
+            title: t('export-failed'),
+            description: t('export-failed-description'),
             variant: 'destructive',
           });
         }
@@ -33,8 +34,8 @@ export const TemplateExport = ({ template }: { template: Template }) => {
       .catch((error) => {
         console.error('Export error:', error);
         toast({
-          title: 'Export failed',
-          description: 'Failed to export template. Please try again.',
+          title: t('export-failed'),
+          description: t('export-failed-description'),
           variant: 'destructive',
         });
       })
@@ -46,7 +47,7 @@ export const TemplateExport = ({ template }: { template: Template }) => {
   return (
     <Command.Item value="export" onSelect={handleExport} disabled={exporting}>
       <IconFileDownload className="w-4 h-4" />
-      {exporting ? 'Exporting...' : 'Export'}
+      {exporting ? t('exporting') : t('export')}
     </Command.Item>
   );
 };

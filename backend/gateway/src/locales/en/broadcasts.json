@@ -254,7 +254,8 @@
     "waiting": "Waiting in the flow",
     "no-flow": "No flow ran for this person yet.",
     "empty-body": "The people this campaign targets are written down when it goes live.",
-    "loaded-of": "{{loaded}} of {{total}}"
+    "loaded-of": "{{loaded}} of {{total}}",
+    "run-option": "Run {{runCount}} · {{totalCount}} recipients"
   },
   "recipientEmail": {
     "reply-to": "Reply to",
@@ -449,7 +450,8 @@
     "mobile-short": "Mobile & Web push",
     "none-selected": "None selected",
     "preview": "Notification preview",
-    "content-placeholder": "Notification content will appear here"
+    "content-placeholder": "Notification content will appear here",
+    "select-channel-preview": "Select at least one notification channel to preview"
   },
   "target": {
     "title": "Title",
@@ -466,5 +468,19 @@
     "create-segment": "Create first segment",
     "no-tags-body": "A campaign can be sent to customers carrying a tag. Create one first, then come back.",
     "create-tag": "Create first tag"
+  },
+  "rules": {
+    "condition": "Condition",
+    "value": "Value",
+    "add-rules": "Add rules",
+    "select-rule": "Select rule"
+  },
+  "messenger": {
+    "from-user": "From User",
+    "select-members": "Select team members",
+    "brand": "Brand",
+    "select-brand": "Select brand",
+    "message-type": "Message type",
+    "sent-as": "Sent as"
   }
 }

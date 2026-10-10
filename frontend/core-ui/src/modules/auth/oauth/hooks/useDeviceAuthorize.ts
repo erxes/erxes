@@ -5,8 +5,10 @@ import { REACT_APP_API_URL, toast } from 'erxes-ui';
 
 import { buildActionGroups } from '../utils/buildActionGroups';
 import type { ConsentDetailsResponse, ConsentScope } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const useDeviceAuthorize = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
@@ -46,7 +48,7 @@ export const useDeviceAuthorize = () => {
 
         if (!response.ok) {
           throw new Error(
-            result?.error_description || 'Failed to load access request',
+            result?.error_description || t('failed-to-load-request'),
           );
         }
 
@@ -58,9 +60,11 @@ export const useDeviceAuthorize = () => {
         if (controller.signal.aborted) return;
 
         toast({
-          title: 'Could not load access request',
+          title: t('could-not-load-request'),
           description:
-            error instanceof Error ? error.message : 'Something went wrong.',
+            error instanceof Error
+              ? error.message
+              : t('something-went-wrong-error'),
           variant: 'destructive',
         });
       } finally {
@@ -94,8 +98,8 @@ export const useDeviceAuthorize = () => {
   const approve = async () => {
     if (!userCode) {
       toast({
-        title: 'Missing code',
-        description: 'Device authorization code is missing.',
+        title: t('missing-code'),
+        description: t('device-code-missing'),
         variant: 'destructive',
       });
       return;
@@ -103,8 +107,8 @@ export const useDeviceAuthorize = () => {
 
     if (selectedScopes.length === 0) {
       toast({
-        title: 'Select at least one permission',
-        description: 'Choose the access you want to grant before authorizing.',
+        title: t('select-permission'),
+        description: t('choose-access'),
         variant: 'destructive',
       });
       return;
@@ -126,9 +130,7 @@ export const useDeviceAuthorize = () => {
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(
-          result?.error_description || 'Failed to approve device',
-        );
+        throw new Error(result?.error_description || t('failed-to-approve'));
       }
 
       if (result?.redirectUrl) {
@@ -139,15 +141,17 @@ export const useDeviceAuthorize = () => {
       setApproved(true);
 
       toast({
-        title: 'Access granted',
-        description: 'You can return to the application now.',
+        title: t('access-granted'),
+        description: t('access-granted-toast'),
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Authorization failed',
+        title: t('authorization-failed'),
         description:
-          error instanceof Error ? error.message : 'Something went wrong.',
+          error instanceof Error
+            ? error.message
+            : t('something-went-wrong-error'),
         variant: 'destructive',
       });
     } finally {
@@ -171,17 +175,17 @@ export const useDeviceAuthorize = () => {
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(
-          result?.error_description || 'Failed to cancel request',
-        );
+        throw new Error(result?.error_description || t('failed-to-cancel'));
       }
 
       setDenied(true);
     } catch (error) {
       toast({
-        title: 'Cancel failed',
+        title: t('cancel-failed'),
         description:
-          error instanceof Error ? error.message : 'Something went wrong.',
+          error instanceof Error
+            ? error.message
+            : t('something-went-wrong-error'),
         variant: 'destructive',
       });
     } finally {

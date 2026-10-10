@@ -20,4 +20,9 @@ export interface IPackage {
 
 export const PACKAGE_STATUSES = ['draft', 'active'] as const;
 
+export const PACKAGE_STATUS_OPTIONS = [
+  { value: 'draft', labelKey: 'status-draft' },
+  { value: 'active', labelKey: 'status-active' },
+] as const;
+
 export type PackageStatus = (typeof PACKAGE_STATUSES)[number];

@@ -8,6 +8,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { SelectCustomer } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 /** The rendered email, beside the one being written. */
 export const EmailContentPreview = ({
@@ -26,6 +27,7 @@ export const EmailContentPreview = ({
   // Rehearsed on somebody real when one is picked. A field is only ever wrong
   // or merely thin against an actual record, never against nothing.
   const [replacerId, setReplacerId] = useState<string>();
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
 
   const { html, loading, error } = useEmailContentPreview({
     content,
@@ -39,7 +41,7 @@ export const EmailContentPreview = ({
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center gap-2 border-b px-3 py-2">
         <span className="shrink-0 text-xs text-muted-foreground">
-          Preview as
+          {t('preview-as')}
         </span>
         <SelectCustomer
           mode="single"
@@ -60,7 +62,7 @@ export const EmailContentPreview = ({
           </div>
         ) : !html ? (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-            {loading ? <Spinner /> : 'Nothing written yet'}
+            {loading ? <Spinner /> : t('nothing-written-yet')}
           </div>
         ) : (
           <EmailPreviewFrame html={html} device={device} className="h-full" />

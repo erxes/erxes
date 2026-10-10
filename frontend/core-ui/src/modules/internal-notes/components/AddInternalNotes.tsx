@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { AssignMemberInEditor } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export function AddInternalNotes({
   contentTypeId,
@@ -18,6 +19,7 @@ export function AddInternalNotes({
   contentTypeId: string;
   contentType: string;
 }) {
+  const { t } = useTranslation('common', { keyPrefix: 'internal-notes' });
   const editor = useBlockEditor();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [content, setContent] = useState<string>('');
@@ -42,13 +44,13 @@ export function AddInternalNotes({
       onCompleted: () => {
         editor?.removeBlocks(editor?.document);
         toast({
-          title: 'Internal note added successfully',
+          title: t('added-successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -68,7 +70,7 @@ export function AddInternalNotes({
 
       <Button variant="secondary" onClick={handleSubmit} className="mx-4">
         {loading ? <Spinner size="sm" /> : <IconArrowUp className="w-4 h-4" />}
-        Post
+        {t('post')}
       </Button>
     </div>
   );

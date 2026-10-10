@@ -4,8 +4,10 @@ import { useSetAtom } from 'jotai';
 import { addingClientPortalAtom } from '@/client-portal/state';
 import { useCreateClientPortal } from '@/client-portal/hooks/useCreateClientPortal';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ClientPortalAddRow = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const navigate = useNavigate();
   const setIsAddingClientPortal = useSetAtom(addingClientPortalAtom);
   const { clientPortalAdd, loading } = useCreateClientPortal();
@@ -37,16 +39,16 @@ export const ClientPortalAddRow = () => {
       onCompleted: (data) => {
         setIsAddingClientPortal(false);
         toast({
-          title: 'Success!',
+          title: t('success-exclamation'),
           variant: 'success',
-          description: 'Client portal created successfully',
+          description: t('client-portal-created'),
         });
         navigate(`${data.clientPortalAdd._id}`);
       },
       onError: (error) => {
         handledRef.current = false;
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -76,7 +78,7 @@ export const ClientPortalAddRow = () => {
                 cancel();
               }
             }}
-            placeholder="Create client portal"
+            placeholder={t('create-client-portal')}
             className="w-full bg-transparent px-3 py-1.5 outline-none focus:ring-2 focus:ring-inset rounded-lg focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium"
           />
         </div>

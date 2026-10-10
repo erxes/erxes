@@ -242,5 +242,17 @@
   "relation": {
     "user-companies": "Owned companies",
     "user-customers": "Owned customers"
-  }
+  },
+  "segments": "Segments",
+  "error": "Error",
+  "success": "Success",
+  "delete": "Delete",
+  "segment-id-missing": "Segment ID is missing",
+  "delete-undone": "This cannot be undone.",
+  "delete-in-use": "{{total}} automation(s) use this segment: {{names}}. They will stop enrolling anyone. This cannot be undone.",
+  "delete-usage-unknown": "What uses this segment could not be checked. This cannot be undone.",
+  "delete-confirm": "Delete \"{{name}}\"?",
+  "delete-selected-confirm": "Are you sure you want to delete the {{total}} selected segments?",
+  "segment-deleted": "Segment deleted successfully",
+  "segments-deleted": "Segments deleted successfully"
 }

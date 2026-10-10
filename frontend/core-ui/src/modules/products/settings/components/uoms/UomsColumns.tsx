@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { IconHash, IconLabel } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -9,7 +10,7 @@ import { IUom } from 'ui-modules';
 import { uomNameColumn } from './UomNameColumn';
 import { uomMoreColumn } from './UomMoreColumn';
 
-export const uomsColumns: ColumnDef<IUom>[] = [
+export const uomsColumns = (t: TFunction): ColumnDef<IUom>[] => [
   uomMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IUom>,
   uomNameColumn,
@@ -17,7 +18,7 @@ export const uomsColumns: ColumnDef<IUom>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     cell: ({ cell }: { cell: any }) => {
       return (
         <RecordTableInlineCell>
@@ -31,7 +32,7 @@ export const uomsColumns: ColumnDef<IUom>[] = [
     id: 'productCount',
     accessorKey: 'productCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Product Count" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('product-count')} />
     ),
     cell: ({ cell }: { cell: any }) => {
       return (
