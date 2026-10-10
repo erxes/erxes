@@ -12,6 +12,7 @@ import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
 import { useT } from '@/modules/i18n/components/LocaleProvider';
 import type { Translate } from '@/modules/i18n/translate';
+import { startRouteProgress } from '@/modules/layout/utils/routeProgress';
 import { authErrorMessage } from '../utils/errors';
 import { AUTH_PORTAL_LOGIN } from '../graphql/mutations/auth';
 import { AUTH_PORTAL_CURRENT_USER } from '../graphql/queries/auth';
@@ -78,6 +79,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
         description: t('auth.welcomeBackName', { name: displayName(current) }),
       });
 
+      startRouteProgress(next ?? '/');
       router.replace(next ?? '/');
     } catch (caught) {
       const message = authErrorMessage(caught, t);

@@ -55,6 +55,20 @@ export const sortByRecency = (articles: PortalArticle[]): PortalArticle[] =>
     (b.modifiedAt ?? '').localeCompare(a.modifiedAt ?? ''),
   );
 
+const ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  nbsp: ' ',
+};
+
+const visibleText = (html: string): string =>
+  html
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&(amp|lt|gt|quot|nbsp);/g, (_, name: string) => ENTITIES[name]);
+
 export const searchArticles = (
   topic: PortalTopic,
   term: string,
@@ -66,7 +80,7 @@ export const searchArticles = (
   }
 
   return allArticles(topic).filter((article) =>
-    [article.title, article.summary, article.content]
+    [article.title, article.summary, visibleText(article.content)]
       .join(' ')
       .toLowerCase()
       .includes(needle),
@@ -76,6 +90,7 @@ export const searchArticles = (
 export type BrowseEntry = {
   category: PortalCategory;
   group: string | null;
+  anchor: string | null;
 };
 
 export const browseCategories = (topic: PortalTopic): BrowseEntry[] =>
@@ -83,10 +98,16 @@ export const browseCategories = (topic: PortalTopic): BrowseEntry[] =>
     if (section.children.length) {
       return section.children
         .filter((category) => category.articleCount)
-        .map((category) => ({ category, group: section.title }));
+        .map((category, index) => ({
+          category,
+          group: section.title,
+          anchor: index === 0 ? `section-${section._id}` : null,
+        }));
     }
 
-    return section.articleCount ? [{ category: section, group: null }] : [];
+    return section.articleCount
+      ? [{ category: section, group: null, anchor: null }]
+      : [];
   });
 
 export const sectionCards = (section: PortalSection): PortalCategory[] =>

@@ -4,7 +4,10 @@ import {
   announcementHref,
   formatDate as formatPostDate,
 } from '@/modules/cms/utils/format';
-import { getTopicWithArticles } from '@/modules/knowledge-base/api';
+import {
+  getTopicArticleList,
+  getTopicWithArticles,
+} from '@/modules/knowledge-base/api';
 import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
 import { PopularArticles } from '@/modules/knowledge-base/components/PopularArticles';
 import {
@@ -106,7 +109,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const term = (raw ?? '').trim();
 
   const [topic, announcements] = await Promise.all([
-    getTopicWithArticles(),
+    term ? getTopicWithArticles() : getTopicArticleList(),
     term ? getAnnouncements(POST_LIMIT, term) : null,
   ]);
 
