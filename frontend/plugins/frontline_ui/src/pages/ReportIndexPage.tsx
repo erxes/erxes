@@ -6,52 +6,36 @@ import {
   ToggleGroup,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
-import { IconChartHistogram } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { ReportsView } from '@/report/components/ReportsView';
-import { CallReportsView } from '@/report/components/CallReportsView';
-import { TicketReportsList } from '@/report/components/TicketReportsList';
-import { FacebookReportsList } from '@/report/components/FacebookReportsList';
 import {
   OVERVIEW_KPI_DATE_FILTER_ID,
   ReportKpiDateFilter,
   TICKET_PRIORITY_DATE_FILTER_ID,
 } from '@/report/components/filter-popover/ReportKpiDateFilter';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import {
+  REPORT_SECTION_PATHS,
+  getReportSection,
+  getReportSections,
+} from '@/report/constants/reportSections';
 
-const ROUTES = {
-  overview: '/frontline/reports',
-  call: '/frontline/reports/call',
-  ticket: '/frontline/reports/ticket',
-  facebook: '/frontline/reports/facebook',
-} as const;
-
-type Section = keyof typeof ROUTES;
+import { CallReportsView } from '@/report/components/CallReportsView';
+import { FacebookReportsList } from '@/report/components/FacebookReportsList';
+import { IconChartHistogram } from '@tabler/icons-react';
+import { ReportsView } from '@/report/components/ReportsView';
+import { TicketReportsList } from '@/report/components/TicketReportsList';
+import { useTranslation } from 'react-i18next';
 
 export default function ReportIndexPage() {
   const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();
+  const activeSection = getReportSection(location.pathname);
+  const sections = getReportSections(t);
 
-  let activeSection: Section = 'overview';
-
-  if (location.pathname.includes('/call')) {
-    activeSection = 'call';
-  } else if (location.pathname.includes('/ticket')) {
-    activeSection = 'ticket';
-  } else if (location.pathname.includes('/facebook')) {
-    activeSection = 'facebook';
-  }
-
-  let activeSectionLabel: string | undefined;
-
-  if (activeSection === 'call') {
-    activeSectionLabel = t('call-center', 'Call center');
-  } else if (activeSection === 'ticket') {
-    activeSectionLabel = t('ticket', 'Ticket');
-  } else if (activeSection === 'facebook') {
-    activeSectionLabel = t('facebook-reports', 'Facebook');
-  }
+  const activeSectionLabel =
+    activeSection === 'overview'
+      ? undefined
+      : sections.find(({ section }) => section === activeSection)?.label;
 
   let reportContent = <ReportsView />;
 
@@ -93,23 +77,19 @@ export default function ReportIndexPage() {
           <ToggleGroup
             type="single"
             value={activeSection}
-            onValueChange={(v) => {
-              if (!v) return;
-              navigate(ROUTES[v as Section]);
+            onValueChange={(value) => {
+              const target = sections.find(({ section }) => section === value);
+
+              if (target) {
+                navigate(REPORT_SECTION_PATHS[target.section]);
+              }
             }}
           >
-            <ToggleGroup.Item value="overview">
-              {t('frontline-overview', 'Frontline Overview')}
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">
-              {t('ticket', 'Ticket')}
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="facebook">
-              {t('facebook-reports', 'Facebook')}
-            </ToggleGroup.Item>
-            <ToggleGroup.Item value="call">
-              {t('call-center', 'Call center')}
-            </ToggleGroup.Item>
+            {sections.map(({ section, label }) => (
+              <ToggleGroup.Item key={section} value={section}>
+                {label}
+              </ToggleGroup.Item>
+            ))}
           </ToggleGroup>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton

@@ -1,6 +1,7 @@
-import { cn, Filter, Skeleton } from 'erxes-ui';
-import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
+import { Filter, Skeleton, cn } from 'erxes-ui';
+
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
+import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
@@ -34,7 +35,7 @@ export const ConversationsHeader = ({
 
   return (
     <Filter id="conversations-filter-bar">
-      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 overflow-hidden bg-sidebar py-2 pl-6 pr-4">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 overflow-hidden bg-background py-2 pl-6 pr-4">
         <div className="order-1 flex shrink-0 items-center">{children}</div>
         <ConversationFilterBar
           className={cn(

@@ -26,7 +26,7 @@ export const PageSubHeader = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'flex-none bg-sidebar px-3 py-2 border-b flex gap-3 h-auto',
+        'flex-none bg-background px-3 py-2 border-b flex gap-3 h-auto',
         className,
       )}
       {...props}

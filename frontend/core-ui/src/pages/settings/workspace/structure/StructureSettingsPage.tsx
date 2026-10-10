@@ -1,10 +1,9 @@
 import { StructureSettingsBreadcrumb } from '@/settings/structure/components/StructureSettingsBreadcrumb';
-import { StructureSidebar } from '@/settings/structure/components/StructureSidebar';
 import { StructureTopbar } from '@/settings/structure/components/StructureTopbar';
 import { PageContainer, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Permissions, SettingsHeader } from 'ui-modules';
+import { SettingsHeader } from 'ui-modules';
 
 export const StructureMain = lazy(() =>
   import('@/settings/structure/components/Structure').then((module) => ({
@@ -47,7 +46,6 @@ export function StructureSettingsPage() {
         <StructureTopbar />
       </SettingsHeader>
       <div className="flex flex-auto w-full overflow-hidden">
-        <StructureSidebar />
         <Suspense
           fallback={
             <div className="flex justify-center items-center h-full">

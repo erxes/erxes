@@ -83,6 +83,7 @@
 
 ## Local Invariants
 
+- Expandable navigation rows end in the host sidebar's chevron: `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Expandable group trigger buttons use `rounded-lg` like `Sidebar.MenuButton`.
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
 - Use `isGithubTriage` for GitHub triage attribution and source-link visibility: require a `system` creator, numeric triage status, non-empty issue URL, and numeric issue number. Tasks, projects without issue metadata, and other triages retain normal creator attribution.
 - GitHub triage attribution consumes `ITriageDetail` from the generated detail query, which selects the triage status and issue metadata. Keep the shared helper and relation card on detail types; `ITriage` is the list-query item and does not select those fields. Render the source link from the guarded triage object so `isGithubTriage` narrows the nullable issue URL.

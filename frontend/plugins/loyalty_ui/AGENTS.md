@@ -109,6 +109,14 @@
 
 ## Local Invariants
 
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
+  own open state (`sidebarPanelOpenState`), separate from the host's context
+  column. Never stack two headings: a menu without a heading passes one as
+  `label` (header row with the heading, optional `actions` and the collapse
+  toggle); a menu that starts with its own heading row (group label, collapsible
+  or accordion trigger) omits `label` and ends that row with
+  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
+  inside sheets and dialogs.
 - Account types are labelled "Wallet(s)" (en) / "Хэтэвч" (mn) everywhere users see them, as balances inside the owner's loyalty account ("Account" / "Данс"); identifiers, routes, GraphQL documents and translation keys keep `accountType` / `loyalty-account-type`.
 - Pricing UI changes stay inside `frontend/plugins/loyalty_ui`.
 - Pricing form save mappings must preserve empty optional selectors as no

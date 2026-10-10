@@ -6,7 +6,7 @@ import { SETTINGS_ROUTES } from '@/erkhet-sync/settings/constants/settingRoutes'
 export const SyncErkhetSidebar = () => {
   const { t } = useTranslation('mongolian');
   return (
-    <Sidebar collapsible="none" className="border-r flex-none w-[300px]">
+    <Sidebar.Panel className="border-r flex-none w-[300px]" label={t('erkhet')}>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -18,7 +18,7 @@ export const SyncErkhetSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

@@ -1,31 +1,31 @@
-import { Sidebar, activePluginState } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
+import { startTransition, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AppPath } from '@/types/paths/AppPath';
-import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
-import { NavigationPanel } from '@/navigation/components/NavigationPanel';
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { NavigationActivityRail } from '@/navigation/components/navigation-activity-rail/NavigationActivityRail';
+import { NavigationItemCountProbe } from '@/navigation/components/navigation-activity-rail/NavigationPlugins';
+import { activePluginState } from 'erxes-ui';
+import { expandedNavigationActivityState } from '@/navigation/states/navigationPanelState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { useEffect } from 'react';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
+import { useNavigationActivityOrder } from '@/navigation/hooks/useNavigationActivityOrder';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
-import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 
 export const MainNavigationBar = () => {
-  const activities = useNavigationActivities();
-  const navigationGroups = usePluginsNavigationGroups();
-  const {
-    isActivityPinned,
-    setActivityPinned,
-    visibleActivities,
-    hiddenActivities,
-  } = usePinnedNavigationActivities(activities);
+  const { orderedActivities: activities, moveActivity } =
+    useNavigationActivityOrder(useNavigationActivities());
+  const { isActivityPinned, setActivityPinned, visibleActivities } =
+    usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
+  const [expandedActivityIds, setExpandedActivityIds] = useAtom(
+    expandedNavigationActivityState,
+  );
   const setSearchOpen = useSetAtom(globalSearchOpenState);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { isMobile } = Sidebar.useSidebar();
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
   const isInboxActive =
     pathname === `/${AppPath.MyInbox}` ||
@@ -35,15 +35,30 @@ export const MainNavigationBar = () => {
     routeActivity ||
     activities.find((activity) => activity.id === activeActivityId) ||
     activities[0];
-  const activeNavigationGroup =
-    routeActivity?.kind === 'plugin'
-      ? navigationGroups[routeActivity.id]
-      : undefined;
-  const hasNavigationPanel = Boolean(
-    isSettings ||
-      activeNavigationGroup?.contents.length ||
-      activeNavigationGroup?.subGroups.length,
+  const routeActivityId = routeActivity?.id;
+  const isListed = (activity: INavigationActivity) =>
+    activity.id === routeActivityId || visibleActivities.includes(activity);
+  const listedActivities = activities.filter(isListed);
+  const unlistedActivities = activities.filter(
+    (activity) => !isListed(activity),
   );
+  const unfoldedRouteActivityId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (
+      !routeActivityId ||
+      unfoldedRouteActivityId.current === routeActivityId
+    ) {
+      return;
+    }
+
+    unfoldedRouteActivityId.current = routeActivityId;
+    setExpandedActivityIds((current) =>
+      current.includes(routeActivityId)
+        ? current
+        : [...current, routeActivityId],
+    );
+  }, [routeActivityId, setExpandedActivityIds]);
 
   useEffect(() => {
     if (isSettings) {
@@ -69,32 +84,50 @@ export const MainNavigationBar = () => {
     setActiveActivityId,
   ]);
 
-  const handleSelectActivity = (activity: (typeof activities)[number]) => {
-    navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
+  const handleSelectActivity = (activity: INavigationActivity) => {
+    setActiveActivityId(activity.id);
+    startTransition(() => {
+      navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
+    });
   };
 
-  /** Opens the Inbox activity. */
+  const handleToggleActivity = (activity: INavigationActivity) => {
+    const isOpen = expandedActivityIds.includes(activity.id);
+
+    setExpandedActivityIds((current) =>
+      isOpen
+        ? current.filter((id) => id !== activity.id)
+        : [...current, activity.id],
+    );
+
+    if (!isOpen && routeActivityId !== activity.id) {
+      handleSelectActivity(activity);
+    }
+  };
+
   const handleSelectInbox = () => {
     navigate(`/${AppPath.MyInbox}`);
   };
 
   return (
-    <div className="flex h-full min-w-0">
+    <>
+      <NavigationItemCountProbe activities={activities} />
       <NavigationActivityRail
         activities={activities}
         activeActivityId={isInboxActive ? null : activeActivity?.id || null}
         isInboxActive={isInboxActive}
-        hiddenActivities={hiddenActivities}
+        hiddenActivities={unlistedActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
-        mobileExpanded={!hasNavigationPanel}
+        expandedActivityIds={expandedActivityIds}
+        onActivityMove={moveActivity}
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}
         onSelectActivity={handleSelectActivity}
-        visibleActivities={visibleActivities}
+        onToggleActivity={handleToggleActivity}
+        visibleActivities={listedActivities}
       />
-      {isMobile && hasNavigationPanel && <NavigationPanel />}
-    </div>
+    </>
   );
 };

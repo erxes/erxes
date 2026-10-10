@@ -6,14 +6,18 @@ import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
 export const EBarimtSidebar = () => {
   const { t } = useTranslation('mongolian');
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar.Panel className="border-r flex-none" label={t('ebarimt')}>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
               <EBarimtSidebarItem
                 key={path}
-                to={path ? `/settings/mongolian/ebarimt/${path}` : '/settings/mongolian/ebarimt'}
+                to={
+                  path
+                    ? `/settings/mongolian/ebarimt/${path}`
+                    : '/settings/mongolian/ebarimt'
+                }
               >
                 {t(label)}
               </EBarimtSidebarItem>
@@ -21,7 +25,7 @@ export const EBarimtSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

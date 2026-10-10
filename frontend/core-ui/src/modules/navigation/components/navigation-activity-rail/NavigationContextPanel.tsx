@@ -1,0 +1,236 @@
+import {
+  NavigationPluginContextContent,
+  NavigationPluginPanelContent,
+} from '@/navigation/components/navigation-activity-rail/NavigationPlugins';
+import { NavigationResizeHandle } from '@/navigation/components/navigation-activity-rail/NavigationResizeHandle';
+import {
+  CONTEXT_ENTER_KEYFRAMES,
+  getSectionKey,
+  useEnterAnimation,
+} from '@/navigation/hooks/useEnterAnimation';
+import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
+import { useNavigationPlacement } from '@/navigation/hooks/useNavigationPlacement';
+import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
+import {
+  navigationContextOpenState,
+  navigationContextWidthState,
+  navigationResizingState,
+} from '@/navigation/states/navigationPanelState';
+import { NAVIGATION_EASE } from '@/navigation/constants/navigationMotion';
+import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import {
+  getMatchingNavigationModule,
+  toTitleCase,
+} from '@/navigation/utils/visitedPageTabs';
+import { DocumentsContextNavigation } from '@/documents/components/DocumentsContextNavigation';
+import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
+import { SettingsContextNavigation } from '@/settings/components/SettingsContextNavigation';
+import { AppPath } from '@/types/paths/AppPath';
+import {
+  IconChevronsRight,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
+} from '@tabler/icons-react';
+import { Button, cn, Separator } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
+import { motion, useReducedMotion } from 'motion/react';
+import {
+  type ReactNode,
+  type RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
+const NavigationContextPanelFrame = ({
+  bodyRef,
+  children,
+  title,
+}: {
+  bodyRef: RefObject<HTMLDivElement>;
+  children: ReactNode;
+  title?: string;
+}) => {
+  const asideRef = useRef<HTMLElement>(null);
+  const [width, setWidth] = useAtom(navigationContextWidthState);
+  const [open, setOpen] = useAtom(navigationContextOpenState);
+  const resizing = useAtomValue(navigationResizingState);
+  const reduceMotion = useReducedMotion();
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const [hasContent, setHasContent] = useState(true);
+  const toggleLabel = open
+    ? t('collapse-sidebar', 'Collapse sidebar')
+    : t('expand-sidebar', 'Expand sidebar');
+
+  useLayoutEffect(() => {
+    const body = bodyRef.current;
+
+    if (!body) {
+      return;
+    }
+
+    const update = () => setHasContent(body.hasChildNodes());
+    const observer = new MutationObserver(update);
+
+    update();
+    observer.observe(body, { childList: true });
+
+    return () => observer.disconnect();
+  }, [bodyRef]);
+
+  return (
+    <>
+      <motion.aside
+        ref={asideRef}
+        aria-label={title}
+        initial={false}
+        animate={{ width: open ? (width ?? 'auto') : 0 }}
+        transition={
+          reduceMotion || resizing
+            ? { duration: 0 }
+            : { duration: 0.3, ease: NAVIGATION_EASE }
+        }
+        className={cn(
+          'relative flex shrink-0 flex-col overflow-hidden border-r bg-sidebar has-[>[data-navigation-context]:empty]:hidden',
+          !width && 'max-w-80',
+          !open && 'border-r-0',
+        )}
+      >
+        <div className="flex h-13 shrink-0 items-center px-2">
+          <div
+            className={cn(
+              'min-w-0 flex-1 overflow-hidden transition-opacity duration-200 ease-linear',
+              !open && 'opacity-0',
+            )}
+          >
+            <span className="block truncate px-2 text-sm font-medium">
+              {title}
+            </span>
+          </div>
+          <Button
+            aria-expanded={open}
+            aria-label={toggleLabel}
+            className="size-8 shrink-0 rounded-md"
+            size="icon"
+            title={toggleLabel}
+            variant="ghost"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? (
+              <IconLayoutSidebarLeftCollapse />
+            ) : (
+              <IconLayoutSidebarLeftExpand />
+            )}
+          </Button>
+        </div>
+        <div
+          ref={bodyRef}
+          data-navigation-context
+          className={cn(
+            'styled-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1 transition-[opacity,visibility] duration-200 ease-linear [&>[data-sidebar=separator]:first-child]:hidden',
+            !width && 'min-w-56',
+            !open && 'invisible opacity-0',
+          )}
+          style={width ? { minWidth: width } : undefined}
+        >
+          {children}
+        </div>
+        {open && (
+          <NavigationResizeHandle
+            label={t('resize-sidebar', 'Resize sidebar')}
+            panelRef={asideRef}
+            min={180}
+            max={480}
+            onResize={setWidth}
+            onReset={() => setWidth(null)}
+          />
+        )}
+      </motion.aside>
+      {!open && hasContent && (
+        <div
+          data-navigation-context-toggle
+          className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-sidebar pt-1"
+        >
+          <Button
+            aria-expanded={false}
+            aria-label={toggleLabel}
+            className="size-8 shrink-0"
+            size="icon"
+            title={toggleLabel}
+            variant="ghost"
+            onClick={() => setOpen(true)}
+          >
+            <IconChevronsRight />
+          </Button>
+          <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
+        </div>
+      )}
+    </>
+  );
+};
+
+export const NavigationContextPanel = () => {
+  const activities = useNavigationActivities();
+  const navigationGroups = usePluginsNavigationGroups();
+  const getPlacement = useNavigationPlacement();
+  const { pathname } = useLocation();
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const activity = findNavigationActivityByPath(activities, pathname);
+  const isSettings = pathname.includes(`/${AppPath.Settings}`);
+  const isSegments = !isSettings && pathname.startsWith(`/${AppPath.Segments}`);
+  const isDocuments =
+    !isSettings && pathname.startsWith(`/${AppPath.Documents}`);
+  const pluginActivity =
+    !isSettings && activity?.kind === 'plugin' ? activity : undefined;
+  const navigationGroup = pluginActivity
+    ? navigationGroups[pluginActivity.id]
+    : undefined;
+  const showModules = Boolean(
+    pluginActivity &&
+    navigationGroup?.contents.length &&
+    getPlacement(pluginActivity.id) === 'context',
+  );
+  const showSubGroups = Boolean(navigationGroup?.subGroups.length);
+  const activeModule = pluginActivity
+    ? getMatchingNavigationModule(pathname, pluginActivity.modules)
+    : undefined;
+  const pluginTitle = activeModule
+    ? toTitleCase(activeModule.name)
+    : pluginActivity?.label;
+
+  useEnterAnimation(bodyRef, getSectionKey(pathname), CONTEXT_ENTER_KEYFRAMES);
+
+  if (
+    !isSettings &&
+    !showModules &&
+    !showSubGroups &&
+    !isSegments &&
+    !isDocuments
+  ) {
+    return null;
+  }
+
+  return (
+    <NavigationContextPanelFrame
+      bodyRef={bodyRef}
+      title={
+        isSettings
+          ? t('settings', 'Settings')
+          : (pluginTitle ?? activity?.label)
+      }
+    >
+      {isSettings && <SettingsContextNavigation />}
+      {isSegments && <SegmentsContextNavigation />}
+      {isDocuments && <DocumentsContextNavigation />}
+      {pluginActivity && showModules && (
+        <NavigationPluginPanelContent activityId={pluginActivity.id} />
+      )}
+      {pluginActivity && showSubGroups && (
+        <NavigationPluginContextContent activityId={pluginActivity.id} />
+      )}
+    </NavigationContextPanelFrame>
+  );
+};

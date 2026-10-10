@@ -1,14 +1,15 @@
-import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
+import { NavigationMenuGroup, useQueryState } from 'erxes-ui';
+
 import { ChooseBrand } from '@/inbox/brand/components/ChooseBrand';
+import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 import { CreateBrand } from '@/inbox/brand/components/CreateBrand';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
-import { NavigationMenuGroup, useQueryState } from 'erxes-ui';
-import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { DiscordServersNav } from '@/integrations/discord/components/DiscordChannelsNav';
-import { PersonalInboxNav } from '@/inbox/channel/components/PersonalInboxNav';
-import { TeamChannelsNav } from '@/inbox/channel/components/TeamChannelsNav';
 import { InboxWorkNav } from '@/inbox/components/InboxWorkNav';
 import { NavigationGroupActions } from '@/NavigationGroupActions';
+import { PersonalInboxNav } from '@/inbox/channel/components/PersonalInboxNav';
+import { TeamChannelsNav } from '@/inbox/channel/components/TeamChannelsNav';
+import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { useLocation } from 'react-router-dom';
 
 export const FrontlineSubGroups = () => {

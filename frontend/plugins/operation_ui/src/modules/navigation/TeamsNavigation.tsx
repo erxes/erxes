@@ -17,13 +17,13 @@ import {
 } from 'erxes-ui';
 import {
   IconRestore,
-  IconCaretRightFilled,
   IconChecklist,
   IconClipboard,
   IconDotsVertical,
   IconLink,
   IconSettings,
   IconCaretLeftRight,
+  IconChevronRight,
 } from '@tabler/icons-react';
 
 import { ITeam } from '@/team/types';
@@ -52,7 +52,7 @@ function TeamItem({ team }: TeamItemProps) {
             <div className="w-full flex items-center justify-between">
               <Button
                 variant="ghost"
-                className="px-2 flex min-w-0 justify-start"
+                className="px-2 flex min-w-0 justify-start rounded-lg"
               >
                 <IconComponent
                   name={team.icon ?? undefined}
@@ -62,8 +62,8 @@ function TeamItem({ team }: TeamItemProps) {
                   className="font-sans font-semibold normal-case flex-1 min-w-0"
                   value={team.name ?? ''}
                 />
-                <span className="ml-auto shrink-0">
-                  <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/collapsible:rotate-90 text-accent-foreground" />
+                <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
+                  <IconChevronRight className="size-3.5!" />
                 </span>
               </Button>
               <div className="size-5 min-w-5 mr-2"></div>
