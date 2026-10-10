@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-10`
 
 ## Scope
 
@@ -24,6 +24,7 @@
 
 ## Current Capabilities
 
+- Prints the federated accounting SDL without starting a server via `schema:print`; frontend codegen validates operations against this contract.
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
 - Exports accounting transaction detail rows through the platform import/export worker using transaction, account, journal, date, status, currency, branch, department, customer, and selected-id filters, with startup-safe capability metadata for Core discovery.
 - Permission metadata exposes VAT and CTAX row access through one `taxRow` module, exposes inventory/fixed-asset/fund-rate/debt-rate/closing adjustments as separate modules, and gates transaction reads/mutations by source journal while allowing generated follow journals, including `exchangeDiff`, through the source journal's permission.
@@ -61,6 +62,7 @@
 
 | Area                | Path                                                         | Responsibility                                                                                                          |
 | ------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Schema export | `backend/plugins/accounting_api/print-schema.ts` | Exports the federated SDL to ignored `generated/schema.graphql` for accounting UI codegen. |
 | Runtime             | `src/main.ts`                                                | Starts the accounting API plugin service.                                                                               |
 | Import/export       | `src/meta/import-export`                                     | Registers accounting import and transaction export types, headers, and row producers.                                   |
 | Apollo integration  | `src/apollo`                                                 | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
@@ -87,7 +89,9 @@
 - Debt rate GraphQL contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged(adjustId: String!)`.
 - Closing adjustment GraphQL contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
 - Adjustment detail fields include account/customer/branch/department grouping metadata, `mainBalance`, `currencyBalance`, `diff`, linked transaction ids, and validation state fields `beginDate`, `successDate`, `checkedAt`, `error`, and `warning`.
-- GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
+- GraphQL query `getAccLastIncomePrice(productIds: [String!]!): [AccountingLastIncomePrice!]!` returns `{ productId, unitPrice }` rows; `getAccCurrentCost` returns `[AccCurrentCost!]!` rows with product id, remainder, total cost, and unit cost instead of a JSON dictionary.
+- Account `extra` and safe remainder item `trInfo` outputs have explicit object SDL types; corresponding mutation inputs remain JSON for compatibility with existing write paths.
+- `print-schema.ts` writes the ignored `generated/schema.graphql` consumed by accounting UI codegen; regenerate through `pnpm nx run accounting_api:schema:print` after SDL changes.
 - GraphQL query `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)`, returning the transaction-history quantity for one fixed asset at one branch/department location.
 - Transaction journal enum accepts `invJustify`, with dedicated read, manage, and remove permission actions; `side: "dt"` means cost increase and `side: "ct"` means cost decrease.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
@@ -132,6 +136,11 @@
 
 ## Local Invariants
 
+- Lookup ids and destructive id lists must be required in SDL when the resolver needs them; `graphql/validateRequired.ts` rejects blank ids and empty destructive batches. `accountsEdit` relies on its required SDL id and `getAccount` not-found check before update rather than duplicating single-id validation.
+- Preserve the deprecated `accOddTransactions` query's legacy null response until a separately approved API removal.
+- VAT and CTAX search preserves combined name/number conditions; escape user search text as a literal regex without changing the filter to OR as part of a schema migration.
+- Stored output fields remain nullable unless tenant data and every write path prove a non-null guarantee. Do not use defaults alone to tighten SDL.
+- `accTransactionsLink` consumes `trIds`, not `ids`; transaction creation/update requires a non-empty document batch and update requires a parent id.
 - Every resolver that reads or mutates accounting data must use tenant-scoped `models` and enforce the relevant permission before data access.
 - Transaction list/count/detail queries must intersect requested journals with the user's permitted source journals, including generated follow journals only through their source journal permission; `exchangeDiff` must not have standalone transaction permissions.
 - Transaction detail and content-linked queries must load the whole parent/ptr work transaction when at least one transaction in that group is readable; rows without account-level read access are returned through the hidden transaction shape.
@@ -185,10 +194,13 @@
 
 ## Validation
 
+- `pnpm nx run accounting_api:schema:print --skip-nx-cache`
+- `pnpm nx lint accounting_api`
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
 - Smoke scenario: open accounting transaction export, select default fields, export with journal/date/search filters, and verify the generated CSV contains only matching transaction detail rows.
+- Contract tests build the subgraph with runtime resolvers and require parity for every Query/Mutation root field; do not advertise fields without implementations.
 - Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
 - Smoke scenario: run `journalReportData` and `journalReportMore` for every registered report with account/category/currency, `trKind`, pointer, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and detail rows match every selected hierarchy value.

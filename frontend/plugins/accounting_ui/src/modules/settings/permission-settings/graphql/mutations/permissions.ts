@@ -1,22 +1,16 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SET_ACCOUNT_PERMISSIONS = gql`
-  mutation SetAccountPermissions(
-    $accountIds: [String!]!
-    $userId: String!
-    $level: Int
-    $read: String
-    $write: String
+export const SET_ACCOUNT_PERMISSIONS = gql(`
+mutation accountingSetAccountPermissions($accountIds: [String!]!, $userId: String!, $level: Int, $read: String, $write: String) {
+  setAccountPermissions(
+    accountIds: $accountIds
+    userId: $userId
+    level: $level
+    read: $read
+    write: $write
   ) {
-    setAccountPermissions(
-      accountIds: $accountIds
-      userId: $userId
-      level: $level
-      read: $read
-      write: $write
-    ) {
-      accountId
-      status
-    }
+    accountId
+    status
   }
-`;
+}
+`);

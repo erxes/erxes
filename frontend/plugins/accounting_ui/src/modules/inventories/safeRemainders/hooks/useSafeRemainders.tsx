@@ -1,8 +1,13 @@
+import type {
+  AccountingSafeRemaindersQuery,
+  AccountingSafeRemaindersQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
 import { SAFE_REMAINDERS_QUERY } from '../graphql/safeRemainderQueries';
-import { OperationVariables, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { ACC_TRS__PER_PAGE } from '../../../transactions/types/constants';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
-import { ISafeRemainder } from '../types/SafeRemainder';
 
 type SafeRemainderQueryParams = {
   searchValue: string;
@@ -15,25 +20,7 @@ type SafeRemainderQueryParams = {
   updatedDate: string;
 };
 
-type SafeRemainderVariables = Partial<
-  Record<
-    | keyof SafeRemainderQueryParams
-    | 'beginDate'
-    | 'endDate'
-    | 'createdStartDate'
-    | 'createdEndDate'
-    | 'updatedStartDate'
-    | 'updatedEndDate',
-    string | Date
-  >
->;
-
-interface ISafeRemaindersQueryData {
-  safeRemainders: {
-    remainders: ISafeRemainder[];
-    totalCount: number;
-  };
-}
+type SafeRemainderVariables = AccountingSafeRemaindersQueryVariables;
 
 const SAFE_REMAINDER_FILTER_KEYS: (keyof SafeRemainderQueryParams)[] = [
   'searchValue',
@@ -47,8 +34,9 @@ const SAFE_REMAINDER_FILTER_KEYS: (keyof SafeRemainderQueryParams)[] = [
 ];
 
 export const useSafeRemainderQueryParams = () => {
-  const [queryParams] =
-    useMultiQueryState<SafeRemainderQueryParams>(SAFE_REMAINDER_FILTER_KEYS);
+  const [queryParams] = useMultiQueryState<SafeRemainderQueryParams>(
+    SAFE_REMAINDER_FILTER_KEYS,
+  );
   return queryParams;
 };
 
@@ -86,13 +74,20 @@ export const useSafeRemainderVariables = () => {
   return variables;
 };
 
-export const useSafeRemainders = (options?: OperationVariables) => {
+export const useSafeRemainders = (
+  options?: QueryHookOptions<
+    AccountingSafeRemaindersQuery,
+    AccountingSafeRemaindersQueryVariables
+  >,
+) => {
   const filterVariables = useSafeRemainderVariables();
 
-  const { data, loading, error, fetchMore } = useQuery<
-    ISafeRemaindersQueryData,
-    OperationVariables
-  >(SAFE_REMAINDERS_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(SAFE_REMAINDERS_QUERY, {
     ...options,
     variables: {
       page: 1,
@@ -101,6 +96,7 @@ export const useSafeRemainders = (options?: OperationVariables) => {
       ...options?.variables,
     },
   });
+  const data = toGraphqlView(queryData);
   const { remainders = [], totalCount = 0 } = data?.safeRemainders || {};
 
   const handleFetchMore = () => {
@@ -113,6 +109,7 @@ export const useSafeRemainders = (options?: OperationVariables) => {
           page: Math.ceil(remainders?.length / ACC_TRS__PER_PAGE) + 1,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult.safeRemainders) return prev;
           return {
             ...fetchMoreResult,
             safeRemainders: {

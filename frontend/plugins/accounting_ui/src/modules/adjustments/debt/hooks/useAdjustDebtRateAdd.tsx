@@ -1,18 +1,24 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { ADJUST_DEBT_RATE_ADD } from '../graphql/adjustDebtRateAdd';
 import { toast } from 'erxes-ui';
 import { ADJUST_DEBT_RATE_QUERY } from '../graphql/adjustDebtRateQueries';
 
-export const useAdjustDebtRateAdd = (options?: OperationVariables) => {
+export const useAdjustDebtRateAdd = (
+  options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_ADD>,
+) => {
   const [_addAdjustDebtRate, { loading }] = useMutation(
     ADJUST_DEBT_RATE_ADD,
     options,
   );
 
-  const addAdjustDebtRate = (options?: OperationVariables) => {
+  const addAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_ADD>,
+  ) => {
     return _addAdjustDebtRate({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: 'Error',
           description: error.message,

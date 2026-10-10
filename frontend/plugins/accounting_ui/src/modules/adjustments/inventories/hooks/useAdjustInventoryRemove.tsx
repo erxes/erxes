@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
@@ -8,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const useAdjustInventoryRemove = (
   adjustId: string,
-  options?: OperationVariables,
+  options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_REMOVE>,
 ) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
@@ -17,14 +19,16 @@ export const useAdjustInventoryRemove = (
     options,
   );
 
-  const removeAdjust = (options?: OperationVariables) => {
+  const removeAdjust = (
+    options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_REMOVE>,
+  ) => {
     return _removeMutation({
       ...options,
       variables: {
         adjustId,
         ...options?.variables,
       },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

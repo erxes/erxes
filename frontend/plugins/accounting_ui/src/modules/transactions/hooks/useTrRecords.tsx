@@ -1,30 +1,40 @@
-import { OperationVariables, useQuery } from '@apollo/client';
 import {
-  EnumCursorDirection,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
+  mergeGraphqlCursorData,
+  toCursorPageInfo,
+} from '@/utils/graphqlCursor';
+import type {
+  AccountingAccTrRecordsQuery,
+  AccountingAccTrRecordsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import { TR_RECORDS_QUERY } from '../graphql/transactionQueries';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
-import { ITrRecord } from '../types/Transaction';
+
 import { useTransactionsVariables } from './useTransactionVars';
 
-export const useTrRecords = (options?: OperationVariables) => {
+export const useTrRecords = (
+  options?: QueryHookOptions<
+    AccountingAccTrRecordsQuery,
+    AccountingAccTrRecordsQueryVariables
+  >,
+) => {
   const variables = useTransactionsVariables(options?.variables);
-  const { data, loading, error, fetchMore } = useQuery<{
-    accTrRecordsMain: {
-      list: ITrRecord[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(TR_RECORDS_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(TR_RECORDS_QUERY, {
     ...options,
     variables: {
       ...options?.variables,
       ...variables,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const {
     list: trRecords,
@@ -40,7 +50,7 @@ export const useTrRecords = (options?: OperationVariables) => {
     if (
       !validateFetchMore({
         direction,
-        pageInfo,
+        pageInfo: toCursorPageInfo(pageInfo),
       })
     ) {
       return;
@@ -58,7 +68,7 @@ export const useTrRecords = (options?: OperationVariables) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          accTrRecordsMain: mergeCursorData({
+          accTrRecordsMain: mergeGraphqlCursorData({
             direction,
             fetchMoreResult: fetchMoreResult.accTrRecordsMain,
             prevResult: prev.accTrRecordsMain,
@@ -73,6 +83,6 @@ export const useTrRecords = (options?: OperationVariables) => {
     totalCount,
     error,
     handleFetchMore,
-    pageInfo,
+    pageInfo: toCursorPageInfo(pageInfo),
   };
 };

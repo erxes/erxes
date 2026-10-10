@@ -1,19 +1,24 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingFixedAssetLocationRemainderQuery,
+  AccountingFixedAssetLocationRemainderQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { GET_FIXED_ASSET_LOCATION_REMAINDER } from '../graphql/queries/fixedAssets';
 
-type TFixedAssetLocationRemainder = {
-  fixedAssetId: string;
-  branchId?: string;
-  departmentId?: string;
-  remainder: number;
-};
-
 export const useFixedAssetLocationRemainder = (
-  options?: OperationVariables,
+  options?: QueryHookOptions<
+    AccountingFixedAssetLocationRemainderQuery,
+    AccountingFixedAssetLocationRemainderQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<{
-    fixedAssetLocationRemainder?: TFixedAssetLocationRemainder;
-  }>(GET_FIXED_ASSET_LOCATION_REMAINDER, options);
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(GET_FIXED_ASSET_LOCATION_REMAINDER, options);
+  const data = toGraphqlView(queryData);
 
   return {
     fixedAssetLocationRemainder: data?.fixedAssetLocationRemainder,

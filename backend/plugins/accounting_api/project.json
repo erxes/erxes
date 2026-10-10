@@ -5,19 +5,28 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "schema:print": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/print-schema.ts",
+        "{projectRoot}/src/**/*.ts",
+        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
+      ],
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "cwd": "backend/plugins/accounting_api",
+        "command": "pnpm schema:print"
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "cache": true,
       "options": {
         "cwd": "backend/plugins/accounting_api",
-        "commands": [
-          "pnpm build"
-        ]
+        "commands": ["pnpm build"]
       },
-      "dependsOn": [
-        "^build",
-        "build:packageJson"
-      ]
+      "dependsOn": ["^build", "build:packageJson"]
     },
     "build:packageJson": {
       "executor": "@nx/js:tsc",
@@ -31,10 +40,7 @@
     },
     "start": {
       "executor": "nx:run-commands",
-      "dependsOn": [
-        "typecheck",
-        "build"
-      ],
+      "dependsOn": ["typecheck", "build"],
       "options": {
         "cwd": "backend/plugins/accounting_api",
         "command": "NODE_ENV=development node dist/src/main.js"
@@ -56,9 +62,7 @@
       }
     },
     "docker-build": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/accounting_api/Dockerfile . -t erxes/erxes-next-accounting_api"
     }
   }

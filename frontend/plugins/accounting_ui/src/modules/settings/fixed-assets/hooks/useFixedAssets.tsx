@@ -1,11 +1,24 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingSettingsFixedAssetsQuery,
+  AccountingSettingsFixedAssetsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { GET_FIXED_ASSETS } from '../graphql/queries/fixedAssets';
-import { IFixedAsset } from '../types/FixedAsset';
 
-export const useFixedAssets = (options?: OperationVariables) => {
-  const { data, loading, error } = useQuery<{
-    fixedAssets: IFixedAsset[];
-  }>(GET_FIXED_ASSETS, options);
+export const useFixedAssets = (
+  options?: QueryHookOptions<
+    AccountingSettingsFixedAssetsQuery,
+    AccountingSettingsFixedAssetsQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(GET_FIXED_ASSETS, options);
+  const data = toGraphqlView(queryData);
 
   return {
     fixedAssets: data?.fixedAssets,

@@ -1,16 +1,29 @@
+import type {
+  AccountingAdjustClosingDetailQuery,
+  AccountingAdjustClosingDetailQueryVariables,
+  AccountingAdjustClosingDetailsQuery,
+  AccountingAdjustClosingDetailsQueryVariables,
+} from '~/gql/graphql';
+import { toGraphqlView } from '@/utils/graphql';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IAdjustClosingDetail } from '../types/AdjustClosing';
+
 import {
   ADJUST_CLOSING_DETAIL_QUERY,
   ADJUST_CLOSING_DETAILS,
 } from '../graphql/adjustClosingDetail';
 
 export const useAdjustClosingDetail = (
-  options: QueryHookOptions<{ adjustClosingDetail: IAdjustClosingDetail }>,
+  options: QueryHookOptions<
+    AccountingAdjustClosingDetailQuery,
+    AccountingAdjustClosingDetailQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<{
-    adjustClosingDetail: IAdjustClosingDetail;
-  }>(ADJUST_CLOSING_DETAIL_QUERY, options);
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(ADJUST_CLOSING_DETAIL_QUERY, options);
+  const data = toGraphqlView(queryData);
 
   return {
     loading,
@@ -20,20 +33,22 @@ export const useAdjustClosingDetail = (
 };
 
 export const useAdjustClosingDetails = (
-  options: QueryHookOptions<{
-    adjustClosingDetail: IAdjustClosingDetail;
-    adjustClosingDetailsCount: number;
-  }>,
+  options: QueryHookOptions<
+    AccountingAdjustClosingDetailsQuery,
+    AccountingAdjustClosingDetailsQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<{
-    adjustClosingDetail: IAdjustClosingDetail;
-    adjustClosingDetailsCount: number;
-  }>(ADJUST_CLOSING_DETAILS, options);
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(ADJUST_CLOSING_DETAILS, options);
+  const data = toGraphqlView(queryData);
 
   return {
     loading,
     adjustClosingDetails: data?.adjustClosingDetail?.details ?? [],
-    adjustClosingDetailsCount: data?.adjustClosingDetailsCount ?? 0,
+    adjustClosingDetailsCount: data?.adjustClosingEntriesCount ?? 0,
     handleFetchMore: () => null,
     error,
   };

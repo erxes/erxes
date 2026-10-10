@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -10,7 +12,9 @@ import {
   getTransactionReturnPath,
 } from '../../utils/transactionNavigation';
 
-export const useTransactionsRemove = (options?: OperationVariables) => {
+export const useTransactionsRemove = (
+  options?: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_REMOVE>,
+) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +33,7 @@ export const useTransactionsRemove = (options?: OperationVariables) => {
   const removeTransactions = (parentId?: string) => {
     return _removeTransactions({
       variables: { parentId },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

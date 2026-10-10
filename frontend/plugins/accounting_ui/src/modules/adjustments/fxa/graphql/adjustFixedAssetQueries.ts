@@ -1,137 +1,115 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const adjustFixedAssetFields = `
-  _id
-  createdAt
-  createdBy
-  updatedAt
-  modifiedBy
-  date
-  description
-  status
-  error
-  warning
-  beginDate
-  successDate
-  checkedAt
-`;
-
-export const adjustFxaDetailFields = `
-  _id
-  adjustId
-  fixedAssetId
-  categoryId
-  accountId
-  branchId
-  departmentId
-  originalCost
-  salvageValue
-  openingBookValue
-  openingAccumulatedDepreciation
-  depreciationAmount
-  bookDepreciationAmount
-  closingAccumulatedDepreciation
-  closingBookValue
-  transactionId
-  transactionDetailId
-  error
-  warning
-  account {
-    _id
-    code
-    name
-  }
-  fixedAsset {
-    _id
-    code
-    name
-  }
-`;
-
-const adjustFixedAssetFilterParamDefs = `
-  $startDate: Date
-  $endDate: Date
-  $description: String
-  $status: String
-  $error: String
-  $warning: String
-  $startBeginDate: Date
-  $endBeginDate: Date
-  $startSuccessDate: Date
-  $endSuccessDate: Date
-  $startCheckedAt: Date
-  $endCheckedAt: Date
-`;
-
-const adjustFixedAssetFilterParams = `
-  startDate: $startDate
-  endDate: $endDate
-  description: $description
-  status: $status
-  error: $error
-  warning: $warning
-  startBeginDate: $startBeginDate
-  endBeginDate: $endBeginDate
-  startSuccessDate: $startSuccessDate
-  endSuccessDate: $endSuccessDate
-  startCheckedAt: $startCheckedAt
-  endCheckedAt: $endCheckedAt
-`;
-
-const commonParamDefs = `
-  $page: Int
-  $perPage: Int
-  $sortField: String
-  $sortDirection: Int
-`;
-
-const commonParams = `
-  page: $page
-  perPage: $perPage
-  sortField: $sortField
-  sortDirection: $sortDirection
-`;
-
-export const ADJUST_FIXED_ASSETS_QUERY = gql`
-  query AdjustFixedAssets(
-    ${adjustFixedAssetFilterParamDefs}
-    ${commonParamDefs}
+export const ADJUST_FIXED_ASSETS_QUERY = gql(`
+query accountingAdjustFixedAssets($startDate: Date, $endDate: Date, $description: String, $status: String, $error: String, $warning: String, $startBeginDate: Date, $endBeginDate: Date, $startSuccessDate: Date, $endSuccessDate: Date, $startCheckedAt: Date, $endCheckedAt: Date, $page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
+  adjustFixedAssets(
+    startDate: $startDate
+    endDate: $endDate
+    description: $description
+    status: $status
+    error: $error
+    warning: $warning
+    startBeginDate: $startBeginDate
+    endBeginDate: $endBeginDate
+    startSuccessDate: $startSuccessDate
+    endSuccessDate: $endSuccessDate
+    startCheckedAt: $startCheckedAt
+    endCheckedAt: $endCheckedAt
+    page: $page
+    perPage: $perPage
+    sortField: $sortField
+    sortDirection: $sortDirection
   ) {
-    adjustFixedAssets(
-      ${adjustFixedAssetFilterParams}
-      ${commonParams}
-    ) {
-      ${adjustFixedAssetFields}
-    }
-    adjustFixedAssetsCount(${adjustFixedAssetFilterParams})
+    _id
+    createdAt
+    createdBy
+    updatedAt
+    modifiedBy
+    date
+    description
+    status
+    error
+    warning
+    beginDate
+    successDate
+    checkedAt
   }
-`;
+  adjustFixedAssetsCount(
+    startDate: $startDate
+    endDate: $endDate
+    description: $description
+    status: $status
+    error: $error
+    warning: $warning
+    startBeginDate: $startBeginDate
+    endBeginDate: $endBeginDate
+    startSuccessDate: $startSuccessDate
+    endSuccessDate: $endSuccessDate
+    startCheckedAt: $startCheckedAt
+    endCheckedAt: $endCheckedAt
+  )
+}
+`);
 
-export const ADJUST_FIXED_ASSET_DETAIL_QUERY = gql`
-  query AdjustFixedAssetDetail($_id: String!) {
-    adjustFixedAssetDetail(_id: $_id) {
-      ${adjustFixedAssetFields}
-    }
+export const ADJUST_FIXED_ASSET_DETAIL_QUERY = gql(`
+query accountingAdjustFixedAssetDetail($_id: String!) {
+  adjustFixedAssetDetail(_id: $_id) {
+    _id
+    createdAt
+    createdBy
+    updatedAt
+    modifiedBy
+    date
+    description
+    status
+    error
+    warning
+    beginDate
+    successDate
+    checkedAt
   }
-`;
+}
+`);
 
-export const ADJUST_FXA_DETAILS_QUERY = gql`
-  query AdjustFxaDetails(
-    $_id: String!
-    $page: Int
-    $perPage: Int
-    $sortField: String
-    $sortDirection: Int
+export const ADJUST_FXA_DETAILS_QUERY = gql(`
+query accountingAdjustFxaDetails($_id: String!, $page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
+  adjustFxaDetails(
+    _id: $_id
+    page: $page
+    perPage: $perPage
+    sortField: $sortField
+    sortDirection: $sortDirection
   ) {
-    adjustFxaDetails(
-      _id: $_id
-      page: $page
-      perPage: $perPage
-      sortField: $sortField
-      sortDirection: $sortDirection
-    ) {
-      ${adjustFxaDetailFields}
+    _id
+    adjustId
+    fixedAssetId
+    categoryId
+    accountId
+    branchId
+    departmentId
+    originalCost
+    salvageValue
+    openingBookValue
+    openingAccumulatedDepreciation
+    depreciationAmount
+    bookDepreciationAmount
+    closingAccumulatedDepreciation
+    closingBookValue
+    transactionId
+    transactionDetailId
+    error
+    warning
+    account {
+      _id
+      code
+      name
     }
-    adjustFxaDetailsCount(_id: $_id)
+    fixedAsset {
+      _id
+      code
+      name
+    }
   }
-`;
+  adjustFxaDetailsCount(_id: $_id)
+}
+`);

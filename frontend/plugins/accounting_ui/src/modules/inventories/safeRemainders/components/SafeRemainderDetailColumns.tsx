@@ -31,11 +31,9 @@ const StatusField = ({
       <Checkbox
         checked={value === 'checked'}
         onCheckedChange={(value) =>
-          editRemItem(
-            {
-              variables: { ...remItem, status: value ? 'checked' : 'new' },
-            },
-          )
+          editRemItem({
+            variables: { ...remItem, status: value ? 'checked' : 'new' },
+          })
         }
       />
     </div>
@@ -67,12 +65,17 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Бүртгэлийн үлдэгдэл" />
     ),
     accessorKey: 'preCount',
-    cell: ({ row }) => <SafeRemainderNumberCell value={row.original.preCount} />,
+    cell: ({ row }) => (
+      <SafeRemainderNumberCell value={row.original.preCount} />
+    ),
   },
   {
     id: 'activeCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бүртгэлийн нийт өртөг" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label="Бүртгэлийн нийт өртөг"
+      />
     ),
     cell: ({ row }) => (
       <SafeRemainderNumberCell value={row.original.trInfo?.activeCost ?? 0} />
@@ -93,7 +96,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
       >
         <div>
           <StatusField
-            value={row.original.status}
+            value={row.original.status ?? ''}
             field="status"
             _id={row.original._id}
             remItem={row.original}
@@ -128,14 +131,15 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын нийт өртөг" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label="Тооллогын нийт өртөг"
+      />
     ),
     cell: ({ row }) => (
       <SafeRemainderUnitCostField
         value={
-          row.original.trInfo?.unitCost ??
-          row.original.trInfo?.activeCost ??
-          0
+          row.original.trInfo?.unitCost ?? row.original.trInfo?.activeCost ?? 0
         }
         field="trInfo.unitCost"
         _id={row.original._id}

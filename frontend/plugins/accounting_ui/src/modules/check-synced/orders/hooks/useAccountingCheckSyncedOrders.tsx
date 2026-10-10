@@ -1,3 +1,8 @@
+import type {
+  AccountingCheckSyncedOrdersQuery,
+  AccountingCheckSyncedOrdersQueryVariables,
+} from '~/gql/graphql';
+import { toGraphqlView } from '@/utils/graphql';
 import {
   ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION,
   ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY,
@@ -5,10 +10,8 @@ import {
 } from '../graphql/checkSyncedOrders';
 import {
   AccountingCheckSyncedOrder,
-  AccountingCheckSyncedResponse,
   AccountingCheckSyncedStatus,
   AccountingOrdersQueryResult,
-  AccountingSyncResult,
 } from '../types';
 import {
   AccountingCheckSyncedOrdersStatusCounts,
@@ -83,7 +86,10 @@ export const useAccountingCheckSyncedOrdersVariables = (
 };
 
 export const useAccountingCheckSyncedOrders = (
-  options?: QueryHookOptions<AccountingOrdersQueryResult>,
+  options?: QueryHookOptions<
+    AccountingCheckSyncedOrdersQuery,
+    AccountingCheckSyncedOrdersQueryVariables
+  >,
 ) => {
   const { t } = useTranslation('accounting');
   const { toast } = useToast();
@@ -94,22 +100,24 @@ export const useAccountingCheckSyncedOrders = (
     accountingCheckSyncedOrdersStatusCountsAtom,
   );
   const variables = useAccountingCheckSyncedOrdersVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<AccountingOrdersQueryResult>(
-    ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY,
-    {
-      ...options,
-      variables,
-      fetchPolicy: 'cache-and-network',
-    },
+  const {
+    data: queryData,
+    loading,
+    fetchMore,
+  } = useQuery(ACCOUNTING_CHECK_SYNCED_ORDERS_QUERY, {
+    ...options,
+    variables,
+    fetchPolicy: 'cache-and-network',
+  });
+  const data = toGraphqlView(queryData);
+
+  const [accountingCheckSynced, { loading: checking }] = useMutation(
+    ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION,
   );
 
-  const [accountingCheckSynced, { loading: checking }] = useMutation<{
-    accountingCheckSynced: AccountingCheckSyncedResponse[];
-  }>(ACCOUNTING_CHECK_SYNCED_ORDERS_MUTATION);
-
-  const [accountingSyncOrders, { loading: syncing }] = useMutation<{
-    accountingSyncOrders: AccountingSyncResult;
-  }>(ACCOUNTING_SYNC_ORDERS_MUTATION);
+  const [accountingSyncOrders, { loading: syncing }] = useMutation(
+    ACCOUNTING_SYNC_ORDERS_MUTATION,
+  );
 
   const orders = useMemo(
     () =>
@@ -120,7 +128,10 @@ export const useAccountingCheckSyncedOrders = (
       })),
     [checkedOrders, data?.posOrders],
   );
-  const totalCount = data?.posOrdersTotalCount || 0;
+  const totalCount =
+    typeof data?.posOrdersTotalCount === 'number'
+      ? data.posOrdersTotalCount
+      : 0;
 
   const { setToSync: setOrderToSync, setAllToSync: setAllOrdersToSync } =
     useSyncToggle(setToSyncOrderIds);
@@ -207,7 +218,7 @@ export const useAccountingCheckSyncedOrders = (
         },
       });
 
-      const result = response.data?.accountingSyncOrders;
+      const result = toGraphqlView(response.data?.accountingSyncOrders);
 
       if (!result) {
         summary.error += batchIds.length;
@@ -303,7 +314,11 @@ export const useAccountingCheckSyncedOrders = (
   };
 
   useEffect(() => {
-    setTotalCount(data?.posOrdersTotalCount ?? null);
+    setTotalCount(
+      typeof data?.posOrdersTotalCount === 'number'
+        ? data.posOrdersTotalCount
+        : null,
+    );
   }, [data?.posOrdersTotalCount, setTotalCount]);
 
   useEffect(() => {

@@ -76,7 +76,7 @@ export const queries = `
     sortDirection: Int
   ): [AdjustInventory]
   adjustInventoriesCount(${AdjustInventoriesQueryParams}): Int
-  adjustInventoryDetail(_id: String): AdjustInventory
+  adjustInventoryDetail(_id: String!): AdjustInventory
   adjustInventoryDetails(
     _id: String!,
     page: Int,

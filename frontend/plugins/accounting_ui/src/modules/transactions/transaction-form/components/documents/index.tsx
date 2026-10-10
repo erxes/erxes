@@ -70,7 +70,9 @@ export const PrintBody = ({
   const printDocuments = PRINT_DOCUMENTS as Partial<
     Record<TrJournalEnum, ComponentType<{ transaction: ITransaction }> | ''>
   >;
-  const Component = printDocuments[transaction.journal];
+  const Component = transaction.journal
+    ? printDocuments[transaction.journal]
+    : undefined;
   if (!Component) {
     return <div className="p-10 text-red-500">Баримт олдсонгүй.</div>;
   }

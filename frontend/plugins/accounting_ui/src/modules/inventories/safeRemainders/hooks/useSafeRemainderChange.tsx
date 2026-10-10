@@ -1,7 +1,6 @@
 import {
   ApolloError,
   MutationFunctionOptions,
-  OperationVariables,
   useMutation,
 } from '@apollo/client';
 import { toast } from 'erxes-ui';
@@ -19,10 +18,12 @@ import {
 } from '../graphql/safeRemainderQueries';
 
 type SafeRemainderMutationData = Record<string, unknown>;
-type SafeRemainderMutationOptions = MutationFunctionOptions<
-  SafeRemainderMutationData,
-  OperationVariables
->;
+type SafeRemainderMutationOptions = Pick<
+  MutationFunctionOptions<SafeRemainderMutationData>,
+  'onCompleted' | 'onError'
+> & {
+  variables?: { page?: number; perPage?: number };
+};
 
 const commonOptions = (
   id: string,
@@ -64,10 +65,7 @@ const commonOptions = (
 };
 
 export const useSafeRemainderReCalc = () => {
-  const [reCaclMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_RECALC);
+  const [reCaclMutation, { loading }] = useMutation(SAFE_REMAINDER_RECALC);
 
   const reCalcSafeRemainder = (
     id: string,
@@ -90,10 +88,7 @@ export const useSafeRemainderReCalc = () => {
 };
 
 export const useSafeRemainderSubmit = () => {
-  const [submitMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_SUBMIT);
+  const [submitMutation, { loading }] = useMutation(SAFE_REMAINDER_SUBMIT);
 
   const submitSafeRemainder = (
     id: string,
@@ -116,10 +111,7 @@ export const useSafeRemainderSubmit = () => {
 };
 
 export const useSafeRemainderCancel = () => {
-  const [cancelMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_CANCEL);
+  const [cancelMutation, { loading }] = useMutation(SAFE_REMAINDER_CANCEL);
 
   const cancelSafeRemainder = (
     id: string,
@@ -142,10 +134,7 @@ export const useSafeRemainderCancel = () => {
 };
 
 export const useSafeRemainderDoTr = () => {
-  const [doTrMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_DO_TR);
+  const [doTrMutation, { loading }] = useMutation(SAFE_REMAINDER_DO_TR);
 
   const doTrSafeRemainder = (
     id: string,
@@ -168,10 +157,7 @@ export const useSafeRemainderDoTr = () => {
 };
 
 export const useSafeRemainderUndoTr = () => {
-  const [undoTrMutation, { loading }] = useMutation<
-    SafeRemainderMutationData,
-    OperationVariables
-  >(SAFE_REMAINDER_UNDO_TR);
+  const [undoTrMutation, { loading }] = useMutation(SAFE_REMAINDER_UNDO_TR);
 
   const undoTrSafeRemainder = (
     id: string,

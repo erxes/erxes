@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
@@ -129,7 +130,7 @@ const buildFollowDetails = ({
             ? fixNum(summary[amountKey] / summary.count)
             : 0,
           amount: summary[amountKey],
-        }) as ITrDetail,
+        } as ITrDetail),
     );
 
 const buildFollowTr = ({
@@ -190,12 +191,11 @@ export const useFxaDisposalFollowTrs = ({
       ),
     [trDoc?.details],
   );
-  const { data, loading } = useQuery<{
-    fixedAssets: TFxaDisposalInstance[];
-  }>(FIXED_ASSETS_QUERY, {
+  const { data: queryData, loading } = useQuery(FIXED_ASSETS_QUERY, {
     variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
     skip: !fixedAssetIds.length,
   });
+  const data = toGraphqlView(queryData);
 
   useEffect(() => {
     if (!trDoc || loading || !data) {
@@ -203,7 +203,7 @@ export const useFxaDisposalFollowTrs = ({
     }
 
     const hasAllFixedAssets = fixedAssetIds.every((fixedAssetId) =>
-      data.fixedAssets.some((fixedAsset) => fixedAsset._id === fixedAssetId),
+      data.fixedAssets?.some((fixedAsset) => fixedAsset._id === fixedAssetId),
     );
     if (!hasAllFixedAssets) {
       return;

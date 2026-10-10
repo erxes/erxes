@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_CREATE } from '../graphql/mutations/accTransactionsCreate';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
 import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
-export const useTransactionsCreate = (options?: OperationVariables) => {
+export const useTransactionsCreate = (
+  options?: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_CREATE>,
+) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const variables = useTransactionsVariables();
@@ -16,10 +20,12 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
     options,
   );
 
-  const createTransaction = (options?: OperationVariables) => {
+  const createTransaction = (
+    options?: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_CREATE>,
+  ) => {
     return _createTransaction({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -27,12 +33,12 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
         });
         options?.onError?.(error);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: t('success'),
           description: t('transactions-created-successfully'),
         });
-        options?.onCompleted();
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {
@@ -42,7 +48,7 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
       ],
       awaitRefetchQueries: true,
       update: (_cache, { data }) => {
-        const newParentId = data?.accTransactionsCreate[0]?.parentId;
+        const newParentId = data?.accTransactionsCreate?.[0]?.parentId;
 
         const pathname = newParentId
           ? `/accounting/transaction/edit?parentId=${newParentId}`

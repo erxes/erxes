@@ -25,7 +25,7 @@ const FixedAssetCategoryMoreCell = ({
 }: {
   cell: Cell<IFixedAssetCategory, unknown>;
 }) => {
-  const [, setOpen] = useQueryState('fixedAssetCategoryId');
+  const [, setOpen] = useQueryState<string>('fixedAssetCategoryId');
   const { confirm } = useConfirm();
   const { removeFixedAssetCategory } = useFixedAssetCategoryRemove();
 

@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { ADJUST_INVENTORY_PUBLISH } from '../graphql/adjustInventoryChange';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +12,7 @@ import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
 export const useAdjustInventoryPublish = (
   adjustId: string,
-  options?: OperationVariables,
+  options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_PUBLISH>,
 ) => {
   const { t } = useTranslation('accounting');
   const [_publishMutation, { loading }] = useMutation(
@@ -18,14 +20,16 @@ export const useAdjustInventoryPublish = (
     options,
   );
 
-  const publishAdjust = (options?: OperationVariables) => {
+  const publishAdjust = (
+    options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_PUBLISH>,
+  ) => {
     return _publishMutation({
       ...options,
       variables: {
         adjustId,
         ...options?.variables,
       },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

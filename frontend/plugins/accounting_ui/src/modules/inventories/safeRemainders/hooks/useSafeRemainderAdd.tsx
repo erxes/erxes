@@ -1,10 +1,14 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { SAFE_REMAINDER_ADD } from '../graphql/safeRemainderAdd';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export const useSafeRemainderAdd = (options?: OperationVariables) => {
+export const useSafeRemainderAdd = (
+  options?: GraphqlMutationOptions<typeof SAFE_REMAINDER_ADD>,
+) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const [_addSafeRemainder, { loading }] = useMutation(
@@ -12,10 +16,12 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
     options,
   );
 
-  const addSafeRemainder = (options?: OperationVariables) => {
+  const addSafeRemainder = (
+    options?: GraphqlMutationOptions<typeof SAFE_REMAINDER_ADD>,
+  ) => {
     return _addSafeRemainder({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -23,14 +29,14 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
         });
         options?.onError?.(error);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: t('success'),
           description: t('safe-remainder-created'),
         });
-        options?.onCompleted();
+        options?.onCompleted?.(data);
       },
-      refetchQueries: ['SafeRemainders'],
+      refetchQueries: ['accountingSafeRemainders'],
       update: (_cache, { data }) => {
         const newId = data?.safeRemainderAdd?._id;
 

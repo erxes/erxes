@@ -278,17 +278,17 @@ export const InventoryRow = ({
       accountId: trDoc.followInfos?.saleOutAccountId,
       branchId: trDoc.branchId,
       departmentId: trDoc.departmentId,
-      productIds: [detail.productId],
+      productIds: detail.productId ? [detail.productId] : [],
     },
     skip:
       !detail.productId ||
       !trDoc.followInfos?.saleOutAccountId ||
       (!hasProductChanged.current &&
-        initProductId.current &&
+        Boolean(initProductId.current) &&
         detail.productId === initProductId.current &&
         trDoc.branchId === initBranchId.current &&
         trDoc.departmentId === initDepartmentId.current &&
-        initOutAccountId.current &&
+        Boolean(initOutAccountId.current) &&
         trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
   });
 
@@ -297,12 +297,12 @@ export const InventoryRow = ({
     loading: loadingSelectedProductUnitPrice,
   } = useGetAccountingProductUnitPrice({
     variables: {
-      _id: detail.productId,
+      _id: detail.productId ?? '',
     },
     skip:
       !detail.productId ||
       (!hasProductChanged.current &&
-        initProductId.current &&
+        Boolean(initProductId.current) &&
         detail.productId === initProductId.current),
   });
 
@@ -349,7 +349,7 @@ export const InventoryRow = ({
       loadingSelectedProductUnitPrice ||
       !detail.productId ||
       (!hasProductChanged.current &&
-        initProductId.current &&
+        Boolean(initProductId.current) &&
         detail.productId === initProductId.current)
     ) {
       return;

@@ -1,19 +1,26 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type { QueryHookOptions } from '@apollo/client';
+import type { ResultOf, VariablesOf } from '@graphql-typed-document-node/core';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { GET_CTAXS, SELECT_CTAXS } from '../graphql/queries/getCtaxs';
 import {
   CTAX_ROW_DEFAULT_VARIABLES,
   CTAX_ROW_PER_PAGE,
 } from '../constants/ctaxRowDefaultVariables';
-import { ICtaxRow } from '../types/CtaxRow';
 
 export const useCtaxRows = (
-  options?: OperationVariables,
+  options?: QueryHookOptions<
+    ResultOf<typeof GET_CTAXS | typeof SELECT_CTAXS>,
+    VariablesOf<typeof GET_CTAXS>
+  >,
   inSelect?: boolean,
 ) => {
-  const { data, loading, fetchMore, error } = useQuery<{
-    ctaxRows: ICtaxRow[];
-    ctaxRowsCount: number;
-  }>(inSelect ? SELECT_CTAXS : GET_CTAXS, {
+  const {
+    data: queryData,
+    loading,
+    fetchMore,
+    error,
+  } = useQuery(inSelect ? SELECT_CTAXS : GET_CTAXS, {
     onError: () => {
       // Do nothing
     },
@@ -23,6 +30,7 @@ export const useCtaxRows = (
       ...options?.variables,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const { ctaxRows, ctaxRowsCount } = data || {};
 
@@ -36,7 +44,10 @@ export const useCtaxRows = (
       updateQuery: (prev, { fetchMoreResult }) => {
         return {
           ...prev,
-          ctaxRows: [...prev.ctaxRows, ...fetchMoreResult.ctaxRows],
+          ctaxRows: [
+            ...(prev.ctaxRows ?? []),
+            ...(fetchMoreResult.ctaxRows ?? []),
+          ],
         };
       },
     });

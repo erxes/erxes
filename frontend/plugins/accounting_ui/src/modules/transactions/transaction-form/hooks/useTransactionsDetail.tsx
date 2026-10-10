@@ -1,26 +1,40 @@
-import { useQuery, OperationVariables } from '@apollo/client';
+import { readTransactionViews } from '@/transactions/utils/transactionView';
+import type {
+  AccountingAccTransactionsDetailQuery,
+  AccountingAccTransactionsDetailQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
 import { TRANSACTIONS_DETAIL_QUERY } from '../graphql/queries/accTransactionsDetail';
-import { ITransaction } from '../../types/Transaction';
+
 import { ACCOUNTING_TRANSACTION_CHANGED } from '../../graphql/transactionSubscriptions';
 
-export const useTransactionsDetail = (options?: OperationVariables) => {
+export const useTransactionsDetail = (
+  options?: QueryHookOptions<
+    AccountingAccTransactionsDetailQuery,
+    AccountingAccTransactionsDetailQueryVariables
+  >,
+) => {
   const parentId = options?.variables?._id;
-  const { data, loading, error, refetch, subscribeToMore } = useQuery<
-    { accTransactionsDetail: ITransaction[] },
-    OperationVariables
-  >(TRANSACTIONS_DETAIL_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    refetch,
+    subscribeToMore,
+  } = useQuery(TRANSACTIONS_DETAIL_QUERY, {
     ...options,
   });
+  const data = toGraphqlView(queryData);
 
   useEffect(() => {
     if (!parentId) {
       return;
     }
 
-    const unsubscribe = subscribeToMore<{
-      accountingTransactionChanged?: { action?: string };
-    }>({
+    const unsubscribe = subscribeToMore({
       document: ACCOUNTING_TRANSACTION_CHANGED,
       variables: {
         parentId,
@@ -28,7 +42,12 @@ export const useTransactionsDetail = (options?: OperationVariables) => {
       updateQuery: (prev, { subscriptionData }) => {
         const changed = subscriptionData.data?.accountingTransactionChanged;
 
-        if (changed?.action === 'removed') {
+        if (
+          changed &&
+          typeof changed === 'object' &&
+          'action' in changed &&
+          changed.action === 'removed'
+        ) {
           return {
             accTransactionsDetail: [],
           };
@@ -47,7 +66,10 @@ export const useTransactionsDetail = (options?: OperationVariables) => {
     };
   }, [parentId, refetch, subscribeToMore]);
 
-  const transactions = data?.accTransactionsDetail;
+  const { transactions, error: metadataError } = useMemo(
+    () => readTransactionViews(data?.accTransactionsDetail),
+    [data?.accTransactionsDetail],
+  );
   const activeTrs = useMemo(
     () => transactions?.filter((tr) => !tr.originId),
     [transactions],
@@ -62,6 +84,6 @@ export const useTransactionsDetail = (options?: OperationVariables) => {
     activeTrs,
     followTrs,
     loading,
-    error,
+    error: metadataError ?? error,
   };
 };

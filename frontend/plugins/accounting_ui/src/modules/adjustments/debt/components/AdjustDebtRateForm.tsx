@@ -104,7 +104,7 @@ const AdjustDebtRateFormContent = ({
         mainCurrency: adjustDebtRate.mainCurrency,
         currency: adjustDebtRate.currency,
         spotRate: adjustDebtRate.spotRate,
-        date: new Date(adjustDebtRate.date),
+        date: new Date(adjustDebtRate.date ?? Date.now()),
         customerType: adjustDebtRate.customerType || '',
         customerId: adjustDebtRate.customerId || '',
         description: adjustDebtRate.description || '',

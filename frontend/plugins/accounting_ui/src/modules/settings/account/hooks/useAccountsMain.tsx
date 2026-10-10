@@ -1,9 +1,16 @@
+import {
+  mergeGraphqlCursorData,
+  toCursorPageInfo,
+} from '@/utils/graphqlCursor';
+import type {
+  AccountingAccountsMainQuery,
+  AccountingAccountsMainQueryVariables,
+} from '~/gql/graphql';
+import { toGraphqlView } from '@/utils/graphql';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
@@ -69,21 +76,25 @@ export const useAccountsVariables = (
   };
 };
 
-export const useAccountsMain = (options?: QueryHookOptions) => {
+export const useAccountsMain = (
+  options?: QueryHookOptions<
+    AccountingAccountsMainQuery,
+    AccountingAccountsMainQueryVariables
+  >,
+) => {
   const variables = useAccountsVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<{
-    accountsMain: {
-      list: IAccount[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(GET_ACCOUNTS_MAIN, {
+  const {
+    data: queryData,
+    loading,
+    fetchMore,
+  } = useQuery(GET_ACCOUNTS_MAIN, {
     ...options,
     variables: {
       ...options?.variables,
       ...variables,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const { list: accountsMain, totalCount, pageInfo } = data?.accountsMain || {};
 
@@ -95,7 +106,7 @@ export const useAccountsMain = (options?: QueryHookOptions) => {
     if (
       !validateFetchMore({
         direction,
-        pageInfo,
+        pageInfo: toCursorPageInfo(pageInfo),
       })
     ) {
       return;
@@ -113,7 +124,7 @@ export const useAccountsMain = (options?: QueryHookOptions) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          accountsMain: mergeCursorData({
+          accountsMain: mergeGraphqlCursorData({
             direction,
             fetchMoreResult: fetchMoreResult.accountsMain,
             prevResult: prev.accountsMain,
@@ -128,6 +139,6 @@ export const useAccountsMain = (options?: QueryHookOptions) => {
     accountsMain,
     totalCount,
     handleFetchMore,
-    pageInfo,
+    pageInfo: toCursorPageInfo(pageInfo),
   };
 };

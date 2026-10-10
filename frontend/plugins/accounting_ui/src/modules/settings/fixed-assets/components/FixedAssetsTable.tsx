@@ -23,7 +23,7 @@ import { useFixedAssets } from '../hooks/useFixedAssets';
 import { IFixedAsset, IFixedAssetCategory } from '../types/FixedAsset';
 
 const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
-  const [, setOpen] = useQueryState('fixedAssetId');
+  const [, setOpen] = useQueryState<string>('fixedAssetId');
   const { confirm } = useConfirm();
   const { removeFixedAsset } = useFixedAssetRemove();
 
@@ -71,7 +71,9 @@ const CategoryCell = ({
   cell: Cell<IFixedAsset, unknown>;
   categoriesById: Record<string, IFixedAssetCategory>;
 }) => {
-  const category = categoriesById[cell.row.original.categoryId];
+  const category = cell.row.original.categoryId
+    ? categoriesById[cell.row.original.categoryId]
+    : undefined;
 
   return (
     <RecordTableInlineCell>

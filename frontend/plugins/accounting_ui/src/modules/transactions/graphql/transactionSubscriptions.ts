@@ -1,11 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ACCOUNTING_TRANSACTION_CHANGED = gql`
-  subscription AccountingTransactionChanged($parentId: String) {
-    accountingTransactionChanged(parentId: $parentId)
-  }
-`;
-
-export default {
-  ACCOUNTING_TRANSACTION_CHANGED,
-};
+export const ACCOUNTING_TRANSACTION_CHANGED = gql(`
+subscription AccountingTransactionChanged($parentId: String) {
+  accountingTransactionChanged(parentId: $parentId)
+}
+`);

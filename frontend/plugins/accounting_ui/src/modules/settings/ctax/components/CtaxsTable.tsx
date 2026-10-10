@@ -19,7 +19,7 @@ export const CtaxMoreColumnCell = ({
   cell: Cell<ICtaxRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState('ctax_row_id');
+  const [, setOpen] = useQueryState<string>('ctax_row_id');
   const { confirm } = useConfirm();
   const { removeCtaxRows } = useCtaxRowsRemove();
 

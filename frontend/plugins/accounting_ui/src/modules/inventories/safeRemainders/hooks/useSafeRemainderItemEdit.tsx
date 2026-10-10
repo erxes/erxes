@@ -1,27 +1,24 @@
-import {
-  MutationFunctionOptions,
-  OperationVariables,
-  useMutation,
-} from '@apollo/client';
+import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SAFE_REMAINDER_ITEM_EDIT } from '../graphql/safeRemainderChange';
-import { ISafeRemainderItem } from '../types/SafeRemainder';
+import type {
+  AccountingSafeRemainderItemEditMutation,
+  AccountingSafeRemainderItemEditMutationVariables,
+} from '~/gql/graphql';
 
 export const useSafeRemainderItemEdit = () => {
   const { t } = useTranslation('accounting');
-  const [_editRemItem, { loading }] = useMutation<
-    { safeRemainderItemEdit: ISafeRemainderItem },
-    OperationVariables
-  >(SAFE_REMAINDER_ITEM_EDIT);
+  const [_editRemItem, { loading }] = useMutation(SAFE_REMAINDER_ITEM_EDIT);
 
   const editRemItem = (
     options: MutationFunctionOptions<
-      { safeRemainderItemEdit: ISafeRemainderItem },
-      OperationVariables
+      AccountingSafeRemainderItemEditMutation,
+      AccountingSafeRemainderItemEditMutationVariables
     >,
   ) => {
-    const variables = options?.variables || {};
+    const variables = options.variables;
+    if (!variables?._id) throw new Error('Item id is required');
     return _editRemItem({
       ...options,
       variables,
@@ -41,7 +38,7 @@ export const useSafeRemainderItemEdit = () => {
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['SafeRemainderItems'],
+      refetchQueries: ['accountingSafeRemainderItems'],
     });
   };
 

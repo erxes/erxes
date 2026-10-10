@@ -24,7 +24,7 @@ export const SafeRemainderDetailTr = () => {
   const [id] = useQueryState<string>('id');
 
   const { safeRemainder, loading } = useSafeRemainderDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
@@ -34,7 +34,7 @@ export const SafeRemainderDetailTr = () => {
     loading: detailsLoading,
     handleFetchMore,
   } = useSafeRemainderDetails({
-    variables: { remainderId: id },
+    variables: { remainderId: id ?? '' },
     skip: !id,
   });
 
@@ -65,7 +65,9 @@ export const SafeRemainderDetailTr = () => {
             <Button
               variant="secondary"
               className="text-destructive"
-              onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+              onClick={() =>
+                removeSafeRemainder({ variables: { _id: id ?? '' } })
+              }
             >
               <IconTrashX />
               {t('delete')}

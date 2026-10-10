@@ -1,4 +1,6 @@
-import { gql, useQuery } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { gql } from '~/gql';
+import { useQuery } from '@apollo/client';
 import { IconReceipt } from '@tabler/icons-react';
 import {
   CurrencyCode,
@@ -10,34 +12,34 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-const RELATED_TRANSACTIONS_QUERY = gql`
-  query RelatedTransactions($contentType: String!, $contentId: String!) {
-    accTransactionsByContent(
-      contentType: $contentType
-      contentId: $contentId
-      page: 1
-      perPage: 20
-    ) {
-      totalCount
-      list {
-        _id
-        parentId
-        number
-        ptrNumber
-        journal
-        status
-        sumDt
-        sumCt
-        details {
-          account {
-            code
-            name
-          }
+const RELATED_TRANSACTIONS_QUERY = gql(`
+query accountingRelatedTransactions($contentType: String!, $contentId: String!) {
+  accTransactionsByContent(
+    contentType: $contentType
+    contentId: $contentId
+    page: 1
+    perPage: 20
+  ) {
+    totalCount
+    list {
+      _id
+      parentId
+      number
+      ptrNumber
+      journal
+      status
+      sumDt
+      sumCt
+      details {
+        account {
+          code
+          name
         }
       }
     }
   }
-`;
+}
+`);
 
 type TransactionAccount = {
   code?: string;
@@ -87,12 +89,7 @@ export const Transactions = ({
   contentType: string;
 }) => {
   const { t } = useTranslation('accounting');
-  const { data, loading } = useQuery<{
-    accTransactionsByContent: {
-      list: RelatedTransaction[];
-      totalCount: number;
-    };
-  }>(RELATED_TRANSACTIONS_QUERY, {
+  const { data: queryData, loading } = useQuery(RELATED_TRANSACTIONS_QUERY, {
     variables: {
       contentType,
       contentId,
@@ -100,6 +97,7 @@ export const Transactions = ({
     fetchPolicy: 'network-only',
     skip: !contentId || !contentType,
   });
+  const data = toGraphqlView(queryData);
 
   const transactionsByContent = data?.accTransactionsByContent;
   const transactions = transactionsByContent?.list || [];

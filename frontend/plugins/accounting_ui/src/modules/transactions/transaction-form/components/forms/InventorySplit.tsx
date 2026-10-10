@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import {
   Checkbox,
@@ -41,11 +42,6 @@ type TSplitInfo = NonNullable<
   NonNullable<TSplitJournal['details'][number]['followInfos']>['invSplit']
 >;
 
-type TProductUom = {
-  _id: string;
-  uom?: string;
-};
-
 const InventorySplitUomContext = createContext<ReadonlyMap<string, string>>(
   new Map(),
 );
@@ -75,21 +71,20 @@ export const InventorySplitProvider = ({
       ).filter((productId): productId is string => Boolean(productId)),
     [trDoc.details],
   );
-  const { data } = useQuery<{
-    productsMain: { list: TProductUom[] };
-  }>(ACCOUNTING_INVENTORY_SPLIT_PRODUCTS, {
+  const { data: queryData } = useQuery(ACCOUNTING_INVENTORY_SPLIT_PRODUCTS, {
     variables: { ids: productIds },
     skip: productIds.length === 0,
   });
+  const data = toGraphqlView(queryData);
   const uomByProductId = useMemo(
     () =>
       new Map(
-        (data?.productsMain.list || []).map((product) => [
+        (data?.productsMain?.list || []).map((product) => [
           product._id,
           product.uom || '',
         ]),
       ),
-    [data?.productsMain.list],
+    [data?.productsMain?.list],
   );
 
   return (
@@ -191,7 +186,9 @@ export const InventorySplitSheet = ({
                     <Form.Label>Задрах бараа</Form.Label>
                     <Form.Control>
                       <SelectProduct
-                        value={field.value || ''}
+                        value={
+                          typeof field.value === 'string' ? field.value : ''
+                        }
                         onValueChange={(productId) =>
                           form.setValue(splitProductPath, productId, {
                             shouldDirty: true,
@@ -214,7 +211,9 @@ export const InventorySplitSheet = ({
                     <Form.Label>Задрах харьцаа</Form.Label>
                     <Form.Control>
                       <InputNumber
-                        value={field.value ?? 0}
+                        value={
+                          typeof field.value === 'number' ? field.value : 0
+                        }
                         onChange={(value) =>
                           form.setValue(splitRatioPath, value || 0, {
                             shouldDirty: true,

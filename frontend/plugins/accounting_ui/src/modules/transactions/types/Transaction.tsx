@@ -1,128 +1,22 @@
-import { IAccount } from '@/settings/account/types/Account';
-import { CustomerType, IBranch, IDepartment, IProduct } from 'ui-modules';
-import { IVatRow } from '@/settings/vat/types/VatRow';
-import { ICtaxRow } from '@/settings/ctax/types/CtaxRow';
-import { TrJournalEnum } from './constants';
+import type { GraphqlView } from '@/utils/graphql';
+import type { AccountingAccTrRecordsQuery } from '~/gql/graphql';
+import {
+  toTransactionView,
+  TransactionDetailView,
+} from '../utils/transactionView';
 
-export interface ITrDetail {
-  _id?: string;
-  accountId?: string;
-  branchId?: string;
-  departmentId?: string;
-  originId?: string;
-  originType?: string;
-  followInfos?: any;
-
-  amount?: number;
-  currencyAmount?: number;
-  customRate?: number;
-  assignedUserId?: string;
-
-  excludeVat?: boolean;
-  excludeCtax?: boolean;
-
-  productId?: string;
-  fixedAssetId?: string;
-  fixedAssetCategoryId?: string;
-  fixedAssetCode?: string;
-  fixedAssetName?: string;
-  count?: number;
-  unitPrice?: number;
-  weight?: number;
-  tempAmount?: number;
-
-  account?: IAccount;
-  branch?: IBranch;
-  department?: IDepartment;
-  checked?: boolean;
-  product?: IProduct;
-}
-
-interface ICommontTr {
-  _id?: string;
-  date?: Date;
-  description?: string;
-  status?: string;
-  mentionOwnerId?: string;
-  mentionUserIds?: string[];
-  ptrId?: string;
-  parentId?: string;
-  number?: string;
-  ptrNumber?: string;
-  journal: TrJournalEnum;
-  ptrStatus?: string;
-  originId?: string;
-  originType?: string;
-  originSubId?: string;
-
-  followExtras?: any;
-  preTrId?: string;
-
-  branchId?: string;
-  departmentId?: string;
-  customerType?: CustomerType;
-  customerId?: string;
-  assignedUserIds?: string[];
-
-  createdBy?: string;
-  modifiedBy?: string;
-
-  createdAt?: Date;
-  updatedAt?: Date;
-
-  followInfos?: any;
-
-  hasVat?: boolean;
-  vatRowId?: string;
-  afterVat?: boolean;
-  isHandleVat?: boolean;
-  vatAmount?: number;
-  vatRow?: IVatRow;
-
-  hasCtax?: boolean;
-  ctaxRowId?: string;
-  isHandleCtax?: boolean;
-  ctaxAmount?: number;
-  ctaxRow?: ICtaxRow;
-
-  extraData?: any;
-  contentType?: string;
-  contentId?: string;
-
-  sumDt?: number;
-  sumCt?: number;
-  side: string;
-  relAccounts?: {
-    dt?: string[];
-    ct?: string[];
-    customDt?: string[];
-    customCt?: string[];
-  };
-  permission?: string;
-
-  branch?: IBranch;
-  department?: IDepartment;
-}
-
-export interface ITransaction extends ICommontTr {
-  details: ITrDetail[];
-  shortDetail?: ITrDetail;
-  customer?: {
-    _id: string;
-    code?: string;
-    primaryPhone?: string;
-    firstName?: string;
-    primaryEmail?: string;
-    lastName?: string;
-  };
-}
-
-export interface ITrRecord extends ICommontTr {
-  details: ITrDetail;
-  shortDetail: ITrDetail;
-  detailInd: number;
-  trId: string;
-}
+export type ITransaction = Omit<
+  Partial<ReturnType<typeof toTransactionView>>,
+  'details'
+> & { details: ITrDetail[] };
+export type ITrDetail = Partial<TransactionDetailView>;
+export type ITrRecord = GraphqlView<
+  NonNullable<
+    NonNullable<
+      NonNullable<AccountingAccTrRecordsQuery['accTrRecordsMain']>['list']
+    >[number]
+  >
+>;
 
 export const trsQueryParamTypes: { [key: string]: string } = {
   ids: 'string[]',

@@ -22,8 +22,7 @@ import {
 } from '~/modules/inventories/remainders/products-filter/components/selects/NumberRangeFilter';
 import { ACCOUNT_PERMISSIONS } from '../../types/Permission';
 
-type ScopeOption =
-  (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
+type ScopeOption = (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
 
 const splitCsv = (value?: string | null): string[] =>
   (value ?? '')
@@ -95,7 +94,7 @@ const UserPickerCommand = ({
 
 const UserBarLabel = ({ userId }: { userId: string }) => {
   const { userDetail } = useMemberInline({
-    variables: { _id: userId },
+    variables: { _id: userId ?? '' },
     skip: !userId,
   });
   const fullName = userDetail?.details?.fullName || userDetail?.email || userId;
@@ -176,7 +175,11 @@ const ScopeMultiCommand = ({
   const { t } = useTranslation('accounting');
   return (
     <Command>
-      <Command.Input placeholder={t('search')} variant="secondary" focusOnMount />
+      <Command.Input
+        placeholder={t('search')}
+        variant="secondary"
+        focusOnMount
+      />
       <Command.List className="p-1">
         <Command.Empty>{t('no-results-found')}</Command.Empty>
         {options.map((option) => {

@@ -1,38 +1,62 @@
-import { useQuery, OperationVariables } from '@apollo/client';
+import type {
+  AccountingGetAccCurrentCostQuery,
+  AccountingGetAccCurrentCostQueryVariables,
+  AccountingGetAccLastIncomePriceQuery,
+  AccountingGetAccLastIncomePriceQueryVariables,
+  AccountingProductUnitPriceQuery,
+  AccountingProductUnitPriceQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import {
   GET_ACCOUNTING_PRODUCT_UNIT_PRICE_QUERY,
   GET_ACC_CURRENT_COST_QUERY,
   GET_ACC_LAST_INCOME_PRICE_QUERY,
 } from '../graphql/queries/invCostInfo';
 
-export interface IInvCostInfo {
-  [productId: string]: {
-    unitCost: number;
-    remainder: number;
-    totalCost: number;
-  };
-}
+export type IInvCostInfo = Record<
+  string,
+  Omit<
+    AccountingGetAccCurrentCostQuery['getAccCurrentCost'][number],
+    'productId'
+  >
+>;
 
 export type ILastIncomePriceInfo = Record<string, number>;
 
-type TProductUnitPriceResponse = {
-  productDetail?: {
-    _id: string;
-    unitPrice?: number | null;
-    weight?: number | null;
-  } | null;
-};
+export const toInvCostMap = (
+  rows: AccountingGetAccCurrentCostQuery['getAccCurrentCost'],
+): IInvCostInfo =>
+  Object.fromEntries(rows.map(({ productId, ...cost }) => [productId, cost]));
 
-// getAccCurrentCost(date: Date, currency: String, mainCurrency: String): ExchangeRate
-export const useGetAccCurrentCost = (options?: OperationVariables) => {
-  const { data, loading, error } = useQuery<
-    { getAccCurrentCost: IInvCostInfo },
-    OperationVariables
-  >(GET_ACC_CURRENT_COST_QUERY, {
+export const toIncomePriceMap = (
+  rows: AccountingGetAccLastIncomePriceQuery['getAccLastIncomePrice'],
+): ILastIncomePriceInfo =>
+  Object.fromEntries(
+    rows.map(({ productId, unitPrice }) => [productId, unitPrice]),
+  );
+
+export const useGetAccCurrentCost = (
+  options?: QueryHookOptions<
+    AccountingGetAccCurrentCostQuery,
+    AccountingGetAccCurrentCostQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(GET_ACC_CURRENT_COST_QUERY, {
     ...options,
   });
+  const data = toGraphqlView(queryData);
 
-  const currentCostInfo = data?.getAccCurrentCost;
+  const currentCostInfo = useMemo(
+    () => (data ? toInvCostMap(data.getAccCurrentCost) : undefined),
+    [data],
+  );
   return {
     currentCostInfo,
     loading,
@@ -40,30 +64,46 @@ export const useGetAccCurrentCost = (options?: OperationVariables) => {
   };
 };
 
-export const useGetAccLastIncomePrice = (options?: OperationVariables) => {
-  const { data, loading, error } = useQuery<
-    { getAccLastIncomePrice: ILastIncomePriceInfo },
-    OperationVariables
-  >(GET_ACC_LAST_INCOME_PRICE_QUERY, {
+export const useGetAccLastIncomePrice = (
+  options?: QueryHookOptions<
+    AccountingGetAccLastIncomePriceQuery,
+    AccountingGetAccLastIncomePriceQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(GET_ACC_LAST_INCOME_PRICE_QUERY, {
     ...options,
   });
+  const data = toGraphqlView(queryData);
 
+  const lastIncomePriceInfo = useMemo(
+    () => (data ? toIncomePriceMap(data.getAccLastIncomePrice) : undefined),
+    [data],
+  );
   return {
-    lastIncomePriceInfo: data?.getAccLastIncomePrice,
+    lastIncomePriceInfo,
     loading,
     error,
   };
 };
 
 export const useGetAccountingProductUnitPrice = (
-  options?: OperationVariables,
+  options?: QueryHookOptions<
+    AccountingProductUnitPriceQuery,
+    AccountingProductUnitPriceQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<
-    TProductUnitPriceResponse,
-    OperationVariables
-  >(GET_ACCOUNTING_PRODUCT_UNIT_PRICE_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(GET_ACCOUNTING_PRODUCT_UNIT_PRICE_QUERY, {
     ...options,
   });
+  const data = toGraphqlView(queryData);
 
   return {
     unitPrice: data?.productDetail?.unitPrice ?? 0,

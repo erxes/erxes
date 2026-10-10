@@ -92,7 +92,7 @@ const AdjustFundRateFormContent = ({
         mainCurrency: adjustFundRate.mainCurrency,
         currency: adjustFundRate.currency,
         spotRate: adjustFundRate.spotRate,
-        date: new Date(adjustFundRate.date),
+        date: new Date(adjustFundRate.date ?? Date.now()),
         description: adjustFundRate.description || '',
         gainAccountId: adjustFundRate.gainAccountId,
         lossAccountId: adjustFundRate.lossAccountId,

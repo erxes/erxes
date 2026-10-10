@@ -94,7 +94,7 @@ export const SelectCtaxValue = ({
 }) => {
   const { ctaxRowDetail, loading } = useCtaxValue({
     variables: {
-      id: ctaxRowId,
+      id: ctaxRowId ?? '',
     },
     skip: !ctaxRowId || !!ctaxRow,
   });

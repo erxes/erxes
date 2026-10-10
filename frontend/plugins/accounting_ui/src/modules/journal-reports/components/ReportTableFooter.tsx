@@ -2,7 +2,7 @@ import { ReportTable, useQueryState } from 'erxes-ui';
 import { getReportColumnCount } from './reportTableLayout';
 
 export const ReportTableFooter = () => {
-  const [report] = useQueryState('report');
+  const [report] = useQueryState<string>('report');
   const reportCode = typeof report === 'string' ? report : '';
   const columnCount = getReportColumnCount(reportCode);
 

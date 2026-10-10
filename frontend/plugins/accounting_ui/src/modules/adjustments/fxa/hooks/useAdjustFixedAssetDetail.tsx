@@ -1,16 +1,27 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingAdjustFixedAssetDetailQuery,
+  AccountingAdjustFixedAssetDetailQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import { ADJUST_FIXED_ASSET_DETAIL_QUERY } from '../graphql/adjustFixedAssetQueries';
 import { ACCOUNTING_ADJUST_FIXED_ASSET_CHANGED } from '../graphql/adjustFixedAssetSubscription';
-import { IAdjustFixedAsset } from '../types/AdjustFixedAsset';
 
-export const useAdjustFixedAssetDetail = (options?: OperationVariables) => {
-  const { data, loading, error, subscribeToMore } = useQuery<
-    {
-      adjustFixedAssetDetail?: IAdjustFixedAsset;
-    },
-    OperationVariables
-  >(ADJUST_FIXED_ASSET_DETAIL_QUERY, options);
+export const useAdjustFixedAssetDetail = (
+  options?: QueryHookOptions<
+    AccountingAdjustFixedAssetDetailQuery,
+    AccountingAdjustFixedAssetDetailQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    subscribeToMore,
+  } = useQuery(ADJUST_FIXED_ASSET_DETAIL_QUERY, options);
+  const data = toGraphqlView(queryData);
 
   useEffect(() => {
     const adjustId = options?.variables?._id;
@@ -19,9 +30,7 @@ export const useAdjustFixedAssetDetail = (options?: OperationVariables) => {
       return;
     }
 
-    const unsubscribe = subscribeToMore<{
-      accountingAdjustFixedAssetChanged: IAdjustFixedAsset;
-    }>({
+    const unsubscribe = subscribeToMore({
       document: ACCOUNTING_ADJUST_FIXED_ASSET_CHANGED,
       variables: { adjustId },
       updateQuery: (prev, { subscriptionData }) => {

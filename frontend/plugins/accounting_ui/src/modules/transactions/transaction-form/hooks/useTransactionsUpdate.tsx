@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_UPDATE } from '../graphql/mutations/accTransactionsUpdate';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +10,9 @@ import {
 } from '../../graphql/transactionQueries';
 import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
-export const useTransactionsUpdate = (options?: OperationVariables) => {
+export const useTransactionsUpdate = (
+  options?: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_UPDATE>,
+) => {
   const { t } = useTranslation('accounting');
   const variables = useTransactionsVariables();
   const [_updateTransaction, { loading }] = useMutation(
@@ -16,10 +20,12 @@ export const useTransactionsUpdate = (options?: OperationVariables) => {
     options,
   );
 
-  const updateTransaction = (options: OperationVariables) => {
+  const updateTransaction = (
+    options: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_UPDATE>,
+  ) => {
     return _updateTransaction({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

@@ -1,10 +1,10 @@
-import Accounts from './accounts';
+import { accountsMutations as Accounts } from './accounts';
 import AccountCategories from './accountCategories';
-import VatRows from './vatRows';
-import CtaxRows from './ctaxRows';
+import { vatRowsMutations as VatRows } from './vatRows';
+import { ctaxRowsMutations as CtaxRows } from './ctaxRows';
 import AccountingConfigs from './configs';
 import AccountingCheckSynced from './checkSynced';
-import Transactions from './transacations';
+import { transactionsMutations as Transactions } from './transacations';
 import AdjustInventories from './adjustInventories';
 import AdjustClosings from './adjustClosing';
 import AdjustFundRates from './adjustFundRates';

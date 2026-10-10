@@ -24,7 +24,7 @@ import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
 
-const DetailField = ({ label, value }: { label: string; value: string }) => (
+const DetailField = ({ label, value }: { label: string; value?: string }) => (
   <div>
     <p className="text-sm text-muted-foreground">{label}</p>
     <p className="font-medium">{value || '-'}</p>
@@ -155,7 +155,7 @@ export const AdjustDebtRateDetail = () => {
   const [editOpen, setEditOpen] = useState(false);
 
   const { adjustDebtRate, loading } = useAdjustDebtRateDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 

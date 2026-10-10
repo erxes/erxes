@@ -13,6 +13,7 @@ import {
   escapeRegExp,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import { validateRequiredId } from '../../validateRequired';
 
 export interface IAccountQueryParams {
   ids?: string[];
@@ -318,8 +319,9 @@ const accountQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
+    validateRequiredId(_id);
     return models.Accounts.findOne({ _id }).lean();
   },
 };
 
-export default accountQueries;
+export { accountQueries };

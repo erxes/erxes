@@ -1,12 +1,17 @@
 import { IContext } from '~/connectionResolvers';
-import { IAccount } from '@/accounting/@types/account';
+import { IAccount, IAccountsEdit } from '@/accounting/@types/account';
+import { validateRequiredIds } from '../../validateRequired';
 
 const accountsMutations = {
   /**
    * Creates a new account
    * @param {Object} doc Account document
    */
-  async accountsAdd(_root, doc: IAccount, { models, checkPermission }: IContext) {
+  async accountsAdd(
+    _root,
+    doc: IAccount,
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('manageAccounts');
 
     const account = await models.Accounts.createAccount(doc);
@@ -20,7 +25,7 @@ const accountsMutations = {
    */
   async accountsEdit(
     _root,
-    { _id, ...doc }: { _id: string } & IAccount,
+    { _id, ...doc }: IAccountsEdit,
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageAccounts');
@@ -44,6 +49,7 @@ const accountsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('removeAccounts');
+    validateRequiredIds(accountIds, 'accountIds');
 
     const response = await models.Accounts.removeAccounts(accountIds);
 
@@ -62,9 +68,10 @@ const accountsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('accountsMerge');
+    validateRequiredIds(accountIds, 'accountIds');
 
     return models.Accounts.mergeAccounts(accountIds, { ...accountFields });
   },
 };
 
-export default accountsMutations;
+export { accountsMutations };

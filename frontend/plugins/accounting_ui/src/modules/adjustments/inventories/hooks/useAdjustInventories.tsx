@@ -1,20 +1,34 @@
+import type {
+  AccountingAdjustInventoriesQuery,
+  AccountingAdjustInventoriesQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
 import { ADJUST_INVENTORIES_QUERY } from '../graphql/adjustInventoryQueries';
-import { OperationVariables, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { ACC_TRS__PER_PAGE } from '../../../transactions/types/constants';
 
-export const useAdjustInventories = (options?: OperationVariables) => {
-  const { data, loading, error, fetchMore } = useQuery(
-    ADJUST_INVENTORIES_QUERY,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        page: 1,
-        perPage: ACC_TRS__PER_PAGE,
-      },
+export const useAdjustInventories = (
+  options?: QueryHookOptions<
+    AccountingAdjustInventoriesQuery,
+    AccountingAdjustInventoriesQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(ADJUST_INVENTORIES_QUERY, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      page: 1,
+      perPage: ACC_TRS__PER_PAGE,
     },
-  );
-  const { adjustInventories, adjustInventoriesCount } = data || {};
+  });
+  const data = toGraphqlView(queryData);
+  const { adjustInventories = [], adjustInventoriesCount = 0 } = data || {};
 
   const handleFetchMore = () => {
     if (adjustInventories?.length < adjustInventoriesCount) {
@@ -28,8 +42,8 @@ export const useAdjustInventories = (options?: OperationVariables) => {
             ...prev,
             ...fetchMoreResult,
             adjustInventories: [
-              ...prev.adjustInventories,
-              ...fetchMoreResult.adjustInventories,
+              ...(prev.adjustInventories ?? []),
+              ...(fetchMoreResult.adjustInventories ?? []),
             ],
           };
         },
@@ -38,8 +52,8 @@ export const useAdjustInventories = (options?: OperationVariables) => {
   };
 
   return {
-    adjustInventories: data?.adjustInventories,
-    totalCount: data?.adjustInventoriesCount,
+    adjustInventories,
+    totalCount: adjustInventoriesCount,
     loading,
     error,
     handleFetchMore,

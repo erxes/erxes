@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_DEBT_RATE_DETAIL_QUERY } from '../graphql/adjustDebtRateQueries';
 import {
@@ -14,10 +16,15 @@ export const useAdjustDebtRateRun = (_id: string) => {
     ADJUST_DEBT_RATE_DO_TRANSACTION,
   );
 
-  const mutationOptions = (options?: OperationVariables) => ({
+  const mutationOptions = (
+    options?: Pick<
+      GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_CALCULATE>,
+      'variables' | 'onError'
+    >,
+  ) => ({
     ...options,
     variables: { _id, ...options?.variables },
-    onError: (error: Error) => {
+    onError: (error: ApolloError) => {
       toast({
         title: 'Error',
         description: error.message,
@@ -34,7 +41,9 @@ export const useAdjustDebtRateRun = (_id: string) => {
     awaitRefetchQueries: true,
   });
 
-  const calculateAdjustDebtRate = (options?: OperationVariables) =>
+  const calculateAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_CALCULATE>,
+  ) =>
     calculateMutation({
       ...mutationOptions(options),
       onCompleted: (data) => {
@@ -46,7 +55,9 @@ export const useAdjustDebtRateRun = (_id: string) => {
       },
     });
 
-  const runAdjustDebtRate = (options?: OperationVariables) =>
+  const runAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_DO_TRANSACTION>,
+  ) =>
     runMutation({
       ...mutationOptions(options),
       onCompleted: (data) => {

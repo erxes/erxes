@@ -11,6 +11,10 @@ import {
   ISafeRemainderItemTrInfo,
 } from '~/modules/inventories/@types/safeRemainderItems';
 import { setSafeRemItems } from './utils';
+import {
+  validateRequiredId,
+  validateRequiredIds,
+} from '~/modules/accounting/graphql/validateRequired';
 
 type ProductReference = {
   _id: string;
@@ -33,8 +37,8 @@ const getDefaultCountedCost = (
     activeCost === 0 && count > item.preCount
       ? (count - item.preCount) * (item.trInfo?.lastIncomePrice ?? 0)
       : item.preCount > 0
-        ? (activeCost / item.preCount) * count
-        : 0,
+      ? (activeCost / item.preCount) * count
+      : 0,
     6,
   );
 };
@@ -48,10 +52,7 @@ const validateCountedValues = (
   }
 
   const unitCost = trInfo?.unitCost;
-  if (
-    unitCost !== undefined &&
-    (!Number.isFinite(unitCost) || unitCost < 0)
-  ) {
+  if (unitCost !== undefined && (!Number.isFinite(unitCost) || unitCost < 0)) {
     throw new Error('Counted cost must be zero or greater');
   }
 };
@@ -65,7 +66,19 @@ export const mergeSafeRemainderImportItems = (
   }
 
   const merged: Record<string, MergedImportItem> = {};
+  if (!Array.isArray(productsData))
+    throw new Error('productsData must be an array');
   for (const item of productsData) {
+    if (
+      !item ||
+      typeof item.productCode !== 'string' ||
+      !item.productCode.trim()
+    ) {
+      throw new Error('Each import item must have a productCode');
+    }
+    if (typeof item.count !== 'number' || !Number.isFinite(item.count)) {
+      throw new Error('Each import item must have a finite count');
+    }
     validateCountedValues(item.count, item.trInfo);
 
     const existing = merged[item.productCode];
@@ -116,6 +129,7 @@ const safeRemainderItemMutations = {
     await checkPermission('manageSafeRemainders');
 
     const { _id, status, remainder, trInfo } = params;
+    validateRequiredId(_id);
     validateCountedValues(remainder, trInfo);
     let nextTrInfo = trInfo;
 
@@ -173,6 +187,7 @@ const safeRemainderItemMutations = {
   ) {
     await checkPermission('manageSafeRemainders');
 
+    validateRequiredId(safeRemainderId, 'safeRemainderId');
     const safeRemainder = await models.SafeRemainders.getRemainder(
       safeRemainderId,
     );
@@ -239,13 +254,13 @@ const safeRemainderItemMutations = {
         : 0;
       const importedTrInfo = importItem.trInfo;
       const existingTargetCost = existingItem
-        ? (existingItem.trInfo?.unitCost ??
-          getDefaultCountedCost(existingItem, existingItem.count))
+        ? existingItem.trInfo?.unitCost ??
+          getDefaultCountedCost(existingItem, existingItem.count)
         : 0;
       const targetCost =
         duplicateRule === 'add' && importedTrInfo?.unitCost !== undefined
           ? fixNum(existingTargetCost + importedTrInfo.unitCost, 6)
-          : (importedTrInfo?.unitCost ?? defaultCountedCost);
+          : importedTrInfo?.unitCost ?? defaultCountedCost;
       const trInfoSet = Object.entries(importedTrInfo ?? {}).reduce<
         Record<string, number | boolean>
       >((set, [key, value]) => {
@@ -257,8 +272,7 @@ const safeRemainderItemMutations = {
       trInfoSet['trInfo.unitCost'] = targetCost;
       trInfoSet['trInfo.isCostExplicit'] =
         importedTrInfo?.unitCost !== undefined;
-      trInfoSet['trInfo.lastIncomePrice'] =
-        lastIncomePrices[product._id] ?? 0;
+      trInfoSet['trInfo.lastIncomePrice'] = lastIncomePrices[product._id] ?? 0;
 
       const setOnInsert = {
         remainderId: safeRemainderId,
@@ -346,9 +360,10 @@ const safeRemainderItemMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('removeSafeRemainders');
+    validateRequiredIds(ids, 'ids');
 
     return models.SafeRemainderItems.removeItems(ids);
   },
 };
 
-export default safeRemainderItemMutations;
+export { safeRemainderItemMutations };

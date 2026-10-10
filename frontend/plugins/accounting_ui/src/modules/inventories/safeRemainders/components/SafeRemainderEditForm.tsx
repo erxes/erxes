@@ -16,6 +16,21 @@ import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderEdit } from '../hooks/useSafeRemainderEdit';
 import { TSafeRemainderEditForm } from '../types/safeRemainderForm';
 import { safeRemainderEditSchema } from '../types/safeRemainderSchema';
+import { z } from 'zod';
+
+const readRule = (value: unknown) => {
+  const parsed = z
+    .object({
+      accountId: z.string().optional(),
+      outAccountId: z.string().optional(),
+      costAccountId: z.string().optional(),
+      customerType: z.string().optional(),
+      customerId: z.string().optional(),
+    })
+    .passthrough()
+    .safeParse(value);
+  return parsed.success ? parsed.data : {};
+};
 
 export const EditSafeRemainder = () => {
   const { t } = useTranslation('accounting');
@@ -25,13 +40,30 @@ export const EditSafeRemainder = () => {
   });
   const [id] = useQueryState<string>('id');
   const { safeRemainder, loading: detailLoading } = useSafeRemainderDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
   useEffect(() => {
     if (safeRemainder) {
-      form.reset({ ...safeRemainder });
+      form.reset({
+        incomeRule: { accountId: '', ...readRule(safeRemainder.incomeRule) },
+        outRule: { accountId: '', ...readRule(safeRemainder.outRule) },
+        saleRule: {
+          accountId: '',
+          outAccountId: '',
+          costAccountId: '',
+          ...readRule(safeRemainder.saleRule),
+        },
+        costIncreaseRule: {
+          accountId: '',
+          ...readRule(safeRemainder.costIncreaseRule),
+        },
+        costDecreaseRule: {
+          accountId: '',
+          ...readRule(safeRemainder.costDecreaseRule),
+        },
+      });
     }
   }, [safeRemainder, form]);
 

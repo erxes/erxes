@@ -159,9 +159,10 @@ export const TransactionDocument = ({
 }) => {
   const journal = transaction.journal;
   const details = transaction?.details || [];
-  const isInventory = INVENTORY_JOURNALS.has(journal);
+  const isInventory = journal ? INVENTORY_JOURNALS.has(journal) : false;
 
-  const title = DOCUMENT_TITLES[journal] || 'Гүйлгээний баримт';
+  const title =
+    (journal ? DOCUMENT_TITLES[journal] : undefined) || 'Гүйлгээний баримт';
 
   const totalAmount = isInventory
     ? details.reduce(

@@ -1,12 +1,11 @@
-import {
-  AccountingCheckSyncedResponse,
-  AccountingCheckSyncedStatus,
-} from '../deals/types';
+import { AccountingCheckSyncedStatus } from '../deals/types';
 import { useCallback, useMemo } from 'react';
 
 import { ApolloError } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { AccountingCheckSyncedMutation } from '~/gql/graphql';
+import { toGraphqlView } from '@/utils/graphql';
 
 export type CheckOptions = {
   silent?: boolean;
@@ -17,7 +16,6 @@ export type CheckOptions = {
 export const getSyncStatus = (item?: {
   syncStatus?: AccountingCheckSyncedStatus;
 }): AccountingCheckSyncedStatus => item?.syncStatus || 'skipped';
-
 
 export const chunkIds = (ids: string[], size: number) => {
   const chunks: string[][] = [];
@@ -77,7 +75,6 @@ export const useSyncToggle = (
   return { setToSync, setAllToSync };
 };
 
-
 export const useSyncSelectedIds = (toSyncIds: Record<string, boolean>) =>
   useMemo(
     () =>
@@ -87,10 +84,8 @@ export const useSyncSelectedIds = (toSyncIds: Record<string, boolean>) =>
     [toSyncIds],
   );
 
-
 export const isSyncable = (item?: { syncStatus?: string }) =>
   getSyncStatus(item as Parameters<typeof getSyncStatus>[0]) !== 'skipped';
-
 
 export const useAccountingCheckSyncedAction = <
   TItem extends {
@@ -121,7 +116,7 @@ export const useAccountingCheckSyncedAction = <
     variables: { ids: string[]; contentType: string };
     onError?: (error: ApolloError) => void;
   }) => Promise<{
-    data?: { accountingCheckSynced?: AccountingCheckSyncedResponse[] } | null;
+    data?: AccountingCheckSyncedMutation | null;
   } | null>;
   warningMsg: string;
   successMsg: string;
@@ -153,7 +148,8 @@ export const useAccountingCheckSyncedAction = <
         },
       });
 
-      const checked = response?.data?.accountingCheckSynced || [];
+      const checked =
+        toGraphqlView(response?.data?.accountingCheckSynced) || [];
 
       setCheckedItems((current) => {
         const next = { ...current };

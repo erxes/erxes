@@ -50,7 +50,7 @@ export const SyncLinkCell = ({
   row: Row<IConfig>;
   renderVal: string;
 }) => {
-  const [, setOpen] = useQueryState('configId', { defaultValue: '' });
+  const [, setOpen] = useQueryState<string>('configId', { defaultValue: '' });
   const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
   return (
     <RecordTableInlineCell
