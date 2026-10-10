@@ -38,12 +38,12 @@ function DocumentSalesDealOptions({
   stageId,
   search,
   onSelect,
-}: {
+}: Readonly<{
   pipelineId: string;
   stageId: string;
   search: string;
   onSelect: (deal: PrintDeal) => void;
-}) {
+}>) {
   const fetchingMore = useRef(false);
   const [paginationError, setPaginationError] = useState(false);
   const { data, loading, error, fetchMore, refetch } =
@@ -152,13 +152,13 @@ function DocumentSalesDealSelect({
   pipelineId,
   stageId,
   onValueChange,
-}: {
+}: Readonly<{
   id: string;
   value: string;
   pipelineId: string;
   stageId: string;
   onValueChange: (value: string) => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [label, setLabel] = useState('');
@@ -209,10 +209,10 @@ function getSelectionId(value: string | string[]): string {
 export function DocumentSalesSelect({
   value,
   onValueChange,
-}: {
+}: Readonly<{
   value: string;
   onValueChange: (value: string) => void;
-}) {
+}>) {
   const id = useId();
   const [boardId, setBoardId] = useState('');
   const [pipelineId, setPipelineId] = useState('');

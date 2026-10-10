@@ -183,7 +183,7 @@ const DocumentContentEditor = ({
   attributesLoading: boolean;
   threadStore: DocumentThreadStore;
 }) => {
-  const { control, setValue } = useFormContext<FormType>();
+  const { control, getValues, setValue } = useFormContext<FormType>();
   const loadedDocument = useRef<{ id: string; editor: IBlockEditor }>();
 
   useEffect(() => {
@@ -194,7 +194,8 @@ const DocumentContentEditor = ({
         loadedDocument.current.editor === editor)
     )
       return undefined;
-    const content = document.content || '';
+    const fields = getValues('_id') === document._id ? getValues() : document;
+    const content = fields.content || '';
     let cancelled = false;
 
     const loadInitialContent = async () => {
@@ -221,7 +222,7 @@ const DocumentContentEditor = ({
       );
       loadedDocument.current = { id: document._id, editor };
       try {
-        threadStore.load(document?.commentData, editor);
+        threadStore.load(fields.commentData, editor);
         setValue('commentData', threadStore.serialize(editor));
       } catch (error) {
         toast({
@@ -245,7 +246,7 @@ const DocumentContentEditor = ({
     return () => {
       cancelled = true;
     };
-  }, [document, editor, threadStore, setValue]);
+  }, [document, editor, threadStore, getValues, setValue]);
 
   return (
     <Controller

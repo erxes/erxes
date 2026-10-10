@@ -1,5 +1,5 @@
 import { NetworkStatus, QueryResult, useQuery } from '@apollo/client';
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -77,7 +77,9 @@ export const useDocuments = (): UseDocumentsResult => {
 
   const queryKey = JSON.stringify(variables);
   const currentQueryKey = useRef(queryKey);
-  currentQueryKey.current = queryKey;
+  useLayoutEffect(() => {
+    currentQueryKey.current = queryKey;
+  }, [queryKey]);
 
   const { data, error, loading, fetchMore, networkStatus, refetch } =
     useQuery<DocumentsQueryResponse>(GET_DOCUMENTS, {

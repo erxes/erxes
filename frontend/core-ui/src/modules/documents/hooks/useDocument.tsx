@@ -5,7 +5,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormType } from './useDocumentForm';
 import { IDocument } from '../types';
@@ -27,7 +27,7 @@ export const useDocument = (): {
 
   const cleanDocumentId = documentId?.trim();
   const currentDocument = useRef({ documentId, contentType });
-  useEffect(() => {
+  useLayoutEffect(() => {
     currentDocument.current = { documentId, contentType };
     return () => {
       currentDocument.current = { documentId: null, contentType: null };
@@ -47,7 +47,6 @@ export const useDocument = (): {
     skip: !cleanDocumentId,
   });
 
-  const hydratedDocumentId = useRef<string>();
   const document =
     data?.documentsDetail && data.documentsDetail._id === cleanDocumentId
       ? data.documentsDetail
@@ -55,16 +54,16 @@ export const useDocument = (): {
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   useEffect(() => {
-    if (document && hydratedDocumentId.current !== document._id) {
+    if (document && getValues('_id') !== document._id) {
       const fields = document;
 
       setValue('name', fields.name || '');
       setValue('content', fields.content || '');
       setValue('contentType', fields.contentType);
       setValue('commentData', fields.commentData || '');
-      hydratedDocumentId.current = fields._id;
+      setValue('_id', fields._id);
     }
-  }, [document, setValue]);
+  }, [document, getValues, setValue]);
 
   const [saveDocument, { loading: saving }] = useMutation<{
     documentsSave: IDocument | null;
@@ -74,7 +73,7 @@ export const useDocument = (): {
     const isCurrentDocument = () =>
       currentDocument.current.documentId === documentId &&
       currentDocument.current.contentType === contentType;
-    const document: FormType & { _id?: string } = {
+    const document: FormType = {
       name: getValues('name'),
       content: getValues('content'),
       contentType: contentType || getValues('contentType'),
@@ -97,15 +96,16 @@ export const useDocument = (): {
       onCompleted: (data) => {
         const savedDocument = data.documentsSave;
         if (savedDocument) {
-          toast({ title: 'Successfully saved document', variant: 'success' });
           if (!isCurrentDocument()) return;
+          toast({ title: 'Successfully saved document', variant: 'success' });
           const hasNewEdits = (
             ['name', 'content', 'contentType', 'commentData'] as const
           ).some((field) => getValues(field) !== document[field]);
           reset(
-            document,
+            { ...document, _id: savedDocument._id },
             hasNewEdits ? { keepValues: true, keepDirty: true } : undefined,
           );
+          setValue('_id', savedDocument._id);
           if (!cleanDocumentId) {
             setTimeout(() => {
               if (isCurrentDocument()) setDocumentId(savedDocument._id);

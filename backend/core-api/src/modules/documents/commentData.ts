@@ -24,20 +24,35 @@ const commentDataSchema = z.object({
               updatedAt: date,
               metadata: z.unknown().optional(),
               body: z.array(z.unknown()).min(1),
-              reactions: z.array(
-                z.object({
-                  emoji: z.string().min(1),
-                  createdAt: date,
-                  userIds: z.array(z.string()),
-                }),
-              ),
+              reactions: z
+                .array(
+                  z.object({
+                    emoji: z.string().min(1),
+                    createdAt: date,
+                    userIds: z
+                      .array(z.string())
+                      .refine((ids) => new Set(ids).size === ids.length),
+                  }),
+                )
+                .refine(
+                  (reactions) =>
+                    new Set(reactions.map(({ emoji }) => emoji)).size ===
+                    reactions.length,
+                ),
             }),
           )
           .min(1)
-          .max(1000),
+          .max(1000)
+          .refine(
+            (comments) =>
+              new Set(comments.map(({ id }) => id)).size === comments.length,
+          ),
       }),
     )
-    .max(500),
+    .max(500)
+    .refine(
+      (threads) => new Set(threads.map(({ id }) => id)).size === threads.length,
+    ),
   anchors: z
     .array(
       z.object({
@@ -49,6 +64,75 @@ const commentDataSchema = z.object({
     .max(10000),
 });
 
+type CommentData = z.infer<
+  typeof commentDataSchema
+>['threads'][number]['comments'][number];
+
+function parseCommentData(
+  value: string,
+  message: string,
+): z.infer<typeof commentDataSchema> {
+  try {
+    return commentDataSchema.parse(JSON.parse(value));
+  } catch {
+    throw new Error(message);
+  }
+}
+
+function validateCommentAuthor(
+  comment: CommentData,
+  original: CommentData | undefined,
+  userId: string,
+): void {
+  if (!original) {
+    if (comment.userId !== userId)
+      throw new Error('New comments must belong to the acting user');
+    return;
+  }
+  if (
+    comment.userId !== original.userId ||
+    new Date(comment.createdAt).getTime() !==
+      new Date(original.createdAt).getTime()
+  ) {
+    throw new Error('Comment authorship cannot be changed');
+  }
+  if (
+    original.userId !== userId &&
+    (!isDeepStrictEqual(comment.body, original.body) ||
+      !isDeepStrictEqual(comment.metadata, original.metadata) ||
+      new Date(comment.updatedAt).getTime() !==
+        new Date(original.updatedAt).getTime())
+  ) {
+    throw new Error('Only the author can edit a comment');
+  }
+}
+
+function validateCommentReactions(
+  comment: CommentData,
+  original: CommentData | undefined,
+  userId: string,
+): void {
+  const emojis = new Set(
+    [...comment.reactions, ...(original?.reactions || [])].map(
+      (reaction) => reaction.emoji,
+    ),
+  );
+  for (const emoji of emojis) {
+    const previousUsers = new Set(
+      original?.reactions
+        .find((reaction) => reaction.emoji === emoji)
+        ?.userIds.filter((id) => id !== userId),
+    );
+    const nextUsers = new Set(
+      comment.reactions
+        .find((reaction) => reaction.emoji === emoji)
+        ?.userIds.filter((id) => id !== userId),
+    );
+    if (!isDeepStrictEqual(previousUsers, nextUsers))
+      throw new Error('Only your own reactions can be changed');
+  }
+}
+
 /** Validate stored discussions and prevent forging authors or changing another author's text. */
 export const validateDocumentCommentData = (
   value: string | null | undefined,
@@ -58,68 +142,26 @@ export const validateDocumentCommentData = (
   if (!value) return;
   if (value.length > 1000000)
     throw new Error('Document comments exceed the storage limit');
-  let data: z.infer<typeof commentDataSchema>;
-  try {
-    data = commentDataSchema.parse(JSON.parse(value));
-  } catch {
-    throw new Error('Invalid document comments');
-  }
+  const data = parseCommentData(value, 'Invalid document comments');
   const previous: Pick<
     z.infer<typeof commentDataSchema>,
     'threads'
   > = previousValue
-    ? commentDataSchema.parse(JSON.parse(previousValue))
+    ? parseCommentData(previousValue, 'Stored document comments are invalid')
     : { threads: [] };
-  const previousComments = new Map(
-    previous.threads.flatMap((thread) =>
-      thread.comments.map(
-        (comment) => [`${thread.id}:${comment.id}`, comment] as const,
-      ),
-    ),
+  const previousThreads = new Map(
+    previous.threads.map((thread) => [thread.id, thread]),
   );
   for (const thread of data.threads) {
+    const previousComments = new Map(
+      previousThreads
+        .get(thread.id)
+        ?.comments.map((comment) => [comment.id, comment]),
+    );
     for (const comment of thread.comments) {
-      const original = previousComments.get(`${thread.id}:${comment.id}`);
-      if (!original) {
-        if (comment.userId !== userId)
-          throw new Error('New comments must belong to the acting user');
-      } else {
-        if (
-          comment.userId !== original.userId ||
-          new Date(comment.createdAt).getTime() !==
-            new Date(original.createdAt).getTime()
-        ) {
-          throw new Error('Comment authorship cannot be changed');
-        }
-        if (
-          original.userId !== userId &&
-          (!isDeepStrictEqual(comment.body, original.body) ||
-            !isDeepStrictEqual(comment.metadata, original.metadata) ||
-            new Date(comment.updatedAt).getTime() !==
-              new Date(original.updatedAt).getTime())
-        ) {
-          throw new Error('Only the author can edit a comment');
-        }
-      }
-      const emojis = new Set(
-        [...comment.reactions, ...(original?.reactions || [])].map(
-          (reaction) => reaction.emoji,
-        ),
-      );
-      for (const emoji of emojis) {
-        const previousUsers = new Set(
-          original?.reactions
-            .find((reaction) => reaction.emoji === emoji)
-            ?.userIds.filter((id) => id !== userId),
-        );
-        const nextUsers = new Set(
-          comment.reactions
-            .find((reaction) => reaction.emoji === emoji)
-            ?.userIds.filter((id) => id !== userId),
-        );
-        if (!isDeepStrictEqual(previousUsers, nextUsers))
-          throw new Error('Only your own reactions can be changed');
-      }
+      const original = previousComments.get(comment.id);
+      validateCommentAuthor(comment, original, userId);
+      validateCommentReactions(comment, original, userId);
     }
   }
 };

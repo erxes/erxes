@@ -41,9 +41,9 @@ function DocumentsContent({
   const { ref: loadMoreRef } = useInView({
     root: scrollElement,
     skip: !scrollElement || loading || hasError || !pageInfo?.hasNextPage,
-    onChange: (inView) => {
+    onChange: async (inView) => {
       if (inView) {
-        handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+        await handleFetchMore({ direction: EnumCursorDirection.FORWARD });
       }
     },
   });

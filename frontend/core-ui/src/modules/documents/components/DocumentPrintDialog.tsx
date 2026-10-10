@@ -68,13 +68,9 @@ function DocumentTaskSelect({
                 Could not load tasks.{' '}
                 <Button
                   variant="link"
-                  onClick={async () => {
-                    try {
-                      await refetch();
-                    } catch {
-                      return;
-                    }
-                  }}
+                  onClick={() =>
+                    Promise.resolve(refetch()).catch(() => undefined)
+                  }
                 >
                   Retry
                 </Button>
