@@ -139,3 +139,13 @@ export const SALES_LOYALTY_TIER_WALLETS = gql`
     }
   }
 `;
+
+// Net points each listed deal moved, asked of loyalty for the loaded page.
+export const SALES_DEAL_LOYALTY_TOTALS = gql`
+  query SalesDealLoyaltyTotals($targetIds: [String!]!) {
+    loyaltyScoreTargetTotals(targetIds: $targetIds) {
+      targetId
+      total
+    }
+  }
+`;

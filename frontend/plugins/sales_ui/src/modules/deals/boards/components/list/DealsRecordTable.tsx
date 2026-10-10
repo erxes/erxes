@@ -1,6 +1,7 @@
 import { Empty, RecordTable, useQueryState } from 'erxes-ui';
 
 import { DealsColumn } from '@/deals/boards/components/list/DealsColumn';
+import { DealLoyaltyTotalsProvider } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
 import { BoardEmptyState } from '@/deals/boards/components/BoardEmptyState';
 import { DealsCommandBar } from '@/deals/boards/components/list/DealsListCommandBar';
 import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
@@ -79,35 +80,37 @@ export const DealsRecordTable = () => {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden h-full relative">
-      <RecordTable.Provider
-        columns={columns}
-        data={deals || []}
-        className="m-3 h-full"
-        stickyColumns={['more', 'checkbox', 'name']}
-        tableId="sales_deals_record_table"
-      >
-        <RecordTable.CursorProvider
-          dataLength={deals?.length}
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
+    <DealLoyaltyTotalsProvider dealIds={(deals || []).map(({ _id }) => _id)}>
+      <div className="flex flex-col overflow-hidden h-full relative">
+        <RecordTable.Provider
+          columns={columns}
+          data={deals || []}
+          className="m-3 h-full"
+          stickyColumns={['more', 'checkbox', 'name']}
+          tableId="sales_deals_record_table"
         >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {isLoading && <RecordTable.RowSkeleton rows={40} />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
-          <DealsCommandBar />
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
-    </div>
+          <RecordTable.CursorProvider
+            dataLength={deals?.length}
+            hasPreviousPage={hasPreviousPage}
+            hasNextPage={hasNextPage}
+          >
+            <RecordTable>
+              <RecordTable.Header />
+              <RecordTable.Body>
+                <RecordTable.CursorBackwardSkeleton
+                  handleFetchMore={handleFetchMore}
+                />
+                {isLoading && <RecordTable.RowSkeleton rows={40} />}
+                <RecordTable.RowList />
+                <RecordTable.CursorForwardSkeleton
+                  handleFetchMore={handleFetchMore}
+                />
+              </RecordTable.Body>
+            </RecordTable>
+            <DealsCommandBar />
+          </RecordTable.CursorProvider>
+        </RecordTable.Provider>
+      </div>
+    </DealLoyaltyTotalsProvider>
   );
 };

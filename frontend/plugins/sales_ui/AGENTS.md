@@ -56,6 +56,13 @@
   (`TierBandsFields`, `tierBands.ts`); changing the wallet clears its bands,
   and a narrower row is flagged since one tier rule decides a stage. Stage
   badges also show the tier a stage sets (`SalesStageLoyaltyPoints.tier`).
+  With loyalty on, deals show the net points they moved: a "Loyalty points"
+  column in the list table (`DealLoyaltyPointsCell`) and a line at the foot of
+  a board card (`DealLoyaltyPointsBadge`, only when non-zero). One
+  `DealLoyaltyTotalsProvider` per view (around `DealsRecordTable`, and around
+  `GenericBoard` in `DealsBoard` with every loaded card's id) asks
+  `loyaltyScoreTargetTotals` once and keeps the last answer while columns load
+  (`previousData`); a card dragged outside the provider shows none.
   Loyalty's settings tab on a pipeline or POS gets what sales already does
   there as `context.config.loyalty` (`loyaltyBuiltInConfig`: a pipeline's
   stages' earning campaigns and tier wallets via `usePipelineLoyaltyBuiltIn`,
