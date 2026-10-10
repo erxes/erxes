@@ -162,6 +162,10 @@ export const loadTaskClass = (
 
       doc.createdBy = triageCreatorId || userId;
 
+      if (doc.cycleId === '') {
+        delete doc.cycleId;
+      }
+
       const task = await models.Task.insertOne({
         ...doc,
         number: nextNumber,
