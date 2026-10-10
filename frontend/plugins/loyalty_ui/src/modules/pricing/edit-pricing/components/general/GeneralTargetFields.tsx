@@ -92,7 +92,7 @@ const TagField = ({
         <Form.Label>{label}</Form.Label>
         <Form.Control>
           <SelectTags
-            tagType="sales:product"
+            tagType="core:product"
             mode="multiple"
             value={field.value}
             onValueChange={(value) =>
