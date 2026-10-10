@@ -136,6 +136,7 @@ const EXPECTED_PATTERNS: RegExp[] = [
   /have permission/i, // "You do not have permission to ..."
   /no permission/i,
   /access denied/i, // "Access denied: You do not have access ..."
+  /do not have access/i, // "You do not have access to this CMS"
   /requires (login|permission|authentication|authorization)/i,
   /login failed/i,
   /session expired/i,
