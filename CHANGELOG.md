@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.2.16](https://github.com/erxes/erxes/compare/3.2.15...3.2.16) (2026-10-10)
+
+
+### Bug Fixes
+
+* added inline create in settings modules and upgrade date select ([#9583](https://github.com/erxes/erxes/issues/9583)) ([83322da](https://github.com/erxes/erxes/commit/83322daa85e214491415872a4249605efa193e2c))
+* **frontline:** synchronize Discord messages and actions ([#9569](https://github.com/erxes/erxes/issues/9569)) ([bfe129a](https://github.com/erxes/erxes/commit/bfe129a372211b90744b36d599f0614ff5da70de))
+* posclient order has customerType is visitor ([e6f63b7](https://github.com/erxes/erxes/commit/e6f63b77f1bdd03134ec52eee9da6d048c4f1d68))
+* posclient-front products description ([7ee6428](https://github.com/erxes/erxes/commit/7ee6428070fb03d17ca7d3d7b69ce60a15de892c))
+* **posclient:** bank card reader refactor ([1eb66cf](https://github.com/erxes/erxes/commit/1eb66cf5c079996dc9973d74597edd3c480e26c7))
+* sales to accounting optional payments ([bd45b24](https://github.com/erxes/erxes/commit/bd45b24689d08a1d48432d405d3b33df1791ae60))
+
+
+### Features
+
+* **contacts:** add client portal company CRUD mutations ([38b00bb](https://github.com/erxes/erxes/commit/38b00bbb5e554d9e165968c4b186514b4ac1e73c))
+* **frontline:** integrate Telegram bots with the native inbox ([#9589](https://github.com/erxes/erxes/issues/9589)) ([b2b23dd](https://github.com/erxes/erxes/commit/b2b23dd36d41677ec9e33588ff9a2b628e372931))
+* **oauth-clients:** show client ID alongside secret in created dialog ([#9587](https://github.com/erxes/erxes/issues/9587)) ([f8be1ca](https://github.com/erxes/erxes/commit/f8be1ca6e0e5d6885899ad1e330a2f6bafe14244))
+* publish erxes-ui, ui-modules and erxes-api-shared to npm from the monorepo ([#9609](https://github.com/erxes/erxes/issues/9609)) ([a2cec89](https://github.com/erxes/erxes/commit/a2cec8981107e1187bb3053c289fe46652479d65))
+
+
+### Performance Improvements
+
+* **frontline:** improve form builder settings and editing flow ([#9560](https://github.com/erxes/erxes/issues/9560)) ([f339e15](https://github.com/erxes/erxes/commit/f339e152e6822c0eba8242faaad709c18a9d2d3b))
+
 ## [3.2.15](https://github.com/erxes/erxes/compare/3.2.14...3.2.15) (2026-10-07)
 
 
