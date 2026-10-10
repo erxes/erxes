@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.18](https://github.com/erxes/erxes/compare/3.2.17...3.2.18) (2026-10-10)
+
+
+### Features
+
+* **pos:** add support for accepting coupons at the POS ([b368485](https://github.com/erxes/erxes/commit/b36848594e018a686ae6a30c602d7268a602055e))
+
 ## [3.2.17](https://github.com/erxes/erxes/compare/3.2.16...3.2.17) (2026-10-10)
 
 
