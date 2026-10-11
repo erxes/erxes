@@ -21,7 +21,7 @@ beforeEach(() => {
   sendMessage.mockReset();
 });
 
-it('merges over 10000 catalog prices with at most four concurrent requests', async () => {
+it('merges over 10000 catalog prices with at most eight concurrent requests', async () => {
   let activeCalls = 0;
   let maxActiveCalls = 0;
   sendMessage.mockImplementation(async ({ input }) => {
@@ -39,7 +39,7 @@ it('merges over 10000 catalog prices with at most four concurrent requests', asy
   const pricing = await getProductPricing('tenant', pos, products);
 
   expect(sendMessage).toHaveBeenCalledTimes(101);
-  expect(maxActiveCalls).toBe(4);
+  expect(maxActiveCalls).toBe(8);
   expect(Object.keys(pricing)).toHaveLength(products.length);
   expect(pricing['product-99']).toEqual({ value: 109.9 });
   expect(pricing['product-100']).toEqual({ value: 110 });
@@ -87,14 +87,14 @@ it('keeps earlier discounts when another batch has no pricing', async () => {
   ).resolves.toEqual({ 'product-0': { value: 100 } });
 });
 
-it('rejects a failed batch and does not start the next four-batch wave', async () => {
+it('rejects a failed batch and does not start the next eight-batch wave', async () => {
   sendMessage
     .mockResolvedValueOnce({ 'product-0': { value: 100 } })
     .mockRejectedValueOnce(new Error('Pricing unavailable'))
     .mockResolvedValue({});
 
   await expect(
-    getProductPricing('tenant', pos, makeProducts(501)),
+    getProductPricing('tenant', pos, makeProducts(901)),
   ).rejects.toThrow('Pricing unavailable');
-  expect(sendMessage).toHaveBeenCalledTimes(4);
+  expect(sendMessage).toHaveBeenCalledTimes(8);
 });

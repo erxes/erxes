@@ -15,7 +15,7 @@ export const getProductPricing = async (
   const pricing: ProductPricing = {};
 
   // Query inputs travel in the URL; keep catalog sync requests small.
-  for (const batches of chunkArray(chunkArray(products, 100), 4)) {
+  for (const batches of chunkArray(chunkArray(products, 100), 8)) {
     const batchResults: ProductPricing[] = await Promise.all(
       batches.map((batch) =>
         sendTRPCMessage({
