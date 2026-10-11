@@ -15,7 +15,7 @@ import {
 import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
 import { TImportExportProducersInput } from '../../core-modules/import-export/zodSchemas';
 import { TImportExportProducers } from '../../core-modules/import-export/types';
-import { encodeTRPCContextHeader, TRPCContext, trpcContextHeaderName } from '.';
+import { createTRPCRequestHeaders, TRPCContext } from '.';
 import {
   TRecordReferenceProducers,
   TRecordReferenceProducersInput,
@@ -101,7 +101,12 @@ export const sendCoreModuleProducer = async <
     );
     return defaultValue;
   }
-  const contextHeader = encodeTRPCContextHeader(subdomain, method, context);
+  const requestHeaders = createTRPCRequestHeaders(
+    subdomain,
+    method,
+    context,
+    String(producerName),
+  );
 
   const baseUrl = `${pluginInfo.address}/${moduleName}`;
 
@@ -110,9 +115,7 @@ export const sendCoreModuleProducer = async <
       links: [
         httpBatchLink({
           url: baseUrl,
-          headers: () => ({
-            [trpcContextHeaderName]: contextHeader,
-          }),
+          headers: () => requestHeaders,
         }),
       ],
     });
