@@ -1,53 +1,29 @@
-import { StructureSettingsBreadcrumb } from '@/settings/structure/components/StructureSettingsBreadcrumb';
-import { StructureSidebar } from '@/settings/structure/components/StructureSidebar';
-import { StructureTopbar } from '@/settings/structure/components/StructureTopbar';
 import { PageContainer, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { Permissions, SettingsHeader } from 'ui-modules';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
-export const StructureMain = lazy(() =>
-  import('@/settings/structure/components/Structure').then((module) => ({
-    default: module.Structure,
-  })),
-);
-export const BranchesSettings = lazy(() =>
-  import('@/settings/structure/components/branches/BranchesSettings').then(
-    (module) => ({
-      default: module.BranchesSettings,
-    }),
+const StructureChart = lazy(() =>
+  import('@/settings/structure/components/chart/StructureChartPage').then(
+    (module) => ({ default: module.StructureChartPage }),
   ),
 );
-export const DepartmentsSettings = lazy(() =>
-  import('@/settings/structure/components/departments/DepartmentSettings').then(
-    (module) => ({
-      default: module.DepartmentSettings,
-    }),
-  ),
-);
-export const UnitsSettings = lazy(() =>
-  import('@/settings/structure/components/units/UnitsSettings').then(
-    (module) => ({
-      default: module.UnitsSettings,
-    }),
-  ),
-);
-export const PositionsSettings = lazy(() =>
-  import('@/settings/structure/components/positions/PositionsSettings').then(
-    (module) => ({
-      default: module.PositionsSettings,
-    }),
-  ),
-);
+
+const LegacyStructureRedirect = ({ view }: { view: string }) => {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  params.set('view', view);
+  return (
+    <Navigate
+      to={{ pathname: '/settings/structures', search: `?${params}` }}
+      replace
+    />
+  );
+};
 
 export function StructureSettingsPage() {
   return (
     <PageContainer>
-      <SettingsHeader breadcrumbs={<StructureSettingsBreadcrumb />}>
-        <StructureTopbar />
-      </SettingsHeader>
-      <div className="flex flex-auto w-full overflow-hidden">
-        <StructureSidebar />
+      <div className="flex flex-col flex-auto w-full overflow-hidden">
         <Suspense
           fallback={
             <div className="flex justify-center items-center h-full">
@@ -56,11 +32,27 @@ export function StructureSettingsPage() {
           }
         >
           <Routes>
-            <Route path="/" element={<StructureMain />} />
-            <Route path="branches" element={<BranchesSettings />} />
-            <Route path="departments" element={<DepartmentsSettings />} />
-            <Route path="units" element={<UnitsSettings />} />
-            <Route path="positions" element={<PositionsSettings />} />
+            <Route path="/" element={<StructureChart />} />
+            <Route
+              path="branches"
+              element={<LegacyStructureRedirect view="branches" />}
+            />
+            <Route
+              path="departments"
+              element={<LegacyStructureRedirect view="departments" />}
+            />
+            <Route
+              path="positions"
+              element={<LegacyStructureRedirect view="positions" />}
+            />
+            <Route
+              path="units"
+              element={<LegacyStructureRedirect view="departments" />}
+            />
+            <Route
+              path="*"
+              element={<LegacyStructureRedirect view="departments" />}
+            />
           </Routes>
         </Suspense>
       </div>

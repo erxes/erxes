@@ -48,7 +48,7 @@ const EDIT_DEPARTMENT = gql`
 `;
 
 const REMOVE_DEPARTMENTS = gql`
-  mutation DepartmentsRemove($ids: [String!]) {
+  mutation DepartmentsRemove($ids: [String!]!) {
     departmentsRemove(ids: $ids)
   }
 `;

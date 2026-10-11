@@ -18,12 +18,31 @@ import { PositionHotKeyScope, TPositionForm } from '../../types/position';
 import { PositionForm } from './PositionForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
-export const CreatePosition = () => {
+export const CreatePosition = ({
+  trigger,
+  defaultParentId,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  trigger?: React.ReactNode;
+  defaultParentId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) => {
   const {
     methods,
     methods: { handleSubmit },
   } = usePositionForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const [innerOpen, setInnerOpen] = useState<boolean>(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : innerOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInnerOpen(value);
+    }
+  };
   const { handleAdd, loading } = usePositionAdd();
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
@@ -32,6 +51,9 @@ export const CreatePosition = () => {
   const canManagePositions = isLoaded && hasActionPermission('positionsManage');
 
   const onOpen = () => {
+    if (defaultParentId) {
+      methods.setValue('parentId', defaultParentId);
+    }
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PositionHotKeyScope.PositionAddSheet,
@@ -47,6 +69,7 @@ export const CreatePosition = () => {
     `c`,
     () => {
       if (!canManagePositions) return;
+      if (trigger || isControlled) return;
       onOpen();
     },
     PositionHotKeyScope.PositionSettingsPage,
@@ -56,6 +79,32 @@ export const CreatePosition = () => {
     () => onClose(),
     PositionHotKeyScope.PositionAddSheet,
   );
+
+  const prevOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      open &&
+      defaultParentId &&
+      methods.getValues('parentId') !== defaultParentId
+    ) {
+      methods.setValue('parentId', defaultParentId);
+    }
+    if (isControlled && open !== prevOpen.current) {
+      if (open) {
+        setHotkeyScopeAndMemorizePreviousScope(PositionHotKeyScope.PositionAddSheet);
+      } else {
+        setHotkeyScope(PositionHotKeyScope.PositionSettingsPage);
+      }
+    }
+    prevOpen.current = open;
+  }, [
+    open,
+    isControlled,
+    defaultParentId,
+    methods,
+    setHotkeyScopeAndMemorizePreviousScope,
+    setHotkeyScope,
+  ]);
 
   const submitHandler: SubmitHandler<TPositionForm> = React.useCallback(
     async (data) => {
@@ -82,14 +131,17 @@ export const CreatePosition = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Can action="positionsManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus /> Create Position
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-      </Can>
+      {!isControlled && (
+        <Can action="positionsManage">
+          <Sheet.Trigger asChild>
+            {trigger ?? (
+              <Button>
+                <IconPlus /> Create Position <Kbd>C</Kbd>
+              </Button>
+            )}
+          </Sheet.Trigger>
+        </Can>
+      )}
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

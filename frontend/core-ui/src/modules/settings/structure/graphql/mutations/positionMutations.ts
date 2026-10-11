@@ -42,7 +42,7 @@ const EDIT_POSITION = gql`
   }
 `;
 const REMOVE_POSITIONS = gql`
-  mutation PositionsRemove($ids: [String!]) {
+  mutation PositionsRemove($ids: [String!]!) {
     positionsRemove(ids: $ids)
   }
 `;

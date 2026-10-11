@@ -76,11 +76,12 @@ export const BranchWorkingHoursSheet = () => {
         variables: {
           id: workingHoursId,
           code: branchDetail?.code,
+          userIds: branchDetail?.userIds ?? [],
           workhours: payload,
           holidays: holidaysPayload,
         },
       },
-      ['code', 'workhours', 'holidays'],
+      ['code', 'userIds', 'workhours', 'holidays'],
     );
   };
 

@@ -56,7 +56,7 @@ const EDIT_UNIT = gql`
 `;
 
 const REMOVE_UNITS = gql`
-  mutation UnitsRemove($ids: [String!]) {
+  mutation UnitsRemove($ids: [String!]!) {
     unitsRemove(ids: $ids)
   }
 `;

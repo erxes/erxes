@@ -18,12 +18,31 @@ import { DepartmentHotKeyScope, TDepartmentForm } from '../../types/department';
 import { DepartmentForm } from './DepartmentForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
-export const CreateDepartment = () => {
+export const CreateDepartment = ({
+  trigger,
+  defaultParentId,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  trigger?: React.ReactNode;
+  defaultParentId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) => {
   const {
     methods,
     methods: { handleSubmit },
   } = useDepartmentForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const [innerOpen, setInnerOpen] = useState<boolean>(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : innerOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInnerOpen(value);
+    }
+  };
   const { handleAdd, loading } = useDepartmentAdd();
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
@@ -33,6 +52,9 @@ export const CreateDepartment = () => {
     isLoaded && hasActionPermission('departmentsManage');
 
   const onOpen = () => {
+    if (defaultParentId) {
+      methods.setValue('parentId', defaultParentId);
+    }
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       DepartmentHotKeyScope.DepartmentAddSheet,
@@ -48,6 +70,7 @@ export const CreateDepartment = () => {
     `c`,
     () => {
       if (!canManageDepartments) return;
+      if (trigger || isControlled) return;
       onOpen();
     },
     DepartmentHotKeyScope.DepartmentSettingsPage,
@@ -57,6 +80,34 @@ export const CreateDepartment = () => {
     () => onClose(),
     DepartmentHotKeyScope.DepartmentAddSheet,
   );
+
+  const prevOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      open &&
+      defaultParentId &&
+      methods.getValues('parentId') !== defaultParentId
+    ) {
+      methods.setValue('parentId', defaultParentId);
+    }
+    if (isControlled && open !== prevOpen.current) {
+      if (open) {
+        setHotkeyScopeAndMemorizePreviousScope(
+          DepartmentHotKeyScope.DepartmentAddSheet,
+        );
+      } else {
+        setHotkeyScope(DepartmentHotKeyScope.DepartmentSettingsPage);
+      }
+    }
+    prevOpen.current = open;
+  }, [
+    open,
+    isControlled,
+    defaultParentId,
+    methods,
+    setHotkeyScopeAndMemorizePreviousScope,
+    setHotkeyScope,
+  ]);
 
   const submitHandler: SubmitHandler<TDepartmentForm> = React.useCallback(
     async (data) => {
@@ -83,14 +134,17 @@ export const CreateDepartment = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Can action="departmentsManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus /> Create Department
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-      </Can>
+      {!isControlled && (
+        <Can action="departmentsManage">
+          <Sheet.Trigger asChild>
+            {trigger ?? (
+              <Button>
+                <IconPlus /> Create Department <Kbd>C</Kbd>
+              </Button>
+            )}
+          </Sheet.Trigger>
+        </Can>
+      )}
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

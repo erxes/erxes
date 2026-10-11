@@ -1,4 +1,5 @@
 export * from './queries/getStructureDetail';
+export * from './queries/getStructureChart';
 export * from './queries/getBranches';
 export * from './queries/getDepartments';
 export * from './queries/getUnits';

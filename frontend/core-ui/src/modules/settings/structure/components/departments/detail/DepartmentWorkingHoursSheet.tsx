@@ -55,10 +55,11 @@ export const DepartmentWorkingHoursSheet = () => {
         variables: {
           id: workingHoursId,
           code: departmentDetail?.code,
+          userIds: departmentDetail?.userIds ?? [],
           workhours: payload,
         },
       },
-      ['code', 'workhours'],
+      ['code', 'userIds', 'workhours'],
     );
   };
 
