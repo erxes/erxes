@@ -1,36 +1,47 @@
-import { Combobox, Command, Filter, Popover, useFilterContext, useFilterQueryState } from 'erxes-ui';
+import { toGraphqlView } from '@/utils/graphql';
+import { gql } from '~/gql';
+import {
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useFilterQueryState,
+} from 'erxes-ui';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../../../constants/productsCursorSessionKey';
 import { IconCheck, IconTag } from '@tabler/icons-react';
 import { useState } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
-const GET_SEGMENTS = gql`
-  query AccountingProductSegments($contentTypes: [String]!) {
-    segments(contentTypes: $contentTypes) {
-      _id
-      name
-      color
-    }
+const GET_SEGMENTS = gql(`
+query AccountingProductSegments($contentTypes: [String]!) {
+  segments(contentTypes: $contentTypes) {
+    _id
+    name
+    color
   }
-`;
-
-interface ISegment {
-  _id: string;
-  name: string;
-  color?: string;
 }
+`);
+
+type ISegment = ReturnType<typeof useProductSegments>['segments'][number];
 
 function useProductSegments() {
-  const { data, loading } = useQuery<{ segments: ISegment[] }>(GET_SEGMENTS, {
+  const { data: queryData, loading } = useQuery(GET_SEGMENTS, {
     variables: { contentTypes: ['core:product'] },
   });
+  const data = toGraphqlView(queryData);
   return { segments: data?.segments ?? [], loading };
 }
 
 function SegmentDot({ color }: Readonly<{ color?: string }>) {
   if (!color) return null;
-  return <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: color }} />;
+  return (
+    <span
+      className="w-3 h-3 rounded-full shrink-0"
+      style={{ backgroundColor: color }}
+    />
+  );
 }
 
 function SegmentCommandList({
@@ -46,11 +57,16 @@ function SegmentCommandList({
 }>) {
   const { t } = useTranslation('accounting');
   if (loading) return <Combobox.Empty loading />;
-  if (!segments.length) return <Command.Empty>{t('no-segments-found')}</Command.Empty>;
+  if (!segments.length)
+    return <Command.Empty>{t('no-segments-found')}</Command.Empty>;
   return (
     <>
       {segments.map((seg) => (
-        <Command.Item key={seg._id} value={seg._id} onSelect={() => onSelect(seg._id)}>
+        <Command.Item
+          key={seg._id}
+          value={seg._id}
+          onSelect={() => onSelect(seg._id)}
+        >
           <div className="flex items-center gap-2">
             <SegmentDot color={seg.color} />
             <span>{seg.name}</span>
@@ -75,7 +91,10 @@ export function SelectProductSegmentFilterItem() {
 export function SelectProductSegmentFilterView() {
   const { t } = useTranslation('accounting');
   const { resetFilterState, sessionKey } = useFilterContext();
-  const [segment, setSegment] = useFilterQueryState<string>('segment', sessionKey);
+  const [segment, setSegment] = useFilterQueryState<string>(
+    'segment',
+    sessionKey,
+  );
   const { segments, loading } = useProductSegments();
 
   return (
@@ -100,7 +119,10 @@ export function SelectProductSegmentFilterView() {
 
 export function SelectProductSegmentFilterBar() {
   const { t } = useTranslation('accounting');
-  const [segment, setSegment] = useFilterQueryState<string>('segment', PRODUCTS_CURSOR_SESSION_KEY);
+  const [segment, setSegment] = useFilterQueryState<string>(
+    'segment',
+    PRODUCTS_CURSOR_SESSION_KEY,
+  );
   const [open, setOpen] = useState(false);
   const { segments, loading } = useProductSegments();
 

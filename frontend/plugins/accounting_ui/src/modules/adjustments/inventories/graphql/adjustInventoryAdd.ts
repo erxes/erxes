@@ -1,26 +1,27 @@
-import { gql } from '@apollo/client';
-import { adjustInventoryFields } from './adjustInventoryQueries';
+import { gql } from '~/gql';
 
-const adjInvInputParamDefs = `
-  $date: Date
-  $description: String
-  $beginDate: Date
-  $successDate: Date
-  $checkedAt: Date
-`;
-
-const adjInvInputParams = `
-  date: $date
-  description: $description
-  beginDate: $beginDate
-  successDate: $successDate
-  checkedAt: $checkedAt
-`;
-
-export const ADJUST_INVENTORY_ADD = gql`
-  mutation AdjustInventoryAdd(${adjInvInputParamDefs}) {
-    adjustInventoryAdd(${adjInvInputParams}) {
-      ${adjustInventoryFields}
-    }
+export const ADJUST_INVENTORY_ADD = gql(`
+mutation accountingAdjustInventoryAdd($date: Date, $description: String, $beginDate: Date, $successDate: Date, $checkedAt: Date) {
+  adjustInventoryAdd(
+    date: $date
+    description: $description
+    beginDate: $beginDate
+    successDate: $successDate
+    checkedAt: $checkedAt
+  ) {
+    _id
+    createdAt
+    createdBy
+    updatedAt
+    modifiedBy
+    date
+    description
+    status
+    error
+    warning
+    beginDate
+    successDate
+    checkedAt
   }
-`;
+}
+`);

@@ -99,7 +99,7 @@ export const AccountMoreColumnCell = ({
   cell: Cell<IAccount, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState('accountId');
+  const [, setOpen] = useQueryState<string>('accountId');
   const { confirm } = useConfirm();
   const { removeAccounts } = useAccountsRemove();
 

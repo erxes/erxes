@@ -25,6 +25,7 @@ export const EditVatRowForm = () => {
   }, [vatRowDetail, reset]);
 
   const handleSubmit = (data: TVatRowForm) => {
+    if (!vatRowDetail) return;
     const initialData = {
       ...vatRowDetail,
     };
@@ -36,7 +37,7 @@ export const EditVatRowForm = () => {
     }
     editVatRow({
       variables: {
-        _id: vatRowDetail?._id,
+        _id: vatRowDetail._id,
         ...data,
       },
       onCompleted: () => {

@@ -1,16 +1,19 @@
+import {
+  mergeGraphqlCursorData,
+  toCursorPageInfo,
+} from '@/utils/graphqlCursor';
+import { toGraphqlView } from '@/utils/graphql';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { IProduct } from 'ui-modules';
+
 import { productTotalCountAtom } from '../states/productCounts';
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
 import { productsQueries } from '../graphql/ProductsQueries';
@@ -192,17 +195,16 @@ export const useProducts = (options?: QueryHookOptions) => {
     limit: PRODUCTS_PER_PAGE,
   });
 
-  const { data, loading, fetchMore } = useQuery<{
-    productsMain: {
-      list: IProduct[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(productsQueries.productsMain, {
+  const {
+    data: queryData,
+    loading,
+    fetchMore,
+  } = useQuery(productsQueries.productsMain, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(productsQueryVariables.cursor),
     variables: productsQueryVariables,
   });
+  const data = toGraphqlView(queryData);
 
   const { list: productsMain, totalCount, pageInfo } = data?.productsMain || {};
 
@@ -215,7 +217,8 @@ export const useProducts = (options?: QueryHookOptions) => {
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (!validateFetchMore({ direction, pageInfo })) return;
+    if (!validateFetchMore({ direction, pageInfo: toCursorPageInfo(pageInfo) }))
+      return;
 
     fetchMore({
       variables: {
@@ -230,7 +233,7 @@ export const useProducts = (options?: QueryHookOptions) => {
         if (!fetchMoreResult) return prev;
 
         return Object.assign({}, prev, {
-          productsMain: mergeCursorData({
+          productsMain: mergeGraphqlCursorData({
             direction,
             fetchMoreResult: fetchMoreResult.productsMain,
             prevResult: prev.productsMain,

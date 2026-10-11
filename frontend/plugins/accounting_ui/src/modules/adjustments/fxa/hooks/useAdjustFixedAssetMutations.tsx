@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -24,10 +26,12 @@ export const useAdjustFixedAssetAdd = () => {
   const navigate = useNavigate();
   const [addMutation, { loading }] = useMutation(ADJUST_FIXED_ASSET_ADD);
 
-  const addAdjustFixedAsset = (options?: OperationVariables) =>
+  const addAdjustFixedAsset = (
+    options?: GraphqlMutationOptions<typeof ADJUST_FIXED_ASSET_ADD>,
+  ) =>
     addMutation({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -62,11 +66,13 @@ export const useAdjustFixedAssetRemove = (adjustId: string) => {
   const navigate = useNavigate();
   const [removeMutation, { loading }] = useMutation(ADJUST_FIXED_ASSET_REMOVE);
 
-  const removeAdjustFixedAsset = (options?: OperationVariables) =>
+  const removeAdjustFixedAsset = (
+    options?: GraphqlMutationOptions<typeof ADJUST_FIXED_ASSET_REMOVE>,
+  ) =>
     removeMutation({
       ...options,
       variables: { adjustId, ...options?.variables },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -93,11 +99,13 @@ export const useAdjustFixedAssetRun = (adjustId: string) => {
   const { t } = useTranslation('accounting');
   const [runMutation, { loading }] = useMutation(ADJUST_FIXED_ASSET_RUN);
 
-  const runAdjustFixedAsset = (options?: OperationVariables) =>
+  const runAdjustFixedAsset = (
+    options?: GraphqlMutationOptions<typeof ADJUST_FIXED_ASSET_RUN>,
+  ) =>
     runMutation({
       ...options,
       variables: { adjustId, ...options?.variables },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -115,7 +123,7 @@ export const useAdjustFixedAssetRun = (adjustId: string) => {
       refetchQueries: [
         {
           query: ADJUST_FIXED_ASSET_DETAIL_QUERY,
-          variables: { _id: adjustId },
+          variables: { _id: adjustId ?? '' },
         },
         {
           query: ADJUST_FXA_DETAILS_QUERY,
@@ -134,11 +142,22 @@ export const useAdjustFixedAssetTransaction = (adjustId: string) => {
     ADJUST_FIXED_ASSET_TRANSACTION,
   );
 
-  const createTransaction = (options?: OperationVariables) =>
-    transactionMutation({
+  const createTransaction = (
+    options: GraphqlMutationOptions<
+      typeof ADJUST_FIXED_ASSET_TRANSACTION,
+      'adjustId'
+    >,
+  ) => {
+    if (!options.variables?.expenseAccountId)
+      throw new Error('Expense account id is required');
+    return transactionMutation({
       ...options,
-      variables: { adjustId, ...options?.variables },
-      onError: (error: Error) => {
+      variables: {
+        ...options.variables,
+        expenseAccountId: options.variables.expenseAccountId,
+        adjustId,
+      },
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -156,7 +175,7 @@ export const useAdjustFixedAssetTransaction = (adjustId: string) => {
       refetchQueries: [
         {
           query: ADJUST_FIXED_ASSET_DETAIL_QUERY,
-          variables: { _id: adjustId },
+          variables: { _id: adjustId ?? '' },
         },
         {
           query: ADJUST_FXA_DETAILS_QUERY,
@@ -165,6 +184,7 @@ export const useAdjustFixedAssetTransaction = (adjustId: string) => {
       ],
       awaitRefetchQueries: true,
     });
+  };
 
   return { createTransaction, loading };
 };

@@ -1,33 +1,5 @@
-export interface IReserveRem {
-  _id: string;
-  branchId?: string;
-  departmentId?: string;
-  productId?: string;
-  uom?: string;
-  remainder?: number;
-  createdAt?: Date;
-  modifiedAt?: Date;
-
-  product?: {
-    _id: string;
-    code: string;
-    name: string;
-  };
-  branch?: {
-    _id: string;
-    code: string;
-    title: string;
-  };
-  department?: {
-    _id: string;
-    code: string;
-    title: string;
-  };
-  modifiedUser?: {
-    _id: string;
-    details?: {
-      avatar?: string;
-      fullName?: string;
-    };
-  };
-}
+import type { AccountingReserveRemsQuery } from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
+export type IReserveRem = GraphqlView<
+  NonNullable<NonNullable<AccountingReserveRemsQuery['reserveRems']>[number]>
+>;

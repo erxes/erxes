@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-02`
+- **Last synchronized:** `2026-10-10`
 
 ## Scope
 
@@ -24,6 +24,7 @@
 
 ## Current Capabilities
 
+- Uses statically analyzable typed GraphQL documents with generated operation result and variable types; build, serve, and contract tests regenerate them automatically.
 - Displays, creates, updates, prints, and removes accounting transactions.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
@@ -71,6 +72,7 @@
 
 | Area                | Path                                                                            | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| GraphQL generation | `frontend/plugins/accounting_ui/codegen.ts` | Validates static feature documents against accounting SDL and consumed platform contracts; emits ignored `src/gql/`. |
 | Runtime             | `src/main.ts`                                                                   | Starts the accounting UI remote.                                                                                |
 | Dev server config   | `rspack.config.ts`                                                              | Configures Module Federation development serving and ignores generated folders during watch mode.               |
 | Plugin config       | `src/config.tsx`                                                                | Registers accounting routes and navigation with the host.                                                       |
@@ -104,6 +106,8 @@
 
 ### Consumes
 
+- `backend/plugins/accounting_api/generated/schema.graphql` is the accounting contract; `schema/platform.graphql` snapshots only consumed public Core, Sales, and Mongolian fields, with authoritative SDL source comments. Update this local snapshot when those published contracts change; never import another plugin's source at runtime.
+- `codegen.ts` generates ignored `src/gql/` documents and types. Import `gql` from `~/gql` and operation types from `~/gql/graphql`; do not import `gql` from Apollo or handwrite GraphQL response interfaces.
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind`, grouped drill-down, `ptrId`, and detail-row filters.
 - Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
 - Safe remainder item `trInfo` consumes optional active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata; CSV import sends editable counted-cost/sale metadata while active cost remains backend-derived.
@@ -143,6 +147,13 @@
 
 ## Local Invariants
 
+- Saved transaction JSON metadata must not silently become undefined when validation fails; reject invalid metadata before initializing an editable transaction form. Optional null values remain absent and valid extension fields remain intact.
+- Transaction subscriptions must depend on a stable serialized filter key, not the per-render variables object, so ordinary renders do not cancel pending refreshes.
+
+- Keep GraphQL operation text static and named, without string interpolation. Apollo hooks infer from generated documents; do not supply manual response generics.
+- Generated JSON scalars are `unknown`; narrow genuinely extensible config/report/transaction metadata with existing Zod schemas before consuming it. Generated Date outputs are strings; convert only at date-editing boundaries.
+- Nullable SDL fields remain nullable in generated types. `src/modules/utils/graphql.ts` normalizes display values while retaining immutable Apollo reference identity; `graphqlCursor.ts` adapts nullable platform PageInfo through public `erxes-ui` cursor helpers without changing shared SDL.
+- Inventory cost and last-income-price operations select structured rows and map them to product dictionaries only at the UI boundary. Persisted bank, inventory expense, sale/movement, and fixed asset form metadata must survive edit/refetch.
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
@@ -199,6 +210,9 @@
 
 ## Validation
 
+- `pnpm nx run accounting_ui:codegen --skip-nx-cache`
+- `pnpm nx lint accounting_ui`
+- `pnpm nx test accounting_ui`
 - `pnpm nx build accounting_ui`
 - `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`
 - Smoke scenario: create fund and debt rate adjustments, verify main/foreign currency options come from system `dealCurrency`, calculate details, run transactions, and confirm detail subscriptions/linked transaction display update without manual refresh.

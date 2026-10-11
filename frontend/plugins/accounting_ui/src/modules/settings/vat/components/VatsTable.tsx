@@ -21,7 +21,7 @@ export const VatRowMoreColumnCell = ({
   cell: Cell<IVatRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState('vat_row_id');
+  const [, setOpen] = useQueryState<string>('vat_row_id');
   const setVatRowDetail = useSetAtom(vatRowDetailAtom);
   const { confirm } = useConfirm();
   const { removeVatRows } = useVatRowsRemove();

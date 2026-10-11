@@ -1,70 +1,41 @@
+import type {
+  AccountingFixedAssetCategoriesQuery,
+  AccountingFixedAssetDetailQuery,
+  AccountingFixedAssetOwnerRecordsQuery,
+  AccountingFixedAssetLocationRemainderQuery,
+} from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
 import { z } from 'zod';
 import {
   fixedAssetCategorySchema,
   fixedAssetSchema,
 } from '../constants/schema';
 
-export interface IFixedAssetCategory {
-  _id: string;
-  code: string;
-  name: string;
-  description?: string;
-  parentId?: string;
-  status?: string;
-  depreciationMethod?: string;
-  defaultAnnualDepreciationRate?: number;
-  defaultSalvageValue?: number;
-  taxDepreciationMethod?: string;
-  defaultTaxAnnualDepreciationRate?: number;
-  defaultTaxSalvageValue?: number;
-}
+export type IFixedAssetCategory = GraphqlView<
+  NonNullable<
+    NonNullable<
+      AccountingFixedAssetCategoriesQuery['fixedAssetCategories']
+    >[number]
+  >
+>;
 
-export interface IFixedAsset {
-  _id: string;
-  code: string;
-  name: string;
-  categoryId: string;
-  description?: string;
-  status?: string;
-  accountId?: string;
-  count?: number;
-  currentCount?: number;
-  originalCost?: number;
-  acquisitionDate?: Date;
-  depreciationStartDate?: Date;
-  depreciationMethod?: string;
-  annualDepreciationRate?: number;
-  salvageValue?: number;
-  taxDepreciationMethod?: string;
-  taxAnnualDepreciationRate?: number;
-  taxSalvageValue?: number;
-  propertiesData?: Record<string, unknown>;
-}
+export type IFixedAsset = GraphqlView<
+  NonNullable<AccountingFixedAssetDetailQuery['fixedAssetDetail']>
+>;
 
-export interface IFxaOwnerRecord {
-  _id: string;
-  fixedAssetId?: string;
-  categoryId?: string;
-  code?: string;
-  sequence?: number;
-  count?: number;
-  action?: string;
-  status?: string;
-  ownerId?: string;
-  transactionId?: string;
-  transactionDetailId?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  createdBy?: string;
-  modifiedBy?: string;
-}
+export type IFxaOwnerRecord = GraphqlView<
+  NonNullable<
+    NonNullable<
+      AccountingFixedAssetOwnerRecordsQuery['fxaOwnerRecords']
+    >[number]
+  >
+>;
 
-export interface IFixedAssetLocationRemainder {
-  fixedAssetId?: string;
-  branchId?: string;
-  departmentId?: string;
-  remainder?: number;
-}
+export type IFixedAssetLocationRemainder = GraphqlView<
+  NonNullable<
+    AccountingFixedAssetLocationRemainderQuery['fixedAssetLocationRemainder']
+  >
+>;
 
 export type TFixedAssetCategoryForm = z.infer<typeof fixedAssetCategorySchema>;
 

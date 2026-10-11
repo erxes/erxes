@@ -5,13 +5,21 @@ export const types = `
   }
 
   type AccCurrentCost {
-    productId: Float
+    productId: String!
+    unitCost: Float!
+    remainder: Float!
+    totalCost: Float!
+  }
+
+  type AccountingLastIncomePrice {
+    productId: String!
+    unitPrice: Float!
   }
 `;
 
 export const queries = `
-  getAccLastIncomePrice(productIds: [String]): JSON
-  getAccCurrentCost(productIds: [String], accountId: String, branchId: String, departmentId: String, excludedTransactionIds: [String]): JSON
+  getAccLastIncomePrice(productIds: [String!]!): [AccountingLastIncomePrice!]!
+  getAccCurrentCost(productIds: [String!]!, accountId: String!, branchId: String, departmentId: String, excludedTransactionIds: [String!]): [AccCurrentCost!]!
 `;
 
 export const mutations = `

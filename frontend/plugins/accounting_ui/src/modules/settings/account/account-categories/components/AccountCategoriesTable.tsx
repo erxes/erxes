@@ -126,7 +126,11 @@ const AccountTextField = ({
       scope={`account-category-${_id}-${field}`}
       onSave={(value) => {
         editAccountCategory({
-          variables: { ...accountCategory, [field]: value },
+          variables: {
+            ...accountCategory,
+            name: accountCategory.name ?? '',
+            [field]: value,
+          },
         });
       }}
       className={'shadow-none rounded-none px-2'}
@@ -142,7 +146,7 @@ const AccountCategoryMoreColumnCell = ({
   cell: Cell<IAccountCategory & { hasChildren: boolean }, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState('accountCategoryId');
+  const [, setOpen] = useQueryState<string>('accountCategoryId');
   const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
   const { confirm } = useConfirm();
   const { removeAccountCategories } = useAccountCategoriesRemove();
@@ -216,6 +220,7 @@ const AccountCategoryParentCell = ({
         editAccountCategory({
           variables: {
             ...cell.row.original,
+            name: cell.row.original.name ?? '',
             parentId,
           },
         });

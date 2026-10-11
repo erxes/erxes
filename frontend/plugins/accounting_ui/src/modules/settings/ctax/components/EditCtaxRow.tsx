@@ -25,6 +25,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
   }, [ctaxRowDetail, reset]);
 
   const handleSubmit = (data: TCtaxRowForm) => {
+    if (!ctaxRowDetail) return;
     const initialData = {
       ...ctaxRowDetail,
     };
@@ -36,7 +37,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
     }
     editCtaxRow({
       variables: {
-        _id: ctaxRowDetail?._id,
+        _id: ctaxRowDetail._id,
         ...data,
       },
       onCompleted: () => {

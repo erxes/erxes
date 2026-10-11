@@ -36,7 +36,7 @@ type TFxaOwnerRecordRow = IFxaOwnerRecord & {
   categoryId?: string;
 };
 
-const formatDate = (date?: Date) => {
+const formatDate = (date?: string | Date) => {
   if (!date) {
     return '';
   }
@@ -284,7 +284,6 @@ export const FxaOwnerRecordsTable = () => {
   const records = (fxaOwnerRecords || []).map((record) => ({
     ...record,
     categoryId:
-      record.categoryId ||
       (record.fixedAssetId &&
         fixedAssetsById[record.fixedAssetId]?.categoryId) ||
       '',

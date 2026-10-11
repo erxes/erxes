@@ -5,7 +5,7 @@ export const useAccountCategoriesRemove = () => {
   const [removeAccountCategories, { loading }] = useMutation(
     ACCOUNT_CATEGORIES_REMOVE,
     {
-      refetchQueries: ['accountCategories'],
+      refetchQueries: ['accountingAccountCategories'],
     },
   );
 

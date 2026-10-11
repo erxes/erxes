@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { accountCategoryDetailAtom } from '../states/accountCategoryStates';
@@ -8,10 +9,11 @@ export const useAccountCategoryDetail = () => {
   const [accountCategoryId, setAccountCategoryId] =
     useQueryState<string>('accountCategoryId');
   const accountCategoryDetail = useAtomValue(accountCategoryDetailAtom);
-  const { data, loading } = useQuery(GET_ACCOUNT_CATEGORY_DETAIL, {
-    variables: { id: accountCategoryId },
+  const { data: queryData, loading } = useQuery(GET_ACCOUNT_CATEGORY_DETAIL, {
+    variables: { id: accountCategoryId ?? '' },
     skip: !!accountCategoryDetail || !accountCategoryId,
   });
+  const data = toGraphqlView(queryData);
 
   return {
     accountCategoryDetail:

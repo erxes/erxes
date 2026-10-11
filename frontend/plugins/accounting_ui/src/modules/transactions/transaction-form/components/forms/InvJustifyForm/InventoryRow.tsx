@@ -59,10 +59,10 @@ export const InventoryRow = ({
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
-      accountId: detail.accountId,
+      accountId: detail.accountId ?? '',
       branchId: detail.branchId || trDoc.branchId,
       departmentId: detail.departmentId || trDoc.departmentId,
-      productIds: [detail.productId],
+      productIds: detail.productId ? [detail.productId] : [],
       excludedTransactionIds: trDoc._id ? [trDoc._id] : undefined,
     },
     skip: !detail.productId || !detail.accountId,

@@ -91,6 +91,7 @@ const normalizeOwnerRecords = (trDoc: TFxaIncomeJournal) => {
 
       return {
         ...owner,
+        transactionDetailId: owner.transactionDetailId || '',
         fixedAssetId: detail?.fixedAssetId || owner.fixedAssetId,
       };
     });
@@ -174,7 +175,11 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   const syncOwners = (nextOwners: TFxaIncomeOwnerRecord[]) => {
     form.setValue(
       `trDocs.${journalIndex}.extraData.fxaOwnerRecords`,
-      nextOwners,
+      nextOwners.flatMap((owner) =>
+        owner.transactionDetailId
+          ? [{ ...owner, transactionDetailId: owner.transactionDetailId }]
+          : [],
+      ),
     );
   };
 

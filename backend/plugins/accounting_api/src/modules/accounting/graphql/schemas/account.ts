@@ -34,7 +34,7 @@ export const types = () => `
     parentId: String
     createdAt: Date
     scopeBrandIds: [String]
-    extra:JSON,
+    extra: AccountingAccountExtra
     category: AccountCategory
     level: Int
     read: String
@@ -45,6 +45,11 @@ export const types = () => `
     list: [Account],
     pageInfo: PageInfo
     totalCount: Int,
+  }
+
+  type AccountingAccountExtra {
+    bank: String
+    bankAccount: String
   }
 
   type AccountPermission {
@@ -147,7 +152,7 @@ export const queries = `
     sortDirection: Int    
   ): [Account]
   accountsCount(${accountsQueryParams}): Int
-  accountDetail(_id: String): Account
+  accountDetail(_id: String!): Account
   accountPermissions(
     ${accountsQueryParams}
     ${GQL_CURSOR_PARAM_DEFS}
@@ -162,8 +167,8 @@ export const queries = `
 export const mutations = `
   accountsAdd(${accountParams}): Account
   accountsEdit(_id: String!, ${accountParams}): Account
-  accountsRemove(accountIds: [String!]): String
-  accountsMerge(accountIds: [String], accountFields: JSON): Account
+  accountsRemove(accountIds: [String!]!): String
+  accountsMerge(accountIds: [String!]!, accountFields: JSON!): Account
   accountCategoriesAdd(${accountCategoryParams}): AccountCategory
   accountCategoriesEdit(_id: String!, ${accountCategoryParams}): AccountCategory
   accountCategoriesRemove(_id: String!): JSON

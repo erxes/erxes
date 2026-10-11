@@ -12,7 +12,7 @@ export const queries = `
   accountingsConfig(code: String!, subId: String): AccountingsConfig
   accountingsConfigs(code: String!): [AccountingsConfig]
   accountingsConfigsCount(code: String!): Int
-  accountingsConfigsByCode(codes: [String]): JSON
+  accountingsConfigsByCode(codes: [String!]!): JSON
 `;
 
 export const mutations = `

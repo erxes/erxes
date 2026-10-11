@@ -62,19 +62,25 @@ const AmountCell = ({ value }: { value: number }) => {
 
 const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details, side } = row.original;
-  const { amount } = details;
+  const { amount } = details ?? {};
 
   return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
 const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details, side } = row.original;
-  const { amount } = details;
+  const { amount } = details ?? {};
 
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const AmountItemCell = ({ row, value }: { row: any; value: number }) => {
+const AmountItemCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITrRecord>;
+  value: number;
+}) => {
   const { details } = row.original;
   if (!details?.productId && !details?.fixedAssetId) {
     return undefined;
@@ -310,13 +316,13 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     id: 'Debit',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Дебет" />,
     accessorKey: 'Debit',
-    cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DebitCell row={row} />,
   },
   {
     id: 'Credit',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Кредит" />,
     accessorKey: 'Credit',
-    cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <CreditCell row={row} />,
   },
   {
     id: 'description',

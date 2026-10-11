@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { ADJUST_INVENTORY_CANCEL } from '../graphql/adjustInventoryChange';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +12,7 @@ import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
 export const useAdjustInventoryCancel = (
   adjustId: string,
-  options?: OperationVariables,
+  options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_CANCEL>,
 ) => {
   const { t } = useTranslation('accounting');
   const [_cancelMutation, { loading }] = useMutation(
@@ -18,14 +20,16 @@ export const useAdjustInventoryCancel = (
     options,
   );
 
-  const cancelAdjust = (options?: OperationVariables) => {
+  const cancelAdjust = (
+    options?: GraphqlMutationOptions<typeof ADJUST_INVENTORY_CANCEL>,
+  ) => {
     return _cancelMutation({
       ...options,
       variables: {
         adjustId,
         ...options?.variables,
       },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

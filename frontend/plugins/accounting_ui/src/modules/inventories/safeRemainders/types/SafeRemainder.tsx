@@ -1,42 +1,12 @@
-import { IBranch, IDepartment, IProduct, IUser } from 'ui-modules';
+import type {
+  AccountingSafeRemainderDetailQuery,
+  AccountingSafeRemainderItemsQuery,
+} from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
 
-interface IProductCategorySummary {
-  _id: string;
-  code?: string;
-  name: string;
-}
-
-export type ISafeRemainder = {
-  _id: string;
-  createdAt: Date;
-  createdBy: string;
-  modifiedAt: Date;
-  modifiedBy: string;
-
-  date: Date;
-  description: string;
-
-  status: string;
-  branchId: string;
-  departmentId: string;
-  productCategoryId: string;
-
-  branch: IBranch;
-  department: IDepartment;
-  productCategory: IProductCategorySummary;
-  modifiedUser: IUser;
-
-  incomeRule?: Record<string, unknown>;
-  incomeTrId?: string;
-  outRule?: Record<string, unknown>;
-  outTrId?: string;
-  saleRule?: Record<string, unknown>;
-  saleTrId?: string;
-  costIncreaseRule?: Record<string, unknown>;
-  costDecreaseRule?: Record<string, unknown>;
-  costIncreaseTrId?: string;
-  costDecreaseTrId?: string;
-};
+export type ISafeRemainder = GraphqlView<
+  NonNullable<AccountingSafeRemainderDetailQuery['safeRemainderDetail']>
+>;
 
 export type TSafeRemainderItemTrInfo = {
   activeCost?: number;
@@ -53,25 +23,22 @@ export type TSafeRemainderImportItem = {
   trInfo?: Omit<TSafeRemainderItemTrInfo, 'activeCost'>;
 };
 
-export type ISafeRemainderItem = {
-  _id: string;
-  createdAt: Date;
-  createdBy: string;
-  modifiedAt: Date;
-  modifiedBy: string;
-  status: string;
-  remainderId: string;
-  productId: string;
-  uom: string;
-  preCount: number;
-  count: number;
-  branchId: string;
-  departmentId: string;
-
-  product: IProduct;
-
-  trInfo?: TSafeRemainderItemTrInfo;
-};
+type SafeRemainderItemResult = GraphqlView<
+  NonNullable<
+    NonNullable<AccountingSafeRemainderItemsQuery['safeRemainderItems']>[number]
+  >
+>;
+export type ISafeRemainderItem = Omit<
+  SafeRemainderItemResult,
+  'count' | 'preCount'
+> & { count: number; preCount: number };
+export const toSafeRemainderItem = (
+  item: SafeRemainderItemResult,
+): ISafeRemainderItem => ({
+  ...item,
+  count: item.count ?? 0,
+  preCount: item.preCount ?? 0,
+});
 
 export const SAFE_REMAINDER_STATUSES = {
   DRAFT: 'draft',

@@ -1,8 +1,4 @@
-import {
-  IconAccessPoint,
-  IconCrane,
-  IconTrashX,
-} from '@tabler/icons-react';
+import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
 import { Button, PageSubHeader, Spinner, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import dayjs from 'dayjs';
@@ -32,7 +28,7 @@ export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
   const [activeTab, setActiveTab] = useAtom(activeTabState);
   const { safeRemainder, loading } = useSafeRemainderDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
   const {
@@ -41,7 +37,7 @@ export const SafeRemainderDetail = () => {
     loading: detailsLoading,
     handleFetchMore,
   } = useSafeRemainderDetails({
-    variables: { remainderId: id },
+    variables: { remainderId: id ?? '' },
     skip: !id,
   });
   const { reCalcSafeRemainder, loading: reCalcLoading } =
@@ -50,8 +46,7 @@ export const SafeRemainderDetail = () => {
     useSafeRemainderSubmit();
   const { cancelSafeRemainder, loading: cancelLoading } =
     useSafeRemainderCancel();
-  const { doTrSafeRemainder, loading: doTrLoading } =
-    useSafeRemainderDoTr();
+  const { doTrSafeRemainder, loading: doTrLoading } = useSafeRemainderDoTr();
   const { undoTrSafeRemainder, loading: undoTrLoading } =
     useSafeRemainderUndoTr();
   const { removeSafeRemainder, loading: removeLoading } =
@@ -92,7 +87,9 @@ export const SafeRemainderDetail = () => {
             variant="secondary"
             className="text-destructive"
             disabled={actionLoading}
-            onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+            onClick={() =>
+              removeSafeRemainder({ variables: { _id: id ?? '' } })
+            }
           >
             <IconTrashX />
             {t('delete')}

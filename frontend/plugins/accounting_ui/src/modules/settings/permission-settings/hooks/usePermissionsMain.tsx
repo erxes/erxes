@@ -1,9 +1,16 @@
+import {
+  mergeGraphqlCursorData,
+  toCursorPageInfo,
+} from '@/utils/graphqlCursor';
+import type {
+  AccountingAccountPermissionsQuery,
+  AccountingAccountPermissionsQueryVariables,
+} from '~/gql/graphql';
+import { toGraphqlView } from '@/utils/graphql';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
@@ -85,15 +92,18 @@ export const usePermissionsVariables = (
   };
 };
 
-export const usePermissionsMain = (options?: QueryHookOptions) => {
+export const usePermissionsMain = (
+  options?: QueryHookOptions<
+    AccountingAccountPermissionsQuery,
+    AccountingAccountPermissionsQueryVariables
+  >,
+) => {
   const variables = usePermissionsVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<{
-    accountPermissions: {
-      list: IPermission[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(GET_ACCOUNT_PERMISSIONS, {
+  const {
+    data: queryData,
+    loading,
+    fetchMore,
+  } = useQuery(GET_ACCOUNT_PERMISSIONS, {
     notifyOnNetworkStatusChange: true,
     ...options,
     variables: {
@@ -101,6 +111,7 @@ export const usePermissionsMain = (options?: QueryHookOptions) => {
       ...variables,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const {
     list: permissionsMain,
@@ -116,7 +127,7 @@ export const usePermissionsMain = (options?: QueryHookOptions) => {
     if (
       !validateFetchMore({
         direction,
-        pageInfo,
+        pageInfo: toCursorPageInfo(pageInfo),
       })
     ) {
       return;
@@ -133,7 +144,7 @@ export const usePermissionsMain = (options?: QueryHookOptions) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        const merged = mergeCursorData({
+        const merged = mergeGraphqlCursorData({
           direction,
           fetchMoreResult: fetchMoreResult.accountPermissions,
           prevResult: prev.accountPermissions,
@@ -141,7 +152,7 @@ export const usePermissionsMain = (options?: QueryHookOptions) => {
         return {
           ...prev,
           accountPermissions: {
-            ...prev.accountPermissions,
+            ...(prev.accountPermissions ?? {}),
             ...merged,
           },
         };
@@ -154,6 +165,6 @@ export const usePermissionsMain = (options?: QueryHookOptions) => {
     permissionsMain,
     totalCount,
     handleFetchMore,
-    pageInfo,
+    pageInfo: toCursorPageInfo(pageInfo),
   };
 };

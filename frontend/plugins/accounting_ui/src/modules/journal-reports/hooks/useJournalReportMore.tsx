@@ -1,27 +1,30 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import { parseReportRecords } from '../utils/reportRecords';
+
+import type {
+  AccountingJournalReportMoreQuery,
+  AccountingJournalReportMoreQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { JOURNAL_REPORT_MORE_QUERY } from '../graphql/reportQueries';
 import { useJouranlReportVariables } from './useJournalReportVars';
-import {
-  EnumCursorDirection,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
-import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
-import { IJournalReportRecord } from '../types/journalReport';
 
-export const useJournalReportMore = (options?: OperationVariables) => {
+export const useJournalReportMore = (
+  options?: QueryHookOptions<
+    AccountingJournalReportMoreQuery,
+    AccountingJournalReportMoreQueryVariables
+  >,
+) => {
   const variables = useJouranlReportVariables(options?.variables);
 
   const isMore = variables.isMore;
 
-  const { data, loading, error, fetchMore } = useQuery<{
-    journalReportMore: {
-      trDetails: IJournalReportRecord[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(JOURNAL_REPORT_MORE_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(JOURNAL_REPORT_MORE_QUERY, {
     ...options,
     variables: {
       ...options?.variables,
@@ -29,45 +32,13 @@ export const useJournalReportMore = (options?: OperationVariables) => {
     },
     skip: !isMore,
   });
+  const data = toGraphqlView(queryData);
 
-  const { trDetails, pageInfo } = data?.journalReportMore || {};
-
-  const loopFetchMore = ({ direction }: { direction: EnumCursorDirection }) => {
-    if (
-      !validateFetchMore({
-        direction,
-        pageInfo,
-      })
-    ) {
-      return;
-    }
-
-    fetchMore({
-      variables: {
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
-        limit: ACC_TRS__PER_PAGE,
-        direction,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          journalReportMore: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.journalReportMore,
-            prevResult: prev.journalReportMore,
-          }),
-        });
-      },
-    });
-  };
+  const trDetails = parseReportRecords(data?.journalReportMore?.trDetails);
 
   return {
     loading,
     trDetails,
-    loopFetchMore,
     error,
   };
 };

@@ -21,13 +21,13 @@ export const ctaxSchema = z.object({
 
 const accountSchema = z.object({
   _id: z.string(),
-  code: z.string(),
-  name: z.string(),
-  currency: z.string(),
-  kind: z.string(),
+  code: z.string().optional(),
+  name: z.string().optional(),
+  currency: z.string().optional(),
+  kind: z.string().optional(),
   branchId: undefed(z.string()),
   departmentId: undefed(z.string()),
-  journal: z.string(),
+  journal: z.string().optional(),
 });
 
 export const baseTrDetailSchema = z.object({
@@ -105,7 +105,7 @@ export const baseTransactionSchema = z.object({
   ...vatSchema.shape,
   ...ctaxSchema.shape,
 
-  extraData: undefed(z.any()),
+  extraData: z.unknown().optional(),
 });
 // #endregion common
 
@@ -182,7 +182,7 @@ export const transactionTaxSchema = z.object({
 // #endregion Single trs
 
 // #region Inventories
-const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
+export const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
   z.object({
     hasSplit: z.literal(false),
     productId: undefed(z.string()),

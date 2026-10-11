@@ -71,7 +71,7 @@ export const EditAdjustClosingForm = ({
   useEffect(() => {
     if (!detail) return;
 
-    const entry = detail.entries?.[0];
+    const entry = detail.details?.[0]?.entries?.[0];
 
     form.reset({
       status: detail.status ?? undefined,

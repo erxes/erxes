@@ -10,7 +10,7 @@ export const useMainUpdateConfigs = () => {
   const updateConfigs = (configsMap: Record<string, any>) => {
     return updateConfig({
       variables: { configsMap },
-      refetchQueries: ['accountingsConfigs'],
+      refetchQueries: ['accountingsConfig'],
       onError: (error) => {
         toast({
           title: 'Алдаа',

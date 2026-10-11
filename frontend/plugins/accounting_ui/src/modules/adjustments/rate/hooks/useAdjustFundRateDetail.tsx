@@ -1,22 +1,29 @@
-import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
+import type {
+  AccountingAdjustFundRateDetailQuery,
+  AccountingAdjustFundRateDetailQueryVariables,
+} from '~/gql/graphql';
+import { toGraphqlView } from '@/utils/graphql';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import { ADJUST_FUND_RATE_DETAIL_QUERY } from '../graphql/adjustFundRateQueries';
 import { ACCOUNTING_ADJUST_FUND_RATE_CHANGED } from '../graphql/adjustFundRateSubscription';
-import { IAdjustFundRate } from '../types/AdjustFundRate';
 
 export const useAdjustFundRateDetail = (
   options?: QueryHookOptions<
-    { adjustFundRateDetail: IAdjustFundRate },
-    OperationVariables
+    AccountingAdjustFundRateDetailQuery,
+    AccountingAdjustFundRateDetailQueryVariables
   >,
 ) => {
-  const { data, loading, error, subscribeToMore } = useQuery<
-    { adjustFundRateDetail: IAdjustFundRate },
-    OperationVariables
-  >(ADJUST_FUND_RATE_DETAIL_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    subscribeToMore,
+  } = useQuery(ADJUST_FUND_RATE_DETAIL_QUERY, {
     ...options,
     fetchPolicy: 'network-only',
   });
+  const data = toGraphqlView(queryData);
 
   useEffect(() => {
     const adjustId = options?.variables?._id;
@@ -25,9 +32,7 @@ export const useAdjustFundRateDetail = (
       return;
     }
 
-    const unsubscribe = subscribeToMore<{
-      accountingAdjustFundRateChanged: IAdjustFundRate;
-    }>({
+    const unsubscribe = subscribeToMore({
       document: ACCOUNTING_ADJUST_FUND_RATE_CHANGED,
       variables: { adjustId },
       updateQuery: (prev, { subscriptionData }) => {

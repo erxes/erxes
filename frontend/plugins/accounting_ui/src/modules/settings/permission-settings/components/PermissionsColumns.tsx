@@ -189,15 +189,17 @@ const PermissionWriteCell = ({
   );
 };
 
+const PermissionHeader = ({ label }: { label: string }) => {
+  const { t } = useTranslation('accounting');
+  return <RecordTable.InlineHead label={t(label)} />;
+};
+
 export const permissionsColumns: ColumnDef<IPermission>[] = [
   RecordTable.checkboxColumn as ColumnDef<IPermission>,
   {
     id: 'accountName',
     accessorFn: (row) => row.account?.name,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('name')} />;
-    },
+    header: () => <PermissionHeader label="name" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -208,10 +210,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'accountCode',
     accessorFn: (row) => row.account?.code,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('code')} />;
-    },
+    header: () => <PermissionHeader label="code" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -222,10 +221,7 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'email',
     accessorFn: (row) => row.user?.email,
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('email')} />;
-    },
+    header: () => <PermissionHeader label="email" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {(cell.getValue() as string) || '-'}
@@ -236,32 +232,22 @@ export const permissionsColumns: ColumnDef<IPermission>[] = [
   {
     id: 'level',
     accessorKey: 'level',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('level')} />;
-    },
+    header: () => <PermissionHeader label="level" />,
     cell: PermissionLevelCell,
     size: 120,
   },
   {
     id: 'read',
     accessorKey: 'read',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('read')} />;
-    },
+    header: () => <PermissionHeader label="read" />,
     cell: PermissionReadCell,
     size: 220,
   },
   {
     id: 'write',
     accessorKey: 'write',
-    header: () => {
-      const { t } = useTranslation('accounting');
-      return <RecordTable.InlineHead label={t('write')} />;
-    },
+    header: () => <PermissionHeader label="write" />,
     cell: PermissionWriteCell,
     size: 220,
   },
 ];
-

@@ -18,7 +18,16 @@ export const types = `
     modifiedBy: String,
     order: Int
     
-    trInfo: JSON
+    trInfo: AccountingSafeRemainderItemTrInfo
+  }
+
+  type AccountingSafeRemainderItemTrInfo {
+    activeCost: Float
+    unitCost: Float
+    isCostExplicit: Boolean
+    lastIncomePrice: Float
+    isSale: Boolean
+    unitPrice: Float
   }
 `;
 
@@ -39,15 +48,15 @@ export const queries = `
 
 export const mutations = `
   safeRemainderItemEdit(
-    _id: String,
+    _id: String!,
     status: String,
     remainder: Float,
     trInfo: JSON,
   ): SafeRemainderItem
-  safeRemainderItemsRemove(ids: [String]): JSON
+  safeRemainderItemsRemove(ids: [String!]!): JSON
     safeRemainderItemsBulkEdit(                                                                                                                                                                               
     safeRemainderId: String!,                                                                                                                                                                               
-    productsData: JSON,                                                                                                                                                                                     
+    productsData: JSON!,
     duplicateRule: String,                                                                                                                                                                                  
   ): Int 
 `;

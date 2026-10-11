@@ -1,30 +1,35 @@
-import { gql } from '@apollo/client';
-import { adjustFundRateFields } from './adjustFundRateQueries';
+import { gql } from '~/gql';
 
-const adjFundRateInputParamDefs = `
-  $mainCurrency: String!
-  $currency: String!
-  $spotRate: Float!
-  $date: Date!
-  $description: String
-  $gainAccountId: String!
-  $lossAccountId: String!
-`;
-
-const adjFundRateInputParams = `
-  mainCurrency: $mainCurrency
-  currency: $currency
-  spotRate: $spotRate
-  date: $date
-  description: $description
-  gainAccountId: $gainAccountId
-  lossAccountId: $lossAccountId
-`;
-
-export const ADJUST_FUND_RATE_ADD = gql`
-  mutation AccountingAdjustFundRateAdd(${adjFundRateInputParamDefs}) {
-    adjustFundRateAdd(${adjFundRateInputParams}) {
-      ${adjustFundRateFields}
-    }
+export const ADJUST_FUND_RATE_ADD = gql(`
+mutation AccountingAdjustFundRateAdd($mainCurrency: String!, $currency: String!, $spotRate: Float!, $date: Date!, $description: String, $gainAccountId: String!, $lossAccountId: String!) {
+  adjustFundRateAdd(
+    mainCurrency: $mainCurrency
+    currency: $currency
+    spotRate: $spotRate
+    date: $date
+    description: $description
+    gainAccountId: $gainAccountId
+    lossAccountId: $lossAccountId
+  ) {
+    _id
+    date
+    mainCurrency
+    currency
+    description
+    spotRate
+    gainAccountId
+    lossAccountId
+    transactionId
+    status
+    beginDate
+    successDate
+    checkedAt
+    error
+    warning
+    createdBy
+    modifiedBy
+    createdAt
+    updatedAt
   }
-`;
+}
+`);

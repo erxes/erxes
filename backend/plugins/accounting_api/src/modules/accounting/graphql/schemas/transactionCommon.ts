@@ -263,13 +263,13 @@ export const queries = `
     sortDirection: Int
   ): [AccCommonTrRecord]
   accTrRecordsCount(${trRecsQueryParams}): Int
-  accOddTransactions: AccCommonTransaction
+  accOddTransactions: AccCommonTransaction @deprecated(reason: "Legacy placeholder; use accTransactions instead")
 `;
 
 export const mutations = `
-  accTransactionsCreate(trDocs: [TransactionInput]): [AccCommonTransaction]
-  accTransactionsUpdate(parentId: String, trDocs: [TransactionInput]): [AccCommonTransaction]
+  accTransactionsCreate(trDocs: [TransactionInput!]!): [AccCommonTransaction]
+  accTransactionsUpdate(parentId: String!, trDocs: [TransactionInput!]!): [AccCommonTransaction]
   accTransactionsRemove(parentId: String, ptrId: String): JSON
 
-  accTransactionsLink(trIds: [String], ptrId: String): [AccCommonTransaction]
+  accTransactionsLink(trIds: [String!]!, ptrId: String!): [AccCommonTransaction]
 `;

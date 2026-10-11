@@ -1,6 +1,10 @@
 import { IContext } from '~/connectionResolvers';
 import { ITransaction } from '@/accounting/@types/transaction';
 import { assertTransactionJournalsPermission } from '../../../utils/transactionPermissions';
+import {
+  validateRequiredId,
+  validateRequiredIds,
+} from '../../validateRequired';
 
 const getRootTransactionJournals = (transactions: ITransaction[]) =>
   transactions
@@ -10,12 +14,14 @@ const getRootTransactionJournals = (transactions: ITransaction[]) =>
 const transactionsMutations = {
   async accTransactionsLink(
     _root,
-    doc: { ids: string[]; ptrId: string },
+    doc: { trIds: string[]; ptrId: string },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('linkTransactions');
-    const { ids, ptrId } = doc;
-    return await models.Transactions.linkTransaction(ids, ptrId);
+    const { trIds, ptrId } = doc;
+    validateRequiredIds(trIds, 'trIds');
+    validateRequiredId(ptrId, 'ptrId');
+    return await models.Transactions.linkTransaction(trIds, ptrId);
   },
   /**
    * Creates a new perfect transaction form
@@ -25,6 +31,7 @@ const transactionsMutations = {
     { trDocs }: { trDocs: ITransaction[] },
     { user, models, checkPermission }: IContext,
   ) {
+    if (!trDocs?.length) throw new Error('trDocs must contain a transaction');
     await assertTransactionJournalsPermission(
       { checkPermission, user },
       getRootTransactionJournals(trDocs),
@@ -50,6 +57,8 @@ const transactionsMutations = {
     }: { parentId: string; trDocs: (ITransaction & { _id?: string })[] },
     { user, models, checkPermission }: IContext,
   ) {
+    validateRequiredId(parentId, 'parentId');
+    if (!trDocs?.length) throw new Error('trDocs must contain a transaction');
     const oldTransactions = await models.Transactions.find({ parentId }).lean();
 
     await assertTransactionJournalsPermission(
@@ -80,6 +89,9 @@ const transactionsMutations = {
     { parentId, ptrId }: { parentId: string; ptrId: string },
     { models, user, checkPermission }: IContext,
   ) {
+    if (!parentId?.trim() && !ptrId?.trim()) {
+      throw new Error('parentId or ptrId is required');
+    }
     const filters: Record<string, string>[] = [];
 
     if (parentId) {
@@ -113,4 +125,4 @@ const transactionsMutations = {
   },
 };
 
-export default transactionsMutations;
+export { transactionsMutations };

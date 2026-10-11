@@ -1,7 +1,8 @@
 import { IContext } from '~/connectionResolvers';
 import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import { ITransaction } from '~/modules/accounting/@types/transaction';
-import safeRemainderItemMutations, {
+import {
+  safeRemainderItemMutations,
   mergeSafeRemainderImportItems,
 } from '../safeRemainderItems';
 import safeRemainderMutations from '../safeRemainders';
@@ -76,6 +77,15 @@ describe('safe remainder counted value validation', () => {
 });
 
 describe('safe remainder bulk import rules', () => {
+  test.each([NaN, Infinity, -Infinity])(
+    'rejects non-finite count %s before writing',
+    (count) => {
+      expect(() =>
+        mergeSafeRemainderImportItems([{ productCode: 'P001', count }], 'last'),
+      ).toThrow('finite count');
+    },
+  );
+
   test('keeps the first duplicate row for the skip rule', () => {
     const merged = mergeSafeRemainderImportItems(
       [
@@ -248,9 +258,11 @@ describe('safe remainder transaction generation', () => {
         },
         Transactions: {
           createPTransaction,
-          aggregate: jest.fn().mockResolvedValue([
-            { _id: 'last-price-income-product', price: 12 },
-          ]),
+          aggregate: jest
+            .fn()
+            .mockResolvedValue([
+              { _id: 'last-price-income-product', price: 12 },
+            ]),
         },
       },
     } as unknown as IContext;

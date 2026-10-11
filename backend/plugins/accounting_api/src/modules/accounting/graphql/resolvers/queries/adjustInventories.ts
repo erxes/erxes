@@ -2,6 +2,7 @@ import { ACCOUNT_STATUSES } from '@/accounting/@types/constants';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import { validateRequiredId } from '../../validateRequired';
 
 interface IQueryParams {
   startDate: Date;
@@ -104,6 +105,7 @@ const adjustInventoryQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('readAdjustInventories');
+    validateRequiredId(_id);
     return await models.AdjustInventories.findOne({ _id }).lean();
   },
 
@@ -114,6 +116,7 @@ const adjustInventoryQueries = {
   ) {
     await checkPermission('readAdjustInventories');
     const { _id, sortField, sortDirection, page, perPage } = params;
+    validateRequiredId(_id);
 
     const pagintationArgs = { page, perPage };
 
@@ -134,10 +137,11 @@ const adjustInventoryQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('readAdjustInventories');
+    validateRequiredId(_id);
     return await models.AdjustInvDetails.find({
       adjustId: _id,
     }).countDocuments();
   },
 };
 
-export default adjustInventoryQueries;
+export { adjustInventoryQueries };

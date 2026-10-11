@@ -1,26 +1,41 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingAdjustInventoryDetailQuery,
+  AccountingAdjustInventoryDetailQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import { ADJUST_INVENTORY_DETAIL_QUERY } from '../graphql/adjustInventoryQueries';
-import { IAdjustInventory } from '../types/AdjustInventory';
+
 import { ACCOUNTING_ADJUST_INVENTORY_CHANGED } from '../graphql/adjustInventorySubscription';
 
-export const useAdjustInventoryDetail = (options: OperationVariables) => {
-  const { data, loading, error, subscribeToMore, client } = useQuery<
-    { adjustInventoryDetail: IAdjustInventory },
-    OperationVariables
-  >(ADJUST_INVENTORY_DETAIL_QUERY, {
+export const useAdjustInventoryDetail = (
+  options: QueryHookOptions<
+    AccountingAdjustInventoryDetailQuery,
+    AccountingAdjustInventoryDetailQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    subscribeToMore,
+    client,
+  } = useQuery(ADJUST_INVENTORY_DETAIL_QUERY, {
     ...options,
   });
+  const data = toGraphqlView(queryData);
 
   const adjustInventory = data?.adjustInventoryDetail;
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<{
-      accountingAdjustInventoryChanged: IAdjustInventory;
-    }>({
+    const adjustId = options.variables?._id;
+    if (!adjustId) return;
+    const unsubscribe = subscribeToMore({
       document: ACCOUNTING_ADJUST_INVENTORY_CHANGED,
       variables: {
-        adjustId: options.variables?._id,
+        adjustId,
       },
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;

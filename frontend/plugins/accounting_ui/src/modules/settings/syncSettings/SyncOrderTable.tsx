@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
@@ -7,10 +8,11 @@ import { IConfig } from '../types/Config';
 import { syncBaseColumns, SyncConfigTable } from './SyncTableShared';
 
 const PosSelect = ({ posId }: { posId: string }) => {
-  const { data, loading } = useQuery(POS_DETAIL, {
-    variables: { _id: posId },
+  const { data: queryData, loading } = useQuery(POS_DETAIL, {
+    variables: { _id: posId ?? '' },
     skip: !posId,
   });
+  const data = toGraphqlView(queryData);
 
   if (loading) {
     return null;

@@ -15,7 +15,7 @@ export const TransactionPrintPage = () => {
   const transactionId = query.get('_id');
 
   const { transaction, loading, error } = useTransactionDetail({
-    variables: { _id: transactionId },
+    variables: { _id: transactionId ?? '' },
     skip: !transactionId,
   });
 

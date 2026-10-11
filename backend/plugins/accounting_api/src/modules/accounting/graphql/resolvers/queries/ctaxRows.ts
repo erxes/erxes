@@ -1,8 +1,18 @@
 import { IContext } from '~/connectionResolvers';
 import { CTAX_ROW_STATUS } from '@/accounting/@types/ctaxRow';
+import { validateRequiredId } from '../../validateRequired';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
-const generateFilterCat = async ({ kinds, searchValue, status }) => {
-  const filter: any = {};
+const generateFilterCat = async ({
+  kinds,
+  searchValue,
+  status,
+}: {
+  kinds?: string[];
+  searchValue?: string;
+  status?: string;
+}) => {
+  const filter: Record<string, unknown> = {};
   filter.status = { $nin: [CTAX_ROW_STATUS.DELETED] };
 
   if (status && status !== 'active') {
@@ -14,8 +24,9 @@ const generateFilterCat = async ({ kinds, searchValue, status }) => {
   }
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
-    filter.number = new RegExp(`.*${searchValue}.*`, 'i');
+    const regex = new RegExp(escapeRegExp(searchValue), 'i');
+    filter.name = regex;
+    filter.number = regex;
   }
 
   return filter;
@@ -62,8 +73,9 @@ const ctaxRowQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('readTaxRows');
+    validateRequiredId(_id);
     return models.CtaxRows.findOne({ _id }).lean();
   },
 };
 
-export default ctaxRowQueries;
+export { ctaxRowQueries };

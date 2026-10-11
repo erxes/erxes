@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_PUBLISH } from '../graphql/adjustClosingPublish';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
@@ -9,21 +11,23 @@ import {
 
 export const useAdjustClosingPublish = (
   adjustId: string,
-  options?: OperationVariables,
+  options?: GraphqlMutationOptions<typeof ADJUST_CLOSING_PUBLISH>,
 ) => {
   const [_publishMutation, { loading }] = useMutation(
     ADJUST_CLOSING_PUBLISH,
     options,
   );
 
-  const publishAdjust = (options?: OperationVariables) => {
+  const publishAdjust = (
+    options?: GraphqlMutationOptions<typeof ADJUST_CLOSING_PUBLISH>,
+  ) => {
     return _publishMutation({
       ...options,
       variables: {
         adjustId,
         ...options?.variables,
       },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: 'Error',
           description: error.message,

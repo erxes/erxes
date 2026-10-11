@@ -1,3 +1,4 @@
+import { readTransactionViews } from '@/transactions/utils/transactionView';
 import { IconCheck, IconPlus } from '@tabler/icons-react';
 import {
   Button,
@@ -11,6 +12,7 @@ import {
   Sheet,
   Spinner,
   Tooltip,
+  toast,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -221,7 +223,17 @@ const TransactionList = ({
                         'min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left',
                         isSelected && 'bg-primary/10 hover:bg-primary/10',
                       )}
-                      onClick={() => setSelectedTr(tr)}
+                      onClick={() => {
+                        const result = readTransactionViews([tr]);
+                        if (result.error) {
+                          toast({
+                            description: result.error.message,
+                            variant: 'destructive',
+                          });
+                          return;
+                        }
+                        setSelectedTr(result.transactions?.[0]);
+                      }}
                     >
                       <div>{`${tr.date} - ${tr.number} - (${tr.sumCt})`}</div>
                       {isSelected ? (
@@ -262,8 +274,8 @@ const SelectedTrDetail = ({
 }) => {
   const [trDetail, setTrDetail] = useState<ITransaction | undefined>();
 
-  const { transaction, loading } = useTransactionDetail({
-    variables: { _id: selectedTrId },
+  const { transaction, loading, error } = useTransactionDetail({
+    variables: { _id: selectedTrId ?? '' },
     skip: !selectedTrId,
   });
 
@@ -275,6 +287,14 @@ const SelectedTrDetail = ({
 
   if (!selectedTrId) {
     return <>Гүйлгээ сонгоогүй байна</>;
+  }
+
+  if (error) {
+    return (
+      <div role="alert" className="p-4 text-destructive">
+        {error.message}
+      </div>
+    );
   }
 
   if (!trDetail || loading) {

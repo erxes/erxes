@@ -1,13 +1,10 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ACC_TRANSACTIONS_UPDATE = gql`
-  mutation AccTransactionsUpdate(
-    $parentId: String
-    $trDocs: [TransactionInput]
-  ) {
-    accTransactionsUpdate(parentId: $parentId, trDocs: $trDocs) {
-      _id
-      parentId
-    }
+export const ACC_TRANSACTIONS_UPDATE = gql(`
+mutation accountingAccTransactionsUpdate($parentId: String!, $trDocs: [TransactionInput!]!) {
+  accTransactionsUpdate(parentId: $parentId, trDocs: $trDocs) {
+    _id
+    parentId
   }
-`;
+}
+`);

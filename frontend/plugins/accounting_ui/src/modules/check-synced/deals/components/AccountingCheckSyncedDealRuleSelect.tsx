@@ -1,3 +1,4 @@
+import { normalizeAccountingRule } from '@/check-synced/utils/accountingRules';
 import { useQuery } from '@apollo/client';
 import { IconSettings } from '@tabler/icons-react';
 import {
@@ -49,17 +50,31 @@ const getRuleTypeLabel = (rule: AccountingDealRule) => {
     : i18n.t('accounting:return');
 };
 
-const useAccountingCheckSyncedDealRules = () =>
-  useQuery<AccountingSyncDealRulesQueryResult>(
-    ACCOUNTING_SYNC_DEAL_RULES_QUERY,
-    {
-      variables: {
-        saleCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL,
-        returnCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN,
-        movementCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT,
-      },
+const useAccountingCheckSyncedDealRules = () => {
+  const result = useQuery(ACCOUNTING_SYNC_DEAL_RULES_QUERY, {
+    variables: {
+      saleCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL,
+      returnCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN,
+      movementCode: ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT,
     },
-  );
+  });
+  return {
+    ...result,
+    data: result.data
+      ? {
+          saleRules: (result.data.saleRules ?? []).flatMap((config) =>
+            config ? [normalizeAccountingRule(config)] : [],
+          ),
+          returnRules: (result.data.returnRules ?? []).flatMap((config) =>
+            config ? [normalizeAccountingRule(config)] : [],
+          ),
+          movementRules: (result.data.movementRules ?? []).flatMap((config) =>
+            config ? [normalizeAccountingRule(config)] : [],
+          ),
+        }
+      : undefined,
+  };
+};
 
 const getRulesByScope = (
   data: AccountingSyncDealRulesQueryResult | undefined,

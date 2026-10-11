@@ -92,7 +92,7 @@ export const SelectVatValue = ({
 }) => {
   const { vatRowDetail, loading } = useVatValue({
     variables: {
-      id: vatRowId,
+      id: vatRowId ?? '',
     },
     skip: !vatRowId || !!vatRow,
   });

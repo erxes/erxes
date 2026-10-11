@@ -3,7 +3,7 @@ import { CTAX_ROWS_EDIT } from '../graphql/mutations/ctaxMutations';
 
 export const useCtaxRowEdit = () => {
   const [editCtaxRow, { loading }] = useMutation(CTAX_ROWS_EDIT, {
-    refetchQueries: ['ctaxRows'],
+    refetchQueries: ['accountingCtaxRows'],
   });
 
   return {

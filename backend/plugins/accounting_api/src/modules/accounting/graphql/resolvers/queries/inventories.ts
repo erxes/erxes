@@ -3,6 +3,7 @@ import {
   activeCost,
   getLastIncomePrices,
 } from '~/modules/accounting/utils/inventories';
+import { validateRequiredId } from '../../validateRequired';
 
 const configQueries = {
   async getAccLastIncomePrice(
@@ -11,7 +12,13 @@ const configQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
-    return getLastIncomePrices(models, productIds || []);
+    for (const productId of productIds)
+      validateRequiredId(productId, 'productIds');
+    const prices = await getLastIncomePrices(models, productIds);
+    return Object.entries(prices).map(([productId, unitPrice]) => ({
+      productId,
+      unitPrice,
+    }));
   },
 
   async getAccCurrentCost(
@@ -32,7 +39,10 @@ const configQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
-    return await activeCost(
+    validateRequiredId(accountId, 'accountId');
+    for (const productId of productIds)
+      validateRequiredId(productId, 'productIds');
+    const costs = await activeCost(
       models,
       accountId,
       branchId,
@@ -40,7 +50,11 @@ const configQueries = {
       productIds,
       excludedTransactionIds,
     );
+    return Object.entries(costs).map(([productId, cost]) => ({
+      productId,
+      ...cost,
+    }));
   },
 };
 
-export default configQueries;
+export { configQueries };

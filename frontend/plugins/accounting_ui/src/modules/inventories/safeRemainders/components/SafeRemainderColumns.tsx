@@ -52,7 +52,8 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
     id: 'date',
     header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
     accessorKey: 'date',
-    cell: ({ row }) => <DateCell value={row.original.date} />,
+    cell: ({ row }) =>
+      row.original.date ? <DateCell value={row.original.date} /> : '-',
   },
   {
     id: 'branch',

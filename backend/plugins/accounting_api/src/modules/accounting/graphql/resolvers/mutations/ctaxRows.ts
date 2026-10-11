@@ -1,5 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { ICtaxRow } from '@/accounting/@types/ctaxRow';
+import {
+  validateRequiredId,
+  validateRequiredIds,
+} from '../../validateRequired';
 
 const ctaxRowsMutations = {
   /**
@@ -28,6 +32,7 @@ const ctaxRowsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageTaxRows');
+    validateRequiredId(_id);
     await models.CtaxRows.getCtaxRow({
       _id,
     });
@@ -45,6 +50,7 @@ const ctaxRowsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('removeTaxRows');
+    validateRequiredIds(ctaxRowIds, 'ctaxRowIds');
     await models.CtaxRows.find({
       _id: { $in: ctaxRowIds },
     }).lean();
@@ -54,4 +60,4 @@ const ctaxRowsMutations = {
   },
 };
 
-export default ctaxRowsMutations;
+export { ctaxRowsMutations };

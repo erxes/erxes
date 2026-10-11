@@ -1,4 +1,4 @@
-import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState, toast } from 'erxes-ui';
 
 import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { AccountForm } from './AccountForm';
@@ -17,20 +17,31 @@ export const EditAccountForm = () => {
 
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
-    defaultValues: accountDetail || ACCOUNT_DEFAULT_VALUES,
+    defaultValues: ACCOUNT_DEFAULT_VALUES,
   });
   const { reset } = form;
 
   useEffect(() => {
     if (accountDetail) {
-      reset({
-        ...ACCOUNT_DEFAULT_VALUES,
-        ...accountDetail,
-      });
+      const parsed = accountSchema
+        .innerType()
+        .partial()
+        .safeParse({
+          ...ACCOUNT_DEFAULT_VALUES,
+          ...accountDetail,
+        });
+      if (parsed.success) reset(parsed.data);
+      else
+        toast({
+          title: 'Invalid account data',
+          description: parsed.error.message,
+          variant: 'destructive',
+        });
     }
   }, [accountDetail, reset]);
 
   const handleSubmit = (data: TAccountForm) => {
+    if (!accountDetail?._id) return;
     const initialData = { ...ACCOUNT_DEFAULT_VALUES, ...accountDetail };
     const newData = { ...initialData, ...data };
 
@@ -41,7 +52,7 @@ export const EditAccountForm = () => {
     editAccount(
       {
         variables: {
-          _id: accountDetail?._id,
+          _id: accountDetail._id,
           ...data,
         },
         onCompleted: () => {

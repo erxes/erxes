@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADJUST_INVENTORY_REMOVE = gql`
-  mutation AdjustInventoryRemove($adjustId: String!) {
-    adjustInventoryRemove(adjustId: $adjustId)
-  }
-`;
+export const ADJUST_INVENTORY_REMOVE = gql(`
+mutation accountingAdjustInventoryRemove($adjustId: String!) {
+  adjustInventoryRemove(adjustId: $adjustId)
+}
+`);

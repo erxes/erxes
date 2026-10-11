@@ -1,48 +1,62 @@
-import { gql } from '@apollo/client';
-import { vatRowFields } from '../queries/getVats';
+import { gql } from '~/gql';
 
-const vatRowInputParamsDefs = `
-  $name: String
-  $number: String
-  $kind: String
-  $formula: String
-  $formulaText: String
-  $tabCount: Float
-  $isBold: Boolean
-  $status: String
-  $percent: Float
-`;
-
-const vatRowInputParams = `
-  name: $name
-  number: $number
-  kind: $kind
-  formula: $formula
-  formulaText: $formulaText
-  tabCount: $tabCount
-  isBold: $isBold
-  status: $status
-  percent: $percent
-`;
-
-export const VAT_ROWS_ADD = gql`
-  mutation vatRowsAdd(${vatRowInputParamsDefs}) {
-    vatRowsAdd(${vatRowInputParams}) {
-      ${vatRowFields}
-    }
+export const VAT_ROWS_ADD = gql(`
+mutation accountingVatRowsAdd($name: String, $number: String, $kind: String, $formula: String, $formulaText: String, $tabCount: Float, $isBold: Boolean, $status: String, $percent: Float) {
+  vatRowsAdd(
+    name: $name
+    number: $number
+    kind: $kind
+    formula: $formula
+    formulaText: $formulaText
+    tabCount: $tabCount
+    isBold: $isBold
+    status: $status
+    percent: $percent
+  ) {
+    _id
+    name
+    number
+    kind
+    formula
+    formulaText
+    tabCount
+    isBold
+    status
+    percent
   }
-`;
+}
+`);
 
-export const VAT_ROWS_EDIT = gql`
-  mutation vatRowsEdit($_id: String!${vatRowInputParamsDefs}) {
-    vatRowsEdit(_id: $_id, ${vatRowInputParams}) {
-      ${vatRowFields}
-    }
+export const VAT_ROWS_EDIT = gql(`
+mutation accountingVatRowsEdit($_id: String!, $name: String, $number: String, $kind: String, $formula: String, $formulaText: String, $tabCount: Float, $isBold: Boolean, $status: String, $percent: Float) {
+  vatRowsEdit(
+    _id: $_id
+    name: $name
+    number: $number
+    kind: $kind
+    formula: $formula
+    formulaText: $formulaText
+    tabCount: $tabCount
+    isBold: $isBold
+    status: $status
+    percent: $percent
+  ) {
+    _id
+    name
+    number
+    kind
+    formula
+    formulaText
+    tabCount
+    isBold
+    status
+    percent
   }
-`;
+}
+`);
 
-export const VAT_ROWS_REMOVE = gql`
-  mutation vatRowsRemove($vatRowIds: [String!]) {
-    vatRowsRemove(vatRowIds: $vatRowIds)
-  }
-`;
+export const VAT_ROWS_REMOVE = gql(`
+mutation accountingVatRowsRemove($vatRowIds: [String!]!) {
+  vatRowsRemove(vatRowIds: $vatRowIds)
+}
+`);

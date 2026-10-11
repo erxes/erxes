@@ -3,7 +3,7 @@ import { CTAX_ROWS_REMOVE } from '../graphql/mutations/ctaxMutations';
 
 export const useCtaxRowsRemove = () => {
   const [removeCtaxRows, { loading }] = useMutation(CTAX_ROWS_REMOVE, {
-    refetchQueries: ['ctaxRows'],
+    refetchQueries: ['accountingCtaxRows'],
   });
 
   return {

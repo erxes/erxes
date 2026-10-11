@@ -5,11 +5,37 @@
   "projectType": "application",
   "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/rspack:rspack",
-      "outputs": [
-        "{options.outputPath}"
+    "test": {
+      "executor": "@nx/jest:jest",
+      "dependsOn": ["codegen"],
+      "options": {
+        "jestConfig": "frontend/plugins/accounting_ui/jest.config.ts",
+        "passWithNoTests": false
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        { "projects": ["accounting_api"], "target": "schema:print" }
       ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/schema/**/*.graphql",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        { "dependentTasksOutputFiles": "**/*.graphql" }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/accounting_ui",
+        "command": "graphql-codegen --config codegen.ts"
+      }
+    },
+    "build": {
+      "dependsOn": ["codegen"],
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
@@ -17,9 +43,7 @@
         "main": "frontend/plugins/accounting_ui/src/main.ts",
         "tsConfig": "frontend/plugins/accounting_ui/tsconfig.app.json",
         "rspackConfig": "frontend/plugins/accounting_ui/rspack.config.ts",
-        "assets": [
-          "frontend/plugins/accounting_ui/src/assets"
-        ]
+        "assets": ["frontend/plugins/accounting_ui/src/assets"]
       },
       "configurations": {
         "development": {
@@ -34,6 +58,7 @@
       }
     },
     "serve": {
+      "dependsOn": ["codegen"],
       "executor": "@nx/rspack:module-federation-dev-server",
       "options": {
         "buildTarget": "accounting_ui:build:development",

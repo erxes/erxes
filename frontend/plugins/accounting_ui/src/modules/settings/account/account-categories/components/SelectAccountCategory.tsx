@@ -11,6 +11,7 @@ import { useAccountCategories } from '../hooks/useAccountCategories';
 import { IAccountCategory } from '../types/AccountCategory';
 import { Except } from 'type-fest';
 import { useDebounce } from 'use-debounce';
+import { toGraphqlView } from '@/utils/graphql';
 
 export const SelectAccountCategory = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -31,11 +32,8 @@ export const SelectAccountCategory = React.forwardRef<
   >();
 
   const { accountCategories, loading } = useAccountCategories({
-    onCompleted: ({
-      accountCategories,
-    }: {
-      accountCategories: IAccountCategory[];
-    }) => {
+    onCompleted: (result) => {
+      const { accountCategories } = toGraphqlView(result);
       setSelectedCategory(
         accountCategories?.find((category) => category._id === selected),
       );
@@ -172,7 +170,7 @@ const SelectAccountCategoryItem = ({
       _id={category._id}
       order={order ?? ''}
       hasChildren={hasChildren}
-      name={name}
+      name={name ?? code}
       value={code + name}
       onSelect={onSelect}
       selected={false}
@@ -192,7 +190,7 @@ const SelectAccountCategoryBadge = ({
 }) => {
   if (!category) return null;
 
-  const { name, code, accountsCount } = category;
+  const { name, code, accountCount: accountsCount } = category;
 
   return (
     <>

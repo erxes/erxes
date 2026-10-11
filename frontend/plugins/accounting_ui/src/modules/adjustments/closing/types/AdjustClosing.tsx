@@ -1,60 +1,19 @@
-export interface IAdjustClosing {
-  _id: string;
-  createdAt: Date;
-  createdBy?: string;
-  updatedAt?: Date;
-  modifiedBy?: string;
+import type {
+  AccountingAdjustClosingDetailQuery,
+  AccountingAdjustClosingDetailQueryVariables,
+} from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
 
-  status?: string;
-  date?: Date;
-  beginDate?: Date;
-  successDate?: Date;
-  checkedAt?: Date;
-  error?: string;
-  warning?: string;
-  description?: string;
-
-  integrateAccountId?: string;
-  periodGLAccountId?: string;
-  earningAccountId?: string;
-  taxPayableAccountId?: string;
-  taxImpactValue?: number;
-  closePeriodTrId?: string;
-  earningTrId?: string;
-  taxPayableTrId?: string;
-}
-
-export interface IClosingDetailEntry {
-  _id?: string;
-  accountId?: string;
-  balance?: number;
-  percent?: number;
-  mainAccTrId?: string;
-  integrateTrId?: string;
-}
-
-export interface IAdjustClosingDetailItem {
-  _id: string;
-  branchId?: string;
-  departmentId?: string;
-  entries: IClosingDetailEntry[];
-  createdAt?: Date;
-}
-
-export interface IAdjustClosingDetail extends IAdjustClosing {
-  _id: string;
-  details: IAdjustClosingDetailItem[];
-
-  entries: IClosingDetailEntry[];
-
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface AdjustClosingDetailQueryData {
-  adjustClosingDetail: IAdjustClosingDetail;
-}
-
-export interface AdjustClosingDetailQueryVariables {
-  _id: string;
-}
+export type IAdjustClosing = GraphqlView<
+  NonNullable<AccountingAdjustClosingDetailQuery['adjustClosingDetail']>
+>;
+export type IAdjustClosingDetail = IAdjustClosing;
+export type IAdjustClosingDetailItem = NonNullable<
+  IAdjustClosing['details']
+>[number];
+export type IClosingDetailEntry = NonNullable<
+  IAdjustClosingDetailItem['entries']
+>[number];
+export type AdjustClosingDetailQueryData = AccountingAdjustClosingDetailQuery;
+export type AdjustClosingDetailQueryVariables =
+  AccountingAdjustClosingDetailQueryVariables;

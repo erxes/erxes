@@ -54,6 +54,6 @@ export const planCreateParams = `
 
 export const mutations = `
   reserveRemsAdd(${planCreateParams}): [ReserveRem]
-  reserveRemsRemove(_ids: [String]): JSON
+  reserveRemsRemove(_ids: [String!]!): JSON
   reserveRemEdit(_id: String!, branchId: String, departmentId: String, productId: String, uom: String, remainder: Float): ReserveRem
 `;

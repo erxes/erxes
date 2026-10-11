@@ -2,7 +2,7 @@ import { ReportTable, useQueryState } from 'erxes-ui';
 import { getReportHeaderRows } from './reportTableLayout';
 
 export const ReportTableHeader = () => {
-  const [report] = useQueryState('report');
+  const [report] = useQueryState<string>('report');
   const reportCode = typeof report === 'string' ? report : '';
   const headerRows = getReportHeaderRows(reportCode);
 

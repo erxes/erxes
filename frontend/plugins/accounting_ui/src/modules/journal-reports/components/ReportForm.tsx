@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatDate as format } from '@/utils/graphqlDate';
 import {
   Button,
   Checkbox,
