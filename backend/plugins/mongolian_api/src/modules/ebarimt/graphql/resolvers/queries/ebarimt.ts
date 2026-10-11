@@ -203,8 +203,8 @@ export const putResponseQueries = {
   ) => {
     await checkPermission('ebarimt:putResponses');
     const { orderBy } = params;
-    if (!orderBy || !Object.keys(orderBy)) {
-      params.orderBy = { createdAt: -2 };
+    if (!orderBy || !Object.keys(orderBy).length) {
+      params.orderBy = { createdAt: -1 };
     }
     const filter = await generateFilter(subdomain, params);
 
