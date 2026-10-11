@@ -25,6 +25,7 @@
 ## Current Capabilities
 
 - Uses statically analyzable typed GraphQL documents with generated operation result and variable types; build, serve, and contract tests regenerate them automatically.
+- Rspack awaits accounting schema export and codegen before its first build or watch compilation, including remotes launched directly by the Module Federation host without Nx task dependencies.
 - Displays, creates, updates, prints, and removes accounting transactions.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
@@ -146,6 +147,8 @@
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
+
+- `graphql-codegen-plugin.ts` prepares generated documents once per compiler through `beforeRun`/`watchRun`; do not invoke nested Nx commands from Rspack config evaluation or rely only on target dependencies for host-launched remotes.
 
 - Closing detail forms reuse the generated `IAdjustClosing` view type rather than defining an identical detail alias.
 
