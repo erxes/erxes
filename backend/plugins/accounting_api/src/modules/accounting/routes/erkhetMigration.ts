@@ -1178,47 +1178,6 @@ const resolveTransactionFollowInfos = (
     };
   }
 
-  if (doc.journal === JOURNALS.FXA_INCOME) {
-    const fxaIncomeDetails = Array.isArray(doc.followInfos?.fxaIncomeDetails)
-      ? [...doc.followInfos.fxaIncomeDetails]
-      : [];
-    const keyedDetails = new Set(
-      fxaIncomeDetails
-        .map((detail) => detail.transactionDetailId || detail.tempId || '')
-        .filter(Boolean),
-    );
-
-    for (const detail of doc.details || []) {
-      const detailId = detail._id || '';
-      const preDeprecation = Number(
-        detail.followInfos?.preDeprecation ||
-          detail.followInfos?.openingAccumulatedDepreciation ||
-          0,
-      );
-      const salvageValue = detail.followInfos?.salvageValue;
-
-      if (
-        !detailId ||
-        keyedDetails.has(detailId) ||
-        (preDeprecation <= 0 && salvageValue === undefined)
-      ) {
-        continue;
-      }
-
-      fxaIncomeDetails.push({
-        tempId: detailId,
-        transactionDetailId: detailId,
-        salvageValue,
-        preDeprecation,
-      });
-      keyedDetails.add(detailId);
-    }
-
-    return fxaIncomeDetails.length
-      ? { ...resolvedFollowInfos, fxaIncomeDetails }
-      : resolvedFollowInfos;
-  }
-
   return resolvedFollowInfos;
 };
 
