@@ -152,7 +152,7 @@ export const usePermissionsMain = (
         return {
           ...prev,
           accountPermissions: {
-            ...(prev.accountPermissions ?? {}),
+            ...prev.accountPermissions,
             ...merged,
           },
         };

@@ -152,3 +152,18 @@ test('legacy inventory splits without hasSplit remain enabled after editing', ()
     invSplit: { hasSplit: true, productId: 'result', ratio: 2 },
   });
 });
+
+test('an explicitly disabled detail split takes precedence over legacy root metadata', () => {
+  const view = transaction(TrJournalEnum.INV_INCOME, {
+    followInfos: {
+      invSplitDetails: [
+        { detailId: 'detail-1', productId: 'result', ratio: 2 },
+      ],
+    },
+    details: [
+      { _id: 'detail-1', followInfos: { invSplit: { hasSplit: false } } },
+    ],
+  });
+  const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.INV_INCOME, view);
+  expect(draft.details[0].followInfos).toEqual({ invSplit: { hasSplit: false } });
+});

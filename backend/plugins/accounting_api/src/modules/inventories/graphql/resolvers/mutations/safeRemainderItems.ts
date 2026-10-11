@@ -67,17 +67,17 @@ export const mergeSafeRemainderImportItems = (
 
   const merged: Record<string, MergedImportItem> = {};
   if (!Array.isArray(productsData))
-    throw new Error('productsData must be an array');
+    throw new TypeError('productsData must be an array');
   for (const item of productsData) {
     if (
       !item ||
       typeof item.productCode !== 'string' ||
       !item.productCode.trim()
     ) {
-      throw new Error('Each import item must have a productCode');
+      throw new TypeError('Each import item must have a productCode');
     }
     if (typeof item.count !== 'number' || !Number.isFinite(item.count)) {
-      throw new Error('Each import item must have a finite count');
+      throw new TypeError('Each import item must have a finite count');
     }
     validateCountedValues(item.count, item.trInfo);
 

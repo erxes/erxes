@@ -7,7 +7,7 @@ import {
   Spinner,
   Textarea,
 } from 'erxes-ui';
-import { IAdjustClosingDetail } from '../types/AdjustClosing';
+import { IAdjustClosing } from '../types/AdjustClosing';
 import { TAdjustClosingForm } from '../types/adjustClosingForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -55,7 +55,7 @@ export const EditAdjustClosingForm = ({
   detail,
   setOpen,
 }: {
-  detail: IAdjustClosingDetail;
+  detail: IAdjustClosing;
   setOpen: (open: boolean) => void;
 }) => {
   const form = useForm<TAdjustClosingForm>({

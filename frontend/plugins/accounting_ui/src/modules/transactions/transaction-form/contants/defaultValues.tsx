@@ -57,15 +57,15 @@ const getInventoryDetailFollowInfos = (
     (splitInfo: { detailId?: string }) => splitInfo.detailId === detail._id,
   );
   const currentInvSplit = detail.followInfos?.invSplit;
-  const invSplit = currentInvSplit
-    ? currentInvSplit
-    : legacySplitInfo
-    ? {
-        hasSplit: true as const,
-        productId: legacySplitInfo.productId ?? '',
-        ratio: legacySplitInfo.ratio ?? 0,
-      }
-    : undefined;
+  const invSplit =
+    currentInvSplit ||
+    (legacySplitInfo
+      ? {
+          hasSplit: true as const,
+          productId: legacySplitInfo.productId ?? '',
+          ratio: legacySplitInfo.ratio ?? 0,
+        }
+      : undefined);
 
   return invSplit
     ? {

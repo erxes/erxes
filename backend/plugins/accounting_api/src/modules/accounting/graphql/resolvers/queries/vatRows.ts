@@ -3,7 +3,7 @@ import { VAT_ROW_STATUS } from '@/accounting/@types/vatRow';
 import { validateRequiredId } from '../../validateRequired';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 
-const generateFilterCat = async ({
+const generateFilterCat = ({
   kinds,
   searchValue,
   status,
@@ -39,7 +39,7 @@ const vatRowQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('readTaxRows');
-    const filter = await generateFilterCat({
+    const filter = generateFilterCat({
       kinds,
       status,
       searchValue,
@@ -59,7 +59,7 @@ const vatRowQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('readTaxRows');
-    const filter = await generateFilterCat({
+    const filter = generateFilterCat({
       searchValue,
       status,
       kinds,

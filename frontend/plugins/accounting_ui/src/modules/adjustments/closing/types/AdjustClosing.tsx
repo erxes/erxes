@@ -7,7 +7,6 @@ import type { GraphqlView } from '@/utils/graphql';
 export type IAdjustClosing = GraphqlView<
   NonNullable<AccountingAdjustClosingDetailQuery['adjustClosingDetail']>
 >;
-export type IAdjustClosingDetail = IAdjustClosing;
 export type IAdjustClosingDetailItem = NonNullable<
   IAdjustClosing['details']
 >[number];

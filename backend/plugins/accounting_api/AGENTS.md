@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-11`
 
 ## Scope
 
@@ -135,6 +135,8 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- Tax row filter builders are synchronous; resolver barrels re-export named resolver objects directly while retaining their public aliases. Import payload type checks use `TypeError` with actionable messages.
 
 - Lookup ids and destructive id lists must be required in SDL when the resolver needs them; `graphql/validateRequired.ts` rejects blank ids and empty destructive batches. `accountsEdit` relies on its required SDL id and `getAccount` not-found check before update rather than duplicating single-id validation.
 - Preserve the deprecated `accOddTransactions` query's legacy null response until a separately approved API removal.

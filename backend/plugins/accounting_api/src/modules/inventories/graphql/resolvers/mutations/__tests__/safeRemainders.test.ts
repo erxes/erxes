@@ -77,6 +77,21 @@ describe('safe remainder counted value validation', () => {
 });
 
 describe('safe remainder bulk import rules', () => {
+  test('invalid payload types throw TypeError', () => {
+    expect(() =>
+      Reflect.apply(mergeSafeRemainderImportItems, undefined, [{}, 'last']),
+    ).toThrow(TypeError);
+    expect(() =>
+      mergeSafeRemainderImportItems([{ productCode: '', count: 1 }], 'last'),
+    ).toThrow(TypeError);
+    expect(() =>
+      mergeSafeRemainderImportItems(
+        [{ productCode: 'P001', count: NaN }],
+        'last',
+      ),
+    ).toThrow(TypeError);
+  });
+
   test.each([NaN, Infinity, -Infinity])(
     'rejects non-finite count %s before writing',
     (count) => {

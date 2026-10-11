@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-11`
 
 ## Scope
 
@@ -146,6 +146,8 @@
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
+
+- Closing detail forms reuse the generated `IAdjustClosing` view type rather than defining an identical detail alias.
 
 - Saved transaction JSON metadata must not silently become undefined when validation fails; reject invalid metadata before initializing an editable transaction form. Optional null values remain absent and valid extension fields remain intact.
 - Transaction subscriptions must depend on a stable serialized filter key, not the per-render variables object, so ordinary renders do not cancel pending refreshes.

@@ -1,7 +1,9 @@
-import type { ApolloError } from '@apollo/client';
+import {
+  useMutation,
+  type ApolloError,
+  type MutationHookOptions,
+} from '@apollo/client';
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
-import { useMutation } from '@apollo/client';
-import type { MutationHookOptions } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_DETAIL_QUERY } from '../graphql/adjustClosingDetail';
 import {
