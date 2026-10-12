@@ -12,7 +12,6 @@ import {
 import { IUser, MembersInline } from 'ui-modules';
 import { TemplateCategoriesInline } from 'ui-modules/modules/templates/components/TemplateCategoryInline';
 import { useTemplateTypes } from '../hooks/useTemplateTypes';
-import { useTranslation } from 'react-i18next';
 
 export const templateColumns = (t: TFunction): ColumnDef<any>[] => [
   templateMoreColumn,

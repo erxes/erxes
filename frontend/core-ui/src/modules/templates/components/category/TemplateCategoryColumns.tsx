@@ -9,7 +9,6 @@ import {
   useSetQueryStateByKey,
 } from 'erxes-ui';
 import { templateCategoryMoreColumn } from './TemplateCategoryMoreCell';
-import { useTranslation } from 'react-i18next';
 
 export const templateCategoryColumns = (t: TFunction): ColumnDef<any>[] => [
   templateCategoryMoreColumn,

@@ -43,7 +43,9 @@ export const ProductTypeFilterBar = () => {
       </Filter.BarButton>
       <Select.Content>
         {options.map((option) => (
-          <Select.Item value={option.value}>{t(option.labelKey)}</Select.Item>
+          <Select.Item key={option.value} value={option.value}>
+            {t(option.labelKey)}
+          </Select.Item>
         ))}
       </Select.Content>
     </Select>

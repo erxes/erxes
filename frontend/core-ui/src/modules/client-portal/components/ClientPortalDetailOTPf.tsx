@@ -1,4 +1,4 @@
-import { Button, Form, Label, Spinner, Switch, Tabs } from 'erxes-ui';
+import { Button, Form, Spinner, Tabs } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_OTP_SCHEMA } from '../constants/clientPortalEditSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
