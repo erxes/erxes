@@ -5,37 +5,40 @@ import {
   IconListDetails,
   IconRefreshAlert,
 } from '@tabler/icons-react';
+
 import { NavigationMenuLinkItem } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const MainNavigation = () => {
+  const { t } = useTranslation('accounting');
   return (
     <>
       <NavigationMenuLinkItem
-        name="Баримтууд"
+        name={t('receipts')}
         icon={IconListDetails}
         path="main"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Журнал бичилт"
+        name={t('journal-entries')}
         icon={IconListCheck}
         path="records"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Бүрэн бус баримтууд"
+        name={t('incomplete-vouchers')}
         icon={IconCrane}
         path="odd-transactions"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Тайлан"
+        name={t('report')}
         icon={IconClipboardTextFilled}
         path="journal-reports"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Мэдээ таталт"
+        name={t('check-sync')}
         icon={IconRefreshAlert}
         path="check-sync"
         pathPrefix="accounting"

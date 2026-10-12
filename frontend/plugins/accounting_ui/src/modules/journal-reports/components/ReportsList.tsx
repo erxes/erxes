@@ -1,10 +1,13 @@
-import { IconChevronRight, IconReport } from '@tabler/icons-react';
 import { Collapsible, IconComponent, Sidebar } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { activeReportState } from '../states/renderingReportsStates';
+import { IconChevronRight, IconReport } from '@tabler/icons-react';
 import { ReportRuleGroups, ReportRules } from '../types/reportsMap';
 
+import { activeReportState } from '../states/renderingReportsStates';
+import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 export const ReportsList = () => {
+  const { t } = useTranslation('accounting');
   const [activeReport, setActiveReport] = useAtom(activeReportState);
 
   return (
@@ -22,7 +25,7 @@ export const ReportsList = () => {
                   <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/report-list:rotate-90 motion-reduce:transition-none">
                     <IconChevronRight className="size-3.5" />
                   </span>
-                  <span>{group.label}</span>
+                  <span>{t(group.label || '', { nsSeparator: false })}</span>
                 </Collapsible.Trigger>
               </Sidebar.GroupLabel>
               {index === 0 && <Sidebar.PanelTrigger />}
@@ -46,7 +49,7 @@ export const ReportsList = () => {
                           <IconReport className="mt-0.5 shrink-0" />
                         )}
                         <span className="min-w-0 flex-1 break-words font-normal leading-snug">
-                          {ReportRules[repKey].title}
+                          {t(ReportRules[repKey].title || '')}
                         </span>
                       </Sidebar.MenuButton>
                     </Sidebar.MenuItem>

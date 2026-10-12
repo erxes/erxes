@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { RecordTableInlineCell, RecordTable } from 'erxes-ui';
 import {
@@ -23,7 +24,9 @@ const AdjustDebtRateMoreColumnCell = ({
   );
 };
 
-export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
+export const adjustDebtRateColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAdjustDebtRate>[] => [
   {
     id: 'more',
     cell: AdjustDebtRateMoreColumnCell,
@@ -31,7 +34,9 @@ export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     accessorKey: 'date',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -42,7 +47,7 @@ export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
   {
     id: 'mainCurrency',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Main" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('main')} />
     ),
     accessorKey: 'mainCurrency',
     cell: ({ getValue }) => (
@@ -52,7 +57,7 @@ export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
   {
     id: 'currency',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Foreign" />
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('Foreign')} />
     ),
     accessorKey: 'currency',
     cell: ({ getValue }) => (
@@ -61,7 +66,7 @@ export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
   },
   {
     id: 'spotRate',
-    header: () => <RecordTable.InlineHead label="Rate" />,
+    header: () => <RecordTable.InlineHead label={t('Rate')} />,
     accessorKey: 'spotRate',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>
@@ -72,7 +77,7 @@ export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
   {
     id: 'customerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconUser} label="Customer Type" />
+      <RecordTable.InlineHead icon={IconUser} label={t('customer-type')} />
     ),
     accessorKey: 'customerType',
     cell: ({ getValue }) => (
@@ -84,7 +89,7 @@ export const adjustDebtRateColumns: ColumnDef<IAdjustDebtRate>[] = [
   {
     id: 'description',
     header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
     cell: ({ getValue }) => (

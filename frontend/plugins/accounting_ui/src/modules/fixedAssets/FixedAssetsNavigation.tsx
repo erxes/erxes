@@ -3,21 +3,22 @@ import {
   IconMoneybag,
   IconUserCheck,
 } from '@tabler/icons-react';
+
 import { NavigationSection } from '../NavigationSection';
 
 export const FixedAssetsNavigation = () => (
   <NavigationSection
-    name="Үндсэн хөрөнгө"
+    name="fixed-asset"
     icon={IconBuildingEstate}
     sectionPath="/accounting/fixed-assets"
     items={[
       {
-        name: 'Эд хариуцагч',
+        name: 'asset-custodian',
         icon: IconUserCheck,
         path: 'accounting/fixed-assets/owner-records',
       },
       {
-        name: 'Үлдэгдэл',
+        name: 'remainder',
         icon: IconMoneybag,
         path: 'accounting/fixed-assets/remainders',
       },

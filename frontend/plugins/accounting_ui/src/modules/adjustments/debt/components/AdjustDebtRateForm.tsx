@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import {
   getCurrencyCodeFromOptions,
@@ -35,16 +36,17 @@ import {
 } from '../types/adjustDebtRateSchema';
 
 export const AddAdjustDebtRate = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen} modal>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Debt Rate Adjustment
+          {t('Add Debt Rate Adjustment')}
         </Button>
       </Sheet.Trigger>
-      <AccountingSheet title="Create Debt Rate Adjustment">
+      <AccountingSheet title={t('Create Debt Rate Adjustment')}>
         <AdjustDebtRateFormContent setOpen={setOpen} />
       </AccountingSheet>
     </Sheet>
@@ -60,9 +62,10 @@ export const EditAdjustDebtRate = ({
   setOpen: (open: boolean) => void;
   adjustDebtRate: IAdjustDebtRate;
 }) => {
+  const { t } = useTranslation('accounting');
   return (
     <Sheet open={open} onOpenChange={setOpen} modal>
-      <AccountingSheet title="Edit Debt Rate Adjustment">
+      <AccountingSheet title={t('Edit Debt Rate Adjustment')}>
         <AdjustDebtRateFormContent
           setOpen={setOpen}
           adjustDebtRate={adjustDebtRate}
@@ -79,6 +82,7 @@ const AdjustDebtRateFormContent = ({
   setOpen: (open: boolean) => void;
   adjustDebtRate?: IAdjustDebtRate;
 }) => {
+  const { t } = useTranslation('accounting');
   const { dealCurrencyOptions, mainCurrency: configuredMainCurrency } =
     useCurrencyConfigs();
   const form = useForm<TAdjustDebtRateForm>({
@@ -193,7 +197,8 @@ const AdjustDebtRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Main Currency <span className="text-destructive">*</span>
+                  {t('Main Currency')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
@@ -216,7 +221,8 @@ const AdjustDebtRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Foreign Currency <span className="text-destructive">*</span>
+                  {t('Foreign Currency')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.SelectCurrency
@@ -239,7 +245,7 @@ const AdjustDebtRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Spot Rate <span className="text-destructive">*</span>
+                  {t('Spot Rate')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <CurrencyField.ValueInput
@@ -259,7 +265,7 @@ const AdjustDebtRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Date <span className="text-destructive">*</span>
+                  {t('date')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <DatePicker
@@ -278,7 +284,7 @@ const AdjustDebtRateFormContent = ({
             name="customerType"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Customer Type (Optional)</Form.Label>
+                <Form.Label>{t('Customer Type (Optional)')}</Form.Label>
                 <Select
                   value={field.value || undefined}
                   onValueChange={(value) => {
@@ -290,15 +296,15 @@ const AdjustDebtRateFormContent = ({
                 >
                   <Form.Control>
                     <Select.Trigger>
-                      <Select.Value placeholder="None - All Customers" />
+                      <Select.Value placeholder={t('None - All Customers')} />
                     </Select.Trigger>
                   </Form.Control>
                   <Select.Content>
                     <Select.Item value={CustomerType.CUSTOMER}>
-                      Customer
+                      {t('Customer')}
                     </Select.Item>
                     <Select.Item value={CustomerType.COMPANY}>
-                      Company
+                      {t('Company')}
                     </Select.Item>
                   </Select.Content>
                 </Select>
@@ -313,7 +319,7 @@ const AdjustDebtRateFormContent = ({
               name="customerId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Customer</Form.Label>
+                  <Form.Label>{t('Customer')}</Form.Label>
                   <SelectCustomerComponent
                     value={field.value ?? ''}
                     onValueChange={field.onChange}
@@ -332,7 +338,8 @@ const AdjustDebtRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Gain Account <span className="text-destructive">*</span>
+                  {t('Gain Account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccount
@@ -352,7 +359,8 @@ const AdjustDebtRateFormContent = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Loss Account <span className="text-destructive">*</span>
+                  {t('Loss Account')}{' '}
+                  <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectAccount
@@ -371,7 +379,7 @@ const AdjustDebtRateFormContent = ({
             name="branchId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Branch</Form.Label>
+                <Form.Label>{t('branch')}</Form.Label>
                 <Form.Control>
                   <SelectBranches.FormItem
                     mode="single"
@@ -389,7 +397,7 @@ const AdjustDebtRateFormContent = ({
             name="departmentId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Department</Form.Label>
+                <Form.Label>{t('department')}</Form.Label>
                 <Form.Control>
                   <SelectDepartments.FormItem
                     mode="single"
@@ -407,10 +415,10 @@ const AdjustDebtRateFormContent = ({
             name="description"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Description</Form.Label>
+                <Form.Label>{t('description')}</Form.Label>
                 <Form.Control>
                   <Textarea
-                    placeholder="Enter description"
+                    placeholder={t('enter-description')}
                     value={field.value || ''}
                     onChange={field.onChange}
                   />
@@ -428,11 +436,11 @@ const AdjustDebtRateFormContent = ({
             size="lg"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

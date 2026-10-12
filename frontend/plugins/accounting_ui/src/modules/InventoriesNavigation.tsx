@@ -4,26 +4,27 @@ import {
   IconFlagStar,
   IconScale,
 } from '@tabler/icons-react';
+
 import { NavigationSection } from './NavigationSection';
 
 export const InventoriesNavigation = () => (
   <NavigationSection
-    name="Барааны т.х"
+    name="inventory-reports"
     icon={IconBuildingWarehouse}
     sectionPath="/accounting/inventories"
     items={[
       {
-        name: 'Үлдэгдэл',
+        name: 'remainder',
         icon: IconFlagStar,
         path: 'accounting/inventories/remainders',
       },
       {
-        name: 'Тооллого',
+        name: 'inventory-count-label',
         icon: IconScale,
         path: 'accounting/inventories/safe-remainders',
       },
       {
-        name: 'Нөөц үлдэгдэл',
+        name: 'reserved-inventory',
         icon: IconBucketOff,
         path: 'accounting/inventories/reserve-remainders',
       },
