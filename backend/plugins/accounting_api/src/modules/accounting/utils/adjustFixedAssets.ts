@@ -499,12 +499,12 @@ const getDepreciationMovements = async (
     ) {
       continue;
     }
-    const sign =
-      transaction.side === TR_SIDES.CREDIT
-        ? 1
-        : transaction.side === TR_SIDES.DEBIT
-        ? -1
-        : 0;
+    let sign = 0;
+    if (transaction.side === TR_SIDES.CREDIT) {
+      sign = 1;
+    } else if (transaction.side === TR_SIDES.DEBIT) {
+      sign = -1;
+    }
     for (const detail of transaction.details || []) {
       if (
         !detail.fixedAssetId ||
@@ -1055,11 +1055,9 @@ export const runAdjustFixedAsset = async (
     const acquisitionDate = getPureDate(
       fixedAsset.acquisitionDate || beginDate,
     );
-    const startDate = previousFixedAssetDetail
-      ? beginDate
-      : scheduleStartDate > acquisitionDate
-      ? scheduleStartDate
-      : acquisitionDate;
+    const initialStartDate =
+      scheduleStartDate > acquisitionDate ? scheduleStartDate : acquisitionDate;
+    const startDate = previousFixedAssetDetail ? beginDate : initialStartDate;
 
     if (startDate > depreciationEndDate) {
       continue;

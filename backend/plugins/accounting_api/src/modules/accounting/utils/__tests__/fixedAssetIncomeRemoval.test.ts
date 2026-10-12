@@ -151,6 +151,15 @@ test('a blocked later income prevents any cleanup during group preflight', async
   expectNoWrites(calls);
 });
 
+test('income preflight ignores non-income journals without cleanup', async () => {
+  const movement = income();
+  movement.journal = JOURNALS.FXA_MOVE;
+  const { models, calls } = setup([income('related')]);
+  await assertFxaIncomeRemovalsAllowed(models, [movement]);
+  expect(calls.findBlocking).not.toHaveBeenCalled();
+  expectNoWrites(calls);
+});
+
 test('unused income assets may be removed together with their own follows', async () => {
   const { models, calls } = setup(
     [{ ...income('follow'), originId: 'income' }],
