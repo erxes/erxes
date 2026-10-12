@@ -139,6 +139,7 @@ export const ComposerToolbar = ({
           aria-label={submitLabel}
           className={cn(
             'h-8 flex-none gap-1.5 rounded-full px-3 shadow-none',
+            'before:hidden after:hidden [text-shadow:none]',
             isInternalNote && INTERNAL_NOTE_BUTTON,
           )}
           disabled={sendDisabled}

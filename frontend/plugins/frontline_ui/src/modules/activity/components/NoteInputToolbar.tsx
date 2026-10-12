@@ -105,6 +105,7 @@ export const NoteInputToolbar = ({
           size="sm"
           className={cn(
             'h-8 flex-none gap-1.5 rounded-full px-3 shadow-none',
+            'before:hidden after:hidden [text-shadow:none]',
             isInternalNote && INTERNAL_NOTE_BUTTON,
           )}
           disabled={isSending}
