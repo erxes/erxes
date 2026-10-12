@@ -1,27 +1,18 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
-import { IPipeline, ITicketsPipelineFilter } from '@/pipelines/types';
 import { GET_TICKET_PIPELINES } from '@/pipelines/graphql/queries/getPipelines';
-
-interface IGetPipelinesResponse {
-  getTicketPipelines: {
-    list: IPipeline[];
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string;
-      endCursor: string;
-    };
-    totalCount: number;
-  };
-}
+import { compactList } from '@/shared/utils/cursorList';
+import type {
+  GetTicketPipelinesQuery,
+  GetTicketPipelinesQueryVariables,
+} from '~/gql/graphql';
 
 export const useGetPipelines = (
-  options?: QueryHookOptions<IGetPipelinesResponse, ITicketsPipelineFilter>,
+  options?: QueryHookOptions<
+    GetTicketPipelinesQuery,
+    GetTicketPipelinesQueryVariables
+  >,
 ) => {
-  const { data, loading, error } = useQuery<
-    IGetPipelinesResponse,
-    ITicketsPipelineFilter
-  >(GET_TICKET_PIPELINES, {
+  const { data, loading, error } = useQuery(GET_TICKET_PIPELINES, {
     ...options,
     variables: {
       ...options?.variables,
@@ -34,7 +25,9 @@ export const useGetPipelines = (
     },
   });
   return {
-    pipelines: data?.getTicketPipelines?.list,
+    pipelines: data?.getTicketPipelines?.list
+      ? compactList(data.getTicketPipelines.list)
+      : undefined,
     totalCount: data?.getTicketPipelines?.totalCount,
     loading,
     error,

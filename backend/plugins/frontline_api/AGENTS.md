@@ -1028,7 +1028,8 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   from the `frontline:ticket` field groups, each `{ fieldId, groupId, label,
 placeholder, order, isRequired, type, options }`, where `type` and `options`
   are copied from the core field definition on save so the messenger widget can
-  render the right control without querying core. The widget bootstrap
+  render the right control without querying core. `createdAt` / `updatedAt`
+  are `Date`, like `Pipeline`'s. The widget bootstrap
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
   so both lists reach the messenger widget without a schema change there.
 - GraphQL: `widgetTicketCreated(name, description, attachments, statusId,
@@ -1327,6 +1328,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   added there, never as another `if` branch.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
   opens a Redis client on import that would otherwise keep it alive.
+- Stored timestamps are `Date` in the SDL, never `String`: a `String` field
+  serializes a stored `Date` as epoch milliseconds.
 - Mail thread serialization in `integrations/mail/utils/thread.ts` always
   supplies `attachments: message.attachments ?? []`; never rely on Mongoose
   defaults alone for the non-null attachment list. Preserve explicit

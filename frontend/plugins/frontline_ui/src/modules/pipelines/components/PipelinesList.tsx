@@ -126,7 +126,7 @@ const PipelineMoreCell = ({ cell }: PipelineCellProps) => {
         onOpenChange={setMoveOpen}
         resourceType={ChannelResourceType.PIPELINE}
         resourceIds={[_id]}
-        sourceChannelId={channelId}
+        sourceChannelId={channelId ?? ''}
       />
     </>
   );

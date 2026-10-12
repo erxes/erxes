@@ -1,6 +1,6 @@
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
-import type { IPipeline } from '@/pipelines/types';
+import type { IPipelineDetail } from '@/pipelines/types';
 
 export interface IStatusPermissions {
   value: string;
@@ -21,7 +21,7 @@ export interface ITicketPermissions {
 }
 
 interface UseTicketPermissionsParams {
-  pipeline?: IPipeline;
+  pipeline?: IPipelineDetail;
   status?: IStatusPermissions;
   assigneeId?: string;
 }

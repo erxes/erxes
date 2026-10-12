@@ -2187,7 +2187,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   notification channel widget, the inbox conversations (list, detail,
   counts, progress, conversation actions, channel inline,
   `inboxSubscriptions`) and inbox messages, the Facebook and Instagram
-  conversation messages, and `responseTemplate`) writes every
+  conversation messages, `responseTemplate`, and `pipelines` with its
+  ticket configs) writes every
   document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
@@ -2199,6 +2200,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `Integrations` list row (record tables use `CellContext<IIntegration>`),
   `IIntegrationDetail` is `integrationDetail`, and `IIntegrationType` /
   `IIntegrationTypeByChannel` are the used-types entries.
+- Pipeline types derive from the generated queries: `IPipeline` is the
+  `GetTicketPipelines` list row and `IPipelineDetail` is
+  `getTicketPipeline`. Only the detail selects `userId`, `visibility` and
+  `memberIds`, so `useTicketPermissions` takes an `IPipelineDetail` from
+  `useGetPipeline`. Pipeline id lists (`propertyIds`, `memberIds`,
+  `excludeCheckUserIds`, …) are `[String]` in the SDL; read them with
+  `compactList`. `IConfig` is a `TicketConfigs` row and
+  `ITicketConfigDetail` is `ticketConfigDetail`; `ConfigsForm` turns a
+  loaded config into form values with `toPipelineConfigFormValues`.
 - Conversation types derive from the generated queries: `IConversation` is
   the `Conversations` list row, `IConversationDetail` is
   `conversationDetail`, and `IConversationIntegration` is a list row's
