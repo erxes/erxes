@@ -99,3 +99,11 @@ export const CMS_POSTIZ_RETRY = gql`
   }
   ${deliveryFields}
 `;
+export const CMS_POSTIZ_REFRESH = gql`
+  mutation CmsSocialRefresh($postId: String!, $language: String!) {
+    cmsPostizRefresh(postId: $postId, language: $language) {
+      ...CmsSocialDeliveryFields
+    }
+  }
+  ${deliveryFields}
+`;
