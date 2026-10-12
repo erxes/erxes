@@ -31,6 +31,7 @@ export enum DateSelectVariant {
   TABLE = 'table',
   FILTER = 'filter',
   DETAIL = 'detail',
+  INPUT = 'input',
   CARD = 'card',
   FORM = 'form',
   BUTTON = 'button',
@@ -211,7 +212,7 @@ export const DateSelectDealRoot = ({
     setOpen(false);
   };
 
-  if (variant === DateSelectVariant.DETAIL) {
+  if (variant === DateSelectVariant.INPUT) {
     return (
       <div className="flex h-7 w-fit items-center overflow-hidden rounded border bg-background text-sm focus-within:border-primary/40">
         <div className="w-36">
