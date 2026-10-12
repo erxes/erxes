@@ -254,6 +254,7 @@ const SelectAssigneeValue = ({
         memberIds={memberIds}
         members={members}
         allowUnassigned
+        showInactive
         updateMembers={setMembers}
       >
         <MembersInline.Avatar />
@@ -261,7 +262,10 @@ const SelectAssigneeValue = ({
     );
   }
   return (
-    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+    <SelectMember.Value
+      placeholder={placeholder || t('select-assignee')}
+      showInactive
+    />
   );
 };
 
@@ -279,6 +283,7 @@ const SelectTeamMemberContent = ({
   const [debouncedSearch] = useDebounce(search, 500);
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { memberIds, members } = useSelectMemberContext();
+  const activeMembers = members.filter((member) => member.isActive !== false);
   const filteredIds = excludeIds?.filter((id) => id !== currentUser._id);
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
@@ -309,9 +314,9 @@ const SelectTeamMemberContent = ({
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {activeMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {activeMembers.map((member) => (
               <SelectMember.CommandItem key={member._id} user={member} />
             ))}
             {!loading && membersList.length > 0 && (

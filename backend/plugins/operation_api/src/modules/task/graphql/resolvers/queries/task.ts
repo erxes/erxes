@@ -95,7 +95,7 @@ export const taskQueries = {
 
     if (filter.assigneeId) {
       if (filter.assigneeId === 'no-assignee') {
-        filterQuery.assigneeId = { $exists: false };
+        filterQuery.assigneeId = null;
       } else {
         filterQuery.assigneeId = filter.assigneeId;
       }
