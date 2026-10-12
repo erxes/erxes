@@ -3,7 +3,7 @@ import { Button, Empty } from 'erxes-ui';
 
 type DocumentsErrorStateProps = Readonly<{
   description?: string;
-  onRetry: () => void;
+  onRetry: () => unknown;
   title?: string;
 }>;
 
@@ -22,7 +22,16 @@ export function DocumentsErrorState({
         <Empty.Description>{description}</Empty.Description>
       </Empty.Header>
       <Empty.Content>
-        <Button variant="outline" onClick={onRetry}>
+        <Button
+          variant="outline"
+          onClick={async () => {
+            try {
+              await onRetry();
+            } catch {
+              return;
+            }
+          }}
+        >
           <IconRefresh />
           Try again
         </Button>

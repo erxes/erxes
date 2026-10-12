@@ -215,6 +215,70 @@
   background-color: transparent;
 }
 
+.erxes-blocknote,
+.document-comments-panel,
+.document-comments-overlay {
+  --comment-background: var(--background);
+  --comment-foreground: var(--foreground);
+  --comment-placeholder: var(--accent-foreground);
+  --comment-border: var(--border);
+  --comment-primary: var(--primary);
+  --comment-primary-foreground: var(--primary-foreground);
+  --comment-muted: var(--muted);
+  --comment-muted-foreground: var(--muted-foreground);
+  --comment-accent: var(--accent);
+}
+
+.document-comments {
+  --background: var(--comment-background);
+  --foreground: var(--comment-foreground);
+  --accent: var(--comment-accent);
+  --accent-foreground: var(--comment-placeholder);
+  --border: var(--comment-border);
+  --primary: var(--comment-primary);
+  --primary-foreground: var(--comment-primary-foreground);
+  --muted: var(--comment-muted);
+  --muted-foreground: var(--comment-muted-foreground);
+}
+
+:is(.document-comments, .document-comments-panel)
+  .bn-comment-editor
+  .bn-editor {
+  @apply px-0 py-1 text-sm;
+  height: auto;
+  min-height: 0;
+  color: var(--comment-foreground);
+  background-color: transparent;
+}
+
+:is(.document-comments, .document-comments-panel)
+  .bn-comment-editor
+  .bn-editor[contenteditable='true'] {
+  @apply min-h-20 rounded px-3 py-2 shadow-xs transition-[color,box-shadow];
+}
+
+:is(.document-comments, .document-comments-panel)
+  .bn-comment-editor
+  .bn-editor[contenteditable='true']:focus-visible {
+  box-shadow: var(--shadow-focus);
+}
+
+:is(.document-comments, .document-comments-panel)
+  .bn-comment-editor
+  .bn-inline-content::before {
+  color: var(--comment-placeholder);
+}
+
+.bn-shadcn .barcode-controls > button {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.bn-shadcn .barcode-controls > button:hover {
+  background-color: hsl(var(--accent));
+}
+
 .bn-default-styles {
   font-size: inherit;
 }

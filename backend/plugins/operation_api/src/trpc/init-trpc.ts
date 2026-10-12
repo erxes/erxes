@@ -8,6 +8,8 @@ import {
   generateTaskFields,
 } from '~/modules/fields/fieldUtils';
 import { taskTrpcRouter } from '~/modules/task/trpc/task';
+import { taskDocumentEditorAttributes } from '~/meta/documents';
+import { TASK_CONTENT_TYPE } from '~/meta/import-export/utils';
 
 export type OperationTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -23,6 +25,13 @@ export const appRouter = t.mergeRouters(
   }),
   taskTrpcRouter,
   t.router({
+    documents: t.router({
+      editorAttributes: t.procedure
+        .input(z.object({ contentType: z.literal(TASK_CONTENT_TYPE) }))
+        .query(({ ctx }) =>
+          taskDocumentEditorAttributes(ctx.subdomain, ctx.models),
+        ),
+    }),
     fields: t.router({
       getFieldList: t.procedure
         .input(

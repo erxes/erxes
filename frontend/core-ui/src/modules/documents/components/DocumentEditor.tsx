@@ -3,12 +3,21 @@ import { DocumentEditorSkeleton } from '@/documents/components/DocumentEditorSke
 import { DocumentsErrorState } from '@/documents/components/DocumentsErrorState';
 import { useDocument } from '@/documents/hooks/useDocument';
 import { useDocumentAttributes } from '@/documents/hooks/useDocumentAttributes';
+import { useDocumentComments } from '@/documents/hooks/useDocumentComments';
+import { FormType } from '@/documents/hooks/useDocumentForm';
+import { DocumentThreadStore } from '@/documents/utils/DocumentThreadStore';
+import type { IDocument } from '@/documents/types';
+import {
+  normalizeDocumentBlocks,
+  StoredDocumentBlock,
+} from '@/documents/utils/normalizeDocumentBlocks';
 import {
   ATTRIBUTE_DND_MIME,
   insertAttributeAtPoint,
 } from '@/documents/utils/attributeDnd';
 import {
   IconFileText,
+  IconMessage,
   IconLayoutSidebarRightExpand,
 } from '@tabler/icons-react';
 import {
@@ -16,12 +25,31 @@ import {
   BlockEditor,
   cn,
   IBlockEditor,
+  toast,
   useBlockEditor,
 } from 'erxes-ui';
+import { Popover } from 'erxes-ui/components';
 
-import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  ComponentProps,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { AttributeInEditor } from 'ui-modules';
+import {
+  DocumentComments,
+  DocumentCommentsPanel,
+  DocumentCommentsProvider,
+  isDocumentCommentOverlay,
+} from './DocumentComments';
+
+type DocumentEditorAttributes = NonNullable<
+  ComponentProps<typeof AttributeInEditor>['attributes']
+>;
 
 const EditorController = ({
   editor,
@@ -31,11 +59,12 @@ const EditorController = ({
 }: {
   editor: IBlockEditor;
   onChange: (value: string) => void;
-  attributes: any[];
+  attributes: DocumentEditorAttributes;
   loading: boolean;
 }) => {
   const dropRef = useRef<HTMLDivElement>(null);
   const [isDropTarget, setIsDropTarget] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = editor.onChange((editor: IBlockEditor) => {
@@ -104,18 +133,39 @@ const EditorController = ({
         isDropTarget && 'bg-primary/5 ring-2 ring-inset ring-primary/40',
       )}
     >
-      <BlockEditor
-        editor={editor}
-        className={cn(
-          'w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
-        )}
-      >
-        <AttributeInEditor
+      <Popover open={commentsOpen} onOpenChange={setCommentsOpen}>
+        <div className="flex flex-none justify-end gap-2 px-5 py-2">
+          <Popover.Trigger asChild>
+            <Button type="button" variant="outline" size="sm">
+              <IconMessage /> Comments
+            </Button>
+          </Popover.Trigger>
+        </div>
+        <BlockEditor
           editor={editor}
-          attributes={attributes}
-          loading={loading}
-        />
-      </BlockEditor>
+          comments={false}
+          className="w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16"
+        >
+          <DocumentCommentsProvider>
+            <DocumentComments editor={editor} panelOpen={commentsOpen} />
+            <Popover.Content
+              className="document-comments-panel bn-container w-96 max-h-96 overflow-y-auto"
+              align="end"
+              onInteractOutside={(event) => {
+                if (isDocumentCommentOverlay(event.target))
+                  event.preventDefault();
+              }}
+            >
+              <DocumentCommentsPanel editor={editor} />
+            </Popover.Content>
+          </DocumentCommentsProvider>
+          <AttributeInEditor
+            editor={editor}
+            attributes={attributes}
+            loading={loading}
+          />
+        </BlockEditor>
+      </Popover>
     </div>
   );
 };
@@ -125,30 +175,78 @@ const DocumentContentEditor = ({
   document,
   attributes,
   attributesLoading,
-}: any) => {
-  const { control } = useFormContext();
+  threadStore,
+}: {
+  editor: IBlockEditor;
+  document: IDocument | null;
+  attributes: DocumentEditorAttributes;
+  attributesLoading: boolean;
+  threadStore: DocumentThreadStore;
+}) => {
+  const { control, getValues, setValue } = useFormContext<FormType>();
+  const loadedDocument = useRef<{ id: string; editor: IBlockEditor }>();
 
   useEffect(() => {
-    if (!document?.content || !editor) return;
+    if (
+      !document ||
+      !editor ||
+      (loadedDocument.current?.id === document._id &&
+        loadedDocument.current.editor === editor)
+    )
+      return undefined;
+    const fields = getValues('_id') === document._id ? getValues() : document;
+    const content = fields.content || '';
+    let cancelled = false;
 
     const loadInitialContent = async () => {
-      let blocks;
+      let blocks: StoredDocumentBlock[] = [];
 
-      try {
-        blocks = JSON.parse(document.content);
-      } catch (_error) {
+      if (content) {
         try {
-          blocks = await editor.tryParseHTMLToBlocks(document.content);
-        } catch (_htmlError) {
-          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+          blocks = JSON.parse(content);
+        } catch {
+          try {
+            blocks = await editor.tryParseHTMLToBlocks(content);
+          } catch {
+            blocks = await editor.tryParseMarkdownToBlocks(content);
+          }
         }
       }
 
-      editor.replaceBlocks(editor.document, blocks);
+      if (cancelled) return;
+      editor.replaceBlocks(
+        editor.document,
+        blocks.length
+          ? normalizeDocumentBlocks(blocks)
+          : [{ type: 'paragraph' }],
+      );
+      loadedDocument.current = { id: document._id, editor };
+      try {
+        threadStore.load(fields.commentData, editor);
+        setValue('commentData', threadStore.serialize(editor));
+      } catch (error) {
+        toast({
+          title: 'Could not load document comments',
+          description:
+            error instanceof Error ? error.message : 'Please try again.',
+          variant: 'destructive',
+        });
+      }
     };
 
-    loadInitialContent();
-  }, [document?.content, editor]);
+    loadInitialContent().catch((error: unknown) => {
+      if (!cancelled)
+        toast({
+          title: 'Could not load document',
+          description:
+            error instanceof Error ? error.message : 'Please try again.',
+          variant: 'destructive',
+        });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [document, editor, threadStore, getValues, setValue]);
 
   return (
     <Controller
@@ -227,11 +325,13 @@ const DocumentTitleEditor = ({
 
 export const DocumentEditor = () => {
   const { document, documentId, hasError, loading, refetch } = useDocument();
-  const editor = useBlockEditor({});
+  const { threadStore, resolveUsers, connectEditor } = useDocumentComments();
+  const editor = useBlockEditor({ comments: { threadStore }, resolveUsers });
   const { attributes, loading: attributesLoading } = useDocumentAttributes();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const { control } = useFormContext();
+
+  useEffect(() => connectEditor(editor), [connectEditor, editor]);
 
   const isCreating = !documentId;
   const hasAttributes = attributes.length > 0;
@@ -304,6 +404,7 @@ export const DocumentEditor = () => {
           document={document}
           attributes={attributes}
           attributesLoading={attributesLoading}
+          threadStore={threadStore}
         />
       </div>
       {hasAttributes && sidebarOpen && (

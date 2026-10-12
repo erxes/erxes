@@ -9,6 +9,7 @@ export interface IDocument {
   subType: string;
   name: string;
   content: string;
+  commentData?: string;
   replacer: string;
   code?: string;
   tagIds?: string[];

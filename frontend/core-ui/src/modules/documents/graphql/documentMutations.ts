@@ -9,6 +9,8 @@ export const SAVE_DOCUMENT = gql`
     $content: String
     $replacer: String
     $code: String
+    $commentData: String
+    $tagIds: [String]
   ) {
     documentsSave(
       _id: $_id
@@ -18,6 +20,8 @@ export const SAVE_DOCUMENT = gql`
       content: $content
       replacer: $replacer
       code: $code
+      commentData: $commentData
+      tagIds: $tagIds
     ) {
       _id
       code
@@ -26,6 +30,8 @@ export const SAVE_DOCUMENT = gql`
       name
       content
       replacer
+      commentData
+      tagIds
     }
   }
 `;

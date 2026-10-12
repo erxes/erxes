@@ -61,7 +61,7 @@ export const BlockEditorReadOnly = React.forwardRef<
       formattingToolbar={false}
       slashMenu={false}
       sideMenu={false}
-      theme={theme as 'light' | 'dark'}
+      theme={theme === 'system' ? undefined : theme}
     />
   );
 });

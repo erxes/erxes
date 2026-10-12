@@ -145,7 +145,14 @@ export const DealsBoardColumnHeader = ({
                 <IconDots />
               </Button>
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content className="w-56">
+            <DropdownMenu.Content
+              className="w-56"
+              onCloseAutoFocus={(event) => {
+                if (showPrintDialog) {
+                  event.preventDefault();
+                }
+              }}
+            >
               {!showSortOptions ? (
                 <>
                   <DropdownMenu.Label>{t('stage-section')}</DropdownMenu.Label>
@@ -175,8 +182,7 @@ export const DealsBoardColumnHeader = ({
                       {t('sort-by')}
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onSelect={(e) => {
-                        e.preventDefault();
+                      onSelect={() => {
                         setShowPrintDialog(true);
                       }}
                     >

@@ -12,7 +12,6 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  useSetQueryStateByKey,
 } from 'erxes-ui';
 import { ComponentProps } from 'react';
 import {
@@ -23,6 +22,7 @@ import {
 } from 'ui-modules';
 
 import { DOCUMENTS_TYPES_SET } from '../../constants';
+import { useDocumentNavigation } from '../../hooks/useDocumentNavigation';
 import { IDocument } from '../../types';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
 
@@ -49,15 +49,10 @@ export function getDocumentsTagOptions(
 }
 
 function DocumentNameCell({ document }: { document: IDocument }) {
-  const setQuery = useSetQueryStateByKey();
-
-  function handleClick() {
-    setQuery('documentId', document._id);
-    setQuery('contentType', document.contentType);
-  }
+  const { openDocument } = useDocumentNavigation();
 
   return (
-    <RecordTableInlineCell onClick={handleClick}>
+    <RecordTableInlineCell onClick={() => openDocument(document)}>
       <div className="flex items-center justify-between w-full gap-2">
         <span className="truncate">{document.name || 'Untitled'}</span>
         <ApprovalLockedBadge state={document.approvalLockState} />

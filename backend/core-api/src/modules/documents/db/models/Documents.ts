@@ -139,7 +139,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
 
       const replacedContents = await sendTRPCMessage({
         subdomain,
-
+        context: { userId: user?._id },
         pluginName,
         method: 'query',
         module: moduleName,
@@ -150,6 +150,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
           contentType: document.contentType,
         },
         defaultValue: [],
+        throwOnError: true,
       });
 
       return prepareContent({

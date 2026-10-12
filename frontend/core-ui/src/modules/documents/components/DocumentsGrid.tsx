@@ -1,19 +1,15 @@
 import { IconCalendarPlus, IconFileText } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Card, RelativeDateDisplay, useSetQueryStateByKey } from 'erxes-ui';
+import { Card, RelativeDateDisplay } from 'erxes-ui';
 import { ApprovalLockedBadge, MembersInline } from 'ui-modules';
 import { DOCUMENTS_TYPES_SET } from '../constants';
+import { useDocumentNavigation } from '../hooks/useDocumentNavigation';
 import { IDocument } from '../types';
 import { DocumentPreview } from './DocumentPreview';
 import { DocumentsActions } from './DocumentsActions';
 
 export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
-  const setQuery = useSetQueryStateByKey();
-
-  const handleOpenDocument = (document: IDocument) => {
-    setQuery('documentId', document._id);
-    setQuery('contentType', document.contentType);
-  };
+  const { openDocument } = useDocumentNavigation();
 
   return (
     <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -26,7 +22,14 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
           <Card
             key={document._id}
             className="group flex cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md"
-            onClick={() => handleOpenDocument(document)}
+            onClick={(event) => {
+              if (
+                event.target instanceof Node &&
+                event.currentTarget.contains(event.target)
+              ) {
+                openDocument(document);
+              }
+            }}
           >
             <Card.Content className="relative flex h-40 items-center justify-center overflow-hidden border-b bg-muted/30 p-0">
               {document.approvalLockState?.hasAccess !== false && (
