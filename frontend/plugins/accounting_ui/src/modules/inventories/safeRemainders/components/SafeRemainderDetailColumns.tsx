@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import { IconMoneybag } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
@@ -31,22 +32,24 @@ const StatusField = ({
       <Checkbox
         checked={value === 'checked'}
         onCheckedChange={(value) =>
-          editRemItem(
-            {
-              variables: { ...remItem, status: value ? 'checked' : 'new' },
-            },
-          )
+          editRemItem({
+            variables: { ...remItem, status: value ? 'checked' : 'new' },
+          })
         }
       />
     </div>
   );
 };
 
-export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
+export const safeRemDetailTableColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ISafeRemainderItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('inventory')} />
+    ),
     accessorKey: 'product',
     cell: ({ row }) => <SafeRemainderProductCell row={row} />,
     size: 300,
@@ -54,7 +57,10 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'uom',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('unit-of-measure-label-2')}
+      />
     ),
     accessorKey: 'uom',
     cell: ({ row }) => (
@@ -64,15 +70,23 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бүртгэлийн үлдэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('recorded-balance')}
+      />
     ),
     accessorKey: 'preCount',
-    cell: ({ row }) => <SafeRemainderNumberCell value={row.original.preCount} />,
+    cell: ({ row }) => (
+      <SafeRemainderNumberCell value={row.original.preCount} />
+    ),
   },
   {
     id: 'activeCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бүртгэлийн нийт өртөг" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('recorded-total-cost')}
+      />
     ),
     cell: ({ row }) => (
       <SafeRemainderNumberCell value={row.original.trInfo?.activeCost ?? 0} />
@@ -82,7 +96,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тоолсон" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('counted')} />
     ),
     size: 33,
     cell: ({ row }) => (
@@ -105,7 +119,10 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын үлдэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('counted-balance')}
+      />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
@@ -128,14 +145,15 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын нийт өртөг" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('counted-total-cost')}
+      />
     ),
     cell: ({ row }) => (
       <SafeRemainderUnitCostField
         value={
-          row.original.trInfo?.unitCost ??
-          row.original.trInfo?.activeCost ??
-          0
+          row.original.trInfo?.unitCost ?? row.original.trInfo?.activeCost ?? 0
         }
         field="trInfo.unitCost"
         _id={row.original._id}
@@ -146,7 +164,10 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'diff',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тооны зөрүү" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('quantity-difference')}
+      />
     ),
     accessorKey: 'diff',
     cell: ({ row }) => (
@@ -169,7 +190,10 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'costDifference',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Өртгийн зөрүү" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('cost-difference')}
+      />
     ),
     cell: ({ row }) => (
       <SafeRemainderNumberCell
@@ -180,11 +204,16 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'transactions',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Үүсэх гүйлгээ" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('generated-transaction')}
+      />
     ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {getSafeRemainderTransactionLabels(row.original).join(', ')}
+        {getSafeRemainderTransactionLabels(row.original)
+          .map((label) => t(label))
+          .join(', ')}
       </RecordTableInlineCell>
     ),
     size: 220,

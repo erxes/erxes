@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { safeRemainderColumns } from './SafeRemainderColumns';
 import { ISafeRemainder } from '../types/SafeRemainder';
 
 const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const { t } = useTranslation('accounting');
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, (_, i) => `skeleton-row-${i}`),
     [rows],
@@ -12,7 +14,7 @@ const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {safeRemainderColumns.map((col, colIndex) => (
+          {safeRemainderColumns(t).map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -37,6 +39,7 @@ export const SafeRemainderTable = ({
   safeRemainders?: ISafeRemainder[];
   totalCount?: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const isFetchingMore = loading && (safeRemainders?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
   const safeRemaindersCount = safeRemainders?.length ?? 0;
@@ -44,7 +47,7 @@ export const SafeRemainderTable = ({
 
   return (
     <RecordTable.Provider
-      columns={safeRemainderColumns}
+      columns={safeRemainderColumns(t)}
       data={isInitialLoading ? [] : safeRemainders || []}
       stickyColumns={['more']}
       tableId="accounting_safe_remainders_record_table"

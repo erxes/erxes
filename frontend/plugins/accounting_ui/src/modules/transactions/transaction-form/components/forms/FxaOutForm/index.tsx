@@ -32,7 +32,7 @@ export const FxaOutForm = ({
           index={index}
           filter={{ journals: [JournalEnum.FIXED_ASSET] }}
           allDetails
-          labelTxt="Хөрөнгийн данс"
+          labelTxt="asset-account"
           onAccountChange={onAccountChange}
         />
         <CustomerFields form={form} index={index} />
