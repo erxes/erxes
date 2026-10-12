@@ -164,11 +164,22 @@ export const useAutomationCoreNodeOutput = ({
           }))
       : [];
 
+  const decisionTableVariables =
+    isAction && activeSourceNode?.type === 'decisionTable'
+      ? (sourceNodeConfig?.outputs || [])
+          .filter((output: { key?: string }) => output?.key)
+          .map((output: { key: string }) => ({
+            key: `data.${output.key}`,
+            label: output.key,
+          }))
+      : [];
+
   return {
     coreVariables: [
       ...enrichedVariables,
       ...findObjectVariables,
       ...transformVariables,
+      ...decisionTableVariables,
     ],
     corePropertySource: findObjectPropertySource || propertySource,
   };

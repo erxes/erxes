@@ -50,6 +50,7 @@ export const AUTOMATION_CORE_ACTIONS = {
   SPLIT: 'split',
   FIND_OBJECT: 'findObject',
   TRANSFORM: 'transform',
+  DECISION_TABLE: 'decisionTable',
   SET_PROPERTY: 'setProperty',
   SEND_EMAIL: 'sendEmail',
   OUTGOING_WEBHOOK: 'outgoingWebhook',

@@ -10,6 +10,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import {
   AI_AGENT_ACTION_OUTPUT,
+  DECISION_TABLE_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
   MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
@@ -175,6 +176,15 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
         'Create conditional branches to route workflows based on criteria',
       group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
       allowTargetFromActions: true,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.DECISION_TABLE,
+      icon: 'IconTable',
+      label: 'Decision table',
+      description:
+        'Pick values such as assignee or stage from a table of rules',
+      group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
+      output: DECISION_TABLE_ACTION_OUTPUT,
     },
     // Data Operations
     {

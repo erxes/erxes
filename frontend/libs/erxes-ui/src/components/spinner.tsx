@@ -128,7 +128,9 @@ const WaitingBot = ({ className }: { className?: string }) => (
         />
       ))}
     </svg>
-    <span className="text-xs text-muted-foreground">Loading</span>
+    <span className="bg-[linear-gradient(90deg,var(--color-muted-foreground)_40%,var(--color-foreground)_50%,var(--color-muted-foreground)_60%)] bg-size-[300%_100%] bg-clip-text text-xs text-transparent motion-safe:animate-text-shimmer motion-reduce:text-muted-foreground">
+      Loading
+    </span>
   </div>
 );
 

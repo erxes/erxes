@@ -55,6 +55,16 @@ export const TRANSFORM_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [{ key: 'data', label: 'Data' }],
 };
 
+// data.<key> entries come from the table's own outputs, added by the builder
+export const DECISION_TABLE_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition =
+  {
+    variables: [
+      { key: 'matched', label: 'Row matched' },
+      { key: 'usedDefault', label: 'Default used' },
+      { key: 'matchedRow', label: 'Matched row number' },
+    ],
+  };
+
 export const SEND_EMAIL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
     { key: 'title', label: 'Title' },
