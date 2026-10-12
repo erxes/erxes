@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai';
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/composer/PollComposer';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';

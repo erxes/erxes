@@ -5,13 +5,13 @@ import {
   defaultStyleSpecs,
   createStyleSpec,
 } from '@blocknote/core';
-import { Attribute } from '../components/Attribute';
-import { Mention } from '../components/Mention';
-import { customFileBlock } from '../components/CustomFileBlock';
-import { customImageBlock } from '../components/CustomImageBlock';
-import { documentPlaceholderBlock } from '../components/DocumentPlaceholderBlock';
-import { galleryBlock } from '../components/GalleryBlock';
-import { customVideoBlock } from '../components/CustomVideoBlock';
+import { Attribute } from '../components/inline-content/Attribute';
+import { Mention } from '../components/inline-content/Mention';
+import { customFileBlock } from '../components/blocks/CustomFileBlock';
+import { customImageBlock } from '../components/blocks/CustomImageBlock';
+import { documentPlaceholderBlock } from '../components/blocks/DocumentPlaceholderBlock';
+import { galleryBlock } from '../components/blocks/GalleryBlock';
+import { customVideoBlock } from '../components/blocks/CustomVideoBlock';
 
 export const fontFamily = createStyleSpec(
   {

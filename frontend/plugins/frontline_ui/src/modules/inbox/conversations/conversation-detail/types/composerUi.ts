@@ -2,7 +2,7 @@ import type { DragEventHandler, ReactNode } from 'react';
 import type { EditorMentionItem } from 'ui-modules';
 import type { ComposerBlockEditor } from './composer';
 import type { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/composer/PollComposer';
 
 export type ComposerEditorProps = {
   editor: ComposerBlockEditor;

@@ -3,7 +3,7 @@ import { INTERNAL_NOTE_ICON } from '@/inbox/constants/internalNoteStyles';
 import { Button, cn } from 'erxes-ui';
 import { IconChevronDown, IconLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { ComposerModeTabs } from '@/inbox/conversations/conversation-detail/components/ComposerModeTabs';
+import { ComposerModeTabs } from '@/inbox/conversations/conversation-detail/components/composer/ComposerModeTabs';
 
 export const ComposerShellHeader = ({
   noteOnly,

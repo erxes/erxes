@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconLock } from '@tabler/icons-react';
-import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { Attachments } from '@/inbox/conversation-messages/components/attachments/MessageAttachments';
 import type { MailInternalNotesProps } from '../types/MailInternalNotesProps';
 
 export const MailInternalNotes = ({

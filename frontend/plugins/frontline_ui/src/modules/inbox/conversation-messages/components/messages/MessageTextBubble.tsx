@@ -1,7 +1,7 @@
 import { TelegramMessageContent } from '@/integrations/telegram/TelegramMessageContent';
 import { Button, RelativeDateDisplay } from 'erxes-ui';
-import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
-import { DiscordEditedStatus } from '@/inbox/conversation-messages/components/DiscordEditedStatus';
+import { MessageContent } from '@/inbox/conversation-messages/components/content/MessageContent';
+import { DiscordEditedStatus } from '@/inbox/conversation-messages/components/messages/DiscordEditedStatus';
 import { getMessageBubbleClassName } from '@/inbox/conversation-messages/utils/getMessageBubbleClassName';
 import { DeliveryStatus } from '@/inbox/conversation-messages/components/messages/MessageStatus';
 import type { MessagePresentationState } from '@/inbox/conversation-messages/types/MessagePresentation';

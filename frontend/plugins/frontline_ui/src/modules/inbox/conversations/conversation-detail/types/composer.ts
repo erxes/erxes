@@ -6,8 +6,8 @@ import type {
   useErxesUpload,
 } from 'erxes-ui';
 import type { getGalleryImages } from '@/inbox/conversations/conversation-detail/utils/composer';
-import type { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
-import type { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
+import type { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/composer/useMessageAttachments';
+import type { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/composer/useResponseTemplateSuggestions';
 
 export type ComposerBlockEditor = ReturnType<typeof useBlockEditor>;
 

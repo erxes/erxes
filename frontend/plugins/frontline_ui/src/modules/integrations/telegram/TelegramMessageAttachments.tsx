@@ -1,6 +1,6 @@
 import { type IAttachment, readImage } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { MessageAttachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { MessageAttachments } from '@/inbox/conversation-messages/components/attachments/MessageAttachments';
 
 // Stream uploads require the hosted player rather than a native video source.
 export const getTelegramStreamPlayer = (

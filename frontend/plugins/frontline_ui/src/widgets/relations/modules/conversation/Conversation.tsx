@@ -1,7 +1,7 @@
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 import { IRelationWidgetProps, useRelations } from 'ui-modules';
 import { ConversationRelationDetails } from './ConversationDetails';
-import { ConversationReportContent } from '@/inbox/conversations/conversation-detail/components/ConversationReportContent';
+import { ConversationReportContent } from '@/inbox/conversations/conversation-detail/components/report/ConversationReportContent';
 
 export const ConversationRelationWidget = ({
   contentId,
@@ -34,9 +34,7 @@ export const ConversationRelationWidget = ({
   ) {
     return (
       <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
-        <ConversationReportContent
-          customerId={customerId}
-        />
+        <ConversationReportContent customerId={customerId} />
         {conversations
           ?.filter((conversation) => conversation._id !== contentId)
           .map((conversation) => {

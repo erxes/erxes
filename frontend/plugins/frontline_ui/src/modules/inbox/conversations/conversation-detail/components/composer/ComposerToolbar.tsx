@@ -15,9 +15,9 @@ import {
   INTERNAL_NOTE_ICON,
 } from '@/inbox/constants/internalNoteStyles';
 
-import { PollComposer } from '@/inbox/conversations/conversation-detail/components/PollComposer';
-import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
-import { SendSurveyDialog } from '@/inbox/conversations/conversation-detail/components/SendSurveyDialog';
+import { PollComposer } from '@/inbox/conversations/conversation-detail/components/composer/PollComposer';
+import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/composer/templates/ResponseTemplateSelector';
+import { SendSurveyDialog } from '@/inbox/conversations/conversation-detail/components/composer/SendSurveyDialog';
 
 export const ComposerToolbar = ({
   conversationId,

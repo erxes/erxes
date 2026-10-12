@@ -10,9 +10,12 @@ jest.mock('erxes-ui', () => ({
   cn: (...values: unknown[]) => values.filter(Boolean).join(' '),
   Skeleton: () => <div />,
 }));
-jest.mock('@/inbox/conversation-messages/components/MessageContent', () => ({
-  MessageContent: () => null,
-}));
+jest.mock(
+  '@/inbox/conversation-messages/components/content/MessageContent',
+  () => ({
+    MessageContent: () => null,
+  }),
+);
 jest.mock(
   '@/inbox/conversation-messages/components/messages/MessageStatus',
   () => ({
@@ -22,14 +25,17 @@ jest.mock(
   }),
 );
 jest.mock(
-  '@/inbox/conversation-messages/components/MessageFileAttachment',
+  '@/inbox/conversation-messages/components/attachments/MessageFileAttachment',
   () => ({
     MessageFileAttachment: () => null,
   }),
 );
-jest.mock('@/inbox/conversation-messages/components/InboxImage', () => ({
-  InboxImage: () => null,
-}));
+jest.mock(
+  '@/inbox/conversation-messages/components/attachments/InboxImage',
+  () => ({
+    InboxImage: () => null,
+  }),
+);
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback: string) => fallback }),
 }));

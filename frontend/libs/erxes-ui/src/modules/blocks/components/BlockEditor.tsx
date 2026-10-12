@@ -11,11 +11,11 @@ import { useAtomValue } from 'jotai';
 import { KeyboardEvent, MouseEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
-import { Toolbar } from './Toolbar';
+import { Toolbar } from './toolbar/Toolbar';
 import { isEmptyBlock } from '../utils/isEmptyBlock';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
-import { editorUIComponents } from '../constant/editorUIComponents';
-import { isCodeFormattingShortcut } from '../utils/isCodeFormattingShortcut';
+import { editorUIComponents } from '../constant/toolbar/editorUIComponents';
+import { isCodeFormattingShortcut } from '../utils/toolbar/isCodeFormattingShortcut';
 
 export const BlockEditor = ({
   editor,

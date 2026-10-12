@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ChangeEvent } from 'react';
 import { toast, useUpload } from 'erxes-ui';
-import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
+import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/composer/useMessageAttachments';
 import { composerStorage } from '@/inbox/conversations/conversation-detail/utils/messageInput';
 
 const mockUpload = jest.fn<

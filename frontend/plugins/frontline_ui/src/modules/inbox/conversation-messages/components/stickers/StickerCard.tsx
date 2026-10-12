@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
+import { InboxImage } from '@/inbox/conversation-messages/components/attachments/InboxImage';
 import type { IMessageSticker } from '@/inbox/types/Conversation';
 import { LottieSticker } from '@/inbox/conversation-messages/components/stickers/LottieSticker';
 import { getStickerImageUrl } from '@/inbox/conversation-messages/utils/stickerImage';

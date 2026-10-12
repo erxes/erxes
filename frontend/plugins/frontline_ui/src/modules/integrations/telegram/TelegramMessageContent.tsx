@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from 'erxes-ui';
-import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
-import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
+import { MessageContent } from '@/inbox/conversation-messages/components/content/MessageContent';
+import { MessageEmbeds } from '@/inbox/conversation-messages/components/content/MessageEmbeds';
 import type { IMessageEmbed } from '@/inbox/types/Conversation';
 
 const TELEGRAM_MESSAGE_LINK_PREVIEWS = gql`
