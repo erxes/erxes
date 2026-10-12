@@ -1,19 +1,12 @@
 import { MemberPermission } from '@/settings/permissions/components/MemberPermission';
 import { useUserDetail } from '../../hooks/useUserDetail';
-import { useTranslation } from 'react-i18next';
+import { OwnerPermissionNotice } from './OwnerPermissionNotice';
 
 export const MembersPermissions = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { userDetail } = useUserDetail();
 
   if (userDetail?.isOwner) {
-    return (
-      <div className="p-6">
-        <p className="text-muted-foreground">
-          {t('owner-no-permission-needed')}
-        </p>
-      </div>
-    );
+    return <OwnerPermissionNotice />;
   }
   if (!userDetail) {
     return null;

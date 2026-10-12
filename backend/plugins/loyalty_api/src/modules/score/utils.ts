@@ -50,32 +50,10 @@ export const scoreActiveUsers = async ({ models }) => {
   };
 };
 
-export const scorePoint = async ({ doc, models, filter }) => {
-  const { stageId, pipelineId, boardId, number } = doc;
-
+export const scorePoint = async ({ models, filter }) => {
   const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
     action: { $in: ['refund', 'return'] },
   });
-
-  const filterAggregate: any[] = [];
-
-  if (stageId || pipelineId || boardId || number) {
-    const lookup = [
-      {
-        $lookup: {
-          from: 'deals',
-          localField: 'targetId',
-          foreignField: '_id',
-          as: 'target',
-        },
-      },
-      {
-        $unwind: '$target',
-      },
-    ];
-
-    filterAggregate.push(...lookup);
-  }
 
   const totalPointEarned = {
     $sum: {
@@ -98,7 +76,6 @@ export const scorePoint = async ({ doc, models, filter }) => {
   };
 
   const pointPipeline = [
-    ...filterAggregate,
     {
       $match: {
         ...filter,
@@ -135,31 +112,8 @@ export const scorePoint = async ({ doc, models, filter }) => {
   };
 };
 
-export const scoreProducts = async ({ doc, models, filter }) => {
-  const { stageId, pipelineId, boardId, number } = doc;
-
-  const filterAggregate: any[] = [];
-
-  if (stageId || pipelineId || boardId || number) {
-    const lookup = [
-      {
-        $lookup: {
-          from: 'deals',
-          localField: 'targetId',
-          foreignField: '_id',
-          as: 'target',
-        },
-      },
-      {
-        $unwind: '$target',
-      },
-    ];
-
-    filterAggregate.push(...lookup);
-  }
-
+export const scoreProducts = async ({ models, filter }) => {
   const [mostRedeemedProductCategory] = await models.ScoreLogs.aggregate([
-    ...filterAggregate,
     {
       $match: {
         ...filter,
@@ -261,20 +215,18 @@ export const scoreProducts = async ({ doc, models, filter }) => {
   };
 };
 
-export const scoreStatistic = async ({ doc, models, filter }) => {
+export const scoreStatistic = async ({ models, filter }) => {
   const { monthlyActiveUsers, totalActiveUsers } = await scoreActiveUsers({
     models,
   });
 
   const { totalPointEarned, totalPointRedeemed, totalPointBalance } =
     await scorePoint({
-      doc,
       models,
       filter,
     });
 
   const { mostRedeemedProductCategory } = await scoreProducts({
-    doc,
     models,
     filter,
   });

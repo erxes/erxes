@@ -83,11 +83,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
-    (module) => ({
-      default: module.AutomationSettingsRoutes,
-    }),
-  ),
+  import(
+    '@/automations/components/settings/components/AutomationSettingsRoutes'
+  ).then((module) => ({
+    default: module.AutomationSettingsRoutes,
+  })),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>

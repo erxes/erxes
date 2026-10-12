@@ -184,7 +184,6 @@
     "add-score": "Add Score",
     "joined-date": "Joined date",
     "description": "Description",
-    "owner-no-permission-needed": "This user is owner, no permission needed.",
     "password-changed": "This user's password has been changed",
     "set-new-password": "Set new password for the user",
     "new-password": "New password",
@@ -781,5 +780,7 @@
     "create-position": "Create Position",
     "create-position-title": "Create position",
     "position-updated": "Position updated successfully"
-  }
+  },
+  "owner-permissions-title": "The Don of this workspace",
+  "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family."
 }

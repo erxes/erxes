@@ -3,6 +3,7 @@ import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
 import { calcProductsTaxRule, getChildCategories } from './utils';
+import { getProductPricing } from './utils/getProductPricing';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -197,27 +198,7 @@ export const getProductsData = async (
       ebarimtConfig?.value,
       products,
     );
-
-    const pricing = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'loyalty',
-      module: 'pricing',
-      action: 'checkPricing',
-      input: {
-        prioritizeRule: 'only',
-        totalAmount: 0,
-        departmentId: pos.departmentId,
-        branchId: pos.branchId,
-        products: products.map((p) => ({
-          itemId: p._id,
-          productId: p._id,
-          quantity: 1,
-          price: p.unitPrice,
-        })),
-      },
-      // timeout: 290000
-      defaultValue: {},
-    });
+    const pricing = await getProductPricing(subdomain, pos, products);
 
     for (const productId of Object.keys(productsById)) {
       const product = productsById[productId];

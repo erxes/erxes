@@ -15,12 +15,14 @@ const AutomationList = ({
   empty,
   loading,
   automations,
+  editPath,
   create,
 }: {
   title: string;
   empty: string;
   loading: boolean;
   automations: TCampaignAutomation[];
+  editPath: (automationId: string) => string;
   create: { label: string; icon: typeof IconBolt; onClick: () => void };
 }) => (
   <div className="flex flex-col gap-2">
@@ -37,7 +39,7 @@ const AutomationList = ({
     {automations.map(({ _id, name, status, tiers }) => (
       <Link
         key={_id}
-        to={`/automations/edit/${_id}`}
+        to={editPath(_id)}
         className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors hover:bg-accent"
       >
         <IconBolt className="size-4 shrink-0 text-muted-foreground" />
@@ -85,7 +87,7 @@ export const ScoreCampaignAutomations = ({
     hasTiers,
     accountTypeName,
   } = useScoreCampaignAutomations({ campaignId, accountTypeId });
-  const { createPointAutomation, createTierAutomation } =
+  const { createPointAutomation, createTierAutomation, editPath } =
     useCampaignAutomationSeeds(form);
 
   return (
@@ -101,6 +103,7 @@ export const ScoreCampaignAutomations = ({
         empty={t('score-campaign-point-automations-empty')}
         loading={loading}
         automations={pointAutomations}
+        editPath={editPath}
         create={{
           label: t('score-campaign-point-automation-create'),
           icon: IconBolt,
@@ -115,6 +118,7 @@ export const ScoreCampaignAutomations = ({
           empty={t('score-campaign-tier-automations-empty')}
           loading={loading}
           automations={tierAutomations}
+          editPath={editPath}
           create={{
             label: t('score-campaign-tier-automation-create'),
             icon: IconStairs,

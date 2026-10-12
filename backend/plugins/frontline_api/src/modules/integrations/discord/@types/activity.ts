@@ -1,14 +1,46 @@
 import {
   APIBaseMessage,
+  APIMessage,
   APIUserWithMember,
   GatewayMessagePollVoteDispatchData,
+  GatewayMessageReactionAddDispatchData,
+  GatewayMessageReactionRemoveDispatchData,
+  GatewayMessageReactionRemoveAllDispatchData,
+  GatewayMessageReactionRemoveEmojiDispatchData,
   Snowflake,
 } from 'discord-api-types/v10';
 
+type TDiscordReferencedMessage = Partial<
+  Pick<
+    APIMessage,
+    'id' | 'author' | 'content' | 'mentions' | 'attachments' | 'embeds'
+  >
+>;
 
-export type TDiscordMessagePayload = Partial<APIBaseMessage> & {
+type TDiscordMessageSnapshot = {
+  message?: Partial<
+    Pick<
+      APIMessage,
+      | 'type'
+      | 'content'
+      | 'attachments'
+      | 'embeds'
+      | 'mentions'
+      | 'sticker_items'
+      | 'timestamp'
+      | 'edited_timestamp'
+      | 'flags'
+    >
+  >;
+};
+
+export type TDiscordMessagePayload = Partial<
+  Omit<APIBaseMessage, 'mentions' | 'referenced_message'>
+> & {
   guild_id?: Snowflake;
   mentions?: APIUserWithMember[];
+  referenced_message?: TDiscordReferencedMessage | null;
+  message_snapshots?: TDiscordMessageSnapshot[];
 };
 
 export type DiscordMention = {
@@ -48,6 +80,19 @@ export type DiscordAttachment = {
   url: string;
   name?: string;
   size?: number;
+  width?: number;
+  height?: number;
+  duration?: number;
+  waveform?: string;
+  ephemeral?: boolean;
+  spoiler?: boolean;
+};
+
+export type DiscordSticker = {
+  id: string;
+  name: string;
+  formatType: number;
+  url?: string;
 };
 
 export type DiscordActivity = {
@@ -67,6 +112,20 @@ export type DiscordActivity = {
   poll?: DiscordPoll;
   embeds?: DiscordEmbed[];
   attachments: DiscordAttachment[];
+  stickers?: DiscordSticker[];
+  voiceMessage?: boolean;
+  forwardedSnapshot?: {
+    content?: string;
+    attachments?: DiscordAttachment[];
+    embeds?: DiscordEmbed[];
+    stickers?: DiscordSticker[];
+    createdAt?: string;
+  };
+  replyTo?: {
+    messageId: string;
+    content?: string;
+    authorName?: string;
+  };
   raw: TDiscordMessagePayload;
 };
 
@@ -79,6 +138,28 @@ export type DiscordPollVoteEvent = {
   answerId: number;
   added: boolean;
   raw: GatewayMessagePollVoteDispatchData;
+};
+
+export type DiscordReactionEvent = {
+  source: 'discord';
+  messageId: string;
+  channelId: string;
+  userId: string;
+  emoji: string;
+  added: boolean;
+  raw:
+    | GatewayMessageReactionAddDispatchData
+    | GatewayMessageReactionRemoveDispatchData;
+};
+
+export type DiscordReactionClearEvent = {
+  source: 'discord';
+  messageId: string;
+  channelId: string;
+  emoji?: string;
+  raw:
+    | GatewayMessageReactionRemoveAllDispatchData
+    | GatewayMessageReactionRemoveEmojiDispatchData;
 };
 
 export type DiscordMessageDeleteEvent = {

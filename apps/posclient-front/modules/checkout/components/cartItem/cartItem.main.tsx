@@ -26,6 +26,10 @@ import {
 } from "@/components/ui/tooltip"
 import Uploader from "@/components/ui/uploader"
 
+import { LoyaltyDiscountBadge } from "@/modules/customer/components/LoyaltyDiscountBadge"
+import { StrikedPrice } from "@/modules/customer/components/StrikedPrice"
+import { usePreviewUnitPrice } from "@/modules/customer/hooks/usePreviewUnitPrice"
+import { CartItemCondition, CartItemConditionBadge } from "./CartItemCondition"
 import CartItemStatus from "./cartItemStatus"
 
 const CartItem = ({
@@ -39,10 +43,13 @@ const CartItem = ({
   attachment,
   idx,
   productId,
+  discountInfos,
+  conditionCode,
 }: OrderItem & { idx: number }) => {
   const changeItem = useSetAtom(updateCartAtom)
   const banFractions = useAtomValue(banFractionsAtom)
   const type = useAtomValue(orderTypeAtom)
+  const { price, originalPrice } = usePreviewUnitPrice(_id, unitPrice)
 
   return (
     <Collapsible className={cn(idx === 0 && "bg-primary/10")}>
@@ -110,9 +117,20 @@ const CartItem = ({
             <div className="mt-1 flex items-center">
               <CartItemStatus status={status} />
               <ProductPrice
-                unitPrice={unitPrice}
+                unitPrice={price}
                 productId={productId}
                 className="ml-2 text-xs"
+              />
+              <StrikedPrice price={originalPrice} />
+              <CartItemConditionBadge
+                productId={productId}
+                conditionCode={conditionCode}
+              />
+              <LoyaltyDiscountBadge
+                itemId={_id}
+                discountInfos={discountInfos}
+                unitPrice={unitPrice}
+                count={count}
               />
             </div>
           </div>
@@ -150,6 +168,11 @@ const CartItem = ({
           </div>
         </div>
         <CollapsibleContent className="w-full pb-3 space-y-2">
+          <CartItemCondition
+            _id={_id}
+            productId={productId}
+            conditionCode={conditionCode}
+          />
           <div>
             <Label htmlFor="description">Тайлбар</Label>
             <Input

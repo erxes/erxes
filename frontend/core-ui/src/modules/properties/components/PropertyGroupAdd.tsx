@@ -1,21 +1,23 @@
-import { IPropertyGroupForm } from '@/properties/types/Properties';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAddPropertyGroup } from '../hooks/useAddPropertyGroup';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { propertyGroupSchema } from '../propertySchema';
 import { useParams, useLocation } from 'react-router-dom';
-import { PropertyGroupForm } from './PropertyGroupForm';
-import { Can } from 'ui-modules';
+import {
+  Can,
+  IPropertyGroupForm,
+  PropertyGroupForm,
+  propertyGroupSchema,
+  useAddPropertyGroup,
+} from 'ui-modules';
 
 export const AddPropertyGroup = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
   const location = useLocation();
 
-  const { addPropertyGroup, loading } = useAddPropertyGroup();
+  const { addPropertyGroup, loading } = useAddPropertyGroup(type || '');
   const form = useForm<IPropertyGroupForm>({
     resolver: zodResolver(propertyGroupSchema),
     defaultValues: {
@@ -66,6 +68,7 @@ export const AddPropertyGroup = () => {
           loading={loading}
           defaultValues={form.getValues()}
           onCancel={() => setOpen(false)}
+          contentType={type || ''}
         />
       </Sheet.View>
     </Sheet>

@@ -176,7 +176,6 @@
     "add-score": "Оноо нэмэх",
     "joined-date": "Ажилд орсон огноо",
     "description": "Тайлбар",
-    "owner-no-permission-needed": "Энэ хэрэглэгч эзэмшигч тул зөвшөөрөл шаардлагагүй.",
     "password-changed": "Энэ хэрэглэгчийн нууц үг солигдлоо",
     "set-new-password": "Хэрэглэгчид шинэ нууц үг тохируулах",
     "new-password": "Шинэ нууц үг",
@@ -768,5 +767,7 @@
     "create-position": "Албан тушаал үүсгэх",
     "create-position-title": "Албан тушаал үүсгэх",
     "position-updated": "Албан тушаал амжилттай шинэчлэгдлээ"
-  }
+  },
+  "owner-permissions-title": "Энэ workspace-ийн Дон",
+  "owner-permissions-hint": "Дүрмийг эзэмшигч өөрөө тогтоодог тул энд тохируулах зүйл алга. Эрх нь гэр бүлийн бусад гишүүдэд."
 }

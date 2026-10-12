@@ -44,6 +44,7 @@ export const checkPricing = async (
             quantity: i.count,
             price: i.unitPrice,
             manufacturedDate: i.manufacturedDate,
+            conditionCode: i.conditionCode,
           })),
         ],
       },

@@ -7,12 +7,16 @@ import {
   RecordTableInlineCell,
   Switch,
 } from 'erxes-ui';
-import { CORE_RELATION_TYPES, Can, IField } from 'ui-modules';
+import {
+  Can,
+  CORE_RELATION_TYPES,
+  FIELD_TYPES_OBJECT,
+  IField,
+} from 'ui-modules';
 import type { Cell, ColumnDef } from '@tanstack/react-table';
 import { IconTrash, IconEdit } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 
-import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import type { TFunction } from 'i18next';

@@ -92,12 +92,14 @@ export const types = `
     branchId: String
     departmentId: String
     permissionConfig: JSON
+    customerCreateConfig: JSON
     allowTypes: [String]
     isShowRemainder: Boolean
     isCheckRemainder: Boolean
     checkExcludeCategoryIds: [String]
     saveRemainder: Boolean
     banFractions: Boolean
+    acceptCoupons: Boolean
   }
 `;
 
