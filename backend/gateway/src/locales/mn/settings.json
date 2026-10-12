@@ -499,6 +499,8 @@
     "untitled-document": "Нэргүй баримт",
     "error": "Алдаа"
   },
+  "owner-permissions-title": "Энэ workspace-ийн Дон",
+  "owner-permissions-hint": "Дүрмийг эзэмшигч өөрөө тогтоодог тул энд тохируулах зүйл алга. Эрх нь гэр бүлийн бусад гишүүдэд.",
   "app-tokens": {
     "_": "Апп токен",
     "app-tokens": "Апп токенууд",

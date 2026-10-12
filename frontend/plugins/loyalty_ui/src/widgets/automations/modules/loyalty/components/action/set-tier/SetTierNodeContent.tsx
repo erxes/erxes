@@ -11,7 +11,10 @@ export const SetTierNodeContent = ({
   const { t } = useTranslation('loyalty');
   const { accounts } = useLoyaltyAccountTypes();
   const accountType = accounts.find(({ _id }) => _id === config?.accountTypeId);
-  const tierName = config?.tier
+  // With amount bands the tier is the purchase's to decide.
+  const tierName = config?.bands?.length
+    ? t('set-tier-mode-amount')
+    : config?.tier
     ? accountType?.tiers?.find(({ key }) => key === config.tier)?.name
     : t('loyalty-tier-none');
 

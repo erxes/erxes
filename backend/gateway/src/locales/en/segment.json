@@ -20,9 +20,9 @@
   "a-segment": "a segment",
   "detail": {
     "automations": "Automations",
-    "automations-title": "Enter and exit automations",
-    "automations-hint": "Flows that start when a record enters or leaves this segment.",
-    "automations-empty": "No automation listens to this segment yet.",
+    "automations-title": "Automations and broadcasts",
+    "automations-hint": "What runs for this segment: flows that start when a record enters or leaves it, and broadcasts sent to its members.",
+    "automations-empty": "Nothing runs for this segment yet.",
     "automations-create": "Create automation",
     "automations-unsupported": "This record type has no automation trigger.",
     "add-condition": "Add condition",
@@ -87,7 +87,10 @@
     "visibility-hint": "Decides who finds this segment in their list. It does not change who can see the records it matches.",
     "visible-to-everyone": "Everyone in the organization",
     "visible-to-me": "Only me",
-    "broadcast-create": "Send nightly broadcast"
+    "broadcast-create": "Send nightly broadcast",
+    "automation-kind": "Automation",
+    "broadcast-kind": "Broadcast",
+    "broadcast-kind-nightly": "Nightly broadcast"
   },
   "filter": {
     "segments": "Segments",
@@ -142,7 +145,10 @@
     "woad": "... day(s) ago",
     "woam": "... minute(s) ago",
     "wobd": "in ... day(s)",
-    "wobm": "in ... minute(s)"
+    "wobm": "in ... minute(s)",
+    "dtm": "is in this month",
+    "dtq": "is in this quarter",
+    "dty": "is in this year"
   },
   "operator-hint": {
     "annago": "Counts back to the last time that day and month came round, in any year.",
@@ -151,7 +157,10 @@
     "woad": "That one day, not everything since.",
     "woam": "That one minute, not everything since.",
     "wobd": "That one day, not everything between now and then.",
-    "wobm": "That one minute, not everything between now and then."
+    "wobm": "That one minute, not everything between now and then.",
+    "dtm": "From the 1st of the current month; moves on by itself each month.",
+    "dtq": "From the first day of the current quarter; moves on by itself.",
+    "dty": "From January 1st of the current year; moves on by itself each year."
   },
   "field": {
     "avatar": "Avatar",

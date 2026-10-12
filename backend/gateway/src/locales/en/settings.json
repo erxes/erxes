@@ -504,6 +504,8 @@
     "untitled-document": "Untitled document",
     "error": "Error"
   },
+  "owner-permissions-title": "The Don of this workspace",
+  "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family.",
   "app-tokens": {
     "_": "App Tokens",
     "app-tokens": "App Tokens",

@@ -11,6 +11,7 @@ import { createDealAction } from '~/modules/sales/meta/automations/action/create
 import { createChecklist } from '~/modules/sales/meta/automations/action/createChecklist';
 import { checkTriggerDealStageChanged } from '~/modules/sales/meta/automations/trigger/checkStageChangedTrigger';
 import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
+import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 
 const getSalesSetPropertyModel = (models: IModels, module: string) => {
   const [, moduleName, collectionName] = module.replace(/\./g, ':').split(':');
@@ -101,8 +102,14 @@ export const salesAutomationHandlers = {
       setPropertyTarget,
       selector,
       fetchItems: async (itemSelector) => await model.find(itemSelector).lean(),
-      update: async ({ selector: itemSelector, modifier }) =>
-        await model.updateMany(itemSelector, modifier),
+      update: async ({ selector: itemSelector, modifier }) => {
+        const before = await model.find(itemSelector).lean();
+        const result = await model.updateMany(itemSelector, modifier);
+
+        await syncWrittenDealPoints({ subdomain, models, before });
+
+        return result;
+      },
       targetType,
     };
 

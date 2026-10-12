@@ -3,11 +3,11 @@ import {
   IDiscordBot,
   IDiscordBotEditInput,
 } from '@/integrations/discord/@types/bot';
+import { DiscordApiError } from '@/integrations/discord/errors/DiscordApiError';
 import {
-  DiscordApiError,
   deleteChannelMessage,
   editChannelMessage,
-} from '@/integrations/discord/utils';
+} from '@/integrations/discord/utils/outbound/actions';
 
 const resolveChannelContext = async (
   models: IModels,
@@ -152,7 +152,10 @@ export const discordMutations = {
 
   discordDeleteMessage: async (
     _root: undefined,
-    { conversationId, messageId }: { conversationId: string; messageId: string },
+    {
+      conversationId,
+      messageId,
+    }: { conversationId: string; messageId: string },
     { models }: IContext,
   ) => {
     const { token, channelId, channelName } = await resolveOwnMessageContext(

@@ -34,6 +34,8 @@ export const types = `
     vendorId: String
     scopeBrandIds: [String]
     uom: String
+    conditionCodes: [String]
+    conditions: [ProductCondition]
     subUoms: JSON
     currency: String
     duration: Float
@@ -163,6 +165,7 @@ export const mutationParams = `
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,
+  conditionCodes: [String],
   subUoms: JSON,
   currency: String
   duration: Float

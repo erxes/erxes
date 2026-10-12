@@ -2,11 +2,16 @@ import { Model, Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { pricingPlanSchema } from '../definitions/pricingPlan';
 import {
+  IPricingConditionRule,
   IPricingPlan,
   IPricingPlanDocument,
   PricingPlanPriority,
 } from '@/pricing/@types/pricingPlan';
-import { PRIORITY_TYPES } from '../definitions/constants';
+import {
+  PRICE_ADJUST_TYPES,
+  PRIORITY_TYPES,
+  RULE_DISCOUNT_TYPES,
+} from '../definitions/constants';
 
 type ParticipantField =
   | 'customerIds'
@@ -57,6 +62,70 @@ const participantFields: ParticipantField[] = [
   'brokerUserSegmentIds',
 ];
 
+// updatePlan writes through the raw collection, so the schema never checks these.
+const cleanConditionRules = (
+  rules: IPricingConditionRule[],
+): IPricingConditionRule[] => {
+  const seen = new Set<string>();
+
+  return rules.map((rule) => {
+    const code = (rule.conditionCode || '').trim();
+    const discountType = rule.discountType || RULE_DISCOUNT_TYPES.DEFAULT;
+    const discountValue = Number(rule.discountValue) || 0;
+    const priceAdjustType = rule.priceAdjustType || PRICE_ADJUST_TYPES.NONE;
+    const priceAdjustFactor = Number(rule.priceAdjustFactor) || 0;
+    const discountBonusProduct = (rule.discountBonusProduct || '').trim();
+
+    if (!code) {
+      throw new Error('Choose a condition for each condition discount');
+    }
+
+    if (seen.has(code)) {
+      throw new Error(`Condition "${code}" has more than one discount`);
+    }
+
+    if (
+      !(RULE_DISCOUNT_TYPES.ALL as readonly string[]).includes(discountType)
+    ) {
+      throw new Error(`Unknown condition discount type "${discountType}"`);
+    }
+
+    if (discountValue < 0) {
+      throw new Error('A condition discount cannot be negative');
+    }
+
+    if (
+      discountType === RULE_DISCOUNT_TYPES.PERCENTAGE &&
+      discountValue > 100
+    ) {
+      throw new Error('A condition discount must be at most 100%');
+    }
+
+    if (discountType === RULE_DISCOUNT_TYPES.BONUS && !discountBonusProduct) {
+      throw new Error(`Choose a bonus product for condition "${code}"`);
+    }
+
+    if (
+      !(PRICE_ADJUST_TYPES.ALL as readonly string[]).includes(priceAdjustType)
+    ) {
+      throw new Error(`Unknown price adjust type "${priceAdjustType}"`);
+    }
+
+    seen.add(code);
+
+    return {
+      conditionCode: code,
+      discountType,
+      discountValue,
+      ...(discountType === RULE_DISCOUNT_TYPES.BONUS
+        ? { discountBonusProduct }
+        : {}),
+      priceAdjustType,
+      priceAdjustFactor,
+    };
+  });
+};
+
 const normalizePlanDoc = (
   doc: Partial<IPricingPlan>,
   options: { defaultPriority?: boolean } = {},
@@ -70,6 +139,9 @@ const normalizePlanDoc = (
   const normalizedDoc: Partial<IPricingPlan> = {
     ...doc,
     ...(priority ? { priority } : {}),
+    ...(doc.conditionRules
+      ? { conditionRules: cleanConditionRules(doc.conditionRules) }
+      : {}),
   };
 
   if (

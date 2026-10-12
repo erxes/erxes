@@ -1,4 +1,8 @@
-import { IVoucherCampaign } from '@/voucher/@types/voucherCampaign';
+import {
+  IVoucherAutoIssue,
+  IVoucherCampaign,
+  TVoucherAutoIssueKind,
+} from '@/voucher/@types/voucherCampaign';
 import { IContext } from '~/connectionResolvers';
 
 export const voucherCampaignMutations = {
@@ -28,6 +32,24 @@ export const voucherCampaignMutations = {
   ) {
     await checkPermission('loyaltyCampaignRemove');
     return models.VoucherCampaigns.removeVoucherCampaigns(_ids);
+  },
+
+  async voucherCampaignSetAutoIssue(
+    _root: undefined,
+    { _id, ...autoIssue }: { _id: string } & IVoucherAutoIssue,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('loyaltyCampaignUpdate');
+    return models.VoucherCampaigns.setVoucherAutoIssue(_id, autoIssue);
+  },
+
+  async voucherCampaignRemoveAutoIssue(
+    _root: undefined,
+    { _id, kind }: { _id: string; kind: TVoucherAutoIssueKind },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('loyaltyCampaignUpdate');
+    return models.VoucherCampaigns.removeVoucherAutoIssue(_id, kind);
   },
 };
 
