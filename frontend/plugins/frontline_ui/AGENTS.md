@@ -2174,8 +2174,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
   core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
   `integrations/discord`, the Facebook and Instagram settings (config,
-  repair, page post), and the Facebook, Instagram and knowledge base
-  automation widgets) writes every
+  repair, page post), the Facebook and Instagram post lookups and the
+  Instagram copy-image query, the Facebook, Instagram and knowledge base
+  automation widgets, the mail automation inbox checklist, and the
+  notification channel widget) writes every
   document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
@@ -2197,6 +2199,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   the type argument on the inbox `CONVERSATION_COUNTS` query until the inbox
   documents are typed. Discord repair sends `discord-messenger` when the route
   has no integration type.
+- `facebookGetPost` and `instagramGetPost` return `attachments` as image URL
+  strings (`[String]`), not attachment objects. `FacebookPostTrigger`,
+  `IgPostTrigger` and `PostMediaCard` drop null entries with `isDefined` and
+  use each string as the image source. The Facebook and Instagram
+  conversation message hooks extend the inbox `IMessage` and subscribe to
+  the inbox `CONVERSATION_MESSAGE_INSERTED`, so they keep their type arguments
+  until the inbox documents are typed.
 - Integration hooks drop null list items with `compactList` and adapt
   `PageInfo` through `@/shared/utils/cursorList`. Query variables follow the
   `id ? { ... } : undefined` plus `skip` pattern; `channelId` is required by

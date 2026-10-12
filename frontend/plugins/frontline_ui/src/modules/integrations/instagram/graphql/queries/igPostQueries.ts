@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_POST = gql`
+export const GET_POST = gql(`
   query InstagramGetPost($erxesApiId: String!) {
     instagramGetPost(erxesApiId: $erxesApiId) {
       _id
@@ -9,16 +9,4 @@ export const GET_POST = gql`
       attachments
     }
   }
-`;
-
-export const GET_COMMENT_COUNT = gql`
-  query InstagramGetCommentCount(
-    $conversationId: String!
-    $isResolved: Boolean
-  ) {
-    instagramGetCommentCount(
-      conversationId: $conversationId
-      isResolved: $isResolved
-    )
-  }
-`;
+`);
