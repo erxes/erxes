@@ -34,6 +34,7 @@ const detailFollowSchema = z
     currencyDiffAccountId: undefed(z.string()),
     moveInBranchId: undefed(z.string()),
     moveInDepartmentId: undefed(z.string()),
+    preDeprecation: undefed(z.number()),
   })
   .passthrough();
 const followSchema = fxaFollowInfosSchema

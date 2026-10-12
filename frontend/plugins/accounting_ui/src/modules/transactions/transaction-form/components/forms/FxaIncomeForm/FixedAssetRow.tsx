@@ -485,7 +485,7 @@ export const FixedAssetRow = ({
               {followInfoIndex >= 0 ? (
                 <Form.Field
                   control={form.control}
-                  name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.preDeprecation`}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
                   render={({ field }) => (
                     <PopoverScoped
                       scope={`trDocs.${journalIndex}.details.${detailIndex}.preDeprecation`}

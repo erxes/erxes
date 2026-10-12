@@ -29,7 +29,7 @@ type TDepreciationInput = {
   startDate: Date;
   endDate: Date;
   scheduleStartDate?: Date;
-  openingAccumulatedDepreciation?: number;
+  preDeprecation?: number;
 };
 
 type TDailyValidationResult = {
@@ -47,7 +47,7 @@ type TFixedAssetLocationDepreciationRow = {
   originalCost: number;
   salvageValue: number;
   openingBookValue: number;
-  openingAccumulatedDepreciation: number;
+  preDeprecation: number;
   closingAccumulatedDepreciation: number;
   closingBookValue: number;
   error: string;
@@ -131,7 +131,7 @@ const calculateDailyDepreciation = ({
     startDate,
     endDate,
     scheduleStartDate = startDate,
-    openingAccumulatedDepreciation = 0,
+    preDeprecation = 0,
   } = input;
   const usefulLife = getUsefulLifeFromAnnualRate(annualDepreciationRate);
   const baseError = getDepreciationBaseError(
@@ -142,8 +142,8 @@ const calculateDailyDepreciation = ({
   if (baseError) {
     return {
       amount: 0,
-      closingAccumulatedDepreciation: openingAccumulatedDepreciation,
-      closingBookValue: originalCost - openingAccumulatedDepreciation,
+      closingAccumulatedDepreciation: preDeprecation,
+      closingBookValue: originalCost - preDeprecation,
       error: baseError,
       warning: '',
     };
@@ -153,7 +153,7 @@ const calculateDailyDepreciation = ({
   let currentDate = getPureDate(startDate);
   const lastDate = getPureDate(endDate);
   let amount = 0;
-  let accumulated = openingAccumulatedDepreciation;
+  let accumulated = preDeprecation;
   let warning = '';
 
   while (currentDate <= lastDate) {
@@ -282,9 +282,9 @@ const calculateDepreciationByMethod = (
       return {
         amount: 0,
         closingAccumulatedDepreciation:
-          input.openingAccumulatedDepreciation || 0,
+          input.preDeprecation || 0,
         closingBookValue:
-          input.originalCost - (input.openingAccumulatedDepreciation || 0),
+          input.originalCost - (input.preDeprecation || 0),
         error: `Unsupported fixed asset depreciation method: ${method}`,
         warning: '',
       };
@@ -536,7 +536,7 @@ const calculateFixedAssetDepreciationByDay = ({
   endDate,
   fixedAsset,
   movements,
-  openingAccumulatedDepreciation,
+  preDeprecation,
   scheduleStartDate,
 }: {
   beginDate: Date;
@@ -544,7 +544,7 @@ const calculateFixedAssetDepreciationByDay = ({
   endDate: Date;
   fixedAsset: IFixedAssetDocument;
   movements: TFixedAssetMovement[];
-  openingAccumulatedDepreciation: number;
+  preDeprecation: number;
   scheduleStartDate: Date;
 }) => {
   const originalCost = fixedAsset.originalCost || 0;
@@ -564,8 +564,8 @@ const calculateFixedAssetDepreciationByDay = ({
   let error = '';
   let perUnitAccumulated =
     openingCount > 0
-      ? openingAccumulatedDepreciation / openingCount
-      : openingAccumulatedDepreciation / Math.max(activeCount, 1);
+      ? preDeprecation / openingCount
+      : preDeprecation / Math.max(activeCount, 1);
 
   while (currentDate <= endDate) {
     const counts = getAssetLocationCountsAtDate(
@@ -587,7 +587,7 @@ const calculateFixedAssetDepreciationByDay = ({
       startDate: currentDate,
       endDate: currentDate,
       scheduleStartDate,
-      openingAccumulatedDepreciation: perUnitAccumulated,
+      preDeprecation: perUnitAccumulated,
     });
     const perUnitDepreciation = dailyResult.amount;
 
@@ -649,7 +649,7 @@ const calculateFixedAssetDepreciationByDay = ({
           : maxPeriodCount;
       const openingAccumulated =
         openingCount > 0
-          ? openingAccumulatedDepreciation *
+          ? preDeprecation *
             (openingLocationCount / openingCount)
           : 0;
       const closingAccumulated = perUnitAccumulated * resultCount;
@@ -662,7 +662,7 @@ const calculateFixedAssetDepreciationByDay = ({
         salvageValue: closingSalvageValue,
         openingBookValue:
           originalCost * openingLocationCount - openingAccumulated,
-        openingAccumulatedDepreciation: openingAccumulated,
+        preDeprecation: openingAccumulated,
         closingAccumulatedDepreciation: closingAccumulated,
         closingBookValue: closingOriginalCost - closingAccumulated,
         error,
@@ -977,7 +977,7 @@ export const runAdjustFixedAsset = async (
       continue;
     }
 
-    const openingAccumulatedDepreciation =
+    const preDeprecation =
       previousFixedAssetDetail?.closingAccumulatedDepreciation || 0;
     const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
     const resultByLocationKey = calculateFixedAssetDepreciationByDay({
@@ -987,7 +987,7 @@ export const runAdjustFixedAsset = async (
       fixedAsset,
       movements,
       scheduleStartDate,
-      openingAccumulatedDepreciation,
+      preDeprecation,
     });
 
     for (const [locationKey, result] of resultByLocationKey) {
@@ -1008,7 +1008,7 @@ export const runAdjustFixedAsset = async (
         originalCost: result.originalCost,
         salvageValue: result.salvageValue,
         openingBookValue: result.openingBookValue,
-        openingAccumulatedDepreciation: result.openingAccumulatedDepreciation,
+        preDeprecation: result.preDeprecation,
         depreciationAmount: result.depreciationAmount,
         bookDepreciationAmount: result.depreciationAmount,
         closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,

@@ -399,6 +399,13 @@ export const fxaIncomeDetailSchema = z
     fixedAssetName: z.string().refine((val) => val?.length, {
       message: 'Must fill fixed asset name',
     }),
+    followInfos: undefed(
+      z
+        .object({
+          preDeprecation: undefed(z.number()),
+        })
+        .passthrough(),
+    ),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });

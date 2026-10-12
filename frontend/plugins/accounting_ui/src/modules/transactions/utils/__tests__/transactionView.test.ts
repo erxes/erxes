@@ -135,6 +135,59 @@ test('tax transaction keeps its journal during initialization', () => {
   ).toBe(TrJournalEnum.TAX);
 });
 
+test('fixed asset income initializes pre-depreciation from detail follow info', () => {
+  const draft = JOURNALS_BY_JOURNAL(
+    TrJournalEnum.FXA_INCOME,
+    transaction(TrJournalEnum.FXA_INCOME, {
+      details: [
+        {
+          _id: 'detail-1',
+          accountId: 'asset-account',
+          amount: 300,
+          fixedAssetCategoryId: 'category-1',
+          fixedAssetCode: 'asset-1',
+          fixedAssetName: 'Asset 1',
+          count: 3,
+          unitPrice: 100,
+          followInfos: { preDeprecation: 20 },
+        },
+      ],
+    }),
+  );
+
+  expect(draft.details[0].followInfos?.preDeprecation).toBe(20);
+});
+
+test('fixed asset income migrates legacy root pre-depreciation into detail state', () => {
+  const draft = JOURNALS_BY_JOURNAL(
+    TrJournalEnum.FXA_INCOME,
+    transaction(TrJournalEnum.FXA_INCOME, {
+      details: [
+        {
+          _id: 'detail-1',
+          accountId: 'asset-account',
+          amount: 300,
+          fixedAssetCategoryId: 'category-1',
+          fixedAssetCode: 'asset-1',
+          fixedAssetName: 'Asset 1',
+          count: 3,
+          unitPrice: 100,
+        },
+      ],
+      followInfos: {
+        fxaIncomeDetails: [
+          { transactionDetailId: 'detail-1', preDeprecation: 20 },
+        ],
+      },
+    }),
+  );
+
+  expect(draft.details[0].followInfos?.preDeprecation).toBe(20);
+  expect(
+    draft.followInfos?.fxaIncomeDetails?.[0].preDeprecation,
+  ).toBeUndefined();
+});
+
 test('legacy inventory splits without hasSplit remain enabled after editing', () => {
   const view = transaction(TrJournalEnum.INV_INCOME, {
     details: [
@@ -165,5 +218,7 @@ test('an explicitly disabled detail split takes precedence over legacy root meta
     ],
   });
   const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.INV_INCOME, view);
-  expect(draft.details[0].followInfos).toEqual({ invSplit: { hasSplit: false } });
+  expect(draft.details[0].followInfos).toEqual({
+    invSplit: { hasSplit: false },
+  });
 });

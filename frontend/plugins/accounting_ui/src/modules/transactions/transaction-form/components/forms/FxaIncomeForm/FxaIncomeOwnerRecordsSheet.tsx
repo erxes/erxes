@@ -37,7 +37,6 @@ type TFxaIncomeDetailFollowInfo = {
   fixedAssetId?: string;
   salvageValue?: number;
   preDeprecation?: number;
-  openingAccumulatedDepreciation?: number;
 };
 
 const getDetailOwnerCount = (owners: TFxaIncomeOwnerRecord[]) =>
@@ -70,10 +69,6 @@ const buildDetailFollowInfos = (
       transactionDetailId: detail._id,
       fixedAssetId: detail.fixedAssetId,
       salvageValue: previousInfo?.salvageValue || 0,
-      preDeprecation:
-        previousInfo?.preDeprecation ||
-        previousInfo?.openingAccumulatedDepreciation ||
-        0,
     };
   });
 };
@@ -273,7 +268,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
               />
               <Form.Field
                 control={form.control}
-                name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.preDeprecation`}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>Өмнөх хур. элэгдэл</Form.Label>

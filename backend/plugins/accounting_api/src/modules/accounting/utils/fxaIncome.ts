@@ -313,11 +313,7 @@ const getIncomeFollowInfosByKey = (
 
   for (const detail of transaction.details || []) {
     const detailId = getDetailId(detail);
-    const preDeprecation = Number(
-      detail.followInfos?.preDeprecation ||
-        detail.followInfos?.openingAccumulatedDepreciation ||
-        0,
-    );
+    const preDeprecation = Number(detail.followInfos?.preDeprecation || 0);
     const salvageValue = detail.followInfos?.salvageValue;
 
     if (preDeprecation <= 0 && salvageValue === undefined) {
@@ -403,9 +399,7 @@ const syncOpeningAccumulatedDepreciation = async ({
         input.transactionDetailId || '',
       );
       const preDeprecation = Number(
-        followInfo?.preDeprecation ??
-          followInfo?.openingAccumulatedDepreciation ??
-          0,
+        detail?.followInfos?.preDeprecation ?? followInfo?.preDeprecation ?? 0,
       );
 
       if (!detail || !fixedAsset?._id || preDeprecation <= 0) {

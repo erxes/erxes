@@ -90,7 +90,7 @@ query accountingAdjustFxaDetails($_id: String!, $page: Int, $perPage: Int, $sort
     originalCost
     salvageValue
     openingBookValue
-    openingAccumulatedDepreciation
+    preDeprecation
     depreciationAmount
     bookDepreciationAmount
     closingAccumulatedDepreciation

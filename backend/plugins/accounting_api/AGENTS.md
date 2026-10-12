@@ -128,6 +128,7 @@
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
 - Fixed asset income transaction detail `followInfos.preDeprecation` stores unit opening accumulated depreciation and drives a paired `fxaDepIn` credit transaction without creating fixed asset adjustment records.
+- Fixed asset income, depreciation calculation inputs, persisted adjustment details, and adjustment GraphQL results use `preDeprecation` as the sole opening accumulated depreciation field name.
 - Fixed asset income transaction detail follow-info owns residual value and `preDeprecation` inputs; `extraData.fxaOwnerRecords` owns only optional responsible-user/serial allocation rows.
 - Fixed asset transaction details store `fixedAssetId` for existing assets and store `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` for acquisition input; income synchronization writes the generated fixed asset id back to the detail.
 - Fixed asset documents store acquisition identity, account, unit cost, original quantity, current quantity cache, category depreciation defaults, acquisition date, depreciation start date, transaction id, and transaction detail id.

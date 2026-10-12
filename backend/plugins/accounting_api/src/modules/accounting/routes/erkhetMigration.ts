@@ -1239,9 +1239,7 @@ const getNumericFollowInfo = (
 };
 
 const getOpeningDepreciationTotal = (detail: ITrDetail) => {
-  const preDeprecation =
-    getNumericFollowInfo(detail, 'preDeprecation') ??
-    getNumericFollowInfo(detail, 'openingAccumulatedDepreciation');
+  const preDeprecation = getNumericFollowInfo(detail, 'preDeprecation');
 
   if (!preDeprecation || preDeprecation <= 0) {
     return 0;

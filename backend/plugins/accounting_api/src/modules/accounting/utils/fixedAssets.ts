@@ -33,7 +33,6 @@ export type TFxaIncomeDetailFollowInfo = Pick<
 > & {
   salvageValue?: number;
   preDeprecation?: number;
-  openingAccumulatedDepreciation?: number;
 };
 
 export type TFxaTransactionExtraData = {

@@ -393,6 +393,10 @@ const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
 };
 
 const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
+  const fxaIncomeDetails = (doc?.followInfos?.fxaIncomeDetails || []).map(
+    ({ preDeprecation, ...detail }) => detail,
+  );
+
   return {
     saleOutAccountId:
       doc?.followInfos?.saleOutAccountId ||
@@ -414,22 +418,36 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
     moveInBranchId: doc?.followInfos?.moveInBranchId ?? '',
     moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
     ownerId: doc?.followInfos?.ownerId || doc?.followInfos?.responsibleUserId,
-    fxaIncomeDetails: doc?.followInfos?.fxaIncomeDetails || [],
+    fxaIncomeDetails,
   };
 };
 
 const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
   doc?.details?.length
-    ? doc?.details.map((det) => ({
-        ...trDetailWrapper(det),
-        fixedAssetId: det.fixedAssetId || '',
-        fixedAssetCategoryId: det.fixedAssetCategoryId || '',
-        fixedAssetCode: det.fixedAssetCode || '',
-        fixedAssetName: det.fixedAssetName || '',
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
+    ? doc?.details.map((det) => {
+        const legacyFollowInfo = (doc.followInfos?.fxaIncomeDetails || []).find(
+          (followInfo) =>
+            followInfo.transactionDetailId === det._id ||
+            followInfo.tempId === det._id,
+        );
+        const preDeprecation =
+          det.followInfos?.preDeprecation ?? legacyFollowInfo?.preDeprecation;
+
+        return {
+          ...trDetailWrapper(det),
+          fixedAssetId: det.fixedAssetId || '',
+          fixedAssetCategoryId: det.fixedAssetCategoryId || '',
+          fixedAssetCode: det.fixedAssetCode || '',
+          fixedAssetName: det.fixedAssetName || '',
+          count: det.count ?? 0,
+          unitPrice: det.unitPrice ?? 0,
+          amount: det.amount ?? 0,
+          followInfos:
+            preDeprecation === undefined
+              ? det.followInfos
+              : { ...det.followInfos, preDeprecation },
+        };
+      })
     : [
         {
           ...trDetailWrapper(),
@@ -512,10 +530,18 @@ const FXA_SALE_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const JOURNALS_BY_JOURNAL = (
+export function JOURNALS_BY_JOURNAL(
+  journal: TrJournalEnum.FXA_INCOME,
+  doc?: Partial<ITransaction>,
+): TFxaIncomeJournal;
+export function JOURNALS_BY_JOURNAL(
   journal: string,
   doc?: Partial<ITransaction>,
-): TTrDoc => {
+): TTrDoc;
+export function JOURNALS_BY_JOURNAL(
+  journal: string,
+  doc?: Partial<ITransaction>,
+): TTrDoc {
   doc ??= {
     details: [] as ITrDetail[],
   } as ITransaction;
@@ -591,4 +617,4 @@ export const JOURNALS_BY_JOURNAL = (
       break;
   }
   return result as TTrDoc;
-};
+}

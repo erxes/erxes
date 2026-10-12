@@ -224,7 +224,15 @@ describe('fixed asset income', () => {
   it('creates opening depreciation from detail follow info', async () => {
     const models = makeModels();
     const transaction = makeIncomeTransaction({
-      followInfos: {},
+      followInfos: {
+        fxaIncomeDetails: [
+          {
+            tempId: 'detail-income',
+            transactionDetailId: 'detail-income',
+            salvageValue: 50,
+          },
+        ],
+      },
       details: [
         {
           _id: 'detail-income',
@@ -1275,6 +1283,7 @@ describe('fixed asset adjustment', () => {
             branchId: 'branch-a',
             departmentId: 'dept-a',
             originalCost: 2400,
+            preDeprecation: expect.any(Number),
             depreciationAmount: expect.any(Number),
           }),
           expect.objectContaining({
@@ -1282,6 +1291,7 @@ describe('fixed asset adjustment', () => {
             branchId: 'branch-b',
             departmentId: 'dept-b',
             originalCost: 2400,
+            preDeprecation: expect.any(Number),
             depreciationAmount: expect.any(Number),
           }),
         ]),
