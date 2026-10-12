@@ -18,6 +18,8 @@ const addEditParamDefs = `
     $isPre: Boolean
     $directDiscount: Float
     $directIsAmount: Boolean
+    $voucherId: String
+    $couponCode: String
 `
 
 const addEditParams = `
@@ -38,6 +40,8 @@ const addEditParams = `
     isPre: $isPre
     directDiscount: $directDiscount
     directIsAmount: $directIsAmount
+    voucherId: $voucherId
+    couponCode: $couponCode
 `
 
 const ordersAdd = gql`

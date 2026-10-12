@@ -1,12 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import {
-  IconArrowsRight,
-  IconCalendar,
-  IconFileDescription,
-  IconLabel,
-  IconListCheck,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconCalendar, IconFileDescription } from '@tabler/icons-react';
 
 import {
   Combobox,
@@ -14,9 +7,7 @@ import {
   Filter,
   useFilterQueryState,
   useMultiQueryState,
-  useQueryState,
 } from 'erxes-ui';
-import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { ScoreHotKeyScope } from '../types/path/ScoreHotKeyScope';
 import { ScoreTotalCount } from './ScoreTotalCount';
 import { useScoreLeadSessionKey } from '../hooks/useScoreLeadSessionKey';
@@ -32,10 +23,6 @@ import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const ScoreFilterPopover = () => {
   const { t } = useTranslation('loyalty');
-  const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
-  const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
-  const [, setPipelineId] = useQueryState<string>('scorePipelineId');
-  const [, setStageId] = useQueryState<string>('scoreStageId');
   const [queries] = useMultiQueryState<{
     scoreOwnerType: string;
     scoreOwnerId: string;
@@ -43,11 +30,7 @@ const ScoreFilterPopover = () => {
     scoreDate: string;
     scoreOrderType: string;
     scoreAction: string;
-    number: string;
     description: string;
-    scoreBoardId: string;
-    scorePipelineId: string;
-    scoreStageId: string;
   }>([
     'scoreOwnerType',
     'scoreOwnerId',
@@ -55,11 +38,7 @@ const ScoreFilterPopover = () => {
     'scoreDate',
     'scoreOrderType',
     'scoreAction',
-    'number',
     'description',
-    'scoreBoardId',
-    'scorePipelineId',
-    'scoreStageId',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -83,22 +62,6 @@ const ScoreFilterPopover = () => {
                 <SelectOwnerType.FilterItem />
                 <SelectOwner.FilterItem queryKey="scoreOwnerId" />
                 <SelectScoreAction.FilterItem />
-                <Filter.Item value="scoreBoardId">
-                  <IconLabel />
-                  {t('board')}
-                </Filter.Item>
-                <Filter.Item value="scorePipelineId">
-                  <IconArrowsRight />
-                  {t('pipeline')}
-                </Filter.Item>
-                <Filter.Item value="scoreStageId">
-                  <IconListCheck />
-                  {t('stage')}
-                </Filter.Item>
-                <Filter.Item value="number" inDialog>
-                  <IconSearch />
-                  {t('number')}
-                </Filter.Item>
                 <Filter.Item value="description" inDialog>
                   <IconFileDescription />
                   {t('description')}
@@ -119,21 +82,6 @@ const ScoreFilterPopover = () => {
           />
           <SelectScoreAction.FilterView />
           <SelectScoreActionTypeFilterView />
-          <SelectBoard.FilterView
-            queryKey="scoreBoardId"
-            onValueChange={() => {
-              setPipelineId(null);
-              setStageId(null);
-            }}
-          />
-          <SelectPipeline.FilterView
-            queryKey="scorePipelineId"
-            boardId={scoreBoardId || undefined}
-          />
-          <SelectStage.FilterView
-            queryKey="scoreStageId"
-            pipelineId={scorePipelineId || undefined}
-          />
           <Filter.View filterKey="scoreDate">
             <Filter.DateView filterKey="scoreDate" />
           </Filter.View>
@@ -152,9 +100,6 @@ const ScoreFilterPopover = () => {
             ownerTypeKey="scoreOwnerType"
           />
         </Filter.View>
-        <Filter.View filterKey="number" inDialog>
-          <Filter.DialogStringView filterKey="number" />
-        </Filter.View>
         <Filter.View filterKey="description" inDialog>
           <Filter.DialogStringView filterKey="description" />
         </Filter.View>
@@ -169,10 +114,7 @@ const ScoreFilterPopover = () => {
 export const ScoreFilter = () => {
   const { t } = useTranslation('loyalty');
   const { sessionKey } = useScoreLeadSessionKey();
-  const [number] = useFilterQueryState<string>('number');
   const [description] = useFilterQueryState<string>('description');
-  const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
-  const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
 
   return (
     <Filter id="score-filter" sessionKey={sessionKey}>
@@ -183,24 +125,6 @@ export const ScoreFilter = () => {
           queryKey="scoreOwnerId"
           ownerTypeKey="scoreOwnerType"
         />
-        <SelectBoard.FilterBar queryKey="scoreBoardId" />
-        <SelectPipeline.FilterBar
-          queryKey="scorePipelineId"
-          boardId={scoreBoardId || undefined}
-        />
-        <SelectStage.FilterBar
-          queryKey="scoreStageId"
-          pipelineId={scorePipelineId || undefined}
-        />
-        <Filter.BarItem queryKey="number">
-          <Filter.BarName>
-            <IconSearch />
-            {t('number')}
-          </Filter.BarName>
-          <Filter.BarButton filterKey="number" inDialog>
-            {number}
-          </Filter.BarButton>
-        </Filter.BarItem>
         <Filter.BarItem queryKey="description">
           <Filter.BarName>
             <IconFileDescription />

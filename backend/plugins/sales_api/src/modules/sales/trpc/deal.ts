@@ -15,6 +15,7 @@ import {
   generateProducts,
 } from '~/modules/sales/utils';
 import { replaceDealContent } from '~/modules/sales/documents/dealContent';
+import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -41,8 +42,17 @@ const publishDealSubscription = t.procedure
 const createDealProcedure = t.procedure
   .input(z.any())
   .mutation(async ({ ctx, input }) => {
-    const { models } = ctx;
-    return await models.Deals.createDeal(input);
+    const { models, subdomain } = ctx;
+    const deal = await models.Deals.createDeal(input);
+
+    await syncWrittenDealPoints({
+      subdomain,
+      models,
+      dealIds: [deal._id],
+      userId: input?.userId,
+    });
+
+    return deal;
   });
 
 const updateDealProcedure = t.procedure
@@ -60,9 +70,20 @@ const updateDealProcedure = t.procedure
         ? modifier
         : { $set: modifier };
 
-    return await models.Deals.findOneAndUpdate(selector, updateDoc, {
+    const before = await models.Deals.findOne(selector).lean();
+    const updated = await models.Deals.findOneAndUpdate(selector, updateDoc, {
       new: true,
     });
+
+    if (before) {
+      await syncWrittenDealPoints({
+        subdomain: ctx.subdomain,
+        models,
+        before: [before],
+      });
+    }
+
+    return updated;
   });
 
 export const dealTrpcRouter = t.router({

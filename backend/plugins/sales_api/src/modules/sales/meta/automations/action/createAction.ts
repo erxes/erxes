@@ -5,6 +5,7 @@ import {
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { itemsAdd } from '~/modules/sales/utils';
+import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 
 export const actionCreate = async ({
   models,
@@ -158,6 +159,14 @@ export const actionCreate = async ({
       },
     });
   }
+
+  // After the relation: the customer it links is who earns.
+  await syncWrittenDealPoints({
+    subdomain,
+    models,
+    dealIds: [item._id],
+    userId: item.userId,
+  });
 
   return {
     name: item.name,

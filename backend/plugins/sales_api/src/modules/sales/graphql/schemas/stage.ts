@@ -1,4 +1,21 @@
 export const types = `
+  type SalesStageLoyaltyEarn {
+    campaignId: String
+    ruleId: String
+    ruleType: String
+  }
+
+  type SalesStageLoyaltyTier {
+    accountTypeId: String
+    ruleId: String
+    ruleType: String
+  }
+
+  type SalesStageLoyaltyPoints {
+    earns: [SalesStageLoyaltyEarn]
+    refunds: Boolean
+    tier: SalesStageLoyaltyTier
+  }
 
   type SalesStage @key(fields: "_id") {
     _id: String!
@@ -24,6 +41,7 @@ export const types = `
     age: Int
     defaultTick: Boolean
     refundPoints: Boolean
+    loyaltyPoints: SalesStageLoyaltyPoints
     order: Int
     createdAt: Date
     type: String

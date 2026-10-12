@@ -1,9 +1,5 @@
-import {
-  logicSchema,
-  propertyGroupSchema,
-  propertySchema,
-} from '@/properties/propertySchema';
 import { z } from 'zod';
+import { logicSchema } from 'ui-modules';
 
 export interface IPropertyType {
   contentType: string;
@@ -14,9 +10,6 @@ export enum PropertiesHotkeyScope {
   MainPage = 'properties-page',
   AddPropertiesDropdown = 'add-properties-dropdown',
 }
-
-export type IPropertyGroupForm = z.infer<typeof propertyGroupSchema>;
-export type IPropertyForm = z.infer<typeof propertySchema>;
 
 export interface IFieldGroup {
   _id: string;
