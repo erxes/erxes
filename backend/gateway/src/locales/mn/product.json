@@ -122,7 +122,9 @@
     "productUpdated": "Бүтээгдэхүүн амжилттай шинэчлэгдлээ",
     "validationErrorTitle": "Баталгаажуулалтын алдаа",
     "validationErrorDescription": "Талбаруудыг шалгана уу",
-    "unknownError": "Тодорхойгүй алдаа гарлаа"
+    "unknownError": "Тодорхойгүй алдаа гарлаа",
+    "none": "Байхгүй",
+    "conditions": "Нөхцлүүд"
   },
   "general-config-form": {
     "general-settings": "Ерөнхий тохиргоо",
@@ -288,5 +290,27 @@
     "similarity-saved": "Ижил төстэй хадгалагдлаа",
     "similarity-removed": "Ижил төстэй устгагдлаа",
     "check-required-fields": "Шаардлагатай талбаруудыг бөглөнө үү"
-  }
+  },
+  "conditions": "Нөхцлүүд",
+  "add-condition": "Нөхцөл нэмэх",
+  "edit-condition": "Нөхцөл засах",
+  "condition": "Нөхцөл",
+  "choose-condition": "Нөхцөл сонгох",
+  "condition-code": "Жишээ нь: DENTED",
+  "condition-name": "Жишээ нь: Хонхорхойтой",
+  "condition-code-change-title": "Бараанууд хуучин code-оо хадгална",
+  "condition-code-change-description": "{{count}} бараа болон pricing-ийн хөнгөлөлтүүд \"{{code}}\"-г ашиглаж байна. Шинэ code-оор оноох эсвэл буцааж солих хүртэл энэ нөхцөлтэй таарахаа болино.",
+  "condition-saved": "Хадгалагдлаа",
+  "condition-remove-confirm": "Бараанууд code-оо хадгална, ижил code-той нөхцөл дахин үүсгэвэл нөхцөл нь буцаж ирнэ. Устгах уу?",
+  "condition-removed": "Устгагдлаа",
+  "no-conditions": "Нөхцөл алга",
+  "conditions-hint": "Бараа ямар байдалтай зарагдаж болох, жишээ нь Хонхорхойтой, Үзүүлэнгийн.",
+  "condition-mode-add": "Нэмэх",
+  "condition-mode-remove": "Хасах",
+  "condition-added-to": "{{count}} бараанд нөхцөл нэмэгдлээ",
+  "condition-removed-from": "{{count}} бараанаас нөхцөл хасагдлаа",
+  "category-conditions": "Нөхцлүүд",
+  "category-conditions-description": "Энэ ангилал болон дэд ангиллын бүх бараа одоо өөрчлөгдөнө. Дараа нэмэгдэх бараа өөрчлөгдөхгүй.",
+  "create-condition": "Нөхцөл үүсгэх",
+  "create": "Үүсгэх"
 }

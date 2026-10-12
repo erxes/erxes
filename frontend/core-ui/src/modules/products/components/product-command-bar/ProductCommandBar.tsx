@@ -27,6 +27,10 @@ import {
   ProductsChangeCategoryContent,
   ProductsChangeCategoryTrigger,
 } from './ProductsChangeCategory';
+import {
+  ProductsSetConditionsContent,
+  ProductsSetConditionsTrigger,
+} from './ProductsSetConditions';
 
 const updateProductsTagCache = (
   cache: ApolloCache<unknown>,
@@ -150,6 +154,11 @@ export const ProductCommandBar = () => {
                         setCurrentContent={setCurrentContent}
                       />
                     </Can>
+                    <Can action="productsUpdate">
+                      <ProductsSetConditionsTrigger
+                        setCurrentContent={setCurrentContent}
+                      />
+                    </Can>
                     <ProductMergeTrigger
                       productCount={selectedRows.length}
                       onOpen={() => {
@@ -213,6 +222,12 @@ export const ProductCommandBar = () => {
               >
                 <TagsSelect.Content />
               </TagsSelect.Provider>
+            )}
+            {currentContent === 'conditions' && (
+              <ProductsSetConditionsContent
+                productIds={productIds}
+                setOpen={closeActionsPopover}
+              />
             )}
             {currentContent === 'category' && (
               <ProductsChangeCategoryContent

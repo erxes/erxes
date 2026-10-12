@@ -1,10 +1,9 @@
 import { Sheet, useConfirm } from 'erxes-ui';
-import { PropertyGroupForm } from './PropertyGroupForm';
 import { useFieldGroupEdit } from '../hooks/useFieldGroupEdit';
 import { activePropertyState } from '../states/activePropertyState';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { IPropertyGroupForm } from '../types/Properties';
+import { IPropertyGroupForm, PropertyGroupForm } from 'ui-modules';
 
 export const PropertyGroupEditSheet = () => {
   const [activePropertyGroup, setActivePropertyGroup] =
@@ -62,6 +61,7 @@ export const PropertyGroupEditSheet = () => {
             onCancel={() => setActivePropertyGroup(null)}
             locked={!!activePropertyGroup.owner}
             isEdit
+            contentType={activePropertyGroup.contentType}
           />
         )}
       </Sheet.View>

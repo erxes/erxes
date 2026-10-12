@@ -31,6 +31,12 @@ import {
 } from '@/sales/graphql/schemas/label';
 
 import {
+  mutations as LoyaltyRuleMutations,
+  queries as LoyaltyRuleQueries,
+  types as LoyaltyRuleTypes,
+} from '@/sales/graphql/schemas/loyaltyRule';
+
+import {
   mutations as ChecklistMutations,
   queries as ChecklistQueries,
   types as ChecklistTypes,
@@ -100,6 +106,7 @@ export const types = `
   ${StageTypes}
   ${DealTypes}
   ${LabelTypes}
+  ${LoyaltyRuleTypes}
   ${ChecklistTypes}
   ${extendTypes}
   ${posTypes()},
@@ -117,6 +124,7 @@ export const queries = `
   ${StageQueries}
   ${DealQueries}
   ${LabelQueries}
+  ${LoyaltyRuleQueries}
   ${ChecklistQueries}
   ${posQueries}
   ${posOrderQueries}
@@ -134,6 +142,7 @@ export const mutations = `
    ${StageMutations}
    ${DealMutations}
    ${LabelMutations}
+   ${LoyaltyRuleMutations}
    ${ChecklistMutations}
    ${posMutations}
    ${posOrderMutations}

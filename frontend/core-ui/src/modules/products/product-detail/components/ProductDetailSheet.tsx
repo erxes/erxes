@@ -109,7 +109,12 @@ export const ProductDetailSheet = () => {
         }))
       : data.subUoms;
 
-    return { ...data, attachment, attachmentMore, subUoms };
+    return {
+      ...data,
+      attachment,
+      attachmentMore,
+      subUoms,
+    };
   };
 
   const handleSave = (data: ProductFormValues) => {

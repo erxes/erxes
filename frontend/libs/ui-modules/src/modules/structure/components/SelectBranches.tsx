@@ -217,10 +217,15 @@ export const SelectBranchesItem = ({
       selected={isSelected}
       onSelect={() => onSelect(branch)}
     >
-      <TextOverflowTooltip
-        value={branch.title}
-        className="flex-auto w-auto font-medium"
-      />
+      <div className="flex overflow-hidden flex-auto gap-2 items-center">
+        {branch.code && (
+          <span className="text-muted-foreground">{branch.code}</span>
+        )}
+        <TextOverflowTooltip
+          value={branch.title}
+          className="flex-auto w-auto font-medium"
+        />
+      </div>
     </SelectTree.Item>
   );
 };

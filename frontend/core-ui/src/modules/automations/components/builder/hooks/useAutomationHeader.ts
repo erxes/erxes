@@ -20,8 +20,17 @@ import { Node, useReactFlow } from '@xyflow/react';
 import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
-import { useLocation, useNavigate, useParams } from 'react-router';
-import { currentUserState } from 'ui-modules';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router';
+import {
+  automationReturnLinkSearch,
+  currentUserState,
+  parseAutomationReturnLink,
+} from 'ui-modules';
 
 export const useAutomationHeader = () => {
   const {
@@ -42,6 +51,7 @@ export const useAutomationHeader = () => {
 
   const { getNode } = useReactFlow();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
 
   const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler();
 
@@ -107,7 +117,11 @@ export const useAutomationHeader = () => {
           variant: 'success',
         });
         if (!id && automationsAdd) {
-          navigate(`/automations/edit/${automationsAdd._id}`);
+          // The way back the seed link offered must outlive the seed.
+          const returnSearch = automationReturnLinkSearch(
+            parseAutomationReturnLink(searchParams),
+          );
+          navigate(`/automations/edit/${automationsAdd._id}${returnSearch}`);
         }
       },
     });

@@ -144,6 +144,8 @@ export const ErxesFormValues = ({
       defaultValues[field._id] = null;
     } else if (field.type === 'check') {
       defaultValues[field._id] = [];
+    } else {
+      defaultValues[field._id] = '';
     }
   });
 

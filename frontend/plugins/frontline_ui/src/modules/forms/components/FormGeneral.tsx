@@ -7,7 +7,14 @@ import {
   FORM_GENERAL_SCHEMA,
 } from '../constants/formSchema';
 import { FormMutateLayout } from './FormMutateLayout';
-import { ColorPicker, Form, Input, Textarea, ToggleGroup } from 'erxes-ui';
+import {
+  ColorPicker,
+  Form,
+  Input,
+  Switch,
+  Textarea,
+  ToggleGroup,
+} from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useParams } from 'react-router';
@@ -28,6 +35,7 @@ export const FormGeneral = () => {
       description: '',
       channelId: id ?? '',
       buttonText: 'Submit',
+      saveAsCustomer: false,
     },
   });
 
@@ -143,6 +151,31 @@ export const FormGeneral = () => {
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="saveAsCustomer"
+          render={({ field }) => (
+            <Form.Item>
+              <div className="flex items-center gap-2">
+                <Form.Control>
+                  <Switch
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Label variant="peer">
+                  {t('save-as-customer', 'Save as customer')}
+                </Form.Label>
+              </div>
+              <Form.Description>
+                {t(
+                  'save-as-customer-description',
+                  'Forcibly turn lead to customer.',
+                )}
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}

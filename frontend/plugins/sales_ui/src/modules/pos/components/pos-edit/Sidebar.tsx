@@ -1,16 +1,27 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { getSteps } from '@/pos/constants';
+import { getSteps, POS_RELATION_TAB_PREFIX } from '@/pos/constants';
+import {
+  relationSettingsModuleKey,
+  useRelationSettingsModules,
+} from 'ui-modules';
 
 interface PosEditSidebarProps {
   posType?: string;
   activeTab: string;
+  // Other plugins' tabs need a saved POS to work on.
+  posId?: string;
 }
 
-export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
+export const PosEditSidebar = ({
+  posType,
+  activeTab,
+  posId,
+}: PosEditSidebarProps) => {
   const { t } = useTranslation('sales');
   const steps = getSteps();
+  const relationModules = useRelationSettingsModules();
 
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
@@ -26,6 +37,22 @@ export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
                 {t(step.title)}
               </PosEditSidebarItem>
             ))}
+            {posId &&
+              relationModules.map((module) => {
+                const tab = `${POS_RELATION_TAB_PREFIX}${relationSettingsModuleKey(
+                  module,
+                )}`;
+
+                return (
+                  <PosEditSidebarItem
+                    key={tab}
+                    to={tab}
+                    isActive={activeTab === tab}
+                  >
+                    {module.label || module.name}
+                  </PosEditSidebarItem>
+                );
+              })}
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>

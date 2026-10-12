@@ -3,6 +3,7 @@ import { configQueries } from './config';
 import { packageQueries } from './package';
 import { productQueries as productMainQueries } from './product';
 import { productRuleQueries } from './rule';
+import { productConditionQueries } from './condition';
 import { productSimilarityQueries } from './similarity';
 import { uomQueries } from './uoms';
 
@@ -12,6 +13,7 @@ export const productQueries = {
   ...uomQueries,
   ...productMainQueries,
   ...productRuleQueries,
+  ...productConditionQueries,
   ...productSimilarityQueries,
   ...packageQueries,
 };
