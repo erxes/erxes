@@ -65,7 +65,10 @@ export function useChecklistsAdd(
 ) {
   const contentTypeId = useDealContentTypeId(options?.variables?.contentTypeId);
 
-  const [checklistsAdd, { loading, error }] = useMutation(ADD_CHECKLISTS, {
+  const [checklistsAdd, { loading, error }] = useMutation<
+    ChecklistAddResult,
+    ChecklistVariables
+  >(ADD_CHECKLISTS, {
     ...options,
     variables: {
       ...options?.variables,

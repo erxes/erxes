@@ -35,6 +35,8 @@ interface Props extends Omit<SortableItemProps, 'index'> {
     probability: string;
   };
   control: Control<TPipelineStageForm>;
+  autoFocusName?: boolean;
+  onNameFocus?: () => void;
   onRemoveStage: () => void;
 }
 
@@ -68,6 +70,8 @@ export const PipelineStageItem = (props: Props) => {
     index,
     stage,
     control,
+    autoFocusName,
+    onNameFocus,
     onRemoveStage,
   } = props;
 
@@ -152,6 +156,8 @@ export const PipelineStageItem = (props: Props) => {
                       <Input
                         {...field}
                         type="text"
+                        autoFocus={autoFocusName && !dragOverlay}
+                        onFocus={onNameFocus}
                         placeholder={t('enter-stage-name')}
                       />
                     </Form.Control>

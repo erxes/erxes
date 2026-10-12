@@ -10,7 +10,7 @@ import type { SortableItemProps } from '@/deals/components/common/Item';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray } from 'react-hook-form';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type PipelineStageRenderItemProps = Parameters<
@@ -25,6 +25,7 @@ type Props = {
 export const PipelineStages = ({ form, stagesLoading }: Props) => {
   const { t } = useTranslation('sales');
   const { control } = form;
+  const [newStageId, setNewStageId] = useState<string>();
 
   const { fields, append, remove, move } = useFieldArray({
     control,
@@ -36,16 +37,22 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
   if (stagesLoading) return <Spinner />;
 
   const onStageAdd = () => {
-    append({
-      _id: Math.random().toString(),
-      name: '',
-      visibility: 'public',
-      probability: '10%',
-      status: 'active',
-      memberIds: [],
-      departmentIds: [],
-      defaultTick: true,
-    });
+    const stageId = Math.random().toString();
+    setNewStageId(stageId);
+    // Sortable mounts the new row after the field array's focus effect.
+    append(
+      {
+        _id: stageId,
+        name: '',
+        visibility: 'public',
+        probability: '10%',
+        status: 'active',
+        memberIds: [],
+        departmentIds: [],
+        defaultTick: true,
+      },
+      { shouldFocus: false },
+    );
   };
 
   return (
@@ -100,6 +107,8 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
                   index={stageIndex}
                   control={control}
                   stage={fields[stageIndex]}
+                  autoFocusName={fields[stageIndex]._id === newStageId}
+                  onNameFocus={() => setNewStageId(undefined)}
                   onRemoveStage={() => remove(stageIndex)}
                 />
               );

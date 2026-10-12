@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { Editor, Separator } from 'erxes-ui';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import {
@@ -20,6 +20,7 @@ import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { ChecklistOverview } from './checklist/ChecklistOverview';
+import { Checklists } from './checklist/Checklists';
 import {
   areIdListsEqual,
   rejectOnMutationError,
@@ -61,6 +62,7 @@ const areBrokerSelectionsEqual = (
 
 export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+  const [newChecklistId, setNewChecklistId] = useState<string>();
   const descriptionRef = useRef<string | undefined>(undefined);
   const lastSavedDescriptionRef = useRef<string | undefined>(deal.description);
 
@@ -247,13 +249,18 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         )}
         <DealsActions deals={[deal]} variant="inline" />
-        <ChecklistOverview />
+        <ChecklistOverview onCreated={setNewChecklistId} />
       </div>
       <div className="flex">
         <AttachmentUploader />
       </div>
       <Attachments />
       <Separator className="mt-4" />
+      <Checklists
+        dealId={_id}
+        stageId={deal.stageId}
+        newChecklistId={newChecklistId}
+      />
       <div
         className="min-h-56 overflow-y-auto"
         onBlur={(e) => {
