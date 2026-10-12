@@ -88,39 +88,58 @@ const getAnchorDate = (value: NormalizedValue) => {
 const defaultFormatMultiple = (count: number) =>
   `${count} ${count > 1 ? 'Days' : 'Day'}`;
 
-const formatDateMask = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 8);
+const DATE_SEGMENT_LENGTHS = [4, 2, 2];
+const DATE_SEPARATOR = /[-./]/;
+const LOOSE_INPUT_FORMATS = [
+  DEFAULT_FORMAT,
+  'YYYY-M-D',
+  'YYYY-MM-D',
+  'YYYY-M-DD',
+];
 
-  if (digits.length <= 4) {
-    return digits;
+const splitDateSegments = (value: string) => {
+  const segments = [''];
+
+  for (const char of value) {
+    const index = segments.length - 1;
+    const isLastSegment = index === DATE_SEGMENT_LENGTHS.length - 1;
+
+    if (DATE_SEPARATOR.test(char)) {
+      if (segments[index] && !isLastSegment) segments.push('');
+    } else if (/\d/.test(char)) {
+      if (segments[index].length < DATE_SEGMENT_LENGTHS[index]) {
+        segments[index] += char;
+      } else if (!isLastSegment) {
+        segments.push(char);
+      }
+    }
   }
 
-  const year = digits.slice(0, 4);
-  const month = digits.slice(4, 6);
+  return segments;
+};
+
+const formatDateMask = (value: string) => {
+  const [year, month, day] = splitDateSegments(value);
 
   const normalizedMonth =
-    month.length === 2
+    month?.length === 2
       ? String(Math.min(Number(month), 12)).padStart(2, '0')
       : month;
 
-  if (digits.length <= 6) {
-    return `${year}-${normalizedMonth}`;
-  }
-
-  const day = digits.slice(6, 8);
-
   const maxDay = dayjs(
-    `${year}-${normalizedMonth}-01`,
-    'YYYY-MM-DD',
+    `${year}-${normalizedMonth?.padStart(2, '0')}-01`,
+    DEFAULT_FORMAT,
     true,
   ).daysInMonth();
 
   const normalizedDay =
-    day.length === 2
+    day?.length === 2 && maxDay
       ? String(Math.min(Number(day), maxDay)).padStart(2, '0')
       : day;
 
-  return `${year}-${normalizedMonth}-${normalizedDay}`;
+  return [year, normalizedMonth, normalizedDay]
+    .filter((segment) => segment !== undefined)
+    .join('-');
 };
 
 const isWithinBounds = (date: dayjs.Dayjs, minBound?: Date, maxBound?: Date) =>
@@ -155,9 +174,12 @@ const getCalendarDisabled = (
   ...(maxBound ? [{ after: maxBound }] : []),
 ];
 
+const getInputFormats = (format: string) =>
+  format === DEFAULT_FORMAT ? LOOSE_INPUT_FORMATS : [format];
+
 const parseInputDate = (
   text: string,
-  format: string,
+  format: string | string[],
   minBound?: Date,
   maxBound?: Date,
 ) => {
@@ -230,13 +252,30 @@ export const DatePicker = ({
     }
   };
 
+  const parseTypedDate = () => {
+    if (mode !== 'single' || !inputValue) return undefined;
+    const parsedDate = parseInputDate(
+      inputValue,
+      getInputFormats(format),
+      minBound,
+      maxBound,
+    );
+    return parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled)
+      ? parsedDate
+      : undefined;
+  };
+
+  const commitTypedDate = (date: Date) => {
+    setInputValue(dayjs(date).format(format));
+    if (date.getTime() !== singleTime) onChange(date);
+  };
+
   const handleInputBlur = () => {
     setIsFocused(false);
-    const parsedDate = dayjs(inputValue, format, true);
-    if (
-      !isWithinBounds(parsedDate, minBound, maxBound) ||
-      dateMatchModifiers(parsedDate.toDate(), calendarDisabled)
-    ) {
+    const parsedDate = parseTypedDate();
+    if (parsedDate) {
+      commitTypedDate(parsedDate);
+    } else {
       setInputValue(formatSingle());
     }
   };
@@ -273,6 +312,11 @@ export const DatePicker = ({
     if (!opensPopover && e.key !== 'Enter') return;
     e.preventDefault();
     e.stopPropagation();
+    const typedDate = e.key === 'Enter' ? parseTypedDate() : undefined;
+    if (typedDate && typedDate.getTime() !== singleTime) {
+      commitTypedDate(typedDate);
+      return;
+    }
     if (opensPopover) setIsOpen(true);
   };
 

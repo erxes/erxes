@@ -164,13 +164,13 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             }
             placeholder={t('assigned-to')}
           />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <SelectDealPriority
             dealId={_id}
             value={priority || ''}
             variant="detail"
           />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
           {optimisticBroker.value.type === 'customer' && (
             <DealCustomerChip
               value={optimisticBroker.value.id}
