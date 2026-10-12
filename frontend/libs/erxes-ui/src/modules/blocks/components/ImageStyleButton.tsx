@@ -10,7 +10,6 @@ import {
   IconPhoto,
 } from '@tabler/icons-react';
 import { IMAGE_STYLE_PRESETS, ImageStyle } from './CustomImageBlock';
-import { cn } from 'erxes-ui/lib';
 import type { IBlockEditor } from '../types';
 
 const IMAGE_STYLE_OPTIONS: Array<{
@@ -70,10 +69,7 @@ export const ImageStyleButton = () => {
         {IMAGE_STYLE_OPTIONS.map(({ value, label, Icon }) => (
           <Components.Generic.Menu.Item
             key={value}
-            className={cn(
-              'focus:bg-primary/15! focus:text-primary! hover:bg-primary/15! hover:text-primary!',
-              currentStyle === value && 'bg-primary/10! text-primary!',
-            )}
+            checked={currentStyle === value}
             onClick={() => handleStyleChange(value)}
           >
             <div className="flex items-center gap-2 w-full">

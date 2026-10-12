@@ -44,6 +44,29 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
   },
   styleSpecs: {
     ...defaultStyleSpecs,
+    code: {
+      ...defaultStyleSpecs.code,
+      implementation: {
+        ...defaultStyleSpecs.code.implementation,
+        // Keep formatting saved underneath code so toggling it off restores it.
+        mark: defaultStyleSpecs.code.implementation.mark
+          .extend({
+            excludes: '',
+            priority: 1000,
+          })
+          .configure({
+            HTMLAttributes: {
+              class: [
+                'font-mono! font-normal! not-italic! no-underline!',
+                'text-(--color-foreground)! bg-(--color-muted)!',
+                '[&_*]:font-mono! [&_*]:font-normal!',
+                '[&_*]:not-italic! [&_*]:no-underline!',
+                '[&_*]:text-inherit! [&_*]:bg-transparent!',
+              ].join(' '),
+            },
+          }),
+      },
+    },
     fontFamily,
   },
 });

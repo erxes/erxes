@@ -1,0 +1,48 @@
+import { useComponentsContext } from '@blocknote/react';
+import type { ComponentProps } from '@blocknote/react';
+import { IconChevronDown } from '@tabler/icons-react';
+
+export const ToolbarSelect = ({
+  items,
+  className,
+  isDisabled,
+}: ComponentProps['FormattingToolbar']['Select']) => {
+  const Components = useComponentsContext();
+  const selectedItem = items.find((item) => item.isSelected);
+
+  if (!Components || !selectedItem) {
+    return null;
+  }
+
+  return (
+    <Components.Generic.Menu.Root>
+      <Components.Generic.Menu.Trigger>
+        <Components.FormattingToolbar.Button
+          label={selectedItem.text}
+          mainTooltip={selectedItem.text}
+          icon={selectedItem.icon}
+          isDisabled={isDisabled}
+          className="bn-button gap-1"
+        >
+          {selectedItem.text}
+          <IconChevronDown size={14} />
+        </Components.FormattingToolbar.Button>
+      </Components.Generic.Menu.Trigger>
+      <Components.Generic.Menu.Dropdown className={className}>
+        {items.map((item) => (
+          <Components.Generic.Menu.Item
+            key={item.text}
+            icon={item.icon}
+            checked={item.isSelected}
+            className={
+              item.isDisabled ? 'pointer-events-none opacity-50' : undefined
+            }
+            onClick={item.isDisabled ? undefined : item.onClick}
+          >
+            {item.text}
+          </Components.Generic.Menu.Item>
+        ))}
+      </Components.Generic.Menu.Dropdown>
+    </Components.Generic.Menu.Root>
+  );
+};

@@ -8,7 +8,7 @@ import {
 import { filterSuggestionItems } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/shadcn';
 
-import { Button, Tooltip } from 'erxes-ui/components';
+import { Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { IconPhoto } from '@tabler/icons-react';
@@ -20,10 +20,10 @@ import { Toolbar } from './Toolbar';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 import { ToolbarToggle } from './ToolbarToggle';
-import { FORMATTING_TOOLBAR_STATES } from '../constant/toolbarStyles';
+import { ToolbarButton } from './ToolbarButton';
 
 const editorUIComponents = {
-  Button: { Button },
+  Button: { Button: ToolbarButton },
   Toggle: { Toggle: ToolbarToggle },
   Tooltip: {
     Tooltip,
@@ -162,7 +162,6 @@ export const BlockEditor = ({
       }}
       className={cn(
         'erxes-blocknote',
-        FORMATTING_TOOLBAR_STATES,
         'transition-shadow',
         variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,

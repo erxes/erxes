@@ -5,7 +5,6 @@ import {
 } from '@blocknote/react';
 import { useState } from 'react';
 import { IconTypography } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
 
 interface FontStyles {
   fontFamily?: string;
@@ -94,6 +93,7 @@ export const FontFamilyButton = () => {
     <Components.Generic.Menu.Root>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
+          data-test="fontFamily"
           className="bn-button"
           label="Font"
           mainTooltip="Font Family"
@@ -105,10 +105,6 @@ export const FontFamilyButton = () => {
           <Components.Generic.Menu.Item
             key={font.value || 'default'}
             checked={currentFont === font.value}
-            className={cn(
-              'focus:bg-primary/15! focus:text-primary! hover:bg-primary/15! hover:text-primary!',
-              currentFont === font.value && 'bg-primary/10! text-primary!',
-            )}
             onClick={() => handleFontChange(font.value)}
           >
             <div
