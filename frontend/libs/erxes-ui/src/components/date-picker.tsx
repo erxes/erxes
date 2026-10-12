@@ -37,6 +37,7 @@ export type DatePickerProps = {
   clearLabel?: string;
   calendarClassName?: string;
   popoverContentProps?: React.ComponentPropsWithoutRef<typeof Popover.Content>;
+  inline?: boolean;
 } & Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'>;
 
 const DEFAULT_FORMAT = 'YYYY-MM-DD';
@@ -127,8 +128,6 @@ const isWithinBounds = (date: dayjs.Dayjs, minBound?: Date, maxBound?: Date) =>
   !(minBound && date.isBefore(dayjs(minBound), 'day')) &&
   !(maxBound && date.isAfter(dayjs(maxBound), 'day'));
 
-// Only the default format is masked; other formats (e.g. `MMM D, YYYY`) vary
-// in length, so their text is left as typed and validated by strict parsing.
 const maskInputText = (rawValue: string, format: string) =>
   format === DEFAULT_FORMAT ? formatDateMask(rawValue) : rawValue;
 
@@ -187,6 +186,7 @@ export const DatePicker = ({
   clearLabel = 'Clear',
   calendarClassName,
   popoverContentProps,
+  inline = false,
   defaultMonth,
   ...props
 }: DatePickerProps) => {
@@ -245,7 +245,6 @@ export const DatePicker = ({
     selectedDate: Date | Date[] | DateRange | undefined,
   ) => {
     if (!selectedDate) return;
-    // A range stays open until both ends are picked.
     if (mode !== 'range' || (selectedDate as DateRange).to) {
       setIsOpen(false);
     }
@@ -262,7 +261,6 @@ export const DatePicker = ({
   const isDisabled = disabled === true;
   const showDisplayValue = !isFocused && Boolean(singleDate);
   const inputText = showDisplayValue ? formatSingle(displayFormat) : inputValue;
-  // Follows the visible text, so the icon switches back as soon as it is empty.
   const canClear = clearable && !isDisabled && Boolean(inputText);
 
   const handleOpenChange = (open: boolean) => {
@@ -270,55 +268,95 @@ export const DatePicker = ({
     setIsOpen(open);
   };
 
+  const singleInput = (
+    <div
+      aria-disabled={isDisabled}
+      className={cn(
+        'flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+        isDisabled && 'cursor-not-allowed opacity-50',
+        className,
+      )}
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        value={inputText}
+        onChange={handleInputChange}
+        placeholder={placeholder}
+        disabled={isDisabled}
+        onFocus={() => setIsFocused(true)}
+        onBlur={handleInputBlur}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || (!inline && e.key === ' ')) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!inline) setIsOpen(true);
+          }
+        }}
+        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed"
+      />
+      {canClear ? (
+        <button
+          type="button"
+          aria-label={clearLabel}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleClear();
+          }}
+          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <IconX className="size-4" />
+        </button>
+      ) : (
+        <IconCalendar className="size-4 shrink-0 text-muted-foreground" />
+      )}
+    </div>
+  );
+
+  const calendar = (
+    <>
+      <Calendar
+        {...({
+          ...props,
+          disabled: calendarDisabled,
+          mode,
+          selected: normalizedValue,
+          onSelect: handleDateChange,
+          defaultMonth: toDate(defaultMonth) ?? getAnchorDate(normalizedValue),
+          className: cn('text-foreground', calendarClassName),
+        } as React.ComponentProps<typeof Calendar>)}
+      />
+      {clearable && !isDisabled && hasValue && mode !== 'single' && (
+        <div className="border-t p-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="w-full text-muted-foreground"
+            onClick={handleClear}
+          >
+            {clearLabel}
+          </Button>
+        </div>
+      )}
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="flex flex-col">
+        {mode === 'single' && <div className="p-2 pb-0">{singleInput}</div>}
+        {calendar}
+      </div>
+    );
+  }
+
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <div className="relative inline-block w-full">
         {mode === 'single' ? (
-          <Popover.Trigger asChild>
-            <div
-              aria-disabled={isDisabled}
-              className={cn(
-                'flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
-                isDisabled && 'cursor-not-allowed opacity-50',
-                className,
-              )}
-            >
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputText}
-                onChange={handleInputChange}
-                placeholder={placeholder}
-                disabled={isDisabled}
-                onFocus={() => setIsFocused(true)}
-                onBlur={handleInputBlur}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsOpen(true);
-                  }
-                }}
-                className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed"
-              />
-              {canClear ? (
-                <button
-                  type="button"
-                  aria-label={clearLabel}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleClear();
-                  }}
-                  className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <IconX className="size-4" />
-                </button>
-              ) : (
-                <IconCalendar className="size-4 shrink-0 text-muted-foreground" />
-              )}
-            </div>
-          </Popover.Trigger>
+          <Popover.Trigger asChild>{singleInput}</Popover.Trigger>
         ) : (
           <Popover.Trigger asChild>
             <Button
@@ -345,31 +383,7 @@ export const DatePicker = ({
         {...popoverContentProps}
         className={cn('w-auto p-0', popoverContentProps?.className)}
       >
-        <Calendar
-          {...({
-            ...props,
-            disabled: calendarDisabled,
-            mode,
-            selected: normalizedValue,
-            onSelect: handleDateChange,
-            defaultMonth:
-              toDate(defaultMonth) ?? getAnchorDate(normalizedValue),
-            className: cn('text-foreground', calendarClassName),
-          } as React.ComponentProps<typeof Calendar>)}
-        />
-        {clearable && !isDisabled && hasValue && mode !== 'single' && (
-          <div className="border-t p-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="w-full text-muted-foreground"
-              onClick={handleClear}
-            >
-              {clearLabel}
-            </Button>
-          </div>
-        )}
+        {calendar}
       </Popover.Content>
     </Popover>
   );

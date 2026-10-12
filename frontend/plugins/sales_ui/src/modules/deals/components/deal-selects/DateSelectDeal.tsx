@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import {
-  Calendar,
   RecordTableInlineCell,
   Combobox,
   PopoverScoped,
@@ -108,14 +107,19 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
 };
 
 const DateSelectContent = () => {
+  const { t } = useTranslation('sales');
   const { value, onValueChange } = useDateSelectContext();
 
   return (
-    <Calendar
-      mode="single"
-      selected={value}
-      onSelect={onValueChange}
-      defaultMonth={value}
+    <DatePicker
+      inline
+      value={value}
+      onChange={(date) =>
+        onValueChange(date instanceof Date ? date : undefined)
+      }
+      placeholder={t('select-date')}
+      clearLabel={t('clear', 'Clear')}
+      className="h-8"
     />
   );
 };

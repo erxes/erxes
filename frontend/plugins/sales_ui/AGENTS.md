@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-12`
 
 ## Scope
 
@@ -125,11 +125,13 @@
   discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
-- Deal detail start/close dates use the erxes-ui `DatePicker` input; typing
-  uses `YYYY-MM-DD`, the unfocused value shows as `MMM D, YYYY`, and clearing
-  sends `null` so the backend unsets the date. A past close date turns the
-  value red and appends an "Ended N days ago" segment, matching the badge the
-  table and card variants show.
+- Deal start/close date selects: the `detail` variant is the erxes-ui
+  `DatePicker` input itself (own popover); a past close date turns it red and
+  appends an "Ended N days ago" segment. Other variants keep a trigger button
+  whose popover holds `DatePicker` in `inline` mode (typed input above the
+  calendar), with the "Ended" badge as the trigger for a past close date. Typing
+  uses `YYYY-MM-DD`; a complete valid date or a calendar pick commits, and
+  clearing sends `null` so the backend unsets the date.
 
 ## Validation
 
