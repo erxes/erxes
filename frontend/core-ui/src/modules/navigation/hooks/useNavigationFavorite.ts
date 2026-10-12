@@ -1,9 +1,10 @@
+import { useMutation, useQuery } from '@apollo/client';
+
 import { GET_FAVORITES } from '@/navigation/graphql/queries/getFavorites';
 import { TOGGLE_FAVORITE } from 'ui-modules/modules/favorites/graphql/mutations/toggleFavorite';
 import { currentUserState } from 'ui-modules';
 import { toast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useMutation, useQuery } from '@apollo/client';
 
 interface IFavoritesResponse {
   getFavoritesByCurrentUser: { path: string }[];
@@ -13,7 +14,9 @@ const normalizePath = (path: string) =>
   path
     .split(/[?#]/)[0]
     .replace('_ui', '')
-    .replace(/^\/+|\/+$/g, '');
+    .split('/')
+    .filter(Boolean)
+    .join('/');
 
 export const useNavigationFavorite = ({
   breadcrumb,

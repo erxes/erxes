@@ -1,7 +1,9 @@
-import { IconChevronRight } from '@tabler/icons-react';
-import { cn, Collapsible, Sidebar } from 'erxes-ui';
+import { Collapsible, Sidebar, cn } from 'erxes-ui';
 import { ElementType, useState } from 'react';
 import { Link, useLocation } from 'react-router';
+
+import { IconChevronRight } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const matchesPath = (pathname: string, path: string) =>
   pathname === path || pathname.startsWith(`${path}/`);
@@ -27,6 +29,7 @@ export const NavigationSection = ({
   const inSection = matchesPath(pathname, sectionPath);
   const [open, setOpen] = useState(inSection);
   const [wasInSection, setWasInSection] = useState(inSection);
+  const { t } = useTranslation('accounting');
 
   if (inSection !== wasInSection) {
     setWasInSection(inSection);
@@ -52,7 +55,7 @@ export const NavigationSection = ({
                 inSection && 'text-primary',
               )}
             />
-            <span className="min-w-0 flex-1 truncate">{name}</span>
+            <span className="min-w-0 flex-1 truncate">{t(name)}</span>
             <span className="flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/accounting-nav-section:rotate-90 motion-reduce:transition-none">
               <IconChevronRight className="size-3.5!" />
             </span>
@@ -81,7 +84,7 @@ export const NavigationSection = ({
                             isActive && 'text-primary',
                           )}
                         />
-                        <span>{item.name}</span>
+                        <span>{t(item.name)}</span>
                       </Link>
                     </Sidebar.SubButton>
                   </Sidebar.SubItem>
