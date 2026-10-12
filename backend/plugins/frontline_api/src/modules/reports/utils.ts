@@ -381,7 +381,7 @@ export function buildTicketMatch(filters: IReportFilters) {
   const description = filters.description?.trim();
   if (description) {
     match.description = {
-      $regex: description.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+      $regex: description.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`),
       $options: 'i',
     };
   }

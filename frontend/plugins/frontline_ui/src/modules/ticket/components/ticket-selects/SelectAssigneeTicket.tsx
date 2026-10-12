@@ -70,7 +70,7 @@ const SelectTeamMemberContent = ({
   const membersList = [
     ...(currentUser ? [currentUser] : []),
     ...filteredUsers,
-  ].filter((user) => !members.find((member) => member._id === user._id));
+  ].filter((user) => !members.some((member) => member._id === user._id));
 
   return (
     <Command shouldFilter={false}>
