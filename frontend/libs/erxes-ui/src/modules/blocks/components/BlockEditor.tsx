@@ -8,7 +8,7 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { useAtomValue } from 'jotai';
-import { KeyboardEvent, MouseEvent, useState } from 'react';
+import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './toolbar/Toolbar';
@@ -35,6 +35,7 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
+  const deletingText = useRef(false);
 
   const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
     if (readonly || disabled) {
@@ -50,6 +51,8 @@ export const BlockEditor = ({
     if (e.key !== 'Backspace' && e.key !== 'Delete') {
       return;
     }
+
+    deletingText.current = true;
 
     const { block, prevBlock, nextBlock, parentBlock } =
       editor.getTextCursorPosition();
@@ -72,6 +75,9 @@ export const BlockEditor = ({
   return (
     <div
       onKeyDownCapture={handleKeyDownCapture}
+      onKeyUpCapture={() => {
+        deletingText.current = false;
+      }}
       onMouseDownCapture={(event: MouseEvent<HTMLDivElement>) => {
         if (
           event.button === 0 &&
@@ -104,7 +110,18 @@ export const BlockEditor = ({
           onBlur?.();
         }}
         editable={!readonly && !disabled}
-        onChange={onChange}
+        onChange={() => {
+          if (deletingText.current) {
+            deletingText.current = false;
+            if (isEmptyBlock(editor.getTextCursorPosition().block)) {
+              const view = editor._tiptapEditor.view;
+              if (view) {
+                view.dispatch(view.state.tr.setStoredMarks([]));
+              }
+            }
+          }
+          onChange?.();
+        }}
         formattingToolbar={false}
         tableHandles={false}
         shadCNComponents={editorUIComponents}
