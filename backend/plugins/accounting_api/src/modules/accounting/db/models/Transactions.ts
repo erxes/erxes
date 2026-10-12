@@ -7,6 +7,7 @@ import { IModels } from '~/connectionResolvers';
 import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove } from '../../utils/commonRemove';
+import { assertFxaIncomeRemovalsAllowed } from '../../utils/fxaIncome';
 import { commonSave } from '../../utils/commonSave';
 import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
 import { transactionSchema } from '../definitions/transaction';
@@ -627,6 +628,7 @@ export const loadTransactionClass = (
 
       const editTrIds = editTrDocs.map((itd) => itd._id);
       const deleteTrs = oldTrs.filter((otr) => !editTrIds.includes(otr._id));
+      await assertFxaIncomeRemovalsAllowed(models, deleteTrs);
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -801,6 +803,8 @@ export const loadTransactionClass = (
       ) {
         throw new Error('not found trs');
       }
+
+      await assertFxaIncomeRemovalsAllowed(models, summaryTrs);
 
       for (const tr of summaryTrs) {
         await commonRemove(subdomain, models, tr);

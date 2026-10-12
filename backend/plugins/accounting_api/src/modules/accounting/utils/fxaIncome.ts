@@ -249,14 +249,28 @@ export const removeFxaIncomeDetails = async (
     options.detailIds,
   );
   const fixedAssetIds = fixedAssets.map((fixedAsset) => fixedAsset._id);
+  const selectedDetailIds = options.detailIds?.length
+    ? new Set(options.detailIds)
+    : undefined;
+  const referencedAssetIds = (transaction.details || [])
+    .filter(
+      (detail) =>
+        !selectedDetailIds || selectedDetailIds.has(getDetailId(detail)),
+    )
+    .map((detail) => detail.fixedAssetId)
+    .filter((id): id is string => Boolean(id));
+  const protectedAssetIds = getUniqueFxaOwnerRecordIds([
+    ...fixedAssetIds,
+    ...referencedAssetIds,
+  ]);
 
-  if (!fixedAssetIds.length) {
+  if (!protectedAssetIds.length) {
     return;
   }
 
   const blockingTransaction = await models.Transactions.findOne({
     _id: { $ne: transaction._id },
-    'details.fixedAssetId': { $in: fixedAssetIds },
+    'details.fixedAssetId': { $in: protectedAssetIds },
     $nor: [{ originId: transaction._id }],
   }).lean();
 
@@ -266,7 +280,7 @@ export const removeFxaIncomeDetails = async (
     );
   }
 
-  if (options.validateOnly) {
+  if (options.validateOnly || !fixedAssetIds.length) {
     return;
   }
 
@@ -279,6 +293,17 @@ export const removeFxaIncomeDetails = async (
     transaction._id,
     options.detailIds,
   );
+};
+
+export const assertFxaIncomeRemovalsAllowed = async (
+  models: IModels,
+  transactions: ITransactionDocument[],
+) => {
+  for (const transaction of transactions) {
+    if (transaction.journal === JOURNALS.FXA_INCOME) {
+      await removeFxaIncomeDetails(models, transaction, { validateOnly: true });
+    }
+  }
 };
 
 const syncOpeningAccumulatedDepreciation = async ({

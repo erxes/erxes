@@ -169,6 +169,7 @@ async function handleFxaIncome(
   options?: TCommonRemoveOptions,
 ) {
   await removeFxaIncomeDetails(models, transaction, options);
+  if (options?.validateOnly) return;
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_DEP_IN,
   ]);
