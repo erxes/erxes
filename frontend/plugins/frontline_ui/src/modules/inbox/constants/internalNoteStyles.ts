@@ -4,7 +4,7 @@ export const INTERNAL_NOTE_BACKGROUND =
   '[&_.bn-editor]:text-inherit!';
 
 export const INTERNAL_NOTE_BUTTON =
-  'border border-[#E8D99B] bg-[#E8D99B] text-[#272727] hover:bg-[#E0CB7F] ' +
+  'border border-primary bg-primary text-primary-foreground hover:bg-primary/90 ' +
   'dark:border-[#E8D99B]/30 dark:bg-[#E8D99B] dark:text-[#272727] dark:hover:bg-[#FEEEB6]';
 
 export const INTERNAL_NOTE_ICON =

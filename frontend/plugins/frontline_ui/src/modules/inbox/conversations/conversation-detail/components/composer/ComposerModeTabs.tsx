@@ -39,8 +39,8 @@ export const ComposerModeTabs = ({
           disabled={disabled}
           className={
             'h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none ' +
-            'data-[state=active]:bg-[#E8D99B] data-[state=active]:text-[#272727] ' +
-            'data-[state=active]:shadow-none data-[state=active]:hover:bg-[#E8D99B] ' +
+            'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ' +
+            'data-[state=active]:shadow-none data-[state=active]:hover:bg-primary/90 ' +
             'dark:data-[state=active]:bg-[#E8D99B]/20 dark:data-[state=active]:text-[#E8D99B] ' +
             'dark:data-[state=active]:hover:bg-[#E8D99B]/20'
           }
