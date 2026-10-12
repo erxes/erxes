@@ -2386,6 +2386,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
   `codegen` target, which depends on `frontline_api:schema:print` only. The
   plugin never depends on core's or an optional plugin's printed schema.
+  `pnpm dev:uis` starts remotes without `dependsOn`, so
+  `scripts/start-ui-dev.js` runs `codegen` once and then `codegen:watch`
+  beside the dev server. `codegen:watch` has no `dependsOn` and stays out of
+  `serve`, because a watcher never exits.
 - `schema/platform.graphql` snapshots only the core types and fields frontline
   documents select, each block headed by its `backend/core-api/src` SDL
   source. When a document selects another core field, or core changes one it
@@ -2431,8 +2435,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `npx tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` - no
   errors under `frontend/plugins/frontline_ui`; errors reported inside
   `frontend/libs` are pre-existing and owned by those libraries.
-- `project.json` defines `build`, `serve`, `serve-static`, `test`, and
-  `codegen`.
+- `project.json` defines `build`, `serve`, `serve-static`, `test`, `codegen`
+  and `codegen:watch`.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
   Telegram setup/rendering and inbox composer regression coverage.
   Composer send regression tests import `hooks/composer/useComposerSend`;
