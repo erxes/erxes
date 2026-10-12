@@ -7,7 +7,7 @@ import { FieldValues, UseFormReturn } from 'react-hook-form';
 import { IPaymentDocument } from '../../../payment/types/Payment';
 
 const CONFIGS_QUERY = gql`
-  query TdbConfigsList($page: Int, $perPage: Int) {
+  query TdbConfigsList($limit: Int, $cursor: String) {
     tdbConfigsList(limit: $limit, cursor: $cursor) {
       list {
         _id
