@@ -13,9 +13,8 @@ export const MSDynamicSidebar = () => {
   const { pathname } = useLocation();
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label="MSDYNAMIC">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>MSDYNAMIC</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {MSDYNAMIC_ROUTES.map((route) => {
@@ -36,6 +35,6 @@ export const MSDynamicSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
