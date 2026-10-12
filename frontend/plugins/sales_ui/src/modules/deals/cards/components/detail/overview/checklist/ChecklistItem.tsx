@@ -40,6 +40,7 @@ export const ChecklistItem = ({
   const [items, setItems] = useState<IChecklistItem[]>(item.items ?? []);
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
+  const [focusRequest, setFocusRequest] = useState(0);
   const [hideChecked, setHideChecked] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(item.title);
@@ -126,7 +127,7 @@ export const ChecklistItem = ({
           return;
         }
       }
-      setAdding(false);
+      setFocusRequest((current) => current + 1);
     } finally {
       savingNewItemRef.current = false;
     }
@@ -369,6 +370,7 @@ export const ChecklistItem = ({
           handleAdd={handleAdd}
           handleKeyDown={handleKeyDown}
           loading={addingItem}
+          focusRequest={focusRequest}
         />
       </Collapsible.Content>
     </Collapsible>

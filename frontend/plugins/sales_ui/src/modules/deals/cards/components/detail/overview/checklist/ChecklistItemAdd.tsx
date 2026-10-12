@@ -12,6 +12,7 @@ export const ChecklistItemAdd = ({
   handleAdd,
   handleKeyDown,
   loading,
+  focusRequest,
 }: Readonly<{
   adding: boolean;
   setAdding: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,15 +21,16 @@ export const ChecklistItemAdd = ({
   handleAdd: () => void | Promise<void>;
   handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   loading: boolean;
+  focusRequest: number;
 }>) => {
   const { t } = useTranslation('sales');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (adding) {
+    if (adding && !loading) {
       textareaRef.current?.focus();
     }
-  }, [adding]);
+  }, [adding, loading, focusRequest]);
 
   if (adding) {
     return (
