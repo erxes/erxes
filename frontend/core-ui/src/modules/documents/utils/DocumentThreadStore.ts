@@ -17,7 +17,6 @@ const { ThreadStore, DefaultThreadStoreAuth } =
 type CommentAnchor = { threadId: string; from: number; to: number };
 type DocumentComments = { threads: ThreadData[]; anchors: CommentAnchor[] };
 
-/** Restore valid timestamps without allowing invalid dates into saved comment data. */
 function parseCommentDate(value: unknown): Date {
   const date = new Date(String(value));
   if (Number.isNaN(date.getTime()))
@@ -25,7 +24,6 @@ function parseCommentDate(value: unknown): Date {
   return date;
 }
 
-/** Persist BlockNote discussions and their text anchors in a document's JSON payload. */
 export class DocumentThreadStore extends ThreadStore {
   onMutation?: () => void;
   private threads = new Map<string, ThreadData>();

@@ -49,7 +49,6 @@ type DocumentsActionsMenuProps = {
   variant: 'grid' | 'table';
 };
 
-/** Expose the existing approval-lock actions from a document menu. */
 function DocumentLockMenuItem({
   documentItem,
 }: Readonly<{ documentItem: IDocument }>) {
@@ -217,7 +216,6 @@ export function DocumentsActions({
   const { removeDocument, loading } = useDocumentRemove();
   const { duplicateDocument, loading: duplicating } = useDocumentDuplicate();
 
-  /** Close the action menu before asking for the duplicate document type. */
   function handleDuplicate() {
     setOpen(false);
     setDuplicateOpen(true);

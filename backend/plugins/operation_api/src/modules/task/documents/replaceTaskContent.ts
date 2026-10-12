@@ -7,12 +7,10 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { getTaskExportData } from '~/meta/import-export/export/getTaskExportData';
 import { isRecord } from '~/modules/automations/utils';
 
-/** Replace task attributes while preserving the template's block structure. */
 export const fillTaskDocument = (
   blocks: unknown[],
   fields: Record<string, string>,
 ): string => {
-  /** Replace inline attributes and recursively visit nested block content. */
   function replaceNode(node: unknown): unknown {
     if (Array.isArray(node)) {
       return node.map(replaceNode);
@@ -40,7 +38,6 @@ export const fillTaskDocument = (
     );
   }
 
-  /** Convert legacy standalone attributes into printable paragraph blocks. */
   function replaceBlock(block: unknown): unknown {
     if (isRecord(block) && block.type === 'attribute') {
       return {
@@ -60,7 +57,6 @@ export const fillTaskDocument = (
   return JSON.stringify(blocks.map(replaceBlock));
 };
 
-/** Render every requested task only after checking the acting user's access. */
 export const replaceTaskContent = async (
   { content, replacerIds }: { content: string; replacerIds: string[] },
   context: Pick<IImportExportContext<IModels>, 'subdomain' | 'models'> & {

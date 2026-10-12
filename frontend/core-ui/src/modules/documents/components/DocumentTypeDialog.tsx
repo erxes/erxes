@@ -18,7 +18,6 @@ const documentTypeSchema = z.object({
   contentType: z.string().min(1, 'Select a document type'),
 });
 
-/** Ask for an available document type before creating or duplicating a template. */
 export function DocumentTypeDialog({
   open,
   onOpenChange,

@@ -133,7 +133,6 @@ function validateCommentReactions(
   }
 }
 
-/** Validate stored discussions and prevent forging authors or changing another author's text. */
 export const validateDocumentCommentData = (
   value: string | null | undefined,
   userId: string,

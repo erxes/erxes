@@ -36,7 +36,6 @@ import {
 
 const Composer = memo(FloatingComposer);
 
-/** Identify portaled comment controls so outside clicks keep their thread open. */
 export const isDocumentCommentOverlay = (target: EventTarget | null): boolean =>
   target instanceof Element &&
   Boolean(target.closest('.document-comments-overlay'));
@@ -128,7 +127,6 @@ const CommentAction = forwardRef<
 );
 CommentAction.displayName = 'DocumentCommentAction';
 
-/** Apply the document card layout to floating discussions and the sidebar. */
 const CommentCard = ({
   className,
   headerText,
@@ -158,7 +156,6 @@ const CommentCard = ({
   </Card>
 );
 
-/** Arrange the author, timestamp and native comment actions in a compact row. */
 const CommentFrame = ({
   authorInfo,
   timeString,
@@ -199,7 +196,6 @@ const CommentFrame = ({
   );
 };
 
-/** Reuse the platform popover for native reaction and comment controls. */
 const CommentPopover = ({
   opened,
   children,
@@ -215,7 +211,6 @@ const CommentPopoverTrigger = forwardRef<
   </Popover.Trigger>
 ));
 CommentPopoverTrigger.displayName = 'DocumentCommentPopoverTrigger';
-/** Place comment popovers above the editor without stealing its selection. */
 const CommentPopoverContent = ({
   children,
   className,
@@ -236,7 +231,6 @@ const NativeCommentComponentsContext = createContext<ReturnType<
   typeof useComponentsContext
 > | null>(null);
 
-/** Render a native reaction badge with the document tooltip and selection styling. */
 const CommentBadge = forwardRef<
   HTMLButtonElement,
   NativeComponentProps['Generic']['Badge']['Root']
@@ -271,7 +265,6 @@ const CommentBadge = forwardRef<
 });
 CommentBadge.displayName = 'DocumentCommentBadge';
 
-/** Keep native comment menus above the thread while using the document theme. */
 const CommentMenuDropdown = (
   props: NativeComponentProps['Generic']['Menu']['Dropdown'],
 ) => {
@@ -289,7 +282,6 @@ const CommentMenuDropdown = (
   );
 };
 
-/** Adapt native comment components to the existing erxes UI primitives. */
 export const DocumentCommentsProvider = ({
   children,
 }: {
@@ -337,7 +329,6 @@ export const DocumentCommentsProvider = ({
   );
 };
 
-/** Show one floating composer or thread and avoid duplicating sidebar discussions. */
 export const DocumentComments = ({
   editor,
   panelOpen,
@@ -367,7 +358,6 @@ export const DocumentComments = ({
   );
 };
 
-/** List document discussions or explain how to create the first one. */
 export const DocumentCommentsPanel = ({ editor }: { editor: IBlockEditor }) => {
   const threads = useThreads(editor);
   return threads.size ? (

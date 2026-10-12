@@ -30,7 +30,6 @@ function getReplacerId(value: ReplacerValue) {
   return Array.isArray(value) ? value[0] || '' : value || '';
 }
 
-/** Select a task through the plugin's existing search provider and pagination. */
 function DocumentTaskSelect({
   value,
   onValueChange,

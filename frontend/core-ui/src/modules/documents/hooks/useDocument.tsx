@@ -12,7 +12,6 @@ import { IDocument } from '../types';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
-/** Load and save the selected document while keeping its form and list current. */
 export const useDocument = ({ hydrate = true }: { hydrate?: boolean } = {}): {
   document: IDocument | null;
   documentId: string | undefined;
