@@ -37,6 +37,7 @@ export const ScoreRecordTable = () => {
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
           dataLength={list?.length}
+          loading={loading}
           sessionKey={SCORE_LOG_CURSOR_SESSION_KEY}
         >
           <RecordTable>
@@ -45,11 +46,8 @@ export const ScoreRecordTable = () => {
               <RecordTable.CursorBackwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {loading ? (
-                <RecordTable.RowSkeleton rows={32} />
-              ) : (
-                <RecordTable.RowList />
-              )}
+              <RecordTable.RowList />
+              {loading && <RecordTable.RowSkeleton rows={32} />}
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}
               />

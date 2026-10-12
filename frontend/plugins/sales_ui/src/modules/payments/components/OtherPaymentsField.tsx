@@ -15,7 +15,8 @@ import {
 import PaymentIcon, {
   paymentIconOptions,
 } from 'ui-modules/modules/payments/components/PaymentIcon';
-import { useLoyaltyScoreCampaign } from 'ui-modules/modules/payments/hooks/useLoyaltyScoreCampaign';
+import { RecordPickerWidget } from 'ui-modules';
+import { SCORE_CAMPAIGN_CONTENT_TYPE } from '@/deals/loyaltyRules/constants';
 
 type OtherPaymentsFieldProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
@@ -28,10 +29,6 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'paymentTypes' as FieldArrayPath<TFieldValues>,
-  });
-
-  const { scoreDetail } = useLoyaltyScoreCampaign({
-    variables: { serviceName: 'sales' },
   });
 
   const handleAddPayment = () => {
@@ -192,21 +189,12 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
                     {t('score-campaign')}
                   </Form.Label>
                   <Form.Control>
-                    <Select
+                    <RecordPickerWidget
+                      contentType={SCORE_CAMPAIGN_CONTENT_TYPE}
                       value={field.value || ''}
                       onValueChange={field.onChange}
-                    >
-                      <Select.Trigger>
-                        <Select.Value placeholder={t('score-campaigns')} />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {scoreDetail?.map((campaign) => (
-                          <Select.Item key={campaign._id} value={campaign._id}>
-                            {campaign.title}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
+                      placeholder={t('score-campaigns')}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

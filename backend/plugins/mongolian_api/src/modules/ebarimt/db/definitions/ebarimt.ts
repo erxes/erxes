@@ -95,4 +95,5 @@ export const ebarimtSchema = new Schema({
   state: { type: String, optional: true, label: '' },
 });
 
+ebarimtSchema.index({ createdAt: -1, _id: 1 });
 ebarimtSchema.index({ contentType: 1, contentId: 1, state: 1, type: 1 });

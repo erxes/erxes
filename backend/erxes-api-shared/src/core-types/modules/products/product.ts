@@ -77,6 +77,8 @@ export interface IProduct {
   mergedIds?: string[];
 
   uom?: string;
+  // Codes of the conditions a sold unit of this product may be marked with.
+  conditionCodes?: string[];
   subUoms?: ISubUom[];
   sameMasks?: string[];
   sameDefault?: string[];

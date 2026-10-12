@@ -1,5 +1,6 @@
 import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
+import { DealLoyaltyPointsBadge } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
@@ -402,7 +403,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
         createdAt={createdAt}
         assignedUsers={assignedUsers || []}
         id={_id}
-      />{' '}
+      />
+      <DealLoyaltyPointsBadge dealId={_id} />
       {showArchivedBadge && (
         <div className="pointer-events-none select-none absolute bottom-6 -right-10 -rotate-45 w-40">
           <span className="block w-full text-center px-8 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 ">

@@ -23,6 +23,9 @@ const config: ModuleFederationConfig = {
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
     './relationWidget': './src/widgets/Widgets.tsx',
+    './relationSettingsWidget':
+      './src/widgets/relationSettings/RelationSettingsWidget.tsx',
+    './recordPickerWidget': './src/widgets/recordPicker/RecordPickerWidget.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

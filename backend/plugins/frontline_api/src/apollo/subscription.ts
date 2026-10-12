@@ -264,7 +264,7 @@ export default {
               throw new Error('Authentication required');
             }
             return graphqlPubsub.asyncIterator(
-              `conversationMessageUpdated:${subdomain}:${_id}`,
+              getTenantTopics('conversationMessageUpdated', subdomain, _id),
             );
           },
           async (payload, variables) => {

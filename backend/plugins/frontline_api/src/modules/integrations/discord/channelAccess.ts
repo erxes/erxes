@@ -7,15 +7,15 @@ import {
   PermissionFlagsBits,
 } from 'discord-api-types/v10';
 import { redis } from 'erxes-api-shared/utils';
+import { DiscordApiError } from '@/integrations/discord/errors/DiscordApiError';
+import { getErrorMessage } from '@/integrations/discord/utils/request';
 import {
-  DiscordApiError,
   getChannel,
-  getErrorMessage,
   getGuild,
   getGuildRoles,
   normalizeMemberQuery,
   searchGuildMembers,
-} from '@/integrations/discord/utils';
+} from '@/integrations/discord/utils/channels';
 import { debugError } from '@/integrations/discord/debuggers';
 
 const VIEW_CHANNEL = PermissionFlagsBits.ViewChannel;

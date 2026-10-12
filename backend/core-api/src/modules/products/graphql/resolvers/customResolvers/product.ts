@@ -308,4 +308,19 @@ export default {
 
     return uom?.name || uom?.code || '';
   },
+
+  // Codes without a condition (removed) are left out until it is recreated.
+  conditions: async (
+    product: IProductDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
+    if (!product.conditionCodes?.length) {
+      return [];
+    }
+
+    return models.ProductConditions.find({
+      code: { $in: product.conditionCodes },
+    }).lean();
+  },
 };
