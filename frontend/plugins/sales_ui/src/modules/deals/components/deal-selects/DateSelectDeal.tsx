@@ -216,7 +216,7 @@ export const DateSelectDealRoot = ({
 
   if (variant === DateSelectVariant.INPUT) {
     return (
-      <div className="flex h-7 w-fit items-center overflow-hidden rounded border bg-background text-sm focus-within:border-primary/40">
+      <div className="flex h-7 w-fit items-center overflow-hidden rounded bg-background text-sm shadow-xs transition-shadow focus-within:shadow-subtle">
         {label && (
           <span className="flex h-full shrink-0 items-center whitespace-nowrap px-3 text-muted-foreground bg-muted/40 border-r">
             {label}
@@ -229,7 +229,7 @@ export const DateSelectDealRoot = ({
             placeholder={placeholder || t('select-date')}
             clearLabel={t('clear', 'Clear')}
             className={cn(
-              'h-6 rounded-none border-0 bg-transparent px-2.5 font-medium focus-within:ring-0 focus-within:ring-offset-0',
+              'h-7 rounded-none bg-transparent pl-3 pr-2.5 font-medium shadow-none focus-within:shadow-none',
               isEnded && 'text-destructive',
             )}
           />

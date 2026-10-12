@@ -245,7 +245,10 @@
   controls only product tax percent/amount columns and footer total tax.
 - Deal start/close date selects: the `input` variant (used by deal detail) is
   the erxes-ui `DatePicker` input itself (own popover); a past close date turns
-  it red and appends an "Ended N days ago" segment. Other variants keep a
+  it red and appends an "Ended N days ago" segment. Its wrapper mirrors
+  `DealChipTrigger` (`h-7`, `rounded`, `shadow-xs` outline, muted label
+  segment) and strips the inner `DatePicker` shadow so it matches the detail
+  chips. Other variants keep a
   trigger button whose popover holds `DatePicker` in `inline` mode (typed input
   above the calendar), with the "Ended" badge as the trigger for a past close
   date. Typing uses `YYYY-MM-DD`; a complete valid date or a calendar pick
