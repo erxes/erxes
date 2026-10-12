@@ -18,6 +18,7 @@ import {
   SelectBranches,
   SelectDepartments,
 } from 'ui-modules/modules/structure';
+import { SelectCustomer } from 'ui-modules/modules/contacts';
 
 const Section = ({
   value,
@@ -76,9 +77,11 @@ const MillimetreField = ({
 export const PrintSettings = ({
   contentType,
   initialDocumentName,
+  selectCustomers = false,
 }: {
   contentType: string;
   initialDocumentName?: string;
+  selectCustomers?: boolean;
 }) => {
   const form = useFormContext<PrintFormValues>();
 
@@ -112,7 +115,10 @@ export const PrintSettings = ({
 
   return (
     <Form {...form}>
-      <form className="grid gap-5 px-5 py-3">
+      <form
+        className="grid gap-5 px-5 py-3"
+        onSubmit={(event) => event.preventDefault()}
+      >
         <Accordion
           type="multiple"
           className="w-full flex flex-col gap-5"
@@ -123,6 +129,30 @@ export const PrintSettings = ({
             label="Reference"
             summary={documentName || 'No document selected'}
           >
+            {selectCustomers && (
+              <Form.Field
+                name="replacerIds"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Customers</Form.Label>
+                    <SelectCustomer.FormItem
+                      mode="multiple"
+                      value={field.value}
+                      onValueChange={(value) =>
+                        field.onChange(
+                          Array.isArray(value) ? value : value ? [value] : [],
+                        )
+                      }
+                    />
+                    <Form.Description>
+                      Select customers to fill the broadcast document
+                      attributes.
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            )}
             <Form.Field
               name="brandId"
               render={({ field }) => (

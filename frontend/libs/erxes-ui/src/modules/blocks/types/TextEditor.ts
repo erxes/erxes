@@ -24,6 +24,7 @@ export interface BlockEditorProps {
   sideMenu?: boolean;
   linkToolbar?: boolean;
   slashMenuOnTop?: boolean;
+  floatingThread?: boolean;
 }
 
 export interface IEditorProps {

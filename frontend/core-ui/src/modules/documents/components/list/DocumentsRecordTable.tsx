@@ -39,7 +39,13 @@ export function DocumentsRecordTable({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (hasError) {
-    return <DocumentsErrorState onRetry={refetch} />;
+    return (
+      <DocumentsErrorState
+        onRetry={() => {
+          void refetch().catch(() => undefined);
+        }}
+      />
+    );
   }
 
   if (!loading && documents.length === 0) {

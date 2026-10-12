@@ -12,7 +12,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  useSetQueryStateByKey,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { ComponentProps } from 'react';
 import {
@@ -24,9 +24,9 @@ import {
 
 import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
+import { GET_DOCUMENTS } from '../../graphql/queries';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
 
-/** Updates cached document tags and refreshes filtered lists after tagging. */
 export function getDocumentsTagOptions(
   documentIds: string[],
 ): ComponentProps<typeof TagsSelect>['options'] {
@@ -41,7 +41,7 @@ export function getDocumentsTagOptions(
         });
       });
     },
-    refetchQueries: ['Documents'],
+    refetchQueries: [GET_DOCUMENTS],
     onCompleted: () => {
       toast({ title: 'Document tags updated', variant: 'success' });
     },
@@ -49,11 +49,13 @@ export function getDocumentsTagOptions(
 }
 
 function DocumentNameCell({ document }: { document: IDocument }) {
-  const setQuery = useSetQueryStateByKey();
+  const [, setQueries] = useMultiQueryState<{
+    documentId: string;
+    contentType: string;
+  }>(['documentId', 'contentType']);
 
   function handleClick() {
-    setQuery('documentId', document._id);
-    setQuery('contentType', document.contentType);
+    setQueries({ documentId: document._id, contentType: document.contentType });
   }
 
   return (

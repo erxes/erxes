@@ -1,3 +1,4 @@
+import { BlockEditorComments } from './BlockEditorComments';
 import {
   createReactInlineContentSpec,
   DefaultReactSuggestionItem,
@@ -20,6 +21,16 @@ import { Toolbar } from './Toolbar';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 
+const blockNoteComponents = {
+  Button: { Button },
+  Tooltip: {
+    Tooltip,
+    TooltipContent: Tooltip.Content,
+    TooltipProvider: Tooltip.Provider,
+    TooltipTrigger: Tooltip.Trigger,
+  },
+};
+
 type EditorBlock = ReturnType<
   BlockEditorProps['editor']['getTextCursorPosition']
 >['block'];
@@ -34,7 +45,6 @@ export const BlockEditor = ({
   editor,
   onFocus,
   onBlur,
-  onPaste,
   onChange,
   readonly,
   children,
@@ -45,6 +55,7 @@ export const BlockEditor = ({
   sideMenu = true,
   linkToolbar = true,
   slashMenuOnTop = false,
+  floatingThread = true,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
@@ -107,7 +118,13 @@ export const BlockEditor = ({
   };
 
   const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (readonly || disabled || (e.key !== 'Backspace' && e.key !== 'Delete')) {
+    if (
+      readonly ||
+      disabled ||
+      (e.key !== 'Backspace' && e.key !== 'Delete') ||
+      !(e.target instanceof Node) ||
+      !editor.domElement?.contains(e.target)
+    ) {
       return;
     }
 
@@ -140,7 +157,7 @@ export const BlockEditor = ({
       )}
     >
       <BlockNoteView
-        theme={theme as 'light' | 'dark'}
+        theme={theme === 'system' ? undefined : theme}
         editor={editor}
         slashMenu={false}
         sideMenu={sideMenu}
@@ -157,15 +174,8 @@ export const BlockEditor = ({
         onChange={onChange}
         formattingToolbar={false}
         tableHandles={false}
-        shadCNComponents={{
-          Button: { Button },
-          Tooltip: {
-            Tooltip,
-            TooltipContent: Tooltip.Content,
-            TooltipProvider: Tooltip.Provider,
-            TooltipTrigger: Tooltip.Trigger,
-          },
-        }}
+        comments={false}
+        shadCNComponents={blockNoteComponents}
         style={style}
       >
         <SuggestionMenuController
@@ -178,7 +188,12 @@ export const BlockEditor = ({
         />
         <Toolbar />
         <TableHandlesController tableHandle={TableHandleWithRemove} />
-        {children}
+        <BlockEditorComments
+          enabled={!!editor.comments}
+          floatingThread={floatingThread}
+        >
+          {children}
+        </BlockEditorComments>
       </BlockNoteView>
     </div>
   );
@@ -232,6 +247,25 @@ export const Attribute = createReactInlineContentSpec(
           editable={props.editor.isEditable}
           height={props.inlineContent.props.height}
           width={props.inlineContent.props.width}
+          onRemove={(element) => {
+            props.editor.transact((tr) => {
+              let found = false;
+              tr.doc.descendants((node, position) => {
+                if (found) return false;
+                const dom = props.editor.prosemirrorView?.nodeDOM(position);
+                if (
+                  node.type.name === 'attribute' &&
+                  dom instanceof HTMLElement &&
+                  dom.contains(element)
+                ) {
+                  tr.delete(position, position + node.nodeSize);
+                  found = true;
+                  return false;
+                }
+                return true;
+              });
+            });
+          }}
           onResize={({ width, height }) =>
             props.updateInlineContent({
               type: 'attribute',

@@ -1,16 +1,20 @@
 import { useApolloClient } from '@apollo/client';
 import { FormType } from '@/documents/hooks/useDocumentForm';
-import { Button, toast, useQueryState } from 'erxes-ui';
-import { useCallback } from 'react';
+import { Button, toast, useMultiQueryState } from 'erxes-ui';
+import { useCallback, useState } from 'react';
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 import { ApprovalLockButton } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 import { useDocument } from '../hooks/useDocument';
+import { DocumentTypeDialog } from './DocumentTypeDialog';
 
 export const DocumentSheet = () => {
-  const [documentId, setDocumentId] = useQueryState<string>('documentId');
-  const [contentType] = useQueryState<string>('contentType');
+  const [{ documentId, contentType }, setQueries] = useMultiQueryState<{
+    documentId: string;
+    contentType: string;
+  }>(['documentId', 'contentType']);
+  const [typeOpen, setTypeOpen] = useState(false);
 
   const {
     reset: resetForm,
@@ -20,31 +24,41 @@ export const DocumentSheet = () => {
   } = useFormContext<FormType>();
 
   const client = useApolloClient();
-  const { document, documentSave, hasError, loading } = useDocument();
+  const { document, documentSave, hasError, loading, saving } = useDocument();
   const cleanDocumentId = documentId?.trim();
 
   const submitHandler: SubmitHandler<FormType> = useCallback(async () => {
-    documentSave();
+    await documentSave();
   }, [documentSave]);
 
   const hasChanges = formState.isDirty;
 
-  if (!contentType) {
-    return null;
-  }
+  const createDocument = (nextType: string) => {
+    resetForm({ name: '', content: '', contentType: nextType });
+    setValue('contentType', nextType);
+    setQueries({ documentId: ' ', contentType: nextType });
+    setTypeOpen(false);
+  };
 
   if (!documentId) {
     return (
-      <Button
-        onClick={() => {
-          setDocumentId(' ');
-          resetForm();
-
-          setValue('contentType', contentType);
-        }}
-      >
-        Add Document
-      </Button>
+      <>
+        <Button
+          type="button"
+          onClick={() =>
+            contentType ? createDocument(contentType) : setTypeOpen(true)
+          }
+        >
+          Add Document
+        </Button>
+        {typeOpen && (
+          <DocumentTypeDialog
+            open={typeOpen}
+            onOpenChange={setTypeOpen}
+            onSelect={createDocument}
+          />
+        )}
+      </>
     );
   }
 
@@ -77,10 +91,19 @@ export const DocumentSheet = () => {
         />
       )}
       <Button
-        onClick={handleSubmit(submitHandler)}
-        disabled={!hasChanges || loading || hasError}
+        onClick={handleSubmit(submitHandler, (errors) => {
+          toast({
+            title: 'Check the document',
+            description:
+              Object.values(errors)[0]?.message ||
+              'Name and content are required.',
+            variant: 'destructive',
+          });
+        })}
+        type="button"
+        disabled={!hasChanges || loading || hasError || saving}
       >
-        Save Document
+        {saving ? 'Saving…' : 'Save Document'}
       </Button>
     </div>
   );

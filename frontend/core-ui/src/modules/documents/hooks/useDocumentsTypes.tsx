@@ -3,7 +3,9 @@ import { GET_DOCUMENTS_TYPES } from '../graphql/queries';
 import { IDocumentType } from '../types';
 
 export const useDocumentsTypes = () => {
-  const { data, error, loading } = useQuery(GET_DOCUMENTS_TYPES);
+  const { data, error, loading, refetch } = useQuery<{
+    documentsTypes: IDocumentType[];
+  }>(GET_DOCUMENTS_TYPES);
 
   const documentsTypes: IDocumentType[] = data?.documentsTypes || [];
 
@@ -11,5 +13,6 @@ export const useDocumentsTypes = () => {
     documentsTypes,
     error,
     loading,
+    refetch,
   };
 };

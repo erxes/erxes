@@ -1,8 +1,9 @@
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
 import {
   IconDotsVertical,
   IconEdit,
+  IconCopy,
   IconLock,
   IconLockOpen,
   IconPrinter,
@@ -16,7 +17,7 @@ import {
   RecordTable,
   toast,
   useConfirm,
-  useSetQueryStateByKey,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import {
@@ -24,11 +25,14 @@ import {
   Can,
   PrintDocument,
   useApprovalLock,
+  DOCUMENTS_QUERY,
 } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 import { IDocument } from '../types';
+import { DUPLICATE_DOCUMENT } from '../graphql/documentMutations';
+import { DocumentTypeDialog } from './DocumentTypeDialog';
 import {
   DocumentPrintDialog,
   hasDocumentReplacerSelect,
@@ -42,10 +46,10 @@ type DocumentsActionsMenuProps = {
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
   onPrint: () => void;
+  onDuplicate: () => void;
   variant: 'grid' | 'table';
 };
 
-/** Offer approval lock controls in grid and record-table document menus. */
 function DocumentLockMenuItem({
   documentItem,
 }: Readonly<{ documentItem: IDocument }>) {
@@ -116,15 +120,19 @@ function DocumentsActionsList({
   onDelete,
   onEdit,
   onPrint,
+  onDuplicate,
 }: Pick<
   DocumentsActionsMenuProps,
-  'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint'
+  'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint' | 'onDuplicate'
 >) {
   return (
     <Command.List>
       <Can action="manageDocuments">
         <Command.Item value="edit" onSelect={onEdit}>
           <IconEdit /> Edit
+        </Command.Item>
+        <Command.Item value="duplicate" onSelect={onDuplicate}>
+          <IconCopy /> Duplicate
         </Command.Item>
       </Can>
       <Command.Item value="print" onSelect={onPrint}>
@@ -155,6 +163,7 @@ function DocumentsActionsMenu({
   onEdit,
   onOpenChange,
   onPrint,
+  onDuplicate,
   variant,
 }: DocumentsActionsMenuProps) {
   return (
@@ -181,6 +190,7 @@ function DocumentsActionsMenu({
             onDelete={onDelete}
             onEdit={onEdit}
             onPrint={onPrint}
+            onDuplicate={onDuplicate}
           />
         </Command>
       </Combobox.Content>
@@ -197,19 +207,49 @@ export function DocumentsActions({
 }) {
   const [open, setOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
-  const setQuery = useSetQueryStateByKey();
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [, setQueries] = useMultiQueryState<{
+    documentId: string;
+    contentType: string;
+  }>(['documentId', 'contentType']);
+  const [duplicateDocument, { loading: duplicating }] = useMutation<{
+    documentsDuplicate: IDocument;
+  }>(DUPLICATE_DOCUMENT);
   const { confirm } = useConfirm();
   const { removeDocument, loading } = useDocumentRemove();
 
   function handleEdit() {
     setOpen(false);
-    setQuery('documentId', documentItem._id);
-    setQuery('contentType', documentItem.contentType);
+    setQueries({
+      documentId: documentItem._id,
+      contentType: documentItem.contentType,
+    });
   }
 
   function handlePrint() {
     setOpen(false);
     setPrintOpen(true);
+  }
+
+  async function handleDuplicate(contentType: string): Promise<void> {
+    try {
+      const { data } = await duplicateDocument({
+        variables: { _id: documentItem._id, contentType },
+        refetchQueries: [GET_DOCUMENTS, DOCUMENTS_QUERY],
+        awaitRefetchQueries: true,
+      });
+      if (data?.documentsDuplicate) {
+        setDuplicateOpen(false);
+        setQueries({ documentId: data.documentsDuplicate._id, contentType });
+        toast({ title: 'Document duplicated', variant: 'success' });
+      }
+    } catch (error) {
+      toast({
+        title: 'Could not duplicate document',
+        description: error instanceof Error ? error.message : String(error),
+        variant: 'destructive',
+      });
+    }
   }
 
   function handleDelete() {
@@ -224,7 +264,7 @@ export function DocumentsActions({
     }).then(() =>
       removeDocument({
         variables: { id: documentItem._id },
-        refetchQueries: ['Documents'],
+        refetchQueries: [GET_DOCUMENTS, DOCUMENTS_QUERY],
       }),
     );
   }
@@ -243,8 +283,22 @@ export function DocumentsActions({
         onEdit={handleEdit}
         onOpenChange={setOpen}
         onPrint={handlePrint}
+        onDuplicate={() => {
+          setOpen(false);
+          setDuplicateOpen(true);
+        }}
         variant={variant}
       />
+      {duplicateOpen && (
+        <DocumentTypeDialog
+          open={duplicateOpen}
+          onOpenChange={setDuplicateOpen}
+          onSelect={handleDuplicate}
+          initialContentType={documentItem.contentType}
+          duplicate
+          loading={duplicating}
+        />
+      )}
       {hasDocumentReplacerSelect(documentItem.contentType) ? (
         <DocumentPrintDialog
           documentItem={documentItem}

@@ -14,6 +14,20 @@ import {
   IDocumentFilterQueryParams,
 } from '../types';
 
+const DOCUMENT_TYPE_ALIASES: Record<string, string[]> = {
+  'core:contact.customer': ['core:customer', 'core:contacts.customers'],
+  'core:contact.company': ['core:company', 'core:contacts.companies'],
+};
+
+const documentContentTypes = (contentType: string): string[] => {
+  for (const [canonical, aliases] of Object.entries(DOCUMENT_TYPE_ALIASES)) {
+    if (contentType === canonical || aliases.includes(contentType)) {
+      return [canonical, ...aliases];
+    }
+  }
+  return [contentType];
+};
+
 const generateFilter = (params: IDocumentFilterQueryParams) => {
   const { searchValue, contentType, subType, userIds, dateFilters, tagIds } =
     params;
@@ -25,7 +39,7 @@ const generateFilter = (params: IDocumentFilterQueryParams) => {
   }
 
   if (contentType) {
-    filter.contentType = contentType;
+    filter.contentType = { $in: documentContentTypes(contentType) };
   }
 
   if (subType) {
@@ -82,7 +96,6 @@ export const documentQueries = {
   ) => {
     await checkPermission('documentsRead');
     const filter = generateFilter(params);
-    // Cursor values are returned to the client, so never sort by template data.
     const sortFields = new Set([
       '_id',
       'name',
@@ -130,7 +143,6 @@ export const documentQueries = {
             }));
           return {
             ...document,
-            // Keep locked records discoverable without exposing their templates.
             content: approvalLockState?.hasAccess ? document.content : null,
             replacer: approvalLockState?.hasAccess ? document.replacer : null,
             approvalLockState,
@@ -184,6 +196,7 @@ export const documentQueries = {
     { contentType }: { contentType: string },
     { models, subdomain }: IContext,
   ) => {
+    contentType = documentContentTypes(contentType)[0];
     const [pluginName, moduleName] = contentType.split(':');
 
     if (pluginName === 'core') {

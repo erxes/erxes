@@ -24,7 +24,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { TagsSelect } from 'ui-modules';
+import { PrintDocument, TagsSelect } from 'ui-modules';
 import {
   IconBrandGithub,
   IconExternalLink,
@@ -80,7 +80,6 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
         name: debouncedName,
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedName]);
   useEffect(() => {
     if (!debouncedDescriptionContent) return;
@@ -96,7 +95,6 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
         description: JSON.stringify(debouncedDescriptionContent),
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
 
   useEffect(() => {
@@ -201,6 +199,10 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
             variant="detail"
           />
           <ConvertToProject task={task} />
+          <PrintDocument
+            items={[{ _id: taskId }]}
+            contentType="operation:task"
+          />
           <IconTags className="size-5 ml-2"></IconTags>
           <TagsSelect.SelectedList />
           <TagsSelect.Trigger variant="ICON" />

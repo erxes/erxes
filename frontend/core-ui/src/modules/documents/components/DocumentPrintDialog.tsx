@@ -13,7 +13,11 @@ import { IDocument } from '../types';
 
 const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
   'core:contact.customer': 'Customer',
+  'core:customer': 'Customer',
+  'core:contacts.customers': 'Customer',
   'core:contact.company': 'Company',
+  'core:company': 'Company',
+  'core:contacts.companies': 'Company',
   'core:product': 'Product',
   'core:user': 'Team member',
   'core:broadcast': 'Customer',
@@ -40,6 +44,8 @@ function DocumentReplacerSelect({
 
   switch (contentType) {
     case 'core:contact.customer':
+    case 'core:customer':
+    case 'core:contacts.customers':
     case 'core:broadcast':
       return (
         <SelectCustomer
@@ -49,6 +55,8 @@ function DocumentReplacerSelect({
         />
       );
     case 'core:contact.company':
+    case 'core:company':
+    case 'core:contacts.companies':
       return (
         <SelectCompany
           mode="single"

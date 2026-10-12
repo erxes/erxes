@@ -1,6 +1,6 @@
 import { IconCalendarPlus, IconFileText } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Card, RelativeDateDisplay, useSetQueryStateByKey } from 'erxes-ui';
+import { Card, RelativeDateDisplay, useMultiQueryState } from 'erxes-ui';
 import { ApprovalLockedBadge, MembersInline } from 'ui-modules';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { IDocument } from '../types';
@@ -8,11 +8,13 @@ import { DocumentPreview } from './DocumentPreview';
 import { DocumentsActions } from './DocumentsActions';
 
 export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
-  const setQuery = useSetQueryStateByKey();
+  const [, setQueries] = useMultiQueryState<{
+    documentId: string;
+    contentType: string;
+  }>(['documentId', 'contentType']);
 
   const handleOpenDocument = (document: IDocument) => {
-    setQuery('documentId', document._id);
-    setQuery('contentType', document.contentType);
+    setQueries({ documentId: document._id, contentType: document.contentType });
   };
 
   return (
@@ -54,7 +56,9 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
                 </h3>
               </div>
               <ApprovalLockedBadge state={document.approvalLockState} />
-              <DocumentsActions documentItem={document} variant="grid" />
+              <div onClick={(event) => event.stopPropagation()}>
+                <DocumentsActions documentItem={document} variant="grid" />
+              </div>
             </div>
 
             <Card.Footer className="flex items-center justify-between border-t px-4 py-3">

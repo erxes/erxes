@@ -6,14 +6,7 @@ import { IconGripVertical, IconX } from '@tabler/icons-react';
 import { Button, Command, IBlockEditor, ScrollArea } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 
-interface Attribute {
-  label?: string;
-  name: string;
-  value?: any;
-  groupDetail?: {
-    name: string;
-  };
-}
+import { DocumentAttribute } from '../types';
 
 export const DocumentAttributesSidebar = ({
   editor,
@@ -22,14 +15,14 @@ export const DocumentAttributesSidebar = ({
   onClose,
 }: {
   editor: IBlockEditor;
-  attributes: Attribute[];
+  attributes: DocumentAttribute[];
   loading?: boolean;
   onClose: () => void;
 }) => {
   const [search, setSearch] = useState('');
 
   const grouped = useMemo(() => {
-    const result: Record<string, Attribute[]> = {};
+    const result: Record<string, DocumentAttribute[]> = {};
 
     for (const attr of attributes) {
       const group = attr.groupDetail?.name || 'General';
@@ -46,7 +39,7 @@ export const DocumentAttributesSidebar = ({
 
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
-    attribute: Attribute,
+    attribute: DocumentAttribute,
   ) => {
     e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData(
@@ -119,7 +112,9 @@ export const DocumentAttributesSidebar = ({
                           {attr.label || attr.name}
                         </span>
                         <span className="truncate text-sm text-foreground">
-                          {"{{ "}{attr.value}{" }}"}
+                          {'{{ '}
+                          {attr.value}
+                          {' }}'}
                         </span>
                       </div>
                     </Command.Item>

@@ -9,6 +9,7 @@ export const SAVE_DOCUMENT = gql`
     $content: String
     $replacer: String
     $code: String
+    $commentState: String
   ) {
     documentsSave(
       _id: $_id
@@ -18,6 +19,7 @@ export const SAVE_DOCUMENT = gql`
       content: $content
       replacer: $replacer
       code: $code
+      commentState: $commentState
     ) {
       _id
       code
@@ -26,6 +28,17 @@ export const SAVE_DOCUMENT = gql`
       name
       content
       replacer
+      commentState
+    }
+  }
+`;
+
+export const DUPLICATE_DOCUMENT = gql`
+  mutation documentsDuplicate($_id: String!, $contentType: String!) {
+    documentsDuplicate(_id: $_id, contentType: $contentType) {
+      _id
+      name
+      contentType
     }
   }
 `;

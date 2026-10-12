@@ -40,18 +40,24 @@ export const PrintSheet = ({
     {trigger !== null && (
       <Sheet.Trigger asChild>
         {trigger ?? (
-          <Button variant="secondary" className="text-primary">
+          <Button type="button" variant="secondary" className="text-primary">
             <IconPrinter />
             Print
           </Button>
         )}
       </Sheet.Trigger>
     )}
-    <Sheet.View className="sm:max-w-none md:w-[calc(100vw-(--spacing(4)))] flex gap-0 flex-col m-0 p-0">
+    <Sheet.View
+      className="sm:max-w-none md:w-[calc(100vw-(--spacing(4)))] flex gap-0 flex-col m-0 p-0"
+      onClick={(event) => event.stopPropagation()}
+    >
       <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
         <Sheet.Title>Print</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
+      <Sheet.Description className="sr-only">
+        Select a document template and configure its print layout.
+      </Sheet.Description>
       {children}
     </Sheet.View>
   </Sheet>
@@ -79,9 +85,11 @@ export const PrintDocument = ({
 
   const [internalOpen, setInternalOpen] = useState(false);
   const sheetOpen = open ?? internalOpen;
+  const [previewReady, setPreviewReady] = useState(false);
 
   function setSheetOpen(nextOpen: boolean) {
     setInternalOpen(nextOpen);
+    if (!nextOpen) setPreviewReady(false);
     onOpenChange?.(nextOpen);
   }
 
@@ -128,13 +136,16 @@ export const PrintDocument = ({
         onOpenChange={setSheetOpen}
         trigger={trigger}
       >
-        <Resizable.PanelGroup direction="horizontal">
+        <Resizable.PanelGroup direction="horizontal" className="flex-1 min-h-0">
           <Resizable.Panel
             className="h-full flex flex-col bg-gray-100 overflow-hidden"
             minSize={40}
             defaultSize={80}
           >
-            <PrintPreview iframeRef={iframeRef} />
+            <PrintPreview
+              iframeRef={iframeRef}
+              onReadyChange={setPreviewReady}
+            />
           </Resizable.Panel>
           <Resizable.Handle />
           <Resizable.Panel
@@ -148,13 +159,24 @@ export const PrintDocument = ({
                 <PrintSettings
                   contentType={contentType}
                   initialDocumentName={document?.name}
+                  selectCustomers={
+                    contentType === 'core:broadcast' && items.length === 0
+                  }
                 />
               </div>
               <Sheet.Footer className="absolute bottom-0 right-0 p-5">
-                <Button variant="secondary" onClick={handleDiscard}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleDiscard}
+                >
                   Discard
                 </Button>
-                <Button onClick={print} disabled={isRunning}>
+                <Button
+                  type="button"
+                  onClick={print}
+                  disabled={isRunning || !previewReady}
+                >
                   {isRunning ? 'Printing' : 'Print'}
                 </Button>
               </Sheet.Footer>

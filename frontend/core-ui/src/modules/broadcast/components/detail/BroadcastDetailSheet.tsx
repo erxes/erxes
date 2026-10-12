@@ -94,7 +94,6 @@ const BroadcastDetailSheetHeader = () => {
       <ApprovalLockedBadge state={lockState ?? undefined} />
 
       <div className="ml-auto mr-2 flex items-center gap-2">
-        {/* Locked and not ours: asking is the only thing left to offer. */}
         {locked && (
           <ApprovalRequestAccessButton
             contentType={BROADCAST_APPROVAL_CONTENT_TYPE}
@@ -105,9 +104,6 @@ const BroadcastDetailSheetHeader = () => {
         )}
 
         <Can action="approvalLocksManage">
-          {/* No owner is named: whoever locks the campaign keeps access and
-                names who else does, so its author can be kept outside the
-                decision to send. */}
           <ApprovalLockButton
             contentType={BROADCAST_APPROVAL_CONTENT_TYPE}
             contentId={messageId}

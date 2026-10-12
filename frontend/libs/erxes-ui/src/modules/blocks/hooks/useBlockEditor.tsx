@@ -5,11 +5,14 @@ import { useErxesUpload, useUploadChunked, useToast } from 'erxes-ui/hooks';
 import { readImage } from 'erxes-ui/utils';
 import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
 import type { IBlockEditor } from '../types';
+import type { ThreadStore, User } from '@blocknote/core/comments';
 
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
+  comments?: { threadStore: ThreadStore };
+  resolveUsers?: (userIds: string[]) => Promise<User[]>;
 }): IBlockEditor => {
   const { placeholder, uploadFile, ...restArgs } = args || {};
 
@@ -50,16 +53,19 @@ export const useBlockEditor = (args?: {
     [uploadEditorFile, uploadVideo],
   );
 
-  const editor = useCreateBlockNote({
-    schema: BLOCK_SCHEMA,
-    tables: TABLE_SCHEMA,
-    placeholders: {
-      default: placeholder || "Type '/' for commands...",
+  const editor = useCreateBlockNote(
+    {
+      schema: BLOCK_SCHEMA,
+      tables: TABLE_SCHEMA,
+      placeholders: {
+        default: placeholder || "Type '/' for commands...",
+      },
+      uploadFile: uploadFile ?? defaultUploadFile,
+      resolveFileUrl: (url) => Promise.resolve(readImage(url)),
+      ...restArgs,
     },
-    uploadFile: uploadFile ?? defaultUploadFile,
-    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
-    ...restArgs,
-  });
+    [restArgs.comments?.threadStore],
+  );
 
   return editor;
 };

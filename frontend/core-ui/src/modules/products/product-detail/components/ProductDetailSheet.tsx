@@ -13,7 +13,12 @@ import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
+import {
+  ActivityLogs,
+  AddInternalNote,
+  FieldsInDetail,
+  PrintDocument,
+} from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
@@ -40,21 +45,20 @@ export const ProductDetailSheet = () => {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-  
+
   const [queries, setQueries] = useMultiQueryState<{
     [PRODUCT_QUERY_KEY]: string;
     tab: string;
   }>([PRODUCT_QUERY_KEY, 'tab']);
 
-  const { 
-    [PRODUCT_QUERY_KEY]: open, 
-    tab: selectedTab = 'overview' 
-  } = queries || {}
-  
+  const { [PRODUCT_QUERY_KEY]: open, tab: selectedTab = 'overview' } =
+    queries || {};
+
   const setSelectedTab = (tab: string | null) => setQueries({ tab });
-  
-  const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
-  
+
+  const { productDetail, productId, loading, error, refetch } =
+    useProductDetailWithQuery();
+
   const { productsEdit, loading: editLoading } = useProductsEdit();
 
   const form = useForm<ProductFormValues>({
@@ -158,9 +162,7 @@ export const ProductDetailSheet = () => {
   return (
     <FocusSheet
       open={!!open}
-      onOpenChange={() =>
-        setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })
-      }
+      onOpenChange={() => setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })}
     >
       <ProductDetailSheetView
         loading={loading}
@@ -175,6 +177,14 @@ export const ProductDetailSheet = () => {
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
+            {productDetail?._id && (
+              <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
+                <PrintDocument
+                  items={[{ _id: productDetail._id }]}
+                  contentType="core:product"
+                />
+              </div>
+            )}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSave, handleInvalid)}
@@ -182,7 +192,9 @@ export const ProductDetailSheet = () => {
               >
                 {selectedTab === 'similarity' ? (
                   <ProductDetailSimilarity
-                    key={`similarity-${productDetail?._id || productId || 'empty'}`}
+                    key={`similarity-${
+                      productDetail?._id || productId || 'empty'
+                    }`}
                     product={productDetail}
                     callBack={refetch}
                   />
@@ -201,7 +213,9 @@ export const ProductDetailSheet = () => {
                         className="data-[state=active]:min-h-0"
                       >
                         <ProductDetailFields
-                          key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
+                          key={`${
+                            productDetail?._id || productId || 'empty'
+                          }-${formVersion}`}
                           productDetail={productDetail}
                         />
                       </Tabs.Content>
@@ -230,7 +244,9 @@ export const ProductDetailSheet = () => {
                             />
                           )}
                           <ActivityLogs
-                            key={`activity-${productDetail?._id || productId || 'empty'}`}
+                            key={`activity-${
+                              productDetail?._id || productId || 'empty'
+                            }`}
                             targetId={productDetail?._id || ''}
                             customActivities={productCustomActivities}
                           />
@@ -279,10 +295,7 @@ const ProductDetailSheetView = ({
 
   return (
     <FocusSheet.View
-      className={cn(
-        'transition-[width] duration-300 ease-in-out',
-        widthClass,
-      )}
+      className={cn('transition-[width] duration-300 ease-in-out', widthClass)}
       {...props}
     >
       {children}

@@ -21,18 +21,33 @@ import {
 
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { AttributeInEditor } from 'ui-modules';
+import { AttributeInEditor, usePermissionCheck } from 'ui-modules';
+import { DocumentAttribute, IDocument } from '../types';
+import { FormType } from '../hooks/useDocumentForm';
+import { useDocumentComments } from '../hooks/useDocumentComments';
+import {
+  DocumentThreadStore,
+  restoreDocumentCommentAnchors,
+  serializeDocumentComments,
+  readDocumentComments,
+} from '../utils/DocumentThreadStore';
+import { toast } from 'erxes-ui';
+import { DocumentCommentsSidebar } from './DocumentCommentsSidebar';
 
 const EditorController = ({
   editor,
   onChange,
   attributes,
   loading,
+  readonly,
+  commentsOpen,
 }: {
   editor: IBlockEditor;
   onChange: (value: string) => void;
-  attributes: any[];
+  attributes: DocumentAttribute[];
   loading: boolean;
+  readonly: boolean;
+  commentsOpen: boolean;
 }) => {
   const dropRef = useRef<HTMLDivElement>(null);
   const [isDropTarget, setIsDropTarget] = useState(false);
@@ -106,8 +121,10 @@ const EditorController = ({
     >
       <BlockEditor
         editor={editor}
+        readonly={readonly}
+        floatingThread={!commentsOpen}
         className={cn(
-          'w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
+          'document-block-editor w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
         )}
       >
         <AttributeInEditor
@@ -115,6 +132,14 @@ const EditorController = ({
           attributes={attributes}
           loading={loading}
         />
+        {commentsOpen && editor.comments && (
+          <div className="document-comments-sidebar">
+            <p className="px-3 py-2 text-xs text-muted-foreground">
+              Save the document to keep comment changes.
+            </p>
+            <DocumentCommentsSidebar />
+          </div>
+        )}
       </BlockEditor>
     </div>
   );
@@ -122,45 +147,110 @@ const EditorController = ({
 
 const DocumentContentEditor = ({
   editor,
-  document,
+  document: documentItem,
   attributes,
   attributesLoading,
-}: any) => {
-  const { control } = useFormContext();
+  store,
+  readonly,
+  commentsOpen,
+}: {
+  editor: IBlockEditor;
+  document: IDocument | null;
+  attributes: DocumentAttribute[];
+  attributesLoading: boolean;
+  store: DocumentThreadStore;
+  readonly: boolean;
+  commentsOpen: boolean;
+}) => {
+  const { control, setValue } = useFormContext<FormType>();
+  const loadingContent = useRef(false);
+  const loadedDocument = useRef<{
+    id: string | undefined;
+    editor: IBlockEditor;
+  }>();
 
   useEffect(() => {
-    if (!document?.content || !editor) return;
-
-    const loadInitialContent = async () => {
-      let blocks;
-
+    let cancelled = false;
+    loadingContent.current = true;
+    const load = async () => {
       try {
-        blocks = JSON.parse(document.content);
-      } catch (_error) {
-        try {
-          blocks = await editor.tryParseHTMLToBlocks(document.content);
-        } catch (_htmlError) {
-          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        if (
+          loadedDocument.current?.id !== documentItem?._id ||
+          loadedDocument.current?.editor !== editor
+        ) {
+          editor.comments?.stopPendingComment();
+          editor.comments?.selectThread(undefined);
         }
+        loadedDocument.current = { id: documentItem?._id, editor };
+        const content = documentItem?.content;
+        if (content) {
+          let blocks: Parameters<IBlockEditor['replaceBlocks']>[1];
+          try {
+            const parsed: unknown = JSON.parse(content);
+            if (!Array.isArray(parsed))
+              throw new Error('Invalid document content');
+            blocks = parsed;
+          } catch {
+            blocks = await editor.tryParseHTMLToBlocks(content);
+          }
+          if (cancelled) return;
+          editor.replaceBlocks(editor.document, blocks);
+        }
+        const state = readDocumentComments(documentItem?.commentState);
+        store.load(state.threads);
+        restoreDocumentCommentAnchors(editor, state.anchors);
+      } catch (error) {
+        toast({
+          title: 'Could not load document content',
+          description: error instanceof Error ? error.message : String(error),
+          variant: 'destructive',
+        });
+      } finally {
+        if (!cancelled) loadingContent.current = false;
       }
-
-      editor.replaceBlocks(editor.document, blocks);
     };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    documentItem?._id,
+    documentItem?.content,
+    documentItem?.commentState,
+    editor,
+    store,
+  ]);
 
-    loadInitialContent();
-  }, [document?.content, editor]);
+  useEffect(() => {
+    const update = () => {
+      if (!loadingContent.current && !readonly) {
+        setValue('commentState', serializeDocumentComments(editor, store), {
+          shouldDirty: true,
+        });
+      }
+    };
+    const unsubscribe = store.subscribe(update);
+    const unsubscribeEditor = editor.onChange(update);
+    return () => {
+      unsubscribe();
+      unsubscribeEditor?.();
+    };
+  }, [editor, readonly, setValue, store]);
 
   return (
     <Controller
       name="content"
       control={control}
-      rules={{ required: 'Content is required' }}
       render={({ field }) => (
         <EditorController
           editor={editor}
-          onChange={field.onChange}
+          onChange={(value) => {
+            if (!loadingContent.current) field.onChange(value);
+          }}
           attributes={attributes}
           loading={attributesLoading}
+          readonly={readonly}
+          commentsOpen={commentsOpen}
         />
       )}
     />
@@ -171,10 +261,12 @@ const DocumentTitleEditor = ({
   value,
   onChange,
   onEnterPress,
+  readonly,
 }: {
   value: string;
   onChange: (value: string) => void;
   onEnterPress: () => void;
+  readonly: boolean;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -214,6 +306,7 @@ const DocumentTitleEditor = ({
 
   return (
     <textarea
+      readOnly={readonly}
       ref={textareaRef}
       value={value}
       rows={1}
@@ -227,11 +320,18 @@ const DocumentTitleEditor = ({
 
 export const DocumentEditor = () => {
   const { document, documentId, hasError, loading, refetch } = useDocument();
-  const editor = useBlockEditor({});
+  const { store, resolveUsers } = useDocumentComments();
+  const { hasActionPermission } = usePermissionCheck();
+  const readonly = !hasActionPermission('manageDocuments');
+  const editor = useBlockEditor({
+    comments: readonly ? undefined : { threadStore: store },
+    resolveUsers,
+  });
   const { attributes, loading: attributesLoading } = useDocumentAttributes();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
-  const { control } = useFormContext();
+  const { control } = useFormContext<FormType>();
 
   const isCreating = !documentId;
   const hasAttributes = attributes.length > 0;
@@ -251,7 +351,9 @@ export const DocumentEditor = () => {
       <DocumentsErrorState
         title="Couldn’t load document"
         description="Check your connection and try again."
-        onRetry={refetch}
+        onRetry={() => {
+          void refetch().catch(() => undefined);
+        }}
       />
     );
   }
@@ -281,13 +383,25 @@ export const DocumentEditor = () => {
             rules={{ required: 'Title is required' }}
             render={({ field }) => (
               <DocumentTitleEditor
-                value={field.value}
+                value={field.value || ''}
                 onChange={field.onChange}
                 onEnterPress={handleEnterPress}
+                readonly={readonly}
               />
             )}
           />
-          {hasAttributes && !sidebarOpen && (
+          {!readonly && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mr-2 mt-10 shrink-0"
+              onClick={() => setCommentsOpen((open) => !open)}
+            >
+              Comments
+            </Button>
+          )}
+          {!readonly && hasAttributes && !sidebarOpen && (
             <Button
               variant="outline"
               size="sm"
@@ -304,6 +418,9 @@ export const DocumentEditor = () => {
           document={document}
           attributes={attributes}
           attributesLoading={attributesLoading}
+          store={store}
+          readonly={readonly}
+          commentsOpen={commentsOpen}
         />
       </div>
       {hasAttributes && sidebarOpen && (

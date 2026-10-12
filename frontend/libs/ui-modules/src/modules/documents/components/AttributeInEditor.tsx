@@ -17,7 +17,7 @@ import { ATTRIBUTE_QUERY } from 'ui-modules/modules/documents/graphql/queries';
 interface Attribute {
   label?: string;
   name: string;
-  value?: any;
+  value?: string;
   groupDetail?: {
     name: string;
   };
@@ -192,6 +192,8 @@ function getAttributeMenuItems(
           props: {
             name: attribute.label || attribute.name,
             value: attribute.value || attribute.name,
+            width: 150,
+            height: 50,
           },
         },
         ' ',

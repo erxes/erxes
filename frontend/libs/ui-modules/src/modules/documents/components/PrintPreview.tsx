@@ -41,8 +41,10 @@ const roundMm = (value: number) => Math.round(value * 10) / 10;
 
 export const PrintPreview = ({
   iframeRef,
+  onReadyChange,
 }: {
   iframeRef: RefObject<HTMLIFrameElement>;
+  onReadyChange?: (ready: boolean) => void;
 }) => {
   const { watch, setValue, trigger } = useFormContext<PrintFormValues>();
 
@@ -93,6 +95,21 @@ export const PrintPreview = ({
     fetchPolicy: 'network-only',
     skip: !_id,
   });
+
+  useEffect(() => {
+    onReadyChange?.(false);
+    if (iframeRef.current) iframeRef.current.dataset.printReady = 'false';
+  }, [
+    _id,
+    replacerIds,
+    copies,
+    width,
+    height,
+    loading,
+    error,
+    iframeRef,
+    onReadyChange,
+  ]);
 
   const fitZoom =
     paperSize.width && paperSize.height && viewport.width && viewport.height
@@ -213,7 +230,7 @@ export const PrintPreview = ({
   useEffect(() => {
     const iframe = iframeRef.current;
 
-    if (!iframe || !content) {
+    if (!iframe || !content || !_id || loading || error) {
       return;
     }
 
@@ -240,6 +257,7 @@ export const PrintPreview = ({
 
     const onLoad = () => {
       iframe.dataset.printReady = 'true';
+      onReadyChange?.(true);
 
       const container =
         iframe.contentDocument?.querySelector('.scaled-content');
@@ -281,6 +299,10 @@ export const PrintPreview = ({
     };
   }, [
     content,
+    _id,
+    replacerIds,
+    loading,
+    error,
     size,
     orientation,
     width,
@@ -288,6 +310,7 @@ export const PrintPreview = ({
     isRoll,
     debouncedSpacing,
     iframeRef,
+    onReadyChange,
   ]);
 
   useEffect(() => {
