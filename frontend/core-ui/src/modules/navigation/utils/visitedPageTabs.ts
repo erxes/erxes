@@ -131,7 +131,7 @@ const safeDecodeURIComponent = (value: string) => {
   }
 };
 
-const toTitleCase = (value: string) =>
+export const toTitleCase = (value: string) =>
   safeDecodeURIComponent(value)
     .split(/[-_]/)
     .filter(Boolean)
@@ -161,7 +161,7 @@ const getFallbackLabel = (pathname: string, labels: IVisitedPageTabLabels) => {
     .join(' / ');
 };
 
-const getMatchingNavigationModule = (
+export const getMatchingNavigationModule = (
   pathname: string,
   modules: IVisitedPageNavigationModule[],
 ) => {
