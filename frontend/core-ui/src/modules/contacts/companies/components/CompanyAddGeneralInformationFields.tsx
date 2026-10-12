@@ -17,7 +17,7 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from 'ui-modules/modules/contacts/constants/companyConstants';
 
-const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter((i) => i).map(
+const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean).map(
   (i) => ({
     label: i,
     value: i,
