@@ -61,6 +61,9 @@ const useDateSelectContext = () => {
 const areDatesEqual = (left?: Date, right?: Date) =>
   left?.getTime() === right?.getTime();
 
+const toSingleDate = (date: unknown) =>
+  date instanceof Date ? date : undefined;
+
 export const DateSelectProvider = ({
   children,
   ...props
@@ -114,9 +117,7 @@ const DateSelectContent = () => {
     <DatePicker
       inline
       value={value}
-      onChange={(date) =>
-        onValueChange(date instanceof Date ? date : undefined)
-      }
+      onChange={(date) => onValueChange(toSingleDate(date))}
       placeholder={t('select-date')}
       clearLabel={t('clear', 'Clear')}
       className="h-8"
@@ -216,9 +217,7 @@ export const DateSelectDealRoot = ({
         <div className="w-36">
           <DatePicker
             value={dateValue}
-            onChange={(date) =>
-              optimisticDate.setValue(date instanceof Date ? date : undefined)
-            }
+            onChange={(date) => optimisticDate.setValue(toSingleDate(date))}
             placeholder={placeholder || t('select-date')}
             clearLabel={t('clear', 'Clear')}
             className={cn(

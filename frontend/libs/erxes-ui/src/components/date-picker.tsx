@@ -268,6 +268,14 @@ export const DatePicker = ({
     setIsOpen(open);
   };
 
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const opensPopover = !inline && (e.key === 'Enter' || e.key === ' ');
+    if (!opensPopover && e.key !== 'Enter') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (opensPopover) setIsOpen(true);
+  };
+
   const singleInput = (
     <div
       aria-disabled={isDisabled}
@@ -286,13 +294,7 @@ export const DatePicker = ({
         disabled={isDisabled}
         onFocus={() => setIsFocused(true)}
         onBlur={handleInputBlur}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || (!inline && e.key === ' ')) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!inline) setIsOpen(true);
-          }
-        }}
+        onKeyDown={handleInputKeyDown}
         className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed"
       />
       {canClear ? (
@@ -355,13 +357,13 @@ export const DatePicker = ({
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <div className="relative inline-block w-full">
-        {mode === 'single' ? (
-          <Popover.Trigger asChild>{singleInput}</Popover.Trigger>
-        ) : (
-          <Popover.Trigger asChild>
+        <Popover.Trigger asChild>
+          {mode === 'single' ? (
+            singleInput
+          ) : (
             <Button
               variant={variant}
-              disabled={disabled === true}
+              disabled={isDisabled}
               className={cn(
                 'w-full justify-start text-left font-normal',
                 className,
@@ -375,8 +377,8 @@ export const DatePicker = ({
                 placeholder,
               )}
             </Button>
-          </Popover.Trigger>
-        )}
+          )}
+        </Popover.Trigger>
       </div>
       <Popover.Content
         align="start"
