@@ -57,7 +57,7 @@ export const ConversationDetailLayout = ({
               minSize={collapsed ? 0 : minSize}
               maxSize={100}
             >
-              <div className="relative z-20 h-full min-h-0 border-t border-border/60 bg-background/95 backdrop-blur">
+              <div className="relative z-40 h-full min-h-0 border-t border-border/60 bg-background/95 backdrop-blur">
                 {input}
               </div>
             </Resizable.Panel>
