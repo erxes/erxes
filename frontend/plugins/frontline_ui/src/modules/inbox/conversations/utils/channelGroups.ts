@@ -1,12 +1,15 @@
-import { IConversation } from '@/inbox/types/Conversation';
-import { IIntegration } from '@/integrations/types/Integration';
+import {
+  IConversation,
+  IConversationIntegration,
+} from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 
 export const isDiscordConversation = (conversation: IConversation): boolean =>
   conversation.integration?.kind === IntegrationType.DISCORD_MESSENGER;
 
 export const channelLabelFromIntegration = (
-  integration?: IIntegration,
+  integration?: Pick<IConversationIntegration, 'name'> &
+    Partial<Pick<IConversationIntegration, 'channel'>>,
 ): string => {
   if (!integration) {
     return 'Other';
@@ -21,7 +24,7 @@ export const channelLabelFromIntegration = (
 };
 
 export const channelGroupFromIntegration = (
-  integration?: IIntegration,
+  integration?: Pick<IConversationIntegration, 'name'>,
 ): string => {
   const name = integration?.name?.trim() || '';
   const separatorIndex = name.indexOf(' - #');

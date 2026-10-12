@@ -21,7 +21,7 @@ import { useParams } from 'react-router';
 import { SelectBrand } from 'ui-modules';
 import { z } from 'zod';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
-import type { IIntegrationDetail } from '@/integrations/types/Integration';
+import type { IIntegration } from '@/integrations/types/Integration';
 import {
   TELEGRAM_ADD_BOT,
   TELEGRAM_BOTS,
@@ -60,7 +60,7 @@ type SetupValues = z.infer<ReturnType<typeof getSetupSchema>>;
 export const TelegramIntegrationActions = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   const setOpen = useSetAtom(telegramSetupState);
   const { t } = useTelegramTranslation();
@@ -129,9 +129,7 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
   const [updateBot] = useMutation(TELEGRAM_UPDATE_BOT);
   const [register] = useMutation(TELEGRAM_SET_WEBHOOK);
   const [disconnect] = useMutation(TELEGRAM_DISCONNECT);
-  const [addIntegration] = useMutation<{
-    integrationsCreateExternalIntegration: { _id: string };
-  }>(ADD_INTEGRATION);
+  const [addIntegration] = useMutation(ADD_INTEGRATION);
 
   /** Refetches active setup and inbox queries after connection changes. */
   const refresh = async (): Promise<void> => {
@@ -212,10 +210,12 @@ const TelegramSetup = ({ integrationId }: { integrationId: string | null }) => {
             data: { sourceBotId: current._id },
           },
         });
-        if (!result.data) throw new Error(t('failed'));
+        const createdId =
+          result.data?.integrationsCreateExternalIntegration?._id;
+        if (!createdId) throw new Error(t('failed'));
         current = {
           ...current,
-          erxesApiId: result.data.integrationsCreateExternalIntegration._id,
+          erxesApiId: createdId,
         };
         setSavedBot(current);
         setProgress('linked');

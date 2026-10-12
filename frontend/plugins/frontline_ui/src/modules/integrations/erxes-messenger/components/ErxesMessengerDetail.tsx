@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 import { AddErxesMessengerSheet } from './AddErxesMessenger';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import { IconEdit } from '@tabler/icons-react';
 import { EditErxesMessengerSheet } from './EditErxesMessengerSheet';
 import { useSetAtom } from 'jotai';
@@ -18,7 +18,7 @@ export const ErxesMessengerDetail = () => {
 export const ErxesMessengerActions = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   const { t } = useTranslation('frontline');
   const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);

@@ -67,7 +67,7 @@ export const DiscordServersNav = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const fetchedCursorRef = useRef<string | null>(null);
+  const fetchedCursorRef = useRef<string | null | undefined>(null);
   useEffect(() => {
     if (!pageInfo?.hasNextPage) return;
     const cursor = pageInfo.endCursor;
@@ -89,7 +89,7 @@ export const DiscordServersNav = () => {
     const activeIntegrations = (integrations || []).filter(
       (integration) =>
         integration.isActive &&
-        Boolean(integration.channelId) &&
+        !!integration.channelId &&
         myChannelIds.has(integration.channelId),
     );
 

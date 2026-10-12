@@ -15,8 +15,10 @@ import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton'
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 import { NoConversationSelected } from './NoConversationSelected';
 import { ConversationMarkAsReadEffect } from './ConversationMarkAsReadEffect';
-import { IConversation } from '@/inbox/types/Conversation';
-import { IIntegration } from '@/integrations/types/Integration';
+import {
+  IConversation,
+  IConversationIntegration,
+} from '@/inbox/types/Conversation';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { messageReplyState } from '../states/messageReplyState';
@@ -60,9 +62,7 @@ export const ConversationDetail = () => {
   const { integrationId } = currentConversation || conversationDetail || {};
 
   const { integration } = useIntegrationInline({
-    variables: {
-      _id: integrationId,
-    },
+    variables: integrationId ? { _id: integrationId } : undefined,
     skip: !integrationId,
   });
 
@@ -84,7 +84,7 @@ export const ConversationDetail = () => {
     integration,
     loading,
   } as IConversation & {
-    integration?: IIntegration;
+    integration?: IConversationIntegration;
     loading?: boolean;
   };
 

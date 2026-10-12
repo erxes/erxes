@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { DISCORD_EDIT_SCHEMA } from '../constants/discordSchema';
@@ -133,7 +133,7 @@ const DiscordIntegrationEditForm = ({
 export const DiscordIntegrationActions = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -159,7 +159,7 @@ export const DiscordIntegrationActions = ({
 export const DiscordIntegrationRepair = ({
   cell,
 }: {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 }) => {
   const { integrationType } = useParams();
   const [repairIntegration, { loading }] = useMutation(REPAIR_INTEGRATION, {

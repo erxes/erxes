@@ -1,10 +1,12 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
-import { IConversation } from '@/inbox/types/Conversation';
-import { IIntegration } from '@/integrations/types/Integration';
+import {
+  IConversation,
+  IConversationIntegration,
+} from '@/inbox/types/Conversation';
 
 interface IConversationContext extends IConversation {
   loading?: boolean;
-  integration?: IIntegration;
+  integration?: IConversationIntegration;
   tagIds: string[];
   setTagIds?: (ids: string[]) => void;
 }
@@ -15,7 +17,7 @@ export const ConversationContext = createContext<IConversationContext | null>(
 
 interface IConversationProviderProps {
   conversation: IConversation & {
-    integration?: IIntegration;
+    integration?: IConversationIntegration;
     loading?: boolean;
   };
   children: ReactNode;

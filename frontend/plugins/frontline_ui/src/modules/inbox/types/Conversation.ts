@@ -1,7 +1,17 @@
 import type { IAttachment } from 'erxes-ui';
 import type { ICustomerInline, IUser } from 'ui-modules';
-import type { IIntegration } from '@/integrations/types/Integration';
+import type { IChannel } from '@/channels/types';
 import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
+
+export interface IConversationIntegration {
+  _id: string;
+  name: string;
+  brandId?: string;
+  kind: string;
+  channelId: string;
+  channel: Pick<IChannel, 'name' | 'icon'> | null;
+  isActive?: boolean;
+}
 
 export interface IConversation {
   _id: string;
@@ -11,7 +21,7 @@ export interface IConversation {
   customer: ICustomerInline;
   customerId?: string;
   integrationId?: string;
-  integration?: IIntegration;
+  integration?: IConversationIntegration;
   readUserIds?: string[];
   assignedUserId?: string;
   assignedUser?: IUser;

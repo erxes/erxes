@@ -21,7 +21,7 @@ import { Suspense, useState } from 'react';
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationDetailView } from './ConversationDetailView';
 import { IChannel } from '@/inbox/types/Channel';
-import { IIntegration } from '@/integrations/types/Integration';
+import { IConversationIntegration } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import {
   CALL_STATUS_LABEL_KEYS,
@@ -89,7 +89,7 @@ export const ConversationRelationDetails = ({
           <ConversationRelationItem
             conversationId={conversationId}
             customer={customer || ({} as ICustomerInline)}
-            integration={integration || ({} as IIntegration)}
+            integration={integration || ({} as IConversationIntegration)}
             createdAt={createdAt || ''}
             updatedAt={updatedAt || ''}
             channelDetail={channelDetail || ({} as IChannel)}
@@ -155,7 +155,7 @@ export const ConversationRelationItem = ({
 }: {
   conversationId: string;
   customer: ICustomerInline;
-  integration: IIntegration;
+  integration: IConversationIntegration;
   createdAt: string;
   updatedAt: string;
   channelDetail: IChannel;

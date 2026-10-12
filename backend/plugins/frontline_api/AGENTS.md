@@ -718,6 +718,14 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `[integrationsGetUsedTypesByChannel]` (its own type, not the shared
   `integrationsGetUsedTypes`), carrying `conversationCount` and
   `unreadConversationCount` per kind for the matched channels.
+  Each entry's `_id`, `name` and counts are non-null; the list wrappers stay
+  nullable.
+- GraphQL `Integration` outputs: `healthStatus` is `IntegrationHealthStatus`
+  (`status: String!`, `error`), `healthy` when the provider reports nothing;
+  `facebookPage` is `[IntegrationFacebookPage!]` (`pageId: String!`, plus the
+  Graph API `id` and `name`), `null` for non-Facebook kinds or when no page
+  token resolves. `details` (kind-specific; mail returns `{ status, data }`),
+  `instagramPage`, `leadData`, `messengerData` and `uiOptions` stay `JSON`.
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.

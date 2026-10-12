@@ -1,6 +1,6 @@
 import { FACEBOOK_AUTH_SUCCESS_MESSAGE } from '@/integrations/constants/authMessages';
 import { useIntegrationReauth } from '@/integrations/hooks/useIntegrationReauth';
-import { IIntegrationDetail } from '@/integrations/types/Integration';
+import { IIntegration } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { Spinner, toast } from 'erxes-ui';
@@ -10,7 +10,7 @@ import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
 import { parseRepairResult } from '@/integrations/utils/repairResult';
 
 type Props = {
-  cell: CellContext<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegration, unknown>;
 };
 
 export const FacebookIntegrationRepair = ({ cell }: Props) => {

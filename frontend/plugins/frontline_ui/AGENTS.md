@@ -642,6 +642,7 @@ owns the setup form and connection actions.
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Cursor list adapter       | `src/modules/shared/utils/cursorList.ts`                                                                                                          | `toCursorPageInfo`, `compactList`, `mergeCursorList` for cursor lists typed from the schema                                                     |
+| JSON narrowing            | `src/modules/shared/utils/isRecord.ts`                                                                                                            | `isRecord` type guard for `JSON` outputs that stay untyped                                                                                      |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                   |
 | Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel            |
@@ -1023,8 +1024,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `TelegramBot`, `TelegramWebhookInfo` and `TelegramChat` derive from the
   generated query types. Link cards select the `TelegramLinkPreview` fields and
   map them to the inbox `IMessageEmbed`, turning a null `description` or
-  `image` into `undefined`. Setup still passes a type argument to the
-  integrations `ADD_INTEGRATION` mutation, which is not a `gql()` document yet.
+  `image` into `undefined`. Setup fails with `failed` when the created
+  integration comes back without an `_id`.
 - Telegram suppresses automatic response-template suggestions while typing;
   the explicit template selector remains available. Preserve other providers'
   composer behavior, Facebook partial-delivery recovery, Instagram error
@@ -2170,15 +2171,35 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   replaces a message with the same full shape.
 - A module typed from the schema (so far `report`, `integrations/call`,
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
-  `integrations/erxes-messenger`, `integrations/telegram`, the Facebook and
-  Instagram settings (config, repair, page post), and the Facebook, Instagram
-  and knowledge base automation widgets) writes every document as
+  `integrations/erxes-messenger`, `integrations/telegram`, the integrations
+  core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`), the
+  Facebook and Instagram settings (config, repair, page post), and the
+  Facebook, Instagram and knowledge base automation widgets) writes every
+  document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and derives response types from the generated query types.
   The `~/gql/graphql` type import goes after the `@apollo/client` import;
   the migration's `rg` check otherwise reads across the two imports and
   reports a false hit.
+- Integration types derive from the generated queries: `IIntegration` is the
+  `Integrations` list row (record tables use `CellContext<IIntegration>`),
+  `IIntegrationDetail` is `integrationDetail`, and `IIntegrationType` /
+  `IIntegrationTypeByChannel` are the used-types entries. `conversation.integration`
+  uses the inbox-owned, handwritten `IConversationIntegration` in
+  `inbox/types/Conversation.ts` until the inbox documents are typed.
+- Integration hooks drop null list items with `compactList` and adapt
+  `PageInfo` through `@/shared/utils/cursorList`. Query variables follow the
+  `id ? { ... } : undefined` plus `skip` pattern; `channelId` is required by
+  the `Integrations` query.
+- `Integration.details` stays `JSON` because its shape depends on the kind.
+  Readers narrow it with `isRecord` from `@/shared/utils/isRecord` (a copy of
+  operation's) and `typeof` checks, never casts; `MailIntegrationDetail` reads
+  `details.data`.
+- `useIntegrationEditField` sends only the edit mutation's variables (`_id`,
+  `name`, `channelId`, `brandId`); a null row `channelId` goes out as `''`,
+  which keeps the integration's channel. The detail query selects `channelId`,
+  which the Facebook, Instagram, mail and Discord edit forms send back.
 - Report outputs stay nullable as the schema declares them, except the call
   report's `day` fields, which `frontline_api` declares non-null. Null list
   items are dropped with `isDefined` from `erxes-ui`, either in the hook or in

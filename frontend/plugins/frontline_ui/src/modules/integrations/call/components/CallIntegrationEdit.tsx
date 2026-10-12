@@ -43,6 +43,7 @@ export const CallIntegrationEdit = () => {
   });
 
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
+    if (!integrationId) return;
     editIntegration({
       variables: {
         _id: integrationId,

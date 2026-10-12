@@ -79,7 +79,7 @@ export const types = `
 
     websiteMessengerApps: [MessengerApp]
 
-    healthStatus: JSON
+    healthStatus: IntegrationHealthStatus
     form : Form
 
     visibility: String
@@ -87,9 +87,21 @@ export const types = `
 
     details: JSON
     callData: CloudflareCallsData
-    facebookPage: JSON
+    facebookPage: [IntegrationFacebookPage!]
     instagramPage: JSON
   }
+
+  type IntegrationHealthStatus {
+    status: String!
+    error: String
+  }
+
+  type IntegrationFacebookPage {
+    pageId: String!
+    id: String
+    name: String
+  }
+
   type IntegrationRespone {
     list: [Integration],
     pageInfo: PageInfo
@@ -105,18 +117,18 @@ export const types = `
   }
 
   type integrationsGetUsedTypes {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
   }
 
   # A used integration kind inside the caller's channels. The counts cover the
   # conversations held by that kind's integrations across the matched channels;
   # unreadConversationCount is per-viewer.
   type integrationsGetUsedTypesByChannel {
-    _id: String
-    name: String
-    conversationCount: Int
-    unreadConversationCount: Int
+    _id: String!
+    name: String!
+    conversationCount: Int!
+    unreadConversationCount: Int!
   }
 
   input BotPersistentMenuTypeMessenger {

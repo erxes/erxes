@@ -1,16 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const getIntegrations = gql`
-  query IntegrationsUsedTypesWithCounts($limit: Int, $only: String) {
-    integrationsGetUsedTypes {
-      _id
-      name
-    }
-    conversationCounts(limit: $limit, only: $only)
-  }
-`;
-
-export const INTEGRATION_INLINE = gql`
+export const INTEGRATION_INLINE = gql(`
   query IntegrationInline($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
@@ -18,9 +8,9 @@ export const INTEGRATION_INLINE = gql`
       kind
     }
   }
-`;
+`);
 
-export const GET_INTEGRATIONS_BY_KIND = gql`
+export const GET_INTEGRATIONS_BY_KIND = gql(`
   query Integrations(
     $kind: String
     $searchValue: String
@@ -44,7 +34,10 @@ export const GET_INTEGRATIONS_BY_KIND = gql`
         name
         kind
         isActive
-        healthStatus
+        healthStatus {
+          status
+          error
+        }
         brandId
         channelId
       }
@@ -57,18 +50,18 @@ export const GET_INTEGRATIONS_BY_KIND = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_INTEGRATION_KINDS = gql`
+export const GET_INTEGRATION_KINDS = gql(`
   query IntegrationsGetUsedTypes {
     integrationsGetUsedTypes {
       _id
       name
     }
   }
-`;
+`);
 
-export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
+export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql(`
   query IntegrationsGetUsedTypesByChannel($channelId: String, $scope: String) {
     integrationsGetUsedTypesByChannel(channelId: $channelId, scope: $scope) {
       _id
@@ -76,4 +69,4 @@ export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
       unreadConversationCount
     }
   }
-`;
+`);

@@ -1,12 +1,14 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { CONVERSATION_CHANGED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 import { GET_CONVERSATION_DETAIL } from '../graphql/queries/getConversationDetail';
-import { IConversation } from '@/inbox/types/Conversation';
-import { IIntegration } from '@/integrations/types/Integration';
+import {
+  IConversation,
+  IConversationIntegration,
+} from '@/inbox/types/Conversation';
 import { useEffect } from 'react';
 
 interface IConversationDetail extends IConversation {
-  integration: IIntegration;
+  integration: IConversationIntegration;
 }
 
 interface IConversationDetailQueryResponse {

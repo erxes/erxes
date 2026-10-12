@@ -10,8 +10,10 @@ import { ConversationIntegrationDetail } from '@/integrations/components/Convers
 import { ConversationMessages } from '@/inbox/conversation-messages/components/ConversationMessages';
 import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
-import { IConversation } from '@/inbox/types/Conversation';
-import { IIntegration } from '@/integrations/types/Integration';
+import {
+  IConversation,
+  IConversationIntegration,
+} from '@/inbox/types/Conversation';
 import { useEffect } from 'react';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
@@ -47,9 +49,7 @@ export const ConversationDetailView = ({
   const { integrationId } = currentConversation || conversationDetail || {};
 
   const { integration } = useIntegrationInline({
-    variables: {
-      _id: integrationId,
-    },
+    variables: integrationId ? { _id: integrationId } : undefined,
     skip: !integrationId,
   });
 
@@ -87,7 +87,7 @@ export const ConversationDetailView = ({
           integration,
           loading,
         } as IConversation & {
-          integration?: IIntegration;
+          integration?: IConversationIntegration;
           loading?: boolean;
         }
       }
