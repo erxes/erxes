@@ -818,16 +818,24 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - GraphQL: `mailConversationDetail(conversationId!, limit): MailConversationMessages`
   — a `{ messages, hasMore }` window over the **newest** `limit` messages of a
   thread (default 20, server cap 500), returned oldest first. Each message
-  carries `mailData` with the addresses, body, the quoted-reply split
+  carries non-null `mailData: MailThreadMessageData!` with the addresses,
+  body, the quoted-reply split
   (`newContent` / `replies`), attachments, the delivery fields
   (`deliveryStatus`, `deliveryError`, `deliveryRetryable`, `bouncedRecipients`),
-  and the inbound sender check (`envelopeFrom`, `senderMismatch`).
+  and the inbound sender check (`envelopeFrom`, `senderMismatch`). Address and
+  attachment entries use `MailThreadAddress` and `MailThreadAttachment`;
+  attachment `size` is `Float`. Resolver-normalized lists, booleans and body
+  are non-null; optional stored fields, including timestamps, remain nullable.
 - GraphQL: `mailSendMail(...)` and `mailMessageRetry(_id!)` — both require
   `conversationMessageAdd` and return only the delivery outcome of the stored
-  message (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the
+  message as `MailDeliveryOutcome` (`_id`, `deliveryStatus`, `deliveryError`,
+  non-null `bouncedRecipients`), so the
   caller reads what actually happened instead of assuming success. `mailSendMail`
   persists the message **before** the transport call, so a send failure never
   loses an agent's reply.
+- GraphQL: `mailSendReaction` also returns `MailDeliveryOutcome`;
+  `mailDraftApprove` returns that object with `draftId`. These structured
+  results require field selections rather than the former JSON selection.
 - GraphQL: `mailCheckConnection: MailConnectionCheck` — requires
   `integrationsEdit`. Signs a request with this deployment's tenant key and posts
   it to the mail worker's `POST /verify`, which delivers a probe back to whatever
@@ -1319,6 +1327,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   added there, never as another `if` branch.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils`
   opens a Redis client on import that would otherwise keep it alive.
+- Mail thread serialization in `integrations/mail/utils/thread.ts` always
+  supplies `attachments: message.attachments ?? []`; never rely on Mongoose
+  defaults alone for the non-null attachment list. Preserve explicit
+  defaults for references, bounced recipients, booleans and body. Delivery
+  status remains `String` in the SDL so historical values can still be read.
 - An argument a resolver cannot run without is non-null in the SDL:
   `responseTemplatesEdit(_id)`, `conversationMessageAdd(conversationId)`,
   `conversationMarkAsRead(_id)`, `ticketCreateNote(contentId)`,
@@ -1410,37 +1423,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   rejection throws instead of silently keeping the unvalidated input, and
   clearing every property to `{}` stays `{}` on the next read rather than
   reverting to any legacy value.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-06` — Telegram group upgrades and attachment URLs
-
-- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
-- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
-- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
-
-### `2026-10-06` — Telegram previews and review hygiene
-
-- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
-- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
-- **Contracts changed:** None; previews use the existing conversation content field.
-
-### `2026-10-06` — Complete long Telegram replies and connection edits
-
-- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
-- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
-- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
-- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
-- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
-
-### `2026-10-06` — Telegram integration on the current inbox architecture
-
-- **Summary:** Adds Telegram setup, webhook ingestion and replies through the existing provider dispatcher and inbox persistence flow.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider dispatch, model registration and routes.
-- **Contracts changed:** Telegram bot lifecycle/status GraphQL and `/telegram/receive/:_id`; provider metadata uses `extraData.telegram`.

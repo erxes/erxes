@@ -582,6 +582,9 @@
   the printed `frontline_api` schema, the core snapshot
   `schema/platform.graphql` and `codegen/external-plugins.graphql`, and
   generates result and variable types into `src/gql/`.
+- Mail documents, including provider setup and pipeline mail settings, use
+  `gql()` from `~/gql`. Thread, draft, sender, connection, zone, quota and
+  readiness response types derive from generated operation selections.
 - The report module is typed from the schema: its documents, and the call
   report documents it reads from `integrations/call/graphql/queries/`
   (`callStatistics.ts`, `callHistoryList.ts`), are `gql()` documents, and its
@@ -827,8 +830,11 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   left out of the fragment is saved but never restored.
 - `frontline_api` GraphQL `mailConversationDetail(conversationId!, limit)` —
   returns `{ messages, hasMore }`, the newest `limit` messages oldest-first, not
-  a bare list. `mailSendMail` and `mailMessageRetry` return the delivery outcome
-  (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the caller
+  a bare list. Each message selects the fields of `MailThreadMessageData`,
+  including nested addresses and attachments. `mailSendMail`,
+  `mailSendReaction`, `mailMessageRetry` and `mailDraftApprove` select the
+  `MailDeliveryOutcome` fields (`_id`, `deliveryStatus`, `deliveryError`,
+  `bouncedRecipients`), so the caller
   reads `deliveryStatus` instead of assuming the send worked.
   New mail arrives through `conversationMessageInserted`. An
   attachment the server could not store still carries a `url` — the mail worker's
@@ -2173,7 +2179,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
   core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
-  `integrations/discord`, the Facebook and Instagram settings (config,
+  `integrations/discord`, `integrations/mail`, the Facebook and Instagram
+  settings (config,
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base
   automation widgets, the mail automation inbox checklist, the
@@ -2242,6 +2249,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `toFacebookMessageExtras` for `botData`, `source` and `relatedMessage`.
   Facebook reply delivery is read from the add mutation's `extraData` with
   `readFacebookDelivery`.
+- Mail internal notes also pass through `toMessage`; pagination and
+  subscription-triggered merges retain the generated query rows in Apollo.
+  Mail thread rows use their own generated `MailMessage` selection, whose
+  optional stored fields remain nullable. Known delivery strings are narrowed
+  with `toMailDeliveryStatus` before rendering a delivery badge.
+- Each pipeline mail mutation hook passes its generated document directly
+  to `useMutation`, preserving its result and variable inference. Only toast
+  callbacks and the awaited integration refetch options are shared through
+  `usePipelineMailMutationOptions`; never widen a generated document to
+  untyped `DocumentNode` in a helper.
 - `IResponseTemplate` is the `ResponseTemplates` list row; `name`, `content`
   and `channelId` are nullable because the Mongoose schema requires none of
   them. Template pickers (inbox suggestions, `ResponseTemplateSelector`, note
@@ -2553,37 +2570,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-06` — Telegram metadata promise handling
-
-- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
-- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
-- **Contracts changed:** None.
-
-### `2026-10-06` — Telegram setup recovery and attachment guards
-
-- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
-- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
-- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
-- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
-- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
-
-### `2026-10-06` — Telegram config entry and automatic setup defaults
-
-- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
-- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
-- **Contracts changed:** None; existing routes and per-bot setup are reused.
-
-### `2026-10-06` — Telegram on the native composer and message components
-
-- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
-- **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.

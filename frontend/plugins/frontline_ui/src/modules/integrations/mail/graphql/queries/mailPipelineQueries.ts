@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const MAIL_PIPELINE_INTEGRATION_QUERY = gql`
+export const MAIL_PIPELINE_INTEGRATION_QUERY = gql(`
   query mailPipelineIntegration($pipelineId: String!) {
     mailPipelineIntegration(pipelineId: $pipelineId) {
       _id
@@ -25,4 +25,4 @@ export const MAIL_PIPELINE_INTEGRATION_QUERY = gql`
       __typename
     }
   }
-`;
+`);

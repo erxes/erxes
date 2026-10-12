@@ -1,20 +1,14 @@
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { MAIL_CHECK_CONNECTION_MUTATION } from '../graphql/mutations/mailMutations';
+import type { MailCheckConnectionMutation } from '~/gql/graphql';
 
-export interface IMailConnectionCheck {
-  ok: boolean;
-  tenant: string;
-  endpoint?: string | null;
-  error?: string | null;
-}
-
-interface MailConnectionCheckResponse {
-  mailCheckConnection: IMailConnectionCheck;
-}
+export type IMailConnectionCheck = NonNullable<
+  MailCheckConnectionMutation['mailCheckConnection']
+>;
 
 export const useMailConnectionCheck = () => {
-  const [mutate, { data, loading }] = useMutation<MailConnectionCheckResponse>(
+  const [mutate, { data, loading }] = useMutation(
     MAIL_CHECK_CONNECTION_MUTATION,
     {
       fetchPolicy: 'no-cache',
@@ -25,7 +19,7 @@ export const useMailConnectionCheck = () => {
 
   return {
     checkConnection: () => mutate(),
-    result: data?.mailCheckConnection,
+    result: data?.mailCheckConnection ?? undefined,
     loading,
   };
 };

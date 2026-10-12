@@ -7,6 +7,7 @@ import {
   IconRefresh,
   IconTrash,
 } from '@tabler/icons-react';
+import { compactList } from '@/shared/utils/cursorList';
 import {
   Alert,
   Button,
@@ -86,7 +87,7 @@ const MailDomainCombobox = ({
   const term = search.trim().toLowerCase();
 
   const matches = term
-    ? zones.filter((zone) => zone.name.toLowerCase().includes(term))
+    ? zones.filter((zone) => (zone.name ?? '').toLowerCase().includes(term))
     : zones;
 
   const selected = zones.find((zone) => zone.id === value);
@@ -124,10 +125,10 @@ const MailDomainCombobox = ({
               return (
                 <Command.Item
                   key={zone.id}
-                  value={zone.id}
+                  value={zone.id ?? undefined}
                   disabled={blocked}
                   onSelect={() => {
-                    if (blocked) {
+                    if (blocked || !zone.id) {
                       return;
                     }
 
@@ -237,8 +238,9 @@ const SendingStatus = ({
   const enabled = Boolean(connection.sendingEnabled);
   const { quota } = useMailCloudflareSendingQuota(!enabled);
 
-  const failure = (connection.steps ?? []).find(
-    (step) => SENDING_STEPS.has(step.name) && step.state === 'failed',
+  const failure = compactList(connection.steps).find(
+    (step) =>
+      !!step.name && SENDING_STEPS.has(step.name) && step.state === 'failed',
   )?.error;
 
   return (
@@ -249,13 +251,13 @@ const SendingStatus = ({
           ? t('mail-sending-active', { domain: connection.zoneName })
           : t('mail-sending-inactive')}
       </p>
-      {enabled && quota && (
+      {enabled && quota?.value != null && (
         <p className="text-muted-foreground">
           {t('mail-sending-quota')}:{' '}
           {t('mail-sending-quota-value', {
             value: quota.value.toLocaleString(),
             unit: t(`mail-quota-unit-${quota.unit}`, {
-              defaultValue: quota.unit,
+              defaultValue: quota.unit ?? undefined,
             }),
           })}
         </p>
@@ -341,7 +343,7 @@ const ConnectedView = ({
         </Alert>
       )}
 
-      <ProvisionSteps steps={connection.steps ?? []} />
+      <ProvisionSteps steps={compactList(connection.steps)} />
 
       <div className="flex items-center gap-2">
         <Button
