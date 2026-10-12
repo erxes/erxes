@@ -2179,8 +2179,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   automation widgets, the mail automation inbox checklist, the
   notification channel widget, the inbox conversations (list, detail,
   counts, progress, conversation actions, channel inline,
-  `inboxSubscriptions`) and inbox messages, and the Facebook and Instagram
-  conversation messages) writes every
+  `inboxSubscriptions`) and inbox messages, the Facebook and Instagram
+  conversation messages, and `responseTemplate`) writes every
   document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
@@ -2242,6 +2242,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `toFacebookMessageExtras` for `botData`, `source` and `relatedMessage`.
   Facebook reply delivery is read from the add mutation's `extraData` with
   `readFacebookDelivery`.
+- `IResponseTemplate` is the `ResponseTemplates` list row; `name`, `content`
+  and `channelId` are nullable because the Mongoose schema requires none of
+  them. Template pickers (inbox suggestions, `ResponseTemplateSelector`, note
+  suggestions) read rows through `toResponseTemplateText`, which defaults
+  `name` and `content` to `''`. Creating a template opens its detail page from
+  `responseTemplatesAdd._id`.
 - Facebook and Instagram message queries select `__typename`, because their
   subscriptions write inbox messages into those lists under the provider
   typename.

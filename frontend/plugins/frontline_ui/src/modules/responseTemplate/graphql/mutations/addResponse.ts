@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const ADD_RESPONSE = gql`
+const ADD_RESPONSE = gql(`
   mutation ResponseTemplatesAdd(
     $name: String!
     $content: String
@@ -22,6 +22,6 @@ const ADD_RESPONSE = gql`
       files
     }
   }
-`;
+`);
 
 export { ADD_RESPONSE };
