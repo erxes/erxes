@@ -163,14 +163,12 @@ export const AdjustInventoryDetail = () => {
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">{t('status')}:</span>
             <span className="text-primary font-bold">
-              {adjustInventory?.status}
+              {adjustInventory?.status ? t(adjustInventory.status) : ''}
             </span>
           </div>
           {adjustInventory?.error && (
             <span className="text-sm">
-              {checkedAt
-                ? `${format(checkedAt, 'yyyy-MM-dd HH:mm:ss')}: `
-                : ''}
+              {checkedAt ? `${format(checkedAt, 'yyyy-MM-dd HH:mm:ss')}: ` : ''}
               {adjustInventory.error}
             </span>
           )}
@@ -178,7 +176,7 @@ export const AdjustInventoryDetail = () => {
         </div>
       </div>
       <RecordTable.Provider
-        columns={adjustDetailTableColumns}
+        columns={adjustDetailTableColumns(t)}
         data={adjustInventoryDetails || []}
         stickyColumns={['more']}
         tableId="accounting_adjust_inventory_detail_record_table"

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   MoreActionsCell,
@@ -65,16 +66,18 @@ export const vatRowMoreColumn = {
   cell: VatRowMoreColumnCell,
 };
 
-export const vatRowsColumns: ColumnDef<IVatRow>[] = getSharedRowColumns(
-  vatRowMoreColumn as ColumnDef<IVatRow>,
-);
+export const vatRowsColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IVatRow>[] =>
+  getSharedRowColumns(vatRowMoreColumn as ColumnDef<IVatRow>, t);
 
 export const VatRowsTable = () => {
+  const { t } = useTranslation('accounting');
   const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
 
   return (
     <SettingsRowsTable
-      columns={vatRowsColumns}
+      columns={vatRowsColumns(t)}
       data={vatRows || []}
       loading={loading}
       totalCount={totalCount}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/table-core';
 import { IAdjustClosing } from '../types/AdjustClosing';
 import { useSearchParams } from 'react-router';
@@ -9,6 +10,7 @@ export const AdjustClosingMoreColumnCell = ({
 }: {
   cell: Cell<IAdjustClosing, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [searchParams, setSearchParams] = useSearchParams();
   const { _id } = cell.row.original;
 
@@ -27,7 +29,7 @@ export const AdjustClosingMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => setOpen(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
           </Command.List>
         </Command>

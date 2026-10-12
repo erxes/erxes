@@ -112,12 +112,12 @@ export const normalizeSyncConfigData = <
   mongolianEnabled: boolean,
 ): T => ({
   ...data,
-  vatRowId: data.hasVat ? data.vatRowId ?? '' : '',
+  vatRowId: data.hasVat ? (data.vatRowId ?? '') : '',
   reverseVatRules:
     mongolianEnabled && !data.hasVat
       ? normalizeRuleIds(data.reverseVatRules)
       : [],
-  ctaxRowId: data.hasCtax ? data.ctaxRowId ?? '' : '',
+  ctaxRowId: data.hasCtax ? (data.ctaxRowId ?? '') : '',
   reverseCtaxRules:
     !mongolianEnabled || data.hasCtax
       ? []
@@ -166,11 +166,10 @@ export const SyncConfigPaymentAccountField = <
 
 const ReturnTypeFieldContent = ({
   field,
-  t,
 }: {
   field: { value: string; onChange: (v: string) => void };
-  t: (s: string) => string;
 }) => {
+  const { t } = useTranslation('accounting');
   const options = (
     <Select.Content>
       <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
@@ -201,24 +200,21 @@ export const SyncConfigReturnTypeField = <
 }: {
   control: Control<TFieldValues>;
 }) => {
-  const { t } = useTranslation('accounting');
-
   return (
     <Form.Field
       control={control}
       name={'returnType' as FieldPath<TFieldValues>}
-      render={({ field }) => <ReturnTypeFieldContent field={field} t={t} />}
+      render={({ field }) => <ReturnTypeFieldContent field={field} />}
     />
   );
 };
 
 const DateRuleFieldContent = ({
   field,
-  t,
 }: {
   field: { value: string; onChange: (v: string) => void };
-  t: (s: string) => string;
 }) => {
+  const { t } = useTranslation('accounting');
   const options = (
     <Select.Content>
       <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
@@ -245,29 +241,30 @@ const DateRuleFieldContent = ({
 
 const TrStatusFieldContent = ({
   field,
-  t,
 }: {
   field: { value: string; onChange: (v: string) => void };
-  t: (s: string) => string;
-}) => (
-  <Form.Item>
-    <Form.Label>{t('tr-status-label')}</Form.Label>
-    <Form.Control>
-      <Select {...field} onValueChange={field.onChange}>
-        <Select.Trigger>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          {TR_STATUS_OPTIONS.map((s) => (
-            <Select.Item key={s.value} value={s.value}>
-              {s.label}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-    </Form.Control>
-  </Form.Item>
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Form.Item>
+      <Form.Label>{t('tr-status-label')}</Form.Label>
+      <Form.Control>
+        <Select {...field} onValueChange={field.onChange}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            {TR_STATUS_OPTIONS.map((s) => (
+              <Select.Item key={s.value} value={s.value}>
+                {t(s.label || '', { nsSeparator: false })}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      </Form.Control>
+    </Form.Item>
+  );
+};
 
 export const SyncConfigGeneralFields = <
   TFieldValues extends FieldValues & ISyncGeneralFields,
@@ -295,12 +292,12 @@ export const SyncConfigGeneralFields = <
       <Form.Field
         control={control}
         name={'dateRule' as FieldPath<TFieldValues>}
-        render={({ field }) => <DateRuleFieldContent field={field} t={t} />}
+        render={({ field }) => <DateRuleFieldContent field={field} />}
       />
       <Form.Field
         control={control}
         name={'trStatus' as FieldPath<TFieldValues>}
-        render={({ field }) => <TrStatusFieldContent field={field} t={t} />}
+        render={({ field }) => <TrStatusFieldContent field={field} />}
       />
     </>
   );
@@ -488,11 +485,11 @@ export const SyncConfigPaymentsSection = <
 
   const paymentList = useMemo(
     () => [
-      { type: 'cash', title: 'cash' },
-      { type: 'mobile', title: 'mobile' },
+      { type: 'cash', title: t('cash') },
+      { type: 'mobile', title: t('mobile') },
       ...paymentTypes,
     ],
-    [paymentTypes],
+    [paymentTypes, t],
   );
 
   return (
