@@ -6,6 +6,7 @@ export const INTEGRATION_INLINE = gql(`
       _id
       name
       kind
+      channelId
     }
   }
 `);
