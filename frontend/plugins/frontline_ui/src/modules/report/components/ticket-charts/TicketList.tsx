@@ -1,20 +1,9 @@
 import { Alert, Button, RecordTable } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
-import {
-  memo,
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  ReactNode,
-} from 'react';
+import { memo, useState, useCallback, useMemo, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconDownload,
-} from '@tabler/icons-react';
+import { IconDownload } from '@tabler/icons-react';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
@@ -50,29 +39,24 @@ export const TicketList = ({
   const { t } = useTranslation('frontline');
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
-  const [page, setPage] = useState(1);
   const { fetchExport, loading: exportLoading } = useTicketExport();
   const getExportColumns = useTicketExportColumns();
   const [visibleColumns, setVisibleColumns] =
     useState<TicketListVisibleColumn[]>();
 
-  useEffect(() => {
-    setPage(1);
-  }, [queryFilters]);
-
-  const { ticketList, isInitialLoad, isFetching, error } = useTicketList({
+  const {
+    ticketList,
+    isInitialLoad,
+    isFetching,
+    isFetchingMore,
+    hasNextPage,
+    handleFetchMore,
+    fetchMoreError,
+    error,
+  } = useTicketList({
     skip: !filtersRestored,
-    variables: {
-      filters: {
-        ...queryFilters,
-        page,
-        limit: PER_PAGE,
-      },
-    },
+    variables: { filters: { ...queryFilters, page: 1, limit: PER_PAGE } },
   });
-
-  const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
-  const handleNext = useCallback(() => setPage((p) => p + 1), []);
 
   const handleExport = useCallback(async () => {
     const result = await fetchExport({
@@ -152,17 +136,33 @@ export const TicketList = ({
           className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
         >
           <TicketListTable
+            key={JSON.stringify(queryFilters)}
             tickets={ticketList.list}
+            page={ticketList.page}
+            hasNextPage={hasNextPage && !fetchMoreError}
+            isFetchingMore={isFetchingMore}
+            handleFetchMore={handleFetchMore}
             onVisibleColumnsChange={setVisibleColumns}
           />
         </div>
-        <Pagination
-          page={page}
-          totalPages={ticketList.totalPages}
-          totalCount={ticketList.totalCount}
-          onPrev={handlePrev}
-          onNext={handleNext}
-        />
+        <div className="px-4 py-3 border-t text-xs text-muted-foreground">
+          {t('pagination-range', '{{from}}–{{to}} of {{total}}', {
+            from: 1,
+            to: ticketList.list.length,
+            total: ticketList.totalCount,
+          })}
+        </div>
+        {fetchMoreError && (
+          <Alert variant="destructive" className="mt-2">
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
+            <Alert.Description>{fetchMoreError}</Alert.Description>
+            <Button variant="outline" size="sm" onClick={handleFetchMore}>
+              {t('retry', 'Retry')}
+            </Button>
+          </Alert>
+        )}
       </>
     );
   }
@@ -196,67 +196,23 @@ export const TicketList = ({
   );
 };
 
-const Pagination = memo(function Pagination({
-  page,
-  totalPages,
-  totalCount,
-  onPrev,
-  onNext,
-}: {
-  page: number;
-  totalPages: number;
-  totalCount: number;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
-  const { t } = useTranslation('frontline');
-  const from = (page - 1) * PER_PAGE + 1;
-  const to = Math.min(page * PER_PAGE, totalCount);
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3 border-t">
-      <span className="text-xs text-muted-foreground">
-        {t('pagination-range', '{{from}}–{{to}} of {{total}}', {
-          from,
-          to,
-          total: totalCount,
-        })}
-      </span>
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrev}
-          disabled={page <= 1}
-        >
-          <IconChevronLeft className="size-4" />
-          {t('prev', 'Prev')}
-        </Button>
-        <span className="text-xs text-muted-foreground px-2">
-          {page} / {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={page >= totalPages}
-        >
-          {t('next', 'Next')}
-          <IconChevronRight className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-});
-
 const TicketListTable = memo(function TicketListTable({
   tickets,
+  page,
+  hasNextPage,
+  isFetchingMore,
+  handleFetchMore,
   onVisibleColumnsChange,
 }: {
   tickets: TicketListItem[];
+  page: number;
+  hasNextPage: boolean;
+  isFetchingMore: boolean;
+  handleFetchMore: () => Promise<void>;
   onVisibleColumnsChange: (columns: TicketListVisibleColumn[]) => void;
 }) {
   const columns = useTicketListColumns();
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   return (
     <div className="bg-sidebar w-full rounded-lg">
       <RecordTable.Provider
@@ -265,11 +221,21 @@ const TicketListTable = memo(function TicketListTable({
         className="m-3"
         tableId="frontline_ticket_report_record_table"
       >
-        <RecordTable.Scroll>
+        <RecordTable.Scroll
+          ref={setScrollRoot}
+          className="h-[calc(var(--spacing-cell)*11+0.75rem)]"
+        >
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
               <RecordTable.RowList />
+              {hasNextPage && (
+                <RecordTable.RowSkeleton
+                  key={page}
+                  root={scrollRoot}
+                  handleInView={isFetchingMore ? undefined : handleFetchMore}
+                />
+              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
