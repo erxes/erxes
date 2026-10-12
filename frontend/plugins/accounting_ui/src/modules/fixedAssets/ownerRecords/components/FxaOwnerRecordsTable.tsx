@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { IconArrowRight, IconCircleOff } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -22,14 +24,14 @@ import {
 import { FxaOwnerRecordActionSheet } from './FxaOwnerRecordActionSheet';
 
 const OWNER_RECORD_STATUS_LABELS: Record<string, string> = {
-  active: 'Идэвхтэй',
-  inactive: 'Идэвхгүй',
+  active: 'active',
+  inactive: 'inactive',
 };
 
 const OWNER_RECORD_ACTION_LABELS: Record<string, string> = {
-  received: 'Хүлээж авсан',
-  handedOver: 'Хүлээлгэж өгсөн',
-  balance: 'Үлдэгдэл',
+  received: 'received',
+  handedOver: 'handed-over',
+  balance: 'balance',
 };
 
 type TFxaOwnerRecordRow = IFxaOwnerRecord & {
@@ -49,6 +51,7 @@ const FxaOwnerRecordMoreCell = ({
 }: {
   cell: Cell<TFxaOwnerRecordRow, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const record = cell.row.original;
   const defaultValues = {
     fixedAssetId: record.fixedAssetId || '',
@@ -74,7 +77,7 @@ const FxaOwnerRecordMoreCell = ({
             >
               <Command.Item value="move">
                 <IconArrowRight />
-                Шилжүүлэх
+                {t('transfer')}
               </Command.Item>
             </FxaOwnerRecordActionSheet>
             <FxaOwnerRecordActionSheet
@@ -86,7 +89,7 @@ const FxaOwnerRecordMoreCell = ({
             >
               <Command.Item value="out">
                 <IconCircleOff />
-                Цуцлах
+                {t('cancel')}
               </Command.Item>
             </FxaOwnerRecordActionSheet>
           </Command.List>
@@ -129,6 +132,7 @@ const MemberCell = ({ userId }: { userId?: string }) => (
 const getFxaOwnerRecordColumns = (
   categoriesById: Record<string, IFixedAssetCategory>,
   fixedAssetsById: Record<string, IFixedAsset>,
+  t: TFunction<'accounting'>,
 ): ColumnDef<TFxaOwnerRecordRow>[] => [
   {
     id: 'more',
@@ -139,7 +143,7 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -148,7 +152,7 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'fixedAssetId',
     accessorKey: 'fixedAssetId',
-    header: () => <RecordTable.InlineHead label="Үндсэн хөрөнгө" />,
+    header: () => <RecordTable.InlineHead label={t('fixed-asset')} />,
     cell: ({ row }) => (
       <FixedAssetCell
         fixedAsset={
@@ -163,7 +167,7 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'categoryId',
     accessorKey: 'categoryId',
-    header: () => <RecordTable.InlineHead label="Бүлэг" />,
+    header: () => <RecordTable.InlineHead label={t('category-label')} />,
     cell: ({ row }) => (
       <CategoryCell
         categoryId={row.original.categoryId}
@@ -175,7 +179,7 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => <RecordTable.InlineHead label="Тоо" />,
+    header: () => <RecordTable.InlineHead label={t('quantity')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as number}</RecordTableInlineCell>
     ),
@@ -184,10 +188,10 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'action',
     accessorKey: 'action',
-    header: () => <RecordTable.InlineHead label="Чиглэл" />,
+    header: () => <RecordTable.InlineHead label={t('direction')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {OWNER_RECORD_ACTION_LABELS[row.original.action || ''] ||
+        {t(OWNER_RECORD_ACTION_LABELS[row.original.action || ''] || '') ||
           row.original.action ||
           '-'}
       </RecordTableInlineCell>
@@ -197,20 +201,20 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead label="Эд хариуцагч" />,
+    header: () => <RecordTable.InlineHead label={t('asset-custodian')} />,
     cell: ({ row }) => <MemberCell userId={row.original.ownerId} />,
     size: 220,
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
+    header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ row }) => {
       const status = row.original.status || '';
 
       return (
         <RecordTableInlineCell>
-          {OWNER_RECORD_STATUS_LABELS[status] || status || '-'}
+          {t(OWNER_RECORD_STATUS_LABELS[status] || '') || status || '-'}
         </RecordTableInlineCell>
       );
     },
@@ -219,7 +223,7 @@ const getFxaOwnerRecordColumns = (
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Үүссэн огноо" />,
+    header: () => <RecordTable.InlineHead label={t('created-date-label')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {formatDate(row.original.createdAt)}
@@ -251,6 +255,7 @@ const FxaOwnerRecordsSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const FxaOwnerRecordsTable = () => {
+  const { t } = useTranslation('accounting');
   const { fxaOwnerRecords, handleFetchMore, loading, totalCount } =
     useFxaOwnerRecords();
   const { fixedAssets } = useFixedAssets();
@@ -278,8 +283,8 @@ export const FxaOwnerRecordsTable = () => {
     [fixedAssetCategories],
   );
   const columns = useMemo(
-    () => getFxaOwnerRecordColumns(categoriesById, fixedAssetsById),
-    [categoriesById, fixedAssetsById],
+    () => getFxaOwnerRecordColumns(categoriesById, fixedAssetsById, t),
+    [categoriesById, fixedAssetsById, t],
   );
   const records = (fxaOwnerRecords || []).map((record) => ({
     ...record,

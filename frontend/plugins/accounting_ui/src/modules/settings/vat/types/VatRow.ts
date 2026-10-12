@@ -15,10 +15,10 @@ export enum VatKind {
 }
 
 export const VAT_KIND_LABELS = {
-  [VatKind.NORMAL]: 'Энгийн',
-  [VatKind.FORMULA]: 'Томьёо',
-  [VatKind.TITLE]: 'Гарчиг',
-  [VatKind.HIDDEN]: 'Нуусан',
+  [VatKind.NORMAL]: 'standard',
+  [VatKind.FORMULA]: 'formula',
+  [VatKind.TITLE]: 'title',
+  [VatKind.HIDDEN]: 'hidden',
 };
 
 export enum VatStatus {
@@ -27,8 +27,8 @@ export enum VatStatus {
 }
 
 export const VAT_STATUS_LABELS = {
-  [VatStatus.ACTIVE]: 'Идэвхтэй',
-  [VatStatus.DELETED]: 'Устгасан',
+  [VatStatus.ACTIVE]: 'active',
+  [VatStatus.DELETED]: 'deleted',
 };
 
 export type TVatRowForm = z.infer<typeof vatFormSchema>;

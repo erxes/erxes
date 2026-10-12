@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { QueryHookOptions } from '@apollo/client';
 
 import { toast, useQueryState } from 'erxes-ui';
@@ -16,6 +17,7 @@ export const useAdjustClosingDetailWithQuery = (
     AccountingAdjustClosingDetailQueryVariables
   >,
 ) => {
+  const { t } = useTranslation('accounting');
   const [_id] = useQueryState<string>('adjustClosingId');
   const setRendering = useSetAtom(renderingAdjustClosingDetailAtom);
 
@@ -30,13 +32,13 @@ export const useAdjustClosingDetailWithQuery = (
       setRendering(false);
       if (error) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
       }
     }
-  }, [adjustClosingDetail, loading, error]);
+  }, [adjustClosingDetail, loading, error, t]);
 
   return { adjustClosingDetail, loading, error };
 };

@@ -3,6 +3,7 @@ import { withMutationToast } from '@/utils/graphqlMutation';
 
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
 import { useMutation } from '@apollo/client';
+import { getI18n, useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import {
   FIXED_ASSET_CATEGORIES_ADD,
@@ -24,7 +25,7 @@ const withToast = <Data, Variables extends Record<string, unknown>>(
     options,
     (success, description) => {
       toast({
-        title: success ? 'Амжилттай' : 'Алдаа',
+        title: getI18n().t(success ? 'success' : 'error', { ns: 'accounting' }),
         description,
         variant: success ? 'success' : 'destructive',
       });
@@ -50,6 +51,7 @@ const withoutUsefulLifeVariables = <
 };
 
 export const useFixedAssetCategoryAdd = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSET_CATEGORIES_ADD, {
     refetchQueries: ['accountingFixedAssetCategories'],
   });
@@ -61,7 +63,7 @@ export const useFixedAssetCategoryAdd = () => {
       mutate(
         withToast(
           withoutUsefulLifeVariables(options),
-          'Үндсэн хөрөнгийн бүлэг нэмэгдлээ',
+          t('fixed-asset-category-created-successfully'),
         ),
       ),
     loading,
@@ -69,6 +71,7 @@ export const useFixedAssetCategoryAdd = () => {
 };
 
 export const useFixedAssetCategoryEdit = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSET_CATEGORIES_EDIT, {
     refetchQueries: [
       'accountingFixedAssetCategories',
@@ -83,7 +86,7 @@ export const useFixedAssetCategoryEdit = () => {
       mutate(
         withToast(
           withoutUsefulLifeVariables(options),
-          'Үндсэн хөрөнгийн бүлэг шинэчлэгдлээ',
+          t('fixed-asset-category-updated-successfully'),
         ),
       ),
     loading,
@@ -91,6 +94,7 @@ export const useFixedAssetCategoryEdit = () => {
 };
 
 export const useFixedAssetCategoryRemove = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSET_CATEGORIES_REMOVE, {
     refetchQueries: ['accountingFixedAssetCategories'],
   });
@@ -98,12 +102,16 @@ export const useFixedAssetCategoryRemove = () => {
   return {
     removeFixedAssetCategory: (
       options: GraphqlMutationOptions<typeof FIXED_ASSET_CATEGORIES_REMOVE>,
-    ) => mutate(withToast(options, 'Үндсэн хөрөнгийн бүлэг устгагдлаа')),
+    ) =>
+      mutate(
+        withToast(options, t('fixed-asset-category-deleted-successfully')),
+      ),
     loading,
   };
 };
 
 export const useFixedAssetAdd = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSETS_ADD, {
     refetchQueries: ['accountingSettingsFixedAssets'],
   });
@@ -113,7 +121,7 @@ export const useFixedAssetAdd = () => {
       mutate(
         withToast(
           withoutUsefulLifeVariables(options),
-          'Үндсэн хөрөнгө нэмэгдлээ',
+          t('fixed-asset-created-successfully'),
         ),
       ),
     loading,
@@ -121,6 +129,7 @@ export const useFixedAssetAdd = () => {
 };
 
 export const useFixedAssetEdit = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSETS_EDIT, {
     refetchQueries: ['accountingSettingsFixedAssets'],
   });
@@ -132,7 +141,7 @@ export const useFixedAssetEdit = () => {
       mutate(
         withToast(
           withoutUsefulLifeVariables(options),
-          'Үндсэн хөрөнгө шинэчлэгдлээ',
+          t('fixed-asset-updated-successfully'),
         ),
       ),
     loading,
@@ -140,6 +149,7 @@ export const useFixedAssetEdit = () => {
 };
 
 export const useFixedAssetRemove = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSETS_REMOVE, {
     refetchQueries: ['accountingSettingsFixedAssets'],
   });
@@ -147,12 +157,13 @@ export const useFixedAssetRemove = () => {
   return {
     removeFixedAsset: (
       options: GraphqlMutationOptions<typeof FIXED_ASSETS_REMOVE>,
-    ) => mutate(withToast(options, 'Үндсэн хөрөнгө устгагдлаа')),
+    ) => mutate(withToast(options, t('fixed-asset-deleted-successfully'))),
     loading,
   };
 };
 
 export const useFixedAssetOwnerRecordAdd = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSET_OWNER_RECORDS_ADD, {
     refetchQueries: ['AccountingFixedAssetOwnerRecords'],
   });
@@ -160,12 +171,16 @@ export const useFixedAssetOwnerRecordAdd = () => {
   return {
     addFixedAssetOwnerRecord: (
       options: GraphqlMutationOptions<typeof FIXED_ASSET_OWNER_RECORDS_ADD>,
-    ) => mutate(withToast(options, 'Эд хариуцагчийн бүртгэл нэмэгдлээ')),
+    ) =>
+      mutate(
+        withToast(options, t('asset-custodian-record-created-successfully')),
+      ),
     loading,
   };
 };
 
 export const useFixedAssetOwnerRecordTransfer = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(
     FIXED_ASSET_OWNER_RECORDS_TRANSFER,
     {
@@ -178,12 +193,16 @@ export const useFixedAssetOwnerRecordTransfer = () => {
       options: GraphqlMutationOptions<
         typeof FIXED_ASSET_OWNER_RECORDS_TRANSFER
       >,
-    ) => mutate(withToast(options, 'Эд хариуцагчийн шилжүүлэг бүртгэгдлээ')),
+    ) =>
+      mutate(
+        withToast(options, t('asset-custody-transfer-recorded-successfully')),
+      ),
     loading,
   };
 };
 
 export const useFixedAssetOwnerRecordRemove = () => {
+  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSET_OWNER_RECORDS_REMOVE, {
     refetchQueries: ['AccountingFixedAssetOwnerRecords'],
   });
@@ -191,7 +210,10 @@ export const useFixedAssetOwnerRecordRemove = () => {
   return {
     removeFixedAssetOwnerRecord: (
       options: GraphqlMutationOptions<typeof FIXED_ASSET_OWNER_RECORDS_REMOVE>,
-    ) => mutate(withToast(options, 'Эд хариуцагчийн бүртгэл устгагдлаа')),
+    ) =>
+      mutate(
+        withToast(options, t('asset-custodian-record-deleted-successfully')),
+      ),
     loading,
   };
 };

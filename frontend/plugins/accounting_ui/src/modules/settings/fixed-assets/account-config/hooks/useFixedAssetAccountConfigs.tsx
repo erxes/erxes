@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
 import { toGraphqlView } from '@/utils/graphql';
 import { useMutation, useQuery } from '@apollo/client';
+import { getI18n, useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import {
   ACCOUNTINGS_CONFIGS_ADD,
@@ -35,7 +36,7 @@ const withToast = <Data, Variables extends Record<string, unknown>>(
     options,
     (success, description) => {
       toast({
-        title: success ? 'Амжилттай' : 'Алдаа',
+        title: getI18n().t(success ? 'success' : 'error', { ns: 'accounting' }),
         description,
         variant: success ? 'success' : 'destructive',
       });
@@ -75,6 +76,7 @@ export const useFixedAssetAccountConfigs = () => {
 const mutationOptions = { refetchQueries: ['AccountingsConfigs'] };
 
 export const useFixedAssetAccountConfigMutations = () => {
+  const { t } = useTranslation('accounting');
   const [add, addState] = useMutation(ACCOUNTINGS_CONFIGS_ADD, mutationOptions);
   const [edit, editState] = useMutation(
     ACCOUNTINGS_CONFIGS_EDIT,
@@ -101,7 +103,7 @@ export const useFixedAssetAccountConfigMutations = () => {
               value: { ...value, accountId },
             },
           },
-          'Дансны багц нэмэгдлээ',
+          t('account-configuration-created-successfully'),
         ),
       );
     },
@@ -120,13 +122,16 @@ export const useFixedAssetAccountConfigMutations = () => {
               value: { ...value, accountId },
             },
           },
-          'Дансны багц шинэчлэгдлээ',
+          t('account-configuration-updated-successfully'),
         ),
       );
     },
     remove: (
       options: GraphqlMutationOptions<typeof ACCOUNTINGS_CONFIGS_REMOVE>,
-    ) => remove(withToast(options, 'Дансны багц устгагдлаа')),
+    ) =>
+      remove(
+        withToast(options, t('account-configuration-deleted-successfully')),
+      ),
     adding: addState.loading,
     editing: editState.loading,
     removing: removeState.loading,

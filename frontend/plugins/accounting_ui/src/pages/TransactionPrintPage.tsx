@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useTransactionDetail } from '~/modules/transactions/transaction-form/hooks/useTransactionDetail';
 
@@ -11,6 +12,7 @@ import {
 } from '~/modules/transactions/transaction-form/components/documents/variants';
 
 export const TransactionPrintPage = () => {
+  const { t } = useTranslation('accounting');
   const query = new URLSearchParams(useLocation().search);
   const transactionId = query.get('_id');
 
@@ -53,13 +55,13 @@ export const TransactionPrintPage = () => {
   if (error)
     return (
       <div className="flex h-screen items-center justify-center text-destructive">
-        Алдаа гарлаа: {error.message}
+        {t('an-error-occurred', { nsSeparator: false })} {error.message}
       </div>
     );
   if (!transaction)
     return (
       <div className="flex h-screen items-center justify-center text-accent-foreground">
-        Гүйлгээ олдсонгүй.
+        {t('no-transaction-found')}
       </div>
     );
 
@@ -86,12 +88,12 @@ export const TransactionPrintPage = () => {
             onValueChange={(value) => value && setVariant(value)}
           >
             <Select.Trigger className="h-9 w-64">
-              <Select.Value placeholder="Баримтын загвар" />
+              <Select.Value placeholder={t('voucher-template')} />
             </Select.Trigger>
             <Select.Content>
               {variants.map((opt) => (
                 <Select.Item key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(opt.label || '', { nsSeparator: false })}
                 </Select.Item>
               ))}
             </Select.Content>
@@ -100,7 +102,7 @@ export const TransactionPrintPage = () => {
 
         <Button onClick={() => globalThis.print()} variant="secondary">
           <IconPrinter />
-          Хэвлэх
+          {t('print')}
         </Button>
       </div>
 

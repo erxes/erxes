@@ -187,11 +187,11 @@ const ScopeMultiCommand = ({
           return (
             <Command.Item
               key={option.value}
-              value={option.label}
+              value={t(option.label || '', { nsSeparator: false })}
               onSelect={() => onPick(toggleValue(selected, option.value))}
             >
               <Icon className="size-4 shrink-0 text-muted-foreground" />
-              {option.label}
+              {t(option.label || '', { nsSeparator: false })}
               <Combobox.Check checked={selected.includes(option.value)} />
             </Command.Item>
           );

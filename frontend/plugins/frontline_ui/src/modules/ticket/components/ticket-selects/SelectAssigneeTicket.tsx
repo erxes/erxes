@@ -35,6 +35,9 @@ const SelectAssigneeValue = ({
   variant?: `${SelectTriggerVariant}`;
 }) => {
   const { memberIds, members, setMembers } = useSelectMemberContext();
+  if (memberIds.includes('no-assignee')) {
+    return <MembersInline memberIds={[]} allowUnassigned />;
+  }
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <MembersInline.Provider
@@ -114,7 +117,7 @@ const SelectAssigneeFilterView = () => {
         mode="single"
         value={assignee || ''}
         onValueChange={(value) => {
-          setAssignee(value as string);
+          setAssignee(typeof value === 'string' ? value : 'no-assignee');
           resetFilterState();
         }}
       >
@@ -132,11 +135,7 @@ export const SelectAssigneeFilterBar = () => {
       mode="single"
       value={assignee || ''}
       onValueChange={(value) => {
-        if (value) {
-          setAssignee(value as string);
-        } else {
-          setAssignee(null);
-        }
+        setAssignee(typeof value === 'string' ? value : 'no-assignee');
         setOpen(false);
       }}
     >

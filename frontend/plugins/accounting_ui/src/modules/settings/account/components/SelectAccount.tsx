@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   SelectAccountContext,
   useSelectAccountContext,
@@ -149,6 +150,7 @@ const SelectAccountContent = () => {
 };
 
 const SelectAccountCommandItem = ({ account }: { account: IAccount }) => {
+  const { t } = useTranslation('accounting');
   const { onSelect, accountIds } = useSelectAccountContext();
   return (
     <Command.Item
@@ -157,7 +159,7 @@ const SelectAccountCommandItem = ({ account }: { account: IAccount }) => {
         onSelect(account);
       }}
     >
-      <AccountsInline accounts={[account]} placeholder="Нэргүй данс" />
+      <AccountsInline accounts={[account]} placeholder={t('unnamed-account')} />
       <Combobox.Check checked={accountIds.includes(account._id)} />
     </Command.Item>
   );

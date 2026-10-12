@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { ColumnDef, Row } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -64,11 +65,13 @@ export const SyncLinkCell = ({
   );
 };
 
-export const syncBaseColumns: ColumnDef<IConfig>[] = [
+export const syncBaseColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IConfig>[] => [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => (
       <SyncLinkCell row={cell.row} renderVal={cell.row.original?.code} />
     ),
@@ -77,7 +80,7 @@ export const syncBaseColumns: ColumnDef<IConfig>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Гарчиг" />,
+    header: () => <RecordTable.InlineHead label={t('title')} />,
     cell: ({ cell }) => (
       <SyncLinkCell
         row={cell.row}

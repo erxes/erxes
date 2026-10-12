@@ -1,4 +1,5 @@
 import { Sheet, Spinner, isDeeplyEqual, useQueryState, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { AccountForm } from './AccountForm';
@@ -81,6 +82,7 @@ export const EditAccountForm = () => {
 };
 
 export const EditAccount = () => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useQueryState<string>('accountId');
   return (
     <Sheet
@@ -89,7 +91,7 @@ export const EditAccount = () => {
         if (!isOpen) setOpen(null);
       }}
     >
-      <AccountingSheet title="Данс засах">
+      <AccountingSheet title={t('edit-account')}>
         <EditAccountForm />
       </AccountingSheet>
     </Sheet>

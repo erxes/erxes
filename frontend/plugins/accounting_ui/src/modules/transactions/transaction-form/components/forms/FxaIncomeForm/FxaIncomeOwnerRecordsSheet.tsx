@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -84,6 +85,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -103,8 +105,8 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
     .join(' - ');
   const addButtonTip =
     remainingCount > 0
-      ? `Эд хариуцагчид оноогоогүй ${remainingCount} ширхэг байна.`
-      : 'Оноосон тоо detail-ийн тоотой таарсан.';
+      ? t('unallocated-asset-quantity', { count: remainingCount })
+      : t('the-allocated-quantity-matches-the-transaction-detail-quantity');
 
   const syncOwners = (nextOwners: TFxaIncomeOwnerRecord[]) => {
     form.setValue(
@@ -152,17 +154,18 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
           type="button"
           className="w-8 p-0"
           disabled={!detail}
-          aria-label="Эд хариуцагчийн бүртгэл"
-          title="Эд хариуцагчийн бүртгэл"
+          aria-label={t('asset-custodian-records')}
+          title={t('asset-custodian-records')}
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
           <div className="min-w-0">
-            <Sheet.Title>{title || 'Эд хариуцагчийн бүртгэл'}</Sheet.Title>
+            <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
             <Sheet.Description>
-              Тоо: {detailCount} | Оноосон: {ownerCount} | Үлдсэн:{' '}
-              {remainingCount}
+              {t('quantity-label-2', { nsSeparator: false })} {detailCount}{' '}
+              {t('allocated', { nsSeparator: false })} {ownerCount}{' '}
+              {t('remaining', { nsSeparator: false })} {remainingCount}
             </Sheet.Description>
           </div>
           <Tooltip>
@@ -179,7 +182,8 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                   onClick={addOwner}
                 >
                   <IconPlus />
-                  Instance нэмэх ({remainingCount})
+                  {t('add-allocation')}
+                  {remainingCount})
                 </Button>
               </span>
             </Tooltip.Trigger>
@@ -195,7 +199,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.salvageValue`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Үлдэх өртөг</Form.Label>
+                    <Form.Label>{t('residual-value')}</Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value ?? 0}
@@ -210,7 +214,9 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Өмнөх хур. элэгдэл</Form.Label>
+                    <Form.Label>
+                      {t('prior-accumulated-depreciation')}
+                    </Form.Label>
                     <Form.Control>
                       <InputNumber
                         value={field.value ?? 0}
@@ -225,9 +231,9 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head>Код</Table.Head>
-                <Table.Head>Тоо</Table.Head>
-                <Table.Head>Эд хариуцагч</Table.Head>
+                <Table.Head>{t('code')}</Table.Head>
+                <Table.Head>{t('quantity')}</Table.Head>
+                <Table.Head>{t('asset-custodian')}</Table.Head>
                 <Table.Head className="w-8" />
               </Table.Row>
             </Table.Header>
@@ -289,7 +295,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                     colSpan={4}
                     className="text-center text-muted-foreground"
                   >
-                    Эд хариуцагчийн бүртгэл алга.
+                    {t('no-asset-custodian-records-found')}
                   </Table.Cell>
                 </Table.Row>
               )}

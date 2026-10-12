@@ -211,7 +211,9 @@ const DateTypeContent = ({
             value={dateType.value}
             onSelect={() => onValueChange(dateType.value)}
           >
-            <span className="font-medium">{t(dateType.label)}</span>
+            <span className="font-medium">
+              {t(dateType.label, { nsSeparator: false })}
+            </span>
             <Combobox.Check checked={value === dateType.value} />
           </Command.Item>
         ))}
@@ -491,7 +493,7 @@ export const AccountingDealDateTypeFilterBar = () => {
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="dateType">
             {selectedDateType
-              ? t(selectedDateType.label)
+              ? t(selectedDateType.label, { nsSeparator: false })
               : t('select-date-type')}
           </Filter.BarButton>
         </Popover.Trigger>

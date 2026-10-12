@@ -1,6 +1,7 @@
 import type { ApolloError } from '@apollo/client';
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
 import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import { ADJUST_FUND_RATE_DETAIL_QUERY } from '../graphql/adjustFundRateQueries';
 import {
@@ -9,6 +10,7 @@ import {
 } from '../graphql/adjustFundRateRun';
 
 export const useAdjustFundRateRun = (_id: string) => {
+  const { t } = useTranslation('accounting');
   const [calculateMutation, { loading: calculateLoading }] = useMutation(
     ADJUST_FUND_RATE_CALCULATE,
   );
@@ -26,7 +28,7 @@ export const useAdjustFundRateRun = (_id: string) => {
     variables: { _id, ...options?.variables },
     onError: (error: ApolloError) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -48,8 +50,8 @@ export const useAdjustFundRateRun = (_id: string) => {
       ...mutationOptions(options),
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Fund rate adjustment calculated successfully',
+          title: t('success'),
+          description: t('Fund rate adjustment calculated successfully'),
         });
         options?.onCompleted?.(data);
       },
@@ -62,8 +64,10 @@ export const useAdjustFundRateRun = (_id: string) => {
       ...mutationOptions(options),
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Fund rate adjustment transaction created successfully',
+          title: t('success'),
+          description: t(
+            'Fund rate adjustment transaction created successfully',
+          ),
         });
         options?.onCompleted?.(data);
       },

@@ -151,7 +151,7 @@ export const SafeRemainderDetail = () => {
     <>
       <AccountingHeader
         returnLink="/accounting/inventories/safe-remainders"
-        returnText="Safe Remainders"
+        returnText={t('Safe Remainders')}
         skipSettings
         leftChildren={
           <span className="font-semibold">{t('inventory-census-detail')}</span>
@@ -160,7 +160,7 @@ export const SafeRemainderDetail = () => {
         <div className="flex items-center gap-2 text-sm mr-1">
           <span className="text-accent-foreground">{t('status')}:</span>
           <span className="text-primary font-bold capitalize">
-            {safeRemainder?.status}
+            {safeRemainder?.status ? t(safeRemainder.status) : ''}
           </span>
         </div>
         {renderActions()}

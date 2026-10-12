@@ -1,6 +1,7 @@
 import type { ApolloError } from '@apollo/client';
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
 import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { ADJUST_CLOSING_ADD } from '../graphql/adjustClosingAdd';
 import { toast } from 'erxes-ui';
@@ -10,6 +11,7 @@ import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
 export const useAdjustClosingAdd = (
   options?: GraphqlMutationOptions<typeof ADJUST_CLOSING_ADD>,
 ) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
 
   const [_addAdjustClosing, { loading }] = useMutation(
@@ -24,16 +26,16 @@ export const useAdjustClosingAdd = (
       ...mutationOptions,
       onError: (error: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
         mutationOptions?.onError?.(error);
       },
-      onCompleted: (data: any) => {
+      onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Adjust Closing created successfully',
+          title: t('success'),
+          description: t('Adjust Closing created successfully'),
         });
 
         const newId = data?.adjustClosingAdd?._id;

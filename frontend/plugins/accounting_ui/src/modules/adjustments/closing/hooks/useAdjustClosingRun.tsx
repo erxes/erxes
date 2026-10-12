@@ -4,6 +4,7 @@ import {
   type MutationHookOptions,
 } from '@apollo/client';
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_DETAIL_QUERY } from '../graphql/adjustClosingDetail';
 import {
@@ -18,6 +19,7 @@ export const useAdjustClosingRun = (
     'onError' | 'fetchPolicy' | 'errorPolicy'
   >,
 ) => {
+  const { t } = useTranslation('accounting');
   const [_calculateMutation, { loading: calculateLoading }] = useMutation(
     ADJUST_CLOSING_CALCULATE,
     options,
@@ -39,7 +41,7 @@ export const useAdjustClosingRun = (
 
     onError: (error: ApolloError) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -48,7 +50,7 @@ export const useAdjustClosingRun = (
 
     onCompleted: (data: Data) => {
       toast({
-        title: 'Success',
+        title: t('success'),
         description,
       });
       callOptions?.onCompleted?.(data);
