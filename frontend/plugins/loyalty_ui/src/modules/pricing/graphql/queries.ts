@@ -193,6 +193,14 @@ export const PRICING_PLAN_DETAIL = gql`
         priceAdjustType
         priceAdjustFactor
       }
+      conditionRules {
+        conditionCode
+        discountType
+        discountValue
+        discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
+      }
       isRepeatEnabled
       repeatRules {
         type
@@ -272,8 +280,20 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
         uom
         unitPrice
         newPrice
+        productStatus
         status
       }
+    }
+  }
+`;
+
+// Core product conditions a plan can give a discount to, matched by code.
+export const PRICING_PRODUCT_CONDITIONS = gql`
+  query pricingProductConditions {
+    productConditions {
+      _id
+      code
+      name
     }
   }
 `;

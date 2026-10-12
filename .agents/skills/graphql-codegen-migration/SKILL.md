@@ -10,7 +10,7 @@ The backend SDL is the **contract**. Codegen checks every frontend document agai
 `operation` is the finished **reference plugin**. Read its files before writing anything, and copy their shape:
 
 - `backend/plugins/operation_api/print-schema.ts`, the `schema:print` target in `backend/plugins/operation_api/project.json`, and `generated/` in its `.gitignore`
-- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` target and the `codegen` entries in `dependsOn` for `build` and `serve` in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
+- `frontend/plugins/operation_ui/codegen.ts`, the `codegen` and `codegen:watch` targets and the `codegen` entries in `dependsOn` for `build` and `serve` in `frontend/plugins/operation_ui/project.json`, and `src/gql/` in its `.gitignore`
 - `frontend/plugins/operation_ui/eslint.config.js` for the enforcement rules
 - `frontend/plugins/operation_ui/src/modules/task/types/index.ts` for types derived from generated queries
 
@@ -22,11 +22,13 @@ Ship each step as one **layer**: a PR stacked on the one before. Each layer buil
 
 ### 1. Setup layer
 
-Add `print-schema.ts`, the `schema:print` package script (`tsx print-schema.ts`), and the Nx target to the backend. Plugins without `src/apollo/subscription.ts` drop the subscription half of `buildSubgraphSchema`. Add `codegen.ts`, the `codegen` target, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend, with the schema path pointing at this plugin's `generated/schema.graphql`.
+Add `print-schema.ts`, the `schema:print` package script (`tsx print-schema.ts`), and the Nx target to the backend. Plugins without `src/apollo/subscription.ts` drop the subscription half of `buildSubgraphSchema`. Add `codegen.ts`, the `codegen` and `codegen:watch` targets, and the `codegen` entries in `dependsOn` for `build` and `serve` to the frontend, with the schema path pointing at this plugin's `generated/schema.graphql`.
+
+`codegen:watch` runs `graphql-codegen --config codegen.ts --watch` with the same `cwd` as `codegen`, and has no `dependsOn`. Do not add it to `serve`'s `dependsOn`, because a watcher never exits and `serve` would hang. `scripts/start-ui-dev.js` picks up every enabled plugin whose `project.json` defines `codegen`, so `pnpm dev:uis` needs no script change for a new plugin.
 
 Codegen validates every document in the plugin from the first run, typed or not, so it goes **red** on documents that already drift. Fix each one in this layer: a misspelled field, a field the SDL never had, a wrong argument, an operation name used twice.
 
-Done when `pnpm nx run <name>_ui:codegen --skip-nx-cache` passes, and `pnpm nx build <name>_ui` passes from a clean `src/gql/`.
+Done when `pnpm nx run <name>_ui:codegen --skip-nx-cache` passes, `pnpm nx build <name>_ui` passes from a clean `src/gql/`, and `pnpm dev:uis` with the plugin in `ENABLED_PLUGINS` and no `src/gql/` runs codegen, starts the watcher, then boots without errors.
 
 ### 2. Type-error layer
 
@@ -99,4 +101,5 @@ A non-null field that resolves to null nulls its parent, and in a list that blan
 - The shared `PageInfo` SDL marks its booleans nullable, and list items come out nullable. The `erxes-ui` cursor helpers expect non-null values. The reference plugin adapts them in `@/operation/utils/cursorList`, a workaround that stays until core tightens `PageInfo`. Stop and report before copying it into another plugin.
 - Pass `--skip-nx-cache` when checking codegen. Otherwise Nx can replay a cached pass.
 - From inside a plugin folder, `npx nx codegen --skip-nx-cache` runs that plugin's target. Use `npx` there, because frontend plugins have no `package.json` and `pnpm nx` jumps to the workspace root, where Nx can't tell which project you mean.
+- `pnpm dev:uis` starts remotes through `nx serve core-ui --devRemotes`, and Nx skips their `dependsOn`. The `codegen` entry in `serve` only helps `nx serve <name>_ui`. `scripts/start-ui-dev.js` runs `codegen` and `codegen:watch` for the dev path, and the plugin must define both targets to be included.
 - `src/gql/` is gitignored. Running `pnpm nx build` or `serve` regenerates it, and calling rspack directly skips that step.

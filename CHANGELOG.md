@@ -1,4 +1,79 @@
+
+
+## [3.2.19](https://github.com/erxes/erxes/compare/3.2.18...3.2.19) (2026-10-10)
+
+
+### Bug Fixes
+
+* loyalty pricing products tag ([83bb391](https://github.com/erxes/erxes/commit/83bb391261c3d384e9ea5a18ae13c7e95862b46f))
+* posclient products sync with batch checkPricing ([b39e83b](https://github.com/erxes/erxes/commit/b39e83b799837db970c66a1e750a679b9d3c4e00))
+
 # Changelog
+
+## [3.2.18](https://github.com/erxes/erxes/compare/3.2.17...3.2.18) (2026-10-10)
+
+
+### Features
+
+* **pos:** add support for accepting coupons at the POS ([b368485](https://github.com/erxes/erxes/commit/b36848594e018a686ae6a30c602d7268a602055e))
+
+## [3.2.17](https://github.com/erxes/erxes/compare/3.2.16...3.2.17) (2026-10-10)
+
+
+### Features
+
+* **loyalty, sales, pos:** built-in earn and tier rules, tier history, condition groups, POS customer registration ([#9628](https://github.com/erxes/erxes/issues/9628)) ([ec4f1c3](https://github.com/erxes/erxes/commit/ec4f1c37477c2ff66c91cb4622049d09fb7aa3f1))
+
+## [3.2.16](https://github.com/erxes/erxes/compare/3.2.15...3.2.16) (2026-10-10)
+
+
+### Bug Fixes
+
+* added inline create in settings modules and upgrade date select ([#9583](https://github.com/erxes/erxes/issues/9583)) ([83322da](https://github.com/erxes/erxes/commit/83322daa85e214491415872a4249605efa193e2c))
+* **frontline:** synchronize Discord messages and actions ([#9569](https://github.com/erxes/erxes/issues/9569)) ([bfe129a](https://github.com/erxes/erxes/commit/bfe129a372211b90744b36d599f0614ff5da70de))
+* posclient order has customerType is visitor ([e6f63b7](https://github.com/erxes/erxes/commit/e6f63b77f1bdd03134ec52eee9da6d048c4f1d68))
+* posclient-front products description ([7ee6428](https://github.com/erxes/erxes/commit/7ee6428070fb03d17ca7d3d7b69ce60a15de892c))
+* **posclient:** bank card reader refactor ([1eb66cf](https://github.com/erxes/erxes/commit/1eb66cf5c079996dc9973d74597edd3c480e26c7))
+* sales to accounting optional payments ([bd45b24](https://github.com/erxes/erxes/commit/bd45b24689d08a1d48432d405d3b33df1791ae60))
+
+
+### Features
+
+* **contacts:** add client portal company CRUD mutations ([38b00bb](https://github.com/erxes/erxes/commit/38b00bbb5e554d9e165968c4b186514b4ac1e73c))
+* **frontline:** integrate Telegram bots with the native inbox ([#9589](https://github.com/erxes/erxes/issues/9589)) ([b2b23dd](https://github.com/erxes/erxes/commit/b2b23dd36d41677ec9e33588ff9a2b628e372931))
+* **oauth-clients:** show client ID alongside secret in created dialog ([#9587](https://github.com/erxes/erxes/issues/9587)) ([f8be1ca](https://github.com/erxes/erxes/commit/f8be1ca6e0e5d6885899ad1e330a2f6bafe14244))
+* publish erxes-ui, ui-modules and erxes-api-shared to npm from the monorepo ([#9609](https://github.com/erxes/erxes/issues/9609)) ([a2cec89](https://github.com/erxes/erxes/commit/a2cec8981107e1187bb3053c289fe46652479d65))
+
+
+### Performance Improvements
+
+* **frontline:** improve form builder settings and editing flow ([#9560](https://github.com/erxes/erxes/issues/9560)) ([f339e15](https://github.com/erxes/erxes/commit/f339e152e6822c0eba8242faaad709c18a9d2d3b))
+
+## [3.2.15](https://github.com/erxes/erxes/compare/3.2.14...3.2.15) (2026-10-07)
+
+
+### Bug Fixes
+
+* adjust customer handling logic to prevent overwriting existing customer data ([9c0b87b](https://github.com/erxes/erxes/commit/9c0b87b7f192567628c60e3e8e5a8b5074a187ba))
+* improve logging format for new customer creation ([108d0ee](https://github.com/erxes/erxes/commit/108d0eef644f243761ac251a7e179b2049ec7dc4))
+* posclient citytax calculator ([3151816](https://github.com/erxes/erxes/commit/315181651dbdcce0d01f12cdb5e69c203593a73e))
+* posclient taxRule sync from sales ([07bcbff](https://github.com/erxes/erxes/commit/07bcbfffeccd8f9e2852b9827c38847b2cdc3420))
+* reorder customer retrieval logic to prioritize email check before cached ID ([b1d4399](https://github.com/erxes/erxes/commit/b1d4399bf0de6d05a159a394427306e0a8f85818))
+* update customer retrieval logic to check for non-existing customer with email ([2124d9a](https://github.com/erxes/erxes/commit/2124d9acf4c9d9187f38a9b024b46457cefda3cd))
+* update support messenger configuration to use correct environment variable ([9f5c5d3](https://github.com/erxes/erxes/commit/9f5c5d386559efe9ffe769cdef68def45bf65fb6))
+
+
+### Features
+
+* add logging for customer and widget mutations to aid debugging ([1092ee6](https://github.com/erxes/erxes/commit/1092ee6ecd728c9a999cdce8dbf3a0a8c7a455d7))
+* add segment field namespaces for custom properties in various plugins ([9bce1db](https://github.com/erxes/erxes/commit/9bce1dbe62402c0c06dcbe1d6485125c048acb08))
+* enhance logging for widget mutations and customer handling ([0145f1b](https://github.com/erxes/erxes/commit/0145f1bd7730ac1784742579718e4e05620df956))
+* **posclient:** posclient order log and order cancel and return up ([#9549](https://github.com/erxes/erxes/issues/9549)) ([a1eac5c](https://github.com/erxes/erxes/commit/a1eac5c16ec7c8765660e78a2691b026e1d5f12b))
+
+
+### Reverts
+
+* Revert "Make shared libraries consumable packages for external plugins (#9547)" (#9585) ([bbbfa3a](https://github.com/erxes/erxes/commit/bbbfa3a23296eb9498bbeb59414332d823b07041)), closes [#9547](https://github.com/erxes/erxes/issues/9547) [#9585](https://github.com/erxes/erxes/issues/9585)
 
 ## [3.2.14](https://github.com/erxes/erxes/compare/3.2.12...3.2.14) (2026-10-06)
 

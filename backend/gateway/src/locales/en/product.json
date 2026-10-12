@@ -124,7 +124,9 @@
     "productUpdated": "Product updated successfully",
     "validationErrorTitle": "Validation error",
     "validationErrorDescription": "Please check the form fields",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "none": "None",
+    "conditions": "Conditions"
   },
   "general-config-form": {
     "general-settings": "General settings",
@@ -290,5 +292,27 @@
     "similarity-saved": "Similarity saved",
     "similarity-removed": "Similarity removed",
     "check-required-fields": "Please fill in the required fields"
-  }
+  },
+  "conditions": "Conditions",
+  "add-condition": "Add condition",
+  "edit-condition": "Edit condition",
+  "condition": "Condition",
+  "choose-condition": "Choose a condition",
+  "condition-code": "e.g. DENTED",
+  "condition-name": "e.g. Dented",
+  "condition-code-change-title": "Products keep the old code",
+  "condition-code-change-description": "{{count}} products and any pricing discounts use \"{{code}}\". They stop matching this condition until they are set to the new code or it is changed back.",
+  "condition-saved": "Saved",
+  "condition-remove-confirm": "Products keep the code and get the condition back if one with the same code is created again. Delete?",
+  "condition-removed": "Deleted",
+  "no-conditions": "No conditions yet",
+  "conditions-hint": "The states a product can be sold in, e.g. Dented or Display unit.",
+  "condition-mode-add": "Add",
+  "condition-mode-remove": "Remove",
+  "condition-added-to": "Condition added to {{count}} products",
+  "condition-removed-from": "Condition removed from {{count}} products",
+  "category-conditions": "Conditions",
+  "category-conditions-description": "Every product in this category and its subcategories is changed now. Products added later are not changed.",
+  "create-condition": "Create condition",
+  "create": "Create"
 }

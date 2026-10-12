@@ -121,3 +121,34 @@ export const LOYALTY_ACCOUNT_UNFREEZE = gql`
     }
   }
 `;
+
+export const LOYALTY_TIER_LOGS = gql`
+  query LoyaltyTierLogs($accountId: String, $targetId: String, $limit: Int) {
+    loyaltyTierLogs(accountId: $accountId, targetId: $targetId, limit: $limit) {
+      _id
+      ownerType
+      ownerId
+      owner
+      accountTypeId
+      accountType {
+        _id
+        name
+        tiers {
+          key
+          name
+          order
+          deprecated
+        }
+      }
+      fromTier
+      toTier
+      direction
+      createdBy
+      createdVia
+      targetId
+      targetType
+      targetName
+      createdAt
+    }
+  }
+`;

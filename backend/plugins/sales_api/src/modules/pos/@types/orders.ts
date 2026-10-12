@@ -13,6 +13,7 @@ export interface IPosOrderItem {
   isPackage?: boolean;
   isTake?: boolean;
   manufacturedDate?: string;
+  conditionCode?: string;
   description?: string;
   attachment?: IAttachment;
   closeDate?: Date;
@@ -33,6 +34,10 @@ export interface IMobileAmount {
 }
 
 export interface IPosOrderReturnInfo {
+  cashAmount?: number;
+  paidAmounts?: IPaidAmount[];
+  returnAt?: Date;
+  returnBy?: string;
   description?: string;
 }
 

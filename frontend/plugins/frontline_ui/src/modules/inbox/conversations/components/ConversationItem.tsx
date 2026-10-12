@@ -17,7 +17,6 @@ import {
 } from '@tabler/icons-react';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { currentUserState, CustomersInline, MembersInline } from 'ui-modules';
-import { DiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
 import { IntegrationType } from '@/types/Integration';
 import {
   CALL_STATUS_LABEL_KEYS,
@@ -41,7 +40,7 @@ export const ConversationItem = ({
   channelInfoPending,
 }: {
   onConversationSelect: () => void;
-  channelInfo?: DiscordConversationChannel;
+  channelInfo?: { channelName?: string };
   channelInfoPending?: boolean;
 }) => {
   const { t } = useTranslation('frontline');

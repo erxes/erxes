@@ -1,6 +1,10 @@
 import { parsePropertyDataKey, toPropertyGroupKey } from '../properties/keys';
 import { mergePropertyRowConditions } from '../properties/mergeRows';
-import { SegmentOperator, normalizeSegmentOperator } from './operators';
+import {
+  PERIOD_OPERATORS,
+  SegmentOperator,
+  normalizeSegmentOperator,
+} from './operators';
 import { SegmentFieldMeta, SegmentFieldNamespace } from './fieldMeta';
 import {
   SEGMENT_MEMBERSHIP_FIELD,
@@ -14,6 +18,7 @@ import {
   shiftZonedDays,
   zonedDate,
   zonedDayStart,
+  zonedPeriodRange,
 } from './zonedTime';
 
 export type SegmentMongoFilter = Record<string, unknown>;
@@ -137,6 +142,14 @@ const compareOn = (
       return { $in: [false, 'false'] };
     default:
       break;
+  }
+
+  const period = PERIOD_OPERATORS[operator];
+
+  if (period) {
+    const { gte, lt } = zonedPeriodRange(now, timeZone, period);
+
+    return { $gte: gte, $lt: lt };
   }
 
   if (value === undefined) {

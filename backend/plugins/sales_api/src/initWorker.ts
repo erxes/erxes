@@ -6,7 +6,7 @@ export const sendPosclientHealthCheck = async ({
   pos,
 }: {
   subdomain: string;
-  pos: IPosDocument;
+  pos: Pick<IPosDocument, 'token' | 'onServer'>;
 }) => {
   const { ALLOW_OFFLINE_POS } = process.env;
 
@@ -30,12 +30,13 @@ export const sendPosclientHealthCheck = async ({
 
 export const sendPosclientMessage = async (args: {
   subdomain: string;
-  pos: IPosDocument,
+  pos: Pick<IPosDocument, 'token' | 'onServer'>;
   action: string;
-  input: any;
+  input: Record<string, unknown>;
   method?: 'query' | 'mutation';
   isAwait?: boolean;
-  defaultValue?: any;
+  defaultValue?: unknown;
+  throwOnError?: boolean;
 }) => {
   const { action, pos, input, subdomain, method } = args;
   let lastAction = action;
@@ -65,6 +66,7 @@ export const sendPosclientMessage = async (args: {
     action: lastAction,
     input: { ...input, token: pos.token },
     defaultValue: {},
+    throwOnError: args.throwOnError,
   });
 
   return ret;

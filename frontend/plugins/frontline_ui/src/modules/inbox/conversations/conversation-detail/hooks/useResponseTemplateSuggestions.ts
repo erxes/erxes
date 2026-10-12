@@ -98,8 +98,8 @@ export const useResponseTemplateSuggestions = ({
   );
 
   const handleKeyDown = useCallback(
-    (event: Pick<KeyboardEvent, 'key' | 'preventDefault'>) => {
-      if (!showSuggestions) return;
+    (event: Pick<KeyboardEvent, 'key' | 'preventDefault' | 'isComposing'>) => {
+      if (!showSuggestions || event.isComposing) return;
 
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();

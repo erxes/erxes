@@ -64,8 +64,8 @@ export const TaskDetails = ({
 
   return (
     <>
-      {task && <TaskFields task={task} />}
-      {triage && <TriageFields triage={triage} />}
+      {task && <TaskFields key={task._id} task={task} />}
+      {triage && <TriageFields key={triage._id} triage={triage} />}
     </>
   );
 };

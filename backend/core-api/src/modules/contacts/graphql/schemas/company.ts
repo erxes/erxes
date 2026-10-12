@@ -118,9 +118,34 @@ const mutationParams = `
   location: String
 `;
 
+export const cpCompanyMutationParams = `
+  avatar: String,
+  primaryName: String,
+  names: [String],
+  primaryEmail: String,
+  emails: [String],
+  primaryPhone: String,
+  phones: [String],
+  primaryAddress: JSON,
+  addresses: [JSON],
+  size: Int,
+  website: String,
+  industry: [String],
+  businessType: String,
+  description: String,
+  isSubscribed: String,
+  links: JSON,
+  propertiesData: JSON,
+  location: String,
+`;
+
 export const mutations = `
   companiesAdd(${mutationParams}): Company
   companiesEdit(_id: String!, ${mutationParams}): Company
   companiesRemove(companyIds: [String]): [String]
   companiesMerge(companyIds: [String], companyFields: JSON) : Company
+
+  cpCompaniesAdd(${cpCompanyMutationParams}): Company
+  cpCompaniesEdit(_id: String!, ${cpCompanyMutationParams}): Company
+  cpCompaniesRemove(_id: String!): String
 `;

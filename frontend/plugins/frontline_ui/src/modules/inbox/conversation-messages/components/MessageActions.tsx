@@ -70,6 +70,8 @@ export const MessageActions = ({
       authorName = 'You';
     } else if (message.fromBot) {
       authorName = 'AI Agent';
+    } else if (kind === IntegrationType.TELEGRAM_MESSENGER) {
+      authorName = message.extraData?.telegram?.senderName || authorName;
     }
     const attachment = message.attachments?.[0]?.url
       ? {

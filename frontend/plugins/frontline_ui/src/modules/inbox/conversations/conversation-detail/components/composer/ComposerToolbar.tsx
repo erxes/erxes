@@ -22,6 +22,7 @@ type ComposerToolbarProps = {
   conversationId: string;
   integrationChannelId?: string;
   isDiscord: boolean;
+  isTelegram?: boolean;
   isMessenger: boolean;
   isInternalNote: boolean;
   isUploading: boolean;
@@ -37,6 +38,7 @@ export const ComposerToolbar = ({
   conversationId,
   integrationChannelId,
   isDiscord,
+  isTelegram = false,
   isMessenger,
   isInternalNote,
   isUploading,
@@ -100,8 +102,12 @@ export const ComposerToolbar = ({
         multiple
       />
 
-      {isDiscord && !isInternalNote && (
-        <PollComposer onSubmit={onSendPoll} loading={loading} />
+      {(isDiscord || isTelegram) && !isInternalNote && (
+        <PollComposer
+          provider={isTelegram ? 'Telegram' : 'Discord'}
+          onSubmit={onSendPoll}
+          loading={loading}
+        />
       )}
 
       {isMessenger && !isInternalNote && (

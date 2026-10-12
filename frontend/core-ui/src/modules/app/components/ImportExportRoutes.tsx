@@ -11,7 +11,7 @@ export enum ImportExportPath {
 
 export const ImportExportRoutes = () => {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Spinner withMascot />}>
       <Routes>
         <Route
           index
