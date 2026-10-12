@@ -1,5 +1,5 @@
 import { TemplateCategoryFilterState } from '@/templates/types/TemplateCategory';
-import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
@@ -8,7 +8,12 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { SelectMember } from 'ui-modules';
+import {
+  TemplateAuditFilterBarItems,
+  TemplateAuditFilterItems,
+  TemplateAuditFilterViews,
+  TemplateFilterDialog,
+} from '@/templates/components/TemplateFilterParts';
 import { SelectTemplateCategory } from 'ui-modules/modules/templates';
 
 export const TemplateCategoryFilter = () => {
@@ -39,17 +44,7 @@ export const TemplateCategoryFilter = () => {
                 <TemplateCategoryFilterView />
               </Combobox.Content>
             </Filter.Popover>
-            <Filter.Dialog>
-              <Filter.View filterKey="searchValue" inDialog>
-                <Filter.DialogStringView filterKey="searchValue" />
-              </Filter.View>
-              <Filter.View filterKey="createdAt" inDialog>
-                <Filter.DialogDateView filterKey="createdAt" />
-              </Filter.View>
-              <Filter.View filterKey="updatedAt" inDialog>
-                <Filter.DialogDateView filterKey="updatedAt" />
-              </Filter.View>
-            </Filter.Dialog>
+            <TemplateFilterDialog />
           </div>
         </Filter.Bar>
       </Filter>
@@ -80,29 +75,10 @@ const TemplateCategoryFilterBar = ({
         </Filter.BarButton>
       </Filter.BarItem>
 
-      <Filter.BarItem queryKey="createdAt">
-        <Filter.BarName>
-          <IconCalendarPlus />
-          {t('created-at')}
-        </Filter.BarName>
-        <Filter.Date filterKey="createdAt" />
-      </Filter.BarItem>
-
-      <Filter.BarItem queryKey="updatedAt">
-        <Filter.BarName>
-          <IconCalendarPlus />
-          {t('updated-at')}
-        </Filter.BarName>
-        <Filter.Date filterKey="updatedAt" />
-      </Filter.BarItem>
-
-      {createdBy && (
-        <SelectMember.FilterBar queryKey="createdBy" label={t('created-by')} />
-      )}
-
-      {updatedBy && (
-        <SelectMember.FilterBar queryKey="updatedBy" label={t('updated-by')} />
-      )}
+      <TemplateAuditFilterBarItems
+        createdBy={createdBy}
+        updatedBy={updatedBy}
+      />
 
       {parentIds && (
         <SelectTemplateCategory.FilterBar
@@ -139,41 +115,14 @@ const TemplateCategoryFilterView = () => {
               label={t('parent')}
             />
 
-            <SelectMember.FilterItem
-              value="createdBy"
-              label={t('created-by')}
-            />
-            <SelectMember.FilterItem
-              value="updatedBy"
-              label={t('updated-by')}
-            />
-
-            <Command.Separator className="my-1" />
-
-            <Filter.Item value="createdAt">
-              <IconCalendarPlus />
-              {t('created-at')}
-            </Filter.Item>
-
-            <Filter.Item value="updatedAt">
-              <IconCalendarPlus />
-              {t('updated-at')}
-            </Filter.Item>
+            <TemplateAuditFilterItems />
           </Command.List>
         </Command>
       </Filter.View>
 
-      <SelectMember.FilterView queryKey="createdBy" />
-      <SelectMember.FilterView queryKey="updatedBy" />
-
       <SelectTemplateCategory.FilterView queryKey="parentIds" />
 
-      <Filter.View filterKey="createdAt">
-        <Filter.DateView filterKey="createdAt" />
-      </Filter.View>
-      <Filter.View filterKey="updatedAt">
-        <Filter.DateView filterKey="updatedAt" />
-      </Filter.View>
+      <TemplateAuditFilterViews />
     </>
   );
 };

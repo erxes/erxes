@@ -13,14 +13,18 @@ import {
   ToggleGroup,
   Input,
   Tabs,
-  Switch,
-  Select,
 } from 'erxes-ui';
 import { z } from 'zod';
 import { useUpdateClientPortal } from '@/client-portal/hooks/useUpdateClientPortal';
 import { IClientPortal } from '../types/clientPortal';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ClientPortalOtpChannelFields } from '@/client-portal/components/ClientPortalSecurityFields';
+
+const OTP_TABS = [
+  { tab: 'email', channel: 'email' },
+  { tab: 'phone', channel: 'sms' },
+] as const;
 
 function stripTypename<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
@@ -278,300 +282,32 @@ export const ClientPortalDetailAuth = ({
             </Form>
           </Tabs.Content>
 
-          <Tabs.Content value="email">
-            <Form {...otpForm}>
-              <form
-                onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
-                className="flex flex-col gap-4"
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.enableEmailVerification"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-email-verification')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.enablePasswordlessLogin"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-passwordless-login')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.emailSubject"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('email-subject')}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-email-subject')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('code-length')}</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-code-length-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>{t('message-template')}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('email-message-body-description', {
-                            placeholder: '{{code}}',
-                          })}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('expiration-duration-minutes')}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-expiration-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="mt-2"
-                  disabled={loading}
-                  variant="secondary"
+          {OTP_TABS.map(({ tab, channel }) => (
+            <Tabs.Content key={tab} value={tab}>
+              <Form {...otpForm}>
+                <form
+                  onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
+                  className="flex flex-col gap-4"
                 >
-                  {loading && (
-                    <Spinner containerClassName="w-auto flex-none mr-2" />
-                  )}
-                  {t('save')}
-                </Button>
-              </form>
-            </Form>
-          </Tabs.Content>
-
-          <Tabs.Content value="phone">
-            <Form {...otpForm}>
-              <form
-                onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
-                className="flex flex-col gap-4"
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
+                  <ClientPortalOtpChannelFields
                     control={otpForm.control}
-                    name="sms.enablePhoneVerification"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-phone-verification')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
+                    channel={channel}
                   />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.enablePasswordlessLogin"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-passwordless-login')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
+                  <Button
+                    type="submit"
+                    className="mt-2"
+                    disabled={loading}
+                    variant="secondary"
+                  >
+                    {loading && (
+                      <Spinner containerClassName="w-auto flex-none mr-2" />
                     )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.smsProvider"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('sms-provider')}</Form.Label>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Form.Control>
-                            <Select.Trigger>
-                              <Select.Value
-                                placeholder={t('select-sms-provider')}
-                              />
-                            </Select.Trigger>
-                          </Form.Control>
-                          <Select.Content>
-                            <Select.Item value="callPro">CallPro</Select.Item>
-                            <Select.Item value="twilio">Twilio</Select.Item>
-                          </Select.Content>
-                        </Select>
-                        <Form.Description>
-                          {t('select-sms-provider-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('code-length')}</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-code-length-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>{t('message-template')}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('sms-message-body-description', {
-                            placeholder: '{{code}}',
-                          })}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('expiration-duration-minutes')}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-expiration-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="mt-2"
-                  disabled={loading}
-                  variant="secondary"
-                >
-                  {loading && (
-                    <Spinner containerClassName="w-auto flex-none mr-2" />
-                  )}
-                  {t('save')}
-                </Button>
-              </form>
-            </Form>
-          </Tabs.Content>
+                    {t('save')}
+                  </Button>
+                </form>
+              </Form>
+            </Tabs.Content>
+          ))}
 
           <Tabs.Content value="resend" className="mt-4">
             <Form {...otpResendForm}>

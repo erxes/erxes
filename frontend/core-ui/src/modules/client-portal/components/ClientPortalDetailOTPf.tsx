@@ -1,13 +1,4 @@
-import {
-  Button,
-  Form,
-  Input,
-  Label,
-  Spinner,
-  Switch,
-  Tabs,
-  Select,
-} from 'erxes-ui';
+import { Button, Form, Label, Spinner, Switch, Tabs } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_OTP_SCHEMA } from '../constants/clientPortalEditSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +7,7 @@ import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ClientPortalOtpChannelFields } from '@/client-portal/components/ClientPortalSecurityFields';
 
 export const ClientPortalDetailOTP = ({
   clientPortal,
@@ -128,262 +120,17 @@ export const ClientPortalDetailOTP = ({
               </Tabs.List>
 
               <Tabs.Content value="email" className="mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={form.control}
-                    name="email.enableEmailVerification"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-email-verification')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.enablePasswordlessLogin"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-passwordless-login')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.emailSubject"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('email-subject')}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-email-subject')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('code-length')}</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-code-length-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>{t('message-template')}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('email-message-body-description', {
-                            placeholder: '{{code}}',
-                          })}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('expiration-duration-minutes')}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-expiration-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
+                <ClientPortalOtpChannelFields
+                  control={form.control}
+                  channel="email"
+                />
               </Tabs.Content>
 
               <Tabs.Content value="sms" className="mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={form.control}
-                    name="sms.enablePhoneVerification"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-phone-verification')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.enablePasswordlessLogin"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          {t('enable-passwordless-login')}
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.smsProvider"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('sms-provider')}</Form.Label>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Form.Control>
-                            <Select.Trigger>
-                              <Select.Value
-                                placeholder={t('select-sms-provider')}
-                              />
-                            </Select.Trigger>
-                          </Form.Control>
-                          <Select.Content>
-                            <Select.Item value="callPro">CallPro</Select.Item>
-                            <Select.Item value="twilio">Twilio</Select.Item>
-                          </Select.Content>
-                        </Select>
-                        <Form.Description>
-                          {t('select-sms-provider-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('code-length')}</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-code-length-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>{t('message-template')}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('sms-message-body-description', {
-                            placeholder: '{{code}}',
-                          })}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('expiration-duration-minutes')}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('otp-expiration-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
+                <ClientPortalOtpChannelFields
+                  control={form.control}
+                  channel="sms"
+                />
               </Tabs.Content>
             </Tabs>
 
