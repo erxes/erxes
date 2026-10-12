@@ -2,7 +2,7 @@
 // Nothing is added to the router config unless OTEL_EXPORTER_OTLP_ENDPOINT is set.
 //
 //   OTEL_EXPORTER_OTLP_ENDPOINT  e.g. http://alloy:4317 (grpc) or http://alloy:4318 (http)
-//   OTEL_EXPORTER_OTLP_PROTOCOL  grpc (default) | http/protobuf
+//   OTEL_EXPORTER_OTLP_PROTOCOL  grpc (default) | http/protobuf | http/json
 //   OTEL_EXPORTER_OTLP_HEADERS   key1=value1,key2=value2
 //   OTEL_SERVICE_NAME            default: gateway
 //   OTEL_TRACES_SAMPLER_ARG      ratio 0..1, default: 0.1
@@ -20,7 +20,8 @@ const parseHeaders = (value?: string) => {
       continue;
     }
 
-    const key = pair.slice(0, index).trim();
+    // Header names are case-insensitive; gRPC metadata keys must be lowercase.
+    const key = pair.slice(0, index).trim().toLowerCase();
     const raw = pair.slice(index + 1).trim();
 
     try {
@@ -31,6 +32,27 @@ const parseHeaders = (value?: string) => {
   }
 
   return Object.keys(headers).length ? headers : undefined;
+};
+
+// The router exports OTLP over gRPC or HTTP/protobuf only. Collectors accept protobuf on the
+// same /v1/traces path, so http/json still works; anything else falls back to grpc.
+const ROUTER_PROTOCOLS: Record<string, 'grpc' | 'http'> = {
+  grpc: 'grpc',
+  'http/protobuf': 'http',
+  'http/json': 'http',
+};
+
+const parseProtocol = (value?: string) => {
+  const name = (value || '').trim().toLowerCase() || 'grpc';
+  const protocol = ROUTER_PROTOCOLS[name];
+
+  if (!protocol) {
+    console.warn(
+      `Apollo Router tracing: unsupported OTEL_EXPORTER_OTLP_PROTOCOL "${name}", using grpc`,
+    );
+  }
+
+  return protocol || 'grpc';
 };
 
 const parseSampleRatio = (value?: string) => {
@@ -58,12 +80,7 @@ export const createTelemetryConfig = (env: NodeJS.ProcessEnv = process.env) => {
     return undefined;
   }
 
-  const protocol = (env.OTEL_EXPORTER_OTLP_PROTOCOL || '')
-    .trim()
-    .toLowerCase()
-    .startsWith('http')
-    ? 'http'
-    : 'grpc';
+  const protocol = parseProtocol(env.OTEL_EXPORTER_OTLP_PROTOCOL);
   const headers = parseHeaders(env.OTEL_EXPORTER_OTLP_HEADERS);
 
   return {
