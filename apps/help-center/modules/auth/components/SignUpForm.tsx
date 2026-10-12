@@ -12,6 +12,7 @@ import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
 import { useT } from '@/modules/i18n/components/LocaleProvider';
 import type { Translate } from '@/modules/i18n/translate';
+import { startRouteProgress } from '@/modules/layout/utils/routeProgress';
 import { authErrorMessage } from '../utils/errors';
 import { PASSWORD_RULE } from '../utils/password';
 import { withNext } from '../utils/redirect';
@@ -124,6 +125,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
         description: t('auth.welcomeName', { name: displayName(current) }),
       });
 
+      startRouteProgress(next ?? '/');
       router.replace(next ?? '/');
     } catch (caught) {
       const message = authErrorMessage(caught, t);
