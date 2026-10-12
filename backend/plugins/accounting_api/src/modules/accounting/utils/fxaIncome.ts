@@ -1,7 +1,6 @@
 import { nanoid } from 'nanoid';
 import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
 import {
   FXA_OWNER_RECORD_ACTIONS,
   FXA_OWNER_RECORD_STATUSES,
@@ -38,8 +37,6 @@ type TFixedAssetAccountConfig = {
   depreciationAccountId?: string;
 };
 
-const getOpeningAdjustId = (transactionId: string) =>
-  `fxa-opening:${transactionId}`;
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 
 const addDays = (date: Date, days: number) => {
@@ -212,26 +209,35 @@ const removeOpeningAccumulatedDepreciation = async (
   transactionId: string,
   detailIds?: string[],
 ) => {
-  const adjustId = getOpeningAdjustId(transactionId);
+  const followTransaction = await cleanFxaFollowTr(
+    models,
+    transactionId,
+    TR_FOLLOW_TYPES.FXA_DEP_IN,
+  );
 
-  if (detailIds?.length) {
-    await models.AdjustFxaDetails.deleteMany({
-      adjustId,
-      transactionDetailId: { $in: detailIds },
-    });
-    const remainingDetails = await models.AdjustFxaDetails.find({
-      adjustId,
-    }).lean();
-
-    if (!remainingDetails.length) {
-      await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
-    }
-
+  if (!followTransaction?._id) {
     return;
   }
 
-  await models.AdjustFxaDetails.deleteMany({ adjustId });
-  await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
+  if (!detailIds?.length) {
+    await models.Transactions.deleteMany({ _id: followTransaction._id });
+    return;
+  }
+
+  const removedDetailIds = new Set(detailIds);
+  const details = (followTransaction.details || []).filter(
+    (detail) => !removedDetailIds.has(detail.originId || ''),
+  );
+
+  if (!details.length) {
+    await models.Transactions.deleteMany({ _id: followTransaction._id });
+    return;
+  }
+
+  await models.Transactions.updateOne(
+    { _id: followTransaction._id },
+    { $set: { details } },
+  );
 };
 
 export const removeFxaIncomeDetails = async (
@@ -380,84 +386,6 @@ const syncOpeningAccumulatedDepreciation = async ({
   transaction: ITransactionDocument;
   userId: string;
 }) => {
-  const adjustId = getOpeningAdjustId(transaction._id);
-  const details = inputs
-    .map((input) => {
-      const followInfo = getIncomeFollowInfo(input, followInfosByKey);
-      const preDeprecation =
-        followInfo?.preDeprecation ||
-        followInfo?.openingAccumulatedDepreciation ||
-        0;
-
-      if (preDeprecation <= 0) {
-        return;
-      }
-
-      const detail = (transaction.details || []).find(
-        (item) => getDetailId(item) === input.transactionDetailId,
-      );
-      const fixedAsset = fixedAssetsByDetailId.get(
-        input.transactionDetailId || '',
-      );
-
-      if (!detail || !fixedAsset?._id) {
-        return;
-      }
-
-      const count = Math.max(1, Math.trunc(input.count || detail.count || 1));
-      const originalCost = detail.unitPrice || fixedAsset.originalCost || 0;
-      const salvageValue =
-        followInfo?.salvageValue ?? fixedAsset.salvageValue ?? 0;
-      const totalOriginalCost = fixNum(originalCost * count);
-      const totalSalvageValue = fixNum(salvageValue * count);
-      const totalOpeningAccumulatedDepreciation = fixNum(
-        preDeprecation * count,
-      );
-      const openingBookValue = fixNum(
-        totalOriginalCost - totalOpeningAccumulatedDepreciation,
-      );
-
-      return {
-        adjustId,
-        fixedAssetId: fixedAsset._id,
-        categoryId: fixedAsset.categoryId,
-        accountId: detail.accountId,
-        branchId: detail.branchId || transaction.branchId,
-        departmentId: detail.departmentId || transaction.departmentId,
-        originalCost: totalOriginalCost,
-        salvageValue: totalSalvageValue,
-        openingBookValue,
-        openingAccumulatedDepreciation: totalOpeningAccumulatedDepreciation,
-        depreciationAmount: 0,
-        bookDepreciationAmount: 0,
-        closingAccumulatedDepreciation: totalOpeningAccumulatedDepreciation,
-        closingBookValue: openingBookValue,
-        transactionId: transaction._id,
-        transactionDetailId: input.transactionDetailId,
-      };
-    })
-    .filter((detail): detail is NonNullable<typeof detail> => Boolean(detail));
-
-  await models.AdjustFxaDetails.replaceAdjustFxaDetails({
-    adjustId,
-    details,
-  });
-
-  if (!details.length) {
-    await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
-    const oldOpeningDepTr = await cleanFxaFollowTr(
-      models,
-      transaction._id,
-      TR_FOLLOW_TYPES.FXA_DEP_IN,
-    );
-
-    if (oldOpeningDepTr?._id) {
-      await models.Transactions.deleteMany({ _id: oldOpeningDepTr._id });
-    }
-
-    return;
-  }
-
   const openingDate = addDays(date, -1);
   const accountConfigs = await getAccountConfigs(models);
   const oldOpeningDepTr = await cleanFxaFollowTr(
@@ -465,32 +393,60 @@ const syncOpeningAccumulatedDepreciation = async ({
     transaction._id,
     TR_FOLLOW_TYPES.FXA_DEP_IN,
   );
-  const openingDepDetails = details.map((detail) => {
-    const depreciationAccountId = accountConfigs.get(
-      detail.accountId || '',
-    )?.depreciationAccountId;
+  const openingDepDetails = inputs
+    .map((input) => {
+      const followInfo = getIncomeFollowInfo(input, followInfosByKey);
+      const detail = (transaction.details || []).find(
+        (item) => getDetailId(item) === input.transactionDetailId,
+      );
+      const fixedAsset = fixedAssetsByDetailId.get(
+        input.transactionDetailId || '',
+      );
+      const preDeprecation = Number(
+        followInfo?.preDeprecation ??
+          followInfo?.openingAccumulatedDepreciation ??
+          0,
+      );
 
-    if (!depreciationAccountId) {
-      throw new Error('Accumulated depreciation account config is missing.');
+      if (!detail || !fixedAsset?._id || preDeprecation <= 0) {
+        return;
+      }
+
+      const count = Math.max(1, Math.trunc(input.count || detail.count || 1));
+      const depreciationAccountId = accountConfigs.get(
+        detail.accountId || '',
+      )?.depreciationAccountId;
+
+      if (!depreciationAccountId) {
+        throw new Error('Accumulated depreciation account config is missing.');
+      }
+
+      const oldDetail = oldOpeningDepTr?.details.find(
+        (item) => item.originId === input.transactionDetailId,
+      );
+      const amount = fixNum(preDeprecation * count);
+
+      return {
+        ...oldDetail,
+        originId: input.transactionDetailId,
+        originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_IN,
+        fixedAssetId: fixedAsset._id,
+        accountId: depreciationAccountId,
+        branchId: detail.branchId || transaction.branchId,
+        departmentId: detail.departmentId || transaction.departmentId,
+        count: 1,
+        unitPrice: amount,
+        amount,
+      } as ITrDetail;
+    })
+    .filter((detail): detail is ITrDetail => Boolean(detail));
+
+  if (!openingDepDetails.length) {
+    if (oldOpeningDepTr?._id) {
+      await models.Transactions.deleteMany({ _id: oldOpeningDepTr._id });
     }
-
-    const oldDetail = oldOpeningDepTr?.details.find(
-      (item) => item.originId === detail.transactionDetailId,
-    );
-
-    return {
-      ...oldDetail,
-      originId: detail.transactionDetailId,
-      originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_IN,
-      fixedAssetId: detail.fixedAssetId,
-      accountId: depreciationAccountId,
-      branchId: detail.branchId,
-      departmentId: detail.departmentId,
-      count: 1,
-      unitPrice: detail.openingAccumulatedDepreciation,
-      amount: detail.openingAccumulatedDepreciation,
-    } as ITrDetail;
-  });
+    return;
+  }
   const openingDepTrDoc: ITransaction = {
     ...oldOpeningDepTr,
     originId: transaction._id,
@@ -513,27 +469,6 @@ const syncOpeningAccumulatedDepreciation = async ({
   };
 
   await createOrUpdateTr(models, userId, openingDepTrDoc, oldOpeningDepTr);
-
-  await models.AdjustFixedAssets.updateOne(
-    { _id: adjustId },
-    {
-      $set: {
-        date: openingDate,
-        description: `Opening accumulated depreciation for fixed asset income ${transaction._id}`,
-        status: ADJ_FXA_STATUSES.PUBLISH,
-        beginDate: openingDate,
-        successDate: openingDate,
-        checkedAt: new Date(),
-        createdBy: userId,
-        modifiedBy: userId,
-        updatedAt: new Date(),
-      },
-      $setOnInsert: {
-        createdAt: new Date(),
-      },
-    },
-    { upsert: true },
-  );
 };
 
 const getOwnerInputs = (

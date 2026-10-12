@@ -62,19 +62,11 @@ const makeIncomeTransaction = (overrides: Record<string, unknown> = {}) => ({
       amount: 1500,
       followInfos: {
         salvageValue: 50,
+        preDeprecation: 20,
       },
     },
   ],
-  followInfos: {
-    fxaIncomeDetails: [
-      {
-        tempId: 'detail-income',
-        transactionDetailId: 'detail-income',
-        salvageValue: 50,
-        preDeprecation: 20,
-      },
-    ],
-  },
+  followInfos: {},
   extraData: {},
   ...overrides,
 });
@@ -210,20 +202,8 @@ describe('fixed asset income', () => {
     expect(models.FxaOwnerRecords.insertMany).not.toHaveBeenCalled();
     expect(
       models.AdjustFxaDetails.replaceAdjustFxaDetails,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({
-        adjustId: 'fxa-opening:tr-income',
-        details: [
-          expect.objectContaining({
-            fixedAssetId: 'asset-a',
-            originalCost: 1500,
-            salvageValue: 150,
-            openingAccumulatedDepreciation: 60,
-            closingAccumulatedDepreciation: 60,
-          }),
-        ],
-      }),
-    );
+    ).not.toHaveBeenCalled();
+    expect(models.AdjustFixedAssets.updateOne).not.toHaveBeenCalled();
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         journal: JOURNALS.FXA_DEP_IN,
@@ -241,7 +221,7 @@ describe('fixed asset income', () => {
     );
   });
 
-  it('creates opening depreciation from detail follow info when root income details are absent', async () => {
+  it('creates opening depreciation from detail follow info', async () => {
     const models = makeModels();
     const transaction = makeIncomeTransaction({
       followInfos: {},
@@ -272,17 +252,8 @@ describe('fixed asset income', () => {
 
     expect(
       models.AdjustFxaDetails.replaceAdjustFxaDetails,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({
-        adjustId: 'fxa-opening:tr-income',
-        details: [
-          expect.objectContaining({
-            openingAccumulatedDepreciation: 60,
-            closingAccumulatedDepreciation: 60,
-          }),
-        ],
-      }),
-    );
+    ).not.toHaveBeenCalled();
+    expect(models.AdjustFixedAssets.updateOne).not.toHaveBeenCalled();
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         journal: JOURNALS.FXA_DEP_IN,

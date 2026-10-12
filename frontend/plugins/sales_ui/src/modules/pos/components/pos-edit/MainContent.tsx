@@ -11,6 +11,10 @@ import { Appearance } from '@/pos/components/appearance';
 import { ScreenConfig } from '@/pos/components/screenConfig';
 import { DeliveryConfig } from '@/pos/components/deliveryConfig';
 import { SyncCard } from '@/pos/components/syncCard';
+import { CustomerCreate } from '@/pos/components/customerCreate/CustomerCreate';
+import { PosAutomations } from '@/pos/components/automations/PosAutomations';
+import { PosRelationSettings } from '@/pos/components/automations/PosRelationSettings';
+import { POS_RELATION_TAB_PREFIX } from '@/pos/constants';
 
 interface MainContentProps {
   activeStep: string;
@@ -45,6 +49,16 @@ export const MainContent: React.FC<MainContentProps> = ({
   );
 
   const renderContent = (): React.ReactNode => {
+    if (posId && activeStep.startsWith(POS_RELATION_TAB_PREFIX)) {
+      return (
+        <PosRelationSettings
+          moduleKey={activeStep.slice(POS_RELATION_TAB_PREFIX.length)}
+          posId={posId}
+          posName={posDetail?.name}
+        />
+      );
+    }
+
     switch (activeStep) {
       case 'properties':
         return (
@@ -72,6 +86,15 @@ export const MainContent: React.FC<MainContentProps> = ({
             onSaveActionChange={handleSaveActionChange}
           />
         );
+      case 'customer':
+        return (
+          <CustomerCreate
+            posId={posId}
+            onSaveActionChange={handleSaveActionChange}
+          />
+        );
+      case 'automations':
+        return <PosAutomations posId={posId} posName={posDetail?.name} />;
       case 'product':
         return (
           <Products

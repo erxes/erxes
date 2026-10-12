@@ -13,8 +13,7 @@ import {
 import type { TFunction } from 'i18next';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Can, useSystemFieldsLayout } from 'ui-modules';
-import { FIELD_TYPES_OBJECT } from '../../constants/fieldTypes';
+import { Can, FIELD_TYPES_OBJECT, useSystemFieldsLayout } from 'ui-modules';
 import { useEditPropertySystemField } from '../../hooks/useEditPropertySystemField';
 import { usePropertySystemFields } from '../../hooks/usePropertySystemFields';
 import { IPropertySystemField } from '../../types/Properties';

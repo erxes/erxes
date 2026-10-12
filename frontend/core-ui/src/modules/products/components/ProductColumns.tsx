@@ -2,6 +2,7 @@ import {
   IconCategory,
   IconCurrencyDollar,
   IconHash,
+  IconListDetails,
   IconLabel,
   IconUser,
   IconShoppingCart,
@@ -17,6 +18,7 @@ import {
   type BadgeProps,
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
+import { ProductConditionsCell } from './ProductConditionsCell';
 import { ProductNameCell } from './ProductNameCell';
 import { productMoreColumn } from './ProductMoreCell';
 
@@ -198,5 +200,22 @@ export const productColumns: (
       );
     },
     size: 200,
+  },
+  {
+    id: 'conditions',
+    accessorKey: 'conditionCodes',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconListDetails}
+        label={t('conditions')}
+      />
+    ),
+    cell: ({ cell }) => (
+      <ProductConditionsCell
+        productId={cell.row.original._id}
+        conditionCodes={cell.row.original.conditionCodes || []}
+      />
+    ),
+    size: 240,
   },
 ];

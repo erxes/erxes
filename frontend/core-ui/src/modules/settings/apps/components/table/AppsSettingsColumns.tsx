@@ -52,11 +52,30 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
       }}
     >
       <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="min-w-72">
+      <RecordTableInlineCell.Content
+        style={{ width: 'calc(var(--radix-popover-trigger-width))' }}
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+        }}
+      >
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
           disabled={loading}
+          onFocus={(e) => {
+            const input = e.target;
+            const length = input.value.length;
+            setTimeout(() => {
+              input.setSelectionRange(length, length);
+            }, 0);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onSave();
+              setOpen(false);
+            }
+          }}
         />
       </RecordTableInlineCell.Content>
     </Popover>
@@ -66,7 +85,7 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
 const TokenCell = ({ token }: { token: string }) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-  const masked = token.slice(0, 6) + '••••••••••••••••••••';
+  const masked = `${token.slice(0, 6)}...................`;
 
   const handleCopy = async () => {
     try {

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-11`
 
 ## Scope
 
@@ -57,6 +57,8 @@
   floating widget and opens printable receipt HTML for the current user.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- Put response pagination preserves the full loaded range's start/end cursors,
+  prepends backward pages, and allows only one load-more request at a time.
 - Registers a product remainder provider that lets shared product choosers
   overlay Erkhet remainders when a `remainderConfig` exists for the active
   sales pipeline.
@@ -140,6 +142,14 @@
 
 ## Local Invariants
 
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
+  own open state (`sidebarPanelOpenState`), separate from the host's context
+  column. Never stack two headings: a menu without a heading passes one as
+  `label` (header row with the heading, optional `actions` and the collapse
+  toggle); a menu that starts with its own heading row (group label, collapsible
+  or accordion trigger) omits `label` and ends that row with
+  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
+  inside sheets and dialogs.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.
@@ -154,6 +164,8 @@
   Mongolian UI task.
 - Settings route shells must keep `min-h-0`/bounded overflow on flex content
   panes so nested tables and forms remain scrollable.
+- Put response cursor skeletons receive query loading state, including fetch-more;
+  page merges use the public `mergeCursorData` helper to preserve both boundaries.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 
@@ -171,6 +183,9 @@
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
   and displays `createdAt` relatively when available.
+- Put response pagination smoke scenario: open the list from its first page,
+  scroll forward through multiple pages, and verify no backward request appears
+  after appending a page; backward loads prepend rows and preserve the end cursor.
 - Deal eBarimt print smoke scenario: receive an `ebarimtResponded`
   subscription payload with `headerText`, `footerText`, and optional
   `receiptIcon`; the popup waits for receipt images before opening print.

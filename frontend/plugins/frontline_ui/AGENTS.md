@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-09`
 
 ## Scope
 
@@ -498,6 +498,7 @@ owns the setup form and connection actions.
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
+| Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
 | Settings routes           | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
 | Channel picker            | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
 | Move to channel           | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
@@ -850,6 +851,27 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- The conversations filter bar header (`ConversationsHeader`) uses
+  `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
+  the sidebar tint.
+- Expandable navigation rows end in the host sidebar's chevron:
+  `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
+  open, never a filled caret, so the rotation stays on the compositor and
+  matches the main sidebar. Expandable group trigger buttons use `rounded`
+  like `Sidebar.MenuButton`.
+- The Team Inbox unread `NotificationCount` badge in `FrontlineNavigation.tsx`
+  stays the same compact size as the host's My inbox count
+  (`h-5 min-w-5 rounded-full px-1.5 text-[11px] tabular-nums`).
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
+  own open state (`sidebarPanelOpenState`), separate from the host's context
+  column. Never stack two headings: a menu without a heading passes one as
+  `label` (header row with the heading, optional `actions` and the collapse
+  toggle); a menu that starts with its own heading row (group label, collapsible
+  or accordion trigger) omits `label` and ends that row with
+  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
+  inside sheets and dialogs.
+- `PipelineSidebar` stays `<Sidebar collapsible="none">`: below `md` it turns
+  into a horizontal tab strip that must never collapse.
 - Telegram consumes existing message/attachment/poll contracts and adds only
   optional `extraData.telegram` display metadata. Use native message actions
   and reply previews. Telegram poll labels name Telegram; other providers keep
@@ -1334,11 +1356,12 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   want the sidebar filters applied must not pass `variables` at all.
 - Both inbox nav groups render channels through `ChannelNavItem`, so `Me` and
   `Team inbox` stay structurally identical: the row itself selects the whole
-  channel (`channelId` set, `integrationType` cleared) and the caret expands the
+  channel (`channelId` set, `integrationType` cleared) and the chevron (the same
+  `IconChevronRight` the host sidebar uses for expandable rows) expands the
   integration types inside it, each of which narrows the same channel by source.
   A `NavigationMenuGroup` header is itself a collapse control, so a group that
   holds exactly one channel renders that channel with `collapsible={false}`:
-  the personal row therefore has no caret of its own, since a second caret there
+  the personal row therefore has no chevron of its own, since a second one there
   would collapse the very rows the group header already collapses. Do not turn a
   group header into a selection control to work around this.
 - The personal channel row is labelled `personal-channel` ("Personal channel"),
@@ -1640,19 +1663,22 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `useRestoreTicketChartFilters` reports back — it holds the query with `skip`
   and shows its skeleton, otherwise the card flashes unfiltered data before the
   saved filters land.
-- The Facebook board is reached through `/frontline/reports/facebook` and the
-  page header's `ToggleGroup` in `ReportIndexPage`, which is the only report
-  navigation a user can actually click. `ReportsView` also still renders it for
-  `?reportModule=facebook`; keep both, because the query-param path is what the
-  `REPORT_MODULES` entry uses. The KPI row reads the header's
-  `OVERVIEW_KPI_DATE_FILTER_ID` date atom, exactly like the conversation board,
-  so the header filter keeps driving it.
+- The report boards (overview, ticket, Facebook, call center) are picked from
+  the `ToggleGroup` header tabs in `ReportIndexPage`; there is no context-
+  column navigation for `/frontline/reports*`. The boards' paths, labels,
+  icons and path matching live in
+  `src/modules/report/constants/reportSections.ts` — add a board there, not
+  in the page. The Facebook board lives at `/frontline/reports/facebook`.
+  `ReportsView` also still renders it for `?reportModule=facebook`; keep
+  both, because the query-param path is what the `REPORT_MODULES` entry uses.
+  The KPI row reads the header's `OVERVIEW_KPI_DATE_FILTER_ID` date atom,
+  exactly like the conversation board, so the header filter keeps driving it.
 - **`REPORT_MODULES` is not a visible menu.** `ChooseReportModule` renders it,
-  but its only consumer `ReportNavigations` is imported nowhere and
-  `FrontlineSubGroups` computes `isReport` and then returns `null` for
-  `/frontline/reports`. Adding an entry to `REPORT_MODULES` therefore ships no
-  clickable surface — a new report board needs a `ReportIndexPage` route and
-  toggle item as well.
+  but its only consumer `ReportNavigations` is imported nowhere; the report
+  boards are the `ReportIndexPage` header tabs. Adding an entry to
+  `REPORT_MODULES` therefore ships no clickable surface — a new report board
+  needs a `reportSections.ts` entry and a `reportContent` branch in
+  `ReportIndexPage`.
 - The posts card's "On Meta" column shows `—` until a sync has run, and the
   signed difference next to Meta's count is `meta − (comments + replies)` — a
   positive number means Meta has comments erxes never received, which is the

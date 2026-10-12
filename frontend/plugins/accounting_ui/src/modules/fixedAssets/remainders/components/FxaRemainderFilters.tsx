@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCalendar, IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useQueryState } from 'erxes-ui';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
@@ -5,6 +6,7 @@ import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixed
 import { SelectFixedAssetCategory } from '@/settings/fixed-assets/components/SelectFixedAssetCategory';
 
 const FxaRemainderAssetFilter = () => {
+  const { t } = useTranslation('accounting');
   const [fixedAssetId, setFixedAssetId] = useQueryState<string>('fixedAssetId');
 
   return (
@@ -17,7 +19,7 @@ const FxaRemainderAssetFilter = () => {
             Array.isArray(value) ? value[0] || null : value || null,
           )
         }
-        placeholder="Үндсэн хөрөнгө"
+        placeholder={t('fixed-asset')}
         className="h-8"
       />
     </div>
@@ -39,34 +41,38 @@ const FxaRemainderCategoryFilter = () => {
   );
 };
 
-const FxaRemainderFilterPopover = () => (
-  <Filter.Popover scope="fxa-remainders-filter">
-    <Filter.Trigger isFiltered={false} />
-    <Combobox.Content>
-      <Filter.View>
-        <Command>
-          <Filter.CommandInput
-            placeholder="Шүүлт"
-            variant="secondary"
-            className="bg-background"
-          />
-          <Command.List className="p-1">
-            <Filter.Item value="searchValue" inDialog>
-              <IconSearch />
-              Хайлт
-            </Filter.Item>
-            <Filter.Item value="date" inDialog>
-              <IconCalendar />
-              Огноо
-            </Filter.Item>
-          </Command.List>
-        </Command>
-      </Filter.View>
-    </Combobox.Content>
-  </Filter.Popover>
-);
+const FxaRemainderFilterPopover = () => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Filter.Popover scope="fxa-remainders-filter">
+      <Filter.Trigger isFiltered={false} />
+      <Combobox.Content>
+        <Filter.View>
+          <Command>
+            <Filter.CommandInput
+              placeholder={t('filter-label')}
+              variant="secondary"
+              className="bg-background"
+            />
+            <Command.List className="p-1">
+              <Filter.Item value="searchValue" inDialog>
+                <IconSearch />
+                {t('search-label')}
+              </Filter.Item>
+              <Filter.Item value="date" inDialog>
+                <IconCalendar />
+                {t('date')}
+              </Filter.Item>
+            </Command.List>
+          </Command>
+        </Filter.View>
+      </Combobox.Content>
+    </Filter.Popover>
+  );
+};
 
 export const FxaRemainderFilters = () => {
+  const { t } = useTranslation('accounting');
   const [searchValue] = useQueryState<string>('searchValue');
 
   return (
@@ -75,7 +81,7 @@ export const FxaRemainderFilters = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Хайлт
+            {t('search-label')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {searchValue}
@@ -86,17 +92,17 @@ export const FxaRemainderFilters = () => {
         <SelectBranches.FilterBar
           mode="single"
           filterKey="branchId"
-          label="Салбар"
+          label={t('branch')}
         />
         <SelectDepartments.FilterBar
           mode="single"
           filterKey="departmentId"
-          label="Хэлтэс"
+          label={t('department')}
         />
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />
-            Огноо
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>

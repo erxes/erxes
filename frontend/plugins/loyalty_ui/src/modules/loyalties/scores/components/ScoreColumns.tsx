@@ -142,7 +142,7 @@ export const scoreLogColumns = (
     id: 'dealNumber',
     accessorFn: (row) => row.target?.number,
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
+      <RecordTable.InlineHead icon={IconHash} label={t('number')} />
     ),
     size: 200,
     cell: ({ cell }) => (

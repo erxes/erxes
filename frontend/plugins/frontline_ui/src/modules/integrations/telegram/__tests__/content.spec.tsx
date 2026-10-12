@@ -14,7 +14,7 @@ jest.mock('@/inbox/conversation-messages/components/MessageContent', () => ({
   MessageContent: () => null,
 }));
 jest.mock(
-  '@/inbox/conversation-messages/components/MessagePresentation',
+  '@/inbox/conversation-messages/components/messages/MessageStatus',
   () => ({
     UnsupportedMessage: ({ text }: { text: string }) => (
       <div role="alert">{text}</div>

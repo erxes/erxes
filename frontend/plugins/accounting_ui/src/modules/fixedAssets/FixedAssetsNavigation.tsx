@@ -1,19 +1,27 @@
-import { IconMoneybag, IconUserCheck } from '@tabler/icons-react';
-import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
+import {
+  IconBuildingEstate,
+  IconMoneybag,
+  IconUserCheck,
+} from '@tabler/icons-react';
 
-export const FixedAssetsNavigation = () => {
-  return (
-    <NavigationMenuGroup name="Үндсэн хөрөнгө">
-      <NavigationMenuLinkItem
-        name="Эд хариуцагч"
-        icon={IconUserCheck}
-        path="accounting/fixed-assets/owner-records"
-      />
-      <NavigationMenuLinkItem
-        name="Үлдэгдэл"
-        icon={IconMoneybag}
-        path="accounting/fixed-assets/remainders"
-      />
-    </NavigationMenuGroup>
-  );
-};
+import { NavigationSection } from '../NavigationSection';
+
+export const FixedAssetsNavigation = () => (
+  <NavigationSection
+    name="fixed-asset"
+    icon={IconBuildingEstate}
+    sectionPath="/accounting/fixed-assets"
+    items={[
+      {
+        name: 'asset-custodian',
+        icon: IconUserCheck,
+        path: 'accounting/fixed-assets/owner-records',
+      },
+      {
+        name: 'remainder',
+        icon: IconMoneybag,
+        path: 'accounting/fixed-assets/remainders',
+      },
+    ]}
+  />
+);

@@ -22,8 +22,7 @@ import {
 } from '~/modules/inventories/remainders/products-filter/components/selects/NumberRangeFilter';
 import { ACCOUNT_PERMISSIONS } from '../../types/Permission';
 
-type ScopeOption =
-  (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
+type ScopeOption = (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
 
 const splitCsv = (value?: string | null): string[] =>
   (value ?? '')
@@ -176,7 +175,11 @@ const ScopeMultiCommand = ({
   const { t } = useTranslation('accounting');
   return (
     <Command>
-      <Command.Input placeholder={t('search')} variant="secondary" focusOnMount />
+      <Command.Input
+        placeholder={t('search')}
+        variant="secondary"
+        focusOnMount
+      />
       <Command.List className="p-1">
         <Command.Empty>{t('no-results-found')}</Command.Empty>
         {options.map((option) => {
@@ -184,11 +187,11 @@ const ScopeMultiCommand = ({
           return (
             <Command.Item
               key={option.value}
-              value={option.label}
+              value={t(option.label || '', { nsSeparator: false })}
               onSelect={() => onPick(toggleValue(selected, option.value))}
             >
               <Icon className="size-4 shrink-0 text-muted-foreground" />
-              {option.label}
+              {t(option.label || '', { nsSeparator: false })}
               <Combobox.Check checked={selected.includes(option.value)} />
             </Command.Item>
           );

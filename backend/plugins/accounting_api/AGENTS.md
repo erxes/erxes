@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-11`
 
 ## Scope
 
@@ -30,7 +30,7 @@
 - Permission metadata exposes safe remainder read, manage, remove, and system-count visibility actions; users without count visibility see safe remainder item system counts as zero and cannot apply difference filters.
 - Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store the supplied acquisition quantity and cost.
 - Fixed asset categories store default annual depreciation percentages; fixed asset income copies the category's annual rate onto the generated fixed asset, and straight-line depreciation turns the annual percentage into monthly depreciation prorated by each month's day count.
-- Fixed asset income detail follow-info inputs store residual value and `preDeprecation`; detail-level `preDeprecation` seeds a transaction-linked published fixed asset adjustment and a `fxaDepIn` credit follow transaction, and reduces the paired opening balance `main` transaction to net book value independent of owner assignment rows.
+- Fixed asset income accepts unit accumulated depreciation as `details[].followInfos.preDeprecation`; it creates or updates only the transaction-linked `fxaDepIn` credit follow transaction and reduces the paired opening balance `main` transaction to net book value, without creating fixed asset adjustment records.
 - Fixed asset owner records in `fxa_owner_records` are optional responsible-user/serial allocation ledger rows for income, disposal, sale, move details, and direct owner-record operations; `action: "received"` increases an owner balance and `action: "handedOver"` decreases it, transaction-level `followInfos.ownerId` is used as a fallback when no explicit owner rows are sent, while financial quantity, cost, branch/department movement, and depreciation remain driven by transaction details.
 - Provides `fxaOwnerRecords` and `fxaOwnerRecordsCount`, which list owner records with fixed asset, category-derived filtering, owner, action, status, created-date, and optional `balanceOnly` aggregate rows for selection sheets.
 - Fixed asset out, sale, move, and move-in journals derive quantity and branch/department movement from transaction details; internal moves keep the same fixed asset id, use the generated `fxaMoveIn` transaction for the destination branch and/or department, and generate accumulated-depreciation transfer follows as `fxaDepOut`/`fxaDepIn` when the move has prior depreciation.
@@ -123,8 +123,8 @@
 - Accounting transaction indexes focus on journal, detail account, date-range, and cursor sort paths for transaction lists; journal reports prefilter indexed detail fields before unwind and keep exact detail matching after unwind.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
-- Fixed asset income transactions may create system opening fixed asset adjustments with `_id` shaped as `fxa-opening:<transactionId>` and paired `fxaDepIn` credit transactions; both are maintained from transaction detail follow-info values.
-- Fixed asset income transaction `followInfos.fxaIncomeDetails` owns detail-level residual value and `preDeprecation` inputs; `extraData.fxaOwnerRecords` owns only optional responsible-user/serial allocation rows.
+- Fixed asset income transaction detail `followInfos.preDeprecation` stores unit opening accumulated depreciation and drives a paired `fxaDepIn` credit transaction without creating fixed asset adjustment records.
+- Fixed asset income transaction detail follow-info owns residual value and `preDeprecation` inputs; `extraData.fxaOwnerRecords` owns only optional responsible-user/serial allocation rows.
 - Fixed asset transaction details store `fixedAssetId` for existing assets and store `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` for acquisition input; income synchronization writes the generated fixed asset id back to the detail.
 - Fixed asset documents store acquisition identity, account, unit cost, original quantity, current quantity cache, category depreciation defaults, acquisition date, depreciation start date, transaction id, and transaction detail id.
 - Fixed asset owner records store optional responsible-user/serial allocation ledger rows with fixed asset, code, sequence, count, action, status, owner, transaction, and transaction-detail linkage; they must not store branch, department, cost, depreciation method, acquisition date, or financial movement source-of-truth fields.
@@ -142,6 +142,7 @@
 - Fund rate adjustment is organization-level; branch/department grouping belongs to details and generated transactions, not the root adjustment.
 - Debt rate adjustment filters customer type only when a concrete customer id is selected; selecting only customer type must not exclude other customers.
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
+- Fixed asset income, out, sale, and internal movement handlers must represent accumulated depreciation only through `fxaDepIn`/`fxaDepOut` follow transactions; only explicit Erxes depreciation adjustment workflows may write `AdjustFixedAssets` or `AdjustFxaDetails`.
 - Currency transaction handlers must fail with an explicit missing-rate error instead of calculating NaN.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Current inventory cost lookup must use only the latest published inventory adjustment, must ignore details from older or unpublished adjustments, and must apply post-adjustment business-active debit/credit movements using detail-level branch/department before transaction-level fallback; missing, null, and empty-string locations normalize to `_`, and sale or sale-return edits must exclude their prior generated inventory movement when deriving replacement cost.

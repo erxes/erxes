@@ -13,6 +13,7 @@ import { TeamGithubPage } from '~/pages/TeamGithubPage';
 import { TemplateFormPage } from '~/pages/TemplateFormPage';
 import { GithubIntegrationPage } from '~/pages/GithubIntegrationPage';
 import { OperationPaths } from '~/types/paths';
+import { CreateTeam } from '@/team/components/team-list/CreateTeam';
 
 const OperationSettings = () => {
   const { t } = useTranslation('operation');
@@ -25,10 +26,13 @@ const OperationSettings = () => {
             <PageContainer>
               <SettingsHeader
                 breadcrumbs={
-                  <Button variant="ghost" className="font-semibold">
-                    <IconUserSquare className="w-4 h-4 text-accent-foreground" />
-                    {t('team')}
-                  </Button>
+                  <div className="flex items-center justify-between w-full gap-2">
+                    <Button variant="ghost" className="font-semibold">
+                      <IconUserSquare className="w-4 h-4 text-accent-foreground" />
+                      {t('team')}
+                    </Button>
+                    <CreateTeam />
+                  </div>
                 }
               />
               <Outlet />

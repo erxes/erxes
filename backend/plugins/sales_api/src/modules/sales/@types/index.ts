@@ -4,3 +4,4 @@ export * from './deal';
 export * from './label';
 export * from './pipeline';
 export * from './stage';
+export * from './loyaltyRule';

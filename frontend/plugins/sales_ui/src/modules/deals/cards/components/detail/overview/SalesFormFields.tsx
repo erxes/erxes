@@ -159,14 +159,14 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           value={startDate}
           id={_id}
           type="startDate"
-          variant="detail"
+          variant="input"
           placeholder={t('start-date')}
         />
         <DateSelectDeal
           value={closeDate}
           id={_id}
           type="closeDate"
-          variant="detail"
+          variant="input"
           placeholder={t('close-date')}
         />
         <SelectLabels.FilterBar

@@ -129,6 +129,19 @@ describe('compileSegmentMongoFilter · operators', () => {
     expect(range.$lt).toEqual(new Date('2026-08-23T16:00:00.000Z'));
   });
 
+  it('turns "this month" into the calendar month in the zone', () => {
+    const { filter } = compile(
+      field('closeDate', SegmentOperator.DateThisMonth),
+      {
+        timeZone: 'Asia/Ulaanbaatar',
+      },
+    );
+    const range = filter.closeDate as Record<string, Date>;
+
+    expect(range.$gte).toEqual(new Date('2026-07-31T16:00:00.000Z'));
+    expect(range.$lt).toEqual(new Date('2026-08-31T16:00:00.000Z'));
+  });
+
   it('normalizes a deprecated operator before compiling', () => {
     expect(
       compile(field('closeDate', SegmentOperator.DateRelativeGt, '2026-01-01'))

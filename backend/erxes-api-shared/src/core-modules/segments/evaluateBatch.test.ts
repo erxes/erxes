@@ -3,7 +3,9 @@ import { SegmentOperator } from './operators';
 import { SegmentRelationMeta } from './relationRegistry';
 import {
   evaluateSegmentBatch,
+  measureSegmentSubject,
   SegmentEvaluationGateway,
+  segmentNodeAt,
 } from './evaluateBatch';
 
 import { SegmentNode, SegmentRelationNode } from './nodes';
@@ -191,5 +193,41 @@ describe('evaluateSegmentBatch', () => {
       undecided: [],
     });
     expect(touched).toBe(false);
+  });
+});
+
+describe('measureSegmentSubject', () => {
+  it('finds a condition by its place in the tree', () => {
+    expect(segmentNodeAt(segment.root, 'children.1')).toBe(dealCount);
+    expect(segmentNodeAt(segment.root, '')).toBe(segment.root);
+    expect(segmentNodeAt(segment.root, 'children.7')).toBeUndefined();
+  });
+
+  it("reads what a relation condition measures for one subject", async () => {
+    const gateway = gatewayWith({
+      resolveEdges: async () => ({ 'c-1': ['d-1', 'd-2'] }),
+      resolveFields: async (plugin) =>
+        plugin === 'core'
+          ? { values: {} }
+          : { values: { 'c-1': { [countRef]: 2 } } },
+    });
+
+    expect(
+      await measureSegmentSubject(gateway, segment, 'c-1', ['children.1']),
+    ).toEqual({ 'children.1': 2 });
+  });
+
+  it('ignores a path that is not a relation condition', async () => {
+    const resolveFields = jest.fn(async () => ({ values: {} }));
+
+    expect(
+      await measureSegmentSubject(
+        gatewayWith({ resolveFields }),
+        segment,
+        'c-1',
+        ['children.0', 'children.9'],
+      ),
+    ).toEqual({});
+    expect(resolveFields).not.toHaveBeenCalled();
   });
 });
