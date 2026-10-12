@@ -39,7 +39,6 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
   const onStageAdd = () => {
     const stageId = Math.random().toString();
     setNewStageId(stageId);
-    // Sortable mounts the new row after the field array's focus effect.
     append(
       {
         _id: stageId,
