@@ -29,7 +29,9 @@ import {
   getPlugin,
   getPlugins,
   getSubdomain,
+  getTRPCAuthSecret,
   isDev,
+  isTRPCRequestAuthentic,
   redis,
   setActivePlugins,
 } from 'erxes-api-shared/utils';
@@ -181,17 +183,17 @@ app.get('/locales/:lng/:file', async (req, res) => {
   return res.json(locale);
 });
 
+app.use(['/trpc', '/pl:serviceName/trpc'], (req, res, next) => {
+  if (!isTRPCRequestAuthentic(req.headers, req.path)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  next();
+});
+
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
-    // const path = req.path;
-
-    // // Forbid access to trpc endpoints
-    // if (path.startsWith('/trpc')) {
-    //   return res.status(403).json({
-    //     error: 'Access to trpc endpoints through plugin proxy is forbidden',
-    //   });
-    // }
 
     const service = await getPlugin(serviceName);
 
@@ -222,6 +224,8 @@ let httpServer: http.Server;
 
 async function start() {
   try {
+    getTRPCAuthSecret();
+
     const enabledPlugins = await getPlugins();
     await setActivePlugins(enabledPlugins);
 

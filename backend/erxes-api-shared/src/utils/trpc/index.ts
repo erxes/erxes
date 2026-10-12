@@ -4,11 +4,20 @@ import {
   httpBatchLink,
   TRPCRequestOptions,
 } from '@trpc/client';
+import { TRPCError } from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
+import {
+  getTRPCAuthSecret,
+  signTRPCContext,
+  trpcAuthHeaderName,
+  verifyTRPCContext,
+} from './serviceAuth';
+
+export { getTRPCAuthSecret };
 
 export type MessageProps = {
   subdomain: string;
@@ -75,9 +84,55 @@ export function encodeTRPCContextHeader(
 }
 
 /**
+ * Headers for an outgoing service-to-service tRPC request: the encoded
+ * context plus a signature, bound to `procedurePath`, that lets the receiving
+ * service trust it.
+ */
+export function createTRPCRequestHeaders(
+  subdomain: string,
+  method: 'query' | 'mutation',
+  context: CommonTRPCContext | undefined,
+  procedurePath: string,
+): Record<string, string> {
+  const contextHeader = encodeTRPCContextHeader(subdomain, method, context);
+
+  return {
+    [trpcContextHeaderName]: contextHeader,
+    [trpcAuthHeaderName]: signTRPCContext(contextHeader, procedurePath),
+  };
+}
+
+/**
+ * Whether the request carries a valid signature over its tRPC context header
+ * for the procedure named by the last segment of `requestPath` (the path
+ * relative to the `/trpc` mount, as Express exposes it in `req.path`).
+ */
+export function isTRPCRequestAuthentic(
+  headers: IncomingHttpHeaders,
+  requestPath: string,
+): boolean {
+  let procedurePath: string;
+
+  try {
+    procedurePath = decodeURIComponent(
+      requestPath.slice(requestPath.lastIndexOf('/') + 1),
+    );
+  } catch {
+    return false;
+  }
+
+  return verifyTRPCContext(
+    headers[trpcContextHeaderName],
+    headers[trpcAuthHeaderName],
+    procedurePath,
+  );
+}
+
+/**
  * Decode the base64 JSON tRPC context header into tenant, method, and caller
- * context. Returns null when the header is absent or malformed. Note: the
- * header is an encoding, not an authentication credential.
+ * context. Returns null when the header is absent or malformed. The header is
+ * an encoding, not an authentication credential; callers must check
+ * `isTRPCRequestAuthentic` before trusting it.
  */
 export function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   subdomain: string;
@@ -128,17 +183,19 @@ export const sendTRPCMessage = async ({
   let client;
 
   try {
-    // Encode context into header
-    const contextHeader = encodeTRPCContextHeader(subdomain, method, context);
+    const requestHeaders = createTRPCRequestHeaders(
+      subdomain,
+      method,
+      context,
+      `${module}.${action}`,
+    );
 
     if (VERSION && VERSION === 'saas') {
       client = createTRPCUntypedClient({
         links: [
           httpBatchLink({
             url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
-            headers: () => ({
-              [trpcContextHeaderName]: contextHeader,
-            }),
+            headers: () => requestHeaders,
           }),
         ],
       });
@@ -159,9 +216,7 @@ export const sendTRPCMessage = async ({
         links: [
           httpBatchLink({
             url: `${pluginInfo.address}/trpc`,
-            headers: () => ({
-              [trpcContextHeaderName]: contextHeader,
-            }),
+            headers: () => requestHeaders,
           }),
         ],
       });
@@ -220,18 +275,26 @@ export const createPluginTRPCContext = async <TContext>(
   };
 };
 
-export const createTRPCContext =
-  <TContext>(
-    trpcContext: (
-      subdomain: string,
-      context: any,
-    ) => Promise<TContext & TRPCContext>,
-  ) =>
-  async ({
+export const createTRPCContext = <TContext>(
+  trpcContext: (
+    subdomain: string,
+    context: any,
+  ) => Promise<TContext & TRPCContext>,
+) => {
+  getTRPCAuthSecret();
+
+  return async ({
     req,
   }: trpcExpress.CreateExpressContextOptions): Promise<
     TContext & TRPCContext
   > => {
+    if (!isTRPCRequestAuthentic(req.headers, req.path)) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid service credentials',
+      });
+    }
+
     // Extract context from header (encoded) or fallback to request body/input
     const decoded = decodeTRPCContextHeader(req.headers);
     const subdomain = decoded?.subdomain;
@@ -248,6 +311,7 @@ export const createTRPCContext =
       trpcContext,
     )) as TContext & TRPCContext;
   };
+};
 
 export type ITRPCContext<TExtraContext = object> = Awaited<
   ReturnType<typeof createTRPCContext<TExtraContext>>
