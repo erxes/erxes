@@ -1,4 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { GET_TICKET_CONFIGS } from '../graphql';
 import { useParams } from 'react-router-dom';
 import { compactList } from '@/shared/utils/cursorList';
@@ -24,10 +25,13 @@ export const useGetTicketConfigs = (
     skip: !effectiveChannelId,
   });
 
+  const ticketConfigs = useMemo(
+    () => (data?.ticketConfigs ? compactList(data.ticketConfigs) : undefined),
+    [data?.ticketConfigs],
+  );
+
   return {
-    ticketConfigs: data?.ticketConfigs
-      ? compactList(data.ticketConfigs)
-      : undefined,
+    ticketConfigs,
     loading,
     error,
   };

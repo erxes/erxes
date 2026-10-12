@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_TICKET_STATUS = gql`
+export const ADD_TICKET_STATUS = gql(`
   mutation AddTicketStatus(
     $name: String!
     $pipelineId: String!
@@ -20,4 +20,4 @@ export const ADD_TICKET_STATUS = gql`
       _id
     }
   }
-`;
+`);

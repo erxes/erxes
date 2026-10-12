@@ -997,6 +997,15 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   `a.b(c` searches for that literal string instead of crashing the resolver.
 - `Ticket._id` is non-null; every other `Ticket` field stays nullable because
   the Mongoose schema requires none of them and `updateTicket` can clear them.
+- `getAccessibleTicketStatuses(pipelineId!)` and
+  `getTicketStatusesChoicesPipeline(pipelineId!)` return
+  `[TicketStatusChoice!]!`; `value`, `label` and `type` are non-null. The
+  accessible variant fills only `value`, `label`, `color`, `type`,
+  `canMoveMemberIds` and `canEditMemberIds`; the pipeline variant adds
+  `memberIds`, `departmentIds` and `visibilityType`.
+- `TicketStatus.type` and `order` are non-null. `Status.updateStatus` drops a
+  null `type` or `order` from its `$set`, so `updateTicketStatus` can never
+  clear them; keep that guard if the method changes.
 - `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
   list's branch and department filters. `generateFilter` turns a non-empty list
   into `branchId` / `departmentId` `$in`, and the `ticketListChanged`

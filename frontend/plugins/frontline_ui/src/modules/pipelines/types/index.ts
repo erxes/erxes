@@ -8,6 +8,7 @@ import {
   UPDATE_PIPELINE_FORM_SCHEMA,
 } from '@/settings/schema/pipeline';
 import { PIPELINE_CONFIG_SCHEMA } from '../components/configs/schema';
+import type { ITicketStatusPermissionChoice } from '@/status/types';
 
 export interface PermissionState {
   _id: string;
@@ -37,11 +38,6 @@ export type TPipelineForm = TCreatePipelineForm | TUpdatePipelineForm;
 
 export type TPipelineConfig = z.infer<typeof PIPELINE_CONFIG_SCHEMA>;
 
-export interface StatusItem {
-  value: string;
-  label: string;
-  color: string;
-  type: number;
-}
+export type StatusItem = ITicketStatusPermissionChoice;
 
 export * from './PipelineHotkeyScope';

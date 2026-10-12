@@ -62,9 +62,17 @@ export const loadStatusClass = (models: IModels) => {
     }
 
     public static async updateStatus(_id: string, doc: IStatus) {
+      const { type, order, ...fields } = doc;
+
       return await models.Status.findOneAndUpdate(
         { _id },
-        { $set: { ...doc } },
+        {
+          $set: {
+            ...fields,
+            ...(typeof type === 'number' && { type }),
+            ...(typeof order === 'number' && { order }),
+          },
+        },
         { new: true },
       );
     }

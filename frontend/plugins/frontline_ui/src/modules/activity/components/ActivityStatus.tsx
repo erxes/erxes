@@ -43,8 +43,8 @@ export const ActivityStatus = ({
       return (
         <Badge variant="secondary" className="capitalize">
           <StatusInlineIcon
-            statusType={status?.type as number}
-            color={status?.color}
+            statusType={status?.type}
+            color={status?.color ?? undefined}
           />
           {status?.label}
         </Badge>

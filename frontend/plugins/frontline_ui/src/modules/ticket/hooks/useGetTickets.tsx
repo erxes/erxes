@@ -16,7 +16,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   GetTicketsQuery,
@@ -142,10 +142,15 @@ export const useTickets = (
     },
   });
 
-  const tickets = data?.getTickets?.list
-    ? compactList(data.getTickets.list)
-    : undefined;
-  const pageInfo = toCursorPageInfo(data?.getTickets?.pageInfo);
+  const tickets = useMemo(
+    () =>
+      data?.getTickets?.list ? compactList(data.getTickets.list) : undefined,
+    [data?.getTickets?.list],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.getTickets?.pageInfo),
+    [data?.getTickets?.pageInfo],
+  );
   const totalCount = data?.getTickets?.totalCount ?? undefined;
 
   useEffect(() => {

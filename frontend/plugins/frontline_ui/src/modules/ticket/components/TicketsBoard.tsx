@@ -52,8 +52,8 @@ export const TicketsBoard = () => {
   const { statuses, loading } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: pipelineId || '',
-      channelId: channelId || '',
     },
+    skip: !pipelineId,
   });
 
   const columns = statuses?.map((status) => ({

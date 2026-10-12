@@ -1,4 +1,5 @@
 import { useQuery, QueryHookOptions } from '@apollo/client';
+import { useMemo } from 'react';
 import { GET_TICKET_PIPELINES } from '@/pipelines/graphql/queries/getPipelines';
 import { compactList } from '@/shared/utils/cursorList';
 import type {
@@ -24,10 +25,16 @@ export const useGetPipelines = (
       },
     },
   });
+  const pipelines = useMemo(
+    () =>
+      data?.getTicketPipelines?.list
+        ? compactList(data.getTicketPipelines.list)
+        : undefined,
+    [data?.getTicketPipelines?.list],
+  );
+
   return {
-    pipelines: data?.getTicketPipelines?.list
-      ? compactList(data.getTicketPipelines.list)
-      : undefined,
+    pipelines,
     totalCount: data?.getTicketPipelines?.totalCount,
     loading,
     error,

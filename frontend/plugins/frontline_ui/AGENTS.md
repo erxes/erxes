@@ -2195,7 +2195,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
   core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
-  `integrations/discord`, `integrations/mail`, `channels`, `ticket`, the
+  `integrations/discord`, `integrations/mail`, `channels`, `ticket`,
+  `status`, the
   Facebook and Instagram settings (config,
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base
@@ -2216,6 +2217,22 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `Integrations` list row (record tables use `CellContext<IIntegration>`),
   `IIntegrationDetail` is `integrationDetail`, and `IIntegrationType` /
   `IIntegrationTypeByChannel` are the used-types entries.
+- Status types derive from the generated queries: `ITicketStatus` is a
+  `GetTicketStatusesByType` row, `ITicketStatusDetail` is `getTicketStatus`,
+  `ITicketStatusChoice` is an accessible-status choice and
+  `ITicketStatusPermissionChoice` (aliased by the pipelines `StatusItem`) a
+  pipeline choice with its member lists. `useGetTicketStatus(type)` reads the
+  pipeline from the route. `useGetAccessibleTicketStatuses` and
+  `useGetTicketStatusesByPipeline` take `variables?: { pipelineId?: string |
+null }`, fall back to the route pipeline and skip without one; never pass
+  them `channelId`, which neither query declares.
+- `GetTicketStatus` (`useGetTicketStatusById`) selects `type` and `color`,
+  which the report status filter chip renders as the status icon.
+- A hook that compacts a generated list (`useTickets`, `useGetPipelines`,
+  `useGetTicketConfigs`, the channel hooks) memoizes the result on the
+  Apollo field. The ticket board copies `tickets` into jotai atoms from an
+  effect keyed on that array, so a fresh array per render loops the board and
+  starves navigation updates.
 - Ticket types derive from the generated documents: `ITicket` is
   `FrontlineTicketFieldsFragment` (list rows, created tickets and board
   cards) and `ITicketDetail` is `getTicket`, which adds `isSubscribed` and

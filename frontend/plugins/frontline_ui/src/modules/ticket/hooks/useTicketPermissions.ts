@@ -4,11 +4,11 @@ import type { IPipelineDetail } from '@/pipelines/types';
 
 export interface IStatusPermissions {
   value: string;
-  memberIds?: string[];
-  canMoveMemberIds?: string[];
-  canEditMemberIds?: string[];
-  departmentIds?: string[];
-  visibilityType?: string;
+  memberIds?: (string | null)[] | null;
+  canMoveMemberIds?: (string | null)[] | null;
+  canEditMemberIds?: (string | null)[] | null;
+  departmentIds?: (string | null)[] | null;
+  visibilityType?: string | null;
 }
 
 export interface ITicketPermissions {
