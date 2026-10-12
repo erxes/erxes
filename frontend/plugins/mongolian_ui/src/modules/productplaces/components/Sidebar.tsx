@@ -14,9 +14,11 @@ const SIDEBAR_ROUTES = {
 const ProductPlacesSidebar = () => {
   const { t } = useTranslation('mongolian');
   return (
-    <Sidebar collapsible="none" className="border-r flex-none w-[300px]">
+    <Sidebar.Panel
+      className="border-r flex-none w-[300px]"
+      label={t('product-places')}
+    >
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('product-places')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu className="capitalize">
             {Object.entries(SIDEBAR_ROUTES).map(([path, label]) => (
@@ -27,7 +29,7 @@ const ProductPlacesSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

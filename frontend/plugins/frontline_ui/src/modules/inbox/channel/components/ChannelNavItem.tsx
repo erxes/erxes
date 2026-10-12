@@ -5,7 +5,7 @@ import {
   TextOverflowTooltip,
   cn,
 } from 'erxes-ui';
-import { IconCaretRightFilled, IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconChevronRight } from '@tabler/icons-react';
 import { ReactNode } from 'react';
 import { MembersInline } from 'ui-modules';
 import type { IUser } from 'ui-modules';
@@ -87,7 +87,9 @@ export const ChannelNavItem = ({
             aria-label={name}
             aria-expanded={open}
           >
-            <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/channel:rotate-90 text-accent-foreground" />
+            <span className="flex text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/channel:rotate-90 motion-reduce:transition-none">
+              <IconChevronRight className="size-3.5!" />
+            </span>
           </Button>
         </Collapsible.Trigger>
       </div>
