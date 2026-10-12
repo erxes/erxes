@@ -13,9 +13,25 @@ export const CONVERSATION_MESSAGE_FIELDS = gql(`
     _id
     mid
     messageKind
-    providerData
-    replyTo
-    reactions
+    providerData {
+      messageId
+      attachmentType
+      fallbackReason
+      previewText
+      previewUrl
+      shareType
+      storyUrl
+    }
+    replyTo {
+      messageId
+      content
+      authorName
+    }
+    reactions {
+      senderId
+      emoji
+      reaction
+    }
     deliveryStatus
     expiresAt
     conversationId

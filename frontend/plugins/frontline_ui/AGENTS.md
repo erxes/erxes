@@ -2177,9 +2177,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base
   automation widgets, the mail automation inbox checklist, the
-  notification channel widget, and the inbox conversations: list, detail,
-  counts, progress, conversation actions, channel inline and
-  `inboxSubscriptions`) writes every
+  notification channel widget, the inbox conversations (list, detail,
+  counts, progress, conversation actions, channel inline,
+  `inboxSubscriptions`) and inbox messages, and the Facebook and Instagram
+  conversation messages) writes every
   document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
@@ -2225,10 +2226,25 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `facebookGetPost` and `instagramGetPost` return `attachments` as image URL
   strings (`[String]`), not attachment objects. `FacebookPostTrigger`,
   `IgPostTrigger` and `PostMediaCard` drop null entries with `isDefined` and
-  use each string as the image source. The Facebook and Instagram
-  conversation message hooks extend the inbox `IMessage` and subscribe to
-  the inbox `CONVERSATION_MESSAGE_INSERTED`, so they keep their type arguments
-  until the inbox documents are typed.
+  use each string as the image source.
+- Messages reach the renderers only through `toMessage`
+  (`inbox/conversation-messages/utils/toMessage`): every message hook (inbox,
+  pinned, form widget, Facebook, Instagram) maps its generated rows with it,
+  while subscriptions and `updateQuery` keep writing the generated rows.
+  `IMessage` is that normalized shape: nulls are `undefined`, `content` and
+  `createdAt` are strings, and JSON is parsed by the lenient zod schemas in
+  `inbox/types/messageSchema.ts`, whose outputs are the message sub-types
+  (`IMessagePoll`, `IMessageEmbed`, `ITelegramMessageData`, ...). Each leaf
+  falls back on its own and objects pass undeclared keys through, because
+  forwarding sends snapshots back to the server. A reply without a
+  `messageId` and a reaction without a `senderId` are dropped.
+  `formWidgetData` and `botData` pass through unparsed; Facebook rows add
+  `toFacebookMessageExtras` for `botData`, `source` and `relatedMessage`.
+  Facebook reply delivery is read from the add mutation's `extraData` with
+  `readFacebookDelivery`.
+- Facebook and Instagram message queries select `__typename`, because their
+  subscriptions write inbox messages into those lists under the provider
+  typename.
 - Integration hooks drop null list items with `compactList` and adapt
   `PageInfo` through `@/shared/utils/cursorList`. Query variables follow the
   `id ? { ... } : undefined` plus `skip` pattern; `channelId` is required by

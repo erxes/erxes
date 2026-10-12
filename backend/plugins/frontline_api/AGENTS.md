@@ -687,6 +687,13 @@ customerId, visitorId)` returns the voter's own selections for the
   `updatedAt`, `updatedBy`, all nullable: `status` has only a Mongoose
   default), matching `automatedReplyControlSchema`. `propertiesData`,
   `customFieldsData` and `conversationCounts` stay `JSON`.
+- GraphQL `ConversationMessage.providerData`, `replyTo` and `reactions` are
+  `ConversationMessageProviderData`, `ConversationMessageReplyTo` and
+  `[ConversationMessageReaction]`, matching the message subschemas. Every
+  field stays nullable, including the Mongoose-required `replyTo.messageId`
+  and `reactions.senderId`, since no stored data proved them. `extraData`,
+  `botData` and `formWidgetData` stay `JSON`, as do the Facebook and
+  Instagram message copies of these fields (stored as `Mixed`).
 - GraphQL: `getChannels` returns **team channels only** on every branch
   (`channelIds`, `integrationId`, see-everything, and membership), including the
   caller's own personal channel. Personal inboxes are reached only through

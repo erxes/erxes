@@ -64,6 +64,28 @@ export const types = `
     sentAs: String
   }
 
+  type ConversationMessageProviderData {
+    messageId: String
+    attachmentType: String
+    fallbackReason: String
+    previewText: String
+    previewUrl: String
+    shareType: String
+    storyUrl: String
+  }
+
+  type ConversationMessageReplyTo {
+    messageId: String
+    content: String
+    authorName: String
+  }
+
+  type ConversationMessageReaction {
+    senderId: String
+    emoji: String
+    reaction: String
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
@@ -90,9 +112,9 @@ export const types = `
     contentType: String
     mid: String
     messageKind: String
-    providerData: JSON
-    replyTo: JSON
-    reactions: JSON
+    providerData: ConversationMessageProviderData
+    replyTo: ConversationMessageReplyTo
+    reactions: [ConversationMessageReaction]
     deliveryStatus: String
     expiresAt: Date
   }

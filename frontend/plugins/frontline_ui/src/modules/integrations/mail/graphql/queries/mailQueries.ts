@@ -46,9 +46,25 @@ export const MAIL_CONVERSATION_INTERNAL_NOTES_QUERY = gql`
       customerId
       botData
       messageKind
-      providerData
-      replyTo
-      reactions
+      providerData {
+        messageId
+        attachmentType
+        fallbackReason
+        previewText
+        previewUrl
+        shareType
+        storyUrl
+      }
+      replyTo {
+        messageId
+        content
+        authorName
+      }
+      reactions {
+        senderId
+        emoji
+        reaction
+      }
       deliveryStatus
       expiresAt
     }
