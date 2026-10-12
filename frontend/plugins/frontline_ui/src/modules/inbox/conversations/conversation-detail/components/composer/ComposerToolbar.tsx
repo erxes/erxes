@@ -1,3 +1,4 @@
+import type { ComposerToolbarProps } from '@/inbox/conversations/conversation-detail/types/composerUi';
 import { Button, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import {
   IconArrowUp,
@@ -14,28 +15,9 @@ import {
   INTERNAL_NOTE_ICON,
 } from '@/inbox/constants/internalNoteStyles';
 
-import {
-  PollComposer,
-  type PollDraft,
-} from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import { PollComposer } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
 import { SendSurveyDialog } from '@/inbox/conversations/conversation-detail/components/SendSurveyDialog';
-
-type ComposerToolbarProps = {
-  conversationId: string;
-  integrationChannelId?: string;
-  isDiscord: boolean;
-  isTelegram?: boolean;
-  isMessenger: boolean;
-  isInternalNote: boolean;
-  isUploading: boolean;
-  loading: boolean;
-  sendDisabled: boolean;
-  onFilesSelected: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onTemplateSelect: (content: string, templateId?: string) => void;
-  onSendPoll: (poll: PollDraft) => Promise<boolean>;
-  onSubmit: () => void;
-};
 
 export const ComposerToolbar = ({
   conversationId,

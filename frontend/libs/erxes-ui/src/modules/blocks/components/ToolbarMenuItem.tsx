@@ -1,4 +1,4 @@
-import type { ComponentProps } from '@blocknote/react';
+import type { ToolbarMenuItemProps } from '../types/ToolbarMenuItemProps';
 import { components } from '@blocknote/shadcn';
 import { cn } from 'erxes-ui/lib';
 import { DropdownMenu } from 'erxes-ui/components';
@@ -7,7 +7,7 @@ export const ToolbarMenuItem = ({
   className,
   disabled,
   ...props
-}: ComponentProps['Generic']['Menu']['Item'] & { disabled?: boolean }) => {
+}: ToolbarMenuItemProps) => {
   const itemClassName = cn(
     'pl-2! [&>.bn-absolute]:hidden!',
     'hover:bg-(--color-primary)/15! hover:text-(--color-primary)!',

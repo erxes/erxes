@@ -3,25 +3,11 @@ import {
   useComponentsContext,
   useSelectedBlocks,
 } from '@blocknote/react';
-import {
-  IconAlignLeft,
-  IconAlignRight,
-  IconArrowsMaximize,
-  IconPhoto,
-} from '@tabler/icons-react';
-import { IMAGE_STYLE_PRESETS, ImageStyle } from './CustomImageBlock';
+import { IconPhoto } from '@tabler/icons-react';
+import { IMAGE_STYLE_PRESETS } from './CustomImageBlock';
+import type { ImageStyle } from './CustomImageBlock';
+import { IMAGE_STYLE_OPTIONS } from '../constant/imageStyleOptions';
 import type { IBlockEditor } from '../types';
-
-const IMAGE_STYLE_OPTIONS: Array<{
-  label: string;
-  value: ImageStyle;
-  Icon: typeof IconPhoto;
-}> = [
-  { label: 'Normal', value: 'normal', Icon: IconPhoto },
-  { label: 'Wide', value: 'wide', Icon: IconArrowsMaximize },
-  { label: 'Float Left', value: 'float-left', Icon: IconAlignLeft },
-  { label: 'Float Right', value: 'float-right', Icon: IconAlignRight },
-];
 
 export const ImageStyleButton = () => {
   const editor = useBlockNoteEditor<

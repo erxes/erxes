@@ -1,23 +1,21 @@
 import { parseTemplateToBlocks } from '@/activity/utils/noteBlocks';
-import type { INoteTemplateSuggestion } from '@/activity/types';
+import type {
+  INoteTemplateSuggestion,
+  NoteTemplateSuggestionsOptions,
+} from '@/activity/types';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import { toast, useBlockEditor } from 'erxes-ui';
+import { toast } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 
-const MAX_SUGGESTIONS = 5;
-
-type TNoteEditor = ReturnType<typeof useBlockEditor>;
+import { MAX_TEMPLATE_SUGGESTIONS } from '@/inbox/constants/responseTemplateSuggestions';
 
 export const useNoteTemplateSuggestions = ({
   editor,
   enabled,
-}: {
-  editor: TNoteEditor;
-  enabled: boolean;
-}) => {
+}: NoteTemplateSuggestionsOptions) => {
   const { t } = useTranslation('frontline');
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
@@ -35,7 +33,7 @@ export const useNoteTemplateSuggestions = ({
     () =>
       debouncedSearchValue && enabled
         ? (responses || [])
-            .slice(0, MAX_SUGGESTIONS)
+            .slice(0, MAX_TEMPLATE_SUGGESTIONS)
             .map((response: INoteTemplateSuggestion) => ({
               ...response,
               preview: getPreviewText(response.content || ''),

@@ -1,9 +1,9 @@
-import type { ComponentProps } from 'react';
-import type { FormattingToolbarController } from '@blocknote/react';
+import { getEditorVisibleBounds } from './getEditorVisibleBounds';
+import type { ToolbarPositioningOptions } from '../types/ToolbarPositioningOptions';
 
 export const getToolbarPositioning = (
   getEditorElement: () => HTMLElement | undefined,
-): ComponentProps<typeof FormattingToolbarController>['floatingOptions'] => ({
+): ToolbarPositioningOptions => ({
   middleware: [
     {
       name: 'editorBoundary',
@@ -15,29 +15,14 @@ export const getToolbarPositioning = (
         const range = selection.getRangeAt(0);
         if (!editor.contains(range.commonAncestorContainer)) return { x, y };
 
-        const bounds = editor.getBoundingClientRect();
-        let top = Math.max(0, bounds.top);
-        let bottom = Math.min(window.innerHeight, bounds.bottom);
-        let left = Math.max(0, bounds.left);
-        let right = Math.min(window.innerWidth, bounds.right);
-        for (
-          let parent = editor.parentElement;
-          parent;
-          parent = parent.parentElement
-        ) {
-          const style = getComputedStyle(parent);
-          if (
-            !/(auto|scroll|hidden|clip)/.test(style.overflowY + style.overflowX)
-          )
-            continue;
-          const rect = parent.getBoundingClientRect();
-          top = Math.max(top, rect.top);
-          bottom = Math.min(bottom, rect.bottom);
-          left = Math.max(left, rect.left);
-          right = Math.min(right, rect.right);
-        }
+        const { top, bottom, left, right } = getEditorVisibleBounds(editor);
 
         const selected = range.getBoundingClientRect();
+        const maxWidth = `${Math.floor(Math.max(0, right - left))}px`;
+        if (elements.floating.style.maxWidth !== maxWidth) {
+          elements.floating.style.maxWidth = maxWidth;
+          return { reset: { rects: true } };
+        }
         const reference = elements.reference.getBoundingClientRect();
         const originX = reference.left - rects.reference.x;
         const originY = reference.top - rects.reference.y;

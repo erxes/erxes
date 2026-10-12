@@ -1,13 +1,7 @@
+import type { ComposerModeTabsProps } from '@/inbox/conversations/conversation-detail/types/composerUi';
 import { IconLock, IconMessage2 } from '@tabler/icons-react';
 import { Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
-type ComposerModeTabsProps = {
-  isInternalNote: boolean;
-  disabled: boolean;
-  replyDisabled?: boolean;
-  onInternalNoteChange: (internal: boolean) => void;
-};
 
 export const ComposerModeTabs = ({
   isInternalNote,

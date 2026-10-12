@@ -1,10 +1,10 @@
+import { useMemo } from 'react';
 import {
   FormattingToolbarController,
   useBlockNoteEditor,
 } from '@blocknote/react';
 import { ToolbarContents } from './ToolbarContents';
 import { getToolbarPositioning } from '../utils/getToolbarPositioning';
-import { useMemo } from 'react';
 
 export const Toolbar = () => {
   const editor = useBlockNoteEditor();

@@ -1,10 +1,4 @@
-type FormattingShortcut = {
-  key: string;
-  ctrlKey: boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-  altKey: boolean;
-};
+import type { FormattingShortcut } from '../types/FormattingShortcut';
 
 export const isCodeFormattingShortcut = (
   event: FormattingShortcut,

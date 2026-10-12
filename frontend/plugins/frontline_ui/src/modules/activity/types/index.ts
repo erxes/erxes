@@ -1,4 +1,4 @@
-import { IAttachment } from 'erxes-ui';
+import type { IAttachment } from 'erxes-ui';
 import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
 export interface IActivityFormField {
   label: string;
@@ -84,3 +84,58 @@ export interface INoteAttachment {
   url?: string;
   data?: string;
 }
+
+export interface NoteInputToolbarProps {
+  isInternalNote: boolean;
+  onTemplateSelect: (templateContent: string) => void;
+  onFilesSelected: (files: FileList) => void;
+  onSend: () => void;
+  isSending: boolean;
+}
+
+export interface NoteInputReadOnlyProps {
+  newValueId: string;
+}
+
+export type NoteDeliveryStatusProps = {
+  delivery: ITicketNoteMailDelivery;
+};
+
+export type NoteDeliveryRetryProps = {
+  noteId: string;
+  delivery: ITicketNoteMailDelivery;
+};
+
+export type NoteDeliveryIssueProps = {
+  noteId: string;
+  delivery: ITicketNoteMailDelivery;
+};
+
+export type NoteKindBadgeProps = { note: INote; kind: TNoteKind };
+
+export type NoteMailBodyProps = { note: INote };
+
+export type NoteTextProps = { note: INote; kind: TNoteKind };
+
+export type NoteReadOnlyAttachmentsProps = {
+  attachments?: IAttachment[];
+};
+
+export type NoteReadOnlyAttachmentProps = {
+  attachment: IAttachment;
+  single: boolean;
+};
+
+export type NoteUnsavedAttachmentProps = {
+  attachment: ITicketNoteUnsavedAttachment;
+};
+
+export type NoteUnsavedAttachmentsProps = {
+  attachments?: ITicketNoteUnsavedAttachment[] | null;
+};
+
+export type NoteInputProps = { contentId: string };
+export type NoteTemplateSuggestionsOptions = {
+  editor: ReturnType<typeof import('erxes-ui').useBlockEditor>;
+  enabled: boolean;
+};

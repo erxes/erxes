@@ -1,54 +1,21 @@
+import { getSlashMenuItems } from '../utils/getSlashMenuItems';
 import {
-  createReactInlineContentSpec,
-  DefaultReactSuggestionItem,
-  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   TableHandlesController,
 } from '@blocknote/react';
-import { filterSuggestionItems } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/shadcn';
 
-import { Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
-import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { KeyboardEvent, MouseEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
-import { BarcodeAttribute } from './BarcodeAttribute';
+import { isEmptyBlock } from '../utils/isEmptyBlock';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
-import { ToolbarToggle } from './ToolbarToggle';
-import { ToolbarButton } from './ToolbarButton';
+import { editorUIComponents } from '../constant/editorUIComponents';
 import { isCodeFormattingShortcut } from '../utils/isCodeFormattingShortcut';
-
-const editorUIComponents = {
-  Button: { Button: ToolbarButton },
-  Toggle: { Toggle: ToolbarToggle },
-  Tooltip: {
-    Tooltip,
-    TooltipContent: Tooltip.Content,
-    TooltipProvider: Tooltip.Provider,
-    TooltipTrigger: Tooltip.Trigger,
-  },
-};
-
-type EditorBlock = ReturnType<
-  BlockEditorProps['editor']['getTextCursorPosition']
->['block'];
-
-const isEmptyBlock = (block?: EditorBlock) => {
-  if (!block) {
-    return false;
-  }
-
-  return (
-    Array.isArray(block.content) &&
-    !block.content.length &&
-    !block.children?.length
-  );
-};
 
 export const BlockEditor = ({
   editor,
@@ -68,62 +35,6 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
-  const getSlashMenuItems = (query: string) => {
-    const items = getDefaultReactSlashMenuItems(editor);
-    const hasImageItem = items.some((item) => item.title === 'Image');
-    const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
-    const filePanelPlugin = editor.filePanel?.plugins[0];
-
-    if (!hasImageItem && hasCustomImageBlock && filePanelPlugin) {
-      items.splice(9, 0, {
-        title: editor.dictionary.slash_menu.image.title,
-        subtext: editor.dictionary.slash_menu.image.subtext,
-        aliases: editor.dictionary.slash_menu.image.aliases,
-        badge: undefined,
-        group: editor.dictionary.slash_menu.image.group,
-        onItemClick: () => {
-          const currentBlock = editor.getTextCursorPosition().block;
-          const insertedBlock = editor.insertBlocks(
-            [{ type: 'image' }],
-            currentBlock,
-            'after',
-          )[0];
-
-          editor.transact((tr) =>
-            tr.setMeta(filePanelPlugin, {
-              block: insertedBlock,
-            }),
-          );
-        },
-      } satisfies DefaultReactSuggestionItem);
-    }
-
-    if ('gallery' in editor.schema.blockSchema) {
-      items.push({
-        title: 'Gallery',
-        subtext: 'Insert a multi-image gallery grid',
-        aliases: ['gallery', 'images', 'grid'],
-        badge: undefined,
-        group: editor.dictionary.slash_menu.image.group,
-        icon: <IconPhoto size={18} />,
-        onItemClick: () => {
-          const currentBlock = editor.getTextCursorPosition().block;
-          editor.insertBlocks([{ type: 'gallery' }], currentBlock, 'after');
-        },
-      } satisfies DefaultReactSuggestionItem);
-    }
-
-    const customItems =
-      typeof additionalSlashMenuItems === 'function'
-        ? additionalSlashMenuItems(editor)
-        : additionalSlashMenuItems;
-
-    if (customItems?.length) {
-      items.push(...customItems);
-    }
-
-    return Promise.resolve(filterSuggestionItems(items, query));
-  };
 
   const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
     if (readonly || disabled) {
@@ -201,7 +112,9 @@ export const BlockEditor = ({
       >
         <SuggestionMenuController
           triggerCharacter="/"
-          getItems={getSlashMenuItems}
+          getItems={(query) =>
+            getSlashMenuItems(query, editor, additionalSlashMenuItems)
+          }
           suggestionMenuComponent={SlashMenu}
           floatingOptions={
             slashMenuOnTop ? { placement: 'top-start' } : undefined
@@ -214,66 +127,3 @@ export const BlockEditor = ({
     </div>
   );
 };
-
-export const Mention = createReactInlineContentSpec(
-  {
-    type: 'mention',
-    propSchema: {
-      fullName: {
-        default: 'Unknown',
-      },
-      _id: {
-        default: '',
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) => (
-      <span className="bg-primary/10 p-1 rounded font-bold text-sm text-primary inline-flex items-center">
-        @{props.inlineContent.props.fullName}
-      </span>
-    ),
-  },
-);
-
-export const Attribute = createReactInlineContentSpec(
-  {
-    type: 'attribute',
-    propSchema: {
-      name: {
-        default: 'Unknown',
-      },
-      value: {
-        default: '',
-      },
-      width: {
-        default: 150,
-      },
-      height: {
-        default: 50,
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) =>
-      props.inlineContent.props.value === 'barcode' ? (
-        <BarcodeAttribute
-          editable={props.editor.isEditable}
-          height={props.inlineContent.props.height}
-          width={props.inlineContent.props.width}
-          onResize={({ width, height }) =>
-            props.updateInlineContent({
-              type: 'attribute',
-              props: { ...props.inlineContent.props, width, height },
-            })
-          }
-        />
-      ) : (
-        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
-          {props.inlineContent.props.name}
-        </span>
-      ),
-  },
-);

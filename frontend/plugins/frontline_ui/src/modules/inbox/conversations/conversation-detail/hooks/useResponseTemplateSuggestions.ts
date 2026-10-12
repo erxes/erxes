@@ -1,28 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { stripHtml, toast, type useBlockEditor } from 'erxes-ui';
+import { stripHtml, toast } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import type { IResponseTemplate } from '@/responseTemplate/types';
-
-const MAX_SUGGESTIONS = 5;
-
-type MessageEditor = ReturnType<typeof useBlockEditor>;
-
-export type ResponseTemplateSuggestion = IResponseTemplate & {
-  preview: string;
-};
+import type {
+  ResponseTemplateSuggestion,
+  ResponseTemplateSuggestionsOptions,
+} from '../types/responseTemplateSuggestions';
+import type { ComposerBlockEditor } from '../types/composer';
+import { MAX_TEMPLATE_SUGGESTIONS } from '@/inbox/constants/responseTemplateSuggestions';
 
 export const useResponseTemplateSuggestions = ({
   editor,
   enabled,
-}: {
-  editor: MessageEditor;
-  enabled: boolean;
-}) => {
+}: ResponseTemplateSuggestionsOptions) => {
   const { t } = useTranslation('frontline');
   const { channels: availableChannels } = useGetChannels({ skip: !enabled });
   const [searchValue, setSearchValue] = useState('');
@@ -42,10 +36,12 @@ export const useResponseTemplateSuggestions = ({
   const suggestions = useMemo<ResponseTemplateSuggestion[]>(
     () =>
       debouncedSearchValue && enabled
-        ? (responses || []).slice(0, MAX_SUGGESTIONS).map((response) => ({
-            ...response,
-            preview: getPreviewText(response.content || ''),
-          }))
+        ? (responses || [])
+            .slice(0, MAX_TEMPLATE_SUGGESTIONS)
+            .map((response) => ({
+              ...response,
+              preview: getPreviewText(response.content || ''),
+            }))
         : [],
     [debouncedSearchValue, enabled, responses],
   );
@@ -66,7 +62,7 @@ export const useResponseTemplateSuggestions = ({
   const selectTemplate = useCallback(
     async (templateContent: string, templateId?: string) => {
       try {
-        let blocks: Parameters<MessageEditor['replaceBlocks']>[1];
+        let blocks: Parameters<ComposerBlockEditor['replaceBlocks']>[1];
 
         try {
           const parsed: unknown = JSON.parse(templateContent);

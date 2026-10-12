@@ -6,10 +6,8 @@ import type { MessagePresentationState } from '@/inbox/conversation-messages/typ
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import { MessageSurvey } from '@/inbox/conversation-messages/components/MessageSurvey';
-import {
-  DiscordEditedStatus,
-  getMessageBubbleClassName,
-} from '@/inbox/conversation-messages/components/MessageItemHelpers';
+import { DiscordEditedStatus } from '@/inbox/conversation-messages/components/DiscordEditedStatus';
+import { getMessageBubbleClassName } from '@/inbox/conversation-messages/utils/getMessageBubbleClassName';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import {
   DeliveryStatus,

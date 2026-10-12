@@ -1,21 +1,8 @@
-import { BlockEditor, cn, useBlockEditor } from 'erxes-ui';
+import type { ComposerEditorProps } from '@/inbox/conversations/conversation-detail/types/composerUi';
+import { BlockEditor, cn } from 'erxes-ui';
 import { AssignMemberInEditor, MentionInEditor } from 'ui-modules';
-import type { EditorMentionItem } from 'ui-modules';
 
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-
-type ComposerEditorProps = {
-  editor: ReturnType<typeof useBlockEditor>;
-  isDiscord: boolean;
-  isInternalNote: boolean;
-  loading: boolean;
-  discordMentionItems: EditorMentionItem[];
-  discordMentionNote?: string;
-  searchDiscordMentionItems: (query: string) => Promise<EditorMentionItem[]>;
-  onChange: () => void;
-  onFocus: (scope: InboxHotkeyScope) => void;
-  onBlur: () => void;
-};
 
 export const ComposerEditor = ({
   editor,

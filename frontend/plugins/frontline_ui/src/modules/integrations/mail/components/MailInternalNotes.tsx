@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconLock } from '@tabler/icons-react';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
-import type { IMessage } from '@/inbox/types/Conversation';
+import type { MailInternalNotesProps } from '../types/MailInternalNotesProps';
 
 export const MailInternalNotes = ({
   notes,
@@ -20,14 +20,7 @@ export const MailInternalNotes = ({
   loading,
   error,
   onRetry,
-}: {
-  notes: IMessage[];
-  totalCount: number;
-  onLoadMore: () => Promise<unknown>;
-  loading: boolean;
-  error?: string;
-  onRetry: () => Promise<unknown>;
-}) => {
+}: MailInternalNotesProps) => {
   const { t } = useTranslation('frontline');
   const [loadingMore, setLoadingMore] = useState(false);
   if (!notes.length && !totalCount && !error) return null;

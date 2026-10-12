@@ -1,3 +1,4 @@
+import type { NoteInputToolbarProps } from '@/activity/types';
 import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
 import {
   IconCommand,
@@ -14,14 +15,6 @@ import {
   INTERNAL_NOTE_BUTTON,
   INTERNAL_NOTE_ICON,
 } from '@/inbox/constants/internalNoteStyles';
-
-interface NoteInputToolbarProps {
-  isInternalNote: boolean;
-  onTemplateSelect: (templateContent: string) => void;
-  onFilesSelected: (files: FileList) => void;
-  onSend: () => void;
-  isSending: boolean;
-}
 
 export const NoteInputToolbar = ({
   isInternalNote,

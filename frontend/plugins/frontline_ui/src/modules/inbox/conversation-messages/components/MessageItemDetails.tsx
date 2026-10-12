@@ -1,5 +1,5 @@
 import { RelativeDateDisplay, Sheet, cn } from 'erxes-ui';
-import { ReactionLabel } from '@/inbox/conversation-messages/components/MessageItemHelpers';
+import { ReactionLabel } from '@/inbox/conversation-messages/components/ReactionLabel';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { useMessageReactions } from '@/inbox/conversation-messages/hooks/useMessageReactions';
 import type { IMessageReplyTo } from '@/inbox/types/Conversation';

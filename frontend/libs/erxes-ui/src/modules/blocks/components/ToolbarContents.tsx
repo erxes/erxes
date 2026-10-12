@@ -1,7 +1,6 @@
 import {
   BasicTextStyleButton,
   ComponentsContext,
-  useComponentsContext,
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
@@ -16,34 +15,10 @@ import {
 import { FontFamilyButton } from './FontFamilyButton';
 import { ImageStyleButton } from './ImageStyleButton';
 
-import { ToolbarSelect } from './ToolbarSelect';
-import { ToolbarMenuItem } from './ToolbarMenuItem';
-import { ToolbarMenuDropdown } from './ToolbarMenuDropdown';
-import { ToolbarFormattingButton } from './ToolbarFormattingButton';
-import { useMemo } from 'react';
+import { useToolbarComponents } from '../hooks/useToolbarComponents';
 
 export const ToolbarContents = () => {
-  const Components = useComponentsContext();
-  const toolbarComponents = useMemo(
-    () =>
-      Components && {
-        ...Components,
-        FormattingToolbar: {
-          ...Components.FormattingToolbar,
-          Button: ToolbarFormattingButton,
-          Select: ToolbarSelect,
-        },
-        Generic: {
-          ...Components.Generic,
-          Menu: {
-            ...Components.Generic.Menu,
-            Item: ToolbarMenuItem,
-            Dropdown: ToolbarMenuDropdown,
-          },
-        },
-      },
-    [Components],
-  );
+  const toolbarComponents = useToolbarComponents();
 
   if (!toolbarComponents) {
     return null;

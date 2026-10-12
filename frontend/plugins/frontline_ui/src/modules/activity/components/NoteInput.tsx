@@ -22,14 +22,14 @@ import {
   serializeNoteBlocks,
   trimEmptyBlocks,
 } from '@/activity/utils/noteBlocks';
-import { ITicketNoteMailDelivery } from '@/activity/types';
+import type { ITicketNoteMailDelivery, NoteInputProps } from '@/activity/types';
 import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useNoteAttachments } from '@/activity/hooks/useNoteAttachments';
 import { useNoteTemplateSuggestions } from '@/activity/hooks/useNoteTemplateSuggestions';
 import { useTranslation } from 'react-i18next';
 
-export const NoteInput = ({ contentId }: { contentId: string }) => {
+export const NoteInput = ({ contentId }: NoteInputProps) => {
   const { t } = useTranslation('frontline');
   const editor = useBlockEditor({
     placeholder: t('write-a-message', 'Write a message...'),
@@ -91,7 +91,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
               'The receiving server rejected {{recipients}}',
               { recipients: (delivery.bouncedRecipients ?? []).join(', ') },
             )
-          : (delivery.error ?? undefined),
+          : delivery.error ?? undefined,
       variant: 'destructive',
     });
   };
