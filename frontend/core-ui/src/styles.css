@@ -82,8 +82,8 @@
     /* Call center report */
 
     /* ── Card shadow (light) ──────────────────────────────────────────────── */
-    --shadow-card: 0 1px 2px oklch(0.145 0 0 / 0.05),
-      0 1px 3px oklch(0.145 0 0 / 0.04);
+    --shadow-card:
+      0 1px 2px oklch(0.145 0 0 / 0.05), 0 1px 3px oklch(0.145 0 0 / 0.04);
 
     /* ── Mongolian carrier brand colours (oklch) ──────────────────────────── */
     --carrier-mobicom: oklch(0.52 0.22 26.1); /* Mobicom  — #E2231A */
@@ -142,7 +142,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
   h1 {
     @apply text-2xl font-bold;
@@ -372,17 +374,21 @@
       #000 calc(100% - var(--nav-fade-bottom)),
       transparent
     );
-    animation: nav-fade-top linear both, nav-fade-bottom linear both;
+    animation:
+      nav-fade-top linear both,
+      nav-fade-bottom linear both;
     animation-timeline: scroll(self), scroll(self);
-    animation-range: 0 24px, calc(100% - 24px) 100%;
+    animation-range:
+      0 24px,
+      calc(100% - 24px) 100%;
   }
 }
 /* All sidebar menus: muted icons, sharper labels */
 :is(
-    [data-sidebar='menu-button'],
-    [data-sidebar='menu-sub-button'],
-    [data-nav-row]
-  ) {
+  [data-sidebar='menu-button'],
+  [data-sidebar='menu-sub-button'],
+  [data-nav-row]
+) {
   transition: color 0.15s ease-out;
 }
 :is(
@@ -395,10 +401,10 @@
   transition: color 0.15s ease-out;
 }
 :is(
-    [data-sidebar='menu-button'],
-    [data-sidebar='menu-sub-button'],
-    [data-nav-row]
-  ):not([data-active='true'], [data-state='active'], .text-primary) {
+  [data-sidebar='menu-button'],
+  [data-sidebar='menu-sub-button'],
+  [data-nav-row]
+):not([data-active='true'], [data-state='active'], .text-primary) {
   color: color-mix(in oklab, var(--foreground) 85%, transparent);
 }
 :is(
@@ -431,7 +437,8 @@
 .nav-activity-accordion [data-sidebar='menu-sub-button'] {
   height: 1.75rem;
   border-radius: 0.25rem;
-  transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
     color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .nav-activity-accordion [data-sidebar='menu-button']:hover,
