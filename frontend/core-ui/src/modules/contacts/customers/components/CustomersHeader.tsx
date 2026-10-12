@@ -1,4 +1,9 @@
-import { Can, PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import {
+  Can,
+  PageHeader,
+  createFavoriteBreadcrumb,
+  SendEmailButton,
+} from 'ui-modules';
 import { CustomerAddSheet } from './CustomerAddSheet';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
 import { useIsCustomerLeadSessionKey } from '@/contacts/customers/hooks/useCustomerLeadSessionKey';
@@ -22,6 +27,7 @@ export const CustomersHeader = () => {
       </PageHeader.Start>
 
       <PageHeader.End>
+        <SendEmailButton />
         <Can action="contactsCreate">
           <CustomerAddSheet />
         </Can>

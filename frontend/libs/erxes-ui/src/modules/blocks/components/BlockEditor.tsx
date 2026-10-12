@@ -34,7 +34,6 @@ export const BlockEditor = ({
   editor,
   onFocus,
   onBlur,
-  onPaste,
   onChange,
   readonly,
   children,
@@ -43,6 +42,7 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = true,
+  formattingToolbar = true,
   linkToolbar = true,
   slashMenuOnTop = false,
   additionalSlashMenuItems,
@@ -176,7 +176,7 @@ export const BlockEditor = ({
             slashMenuOnTop ? { placement: 'top-start' } : undefined
           }
         />
-        <Toolbar />
+        {formattingToolbar && <Toolbar />}
         <TableHandlesController tableHandle={TableHandleWithRemove} />
         {children}
       </BlockNoteView>

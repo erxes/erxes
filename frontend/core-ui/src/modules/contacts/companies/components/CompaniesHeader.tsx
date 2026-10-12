@@ -1,4 +1,9 @@
-import { Can, PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import {
+  Can,
+  PageHeader,
+  createFavoriteBreadcrumb,
+  SendEmailButton,
+} from 'ui-modules';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
 import { CompanyAddSheet } from './CompanyAddSheet';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +22,7 @@ export const CompaniesHeader = () => {
         />
       </PageHeader.Start>
       <PageHeader.End>
+        <SendEmailButton />
         <Can action="contactsCreate">
           <CompanyAddSheet />
         </Can>

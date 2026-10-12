@@ -39,21 +39,14 @@ import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailSta
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { customerMoreColumn } from './CustomerMoreColumn';
-import { useFloatingWidgets } from '@/widgets/hooks/useFloatingWidgets';
+import { useComposeEmail } from 'ui-modules';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
 const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
-  const hasMailComposer = useFloatingWidgets().some(
-    (plugin) => plugin.name === 'frontline',
-  );
-
+  const { canComposeEmail, composeEmail } = useComposeEmail();
   const handleEmailClick = (email: string) => {
-    window.dispatchEvent(
-      new CustomEvent('frontline:compose-email', {
-        detail: { customerId: customer._id, email },
-      }),
-    );
+    composeEmail({ customerId: customer._id, email });
   };
 
   return (
@@ -64,7 +57,7 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
       emails={customer.emails || []}
       scope={ContactsHotKeyScope.CustomersTableInlinePopover}
       Trigger={RecordTableInlineCell.Trigger}
-      onEmailClick={hasMailComposer ? handleEmailClick : undefined}
+      onEmailClick={canComposeEmail ? handleEmailClick : undefined}
     />
   );
 };

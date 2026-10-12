@@ -1,3 +1,5 @@
+import { useComposeEmail } from '../hooks/useComposeEmail';
+import { SendEmailButton } from './SendEmailButton';
 import {
   EmailDisplay,
   EmailListField,
@@ -27,8 +29,14 @@ export const CompanyEmails = ({
   onEmailClick?: (email: string) => void;
 }) => {
   const { companiesEdit } = useCompaniesEdit();
+  const { canComposeEmail, composeEmail } = useComposeEmail();
+  const activateEmail =
+    onEmailClick ||
+    (canComposeEmail
+      ? (email: string) => composeEmail({ companyId: _id, email })
+      : undefined);
   const { open, setOpen, handleEmailClick, handleEmailDoubleClick } =
-    useEmailDoubleClick(onEmailClick);
+    useEmailDoubleClick(activateEmail);
   const emailProps = {
     primaryEmail,
     emails,
@@ -55,14 +63,20 @@ export const CompanyEmails = ({
 
   return (
     <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
-      <Trigger>
-        <EmailDisplay
-          {...emailProps}
-          onEmailClick={handleEmailClick}
-          onEmailDoubleClick={handleEmailDoubleClick}
-          onEmailKeyActivate={onEmailClick || handleEmailClick}
+      <div className="flex min-w-0 items-center">
+        <Trigger>
+          <EmailDisplay
+            {...emailProps}
+            onEmailClick={handleEmailClick}
+            onEmailDoubleClick={handleEmailDoubleClick}
+            onEmailKeyActivate={activateEmail || handleEmailClick}
+          />
+        </Trigger>
+        <SendEmailButton
+          compact
+          target={{ companyId: _id, email: primaryEmail || emails[0] }}
         />
-      </Trigger>
+      </div>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField
           recordId={_id}

@@ -39,18 +39,12 @@ import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailState
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { companyMoreColumn } from './CompanyMoreColumn';
-import { useFloatingWidgets } from '@/widgets/hooks/useFloatingWidgets';
+import { useComposeEmail } from 'ui-modules';
 
 const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
-  const hasMailComposer = useFloatingWidgets().some(
-    (plugin) => plugin.name === 'frontline',
-  );
+  const { canComposeEmail, composeEmail } = useComposeEmail();
   const handleEmailClick = (email: string) => {
-    window.dispatchEvent(
-      new CustomEvent('frontline:compose-email', {
-        detail: { companyId: company._id, email },
-      }),
-    );
+    composeEmail({ companyId: company._id, email });
   };
 
   return (
@@ -61,7 +55,7 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
       emailValidationStatus={company.emailValidationStatus}
       emails={company.emails || []}
       Trigger={RecordTableInlineCell.Trigger}
-      onEmailClick={hasMailComposer ? handleEmailClick : undefined}
+      onEmailClick={canComposeEmail ? handleEmailClick : undefined}
     />
   );
 };

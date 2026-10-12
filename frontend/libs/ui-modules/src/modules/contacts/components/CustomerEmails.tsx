@@ -1,3 +1,5 @@
+import { useComposeEmail } from '../hooks/useComposeEmail';
+import { SendEmailButton } from './SendEmailButton';
 import {
   EmailDisplay,
   EmailListField,
@@ -30,12 +32,18 @@ export function CustomerEmails({
   onEmailClick,
 }: CustomerEmailsProps) {
   const { customerEdit } = useCustomerEdit();
+  const { canComposeEmail, composeEmail } = useComposeEmail();
+  const activateEmail =
+    onEmailClick ||
+    (canComposeEmail
+      ? (email: string) => composeEmail({ customerId: _id, email })
+      : undefined);
   const {
     open,
     setOpen,
     handleEmailClick: handleVerifiedEmailClick,
     handleEmailDoubleClick: handleVerifiedEmailDoubleClick,
-  } = useEmailDoubleClick(onEmailClick);
+  } = useEmailDoubleClick(activateEmail);
 
   const emailProps = {
     primaryEmail,
@@ -71,14 +79,20 @@ export function CustomerEmails({
 
   return (
     <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
-      <Trigger>
-        <EmailDisplay
-          {...emailProps}
-          onEmailClick={handleVerifiedEmailClick}
-          onEmailDoubleClick={handleVerifiedEmailDoubleClick}
-          onEmailKeyActivate={onEmailClick || handleVerifiedEmailClick}
+      <div className="flex min-w-0 items-center">
+        <Trigger>
+          <EmailDisplay
+            {...emailProps}
+            onEmailClick={handleVerifiedEmailClick}
+            onEmailDoubleClick={handleVerifiedEmailDoubleClick}
+            onEmailKeyActivate={activateEmail || handleVerifiedEmailClick}
+          />
+        </Trigger>
+        <SendEmailButton
+          compact
+          target={{ customerId: _id, email: primaryEmail || emails[0] }}
         />
-      </Trigger>
+      </div>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField
           recordId={_id}

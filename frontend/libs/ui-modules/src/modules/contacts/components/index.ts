@@ -18,3 +18,4 @@ export * from './CustomerOwner';
 export * from './CustomerPhones';
 export * from './CustomerWidget';
 export * from './CompanyWidget';
+export * from './SendEmailButton';

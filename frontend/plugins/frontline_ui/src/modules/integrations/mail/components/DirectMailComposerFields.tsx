@@ -1,4 +1,12 @@
-import { IconMail, IconSend, IconX } from '@tabler/icons-react';
+import type { MailAttachmentInput } from '../types/mailDelivery';
+import {
+  IconMinus,
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+  IconTypography,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
@@ -17,32 +25,84 @@ import type {
   MailSender,
 } from '@/integrations/mail/types/directMailComposer';
 import { ToRow } from './DirectMailRecipientField';
+import {
+  DirectMailFormatting,
+  DirectMailInsertTools,
+} from './DirectMailToolbar';
 
 export const ComposerHeader = ({
   onClose,
+  onMinimize,
+  onExpand,
+  minimized,
+  expanded,
   loading,
 }: {
   onClose: () => void;
+  onMinimize: () => void;
+  onExpand: () => void;
+  minimized: boolean;
+  expanded: boolean;
   loading: boolean;
 }) => (
-  <header className="flex h-12 flex-none items-center justify-between border-b bg-muted/30 px-4">
-    <span className="flex items-center gap-2 text-sm font-semibold">
-      <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        <IconMail className="size-4" />
-      </span>
-      {'New email'}
-    </span>
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      className="size-8"
-      aria-label="Close email composer"
-      onClick={onClose}
-      disabled={loading}
-    >
-      <IconX className="size-4" />
-    </Button>
+  <header
+    className="flex h-9 flex-none items-center justify-between bg-[#f2f6fc] px-4 text-[#041e49]"
+    onDoubleClick={(event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('button'))
+        onExpand();
+    }}
+  >
+    {minimized ? (
+      <Button
+        type="button"
+        variant="ghost"
+        className="h-8 p-0 text-sm font-medium hover:bg-transparent"
+        onClick={onMinimize}
+      >
+        New Message
+      </Button>
+    ) : (
+      <span className="text-sm font-medium">New Message</span>
+    )}
+    <div className="flex items-center gap-1">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        aria-label={
+          minimized ? 'Restore email composer' : 'Minimize email composer'
+        }
+        onClick={onMinimize}
+      >
+        <IconMinus className="size-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        aria-label={expanded ? 'Exit full screen' : 'Full screen'}
+        onClick={onExpand}
+      >
+        {expanded ? (
+          <IconArrowsMinimize className="size-4" />
+        ) : (
+          <IconArrowsMaximize className="size-4" />
+        )}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-6"
+        aria-label="Close email composer"
+        onClick={onClose}
+        disabled={loading}
+      >
+        <IconX className="size-4" />
+      </Button>
+    </div>
   </header>
 );
 
@@ -234,7 +294,7 @@ export const BodyField = ({
     formState: { errors },
   } = useFormContext<ComposeValues>();
   return (
-    <div className="min-h-0 flex-1 bg-muted/10 p-3">
+    <div className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-3">
       <Controller
         name="body"
         control={control}
@@ -252,8 +312,9 @@ export const BodyField = ({
                 goBackToPreviousHotkeyScope();
               }}
               sideMenu={false}
+              formattingToolbar={false}
               slashMenuOnTop
-              className="min-h-52 w-full"
+              className="min-h-full w-full [&_.bn-editor]:min-h-52 [&_.bn-editor]:bg-white [&_.bn-editor]:px-0 [&_.bn-editor]:text-sm [&_.bn-editor]:text-[#202124]"
             />
           </fieldset>
         )}
@@ -276,7 +337,10 @@ export const ComposerFields = ({
   editor: ReturnType<typeof useBlockEditor>;
   onBodyChange: () => void;
 }) => (
-  <fieldset disabled={disabled} className="flex min-h-0 flex-1 flex-col">
+  <fieldset
+    disabled={disabled}
+    className="flex min-h-0 flex-1 flex-col text-[#444746]"
+  >
     <FromRow {...senderProps} disabled={disabled} />
     <ToRow onRecipientSelect={onRecipientSelect} />
     <CcBccFields />
@@ -289,19 +353,72 @@ export const ComposerFooter = ({
   disabled,
   loading,
   retry = false,
+  editor,
+  showFormatting,
+  onToggleFormatting,
+  onDiscard,
+  onUploadingChange,
+  onAttachment,
+  editingDisabled,
 }: {
   disabled: boolean;
   loading: boolean;
   retry?: boolean;
+  editor: ReturnType<typeof useBlockEditor>;
+  showFormatting: boolean;
+  onToggleFormatting: () => void;
+  onDiscard: () => void;
+  onUploadingChange: (uploading: boolean) => void;
+  onAttachment: (attachment: MailAttachmentInput) => void;
+  editingDisabled: boolean;
 }) => {
   const { t } = useTranslation('frontline');
-
   return (
-    <footer className="flex flex-none items-center justify-end border-t bg-muted/20 px-4 py-2.5">
-      <Button type="submit" disabled={disabled}>
-        {loading ? <Spinner size="sm" /> : <IconSend className="size-4" />}
-        {t(retry ? 'email-delivery-retry' : 'send')}
-      </Button>
+    <footer className="flex flex-none flex-col gap-3 bg-white px-4 pb-3 pt-2 text-[#444746]">
+      {showFormatting && (
+        <DirectMailFormatting editor={editor} disabled={editingDisabled} />
+      )}
+      <div className="flex items-center gap-1">
+        <Button
+          type="submit"
+          disabled={disabled}
+          className="mr-2 h-9 rounded-full bg-[#0b57d0] px-6 text-white hover:bg-[#0842a0]"
+        >
+          {loading && <Spinner size="sm" />}
+          {t(retry ? 'email-delivery-retry' : 'send', retry ? 'Retry' : 'Send')}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-8 aria-pressed:bg-[#d3e3fd]"
+          title="Formatting options"
+          aria-label="Formatting options"
+          aria-pressed={showFormatting}
+          onClick={onToggleFormatting}
+          disabled={editingDisabled}
+        >
+          <IconTypography className="size-4" />
+        </Button>
+        <DirectMailInsertTools
+          editor={editor}
+          disabled={editingDisabled}
+          onUploadingChange={onUploadingChange}
+          onAttachment={onAttachment}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="ml-auto size-8"
+          title="Discard draft"
+          aria-label="Discard draft"
+          onClick={onDiscard}
+          disabled={loading}
+        >
+          <IconTrash className="size-4" />
+        </Button>
+      </div>
     </footer>
   );
 };

@@ -1,6 +1,6 @@
 import { IconChevronDown, IconMail } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
-import { Button, Combobox, Command, Popover } from 'erxes-ui';
+import { Button, Combobox, Command, Input, Popover } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -153,17 +153,30 @@ const VerifiedEmailSelect = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-9 min-w-0 justify-between px-0 font-normal hover:bg-transparent"
-          aria-label="Select recipient"
-        >
-          <span className="truncate">{value}</span>
-          <IconChevronDown className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
-      </Popover.Trigger>
+      <div className="flex min-w-0 items-center">
+        <Input
+          id="direct-mail-to"
+          aria-label="Recipient email"
+          placeholder="Recipients"
+          value={value}
+          className="h-9 min-w-0 border-0 px-0 shadow-none focus-visible:ring-0"
+          onChange={(event) => {
+            onValueChange(event.target.value);
+            onRecipientSelect(undefined);
+          }}
+        />
+        <Popover.Trigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0"
+            aria-label="Select recipient from contacts"
+          >
+            <IconChevronDown className="size-4 text-muted-foreground" />
+          </Button>
+        </Popover.Trigger>
+      </div>
       <Popover.Content
         align="start"
         className="z-60 w-[min(24rem,calc(100vw-2rem))] p-0"

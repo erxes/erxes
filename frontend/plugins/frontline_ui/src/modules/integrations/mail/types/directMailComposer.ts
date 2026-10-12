@@ -11,7 +11,7 @@ export interface ComposeEmailTarget {
   integrationId?: string;
   customerId?: string;
   companyId?: string;
-  email: string;
+  email?: string;
   emails?: string[];
 }
 

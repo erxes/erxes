@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const DOUBLE_CLICK_DELAY = 300;
+const DOUBLE_CLICK_DELAY = 500;
 
 export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
   const [open, setOpen] = useState(false);

@@ -1,10 +1,11 @@
+import { useComposeEmail } from 'ui-modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import type { Block } from '@blocknote/core';
-import { Button, useBlockEditor } from 'erxes-ui';
+import { Button, cn, toast, useBlockEditor } from 'erxes-ui';
 import {
   serializeNoteBlocks,
   trimEmptyBlocks,
@@ -15,7 +16,10 @@ import {
   useMailMessageRetry,
   useMailSendMail,
 } from '@/integrations/mail/hooks/useMailConversationDetail';
-import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
+import type {
+  MailAttachmentInput,
+  MailDeliveryOutcome,
+} from '@/integrations/mail/types/mailDelivery';
 import { DirectMailComposerFieldsContext } from '@/integrations/mail/hooks/useDirectMailComposerFields';
 import type {
   ComposeEmailTarget,
@@ -34,6 +38,12 @@ import {
 } from './DirectMailComposerFields';
 
 export const DirectMailComposer = () => {
+  const { canComposeEmail } = useComposeEmail();
+  const [minimized, setMinimized] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [showFormatting, setShowFormatting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [attachments, setAttachments] = useState<MailAttachmentInput[]>([]);
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
   const [recipientCustomerId, setRecipientCustomerId] = useState<string>();
   const [showCc, setShowCc] = useState(false);
@@ -46,10 +56,10 @@ export const DirectMailComposer = () => {
     refetch,
   } = useQuery<{
     mailSenders: MailSender[];
-  }>(MAIL_SENDERS_QUERY, { skip: !target });
+  }>(MAIL_SENDERS_QUERY, { skip: !target || !canComposeEmail });
   const { mailSendMail, loading } = useMailSendMail();
   const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
-  const editor = useBlockEditor({ placeholder: 'Write an email...' });
+  const editor = useBlockEditor({ placeholder: ' ' });
   const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
   const form = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
@@ -63,7 +73,8 @@ export const DirectMailComposer = () => {
     },
   });
   const { handleSubmit, reset, setValue, setError, watch } = form;
-  const sending = loading || retryLoading || form.formState.isSubmitting;
+  const sending =
+    loading || retryLoading || uploading || form.formState.isSubmitting;
   const integrationId = watch('integrationId');
   const to = watch('to');
   const cc = watch('cc');
@@ -97,7 +108,7 @@ export const DirectMailComposer = () => {
     MAIL_UNVERIFIED_RECIPIENTS_QUERY,
     {
       variables: { emails: recipientEmails },
-      skip: !target || !validRecipients,
+      skip: !target || !canComposeEmail || !validRecipients,
       fetchPolicy: 'network-only',
     },
   );
@@ -124,10 +135,28 @@ export const DirectMailComposer = () => {
   useEffect(() => {
     const handleComposeRequest = (event: Event) => {
       const detail = (event as CustomEvent<ComposeEmailTarget>).detail;
-      if (sending || !z.string().email().safeParse(detail?.email).success) {
+      if (
+        !canComposeEmail ||
+        sending ||
+        !detail ||
+        (detail.email && !z.string().email().safeParse(detail.email).success)
+      ) {
         return;
       }
 
+      if (target && (form.formState.isDirty || attachments.length)) {
+        setMinimized(false);
+        if (detail.email !== target.email)
+          toast({
+            title:
+              'Finish or discard your current draft before starting another email',
+          });
+        return;
+      }
+      setMinimized(false);
+      setExpanded(false);
+      setShowFormatting(false);
+      setAttachments([]);
       setTarget(detail);
       setRecipientCustomerId(detail.customerId);
       setFailedDelivery(() => undefined);
@@ -136,7 +165,7 @@ export const DirectMailComposer = () => {
       editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
       reset({
         integrationId: '',
-        to: detail.email,
+        to: detail.email || '',
         cc: '',
         bcc: '',
         subject: '',
@@ -147,7 +176,15 @@ export const DirectMailComposer = () => {
     window.addEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
     return () =>
       window.removeEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
-  }, [editor, reset, sending]);
+  }, [
+    attachments.length,
+    canComposeEmail,
+    editor,
+    form.formState.isDirty,
+    reset,
+    sending,
+    target,
+  ]);
 
   useEffect(() => {
     if (target && !integrationId && senders.length) {
@@ -162,11 +199,12 @@ export const DirectMailComposer = () => {
 
   useEffect(() => {
     if (target) {
-      editor.focus();
+      if (target.email) editor.focus();
+      else document.getElementById('direct-mail-to')?.focus();
     }
   }, [editor, target]);
 
-  if (!target) return null;
+  if (!target || !canComposeEmail) return null;
 
   const close = () => {
     editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
@@ -176,7 +214,7 @@ export const DirectMailComposer = () => {
   };
 
   const submit = async (values: ComposeValues) => {
-    if (sending || !recipientsVerified) return;
+    if (!canComposeEmail || sending || !recipientsVerified) return;
     if (failedDelivery) {
       mailMessageRetry(failedDelivery._id, close);
       return;
@@ -208,6 +246,7 @@ export const DirectMailComposer = () => {
         customerId: recipientCustomerId,
         subject: values.subject.trim(),
         body,
+        attachments,
         to: [values.to.trim()],
         cc: showCc ? splitAddresses(values.cc) : undefined,
         bcc: showBcc ? splitAddresses(values.bcc) : undefined,
@@ -225,15 +264,40 @@ export const DirectMailComposer = () => {
 
   return (
     <FormProvider {...form}>
+      {expanded && !minimized && (
+        <div className="fixed inset-0 z-40 bg-black/40" aria-hidden="true" />
+      )}
       <section
         aria-label="New email"
-        className="fixed inset-x-2 bottom-2 z-50 flex max-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(40rem,calc(100vw-2rem))]"
+        className={cn(
+          'fixed z-50 flex flex-col overflow-hidden rounded-t-lg border bg-white shadow-2xl font-[Arial,sans-serif]',
+          expanded && !minimized
+            ? 'inset-x-4 top-6 bottom-4 sm:inset-x-[8vw] sm:top-[6vh]'
+            : 'inset-x-2 bottom-0 sm:inset-x-auto sm:right-4',
+          minimized
+            ? 'sm:w-80'
+            : !expanded &&
+                'h-[min(600px,calc(100dvh-2rem))] sm:w-[min(600px,calc(100vw-2rem))]',
+        )}
       >
-        <ComposerHeader onClose={close} loading={sending} />
+        <ComposerHeader
+          onClose={close}
+          loading={sending}
+          minimized={minimized}
+          expanded={expanded}
+          onMinimize={() => setMinimized((value) => !value)}
+          onExpand={() => {
+            setMinimized(false);
+            setExpanded((value) => !value);
+          }}
+        />
 
         <DirectMailComposerFieldsContext.Provider value={fieldActions}>
           <form
-            className="flex min-h-0 flex-1 flex-col overflow-y-auto"
+            className={cn(
+              'flex min-h-0 flex-1 flex-col',
+              minimized && 'hidden',
+            )}
             onSubmit={handleSubmit(submit)}
           >
             <ComposerFields
@@ -258,13 +322,39 @@ export const DirectMailComposer = () => {
               onRetry={handleRetry}
               onRecipientSelect={setRecipientCustomerId}
             />
+            {attachments.length > 0 && (
+              <ul className="flex flex-none flex-wrap gap-2 px-4 py-2 text-sm">
+                {attachments.map((attachment, index) => (
+                  <li
+                    key={`${attachment.url}-${index}`}
+                    className="flex items-center gap-1 rounded bg-[#f2f6fc] px-2"
+                  >
+                    <span className="max-w-48 truncate">{attachment.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Remove ${attachment.name}`}
+                      disabled={sending || Boolean(failedDelivery)}
+                      onClick={() =>
+                        setAttachments((items) =>
+                          items.filter((_, itemIndex) => itemIndex !== index),
+                        )
+                      }
+                    >
+                      ×
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
             {failedDelivery && (
               <p role="alert" className="px-4 py-3 text-sm text-destructive">
                 {failedDelivery.deliveryError || 'Email was not delivered.'}
                 {' Retry sending, or close this draft to start a new email.'}
               </p>
             )}
-            {!checkingRecipients && !recipientsVerified && (
+            {validRecipients && !checkingRecipients && !recipientsVerified && (
               <output className="block px-4 py-3 text-sm text-destructive">
                 {recipientVerificationError
                   ? 'Unable to check recipient email verification.'
@@ -292,6 +382,15 @@ export const DirectMailComposer = () => {
               }
               loading={sending}
               retry={Boolean(failedDelivery)}
+              editor={editor}
+              showFormatting={showFormatting}
+              onToggleFormatting={() => setShowFormatting((value) => !value)}
+              onDiscard={close}
+              onUploadingChange={setUploading}
+              onAttachment={(attachment) =>
+                setAttachments((items) => [...items, attachment])
+              }
+              editingDisabled={sending || Boolean(failedDelivery)}
             />
           </form>
         </DirectMailComposerFieldsContext.Provider>
