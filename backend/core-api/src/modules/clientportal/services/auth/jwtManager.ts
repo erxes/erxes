@@ -62,7 +62,7 @@ export class JwtManager {
   generateTokenPair(
     user: ICPUserDocument,
     clientPortal: IClientPortalDocument,
-    _rememberMe = false,
+    _rememberMe: boolean = false,
   ): { token: string; refreshToken: string } {
     const authConfig = this.getAuthConfig(clientPortal);
     const accessTokenExpirationInDays =

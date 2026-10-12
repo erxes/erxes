@@ -18,19 +18,19 @@ import {
   cn,
   useToast,
 } from 'erxes-ui';
-import { ColumnDef, flexRender } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   IconCircleFilled,
   IconCirclesFilled,
   IconTag,
+  IconTrash,
   IconWriting,
 } from '@tabler/icons-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TagsListRowOptionMenu } from './TagsListRowOptionMenu';
 
 const tagsCheckboxColumn: ColumnDef<TagTableRow> = {
-  ...RecordTable.checkboxColumn,
-  id: 'checkbox',
+  ...(RecordTable.checkboxColumn as ColumnDef<TagTableRow>),
   header: ({ table }) => {
     const selectableRows = table
       .getRowModel()
@@ -68,8 +68,7 @@ const tagsCheckboxColumn: ColumnDef<TagTableRow> = {
       </div>
     );
   },
-  cell: (context) => {
-    const { row } = context;
+  cell: ({ row }) => {
     if (
       row.original.rowType === 'draft' ||
       row.original.rowType === 'context-group'
@@ -77,7 +76,8 @@ const tagsCheckboxColumn: ColumnDef<TagTableRow> = {
       return <div className="h-8" />;
     }
 
-    return flexRender(RecordTable.checkboxColumn.cell, context);
+    const CellComponent = RecordTable.checkboxColumn.cell;
+    return CellComponent ? <CellComponent row={row} /> : null;
   },
 };
 
@@ -452,6 +452,10 @@ const EditableDescriptionCell = ({ row }: { row: TagTableRow }) => {
 };
 
 export const useTagsColumns = () => {
+  const { draft, openDraft } = useTagsContext();
+  const { type, tagGroups } = useTagsView();
+  const { removeTag } = useTagsCrud(type);
+
   return useMemo<ColumnDef<TagTableRow>[]>(
     () => [
       {
@@ -460,7 +464,27 @@ export const useTagsColumns = () => {
         cell: ({ cell }) => {
           const row = cell.row.original;
 
-          return <TagsListRowOptionMenu tag={row} />;
+          // if (row.rowType === 'draft') {
+          //   return <RecordTableInlineCell className="justify-center" />;
+          // }
+
+          // if (row.rowType === 'context-group') {
+          //   return <RecordTableInlineCell />;
+          // }
+
+          return (
+            <TagsListRowOptionMenu
+              tag={row}
+              tagGroups={tagGroups}
+              onAddChild={(parentId) =>
+                openDraft({
+                  kind: 'child',
+                  parentId,
+                  colorCode: Object.values(TAG_DEFAULT_COLORS)[0],
+                })
+              }
+            />
+          );
         },
       },
       tagsCheckboxColumn,
@@ -506,6 +530,6 @@ export const useTagsColumns = () => {
         size: 140,
       },
     ],
-    [],
+    [openDraft, tagGroups],
   );
 };

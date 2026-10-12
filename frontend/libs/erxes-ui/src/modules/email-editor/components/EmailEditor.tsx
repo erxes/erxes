@@ -59,7 +59,7 @@ const nodePlaceholder =
     return placeholder;
   };
 
-export const uploadEmailEditorImage = async (file: Blob) => {
+export const uploadEmailEditorImage = async (file: File) => {
   if (!file.type.startsWith('image/')) {
     throw new Error('Only image files can be uploaded');
   }

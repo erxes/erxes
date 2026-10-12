@@ -335,7 +335,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             }}
           />
           <SelectCustomerFilterBar
-            label={t('by-customer')}
             filterKey=""
             mode="multiple"
             variant="card"

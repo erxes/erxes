@@ -86,9 +86,13 @@ export const AddMappingSheet: React.FC<AddMappingSheetProps> = ({
 
   const isEditing = !!editingMapping;
 
-  const handleCategorySelect: React.ComponentProps<typeof SelectCategory>['onSelect'] = (value) => {
-    if (typeof value === 'string') {
-      form.setValue('categoryId', value);
+  const handleCategorySelect: React.ReactEventHandler<HTMLButtonElement> &
+    ((categoryId: string) => void) = (value) => {
+    const categoryId =
+      typeof value === 'string' ? value : value?.currentTarget?.value;
+
+    if (categoryId) {
+      form.setValue('categoryId', categoryId);
     }
   };
 

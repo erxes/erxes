@@ -59,7 +59,7 @@ const EditableCell = ({
       onBlur={commit}
       onBeforeInput={(e) => {
         const data = (e.nativeEvent as InputEvent).data;
-        if (numeric && data && /[^0-9.-]/.test(data)) {
+        if (numeric && data && /[^0-9.\-]/.test(data)) {
           e.preventDefault();
         }
       }}

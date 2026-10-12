@@ -1,5 +1,5 @@
 import { ITextFieldContainerProps, TextField } from 'erxes-ui';
-import { useCompaniesEdit } from 'ui-modules';
+import { useCompaniesEdit } from '@/contacts/companies/hooks/useCompaniesEdit';
 
 export const CompanyTextField = ({
   placeholder,
@@ -10,9 +10,12 @@ export const CompanyTextField = ({
 }: ITextFieldContainerProps) => {
   const { companiesEdit } = useCompaniesEdit();
   const onSave = (editingValue: string) => {
-    companiesEdit({
-      variables: { _id, [field]: editingValue },
-    });
+    companiesEdit(
+      {
+        variables: { _id, [field]: editingValue },
+      },
+      [field],
+    );
   };
   return (
     <TextField

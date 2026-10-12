@@ -1674,7 +1674,7 @@ importers:
         version: 4.39.1
       zod:
         specifier: ^3.23.8
-        version: 3.24.2
+        version: 3.23.8
     devDependencies:
       '@types/react':
         specifier: 18.3.1
@@ -1804,7 +1804,7 @@ importers:
         version: 10.0.4(react@18.3.1)
       zod:
         specifier: ^3.23.8
-        version: 3.24.2
+        version: 3.23.8
     devDependencies:
       '@types/react':
         specifier: 18.3.1
@@ -31623,7 +31623,7 @@ snapshots:
 
   '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 18.3.1
+      '@types/react': 19.1.12
 
   '@types/react-dom@19.1.9(@types/react@19.1.12)':
     dependencies:

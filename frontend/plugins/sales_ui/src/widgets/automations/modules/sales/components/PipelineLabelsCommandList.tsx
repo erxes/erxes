@@ -15,7 +15,7 @@ export const PipelineLabelsCommandList = ({
   selectField?: string;
 }) => {
   const { t } = useTranslation('sales');
-  const { pipelineLabels, loading, refetch } = usePipelineLabels({
+  const { pipelineLabels, loading } = usePipelineLabels({
     variables: {
       searchValue: searchValue,
       pipelineId: pipelineId,
@@ -27,7 +27,7 @@ export const PipelineLabelsCommandList = ({
       items={pipelineLabels || []}
       loading={loading}
       totalCount={pipelineLabels?.length || 0}
-      handleFetchMore={refetch}
+      handleFetchMore={() => {}}
       onSelect={onSelect}
       getKey={(label) => label._id || ''}
       renderItem={(label) => <LabelBadge label={label} />}

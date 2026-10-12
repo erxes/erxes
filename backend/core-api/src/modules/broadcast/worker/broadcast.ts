@@ -2,6 +2,7 @@ import { Job } from 'bullmq';
 import { SegmentMaterializedPayload } from 'erxes-api-shared/core-modules';
 import { heartbeatRun } from './drain';
 import { handleEmailProcessor } from './email';
+import { handleMessengerProcessor } from './messenger';
 import { handleNotificationProcessor } from './notification';
 import { reconcileSchedules } from './reconcile';
 import { fireAfterSegment, fireSchedule, ISchedulePayload } from './schedule';
@@ -33,11 +34,12 @@ interface BroadcastJobData {
     | SegmentMaterializedPayload;
 }
 
-const PROCESS_HANDLERS: Partial<Record<
+const PROCESS_HANDLERS: Record<
   BroadcastMethod,
   (payload: unknown) => Promise<void>
->> = {
+> = {
   email: handleEmailProcessor,
+  messenger: handleMessengerProcessor,
   notification: handleNotificationProcessor,
   workflow: handleWorkflowProcessor,
 };

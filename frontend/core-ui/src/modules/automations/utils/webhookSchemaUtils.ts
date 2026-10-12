@@ -22,14 +22,14 @@ export interface WebhookAttribute {
  */
 export function generateAttributesFromWebhookSchema(
   schema: TIncomingWebhookJSONPropertySchema[],
-  groupName = 'Webhook Payload',
-  basePath = '',
+  groupName: string = 'Webhook Payload',
+  basePath: string = '',
 ): WebhookAttribute[] {
   const attributes: WebhookAttribute[] = [];
 
   function processProperty(
     property: TIncomingWebhookJSONPropertySchema,
-    currentPath = '',
+    currentPath: string = '',
   ): void {
     const fullPath = currentPath
       ? `${currentPath}.${property.name}`

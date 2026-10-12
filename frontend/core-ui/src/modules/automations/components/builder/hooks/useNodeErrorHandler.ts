@@ -16,7 +16,7 @@ export const useNodeErrorHandler = () => {
    */
   const handleNodeErrors = (
     nodeErrorMap: NodeErrorMap,
-    focusToError = true,
+    focusToError: boolean = true,
   ) => {
     if (Object.keys(nodeErrorMap).length === 0) {
       return;
@@ -90,7 +90,7 @@ export const useNodeErrorHandler = () => {
   const setNodeError = (
     nodeId: string,
     errorMessage: string,
-    focusToError = false,
+    focusToError: boolean = false,
   ) => {
     handleNodeErrors({ [nodeId]: errorMessage }, focusToError);
   };

@@ -6,17 +6,14 @@ import {
 import { TriggerContentLoadingFallback } from '@/automations/components/builder/sidebar/components/content/trigger/wrapper/TriggerContentLoadingFallback';
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
 import { Suspense } from 'react';
-import { NodeData } from '@/automations/types';
 import { splitAutomationNodeType } from 'ui-modules';
 
 export const TriggerNodeConfigurationContent = ({
   type,
   config,
-  nodeData,
 }: {
   type: string;
-  config: NodeData['config'];
-  nodeData: NodeData;
+  config: any;
 }) => {
   const [pluginName, moduleName] = splitAutomationNodeType(type || '');
 
@@ -34,7 +31,7 @@ export const TriggerNodeConfigurationContent = ({
       <Suspense fallback={<TriggerContentLoadingFallback />}>
         <div className="px-4 py-2">
           {CoreTriggerComponent ? (
-            <CoreTriggerComponent config={config} nodeData={nodeData} />
+            <CoreTriggerComponent config={config} />
           ) : (
             <></>
           )}

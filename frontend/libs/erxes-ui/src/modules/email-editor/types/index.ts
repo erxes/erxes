@@ -27,7 +27,7 @@ export interface EmailEditorProps {
   onChange?: (contentJson: JSONContent) => void;
   onCreate?: (editor: TiptapEditor) => void;
   variables?: EmailEditorVariables;
-  onImageUpload?: (file: Blob) => Promise<string>;
+  onImageUpload?: (file: File) => Promise<string>;
   blocks?: MailyEditorProps['blocks'];
   extensions?: MailyEditorProps['extensions'];
   placeholder?: string;

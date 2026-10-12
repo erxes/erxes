@@ -25,7 +25,7 @@ export const usePipelineLabelDetail = (
 export const usePipelineLabels = (
     options?: QueryHookOptions<{ salesPipelineLabels: IPipelineLabel[] }>,
   ) => {
-    const { data, loading, error, refetch } = useQuery<{ salesPipelineLabels: IPipelineLabel[] }>(
+    const { data, loading, error } = useQuery<{ salesPipelineLabels: IPipelineLabel[] }>(
       GET_PIPELINE_LABELS,
       {
         ...options,
@@ -35,7 +35,7 @@ export const usePipelineLabels = (
       },
     );
     
-    return { pipelineLabels: data?.salesPipelineLabels, loading, error, refetch };
+    return { pipelineLabels: data?.salesPipelineLabels, loading, error };
 }
 
 export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => {

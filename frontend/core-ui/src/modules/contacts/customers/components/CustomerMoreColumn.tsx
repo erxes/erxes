@@ -60,7 +60,7 @@ export const CustomerMoreColumnCell = ({
 
 export const customerMoreColumn = {
   id: 'more',
-  header: () => <RecordTable.ColumnSelector />,
+  header: RecordTable.ColumnSelector,
   cell: CustomerMoreColumnCell,
   size: 33,
 };

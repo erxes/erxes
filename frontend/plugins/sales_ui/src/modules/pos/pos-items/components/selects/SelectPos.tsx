@@ -19,7 +19,7 @@ import {
   useSelectPosContext,
 } from '@/pos/pos-items/context/SelectPosContext';
 import { usePos } from '@/pos/pos-items/hooks/useSelectPos';
-import { PosInline } from '@/pos/orders/components/PosInline';
+import { PosInline } from '@/pos/pos-items/components/PosInline';
 
 export const SelectPosProvider = ({
   children,

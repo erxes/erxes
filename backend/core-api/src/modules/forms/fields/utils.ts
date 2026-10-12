@@ -155,6 +155,7 @@ export const generateFieldsUsers = async ({ subdomain, data }) => {
 
   const { Users } = models;
 
+  let schema: any;
   let fields: Array<{
     _id: number;
     name: string;
@@ -166,7 +167,7 @@ export const generateFieldsUsers = async ({ subdomain, data }) => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  const schema = Users.schema;
+  schema = Users.schema;
 
   if (usageType && usageType === 'import') {
     fields = USER_EXTENDED_FIELDS;

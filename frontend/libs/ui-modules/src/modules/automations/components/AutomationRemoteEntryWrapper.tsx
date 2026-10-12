@@ -27,5 +27,5 @@ export const AutomationRemoteEntryWrapper = <
 
   if (!RemoteEntryComponent) return null;
 
-  return <RemoteEntryComponent key={componentType} {...props} />;
+  return <RemoteEntryComponent {...(props as AutomationRemoteEntryTypes[T])} />;
 };

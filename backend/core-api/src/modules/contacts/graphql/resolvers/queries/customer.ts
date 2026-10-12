@@ -40,21 +40,25 @@ export const customerQueries: Record<
     params: ICustomerQueryFilterParams,
     { models, subdomain }: IContext,
   ) {
-    const filter: FilterQuery<ICustomerDocument> = await generateFilter(
-      subdomain,
-      params,
-      models,
-      customerSearchTokenConfig,
-    );
-
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ICustomerDocument>({
-        model: models.Customers,
+    try {
+      const filter: FilterQuery<ICustomerDocument> = await generateFilter(
+        subdomain,
         params,
-        query: filter,
-      });
+        models,
+        customerSearchTokenConfig,
+      );
 
-    return { list, totalCount, pageInfo };
+      const { list, totalCount, pageInfo } =
+        await cursorPaginate<ICustomerDocument>({
+          model: models.Customers,
+          params,
+          query: filter,
+        });
+
+      return { list, totalCount, pageInfo };
+    } catch (error) {
+      throw error;
+    }
   },
 
   async cpCustomers(

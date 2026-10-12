@@ -26,7 +26,7 @@ const PreviewStory = ({
           <Preview.Toolbar path={url} />
           <Preview.View
             iframeSrc="/iframe.html?id=components-dialog--default"
-            style={{ height: 400 }}
+            height={400}
           />
         </Preview>
       </div>

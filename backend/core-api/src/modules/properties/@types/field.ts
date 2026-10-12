@@ -103,4 +103,4 @@ export interface IFieldValueUsage extends IPropertyValueSamples {
   dependents: string[];
 }
 
-export type IFieldOffsetParams = IOffsetPaginateParams;
+export interface IFieldOffsetParams extends IOffsetPaginateParams {}

@@ -37,7 +37,7 @@ const templateMutations = {
 
     const { contentType = '' } = template || {};
 
-    const [pluginName, moduleName, collectionName] = contentType.split(':');
+    const [pluginName, moduleName, collectionName] = contentType?.split(':');
 
     if (!pluginName || !moduleName) {
       throw new Error('Invalid template document');

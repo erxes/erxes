@@ -17,7 +17,7 @@ export const CustomCoreTriggerContent =
     const { formRef, handleSave } = useCoreCustomTriggerContent(activeNode);
 
     const Component = getCoreAutomationTriggerComponent(
-      moduleName,
+      moduleName as any,
       TAutomationTriggerComponent.Sidebar,
     );
 

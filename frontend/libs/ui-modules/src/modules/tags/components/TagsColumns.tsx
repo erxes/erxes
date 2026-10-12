@@ -27,11 +27,9 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
-import {
-  TTag as ITag,
-  TTagQueryResponse as ITagQueryResponse,
-} from 'ui-modules/modules/tags/types/Tag';
+import { ITag, ITagQueryResponse } from 'ui-modules/modules/tags/types/Tag';
 import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 const MoveTagPopover: React.FC<{
   tagId: string;

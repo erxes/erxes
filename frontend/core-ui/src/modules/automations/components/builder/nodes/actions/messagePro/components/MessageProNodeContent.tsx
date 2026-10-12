@@ -1,5 +1,5 @@
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { DocumentsInline } from 'ui-modules';
+import { SelectDocument } from 'ui-modules';
 import { TMessageProConfigForm } from '../states/messageProConfigForm';
 
 export const MessageProNodeContent = ({
@@ -15,5 +15,13 @@ export const MessageProNodeContent = ({
     );
   }
 
-  return <DocumentsInline documentIds={[documentId]} />;
+  return (
+    <SelectDocument.Provider
+      mode="single"
+      value={documentId}
+      onValueChange={() => {}}
+    >
+      <SelectDocument.Value />
+    </SelectDocument.Provider>
+  );
 };

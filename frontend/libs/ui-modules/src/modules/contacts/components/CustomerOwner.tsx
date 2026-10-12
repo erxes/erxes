@@ -28,7 +28,7 @@ export const CustomerOwner = ({
         customerEdit({
           variables: {
             _id,
-            ownerId: typeof value === 'string' ? value : undefined,
+            ownerId: value,
           },
         });
       }}

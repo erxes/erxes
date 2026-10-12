@@ -142,9 +142,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
   h1 {
     @apply text-2xl font-bold;

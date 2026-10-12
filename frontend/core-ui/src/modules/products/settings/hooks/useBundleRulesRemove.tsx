@@ -25,13 +25,13 @@ export const useBundleRulesRemove = (options?: MutationHookOptions) => {
         });
         options?.onError?.(e);
       },
-      onCompleted: (data) => {
+      onCompleted: () => {
         toast({
           title: 'Success',
           description: 'Bundle rule removed successfully',
           variant: 'default',
         });
-        options?.onCompleted?.(data);
+        options?.onCompleted?.();
       },
       refetchQueries: [{ query: BUNDLE_RULES }],
     });

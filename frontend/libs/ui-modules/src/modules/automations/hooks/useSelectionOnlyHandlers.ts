@@ -16,6 +16,8 @@ export function useSelectionOnlyHandlers({
     useState<boolean>(false);
   const suggestionPopoverRef = useRef<HTMLDivElement | null>(null);
 
+  const handleInputFocus = () => {};
+
   const handleInputBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -50,6 +52,7 @@ export function useSelectionOnlyHandlers({
   return {
     isSelectionPopoverOpen,
     setIsSelectionPopoverOpen,
+    handleInputFocus,
     handleInputBlur,
     handleSelectionOnlyKeyPress,
     suggestionPopoverRef,

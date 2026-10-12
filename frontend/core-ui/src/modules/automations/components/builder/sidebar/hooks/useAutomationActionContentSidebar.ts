@@ -100,7 +100,7 @@ export const useAutomationActionContentSidebar = () => {
       title: 'Action configuration added successfully.',
       variant: 'success',
     });
-    if (currentAction) clearNodeError(currentAction.id);
+    currentAction && clearNodeError(currentAction.id);
   };
 
   const onSaveActionConfig = (config: any) => {
