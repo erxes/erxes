@@ -20,17 +20,13 @@ import { ToolbarSelect } from './ToolbarSelect';
 import { ToolbarMenuItem } from './ToolbarMenuItem';
 import { ToolbarMenuDropdown } from './ToolbarMenuDropdown';
 import { ToolbarFormattingButton } from './ToolbarFormattingButton';
+import { useMemo } from 'react';
 
 export const ToolbarContents = () => {
   const Components = useComponentsContext();
-
-  if (!Components) {
-    return null;
-  }
-
-  return (
-    <ComponentsContext.Provider
-      value={{
+  const toolbarComponents = useMemo(
+    () =>
+      Components && {
         ...Components,
         FormattingToolbar: {
           ...Components.FormattingToolbar,
@@ -45,8 +41,16 @@ export const ToolbarContents = () => {
             Dropdown: ToolbarMenuDropdown,
           },
         },
-      }}
-    >
+      },
+    [Components],
+  );
+
+  if (!toolbarComponents) {
+    return null;
+  }
+
+  return (
+    <ComponentsContext.Provider value={toolbarComponents}>
       <FormattingToolbar>
         <BlockTypeSelect key={'blockTypeSelect'} />
         <FontFamilyButton key={'fontFamilyButton'} />

@@ -80,8 +80,8 @@ export const FontFamilyButton = () => {
         typedEditor.addStyles({ fontFamily: fontValue });
       }
       editor.focus();
-    } catch {
-      // ignore
+    } catch (error) {
+      console.error('Error changing font:', error);
     }
   };
 

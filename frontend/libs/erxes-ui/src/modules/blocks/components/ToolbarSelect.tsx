@@ -1,6 +1,7 @@
 import { useComponentsContext } from '@blocknote/react';
 import type { ComponentProps } from '@blocknote/react';
 import { IconChevronDown } from '@tabler/icons-react';
+import { ToolbarMenuItem } from './ToolbarMenuItem';
 
 export const ToolbarSelect = ({
   items,
@@ -10,7 +11,7 @@ export const ToolbarSelect = ({
   const Components = useComponentsContext();
   const selectedItem = items.find((item) => item.isSelected);
 
-  if (!Components || !selectedItem) {
+  if (!Components || !items.length) {
     return null;
   }
 
@@ -18,29 +19,30 @@ export const ToolbarSelect = ({
     <Components.Generic.Menu.Root>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
-          label={selectedItem.text}
-          mainTooltip={selectedItem.text}
-          icon={selectedItem.icon}
+          label={selectedItem?.text ?? 'Block type'}
+          mainTooltip={selectedItem?.text ?? 'Block type'}
+          icon={selectedItem?.icon}
           isDisabled={isDisabled}
           className="bn-button gap-1"
         >
-          {selectedItem.text}
+          {selectedItem?.text ?? 'Block type'}
           <IconChevronDown size={14} />
         </Components.FormattingToolbar.Button>
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown className={className}>
         {items.map((item) => (
-          <Components.Generic.Menu.Item
+          <ToolbarMenuItem
             key={item.text}
             icon={item.icon}
             checked={item.isSelected}
+            disabled={item.isDisabled}
             className={
               item.isDisabled ? 'pointer-events-none opacity-50' : undefined
             }
             onClick={item.isDisabled ? undefined : item.onClick}
           >
             {item.text}
-          </Components.Generic.Menu.Item>
+          </ToolbarMenuItem>
         ))}
       </Components.Generic.Menu.Dropdown>
     </Components.Generic.Menu.Root>
