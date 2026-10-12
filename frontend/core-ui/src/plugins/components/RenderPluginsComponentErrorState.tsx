@@ -1,14 +1,57 @@
+import type { Dispatch, SetStateAction } from 'react';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
+import {
+  RemoteComponent,
+  RemoteModule,
+  resolveRemoteComponent,
+} from '../utils/resolveRemoteComponent';
+
+import { loadRemote } from '@module-federation/enhanced/runtime';
 
 export const RenderPluginsComponentErrorState = ({
   pluginName,
   remoteModuleName,
-  onRetry,
+  setPlugin,
+  setHasError,
+  setIsLoading,
 }: {
   pluginName: string;
   remoteModuleName: string;
-  onRetry: () => void;
+  setPlugin: Dispatch<SetStateAction<RemoteComponent | null>>;
+  setHasError: Dispatch<
+    SetStateAction<{
+      message: string;
+    } | null>
+  >;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const retry = () => {
+    setHasError(null);
+    setIsLoading(true);
+    loadRemote<RemoteModule>(`${pluginName}/${remoteModuleName}`, {
+      from: 'runtime',
+    })
+      .then((remoteModule) => {
+        const remoteComponent = resolveRemoteComponent(
+          remoteModule,
+          remoteModuleName,
+        );
+
+        if (!remoteComponent)
+          throw new Error('Plugin module is empty or invalid');
+
+        setPlugin(() => remoteComponent);
+      })
+      .catch((error) => {
+        setHasError({
+          message:
+            error instanceof Error ? error.message : 'Failed to load plugin',
+        });
+        setPlugin(null);
+      })
+      .finally(() => setIsLoading(false));
+  };
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-3 p-6 text-center">
       <div className="flex size-10 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950/40">
@@ -22,7 +65,7 @@ export const RenderPluginsComponentErrorState = ({
         <p className="text-xs text-muted-foreground">failed to load</p>
       </div>
       <button
-        onClick={onRetry}
+        onClick={retry}
         className="flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
       >
         <IconRefresh className="size-3.5" />
