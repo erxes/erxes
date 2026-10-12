@@ -1520,9 +1520,21 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `ChannelSurveyNavItem` counts through its own light
   `frontlineChannelSurveyConversationCount` query — never `useConversations`,
   which owns inbox state and subscriptions.
-- `useSurveyList({ withResults: true })` switches to the `surveyResultsList`
-  document because `Survey.results` runs two aggregations per survey; the
-  management list must not select it.
+- `SendSurveyDialog` lists only the conversation channel's active surveys
+  through `integration.channelId`, which `IntegrationInline` must keep
+  selecting; without it every channel's surveys appear and
+  `surveySendToConversation` rejects them as "another channel".
+- `useSurveyResultsList` reads the `surveyResultsList` document because
+  `Survey.results` runs two aggregations per survey; the management list
+  (`useSurveyList`) must not select it.
+- Survey types derive from the generated documents: `ISurvey` is
+  `SurveyFieldsFragment` (spread by name in the list, results list and
+  detail), `ISurveyDetail` is `surveyDetail`, `ISurveyWithResults` a
+  `surveyResultsList` row, and `ISurveyStep` / `ISurveyOption` /
+  `ISurveyStepResult` index into them. `ISurveyAttachment` is the form and
+  `AttachmentInput` shape; stored step attachments enter the form through
+  `toContentAttachments`. `surveyTotalCount.byStatus` stays `JSON` because no
+  surface reads it.
 - The composer shows two different controls by integration kind:
   `PollComposer` (ad-hoc, provider-native) for `discord-messenger` and
   `telegram-messenger`, and
@@ -2196,7 +2208,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
   core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
   `integrations/discord`, `integrations/mail`, `channels`, `ticket`,
-  `status`, the
+  `status`, `survey`, the
   Facebook and Instagram settings (config,
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base

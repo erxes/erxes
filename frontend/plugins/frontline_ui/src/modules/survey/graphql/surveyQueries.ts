@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const SURVEY_FIELDS = gql`
+export const SURVEY_FIELDS = gql(`
   fragment SurveyFields on Survey {
     _id
     code
@@ -67,9 +67,9 @@ const SURVEY_FIELDS = gql`
       phone
     }
   }
-`;
+`);
 
-export const GET_SURVEY_LIST = gql`
+export const GET_SURVEY_LIST = gql(`
   query surveyList(
     $searchValue: String
     $status: String
@@ -100,10 +100,9 @@ export const GET_SURVEY_LIST = gql`
       totalCount
     }
   }
-  ${SURVEY_FIELDS}
-`;
+`);
 
-export const GET_SURVEY_RESULTS_LIST = gql`
+export const GET_SURVEY_RESULTS_LIST = gql(`
   query surveyResultsList(
     $searchValue: String
     $status: String
@@ -150,10 +149,9 @@ export const GET_SURVEY_RESULTS_LIST = gql`
       totalCount
     }
   }
-  ${SURVEY_FIELDS}
-`;
+`);
 
-export const GET_SURVEY_DETAIL = gql`
+export const GET_SURVEY_DETAIL = gql(`
   query surveyDetail($_id: String!) {
     surveyDetail(_id: $_id) {
       ...SurveyFields
@@ -175,10 +173,9 @@ export const GET_SURVEY_DETAIL = gql`
       }
     }
   }
-  ${SURVEY_FIELDS}
-`;
+`);
 
-export const GET_CHANNEL_SURVEY_CONVERSATION_COUNT = gql`
+export const GET_CHANNEL_SURVEY_CONVERSATION_COUNT = gql(`
   query frontlineChannelSurveyConversationCount(
     $channelId: String
     $status: String
@@ -189,9 +186,9 @@ export const GET_CHANNEL_SURVEY_CONVERSATION_COUNT = gql`
       withSurvey: "true"
     )
   }
-`;
+`);
 
-export const GET_SURVEY_TOTAL_COUNT = gql`
+export const GET_SURVEY_TOTAL_COUNT = gql(`
   query surveyTotalCount(
     $searchValue: String
     $status: String
@@ -206,4 +203,4 @@ export const GET_SURVEY_TOTAL_COUNT = gql`
       byStatus
     }
   }
-`;
+`);
