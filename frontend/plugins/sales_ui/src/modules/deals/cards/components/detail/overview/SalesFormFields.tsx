@@ -157,15 +157,17 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           value={startDate}
           id={_id}
           type="startDate"
-          variant="detail"
+          variant="input"
           placeholder={t('start-date')}
+          label={t('start-date')}
         />
         <DateSelectDeal
           value={closeDate}
           id={_id}
           type="closeDate"
-          variant="detail"
+          variant="input"
           placeholder={t('close-date')}
+          label={t('close-date')}
         />
         <SelectLabels.FilterBar
           filterKey=""
@@ -195,7 +197,6 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         />
         <DealBrokerTypeChip
           value={optimisticBroker.value.type || '_none'}
-          selectedPrefix={t('broker')}
           options={[
             { value: '_none', label: t('none') },
             { value: 'customer', label: t('customer') },
@@ -236,6 +237,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         {optimisticBroker.value.type === 'user' && (
           <DealAssigneeChip
             mode="single"
+            label={t('user')}
             value={optimisticBroker.value.id}
             placeholder={t('select-broker', 'Select broker')}
             onValueChange={(value) =>

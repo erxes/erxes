@@ -16,6 +16,7 @@ import {
 } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import { useTranslation } from 'react-i18next';
 import {
   formatDealDateForMutation,
@@ -30,6 +31,7 @@ export enum DateSelectVariant {
   TABLE = 'table',
   FILTER = 'filter',
   DETAIL = 'detail',
+  INPUT = 'input',
   CARD = 'card',
   FORM = 'form',
   BUTTON = 'button',
@@ -120,8 +122,10 @@ const DateSelectContent = () => {
 
 export const DateSelectTrigger = ({
   children,
+  label,
 }: {
   children: React.ReactNode;
+  label?: string;
 }) => {
   const { variant } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
@@ -143,6 +147,9 @@ export const DateSelectTrigger = ({
       </Popover.Trigger>
     );
   }
+  if (variant === DateSelectVariant.INPUT && label) {
+    return <DealChipTrigger label={label}>{children}</DealChipTrigger>;
+  }
   return (
     <Combobox.TriggerBase className="w-fit h-7">
       {children}
@@ -157,6 +164,7 @@ export const DateSelectDealRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
   placeholder,
+  label,
 }: {
   value?: Date | string;
   id?: string;
@@ -164,6 +172,7 @@ export const DateSelectDealRoot = ({
   scope?: string;
   variant?: `${DateSelectVariant}`;
   placeholder?: string;
+  label?: string;
 }) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
@@ -217,7 +226,7 @@ export const DateSelectDealRoot = ({
         error={error}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <DateSelectTrigger>
+          <DateSelectTrigger label={label}>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
               {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
@@ -241,7 +250,7 @@ export const DateSelectDealRoot = ({
       error={error}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <DateSelectTrigger>
+        <DateSelectTrigger label={label}>
           <DateSelectValue placeholder={placeholder} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

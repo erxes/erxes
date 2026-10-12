@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-12`
 
 ## Scope
 
@@ -87,8 +87,11 @@
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
-- Deal detail broker selection shows `Broker: None` until a broker type is
-  chosen, then renders a matching entity selector with a `Select broker`
+- Deal detail chips (priority, assignee, dates, labels, tags, branch,
+  department, broker) render as a field group: a muted label segment, then the
+  value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
+  The broker entity selector that follows is
+  labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
   placeholder.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
@@ -199,6 +202,8 @@
 ## Local Invariants
 
 - Property choices must come only from Core `sales:deal` fields.
+- Deal detail chips render through `DealChipTrigger`; every chip except stage
+  passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
 - An enabled POS customer form must keep `primaryEmail` or `primaryPhone`;
