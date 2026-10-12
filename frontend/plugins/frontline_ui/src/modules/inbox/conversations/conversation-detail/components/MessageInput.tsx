@@ -41,6 +41,7 @@ export const MessageInput = ({
   const { integration } = useConversationContext();
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
   const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const editor = useBlockEditor();
@@ -60,7 +61,7 @@ export const MessageInput = ({
     resetAttachments,
     retainAttachments,
     isUploading,
-  } = useMessageAttachments(isDiscord);
+  } = useMessageAttachments(isDiscord, isTelegram);
   const {
     availableChannels,
     handleKeyDown,
@@ -73,7 +74,10 @@ export const MessageInput = ({
     setSearchValue,
     showSuggestions,
     suggestions,
-  } = useResponseTemplateSuggestions({ editor, enabled: !isInternalNote });
+  } = useResponseTemplateSuggestions({
+    editor,
+    enabled: !isInternalNote && !isTelegram,
+  });
   const {
     mentionItems: discordMentionItems,
     mentionNote: discordMentionNote,
@@ -228,6 +232,7 @@ export const MessageInput = ({
         conversationId={conversationId}
         integrationChannelId={integration?.channelId}
         isDiscord={isDiscord}
+        isTelegram={isTelegram}
         isMessenger={isMessenger}
         isInternalNote={isInternalNote}
         isUploading={isUploading || isGalleryUploading}

@@ -9,7 +9,14 @@ interface PricingEditSidebarProps {
   pricingDetail?: IPricingPlanDetail;
 }
 
-const RULE_TABS = new Set(['rules', 'common', 'quantity', 'price', 'expiry']);
+const RULE_TABS = new Set([
+  'rules',
+  'common',
+  'quantity',
+  'price',
+  'expiry',
+  'conditions',
+]);
 
 export const PricingEditSidebar = ({
   activeTab,

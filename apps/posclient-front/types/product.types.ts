@@ -14,6 +14,7 @@ export interface IProduct extends IProductBase {
   categoryId?: string | null
   type?: string | null
   description?: string | null
+  barcodeDescription?: string | null
   attachment?: { url?: string } | null
   remainder?: number
   remainders?: { location: string; remainder: number }[]

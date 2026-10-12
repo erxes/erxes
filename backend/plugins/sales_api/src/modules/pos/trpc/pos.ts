@@ -10,6 +10,7 @@ import {
 } from '~/modules/pos/utils';
 import { syncPosToClient } from '~/modules/pos/graphql/resolvers/mutations/utils';
 import { IPos } from '~/modules/pos/@types/pos';
+import { cancelSyncedPosOrder } from '~/modules/pos/utils/cancelOrder';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -140,6 +141,17 @@ export const posTrpcRouter = t.router({
           description: order.description,
         };
       }),
+    cancelOrder: t.procedure
+      .input(
+        z.object({
+          _id: z.string().min(1),
+          posToken: z.string().min(1),
+          userId: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) =>
+        cancelSyncedPosOrder(ctx.models, ctx.subdomain, input),
+      ),
     createOrUpdateOrders: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {

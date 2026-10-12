@@ -3,7 +3,11 @@ import { toast } from "@/components/ui/use-toast"
 
 import usePaymentType from "./usePaymentType"
 
-export const objToString = (details: any) => {
+type TDBTransactionResponse = {
+  ecrResult?: { RespCode?: string }
+}
+
+export const objToString = (details: Record<string, string | number | boolean>) => {
   const formBody = []
   for (const property in details) {
     const encodedKey = encodeURIComponent(property)
@@ -27,7 +31,9 @@ const useTDB = () => {
 }
 
 export const useTDBTransaction = (options: {
-  onCompleted: (data?: any) => void
+  onCompleted: (
+    data?: TDBTransactionResponse["ecrResult"]
+  ) => Promise<void> | void
   onError: () => void
 }) => {
   const { onCompleted, onError } = options
@@ -36,7 +42,7 @@ export const useTDBTransaction = (options: {
 
   const TDBTransaction = async (variables: { _id: string; amount: number }) => {
     const { _id, amount } = variables
-    fetch(endPoint(port), {
+    return fetch(endPoint(port), {
       method,
       headers,
       body: objToString({
@@ -46,14 +52,15 @@ export const useTDBTransaction = (options: {
       }),
     })
       .then((res) => res.json())
-      .then((res) => {
+      .then(async (res: TDBTransactionResponse) => {
         const { ecrResult } = res || {}
-        const { RespCode } = res.ecrResult || {}
+        const { RespCode } = ecrResult || {}
         if (RespCode === "00") {
+          await onCompleted(ecrResult)
           toast({
             description: "Transaction was successful",
           })
-          return !!onCompleted && onCompleted(ecrResult)
+          return
         }
         toast({
           description: `${JSON.stringify(ecrResult)}`,

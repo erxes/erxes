@@ -1,6 +1,7 @@
-import { Select } from 'erxes-ui';
+import { Badge, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { activeTiers } from '../../settings/account-type/types';
+import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissions';
 import { useLoyaltyAccountSetTier } from '../hooks/useLoyaltyAccountSetTier';
 import { ILoyaltyAccountBalance } from '../types';
 
@@ -18,10 +19,20 @@ export const LoyaltyAccountTierSelect = ({
 }) => {
   const { t } = useTranslation('loyalty');
   const { setTier, loading } = useLoyaltyAccountSetTier();
+  const { canSetTier } = useLoyaltyAccountPermissions();
   const tiers = activeTiers(accountType?.tiers);
 
   if (!tiers.length && !tier) {
     return null;
+  }
+
+  // Seen by everyone, changed only by whoever may set it.
+  if (!canSetTier) {
+    return tier ? (
+      <Badge variant="secondary" className="text-xs">
+        {tier.name}
+      </Badge>
+    ) : null;
   }
 
   return (

@@ -8,6 +8,23 @@ import usePaymentType from "./usePaymentType"
 
 const PATH = "http://localhost:27028"
 
+type KhanStatusResponse = {
+  status_code?: string
+}
+
+type KhanTransactionResponse = {
+  response_code?: string
+  response_msg?: string
+  Exception?: {
+    ErrorMessage?: string
+  }
+}
+
+type KhanTransactionResult = {
+  status?: boolean
+  response?: KhanTransactionResponse
+}
+
 const useKhanCard = () => {
   const [loading, setLoading] = useState(true)
   const [isAlive, setIsAlive] = useState(false)
@@ -21,7 +38,7 @@ const useKhanCard = () => {
 
       fetch(`${PATH}/ajax/get-status-info`)
         .then((res) => res.json())
-        .then((res: any) => {
+        .then((res: KhanStatusResponse) => {
           if (res && res.status_code === "ok") {
             setLoading(false)
             setIsAlive(true)
@@ -52,13 +69,14 @@ export const useSendTransaction = ({
   onCompleted,
   onError,
 }: {
-  onCompleted: (data?: any) => void
+  onCompleted: (data?: KhanTransactionResponse) => Promise<void> | void
   onError: () => void
 }) => {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   const error = (message: string) => {
     onError && onError()
+    setLoading(false)
     errorHandle(message)
   }
 
@@ -70,8 +88,10 @@ export const useSendTransaction = ({
     number: string
     amount: number
     billType: IBillType
-  }) =>
-    fetch(PATH, {
+  }) => {
+    setLoading(true)
+
+    return fetch(PATH, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -87,17 +107,17 @@ export const useSendTransaction = ({
       }),
     })
       .then((res) => res.json())
-      .then((r) => {
+      .then(async (r: KhanTransactionResult) => {
         const { response, status } = r || {}
 
         if (status && response) {
           const { response_code, response_msg } = response
           if (response_code === "000") {
+            await onCompleted(response)
             toast({ description: "Transaction was successful" })
-            onCompleted && onCompleted(response)
             return setLoading(false)
           }
-          return error(response_msg)
+          return error(response_msg || "Transaction failed")
         }
 
         if (!status && response) {
@@ -106,6 +126,7 @@ export const useSendTransaction = ({
         }
       })
       .catch((e) => error(e.message || e.toString()))
+  }
 
   return { loading, sendTransaction }
 }

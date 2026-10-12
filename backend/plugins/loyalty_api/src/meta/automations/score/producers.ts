@@ -13,12 +13,8 @@ import {
   ILoyaltyPurchaseItem,
 } from '@/score/@types/purchase';
 import { IModels } from '~/connectionResolvers';
-import { setAccountTier } from '@/score/services/accountTier';
+import { applyOwnerTier, tierForPurchase } from '@/score/services/purchaseTier';
 import { matchesTierChanged } from '@/score/services/tierChanged';
-import {
-  ACCOUNT_OWNER_TYPES,
-  resolveBalanceOwner,
-} from '@/score/services/scoreLedger';
 import {
   AdjustScoreActionConfig,
   LoyaltyAutomationAction,
@@ -146,18 +142,20 @@ const earnScore = async ({
   return { result };
 };
 
-// Tiers are decided elsewhere (segments, webhooks, thresholds); this action
-// only writes the decision onto each owner's account.
+// Tiers are decided elsewhere (segments, webhooks, thresholds) or by the
+// purchase's amount against the action's bands; this only writes the result.
 const setTier = async ({
   models,
   subdomain,
   action,
   execution,
+  inputs,
 }: {
   models: IModels;
   subdomain: string;
   action: LoyaltyAutomationAction;
   execution: LoyaltyAutomationExecution;
+  inputs?: Record<string, unknown>;
 }) => {
   const config = action.config as SetTierActionConfig;
 
@@ -173,14 +171,13 @@ const setTier = async ({
     config.accountTypeId,
   );
   const ownerType = getOwnerTypeFromAttribution(config.attribution);
+  const byAmount = !!config.bands?.length;
+  const outcome = byAmount
+    ? tierForPurchase(accountType.tiers, config, inputs?.totalAmount)
+    : { tier: config.tier || '' };
 
-  if (
-    ACCOUNT_OWNER_TYPES[accountType.ownerType] !==
-    ACCOUNT_OWNER_TYPES[ownerType]
-  ) {
-    throw new Error(
-      `${accountType.name} belongs to ${accountType.ownerType} owners, not ${ownerType}`,
-    );
+  if ('skip' in outcome) {
+    return buildSkippedAction(outcome.skip, outcome);
   }
 
   const ownerIds = await resolveOwnerIds({
@@ -194,27 +191,21 @@ const setTier = async ({
   }
 
   return Promise.all(
-    ownerIds.map(async (ownerId) => {
-      const { accountOwnerType, recordId } = await resolveBalanceOwner(
-        subdomain,
-        ownerType,
-        ownerId,
-      );
-      const account = await models.LoyaltyAccounts.ensureOwnerAccount({
-        ownerType: accountOwnerType,
-        ownerId: recordId,
-      });
-      const { from, to, changed } = await setAccountTier({
+    ownerIds.map(async (ownerId) => ({
+      ownerId,
+      // A smaller purchase later must not undo a tier an earlier one earned.
+      ...(await applyOwnerTier({
         models,
         subdomain,
-        accountId: account._id,
-        accountTypeId: accountType._id,
-        tier: config.tier || null,
-      });
-
-      return { ownerId, from, to, changed };
-    }),
-  );
+        accountType,
+        ownerType,
+        ownerId,
+        tier: outcome.tier,
+        keepHigher: byAmount ? config.onlyUpgrade : config.keepHigherTier,
+        via: { createdVia: execution.createdVia },
+      })),
+    })),
+  ).then((result) => ({ result }));
 };
 
 export const scoreAutomationProducers = {
@@ -244,9 +235,7 @@ export const scoreAutomationProducers = {
     }
 
     if (collectionType === 'tier') {
-      return {
-        result: await setTier({ models, subdomain, action, execution }),
-      };
+      return setTier({ models, subdomain, action, execution, inputs });
     }
 
     return earnScore({ models, subdomain, action, execution, inputs });

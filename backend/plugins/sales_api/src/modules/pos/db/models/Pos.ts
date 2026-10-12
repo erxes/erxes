@@ -4,6 +4,8 @@ import { IModels } from '~/connectionResolvers';
 import { IPosSlotDocument, IProductGroupDocument } from '../../@types/orders';
 import { IPos, IPosDocument } from '../../@types/pos';
 import { posSchema, posSlotSchema, productGroupSchema } from '../definitions/pos';
+import { validateCustomerCreateConfig } from '../../customerCreateConfig';
+import { validateEarnTier } from '../../orderPoints';
 
 export interface IPosModel extends Model<IPosDocument> {
   getPosList(query: any): Promise<IPosDocument>;
@@ -44,6 +46,9 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
     }
 
     public static async posAdd(user, doc: IPos) {
+      validateCustomerCreateConfig(doc.customerCreateConfig);
+      validateEarnTier(doc.earnTier);
+
       try {
         const pos = await models.Pos.create({
           ...doc,
@@ -65,6 +70,9 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
     }
 
     public static async posEdit(_id: string, doc: IPos) {
+      validateCustomerCreateConfig(doc.customerCreateConfig);
+      validateEarnTier(doc.earnTier);
+
       const oldPos = await models.Pos.getPos({ _id });
 
       await models.Pos.updateOne(

@@ -65,6 +65,11 @@ import {
 } from '@/pricing/db/models/PricingPlan';
 import { IScoreCampaignDocument } from '@/score/@types/scoreCampaign';
 import { IScoreLogDocument } from '@/score/@types/scoreLog';
+import { ILoyaltyTierLogDocument } from '@/score/@types/tierLog';
+import {
+  ILoyaltyTierLogModel,
+  loadLoyaltyTierLogClass,
+} from '@/score/db/models/TierLog';
 import {
   IScoreCampaignModel,
   loadScoreCampaignClass,
@@ -107,6 +112,7 @@ export interface IModels {
   LoyaltyLots: ILoyaltyLotModel;
   LoyaltyPeriodRuns: ILoyaltyPeriodRunModel;
   ScoreLogs: IScoreLogModel;
+  LoyaltyTierLogs: ILoyaltyTierLogModel;
   Spins: ISpinModel;
   SpinCampaigns: ISpinCampaignModel;
   Vouchers: IVoucherModel;
@@ -241,6 +247,17 @@ export const loadClasses = (
       models,
       subdomain,
       loyaltyEventHandlers('score', 'score_logs'),
+    ),
+  );
+
+  models.LoyaltyTierLogs = db.model<
+    ILoyaltyTierLogDocument,
+    ILoyaltyTierLogModel
+  >(
+    'loyalty_tier_logs',
+    loadLoyaltyTierLogClass(
+      models,
+      loyaltyEventHandlers('score', 'loyalty_tier_logs'),
     ),
   );
 
