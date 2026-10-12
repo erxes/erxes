@@ -6,6 +6,8 @@ import {
   ILoyaltyAccountTypeResetState,
   ILoyaltyTier,
   ILoyaltyTierInput,
+  TLoyaltyEarnEligibility,
+  TLoyaltyOwnerType,
 } from '@/score/@types/accountType';
 import { IScoreCampaign } from '@/score/@types/scoreCampaign';
 import { LOYALTY_ACCOUNT_TYPE_STATUSES } from '@/score/constants';
@@ -22,6 +24,7 @@ import { Model } from 'mongoose';
 import { customAlphabet } from 'nanoid';
 import { getLotExpiry } from '@/score/services/lotPolicy';
 import { syncPeriodSchedule } from '@/score/services/periodSchedule';
+import { earnEligibilityIssue } from '@/score/services/earnEligibility';
 import { IModels } from '~/connectionResolvers';
 
 const generateTierKey = customAlphabet(
@@ -39,7 +42,24 @@ type TAccountTypeUpdate = Pick<
   | 'pendingDays'
   | 'currencyRatio'
   | 'pointValue'
+  | 'earnEligibility'
 >;
+
+// "Everyone" keeps no segment behind it.
+const normalizeEligibility = (
+  eligibility: TLoyaltyEarnEligibility | undefined,
+  ownerType: TLoyaltyOwnerType,
+) => {
+  const issue = earnEligibilityIssue(eligibility, ownerType);
+
+  if (issue) {
+    throw new Error(issue);
+  }
+
+  return eligibility?.who === 'segment'
+    ? { who: eligibility.who, segmentId: eligibility.segmentId }
+    : { who: eligibility?.who || 'all' };
+};
 
 // Keys stay with their tier across renames and reorders: records hold keys.
 // Tiers left out are kept as deprecated; listing one again by name revives it.
@@ -244,6 +264,10 @@ export const loadLoyaltyAccountTypeClass = (
       const accountType = await models.LoyaltyAccountTypes.create({
         ...doc,
         name,
+        earnEligibility: normalizeEligibility(
+          doc.earnEligibility,
+          doc.ownerType,
+        ),
         tiers: normalizeTiers(doc.tiers || []),
         reset,
         expiry: normalizeExpiry(doc.expiry, undefined, reset),
@@ -299,6 +323,7 @@ export const loadLoyaltyAccountTypeClass = (
         pendingDays,
         currencyRatio,
         pointValue,
+        earnEligibility,
       }: TAccountTypeUpdate,
     ) {
       const prev = await models.LoyaltyAccountTypes.getAccountType(_id);
@@ -339,6 +364,14 @@ export const loadLoyaltyAccountTypeClass = (
               'Money a point pays',
             ),
             ...(frozenBlocks ? { frozenBlocks } : {}),
+            ...(earnEligibility
+              ? {
+                  earnEligibility: normalizeEligibility(
+                    earnEligibility,
+                    prev.ownerType,
+                  ),
+                }
+              : {}),
           },
         },
         { new: true, runValidators: true },

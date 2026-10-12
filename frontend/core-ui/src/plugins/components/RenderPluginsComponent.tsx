@@ -1,96 +1,108 @@
-import { Spinner } from 'erxes-ui';
-import { Suspense, useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react';
+
 import {
-  getLoadedRemoteComponent,
-  getRemoteComponentKey,
-  loadRemoteComponent,
-} from '../utils/loadRemoteComponent';
-import { RemoteComponentProps } from '../utils/resolveRemoteComponent';
+  RemoteComponent,
+  RemoteComponentProps,
+  RemoteModule,
+  resolveRemoteComponent,
+} from '../utils/resolveRemoteComponent';
+import { Suspense, useEffect, useState } from 'react';
+
+import { ErrorBoundary } from 'react-error-boundary';
+import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
-
-const SPINNER_DELAY = 200;
-
-const PluginLoading = () => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setVisible(true), SPINNER_DELAY);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-  return (
-    <div className="flex h-full items-center justify-center">
-      {visible && <Spinner />}
-    </div>
-  );
-};
+import { Spinner } from 'erxes-ui';
+import { loadRemote } from '@module-federation/enhanced/runtime';
 
 export function RenderPluginsComponent({
   pluginName,
   remoteModuleName,
   props,
+  withMascot,
 }: {
   pluginName: string;
   remoteModuleName: string;
   props?: RemoteComponentProps;
+  withMascot?: boolean;
 }) {
-  const key = getRemoteComponentKey(pluginName, remoteModuleName);
-  const [result, setResult] = useState<{ key: string; error?: string }>();
-  const [attempt, setAttempt] = useState(0);
-  const Plugin = getLoadedRemoteComponent(key);
-  const error = result?.key === key ? result.error : undefined;
+  const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState<{ message: string } | null>(null);
 
   useEffect(() => {
-    if (getLoadedRemoteComponent(key)) {
-      return;
-    }
+    const loadPlugin = async () => {
+      try {
+        setIsLoading(true);
+        setHasError(null);
 
-    let cancelled = false;
+        const remoteModule = await loadRemote<RemoteModule>(
+          `${pluginName}/${remoteModuleName}`,
+          { from: 'runtime' },
+        );
+        const remoteComponent = resolveRemoteComponent(
+          remoteModule,
+          remoteModuleName,
+        );
 
-    loadRemoteComponent(pluginName, remoteModuleName)
-      .then(() => {
-        if (!cancelled) {
-          setResult({ key });
+        if (!remoteComponent) {
+          throw new Error('Plugin module is empty or invalid');
         }
-      })
-      .catch((loadError) => {
-        if (!cancelled) {
-          setResult({
-            key,
-            error:
-              loadError instanceof Error
-                ? loadError.message
-                : 'Failed to load plugin',
-          });
-        }
-      });
 
-    return () => {
-      cancelled = true;
+        setPlugin(() => remoteComponent);
+      } catch (error) {
+        setHasError({
+          message:
+            error instanceof Error ? error.message : 'Failed to load plugin',
+        });
+        setPlugin(null);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [attempt, key, pluginName, remoteModuleName]);
 
-  if (error) {
+    loadPlugin();
+  }, [pluginName, remoteModuleName]);
+
+  if (hasError) {
     return (
       <RenderPluginsComponentErrorState
         pluginName={pluginName}
         remoteModuleName={remoteModuleName}
-        onRetry={() => {
-          setResult(undefined);
-          setAttempt((current) => current + 1);
-        }}
+        setPlugin={setPlugin}
+        setHasError={setHasError}
+        setIsLoading={setIsLoading}
       />
     );
   }
 
-  if (!Plugin) {
-    return <PluginLoading />;
+  const loader = (
+    <div className="flex justify-center items-center h-full">
+      <Spinner withMascot={withMascot} />
+    </div>
+  );
+
+  if (isLoading || !Plugin) {
+    return loader;
   }
 
   return (
-    <Suspense fallback={<PluginLoading />}>
-      <Plugin key={key} {...(props || {})} />
+    <Suspense fallback={loader}>
+      {/* One plugin breaking while drawing must not take its host down. */}
+      <ErrorBoundary
+        FallbackComponent={RenderPluginsComponentCrashState}
+        resetKeys={[pluginName, remoteModuleName]}
+        onError={(error, info) =>
+          Sentry.captureException(error, {
+            extra: {
+              pluginName,
+              remoteModuleName,
+              componentStack: info.componentStack,
+            },
+          })
+        }
+      >
+        <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+      </ErrorBoundary>
     </Suspense>
   );
 }

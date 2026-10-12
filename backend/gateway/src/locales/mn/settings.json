@@ -308,6 +308,8 @@
     "archive-option-check": "Энэ property-г ашигладаг automation, broadcast, гадны form-уудаа мөн шалгана уу.",
     "option-archived-in-use": "Archive хийсэн ч {{count}} record хадгалсаар байна. Ашигладаг тохиргоонуудаа шалгаад, солих эсвэл ашиглалтгүй болсон үед нь устгана уу."
   },
+  "owner-permissions-title": "Энэ workspace-ийн Дон",
+  "owner-permissions-hint": "Дүрмийг эзэмшигч өөрөө тогтоодог тул энд тохируулах зүйл алга. Эрх нь гэр бүлийн бусад гишүүдэд.",
   "app-tokens": {
     "_": "Апп токен",
     "app-tokens": "Апп токенууд",

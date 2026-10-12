@@ -3,6 +3,7 @@ import { cartAtom } from "@/store/cart.store"
 import { AnimatePresence } from "framer-motion"
 import { useAtomValue } from "jotai"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { PreviewBonusItems } from "@/modules/customer/components/PreviewBonusItems"
 
 import CartItem from "../cartItem/cartItem.main"
 
@@ -29,6 +30,7 @@ const Cart = () => {
         />
       ))}
       </AnimatePresence>
+      <PreviewBonusItems />
     </ScrollArea>
   )
 }

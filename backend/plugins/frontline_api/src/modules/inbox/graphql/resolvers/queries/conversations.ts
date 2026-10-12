@@ -1,10 +1,11 @@
-import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import { inboxFieldQueries } from '@/inbox/graphql/resolvers/queries/inboxFields';
+import type { FilterQuery } from 'mongoose';
 import {
   IConversationDocument,
   IConversationListParams,
   IConversationRes,
 } from '@/inbox/@types/conversations';
-import { countByConversations } from '@/inbox/conversationUtils';
+import { countByConversations } from '@/inbox/utils/conversationCounts';
 import { getConversationConvertedItems } from '@/inbox/services/conversationConvert';
 import {
   CONVERSATION_AUTOMATION_STATUS,
@@ -13,8 +14,12 @@ import {
 import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
+import { conversationMessageQueries } from '@/inbox/graphql/resolvers/queries/conversationMessages';
 
-const count = async (models: IModels, query: any): Promise<number> => {
+const count = async (
+  models: IModels,
+  query: FilterQuery<IConversationDocument>,
+): Promise<number> => {
   const result = await models.Conversations.countDocuments(query);
   return Number(result);
 };
@@ -27,6 +32,8 @@ const toQueryUser = (user: IContext['user']) => ({
 });
 
 export const conversationQueries = {
+  ...conversationMessageQueries,
+  ...inboxFieldQueries,
   /**
    * Conversations list
    */
@@ -80,64 +87,6 @@ export const conversationQueries = {
       });
 
     return { list, totalCount, pageInfo };
-  },
-
-  async conversationMessage(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
-    return models.ConversationMessages.findOne({ _id });
-  },
-  /**
-   * Get conversation messages
-   */
-  async conversationMessages(
-    _root,
-    {
-      conversationId,
-      skip,
-      limit,
-      getFirst,
-    }: {
-      conversationId: string;
-      skip: number;
-      limit: number;
-      getFirst: boolean;
-    },
-    { models }: IContext,
-  ) {
-    const query = { conversationId };
-
-    let messages: IMessageDocument[] = [];
-
-    if (limit) {
-      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
-
-      messages = await models.ConversationMessages.find(query)
-        .sort(sort)
-        .skip(skip || 0)
-        .limit(limit);
-
-      return getFirst ? messages : messages.reverse();
-    }
-
-    messages = await models.ConversationMessages.find(query)
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    return messages.reverse();
-  },
-
-  /**
-   *  Get all conversation messages count. We will use it in pager
-   */
-  async conversationMessagesTotalCount(
-    _root,
-    { conversationId }: { conversationId: string },
-    { models }: IContext,
-  ) {
-    return models.ConversationMessages.countDocuments({ conversationId });
   },
 
   /**
@@ -306,20 +255,6 @@ export const conversationQueries = {
       readUserIds: { $ne: user._id },
       $and: [{ $or: qb.userRelevanceQuery() }],
     });
-
-    return response;
-  },
-
-  async inboxFields() {
-    const response: {
-      customer?: any[];
-      conversation?: any[];
-      device?: any[];
-    } = {
-      customer: [],
-      conversation: [],
-      device: [],
-    };
 
     return response;
   },

@@ -19,6 +19,31 @@ export const automationsRouter = t.router({
         }).lean();
       }),
 
+    // What a source can already say about its own events: which running
+    // automations it starts, and what they then do.
+    findActive: t.procedure
+      .input(
+        z.object({
+          triggerTypes: z.array(z.string()).min(1),
+          actionTypes: z.array(z.string()).optional(),
+        }),
+      )
+      .query(async ({ input, ctx }) => {
+        const { triggerTypes, actionTypes } = input;
+
+        return await ctx.models.Automations.find(
+          {
+            status: 'active',
+            ownedBy: { $exists: false },
+            'triggers.type': { $in: triggerTypes },
+            ...(actionTypes?.length
+              ? { 'actions.type': { $in: actionTypes } }
+              : {}),
+          },
+          { name: 1, triggers: 1, actions: 1 },
+        ).lean();
+      }),
+
     count: t.procedure
       .input(z.object({ query: z.any() }))
       .query(async ({ input, ctx }) => {

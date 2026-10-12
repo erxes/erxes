@@ -313,6 +313,8 @@
     "option-archived-in-use": "Archived, but {{count}} records still hold it. Review the settings that use it, then replace it or delete it once unused.",
     "option-archived-in-use_one": "Archived, but {{count}} record still holds it. Review the settings that use it, then replace it or delete it once unused."
   },
+  "owner-permissions-title": "The Don of this workspace",
+  "owner-permissions-hint": "The owner makes the rules here, so there is nothing to set. Permissions are for the rest of the family.",
   "app-tokens": {
     "_": "App Tokens",
     "app-tokens": "App Tokens",
