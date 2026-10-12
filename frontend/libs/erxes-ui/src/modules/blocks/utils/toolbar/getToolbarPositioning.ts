@@ -9,36 +9,29 @@ export const getToolbarPositioning = (
       name: 'editorBoundary',
       fn: ({ elements, rects, x, y }) => {
         const editor = getEditorElement();
-        const selection = editor?.ownerDocument.getSelection();
-        if (!editor || !selection?.rangeCount) return { x, y };
-
-        const range = selection.getRangeAt(0);
-        if (!editor.contains(range.commonAncestorContainer)) return { x, y };
+        if (!editor) return { x, y };
 
         const { top, bottom, left, right } = getEditorVisibleBounds(editor);
-
-        const selected = range.getBoundingClientRect();
+        const anchor = elements.reference.getBoundingClientRect();
         const maxWidth = `${Math.floor(Math.max(0, right - left))}px`;
         if (elements.floating.style.maxWidth !== maxWidth) {
           elements.floating.style.maxWidth = maxWidth;
           return { reset: { rects: true } };
         }
-        const reference = elements.reference.getBoundingClientRect();
-        const originX = reference.left - rects.reference.x;
-        const originY = reference.top - rects.reference.y;
-        const above = selected.top - rects.floating.height - 10;
-        const alignedX = x + originX + selected.left - reference.left;
+        const originX = anchor.left - rects.reference.x;
+        const originY = anchor.top - rects.reference.y;
+        const above = anchor.top - rects.floating.height - 10;
         elements.floating.style.visibility =
-          selected.bottom <= top || selected.top >= bottom ? 'hidden' : '';
+          anchor.bottom <= top || anchor.top >= bottom ? 'hidden' : '';
         return {
           x:
-            Math.max(left, Math.min(alignedX, right - rects.floating.width)) -
+            Math.max(left, Math.min(x + originX, right - rects.floating.width)) -
             originX,
           y:
             Math.max(
               top,
               Math.min(
-                above >= top ? above : selected.bottom + 10,
+                above >= top ? above : anchor.bottom + 10,
                 bottom - rects.floating.height,
               ),
             ) - originY,
@@ -49,19 +42,9 @@ export const getToolbarPositioning = (
   whileElementsMounted: (_reference, _floating, update) => {
     const editor = getEditorElement();
     if (!editor) return () => undefined;
-    const observer = new ResizeObserver(update);
-    for (
-      let element: HTMLElement | null = editor;
-      element;
-      element = element.parentElement
-    ) {
-      observer.observe(element);
-    }
     editor.ownerDocument.addEventListener('scroll', update, true);
     window.addEventListener('resize', update);
-    update();
     return () => {
-      observer.disconnect();
       editor.ownerDocument.removeEventListener('scroll', update, true);
       window.removeEventListener('resize', update);
     };
