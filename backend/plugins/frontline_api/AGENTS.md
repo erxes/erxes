@@ -760,6 +760,13 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `instagramGetBotPost` return `InstagramPosts`. Bot add, update, remove and
   repair results, `instagramGetIntegrations` and
   `instagramGetIntegrationDetail` stay `JSON`.
+- GraphQL `DiscordParticipant` (from `discordConversationParticipants` and
+  `discordChannelMembers.members`) has non-null `userId` and `name`: the
+  participants resolver drops customers without a Discord user id and falls
+  back to `Discord user` for the name, and channel members come from the
+  Discord user id and `nick`, `global_name` or `username`. Keep both
+  guarantees in any new resolver that returns this type. `customerId` and
+  `avatar` stay nullable.
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,

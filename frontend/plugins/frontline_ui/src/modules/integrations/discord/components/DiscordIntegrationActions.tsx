@@ -1,4 +1,4 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CellContext } from '@tanstack/react-table';
 import { IconEdit, IconTool } from '@tabler/icons-react';
@@ -17,17 +17,19 @@ import { useParams } from 'react-router-dom';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
 import { IIntegration } from '@/integrations/types/Integration';
+import { IntegrationType } from '@/types/Integration';
+import { gql } from '~/gql';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { DISCORD_EDIT_SCHEMA } from '../constants/discordSchema';
 
 // Both edit + repair reuse the generic inbox integration mutations; the only
 // Discord-specific piece is the repair backend handler (re-validate + reconnect).
-const REPAIR_INTEGRATION = gql`
+const REPAIR_INTEGRATION = gql(`
   mutation IntegrationsRepair($_id: String!, $kind: String!) {
     integrationsRepair(_id: $_id, kind: $kind)
   }
-`;
+`);
 
 /** Edit form for a Discord integration's name and brand. */
 const DiscordIntegrationEditForm = ({
@@ -162,6 +164,7 @@ export const DiscordIntegrationRepair = ({
   cell: CellContext<IIntegration, unknown>;
 }) => {
   const { integrationType } = useParams();
+  const kind = integrationType || IntegrationType.DISCORD_MESSENGER;
   const [repairIntegration, { loading }] = useMutation(REPAIR_INTEGRATION, {
     refetchQueries: ['Integrations'],
   });
@@ -171,7 +174,7 @@ export const DiscordIntegrationRepair = ({
     if (loading) return;
 
     repairIntegration({
-      variables: { _id: cell.row.original._id, kind: integrationType },
+      variables: { _id: cell.row.original._id, kind },
       onCompleted: () => toast({ title: 'Repaired successfully' }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),

@@ -2172,9 +2172,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - A module typed from the schema (so far `report`, `integrations/call`,
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
-  core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`), the
-  Facebook and Instagram settings (config, repair, page post), and the
-  Facebook, Instagram and knowledge base automation widgets) writes every
+  core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
+  `integrations/discord`, the Facebook and Instagram settings (config,
+  repair, page post), and the Facebook, Instagram and knowledge base
+  automation widgets) writes every
   document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
@@ -2188,6 +2189,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `IIntegrationTypeByChannel` are the used-types entries. `conversation.integration`
   uses the inbox-owned, handwritten `IConversationIntegration` in
   `inbox/types/Conversation.ts` until the inbox documents are typed.
+- Discord hooks in `useDiscordSetup` infer from the `gql()` documents and drop
+  null list items with `compactList`. `DiscordConversationChannel` is the
+  `discordConversationChannels` row; consumers default its nullable
+  `channelName` and a participant's `avatar` where they render. A participant's
+  `userId` and `name` are non-null in the schema. `DiscordChannelsNav` keeps
+  the type argument on the inbox `CONVERSATION_COUNTS` query until the inbox
+  documents are typed. Discord repair sends `discord-messenger` when the route
+  has no integration type.
 - Integration hooks drop null list items with `compactList` and adapt
   `PageInfo` through `@/shared/utils/cursorList`. Query variables follow the
   `id ? { ... } : undefined` plus `skip` pattern; `channelId` is required by

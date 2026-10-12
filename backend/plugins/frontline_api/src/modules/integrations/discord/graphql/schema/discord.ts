@@ -69,8 +69,8 @@ export const types = `
   # an agent reply. customerId is the inbox customer id; userId is the Discord id.
   type DiscordParticipant {
     customerId: String
-    userId: String
-    name: String
+    userId: String!
+    name: String!
     avatar: String
   }
 

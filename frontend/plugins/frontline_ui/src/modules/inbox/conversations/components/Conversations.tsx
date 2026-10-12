@@ -83,11 +83,11 @@ export const Conversations = () => {
       value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
     >
       <ConversationItem
-        channelInfo={
-          channelMap.get(conversation._id) ?? {
-            channelName: telegramChatLabel(telegramChats.get(conversation._id)),
-          }
-        }
+        channelInfo={{
+          channelName:
+            channelMap.get(conversation._id)?.channelName ??
+            telegramChatLabel(telegramChats.get(conversation._id)),
+        }}
         channelInfoPending={
           (channelInfoLoading &&
             isDiscordConversation(conversation) &&
