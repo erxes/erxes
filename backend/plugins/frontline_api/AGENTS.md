@@ -666,6 +666,11 @@ customerId, visitorId)` returns the voter's own selections for the
 - GraphQL (federated subgraph): `getChannel`, `getChannels`, `getMyChannels`,
   `getChannelMembers`; `channelAdd`, `channelUpdate`, `channelRemove`,
   `channelAddMembers`, `channelRemoveMember(s)`, `channelUpdateMember`.
+  `Channel`'s field-resolved counts (`memberCount`, `pipelineCount`,
+  `responseTemplateCount`, `formCount`, `integrationCount`,
+  `conversationCount`, `unreadConversationCount`), `hasTickets` and
+  `integrationKinds` are non-null: every one of those resolvers returns a
+  number, a boolean or an array.
 - GraphQL: `getMyChannels(name, sortField, sortDirection)` — the caller's
   memberships, sorted in the database. `sortField` accepts `name` or `createdAt`
   and falls back to `createdAt` for anything else; `sortDirection` is `1` or

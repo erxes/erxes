@@ -1,5 +1,6 @@
 import { useChannelMemberUpdate } from '@/channels/hooks/useChannelMemberUpdate';
 import { IChannelMember } from '@/channels/types';
+import { toMemberUser } from '@/channels/utils/channelMembers';
 import { Cell, ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell, Select } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
@@ -62,11 +63,11 @@ const columns: () => ColumnDef<
       return <RecordTable.InlineHead label={t('member-label', 'Member')} />;
     },
     cell: ({ row }) => {
+      const user = toMemberUser(row.original.member);
+
       return (
         <RecordTableInlineCell>
-          <MembersInline.Provider
-            members={row.original.member ? [row.original.member] : []}
-          >
+          <MembersInline.Provider members={user ? [user] : []}>
             <span className="w-full flex gap-2 items-center">
               <span className="[1lh] flex items-center">
                 <MembersInline.Avatar />

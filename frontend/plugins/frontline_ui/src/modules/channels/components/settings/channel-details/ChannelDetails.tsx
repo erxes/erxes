@@ -12,7 +12,10 @@ import { useTranslation } from 'react-i18next';
 export const ChannelDetails = () => {
   const { t } = useTranslation('frontline');
   const { id } = useParams();
-  const { channel, loading } = useGetChannel({ variables: { id } });
+  const { channel, loading } = useGetChannel({
+    variables: id ? { id } : undefined,
+    skip: !id,
+  });
 
   if (loading) return null;
   if (!channel) return <div>{t('not-found', 'Not found')}</div>;

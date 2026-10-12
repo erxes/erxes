@@ -114,7 +114,10 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex gap-2 items-center">
         {selectedChannels.map((channel) => (
           <Badge key={channel._id} variant="secondary">
-            <IconComponent name={channel.icon} className="size-4 shrink-0" />
+            <IconComponent
+              name={channel.icon ?? undefined}
+              className="size-4 shrink-0"
+            />
             <TextOverflowTooltip value={channel.name} className="max-w-32" />
           </Badge>
         ))}
@@ -125,7 +128,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <div className="flex gap-2 items-center">
       <IconComponent
-        name={selectedChannels[0]?.icon}
+        name={selectedChannels[0]?.icon ?? undefined}
         className="size-4 shrink-0"
       />
       <TextOverflowTooltip
@@ -148,7 +151,7 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
       }}
     >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
-        <IconComponent name={channel.icon} className="size-4" />
+        <IconComponent name={channel.icon ?? undefined} className="size-4" />
         <TextOverflowTooltip value={channel.name} />
       </div>
       <Combobox.Check checked={value.includes(channel._id)} />
@@ -184,7 +187,7 @@ const SelectChannelCreateForm = ({
         toast({ title: t('success', 'Success!'), variant: 'success' });
         await refetch();
         onBack();
-        onValueChange(channelAdd._id);
+        if (channelAdd) onValueChange(channelAdd._id);
       },
       onError: (error) =>
         toast({

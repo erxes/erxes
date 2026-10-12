@@ -12,15 +12,15 @@ export const types = `
         scope: String
         createdAt: Date
         updatedAt: Date
-        memberCount: Int
-        pipelineCount: Int
-        hasTickets: Boolean
-        responseTemplateCount: Int
-        formCount: Int
-        integrationCount: Int
-        integrationKinds: [String]
-        conversationCount: Int
-        unreadConversationCount: Int
+        memberCount: Int!
+        pipelineCount: Int!
+        hasTickets: Boolean!
+        responseTemplateCount: Int!
+        formCount: Int!
+        integrationCount: Int!
+        integrationKinds: [String!]!
+        conversationCount: Int!
+        unreadConversationCount: Int!
     }
 
     enum ChannelResourceType {

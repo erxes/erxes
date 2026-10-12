@@ -122,7 +122,9 @@ export const ChannelsInlineTitle = () => {
   if (channels.length === 1) {
     return (
       <div className="flex items-center gap-0.5">
-        {showIcon && <IconComponent name={channels?.[0]?.icon} size={10} />}
+        {showIcon && (
+          <IconComponent name={channels?.[0]?.icon ?? undefined} size={10} />
+        )}
         {channels?.[0]?.name}
       </div>
     );

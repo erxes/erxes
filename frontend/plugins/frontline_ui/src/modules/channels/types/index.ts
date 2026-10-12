@@ -1,6 +1,12 @@
+import type {
+  FrontlineChannelListQuery,
+  GetChannelMembersQuery,
+  GetChannelQuery,
+  GetMyChannelsQuery,
+  GetPersonalChannelQuery,
+} from '~/gql/graphql';
 import { z } from 'zod';
 import { CHANNEL_SCHEMA } from '../schema/channel';
-import { IUser } from 'ui-modules';
 import { CHANNEL_MEMBER_FORM_SCHEMA } from '@/channels/schema/member';
 
 export enum ChannelHotKeyScope {
@@ -17,27 +23,19 @@ export enum ChannelScope {
   PERSONAL = 'personal',
 }
 
-export interface IChannel {
-  _id: string;
-  icon: string;
-  name: string;
-  description: string;
-  // Absent on channels created before scope existed; treat as TEAM.
-  scope?: ChannelScope;
-  createdAt: string;
-  updatedAt: string;
-  memberCount: number;
-  pipelineCount: number;
-  hasTickets: boolean;
-  responseTemplateCount: number;
-  formCount: number;
-  integrationCount?: number;
-  integrationKinds?: string[];
-  conversationCount?: number;
-  // Open conversations this user has not read yet. Per-viewer, so it changes
-  // with the caller and not just with the channel.
-  unreadConversationCount?: number;
-}
+export type IChannel = NonNullable<
+  NonNullable<FrontlineChannelListQuery['getChannels']>[number]
+>;
+
+export type IMyChannel = NonNullable<
+  NonNullable<GetMyChannelsQuery['getMyChannels']>[number]
+>;
+
+export type IChannelDetail = NonNullable<GetChannelQuery['getChannel']>;
+
+export type IPersonalChannel = NonNullable<
+  GetPersonalChannelQuery['getPersonalChannel']
+>;
 
 export enum ChannelResourceType {
   INTEGRATION = 'integration',
@@ -47,22 +45,9 @@ export enum ChannelResourceType {
   RESPONSE_TEMPLATE = 'responseTemplate',
 }
 
-export interface IChannelMoveResourcesResult {
-  movedIds: string[];
-  movedCount: number;
-  sourceChannelId: string;
-  targetChannelId: string;
-  targetChannelName?: string;
-}
-
-export interface IChannelMember {
-  _id: string;
-  memberId: string;
-  channelId: string;
-
-  member: IUser;
-  role: string;
-}
+export type IChannelMember = NonNullable<
+  NonNullable<GetChannelMembersQuery['getChannelMembers']>[number]
+>;
 
 export type TChannelForm = z.infer<typeof CHANNEL_SCHEMA>;
 

@@ -748,8 +748,9 @@ owns the setup form and connection actions.
   is a drop-in for `Form.Field` taking the action form, the field names, a label
   and the same `render`. It needs the automations host's
   `AutomationConditionalsProvider`; without it the field stays plain.
-- `frontline_api` GraphQL: `GetMyChannels`, `GetChannels`, `GetChannel`,
-  `GetPersonalChannel` (get-or-create — reading it provisions the channel),
+- `frontline_api` GraphQL: `GetMyChannels`, `frontlineChannelList`,
+  `GetChannel`, `GetPersonalChannel` (get-or-create — reading it provisions
+  the channel),
   `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this
   UI does not send), `ChannelUpdate`, `IntegrationsCreateExternalIntegration`,
   `IntegrationsGetUsedTypes`, `IntegrationsGetUsedTypesByChannel(channelId?,
@@ -930,8 +931,19 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   for every caller, so the list arrives ordered and all consumers share one
   cache entry — do not vary those variables per component or the query fans out
   into several network requests on the inbox page.
-- `IChannel.scope` is optional — channels created before the field existed
-  return no value and must be treated as `team`.
+- `IChannel.scope` is nullable — channels created before the field existed
+  return no value and must be treated as `team` (`channelScopeOf`).
+- Channel types derive from the generated queries: `IChannel` is the
+  `frontlineChannelList` row, `IMyChannel` the `GetMyChannels` row,
+  `IChannelDetail` is `getChannel` and `IPersonalChannel` is
+  `getPersonalChannel`; detail sections take `IChannelDetail`. Refetch the
+  channel list as `frontlineChannelList` after a channel is added, edited or
+  removed. `IChannelMember.member` is the core `User` selection; pass it to
+  `MembersInline` through `toMemberUser` (`channels/utils/channelMembers`),
+  which drops members without an `_id`. The `@/inbox/types/Channel` view type
+  accepts a null `icon`; pass `icon ?? undefined` to `IconComponent`.
+- The channel pickers search by the `name` variable of `frontlineChannelList`
+  and `GetMyChannels`; neither query has a `searchValue` variable.
 - `GET_MY_CHANNELS` selects `unreadConversationCount` but not
   `conversationCount`; each count costs the API a query per channel, so add one
   to the selection only when a surface actually renders it.
@@ -2179,7 +2191,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
   core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
-  `integrations/discord`, `integrations/mail`, the Facebook and Instagram
+  `integrations/discord`, `integrations/mail`, `channels`, the Facebook and
+  Instagram
   settings (config,
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base
