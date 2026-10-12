@@ -22,19 +22,6 @@ export type TFxaOwnerRecordInput = {
   sourceOwnerId?: string;
 };
 
-export type TFxaIncomeDetailFollowInfo = Pick<
-  TFxaOwnerRecordInput,
-  | '_id'
-  | 'tempId'
-  | 'transactionDetailId'
-  | 'fixedAssetId'
-  | 'code'
-  | 'sequence'
-> & {
-  salvageValue?: number;
-  preDeprecation?: number;
-};
-
 export type TFxaTransactionExtraData = {
   fxaOwnerRecords?: TFxaOwnerRecordInput[];
 };
@@ -48,10 +35,6 @@ export type TFxaMoveFollowInfos = {
     fixedAssetId?: string;
     accumulatedDepreciation?: number;
   }[];
-};
-
-export type TFxaIncomeFollowInfos = {
-  fxaIncomeDetails?: TFxaIncomeDetailFollowInfo[];
 };
 
 export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos & {
@@ -167,10 +150,6 @@ export const assignMissingFxaOwnerRecordSequences = async <
 
 export const getFxaOwnerRecordInputs = (transaction: ITransactionDocument) =>
   getFxaExtraData(transaction).fxaOwnerRecords || [];
-
-export const getFxaIncomeFollowInfos = (
-  transaction: ITransaction | ITransactionDocument,
-): TFxaIncomeFollowInfos => transaction.followInfos || {};
 
 export const getUniqueFxaOwnerRecordIds = (ids: string[]) =>
   Array.from(new Set(ids));
@@ -471,7 +450,7 @@ const getLatestAdjustmentDetailsByFixedAssetId = async (
   );
   const getAdjustRank = (adjustId?: string) =>
     adjustId
-      ? (adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY)
+      ? adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY
       : Number.POSITIVE_INFINITY;
 
   if (!latestAdjustIds.length) {
@@ -575,10 +554,10 @@ export const getFxaDisposalSummaries = async (
         typeof summaryOverride?.accumulatedDepreciation === 'number'
           ? summaryOverride.accumulatedDepreciation
           : countBeforeThisDisposal
-            ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
-                countBeforeThisDisposal) *
-              count
-            : 0,
+          ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
+              countBeforeThisDisposal) *
+            count
+          : 0,
       );
 
       return {

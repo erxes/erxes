@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-12`
 
 ## Scope
 
@@ -57,7 +57,7 @@
 - Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
 - Fixed asset category forms show both derived useful years and annual depreciation percentage; changing either field updates the other rounded to two decimals, while the backend stores the annual percentage as the canonical value.
 - Fixed asset settings list income-created asset records without a direct add button; asset creation belongs to fixed asset income transactions.
-- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, keeps residual value in root detail metadata, and binds `preDeprecation` directly to each transaction detail's `followInfos`, with legacy root values migrated into detail form state on initialization.
+- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and binds residual value plus `preDeprecation` only to each transaction detail's `followInfos`.
 - Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records up to the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, branch/department values stay on each detail, `fxaOut` only asks for accumulated depreciation account, and generated sale/depreciation follow previews use `fxaSaleOut`, `fxaDepOut`, and `fxaSaleCost`.
 - Fixed asset out, move, and sale edit forms preserve persisted detail counts while location remainder loads; the remainder limits subsequent user edits but must not rewrite saved values during form initialization.
 - Fixed asset disposal follow previews run only for unsaved transactions; persisted edit forms keep Mongo-backed main details and generated follow transactions until the backend recalculates them on save.
@@ -148,7 +148,7 @@
 
 ## Local Invariants
 
-- `graphql-codegen-plugin.ts` prepares generated documents once per compiler through `beforeRun`/`watchRun`; do not invoke nested Nx commands from Rspack config evaluation or rely only on target dependencies for host-launched remotes.
+- `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
 
 - Closing detail forms reuse the generated `IAdjustClosing` view type rather than defining an identical detail alias.
 
@@ -195,7 +195,8 @@
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
 - Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
 - Fixed asset detail tables must tolerate an uninitialized `details` watch value during create-route bootstrap and render with an empty array until form defaults arrive.
-- Fixed asset income owner sheet state must preserve `followInfos.fxaIncomeDetails` residual value per detail and `details[].followInfos.preDeprecation`; legacy root `preDeprecation` values must initialize the matching detail and must not be resubmitted as competing root state. Owner rows in `extraData.fxaOwnerRecords` are optional and represent responsible-user/serial allocation only.
+- Fixed asset income initialization, Zod validation, generated GraphQL JSON conversion, and field controls use `details[].followInfos` for residual value and `preDeprecation`, without a duplicate root detail array or identity lookup. Explicit zero stays authoritative. Owner rows in `extraData.fxaOwnerRecords` are optional allocation records and retain `transactionDetailId` to link to their detail.
+- `transactionDetailFollowInfoSchema` defines known detail metadata fields for response conversion and income forms; extensible JSON keys remain unknown without weakening known currency, movement, or fixed-asset field types.
 - Fixed asset transaction forms and adjustment GraphQL documents use `preDeprecation` as the sole opening accumulated depreciation field name.
 - The journal-default factory must narrow a literal `FXA_INCOME` request to `TFxaIncomeJournal` so fixed-asset detail follow-info fields remain type-safe for callers.
 - Fixed asset disposal, move, and sale forms must not require owner-record selection or a row-level category selector; category filtering belongs in the multi-add sheet, while quantity, branch, and department are owned by transaction details.

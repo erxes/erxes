@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { resolve } from 'node:path';
 import type { Compiler } from '@rspack/core';
 import { AccountingGraphqlCodegenPlugin } from '../../graphql-codegen-plugin';
 
@@ -15,7 +16,7 @@ const setup = () => {
     beforeRun.tapPromise.mock.calls[0][1];
   const prepareWatch: () => Promise<void> =
     watchRun.tapPromise.mock.calls[0][1];
-  return { prepareBuild, prepareWatch };
+  return { compiler, prepareBuild, prepareWatch };
 };
 
 beforeEach(() => {
@@ -60,4 +61,25 @@ test('schema export failure prevents codegen and compilation', async () => {
   const { prepareWatch } = setup();
   await expect(prepareWatch()).rejects.toThrow('Schema export failed');
   expect(execFile).toHaveBeenCalledTimes(1);
+});
+
+test('watch source changes regenerate documents but generated files do not cause a loop', async () => {
+  const { compiler, prepareWatch } = setup();
+  await prepareWatch();
+  expect(execFile).toHaveBeenCalledTimes(2);
+  compiler.modifiedFiles = new Set([
+    resolve(__dirname, '../modules/transactions/graphql/transactionQueries.ts'),
+  ]);
+  await prepareWatch();
+  expect(execFile).toHaveBeenCalledTimes(4);
+  await prepareWatch();
+  expect(execFile).toHaveBeenCalledTimes(4);
+  compiler.modifiedFiles = new Set([resolve(__dirname, '../gql/gql.ts')]);
+  await prepareWatch();
+  expect(execFile).toHaveBeenCalledTimes(4);
+  compiler.removedFiles = new Set([
+    resolve(__dirname, '../modules/transactions/graphql/transactionQueries.ts'),
+  ]);
+  await prepareWatch();
+  expect(execFile).toHaveBeenCalledTimes(6);
 });

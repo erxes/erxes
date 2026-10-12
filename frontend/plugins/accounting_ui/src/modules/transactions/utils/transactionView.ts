@@ -5,16 +5,16 @@ import { CustomerType } from 'ui-modules';
 import {
   fxaFollowInfosSchema,
   fxaFollowExtrasSchema,
-  fxaIncomeDetailFollowInfoSchema,
   fxaExtraDataSchema,
   invSplitInfoSchema,
   transactionInvIncomeSchema,
+  transactionDetailFollowInfoSchema,
 } from '../transaction-form/contants/transactionSchema';
 import { TrJournalEnum } from '../types/constants';
 import { undefed } from '@/types/utils';
 
-const detailFollowSchema = z
-  .object({
+const detailFollowSchema = transactionDetailFollowInfoSchema
+  .extend({
     invSplit: z.preprocess((value) => {
       if (value === null) return undefined;
       const legacy = z
@@ -31,10 +31,6 @@ const detailFollowSchema = z
           }
         : value;
     }, invSplitInfoSchema.optional()),
-    currencyDiffAccountId: undefed(z.string()),
-    moveInBranchId: undefed(z.string()),
-    moveInDepartmentId: undefed(z.string()),
-    preDeprecation: undefed(z.number()),
   })
   .passthrough();
 const followSchema = fxaFollowInfosSchema
@@ -44,7 +40,6 @@ const followSchema = fxaFollowInfosSchema
     fixedAssetAccountId: undefed(z.string()),
     lossAccountId: undefed(z.string()),
     responsibleUserId: undefed(z.string()),
-    fxaIncomeDetails: undefed(z.array(fxaIncomeDetailFollowInfoSchema)),
     invSplitDetails: undefed(
       z.array(
         z.object({

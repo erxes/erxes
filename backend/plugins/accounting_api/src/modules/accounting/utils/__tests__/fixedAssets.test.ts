@@ -277,6 +277,76 @@ describe('fixed asset income', () => {
     );
   });
 
+  it.each([
+    {
+      name: 'detail residual value',
+      detailValue: 5,
+      detailDepreciation: 0,
+      legacyValue: 10,
+      expected: 5,
+    },
+    {
+      name: 'explicit zero residual value',
+      detailValue: 0,
+      detailDepreciation: 0,
+      legacyValue: 10,
+      expected: 0,
+    },
+    {
+      name: 'category default despite root residual value',
+      detailValue: undefined,
+      detailDepreciation: undefined,
+      legacyValue: 10,
+      expected: 50,
+    },
+    {
+      name: 'category default residual value',
+      detailValue: undefined,
+      detailDepreciation: undefined,
+      legacyValue: undefined,
+      expected: 50,
+    },
+  ])(
+    'preserves $name when synchronizing acquisition',
+    async ({ detailValue, detailDepreciation, legacyValue, expected }) => {
+      const models = makeModels();
+      const transaction = makeIncomeTransaction();
+      const doc = {
+        ...transaction,
+        details: [
+          {
+            ...transaction.details[0],
+            followInfos: {
+              salvageValue: detailValue,
+              preDeprecation: detailDepreciation,
+            },
+          },
+        ],
+        followInfos: {
+          fxaIncomeDetails: [
+            {
+              transactionDetailId: 'detail-income',
+              salvageValue: legacyValue,
+              preDeprecation: 20,
+            },
+          ],
+        },
+      };
+      await syncFxaIncomeDetails(models as never, 'user-a', doc as never);
+      expect(models.FixedAssets.create).toHaveBeenCalledWith(
+        expect.objectContaining({ salvageValue: expected }),
+      );
+      expect(models.Transactions.createTransaction).not.toHaveBeenCalledWith(
+        expect.objectContaining({ journal: JOURNALS.FXA_DEP_IN }),
+        expect.anything(),
+      );
+      expect(models.AdjustFixedAssets.updateOne).not.toHaveBeenCalled();
+      expect(
+        models.AdjustFxaDetails.replaceAdjustFxaDetails,
+      ).not.toHaveBeenCalled();
+    },
+  );
+
   it('reuses one fixed asset for income details with the same acquisition code', async () => {
     const models = makeModels();
     const transaction = makeIncomeTransaction({

@@ -1273,7 +1273,10 @@ export const normalizeOpeningFixedAssetBalances = (
 
     for (const detail of doc.details || []) {
       const amount = getOpeningDepreciationTotal(detail);
-      const accountCode = normalizeSourceCode(detail.followInfos?.accountCode);
+      const sourceAccountCode = detail.followInfos?.accountCode;
+      const accountCode = normalizeSourceCode(
+        typeof sourceAccountCode === 'string' ? sourceAccountCode : undefined,
+      );
 
       if (!amount || !accountCode) {
         continue;
@@ -1300,9 +1303,11 @@ export const normalizeOpeningFixedAssetBalances = (
         return detail;
       }
 
-      const accountCode = normalizeSourceCode(
+      const sourceAccountCode =
         detail.followInfos?.sourceAccountCode ||
-          detail.followInfos?.accountCode,
+        detail.followInfos?.accountCode;
+      const accountCode = normalizeSourceCode(
+        typeof sourceAccountCode === 'string' ? sourceAccountCode : undefined,
       );
       const key = getOpeningBalanceKey(
         doc.contentId,

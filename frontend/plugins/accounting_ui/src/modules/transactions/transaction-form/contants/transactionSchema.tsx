@@ -30,6 +30,16 @@ const accountSchema = z.object({
   journal: z.string().optional(),
 });
 
+export const transactionDetailFollowInfoSchema = z
+  .object({
+    currencyDiffAccountId: undefed(z.string()),
+    moveInBranchId: undefed(z.string()),
+    moveInDepartmentId: undefed(z.string()),
+    preDeprecation: undefed(z.number()),
+    salvageValue: undefed(z.number()),
+  })
+  .passthrough();
+
 export const baseTrDetailSchema = z.object({
   _id: z.string(),
   transactionId: undefed(z.string()),
@@ -399,13 +409,7 @@ export const fxaIncomeDetailSchema = z
     fixedAssetName: z.string().refine((val) => val?.length, {
       message: 'Must fill fixed asset name',
     }),
-    followInfos: undefed(
-      z
-        .object({
-          preDeprecation: undefed(z.number()),
-        })
-        .passthrough(),
-    ),
+    followInfos: undefed(transactionDetailFollowInfoSchema),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });
@@ -422,21 +426,6 @@ export const fxaFollowInfosSchema = z.object({
   moveInBranchId: undefed(z.string()),
   moveInDepartmentId: undefed(z.string()),
   ownerId: undefed(z.string()),
-});
-
-export const fxaIncomeDetailFollowInfoSchema = z.object({
-  _id: undefed(z.string()),
-  tempId: undefed(z.string()),
-  transactionDetailId: undefed(z.string()),
-  fixedAssetId: undefed(z.string()),
-  code: undefed(z.string()),
-  sequence: undefed(z.number()),
-  salvageValue: undefed(z.number()),
-  preDeprecation: undefed(z.number()),
-});
-
-export const fxaIncomeFollowInfosSchema = fxaFollowInfosSchema.extend({
-  fxaIncomeDetails: undefed(z.array(fxaIncomeDetailFollowInfoSchema)),
 });
 
 export const fxaOutFollowInfosSchema = fxaFollowInfosSchema.extend({
@@ -499,7 +488,7 @@ export const transactionFxaIncomeSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
-    followInfos: fxaIncomeFollowInfosSchema,
+    followInfos: fxaFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(

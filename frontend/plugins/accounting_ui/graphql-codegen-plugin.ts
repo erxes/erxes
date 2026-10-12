@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { dirname, extname, join, relative, sep } from 'node:path';
 import { promisify } from 'node:util';
 import type { Compiler } from '@rspack/core';
 
@@ -8,8 +8,26 @@ const runFile = promisify(execFile);
 export class AccountingGraphqlCodegenPlugin {
   apply(compiler: Compiler): void {
     let preparation: Promise<void> | undefined;
+    let preparedChanges: ReadonlySet<string> | undefined;
+    let preparedRemovals: ReadonlySet<string> | undefined;
     const prepare = (): Promise<void> => {
-      preparation ??= this.generate();
+      const changes = compiler.modifiedFiles;
+      const removals = compiler.removedFiles;
+      const sourceChanged =
+        (changes !== preparedChanges || removals !== preparedRemovals) &&
+        [...(changes ?? []), ...(removals ?? [])].some((file) => {
+          const localPath = relative(__dirname, file);
+          return (
+            localPath.startsWith(`src${sep}`) &&
+            !localPath.startsWith(`src${sep}gql${sep}`) &&
+            ['.ts', '.tsx'].includes(extname(file))
+          );
+        });
+      if (!preparation || sourceChanged) {
+        preparedChanges = changes;
+        preparedRemovals = removals;
+        preparation = this.generate();
+      }
       return preparation;
     };
 

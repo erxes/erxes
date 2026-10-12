@@ -1,6 +1,7 @@
 import { readTransactionViews, toTransactionView } from '../transactionView';
 import { JOURNALS_BY_JOURNAL } from '../../transaction-form/contants/defaultValues';
 import { TrJournalEnum } from '../../types/constants';
+import { fxaIncomeDetailSchema } from '../../transaction-form/contants/transactionSchema';
 
 jest.mock(
   'ui-modules',
@@ -158,7 +159,7 @@ test('fixed asset income initializes pre-depreciation from detail follow info', 
   expect(draft.details[0].followInfos?.preDeprecation).toBe(20);
 });
 
-test('fixed asset income migrates legacy root pre-depreciation into detail state', () => {
+test('fixed asset income ignores financial values supplied in root metadata', () => {
   const draft = JOURNALS_BY_JOURNAL(
     TrJournalEnum.FXA_INCOME,
     transaction(TrJournalEnum.FXA_INCOME, {
@@ -182,11 +183,72 @@ test('fixed asset income migrates legacy root pre-depreciation into detail state
     }),
   );
 
-  expect(draft.details[0].followInfos?.preDeprecation).toBe(20);
-  expect(
-    draft.followInfos?.fxaIncomeDetails?.[0].preDeprecation,
-  ).toBeUndefined();
+  expect(draft.details[0].followInfos?.preDeprecation).toBeUndefined();
+  expect(draft.followInfos).not.toHaveProperty('fxaIncomeDetails');
 });
+
+test.each([
+  {
+    name: 'detail values',
+    detailInfo: { preDeprecation: 20, salvageValue: 5 },
+    expected: { preDeprecation: 20, salvageValue: 5 },
+  },
+  {
+    name: 'explicit zero values',
+    detailInfo: { preDeprecation: 0, salvageValue: 0 },
+    expected: { preDeprecation: 0, salvageValue: 0 },
+  },
+  {
+    name: 'root values are ignored',
+    detailInfo: {},
+    expected: {},
+  },
+])(
+  'fixed asset metadata survives form validation and reload: $name',
+  ({ detailInfo, expected }) => {
+    const draft = JOURNALS_BY_JOURNAL(
+      TrJournalEnum.FXA_INCOME,
+      transaction(TrJournalEnum.FXA_INCOME, {
+        details: [
+          {
+            _id: 'detail-1',
+            accountId: 'asset-account',
+            fixedAssetCategoryId: 'category-1',
+            fixedAssetCode: 'asset-1',
+            fixedAssetName: 'Asset',
+            amount: 300,
+            count: 3,
+            unitPrice: 100,
+            followInfos: { ...detailInfo, custom: 'preserve' },
+          },
+        ],
+        followInfos: {
+          fxaIncomeDetails: [
+            {
+              transactionDetailId: 'detail-1',
+              preDeprecation: 40,
+              salvageValue: 10,
+            },
+          ],
+        },
+      }),
+    );
+    const savedDetail = fxaIncomeDetailSchema.parse(draft.details[0]);
+    expect(savedDetail.followInfos).toEqual({
+      ...expected,
+      custom: 'preserve',
+    });
+    expect(draft.followInfos).not.toHaveProperty('fxaIncomeDetails');
+    const reloaded = JOURNALS_BY_JOURNAL(
+      TrJournalEnum.FXA_INCOME,
+      transaction(TrJournalEnum.FXA_INCOME, {
+        details: [savedDetail],
+        followInfos: draft.followInfos,
+      }),
+    );
+    expect(reloaded.details[0].followInfos).toEqual(savedDetail.followInfos);
+  },
+);
 
 test('legacy inventory splits without hasSplit remain enabled after editing', () => {
   const view = transaction(TrJournalEnum.INV_INCOME, {
