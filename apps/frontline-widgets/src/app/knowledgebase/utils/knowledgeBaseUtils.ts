@@ -1,32 +1,9 @@
-export type TKbArticle = {
-  _id: string;
-  title: string;
-  summary?: string | null;
-  content?: string | null;
-  modifiedDate?: string | null;
-  publishedAt?: string | null;
-};
-
-export type TKbCategory = {
-  _id: string;
-  title: string;
-  description?: string | null;
-  icon?: string | null;
-  parentCategoryId?: string | null;
-  articles?: TKbArticle[] | null;
-};
-
-export type TKbTopic = {
-  _id: string;
-  title?: string | null;
-  description?: string | null;
-  color?: string | null;
-  categories?: TKbCategory[] | null;
-};
-
-export type TKbHostMessage =
-  | { type: 'ready'; color?: string | null }
-  | { type: 'close' };
+import { format } from 'date-fns';
+import {
+  TKbArticle,
+  TKbCategory,
+  TKbHostMessage,
+} from '../types/knowledgeBaseTypes';
 
 export const childCategories = (
   categories: TKbCategory[],
@@ -91,3 +68,20 @@ export const findArticle = (
 
 export const postToHost = (message: TKbHostMessage) =>
   window.parent.postMessage({ fromErxesKnowledgeBase: true, ...message }, '*');
+
+export const formatArticleDate = (article: TKbArticle) => {
+  const value = article.modifiedDate || article.publishedAt;
+
+  if (!value) {
+    return '';
+  }
+
+  try {
+    return format(new Date(value), 'MMM d, yyyy');
+  } catch {
+    return '';
+  }
+};
+
+export const articleCountLabel = (count: number) =>
+  count === 1 ? '1 article' : `${count} articles`;
