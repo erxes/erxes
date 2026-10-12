@@ -21,6 +21,7 @@ import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 import { ToolbarToggle } from './ToolbarToggle';
 import { ToolbarButton } from './ToolbarButton';
+import { isCodeFormattingShortcut } from '../utils/isCodeFormattingShortcut';
 
 const editorUIComponents = {
   Button: { Button: ToolbarButton },
@@ -125,7 +126,17 @@ export const BlockEditor = ({
   };
 
   const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (readonly || disabled || (e.key !== 'Backspace' && e.key !== 'Delete')) {
+    if (readonly || disabled) {
+      return;
+    }
+
+    if (editor.getActiveStyles().code && isCodeFormattingShortcut(e)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    if (e.key !== 'Backspace' && e.key !== 'Delete') {
       return;
     }
 
