@@ -1,4 +1,3 @@
-import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Button, Collapsible, Form, Input } from 'erxes-ui';
 import { useFormContext, useWatch } from 'react-hook-form';
@@ -23,27 +22,20 @@ const toNumber = (value: string) => {
 
 export const AiAgentRuntimeForm = () => {
   const { control } = useFormContext<TAiAgentForm>();
-  const values = useWatch({ control });
+  const runtime = useWatch({ control, name: 'runtime' });
 
-  const temperature = values?.runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
-  const maxTokens = values?.runtime?.maxTokens ?? RUNTIME_DEFAULTS.maxTokens;
-  const timeoutMs = values?.runtime?.timeoutMs ?? RUNTIME_DEFAULTS.timeoutMs;
+  const temperature = runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
+  const maxTokens = runtime?.maxTokens ?? RUNTIME_DEFAULTS.maxTokens;
+  const timeoutMs = runtime?.timeoutMs ?? RUNTIME_DEFAULTS.timeoutMs;
 
   return (
     <div className="grid gap-4">
-      <AiAgentRuntimeInfo
-        agent={{
-          connection: values?.connection,
-          runtime: values?.runtime,
-          context: values?.context,
-        }}
-        title="Agent Budget"
-        description="These limits apply to every automation action that uses this agent."
-      />
-
       <Collapsible className="group">
         <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start font-medium">
+          <Button
+            variant="secondary"
+            className="w-full justify-start font-medium"
+          >
             <Collapsible.TriggerIcon />
             <span>Advanced limits</span>
           </Button>
@@ -69,7 +61,9 @@ export const AiAgentRuntimeForm = () => {
                     min={0}
                     max={2}
                     value={field.value ?? RUNTIME_DEFAULTS.temperature}
-                    onChange={(event) => field.onChange(toNumber(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(toNumber(event.target.value))
+                    }
                   />
                 </Form.Control>
                 <Form.Description>
@@ -92,7 +86,9 @@ export const AiAgentRuntimeForm = () => {
                     min={1}
                     max={MAX_TOKENS_LIMIT}
                     value={field.value ?? RUNTIME_DEFAULTS.maxTokens}
-                    onChange={(event) => field.onChange(toNumber(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(toNumber(event.target.value))
+                    }
                   />
                 </Form.Control>
                 <Form.Description>
@@ -117,7 +113,9 @@ export const AiAgentRuntimeForm = () => {
                     min={1000}
                     max={30000}
                     value={field.value ?? RUNTIME_DEFAULTS.timeoutMs}
-                    onChange={(event) => field.onChange(toNumber(event.target.value))}
+                    onChange={(event) =>
+                      field.onChange(toNumber(event.target.value))
+                    }
                   />
                 </Form.Control>
                 <Form.Description>

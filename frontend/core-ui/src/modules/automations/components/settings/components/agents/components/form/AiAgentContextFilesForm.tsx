@@ -1,11 +1,9 @@
-import { AiAgentContextFileEditorDialog } from '@/automations/components/settings/components/agents/components/AiAgentContextFileEditorDialog';
 import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
+import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
+import { getAiAgentFileMemoryKey } from '@/automations/components/settings/components/agents/hooks/useAiAgentMemoryItems';
 import { AUTOMATIONS_AI_AGENT_REINDEX } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
-import {
-  getNextContextFilesAfterEdit,
-  mapUploadedContextFiles,
-} from '@/automations/components/settings/components/agents/utils/contextFiles';
+import { mapUploadedContextFiles } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { Form, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
@@ -29,7 +27,7 @@ export const formatBytes = (bytes: number) => {
 export const AiAgentContextFilesForm = () => {
   const { id } = useParams();
   const { control } = useFormContext<TAiAgentForm>();
-  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const { openMemory } = useAiAgentDetailContext();
   const [reindexingFileId, setReindexingFileId] = useState<string | null>(null);
   const [reindex] = useMutation(AUTOMATIONS_AI_AGENT_REINDEX);
 
@@ -52,8 +50,6 @@ export const AiAgentContextFilesForm = () => {
         name="context.files"
         render={({ field }) => {
           const files = field.value || [];
-          const editingFile =
-            files.find(({ id }) => id === editingFileId) || null;
 
           return (
             <Form.Item>
@@ -69,14 +65,12 @@ export const AiAgentContextFilesForm = () => {
                       ...mapUploadedContextFiles(uploadedFiles),
                     ]);
                   }}
-                  onFileDelete={(fileId) => {
-                    if (editingFileId === fileId) {
-                      setEditingFileId(null);
-                    }
-
-                    field.onChange(files.filter(({ id }) => fileId !== id));
-                  }}
-                  onFileClick={setEditingFileId}
+                  onFileDelete={(fileId) =>
+                    field.onChange(files.filter(({ id }) => fileId !== id))
+                  }
+                  onFileClick={(fileId) =>
+                    openMemory(getAiAgentFileMemoryKey(fileId))
+                  }
                   onFileReindex={
                     id
                       ? async (fileId) => {
@@ -107,24 +101,6 @@ export const AiAgentContextFilesForm = () => {
                   reindexingFileId={reindexingFileId}
                 />
               </Form.Control>
-              <AiAgentContextFileEditorDialog
-                open={!!editingFile}
-                file={editingFile}
-                onOpenChange={(open) => {
-                  if (!open) {
-                    setEditingFileId(null);
-                  }
-                }}
-                onSave={(nextFile) => {
-                  field.onChange(
-                    getNextContextFilesAfterEdit({
-                      files,
-                      fileId: nextFile.id,
-                      uploadedFile: nextFile,
-                    }),
-                  );
-                }}
-              />
               <Form.Description>
                 Keep files focused and compact so health checks stay green,
                 prompts stay small, and the provider responds quickly.

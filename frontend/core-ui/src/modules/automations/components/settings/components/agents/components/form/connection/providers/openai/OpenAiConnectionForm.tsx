@@ -1,4 +1,3 @@
-import { AiAgentModelSelect } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentModelSelect';
 import { AiAgentSecretField } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentSecretField';
 import {
   AI_AGENT_PROVIDER_API_KEY_PLACEHOLDERS,
@@ -23,8 +22,6 @@ export const OpenAiConnectionForm = ({
 
   return (
     <div className="grid gap-4">
-      <AiAgentModelSelect />
-
       <AiAgentSecretField
         name="connection.config.apiKey"
         label="API Key"

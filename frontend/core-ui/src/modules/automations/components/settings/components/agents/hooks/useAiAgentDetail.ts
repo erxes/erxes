@@ -5,7 +5,7 @@ import {
   AUTOMATIONS_AI_AGENT_DETAIL,
   AUTOMATIONS_AI_AGENT_EDIT,
   AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
-  AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
+  AUTOMATIONS_AI_AGENTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { toast } from 'erxes-ui';
@@ -78,7 +78,7 @@ export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
       const res = await mutation({
         variables: id ? { ...input, id } : input,
         refetchQueries: [
-          AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
+          AUTOMATIONS_AI_AGENTS,
           ...(id
             ? [
                 {

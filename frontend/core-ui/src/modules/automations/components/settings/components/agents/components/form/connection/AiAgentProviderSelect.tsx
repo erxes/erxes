@@ -1,3 +1,4 @@
+import { AiAgentProviderLogo } from '@/automations/components/settings/components/agents/components/AiAgentProviderLogo';
 import {
   AI_AGENT_PROVIDER_DESCRIPTIONS,
   AI_AGENT_PROVIDER_LABELS,
@@ -44,7 +45,10 @@ export const AiAgentProviderSelect = () => {
               <Select.Content>
                 {AI_AGENT_PROVIDER_TYPES.map((type) => (
                   <Select.Item key={type} value={type}>
-                    {AI_AGENT_PROVIDER_LABELS[type]}
+                    <span className="flex items-center gap-2">
+                      <AiAgentProviderLogo provider={type} />
+                      {AI_AGENT_PROVIDER_LABELS[type]}
+                    </span>
                   </Select.Item>
                 ))}
               </Select.Content>
