@@ -38,9 +38,12 @@ export const TeamMemberResendInvite = ({
       toast({
         title: t('error'),
         variant: 'destructive',
-        description: `${t('failed-to-resend-invitations', {
-          count: failed,
-        })}${firstError ? `: ${firstError}` : ''}`,
+        description: [
+          t('failed-to-resend-invitations', { count: failed }),
+          firstError,
+        ]
+          .filter(Boolean)
+          .join(': '),
       });
     }
   };
