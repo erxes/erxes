@@ -5,6 +5,8 @@ import {
 import { IconInbox, IconLoader } from '@tabler/icons-react';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
+import { compactList } from '@/shared/utils/cursorList';
 import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
 import { IConversation } from '@/inbox/types/Conversation';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
@@ -80,7 +82,12 @@ export const Conversations = () => {
   const renderConversationItem = (conversation: IConversation) => (
     <ConversationContext.Provider
       key={conversation._id}
-      value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
+      value={{
+        ...conversation,
+        customer: toCustomerInline(conversation.customer),
+        integration: conversation.integration ?? undefined,
+        tagIds: compactList(conversation.tagIds),
+      }}
     >
       <ConversationItem
         channelInfo={{

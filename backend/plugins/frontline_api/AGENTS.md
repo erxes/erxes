@@ -682,6 +682,11 @@ customerId, visitorId)` returns the voter's own selections for the
   `conversationCounts` always returns a `responded` / `standby` / `handoff`
   count alongside `unassigned` / `participating` / `starred` / `resolved` /
   `awaitingResponse`.
+- GraphQL `Conversation.automatedReplyControl` is
+  `ConversationAutomatedReplyControl` (`status`, `pausedUntil`, `reason`,
+  `updatedAt`, `updatedBy`, all nullable: `status` has only a Mongoose
+  default), matching `automatedReplyControlSchema`. `propertiesData`,
+  `customFieldsData` and `conversationCounts` stay `JSON`.
 - GraphQL: `getChannels` returns **team channels only** on every branch
   (`channelIds`, `integrationId`, see-everything, and membership), including the
   caller's own personal channel. Personal inboxes are reached only through

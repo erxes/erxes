@@ -32,6 +32,7 @@ import {
   channelLabelFromIntegration,
 } from '@/inbox/conversations/utils/channelGroups';
 import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import { readCountMap } from '@/inbox/conversations/utils/conversationCounts';
 import {
   CLEARED_INBOX_NAVIGATION_FILTERS,
   INBOX_NAVIGATION_FILTER_KEYS,
@@ -41,14 +42,15 @@ import {
 type ChannelCounts = Record<string, number>;
 
 const useDiscordChannelCounts = () => {
-  const { data, loading } = useQuery<{
-    conversationCounts: { byIntegrations?: ChannelCounts };
-  }>(CONVERSATION_COUNTS, {
+  const { data, loading } = useQuery(CONVERSATION_COUNTS, {
     variables: { only: 'byIntegrations' },
     fetchPolicy: 'cache-and-network',
   });
 
-  return { counts: data?.conversationCounts?.byIntegrations ?? {}, loading };
+  return {
+    counts: readCountMap(data?.conversationCounts, 'byIntegrations'),
+    loading,
+  };
 };
 
 type ServerGroup = {

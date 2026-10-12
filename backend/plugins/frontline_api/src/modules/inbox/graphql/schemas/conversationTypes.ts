@@ -8,6 +8,14 @@ export const types = `
     _id: String @external
   }
 
+  type ConversationAutomatedReplyControl {
+    status: String
+    pausedUntil: Date
+    reason: String
+    updatedAt: Date
+    updatedBy: String
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -25,7 +33,7 @@ export const types = `
     number: Int
     tagIds: [String]
     operatorStatus: String
-    automatedReplyControl: JSON
+    automatedReplyControl: ConversationAutomatedReplyControl
 
     messages: [ConversationMessage]
     callProAudio: String

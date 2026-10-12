@@ -15,7 +15,7 @@ export const ReplaceAssignee = () => {
         assignConversations({
           variables: {
             conversationIds: selectedConversations,
-            assignedUserId: value,
+            assignedUserId: typeof value === 'string' ? value : null,
           },
           refetchQueries: [
             'Conversations',

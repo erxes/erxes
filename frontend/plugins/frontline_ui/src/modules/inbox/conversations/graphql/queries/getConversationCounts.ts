@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CONVERSATION_COUNTS = gql`
+export const CONVERSATION_COUNTS = gql(`
   query ConversationCounts(
     $only: String
     $channelId: String
@@ -16,21 +16,21 @@ export const CONVERSATION_COUNTS = gql`
       withSurvey: $withSurvey
     )
   }
-`;
+`);
 
-export const INBOX_SIDEBAR_WORK_COUNTS = gql`
+export const INBOX_SIDEBAR_WORK_COUNTS = gql(`
   query FrontlineInboxSidebarWorkCounts($unread: String) {
     conversationCounts(unread: $unread)
   }
-`;
+`);
 
-export const INBOX_UNREAD_CONVERSATION_COUNT = gql`
+export const INBOX_UNREAD_CONVERSATION_COUNT = gql(`
   query FrontlineInboxUnreadConversationCount {
     conversationsTotalCount(unread: "true")
   }
-`;
+`);
 
-export const CONVERSATION_FILTER_COUNTS = gql`
+export const CONVERSATION_FILTER_COUNTS = gql(`
   query FrontlineInboxConversationFilterCounts(
     $channelId: String
     $integrationId: String
@@ -59,4 +59,4 @@ export const CONVERSATION_FILTER_COUNTS = gql`
       searchValue: $searchValue
     )
   }
-`;
+`);

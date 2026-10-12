@@ -70,11 +70,11 @@ export const ConversationConvert = () => {
   };
 
   const items = availableTypes.map((type) => {
-    const converted = convertedItems.find((item) => item.type === type);
+    const convertedUrl = convertedItems.find((item) => item.type === type)?.url;
 
-    if (converted) {
+    if (convertedUrl) {
       return (
-        <DropdownMenu.Item key={type} onSelect={() => navigate(converted.url)}>
+        <DropdownMenu.Item key={type} onSelect={() => navigate(convertedUrl)}>
           <IconExternalLink className="size-4" />
           {labels[type].goTo}
         </DropdownMenu.Item>

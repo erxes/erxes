@@ -1,46 +1,49 @@
 import type { IAttachment } from 'erxes-ui';
-import type { ICustomerInline, IUser } from 'ui-modules';
-import type { IChannel } from '@/channels/types';
+import type { ICustomerInline } from 'ui-modules';
 import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
+import type {
+  ConversationDetailQuery,
+  ConversationMemberProgressQuery,
+  ConversationsQuery,
+  IntegrationInlineQuery,
+} from '~/gql/graphql';
 
-export interface IConversationIntegration {
+export type IConversation = NonNullable<
+  NonNullable<NonNullable<ConversationsQuery['conversations']>['list']>[number]
+>;
+
+export type IConversationDetail = NonNullable<
+  ConversationDetailQuery['conversationDetail']
+>;
+
+export type IConversationIntegration = NonNullable<
+  IConversation['integration']
+>;
+
+/** The detail page loads the integration through `IntegrationInline`, so only its fields are guaranteed. */
+export type IConversationContextIntegration = NonNullable<
+  IntegrationInlineQuery['integrationDetail']
+> &
+  Partial<IConversationIntegration>;
+
+type IConversationContextFields = Partial<
+  Omit<IConversation, 'customer' | 'integration' | 'tagIds'>
+> &
+  Partial<Omit<IConversationDetail, 'customer' | 'integration' | 'tagIds'>>;
+
+/** A list row, a conversation detail, or both merged, as the conversation context holds them. */
+export type IConversationContextValue = IConversationContextFields & {
   _id: string;
-  name: string;
-  brandId?: string;
-  kind: string;
-  channelId: string;
-  channel: Pick<IChannel, 'name' | 'icon'> | null;
-  isActive?: boolean;
-}
+  customer?: ICustomerInline;
+  integration?: IConversationContextIntegration;
+  loading?: boolean;
+};
 
-export interface IConversation {
-  _id: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  customer: ICustomerInline;
-  customerId?: string;
-  integrationId?: string;
-  integration?: IConversationIntegration;
-  readUserIds?: string[];
-  assignedUserId?: string;
-  assignedUser?: IUser;
-  tagIds?: string[];
-  status?: ConversationStatus;
-  automatedReplyControl?: IAutomatedReplyControl;
-  callProAudio?: string | null;
-  callProPotentialCustomerIds?: string[];
-  callProPhone?: string | null;
-  propertiesData?: Record<string, unknown>;
-}
-
-export interface IAutomatedReplyControl {
-  status?: 'active' | 'handoff_requested' | 'human_active';
-  pausedUntil?: string;
-  reason?: string;
-  updatedAt?: string;
-  updatedBy?: string;
-}
+export type IConversationMemberProgress = NonNullable<
+  NonNullable<
+    ConversationMemberProgressQuery['conversationMemberProgress']
+  >[number]
+>;
 
 type IMessageAnswer = { id: string | number; text: string; emoji?: string };
 
@@ -223,36 +226,4 @@ export enum ConversationStatus {
   NEW = '',
   OPEN = 'open',
   CLOSED = 'closed',
-}
-
-export interface IConversationMemberProgress {
-  assigneeId: string;
-  new: number;
-  open: number;
-  closed: number;
-  resolved: number;
-}
-
-export interface IConversationSourceProgressItem {
-  source: string;
-  count: number;
-}
-
-export interface IConversationSourceProgress {
-  new: IConversationSourceProgressItem[];
-  open: IConversationSourceProgressItem[];
-  closed: IConversationSourceProgressItem[];
-  resolved: IConversationSourceProgressItem[];
-}
-
-export interface IConversationTagProgressItem {
-  tagId: string;
-  count: number;
-}
-
-export interface IConversationTagProgress {
-  new: IConversationTagProgressItem[];
-  open: IConversationTagProgressItem[];
-  closed: IConversationTagProgressItem[];
-  resolved: IConversationTagProgressItem[];
 }

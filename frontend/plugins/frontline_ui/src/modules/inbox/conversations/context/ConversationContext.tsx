@@ -1,12 +1,8 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
-import {
-  IConversation,
-  IConversationIntegration,
-} from '@/inbox/types/Conversation';
+import { compactList } from '@/shared/utils/cursorList';
+import type { IConversationContextValue } from '@/inbox/types/Conversation';
 
-interface IConversationContext extends IConversation {
-  loading?: boolean;
-  integration?: IConversationIntegration;
+interface IConversationContext extends IConversationContextValue {
   tagIds: string[];
   setTagIds?: (ids: string[]) => void;
 }
@@ -16,9 +12,8 @@ export const ConversationContext = createContext<IConversationContext | null>(
 );
 
 interface IConversationProviderProps {
-  conversation: IConversation & {
-    integration?: IConversationIntegration;
-    loading?: boolean;
+  conversation: IConversationContextValue & {
+    tagIds?: (string | null)[] | null;
   };
   children: ReactNode;
 }
@@ -27,10 +22,12 @@ export const ConversationProvider = ({
   conversation,
   children,
 }: IConversationProviderProps) => {
-  const [tagIds, setTagIds] = useState<string[]>(conversation.tagIds || []);
+  const [tagIds, setTagIds] = useState<string[]>(
+    compactList(conversation.tagIds),
+  );
 
   useEffect(() => {
-    setTagIds(conversation.tagIds || []);
+    setTagIds(compactList(conversation.tagIds));
   }, [conversation.tagIds]);
 
   const contextValue = {

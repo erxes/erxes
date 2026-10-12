@@ -95,7 +95,10 @@ export const ChannelInlineEffectComponent = ({
     );
 
     if (channelDetail) {
-      updateChannels?.([...newChannels, channelDetail]);
+      updateChannels?.([
+        ...newChannels,
+        { ...channelDetail, icon: channelDetail.icon ?? undefined },
+      ]);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

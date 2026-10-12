@@ -11,9 +11,9 @@ import { ConversationMessages } from '@/inbox/conversation-messages/components/C
 import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 import {
-  IConversation,
-  IConversationIntegration,
-} from '@/inbox/types/Conversation';
+  toConversationContextValue,
+  toCustomerInline,
+} from '@/inbox/conversations/utils/conversationContext';
 import { useEffect } from 'react';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
@@ -64,6 +64,8 @@ export const ConversationDetailView = ({
     return <NoConversationSelected />;
   }
 
+  const customerInline = toCustomerInline(conversationDetail?.customer);
+
   if (loading) {
     return (
       <div className="flex flex-col">
@@ -80,27 +82,20 @@ export const ConversationDetailView = ({
 
   return (
     <ConversationProvider
-      conversation={
-        {
-          ...currentConversation,
-          ...conversationDetail,
-          integration,
-          loading,
-        } as IConversation & {
-          integration?: IConversationIntegration;
-          loading?: boolean;
-        }
-      }
+      conversation={toConversationContextValue({
+        _id:
+          conversationDetail?._id ?? currentConversation?._id ?? conversationId,
+        conversation: currentConversation,
+        detail: conversationDetail,
+        integration,
+        loading,
+      })}
     >
       <div className="flex h-full overflow-hidden">
         <div className="flex flex-col h-full overflow-hidden flex-auto">
           <div className="h-11 flex items-center px-5 text-xs font-medium flex-none gap-3 whitespace-nowrap justify-between">
             <CustomersInline
-              customers={
-                conversationDetail?.customer
-                  ? [conversationDetail?.customer]
-                  : undefined
-              }
+              customers={customerInline ? [customerInline] : undefined}
               customerIds={
                 conversationDetail?.customerId
                   ? [conversationDetail?.customerId]

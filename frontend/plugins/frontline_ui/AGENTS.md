@@ -2176,8 +2176,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `integrations/discord`, the Facebook and Instagram settings (config,
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base
-  automation widgets, the mail automation inbox checklist, and the
-  notification channel widget) writes every
+  automation widgets, the mail automation inbox checklist, the
+  notification channel widget, and the inbox conversations: list, detail,
+  counts, progress, conversation actions, channel inline and
+  `inboxSubscriptions`) writes every
   document as
   `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
   types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
@@ -2188,17 +2190,38 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Integration types derive from the generated queries: `IIntegration` is the
   `Integrations` list row (record tables use `CellContext<IIntegration>`),
   `IIntegrationDetail` is `integrationDetail`, and `IIntegrationType` /
-  `IIntegrationTypeByChannel` are the used-types entries. `conversation.integration`
-  uses the inbox-owned, handwritten `IConversationIntegration` in
-  `inbox/types/Conversation.ts` until the inbox documents are typed.
+  `IIntegrationTypeByChannel` are the used-types entries.
+- Conversation types derive from the generated queries: `IConversation` is
+  the `Conversations` list row, `IConversationDetail` is
+  `conversationDetail`, and `IConversationIntegration` is a list row's
+  integration. `ConversationContext` holds `IConversationContextValue`, which
+  is a list row, a detail, or both merged; detail-only fields are optional
+  there. Providers map `customer` to `ICustomerInline` with
+  `toCustomerInline` (rows without a customer `_id` show no customer), and
+  detail views build the value with `toConversationContextValue`, whose
+  `integration` comes only from `IntegrationInline`. Never cast a merged
+  conversation.
+- `conversationCounts` stays `JSON` (numbers keyed by integration id, kind or
+  filter name); read it with `readCountMap` / `readCount` from
+  `inbox/conversations/utils/conversationCounts`. `propertiesData` is narrowed
+  with `isRecord`, and convert system field `logics` with `readLogicRules`.
+  Date filter variables go out as ISO strings through `getDateFilterVariable`.
+- `Conversation.automatedReplyControl` is an object type; select
+  `{ status pausedUntil reason updatedAt updatedBy }`. Mutations whose
+  optimistic response or cache write needs the type select `__typename`
+  explicitly (mark as read, edit custom fields).
+- The customer progress hooks have no live subscription: `conversationChanged`
+  needs a conversation `_id`, and the progress queries are per customer.
+- `FrontlineConvertTaskStatuses` / `FrontlineConvertTaskTeams` and
+  `useConvertTaskTargets` stay untyped until the operation status choice fix
+  lands; the plugin mirror still declares `getStatusesChoicesByTeam: JSON`.
 - Discord hooks in `useDiscordSetup` infer from the `gql()` documents and drop
   null list items with `compactList`. `DiscordConversationChannel` is the
   `discordConversationChannels` row; consumers default its nullable
   `channelName` and a participant's `avatar` where they render. A participant's
-  `userId` and `name` are non-null in the schema. `DiscordChannelsNav` keeps
-  the type argument on the inbox `CONVERSATION_COUNTS` query until the inbox
-  documents are typed. Discord repair sends `discord-messenger` when the route
-  has no integration type.
+  `userId` and `name` are non-null in the schema. `DiscordChannelsNav` reads
+  the typed `CONVERSATION_COUNTS` through `readCountMap`. Discord repair sends
+  `discord-messenger` when the route has no integration type.
 - `facebookGetPost` and `instagramGetPost` return `attachments` as image URL
   strings (`[String]`), not attachment objects. `FacebookPostTrigger`,
   `IgPostTrigger` and `PostMediaCard` drop null entries with `isDefined` and

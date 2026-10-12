@@ -42,9 +42,7 @@ export function CallConversationDetail() {
   const { t } = useTranslation('frontline');
   const [conversationId] = useQueryState<string>('conversationId');
   const { conversationDetail, loading } = useConversationDetail({
-    variables: {
-      _id: conversationId,
-    },
+    variables: conversationId ? { _id: conversationId } : undefined,
     skip: !conversationId,
   });
   const { callSyncRecordFile, loading: syncFileLoading } =
