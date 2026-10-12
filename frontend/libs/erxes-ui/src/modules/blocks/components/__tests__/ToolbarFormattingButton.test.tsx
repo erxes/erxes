@@ -1,7 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import { createRef } from 'react';
+import type { ForwardedRef } from 'react';
 import { ToolbarFormattingButton } from '../ToolbarFormattingButton';
 
 let mockCodeActive = false;
+let mockReceivedRef: ForwardedRef<HTMLButtonElement> = null;
 
 jest.mock('@blocknote/react', () => ({
   useBlockNoteEditor: () => ({
@@ -10,26 +13,33 @@ jest.mock('@blocknote/react', () => ({
   useEditorContentOrSelectionChange: jest.fn(),
 }));
 
-jest.mock('@blocknote/shadcn', () => ({
-  components: {
-    FormattingToolbar: {
-      Button: (props: {
-        disabled?: boolean;
-        isDisabled?: boolean;
-        isSelected?: boolean;
-      }) => (
-        <button
-          disabled={props.disabled ?? props.isDisabled}
-          aria-pressed={props.isSelected}
-        />
-      ),
-    },
-  },
-}));
+jest.mock('@blocknote/shadcn', () => {
+  const React = jest.requireActual<typeof import('react')>('react');
+  const MockButton = React.forwardRef<
+    HTMLButtonElement,
+    {
+      disabled?: boolean;
+      isDisabled?: boolean;
+      isSelected?: boolean;
+    }
+  >((props, ref) => {
+    mockReceivedRef = ref;
+    return (
+      <button
+        ref={ref}
+        disabled={props.disabled ?? props.isDisabled}
+        aria-pressed={props.isSelected}
+      />
+    );
+  });
+  MockButton.displayName = 'MockFormattingButton';
+  return { components: { FormattingToolbar: { Button: MockButton } } };
+});
 
 describe('inline code toolbar mode', () => {
   afterEach(() => {
     mockCodeActive = false;
+    mockReceivedRef = null;
   });
 
   it.each([
@@ -66,6 +76,15 @@ describe('inline code toolbar mode', () => {
 
     expect(markup).not.toContain('disabled=""');
     expect(markup).toContain('aria-pressed="true"');
+  });
+
+  it('forwards the trigger ref needed for menu positioning and focus', () => {
+    const ref = createRef<HTMLButtonElement>();
+    renderToStaticMarkup(
+      <ToolbarFormattingButton label="Font" data-test="fontFamily" ref={ref} />,
+    );
+
+    expect(mockReceivedRef).toBe(ref);
   });
 
   it('shows the retained selected state after code is toggled off', () => {

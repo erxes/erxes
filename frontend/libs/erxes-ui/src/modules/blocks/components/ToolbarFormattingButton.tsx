@@ -4,7 +4,7 @@ import {
 } from '@blocknote/react';
 import type { ComponentProps } from '@blocknote/react';
 import { components } from '@blocknote/shadcn';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 
 type ToolbarFormattingButtonProps =
   ComponentProps['FormattingToolbar']['Button'] & {
@@ -12,9 +12,10 @@ type ToolbarFormattingButtonProps =
     disabled?: boolean;
   };
 
-export const ToolbarFormattingButton = (
-  props: ToolbarFormattingButtonProps,
-) => {
+export const ToolbarFormattingButton = forwardRef<
+  HTMLButtonElement,
+  ToolbarFormattingButtonProps
+>((props, ref) => {
   const editor = useBlockNoteEditor();
   const [codeActive, setCodeActive] = useState(
     Boolean(editor.getActiveStyles().code),
@@ -37,6 +38,7 @@ export const ToolbarFormattingButton = (
 
   const buttonProps = {
     ...props,
+    ref,
     disabled: props.disabled || props.isDisabled || disabledByCode,
     isDisabled: props.isDisabled || disabledByCode,
     isSelected:
@@ -46,4 +48,6 @@ export const ToolbarFormattingButton = (
   };
 
   return <components.FormattingToolbar.Button {...buttonProps} />;
-};
+});
+
+ToolbarFormattingButton.displayName = 'ToolbarFormattingButton';
