@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_TICKET_MUTATION = gql`
+export const UPDATE_TICKET_MUTATION = gql(`
   mutation UpdateTicket(
     $_id: String!
     $name: String
@@ -70,4 +70,4 @@ export const UPDATE_TICKET_MUTATION = gql`
       }
     }
   }
-`;
+`);

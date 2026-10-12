@@ -995,6 +995,8 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   applied only by `reportFacebookPosts`, never by the summary, activity, or bot
   queries. The term is escaped before it becomes a `RegExp`, so a user typing
   `a.b(c` searches for that literal string instead of crashing the resolver.
+- `Ticket._id` is non-null; every other `Ticket` field stays nullable because
+  the Mongoose schema requires none of them and `updateTicket` can clear them.
 - `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
   list's branch and department filters. `generateFilter` turns a non-empty list
   into `branchId` / `departmentId` `$in`, and the `ticketListChanged`

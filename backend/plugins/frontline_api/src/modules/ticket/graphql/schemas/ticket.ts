@@ -16,7 +16,7 @@ export const types = `
   }
 
   type Ticket {
-    _id: String
+    _id: String!
     name: String
     description: String
     pipelineId: String

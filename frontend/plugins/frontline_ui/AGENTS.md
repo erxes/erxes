@@ -2186,14 +2186,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   name only and never interpolated; the generated document embeds it
   (`ReportChartFields`). The inbox message inserted and updated
   subscriptions share `FrontlineConversationMessageFields`, so an update
-  replaces a message with the same full shape.
+  replaces a message with the same full shape. `GetTickets`,
+  `ticketListChanged`, `CreateTicket`, `GetTicket` and `ticketChanged` share
+  `FrontlineTicketFields` (`ticket/graphql/fragments/ticketFields.ts`), so a
+  pushed or created ticket written into the list carries every field the
+  list selects.
 - A module typed from the schema (so far `report`, `integrations/call`,
   `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
   `integrations/erxes-messenger`, `integrations/telegram`, the integrations
   core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
-  `integrations/discord`, `integrations/mail`, `channels`, the Facebook and
-  Instagram
-  settings (config,
+  `integrations/discord`, `integrations/mail`, `channels`, `ticket`, the
+  Facebook and Instagram settings (config,
   repair, page post), the Facebook and Instagram post lookups and the
   Instagram copy-image query, the Facebook, Instagram and knowledge base
   automation widgets, the mail automation inbox checklist, the
@@ -2213,6 +2216,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `Integrations` list row (record tables use `CellContext<IIntegration>`),
   `IIntegrationDetail` is `integrationDetail`, and `IIntegrationType` /
   `IIntegrationTypeByChannel` are the used-types entries.
+- Ticket types derive from the generated documents: `ITicket` is
+  `FrontlineTicketFieldsFragment` (list rows, created tickets and board
+  cards) and `ITicketDetail` is `getTicket`, which adds `isSubscribed` and
+  `attachments`. Only `_id` is non-null; pass nullable ids on as `?? ''` or
+  `?? undefined` and read id lists with `compactList`. `useTickets` takes
+  filter-shaped `variables: ITicketFilter`, like operation's `useTasks`.
+  Ticket attachments go through `toTicketAttachments` / `toAttachmentInput`
+  (`ticket/utils/ticketAttachments`), never `removeTypename`.
 - Pipeline types derive from the generated queries: `IPipeline` is the
   `GetTicketPipelines` list row and `IPipelineDetail` is
   `getTicketPipeline`. Only the detail selects `userId`, `visibility` and
