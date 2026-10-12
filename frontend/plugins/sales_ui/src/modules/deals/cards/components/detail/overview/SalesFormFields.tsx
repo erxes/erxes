@@ -18,7 +18,6 @@ import { useDealsContext } from '@/deals/context/DealContext';
 import { useTranslation } from 'react-i18next';
 import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
-import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { ChecklistOverview } from './checklist/ChecklistOverview';
 import {
   areIdListsEqual,
@@ -139,120 +138,123 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2">
-        <SelectDealStage deal={deal} />
-        <SelectDealPriority
-          dealId={_id}
-          value={priority || ''}
-          variant="detail"
-        />
-        <DealAssigneeChip
-          value={optimisticAssignedUsers.value}
-          onValueChange={(value) =>
-            optimisticAssignedUsers.setValue(normalizeMultiValue(value))
-          }
-          placeholder={t('assigned-to')}
-        />
-        <DateSelectDeal
-          value={startDate}
-          id={_id}
-          type="startDate"
-          variant="input"
-          placeholder={t('start-date')}
-          label={t('start-date')}
-        />
-        <DateSelectDeal
-          value={closeDate}
-          id={_id}
-          type="closeDate"
-          variant="input"
-          placeholder={t('close-date')}
-          label={t('close-date')}
-        />
-        <SelectLabels.FilterBar
-          filterKey=""
-          mode="multiple"
-          variant="detail"
-          targetId={_id}
-          initialValue={labels?.map((label) => label._id || '') || []}
-        />
-        <DealTagsChip
-          value={optimisticTags.value}
-          showSelectedTagsOutside={false}
-          onValueChange={(value) =>
-            optimisticTags.setValue(normalizeMultiValue(value))
-          }
-        />
-        <DealBranchesChip
-          value={optimisticBranches.value}
-          onValueChange={(value) =>
-            optimisticBranches.setValue(normalizeMultiValue(value))
-          }
-        />
-        <DealDepartmentsChip
-          value={optimisticDepartments.value}
-          onValueChange={(value) =>
-            optimisticDepartments.setValue(normalizeMultiValue(value))
-          }
-        />
-        <DealBrokerTypeChip
-          value={optimisticBroker.value.type || '_none'}
-          options={[
-            { value: '_none', label: t('none') },
-            { value: 'customer', label: t('customer') },
-            { value: 'company', label: t('company') },
-            { value: 'user', label: t('user') },
-          ]}
-          onValueChange={(value) =>
-            optimisticBroker.setValue({
-              id: '',
-              type: normalizeBrokerType(value),
-            })
-          }
-        />
-        {optimisticBroker.value.type === 'customer' && (
-          <DealCustomerChip
-            value={optimisticBroker.value.id}
-            placeholder={t('select-broker', 'Select broker')}
-            onValueChange={(value) =>
-              optimisticBroker.setValue({
-                ...optimisticBroker.value,
-                id: normalizeSingleValue(value),
-              })
-            }
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <SelectDealStage deal={deal} />
+          <DateSelectDeal
+            value={startDate}
+            id={_id}
+            type="startDate"
+            variant="input"
+            placeholder={t('start-date')}
+            label={t('start-date')}
           />
-        )}
-        {optimisticBroker.value.type === 'company' && (
-          <DealCompanyChip
-            value={optimisticBroker.value.id}
-            placeholder={t('select-broker', 'Select broker')}
-            onValueChange={(value) =>
-              optimisticBroker.setValue({
-                ...optimisticBroker.value,
-                id: normalizeSingleValue(value),
-              })
-            }
+          <DateSelectDeal
+            value={closeDate}
+            id={_id}
+            type="closeDate"
+            variant="input"
+            placeholder={t('close-date')}
+            label={t('close-date')}
           />
-        )}
-        {optimisticBroker.value.type === 'user' && (
           <DealAssigneeChip
-            mode="single"
-            label={t('user')}
-            value={optimisticBroker.value.id}
-            placeholder={t('select-broker', 'Select broker')}
+            value={optimisticAssignedUsers.value}
+            onValueChange={(value) =>
+              optimisticAssignedUsers.setValue(normalizeMultiValue(value))
+            }
+            placeholder={t('assigned-to')}
+          />
+          <SelectDealPriority
+            dealId={_id}
+            value={priority || ''}
+            variant="detail"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {optimisticBroker.value.type === 'customer' && (
+            <DealCustomerChip
+              value={optimisticBroker.value.id}
+              placeholder={t('select-broker', 'Select broker')}
+              onValueChange={(value) =>
+                optimisticBroker.setValue({
+                  ...optimisticBroker.value,
+                  id: normalizeSingleValue(value),
+                })
+              }
+            />
+          )}
+          {optimisticBroker.value.type === 'company' && (
+            <DealCompanyChip
+              value={optimisticBroker.value.id}
+              placeholder={t('select-broker', 'Select broker')}
+              onValueChange={(value) =>
+                optimisticBroker.setValue({
+                  ...optimisticBroker.value,
+                  id: normalizeSingleValue(value),
+                })
+              }
+            />
+          )}
+          {optimisticBroker.value.type === 'user' && (
+            <DealAssigneeChip
+              mode="single"
+              label={t('user')}
+              value={optimisticBroker.value.id}
+              placeholder={t('select-broker', 'Select broker')}
+              onValueChange={(value) =>
+                optimisticBroker.setValue({
+                  ...optimisticBroker.value,
+                  id: normalizeSingleValue(value),
+                })
+              }
+            />
+          )}
+          <DealBrokerTypeChip
+            value={optimisticBroker.value.type || '_none'}
+            options={[
+              { value: '_none', label: t('none') },
+              { value: 'customer', label: t('customer') },
+              { value: 'company', label: t('company') },
+              { value: 'user', label: t('user') },
+            ]}
             onValueChange={(value) =>
               optimisticBroker.setValue({
-                ...optimisticBroker.value,
-                id: normalizeSingleValue(value),
+                id: '',
+                type: normalizeBrokerType(value),
               })
             }
           />
-        )}
-        <DealsActions deals={[deal]} variant="inline" />
-        <ChecklistOverview />
-      </div>
-      <div className="flex">
-        <AttachmentUploader />
+          <DealBranchesChip
+            value={optimisticBranches.value}
+            onValueChange={(value) =>
+              optimisticBranches.setValue(normalizeMultiValue(value))
+            }
+          />
+          <DealDepartmentsChip
+            value={optimisticDepartments.value}
+            onValueChange={(value) =>
+              optimisticDepartments.setValue(normalizeMultiValue(value))
+            }
+          />
+          <SelectLabels.FilterBar
+            filterKey=""
+            mode="multiple"
+            variant="detail"
+            targetId={_id}
+            initialValue={labels?.map((label) => label._id || '') || []}
+          />
+          <DealTagsChip
+            value={optimisticTags.value}
+            showSelectedTagsOutside={false}
+            onValueChange={(value) =>
+              optimisticTags.setValue(normalizeMultiValue(value))
+            }
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <ChecklistOverview />
+          <AttachmentUploader />
+        </div>
       </div>
       <Attachments />
       <Separator className="mt-4" />

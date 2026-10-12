@@ -17,7 +17,6 @@ import {
 } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import { useTranslation } from 'react-i18next';
 import {
   formatDealDateForMutation,
@@ -129,10 +128,8 @@ const DateSelectContent = () => {
 
 export const DateSelectTrigger = ({
   children,
-  label,
 }: {
   children: React.ReactNode;
-  label?: string;
 }) => {
   const { variant } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
@@ -153,9 +150,6 @@ export const DateSelectTrigger = ({
         </Button>
       </Popover.Trigger>
     );
-  }
-  if (variant === DateSelectVariant.INPUT && label) {
-    return <DealChipTrigger label={label}>{children}</DealChipTrigger>;
   }
   return (
     <Combobox.TriggerBase className="w-fit h-7">
@@ -223,6 +217,11 @@ export const DateSelectDealRoot = ({
   if (variant === DateSelectVariant.INPUT) {
     return (
       <div className="flex h-7 w-fit items-center overflow-hidden rounded border bg-background text-sm focus-within:border-primary/40">
+        {label && (
+          <span className="flex h-full shrink-0 items-center whitespace-nowrap px-3 text-muted-foreground bg-muted/40 border-r">
+            {label}
+          </span>
+        )}
         <div className="w-36">
           <DatePicker
             value={dateValue}
@@ -259,7 +258,7 @@ export const DateSelectDealRoot = ({
         error={error}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <DateSelectTrigger label={label}>
+          <DateSelectTrigger>
             <div className="text-xs bg-red-50 text-red-400 px-2 py-1 rounded flex items-center gap-1">
               <IconAlertCircleFilled className="size-4" />
               {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
@@ -283,7 +282,7 @@ export const DateSelectDealRoot = ({
       error={error}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <DateSelectTrigger label={label}>
+        <DateSelectTrigger>
           <DateSelectValue placeholder={placeholder} />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>

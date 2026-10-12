@@ -93,6 +93,13 @@
   The broker entity selector that follows is
   labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
   placeholder.
+- Deal detail header shows a `⋯` actions menu (`DealsActions`
+  `variant="menu"`) with watch/unwatch, duplicate, print (shared
+  `PrintDocument` sheet), archive/unarchive, and remove for archived deals.
+  These actions appear only there, not in the detail overview body.
+- Deal detail overview lays fields out in three rows: stage, start date, close
+  date, assignee and priority; then labels, tags, branch, department and
+  broker; then checklist and attachment upload.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
