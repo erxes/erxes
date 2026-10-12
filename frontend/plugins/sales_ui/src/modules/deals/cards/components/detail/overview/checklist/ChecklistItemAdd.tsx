@@ -39,6 +39,7 @@ export const ChecklistItemAdd = ({
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           onKeyDown={handleKeyDown}
+          disabled={loading}
           rows={1}
           className="min-h-0 resize-none px-2 py-1.5 text-xs"
         />

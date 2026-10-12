@@ -126,6 +126,7 @@ export const ChecklistItem = ({
           return;
         }
       }
+      setAdding(false);
     } finally {
       savingNewItemRef.current = false;
     }
