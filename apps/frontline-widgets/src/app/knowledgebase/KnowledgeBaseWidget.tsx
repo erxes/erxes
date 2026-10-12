@@ -10,7 +10,7 @@ import {
 import { format } from 'date-fns';
 import DOMPurify from 'dompurify';
 import { cn, Empty, Skeleton } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { WIDGETS_KNOWLEDGE_BASE_TOPIC } from './graphql';
 import { categoryIcon } from './icons';
@@ -41,6 +41,8 @@ const ARTICLE_BODY_CLASS = cn(
   '[&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:text-xs',
   '[&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-3',
 );
+
+const SKELETON_ROWS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
 const formatDate = (value?: string | null) => {
   if (!value) {
@@ -161,6 +163,18 @@ const EmptyState = ({ title, text }: { title: string; text: string }) => (
   </Empty>
 );
 
+const ArticleBody = ({ html }: { html: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    ref.current?.replaceChildren(
+      DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true }),
+    );
+  }, [html]);
+
+  return <div ref={ref} className={cn('mt-4', ARTICLE_BODY_CLASS)} />;
+};
+
 const SectionLabel = ({ children }: { children: string }) => (
   <h2 className="mb-2 mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground first:mt-0">
     {children}
@@ -220,8 +234,8 @@ export const KnowledgeBaseWidget = () => {
     if (loading && !topic) {
       return (
         <div className="flex flex-col gap-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} className="h-16 w-full rounded-xl" />
+          {SKELETON_ROWS.map((row) => (
+            <Skeleton key={row} className="h-16 w-full rounded-xl" />
           ))}
         </div>
       );
@@ -238,12 +252,7 @@ export const KnowledgeBaseWidget = () => {
               Updated {formatDate(article.modifiedDate || article.publishedAt)}
             </p>
           )}
-          <div
-            className={cn('mt-4', ARTICLE_BODY_CLASS)}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(article.content || ''),
-            }}
-          />
+          <ArticleBody html={article.content || ''} />
         </article>
       );
     }

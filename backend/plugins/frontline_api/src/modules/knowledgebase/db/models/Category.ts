@@ -85,6 +85,10 @@ export const loadCategoryClass = (models: IModels) => {
         }
       }
 
+      const subtreeIds = movesTopic
+        ? await models.Category.getSubtreeIds(_id)
+        : [];
+
       await models.Category.updateOne(
         { _id },
         {
@@ -98,8 +102,6 @@ export const loadCategoryClass = (models: IModels) => {
       );
 
       if (movesTopic) {
-        const subtreeIds = await models.Category.getSubtreeIds(_id);
-
         await models.Category.updateMany(
           { _id: { $in: subtreeIds } },
           { $set: { topicId } },
@@ -117,22 +119,20 @@ export const loadCategoryClass = (models: IModels) => {
     }
 
     public static async getSubtreeIds(_id: string) {
-      const ids = [_id];
+      const category = await models.Category.getCategory(_id);
+      const topicCategories = await models.Category.find(
+        { topicId: category.topicId },
+        { _id: 1, parentCategoryId: 1 },
+      ).lean();
 
-      for (let index = 0; index < ids.length; index++) {
-        const children = await models.Category.find(
-          { parentCategoryId: ids[index] },
-          { _id: 1 },
-        ).lean();
+      const collect = (id: string, ids: string[]): string[] =>
+        ids.includes(id)
+          ? ids
+          : topicCategories
+              .filter((child) => child.parentCategoryId === id)
+              .reduce((acc, child) => collect(child._id, acc), [...ids, id]);
 
-        children.forEach((child) => {
-          if (!ids.includes(child._id)) {
-            ids.push(child._id);
-          }
-        });
-      }
-
-      return ids;
+      return collect(_id, []);
     }
 
     public static async removeDoc(_id: string) {

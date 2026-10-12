@@ -18,8 +18,7 @@ export const scheduleArticlePublish = async (
   article?: Pick<IArticleDocument, '_id' | 'status' | 'scheduledDate'> | null,
 ) => {
   if (
-    !article ||
-    article.status !== PUBLISH_STATUSES.SCHEDULED ||
+    article?.status !== PUBLISH_STATUSES.SCHEDULED ||
     !article.scheduledDate
   ) {
     return;
@@ -44,10 +43,7 @@ export const scheduleArticlePublish = async (
   }
 };
 
-export const publishScheduledArticle = async (
-  models: IModels,
-  articleId: string,
-) => {
+export const publishScheduledArticle = (models: IModels, articleId: string) => {
   const now = new Date();
 
   return models.Article.findOneAndUpdate(
