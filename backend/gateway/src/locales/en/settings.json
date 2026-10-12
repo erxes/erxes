@@ -115,7 +115,7 @@
     "error-loading-members": "Error loading members: {{message}}",
     "brands": "Brands",
     "filter": "Filter",
-    "is-active": "isActive",
+    "is-active": "Is active",
     "add-invite": "Add Invite",
     "add-multiple-invites": "Add Multiple Invites",
     "password": "Password",
