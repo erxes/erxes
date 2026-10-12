@@ -1,7 +1,12 @@
 export const INTERNAL_NOTE_BACKGROUND =
-  'bg-[#e9dfc4] hover:bg-[#e9dfc4] text-[#222222] [--foreground:#222222] [--muted-foreground:#756c4c] [--color-foreground:#222222] [--color-muted-foreground:#756c4c] [--color-warning:#222222] [--color-muted:#e0d4b3] [--color-accent:#d9cda8] [--color-accent-foreground:#222222] [--color-border:#cfc19c] ' +
-  'dark:bg-[#3b3526] dark:hover:bg-[#3b3526] dark:text-[#eee6cf] dark:[--foreground:#eee6cf] dark:[--muted-foreground:#b7aa88] dark:[--color-foreground:#eee6cf] dark:[--color-muted-foreground:#b7aa88] dark:[--color-warning:#d5bd80] dark:[--color-muted:#443c29] dark:[--color-accent:#4d432e] dark:[--color-accent-foreground:#eee6cf] dark:[--color-border:#5c5036] ' +
-  '[&_.bn-container]:[--bn-colors-editor-text:var(--color-foreground)]! [&_.bn-editor]:text-foreground!';
+  'border-black/10 bg-[#FEEEB6] text-[#272727] hover:bg-[#FEEEB6] ' +
+  'dark:border-[#E8D99B]/30 dark:bg-[#332F20] dark:text-[#F1EBDD] dark:hover:bg-[#332F20] ' +
+  '[&_.bn-editor]:text-inherit!';
 
 export const INTERNAL_NOTE_BUTTON =
-  'border-[#bca974] bg-[#d5c391] text-[#3d3216] hover:bg-[#c9b77f] dark:border-[#766038] dark:bg-[#5a4b2b] dark:text-[#f5e7c1] dark:hover:bg-[#695833]';
+  'border border-black/10 bg-[#272727] text-white hover:bg-[#171717] ' +
+  'dark:border-[#E8D99B]/30 dark:bg-[#E8D99B] dark:text-[#272727] dark:hover:bg-[#FEEEB6] ' +
+  'before:hidden after:hidden [text-shadow:none]';
+
+export const INTERNAL_NOTE_ICON =
+  'text-[#272727] hover:text-[#272727] dark:text-[#E8D99B] dark:hover:text-[#E8D99B]';

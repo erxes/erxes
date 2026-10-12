@@ -38,7 +38,13 @@ export const ComposerModeTabs = ({
         <Tabs.Trigger
           value="internal"
           disabled={disabled}
-          className="h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none data-[state=active]:bg-warning/15 data-[state=active]:text-warning data-[state=active]:shadow-none data-[state=active]:hover:bg-warning/15"
+          className={
+            'h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none ' +
+            'data-[state=active]:bg-black/5 data-[state=active]:text-[#272727] ' +
+            'data-[state=active]:shadow-none data-[state=active]:hover:bg-black/5 ' +
+            'dark:data-[state=active]:bg-[#E8D99B]/10 dark:data-[state=active]:text-[#E8D99B] ' +
+            'dark:data-[state=active]:hover:bg-[#E8D99B]/10'
+          }
         >
           <IconLock className="size-3.5" />
           {t('internal-note', 'Internal Note')}

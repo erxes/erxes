@@ -1,4 +1,7 @@
-import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
+import {
+  INTERNAL_NOTE_BACKGROUND,
+  INTERNAL_NOTE_ICON,
+} from '@/inbox/constants/internalNoteStyles';
 import { Button, cn } from 'erxes-ui';
 import { IconChevronDown, IconChevronUp, IconLock } from '@tabler/icons-react';
 import type { DragEventHandler, ReactNode } from 'react';
@@ -45,7 +48,12 @@ const ComposerShellHeader = ({
       className="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/50 px-3 py-2"
     >
       {noteOnly ? (
-        <div className="flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-warning">
+        <div
+          className={cn(
+            'flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium',
+            INTERNAL_NOTE_ICON,
+          )}
+        >
           <IconLock className="size-3.5" />
           {t('internal-note', 'Internal Note')}
         </div>
@@ -67,7 +75,10 @@ const ComposerShellHeader = ({
           type="button"
           variant="ghost"
           size="icon"
-          className="ml-auto size-7 shrink-0 rounded-full"
+          className={cn(
+            'ml-auto size-7 shrink-0 rounded-full',
+            INTERNAL_NOTE_ICON,
+          )}
           aria-label={t(
             'collapse-internal-note-composer',
             'Collapse internal note composer',

@@ -9,7 +9,10 @@ import {
 } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { INTERNAL_NOTE_BUTTON } from '@/inbox/constants/internalNoteStyles';
+import {
+  INTERNAL_NOTE_BUTTON,
+  INTERNAL_NOTE_ICON,
+} from '@/inbox/constants/internalNoteStyles';
 
 import {
   PollComposer,
@@ -88,7 +91,10 @@ export const ComposerToolbar = ({
         variant="ghost"
         size="icon"
         aria-label={t('attach-file', 'Attach file')}
-        className="size-8 flex-none rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+        className={cn(
+          'size-8 flex-none rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground',
+          isInternalNote && INTERNAL_NOTE_ICON,
+        )}
         onClick={() => fileInputRef.current?.click()}
         disabled={isBusy}
       >
@@ -118,7 +124,12 @@ export const ComposerToolbar = ({
       )}
 
       <div className="ml-auto flex min-w-0 items-center justify-end gap-3">
-        <Kbd className="hidden gap-0.5 border-0 bg-transparent px-0 text-muted-foreground opacity-100 sm:inline-flex">
+        <Kbd
+          className={cn(
+            'hidden gap-0.5 border-0 bg-transparent px-0 text-muted-foreground opacity-100 sm:inline-flex',
+            isInternalNote && INTERNAL_NOTE_ICON,
+          )}
+        >
           <IconCommand size={12} />
           <IconCornerDownLeft size={12} />
         </Kbd>
@@ -127,7 +138,7 @@ export const ComposerToolbar = ({
           size="sm"
           aria-label={submitLabel}
           className={cn(
-            'h-8 flex-none gap-1.5 rounded-lg px-3 shadow-none',
+            'h-8 flex-none gap-1.5 rounded-full px-3 shadow-none',
             isInternalNote && INTERNAL_NOTE_BUTTON,
           )}
           disabled={sendDisabled}
