@@ -1,3 +1,5 @@
+import { getI18n } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import {
@@ -20,14 +22,18 @@ const withToast = (options: OperationVariables, message: string) => ({
   ...options,
   onError: (error: Error) => {
     toast({
-      title: 'Алдаа',
+      title: getI18n().t('error', { ns: 'accounting' }),
       description: error.message,
       variant: 'destructive',
     });
     options.onError?.(error);
   },
   onCompleted: (data: unknown) => {
-    toast({ title: 'Амжилттай', description: message, variant: 'success' });
+    toast({
+      title: getI18n().t('success', { ns: 'accounting' }),
+      description: message,
+      variant: 'success',
+    });
     options.onCompleted?.(data);
   },
 });
@@ -53,6 +59,7 @@ export const useFixedAssetAccountConfigs = () => {
 const mutationOptions = { refetchQueries: ['AccountingsConfigs'] };
 
 export const useFixedAssetAccountConfigMutations = () => {
+  const { t } = useTranslation('accounting');
   const [add, addState] = useMutation(ACCOUNTINGS_CONFIGS_ADD, mutationOptions);
   const [edit, editState] = useMutation(
     ACCOUNTINGS_CONFIGS_EDIT,
@@ -76,7 +83,7 @@ export const useFixedAssetAccountConfigMutations = () => {
               value: { ...value, accountId },
             },
           },
-          'Дансны багц нэмэгдлээ',
+          t('account-configuration-created-successfully'),
         ),
       );
     },
@@ -92,12 +99,14 @@ export const useFixedAssetAccountConfigMutations = () => {
               value: { ...value, accountId },
             },
           },
-          'Дансны багц шинэчлэгдлээ',
+          t('account-configuration-updated-successfully'),
         ),
       );
     },
     remove: (options: OperationVariables) =>
-      remove(withToast(options, 'Дансны багц устгагдлаа')),
+      remove(
+        withToast(options, t('account-configuration-deleted-successfully')),
+      ),
     adding: addState.loading,
     editing: editState.loading,
     removing: removeState.loading,

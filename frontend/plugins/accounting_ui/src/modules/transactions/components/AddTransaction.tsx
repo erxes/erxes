@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount, JournalEnum } from '@/settings/account/types/Account';
@@ -25,6 +26,7 @@ export const AddTransaction = ({
   children: React.ReactNode;
   onClick?: AddTransactionHandler;
 }) => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -57,10 +59,10 @@ export const AddTransaction = ({
       <DropdownMenu.Content className="min-w-(--radix-dropdown-menu-trigger-width)">
         {inForm && (
           <>
-            <DropdownMenu.Label>Данс</DropdownMenu.Label>
+            <DropdownMenu.Label>{t('account')}</DropdownMenu.Label>
             <div className="px-2 pb-2">
               <SelectAccount
-                placeholder="Дансаар хайх"
+                placeholder={t('search-by-account')}
                 defaultFilter={{
                   journals: [
                     JournalEnum.MAIN,
@@ -81,67 +83,67 @@ export const AddTransaction = ({
             <DropdownMenu.Separator />
           </>
         )}
-        <DropdownMenu.Label>Ерөнхий</DropdownMenu.Label>
+        <DropdownMenu.Label>{t('general')}</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.MAIN}
           onClick={onClick}
           inForm={inForm}
         >
-          Ерөнхий журнал
+          {t('general-journal')}
         </AddTransactionItem>
-        <AddTransactionItem disabled>НӨАТ</AddTransactionItem>
-        <DropdownMenu.Label>Мөнгөн хөрөнгө</DropdownMenu.Label>
+        <AddTransactionItem disabled>{t('vat')}</AddTransactionItem>
+        <DropdownMenu.Label>{t('cash-and-bank')}</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.CASH}
           onClick={onClick}
           inForm={inForm}
         >
-          Касс
+          {t('cash-label')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.BANK}
           onClick={onClick}
           inForm={inForm}
         >
-          Харилцах
+          {t('bank')}
         </AddTransactionItem>
-        <DropdownMenu.Label>Тооцоо</DropdownMenu.Label>
+        <DropdownMenu.Label>{t('calculation')}</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.RECEIVABLE}
           onClick={onClick}
           inForm={inForm}
         >
-          Авлага
+          {t('accounts-receivable')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.PAYABLE}
           onClick={onClick}
           inForm={inForm}
         >
-          Өглөг
+          {t('accounts-payable')}
         </AddTransactionItem>
 
-        <DropdownMenu.Label>Бараа материал</DropdownMenu.Label>
+        <DropdownMenu.Label>{t('inventory-label')}</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.INV_INCOME}
           onClick={onClick}
           inForm={inForm}
         >
-          Орлого
+          {t('receipt')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.INV_OUT}
           onClick={onClick}
           inForm={inForm}
         >
-          Хангамжийн зарлага
+          {t('supplies-issue')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.INV_JUSTIFY}
           onClick={onClick}
           inForm={inForm}
         >
-          Өртөг залруулга
+          {t('cost-adjustment')}
         </AddTransactionItem>
         {!inForm && (
           <AddTransactionItem
@@ -149,7 +151,7 @@ export const AddTransaction = ({
             onClick={onClick}
             inForm={inForm}
           >
-            Дотоод хөдөлгөөн
+            {t('internal-transfer')}
           </AddTransactionItem>
         )}
         <AddTransactionItem
@@ -157,46 +159,46 @@ export const AddTransaction = ({
           onClick={onClick}
           inForm={inForm}
         >
-          Борлуулалт
+          {t('sale')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.INV_SALE_RETURN}
           onClick={onClick}
           inForm={inForm}
         >
-          Борлуулалт буцаалт
+          {t('sales-return')}
         </AddTransactionItem>
 
-        <DropdownMenu.Label>Үндсэн хөрөнгө</DropdownMenu.Label>
+        <DropdownMenu.Label>{t('fixed-asset')}</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_INCOME}
           onClick={onClick}
           inForm={inForm}
         >
-          Орлого
+          {t('receipt')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_OUT}
           onClick={onClick}
           inForm={inForm}
         >
-          Акт
+          {t('disposal')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_MOVE}
           onClick={onClick}
           inForm={inForm}
         >
-          Хөдөлгөөн
+          {t('movement')}
         </AddTransactionItem>
         <AddTransactionItem
           journal={TrJournalEnum.FXA_SALE}
           onClick={onClick}
           inForm={inForm}
         >
-          Борлуулалт
+          {t('sale')}
         </AddTransactionItem>
-        <AddTransactionItem disabled>Тохируулга</AddTransactionItem>
+        <AddTransactionItem disabled>{t('adjustment')}</AddTransactionItem>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

@@ -1,11 +1,12 @@
-import { loadRemote } from '@module-federation/enhanced/runtime';
-import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import type { Dispatch, SetStateAction } from 'react';
+import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import {
   RemoteComponent,
   RemoteModule,
   resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
+
+import { loadRemote } from '@module-federation/enhanced/runtime';
 
 export const RenderPluginsComponentErrorState = ({
   pluginName,

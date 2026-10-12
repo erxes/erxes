@@ -1,13 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { useAdjustFundRates } from '../hooks/useAdjustFundRates';
 import { adjustFundRateColumns } from './AdjustFundRateTableColumns';
 import { RecordTable } from 'erxes-ui';
 
 export const AdjustFundRateTable = () => {
+  const { t } = useTranslation('accounting');
   const { adjustFundRates, loading } = useAdjustFundRates();
 
   return (
     <RecordTable.Provider
-      columns={adjustFundRateColumns}
+      columns={adjustFundRateColumns(t)}
       data={adjustFundRates || []}
       stickyColumns={[]}
       className="m-3"

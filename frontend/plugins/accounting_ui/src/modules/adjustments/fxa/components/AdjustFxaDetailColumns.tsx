@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   IconAlertTriangle,
@@ -53,11 +54,13 @@ const AccountCell = ({ detail }: { detail: IAdjustFxaDetail }) => (
   </RecordTableInlineCell>
 );
 
-export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
+export const adjustFxaDetailColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAdjustFxaDetail>[] => [
   {
     id: 'fixedAssetId',
     header: () => (
-      <RecordTable.InlineHead icon={IconFileBarcode} label="Хөрөнгө" />
+      <RecordTable.InlineHead icon={IconFileBarcode} label={t('asset')} />
     ),
     accessorKey: 'fixedAssetId',
     cell: ({ row }) => <FixedAssetCell detail={row.original} />,
@@ -66,7 +69,7 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
     id: 'accountId',
     header: () => (
-      <RecordTable.InlineHead icon={IconBuildingBank} label="Данс" />
+      <RecordTable.InlineHead icon={IconBuildingBank} label={t('account')} />
     ),
     accessorKey: 'accountId',
     cell: ({ row }) => <AccountCell detail={row.original} />,
@@ -75,7 +78,7 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
     id: 'originalCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconCashBanknote} label="Өртөг" />
+      <RecordTable.InlineHead icon={IconCashBanknote} label={t('cost')} />
     ),
     accessorKey: 'originalCost',
     cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
@@ -83,7 +86,10 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
     id: 'openingBookValue',
     header: () => (
-      <RecordTable.InlineHead icon={IconCashBanknote} label="Эхний үлдэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconCashBanknote}
+        label={t('opening-balance')}
+      />
     ),
     accessorKey: 'openingBookValue',
     cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
@@ -91,7 +97,10 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
     id: 'bookDepreciationAmount',
     header: () => (
-      <RecordTable.InlineHead icon={IconCashBanknote} label="Элэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconCashBanknote}
+        label={t('depreciation')}
+      />
     ),
     accessorKey: 'bookDepreciationAmount',
     cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
@@ -99,7 +108,10 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
     id: 'closingBookValue',
     header: () => (
-      <RecordTable.InlineHead icon={IconCashBanknote} label="Эцсийн үлдэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconCashBanknote}
+        label={t('closing-balance')}
+      />
     ),
     accessorKey: 'closingBookValue',
     cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
@@ -107,7 +119,7 @@ export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
     id: 'error',
     header: () => (
-      <RecordTable.InlineHead icon={IconAlertTriangle} label="Алдаа" />
+      <RecordTable.InlineHead icon={IconAlertTriangle} label={t('error')} />
     ),
     accessorKey: 'error',
     cell: ({ getValue, row }) => (

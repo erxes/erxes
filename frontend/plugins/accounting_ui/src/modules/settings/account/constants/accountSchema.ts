@@ -1,3 +1,4 @@
+import { getI18n } from 'react-i18next';
 import { CurrencyCode } from 'erxes-ui';
 import { z } from 'zod';
 import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
@@ -29,7 +30,10 @@ export const accountSchema = z
       if (!data.extra?.bank) {
         ctx.addIssue({
           path: ['extra', 'bank'],
-          message: 'Банкны журналд банк заавал шаардлагатай',
+          message: getI18n().t('a-bank-is-required-for-the-bank-journal', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
           code: z.ZodIssueCode.custom,
         });
       }
@@ -37,7 +41,10 @@ export const accountSchema = z
       if (!data.extra?.bankAccount) {
         ctx.addIssue({
           path: ['extra', 'bankAccount'],
-          message: 'Банкны журналд банкны данс заавал шаардлагатай',
+          message: getI18n().t(
+            'a-bank-account-is-required-for-the-bank-journal',
+            { ns: 'accounting', nsSeparator: false },
+          ),
           code: z.ZodIssueCode.custom,
         });
       }

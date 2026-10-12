@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { accountsColumns } from '@/settings/account/components/AccountsColumns';
@@ -6,6 +7,7 @@ import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
 import { useMemo } from 'react';
 
 const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const { t } = useTranslation('accounting');
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, () => crypto.randomUUID()),
     [rows],
@@ -14,7 +16,7 @@ const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {accountsColumns.map((col, colIndex) => (
+          {accountsColumns(t).map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -29,6 +31,7 @@ const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const AccountsTable = () => {
+  const { t } = useTranslation('accounting');
   const { accountsMain, loading, handleFetchMore, pageInfo } =
     useAccountsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -37,7 +40,7 @@ export const AccountsTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={accountsColumns}
+      columns={accountsColumns(t)}
       data={isInitialLoading ? [] : accountsMain || []}
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_accounts_record_table"

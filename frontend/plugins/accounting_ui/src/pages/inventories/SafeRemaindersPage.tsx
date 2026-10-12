@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { SafeRemainderFilter } from '~/modules/inventories/safeRemainders/components/SafeRemainderFilters';
 import { AddSafeRemainder } from '~/modules/inventories/safeRemainders/components/SafeRemainderForm';
@@ -8,6 +9,7 @@ import { AccountingHeader } from '~/modules/layout/components/Header';
 import { AccountingLayout } from '~/modules/layout/components/Layout';
 
 export const SafeRemaindersPage = () => {
+  const { t } = useTranslation('accounting');
   const { safeRemainders, loading, totalCount, handleFetchMore } =
     useSafeRemainders();
 
@@ -15,7 +17,7 @@ export const SafeRemaindersPage = () => {
     <AccountingLayout>
       <AccountingHeader
         returnLink="/accounting/inventories/safe-remainders"
-        returnText="Safe Remainders"
+        returnText={t('Safe Remainders')}
         skipSettings={true}
       >
         <AddSafeRemainder />
@@ -23,7 +25,10 @@ export const SafeRemaindersPage = () => {
       <PageSubHeader>
         <SafeRemainderFilter
           afterBar={
-            <SafeRemaindersTotalCount loading={loading} totalCount={totalCount} />
+            <SafeRemaindersTotalCount
+              loading={loading}
+              totalCount={totalCount}
+            />
           }
         />
       </PageSubHeader>
