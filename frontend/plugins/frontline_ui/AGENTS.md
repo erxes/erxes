@@ -2137,7 +2137,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - GraphQL documents interpolate no string snippets: codegen drops `${...}`
   text, so an interpolated selection is sent at runtime but missing from
   validation and the generated types. A shared field set is a `gql` fragment
-  defined in this plugin, interpolated as a document and spread by name.
+  defined in this plugin. In a `gql()` document from `~/gql` it is spread by
+  name only and never interpolated; the generated document embeds it. The
+  inbox message inserted and updated subscriptions share
+  `FrontlineConversationMessageFields`, so an update replaces a message with
+  the same full shape.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
   `codegen` target, which depends on `frontline_api:schema:print` and
   `core-api:schema:print`. The plugin never depends on an optional plugin's

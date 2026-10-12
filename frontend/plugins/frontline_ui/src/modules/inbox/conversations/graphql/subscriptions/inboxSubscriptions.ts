@@ -16,50 +16,54 @@ export const CONVERSATION_CHANGED = gql`
   }
 `;
 
-const CONVERSATION_MESSAGE_FIELDS = `
-      _id
-      mid
-      messageKind
-      providerData
-      replyTo
-      reactions
-      deliveryStatus
-      expiresAt
-      conversationId
-      content
-      formWidgetData
-      extraData
-      attachments {
-        url
-        name
-        type
-        size
-        duration
-      }
-      internal
-      fromBot
-      createdAt
-      isCustomerRead
-      userId
-      customerId
-      botData
-      source
-      relatedMessage
-      fromBot
+const CONVERSATION_MESSAGE_FIELDS = gql`
+  fragment FrontlineConversationMessageFields on ConversationMessage {
+    _id
+    mid
+    messageKind
+    providerData
+    replyTo
+    reactions
+    deliveryStatus
+    expiresAt
+    conversationId
+    content
+    formWidgetData
+    extraData
+    attachments {
+      url
+      name
+      type
+      size
+      duration
+    }
+    internal
+    fromBot
+    createdAt
+    isCustomerRead
+    userId
+    customerId
+    botData
+    source
+    relatedMessage
+    fromBot
+  }
 `;
 
 export const CONVERSATION_MESSAGE_INSERTED = gql`
+  ${CONVERSATION_MESSAGE_FIELDS}
   subscription FrontlineConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
-      ${CONVERSATION_MESSAGE_FIELDS}
+      ...FrontlineConversationMessageFields
     }
   }
 `;
 
 export const CONVERSATION_MESSAGE_UPDATED = gql`
+  ${CONVERSATION_MESSAGE_FIELDS}
   subscription FrontlineConversationMessageUpdated($_id: String!) {
     conversationMessageUpdated(_id: $_id) {
-      ${CONVERSATION_MESSAGE_FIELDS}
+      ...FrontlineConversationMessageFields
     }
   }
 `;
