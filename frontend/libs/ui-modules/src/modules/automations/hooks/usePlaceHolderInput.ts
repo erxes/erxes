@@ -42,7 +42,6 @@ export const usePlaceHolderInput = ({
   const {
     isSelectionPopoverOpen,
     setIsSelectionPopoverOpen,
-    handleInputFocus,
     handleInputBlur,
     handleSelectionOnlyKeyPress,
     suggestionPopoverRef,
@@ -93,7 +92,6 @@ export const usePlaceHolderInput = ({
     handleInputModeChange,
     selectionType,
     handleInputValueChange,
-    handleInputFocus,
     handleInputBlur,
     handleSelectionOnlyKeyPress,
     suggestionPopoverRef,

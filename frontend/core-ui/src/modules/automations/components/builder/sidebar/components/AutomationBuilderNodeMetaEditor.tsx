@@ -23,7 +23,6 @@ export const AutomationBuilderNodeMetaEditor = ({
       label: activeNode.label || '',
       description: activeNode.description || '',
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeNodeId]);
 
   const handleLabelChange = useCallback(

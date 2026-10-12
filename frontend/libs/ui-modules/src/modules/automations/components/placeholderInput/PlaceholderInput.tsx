@@ -46,7 +46,6 @@ const PlaceholderInputRoot = forwardRef<
       isSelectionPopoverOpen,
       setIsSelectionPopoverOpen,
       handleInputValueChange,
-      handleInputFocus,
       handleInputBlur,
       handleSelectionOnlyKeyPress,
       suggestionPopoverRef,
@@ -177,7 +176,6 @@ const PlaceholderInputRoot = forwardRef<
               onFocus={() => {
                 rememberSelection();
                 variableInsertion?.registerInsertionTarget(insertVariable);
-                handleInputFocus();
               }}
               isDisabled={isDisabled}
               isDragActive={isDragActive}

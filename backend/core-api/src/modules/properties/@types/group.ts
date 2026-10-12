@@ -41,4 +41,4 @@ export interface IFieldGroupParams extends IListParams {
 export interface IFieldGroupCursorParams extends ICursorPaginateParams {
   archived?: boolean;
 }
-export interface IFieldGroupOffsetParams extends IOffsetPaginateParams {}
+export type IFieldGroupOffsetParams = IOffsetPaginateParams;

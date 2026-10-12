@@ -16,7 +16,6 @@ const getFolkTypeFn = (
   fromHandle: Handle,
   fromNode: InternalNode<Node>,
 ) => {
-  fromNode.data.type;
   const folks =
     fromNode?.type === AutomationNodeType.Action
       ? actionFolks[fromNode.data.type as string]

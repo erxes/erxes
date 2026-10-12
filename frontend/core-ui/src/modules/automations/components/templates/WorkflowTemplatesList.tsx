@@ -56,7 +56,6 @@ export const WorkflowTemplatesList = () => {
         onRename: handleRename,
         onRemove: removeTemplate,
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [removeTemplate, t],
   );
 

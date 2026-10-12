@@ -9,16 +9,16 @@ import {
   IconArrowsMaximize,
   IconCheck,
   IconPhoto,
-  TablerIconsProps,
+  type Icon,
 } from '@tabler/icons-react';
 import { IMAGE_STYLE_PRESETS, ImageStyle } from './CustomImageBlock';
 
-type IconComponent = (props: TablerIconsProps) => JSX.Element;
+import { BLOCK_SCHEMA } from '../constant';
 
 const IMAGE_STYLE_OPTIONS: Array<{
   label: string;
   value: ImageStyle;
-  Icon: IconComponent;
+  Icon: Icon;
 }> = [
   { label: 'Normal',      value: 'normal',      Icon: IconPhoto },
   { label: 'Wide',        value: 'wide',        Icon: IconArrowsMaximize },
@@ -26,28 +26,16 @@ const IMAGE_STYLE_OPTIONS: Array<{
   { label: 'Float Right', value: 'float-right', Icon: IconAlignRight },
 ];
 
-type ImageBlock = {
-  id: string;
-  type: string;
-  props?: {
-    imageStyle?: string;
-  };
-};
-
-const ALL_STYLES: ImageStyle[] = ['normal', 'wide', 'float-left', 'float-right'];
-
 export const ImageStyleButton = () => {
-  const editor = useBlockNoteEditor();
+  const editor = useBlockNoteEditor<
+    typeof BLOCK_SCHEMA.blockSchema,
+    typeof BLOCK_SCHEMA.inlineContentSchema,
+    typeof BLOCK_SCHEMA.styleSchema
+  >();
   const Components = useComponentsContext();
   const selectedBlocks = useSelectedBlocks(editor);
-  const selectedBlock =
-    (selectedBlocks.find((block) => block.type === 'image') as
-      | ImageBlock
-      | undefined) ?? null;
-  const rawStyle = selectedBlock?.props?.imageStyle ?? '';
-  const currentStyle: ImageStyle = ALL_STYLES.includes(rawStyle as ImageStyle)
-    ? (rawStyle as ImageStyle)
-    : 'normal';
+  const selectedBlock = selectedBlocks.find((block) => block.type === 'image');
+  const currentStyle = selectedBlock?.props.imageStyle ?? 'normal';
 
   if (!Components || !editor || !selectedBlock) {
     return null;

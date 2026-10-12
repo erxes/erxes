@@ -82,10 +82,14 @@ export const generateWorkflowConnection = (
     if (!workFlow.config) {
       workFlow.config = {};
     }
-    const existingConnections = workFlow.config.connections || [];
+    const existingConnections: {
+      sourceActionId?: ConnectionInfo['sourceId'];
+      handle?: ConnectionInfo['sourceHandle'];
+      targetActionId?: ConnectionInfo['actionId'];
+    }[] = workFlow.config.connections || [];
     const { sourceId, sourceHandle, actionId } = info;
 
-    let updatedConnections = existingConnections.map((conn: any) =>
+    const updatedConnections = existingConnections.map((conn) =>
       conn.sourceActionId === sourceId && conn.handle === sourceHandle
         ? { ...conn, targetActionId: actionId }
         : conn,
@@ -93,7 +97,7 @@ export const generateWorkflowConnection = (
 
     if (
       !existingConnections.some(
-        (conn: any) =>
+        (conn) =>
           conn.sourceActionId === sourceId && conn.handle === sourceHandle,
       )
     ) {

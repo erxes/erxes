@@ -1,11 +1,11 @@
 import { TextField } from 'erxes-ui';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IUsersDetails } from '@/settings/team-member/types';
+import { IUserDetailsType } from '@/settings/team-member/types';
 
 interface TextFieldProps {
   placeholder?: string;
   value: string;
-  field: keyof IUsersDetails;
+  field: keyof IUserDetailsType;
   _id: string;
   className?: string;
 }
@@ -20,12 +20,9 @@ export const TextFieldUserDetails = ({
   const { usersEdit } = useUserEdit();
   const onSave = (editingValue: string) => {
     if (editingValue === value) return;
-    usersEdit(
-      {
-        variables: { _id, details: { [field]: editingValue } },
-      },
-      [field],
-    );
+    usersEdit({
+      variables: { _id, details: { [field]: editingValue } },
+    });
   };
   return (
     <TextField

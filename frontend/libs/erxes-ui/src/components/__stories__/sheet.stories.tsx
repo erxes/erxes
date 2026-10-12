@@ -8,14 +8,6 @@ const meta: Meta<typeof Sheet.Content> = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  argTypes: {
-    side: {
-      description: 'The side of the screen to open the sheet from.',
-      defaultValue: 'right',
-      control: 'select',
-      options: ['right', 'bottom', 'left', 'top'],
-    },
-  },
 };
 
 export default meta;

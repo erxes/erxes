@@ -2,7 +2,7 @@ import { RecordTable, RecordTableTree, useMultiQueryState } from 'erxes-ui';
 import React from 'react';
 import { useTagContext } from 'ui-modules/modules/tags/components/TagProvider';
 import { createTagsColumns } from './TagsColumns';
-import { ITag } from 'ui-modules/modules/tags/types/Tag';
+import { TTag as ITag } from 'ui-modules/modules/tags/types/Tag';
 import { useTags } from 'ui-modules/modules/tags/hooks/useTags';
 import { useTranslation } from 'react-i18next';
 

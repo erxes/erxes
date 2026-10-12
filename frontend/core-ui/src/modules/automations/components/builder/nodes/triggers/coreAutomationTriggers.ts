@@ -1,8 +1,11 @@
 import WebhooksComponents from '@/automations/components/builder/nodes/triggers/webhooks/Webhooks';
-import { LazyAutomationComponent } from '@/automations/types';
+import {
+  AutomationComponentMap,
+  AutomationNodeType,
+} from '@/automations/types';
 import { lazy } from 'react';
 
-const coreTriggers = {
+const coreTriggers: AutomationComponentMap<AutomationNodeType.Trigger> = {
   ...WebhooksComponents,
   schedules: {
     sidebar: lazy(() =>
@@ -23,10 +26,6 @@ export enum TAutomationTriggerComponent {
   Sidebar = 'sidebar',
   NodeContent = 'nodeContent',
 }
-type TriggerComponents = {
-  sidebar?: LazyAutomationComponent<any>;
-  nodeContent?: LazyAutomationComponent<any>;
-};
 
 export function isCoreAutomationTriggerType(
   triggerName: TriggerName,
@@ -36,15 +35,11 @@ export function isCoreAutomationTriggerType(
   return trigger !== undefined && componentType in trigger;
 }
 
-// // Alternative version that returns the component if it exists
-export function getCoreAutomationTriggerComponent(
-  triggerName: TriggerName,
-  componentType: TAutomationTriggerComponent,
-): React.LazyExoticComponent<React.ComponentType<any>> | null {
+export function getCoreAutomationTriggerComponent<
+  T extends TAutomationTriggerComponent,
+>(triggerName: TriggerName, componentType: T) {
   if (isCoreAutomationTriggerType(triggerName, componentType)) {
-    return (
-      (coreTriggers[triggerName] as TriggerComponents)?.[componentType] ?? null
-    );
+    return coreTriggers[triggerName]?.[componentType] ?? null;
   }
   return null;
 }

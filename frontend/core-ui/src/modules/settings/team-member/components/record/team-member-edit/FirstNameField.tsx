@@ -20,12 +20,9 @@ export const FirstNameField = ({
   const { usersEdit } = useUserEdit();
   const onSave = (editingValue: string) => {
     if (editingValue === value) return;
-    usersEdit(
-      {
-        variables: { _id, details: { [field]: editingValue } },
-      },
-      [field],
-    );
+    usersEdit({
+      variables: { _id, details: { [field]: editingValue } },
+    });
   };
   return (
     <TextField

@@ -16,7 +16,9 @@ import { useSegments } from '@/segments/hooks/useSegments';
 export default function SegmentsIndexPage() {
   const { handleRefresh } = useSegments();
   const [contentType, setType] = useQueryState<string>('contentType');
-  const { data, loading } = useQuery(SEGMENTS_GET_TYPES);
+  const { data, loading } = useQuery<{
+    segmentsGetTypes: { contentType: string; description: string }[];
+  }>(SEGMENTS_GET_TYPES);
 
   useEffect(() => {
     if (!loading && data?.segmentsGetTypes?.length) {

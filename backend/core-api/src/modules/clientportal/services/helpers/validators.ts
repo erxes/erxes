@@ -68,7 +68,7 @@ export function detectIdentifierType(identifier: string): 'email' | 'phone' {
     }
   }
 
-  const phoneRegex = /^[\d\s\+\-\(\)]+$/;
+  const phoneRegex = /^[\d\s+()-]+$/;
   if (
     phoneRegex.test(identifier) &&
     identifier.replace(/\D/g, '').length >= 8

@@ -1,10 +1,5 @@
-export type IAttachment = {
-  url: string;
-  name: string;
-  size: number;
-  type: string;
-  duration?: number;
-};
+import type { IAttachment } from '../../types/Utils';
+export type { IAttachment } from '../../types/Utils';
 
 export type AttachmentContextType = {
   attachments: IAttachment[];

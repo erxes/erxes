@@ -378,7 +378,7 @@ export const TagList = ({
   const { value, selectedTags, setSelectedTags, onSelect } =
     useSelectTagsContext();
 
-  const selectedTagIds = Array.isArray(value) ? value : [value];
+  const selectedTagIds = getTagIds(value);
 
   if (!value?.length) {
     return (
@@ -548,7 +548,7 @@ export const ConversationTagList = ({
   const { value, selectedTags, setSelectedTags, onSelect } =
     useSelectTagsContext();
 
-  const selectedTagIds = Array.isArray(value) ? value : [value];
+  const selectedTagIds = getTagIds(value);
 
   if (!value?.length) {
     return null;

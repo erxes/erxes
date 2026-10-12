@@ -14,27 +14,21 @@ export const TextFieldUser = ({
   placeholder,
   value,
   field,
-  fieldId,
   _id,
   className,
 }: TextFieldProps) => {
   const { usersEdit } = useUserEdit();
   const onSave = (editingValue: string | number) => {
     if (editingValue === value) return;
-    usersEdit(
-      {
-        variables: { _id, [field]: editingValue },
-      },
-      [field],
-    );
+    usersEdit({
+      variables: { _id, [field]: editingValue },
+    });
   };
   return (
     <TextField
       placeholder={placeholder}
       value={value}
-      field={field}
-      fieldId={fieldId}
-      _id={_id}
+      scope={`user-${_id}-${field}`}
       onSave={onSave}
       className={className}
     />

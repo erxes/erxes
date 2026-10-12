@@ -70,6 +70,8 @@ const ItemProductProbabilities: FC<Props> = ({
   dealTotalAmounts = [],
   probability,
 }) => {
+  const { t } = useTranslation('sales');
+
   if (!totalAmount && !deals && !dealTotalAmounts) {
     return null;
   }
@@ -77,8 +79,6 @@ const ItemProductProbabilities: FC<Props> = ({
   const probabilityPercentage = probability
     ? Number.parseInt(getPercentage(probability), 10)
     : 0;
-
-  const { t } = useTranslation('sales');
 
   if (totalAmount) {
     return (

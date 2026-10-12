@@ -41,7 +41,7 @@ export const CompanyMoreColumnCell = ({
 
 export const companyMoreColumn = {
   id: 'more',
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
   cell: CompanyMoreColumnCell,
   size: 33,
 };

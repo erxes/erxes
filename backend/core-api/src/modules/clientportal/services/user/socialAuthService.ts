@@ -155,7 +155,7 @@ export async function registerWithSocial(
     profile,
     clientPortal._id,
   );
-  let user = await models.CPUser.findOne(query);
+  const user = await models.CPUser.findOne(query);
 
   if (user) {
     if (!hasSocialProvider(user, provider, profile.providerId)) {

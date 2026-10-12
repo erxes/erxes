@@ -734,13 +734,11 @@ export const loadEngageMessageClass = (
         replacedContent,
       } = args;
 
-      let prevMessage: IMessageDocument | null;
-
       const query = customerId
         ? { customerId, 'engageData.messageId': engageData.messageId }
         : { visitorId, 'engageData.messageId': engageData.messageId };
 
-      prevMessage = await sendTRPCMessage({
+      const prevMessage: IMessageDocument | null = await sendTRPCMessage({
         subdomain,
         pluginName: 'frontline',
         method: 'query',

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Badge, Spinner } from 'erxes-ui';
+import { Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IPos } from '@/pos/types/pos';
 import { Properties } from '@/pos/components/properties';
@@ -33,7 +33,6 @@ export const MainContent: React.FC<MainContentProps> = ({
   error,
 }) => {
   const { t } = useTranslation('sales');
-  const posType = posDetail?.type;
   const [headerSaveAction, setHeaderSaveAction] =
     useState<React.ReactNode | null>(null);
 
@@ -50,7 +49,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Properties
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -60,7 +58,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Payment
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -68,7 +65,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Permission
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -76,7 +72,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Products
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -84,7 +79,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Appearance
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -92,7 +86,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <ScreenConfig
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -100,7 +93,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <DeliveryConfig
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -108,7 +100,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <SyncCard
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -117,7 +108,6 @@ export const MainContent: React.FC<MainContentProps> = ({
         return (
           <Properties
             posId={posId}
-            posType={posType}
             onSaveActionChange={handleSaveActionChange}
           />
         );
@@ -149,10 +139,6 @@ export const MainContent: React.FC<MainContentProps> = ({
           <h1 className="max-w-[100px] text-xl font-semibold truncate text-foreground">
             {posDetail?.name || t('new-pos')}
           </h1>
-
-          <Badge variant="secondary" className="text-xs shrink-0">
-            {posDetail?.type || 'N/A'}
-          </Badge>
         </div>
 
         <div className="flex gap-2 items-center shrink-0">

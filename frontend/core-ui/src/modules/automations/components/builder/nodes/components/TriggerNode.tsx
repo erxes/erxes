@@ -20,22 +20,20 @@ import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
 
 // Configuration content wrapper
-const ConfigurationContent = ({
-  type,
-  config,
-}: {
-  type: string;
-  config: any;
-}) => (
+const ConfigurationContent = ({ data }: { data: NodeData }) => (
   <div className="rounded border bg-muted overflow-x-auto text-muted-foreground text-xs font-mono">
-    <TriggerNodeConfigurationContent type={type} config={config} />
+    <TriggerNodeConfigurationContent
+      type={data.type}
+      config={data.config}
+      nodeData={data}
+    />
   </div>
 );
 
 // Main configuration section
 const ConfigurationSection = ({ data }: { data: NodeData }) => (
   <div className="p-3">
-    <ConfigurationContent type={data.type || ''} config={data.config} />
+    <ConfigurationContent data={data} />
   </div>
 );
 
@@ -123,13 +121,7 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
 
         {data?.error && (
           <div className="mt-2">
-            <NodeErrorDisplay
-              error={data.error}
-              nodeId={id}
-              onClearError={(nodeId) => {
-                // Clear error logic can be added here
-              }}
-            />
+            <NodeErrorDisplay error={data.error} nodeId={id} />
           </div>
         )}
 

@@ -69,7 +69,14 @@ export const AutomationNodeLibraryTabContent = ({
               item={item}
               nodeType={type}
               onDragStart={onDragStart}
-              onSelectNode={onSelectNode}
+              onSelectNode={(node) =>
+                onSelectNode({
+                  ...node,
+                  nodeType: type,
+                  icon: node.icon ?? '',
+                  description: node.description ?? '',
+                })
+              }
             />
           ))}
         </Command.Group>

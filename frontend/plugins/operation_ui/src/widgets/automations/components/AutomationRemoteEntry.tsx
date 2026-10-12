@@ -40,6 +40,7 @@ export const AutomationRemoteEntries = ({
   moduleName,
   ...props
 }: AutomationRemoteEntryProps & { moduleName: string }) => {
+  const { t } = useTranslation('operation');
   const RemoteComponent = Remotes[moduleName];
 
   if (!RemoteComponent) {
@@ -48,7 +49,7 @@ export const AutomationRemoteEntries = ({
 
   return (
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary FallbackComponent={() => { const { t } = useTranslation('operation'); return <div>{t('error')}</div>; }}>
+      <ErrorBoundary fallback={<div>{t('error')}</div>}>
         <RemoteComponent {...props} />
       </ErrorBoundary>
     </Suspense>

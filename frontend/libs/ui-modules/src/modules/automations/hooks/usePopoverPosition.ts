@@ -43,7 +43,7 @@ export function usePopoverPosition({
       const viewportHeight = window.innerHeight;
       const spacing = 8; // 8px spacing between input and popover
 
-      let style: PopoverPositionStyle = { position: 'fixed' };
+      const style: PopoverPositionStyle = { position: 'fixed' };
 
       switch (position) {
         case 'bottom': {

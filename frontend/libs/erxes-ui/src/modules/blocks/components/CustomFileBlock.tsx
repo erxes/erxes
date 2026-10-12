@@ -27,7 +27,7 @@ type FileWrapperRenderProps = Omit<
 >;
 
 const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps =>
-  props;
+  props as unknown as FileWrapperRenderProps;
 
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
   const url = readImage(block.props.url, undefined, true);

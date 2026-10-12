@@ -19,7 +19,7 @@ export class ValidationError extends BaseError {
 
 export class RateLimitError extends BaseError {
   constructor(
-    message: string = 'Rate limit exceeded. Please try again later.',
+    message = 'Rate limit exceeded. Please try again later.',
   ) {
     super('RateLimitError', message);
   }
@@ -27,20 +27,20 @@ export class RateLimitError extends BaseError {
 
 export class AccountLockedError extends BaseError {
   constructor(
-    message: string = 'Account is temporarily locked. Please try again later.',
+    message = 'Account is temporarily locked. Please try again later.',
   ) {
     super('AccountLockedError', message);
   }
 }
 
 export class TokenExpiredError extends BaseError {
-  constructor(message: string = 'Token has expired') {
+  constructor(message = 'Token has expired') {
     super('TokenExpiredError', message);
   }
 }
 
 export class NetworkError extends BaseError {
-  constructor(message: string = 'Network error occurred. Please try again.') {
+  constructor(message = 'Network error occurred. Please try again.') {
     super('NetworkError', message);
   }
 }

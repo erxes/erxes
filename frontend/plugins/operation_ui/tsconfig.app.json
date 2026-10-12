@@ -23,6 +23,7 @@
     "src/**/*.js",
     "src/**/*.jsx",
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "../../libs/ui-modules/src/modules/documents/types/qz-tray.d.ts"
   ]
 }

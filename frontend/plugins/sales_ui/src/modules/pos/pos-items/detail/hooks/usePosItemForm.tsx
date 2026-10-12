@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { TPosItemFormData } from '../types/posItemType';
+import { TPosItemFormData } from '../../types/posItemType';
 
 export const usePosItemForm = (paymentSummary?: Record<string, number>) => {
   const summaryKey = React.useMemo(() => {

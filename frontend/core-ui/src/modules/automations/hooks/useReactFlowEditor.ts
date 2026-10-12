@@ -27,7 +27,6 @@ import {
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
-// @ts-ignore
 import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
 import { automationInsertHoverEdgeIdState } from '@/automations/states/automationState';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';

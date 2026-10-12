@@ -65,7 +65,7 @@ const presetVariants: Record<
   PresetType,
   { container: Variants; item: Variants }
 > = {
-  blur: {
+  'blur-sm': {
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, filter: 'blur(12px)' },

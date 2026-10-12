@@ -1,6 +1,6 @@
-import { IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle, type Icon } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import ReactJson from 'react-json-view';
 
 type LogDetailJsonSource =
@@ -8,11 +8,6 @@ type LogDetailJsonSource =
   | unknown[]
   | { value: string }
   | null;
-
-type LogDetailIconProps = {
-  size?: number;
-  className?: string;
-};
 
 const normalizeJsonSource = (value: unknown): LogDetailJsonSource => {
   if (value === null || value === undefined || value === '') {
@@ -43,7 +38,7 @@ export const LogDetailSection = ({
 }: {
   title: string;
   description?: string;
-  icon?: ComponentType<LogDetailIconProps>;
+  icon?: Icon;
   children: ReactNode;
   className?: string;
 }) => {
@@ -144,7 +139,7 @@ export const LogDetailMetricCard = ({
 }: {
   title: string;
   value?: ReactNode;
-  icon?: ComponentType<LogDetailIconProps>;
+  icon?: Icon;
   className?: string;
 }) => {
   return (

@@ -34,10 +34,10 @@ export interface IPermissionModule {
   actions?: IPermissionAction;
 }
 
-export interface IPermissionResponse extends ICursorListResponse<IPermission> {}
+export type IPermissionResponse = ICursorListResponse<IPermission>;
 
-export interface IQueryPermissionsHookOptions
-  extends QueryHookOptions<IPermissionResponse> {}
+export type IQueryPermissionsHookOptions =
+  QueryHookOptions<IPermissionResponse>;
 
 export enum PermissionsFilterScope {
   FilterBar = 'permissions-filter-bar',

@@ -1,5 +1,3 @@
-import type { Block } from '@blocknote/core';
-
 const isMention = (
   item: unknown,
 ): item is { type: 'mention'; props: { _id: string } } =>
@@ -13,7 +11,9 @@ const isMention = (
   '_id' in item.props &&
   typeof item.props._id === 'string';
 
-export const getMentionedUserIds = (content: readonly Block[] | undefined) =>
+export const getMentionedUserIds = (
+  content: readonly { content?: unknown }[] | undefined,
+) =>
   (content || []).flatMap((block) => {
     const inlineContent: readonly unknown[] = Array.isArray(block.content)
       ? block.content

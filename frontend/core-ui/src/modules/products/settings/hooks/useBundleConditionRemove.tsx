@@ -24,13 +24,13 @@ export const useBundleConditionRemove = (options?: MutationHookOptions) => {
         });
         options?.onError?.(e);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: 'Success',
           description: 'Bundle condition removed successfully',
           variant: 'default',
         });
-        options?.onCompleted?.();
+        options?.onCompleted?.(data);
       },
       refetchQueries: ['BundleConditions'],
     });

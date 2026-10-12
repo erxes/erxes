@@ -13,6 +13,7 @@ export const useAutomationVariableCodeMirrorDrop = ({
     () => [
       EditorView.domEventHandlers({
         dragover: (event) => {
+          if (!event.dataTransfer) return false;
           const payload = getAutomationVariableDragData(event.dataTransfer);
 
           if (!payload) {
@@ -31,6 +32,7 @@ export const useAutomationVariableCodeMirrorDrop = ({
           return false;
         },
         drop: (event, view) => {
+          if (!event.dataTransfer) return false;
           const payload = getAutomationVariableDragData(event.dataTransfer);
 
           setIsDragActive(false);

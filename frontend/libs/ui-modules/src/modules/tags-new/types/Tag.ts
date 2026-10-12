@@ -8,6 +8,7 @@ export interface ITag {
   parentId?: string;
   isGroup?: boolean;
   relatedIds?: string[];
+  order?: string;
   description?: string;
   totalObjectCount?: number;
   __typename?: 'Tag';

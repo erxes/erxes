@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { AutomationActionNodeConfigProps } from 'ui-modules';
+import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 interface ScheduleConfig {
   cron?: string;
@@ -8,7 +8,7 @@ interface ScheduleConfig {
 
 export const ScheduleNodeContent = ({
   config,
-}: AutomationActionNodeConfigProps<ScheduleConfig>) => {
+}: NodeContentComponentProps<ScheduleConfig>) => {
   const { t } = useTranslation('automations');
 
   return (

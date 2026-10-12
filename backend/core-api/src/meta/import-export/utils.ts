@@ -309,7 +309,7 @@ export const readImportBulkOutcome = ({
 export const resolveImportTagIds = async (
   models: IModels,
   type: string,
-  tags: string = '',
+  tags = '',
 ): Promise<string[]> => {
   const tagNames = [
     ...new Set(

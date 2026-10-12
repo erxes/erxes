@@ -1,8 +1,15 @@
-import { BlockEditor, cn, IBlockEditor, useBlockEditor } from 'erxes-ui';
+import {
+  BlockEditor,
+  cn,
+  IBlockEditor,
+  parseBlocks,
+  useBlockEditor,
+} from 'erxes-ui';
 import { useEffect } from 'react';
 import { AttributeInEditor, DocumentInEditor } from 'ui-modules';
 
 export const BroadcastEditor = ({
+  value,
   onChange,
   attribute = false,
   document = false,
@@ -12,7 +19,9 @@ export const BroadcastEditor = ({
   attribute?: boolean;
   document?: boolean;
 }) => {
-  const editor = useBlockEditor({});
+  const editor = useBlockEditor({
+    initialContent: parseBlocks(value) || undefined,
+  });
 
   useEffect(() => {
     const unsubscribe = editor.onChange(async (editor: IBlockEditor) => {

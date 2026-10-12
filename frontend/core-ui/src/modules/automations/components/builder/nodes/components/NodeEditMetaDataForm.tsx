@@ -61,10 +61,14 @@ export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
       position: currentNode?.position ?? currentEntry?.position,
     };
 
-    setAutomationBuilderFormValue(data.formPath, updatedEntry, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    setAutomationBuilderFormValue(
+      data.formPath as FieldPath<TAutomationBuilderForm>,
+      updatedEntry,
+      {
+        shouldValidate: true,
+        shouldDirty: true,
+      },
+    );
     updateNodeData(id, { ...data, ...doc });
     callback();
   };

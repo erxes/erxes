@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { fieldsCombinedByContentType } from '../../utils';
 
 interface IFieldsDefaultColumns {
-  [index: number]: { name: string; label: string; order: number } | {};
+  [index: number]: { name: string; label: string; order: number } | Record<string, never>;
 }
 
 export interface IFieldsQuery {

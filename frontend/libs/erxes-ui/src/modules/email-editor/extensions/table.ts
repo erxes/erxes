@@ -6,7 +6,6 @@ import {
 } from '@tiptap/core';
 import type { EditorState } from '@tiptap/pm/state';
 
-type Dispatch = ((args?: unknown) => unknown) | undefined;
 import {
   addColumnAfter,
   addColumnBefore,
@@ -25,6 +24,8 @@ import {
 } from '@tiptap/pm/tables';
 import { gapCursor } from '@tiptap/pm/gapcursor';
 import { TextSelection } from '@tiptap/pm/state';
+
+type Dispatch = ((args?: unknown) => unknown) | undefined;
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {

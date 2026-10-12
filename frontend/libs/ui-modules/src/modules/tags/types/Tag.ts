@@ -5,7 +5,7 @@ import { ITag } from 'ui-modules/index';
 export interface TTag {
   _id: string;
   name: string;
-  type?: string;
+  type?: string | null;
   colorCode?: string;
   createdAt?: string;
   cursor?: string;
@@ -21,7 +21,7 @@ export interface TTag {
 
 export interface TTagQueryResponse {
   name: string;
-  type?: string;
+  type?: string | null;
   isGroup: boolean;
   parentId?: string | null;
 }

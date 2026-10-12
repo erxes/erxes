@@ -48,6 +48,7 @@ export const CreateTagForm = () => {
         setNewTagName('');
         onSelect({
           _id: tagsAdd._id,
+          type: tagType,
           ...values,
           order: tagsAdd.order,
         });
@@ -76,7 +77,8 @@ export const CreateTagForm = () => {
             render={({ field }) => (
               <Form.Item className="mb-2">
                 <Form.Label>Parent Tag</Form.Label>
-                <SelectTags
+                <SelectTags.Provider
+                  mode="single"
                   tagType={tagType}
                   value={field.value}
                   onValueChange={(tag) => {
@@ -94,7 +96,7 @@ export const CreateTagForm = () => {
                       <SelectTags.Command disableCreateOption />
                     </Combobox.Content>
                   </Popover>
-                </SelectTags>
+                </SelectTags.Provider>
                 <Form.Message />
               </Form.Item>
             )}

@@ -40,7 +40,7 @@ const companiesList = [
 
 export const Default: Story = {
   args: {
-    onValueChange: (value: string) => alert(`Selected company ID: ${value}`),
+    onValueChange: (value) => alert(`Selected company ID: ${value}`),
   },
   parameters: {
     mocks: [
@@ -65,7 +65,7 @@ export const Default: Story = {
 export const WithInitialValue: Story = {
   args: {
     value: '1',
-    onValueChange: (value: string) => alert(`Selected company ID: ${value}`),
+    onValueChange: (value) => alert(`Selected company ID: ${value}`),
   },
   parameters: Default.parameters,
 };

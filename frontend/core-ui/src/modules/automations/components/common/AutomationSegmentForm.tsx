@@ -91,7 +91,7 @@ const UseExistingSegment = ({
           selected={segmentId}
           unnamedLabel="Current conditions"
           onSelect={(id) => {
-            if (id) {
+            if (typeof id === 'string' && id) {
               onSelect(id);
               setOpen(false);
             }

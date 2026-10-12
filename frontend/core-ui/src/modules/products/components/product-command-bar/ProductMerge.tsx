@@ -254,7 +254,6 @@ const ProductMergeBody = ({
       values[field.key] = hasValue(a) ? a : b;
     }
     return values;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productA?._id, productB?._id]);
 
   const [value, setValue] = useState<Record<string, any>>(initValues);

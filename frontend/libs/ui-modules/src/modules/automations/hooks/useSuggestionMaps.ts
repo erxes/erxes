@@ -23,7 +23,7 @@ export function useSuggestionMaps(
 
   for (let suggestion of allSuggestions) {
     const { type, trigger } = suggestion || {};
-    if (Boolean(enabledTypes?.[type])) {
+    if (enabledTypes?.[type]) {
       suggestions.push(suggestion);
       if (suggestionsOptions?.[type]) {
         suggestion = {

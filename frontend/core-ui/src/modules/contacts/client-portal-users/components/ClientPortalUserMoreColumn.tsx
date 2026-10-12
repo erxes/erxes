@@ -40,7 +40,7 @@ export const ClientPortalUserMoreColumnCell = ({
 
 export const clientPortalUserMoreColumn: ColumnDef<ICPUser> = {
   id: 'more',
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
   cell: ClientPortalUserMoreColumnCell,
   size: 33,
 };

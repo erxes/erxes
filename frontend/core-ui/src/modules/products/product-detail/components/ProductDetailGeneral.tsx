@@ -115,7 +115,7 @@ export const ProductDetailGeneral = () => {
               <div className="space-y-2">
                 <Label>{t('unit-price')}</Label>
                 <CurrencyField.ValueInput
-                  value={field.value}
+                  value={field.value ?? undefined}
                   onChange={(v) => field.onChange(v)}
                 />
               </div>
@@ -151,7 +151,10 @@ export const ProductDetailGeneral = () => {
                 render={({ field }) => (
                   <div className="space-y-2">
                     <Label>{t('duration-type')}</Label>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value ?? undefined}
+                      onValueChange={field.onChange}
+                    >
                       <Select.Trigger>
                         <Select.Value placeholder={t('select-duration-type')} />
                       </Select.Trigger>
