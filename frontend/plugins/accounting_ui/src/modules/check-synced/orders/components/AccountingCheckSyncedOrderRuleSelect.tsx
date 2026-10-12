@@ -8,7 +8,6 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import i18n from 'i18next';
 import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
@@ -20,20 +19,22 @@ type AccountingSyncOrderRulesQueryResult = {
 };
 
 const ORDER_RETURN_TYPE_LABELS = {
-  delete: 'Устгах',
-  fullTr: 'Бүтэн гүйлгээ',
-  onlySale: 'Зөвхөн борлуулалт',
+  delete: 'delete',
+  fullTr: 'full-transaction',
+  onlySale: 'sales-only',
 };
 
-const getRuleLabel = (rule?: AccountingOrderRule) =>
-  rule?.value?.title || rule?.subId || rule?._id || 'Select rule';
+const getRuleLabel = (
+  rule: AccountingOrderRule | undefined,
+  fallback: string,
+) => rule?.value?.title || rule?.subId || rule?._id || fallback;
 
-const getRuleTypeLabel = (rule: AccountingOrderRule) => {
+const getRuleTypeLabelKeys = (rule: AccountingOrderRule) => {
   const returnType = rule.value?.returnType;
 
   return returnType
-    ? `${i18n.t('accounting:sale-return')} / ${ORDER_RETURN_TYPE_LABELS[returnType]}`
-    : i18n.t('accounting:sale-return');
+    ? ['sale-return', ORDER_RETURN_TYPE_LABELS[returnType]]
+    : ['sale-return'];
 };
 
 const useAccountingCheckSyncedOrderRules = () =>
@@ -96,9 +97,13 @@ const AccountingCheckSyncedOrderRuleContent = ({
             }}
           >
             <span className="flex flex-col">
-              <span className="font-medium">{getRuleLabel(rule)}</span>
+              <span className="font-medium">
+                {getRuleLabel(rule, t('Select rule'))}
+              </span>
               <span className="text-xs text-muted-foreground">
-                {getRuleTypeLabel(rule)}
+                {getRuleTypeLabelKeys(rule)
+                  .map((label) => t(label))
+                  .join(' / ')}
               </span>
             </span>
             <Combobox.Check checked={ruleId === rule._id} />
@@ -164,7 +169,7 @@ export const AccountingCheckSyncedOrderRuleFilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="orderRuleId">
-            {getRuleLabel(rule)}
+            {getRuleLabel(rule, t('Select rule'))}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

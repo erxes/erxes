@@ -166,7 +166,9 @@ const SalesStageContent = ({
   if (!pipelineId) {
     return (
       <div className="flex items-center justify-center h-24">
-        <span className="text-muted-foreground">{t('choose-pipeline-first')}</span>
+        <span className="text-muted-foreground">
+          {t('choose-pipeline-first')}
+        </span>
       </div>
     );
   }
@@ -213,7 +215,9 @@ const DateTypeContent = ({
     <Command>
       <Command.Input placeholder={t('search-date-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">{t('no-date-types-found')}</span>
+        <span className="text-muted-foreground">
+          {t('no-date-types-found')}
+        </span>
       </Command.Empty>
       <Command.List>
         {ACCOUNTING_CHECK_SYNCED_DEAL_DATE_TYPES.map((dateType: DateType) => (
@@ -222,7 +226,9 @@ const DateTypeContent = ({
             value={dateType.value}
             onSelect={() => onValueChange(dateType.value)}
           >
-            <span className="font-medium">{t(dateType.label)}</span>
+            <span className="font-medium">
+              {t(dateType.label, { nsSeparator: false })}
+            </span>
             <Combobox.Check checked={value === dateType.value} />
           </Command.Item>
         ))}
@@ -506,7 +512,9 @@ export const AccountingDealDateTypeFilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="dateType">
-            {selectedDateType ? t(selectedDateType.label) : t('select-date-type')}
+            {selectedDateType
+              ? t(selectedDateType.label, { nsSeparator: false })
+              : t('select-date-type')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

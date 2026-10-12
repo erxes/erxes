@@ -81,6 +81,13 @@
         "cwd": "frontend/plugins/operation_ui",
         "command": "graphql-codegen --config codegen.ts"
       }
+    },
+    "codegen:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "frontend/plugins/operation_ui",
+        "command": "graphql-codegen --config codegen.ts --watch"
+      }
     }
   }
 }

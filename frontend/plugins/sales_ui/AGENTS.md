@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-12`
 
 ## Scope
 
@@ -198,6 +198,14 @@
 
 ## Local Invariants
 
+- Expandable navigation rows end in the host sidebar's chevron:
+  `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
+  open, never a filled caret, so the rotation stays on the compositor and
+  matches the main sidebar.
+- Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
+  gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
+  the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
@@ -223,6 +231,13 @@
   discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
+- Deal start/close date selects: the `input` variant (used by deal detail) is
+  the erxes-ui `DatePicker` input itself (own popover); a past close date turns
+  it red and appends an "Ended N days ago" segment. Other variants keep a
+  trigger button whose popover holds `DatePicker` in `inline` mode (typed input
+  above the calendar), with the "Ended" badge as the trigger for a past close
+  date. Typing uses `YYYY-MM-DD`; a complete valid date or a calendar pick
+  commits, and clearing sends `null` so the backend unsets the date.
 
 ## Validation
 

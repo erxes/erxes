@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSetAtom } from 'jotai';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
+  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
@@ -106,6 +107,7 @@ export const usePutResponseVariables = (
 
 export const usePutResponse = (options?: QueryHookOptions) => {
   const variables = usePutResponseVariables(options?.variables);
+  const fetchingMoreRef = useRef(false);
   const { data, loading, fetchMore } = useQuery<{
     putResponses: {
       list: IPutResponse[];
@@ -119,6 +121,7 @@ export const usePutResponse = (options?: QueryHookOptions) => {
       ...options?.variables,
       ...variables,
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   const setPutResponseTotalCount = useSetAtom(putResponseTotalCountAtom);
@@ -137,12 +140,14 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     }
   }, [totalCount, loading, data, setPutResponseTotalCount]);
 
-  const handleFetchMore = ({
+  const handleFetchMore = async ({
     direction,
   }: {
     direction: EnumCursorDirection;
   }) => {
     if (
+      loading ||
+      fetchingMoreRef.current ||
       !validateFetchMore({
         direction,
         pageInfo,
@@ -151,30 +156,36 @@ export const usePutResponse = (options?: QueryHookOptions) => {
       return;
     }
 
-    fetchMore({
-      variables: {
-        ...variables,
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
-        limit: PUT_RESPONSE_PER_PAGE,
-        direction,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          putResponses: {
-            list: [
-              ...(prev.putResponses?.list || []),
-              ...fetchMoreResult.putResponses.list,
-            ],
-            totalCount: fetchMoreResult.putResponses.totalCount,
-            pageInfo: fetchMoreResult.putResponses.pageInfo,
-          },
-        });
-      },
-    });
+    fetchingMoreRef.current = true;
+    try {
+      await fetchMore({
+        variables: {
+          ...variables,
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+          limit: PUT_RESPONSE_PER_PAGE,
+          direction,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return {
+            ...prev,
+            putResponses: {
+              ...mergeCursorData({
+                direction,
+                prevResult: prev.putResponses,
+                fetchMoreResult: fetchMoreResult.putResponses,
+              }),
+              totalCount: fetchMoreResult.putResponses.totalCount,
+            },
+          };
+        },
+      });
+    } finally {
+      fetchingMoreRef.current = false;
+    }
   };
 
   return {

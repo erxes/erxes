@@ -26,6 +26,11 @@ import {
   IconUsersGroup,
 } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
+import { SETTINGS_ROUTES as STRUCTURE_ROUTES } from '@/settings/structure/constants/structure-routes';
+import { TeamMembersPath } from '@/settings/team-member/constants/teamMemberRoutes';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
+import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
+import { AppPath } from '@/types/paths/AppPath';
 
 export const KEY_LABELS = {
   UPLOAD_FILE_TYPES: 'Upload File Types',
@@ -252,6 +257,102 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
     developer,
   };
 };
+
+export type TSettingSubPath = {
+  name: string;
+  path: string;
+};
+
+type TSettingSubNavigation = {
+  name: string;
+  items: TSettingSubPath[];
+};
+
+const settingsPath = (path: string) => `/${AppPath.Settings}/${path}`;
+
+export const GET_SETTINGS_SUB_NAVIGATION = (
+  t: TFunction,
+  sidebarT: TFunction,
+): Record<string, TSettingSubNavigation> => ({
+  [SettingsWorkspacePath.TeamMember]: {
+    name: sidebarT('team-member'),
+    items: [
+      {
+        name: t('Members'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`,
+      },
+      {
+        name: t('Permission groups'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
+      },
+    ],
+  },
+  [SettingsWorkspacePath.Structure]: {
+    name: sidebarT('structure'),
+    items: Object.entries(STRUCTURE_ROUTES).map(([path, name]) => ({
+      name,
+      path,
+    })),
+  },
+  [SettingsWorkspacePath.Automations]: {
+    name: sidebarT('automations'),
+    items: [
+      { name: 'Agents', path: AutomationSettingsPath.Agents },
+      { name: 'Bots', path: AutomationSettingsPath.Bots },
+    ],
+  },
+  [SettingsWorkspacePath.EmailDeliveries]: {
+    name: 'Email delivery',
+    items: [
+      {
+        name: 'Messages',
+        path: settingsPath(SettingsWorkspacePath.EmailDeliveries),
+      },
+      {
+        name: 'Addresses',
+        path: `${settingsPath(
+          SettingsWorkspacePath.EmailDeliveries,
+        )}?view=addresses`,
+      },
+      {
+        name: 'Limits',
+        path: `${settingsPath(
+          SettingsWorkspacePath.EmailDeliveries,
+        )}?view=limits`,
+      },
+    ],
+  },
+  [SettingsWorkspacePath.ImportExport]: {
+    name: 'Import & Export',
+    items: [
+      {
+        name: t('import', { ns: 'importExport' }),
+        path: ImportExportSettingsPath.Import,
+      },
+      {
+        name: t('export', { ns: 'importExport' }),
+        path: ImportExportSettingsPath.Export,
+      },
+    ],
+  },
+  contacts: {
+    name: sidebarT('contacts', 'Contacts'),
+    items: [
+      { name: 'Customers', path: settingsPath('contacts') },
+      { name: 'Companies', path: settingsPath('contacts/companies') },
+    ],
+  },
+});
+
+export const findSettingsSubNavigation = (
+  subNavigation: Record<string, TSettingSubNavigation>,
+  pathname: string,
+) =>
+  Object.entries(subNavigation).find(([path]) => {
+    const itemPath = settingsPath(path);
+
+    return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+  })?.[1];
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',

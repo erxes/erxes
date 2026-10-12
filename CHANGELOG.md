@@ -1,3 +1,13 @@
+
+
+## [3.2.19](https://github.com/erxes/erxes/compare/3.2.18...3.2.19) (2026-10-10)
+
+
+### Bug Fixes
+
+* loyalty pricing products tag ([83bb391](https://github.com/erxes/erxes/commit/83bb391261c3d384e9ea5a18ae13c7e95862b46f))
+* posclient products sync with batch checkPricing ([b39e83b](https://github.com/erxes/erxes/commit/b39e83b799837db970c66a1e750a679b9d3c4e00))
+
 # Changelog
 
 ## [3.2.18](https://github.com/erxes/erxes/compare/3.2.17...3.2.18) (2026-10-10)
