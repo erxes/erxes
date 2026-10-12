@@ -42,6 +42,7 @@ export const useTicketsVariables = (
     priority,
     statusId,
     state,
+    channelId,
     pipelineId,
     segments,
     createdStartDate,
@@ -54,9 +55,10 @@ export const useTicketsVariables = (
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
-    priority: string;
+    priority: number;
     statusId: string;
     state: string;
+    channelId: string;
     pipelineId: string;
     segments: string[];
     createdStartDate: string;
@@ -72,6 +74,7 @@ export const useTicketsVariables = (
     'priority',
     'statusId',
     'state',
+    'channelId',
     'pipelineId',
     'segments',
     'createdStartDate',
@@ -97,6 +100,7 @@ export const useTicketsVariables = (
     assigneeId: assignee,
     priority: priority,
     statusId: statusId,
+    channelId: channelId,
     pipelineId: pipelineId,
     state: state,
     segmentIds: segments || undefined,

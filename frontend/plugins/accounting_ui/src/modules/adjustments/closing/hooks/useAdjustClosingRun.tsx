@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_DETAIL_QUERY } from '../graphql/adjustClosingDetail';
@@ -10,6 +11,7 @@ export const useAdjustClosingRun = (
   adjustId: string,
   options?: OperationVariables,
 ) => {
+  const { t } = useTranslation('accounting');
   const [_calculateMutation, { loading: calculateLoading }] = useMutation(
     ADJUST_CLOSING_CALCULATE,
     options,
@@ -31,7 +33,7 @@ export const useAdjustClosingRun = (
 
     onError: (error: Error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -40,7 +42,7 @@ export const useAdjustClosingRun = (
 
     onCompleted: (data: unknown) => {
       toast({
-        title: 'Success',
+        title: t('success'),
         description,
       });
       callOptions?.onCompleted?.(data);

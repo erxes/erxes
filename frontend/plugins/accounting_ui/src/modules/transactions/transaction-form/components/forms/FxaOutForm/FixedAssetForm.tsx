@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import { IconX } from '@tabler/icons-react';
 import {
@@ -25,6 +26,7 @@ export const FixedAssetForm = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const { fields, append } = useFieldArray({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
@@ -103,11 +105,11 @@ export const FixedAssetForm = ({
             onClick={removeChecked}
           >
             <IconX />
-            Сонгосныг хасах
+            {t('remove-selected')}
           </Button>
         )}
         <div className="flex items-center">
-          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
+          <Label className="mr-3">{t('detailed-view')}</Label>
           <Switch
             checked={showAdvancedView}
             onCheckedChange={(checked) => setShowAdvancedView(checked)}
@@ -127,6 +129,7 @@ const FixedAssetTableHeader = ({
   journalIndex: number;
   details: TFxaDetail[];
 }) => {
+  const { t } = useTranslation('accounting');
   const isAllChecked =
     details.length > 0 && details.every((detail) => detail.checked);
   const showAdvancedView = useAtomValue(showAdvancedViewState);
@@ -150,14 +153,14 @@ const FixedAssetTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Үндсэн хөрөнгө</Table.Head>
-        <Table.Head>Тоо хэмжээ</Table.Head>
-        <Table.Head>Нэгж үнэ</Table.Head>
-        <Table.Head>Дүн</Table.Head>
+        <Table.Head>{t('fixed-asset')}</Table.Head>
+        <Table.Head>{t('quantity-label')}</Table.Head>
+        <Table.Head>{t('unit-price')}</Table.Head>
+        <Table.Head>{t('amount')}</Table.Head>
         {showAdvancedView && (
           <>
-            <Table.Head>Салбар</Table.Head>
-            <Table.Head>Хэлтэс</Table.Head>
+            <Table.Head>{t('branch')}</Table.Head>
+            <Table.Head>{t('department')}</Table.Head>
           </>
         )}
       </Table.Row>

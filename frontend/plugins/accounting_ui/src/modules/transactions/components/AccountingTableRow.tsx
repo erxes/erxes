@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { flexRender } from '@tanstack/react-table';
 import { cn, RecordTable, Table } from 'erxes-ui';
 import React, { useMemo } from 'react';
@@ -8,10 +9,10 @@ import {
 } from '../utils/transactionNavigation';
 
 const PTR_STATUS_LABELS: Record<string, string> = {
-  diff: 'Зөрүүтэй',
-  ok: 'Тэнцсэн',
-  acc: 'Дансны үлдэгдэл',
-  unknown: 'Тодорхойгүй',
+  diff: 'discrepancy',
+  ok: 'balanced',
+  acc: 'account-balance',
+  unknown: 'unknown',
 };
 
 const formatAmount = (amount?: number) => (amount ?? 0).toLocaleString();
@@ -31,6 +32,7 @@ export const AccountingTableRow = ({
   handleRowViewChange?: (id: string, inView: boolean) => void;
   Row?: React.ComponentType<React.HTMLAttributes<HTMLTableRowElement>>;
 }) => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const location = useLocation();
   const RowComponent = Row || RecordTable.Row;
@@ -54,7 +56,7 @@ export const AccountingTableRow = ({
     const isDiff = row.original.ptrStatus === 'diff' || !!ptrInfo?.diff;
     const ptrStatus = ptrInfo?.status || row.original.ptrStatus;
     const ptrStatusLabel =
-      PTR_STATUS_LABELS[ptrStatus || ''] || ptrStatus || 'Тодорхойгүй';
+      t(PTR_STATUS_LABELS[ptrStatus || ''] || '') || ptrStatus || t('unknown');
 
     return (
       <React.Fragment key={`row-group-${row.original._id}`}>
@@ -100,7 +102,7 @@ export const AccountingTableRow = ({
                 }}
               >
                 <span className="shrink-0 text-foreground">
-                  {row.original.ptrNumber || 'Дугааргүй багц'}
+                  {row.original.ptrNumber || t('unnumbered-batch')}
                 </span>
                 <span
                   className={cn(
@@ -108,20 +110,23 @@ export const AccountingTableRow = ({
                     isDiff && 'text-red-700',
                   )}
                 >
-                  Байдал: <b>{ptrStatusLabel}</b>
+                  {t('condition', { nsSeparator: false })}{' '}
+                  <b>{ptrStatusLabel}</b>
                 </span>
                 <span className="shrink-0 text-muted-foreground">
-                  Баримт:{' '}
+                  {t('voucher-label', { nsSeparator: false })}{' '}
                   <b>
                     {ptrInfo?.len ?? 0} / {ptrInfo?.activeLen ?? 0}
                   </b>
                 </span>
                 <span className="shrink-0 text-muted-foreground">
-                  Дүн: <b>{formatAmount(ptrInfo?.value)}</b>
+                  {t('amount-label', { nsSeparator: false })}{' '}
+                  <b>{formatAmount(ptrInfo?.value)}</b>
                 </span>
                 {ptrInfo?.diff ? (
                   <span className="shrink-0 text-red-700">
-                    Зөрүү: <b>{formatAmount(ptrInfo.diff)}</b>
+                    {t('difference-label', { nsSeparator: false })}{' '}
+                    <b>{formatAmount(ptrInfo.diff)}</b>
                   </span>
                 ) : null}
               </div>
