@@ -280,7 +280,7 @@ export const DatePicker = ({
     <div
       aria-disabled={isDisabled}
       className={cn(
-        'flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+        'flex h-8 w-full items-center gap-1 rounded-sm bg-background px-3 text-sm text-foreground shadow-xs transition-[color,box-shadow] focus-within:shadow-focus',
         isDisabled && 'cursor-not-allowed opacity-50',
         className,
       )}
@@ -295,7 +295,8 @@ export const DatePicker = ({
         onFocus={() => setIsFocused(true)}
         onBlur={handleInputBlur}
         onKeyDown={handleInputKeyDown}
-        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed"
+        autoComplete="off"
+        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed"
       />
       {canClear ? (
         <button
@@ -306,12 +307,12 @@ export const DatePicker = ({
             e.stopPropagation();
             handleClear();
           }}
-          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground opacity-50 hover:bg-accent hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-hidden focus-visible:shadow-focus"
         >
           <IconX className="size-4" />
         </button>
       ) : (
-        <IconCalendar className="size-4 shrink-0 text-muted-foreground" />
+        <IconCalendar className="size-4 shrink-0 text-muted-foreground opacity-50" />
       )}
     </div>
   );
