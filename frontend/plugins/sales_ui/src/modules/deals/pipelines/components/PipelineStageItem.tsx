@@ -19,7 +19,7 @@ import { PipelineStageRefundPoints } from '@/deals/pipelines/components/Pipeline
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type TPipelineStageForm = Omit<TPipelineForm, 'stages'> & {
   stages?: Array<
@@ -76,6 +76,7 @@ export const PipelineStageItem = (props: Props) => {
   } = props;
 
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation('sales');
   const { errors } = useFormState({
     control,
@@ -88,6 +89,12 @@ export const PipelineStageItem = (props: Props) => {
       setShowExtraFields(true);
     }
   }, [codeError]);
+
+  useEffect(() => {
+    if (autoFocusName && !dragOverlay) {
+      nameInputRef.current?.focus();
+    }
+  }, [autoFocusName, dragOverlay]);
 
   return (
     <div
@@ -155,8 +162,11 @@ export const PipelineStageItem = (props: Props) => {
                     <Form.Control>
                       <Input
                         {...field}
+                        ref={(element) => {
+                          field.ref(element);
+                          nameInputRef.current = element;
+                        }}
                         type="text"
-                        autoFocus={autoFocusName && !dragOverlay}
                         onFocus={onNameFocus}
                         placeholder={t('enter-stage-name')}
                       />

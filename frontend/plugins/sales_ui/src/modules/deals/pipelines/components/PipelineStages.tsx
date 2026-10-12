@@ -25,7 +25,7 @@ type Props = {
 export const PipelineStages = ({ form, stagesLoading }: Props) => {
   const { t } = useTranslation('sales');
   const { control } = form;
-  const [newStageId, setNewStageId] = useState<string>();
+  const [newStageId, setNewStageId] = useState<string | null>(null);
 
   const { fields, append, remove, move } = useFieldArray({
     control,
@@ -108,7 +108,7 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
                   control={control}
                   stage={fields[stageIndex]}
                   autoFocusName={fields[stageIndex]._id === newStageId}
-                  onNameFocus={() => setNewStageId(undefined)}
+                  onNameFocus={() => setNewStageId(null)}
                   onRemoveStage={() => remove(stageIndex)}
                 />
               );

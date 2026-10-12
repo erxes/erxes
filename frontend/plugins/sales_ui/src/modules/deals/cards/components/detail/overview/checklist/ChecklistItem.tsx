@@ -29,11 +29,11 @@ import { useTranslation } from 'react-i18next';
 export const ChecklistItem = ({
   item,
   stageId,
-  autoFocus = false,
+  focusNewItem = false,
 }: Readonly<{
   item: IChecklist;
   stageId?: string;
-  autoFocus?: boolean;
+  focusNewItem?: boolean;
 }>) => {
   const [open, setOpen] = useState(false);
 
@@ -57,11 +57,11 @@ export const ChecklistItem = ({
   const { t } = useTranslation('sales');
 
   useEffect(() => {
-    if (!autoFocus) return;
+    if (!focusNewItem) return;
 
     setOpen(true);
     setAdding(true);
-  }, [autoFocus]);
+  }, [focusNewItem]);
 
   useEffect(() => {
     if (!Array.isArray(item.items)) return;

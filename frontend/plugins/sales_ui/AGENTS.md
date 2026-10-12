@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-12`
 
 ## Scope
 
@@ -44,6 +44,8 @@
 - Deal detail broker selection shows `Broker: None` until a broker type is
   chosen, then renders a matching entity selector with a `Select broker`
   placeholder.
+- Newly created deal checklists open for item entry, and newly added pipeline
+  stages focus their name field after the row mounts.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
@@ -92,6 +94,7 @@
 
 - Apollo Client owns pipeline/deal/POS server state; React Hook Form owns
   pipeline and POS settings forms.
+- New checklist and pipeline stage focus targets use local component state.
 - Product table filters, Advanced view, Tax view, expanded view, and edit sheet
   open state are local React state inside the deal product detail surface.
 - `propertyIds` is submitted with pipeline create/edit and reloaded from
@@ -106,6 +109,8 @@
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
+- Newly added pipeline stages focus only their own name field, including when
+  rendered after the sortable list mounts.
 - Deal product create, update, and delete flows must keep the table responsive
   without requiring a manual refresh.
 - Deal product selectors may pass sales context such as `pipelineId` into
@@ -128,7 +133,11 @@
 
 ## Validation
 
+- `pnpm nx lint sales_ui`
 - `pnpm nx build sales_ui`
+- `pnpm nx test sales_ui`
+- Deal detail smoke scenario: create a checklist, confirm it opens for item
+  entry, and add a pipeline stage to confirm its name field receives focus.
 - Deal product smoke scenario: open a deal's Products tab, toggle expanded view,
   filter products, edit a row, add products, save, close the expanded view, and
   verify the inline table shows the same state.

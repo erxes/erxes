@@ -59,7 +59,7 @@ export const Checklists = ({
               key={checklist._id}
               item={checklist}
               stageId={stageId}
-              autoFocus={checklist._id === newChecklistId}
+              focusNewItem={checklist._id === newChecklistId}
             />
           ))}
         </div>
