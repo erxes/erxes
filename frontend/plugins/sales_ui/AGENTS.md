@@ -90,8 +90,9 @@
 - Deal detail broker selection shows `Broker: None` until a broker type is
   chosen, then renders a matching entity selector with a `Select broker`
   placeholder.
-- Newly created deal checklists open for item entry, and newly added pipeline
-  stages focus their name field after the row mounts.
+- Newly created deal checklists open for item entry and keep the empty entry
+  field focused after each item is added. Newly added pipeline stages focus
+  their name field after the row mounts.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
