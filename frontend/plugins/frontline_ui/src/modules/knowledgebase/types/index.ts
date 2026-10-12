@@ -17,7 +17,6 @@ export type TKnowledgeBaseSection =
   | 'kbsettings';
 
 export enum KnowledgeBaseHotKeyScope {
-  TopicsPage = 'knowledge-base-topics-page',
   CategoriesPage = 'knowledge-base-categories-page',
   ArticlesPage = 'knowledge-base-articles-page',
 }

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-12`
 
 ## Scope
 
@@ -47,12 +47,12 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
-  and a record table behind one list/thumbnail toggle — and,
-  per topic, the `articles`, `categories` and `kbsettings` routes behind a shared
-  knowledge base sidebar — record tables with inline editing, filters, command
-  bar bulk delete, and the topic, category and article drawers. A topic's
-  embed script opens as a dialog from its `kbsettings` page.
+- Knowledge base UI: a topic tree sidebar beside every knowledge base page —
+  each topic collapses open to its categories (nested by parent, with article
+  counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
+  routes: record tables with inline editing, filters, command bar bulk delete,
+  and the topic, category and article drawers. A topic's embed script opens as
+  a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
@@ -529,9 +529,10 @@ owns the setup form and connection actions.
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                        |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel   |
-| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                         |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route selection hook, open-topics atom, sidebar topic/category drawers              |
+| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
 | Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
@@ -1697,17 +1698,61 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `useIsSettings` matches any path containing `/settings` and would swap the
   host's second navigation column for the workspace settings menu (the CMS
   names its own route `cmssettings` for the same reason).
-- The knowledge base is route-driven, not query-param driven: the topics index
-  lives at `/frontline/knowledgebase` and every per-topic surface at
+- The knowledge base is route-driven, not query-param driven: the index lives
+  at `/frontline/knowledgebase` and every per-topic surface at
   `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
   sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
-  reintroduce a `?topicId=`/`?categoryId=` selection for navigation. `editId`
-  (and the articles table's `categoryId` and `status` filters) stay query
-  params, because they are filter and drawer state, not routes.
-- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
-  default, mirroring the CMS website list) and the record table
-  (`TopicsRecordTable`), switched by the header toggle and sharing one
-  `useTopics` query and filter bar. Never drop one of the two.
+  reintroduce a `?topicId=` selection. A sidebar category links to its topic's
+  `articles` route with the existing `categoryId` filter param, so the sidebar
+  and the filter bar chip always show the same selection. `editId`,
+  `createTopic`, `categoryId` and `status` stay query params, because they are
+  filter and drawer state, not routes.
+- `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
+  every knowledge base page, including the index; there is no topics card grid
+  or topics table. The index redirects to the first topic's `articles` route,
+  carrying the query string so `?createTopic=true` from the Frontline
+  navigation still opens the sidebar's topic drawer; with no topics it shows
+  `TopicsEmptyState`.
+- The sidebar reads its selection from the route through
+  `useKnowledgeBaseRoute` and its expanded topics from
+  `kbSidebarOpenTopicIdsAtom`, so expansion survives moving between a topic's
+  pages and the current topic always opens. It queries `TOPICS` (with nested
+  categories) without the search/brand filters — the articles search box must
+  never filter the tree. Article, category and topic writes all refetch
+  `TOPICS`, so tree titles and per-category article counts stay live.
+- The sidebar follows the Sales boards settings list: an uppercase
+  `Knowledge bases (N)` label with a ghost `+` button beside it. The `+` opens
+  the full `TopicDrawer` sheet (every topic field, including appearance), and
+  creating or editing a category from the sidebar opens the full
+  `CategoryDrawer` sheet — never a reduced create dialog for either. Each row has one
+  `...` button, shown on hover, that opens a dropdown through
+  `KbSidebarRowActions` (topic: new category, manage categories, settings —
+  a topic is deleted only from its `kbsettings` danger zone; category: edit,
+  delete) — never a strip of inline icons. The sidebar is `w-64`. A topic row
+  is `size="lg"` with the title only — no chevron and no topic icon. The whole row is
+  the `Collapsible.Trigger`: clicking anywhere on it toggles the topic, and
+  opening a topic that is not the current one also navigates to its
+  `articles` route (closing never navigates). That navigation waits for the
+  open animation (`OPEN_ANIMATION_MS`, matching the `260ms` in the class) and
+  runs in `startTransition`, because rendering the new topic's article table
+  during the animation drops frames — never navigate in the same tick as the
+  toggle. The categories animate open and closed by reusing the theme's
+  `accordion-down/up` keyframes with the symmetric `cubic-bezier(0.4,0,0.2,1)`
+  easing (front-loaded curves read as a jump on a short list), with
+  `--radix-accordion-content-height` pointed at
+  `--radix-collapsible-content-height` on `Collapsible.Content`, so no shared
+  CSS changes are needed. Categories render as a real
+  tree: `groupCategoriesByParent` (sidebar `utils/`) groups them by parent,
+  sorted by title, re-attaching orphans and cycles to the root so none is lost
+  or rendered twice, and `CategoryTreeItem` recurses into a bordered
+  `Sidebar.Sub` per level. Category rows show title and an article-count pill
+  only, no category icon, muted until hovered or active; the pill hides while
+  the row's `...` is visible. Each hover group is `group/kb-row` on the
+  row itself (the topic row's wrapper `div`, the category `SubItem`), never the
+  enclosing `group/menu-item`, so hovering a category never reveals its topic's
+  menu. Deleting the selected category returns to its topic's articles.
+  Category deletion goes through `useConfirmRemoveCategory`, shared with the
+  categories table.
 - `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
   are navigated from the topics index and the per-topic sidebar, never from a
   second navigation column.
@@ -1729,6 +1774,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   never silently drops it. Add a missing name to `ICONS` rather than rewriting
   the stored value. Its `variant="table"` renders through
   `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- Topic, category and article `code` sit behind a **sparse** unique index, so a
+  missing code is fine but an empty string `""` counts as a value and the
+  second one fails with `E11000`. Every topic and category write
+  (`useSaveTopic`, `useSaveCategory`, `useEditCategoryField`) passes its doc
+  through `utils/withoutEmptyCode`, which drops a blank code; a new write path
+  must do the same.
 - `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
   whole query fail with a 400. A category's topic comes from the route
   (`useParams().topicId`), and that is what an edit sends back in the doc.
@@ -1764,13 +1815,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ## Validation
 
-- Smoke: open `/frontline/knowledgebase`, create a topic, open it, add a
-  category, then an article in that category — each list updates without a
-  reload. Rename a topic and an article from their inline cells, change an
-  article's status and category from the table, filter articles by status and
-  category, bulk-delete from the command bar, then edit the topic on its
-  `kbsettings` route and delete it from the danger zone.
+- Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
+  articles. Create a topic from the sidebar `+`, add a category from its
+  `...` menu, click the category and create an article in it — the tree, its count
+  and the table update without a reload. Expand another topic, move between
+  `articles`, `categories` and `kbsettings`, and confirm expansion is kept.
+  Rename an article inline, change its status and category, filter by status,
+  bulk-delete from the command bar, edit and delete a category from the
+  sidebar, then delete the topic from its `kbsettings` danger zone.
 - `pnpm nx build frontline_ui`
+- `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
+  `groupCategoriesByParent`, `useTopicOpenState` and `withoutEmptyCode` specs.
 - `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
   distinguish existing baseline failures from regressions in touched files.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for

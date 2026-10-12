@@ -73,11 +73,9 @@ export const TOPICS_PER_PAGE = 100;
 export const CATEGORIES_PER_PAGE = 100;
 export const ARTICLES_PER_PAGE = 100;
 
-export const TOPICS_TABLE_ID = 'frontline_kb_topics_record_table';
 export const CATEGORIES_TABLE_ID = 'frontline_kb_categories_record_table';
 export const ARTICLES_TABLE_ID = 'frontline_kb_articles_record_table';
 
-export const TOPICS_FILTER_ID = 'frontline-kb-topics-filter';
 export const CATEGORIES_FILTER_ID = 'frontline-kb-categories-filter';
 export const ARTICLES_FILTER_ID = 'frontline-kb-articles-filter';
 
