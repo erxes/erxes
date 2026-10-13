@@ -12,7 +12,6 @@ import {
 import { resendableFilter } from '@/integrations/mail/utils/delivery';
 import { describeError } from '@/integrations/mail/utils/errors';
 import { debugError } from '@/integrations/mail/debuggers';
-import { UnverifiedMailRecipientError } from '@/integrations/mail/utils/recipients';
 import {
   isRetryableFailure,
   resolveReplyToAddress,
@@ -146,10 +145,7 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
           },
         });
 
-        if (
-          recorded.matchedCount &&
-          !(e instanceof UnverifiedMailRecipientError)
-        ) {
+        if (recorded.matchedCount) {
           await mailDelivery.settleIntegrationHealth(
             integration,
             deliveryError,

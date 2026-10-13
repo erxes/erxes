@@ -1,6 +1,5 @@
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
-import { MailSendError } from './transports/common';
 
 const PAGE_SIZE = 100;
 const recipientSearchSchema = z.object({
@@ -17,14 +16,20 @@ export interface MailVerifiedContact {
   emailValidationStatus?: string;
 }
 
-export class UnverifiedMailRecipientError extends MailSendError {
-  constructor() {
-    super(
-      'All recipient email addresses must be verified before sending',
-      false,
-    );
-  }
-}
+export const validateMailRecipients = (recipients: {
+  to: string[];
+  cc?: string[];
+  bcc?: string[];
+}): void => {
+  z.array(z.string().trim().email().max(320))
+    .min(1)
+    .max(500)
+    .parse([
+      ...recipients.to,
+      ...(recipients.cc ?? []),
+      ...(recipients.bcc ?? []),
+    ]);
+};
 
 export const readUnverifiedMailRecipients = async (
   subdomain: string,
@@ -65,20 +70,6 @@ export const readUnverifiedMailRecipients = async (
       .map((contact) => contact.primaryEmail?.trim().toLowerCase()),
   );
   return recipients.filter((email) => !verified.has(email));
-};
-
-export const assertVerifiedMailRecipients = async (
-  subdomain: string,
-  recipients: { to: string[]; cc?: string[]; bcc?: string[] },
-): Promise<void> => {
-  const unverified = await readUnverifiedMailRecipients(subdomain, [
-    ...recipients.to,
-    ...(recipients.cc ?? []),
-    ...(recipients.bcc ?? []),
-  ]);
-  if (unverified.length) {
-    throw new UnverifiedMailRecipientError();
-  }
 };
 
 export const readMailVerifiedContacts = async (

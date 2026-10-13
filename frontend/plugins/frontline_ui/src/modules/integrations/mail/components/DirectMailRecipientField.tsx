@@ -37,9 +37,6 @@ const VerifiedEmailField = ({
   const [suggestionsEnabled, setSuggestionsEnabled] = useState(false);
   const [draft, setDraft] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
-  const [selectedNames, setSelectedNames] = useState<Record<string, string>>(
-    {},
-  );
   const [searchValue, setSearchValue] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const listId = useId();
@@ -72,7 +69,7 @@ const VerifiedEmailField = ({
     return () => window.clearTimeout(timer);
   }, [draft, focused, suggestionsEnabled]);
 
-  const showSuggestions =
+  const searchReady =
     focused &&
     suggestionsEnabled &&
     Boolean(draft.trim()) &&
@@ -93,7 +90,7 @@ const VerifiedEmailField = ({
   const { data, previousData, loading, error, fetchMore, refetch } =
     useQuery<MailRecipientsResult>(MAIL_VERIFIED_CONTACTS_QUERY, {
       variables: { searchValue },
-      skip: !showSuggestions,
+      skip: !searchReady,
     });
 
   const contacts = data ?? previousData;
@@ -123,6 +120,9 @@ const VerifiedEmailField = ({
         !selected.some((item) => item.toLowerCase() === email.toLowerCase()),
     );
   }, [contacts, selected]);
+
+  const showSuggestions =
+    searchReady && (loading || Boolean(error) || options.length > 0);
 
   useEffect(() => setLoadMoreError(false), [searchValue]);
 
@@ -200,12 +200,7 @@ const VerifiedEmailField = ({
     loadMoreError,
   ]);
 
-  const selectEmail = (
-    email: string,
-    customerId?: string,
-    name?: string,
-    focusInput = true,
-  ) => {
+  const selectEmail = (email: string, customerId?: string) => {
     closeSuggestions();
     const next = selected.some(
       (item) => item.toLowerCase() === email.toLowerCase(),
@@ -213,12 +208,11 @@ const VerifiedEmailField = ({
       ? selected
       : [...selected, email];
     setSelected(next);
-    if (name) setSelectedNames((names) => ({ ...names, [email]: name }));
     setDraft('');
     emit(next, '');
     if (fieldName === 'to')
       onRecipientSelect?.(next.length === 1 ? customerId : undefined);
-    if (focusInput) inputRef.current?.focus();
+    inputRef.current?.focus();
   };
 
   const commitDraft = (focusInput = true) => {
@@ -278,9 +272,7 @@ const VerifiedEmailField = ({
               className="min-w-0 cursor-text truncate text-sm"
               title={selected.join(', ')}
             >
-              {selected
-                .map((email) => selectedNames[email] || email)
-                .join(', ')}
+              {selected.join(', ')}
             </label>
           )}
           {focused &&
@@ -291,7 +283,7 @@ const VerifiedEmailField = ({
                 className="max-w-full pr-1"
               >
                 <span className="truncate" title={email}>
-                  {selectedNames[email] || email}
+                  {email}
                 </span>
                 <Button
                   type="button"
@@ -367,7 +359,7 @@ const VerifiedEmailField = ({
                 const option =
                   options.find((item) => item.email === activeEmail) ??
                   options[0];
-                selectEmail(option.email, option.customerId, option.name);
+                selectEmail(option.email, option.customerId);
               } else if (event.key === 'Enter' || event.key === 'Tab') {
                 if (event.key === 'Enter') event.preventDefault();
                 commitDraft(event.key !== 'Tab');
@@ -418,18 +410,13 @@ const VerifiedEmailField = ({
                 Could not load contacts. Retry
               </Button>
             )}
-            {!loading && !error && options.length === 0 && (
-              <p className="p-3 text-sm text-muted-foreground">
-                No verified contact emails found.
-              </p>
-            )}
             {options.map(({ email, customerId, name }, index) => (
               <Command.Item
                 id={`${listId}-${index}`}
                 key={email}
                 value={email}
                 onPointerDown={(event) => event.preventDefault()}
-                onSelect={() => selectEmail(email, customerId, name)}
+                onSelect={() => selectEmail(email, customerId)}
                 className="gap-3"
               >
                 <span className="min-w-0">

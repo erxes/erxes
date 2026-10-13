@@ -43,42 +43,12 @@ export const ComposerAttachments = ({
 
 export const ComposerStatus = ({
   failedDelivery,
-  validRecipients,
-  checkingRecipients,
-  recipientsVerified,
-  recipientVerificationError,
-  onRetryVerification,
 }: {
   failedDelivery?: MailDeliveryOutcome;
-  validRecipients: boolean;
-  checkingRecipients: boolean;
-  recipientsVerified: boolean;
-  recipientVerificationError: boolean;
-  onRetryVerification: () => void;
-}) => (
-  <>
-    {failedDelivery && (
-      <p role="alert" className="px-4 py-3 text-sm text-destructive">
-        {failedDelivery.deliveryError || 'Email was not delivered.'}
-        {' Retry sending, or close this draft to start a new email.'}
-      </p>
-    )}
-    {validRecipients && !checkingRecipients && !recipientsVerified && (
-      <output className="block px-4 py-3 text-sm text-destructive">
-        {recipientVerificationError
-          ? 'Unable to check recipient email verification.'
-          : 'All recipient email addresses must be verified before sending.'}
-        {recipientVerificationError && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onRetryVerification}
-          >
-            Retry
-          </Button>
-        )}
-      </output>
-    )}
-  </>
-);
+}) =>
+  failedDelivery ? (
+    <p role="alert" className="px-4 py-3 text-sm text-destructive">
+      {failedDelivery.deliveryError || 'Email was not delivered.'}
+      {' Retry sending, or close this draft to start a new email.'}
+    </p>
+  ) : null;

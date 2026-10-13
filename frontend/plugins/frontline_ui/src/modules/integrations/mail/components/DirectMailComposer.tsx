@@ -12,7 +12,6 @@ import {
   trimEmptyBlocks,
 } from '@/activity/utils/noteBlocks';
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
-import { useRecipientVerification } from '@/integrations/mail/hooks/useRecipientVerification';
 import {
   useMailMessageRetry,
   useMailSendMail,
@@ -110,23 +109,6 @@ export const DirectMailComposer = () => {
   const sending =
     loading || retryLoading || uploading || form.formState.isSubmitting;
   const integrationId = watch('integrationId');
-  const to = watch('to');
-  const cc = watch('cc');
-  const bcc = watch('bcc');
-  const {
-    validRecipients,
-    recipientsVerified,
-    checkingRecipients,
-    recipientVerificationError,
-    recheckRecipients,
-  } = useRecipientVerification({
-    to,
-    cc,
-    bcc,
-    showCc,
-    showBcc,
-    active: Boolean(target && canComposeEmail),
-  });
   const selectedSender = senders.find(
     (sender) => sender.integrationId === integrationId,
   );
@@ -239,7 +221,7 @@ export const DirectMailComposer = () => {
   };
 
   const submit = async (values: ComposeValues) => {
-    if (!canComposeEmail || sending || !recipientsVerified) return;
+    if (!canComposeEmail || sending) return;
     if (failedDelivery) {
       mailMessageRetry(failedDelivery._id, close);
       return;
@@ -350,18 +332,10 @@ export const DirectMailComposer = () => {
                 )
               }
             />
-            <ComposerStatus
-              failedDelivery={failedDelivery}
-              validRecipients={validRecipients}
-              checkingRecipients={checkingRecipients}
-              recipientsVerified={recipientsVerified}
-              recipientVerificationError={recipientVerificationError}
-              onRetryVerification={recheckRecipients}
-            />
+            <ComposerStatus failedDelivery={failedDelivery} />
             <ComposerFooter
               disabled={
                 sending ||
-                !recipientsVerified ||
                 (!failedDelivery &&
                   (sendersLoading || Boolean(sendersError) || !senders.length))
               }
