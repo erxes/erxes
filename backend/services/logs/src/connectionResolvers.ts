@@ -38,7 +38,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   const db_name = db.name;
 
-  const logDb = db.useDb(`${db_name}_logs`);
+  // Cached: generateModels runs this on every job, and an uncached useDb() keeps a new connection +
+  // model (and re-sends createIndexes) each time. Same fix as core-api (5e7f787a02).
+  const logDb = db.useDb(`${db_name}_logs`, {
+    useCache: true,
+    noListener: true,
+  });
 
   models.Logs = logDb.model<ILogDocument, Model<ILogDocument>>(
     'logs',
