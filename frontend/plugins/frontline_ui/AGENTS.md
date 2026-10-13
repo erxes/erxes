@@ -2176,25 +2176,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `FrontlineTicketFields` (`ticket/graphql/fragments/ticketFields.ts`), so a
   pushed or created ticket written into the list carries every field the
   list selects.
-- A module typed from the schema (so far `report`, `integrations/call`,
-  `knowledgebase`, `helpcenter`, `forms`, `activity`, `integrations/callpro`,
-  `integrations/erxes-messenger`, `integrations/telegram`, the integrations
-  core (`integrations/graphql`, `hooks`, `types`, `IntegrationList`),
-  `integrations/discord`, `integrations/mail`, `channels`, `ticket`,
-  `status`, `survey`, the
-  Facebook and Instagram settings (config,
-  repair, page post), the Facebook and Instagram post lookups and the
-  Instagram copy-image query, the Facebook, Instagram and knowledge base
-  automation widgets, the mail automation inbox checklist, the
-  notification channel widget, the inbox conversations (list, detail,
-  counts, progress, conversation actions, channel inline,
-  `inboxSubscriptions`) and inbox messages, the Facebook and Instagram
-  conversation messages, `responseTemplate`, and `pipelines` with its
-  ticket configs) writes every
-  document as
-  `` gql(`...`) `` from `~/gql`, calls Apollo hooks without type arguments,
-  types hook options as `QueryHookOptions<XQuery, XQueryVariables>` from
-  `~/gql/graphql`, and derives response types from the generated query types.
+- Every module is typed from the schema: each document is
+  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
+  options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
+  `~/gql/graphql`, and response types derive from the generated query types.
+  `eslint.config.js` enforces this with operation_ui's rules:
+  `no-restricted-imports` rejects `graphql-tag` and `gql` from
+  `@apollo/client`, and `no-restricted-syntax` rejects type arguments on
+  `useQuery` / `useMutation` / `useSubscription` / `useLazyQuery` /
+  `useSuspenseQuery` and `subscribeToMore`. `src/gql/**` is ignored.
   The `~/gql/graphql` type import goes after the `@apollo/client` import;
   the migration's `rg` check otherwise reads across the two imports and
   reports a false hit.
