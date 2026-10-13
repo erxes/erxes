@@ -362,3 +362,28 @@ export const getReportFacebookSearchFilterAtom = (cardId: string) =>
       },
     ),
   );
+
+const createReportFilterAtom = <T>(defaultValue: T) => {
+  const state = atom<Record<string, T>>({});
+  const cache = new Map<string, WritableAtom<T, [T], void>>();
+
+  return (cardId: string): WritableAtom<T, [T], void> =>
+    getOrCreate(cache, cardId, () =>
+      atom(
+        (get) => get(state)[cardId] ?? defaultValue,
+        (get, set, value: T) => {
+          set(state, { ...get(state), [cardId]: value });
+        },
+      ),
+    );
+};
+
+export const getReportStatusChangedDateFilterAtom = createReportFilterAtom('');
+export const getReportUpdatedAtDateFilterAtom = createReportFilterAtom('');
+export const getReportDescriptionFilterAtom = createReportFilterAtom('');
+export const getReportStatusChangedByFilterAtom = createReportFilterAtom<
+  string[]
+>([]);
+export const getReportUpdatedByFilterAtom = createReportFilterAtom<string[]>(
+  [],
+);

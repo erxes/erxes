@@ -10,6 +10,7 @@ import { UAParser } from 'ua-parser-js';
 import { ILogDoc } from '../types';
 import { maskIpValue } from '../utils/logFormUtils';
 import { LogDetailMetricCard, LogDetailSection } from './LogDetailPrimitives';
+import { useTranslation } from 'react-i18next';
 
 const getClientInfo = (headers: any) => {
   if (!headers) {
@@ -48,6 +49,7 @@ const getClientInfo = (headers: any) => {
 };
 
 export const AuthLogDetailContent = ({ payload }: ILogDoc) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const { headers } = payload || {};
 
   const {
@@ -58,33 +60,33 @@ export const AuthLogDetailContent = ({ payload }: ILogDoc) => {
   } = getClientInfo(headers) || {};
   return (
     <LogDetailSection
-      title="Session Details"
-      description="Device, network, and authentication context captured for this session."
+      title={t('session-details')}
+      description={t('session-details-description')}
       icon={IconShield}
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <LogDetailMetricCard
-          title="IP Address"
+          title={t('ip-address')}
           value={maskIpValue(ip)}
           icon={IconMapPin}
         />
         <LogDetailMetricCard
-          title="Device"
+          title={t('device')}
           value={device}
           icon={IconDeviceImac}
         />
         <LogDetailMetricCard
-          title="Operating System"
+          title={t('operating-system')}
           value={os}
           icon={IconDeviceDesktopCode}
         />
         <LogDetailMetricCard
-          title="Browser"
+          title={t('browser')}
           value={browser}
           icon={IconBrowser}
         />
         <LogDetailMetricCard
-          title="Auth Method"
+          title={t('auth-method')}
           value={payload?.method}
           icon={IconGlobe}
         />

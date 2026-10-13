@@ -4,6 +4,7 @@ import { useAutomationVariableCardProps } from '../hooks/useAutomationVariableCa
 import { AutomationOutputVariableCard } from './AutomationOutputVariableCard';
 import { AutomationVariableBrowserEmptyState } from './AutomationVariableBrowserEmptyState';
 import { AutomationVariableBrowserLoadingState } from './AutomationVariableBrowserLoadingState';
+import { useTranslation } from 'react-i18next';
 
 const AutomationOutputVariableChildItem = ({
   parentKey,
@@ -12,6 +13,7 @@ const AutomationOutputVariableChildItem = ({
   parentKey: string;
   variable: TAutomationOutputVariable;
 }) => {
+  const { t } = useTranslation('automations');
   const cardProps = useAutomationVariableCardProps({
     variableKey: `${parentKey}.${variable.key}`,
     label: variable.label,
@@ -23,7 +25,7 @@ const AutomationOutputVariableChildItem = ({
       {...cardProps}
       badge={
         variable.exposure === 'reference' ? (
-          <Badge variant="secondary">Reference</Badge>
+          <Badge variant="secondary">{t('sidebar-reference')}</Badge>
         ) : undefined
       }
     />
@@ -39,15 +41,20 @@ export const AutomationOutputVariableChildList = ({
   loading: boolean;
   parentKey: string;
 }) => {
+  const { t } = useTranslation('automations');
   if (loading) {
     return (
-      <AutomationVariableBrowserLoadingState text="Loading reference fields..." />
+      <AutomationVariableBrowserLoadingState
+        text={t('sidebar-loading-reference-fields')}
+      />
     );
   }
 
   if (!fields.length) {
     return (
-      <AutomationVariableBrowserEmptyState text="No reference fields available." />
+      <AutomationVariableBrowserEmptyState
+        text={t('sidebar-no-reference-fields')}
+      />
     );
   }
 

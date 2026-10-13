@@ -1,11 +1,13 @@
 import { UseFormReturn } from 'react-hook-form';
 import { TIncomingWebhookForm } from '@/automations/components/builder/nodes/triggers/webhooks/states/automationIncomingWebhookFormDefinition';
 import { Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 export const IncomingWebhookSettingsField = ({
   form,
 }: {
   form: UseFormReturn<TIncomingWebhookForm>;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <>
       <Form.Field
@@ -13,7 +15,7 @@ export const IncomingWebhookSettingsField = ({
         name="maxRetries"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Max Retries</Form.Label>
+            <Form.Label>{t('webhook-trigger-max-retries')}</Form.Label>
             <Input {...field} type="number" defaultValue={3} />
           </Form.Item>
         )}
@@ -23,7 +25,7 @@ export const IncomingWebhookSettingsField = ({
         name="timeoutMs"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Timeout (seconds)</Form.Label>
+            <Form.Label>{t('webhook-trigger-timeout-seconds')}</Form.Label>
             <Input {...field} type="number" defaultValue={30} />
           </Form.Item>
         )}
@@ -33,8 +35,12 @@ export const IncomingWebhookSettingsField = ({
         name="security.secret"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Secret</Form.Label>
-            <Input {...field} type="password" placeholder="Secret (optional)" />
+            <Form.Label>{t('webhook-trigger-secret')}</Form.Label>
+            <Input
+              {...field}
+              type="password"
+              placeholder={t('webhook-trigger-secret-placeholder')}
+            />
           </Form.Item>
         )}
       />
@@ -43,11 +49,11 @@ export const IncomingWebhookSettingsField = ({
         name="security.beararToken"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Bearar Token</Form.Label>
+            <Form.Label>{t('webhook-trigger-bearer-token')}</Form.Label>
             <Input
               {...field}
               type="password"
-              placeholder="Bearer token (optional)"
+              placeholder={t('webhook-trigger-bearer-token-placeholder')}
             />
           </Form.Item>
         )}

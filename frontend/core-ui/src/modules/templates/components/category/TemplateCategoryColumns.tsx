@@ -1,5 +1,6 @@
 import { IconImageInPicture, IconLabelFilled } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Avatar,
   Badge,
@@ -9,7 +10,7 @@ import {
 } from 'erxes-ui';
 import { templateCategoryMoreColumn } from './TemplateCategoryMoreCell';
 
-export const templateCategoryColumns: ColumnDef<any>[] = [
+export const templateCategoryColumns = (t: TFunction): ColumnDef<any>[] => [
   templateCategoryMoreColumn,
   RecordTable.checkboxColumn,
   {
@@ -34,7 +35,7 @@ export const templateCategoryColumns: ColumnDef<any>[] = [
     id: 'name',
     accessorKey: 'name',
     header: () => (
-      <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       const templateCategoryId = cell.row.original._id;
@@ -60,7 +61,7 @@ export const templateCategoryColumns: ColumnDef<any>[] = [
     id: 'code',
     accessorKey: 'code',
     header: () => (
-      <RecordTable.InlineHead label="Code" icon={IconLabelFilled} />
+      <RecordTable.InlineHead label={t('code')} icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
       return (
@@ -74,7 +75,10 @@ export const templateCategoryColumns: ColumnDef<any>[] = [
     id: 'templateCount',
     accessorKey: 'templateCount',
     header: () => (
-      <RecordTable.InlineHead label="Template Count" icon={IconLabelFilled} />
+      <RecordTable.InlineHead
+        label={t('template-count')}
+        icon={IconLabelFilled}
+      />
     ),
     cell: ({ cell }) => {
       return (

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Button,
@@ -23,13 +24,14 @@ export const SendEmailResultEmailPreview = ({
   subject: string;
   to: string;
 }) => {
+  const { t } = useTranslation('automations');
   const [device, setDevice] = useState<EmailPreviewDevice>('desktop');
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <section className="min-w-0 space-y-1.5">
       <h4 className="text-xs font-medium text-muted-foreground">
-        Email content
+        {t('send-email-result-content')}
       </h4>
 
       {/* A glimpse only; the dialog is where it is read. */}
@@ -47,13 +49,13 @@ export const SendEmailResultEmailPreview = ({
         className="h-6 px-0 text-xs text-primary"
         onClick={() => setIsOpen(true)}
       >
-        show more
+        {t('send-email-show-more')}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Content className="flex h-[80vh] flex-col sm:max-w-3xl">
           <Dialog.Header>
-            <Dialog.Title>Sent email</Dialog.Title>
+            <Dialog.Title>{t('send-email-sent-email')}</Dialog.Title>
           </Dialog.Header>
 
           <div className="flex items-start gap-3 border-b px-6 pb-4">
@@ -64,14 +66,14 @@ export const SendEmailResultEmailPreview = ({
             </Avatar>
             <div className="min-w-0 flex-1">
               <div className="truncate font-medium">
-                {subject || '(no subject)'}
+                {subject || t('send-email-no-subject')}
               </div>
               <div className="truncate text-sm text-muted-foreground">
                 {from}
               </div>
               {to && (
                 <div className="truncate text-sm text-muted-foreground">
-                  to {to}
+                  {t('send-email-to-recipient', { recipient: to })}
                 </div>
               )}
             </div>

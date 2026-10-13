@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import {
   Checkbox,
   RecordTable,
@@ -19,6 +20,7 @@ import { HeaderCell } from '~/modules/check-synced/constants/HeaderCell';
 import { isSyncable } from '~/modules/check-synced/constants/shared';
 
 type AccountingCheckSyncedDealsColumnsOptions = {
+  t: TFunction<'accounting'>;
   toSyncDealIds: Record<string, boolean>;
   syncableDealIds: string[];
   onToggleToSync: (id: string, checked: boolean) => void;
@@ -38,6 +40,7 @@ const stringifyAmount = (amount: unknown) => {
 };
 
 export const getAccountingCheckSyncedDealsColumns = ({
+  t,
   toSyncDealIds,
   syncableDealIds,
   onToggleToSync,
@@ -117,7 +120,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
             onCheckedChange={() =>
               onToggleAllToSync(syncableDealIds, nextChecked)
             }
-            aria-label="Select all deals to sync"
+            aria-label={t('Select all deals to sync')}
           />
         </div>
       );
@@ -135,7 +138,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
             onCheckedChange={(value) =>
               onToggleToSync(deal._id, Boolean(value))
             }
-            aria-label="Select deal to sync"
+            aria-label={t('Select deal to sync')}
           />
         </div>
       );

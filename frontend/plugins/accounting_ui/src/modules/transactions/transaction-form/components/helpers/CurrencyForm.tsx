@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useGetExchangeRate } from '../../hooks/useGetExchangeRate';
 import { CurrencyField, Form } from 'erxes-ui';
@@ -31,6 +32,7 @@ const CurrencyFormBody = ({
   amountChangeRef?: TAmountChangeRef;
   mainCurrency: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const date = useWatch({
     control: form.control,
     name: `date`,
@@ -244,7 +246,7 @@ const CurrencyFormBody = ({
   return (
     <>
       <Form.Item>
-        <Form.Label>Спот ханш</Form.Label>
+        <Form.Label>{t('spot-exchange-rate')}</Form.Label>
         <CurrencyField.ValueInput value={spotRate || 0} disabled />
         <Form.Message />
       </Form.Item>
@@ -254,7 +256,7 @@ const CurrencyFormBody = ({
         name={`trDocs.${journalIndex}.details.0.currencyAmount`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Валютын дүн</Form.Label>
+            <Form.Label>{t('foreign-currency-amount-label')}</Form.Label>
             <CurrencyField.ValueInput
               value={field.value ?? 0}
               onChange={(value) =>
@@ -270,7 +272,7 @@ const CurrencyFormBody = ({
         name={`trDocs.${journalIndex}.details.0.customRate`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Гараар оруулсан ханш</Form.Label>
+            <Form.Label>{t('manual-exchange-rate')}</Form.Label>
             <CurrencyField.ValueInput
               value={field.value ?? 0}
               onChange={field.onChange}
@@ -280,9 +282,9 @@ const CurrencyFormBody = ({
         )}
       />
       <Form.Item>
-        <Form.Label>{`Ханшийн ${
-          diffAmount > 0 ? 'алдагдлын' : 'ашгийн'
-        } дүн`}</Form.Label>
+        <Form.Label>
+          {t(diffAmount > 0 ? 'exchange-loss-amount' : 'exchange-gain-amount')}
+        </Form.Label>
         <CurrencyField.ValueInput value={diffAmount} disabled={true} />
         <Form.Message />
       </Form.Item>
@@ -293,9 +295,13 @@ const CurrencyFormBody = ({
           name={`trDocs.${journalIndex}.details.0.followInfos.currencyDiffAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{`Ханшийн ${
-                diffAmount > 0 ? 'алдагдлын' : 'ашгийн'
-              } данс`}</Form.Label>
+              <Form.Label>
+                {t(
+                  diffAmount > 0
+                    ? 'exchange-loss-account'
+                    : 'exchange-gain-account',
+                )}
+              </Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

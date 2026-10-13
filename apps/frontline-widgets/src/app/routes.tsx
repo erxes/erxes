@@ -12,6 +12,11 @@ const Form = lazy(() => import('./form').then((m) => ({ default: m.Form })));
 const LiveForm = lazy(() =>
   import('./form/live-form').then((m) => ({ default: m.LiveForm })),
 );
+const KnowledgeBaseWidget = lazy(() =>
+  import('./knowledgebase/KnowledgeBaseWidget').then((m) => ({
+    default: m.KnowledgeBaseWidget,
+  })),
+);
 
 // A route chunk can fail to load (offline, or a deploy removed the previous
 // hashed files). Offer a reload instead of a blank widget. On the messenger
@@ -81,6 +86,14 @@ export function AppRoutes() {
           element={
             <ErrorBoundary fallback={<RouteErrorFallback />}>
               <Form />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/knowledgebase"
+          element={
+            <ErrorBoundary fallback={<RouteErrorFallback />}>
+              <KnowledgeBaseWidget />
             </ErrorBoundary>
           }
         />

@@ -2,11 +2,14 @@ import { TemplatesBreadcrumb } from '@/templates/components/TemplatesBreadcrumb'
 import { Separator } from 'erxes-ui';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { TemplateCategoryAddSheet } from './TemplateCategoryAddSheet';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateCategoryHeader = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
+
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    'Templates',
-    'Categories',
+    t('templates'),
+    t('categories'),
   );
 
   return (

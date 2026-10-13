@@ -3,6 +3,7 @@ import { Button, cn } from 'erxes-ui';
 import { motion } from 'motion/react';
 import { ReactNode } from 'react';
 import { FallbackProps } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 type GenericErrorFallbackProps = FallbackProps & {
   title?: string;
@@ -15,6 +16,7 @@ export const GenericErrorFallback = ({
   title = 'Sorry, something went wrong',
   children,
 }: GenericErrorFallbackProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'error-handler' });
   return (
     <div className="h-dvh w-dvw p-2 bg-sidebar">
       <div className="flex flex-col items-center justify-center h-full w-full shadow-sm rounded-lg relative overflow-hidden">
@@ -39,7 +41,7 @@ export const GenericErrorFallback = ({
             {title}
           </h1>
           <p className="mb-4 text-muted-foreground">{error?.message}</p>
-          <Button onClick={resetErrorBoundary}>Try Again</Button>
+          <Button onClick={resetErrorBoundary}>{t('try-again')}</Button>
         </div>
         {children && (
           <div className="relative z-10 flex w-full justify-center pb-20">

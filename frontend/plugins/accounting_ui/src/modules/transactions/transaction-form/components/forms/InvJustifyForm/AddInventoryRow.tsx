@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
@@ -18,6 +19,7 @@ export const AddDetailRowButton = ({
   journalIndex: number;
   append: (detail: TInvDetail | TInvDetail[]) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -41,7 +43,7 @@ export const AddDetailRowButton = ({
         onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
-        Шинэ мөр
+        {t('new-row')}
       </Button>
       <SelectProductsBulk
         productIds={[]}
@@ -53,7 +55,7 @@ export const AddDetailRowButton = ({
       >
         <Button variant="secondary" className="bg-border">
           <IconPlus />
-          Олон бараа нэмэх
+          {t('add-multiple-products')}
         </Button>
       </SelectProductsBulk>
     </>

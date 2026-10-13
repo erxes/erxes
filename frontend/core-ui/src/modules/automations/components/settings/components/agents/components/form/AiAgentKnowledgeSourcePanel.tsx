@@ -10,12 +10,14 @@ import {
 } from '@/automations/components/settings/components/agents/utils/aiAgentKnowledgeSources';
 import { Switch } from 'erxes-ui';
 import { TAiKnowledgeSourceConfig } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const AiAgentKnowledgeSourceSelector = ({
   source,
 }: {
   source: TAiKnowledgeSourceConfig;
 }) => {
+  const { t } = useTranslation('automations');
   const {
     knowledgeSources,
     statuses,
@@ -31,9 +33,11 @@ const AiAgentKnowledgeSourceSelector = ({
   const scopeToggle = source.supportsFullScope ? (
     <div className="flex items-center justify-between rounded-md border p-3">
       <div>
-        <p className="text-sm font-medium">Use the whole source</p>
+        <p className="text-sm font-medium">
+          {t('settings-knowledge-use-whole-source')}
+        </p>
         <p className="text-xs text-muted-foreground">
-          Index every published item instead of picking them one by one.
+          {t('settings-knowledge-use-whole-source-description')}
         </p>
       </div>
       <Switch
@@ -46,7 +50,7 @@ const AiAgentKnowledgeSourceSelector = ({
   ) : null;
   const emptyWarning = hasSourceSelection(selection) ? null : (
     <p className="text-xs text-destructive">
-      Nothing is selected, so this source is not indexed and never searched.
+      {t('settings-knowledge-nothing-selected')}
     </p>
   );
 

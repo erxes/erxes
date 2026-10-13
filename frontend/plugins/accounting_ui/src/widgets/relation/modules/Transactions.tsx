@@ -149,7 +149,8 @@ export const Transactions = ({
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {[transaction.journal, transaction.status]
-                      .filter(Boolean)
+                      .filter((label): label is string => !!label)
+                      .map((label) => t(label))
                       .join(' | ')}
                   </div>
                 </div>
