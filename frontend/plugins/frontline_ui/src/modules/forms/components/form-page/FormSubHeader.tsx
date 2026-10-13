@@ -12,6 +12,7 @@ import { FormsPageHotKeyScope } from '@/forms/types/formTypes';
 import { IconTag } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { FormStatus } from './filters/FormStatus';
+import { FormChannelFilterView } from '@/forms/components/form-page/filters/FormChannelFilterView';
 import { SelectTags } from 'ui-modules';
 import { useFormsList } from '@/forms/hooks/useFormsList';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
@@ -67,7 +68,7 @@ export const FormSubHeader = () => {
             </Filter.View>
             <SelectTags.FilterView mode="single" filterKey="tagId" />
             <FormStatus.View />
-            <SelectChannel.FilterView />
+            <FormChannelFilterView />
           </Combobox.Content>
         </Filter.Popover>
         <Filter.Dialog>

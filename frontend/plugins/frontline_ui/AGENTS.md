@@ -136,6 +136,18 @@
   finishing returns to `frontline/forms`; the settings flow
   (`settings/frontline/channels/:id/forms/create`) still returns to the
   channel's forms page.
+- The `frontline/forms` sidebar Channels group (`ChooseChannel`) and the
+  sub-header's channel filter (`FormChannelFilterView`, in place of the shared
+  `SelectChannel.FilterView`) show each channel's form count next to its name.
+  Both read their own
+  `frontlineFormsChannelList` query (`getMyChannels { formCount }`) through
+  `useFormsChannelList`, not `GET_MY_CHANNELS`, so the inbox sidebar and other
+  channel pickers never pay for the per-channel count. The count is the
+  channel's total forms (`Channel.formCount`), independent of the list's status,
+  tag and search filters; `formsTotalCount.byChannel` is not populated by the
+  API. Form create (`useFormMutate`), remove (`useRemoveForm`), the Channel
+  column edit and channel moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) refetch
+  it, so the count never needs a manual refresh.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,

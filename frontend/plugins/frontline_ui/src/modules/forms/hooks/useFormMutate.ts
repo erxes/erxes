@@ -12,6 +12,7 @@ import {
   FORM_BULK_ACTION,
   CRAETE_LEAD_INTEGRATION,
 } from '../graphql/formMutations';
+import { GET_FORMS_CHANNEL_LIST } from '@/forms/graphql/formQueries';
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
@@ -133,6 +134,7 @@ export const useFormMutate = () => {
         integrationResult.data?.integrationsCreateLeadIntegration._id;
       await addForm({
         variables: { ...formValues, channelId, integrationId },
+        refetchQueries: [GET_FORMS_CHANNEL_LIST],
         onCompleted: ({ formsAdd }) => {
           fieldsBulkAction({
             variables: {

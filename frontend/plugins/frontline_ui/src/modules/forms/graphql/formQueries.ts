@@ -124,3 +124,23 @@ export const GET_FORMS_TOTAL_COUNT = gql`
     }
   }
 `;
+
+export const GET_FORMS_CHANNEL_LIST = gql`
+  query frontlineFormsChannelList(
+    $name: String
+    $sortField: String
+    $sortDirection: Int
+  ) {
+    getMyChannels(
+      name: $name
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
+      _id
+      name
+      icon
+      scope
+      formCount
+    }
+  }
+`;
