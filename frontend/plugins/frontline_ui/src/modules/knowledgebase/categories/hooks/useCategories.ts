@@ -3,6 +3,12 @@ import { CATEGORIES_PER_PAGE } from '@/knowledgebase/constants';
 import { CATEGORIES } from '@/knowledgebase/graphql/queries';
 import { ICategoryListResponse } from '@/knowledgebase/types';
 
+export const categoriesQueryVariables = (topicId?: string) => ({
+  topicIds: topicId ? [topicId] : [],
+  page: 1,
+  perPage: CATEGORIES_PER_PAGE,
+});
+
 export const useCategories = (
   topicId?: string,
   options?: QueryHookOptions<ICategoryListResponse>,
@@ -12,11 +18,7 @@ export const useCategories = (
     {
       ...options,
       skip: !topicId,
-      variables: {
-        topicIds: topicId ? [topicId] : [],
-        page: 1,
-        perPage: CATEGORIES_PER_PAGE,
-      },
+      variables: categoriesQueryVariables(topicId),
     },
   );
 

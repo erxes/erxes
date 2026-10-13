@@ -1,27 +1,25 @@
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
-import { kbSidebarOpenTopicIdsAtom } from '@/knowledgebase/sidebar/states/kbSidebarOpenTopicsState';
+import { kbSidebarOpenTopicIdAtom } from '@/knowledgebase/sidebar/states/kbSidebarOpenTopicState';
 
 export const useTopicOpenState = (topicId?: string) => {
-  const [openTopicIds, setOpenTopicIds] = useAtom(kbSidebarOpenTopicIdsAtom);
+  const [openTopicId, setOpenTopicId] = useAtom(kbSidebarOpenTopicIdAtom);
 
   const setOpen = useCallback(
     (open: boolean) => {
       if (!topicId) return;
 
-      setOpenTopicIds((previous) => {
-        if (previous.includes(topicId) === open) return previous;
+      setOpenTopicId((current) => {
+        if (open) return topicId;
 
-        return open
-          ? [...previous, topicId]
-          : previous.filter((id) => id !== topicId);
+        return current === topicId ? null : current;
       });
     },
-    [topicId, setOpenTopicIds],
+    [topicId, setOpenTopicId],
   );
 
   return {
-    isOpen: !!topicId && openTopicIds.includes(topicId),
+    isOpen: !!topicId && openTopicId === topicId,
     setOpen,
   };
 };

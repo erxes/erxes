@@ -532,7 +532,7 @@ owns the setup form and connection actions.
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
 | Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
-| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route selection hook, open-topics atom, sidebar topic/category drawers              |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
@@ -1740,40 +1740,82 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   navigation still opens the sidebar's topic drawer; with no topics it shows
   `TopicsEmptyState`.
 - The sidebar reads its selection from the route through
-  `useKnowledgeBaseRoute` and its expanded topics from
-  `kbSidebarOpenTopicIdsAtom`, so expansion survives moving between a topic's
-  pages and the current topic always opens. It queries `TOPICS` (with nested
+  `useKnowledgeBaseRoute` and its expanded topic from
+  `kbSidebarOpenTopicIdAtom`. The tree is an accordion: at most one topic is
+  open, opening a topic closes the one before it, and closing a topic only
+  clears the atom when that topic is the open one. Arriving on a topic's
+  route opens it, and the open topic survives moving between that topic's
+  pages. It queries `TOPICS` (with nested
   categories) without the search/brand filters — the articles search box must
   never filter the tree. Article, category and topic writes all refetch
   `TOPICS`, so tree titles and per-category article counts stay live.
-- The sidebar follows the Sales boards settings list: an uppercase
-  `Knowledge bases (N)` label with a ghost `+` button beside it. The `+` opens
+- The sidebar is an erxes-ui `Sidebar.Panel` (collapsible, `w-60`, its own
+  open state) without a `label`, laid out like the host's context column on
+  the Tickets/Forms pages: `KnowledgeBaseLayout` puts the panel full height to
+  the left of the `PageContainer`, so its first row — "Knowledge Base"
+  (`text-sm font-medium`, `h-12` to line up with `PageHeader`) with a `size-8`
+  `Sidebar.PanelTrigger`, with the ghost `+` (new topic) beside it — sits
+  beside the page header, followed by a `Separator` that continues the page
+  header's rule. There is no second "Knowledge bases" heading under it; the
+  panel's built-in `label` is not used either, because its mono face differs
+  from the other headings. When collapsed the panel still portals its expand trigger
+  into the page header's `data-sidebar-panel-slot`.
+  The panel resizes like the host's main sidebar: `sidebar/components/KbResizeHandle`
+  (a copy of core-ui's `NavigationResizeHandle`) sits on its right edge —
+  drag or arrow keys between `KB_SIDEBAR_MIN_WIDTH` (180) and
+  `KB_SIDEBAR_MAX_WIDTH` (480), double-click to reset. The width lives in
+  `kbSidebarWidthAtom` (`atomWithStorage` under `frontline:kb-sidebar-width`,
+  `null` = the panel's default `w-60`) and is passed as an inline `width`;
+  the panel's width transition is switched off while `kbSidebarResizingAtom`
+  is set, and its collapsed `w-0!` still wins over the inline width. The panel
+  keeps its children mounted while collapsed, so the topic and category
+  drawers inside it still open from `?createTopic=true`. The `+` opens
   the full `TopicDrawer` sheet (every topic field, including appearance), and
   creating or editing a category from the sidebar opens the full
-  `CategoryDrawer` sheet — never a reduced create dialog for either. Each row has one
-  `...` button, shown on hover, that opens a dropdown through
-  `KbSidebarRowActions` (topic: new category, manage categories, settings —
-  a topic is deleted only from its `kbsettings` danger zone; category: edit,
-  delete) — never a strip of inline icons. The sidebar is `w-64`. A topic row
-  is `size="lg"` with the title only — no chevron and no topic icon. The whole row is
-  the `Collapsible.Trigger`: clicking anywhere on it toggles the topic, and
-  opening a topic that is not the current one also navigates to its
-  `articles` route (closing never navigates). That navigation waits for the
-  open animation (`OPEN_ANIMATION_MS`, matching the `260ms` in the class) and
-  runs in `startTransition`, because rendering the new topic's article table
-  during the animation drops frames — never navigate in the same tick as the
-  toggle. The categories animate open and closed by reusing the theme's
-  `accordion-down/up` keyframes with the symmetric `cubic-bezier(0.4,0,0.2,1)`
-  easing (front-loaded curves read as a jump on a short list), with
-  `--radix-accordion-content-height` pointed at
-  `--radix-collapsible-content-height` on `Collapsible.Content`, so no shared
-  CSS changes are needed. Categories render as a real
-  tree: `groupCategoriesByParent` (sidebar `utils/`) groups them by parent,
+  `CategoryDrawer` sheet — never a reduced create dialog for either. A topic
+  row has one `...` button, shown on hover, that opens a dropdown through
+  `KbSidebarRowActions` (new category, manage categories, settings — a topic
+  is deleted only from its `kbsettings` danger zone). A category row has no
+  dropdown: `CategoryRowActions` shows two inline icon buttons on hover or
+  focus — pencil (edit, opens `CategoryDrawer`) and trash (delete, confirms
+  first, turns destructive on hover) — `size-5` with `size-3.5` icons and a
+  `title`. A topic row
+  uses the default `Sidebar.MenuButton` size (`h-7`) with the title only — no
+  chevron and no topic icon (a deliberate exception to the expandable-row
+  chevron rule above, asked for by the product owner), and there is no "All
+  articles" child — the topic
+  row is that link. Opening and closing copies the host's main sidebar
+  (`core-ui` `NavigationDisclosure`) through the plugin's own
+  `sidebar/components/KbDisclosure`: a `grid-rows-[0fr]`/`[1fr]` transition
+  (250ms, `cubic-bezier(0.22,1,0.36,1)`) with an opacity fade, children
+  mounted on first open and kept mounted afterwards. The topic row is a plain
+  `Sidebar.MenuButton` with `aria-expanded`/`aria-controls`, not a Radix
+  `Collapsible` — `Collapsible.Content` unmounts on close and cannot run that
+  transition. Clicking a topic that is not
+  showing its full article list (another topic, or the current one while a
+  category or `categories`/`kbsettings` is open) opens it — closing the
+  previous one — and navigates to `/:topicId/articles` in a transition whose
+  `isPending` already counts as active, so the row reacts on click.
+  Clicking the topic while its full list is showing only toggles it. The
+  current topic row is `isActive`, and erxes-ui's `Sidebar.MenuButton` turns
+  an active row that holds a `Sidebar.Sub` into the grey group highlight
+  (`bg-foreground/5`) — so an open current topic is grey and the selected
+  category inside it is the purple pill. Never recolour the topic row from
+  the plugin; that shared group rule owns it. Hovering
+  or focusing a non-current topic row prefetches that topic's
+  `ARTICLES`, `CATEGORIES` and `TOPIC_DETAIL` through `usePrefetchTopic`, so
+  its articles usually open from the Apollo cache. The prefetch builds its
+  variables with the same `articlesQueryVariables` /
+  `categoriesQueryVariables` the page hooks use — change those builders,
+  never hand-copy the variables, or the prefetch stops hitting the cache.
+  Topic and category rows are `rounded-sm` and press with
+  `active:bg-primary/10`. Categories render as a real tree: `groupCategoriesByParent` (sidebar `utils/`) groups them by parent,
   sorted by title, re-attaching orphans and cycles to the root so none is lost
   or rendered twice, and `CategoryTreeItem` recurses into a bordered
   `Sidebar.Sub` per level. Category rows show title and an article-count pill
-  only, no category icon, muted until hovered or active; the pill hides while
-  the row's `...` is visible. Each hover group is `group/kb-row` on the
+  only, no category icon, muted until hovered or active; on hover or focus
+  the pill hides and the row reserves `pr-12` so the title truncates before
+  the two icons. Each hover group is `group/kb-row` on the
   row itself (the topic row's wrapper `div`, the category `SubItem`), never the
   enclosing `group/menu-item`, so hovering a category never reveals its topic's
   menu. Deleting the selected category returns to its topic's articles.
@@ -1800,6 +1842,19 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   never silently drops it. Add a missing name to `ICONS` rather than rewriting
   the stored value. Its `variant="table"` renders through
   `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- Knowledge base tables are tuned for switching topics without a hitch; keep
+  these when touching them. `KbRecordTable` mounts rows in batches of
+  `PROGRESSIVE_BATCH_SIZE` (20) through `shared/hooks/useProgressiveRows`,
+  restarting only when its `resetKey` (the topic id) changes, so an inline
+  edit's refetch never shrinks the list. Smaller batches cost more, because
+  erxes-ui rows are not memoised and each batch re-renders the earlier rows.
+  Per-row text uses `shared/components/KbOverflowText`, which renders a plain
+  truncated span and swaps in erxes-ui's `TextOverflowTooltip` only on hover —
+  never put `TextOverflowTooltip` straight into a table cell, since every
+  instance runs its own timer and forced layout. `ArticlesRecordTable` is
+  `memo`ised and memoises its `KbRecordTable` element, so the `Articles` page
+  must pass stable callbacks and must not subscribe to `ARTICLES` itself (the
+  mutations already refetch it).
 - Topic, category and article `code` sit behind a **sparse** unique index, so a
   missing code is fine but an empty string `""` counts as a value and the
   second one fails with `E11000`. Every topic and category write
@@ -1844,14 +1899,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count
-  and the table update without a reload. Expand another topic, move between
-  `articles`, `categories` and `kbsettings`, and confirm expansion is kept.
+  and the table update without a reload. Open another topic and confirm the
+  previous one closes and its articles open; click a category, then the
+  topic again to return to its full list; move between `articles`, `categories` and
+  `kbsettings` and confirm the current topic stays open.
   Rename an article inline, change its status and category, filter by status,
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
 - `pnpm nx build frontline_ui`
 - `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
-  `groupCategoriesByParent`, `useTopicOpenState` and `withoutEmptyCode` specs.
+  `groupCategoriesByParent` and `withoutEmptyCode` specs.
 - `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
   distinguish existing baseline failures from regressions in touched files.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for

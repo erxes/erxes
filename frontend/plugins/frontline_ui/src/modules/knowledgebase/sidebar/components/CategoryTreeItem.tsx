@@ -28,7 +28,7 @@ export const CategoryTreeItem = ({
         <Sidebar.SubButton
           asChild
           isActive={isActive}
-          className="pr-1.5 font-normal text-muted-foreground hover:text-foreground data-[active=true]:font-medium"
+          className="pr-1.5 group-hover/kb-row:pr-12 group-has-focus-visible/kb-row:pr-12 font-normal rounded-sm text-muted-foreground hover:text-foreground active:bg-primary/10 data-[active=true]:font-medium"
         >
           <Link
             to={`${KNOWLEDGE_BASE_PATH}/${topicId}/articles?categoryId=${category._id}`}
@@ -36,7 +36,7 @@ export const CategoryTreeItem = ({
             <span className="flex-1 truncate">
               {category.title || t('unnamed-category', 'Unnamed category')}
             </span>
-            <span className="inline-flex justify-center items-center px-1.5 h-5 tabular-nums rounded-full min-w-5 text-[11px] bg-foreground/5 group-hover/kb-row:invisible group-has-data-[state=open]/kb-row:invisible">
+            <span className="inline-flex justify-center items-center px-1.5 h-5 tabular-nums rounded-full min-w-5 text-[11px] bg-foreground/5 group-hover/kb-row:invisible group-has-focus-visible/kb-row:invisible">
               {category.numOfArticles ?? 0}
             </span>
           </Link>

@@ -41,63 +41,63 @@ export const KnowledgeBaseLayout = ({
     t('unnamed-topic', 'Unnamed topic');
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to={KNOWLEDGE_BASE_PATH}>
-                    <IconBook />
-                    {rootLabel}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
+    <div className="flex overflow-hidden h-full">
+      <KnowledgeBaseSidebar />
+      <PageContainer className="flex-auto min-w-0">
+        <PageHeader>
+          <PageHeader.Start>
+            <Breadcrumb>
+              <Breadcrumb.List className="gap-1">
+                <Breadcrumb.Item>
+                  <Button variant="ghost" asChild>
+                    <Link to={KNOWLEDGE_BASE_PATH}>
+                      <IconBook />
+                      {rootLabel}
+                    </Link>
+                  </Button>
+                </Breadcrumb.Item>
 
-              {topicId && (
-                <>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Button variant="ghost" asChild>
-                      <Link to={`${KNOWLEDGE_BASE_PATH}/${topicId}/articles`}>
-                        {topicLabel}
-                      </Link>
-                    </Button>
-                  </Breadcrumb.Item>
-                </>
+                {topicId && (
+                  <>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Button variant="ghost" asChild>
+                        <Link to={`${KNOWLEDGE_BASE_PATH}/${topicId}/articles`}>
+                          {topicLabel}
+                        </Link>
+                      </Button>
+                    </Breadcrumb.Item>
+                  </>
+                )}
+
+                {sectionLabel && (
+                  <>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Button variant="ghost">{sectionLabel}</Button>
+                    </Breadcrumb.Item>
+                  </>
+                )}
+              </Breadcrumb.List>
+            </Breadcrumb>
+
+            <Separator.Inline />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={createFavoriteBreadcrumb(
+                rootLabel,
+                topicId && topicLabel,
+                sectionLabel,
               )}
+              icon="IconBook"
+            />
+          </PageHeader.Start>
+          <PageHeader.End>{actions}</PageHeader.End>
+        </PageHeader>
 
-              {sectionLabel && (
-                <>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Button variant="ghost">{sectionLabel}</Button>
-                  </Breadcrumb.Item>
-                </>
-              )}
-            </Breadcrumb.List>
-          </Breadcrumb>
-
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={createFavoriteBreadcrumb(
-              rootLabel,
-              topicId && topicLabel,
-              sectionLabel,
-            )}
-            icon="IconBook"
-          />
-        </PageHeader.Start>
-        <PageHeader.End>{actions}</PageHeader.End>
-      </PageHeader>
-
-      <div className="flex overflow-hidden flex-auto">
-        <KnowledgeBaseSidebar />
         <div className="flex overflow-hidden flex-col flex-auto">
           {children}
         </div>
-      </div>
-    </PageContainer>
+      </PageContainer>
+    </div>
   );
 };

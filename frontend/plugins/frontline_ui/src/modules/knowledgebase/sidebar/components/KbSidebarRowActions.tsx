@@ -1,13 +1,11 @@
 import { IconDots, type Icon } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
-import { Fragment } from 'react';
 
-export type TKbSidebarAction = {
+type TKbSidebarAction = {
   value: string;
   icon: Icon;
   label: string;
   onClick: () => void;
-  destructive?: boolean;
 };
 
 export const KbSidebarRowActions = ({
@@ -30,16 +28,10 @@ export const KbSidebarRowActions = ({
     </DropdownMenu.Trigger>
     <DropdownMenu.Content side="right" align="start" className="min-w-44">
       {actions.map((action) => (
-        <Fragment key={action.value}>
-          {action.destructive && <DropdownMenu.Separator />}
-          <DropdownMenu.Item
-            className={action.destructive ? 'text-destructive' : undefined}
-            onSelect={action.onClick}
-          >
-            <action.icon />
-            {action.label}
-          </DropdownMenu.Item>
-        </Fragment>
+        <DropdownMenu.Item key={action.value} onSelect={action.onClick}>
+          <action.icon />
+          {action.label}
+        </DropdownMenu.Item>
       ))}
     </DropdownMenu.Content>
   </DropdownMenu>

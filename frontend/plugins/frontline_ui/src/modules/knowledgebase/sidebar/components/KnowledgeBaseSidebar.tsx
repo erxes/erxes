@@ -1,11 +1,17 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Sidebar, useQueryState } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { Button, cn, Separator, Sidebar, useQueryState } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CategoryDrawer } from '@/knowledgebase/categories/components/CategoryDrawer';
+import { KbResizeHandle } from '@/knowledgebase/sidebar/components/KbResizeHandle';
 import { TopicTreeItem } from '@/knowledgebase/sidebar/components/TopicTreeItem';
 import { useKnowledgeBaseRoute } from '@/knowledgebase/sidebar/hooks/useKnowledgeBaseRoute';
 import { useTopicOpenState } from '@/knowledgebase/sidebar/hooks/useTopicOpenState';
+import {
+  kbSidebarResizingAtom,
+  kbSidebarWidthAtom,
+} from '@/knowledgebase/sidebar/states/kbSidebarWidthState';
 import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
 import { ICategory, ITopic } from '@/knowledgebase/types';
@@ -77,6 +83,9 @@ export const KnowledgeBaseSidebar = () => {
   const [isTopicCreateOpen, setIsTopicCreateOpen] = useState(false);
   const [categoryDraft, setCategoryDraft] = useState<TCategoryDraft>();
   const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useAtom(kbSidebarWidthAtom);
+  const resizing = useAtomValue(kbSidebarResizingAtom);
 
   const openCategoryDrawer = (draft: TCategoryDraft) => {
     setCategoryDraft(draft);
@@ -95,39 +104,49 @@ export const KnowledgeBaseSidebar = () => {
   }, [createTopic, setCreateTopic]);
 
   return (
-    <Sidebar collapsible="none" className="flex-none w-64 border-r">
-      <Sidebar.Content>
-        <Sidebar.Group>
-          <div className="flex justify-between items-center w-full">
-            <Sidebar.GroupLabel>
-              {`${t('kb-knowledge-bases', 'Knowledge bases')} (${
-                topics?.length ?? 0
-              })`}
-            </Sidebar.GroupLabel>
-            <Button
-              variant="ghost"
-              className="text-xs font-semibold text-accent-foreground"
-              aria-label={t('kb-new-topic', 'New Topic')}
-              onClick={() => setIsTopicCreateOpen(true)}
-            >
-              <IconPlus />
-            </Button>
-          </div>
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              <TopicTree
-                topics={topics}
-                loading={loading}
-                error={error}
-                onAddCategory={(id) => openCategoryDrawer({ topicId: id })}
-                onEditCategory={(id, category) =>
-                  openCategoryDrawer({ topicId: id, category })
-                }
-              />
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
-        </Sidebar.Group>
-      </Sidebar.Content>
+    <Sidebar.Panel
+      ref={panelRef}
+      className={cn('flex-none border-r', resizing && 'transition-none')}
+      style={width ? { width } : undefined}
+    >
+      <div className="flex gap-1 items-center px-2 h-12 shrink-0">
+        <span className="block flex-1 px-2 min-w-0 text-sm font-medium truncate">
+          {t('knowledge-base', 'Knowledge Base')}
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 text-muted-foreground"
+          aria-label={t('kb-new-topic', 'New Topic')}
+          title={t('kb-new-topic', 'New Topic')}
+          onClick={() => setIsTopicCreateOpen(true)}
+        >
+          <IconPlus />
+        </Button>
+        <Sidebar.PanelTrigger className="size-8" />
+      </div>
+      <Separator className="flex-none w-auto" />
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <TopicTree
+              topics={topics}
+              loading={loading}
+              error={error}
+              onAddCategory={(id) => openCategoryDrawer({ topicId: id })}
+              onEditCategory={(id, category) =>
+                openCategoryDrawer({ topicId: id, category })
+              }
+            />
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+
+      <KbResizeHandle
+        panelRef={panelRef}
+        onResize={setWidth}
+        onReset={() => setWidth(null)}
+      />
 
       <TopicDrawer
         isOpen={isTopicCreateOpen}
@@ -141,6 +160,6 @@ export const KnowledgeBaseSidebar = () => {
         isOpen={isCategoryDrawerOpen}
         onClose={() => setIsCategoryDrawerOpen(false)}
       />
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

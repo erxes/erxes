@@ -1,10 +1,6 @@
-import {
-  Input,
-  PopoverScoped,
-  RecordTableInlineCell,
-  TextOverflowTooltip,
-} from 'erxes-ui';
+import { Input, PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
 import { ReactNode, useRef, useState } from 'react';
+import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText';
 
 export const KbInlineTextCell = ({
   value,
@@ -51,7 +47,7 @@ export const KbInlineTextCell = ({
       }}
     >
       <RecordTableInlineCell.Trigger>
-        {children ?? <TextOverflowTooltip value={value || placeholder} />}
+        {children ?? <KbOverflowText value={value || placeholder} />}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content className="min-w-72">
         <Input
