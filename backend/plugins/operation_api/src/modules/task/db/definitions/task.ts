@@ -12,7 +12,7 @@ export const taskSchema = new Schema(
     assigneeId: { type: String, label: 'Assignee' },
     createdBy: { type: String, label: 'Created By' },
     startDate: { type: Date, label: 'Start Date' },
-    targetDate: { type: Date, label: 'Target Date' },
+    targetDate: { type: Date, label: 'Due Date' },
     cycleId: { type: Schema.Types.ObjectId, label: 'Cycle ID' },
     projectId: { type: Schema.Types.ObjectId, label: 'Project ID' },
     milestoneId: { type: Schema.Types.ObjectId, label: 'Milestone ID' },

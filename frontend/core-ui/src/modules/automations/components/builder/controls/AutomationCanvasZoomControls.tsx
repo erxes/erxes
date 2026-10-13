@@ -3,14 +3,19 @@ import { useAutomationCanvasZoom } from '@/automations/components/builder/hooks/
 import { CANVAS_MAX_ZOOM, CANVAS_MIN_ZOOM } from '@/automations/constants';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { Button, Popover, Slider } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationCanvasZoomControls = () => {
+  const { t } = useTranslation('automations');
   const { zoomPercent, onZoomIn, onZoomOut, onZoomTo } =
     useAutomationCanvasZoom();
 
   return (
     <>
-      <AutomationCanvasControlButton label="Zoom out" onClick={onZoomOut}>
+      <AutomationCanvasControlButton
+        label={t('controls-zoom-out')}
+        onClick={onZoomOut}
+      >
         <IconMinus />
       </AutomationCanvasControlButton>
 
@@ -19,7 +24,7 @@ export const AutomationCanvasZoomControls = () => {
           <Button
             type="button"
             variant="ghost"
-            title="Zoom level"
+            title={t('controls-zoom-level')}
             className="h-7 min-w-12 rounded px-1.5 text-xs font-medium text-foreground tabular-nums hover:bg-accent"
           >
             {zoomPercent}%
@@ -27,7 +32,7 @@ export const AutomationCanvasZoomControls = () => {
         </Popover.Trigger>
         <Popover.Content side="top" align="center" className="w-40">
           <Slider
-            aria-label="Zoom level"
+            aria-label={t('controls-zoom-level')}
             value={[zoomPercent]}
             onValueChange={([value]) => onZoomTo(value)}
             min={CANVAS_MIN_ZOOM * 100}
@@ -37,7 +42,10 @@ export const AutomationCanvasZoomControls = () => {
         </Popover.Content>
       </Popover>
 
-      <AutomationCanvasControlButton label="Zoom in" onClick={onZoomIn}>
+      <AutomationCanvasControlButton
+        label={t('controls-zoom-in')}
+        onClick={onZoomIn}
+      >
         <IconPlus />
       </AutomationCanvasControlButton>
     </>

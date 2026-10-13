@@ -2,16 +2,15 @@ import { useTranslation } from 'react-i18next';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { ACCOUNTINGS_CONFIGS_EDIT } from '../graphql/mutations/updateConfig';
 import { toast } from 'erxes-ui';
+import type {
+  AccountingsConfigsUpdateMutation,
+  AccountingsConfigsUpdateMutationVariables,
+} from '~/gql/graphql';
 
 export const useAccountingConfigEdit = (
   options?: MutationFunctionOptions<
-    {
-      _id: string;
-      code: string;
-      subId?: string;
-      value: any;
-    },
-    any
+    AccountingsConfigsUpdateMutation,
+    AccountingsConfigsUpdateMutationVariables
   >,
 ) => {
   const { t } = useTranslation('accounting');
@@ -26,7 +25,7 @@ export const useAccountingConfigEdit = (
   }: {
     id: string;
     subId?: string;
-    value: any;
+    value: unknown;
   }) => {
     return configEdit({
       ...options,

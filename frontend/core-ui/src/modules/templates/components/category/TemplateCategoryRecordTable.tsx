@@ -1,10 +1,15 @@
 import { TemplateCategoryCommandBar } from '@/templates/components/category/TemplateCategoryCommandBar';
 import { RecordTable } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTemplateCategories } from 'ui-modules/modules/templates';
 import { templateCategoryColumns } from './TemplateCategoryColumns';
 import { TemplateCategoryDetailSheet } from './TemplateCategoryDetailSheet';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateCategoryRecordTable = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
+  const columns = useMemo(() => templateCategoryColumns(t), [t]);
+
   const { categories, pageInfo, loading, handleFetchMore } =
     useTemplateCategories({});
 
@@ -12,7 +17,7 @@ export const TemplateCategoryRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={templateCategoryColumns}
+      columns={columns}
       data={categories || []}
       stickyColumns={['more', 'checkbox', 'attachment', 'name']}
       className="m-3"

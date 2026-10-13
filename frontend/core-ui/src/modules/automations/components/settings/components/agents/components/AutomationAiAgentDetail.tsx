@@ -18,6 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
 import { MutableRefObject, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
 type TRequestCloseRef = MutableRefObject<(() => void) | null>;
@@ -66,6 +67,8 @@ export const AutomationAiAgentDetail = ({
   onClose: () => void;
   requestCloseRef: TRequestCloseRef;
 }) => {
+  const { t } = useTranslation('automations');
+
   const [searchParams] = useSearchParams();
   const queryKind = searchParams.get('kind');
   const defaultProvider =
@@ -82,8 +85,8 @@ export const AutomationAiAgentDetail = ({
 
   const save = form.handleSubmit(handleSave, () => {
     toast({
-      title: 'Invalid form',
-      description: 'Please review the highlighted fields.',
+      title: t('settings-agent-invalid-form'),
+      description: t('settings-agent-review-fields'),
       variant: 'destructive',
     });
   });

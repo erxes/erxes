@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Form, Select, Spinner } from 'erxes-ui';
@@ -17,9 +18,10 @@ export const SyncResponseFieldSelect = ({
 }) => {
   const { t } = useTranslation('accounting');
   const label = labelProp ?? t('sync-response-field');
-  const { data, loading } = useQuery(DEAL_FIELD_GROUPS_WITH_FIELDS, {
+  const { data: queryData, loading } = useQuery(DEAL_FIELD_GROUPS_WITH_FIELDS, {
     variables: { contentType: 'sales:deal' },
   });
+  const data = toGraphqlView(queryData);
 
   const groupNameById = new Map(
     (data?.fieldGroups?.list || []).map((group: any) => [

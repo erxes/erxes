@@ -8,8 +8,10 @@ import { Suspense, useRef } from 'react';
 import { AutomationConditionalsProvider } from 'ui-modules';
 import { AutomationConditionalEditorSheet } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationConditionalEditorSheet';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationActionContentSidebar = () => {
+  const { t } = useTranslation('automations');
   const formRef = useRef<{ submit: () => void }>(null);
   const {
     currentIndex,
@@ -25,7 +27,7 @@ export const AutomationActionContentSidebar = () => {
   } = useAutomationActionContentSidebar();
 
   if (!currentAction || currentIndex === -1) {
-    return <Card.Content>Something went wrong</Card.Content>;
+    return <Card.Content>{t('sidebar-something-went-wrong')}</Card.Content>;
   }
 
   if (!isCoreActionComponent) {
@@ -41,9 +43,8 @@ export const AutomationActionContentSidebar = () => {
                   typeof formRef.current.submit !== 'function'
                 ) {
                   toast({
-                    title: 'Form is not configured',
-                    description:
-                      'Please configure the action form before saving',
+                    title: t('sidebar-form-not-configured'),
+                    description: t('sidebar-configure-form-before-saving'),
                     variant: 'destructive',
                   });
                   return;

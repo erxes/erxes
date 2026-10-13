@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
@@ -20,6 +21,7 @@ export const PositionsMoreColumnCell = ({
 }: {
   cell: Cell<IPositionListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original || {};
   const [, setOpenPosition] = useQueryState('position_id');
   const setRenderingPositionDetail = useSetAtom(renderingPositionDetailAtom);
@@ -28,13 +30,13 @@ export const PositionsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${title}" position?`,
+      message: t('confirm-delete-position', { title }),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +62,7 @@ export const PositionsMoreColumnCell = ({
                   setRenderingPositionDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit')}
               </Command.Item>
             </Can>
             <Can action="positionsManage">
@@ -69,7 +71,7 @@ export const PositionsMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete')}
               </Command.Item>
             </Can>
           </Command.List>

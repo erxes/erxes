@@ -1,3 +1,5 @@
+import { parsePaymentTypes } from './paymentTypes';
+import { toGraphqlView } from '@/utils/graphql';
 import { Form, Select, isEnabled } from 'erxes-ui';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
 import {
@@ -7,7 +9,6 @@ import {
   SyncConfigPaymentsSection,
   SyncConfigReturnTypeField,
   SyncConfigVatCtaxSection,
-  TPaymentType,
   normalizeSyncConfigData,
 } from './SyncConfigFormSections';
 import { UseFormReturn, useWatch } from 'react-hook-form';
@@ -63,20 +64,28 @@ export const SyncOrderConfigForm = ({
   const { t } = useTranslation('accounting');
   const posId = useWatch({ control: form.control, name: 'posId' });
 
-  const { data: posList, loading: posListLoading } = useQuery(POS_LIST, {});
+  const { data: rawGraphqlPosList, loading: posListLoading } = useQuery(
+    POS_LIST,
+    {},
+  );
+  const posList = toGraphqlView(rawGraphqlPosList);
   const posOptions: { value: string; label: string }[] = useMemo(() => {
     if (posListLoading) return [];
-    return posList?.posList?.map((p: { name: string; _id: string }) => ({
-      label: p.name,
+    return (posList?.posList ?? []).map((p) => ({
+      label: p.name ?? p._id,
       value: p._id,
     }));
   }, [posList, posListLoading]);
 
-  const { data: posDetailData, refetch: posRefetch } = useQuery(POS_DETAIL, {
-    variables: { _id: posId },
-    skip: !posId, // posId байхгүй үед асуухгүй
-    fetchPolicy: 'network-only', // заавал backend-ээс авна
-  });
+  const { data: rawGraphqlPosDetailData, refetch: posRefetch } = useQuery(
+    POS_DETAIL,
+    {
+      variables: { _id: posId ?? '' },
+      skip: !posId, // posId байхгүй үед асуухгүй
+      fetchPolicy: 'network-only', // заавал backend-ээс авна
+    },
+  );
+  const posDetailData = toGraphqlView(rawGraphqlPosDetailData);
 
   useEffect(() => {
     if (posId) posRefetch({ _id: posId });
@@ -92,8 +101,9 @@ export const SyncOrderConfigForm = ({
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: TPaymentType[] =
-    posDetailData?.posDetail?.paymentTypes || [];
+  const paymentTypes = parsePaymentTypes(
+    posDetailData?.posDetail?.paymentTypes,
+  );
   const mongolianEnabled = isEnabled('mongolian');
 
   const handleSubmit = (data: ConfigFormValues) =>

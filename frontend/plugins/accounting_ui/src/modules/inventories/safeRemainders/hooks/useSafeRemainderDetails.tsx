@@ -1,8 +1,16 @@
-import { useQuery, OperationVariables } from '@apollo/client';
+import type {
+  AccountingSafeRemainderItemsQuery,
+  AccountingSafeRemainderItemsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { useMultiQueryState } from 'erxes-ui';
 import { SAFE_REMAINDER_DETAILS_QUERY } from '../graphql/safeRemainderQueries';
-import { ISafeRemainderItem } from '../types/SafeRemainder';
+
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
+import { toSafeRemainderItem } from '../types/SafeRemainder';
 
 export const useSafeRemainderDetailFilters = () => {
   const [{ searchValue, status, diffType, category }] = useMultiQueryState<{
@@ -24,25 +32,36 @@ export const useSafeRemainderDetailFilters = () => {
   return filters;
 };
 
-export const useSafeRemainderDetails = (options?: OperationVariables) => {
+export const useSafeRemainderDetails = (
+  options?: QueryHookOptions<
+    AccountingSafeRemainderItemsQuery,
+    AccountingSafeRemainderItemsQueryVariables
+  >,
+) => {
   const filters = useSafeRemainderDetailFilters();
 
-  const { data, loading, error, fetchMore } = useQuery<
-    {
-      safeRemainderItems: ISafeRemainderItem[];
-      safeRemainderItemsCount: number;
-    },
-    OperationVariables
-  >(SAFE_REMAINDER_DETAILS_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(SAFE_REMAINDER_DETAILS_QUERY, {
     ...options,
+    skip: !options?.variables?.remainderId,
     variables: {
+      remainderId: options?.variables?.remainderId ?? '',
       ...filters,
       ...options?.variables,
       page: 1,
       perPage: ACC_TRS__PER_PAGE,
     },
   });
-  const { safeRemainderItems = [], safeRemainderItemsCount = 0 } = data || {};
+  const data = toGraphqlView(queryData);
+  const safeRemainderItems = useMemo(
+    () => (data?.safeRemainderItems ?? []).map(toSafeRemainderItem),
+    [data?.safeRemainderItems],
+  );
+  const safeRemainderItemsCount = data?.safeRemainderItemsCount ?? 0;
 
   const handleFetchMore = () => {
     if (safeRemainderItems?.length < safeRemainderItemsCount) {
@@ -58,8 +77,8 @@ export const useSafeRemainderDetails = (options?: OperationVariables) => {
             ...prev,
             ...fetchMoreResult,
             safeRemainderItems: [
-              ...prev.safeRemainderItems,
-              ...fetchMoreResult.safeRemainderItems,
+              ...(prev.safeRemainderItems ?? []),
+              ...(fetchMoreResult.safeRemainderItems ?? []),
             ],
           };
         },

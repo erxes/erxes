@@ -165,11 +165,12 @@ export const TransactionDocument = ({
   const { t } = useTranslation('accounting');
   const journal = transaction.journal;
   const details = transaction?.details || [];
-  const isInventory = INVENTORY_JOURNALS.has(journal);
+  const isInventory = journal ? INVENTORY_JOURNALS.has(journal) : false;
 
   const title =
-    t(DOCUMENT_TITLES[journal] || '', { nsSeparator: false }) ||
-    t('transaction-voucher');
+    (journal
+      ? t(DOCUMENT_TITLES[journal] || '', { nsSeparator: false })
+      : '') || t('transaction-voucher');
 
   const totalAmount = isInventory
     ? details.reduce(

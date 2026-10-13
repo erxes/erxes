@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isDeeplyEqual, Sheet, Spinner, useQueryState } from 'erxes-ui';
+import { isDeeplyEqual, toast, Sheet, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
@@ -45,7 +45,7 @@ const EditFixedAssetForm = () => {
 
   useEffect(() => {
     if (fixedAssetDetail) {
-      reset({
+      const parsed = fixedAssetSchema.partial().safeParse({
         ...FIXED_ASSET_DEFAULT_VALUES,
         ...fixedAssetDetail,
         usefulLife: getUsefulLifeFromRate(
@@ -55,10 +55,18 @@ const EditFixedAssetForm = () => {
           fixedAssetDetail.taxAnnualDepreciationRate,
         ),
       });
+      if (parsed.success) reset(parsed.data);
+      else
+        toast({
+          title: 'Invalid fixed asset data',
+          description: parsed.error.message,
+          variant: 'destructive',
+        });
     }
   }, [fixedAssetDetail, reset]);
 
   const handleSubmit = (data: TFixedAssetForm) => {
+    if (!fixedAssetDetail?._id) return;
     const initialData = {
       ...FIXED_ASSET_DEFAULT_VALUES,
       ...fixedAssetDetail,
@@ -77,7 +85,7 @@ const EditFixedAssetForm = () => {
 
     editFixedAsset({
       variables: {
-        _id: fixedAssetDetail?._id,
+        _id: fixedAssetDetail._id,
         ...data,
       },
       onCompleted: () => {

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -99,7 +99,7 @@
 ### UI Conventions
 
 - Published CMS posts check `agentPostizTenantEnabled` before offering the Postiz sheet. Disabled or unavailable Postiz access keeps the normal CMS publish path; enabled tenants retain the sharing sheet and its CMS-only action.
-- Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`.
+- Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`. The delivery list does not poll; its Refresh status button calls `cmsPostizRefresh` and writes the result into the `cmsPostizDeliveries` cache.
 - Match existing CMS page structure: header, optional CMS sidebar, content area,
   and drawers.
 - Use `erxes-ui` and `ui-modules` components before creating new primitives.

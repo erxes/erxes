@@ -11,12 +11,12 @@ import {
 } from '@tabler/icons-react';
 import {
   eachDayOfInterval,
-  format,
   isAfter,
   isBefore,
   isSameDay,
   isValid,
 } from 'date-fns';
+import { formatDate as format } from '@/utils/graphqlDate';
 import {
   Button,
   DatePicker,
@@ -50,7 +50,7 @@ export const AdjustInventoryDetail = () => {
   const [id] = useQueryState<string>('id');
 
   const { adjustInventory, loading } = useAdjustInventoryDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
@@ -60,7 +60,7 @@ export const AdjustInventoryDetail = () => {
     loading: detailsLoading,
     handleFetchMore,
   } = useAdjustInventoryDetails({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 

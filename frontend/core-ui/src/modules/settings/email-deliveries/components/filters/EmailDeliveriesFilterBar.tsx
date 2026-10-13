@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   EMAIL_DELIVERY_PROVIDER_OPTIONS,
   EMAIL_DELIVERY_SOURCE_OPTIONS,
@@ -14,6 +15,7 @@ import {
 import { Combobox, Filter, Popover, useFilterQueryState } from 'erxes-ui';
 
 export const EmailDeliveriesFilterBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
   const [status] = useFilterQueryState<string>('status');
   const [source] = useFilterQueryState<string>('source');
   const [provider] = useFilterQueryState<string>('provider');
@@ -23,11 +25,11 @@ export const EmailDeliveriesFilterBar = () => {
       <Filter.BarItem queryKey="status">
         <Filter.BarName>
           <IconProgressCheck />
-          Status
+          {t('status')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
-            <Filter.BarButton>{status || 'Set value'}</Filter.BarButton>
+            <Filter.BarButton>{status || t('set-value')}</Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
             <EmailDeliveryChoiceFilter
@@ -41,11 +43,11 @@ export const EmailDeliveriesFilterBar = () => {
       <Filter.BarItem queryKey="source">
         <Filter.BarName>
           <IconSourceCode />
-          Source
+          {t('source')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
-            <Filter.BarButton>{source || 'Set value'}</Filter.BarButton>
+            <Filter.BarButton>{source || t('set-value')}</Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
             <EmailDeliveryChoiceFilter
@@ -59,11 +61,11 @@ export const EmailDeliveriesFilterBar = () => {
       <Filter.BarItem queryKey="provider">
         <Filter.BarName>
           <IconSend />
-          Provider
+          {t('provider')}
         </Filter.BarName>
         <Popover>
           <Popover.Trigger>
-            <Filter.BarButton>{provider || 'Set value'}</Filter.BarButton>
+            <Filter.BarButton>{provider || t('set-value')}</Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
             <EmailDeliveryChoiceFilter
@@ -79,7 +81,7 @@ export const EmailDeliveriesFilterBar = () => {
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Date
+          {t('date')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>

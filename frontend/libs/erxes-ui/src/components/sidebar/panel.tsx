@@ -1,12 +1,15 @@
 import * as React from 'react';
 
-import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
+import {
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
+} from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
-import { createPortal } from 'react-dom';
+import { Portal } from 'radix-ui';
 import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
 import { useComposedRef } from './hooks';
 import { useTranslation } from 'react-i18next';
@@ -93,7 +96,11 @@ export const SidebarPanelTrigger = React.forwardRef<
       }}
       {...props}
     >
-      {open ? <IconChevronsLeft /> : <IconChevronsRight />}
+      {open ? (
+        <IconLayoutSidebarLeftCollapse />
+      ) : (
+        <IconLayoutSidebarLeftExpand />
+      )}
     </Button>
   );
 });
@@ -122,15 +129,14 @@ export const SidebarPanel = React.forwardRef<
       )}
       {...props}
     >
-      {slot &&
-        claimed &&
-        createPortal(
-          <>
+      {slot && claimed && (
+        <Portal.Root asChild container={slot}>
+          <span className="contents">
             <SidebarPanelTrigger className="size-7" />
             <Separator.Inline />
-          </>,
-          slot,
-        )}
+          </span>
+        </Portal.Root>
+      )}
       {!open && !slot && (
         <div className="absolute top-2 left-2 z-20">
           <SidebarPanelTrigger className="size-7 border bg-background shadow-xs" />

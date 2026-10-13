@@ -7,6 +7,7 @@ import {
   useRelations,
 } from 'ui-modules';
 import { IconPlus, IconUserSearch } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerWidgets = ({
   contentId,
@@ -14,6 +15,7 @@ export const CustomerWidgets = ({
   customerId,
   access,
 }: IRelationWidgetProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'widgets' });
   const { manageRelations } = useManageRelations();
   const { ownEntities, loading } = useRelations({
     variables: {
@@ -47,12 +49,12 @@ export const CustomerWidgets = ({
         <div className="bg-background p-6 border border-dashed rounded-xl">
           <IconUserSearch />
         </div>
-        <span className="text-sm">No customers to display at the moment.</span>
+        <span className="text-sm">{t('no-customers')}</span>
         <SelectCustomersBulk onSelect={handleSelectCustomers}>
           {access === 'write' && (
             <Button variant="outline" size="sm">
               <IconPlus className="mr-2 w-4 h-4" />
-              Add Customer
+              {t('add-customer')}
             </Button>
           )}
         </SelectCustomersBulk>

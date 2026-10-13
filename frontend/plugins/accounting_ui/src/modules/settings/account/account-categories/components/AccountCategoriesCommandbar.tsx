@@ -46,7 +46,7 @@ export const AccountCategoriesDelete = () => {
         .rows.map((row) => row.original._id);
       accountCategoryIds.forEach((accountCategoryId) => {
         removeAccountCategories({
-          variables: { _id: accountCategoryId },
+          variables: { _id: accountCategoryId ?? '' },
           onError: (error: Error) => {
             toast({
               title: t('error'),

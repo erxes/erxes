@@ -8,6 +8,7 @@ import { Form, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
 export const AI_AGENT_UI_LIMITS = {
@@ -25,6 +26,7 @@ export const formatBytes = (bytes: number) => {
 };
 
 export const AiAgentContextFilesForm = () => {
+  const { t } = useTranslation('automations');
   const { id } = useParams();
   const { control } = useFormContext<TAiAgentForm>();
   const { openMemory } = useAiAgentDetailContext();
@@ -35,13 +37,14 @@ export const AiAgentContextFilesForm = () => {
     <div className="space-y-4">
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">
-          Attach markdown or plain text files that should be passed to the
-          external AI provider as runtime knowledge.
+          {t('settings-context-files-attach')}
         </p>
         <p className="text-xs text-muted-foreground">
-          Limits: up to {AI_AGENT_UI_LIMITS.maxFiles} files,{' '}
-          {formatBytes(AI_AGENT_UI_LIMITS.maxSingleFileBytes)} per file,{' '}
-          {formatBytes(AI_AGENT_UI_LIMITS.maxTotalContextBytes)} total.
+          {t('settings-context-files-limits', {
+            maxFiles: AI_AGENT_UI_LIMITS.maxFiles,
+            single: formatBytes(AI_AGENT_UI_LIMITS.maxSingleFileBytes),
+            total: formatBytes(AI_AGENT_UI_LIMITS.maxTotalContextBytes),
+          })}
         </p>
       </div>
 
@@ -81,14 +84,15 @@ export const AiAgentContextFilesForm = () => {
                               variables: { id, fileId },
                             });
                             toast({
-                              title: 'Reindex queued',
-                              description:
-                                'Knowledge chunks will refresh in the background.',
+                              title: t('settings-context-files-reindex-queued'),
+                              description: t(
+                                'settings-context-files-reindex-queued-description',
+                              ),
                               variant: 'success',
                             });
                           } catch (error) {
                             toast({
-                              title: 'Could not queue reindex',
+                              title: t('settings-context-files-reindex-failed'),
                               description: (error as Error).message,
                               variant: 'destructive',
                             });
@@ -102,8 +106,7 @@ export const AiAgentContextFilesForm = () => {
                 />
               </Form.Control>
               <Form.Description>
-                Keep files focused and compact so health checks stay green,
-                prompts stay small, and the provider responds quickly.
+                {t('settings-context-files-keep-focused')}
               </Form.Description>
               <Form.Message />
             </Form.Item>

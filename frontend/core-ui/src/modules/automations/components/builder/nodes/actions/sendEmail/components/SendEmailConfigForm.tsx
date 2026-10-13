@@ -137,7 +137,10 @@ export const SendEmailConfigForm = ({
                 <span className="text-destructive">*</span>
               </Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Sales team" />
+                <Input
+                  {...field}
+                  placeholder={t('send-email-sender-name-placeholder')}
+                />
               </Form.Control>
               {alignedFrom && (
                 <Form.Description>

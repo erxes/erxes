@@ -80,11 +80,6 @@ export const FixedAssetRow = ({
   const [taxAmounts, setTaxAmounts] = useState(() =>
     calcTaxAmounts(detail.count, detail.unitPrice),
   );
-  const followInfoIndex = (trDoc.followInfos?.fxaIncomeDetails || []).findIndex(
-    (followInfo) =>
-      followInfo.transactionDetailId === detail?._id ||
-      followInfo.tempId === detail?._id,
-  );
 
   useEffect(() => {
     if (!(trDoc.hasVat || trDoc.hasCtax)) {
@@ -484,32 +479,28 @@ export const FixedAssetRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              {followInfoIndex >= 0 ? (
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.preDeprecation`}
-                  render={({ field }) => (
-                    <PopoverScoped
-                      scope={`trDocs.${journalIndex}.details.${detailIndex}.preDeprecation`}
-                      closeOnEnter
-                    >
-                      <Form.Control>
-                        <RecordTableInlineCell.Trigger>
-                          {(field.value || 0).toLocaleString()}
-                        </RecordTableInlineCell.Trigger>
-                      </Form.Control>
-                      <RecordTableInlineCell.Content>
-                        <CurrencyField.ValueInput
-                          value={field.value ?? 0}
-                          onChange={(value) => field.onChange(value || 0)}
-                        />
-                      </RecordTableInlineCell.Content>
-                    </PopoverScoped>
-                  )}
-                />
-              ) : (
-                <RecordTableInlineCell>0</RecordTableInlineCell>
-              )}
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
+                render={({ field }) => (
+                  <PopoverScoped
+                    scope={`trDocs.${journalIndex}.details.${detailIndex}.preDeprecation`}
+                    closeOnEnter
+                  >
+                    <Form.Control>
+                      <RecordTableInlineCell.Trigger>
+                        {(field.value || 0).toLocaleString()}
+                      </RecordTableInlineCell.Trigger>
+                    </Form.Control>
+                    <RecordTableInlineCell.Content>
+                      <CurrencyField.ValueInput
+                        value={field.value ?? 0}
+                        onChange={(value) => field.onChange(value || 0)}
+                      />
+                    </RecordTableInlineCell.Content>
+                  </PopoverScoped>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
           <FxaDetailLocationCells

@@ -1,23 +1,36 @@
-import { useQuery, OperationVariables } from '@apollo/client';
+import type {
+  AccountingAdjustInventoryDetailsQuery,
+  AccountingAdjustInventoryDetailsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { ADJUST_INVENTORY_DETAILS_QUERY } from '../graphql/adjustInventoryQueries';
-import { IAdjustInvDetail } from '../types/AdjustInventory';
+
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
-export const useAdjustInventoryDetails = (options?: OperationVariables) => {
-  const { data, loading, error, fetchMore } = useQuery<
-    {
-      adjustInventoryDetails: IAdjustInvDetail[];
-      adjustInventoryDetailsCount: number;
-    },
-    OperationVariables
-  >(ADJUST_INVENTORY_DETAILS_QUERY, {
+export const useAdjustInventoryDetails = (
+  options?: QueryHookOptions<
+    AccountingAdjustInventoryDetailsQuery,
+    AccountingAdjustInventoryDetailsQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(ADJUST_INVENTORY_DETAILS_QUERY, {
     ...options,
+    skip: !options?.variables?._id,
     variables: {
+      _id: options?.variables?._id ?? '',
       ...options?.variables,
       page: 1,
       perPage: ACC_TRS__PER_PAGE,
     },
   });
+  const data = toGraphqlView(queryData);
   const { adjustInventoryDetails = [], adjustInventoryDetailsCount = 0 } =
     data || {};
 
@@ -34,8 +47,8 @@ export const useAdjustInventoryDetails = (options?: OperationVariables) => {
             ...prev,
             ...fetchMoreResult,
             adjustInventoryDetails: [
-              ...prev.adjustInventoryDetails,
-              ...fetchMoreResult.adjustInventoryDetails,
+              ...(prev.adjustInventoryDetails ?? []),
+              ...(fetchMoreResult.adjustInventoryDetails ?? []),
             ],
           };
         },

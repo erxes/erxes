@@ -4,6 +4,7 @@ import { Badge, Button, Input, TextOverflowTooltip, cn } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 const emailSchema = z.string().email();
 export const InviteTeamMemberSection = ({
@@ -12,6 +13,7 @@ export const InviteTeamMemberSection = ({
   onContinue: () => void;
 }) => {
   const { handleInvitations } = useUsersInvite();
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
@@ -22,18 +24,18 @@ export const InviteTeamMemberSection = ({
     if (trimmed) {
       const validation = emailSchema.safeParse(trimmed);
       if (!validation.success) {
-        setError('Please enter a valid email address');
+        setError(t('invalid-email'));
         return;
       }
       if (emails.includes(trimmed)) {
-        setError('This email has already been added');
+        setError(t('email-already-added'));
         return;
       }
       emails.push(trimmed);
     }
 
     if (emails.length === 0) {
-      setError('Please add at least one email address');
+      setError(t('add-at-least-one-email'));
       return;
     }
 
@@ -53,12 +55,12 @@ export const InviteTeamMemberSection = ({
 
     const validation = emailSchema.safeParse(trimmedValue);
     if (!validation.success) {
-      setError('Please enter a valid email address');
+      setError(t('invalid-email'));
       return;
     }
 
     if (tags.includes(trimmedValue)) {
-      setError('This email has already been added');
+      setError(t('email-already-added'));
       return;
     }
 
@@ -106,10 +108,10 @@ export const InviteTeamMemberSection = ({
           className="flex flex-col gap-2 text-center mb-2"
         >
           <h2 className="text-2xl font-semibold text-foreground">
-            Invite team members
+            {t('invite-team-members')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Add multiple email addresses to invite your team
+            {t('invite-description')}
           </p>
         </motion.div>
         <motion.div
@@ -122,7 +124,7 @@ export const InviteTeamMemberSection = ({
             <div className="w-full p-1">
               <Input
                 name="email"
-                placeholder="Enter email addresses"
+                placeholder={t('enter-email-addresses')}
                 value={inputValue}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
@@ -135,7 +137,7 @@ export const InviteTeamMemberSection = ({
               )}
               {!error && (
                 <p className="text-sm text-muted-foreground mt-1.5">
-                  Separate emails with comma, space, or enter
+                  {t('separate-emails')}
                 </p>
               )}
             </div>
@@ -160,7 +162,7 @@ export const InviteTeamMemberSection = ({
             )}
           </div>
           <Button onClick={onClick} className="w-full cursor-pointer" size="lg">
-            Continue
+            {t('continue')}
           </Button>
         </motion.div>
       </motion.div>
@@ -168,7 +170,7 @@ export const InviteTeamMemberSection = ({
         className="absolute bottom-1/4 text-accent-foreground hover:text-foreground cursor-pointer"
         onClick={() => onContinue()}
       >
-        I'll do this later
+        {t('do-this-later')}
       </span>
     </>
   );

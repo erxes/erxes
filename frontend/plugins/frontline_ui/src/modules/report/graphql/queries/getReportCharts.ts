@@ -8,6 +8,11 @@ export const REPORT_CHART_FIELDS = gql`
     visualType
     colSpan
     filters {
+      statusChangedDate
+      updatedAtDate
+      description
+      statusChangedByIds
+      updatedByIds
       date
       fromDate
       toDate

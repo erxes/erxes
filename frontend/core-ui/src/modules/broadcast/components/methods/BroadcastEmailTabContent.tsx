@@ -62,7 +62,9 @@ const EmailPreview = ({ message }: { message?: TBroadcastMessage }) => {
     <div className="flex flex-col gap-8 h-full w-full">
       <div className="px-9 py-5 border rounded-md bg-muted space-y-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Subject:</span>{' '}
+          <span className="text-sm text-muted-foreground">
+            {t('composer.subject')}:
+          </span>{' '}
           <h3 className="line-clamp-1">{subject} </h3>
         </div>
 

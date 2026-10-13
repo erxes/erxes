@@ -1,8 +1,10 @@
 import { IconCircleCheck } from '@tabler/icons-react';
 import { Button, useScopedHotkeys } from 'erxes-ui';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
   return (
@@ -40,11 +42,10 @@ export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
         className="flex flex-col gap-2 items-center"
       >
         <h2 className="text-xl md:text-2xl font-semibold text-foreground text-center">
-          You're all set!
+          {t('all-set')}
         </h2>
         <p className="text-xs md:text-sm text-muted-foreground text-center px-4 max-w-md">
-          Your workspace is ready. Start exploring and make the most of your
-          experience operating system.
+          {t('all-set-description')}
         </p>
       </motion.div>
 
@@ -63,7 +64,7 @@ export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
           variant={'secondary'}
           onClick={onContinue}
         >
-          Start exploring
+          {t('start-exploring')}
         </Button>
       </motion.div>
     </motion.div>

@@ -16,7 +16,7 @@ import {
 } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
-import { format } from 'date-fns-tz';
+import { formatDate as format } from '@/utils/graphqlDate';
 import {
   Button,
   DatePicker,
@@ -164,7 +164,9 @@ const ClosingAccountCell = ({
 }: CellContext<TClosingEntryRow, unknown>) => (
   <RecordTableInlineCell>
     <AccountsInline
-      accountIds={[row.original.accountId]}
+      accountIds={[row.original.accountId].filter((id): id is string =>
+        Boolean(id),
+      )}
       permissionMode="read"
       placeholder={row.original.accountId || '-'}
     />
@@ -346,7 +348,7 @@ const ClosingActionButtons = ({
 export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const { t } = useTranslation('accounting');
   const { adjustClosingDetail, loading } = useAdjustClosingDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
@@ -356,7 +358,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     loading: detailsLoading,
     handleFetchMore,
   } = useAdjustClosingDetails({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
@@ -371,7 +373,10 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
   const { removeAdjust } = useAdjustClosingEntryRemove();
 
-  const closingDetails = adjustClosingDetail?.details ?? [];
+  const closingDetails = useMemo(
+    () => adjustClosingDetail?.details ?? [],
+    [adjustClosingDetail?.details],
+  );
   const branchIds = useMemo(
     () =>
       [...new Set(closingDetails.map((detail) => detail.branchId))].filter(
@@ -411,7 +416,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   );
   const { transactions = [], loading: transactionsLoading } =
     useTransactionsDetail({
-      variables: { _id: linkedTransactionParentId },
+      variables: { _id: linkedTransactionParentId ?? '' },
       skip: !linkedTransactionParentId,
     });
   const transactionColumns = useMemo(
@@ -453,6 +458,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
   const handlePercentChange = useCallback(
     (detailId: string, entryId: string, value: string) => {
+      if (!id) return;
       const percent = Number(value) || 0;
 
       adjustClosingEdit({
@@ -760,8 +766,8 @@ export const AdjustClosingStatusBar = ({
 }) => {
   const { beginDate, date, status } = adjustClosing;
 
-  const start: Date = beginDate ?? date ?? new Date();
-  const end: Date = date ?? new Date();
+  const start = new Date(beginDate ?? date ?? Date.now());
+  const end = new Date(date ?? Date.now());
   const current = new Date();
 
   const days = start <= end ? eachDayOfInterval({ start, end }) : [start];
@@ -771,7 +777,11 @@ export const AdjustClosingStatusBar = ({
       <div className="flex items-center gap-2 text-sm">
         <span className="text-primary font-bold">
           <DatePicker
-            value={adjustClosing?.beginDate}
+            value={
+              adjustClosing?.beginDate
+                ? new Date(adjustClosing.beginDate)
+                : undefined
+            }
             onChange={() => null}
             className="h-8 flex w-full"
             disabled
@@ -795,7 +805,9 @@ export const AdjustClosingStatusBar = ({
         <span className="text-accent-foreground">{'->'}</span>
         <span className="text-primary font-bold">
           <DatePicker
-            value={adjustClosing?.date}
+            value={
+              adjustClosing?.date ? new Date(adjustClosing.date) : undefined
+            }
             onChange={() => null}
             className="h-8 flex w-full"
             disabled

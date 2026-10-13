@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IconTrash } from '@tabler/icons-react';
@@ -16,6 +17,7 @@ export const JSONRemoveButton = memo(function JSONRemoveButton({
   path,
 }: JSONRemoveButtonProps) {
   const { getValues, setValue } = useFormContext();
+  const { t } = useTranslation('automations');
 
   const onRemove = () => {
     const root = getValues();
@@ -24,7 +26,12 @@ export const JSONRemoveButton = memo(function JSONRemoveButton({
   };
 
   return (
-    <Button variant="ghost" size="sm" onClick={onRemove} aria-label="Remove">
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={onRemove}
+      aria-label={t('webhook-json-remove')}
+    >
       <IconTrash />
     </Button>
   );

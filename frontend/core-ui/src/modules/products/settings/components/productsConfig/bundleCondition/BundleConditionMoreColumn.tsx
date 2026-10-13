@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
   Combobox,
@@ -21,6 +22,7 @@ export const BundleConditionMoreColumn = (
   const bundleCondition = props.row.original;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm } = useConfirm();
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-conditions' });
   const { toast } = useToast();
   const { removeBundleConditions, loading } = useBundleConditionRemove();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -31,14 +33,14 @@ export const BundleConditionMoreColumn = (
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${bundleCondition.name}"?`,
+      message: t('confirm-delete', { name: bundleCondition.name }),
       options: confirmOptions,
     }).then(() => {
       removeBundleConditions({
         variables: { _ids: [bundleCondition._id] },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -60,7 +62,7 @@ export const BundleConditionMoreColumn = (
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <Command.Item
                 value="delete"
@@ -68,7 +70,7 @@ export const BundleConditionMoreColumn = (
                 disabled={loading}
               >
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

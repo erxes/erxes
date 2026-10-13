@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const MyInboxHeader = () => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
     <>
       <div className="flex flex-col h-13 shrink-0 bg-sidebar w-full">

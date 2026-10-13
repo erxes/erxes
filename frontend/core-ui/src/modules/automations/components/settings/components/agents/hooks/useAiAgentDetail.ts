@@ -9,6 +9,7 @@ import {
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
 export interface AiAgentInput {
@@ -53,6 +54,7 @@ export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { search } = useLocation();
+  const { t } = useTranslation('automations');
 
   const { data, loading } = useQuery(AUTOMATIONS_AI_AGENT_DETAIL, {
     variables: { id },
@@ -94,14 +96,16 @@ export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
         ],
         onError: ({ message }) => {
           toast({
-            title: 'Something went wrong',
+            title: t('sidebar-something-went-wrong'),
             description: message,
             variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: `Succefully ${id ? 'edited' : 'added'}`,
+            title: id
+              ? t('settings-agent-saved-edited')
+              : t('settings-agent-saved-added'),
             variant: 'success',
           });
         },
@@ -120,7 +124,7 @@ export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
 
       return savedAgent;
     },
-    [addMutation, editMutation, id, navigate, search],
+    [addMutation, editMutation, id, navigate, search, t],
   );
 
   return {

@@ -1,5 +1,10 @@
 import { query } from '@/modules/apollo/apolloClient';
+import {
+  createSharedCache,
+  TIMED_OUT,
+} from '@/modules/apollo/utils/sharedCache';
 import { getPortalConfig } from '@/modules/config/api';
+import { readScopedApiUrl } from '@/modules/config/requestScope';
 import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import {
   CMS_PORTAL_ANNOUNCEMENTS,
@@ -20,6 +25,40 @@ const postTime = (post: CmsPost) =>
 const sortByNewest = (posts: CmsPost[]) =>
   [...posts].sort((left, right) => postTime(right) - postTime(left));
 
+const CACHE_TIMES = { ttlMs: 60_000, staleMs: 10 * 60_000 };
+
+const sharedPosts = createSharedCache<CmsPostsResult>({
+  ...CACHE_TIMES,
+  maxEntries: 500,
+  keep: (result) => result.state === 'ready',
+  timedOut: () => ({ state: 'error', message: TIMED_OUT }),
+});
+
+const loadPosts = async (
+  cmsAppToken: string,
+  limit: number,
+  searchValue: string | undefined,
+): Promise<CmsPostsResult> => {
+  try {
+    const { data, error } = await query<{
+      cpPostList: { posts: CmsPost[] | null } | null;
+    }>({
+      query: CMS_PORTAL_ANNOUNCEMENTS,
+      variables: { limit, searchValue },
+      context: { appToken: cmsAppToken },
+      errorPolicy: 'all',
+    });
+
+    if (error) {
+      return { state: 'error', message: error.message };
+    }
+
+    return { state: 'ready', posts: data?.cpPostList?.posts ?? [] };
+  } catch (caught) {
+    return { state: 'error', message: errorMessage(caught) };
+  }
+};
+
 export const getAnnouncements = async (
   limit = 20,
   searchValue?: string,
@@ -36,26 +75,15 @@ export const getAnnouncements = async (
     return { state: 'ready', data: [] };
   }
 
+  const search = searchValue?.trim() || undefined;
+
   const results = await Promise.all(
-    cmsConfigs.map(async ({ cmsAppToken }): Promise<CmsPostsResult> => {
-      try {
-        const { data, error } = await query<{
-          cpPostList: { posts: CmsPost[] | null } | null;
-        }>({
-          query: CMS_PORTAL_ANNOUNCEMENTS,
-          variables: { limit, searchValue: searchValue?.trim() || undefined },
-          context: { appToken: cmsAppToken },
-          errorPolicy: 'all',
-        });
+    cmsConfigs.map(({ cmsAppToken }) => {
+      const load = () => loadPosts(cmsAppToken, limit, search);
 
-        if (error) {
-          return { state: 'error', message: error.message };
-        }
-
-        return { state: 'ready', posts: data?.cpPostList?.posts ?? [] };
-      } catch (caught) {
-        return { state: 'error', message: errorMessage(caught) };
-      }
+      return search
+        ? load()
+        : sharedPosts([readScopedApiUrl(), cmsAppToken, limit].join('|'), load);
     }),
   );
 
@@ -77,21 +105,17 @@ export const getAnnouncements = async (
 
 const OBJECT_ID = /^[a-f\d]{24}$/i;
 
-export const getAnnouncement = async (
+const sharedPost = createSharedCache<PortalResult<CmsPost | null>>({
+  ...CACHE_TIMES,
+  maxEntries: 2_000,
+  keep: (result) => result.state === 'ready',
+  timedOut: () => ({ state: 'error', message: TIMED_OUT }),
+});
+
+const loadPost = async (
+  cmsConfigs: { cmsAppToken: string }[],
   identifier: string,
 ): Promise<PortalResult<CmsPost | null>> => {
-  const config = await getPortalConfig();
-
-  if (config.state !== 'ready') {
-    return config;
-  }
-
-  const { cmsConfigs } = config.data;
-
-  if (!cmsConfigs.length) {
-    return { state: 'ready', data: null };
-  }
-
   let lastMessage = '';
 
   for (const { cmsAppToken } of cmsConfigs) {
@@ -125,6 +149,54 @@ export const getAnnouncement = async (
   return { state: 'ready', data: null };
 };
 
+export const getAnnouncement = async (
+  identifier: string,
+): Promise<PortalResult<CmsPost | null>> => {
+  const config = await getPortalConfig();
+
+  if (config.state !== 'ready') {
+    return config;
+  }
+
+  const { cmsConfigs } = config.data;
+
+  if (!cmsConfigs.length) {
+    return { state: 'ready', data: null };
+  }
+
+  return sharedPost(
+    [
+      readScopedApiUrl(),
+      ...cmsConfigs.map(({ cmsAppToken }) => cmsAppToken),
+      identifier,
+    ].join('|'),
+    () => loadPost(cmsConfigs, identifier),
+  );
+};
+
+type CopyResult = { loaded: boolean; page: CmsPage | null };
+
+const sharedCopy = createSharedCache<CopyResult>({
+  ...CACHE_TIMES,
+  maxEntries: 500,
+  keep: (result) => result.loaded,
+  timedOut: () => ({ loaded: false, page: null }),
+});
+
+const loadCopy = async (slug: string): Promise<CopyResult> => {
+  try {
+    const { data, error } = await query<{ cpCmsPageDetail: CmsPage | null }>({
+      query: CMS_PORTAL_PAGE,
+      variables: { slug },
+      errorPolicy: 'all',
+    });
+
+    return { loaded: !error, page: data?.cpCmsPageDetail ?? null };
+  } catch {
+    return { loaded: false, page: null };
+  }
+};
+
 export const getPortalCopy = async (
   slug: string = PORTAL_COPY_SLUG,
 ): Promise<CmsPage | null> => {
@@ -134,15 +206,10 @@ export const getPortalCopy = async (
     return null;
   }
 
-  try {
-    const { data } = await query<{ cpCmsPageDetail: CmsPage | null }>({
-      query: CMS_PORTAL_PAGE,
-      variables: { slug },
-      errorPolicy: 'all',
-    });
+  const copy = await sharedCopy(
+    [readScopedApiUrl(), config.data.appToken, slug].join('|'),
+    () => loadCopy(slug),
+  );
 
-    return data?.cpCmsPageDetail ?? null;
-  } catch {
-    return null;
-  }
+  return copy.page;
 };

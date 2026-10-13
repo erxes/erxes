@@ -17,7 +17,7 @@ import { productsMutations, productsQueries } from '../../graphql';
 
 type MergeField = {
   key: string;
-  label: string;
+  labelKey: string;
   required?: boolean;
   getValue: (product: any) => any;
   getDisplay: (product: any) => string;
@@ -26,54 +26,54 @@ type MergeField = {
 const MERGE_FIELDS: MergeField[] = [
   {
     key: 'name',
-    label: 'Name',
+    labelKey: 'name',
     required: true,
     getValue: (p) => p.name,
     getDisplay: (p) => p.name ?? '',
   },
   {
     key: 'code',
-    label: 'Code',
+    labelKey: 'code',
     required: true,
     getValue: (p) => p.code,
     getDisplay: (p) => p.code ?? '',
   },
   {
     key: 'type',
-    label: 'Type',
+    labelKey: 'type',
     required: true,
     getValue: (p) => p.type,
     getDisplay: (p) => p.type ?? '',
   },
   {
     key: 'unitPrice',
-    label: 'Unit price',
+    labelKey: 'merge-unit-price',
     required: true,
     getValue: (p) => p.unitPrice,
     getDisplay: (p) => (p.unitPrice ?? 0).toLocaleString(),
   },
   {
     key: 'categoryId',
-    label: 'Category',
+    labelKey: 'category',
     required: true,
     getValue: (p) => p.categoryId,
     getDisplay: (p) => p.category?.name ?? p.categoryId ?? '',
   },
   {
     key: 'shortName',
-    label: 'Short name',
+    labelKey: 'shortName',
     getValue: (p) => p.shortName,
     getDisplay: (p) => p.shortName ?? '',
   },
   {
     key: 'uom',
-    label: 'UOM',
+    labelKey: 'uom',
     getValue: (p) => p.uom,
     getDisplay: (p) => p.uom ?? '',
   },
   {
     key: 'description',
-    label: 'Description',
+    labelKey: 'description',
     getValue: (p) => p.description,
     getDisplay: (p) => toPlainText(p.description),
   },
@@ -281,7 +281,7 @@ const ProductMergeBody = ({
       toast({
         title: t('error', 'Error'),
         description: `${t('required', 'Required')}: ${missing
-          .map((f) => f.label)
+          .map((f) => t(f.labelKey))
           .join(', ')}`,
         variant: 'destructive',
       });
@@ -353,7 +353,7 @@ const ProductMergeBody = ({
                       className={cn(grid, 'items-center px-4 py-2')}
                     >
                       <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        {field.label}
+                        {t(field.labelKey)}
                         {field.required && (
                           <span className="ml-0.5 text-destructive">*</span>
                         )}

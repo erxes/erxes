@@ -6,8 +6,8 @@ import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
-import { commonRemove } from '../../utils/commonRemove';
-import { commonSave } from '../../utils/commonSave';
+import { commonRemove, commonRemoveValidation } from '../../utils/commonRemove';
+import { commonSave, commonSaveValidation } from '../../utils/commonSave';
 import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
 import { transactionSchema } from '../definitions/transaction';
 import { generateTrStatusActivityLog, setPtrStatus } from './utils';
@@ -470,6 +470,17 @@ export const loadTransactionClass = (
         await assertCanWriteTransactionAccounts({ models, docs, userId });
       }
 
+      await Promise.all(
+        docs.map((doc) =>
+          commonSaveValidation(
+            subdomain,
+            models,
+            userId,
+            cleanCreatePTransactionDoc(doc),
+          ),
+        ),
+      );
+
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
 
@@ -627,6 +638,19 @@ export const loadTransactionClass = (
 
       const editTrIds = editTrDocs.map((itd) => itd._id);
       const deleteTrs = oldTrs.filter((otr) => !editTrIds.includes(otr._id));
+
+      await Promise.all([
+        ...[...editTrDocs, ...addTrDocs].map((doc) =>
+          commonSaveValidation(
+            subdomain,
+            models,
+            userId,
+            doc,
+            oldTrs.find((tr) => tr._id === doc._id),
+          ),
+        ),
+        ...deleteTrs.map((tr) => commonRemoveValidation(subdomain, models, tr)),
+      ]);
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -801,6 +825,10 @@ export const loadTransactionClass = (
       ) {
         throw new Error('not found trs');
       }
+
+      await Promise.all(
+        summaryTrs.map((tr) => commonRemoveValidation(subdomain, models, tr)),
+      );
 
       for (const tr of summaryTrs) {
         await commonRemove(subdomain, models, tr);

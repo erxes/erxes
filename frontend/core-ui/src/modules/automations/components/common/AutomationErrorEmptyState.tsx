@@ -2,6 +2,7 @@ import { ApolloError } from '@apollo/client';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { Button, Collapsible, Empty, cn } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationErrorEmptyState = ({
   className,
@@ -15,6 +16,7 @@ export const AutomationErrorEmptyState = ({
   title?: string;
 }) => {
   const [isOpen, setOpen] = useState(false);
+  const { t } = useTranslation('automations');
   const graphQLErrors =
     (error as ApolloError)?.graphQLErrors?.map(({ message }) => message) || [];
   const message = error?.message || 'Unknown error';
@@ -34,7 +36,7 @@ export const AutomationErrorEmptyState = ({
           {onRetry && (
             <Button variant="outline" onClick={onRetry}>
               <IconRefresh />
-              Try again
+              {t('common-try-again')}
             </Button>
           )}
 
@@ -43,8 +45,8 @@ export const AutomationErrorEmptyState = ({
               <Collapsible.Trigger asChild>
                 <Button variant="ghost" size="sm" className="text-xs">
                   {isOpen
-                    ? 'Hide details'
-                    : `Show ${graphQLErrors.length} errors`}
+                    ? t('common-hide-details')
+                    : t('common-show-errors', { count: graphQLErrors.length })}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>

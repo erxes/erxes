@@ -1,16 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconUpload } from '@tabler/icons-react';
+import { IconPaperclip, IconUpload, IconX } from '@tabler/icons-react';
 import {
+  Button,
   Editor,
   Form,
   InfoCard,
   MultipleSelector,
+  readImage,
   Select,
   Switch,
   Upload,
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
@@ -18,7 +21,9 @@ import { useSaveArticle } from '@/knowledgebase/articles/hooks/useArticleMutatio
 import { ARTICLE_STATUSES, REACTIONS } from '@/knowledgebase/constants';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
+import { ScheduleDateField } from '@/knowledgebase/articles/components/ScheduleDateField';
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
+import { SelectKbTopic } from '@/knowledgebase/shared/components/SelectKbTopic';
 
 const attachmentSchema = z.object({
   url: z.string(),
@@ -28,25 +33,49 @@ const attachmentSchema = z.object({
   duration: z.number().optional(),
 });
 
-const articleSchema = z.object({
-  title: z.string().trim().min(1, { message: 'Title is required' }),
-  summary: z.string().trim().optional(),
-  content: z.string().min(1, { message: 'Content is required' }),
-  categoryId: z.string().min(1, { message: 'Category is required' }),
-  status: z.string().min(1),
-  isPrivate: z.boolean(),
-  reactionChoices: z.array(z.string()),
-  image: attachmentSchema.optional(),
-  attachments: z.array(attachmentSchema),
-  pdfAttachment: z.object({ pdf: attachmentSchema.optional() }).optional(),
-});
+const articleSchema = z
+  .object({
+    title: z.string().trim().min(1, { message: 'Title is required' }),
+    summary: z.string().trim().optional(),
+    content: z.string().min(1, { message: 'Content is required' }),
+    topicId: z.string().min(1, { message: 'Knowledge base is required' }),
+    categoryId: z.string().min(1, { message: 'Category is required' }),
+    status: z.string().min(1),
+    isPrivate: z.boolean(),
+    reactionChoices: z.array(z.string()),
+    image: attachmentSchema.optional(),
+    attachments: z.array(attachmentSchema),
+    pdfAttachment: z.object({ pdf: attachmentSchema.optional() }).optional(),
+    scheduledDate: z.string().optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.status !== 'scheduled') return;
+
+    if (!values.scheduledDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['scheduledDate'],
+        message: 'Pick when to publish',
+      });
+      return;
+    }
+
+    if (new Date(values.scheduledDate).getTime() <= Date.now()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['scheduledDate'],
+        message: 'Pick a time in the future',
+      });
+    }
+  });
 
 type TArticleForm = z.infer<typeof articleSchema>;
 
-const emptyArticle = (categoryId: string): TArticleForm => ({
+const emptyArticle = (topicId: string, categoryId: string): TArticleForm => ({
   title: '',
   summary: '',
   content: '<p></p>',
+  topicId,
   categoryId,
   status: 'draft',
   isPrivate: false,
@@ -54,9 +83,54 @@ const emptyArticle = (categoryId: string): TArticleForm => ({
   image: undefined,
   attachments: [],
   pdfAttachment: undefined,
+  scheduledDate: undefined,
 });
 
 type TMediaFile = { url: string; name: string };
+
+type TAttachment = z.infer<typeof attachmentSchema>;
+
+const AttachmentList = ({
+  files,
+  onRemove,
+  t,
+}: {
+  files: TAttachment[];
+  onRemove: (index: number) => void;
+  t: TFunction;
+}) => {
+  if (!files.length) return null;
+
+  return (
+    <ul className="grid gap-1">
+      {files.map((file, index) => (
+        <li
+          key={`${file.url}-${index}`}
+          className="flex gap-2 items-center pr-1 pl-2 h-8 text-sm rounded-sm border"
+        >
+          <IconPaperclip className="size-4 shrink-0 text-muted-foreground" />
+          <a
+            href={readImage(file.url)}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 min-w-0 truncate hover:underline"
+          >
+            {file.name || file.url}
+          </a>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label={t('remove', 'Remove')}
+            onClick={() => onRemove(index)}
+          >
+            <IconX />
+          </Button>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 const MediaRow = ({
   label,
@@ -127,8 +201,11 @@ export const ArticleDrawer = ({
 
   const form = useForm<TArticleForm>({
     resolver: zodResolver(articleSchema),
-    defaultValues: emptyArticle(categoryId),
+    defaultValues: emptyArticle(topicId, categoryId),
   });
+
+  const status = form.watch('status');
+  const selectedTopicId = form.watch('topicId');
 
   useEffect(() => {
     form.reset(
@@ -137,6 +214,7 @@ export const ArticleDrawer = ({
             title: article.title || '',
             summary: article.summary || '',
             content: article.content || '<p></p>',
+            topicId,
             categoryId: article.categoryId || categoryId,
             status: article.status || 'draft',
             isPrivate: article.isPrivate ?? false,
@@ -144,19 +222,27 @@ export const ArticleDrawer = ({
             image: article.image ?? undefined,
             attachments: article.attachments ?? [],
             pdfAttachment: article.pdfAttachment ?? undefined,
+            scheduledDate: article.scheduledDate ?? undefined,
           }
-        : emptyArticle(categoryId),
+        : emptyArticle(topicId, categoryId),
     );
-  }, [article, categoryId, form]);
+  }, [article, topicId, categoryId, form]);
 
   const submit = form.handleSubmit(async (values) => {
-    const saved = await saveArticle(values, articleId ?? undefined);
+    const saved = await saveArticle(
+      {
+        ...values,
+        scheduledDate:
+          values.status === 'scheduled' ? values.scheduledDate : undefined,
+      },
+      articleId ?? undefined,
+    );
 
     if (!saved) return;
 
     onSaved?.();
     onClose();
-    form.reset(emptyArticle(categoryId));
+    form.reset(emptyArticle(topicId, categoryId));
   });
 
   return (
@@ -192,26 +278,53 @@ export const ArticleDrawer = ({
                 required
               />
 
-              <Form.Field
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('kb-category', 'Category')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectKbCategory
-                        topicId={topicId}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Form.Field
+                  control={form.control}
+                  name="topicId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        {t('knowledge-base', 'Knowledge Base')}{' '}
+                        <span className="text-destructive">*</span>
+                      </Form.Label>
+                      <Form.Control>
+                        <SelectKbTopic
+                          value={field.value}
+                          onValueChange={(nextTopicId) => {
+                            if (nextTopicId === field.value) return;
+
+                            field.onChange(nextTopicId);
+                            form.setValue('categoryId', '');
+                          }}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        {t('kb-category', 'Category')}{' '}
+                        <span className="text-destructive">*</span>
+                      </Form.Label>
+                      <Form.Control>
+                        <SelectKbCategory
+                          topicId={selectedTopicId}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
 
               <KbTextField
                 control={form.control}
@@ -282,6 +395,31 @@ export const ArticleDrawer = ({
                     </Form.Item>
                   )}
                 />
+
+                {status === 'scheduled' && (
+                  <Form.Field
+                    control={form.control}
+                    name="scheduledDate"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>
+                          {t('kb-publish-on', 'Publish on')}
+                        </Form.Label>
+                        <ScheduleDateField
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                        <Form.Description>
+                          {t(
+                            'kb-schedule-help',
+                            'The article goes live on your help center at this time.',
+                          )}
+                        </Form.Description>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
 
                 <Form.Field
                   control={form.control}
@@ -355,18 +493,29 @@ export const ArticleDrawer = ({
                   control={form.control}
                   name="attachments"
                   render={({ field }) => (
-                    <MediaRow
-                      label={t('kb-attachments', 'Attachments')}
-                      description={t('kb-attachments-count', {
-                        count: (field.value ?? []).length,
-                        defaultValue: '{{count}} file(s) attached',
-                      })}
-                      actionLabel={t('kb-add-file', 'Add file')}
-                      value=""
-                      onSelect={(file) =>
-                        file && field.onChange([...(field.value ?? []), file])
-                      }
-                    />
+                    <div className="py-3 first:pt-0 last:pb-0">
+                      <MediaRow
+                        label={t('kb-attachments', 'Attachments')}
+                        description={t('kb-attachments-count', {
+                          count: (field.value ?? []).length,
+                          defaultValue: '{{count}} file(s) attached',
+                        })}
+                        actionLabel={t('kb-add-file', 'Add file')}
+                        value=""
+                        onSelect={(file) =>
+                          file && field.onChange([...(field.value ?? []), file])
+                        }
+                      />
+                      <AttachmentList
+                        files={field.value ?? []}
+                        onRemove={(index) =>
+                          field.onChange(
+                            (field.value ?? []).filter((_, i) => i !== index),
+                          )
+                        }
+                        t={t}
+                      />
+                    </div>
                   )}
                 />
 

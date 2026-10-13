@@ -9,8 +9,10 @@ import { AutomationHistorySplitDirectionToggle } from '@/automations/components/
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { IconX } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const AutomationHistorySplitPanelHeader = () => {
+  const { t } = useTranslation('automations');
   const { selectExecution } = useAutomationHistoryView();
   const title = useAutomationExecutionDetailTitle();
 
@@ -22,7 +24,7 @@ const AutomationHistorySplitPanelHeader = () => {
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Close execution detail"
+        aria-label={t('history-close-execution-detail')}
         onClick={() => selectExecution(null)}
       >
         <IconX className="size-4" />

@@ -316,7 +316,7 @@ export const tasksColumns = (
       accessorKey: 'targetDate',
       header: () => (
         <RecordTable.InlineHead
-          label={t('target-date')}
+          label={t('due-date')}
           icon={IconCalendarFilled}
         />
       ),

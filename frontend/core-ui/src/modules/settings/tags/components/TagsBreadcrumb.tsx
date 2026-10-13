@@ -4,7 +4,7 @@ import { useTagTypes, getTagTypeDescription } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 export const TagsBreadcrumb = () => {
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [type] = useQueryState<string>('tagType');
   const { types } = useTagTypes();
   return (
@@ -15,11 +15,11 @@ export const TagsBreadcrumb = () => {
         {' tags'}
       </Button>
       <Tooltip>
-        <Tooltip.Trigger aria-label={t('tags.workspace-description')}>
+        <Tooltip.Trigger aria-label={t('workspace-description')}>
           <IconInfoCircle className="size-4 text-accent-foreground" />
         </Tooltip.Trigger>
         <Tooltip.Content>
-          <p>{t('tags.workspace-description')}</p>
+          <p>{t('workspace-description')}</p>
         </Tooltip.Content>
       </Tooltip>
     </div>

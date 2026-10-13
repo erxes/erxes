@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationHookOptions,
   OperationVariables,
@@ -47,10 +48,14 @@ export function useDepartmentEdit(
 }
 
 export function useRemoveDepartment() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_DEPARTMENTS, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully'),
+        variant: 'success',
+      }),
     refetchQueries: ['Departments'],
   });
 
@@ -62,6 +67,7 @@ export function useRemoveDepartment() {
 }
 
 export function useDepartmentInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_departmentsEdit, { loading }] = useMutation(EDIT_DEPARTMENT);
   const { toast } = useToast();
 
@@ -88,14 +94,14 @@ export function useDepartmentInlineEdit() {
       onCompleted: (data) => {
         if (data?.departmentsEdit) {
           toast({
-            title: 'Department updated successfully!',
+            title: t('department-updated-toast'),
             variant: 'success',
           });
         }
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

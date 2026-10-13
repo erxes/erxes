@@ -1,7 +1,7 @@
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { Link, useLocation } from 'react-router-dom';
 
 import { ContactsPath } from '@/types/paths/ContactsPath';
-import { Link, useLocation } from 'react-router-dom';
 import { IconBookmarksFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 

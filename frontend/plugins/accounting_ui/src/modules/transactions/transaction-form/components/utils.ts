@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import { AccountKind, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '../../types/constants';
 import { ITransaction, ITrDetail } from '../../types/Transaction';
-import { TAddTransactionGroup } from '../types/JournalForms';
+import { TAddTransactionGroup, TTrDoc } from '../types/JournalForms';
 
 export const getTempId = () => {
   return nanoid();
@@ -83,7 +83,14 @@ const cleanRelAccounts = (relAccounts?: ITransaction['relAccounts']) => {
   };
 };
 
-export const cleanTrDoc = (trDoc: ITransaction) => {
+export const cleanTrDoc = (
+  trDoc: Omit<TTrDoc, 'details'> & {
+    details: TTrDoc['details'][number][];
+  } & Pick<
+      TAddTransactionGroup,
+      'date' | 'number' | 'status' | 'mentionOwnerId' | 'mentionUserIds'
+    > & { followExtras?: unknown },
+) => {
   return {
     ...trDoc,
     relAccounts: cleanRelAccounts(trDoc.relAccounts),

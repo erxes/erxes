@@ -3,16 +3,20 @@ import { automationAiAgentColumns } from '@/automations/components/settings/comp
 import { useAiAgentsList } from '@/automations/components/settings/components/agents/hooks/useAiAgentsList';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { RecordTable } from 'erxes-ui';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationAiAgentRecordTable = () => {
+  const { t } = useTranslation('automations');
   const { agents, loading, kind } = useAiAgentsList();
+  const columns = useMemo(() => automationAiAgentColumns(t), [t]);
   const toCreateUrl = `${AutomationSettingsPath.AgentCreate}${
     kind ? `?kind=${kind}` : ''
   }`;
 
   return (
     <RecordTable.Provider
-      columns={automationAiAgentColumns}
+      columns={columns}
       data={agents}
       className="m-3 h-full min-w-0"
     >

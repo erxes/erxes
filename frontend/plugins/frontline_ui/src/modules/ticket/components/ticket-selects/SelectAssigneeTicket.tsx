@@ -53,10 +53,14 @@ const SelectAssigneeValue = ({
   return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
 };
 
-const SelectTeamMemberContent = () => {
+const SelectTeamMemberContent = ({
+  showUnassigned = true,
+}: {
+  showUnassigned?: boolean;
+}) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const currentUser = useAtomValue(currentUserState) as IUser;
+  const currentUser = useAtomValue(currentUserState);
   const { members } = useSelectMemberContext();
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
@@ -64,11 +68,12 @@ const SelectTeamMemberContent = () => {
     },
   });
 
-  const filteredUsers = users.filter((user) => user._id !== currentUser._id);
+  const filteredUsers = users.filter((user) => user._id !== currentUser?._id);
 
-  const membersList = [currentUser, ...filteredUsers].filter(
-    (user) => !members.find((member) => member._id === user._id),
-  );
+  const membersList = [
+    ...(currentUser ? [currentUser] : []),
+    ...filteredUsers,
+  ].filter((user) => !members.some((member) => member._id === user._id));
 
   return (
     <Command shouldFilter={false}>
@@ -92,7 +97,7 @@ const SelectTeamMemberContent = () => {
           </>
         )}
 
-        {!loading && <SelectMember.NoAssigneeItem />}
+        {!loading && showUnassigned && <SelectMember.NoAssigneeItem />}
         {!loading &&
           membersList.map((user: IUser) => (
             <SelectMember.CommandItem key={user._id} user={user} />

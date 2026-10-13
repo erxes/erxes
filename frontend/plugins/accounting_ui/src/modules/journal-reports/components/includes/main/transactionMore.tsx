@@ -1,5 +1,5 @@
+import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
 import { cn, displayNum, ReportTable } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { ReportRules } from '~/modules/journal-reports/types/reportsMap';
