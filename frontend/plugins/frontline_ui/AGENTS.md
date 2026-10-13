@@ -905,6 +905,24 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   equals the loaded content; the save effect skips while the debounced content
   is still the loaded reference (`loadedDescriptionRef`) and only writes after a
   real editor change.
+- On the form builder's Callout step, turning **Skip callout** on dims the
+  callout fields the way 2.x's `LeftItem $deactive` did: they sit in a
+  `<fieldset disabled>` with `opacity-30 dark:opacity-50 cursor-not-allowed`
+  (50% in dark mode, where 30% reads as black), and its children get
+  `pointer-events-none` so the image `Dropzone` (which has no `disabled` prop)
+  also refuses drops. `[&_:disabled]:opacity-100` cancels erxes-ui's own
+  `disabled:opacity-50` so the fade is applied once. The switch stays outside
+  the fieldset, and turning it off restores the fields with their values
+  intact.
+- The form builder's General step ends with **Channel** and then **Save as
+  customer**. The switch uses the plugin's labelled-row pattern (as in
+  `HelpCenterGeneralTab`'s `FeatureSection`): the uppercase `Form.Label` and its
+  description on the left and the `Switch` on the right, so it reads like the
+  step's other labelled fields.
+- Segmented `ToggleGroup` choices in the form builder (General step's
+  Appearance and Load type, the field sheet's Field width and Validation) give
+  every `ToggleGroup.Item` `flex-1` so the segments split equally; `flex-auto`
+  sizes them by label length.
 - In the form builder's field list, the whole field row is the drag source:
   it leads with an `IconDragDrop2` drag hint, shows a
   `grab` cursor, and while dragging lifts with `shadow-lg` and a `primary`
@@ -915,10 +933,14 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   since pointer-down, so dropping a dragged field does not open its sheet. The
   row's `...` trigger and the dropdown content stop click propagation, so menu
   actions such as **Remove Field** never reach the row's click handler.
-  The row is keyboard reachable (`role="button"`, `tabIndex={0}`): **Enter**
-  opens the sheet, while every other key is forwarded to the dnd-kit
-  `KeyboardSensor`, so **Space** still picks the field up, arrows move it and
-  **Space** drops it.
+  The row `div` carries only the sortable ref and `listeners` (no role or
+  handlers); its icon and label sit in a native `<button>` that is the dnd-kit
+  activator (`setActivatorNodeRef`, `attributes`), with the `...` menu as a
+  sibling (its `DropdownMenu.Trigger` is `asChild` over the `Button`) so
+  buttons never nest. On that button **Enter** opens the sheet (its
+  keydown is kept from the `KeyboardSensor`, and during a keyboard drag it is
+  left to drop instead), while **Space** picks the field up, arrows move it and
+  **Space** drops it; Space's keyup is prevented so it never clicks the button.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
