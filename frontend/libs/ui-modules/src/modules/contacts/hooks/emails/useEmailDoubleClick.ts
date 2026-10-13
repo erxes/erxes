@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import type { EmailDoubleClickState } from 'ui-modules/modules/contacts/types/contactEmails';
 
 const DOUBLE_CLICK_DELAY = 500;
 
-export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
+export const useEmailDoubleClick = (
+  onEmailClick?: (email: string) => void,
+): EmailDoubleClickState => {
   const [open, setOpen] = useState(false);
   const pendingClickRef = useRef<{
     email: string;

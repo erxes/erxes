@@ -14,11 +14,11 @@ import { themeState } from 'erxes-ui/state';
 import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { KeyboardEvent, useState } from 'react';
-import { BlockEditorProps } from '../types';
-import { SlashMenu } from './SlashMenu';
-import { Toolbar } from './Toolbar';
-import { BarcodeAttribute } from './BarcodeAttribute';
-import { TableHandleWithRemove } from './TableHandleWithRemove';
+import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
+import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
+import { Toolbar } from 'erxes-ui/modules/blocks/components/Toolbar';
+import { BarcodeAttribute } from 'erxes-ui/modules/blocks/components/BarcodeAttribute';
+import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
 
 type EditorBlock = ReturnType<
   BlockEditorProps['editor']['getTextCursorPosition']

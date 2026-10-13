@@ -1,15 +1,14 @@
 import { useAtomValue } from 'jotai';
-import { pluginsConfigState } from 'ui-modules/states';
+import type {
+  ComposeEmailActions,
+  ComposeEmailRequest,
+} from 'ui-modules/modules/contacts/types/contactEmails';
 import { usePermissionCheck } from 'ui-modules/modules/permissions';
+import { pluginsConfigState } from 'ui-modules/states';
 
-export interface ComposeEmailRequest {
-  email?: string;
-  customerId?: string;
-  companyId?: string;
-  integrationId?: string;
-}
+export type { ComposeEmailRequest } from 'ui-modules/modules/contacts/types/contactEmails';
 
-export const useComposeEmail = () => {
+export const useComposeEmail = (): ComposeEmailActions => {
   const plugins = useAtomValue(pluginsConfigState);
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canComposeEmail =

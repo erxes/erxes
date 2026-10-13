@@ -1,13 +1,13 @@
-import {
-  Can,
-  PageHeader,
-  createFavoriteBreadcrumb,
-  SendEmailButton,
-} from 'ui-modules';
-import { CustomerAddSheet } from './CustomerAddSheet';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
+import { CustomerAddSheet } from '@/contacts/customers/components/CustomerAddSheet';
 import { useIsCustomerLeadSessionKey } from '@/contacts/customers/hooks/useCustomerLeadSessionKey';
 import { useTranslation } from 'react-i18next';
+import {
+  Can,
+  createFavoriteBreadcrumb,
+  PageHeader,
+  SendEmailButton,
+} from 'ui-modules';
 
 export const CustomersHeader = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });

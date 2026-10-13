@@ -1,12 +1,12 @@
+import { CompanyAddSheet } from '@/contacts/companies/components/CompanyAddSheet';
+import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
+import { useTranslation } from 'react-i18next';
 import {
   Can,
-  PageHeader,
   createFavoriteBreadcrumb,
+  PageHeader,
   SendEmailButton,
 } from 'ui-modules';
-import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
-import { CompanyAddSheet } from './CompanyAddSheet';
-import { useTranslation } from 'react-i18next';
 
 export const CompaniesHeader = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });

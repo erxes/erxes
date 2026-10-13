@@ -1,7 +1,7 @@
-import { IEmailFieldProps } from 'erxes-ui/modules/inputs';
-import { Badge } from 'erxes-ui/components';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
-import { formatEmails } from '../utils/formatEmails';
+import { Badge, Button } from 'erxes-ui/components';
+import type { EmailDisplayProps } from 'erxes-ui/modules/display/types/emailDisplay';
+import { formatEmails } from 'erxes-ui/modules/display/utils/formatEmails';
 import { ValidationStatus } from 'erxes-ui/types';
 
 export const EmailDisplay = ({
@@ -11,11 +11,7 @@ export const EmailDisplay = ({
   onEmailClick,
   onEmailDoubleClick,
   onEmailKeyActivate,
-}: IEmailFieldProps & {
-  onEmailClick?: (email: string) => void;
-  onEmailDoubleClick?: (email: string) => void;
-  onEmailKeyActivate?: (email: string) => void;
-}) => {
+}: EmailDisplayProps) => {
   const emailsWithProperties = formatEmails(
     primaryEmail,
     emails,
@@ -29,14 +25,18 @@ export const EmailDisplay = ({
           email.email && (
             <span key={email.email} className="inline-flex">
               {onEmailClick ? (
-                <Badge
-                  role="button"
-                  tabIndex={0}
+                <Button
+                  type="button"
+                  size="sm"
                   variant="secondary"
-                  className="cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+                  className="h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onEmailClick(email.email || '');
+                    const activate =
+                      event.detail === 0
+                        ? onEmailKeyActivate || onEmailClick
+                        : onEmailClick;
+                    activate(email.email || '');
                   }}
                   onDoubleClick={(event) => {
                     event.stopPropagation();
@@ -44,9 +44,7 @@ export const EmailDisplay = ({
                   }}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
                       event.stopPropagation();
-                      (onEmailKeyActivate || onEmailClick)(email.email || '');
                     }
                   }}
                 >
@@ -57,7 +55,7 @@ export const EmailDisplay = ({
                       <IconCircleDashed className="text-muted-foreground size-4" />
                     ))}
                   {email.email}
-                </Badge>
+                </Button>
               ) : (
                 <Badge variant="secondary">
                   {email.isPrimary &&

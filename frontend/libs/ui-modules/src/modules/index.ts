@@ -24,3 +24,4 @@ export * from './payments';
 export * from './sales';
 export * from './templates';
 export * from './shared';
+export * from './email-templates';

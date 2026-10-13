@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import type { IBlockEditor } from 'erxes-ui';
+import { z } from 'zod';
 
 export const directMailDraftSchema = z.object({
   target: z.object({

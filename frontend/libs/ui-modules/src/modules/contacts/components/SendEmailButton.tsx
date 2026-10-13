@@ -1,15 +1,12 @@
 import { IconPencil } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { useComposeEmail } from '../hooks/useComposeEmail';
-import type { ComposeEmailRequest } from '../hooks/useComposeEmail';
+import { useComposeEmail } from 'ui-modules/modules/contacts/hooks/useComposeEmail';
+import type { SendEmailButtonProps } from 'ui-modules/modules/contacts/types/contactEmails';
 
 export const SendEmailButton = ({
   target,
   compact = false,
-}: {
-  target?: ComposeEmailRequest;
-  compact?: boolean;
-}) => {
+}: SendEmailButtonProps) => {
   const { canComposeEmail, composeEmail } = useComposeEmail();
   if (!canComposeEmail) return null;
 

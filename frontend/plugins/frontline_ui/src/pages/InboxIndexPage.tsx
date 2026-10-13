@@ -1,17 +1,17 @@
+import { InboxLayout } from '@/inbox/components/InboxLayout';
+import { Conversations } from '@/inbox/conversations/components/Conversations';
+import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
 import { IconMail, IconPencil } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import {
   PageHeader,
   createFavoriteBreadcrumb,
   useComposeEmail,
 } from 'ui-modules';
-import { Link } from 'react-router-dom';
-import { InboxLayout } from '@/inbox/components/InboxLayout';
-import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
-import { Conversations } from '@/inbox/conversations/components/Conversations';
-import { useTranslation } from 'react-i18next';
 
-const InboxIndexPage = () => {
+export const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
   const { canComposeEmail, composeEmail } = useComposeEmail();
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
@@ -43,10 +43,7 @@ const InboxIndexPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           {canComposeEmail && (
-            <Button
-              type="button"
-              onClick={() => composeEmail()}
-            >
+            <Button type="button" onClick={() => composeEmail()}>
               <IconPencil />
               Send email
             </Button>
@@ -60,5 +57,3 @@ const InboxIndexPage = () => {
     </div>
   );
 };
-
-export default InboxIndexPage;

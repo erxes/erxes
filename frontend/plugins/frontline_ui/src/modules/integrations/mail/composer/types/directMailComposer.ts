@@ -1,5 +1,6 @@
+import type { composeSchema } from '@/integrations/mail/composer/utils/directMailComposer';
+import type { MailAttachmentInput } from '@/integrations/mail/types/mailDelivery';
 import type { z } from 'zod';
-import type { composeSchema } from '@/integrations/mail/utils/directMailComposer';
 
 export interface MailSender {
   integrationId: string;
@@ -32,3 +33,5 @@ export interface MailRecipientsResult {
     pageInfo: { endCursor?: string; hasNextPage: boolean };
   };
 }
+
+export type ComposerAttachment = MailAttachmentInput & { id: string };

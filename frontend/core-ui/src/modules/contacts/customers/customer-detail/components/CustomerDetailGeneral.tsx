@@ -1,6 +1,6 @@
-import { Avatar, Button, FullNameValue, Popover, readImage } from 'erxes-ui';
 import { useCustomerDetailWithQuery } from '@/contacts/customers/hooks/useCustomerDetailWithQuery';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
+import { Avatar, Button, FullNameValue, Popover, readImage } from 'erxes-ui';
 import { CustomerName, SendEmailButton } from 'ui-modules';
 
 export const CustomerDetailGeneral = () => {
