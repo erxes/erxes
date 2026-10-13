@@ -204,7 +204,12 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               'Channel cannot be changed',
             )}
           >
-            <SelectChannel value={channelId} variant="detail" disabled />
+            <SelectChannel
+              value={channelId}
+              variant="detail"
+              label={t('channel', 'Channel')}
+              disabled
+            />
           </LockedField>
           <LockedField
             message={t(
@@ -216,6 +221,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               value={pipelineId}
               variant="detail"
               channelId={channelId}
+              label={t('pipeline', 'Pipeline')}
               disabled
             />
           </LockedField>
@@ -225,6 +231,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             <SelectBranchTicket
               value={branchId || ''}
               variant="detail"
+              label={t('branch-label', 'Branch')}
               disabled
             />
           </LockedField>
@@ -237,6 +244,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             <SelectDepartmentTicket
               value={departmentId || ''}
               variant="detail"
+              label={t('department-label', 'Department')}
               disabled
             />
           </LockedField>
@@ -245,44 +253,51 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             value={statusId}
             id={ticketId}
             pipelineId={pipelineId}
+            label={t('status', 'Status')}
             disabled={!canMoveTicket}
           />
           <SelectPriorityTicket
             id={ticketId}
             value={priority}
             variant="detail"
+            label={t('priority', 'Priority')}
             disabled={!canEditTicket}
           />
           <SelectAssigneeTicket
             variant="detail"
             value={assigneeId}
             id={ticketId}
+            label={t('assignee', 'Assignee')}
             disabled={!canEditTicket}
           />
           <SelectAssignedMembersTicket
             variant="detail"
             value={assignedMembers}
             id={ticketId}
+            label={t('members-title', 'Members')}
             disabled={!canEditTicket}
           />
           <SelectDateTicket
             value={startDate ? new Date(startDate) : undefined}
             id={ticketId}
             type="startDate"
-            variant="detail"
+            variant="input"
+            label={t('start-date', 'Start date')}
             disabled={!canEditTicket}
           />
           <SelectDateTicket
             value={targetDate ? new Date(targetDate) : undefined}
             id={ticketId}
             type="targetDate"
-            variant="detail"
+            variant="input"
+            label={t('target-date', 'Target date')}
             disabled={!canEditTicket}
           />
           <SelectTagsTicket
             id={ticketId}
             value={tagIds || []}
             variant="detail"
+            label={t('tags', 'Tags')}
             disabled={!canEditTicket}
           />
         </div>

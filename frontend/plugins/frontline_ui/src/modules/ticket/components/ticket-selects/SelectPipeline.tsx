@@ -39,6 +39,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
+import type { ApolloError } from '@apollo/client';
 import { Link } from 'react-router';
 
 const INLINE_PIPELINE_SCHEMA = CREATE_PIPELINE_FORM_SCHEMA.extend({
@@ -49,6 +50,7 @@ interface SelectPipelineContextType {
   value: string;
   onValueChange: (value: string) => void;
   loading: boolean;
+  error?: ApolloError;
   pipelines?: IPipeline[];
   channelId?: string;
 }
@@ -79,7 +81,7 @@ const SelectPipelineProvider = ({
   setOpen?: (open: boolean) => void;
   channelId?: string;
 }) => {
-  const { pipelines, loading } = useGetPipelines({
+  const { pipelines, loading, error } = useGetPipelines({
     variables: {
       filter: {
         channelId,
@@ -101,6 +103,7 @@ const SelectPipelineProvider = ({
         value,
         onValueChange: handleValueChange,
         loading,
+        error,
         pipelines,
         channelId,
       }}
@@ -220,10 +223,10 @@ const SelectPipelineCreateForm = ({
 
 const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   const { t } = useTranslation('frontline');
-  const { pipelines, channelId, loading } = useSelectPipelineContext();
+  const { pipelines, channelId, loading, error } = useSelectPipelineContext();
   const { search, setSearch, newName, setNewName, showCreate } =
     useSelectCreate({
-      enabled: !!allowCreate && !!channelId && !loading,
+      enabled: !!allowCreate && !!channelId && !loading && !error,
       names: (pipelines || []).map((pipeline) => pipeline.name),
     });
 
@@ -295,6 +298,7 @@ const SelectPipelineRoot = ({
   onValueChange,
   channelId,
   disabled,
+  label,
   variant,
 }: {
   variant?: `${SelectTriggerVariant}`;
@@ -303,6 +307,7 @@ const SelectPipelineRoot = ({
   channelId?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -314,7 +319,11 @@ const SelectPipelineRoot = ({
       channelId={channelId}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant || 'detail'} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant || 'detail'}
+          disabled={disabled}
+          label={label}
+        >
           <SelectPipelineValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant || 'detail'}>

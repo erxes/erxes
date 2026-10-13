@@ -255,6 +255,21 @@
   ticket view has none of its own — its `Open ticket` button opens that sheet.
   The header's close button sits in a `w-16` strip aligned with the relation
   side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+  While one action is in flight the menu and its items stay disabled.
+- Ticket detail chips render as labelled field groups, as Sales' deal detail
+  chips do: a muted label segment, then the value and a chevron, e.g.
+  `Priority | High ⌄`. A ticket select's root takes `label`, and
+  `SelectTriggerTicket` and `SelectDateTicket` draw the chip
+  (`SelectTicketChipTrigger`) only for the `detail` variant with a label —
+  every other variant and unlabelled caller keeps its plain trigger. Every
+  detail chip, status included, is labelled.
+  Branch and department show `None` rather than repeating their label.
+- Ticket start/target dates follow Sales' `DateSelectDeal`: every variant's
+  popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the
+  calendar). The detail chip swaps its chevron for an X that clears the date
+  while one is set and the field is editable. Unlike Sales, a past target
+  date gets no red styling or `Ended` badge. The picked date shows at once and
+  rolls back if the save fails; clearing sends `null`.
 - The ticket channel, pipeline and status selects create inline without leaving
   the page. `useSelectCreate` (`ticket-selects/SelectCreate.tsx`) holds the
   search and the pending name; a `Create new …: "<search>"` item appears
@@ -265,7 +280,8 @@
   `FormItem` variant (add ticket, conversation convert, help center drawer,
   pipeline config, automation create-ticket action) and the status select's
   root (ticket detail, card, table). Pipeline needs a channel, status a
-  pipeline, and the status option also `ticketStatusesManage`.
+  pipeline, and the status option also `ticketStatusesManage`. No create
+  option shows while the select's list query is loading or has failed.
   `SelectStatusTicket.Content` takes both `allowCreate` and the report filter's
   `onClear` ("All Statuses"); filters pass `onClear` only, never `allowCreate`.
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
@@ -1756,6 +1772,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   that renders the select. Each form must wait for the select's list to refetch
   before selecting the new id — `useChannelAdd` refetches no list the select
   reads, so the channel form calls the provider's `refetch` itself.
+- `TicketDetailActions` reads `ticket` from the cache, which changes only once
+  a mutation settles; every action runs through its `pending` guard so a
+  second pick cannot resend the same stale toggle or remove twice.
+- Each inline-create select gates the create option on its list query's
+  `error` as well as `loading`: a failed query leaves an empty list that would
+  otherwise invite a duplicate of an existing record. `useGetPipelines`
+  returns `error` for this.
 - The ticket index favorite control uses selected channel and pipeline query
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.

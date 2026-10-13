@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import {
-  Calendar,
   RecordTableInlineCell,
   Combobox,
   PopoverScoped,
   Popover,
   Button,
   Form,
+  DatePicker,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
+import { SelectTicketChipTrigger } from '@/ticket/components/ticket-selects/SelectTicket';
 
 export enum DateSelectVariant {
   TABLE = 'table',
   FILTER = 'filter',
   DETAIL = 'detail',
+  INPUT = 'input',
   CARD = 'card',
   FORM = 'form',
 }
@@ -44,6 +46,15 @@ const useDateSelectContext = () => {
   }
   return context;
 };
+
+const toSingleDate = (date: unknown) =>
+  date instanceof Date ? date : undefined;
+
+const formatDateLabel = (date: Date) =>
+  format(
+    date,
+    date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',
+  );
 
 export const DateSelectProvider = ({
   children,
@@ -80,25 +91,23 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <>
       <IconCalendarTime className="size-4 text-muted-foreground" />
-      {format(
-        value,
-        value.getFullYear() === new Date().getFullYear()
-          ? 'MMM d'
-          : 'MMM d, yyyy',
-      )}
+      {formatDateLabel(value)}
     </>
   );
 };
 
 const DateSelectContent = () => {
+  const { t } = useTranslation('frontline');
   const { value, onValueChange } = useDateSelectContext();
 
   return (
-    <Calendar
-      mode="single"
-      selected={value}
-      onSelect={onValueChange}
-      defaultMonth={value}
+    <DatePicker
+      inline
+      value={value}
+      onChange={(date) => onValueChange(toSingleDate(date))}
+      placeholder={t('select-date', 'Select date')}
+      clearLabel={t('clear', 'Clear')}
+      className="h-8"
     />
   );
 };
@@ -142,6 +151,7 @@ export const DateSelectTicketRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
   disabled,
+  label,
 }: {
   value?: Date | string;
   id?: string;
@@ -149,29 +159,82 @@ export const DateSelectTicketRoot = ({
   scope?: string;
   variant?: `${DateSelectVariant}`;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
+  const parsedValue = value ? new Date(value) : undefined;
+  const valueTime = parsedValue?.getTime();
+  const [dateValue, setDateValue] = useState<Date | undefined>(parsedValue);
 
-  const handleValueChange = (value?: Date) => {
-    if (id) {
-      updateTicket({
-        variables: {
-          _id: id,
-          [type]: value?.toISOString(),
-        },
-      });
-    }
+  useEffect(() => {
+    setDateValue(valueTime === undefined ? undefined : new Date(valueTime));
+  }, [valueTime, id]);
+
+  const commitValue = (nextValue?: Date) => {
+    if (nextValue?.getTime() === dateValue?.getTime()) return;
+
+    const previousValue = dateValue;
+    setDateValue(nextValue);
+
+    if (!id) return;
+
+    updateTicket({
+      variables: {
+        _id: id,
+        [type]: nextValue ? nextValue.toISOString() : null,
+      },
+      onError: () => setDateValue(previousValue),
+    });
+  };
+
+  const handleValueChange = (nextValue?: Date) => {
+    commitValue(nextValue);
     setOpen(false);
   };
 
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;
 
+  if (variant === DateSelectVariant.INPUT && label) {
+    return (
+      <DateSelectProvider
+        value={dateValue}
+        onValueChange={handleValueChange}
+        variant={DateSelectVariant.INPUT}
+        loading={loading}
+        error={error}
+        disabled={disabled}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <SelectTicketChipTrigger
+            label={label}
+            disabled={disabled}
+            onClear={
+              dateValue && !disabled ? () => commitValue(undefined) : undefined
+            }
+            clearLabel={t('clear', 'Clear')}
+          >
+            {dateValue ? (
+              formatDateLabel(dateValue)
+            ) : (
+              <span className="text-accent-foreground">
+                {t('not-specified', 'Not specified')}
+              </span>
+            )}
+          </SelectTicketChipTrigger>
+          <Combobox.Content className="w-fit">
+            <DateSelectContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </DateSelectProvider>
+    );
+  }
+
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
+      value={dateValue}
       onValueChange={handleValueChange}
       variant={variant as DateSelectVariant}
       loading={loading}

@@ -31,6 +31,7 @@ import {
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import type { ApolloError } from '@apollo/client';
 import { z } from 'zod';
 
 const INLINE_CHANNEL_SCHEMA = CHANNEL_SCHEMA.extend({
@@ -41,6 +42,7 @@ interface SelectChannelContextType {
   value: string;
   onValueChange: (value: string) => void;
   loading: boolean;
+  error?: ApolloError;
   channels?: IChannel[];
   refetch: () => Promise<unknown>;
 }
@@ -69,7 +71,7 @@ const SelectChannelProvider = ({
   onValueChange?: (value: string) => void;
   setOpen?: (open: boolean) => void;
 }) => {
-  const { channels, loading, refetch } = useGetChannels();
+  const { channels, loading, error, refetch } = useGetChannels();
 
   const handleValueChange = (channelId: string) => {
     if (!channelId) return;
@@ -83,6 +85,7 @@ const SelectChannelProvider = ({
         value,
         onValueChange: handleValueChange,
         loading,
+        error,
         channels,
         refetch,
       }}
@@ -208,10 +211,10 @@ const SelectChannelCreateForm = ({
 
 const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   const { t } = useTranslation('frontline');
-  const { loading, channels } = useSelectChannelContext();
+  const { loading, error, channels } = useSelectChannelContext();
   const { search, setSearch, newName, setNewName, showCreate } =
     useSelectCreate({
-      enabled: !!allowCreate && !loading,
+      enabled: !!allowCreate && !loading && !error,
       names: (channels || []).map((channel) => channel.name),
     });
 
@@ -229,7 +232,7 @@ const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
         placeholder={t('search-channels', 'Search channels...')}
       />
       <Command.List>
-        {!showCreate && <Combobox.Empty loading={loading} />}
+        {!showCreate && <Combobox.Empty loading={loading} error={error} />}
         {channels?.map((channel) => (
           <SelectChannelCommandItem key={channel._id} channel={channel} />
         ))}
@@ -248,12 +251,14 @@ const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
 const SelectChannelRoot = ({
   variant = 'detail',
   disabled,
+  label,
   scope,
   value,
   onValueChange,
 }: {
   variant?: `${SelectTriggerVariant}`;
   disabled?: boolean;
+  label?: string;
   scope?: string;
   value: string;
   onValueChange?: (value: string) => void;
@@ -267,7 +272,11 @@ const SelectChannelRoot = ({
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant}
+          disabled={disabled}
+          label={label}
+        >
           <SelectChannelValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>

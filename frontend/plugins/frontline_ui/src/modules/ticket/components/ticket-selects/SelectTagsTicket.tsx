@@ -12,6 +12,7 @@ const SelectTagsTicketRoot = ({
   variant,
   scope,
   disabled,
+  label,
   onValueChange,
 }: {
   value?: string[];
@@ -19,6 +20,7 @@ const SelectTagsTicketRoot = ({
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   disabled?: boolean;
+  label?: string;
   onValueChange?: (value: string[]) => void;
 }) => {
   const { updateTicket } = useUpdateTicket();
@@ -43,7 +45,7 @@ const SelectTagsTicketRoot = ({
       onValueChange={handleValueChange}
       scope={scope}
     >
-      <SelectTriggerTicket variant={variant} disabled={disabled}>
+      <SelectTriggerTicket variant={variant} disabled={disabled} label={label}>
         <TagsSelect.Value showValue />
       </SelectTriggerTicket>
       <SelectTicketContent variant={variant}>

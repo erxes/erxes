@@ -339,6 +339,7 @@ const SelectStatusContent = ({
         !!allowCreate &&
         !!pipelineId &&
         !loading &&
+        !error &&
         hasActionPermission('ticketStatusesManage'),
       names: (statuses || []).map((status) => status.label),
     });
@@ -402,6 +403,7 @@ const SelectStatusTicketRoot = ({
   scope,
   onValueChange,
   disabled,
+  label,
 }: {
   value: string;
   id: string;
@@ -410,6 +412,7 @@ const SelectStatusTicketRoot = ({
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
@@ -434,7 +437,11 @@ const SelectStatusTicketRoot = ({
       restrictToMovable
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant={variant} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant}
+          disabled={disabled}
+          label={label}
+        >
           <SelectStatusValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>
