@@ -36,6 +36,12 @@
       "require": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js",
       "default": "./core-modules/dist/erxes-api-shared-core-modules.cjs.js"
     },
+    "./instrument": {
+      "types": "./instrument/dist/erxes-api-shared-instrument.cjs.d.ts",
+      "import": "./instrument/dist/erxes-api-shared-instrument.esm.js",
+      "require": "./instrument/dist/erxes-api-shared-instrument.cjs.js",
+      "default": "./instrument/dist/erxes-api-shared-instrument.cjs.js"
+    },
     "./src": "./src/index.ts",
     "./src/*": [
       "./src/*.ts",
@@ -113,7 +119,8 @@
       "./index.ts",
       "./utils/index.ts",
       "./core-types/index.ts",
-      "./core-modules/index.ts"
+      "./core-modules/index.ts",
+      "./instrument/index.ts"
     ]
   },
   "files": [
@@ -121,6 +128,7 @@
     "core-types",
     "utils",
     "core-modules",
+    "instrument",
     "src"
   ]
 }

@@ -119,6 +119,18 @@ export function initErxesSentry(
   beforeSend?: (event: Sentry.ErrorEvent, hint?: Sentry.EventHint) => PromiseLike<Sentry.ErrorEvent | null> | Sentry.ErrorEvent | null,
   serverName?: string,
 ) {
+  // Already initialised, e.g. by `import 'erxes-api-shared/instrument'` at the top of main.ts:
+  // don't init twice, but keep the server name this caller passes (core-api, gateway).
+  if (Sentry.getClient()) {
+    if (serverName) {
+      Sentry.getGlobalScope().addEventProcessor((event) => ({
+        ...event,
+        server_name: serverName,
+      }));
+    }
+    return;
+  }
+
   const dsn = process.env.SENTRY_DSN;
   if (!dsn) {
     warnTracingWithoutDsn();

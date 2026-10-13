@@ -1015,6 +1015,8 @@ importers:
 
   backend/erxes-api-shared/core-types: {}
 
+  backend/erxes-api-shared/instrument: {}
+
   backend/erxes-api-shared/utils: {}
 
   backend/gateway:

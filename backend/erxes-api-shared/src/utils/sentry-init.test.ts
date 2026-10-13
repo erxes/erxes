@@ -129,4 +129,25 @@ describe('initErxesSentry', () => {
     expect(registeredProvider()).toBe('BasicTracerProvider');
     expect(propagation.fields()).toEqual(['traceparent', 'tracestate']);
   });
+
+  test('a second call does not re-init but keeps the caller server name', () => {
+    process.env.SENTRY_DSN = 'https://key@glitchtip.example.com/1';
+    const { initErxesSentry, Sentry } = load();
+    const addEventProcessor = jest.fn();
+    Sentry.getClient.mockReturnValue({});
+    Sentry.getGlobalScope.mockReturnValue({ addEventProcessor });
+
+    initErxesSentry();
+    expect(addEventProcessor).not.toHaveBeenCalled();
+
+    initErxesSentry(undefined, 'gateway');
+
+    expect(Sentry.init).not.toHaveBeenCalled();
+    expect(addEventProcessor).toHaveBeenCalledTimes(1);
+    const processor = addEventProcessor.mock.calls[0][0];
+    expect(processor({ server_name: 'pod-7f9c', message: 'boom' })).toEqual({
+      server_name: 'gateway',
+      message: 'boom',
+    });
+  });
 });
