@@ -249,6 +249,25 @@
   fields are stored on the pipeline, and ticket detail renders only that
   pipeline's selected fields. Legacy pipelines continue rendering all fields
   until their Properties selection is saved for the first time.
+- Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
+  live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
+  ticket sheet header; the fields row carries no actions. The notification
+  ticket view has none of its own — its `Open ticket` button opens that sheet.
+  The header's close button sits in a `w-16` strip aligned with the relation
+  side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+- The ticket channel, pipeline and status selects create inline without leaving
+  the page. `useSelectCreate` (`ticket-selects/SelectCreate.tsx`) holds the
+  search and the pending name; a `Create new …: "<search>"` item appears
+  whenever the search matches no name exactly, and swaps the popover to
+  a small form that reuses `ChannelForm` / `CreatePipelineForm` (status adds
+  its own name, color and type fields) and selects the new record once its list
+  has refetched. Create is on only where `allowCreate` is passed: every
+  `FormItem` variant (add ticket, conversation convert, help center drawer,
+  pipeline config, automation create-ticket action) and the status select's
+  root (ticket detail, card, table). Pipeline needs a channel, status a
+  pipeline, and the status option also `ticketStatusesManage`.
+  `SelectStatusTicket.Content` takes both `allowCreate` and the report filter's
+  `onClear` ("All Statuses"); filters pass `onClear` only, never `allowCreate`.
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
 - The messenger ticket form builder lives on a pipeline's configuration sheet
   (`src/modules/pipelines/components/configs/`): a pipeline owns **one**
@@ -1729,6 +1748,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   selected tag as a badge with no cap, which is the long-list look the ticket
   UI intentionally avoids in favor of a "Tag +N" count trigger, matching how
   Sales' `DealTagsChip` calls `TagsSelect.Trigger` with `showSelectedTagsOutside={false}`.
+- Ticket channel, pipeline and status command items carry
+  `keywords={[name]}`: their `value` is the record id, and `cmdk` searches only
+  `value` and `keywords`.
+- Inline create forms submit through `SelectCreateContainer`, which stops the
+  `submit` event: the popover is portaled, but React still bubbles it to a form
+  that renders the select. Each form must wait for the select's list to refetch
+  before selecting the new id — `useChannelAdd` refetches no list the select
+  reads, so the channel form calls the provider's `refetch` itself.
 - The ticket index favorite control uses selected channel and pipeline query
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.

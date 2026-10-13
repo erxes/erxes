@@ -1,29 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import {
   cn,
+  ColorPicker,
   Combobox,
   Command,
   Filter,
+  Form,
+  Input,
   PopoverScoped,
+  Select,
   useQueryState,
   useFilterContext,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
+import { useAddTicketStatus } from '@/status/hooks/useAddTicketStatus';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { ITicketStatusChoice } from '@/status/types';
-import { TICKET_STATUS_TYPES } from '@/status/constants';
+import {
+  TICKET_DEFAULT_STATUSES,
+  TICKET_STATUS_TYPE_NAMES,
+  TICKET_STATUS_TYPES,
+} from '@/status/constants';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import {
   SelectTicketContent,
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
-import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
+import {
+  SelectCreateCommandItem,
+  SelectCreateContainer,
+  useSelectCreate,
+} from '@/ticket/components/ticket-selects/SelectCreate';
+import { TICKET_STATUS_FORM_SCHEMA } from '@/settings/schema/ticketStatus';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Control,
+  FieldValues,
+  UseFormReturn,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
+import { currentUserState, usePermissionCheck } from 'ui-modules';
 import { canMoveTicketToStatus } from '@/ticket/hooks/useTicketPermissions';
 import type { ApolloError } from '@apollo/client';
+import { z } from 'zod';
+
+const INLINE_STATUS_SCHEMA = TICKET_STATUS_FORM_SCHEMA.extend({
+  name: z.string().trim().min(1),
+  type: z.number(),
+});
+
+type TInlineStatusForm = z.infer<typeof INLINE_STATUS_SCHEMA>;
+
+const getDefaultStatusColor = (type: number) =>
+  TICKET_DEFAULT_STATUSES.find((status) => status.type === type)?.color ||
+  '#000000';
 
 interface SelectStatusContextType {
   value: string;
@@ -34,6 +68,7 @@ interface SelectStatusContextType {
   statuses?: ITicketStatusChoice[];
   pipelineId?: string;
   restrictToMovable?: boolean;
+  refetch: () => Promise<unknown>;
 }
 
 const SelectStatusContext = React.createContext<SelectStatusContextType | null>(
@@ -69,7 +104,7 @@ export const SelectStatusProvider = ({
     if (!status) return;
     onValueChange?.(status);
   };
-  const { statuses, loading, error } = useGetAccessibleTicketStatuses({
+  const { statuses, loading, error, refetch } = useGetAccessibleTicketStatuses({
     variables: { pipelineId },
     skip: !pipelineId,
   });
@@ -84,6 +119,7 @@ export const SelectStatusProvider = ({
         error,
         pipelineId,
         restrictToMovable,
+        refetch,
       }}
     >
       {children}
@@ -167,14 +203,164 @@ const SelectStatusCommandItem = ({
   );
 };
 
-const SelectStatusContent = ({ onClear }: { onClear?: () => void }) => {
+const SelectStatusCreateForm = ({
+  name,
+  pipelineId,
+  onBack,
+}: {
+  name: string;
+  pipelineId: string;
+  onBack: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { onValueChange, refetch } = useSelectStatusContext();
+  const { addStatus, loading } = useAddTicketStatus();
+  const form = useForm<TInlineStatusForm>({
+    resolver: zodResolver(INLINE_STATUS_SCHEMA),
+    defaultValues: {
+      name,
+      description: '',
+      type: TICKET_STATUS_TYPES.OPEN,
+      color: getDefaultStatusColor(TICKET_STATUS_TYPES.OPEN),
+    },
+  });
+  const statusType = form.watch('type');
+
+  const onSubmit = ({ name, color, type }: TInlineStatusForm) => {
+    addStatus({
+      variables: { name, color, type, pipelineId },
+      onCompleted: async ({ addTicketStatus }) => {
+        await refetch();
+        onBack();
+        onValueChange(addTicketStatus._id);
+      },
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <SelectCreateContainer
+        title={t('create-status', 'Create status')}
+        onBack={onBack}
+        onSubmit={form.handleSubmit(onSubmit)}
+        loading={loading}
+      >
+        <Form.Field
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('name', 'Name')}</Form.Label>
+              <div className="flex items-center gap-2">
+                <Form.Field
+                  control={form.control}
+                  name="color"
+                  render={({ field: colorField }) => (
+                    <ColorPicker.Provider
+                      value={colorField.value || '#000000'}
+                      onValueChange={colorField.onChange}
+                    >
+                      <ColorPicker.Trigger
+                        aria-label={t('color', 'Color')}
+                        className="size-8 flex-none justify-center p-0"
+                        style={{
+                          backgroundColor: `${colorField.value || '#000000'}25`,
+                        }}
+                      >
+                        <StatusInlineIcon
+                          color={colorField.value}
+                          statusType={statusType}
+                        />
+                      </ColorPicker.Trigger>
+                      <ColorPicker.Content />
+                    </ColorPicker.Provider>
+                  )}
+                />
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+              </div>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="type"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('type', 'Type')}</Form.Label>
+              <Select
+                value={String(field.value)}
+                onValueChange={(value) => {
+                  const type = Number(value);
+                  field.onChange(type);
+                  form.setValue('color', getDefaultStatusColor(type));
+                }}
+              >
+                <Form.Control>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  {Object.values(TICKET_STATUS_TYPES).map((type) => (
+                    <Select.Item key={type} value={String(type)}>
+                      <span className="capitalize">
+                        {t(TICKET_STATUS_TYPE_NAMES[type])}
+                      </span>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </SelectCreateContainer>
+    </Form>
+  );
+};
+
+const SelectStatusContent = ({
+  allowCreate,
+  onClear,
+}: {
+  allowCreate?: boolean;
+  onClear?: () => void;
+}) => {
   const { t } = useTranslation('frontline');
   const { statuses, pipelineId, loading, error, selectedValues } =
     useSelectStatusContext();
+  const { hasActionPermission } = usePermissionCheck();
+  const { search, setSearch, newName, setNewName, showCreate } =
+    useSelectCreate({
+      enabled:
+        !!allowCreate &&
+        !!pipelineId &&
+        !loading &&
+        hasActionPermission('ticketStatusesManage'),
+      names: (statuses || []).map((status) => status.label),
+    });
+
+  if (newName && pipelineId) {
+    return (
+      <SelectStatusCreateForm
+        name={newName}
+        pipelineId={pipelineId}
+        onBack={() => setNewName('')}
+      />
+    );
+  }
+
   return (
     <Command>
-      <Command.Input placeholder={t('search-status', 'Search status')} />
-      {!loading && !error && (
+      <Command.Input
+        value={search}
+        onValueChange={setSearch}
+        placeholder={t('search-status', 'Search status')}
+      />
+      {!loading && !error && !showCreate && (
         <Command.Empty>
           <span className="text-muted-foreground">
             {pipelineId
@@ -196,6 +382,13 @@ const SelectStatusContent = ({ onClear }: { onClear?: () => void }) => {
         {statuses?.map((status) => (
           <SelectStatusCommandItem key={status.value} status={status} />
         ))}
+        {showCreate && (
+          <SelectCreateCommandItem
+            search={search}
+            label={t('create-new-status', 'Create new status')}
+            onSelect={setNewName}
+          />
+        )}
       </Command.List>
     </Command>
   );
@@ -245,7 +438,7 @@ const SelectStatusTicketRoot = ({
           <SelectStatusValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>
-          <SelectStatusContent />
+          <SelectStatusContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>
     </SelectStatusProvider>
@@ -357,7 +550,7 @@ export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
           <SelectStatusValue />
         </SelectTriggerTicket>
         <Combobox.Content>
-          <SelectStatusContent />
+          <SelectStatusContent allowCreate />
         </Combobox.Content>
       </PopoverScoped>
     </SelectStatusProvider>
