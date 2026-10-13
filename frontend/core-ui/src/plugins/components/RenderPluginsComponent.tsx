@@ -91,15 +91,21 @@ export function RenderPluginsComponent({
       <ErrorBoundary
         FallbackComponent={RenderPluginsComponentCrashState}
         resetKeys={[pluginName, remoteModuleName]}
-        onError={(error, info) =>
+        onError={(error, info) => {
+          // The fallback hides the error; keep it visible for debugging.
+          console.error(
+            `[${pluginName}/${remoteModuleName}] render failed`,
+            error,
+            info.componentStack,
+          );
           Sentry.captureException(error, {
             extra: {
               pluginName,
               remoteModuleName,
               componentStack: info.componentStack,
             },
-          })
-        }
+          });
+        }}
       >
         <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
       </ErrorBoundary>

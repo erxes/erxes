@@ -17,6 +17,7 @@ import {
 } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import { useTranslation } from 'react-i18next';
 import {
   formatDealDateForMutation,
@@ -65,6 +66,12 @@ const areDatesEqual = (left?: Date, right?: Date) =>
 const toSingleDate = (date: unknown) =>
   date instanceof Date ? date : undefined;
 
+const formatDateLabel = (date: Date) =>
+  format(
+    date,
+    date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',
+  );
+
 export const DateSelectProvider = ({
   children,
   ...props
@@ -100,12 +107,7 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <>
       <IconCalendarTime className="size-4 text-muted-foreground" />
-      {format(
-        value,
-        value.getFullYear() === new Date().getFullYear()
-          ? 'MMM d'
-          : 'MMM d, yyyy',
-      )}
+      {formatDateLabel(value)}
     </>
   );
 };
@@ -165,6 +167,7 @@ export const DateSelectDealRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
   placeholder,
+  label,
 }: {
   value?: Date | string;
   id?: string;
@@ -172,6 +175,7 @@ export const DateSelectDealRoot = ({
   scope?: string;
   variant?: `${DateSelectVariant}`;
   placeholder?: string;
+  label?: string;
 }) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
@@ -214,27 +218,43 @@ export const DateSelectDealRoot = ({
 
   if (variant === DateSelectVariant.INPUT) {
     return (
-      <div className="flex h-7 w-fit items-center overflow-hidden rounded border bg-background text-sm focus-within:border-primary/40">
-        <div className="w-36">
-          <DatePicker
-            value={dateValue}
-            onChange={(date) => optimisticDate.setValue(toSingleDate(date))}
-            placeholder={placeholder || t('select-date')}
+      <DateSelectProvider
+        value={dateValue}
+        onValueChange={handleValueChange}
+        variant={DateSelectVariant.INPUT}
+        loading={loading}
+        error={error}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <DealChipTrigger
+            label={label}
+            onClear={
+              dateValue ? () => optimisticDate.setValue(undefined) : undefined
+            }
             clearLabel={t('clear', 'Clear')}
-            className={cn(
-              'h-6 rounded-none border-0 bg-transparent px-2.5 font-medium focus-within:ring-0 focus-within:ring-offset-0',
-              isEnded && 'text-destructive',
+          >
+            {dateValue ? (
+              <span className={cn(isEnded && 'text-destructive')}>
+                {formatDateLabel(dateValue)}
+              </span>
+            ) : (
+              <span className="text-accent-foreground">
+                {placeholder || t('select-date')}
+              </span>
             )}
-          />
-        </div>
-        {isEnded && (
-          <span className="flex h-full shrink-0 items-center gap-1 whitespace-nowrap border-l bg-red-50 px-2 text-xs text-red-400">
-            <IconAlertCircleFilled className="size-4" />
-            {t('ended')} {endedDiff} {endedDiff === 1 ? t('day') : t('days')}{' '}
-            {t('ago')}
-          </span>
-        )}
-      </div>
+            {isEnded && (
+              <span className="flex items-center gap-1 rounded bg-red-50 px-1.5 text-xs text-red-400">
+                <IconAlertCircleFilled />
+                {t('ended')} {endedDiff}{' '}
+                {endedDiff === 1 ? t('day') : t('days')} {t('ago')}
+              </span>
+            )}
+          </DealChipTrigger>
+          <Combobox.Content className="w-fit">
+            <DateSelectContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </DateSelectProvider>
     );
   }
 
