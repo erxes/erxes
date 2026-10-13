@@ -295,19 +295,6 @@ export const removeFxaIncomeDetails = async (
   );
 };
 
-export const assertFxaIncomeRemovalsAllowed = async (
-  models: IModels,
-  transactions: ITransactionDocument[],
-) => {
-  await Promise.all(
-    transactions
-      .filter((transaction) => transaction.journal === JOURNALS.FXA_INCOME)
-      .map((transaction) =>
-        removeFxaIncomeDetails(models, transaction, { validateOnly: true }),
-      ),
-  );
-};
-
 const syncOpeningAccumulatedDepreciation = async ({
   date,
   fixedAssetsByDetailId,

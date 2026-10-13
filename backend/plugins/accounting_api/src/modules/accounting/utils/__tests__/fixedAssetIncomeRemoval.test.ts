@@ -1,11 +1,10 @@
 import type { IModels } from '~/connectionResolvers';
 import type { ITransactionDocument } from '../../@types/transaction';
 import { JOURNALS, TR_SIDES } from '../../@types/constants';
-import { commonRemove } from '../commonRemove';
-import {
-  assertFxaIncomeRemovalsAllowed,
-  removeFxaIncomeDetails,
-} from '../fxaIncome';
+import { commonRemove, commonRemoveValidation } from '../commonRemove';
+import { commonSaveValidation } from '../commonSave';
+import { removeFxaIncomeDetails } from '../fxaIncome';
+import * as transactionUtils from '../utils';
 
 const query = <T>(value: T) => ({
   sort() {
@@ -142,22 +141,77 @@ test('validates only the asset references of the removed details', async () => {
 test('a blocked later income prevents any cleanup during group preflight', async () => {
   const { models, calls } = setup([income('related', 'used-asset')]);
   await expect(
-    assertFxaIncomeRemovalsAllowed(models, [
-      income('safe', 'unused-asset'),
-      income('blocked', 'used-asset'),
-    ]),
+    Promise.all(
+      [
+        { ...income('inventory'), journal: JOURNALS.INV_INCOME },
+        income('safe', 'unused-asset'),
+        income('blocked', 'used-asset'),
+      ].map((transaction) =>
+        commonRemoveValidation('tenant', models, transaction),
+      ),
+    ),
   ).rejects.toThrow('already used in other transactions');
   expect(calls.findBlocking).toHaveBeenCalledTimes(2);
   expectNoWrites(calls);
 });
 
-test('income preflight ignores non-income journals without cleanup', async () => {
-  const movement = income();
-  movement.journal = JOURNALS.FXA_MOVE;
-  const { models, calls } = setup([income('related')]);
-  await assertFxaIncomeRemovalsAllowed(models, [movement]);
-  expect(calls.findBlocking).not.toHaveBeenCalled();
-  expectNoWrites(calls);
+test.each([
+  JOURNALS.MAIN,
+  JOURNALS.INV_INCOME,
+  JOURNALS.INV_OUT,
+  JOURNALS.INV_MOVE,
+  JOURNALS.INV_SALE,
+  JOURNALS.INV_JUSTIFY,
+  JOURNALS.FXA_MOVE,
+  JOURNALS.FXA_OUT,
+  JOURNALS.FXA_SALE,
+])(
+  'generic preflight never runs destructive cleanup for %s',
+  async (journal) => {
+    const transaction = { ...income(), journal };
+    const { models, calls } = setup([income('related')]);
+    const stockSync = jest
+      .spyOn(transactionUtils, 'removeSyncProductsInventory')
+      .mockResolvedValue(undefined);
+    try {
+      await commonRemoveValidation('tenant', models, transaction);
+      await commonSaveValidation(
+        'tenant',
+        models,
+        'user-1',
+        transaction,
+        income(),
+      );
+      await commonRemove('tenant', models, transaction, undefined, {
+        validateOnly: true,
+      });
+      expect(stockSync).not.toHaveBeenCalled();
+      expect(calls.findBlocking).not.toHaveBeenCalled();
+      expectNoWrites(calls);
+    } finally {
+      stockSync.mockRestore();
+    }
+  },
+);
+
+test('save validation blocks removing an income detail without saving or cleaning anything', async () => {
+  const { models, calls } = setup([income('related', 'used-asset')]);
+  const save = jest.spyOn(transactionUtils, 'createOrUpdateTr');
+  try {
+    await expect(
+      commonSaveValidation(
+        'tenant',
+        models,
+        'user-1',
+        { ...income(), details: [] },
+        income('income', 'used-asset'),
+      ),
+    ).rejects.toThrow('already used in other transactions');
+    expect(save).not.toHaveBeenCalled();
+    expectNoWrites(calls);
+  } finally {
+    save.mockRestore();
+  }
 });
 
 test('unused income assets may be removed together with their own follows', async () => {
