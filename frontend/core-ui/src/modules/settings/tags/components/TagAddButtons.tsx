@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { addingTagAtom } from '@/settings/tags/states/addingTagAtom';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
 import { IconPlus } from '@tabler/icons-react';
@@ -12,6 +13,7 @@ import {
 import { useAtom } from 'jotai';
 
 export const TagAddButtons = ({ className }: { className?: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const [type] = useQueryState<string>('tagType');
   const [addingTag, setAddingTag] = useAtom(addingTagAtom);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -38,7 +40,7 @@ export const TagAddButtons = ({ className }: { className?: string }) => {
         }}
         variant="outline"
       >
-        Add Group
+        {t('add-group')}
       </Button>
       <Button
         disabled={addingTag !== null && !addingTag?.isGroup}
@@ -50,7 +52,7 @@ export const TagAddButtons = ({ className }: { className?: string }) => {
         }}
       >
         <IconPlus className="size-4" />
-        Add Tag
+        {t('add-tag')}
         <Kbd>C</Kbd>
       </Button>
     </div>

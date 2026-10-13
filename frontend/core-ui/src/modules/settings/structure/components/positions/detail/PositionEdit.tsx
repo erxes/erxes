@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -11,6 +12,7 @@ import { PositionForm } from '../PositionForm';
 import { Can } from 'ui-modules';
 
 export const PositionEdit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('position_id');
@@ -46,16 +48,16 @@ export const PositionEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success'),
           variant: 'success',
-          description: 'Position updated successfully',
+          description: t('position-updated'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -98,11 +100,11 @@ export const PositionEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Can action="positionsManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save')}
                 </Button>
               </Can>
             </Sheet.Footer>
