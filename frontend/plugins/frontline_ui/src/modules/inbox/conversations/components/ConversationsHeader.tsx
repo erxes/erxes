@@ -1,4 +1,3 @@
-import { SendEmailButton } from 'ui-modules';
 import { Filter, Skeleton, cn } from 'erxes-ui';
 
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
@@ -37,10 +36,7 @@ export const ConversationsHeader = ({
   return (
     <Filter id="conversations-filter-bar">
       <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 overflow-hidden bg-background py-2 pl-6 pr-4">
-        <div className="order-1 flex shrink-0 items-center">
-          {children}
-          <SendEmailButton />
-        </div>
+        <div className="order-1 flex shrink-0 items-center">{children}</div>
         <ConversationFilterBar
           className={cn(
             'order-3 basis-full',

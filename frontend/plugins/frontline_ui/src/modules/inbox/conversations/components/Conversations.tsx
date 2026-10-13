@@ -15,6 +15,7 @@ import { useDiscordConversationChannels } from '@/integrations/discord/hooks/use
 import { useMemo } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
+import { SendEmailButton } from 'ui-modules';
 
 const ConversationsLoading = () => (
   <div className="divide-y" aria-label="Loading conversations">
@@ -124,6 +125,7 @@ export const Conversations = () => {
         <Filter id="conversations">
           <ConversationsHeader>
             <ConversationActions />
+            <SendEmailButton />
           </ConversationsHeader>
         </Filter>
         <Separator />
