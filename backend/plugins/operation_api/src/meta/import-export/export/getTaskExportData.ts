@@ -4,7 +4,7 @@ import {
   IImportExportContext,
   buildExportCursorQuery,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTaskExportRow } from './buildTaskExportRow';
 import { stringifyId, buildIdNameMap, buildUserMap } from '../utils';
@@ -22,8 +22,8 @@ function buildTaskQuery(
   if (!filters || Object.keys(filters).length === 0) {
     return query;
   }
-  if (filters.name) {
-    query.name = { $regex: filters.name, $options: 'i' };
+  if (typeof filters.name === 'string' && filters.name) {
+    query.name = { $regex: escapeRegExp(filters.name), $options: 'i' };
   }
 
   const directFields = [

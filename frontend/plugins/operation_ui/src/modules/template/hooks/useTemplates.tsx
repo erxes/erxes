@@ -1,15 +1,15 @@
 import { useQuery } from '@apollo/client';
 import { templatesQuery } from '../graphql/queries';
-import { IOperationTemplate } from '../types';
+import { compactList } from '@/operation/utils/cursorList';
 
-export const useTemplates = ({  teamId }: { teamId?: string }) => {
+export const useTemplates = ({ teamId }: { teamId?: string }) => {
   const { data, loading, error } = useQuery(templatesQuery, {
     variables: { teamId },
     skip: !teamId,
   });
 
   return {
-    templates: (data?.operationTemplates || []) as IOperationTemplate[],
+    templates: compactList(data?.operationTemplates),
     loading,
     error,
   };

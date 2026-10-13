@@ -15,10 +15,7 @@ export const NotificationProjectAssignment = ({
   createdAt,
 }: TNotification) => {
   const { t } = useTranslation('operation');
-  const { project, loading, error } = useGetProject({
-    variables: { _id: contentTypeId },
-    skip: !contentTypeId,
-  });
+  const { project, loading, error } = useGetProject(contentTypeId);
 
   const isAssigned = title === 'Project Assigned';
   const action = isAssigned ? t('assigned-you-to') : t('changed-status-on');

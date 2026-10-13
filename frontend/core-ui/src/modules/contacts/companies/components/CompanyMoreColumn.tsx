@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TCompany } from '@/contacts/types/companyType';
 import { IconEdit } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
@@ -10,6 +11,7 @@ export const CompanyMoreColumnCell = ({
 }: {
   cell: Cell<TCompany, unknown>;
 }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const [searchParams, setSearchParams] = useSearchParams();
   const { _id } = cell.row.original;
 
@@ -30,7 +32,7 @@ export const CompanyMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={() => setOpen(_id)}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('action-edit')}
             </Command.Item>
           </Command.List>
         </Command>

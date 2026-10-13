@@ -181,7 +181,7 @@ export const tasksColumns = (
         return (
           <SelectEstimatedPoint
             taskId={_id}
-            value={estimatePoint || 0}
+            value={estimatePoint}
             teamId={teamId}
             variant="table"
           />
@@ -216,7 +216,7 @@ export const tasksColumns = (
       cell: ({ cell }) => {
         return (
           <SelectProject
-            value={cell.row.original.projectId || ''}
+            value={cell.row.original.projectId}
             taskId={cell.row.original._id}
             teamId={cell.row.original.teamId}
             variant="table"

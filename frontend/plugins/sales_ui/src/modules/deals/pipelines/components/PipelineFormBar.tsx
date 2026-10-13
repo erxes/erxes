@@ -19,6 +19,7 @@ import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
 import { usePipelineFormSubmit } from '@/deals/pipelines/hooks/usePipelineFormSubmit';
 import { usePipelineFormSync } from '@/deals/pipelines/hooks/usePipelineFormSync';
+import { LoyaltyRulesDialog } from '@/deals/loyaltyRules/components/LoyaltyRulesDialog';
 
 export function PipelineFormBar() {
   const { t } = useTranslation('sales');
@@ -109,6 +110,7 @@ export function PipelineFormBar() {
 
   return (
     <div className="ml-auto flex items-center gap-3">
+      <LoyaltyRulesDialog />
       <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
         <Sheet.Trigger asChild>
           <Button disabled={isCreateDisabled}>
@@ -134,7 +136,11 @@ export function PipelineFormBar() {
                 <Sheet.Close />
               </Sheet.Header>
               <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">
-                <PipelineForm form={methods} stagesLoading={stagesLoading} />
+                <PipelineForm
+                  form={methods}
+                  stagesLoading={stagesLoading}
+                  pipelineId={pipelineId}
+                />
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>

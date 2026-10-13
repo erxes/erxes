@@ -12,8 +12,8 @@ type TaskDateKey = keyof typeof DATE_RANGE_MAP;
 type TaskDateBoundKey = TaskDateKey | (typeof DATE_RANGE_MAP)[TaskDateKey];
 type TaskDateVariables = Partial<Record<TaskDateBoundKey, string>>;
 
-export const TASK_DATE_RANGE_KEYS = [
-  ...Object.keys(DATE_RANGE_MAP),
+export const TASK_DATE_RANGE_KEYS: TaskDateBoundKey[] = [
+  ...(Object.keys(DATE_RANGE_MAP) as TaskDateKey[]),
   ...Object.values(DATE_RANGE_MAP),
 ];
 

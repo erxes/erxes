@@ -6,18 +6,20 @@ import OrderItem from './orderItem';
 import PosConfig from './posConfig';
 import PoscProduct from './poscProduct';
 import Cover from './cover';
+import OrderChangeLog from './orderChangeLog';
 
-const resolvers: any = async () => ({
+const resolvers: any = {
   ...apolloCustomScalars,
   PosConfig,
   PoscProduct,
   cpPoscProduct: PoscProduct,
   Order,
   OrderDetail: Order,
+  OrderChangeLog,
   Cover,
   PosOrderItem: OrderItem,
   Mutation,
   Query,
-});
+};
 
 export default resolvers;

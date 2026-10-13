@@ -6,14 +6,16 @@ import {
   EMAIL_TEMPLATE_REMOVE,
 } from '@/emailTemplates/graphql/mutations';
 import { EMAIL_TEMPLATES } from '@/emailTemplates/graphql/queries';
+import { useTranslation } from 'react-i18next';
 
 /** Every write refetches the list, so a saved template shows up at once. */
 export const useEmailTemplateMutations = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const { toast } = useToast();
 
   const onError = (error: Error) =>
     toast({
-      title: 'Error',
+      title: t('error'),
       description: error.message,
       variant: 'destructive',
     });

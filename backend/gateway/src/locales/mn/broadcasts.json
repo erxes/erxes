@@ -254,7 +254,8 @@
     "waiting": "Workflow дотор хүлээж байна",
     "no-flow": "Энэ хүнд workflow хараахан ажиллаагүй.",
     "empty-body": "Кампанит ажил идэвхжих үед хүлээн авагчид бүртгэгдэнэ.",
-    "loaded-of": "{{total}}-аас {{loaded}}"
+    "loaded-of": "{{total}}-аас {{loaded}}",
+    "run-option": "Ажиллалт {{runCount}} · {{totalCount}} хүлээн авагч"
   },
   "recipientEmail": {
     "reply-to": "Хариу бичих хаяг",
@@ -449,7 +450,8 @@
     "mobile-short": "Мобайл болон вэб push",
     "none-selected": "Сонгоогүй",
     "preview": "Мэдэгдлийн урьдчилсан харагдац",
-    "content-placeholder": "Мэдэгдлийн агуулга энд харагдана"
+    "content-placeholder": "Мэдэгдлийн агуулга энд харагдана",
+    "select-channel-preview": "Урьдчилан харахын тулд дор хаяж нэг мэдэгдлийн суваг сонгоно уу"
   },
   "target": {
     "title": "Гарчиг",
@@ -466,5 +468,19 @@
     "create-segment": "Эхний сегментээ үүсгэх",
     "no-tags-body": "Кампанит ажлыг шошготой харилцагчид руу илгээж болно. Эхлээд шошго үүсгээд эргэж ирнэ үү.",
     "create-tag": "Эхний шошгоо үүсгэх"
+  },
+  "rules": {
+    "condition": "Нөхцөл",
+    "value": "Утга",
+    "add-rules": "Дүрэм нэмэх",
+    "select-rule": "Дүрэм сонгох"
+  },
+  "messenger": {
+    "from-user": "Илгээгч",
+    "select-members": "Багийн гишүүн сонгох",
+    "brand": "Брэнд",
+    "select-brand": "Брэнд сонгох",
+    "message-type": "Мессежийн төрөл",
+    "sent-as": "Илгээх хэлбэр"
   }
 }

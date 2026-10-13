@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useSenderForm } from '@/settings/mail-config/hooks/useSenderForm';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { IconInfoCircle } from '@tabler/icons-react';
@@ -25,6 +26,7 @@ export const AddSenderDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
   const { form, onSubmit, loading } = useSenderForm({ onOpenChange });
   const { supportsDynamicSender, defaultSenderEmail } = useSenderOptions();
 
@@ -35,17 +37,14 @@ export const AddSenderDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
-          <Dialog.Title>Add a sender address</Dialog.Title>
-          <Dialog.Description>
-            A confirmation link goes to this address. It can be used once
-            someone opens that link and confirms.
-          </Dialog.Description>
+          <Dialog.Title>{t('add-sender-address')}</Dialog.Title>
+          <Dialog.Description>{t('add-sender-desc')}</Dialog.Description>
         </Dialog.Header>
 
         {!supportsDynamicSender && (
           <Alert>
             <IconInfoCircle />
-            <Alert.Title>Replies only</Alert.Title>
+            <Alert.Title>{t('replies-only')}</Alert.Title>
             <Alert.Description>
               Mail will be sent from{' '}
               <code>{defaultSenderEmail || 'the platform address'}</code> and
@@ -105,10 +104,10 @@ export const AddSenderDialog = ({
                 variant="secondary"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                Send confirmation
+                {t('send-confirmation')}
               </Button>
             </Dialog.Footer>
           </form>

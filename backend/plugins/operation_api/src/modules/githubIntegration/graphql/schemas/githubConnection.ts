@@ -1,15 +1,15 @@
 export const type = `
   type GithubConnection {
-    _id: String
-    installationId: Int
-    orgName: String
+    _id: String!
+    installationId: Int!
+    orgName: String!
     orgAvatarUrl: String
-    orgType: String
+    orgType: String!
     initiatedUserId: String
-    createdAt: Date
-    updatedAt: Date
-    subdomain: String
-    isActive: Boolean
+    createdAt: Date!
+    updatedAt: Date!
+    subdomain: String!
+    isActive: Boolean!
   }
 
   type GithubRepository {

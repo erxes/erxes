@@ -14,20 +14,13 @@ export const TaskDetails = ({
   checkTriage?: boolean;
 }) => {
   const { t } = useTranslation('operation');
-  const {
-    task,
-    loading: loadingTask,
-    error: taskError,
-  } = useGetTask({
-    variables: { _id: taskId },
-  });
+  const { task, loading: loadingTask, error: taskError } = useGetTask(taskId);
 
   const {
     triage,
     loading: loadingTriage,
     error: triageError,
-  } = useGetTriage({
-    variables: { _id: taskId },
+  } = useGetTriage(taskId, {
     skip: !checkTriage || loadingTask,
   });
 
@@ -71,8 +64,8 @@ export const TaskDetails = ({
 
   return (
     <>
-      {task && <TaskFields task={task} />}
-      {triage && <TriageFields triage={triage} />}
+      {task && <TaskFields key={task._id} task={task} />}
+      {triage && <TriageFields key={triage._id} triage={triage} />}
     </>
   );
 };

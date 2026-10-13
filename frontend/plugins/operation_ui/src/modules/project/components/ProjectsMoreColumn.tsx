@@ -1,5 +1,5 @@
 import { IconEdit } from '@tabler/icons-react';
-import { Cell } from '@tanstack/react-table';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { IProject } from '../types';
@@ -36,9 +36,9 @@ export const ProjectsMoreColumnCell = ({
   );
 };
 
-export const projectsMoreColumn = {
+export const projectsMoreColumn: ColumnDef<IProject> = {
   id: 'more',
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
   cell: ProjectsMoreColumnCell,
   size: 33,
 };

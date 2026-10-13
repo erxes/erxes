@@ -8,17 +8,29 @@ import type { PendingAttachment } from '@/inbox/conversations/conversation-detai
 const MAX_ATTACHMENTS = 10;
 const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
 const DISCORD_MAXIMUM_BYTES = 10 * 1024 * 1024;
+const TELEGRAM_MAXIMUM_BYTES = 50 * 1024 * 1024;
 
-export const useMessageAttachments = (isDiscord: boolean) => {
+export const useMessageAttachments = (
+  isDiscord: boolean,
+  isTelegram = false,
+) => {
   const { t } = useTranslation('frontline');
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const attachmentsRef = useRef<IAttachment[]>([]);
   const [pendingAttachments, setPendingAttachments] = useState<
     PendingAttachment[]
   >([]);
   const pendingAttachmentsRef = useRef<PendingAttachment[]>([]);
   const pendingCountRef = useRef(0);
+  const pendingBytesRef = useRef(0);
   const uploadGenerationRef = useRef(0);
   const { upload } = useUpload();
+
+  /** Updates rendered files and immediate upload accounting in the same event tick. */
+  const updateAttachments = useCallback((next: IAttachment[]): void => {
+    attachmentsRef.current = next;
+    setAttachments(next);
+  }, []);
 
   useEffect(() => {
     pendingAttachmentsRef.current = pendingAttachments;
@@ -38,6 +50,11 @@ export const useMessageAttachments = (isDiscord: boolean) => {
       if (!files.length) return;
 
       const selectedFiles = Array.from(files);
+      const providerMaximumBytes = isTelegram
+        ? TELEGRAM_MAXIMUM_BYTES
+        : isDiscord
+          ? DISCORD_MAXIMUM_BYTES
+          : DEFAULT_MAXIMUM_BYTES;
       const configuredMaximumBytes =
         Number.parseInt(
           composerStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
@@ -46,7 +63,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         ) || DEFAULT_MAXIMUM_BYTES;
       const maximumBytes = Math.min(
         configuredMaximumBytes,
-        isDiscord ? DISCORD_MAXIMUM_BYTES : DEFAULT_MAXIMUM_BYTES,
+        providerMaximumBytes,
       );
       const oversizedFile = selectedFiles.find(
         (file) => file.size > maximumBytes,
@@ -67,8 +84,33 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         return;
       }
 
+      const selectedBytes = selectedFiles.reduce(
+        (sum, file) => sum + file.size,
+        0,
+      );
+      const uploadedBytes = attachmentsRef.current.reduce(
+        (sum, file) => sum + (file.size ?? 0),
+        0,
+      );
       if (
-        attachments.length + pendingCountRef.current + selectedFiles.length >
+        isTelegram &&
+        uploadedBytes + pendingBytesRef.current + selectedBytes >
+          TELEGRAM_MAXIMUM_BYTES
+      ) {
+        toast({
+          title: t(
+            'telegram-attachment-total-too-large',
+            'Telegram attachments must total 50 MB or less per message',
+          ),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (
+        attachmentsRef.current.length +
+          pendingCountRef.current +
+          selectedFiles.length >
         MAX_ATTACHMENTS
       ) {
         toast({
@@ -95,6 +137,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         })),
       ]);
       pendingCountRef.current += selectedFiles.length;
+      pendingBytesRef.current += selectedBytes;
       const uploadGeneration = uploadGenerationRef.current;
 
       upload({
@@ -103,6 +146,10 @@ export const useMessageAttachments = (isDiscord: boolean) => {
           if (uploadGeneration !== uploadGenerationRef.current) return;
 
           pendingCountRef.current = Math.max(0, pendingCountRef.current - 1);
+          pendingBytesRef.current = Math.max(
+            0,
+            pendingBytesRef.current - (fileInfo.size ?? 0),
+          );
           setPendingAttachments((current) => {
             const index = current.findIndex(
               (file) =>
@@ -136,8 +183,8 @@ export const useMessageAttachments = (isDiscord: boolean) => {
             return;
           }
 
-          setAttachments((current) => [
-            ...current,
+          updateAttachments([
+            ...attachmentsRef.current,
             { ...fileInfo, url: response },
           ]);
           toast({
@@ -149,7 +196,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         },
       });
     },
-    [attachments.length, isDiscord, t, upload],
+    [isDiscord, isTelegram, t, upload, updateAttachments],
   );
 
   const handleFileInput = useCallback(
@@ -189,8 +236,8 @@ export const useMessageAttachments = (isDiscord: boolean) => {
 
   const removeAttachment = useCallback(
     (url: string) => {
-      setAttachments((current) =>
-        current.filter((attachment) => attachment.url !== url),
+      updateAttachments(
+        attachmentsRef.current.filter((attachment) => attachment.url !== url),
       );
       setPendingAttachments((current) =>
         current.filter((file) => {
@@ -203,24 +250,28 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         title: t('attachment-removed', 'Attachment removed'),
       });
     },
-    [t],
+    [t, updateAttachments],
   );
 
   const resetAttachments = useCallback(() => {
     uploadGenerationRef.current += 1;
     pendingCountRef.current = 0;
-    setAttachments([]);
+    pendingBytesRef.current = 0;
+    updateAttachments([]);
     setPendingAttachments((current) => {
       current.forEach(({ previewUrl }) => {
         if (previewUrl) URL.revokeObjectURL(previewUrl);
       });
       return [];
     });
-  }, []);
+  }, [updateAttachments]);
 
-  const retainAttachments = useCallback((remaining: IAttachment[]) => {
-    setAttachments(remaining);
-  }, []);
+  const retainAttachments = useCallback(
+    (remaining: IAttachment[]) => {
+      updateAttachments(remaining);
+    },
+    [updateAttachments],
+  );
 
   return {
     attachments,

@@ -71,11 +71,13 @@ export default class CurrencyTr {
       throw new Error(`exchange rate not found: ${account.currency}`);
     }
 
-    if (hasRateDiff && !detail.followInfos?.currencyDiffAccountId) {
+    const currencyDiffAccountId = detail.followInfos?.currencyDiffAccountId;
+
+    if (hasRateDiff && !currencyDiffAccountId) {
       throw new Error('must fill currency diff account');
     }
 
-    if (hasRateDiff && detail.followInfos.currencyDiffAccountId) {
+    if (hasRateDiff && currencyDiffAccountId) {
       const rateDiff = customRate - spotRate;
       let amount = fixNum(detail.currencyAmount * rateDiff, 4);
 
@@ -100,7 +102,7 @@ export default class CurrencyTr {
         details: [
           {
             _id: nanoid(),
-            accountId: detail.followInfos.currencyDiffAccountId,
+            accountId: currencyDiffAccountId,
             amount,
           },
         ],

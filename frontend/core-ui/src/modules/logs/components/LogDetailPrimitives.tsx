@@ -2,6 +2,7 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import type { ComponentType, ReactNode } from 'react';
 import ReactJson from 'react-json-view';
+import { useTranslation } from 'react-i18next';
 
 type LogDetailJsonSource =
   | Record<string, unknown>
@@ -147,6 +148,7 @@ export const LogDetailMetricCard = ({
   icon?: ComponentType<LogDetailIconProps>;
   className?: string;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   return (
     <div className={cn('rounded-2xl border bg-muted/20 p-4', className)}>
       <div className="flex items-start gap-3">
@@ -158,7 +160,7 @@ export const LogDetailMetricCard = ({
             {title}
           </p>
           <div className="mt-1 break-words text-sm font-medium text-foreground">
-            {value || 'Unknown'}
+            {value || t('unknown')}
           </div>
         </div>
       </div>

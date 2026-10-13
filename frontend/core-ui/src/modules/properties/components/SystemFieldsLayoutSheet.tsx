@@ -1,9 +1,13 @@
 import { Sheet, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { buildLayoutRows, isWideType, useSystemFieldsLayout } from 'ui-modules';
+import {
+  buildLayoutRows,
+  isWideType,
+  LayoutEditor,
+  useSystemFieldsLayout,
+} from 'ui-modules';
 import { usePropertySystemFields } from '../hooks/usePropertySystemFields';
 import { useSystemFieldsLayoutSave } from '../hooks/useSystemFieldsLayoutSave';
-import { LayoutEditor } from './LayoutEditor';
 
 export const SystemFieldsLayoutSheet = ({
   contentType,

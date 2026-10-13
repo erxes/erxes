@@ -420,6 +420,13 @@ export const inboxAutomationWorkers = {
     _context: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType === 'messages') {
+      // No messenger selected keeps the trigger firing for every messenger.
+      const integrationId = toStringValue(config.integrationId);
+
+      if (integrationId && target?.integrationId !== integrationId) {
+        return false;
+      }
+
       const conditions = Array.isArray(config.conditions)
         ? config.conditions
         : [];

@@ -44,8 +44,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "preconstruct build",
-    "prepare": "preconstruct build"
+    "build": "preconstruct build"
   },
   "engines": {
     "pnpm": ">=8",

@@ -1,29 +1,45 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingAdjustClosingsQuery,
+  AccountingAdjustClosingsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { ADJUST_CLOSING_QUERY } from '../graphql/adjustClosingQueries';
 import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
 import { EnumCursorDirection } from 'erxes-ui';
 
-export const useAdjustClosing = (options?: OperationVariables) => {
-  const { data, loading, error, fetchMore } = useQuery(ADJUST_CLOSING_QUERY, {
+export const useAdjustClosing = (
+  options?: QueryHookOptions<
+    AccountingAdjustClosingsQuery,
+    AccountingAdjustClosingsQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(ADJUST_CLOSING_QUERY, {
     ...options,
     variables: { ...options?.variables, page: 1, perPage: ACC_TRS__PER_PAGE },
   });
-  const { adjustClosings, pageInfo, adjustClosingsCount } = data || {};
+  const data = toGraphqlView(queryData);
+  const { adjustClosings = [], adjustClosingsCount = 0 } = data || {};
 
   const handleFetchMore = ({
     direction,
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (adjustClosings?.length < adjustClosingsCount) {
+    if (
+      direction === EnumCursorDirection.FORWARD &&
+      adjustClosings.length < adjustClosingsCount
+    ) {
       fetchMore({
         variables: {
-          cursor:
-            direction === EnumCursorDirection.FORWARD
-              ? pageInfo.endCursor
-              : pageInfo.startCursor,
-          limit: ACC_TRS__PER_PAGE,
-          direction,
+          page: Math.floor(adjustClosings.length / ACC_TRS__PER_PAGE) + 1,
+          perPage: ACC_TRS__PER_PAGE,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) return prev;
@@ -32,8 +48,8 @@ export const useAdjustClosing = (options?: OperationVariables) => {
             ...prev,
             ...fetchMoreResult,
             adjustClosings: [
-              ...prev.adjustClosing,
-              ...fetchMoreResult.adjustClosing,
+              ...(prev.adjustClosings ?? []),
+              ...(fetchMoreResult.adjustClosings ?? []),
             ],
           };
         },
@@ -43,10 +59,13 @@ export const useAdjustClosing = (options?: OperationVariables) => {
 
   return {
     adjustClosing: adjustClosings,
-    totalCount: data?.adjustClosingsCount,
+    totalCount: adjustClosingsCount,
+    pageInfo: {
+      hasNextPage: adjustClosings.length < adjustClosingsCount,
+      hasPreviousPage: false,
+    },
     loading,
     error,
     handleFetchMore,
-    pageInfo,
   };
 };

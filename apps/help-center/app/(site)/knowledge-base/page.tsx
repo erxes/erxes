@@ -1,9 +1,10 @@
+import Link from 'next/link';
 import { getTopicArticleList } from '@/modules/knowledge-base/api';
 import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
 import {
-  articleEntries,
   browseCategories,
-  sortByReadership,
+  browseGroups,
+  sectionArticleCount,
 } from '@/modules/knowledge-base/utils/selectors';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { SearchBar } from '@/modules/layout/components/SearchBar';
@@ -24,8 +25,6 @@ import {
   Unpublished,
 } from '@/modules/ui/components/PortalState';
 
-const SUGGESTION_COUNT = 4;
-
 export const generateMetadata = async () => {
   const [settings, t] = await Promise.all([getPortalSettings(), getT()]);
 
@@ -42,13 +41,7 @@ export default async function KnowledgeBasePage() {
   const knowledgeBase = knowledgeBaseName(settings.knowledgeBaseLabel, t);
 
   const browse = topic.state === 'ready' ? browseCategories(topic.data) : [];
-
-  const searchSuggestions =
-    topic.state === 'ready'
-      ? sortByReadership(articleEntries(topic.data))
-          .slice(0, SUGGESTION_COUNT)
-          .map(({ article }) => article.title)
-      : [];
+  const groups = topic.state === 'ready' ? browseGroups(topic.data) : [];
 
   const articleCount = browse.reduce(
     (sum, entry) => sum + entry.category.articleCount,
@@ -81,12 +74,7 @@ export default async function KnowledgeBasePage() {
         ) : null
       }
       heroExtra={
-        browse.length ? (
-          <SearchBar
-            placeholder={t('kb.searchEvery')}
-            suggestions={searchSuggestions}
-          />
-        ) : null
+        browse.length ? <SearchBar placeholder={t('kb.searchEvery')} /> : null
       }
     >
       {topic.state === 'unconfigured' ? (
@@ -101,14 +89,39 @@ export default async function KnowledgeBasePage() {
           description={kbOffReason(knowledgeBase, t)}
         />
       ) : browse.length ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {browse.map(({ category, group }, index) => (
-            <CategoryCard
-              key={category._id}
-              category={category}
-              eyebrow={group ?? undefined}
-              index={index}
-            />
+        <div className="space-y-10">
+          {groups.map(({ section, categories }) => (
+            <section
+              key={section?._id ?? 'ungrouped'}
+              id={section ? `section-${section._id}` : undefined}
+              aria-label={section?.title}
+              className="scroll-mt-20"
+            >
+              {section ? (
+                <div className="mb-4 flex items-baseline justify-between gap-3">
+                  <h2 className="text-[15px] font-semibold text-ink">
+                    <Link
+                      href={`/knowledge-base/category/${section._id}`}
+                      className="transition-colors duration-200 hover:text-brand"
+                    >
+                      {section.title}
+                    </Link>
+                  </h2>
+                  <span className="shrink-0 text-[13px] tabular-nums text-muted-foreground">
+                    {t('kb.articles', { count: sectionArticleCount(section) })}
+                  </span>
+                </div>
+              ) : null}
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {categories.map((category, index) => (
+                  <CategoryCard
+                    key={category._id}
+                    category={category}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       ) : (

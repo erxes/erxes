@@ -1,16 +1,16 @@
 import { createContext, useContext } from 'react';
-import { ITask } from '@/task/types';
+import { ITaskDetail } from '@/task/types';
 import { IProject } from '@/project/types';
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 export const ActivityListContext = createContext<
-  ITask | IProject | ITriage | null
+  ITaskDetail | IProject | ITriageDetail | null
 >(null);
 
 export const ActivityListProvider = ({
   contentDetail,
   children,
 }: {
-  contentDetail: ITask | IProject | ITriage | null;
+  contentDetail: ITaskDetail | IProject | ITriageDetail | null;
   children: React.ReactNode;
 }) => {
   return (

@@ -7,17 +7,25 @@ import {
   getCyclesProgress,
 } from '@/cycle/utils';
 import { format, isBefore, isSameDay } from 'date-fns';
-import { FilterQuery, Model } from 'mongoose';
+import { DeleteResult } from 'mongodb';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface ICycleModel extends Model<ICycleDocument> {
   getCycle(_id: string): Promise<ICycleDocument>;
   getCycles(filter: FilterQuery<ICycleDocument>): Promise<ICycleDocument[]>;
   createCycle({ doc }: { doc: ICycle }): Promise<ICycleDocument>;
-  updateCycle(doc: ICycleDocument): Promise<ICycleDocument>;
-  removeCycle({ _id }: { _id: string }): Promise<{ ok: number }>;
-  startCycle(_id: string): Promise<ICycleDocument>;
-  endCycle(_id: string): Promise<ICycleDocument>;
+  updateCycle(doc: Partial<ICycle> & { _id: string }): Promise<ICycleDocument>;
+  removeCycle({ _id }: { _id: string }): Promise<DeleteResult>;
+  startCycle(_id: string): Promise<void>;
+  endCycle(
+    _id: string,
+    subdomain: string,
+  ): Promise<{
+    endedCycle: ICycleDocument | null;
+    nextCycle: ICycleDocument | null;
+    unFinishedTasks: Types.ObjectId[];
+  }>;
 }
 
 export const loadCycleClass = (models: IModels) => {
@@ -34,6 +42,10 @@ export const loadCycleClass = (models: IModels) => {
     }
 
     public static async removeCycle({ _id }: { _id: string }) {
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
       const cycles = await models.Cycle.deleteOne({ _id });
       return cycles;
     }
@@ -89,8 +101,13 @@ export const loadCycleClass = (models: IModels) => {
       return models.Cycle.create(doc);
     }
 
-    public static async updateCycle(doc: ICycleDocument) {
+    public static async updateCycle(doc: Partial<ICycle> & { _id: string }) {
       const { _id, ...rest } = doc;
+
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
       const cycle = await models.Cycle.findOne({
         _id,
       });
@@ -122,6 +139,10 @@ export const loadCycleClass = (models: IModels) => {
     }
 
     public static async startCycle(_id: string) {
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
       const cycle = await models.Cycle.getCycle(_id);
 
       if (cycle?.isActive) {
@@ -148,6 +169,10 @@ export const loadCycleClass = (models: IModels) => {
     }
 
     public static async endCycle(_id: string, subdomain: string) {
+      if (!_id) {
+        throw new Error('_id is required');
+      }
+
       const chartData = await getCycleProgressChart(
         subdomain,
         _id,

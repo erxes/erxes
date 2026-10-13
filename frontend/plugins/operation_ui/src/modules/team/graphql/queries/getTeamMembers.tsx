@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_TEAM_MEMBERS = gql`
+export const GET_TEAM_MEMBERS = gql(`
   query getTeamMembers($teamId: String, $teamIds: [String]) {
     getTeamMembers(teamId: $teamId, teamIds: $teamIds) {
       _id
@@ -8,4 +8,4 @@ export const GET_TEAM_MEMBERS = gql`
       teamId
     }
   }
-`;
+`);

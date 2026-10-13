@@ -65,6 +65,7 @@ export const PosOrderEventTriggerConfigForm = ({
                   field.onChange(typeof value === 'string' ? value : '')
                 }
                 placeholder={t('any-pos')}
+                emptyLabel={t('any-pos')}
               />
               <Form.Message />
             </Form.Item>

@@ -1,4 +1,5 @@
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { IClientPortal } from '@/client-portal/types/clientPortal';
 import {
   Badge,
@@ -26,7 +27,9 @@ import { useState } from 'react';
 import { usePermissionCheck } from 'ui-modules';
 import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
-export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
+export const clientPortalColumns = (
+  t: TFunction,
+): ColumnDef<IClientPortal>[] => [
   clientPortalMoreColumn,
   {
     ...RecordTable.checkboxColumn,
@@ -36,7 +39,9 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Name" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlignLeft} label={t('name')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -61,7 +66,9 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
     id: 'domain',
     accessorKey: 'domain',
-    header: () => <RecordTable.InlineHead icon={IconBrowser} label="Domain" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBrowser} label={t('domain')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.row.original.domain} />
@@ -72,7 +79,7 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   {
     id: 'token',
     accessorKey: 'token',
-    header: () => <RecordTable.InlineHead icon={IconKey} label="Token" />,
+    header: () => <RecordTable.InlineHead icon={IconKey} label={t('token')} />,
     cell: ({ cell }) => {
       const [isCopied, setIsCopied] = useState(false);
       const { hasActionPermission } = usePermissionCheck();
@@ -82,14 +89,14 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
         if (!canManageClientPortal) {
           toast({
             variant: 'destructive',
-            title: 'Only admins can copy the client portal token',
+            title: t('only-admins-can-copy-token'),
           });
           return;
         }
 
         setIsCopied(true);
         navigator.clipboard.writeText(cell.row.original.token ?? '');
-        toast({ title: 'Copied to clipboard' });
+        toast({ title: t('copied-to-clipboard') });
         setTimeout(() => setIsCopied(false), 2000);
       };
 
@@ -119,7 +126,7 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
     ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>

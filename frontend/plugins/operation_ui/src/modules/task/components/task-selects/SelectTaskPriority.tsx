@@ -8,7 +8,7 @@ export const SelectTaskPriority = ({
   variant,
 }: {
   taskId: string;
-  value?: number;
+  value?: number | null;
   variant: `${SelectTriggerVariant}`;
 }) => {
   const { updateTask } = useUpdateTask();

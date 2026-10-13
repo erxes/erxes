@@ -8,7 +8,10 @@ const config: CodegenConfig = {
       preset: 'client',
       presetConfig: { fragmentMasking: false, gqlTagName: 'gql' },
       config: {
-        scalars: { Date: 'string', JSON: 'unknown' },
+        scalars: {
+          Date: { input: 'string | Date', output: 'string' },
+          JSON: 'unknown',
+        },
         enumsAsTypes: true,
         useTypeImports: true,
       },

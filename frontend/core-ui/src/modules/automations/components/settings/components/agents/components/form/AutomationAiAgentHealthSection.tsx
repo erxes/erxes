@@ -8,6 +8,7 @@ import {
   RelativeDateDisplay,
   Skeleton,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 type THealthStatus = 'ok' | 'warning' | 'error' | 'skipped';
 
@@ -68,6 +69,7 @@ export const AutomationAiAgentHealthSection = ({
 }: {
   agentId?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { data, loading, refetch } = useQuery<TAiAgentHealthResponse>(
     AUTOMATIONS_AI_AGENT_HEALTH,
     {
@@ -82,10 +84,9 @@ export const AutomationAiAgentHealthSection = ({
   if (!agentId) {
     return (
       <Alert variant="warning">
-        <Alert.Title>Save the agent first</Alert.Title>
+        <Alert.Title>{t('settings-health-save-first')}</Alert.Title>
         <Alert.Description>
-          Health checks become available after the agent has been created and an
-          ID exists in the workspace.
+          {t('settings-health-save-first-description')}
         </Alert.Description>
       </Alert>
     );
@@ -96,24 +97,27 @@ export const AutomationAiAgentHealthSection = ({
       <Card className="flex items-start justify-between gap-4 p-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-medium">Provider Health</h3>
+            <h3 className="text-sm font-medium">
+              {t('settings-health-provider')}
+            </h3>
             {health ? (
               <Badge variant={health.ready ? 'success' : 'destructive'}>
-                {health.ready ? 'Ready' : 'Needs attention'}
+                {health.ready
+                  ? t('settings-health-ready')
+                  : t('settings-health-needs-attention')}
               </Badge>
             ) : null}
           </div>
           <p className="text-sm text-muted-foreground">
-            Validate schema, credentials, model access, and runtime context
-            before wiring this agent into automation actions.
+            {t('settings-health-description')}
           </p>
           {health ? (
             <div className="text-xs text-muted-foreground">
-              Last checked{' '}
+              {t('settings-health-last-checked')}{' '}
               {isValidDateValue(health.checkedAt) ? (
                 <RelativeDateDisplay.Value value={health.checkedAt} />
               ) : (
-                'just now'
+                t('settings-health-just-now')
               )}
             </div>
           ) : null}
@@ -124,7 +128,7 @@ export const AutomationAiAgentHealthSection = ({
           onClick={() => refetch()}
           disabled={loading}
         >
-          {loading ? 'Checking...' : 'Run health check'}
+          {loading ? t('settings-health-checking') : t('settings-health-run')}
         </Button>
       </Card>
 
@@ -141,13 +145,17 @@ export const AutomationAiAgentHealthSection = ({
           <Alert variant={getSummaryVariant(health)}>
             <Alert.Title>
               {health.ready
-                ? 'This agent is ready for provider calls.'
-                : 'This agent still needs attention before execution.'}
+                ? t('settings-health-agent-ready')
+                : t('settings-health-agent-needs-attention')}
             </Alert.Title>
             <Alert.Description>
               {(health.errors?.length || 0) > 0
-                ? `${health.errors.length} error(s) found.`
-                : `${health.warnings?.length || 0} warning(s) found.`}
+                ? t('settings-health-errors-found', {
+                    count: health.errors.length,
+                  })
+                : t('settings-health-warnings-found', {
+                    count: health.warnings?.length || 0,
+                  })}
             </Alert.Description>
           </Alert>
 
@@ -169,7 +177,9 @@ export const AutomationAiAgentHealthSection = ({
 
           {health.warnings?.length ? (
             <Card className="space-y-3 p-4">
-              <h4 className="text-sm font-medium">Warnings</h4>
+              <h4 className="text-sm font-medium">
+                {t('settings-health-warnings')}
+              </h4>
               <div className="space-y-2">
                 {health.warnings.map((warning, index) => (
                   <Alert key={`${warning}-${index}`} variant="warning">
@@ -182,7 +192,9 @@ export const AutomationAiAgentHealthSection = ({
 
           {health.errors?.length ? (
             <Card className="space-y-3 p-4">
-              <h4 className="text-sm font-medium">Errors</h4>
+              <h4 className="text-sm font-medium">
+                {t('settings-health-errors')}
+              </h4>
               <div className="space-y-2">
                 {health.errors.map((error, index) => (
                   <Alert key={`${error}-${index}`} variant="destructive">

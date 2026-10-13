@@ -17,7 +17,7 @@ export const TeamBreadCrumb = () => {
     <Breadcrumb.Item>
       <Button variant="ghost" asChild>
         <Link to={`/operation/team/${teamId}`}>
-          <IconComponent name={team?.icon} />
+          <IconComponent name={team?.icon ?? undefined} />
           {team?.name}
         </Link>
       </Button>

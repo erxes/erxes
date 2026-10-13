@@ -36,7 +36,11 @@ export const useConversationMessageContext = () => {
     const isClient = !userId;
 
     if (isClient) {
-      return message.customerId === customerId;
+      return (
+        message.customerId === customerId &&
+        message.extraData?.telegram?.senderName ===
+          context.extraData?.telegram?.senderName
+      );
     }
 
     return message.userId === userId;

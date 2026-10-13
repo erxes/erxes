@@ -4,6 +4,7 @@ import {
   ITriageDocument,
   ITriageUpdateInput,
 } from '@/task/@types/triage';
+import { DeleteResult } from 'mongodb';
 import { Model } from 'mongoose';
 import { triageSchema } from '../definitions/triage';
 import { createNotifications } from '~/utils/notifications';
@@ -21,7 +22,7 @@ export interface ITriageModel extends Model<ITriageDocument> {
     _id: string,
     triage: ITriageUpdateInput,
   ): Promise<ITriageDocument>;
-  deleteTriage(_id: string): Promise<{ ok: number }>;
+  deleteTriage(_id: string): Promise<DeleteResult>;
 }
 
 export const loadTriageClass = (models: IModels) => {

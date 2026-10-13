@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_MILESTONES_INLINE = gql`
+export const GET_MILESTONES_INLINE = gql(`
   query GetMilestones(
     $projectId: String!
     $searchValue: String
@@ -31,4 +31,4 @@ export const GET_MILESTONES_INLINE = gql`
       }
     }
   }
-`;
+`);

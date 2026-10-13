@@ -14,6 +14,7 @@ module.exports = composePlugins(withNx(), withReact(), (config: any) => {
   );
   // Configure dev server to serve static files from dist folder
   config.devServer = config.devServer || {};
+  config.devServer.historyApiFallback = true;
   config.devServer.static = config.devServer.static || [];
 
   // Add the dist folder as a static directory
@@ -87,6 +88,16 @@ module.exports = composePlugins(withNx(), withReact(), (config: any) => {
   } else {
     config.module.rules.push(cssRule);
   }
+
+  // erxes-ui and ui-modules are consumed through their barrel files, and
+  // neither declares `sideEffects`, so every re-exported module (email
+  // editor, charts, record tables, ...) ended up in the widget bundle. Their
+  // TS/JS sources have no import-time side effects, so let tree shaking drop
+  // the unused ones. CSS stays side-effectful.
+  config.module.rules.push({
+    test: /frontend[\\/]libs[\\/](erxes-ui|ui-modules)[\\/].*\.[jt]sx?$/,
+    sideEffects: false,
+  });
 
   // Handle audio files as asset resources
   config.module.rules.push({

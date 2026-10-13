@@ -6,7 +6,7 @@ export const Name = ({ metadata }: { metadata: IActivity['metadata'] }) => {
   return (
     <div>
       {t('renamed-the-task-to')}{' '}
-      <span className="font-bold">"{metadata.newValue}"</span>
+      <span className="font-bold">"{metadata?.newValue}"</span>
     </div>
   );
 };

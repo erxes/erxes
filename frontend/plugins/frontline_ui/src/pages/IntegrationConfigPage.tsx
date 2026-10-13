@@ -2,6 +2,7 @@ import { FacebookConfigUpdateCollapse } from '@/integrations/facebook/components
 import { CallConfigUpdateCollapse } from '@/integrations/call/components/CallConfigUpdate';
 import { InstagramConfigUpdateCollapse } from '@/integrations/instagram/components/InstagramConfigUpdate';
 import { MailConfigUpdateCollapse } from '@/integrations/mail/components/MailConfigUpdate';
+import { TelegramConfigCollapse } from '@/integrations/telegram/TelegramConfig';
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
 
@@ -12,6 +13,7 @@ export const IntegrationConfigPage = () => {
     <div className="flex flex-col gap-4 mx-auto max-w-2xl p-8 w-full">
       {!isSaas && <FacebookConfigUpdateCollapse />}
       {!isSaas && <InstagramConfigUpdateCollapse />}
+      <TelegramConfigCollapse />
       <CallConfigUpdateCollapse />
       <MailConfigUpdateCollapse />
     </div>

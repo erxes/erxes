@@ -1,19 +1,6 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { ADJUST_DEBT_RATE_QUERY } from '../graphql/adjustDebtRateQueries';
-import { IAdjustDebtRate } from '../types/AdjustDebtRate';
-
-interface IAdjustDebtRatesResponse {
-  adjustDebtRates: {
-    list: IAdjustDebtRate[];
-    totalCount: number;
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string | null;
-      endCursor: string | null;
-    };
-  };
-}
 
 type TAdjustDebtRatesVariables = {
   limit?: number;
@@ -23,10 +10,12 @@ type TAdjustDebtRatesVariables = {
 };
 
 export const useAdjustDebtRates = (variables?: TAdjustDebtRatesVariables) => {
-  const { data, loading, error, refetch } = useQuery<
-    IAdjustDebtRatesResponse,
-    TAdjustDebtRatesVariables
-  >(ADJUST_DEBT_RATE_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    refetch,
+  } = useQuery(ADJUST_DEBT_RATE_QUERY, {
     variables: {
       limit: 20,
       cursor: null,
@@ -36,6 +25,7 @@ export const useAdjustDebtRates = (variables?: TAdjustDebtRatesVariables) => {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
+  const data = toGraphqlView(queryData);
 
   return {
     adjustDebtRates: data?.adjustDebtRates?.list || [],

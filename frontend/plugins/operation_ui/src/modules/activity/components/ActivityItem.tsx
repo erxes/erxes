@@ -12,6 +12,9 @@ import { Name } from '@/activity/components/Name';
 import { ActivityAccept } from '@/activity/components/ActivityAccept';
 import { ACTIVITY_MODULES } from '@/activity/constants';
 import { IActivity } from '@/activity/types';
+import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
+import { useTranslation } from 'react-i18next';
+import { ActivityActor } from '@/activity/components/ActivityActor';
 import {
   IconAlertSquareRounded,
   IconCalendar,
@@ -22,9 +25,6 @@ import {
   IconSquareRotated,
   IconUsersGroup,
 } from '@tabler/icons-react';
-import { MembersInline } from 'ui-modules';
-import { ActivityConvertToProject } from '@/activity/components/ActivityConvert';
-import { useTranslation } from 'react-i18next';
 
 export const ActivityItem = ({ activity }: { activity: IActivity }) => {
   const { t } = useTranslation('operation');
@@ -73,10 +73,7 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
 
     case ACTIVITY_MODULES.PRIORITY:
       return (
-        <IconAlertSquareRounded
-          className="size-4 
-      text-accent-foreground"
-        />
+        <IconAlertSquareRounded className="size-4 text-accent-foreground" />
       );
     case ACTIVITY_MODULES.TEAM:
       return <IconUsersGroup className="size-4 text-accent-foreground" />;
@@ -85,15 +82,8 @@ export const ActivityIcon = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.END_DATE:
       return <IconCalendar className="size-4 text-accent-foreground" />;
     case ACTIVITY_MODULES.ASSIGNEE:
-      return (
-        <MembersInline.Provider
-          memberIds={
-            activity.metadata?.newValue ? [activity.metadata.newValue] : []
-          }
-        >
-          <MembersInline.Avatar />
-        </MembersInline.Provider>
-      );
+    case ACTIVITY_MODULES.TRIAGE_ACCEPTANCE:
+      return <ActivityActor.Avatar />;
     case ACTIVITY_MODULES.NOTE:
       return <IconNote className="size-4 text-accent-foreground" />;
 

@@ -1,5 +1,9 @@
 import { getConfig, getRemConfig, sendErkhetGet } from '@/erkhet/utils';
-import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getPureDate,
+  markResolvers,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const erkhetQueries = {
@@ -20,11 +24,8 @@ const erkhetQueries = {
       locationCodes?: string;
       productIds?: string[];
     },
-    { subdomain, checkPermission }: IContext,
+    { subdomain }: IContext,
   ) {
-    // Permission check
-    await checkPermission('showErkhetRemainders');
-
     const result: {
       _id: string;
       remainder: number;
@@ -219,5 +220,18 @@ const getCustomerInfo = async (
 
   return { customerCode: customer?.code };
 };
+
+markResolvers(erkhetQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
+Object.assign(erkhetQueries.erkhetDebt, {
+  wrapperConfig: {
+    skipPermission: true,
+    forClientPortal: true,
+  },
+});
 
 export default erkhetQueries;

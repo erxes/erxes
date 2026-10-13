@@ -58,10 +58,7 @@ export const NotificationTeamContent = ({
   message,
 }: TNotification) => {
   const { t } = useTranslation('operation');
-  const { team, loading, error } = useGetTeam({
-    variables: { _id: contentTypeId || '' },
-    skip: !contentTypeId,
-  });
+  const { team, loading, error } = useGetTeam(contentTypeId);
 
   if (loading) {
     return <Spinner containerClassName="min-h-dvh" />;

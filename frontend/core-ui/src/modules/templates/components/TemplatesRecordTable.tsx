@@ -2,15 +2,20 @@ import { templateColumns } from '@/templates/components/TemplatesColumns';
 import { TemplatesCommandBar } from '@/templates/components/TemplatesCommandBar';
 import { useTemplates } from '@/templates/hooks/useTemplates';
 import { RecordTable } from 'erxes-ui';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const TemplatesRecordTable = () => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
+  const columns = useMemo(() => templateColumns(t), [t]);
+
   const { templates, pageInfo, loading, handleFetchMore } = useTemplates();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
-      columns={templateColumns}
+      columns={columns}
       data={templates || []}
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"

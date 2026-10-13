@@ -3,6 +3,7 @@ import { AiAgentSecretField } from '@/automations/components/settings/components
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const CloudflareAiGatewayConnectionForm = ({
   existingApiKeyMask,
@@ -11,6 +12,7 @@ export const CloudflareAiGatewayConnectionForm = ({
   existingApiKeyMask?: string;
   existingGatewayTokenMask?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
 
   return (
@@ -22,14 +24,16 @@ export const CloudflareAiGatewayConnectionForm = ({
         name="connection.config.mode"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Gateway Mode</Form.Label>
+            <Form.Label>{t('settings-connection-gateway-mode')}</Form.Label>
             <Form.Control>
               <Select
                 onValueChange={field.onChange}
                 value={field.value || 'compat'}
               >
                 <Select.Trigger>
-                  <Select.Value placeholder="Select gateway mode" />
+                  <Select.Value
+                    placeholder={t('settings-connection-select-gateway-mode')}
+                  />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value="compat">Compat</Select.Item>
@@ -40,8 +44,7 @@ export const CloudflareAiGatewayConnectionForm = ({
               </Select>
             </Form.Control>
             <Form.Description>
-              Compat keeps one OpenAI-compatible endpoint while the model name
-              selects the downstream provider.
+              {t('settings-connection-gateway-mode-description')}
             </Form.Description>
             <Form.Message />
           </Form.Item>
@@ -54,12 +57,15 @@ export const CloudflareAiGatewayConnectionForm = ({
           name="connection.config.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Account ID</Form.Label>
+              <Form.Label>{t('settings-connection-account-id')}</Form.Label>
               <Form.Control>
-                <Input placeholder="Use platform default" {...field} />
+                <Input
+                  placeholder={t('settings-connection-use-platform-default')}
+                  {...field}
+                />
               </Form.Control>
               <Form.Description>
-                Leave empty to use the platform Cloudflare account.
+                {t('settings-connection-account-id-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -71,12 +77,15 @@ export const CloudflareAiGatewayConnectionForm = ({
           name="connection.config.gatewayId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Gateway ID</Form.Label>
+              <Form.Label>{t('settings-connection-gateway-id')}</Form.Label>
               <Form.Control>
-                <Input placeholder="Use platform default" {...field} />
+                <Input
+                  placeholder={t('settings-connection-use-platform-default')}
+                  {...field}
+                />
               </Form.Control>
               <Form.Description>
-                Leave empty to use the platform AI Gateway.
+                {t('settings-connection-gateway-id-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -86,18 +95,18 @@ export const CloudflareAiGatewayConnectionForm = ({
 
       <AiAgentSecretField
         name="connection.config.gatewayToken"
-        label="Gateway Token"
-        placeholder="Use platform gateway token"
+        label={t('settings-connection-gateway-token')}
+        placeholder={t('settings-connection-gateway-token-placeholder')}
         existingSecretMask={existingGatewayTokenMask}
-        description="Optional Cloudflare AI Gateway token. Leave empty to use the platform token."
+        description={t('settings-connection-gateway-token-description')}
       />
 
       <AiAgentSecretField
         name="connection.config.apiKey"
-        label="Provider API Key"
-        placeholder="Use platform provider key"
+        label={t('settings-connection-provider-api-key')}
+        placeholder={t('settings-connection-provider-key-placeholder')}
         existingSecretMask={existingApiKeyMask}
-        description="Optional downstream provider key. Leave empty to use the platform-managed key."
+        description={t('settings-connection-provider-key-description')}
       />
 
       <Form.Field
@@ -105,16 +114,17 @@ export const CloudflareAiGatewayConnectionForm = ({
         name="connection.config.baseUrl"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Base URL Override</Form.Label>
+            <Form.Label>
+              {t('settings-connection-base-url-override')}
+            </Form.Label>
             <Form.Control>
               <Input
-                placeholder="Generated from account, gateway, and mode"
+                placeholder={t('settings-connection-base-url-placeholder')}
                 {...field}
               />
             </Form.Control>
             <Form.Description>
-              Optional. When empty, the backend builds the Cloudflare Gateway
-              URL from the account, gateway, and mode.
+              {t('settings-connection-base-url-override-description')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

@@ -1,8 +1,5 @@
-export interface IOperationTemplate {
-  _id: string;
-  name: string;
-  defaults: any;
-  teamId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { OperationTemplatesQuery } from '~/gql/graphql';
+
+export type IOperationTemplate = NonNullable<
+  NonNullable<OperationTemplatesQuery['operationTemplates']>[number]
+>;

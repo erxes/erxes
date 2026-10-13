@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
@@ -20,6 +21,7 @@ export const UnitsMoreColumnCell = ({
 }: {
   cell: Cell<IUnitListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original;
   const [, setOpenUnit] = useQueryState('unit_id');
   const setRenderingUnitDetail = useSetAtom(renderingUnitDetailAtom);
@@ -28,13 +30,13 @@ export const UnitsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to remove "${title}"?`,
+      message: t('confirm-remove-item', { title }),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -60,7 +62,7 @@ export const UnitsMoreColumnCell = ({
                   setRenderingUnitDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit')}
               </Command.Item>
             </Can>
             <Can action="unitsManage">
@@ -69,7 +71,7 @@ export const UnitsMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete')}
               </Command.Item>
             </Can>
           </Command.List>

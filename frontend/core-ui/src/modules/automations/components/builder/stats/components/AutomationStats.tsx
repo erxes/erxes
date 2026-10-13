@@ -7,6 +7,7 @@ import { AutomationStatsWindowNav } from '@/automations/components/builder/stats
 import { useAutomationStats } from '@/automations/components/builder/stats/hooks/useAutomationStats';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { Button, PageSubHeader, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const AutomationStatsSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -21,6 +22,7 @@ const AutomationStatsSkeleton = () => (
 );
 
 export const AutomationStats = () => {
+  const { t } = useTranslation('automations');
   const { stats, loading, error, refetch, window } = useAutomationStats();
 
   return (
@@ -45,7 +47,7 @@ export const AutomationStats = () => {
               {error.message}
             </span>
             <Button variant="secondary" onClick={() => refetch()}>
-              Retry
+              {t('stats-retry')}
             </Button>
           </div>
         )}

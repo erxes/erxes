@@ -18,7 +18,7 @@ export const ORG_PAIRS: OrgPair[] = [
   // { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
   // { source: 'trillionlounge', target: 'trillionloungenew' },
   // { source: 'cargolink', target: 'cargolinknew' },
-  { source: 'narumi', target: 'nnarumi' },
+  { source: 'e-sight', target: 'esight' },
 ];
 
 export function resolveOrgPairs(args: string[]): OrgPair[] {

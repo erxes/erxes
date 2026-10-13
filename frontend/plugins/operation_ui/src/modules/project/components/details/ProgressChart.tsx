@@ -21,9 +21,7 @@ export const ProgressChart = ({ projectId }: { projectId: string }) => {
     },
   };
 
-  const { getProjectProgressChart } = useGetProjectProgressChart({
-    variables: { _id: projectId },
-  });
+  const { getProjectProgressChart } = useGetProjectProgressChart(projectId);
 
   const rawData = getProjectProgressChart?.chartData || [];
   const totalScopeValue = getProjectProgressChart?.totalScope || 0;

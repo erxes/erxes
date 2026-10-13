@@ -1,37 +1,39 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import {
-  EnumCursorDirection,
-  ICursorListResponse,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/operation/utils/cursorList';
 import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
-import { ITriage } from '@/triage/types/triage';
+import type {
+  ITriageFilter,
+  OperationGetTriageListQuery,
+  OperationGetTriageListQueryVariables,
+} from '~/gql/graphql';
 
 const TRIAGES_PER_PAGE = 24;
 
 export const useGetTriages = (
-  options?: QueryHookOptions<ICursorListResponse<ITriage>>,
+  options?: QueryHookOptions<
+    OperationGetTriageListQuery,
+    OperationGetTriageListQueryVariables
+  > & { variables?: ITriageFilter },
 ) => {
-  const { data, loading, fetchMore } = useQuery<ICursorListResponse<ITriage>>(
-    GET_TRIAGES,
-    {
-      fetchPolicy: 'cache-and-network',
-      variables: {
-        filter: {
-          limit: TRIAGES_PER_PAGE,
-          ...options?.variables,
-        },
+  const { data, loading, fetchMore } = useQuery(GET_TRIAGES, {
+    fetchPolicy: 'cache-and-network',
+    variables: {
+      filter: {
+        limit: TRIAGES_PER_PAGE,
+        ...options?.variables,
       },
     },
-  );
+  });
 
-  const {
-    list: triages = [],
-    pageInfo,
-    totalCount = 0,
-  } = data?.operationGetTriageList || {};
+  const triages = compactList(data?.operationGetTriageList?.list);
+  const pageInfo = toCursorPageInfo(data?.operationGetTriageList?.pageInfo);
+  const totalCount = data?.operationGetTriageList?.totalCount ?? 0;
 
   const handleFetchMore = () => {
     if (
@@ -46,15 +48,20 @@ export const useGetTriages = (
           },
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+          if (
+            !fetchMoreResult.operationGetTriageList ||
+            !prev.operationGetTriageList
+          ) {
+            return prev;
+          }
 
           return {
             ...prev,
-            operationGetTriageList: mergeCursorData({
-              direction: EnumCursorDirection.FORWARD,
-              fetchMoreResult: fetchMoreResult.operationGetTriageList,
-              prevResult: prev.operationGetTriageList,
-            }),
+            operationGetTriageList: mergeCursorList(
+              EnumCursorDirection.FORWARD,
+              prev.operationGetTriageList,
+              fetchMoreResult.operationGetTriageList,
+            ),
           };
         },
       });

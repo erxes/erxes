@@ -159,5 +159,7 @@
   "entity-leads": "Leads",
   "entity-companies": "Companies",
   "entity-product": "Products",
-  "entity-users": "Team members"
+  "entity-users": "Team members",
+  "exports": "Exports",
+  "imports": "Imports"
 }

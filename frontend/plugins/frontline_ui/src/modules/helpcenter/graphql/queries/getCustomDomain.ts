@@ -22,8 +22,8 @@ export const CUSTOM_DOMAIN_FIELDS = gql`
 
 export const GET_CUSTOM_DOMAIN = gql`
   ${CUSTOM_DOMAIN_FIELDS}
-  query frontlineCustomDomain {
-    frontlineCustomDomain {
+  query frontlineCustomDomain($helpCenterId: String!) {
+    frontlineCustomDomain(helpCenterId: $helpCenterId) {
       ...CustomDomainFields
     }
   }

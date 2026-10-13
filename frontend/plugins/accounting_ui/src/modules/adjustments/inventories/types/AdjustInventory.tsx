@@ -1,49 +1,20 @@
-import { IAccount } from '@/settings/account/types/Account';
-import { IBranch, IDepartment, IProduct } from 'ui-modules';
+import type {
+  AccountingAdjustInventoryDetailQuery,
+  AccountingAdjustInventoryDetailsQuery,
+} from '~/gql/graphql';
+import type { GraphqlView } from '@/utils/graphql';
 
-export interface IAdjustInventory {
-  _id: string;
-  createdAt: Date | string;
-  createdBy: string;
-  updatedAt: Date | string;
-  modifiedBy: string;
+export type IAdjustInventory = GraphqlView<
+  NonNullable<AccountingAdjustInventoryDetailQuery['adjustInventoryDetail']>
+>;
 
-  date: Date | string;
-  description: string;
-  status: string;
-  error?: string;
-  warning?: string;
-  beginDate?: Date | string;
-  successDate?: Date | string;
-  checkedAt?: Date | string;
-}
-
-export interface IAdjustInvDetail {
-  _id: string;
-  adjustId: string;
-  productId: string;
-  accountId: string;
-  departmentId: string;
-  branchId: string;
-
-  createdAt: Date;
-  updatedAt: Date;
-
-  remainder: number;
-  cost: number;
-  unitCost: number;
-  soonInCount?: number;
-  soonOutCount?: number;
-
-  error?: string;
-  warning?: string;
-  byDate?: any;
-
-  product?: IProduct;
-  account?: IAccount;
-  branch?: IBranch;
-  department?: IDepartment;
-}
+export type IAdjustInvDetail = GraphqlView<
+  NonNullable<
+    NonNullable<
+      AccountingAdjustInventoryDetailsQuery['adjustInventoryDetails']
+    >[number]
+  >
+>;
 
 export const ADJ_INV_STATUSES = {
   DRAFT: 'draft',

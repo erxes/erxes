@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationFunctionOptions,
   MutationHookOptions,
@@ -7,13 +8,14 @@ import { UOMS_REMOVE } from '../graphql/mutations/cudUoms';
 import { useToast } from 'erxes-ui';
 export const useUomsRemove = (options?: MutationHookOptions) => {
   const { toast } = useToast();
+  const { t } = useTranslation('product', { keyPrefix: 'uoms' });
   const [_removeUoms, { loading, error }] = useMutation(UOMS_REMOVE, options);
   const removeUoms = (options?: MutationFunctionOptions) => {
     _removeUoms({
       ...options,
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e?.message,
           variant: 'destructive',
         });
@@ -21,8 +23,8 @@ export const useUomsRemove = (options?: MutationHookOptions) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Uom removed successfully',
+          title: t('success'),
+          description: t('uom-removed'),
           variant: 'default',
         });
         options?.onCompleted?.(data);

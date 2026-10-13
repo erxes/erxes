@@ -11,8 +11,8 @@ export function OAuthClientsRecordTable() {
   const { oauthClientApps, loading, error } = useOAuthClients();
   const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const columns = useMemo(
-    () => [...oauthClientsSettingsColumns, oauthClientsMoreColumn],
-    [],
+    () => [...oauthClientsSettingsColumns(t), oauthClientsMoreColumn],
+    [t],
   );
 
   if (!loading && !error && oauthClientApps.length === 0) {

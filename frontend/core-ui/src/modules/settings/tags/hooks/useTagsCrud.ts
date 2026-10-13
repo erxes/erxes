@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import {
@@ -27,6 +28,7 @@ type EditTagVariables = {
 };
 
 export const useTagsCrud = (type: string | null) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { toast } = useToast();
   const [addMutation, addState] = useMutation(ADD_TAG);
   const [editMutation, editState] = useMutation(EDIT_TAG);
@@ -59,7 +61,7 @@ export const useTagsCrud = (type: string | null) => {
         awaitRefetchQueries: true,
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -108,7 +110,7 @@ export const useTagsCrud = (type: string | null) => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -135,7 +137,7 @@ export const useTagsCrud = (type: string | null) => {
       ],
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

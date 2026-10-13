@@ -2,13 +2,13 @@ import { IReportConfig } from './common';
 
 export const fundReportRules: Record<string, IReportConfig> = {
   fund: {
-    title: 'Мөнгөн хөрөнгийн тайлан',
+    title: 'cash-and-bank-report',
     colCount: 6,
     choices: [
-      { code: 'default', title: 'Дансаар' },
-      { code: 'cat', title: 'Дансны бүлгээр' },
-      { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
-      { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
+      { code: 'default', title: 'by-account' },
+      { code: 'cat', title: 'by-account-category' },
+      { code: 'branchDepartment', title: 'by-branch-and-department' },
+      { code: 'departmentBranch', title: 'by-department-and-branch' },
     ],
     groups: {
       default: {

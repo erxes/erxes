@@ -141,7 +141,7 @@ export const DateSelectTaskRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
 }: {
-  value?: Date | string;
+  value?: Date | string | null;
   id?: string;
   type: 'startDate' | 'targetDate';
   scope?: string;
@@ -197,7 +197,7 @@ export const DateSelectTaskFormItem = ({
   onValueChange,
   placeholder,
 }: {
-  value?: Date | string;
+  value?: Date | string | null;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
 }) => {

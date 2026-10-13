@@ -25,3 +25,6 @@ export const getAttachmentKind = (attachment: IAttachment): AttachmentKind => {
   }
   return 'file';
 };
+
+export const formatUploadedSize = (size: number) =>
+  `${Math.max(1, Math.round(size / 1024))} KB`;

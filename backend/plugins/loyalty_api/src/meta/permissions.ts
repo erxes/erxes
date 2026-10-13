@@ -411,6 +411,16 @@ export const permissions: IPermissionConfig = {
           name: 'scoreLogChange',
           description: 'Manually adjust user score',
         },
+        {
+          title: 'Freeze accounts',
+          name: 'loyaltyAccountFreeze',
+          description: 'Freeze and unfreeze a loyalty account',
+        },
+        {
+          title: 'Set tier',
+          name: 'loyaltyAccountSetTier',
+          description: "Set an account's tier by hand",
+        },
       ],
     },
     {
@@ -661,7 +671,12 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'loyalty',
           module: 'scoreLog',
-          actions: ['scoreLogView', 'scoreLogChange'],
+          actions: [
+            'scoreLogView',
+            'scoreLogChange',
+            'loyaltyAccountFreeze',
+            'loyaltyAccountSetTier',
+          ],
           scope: 'all',
         },
         {

@@ -1,38 +1,23 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 import { GET_PROJECT_PROGRESS_CHART } from '@/project/graphql/queries/getProjectProgressChart';
-import { useEffect } from 'react';
 import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
 
-interface IGetProjectQueryResponse {
-  getProjectProgressChart: {
-    totalScope: number;
-    chartData: {
-      date: string;
-      started: number;
-      completed: number;
-    }[];
-  };
-}
+export const useGetProjectProgressChart = (projectId?: string | null) => {
+  const { data, loading, refetch } = useQuery(GET_PROJECT_PROGRESS_CHART, {
+    variables: projectId ? { _id: projectId } : undefined,
+    skip: !projectId,
+  });
 
-export const useGetProjectProgressChart = (options: QueryHookOptions) => {
-  const { data, loading, refetch, subscribeToMore } =
-    useQuery<IGetProjectQueryResponse>(GET_PROJECT_PROGRESS_CHART, options);
+  useSubscription(TASK_LIST_CHANGED, {
+    variables: { filter: { projectId } },
+    skip: !projectId,
+    ignoreResults: true,
+    onData: () => {
+      refetch();
+    },
+  });
 
   const getProjectProgressChart = data?.getProjectProgressChart;
-
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
-      document: TASK_LIST_CHANGED,
-      variables: { filter: { projectId: options.variables?._id } },
-      updateQuery: () => {
-        refetch();
-      },
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [options.variables?._id, subscribeToMore, refetch]);
 
   return { getProjectProgressChart, loading, refetch };
 };

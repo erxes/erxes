@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { IconCashRegister } from '@tabler/icons-react';
 import {
@@ -17,20 +18,18 @@ type AccountingPos = {
   name?: string;
 };
 
-type AccountingPosListQueryResult = {
-  posList?: AccountingPos[];
-};
-
 const getPosLabel = (pos?: AccountingPos) =>
   pos?.name || pos?._id || 'Select POS';
 
-const useAccountingPosList = () =>
-  useQuery<AccountingPosListQueryResult>(ACCOUNTING_POS_LIST_QUERY, {
+const useAccountingPosList = () => {
+  const result = useQuery(ACCOUNTING_POS_LIST_QUERY, {
     variables: {
       page: 1,
       perPage: 50,
     },
   });
+  return { ...result, data: toGraphqlView(result.data) };
+};
 
 const AccountingOrderPosContent = ({ onSelect }: { onSelect?: () => void }) => {
   const { t } = useTranslation('accounting');
@@ -79,7 +78,6 @@ export const AccountingOrderPosFilterItem = () => {
     </Filter.Item>
   );
 };
-
 
 export const AccountingOrderPosFilterView = () => {
   const { resetFilterState } = useFilterContext();

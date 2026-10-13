@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ComponentType } from 'react';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { TrJournalEnum } from '~/modules/transactions/types/constants';
@@ -22,6 +23,7 @@ export const PrintBody = ({
   // Selected layout for journals that offer several — see DOCUMENT_VARIANTS.
   variant?: string;
 }) => {
+  const { t } = useTranslation('accounting');
   if (transaction.journal === TrJournalEnum.RECEIVABLE) {
     return (
       <PrintInvoiceDocument
@@ -70,9 +72,11 @@ export const PrintBody = ({
   const printDocuments = PRINT_DOCUMENTS as Partial<
     Record<TrJournalEnum, ComponentType<{ transaction: ITransaction }> | ''>
   >;
-  const Component = printDocuments[transaction.journal];
+  const Component = transaction.journal
+    ? printDocuments[transaction.journal]
+    : undefined;
   if (!Component) {
-    return <div className="p-10 text-red-500">Баримт олдсонгүй.</div>;
+    return <div className="p-10 text-red-500">{t('no-voucher-found')}</div>;
   }
 
   return <Component transaction={transaction} />;

@@ -1,4 +1,3 @@
-import { TeamMemberRoles } from '@/team/@types/team';
 import { IContext } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 
@@ -40,23 +39,29 @@ export const teamMutations = {
       name,
       description,
       icon,
+      memberIds,
       estimateType,
       cycleEnabled,
       triageEnabled,
     }: {
       _id: string;
-      name: string;
-      description: string;
-      icon: string;
-      estimateType: number;
-      cycleEnabled: boolean;
-      triageEnabled: boolean;
+      name?: string;
+      description?: string;
+      icon?: string;
+      memberIds?: string[];
+      estimateType?: number;
+      cycleEnabled?: boolean;
+      triageEnabled?: boolean;
     },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('teamUpdate');
 
-    return models.Team.updateTeam(_id, {
+    if (memberIds) {
+      await checkPermission('teamMemberManage');
+    }
+
+    const team = await models.Team.updateTeam(_id, {
       name,
       description,
       icon,
@@ -64,6 +69,12 @@ export const teamMutations = {
       cycleEnabled,
       triageEnabled,
     });
+
+    if (memberIds) {
+      await models.TeamMember.syncTeamMembers(_id, memberIds);
+    }
+
+    return team;
   },
 
   teamRemove: async (
@@ -110,21 +121,5 @@ export const teamMutations = {
     await checkPermission('teamMemberManage');
 
     return models.TeamMember.removeTeamMember(teamId, memberId);
-  },
-
-  teamUpdateMember: async (
-    _parent: undefined,
-    { _id, role }: { _id: string; memberId: string; role: TeamMemberRoles },
-    { models, checkPermission }: IContext,
-  ) => {
-    await checkPermission('teamMemberManage');
-
-    const teamMember = await models.TeamMember.findOne({ _id });
-
-    if (!teamMember) {
-      throw new Error('Team member not found');
-    }
-
-    return models.TeamMember.updateTeamMember(_id, role);
   },
 };

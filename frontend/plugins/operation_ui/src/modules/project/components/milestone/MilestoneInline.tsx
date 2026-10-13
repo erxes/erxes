@@ -2,15 +2,18 @@ import { useMilestones } from '@/project/hooks/useMilestones';
 import { IMilestone } from '@/project/types';
 import { cn } from 'erxes-ui';
 import { forwardRef } from 'react';
+import { useParams } from 'react-router-dom';
 
 export const MilestoneInline = forwardRef<
   HTMLDivElement,
   {
-    milestoneId: string;
+    milestoneId: string | null | undefined;
     milestone?: IMilestone;
   } & React.HTMLAttributes<HTMLDivElement>
 >(({ milestoneId, milestone, className, ...props }, ref) => {
-  const { milestones } = useMilestones({
+  const { projectId } = useParams<{ projectId: string }>();
+
+  const { milestones } = useMilestones(projectId, {
     skip: Boolean(milestone),
   });
 

@@ -25,12 +25,7 @@
         "./src/*.ts",
         "./src/*/index.ts"
       ],
-      "default": [
-        "./src/*.tsx",
-        "./src/*.ts",
-        "./src/*/index.tsx",
-        "./src/*/index.ts"
-      ]
+      "default": "./src/*"
     },
     "./package.json": "./package.json"
   },
@@ -39,8 +34,7 @@
     "dist"
   ],
   "scripts": {
-    "dts": "tsc -p tsconfig.dts.json",
-    "prepare": "tsc -p tsconfig.dts.json || test -f dist/index.d.ts"
+    "build:dts": "tsc -p tsconfig.dts.json"
   },
   "peerDependencies": {
     "@apollo/client": "^3.11.8",
@@ -62,6 +56,7 @@
   "dependencies": {
     "@blocknote/core": "^0.35.0",
     "@blocknote/react": "^0.35.0",
+    "@codemirror/state": "6.5.2",
     "@codemirror/view": "^6.38.6",
     "@dnd-kit/core": "^6.2.0",
     "@dnd-kit/modifiers": "^8.0.0",

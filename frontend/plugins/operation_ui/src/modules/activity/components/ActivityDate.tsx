@@ -13,7 +13,7 @@ export const ActivityDate = ({
 }) => {
   const { t } = useTranslation('operation');
   const contentDetail = useActivityListContext();
-  const { previousValue, newValue } = metadata;
+  const { previousValue, newValue } = metadata ?? {};
   const dateLabel =
     type === 'end' && 'assigneeId' in contentDetail
       ? t('due-date')
@@ -31,9 +31,11 @@ export const ActivityDate = ({
         </>
       )}{' '}
       {t('to')}
-      <Badge variant="secondary" className="flex-none">
-        {format(new Date(newValue), 'MMM d, yyyy')}
-      </Badge>
+      {newValue && (
+        <Badge variant="secondary" className="flex-none">
+          {format(new Date(newValue), 'MMM d, yyyy')}
+        </Badge>
+      )}
     </div>
   );
 };

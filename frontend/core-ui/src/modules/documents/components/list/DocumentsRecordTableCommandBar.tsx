@@ -4,9 +4,11 @@ import { Can, TagsSelect } from 'ui-modules';
 import { IDocument } from '../../types';
 import { CommandBar, Separator, RecordTable } from 'erxes-ui';
 import { getDocumentsTagOptions } from './DocumentsColumn';
+import { useTranslation } from 'react-i18next';
 
 /** Provides bulk tagging for selected documents. */
 export function DocumentsRecordTableCommandBar(): ReactElement {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const { table } = RecordTable.useRecordTable();
   const selectedRows: Row<IDocument>[] =
     table.getFilteredSelectedRowModel().rows;
@@ -22,7 +24,9 @@ export function DocumentsRecordTableCommandBar(): ReactElement {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {t('selected', { count: selectedRows.length })}
+        </CommandBar.Value>
         {selectedRows.every(
           (row) => row.original.approvalLockState?.hasAccess !== false,
         ) && (

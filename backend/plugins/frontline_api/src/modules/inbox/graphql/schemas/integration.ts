@@ -198,6 +198,7 @@ export const types = `
     backgroundColor: String
     heroStyleVariant: String
     navigationVariant: String
+    isSupportInAppView: Boolean
   }
 
   input OperatorInput {

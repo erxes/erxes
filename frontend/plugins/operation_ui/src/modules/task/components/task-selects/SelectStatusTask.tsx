@@ -61,7 +61,7 @@ export const SelectStatusProvider = ({
     onValueChange?.(status);
   };
   const { statuses, loading, error } = useGetStatusByTeam({
-    variables: { teamId },
+    variables: teamId ? { teamId } : undefined,
     skip: !teamId,
   });
 

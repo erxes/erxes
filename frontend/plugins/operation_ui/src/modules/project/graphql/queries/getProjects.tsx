@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_PROJECTS = gql`
+export const GET_PROJECTS = gql(`
   query GetProjects($filter: IProjectFilter) {
     getProjects(filter: $filter) {
       list {
@@ -28,9 +28,9 @@ export const GET_PROJECTS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_PROJECTS_INLINE = gql`
+export const GET_PROJECTS_INLINE = gql(`
   query GetProjectsInline($filter: IProjectFilter) {
     getProjects(filter: $filter) {
       list {
@@ -47,4 +47,4 @@ export const GET_PROJECTS_INLINE = gql`
       }
     }
   }
-`;
+`);

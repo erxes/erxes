@@ -4,6 +4,7 @@ import {
   ActivityLogCustomActivity,
   TActivityLog,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const formatPrimitive = (value: unknown): string => {
   if (value === null || value === undefined || value === '') {
@@ -51,30 +52,32 @@ const Sentence = ({ children }: { children: ReactNode }) => (
 );
 
 const UserInvitedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const targetText = activity.target?.text;
   const invitedEmail = activity.metadata?.invitedEmail as string | undefined;
 
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">invited</span>
+      <span className="text-muted-foreground">{t('invited')}</span>
       <span className="font-medium">
-        {targetText || invitedEmail || 'a member'}
+        {targetText || invitedEmail || t('a-member')}
       </span>
     </Sentence>
   );
 };
 
 const UserRoleChangedRow = ({ activity }: { activity: TActivityLog }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const previousRole = getFieldValue(activity.changes?.prev, 'role');
   const currentRole = getFieldValue(activity.changes?.current, 'role');
 
   return (
     <Sentence>
       <ActivityLogs.ActorName activity={activity} />
-      <span className="text-muted-foreground">changed role from</span>
+      <span className="text-muted-foreground">{t('changed-role-from')}</span>
       <span className="font-medium">{formatPrimitive(previousRole)}</span>
-      <span className="text-muted-foreground">to</span>
+      <span className="text-muted-foreground">{t('role-changed-to')}</span>
       <span className="font-medium">{formatPrimitive(currentRole)}</span>
     </Sentence>
   );

@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_TEAM = gql`
+export const GET_TEAM = gql(`
   query getTeam($_id: String!) {
     getTeam(_id: $_id) {
       _id
@@ -13,6 +13,7 @@ export const GET_TEAM = gql`
       taskCount
       memberCount
       createdAt
+      updatedAt
     }
   }
-`;
+`);

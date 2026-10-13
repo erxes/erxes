@@ -7,3 +7,11 @@ export type PendingAttachment = Pick<IAttachment, 'name' | 'size' | 'type'> & {
   previewUrl?: string;
   uploadedUrl?: string;
 };
+
+export type ComposerPreviewsProps = {
+  attachments: IAttachment[];
+  blockAttachments: IAttachment[];
+  pendingAttachments: PendingAttachment[];
+  onRemove: (url: string) => void;
+  onRemoveBlockAttachment: (url: string) => void;
+};
