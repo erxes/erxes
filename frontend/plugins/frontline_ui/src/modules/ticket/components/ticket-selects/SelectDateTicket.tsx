@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import {
@@ -9,6 +9,7 @@ import {
   Button,
   Form,
   DatePicker,
+  useToast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
@@ -31,6 +32,7 @@ interface DateSelectContextType {
   error?: ApolloError;
   variant: DateSelectVariant;
   disabled?: boolean;
+  onClose?: () => void;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -98,17 +100,23 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
 
 const DateSelectContent = () => {
   const { t } = useTranslation('frontline');
-  const { value, onValueChange } = useDateSelectContext();
+  const { value, onValueChange, onClose } = useDateSelectContext();
 
   return (
-    <DatePicker
-      inline
-      value={value}
-      onChange={(date) => onValueChange(toSingleDate(date))}
-      placeholder={t('select-date', 'Select date')}
-      clearLabel={t('clear', 'Clear')}
-      className="h-8"
-    />
+    <div
+      onKeyDownCapture={(e) => {
+        if (e.key === 'Enter') onClose?.();
+      }}
+    >
+      <DatePicker
+        inline
+        value={value}
+        onChange={(date) => onValueChange(toSingleDate(date))}
+        placeholder={t('select-date', 'Select date')}
+        clearLabel={t('clear', 'Clear')}
+        className="h-8"
+      />
+    </div>
   );
 };
 
@@ -162,30 +170,49 @@ export const DateSelectTicketRoot = ({
   label?: string;
 }) => {
   const { t } = useTranslation('frontline');
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
   const parsedValue = value ? new Date(value) : undefined;
   const valueTime = parsedValue?.getTime();
   const [dateValue, setDateValue] = useState<Date | undefined>(parsedValue);
 
+  const latestRequestRef = useRef(0);
+  const confirmedTimeRef = useRef(valueTime);
+
   useEffect(() => {
+    confirmedTimeRef.current = valueTime;
     setDateValue(valueTime === undefined ? undefined : new Date(valueTime));
   }, [valueTime, id]);
 
   const commitValue = (nextValue?: Date) => {
     if (nextValue?.getTime() === dateValue?.getTime()) return;
 
-    const previousValue = dateValue;
     setDateValue(nextValue);
 
     if (!id) return;
+
+    const requestId = ++latestRequestRef.current;
 
     updateTicket({
       variables: {
         _id: id,
         [type]: nextValue ? nextValue.toISOString() : null,
       },
-      onError: () => setDateValue(previousValue),
+      onError: (e) => {
+        toast({
+          title: t('error', 'Error'),
+          description: e.message,
+          variant: 'destructive',
+        });
+
+        if (requestId !== latestRequestRef.current) return;
+
+        const confirmedTime = confirmedTimeRef.current;
+        setDateValue(
+          confirmedTime === undefined ? undefined : new Date(confirmedTime),
+        );
+      },
     });
   };
 
@@ -206,6 +233,7 @@ export const DateSelectTicketRoot = ({
         loading={loading}
         error={error}
         disabled={disabled}
+        onClose={() => setOpen(false)}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
           <SelectTicketChipTrigger
@@ -240,6 +268,7 @@ export const DateSelectTicketRoot = ({
       loading={loading}
       error={error}
       disabled={disabled}
+      onClose={() => setOpen(false)}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
@@ -262,13 +291,19 @@ export const DateSelectTicketFormItem = ({
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
 }) => {
+  const [open, setOpen] = useState(false);
+
   return (
     <DateSelectProvider
       value={value ? new Date(value) : undefined}
-      onValueChange={(date) => onValueChange?.(date)}
+      onValueChange={(date) => {
+        onValueChange?.(date);
+        setOpen(false);
+      }}
       variant={DateSelectVariant.FORM}
+      onClose={() => setOpen(false)}
     >
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <Form.Control>
           <Combobox.TriggerBase className="w-fit h-7">
             <DateSelectValue placeholder={placeholder} />

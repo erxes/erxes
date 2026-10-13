@@ -268,8 +268,14 @@
   popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the
   calendar). The detail chip swaps its chevron for an X that clears the date
   while one is set and the field is editable. Unlike Sales, a past target
-  date gets no red styling or `Ended` badge. The picked date shows at once and
-  rolls back if the save fails; clearing sends `null`.
+  date gets no red styling or `Ended` badge. The picked date shows at once;
+  a failed save shows an error toast and, only when it is the latest save,
+  rolls back to the last server-confirmed value (the `value` prop, which the
+  mutation's cache write keeps current) — an older failed save never undoes
+  a newer edit. Clearing sends `null`. Every variant, the add-ticket
+  `FormItem` included, closes its popover on any date change and on Enter
+  in the typed input (`DateSelectContent` catches Enter in the capture phase,
+  since `DatePicker` stops its propagation).
 - The ticket channel, pipeline and status selects create inline without leaving
   the page. `useSelectCreate` (`ticket-selects/SelectCreate.tsx`) holds the
   search and the pending name; a `Create new …: "<search>"` item appears
