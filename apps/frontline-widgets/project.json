@@ -8,7 +8,7 @@
     "build": {
       "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
-      "dependsOn": ["compile:index", "compile:form"],
+      "dependsOn": ["compile:index", "compile:form", "compile:knowledgebase"],
       "defaultConfiguration": "production",
       "options": {
         "target": "web",
@@ -21,7 +21,8 @@
           "apps/frontline-widgets/src/assets",
           "apps/frontline-widgets/src/demo.html",
           "apps/frontline-widgets/src/messengerBundle.js",
-          "apps/frontline-widgets/src/formBundle.js"
+          "apps/frontline-widgets/src/formBundle.js",
+          "apps/frontline-widgets/src/knowledgeBaseBundle.js"
         ]
       },
       "configurations": {
@@ -68,6 +69,13 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "esbuild apps/frontline-widgets/src/formIndex.ts --bundle --outfile=apps/frontline-widgets/src/formBundle.js --format=iife --target=es2015 --minify --loader:.css=text"
+      }
+    },
+
+    "compile:knowledgebase": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "esbuild apps/frontline-widgets/src/knowledgeBaseIndex.ts --bundle --outfile=apps/frontline-widgets/src/knowledgeBaseBundle.js --format=iife --target=es2015 --minify --loader:.css=text"
       }
     },
 

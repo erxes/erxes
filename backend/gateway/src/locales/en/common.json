@@ -32,7 +32,15 @@
     "expand-plugin-navigation": "Expand plugin navigation",
     "close-other-tabs": "Close other tabs",
     "close-tabs-to-right": "Close tabs to the right",
-    "new-tab": "New tab"
+    "new-tab": "New tab",
+    "add-to-favorites": "Add to favorites",
+    "remove-from-favorites": "Remove from favorites",
+    "open-in-new-tab": "New tab",
+    "move-up": "Move up in sidebar",
+    "move-down": "Move down in sidebar",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "more-actions": "More actions"
   },
   "core-modules": {
     "_": "Core modules",

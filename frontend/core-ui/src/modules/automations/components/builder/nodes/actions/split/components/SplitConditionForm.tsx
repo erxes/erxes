@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
@@ -50,6 +51,7 @@ const SplitConditionFormFooter = ({
   callback: (contentId: string) => void;
   onDirtyChange?: (isDirty: boolean) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const { form } = useSegment();
   const { handleSave } = useSegmentActions({ callback });
   const { handleValidationErrors } = useFormValidationErrorHandler({
@@ -81,14 +83,16 @@ const SplitConditionFormFooter = ({
             <IconAlertCircle className="size-4 shrink-0 text-warning" />
             <span className="font-medium text-warning">
               {segmentId
-                ? 'Unsaved condition changes'
-                : 'Condition is not saved'}
+                ? t('split-condition-unsaved-changes')
+                : t('split-condition-not-saved')}
             </span>
           </>
         ) : (
           <>
             <IconCircleCheck className="size-4 shrink-0 text-success" />
-            <span className="text-muted-foreground">Condition saved</span>
+            <span className="text-muted-foreground">
+              {t('split-condition-saved')}
+            </span>
           </>
         )}
       </div>
@@ -97,7 +101,7 @@ const SplitConditionFormFooter = ({
         variant={shouldSaveCondition ? 'default' : 'secondary'}
         onClick={form.handleSubmit(handleSave, handleValidationErrors)}
       >
-        {shouldSaveCondition ? 'Save condition' : 'Saved'}
+        {shouldSaveCondition ? t('split-save-condition') : t('split-saved')}
       </Button>
     </div>
   );

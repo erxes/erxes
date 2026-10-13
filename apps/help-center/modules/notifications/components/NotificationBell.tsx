@@ -11,6 +11,7 @@ import { useSession } from '@/modules/auth/components/SessionProvider';
 import { Icon } from '@/modules/ui/components/Icon';
 import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
+import { startRouteProgress } from '@/modules/layout/utils/routeProgress';
 import { NOTIFICATION_PORTAL_MARK_ALL_READ } from '../graphql/mutations/notifications';
 import { NOTIFICATION_PORTAL_LIST } from '../graphql/queries/notifications';
 import type {
@@ -89,7 +90,10 @@ const useArrivalToasts = (
       action: href ? (
         <Toast.Action
           altText={t('common.open')}
-          onClick={() => router.push(href)}
+          onClick={() => {
+            startRouteProgress(href);
+            router.push(href);
+          }}
         >
           {t('common.open')}
         </Toast.Action>

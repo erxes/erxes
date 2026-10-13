@@ -5,7 +5,7 @@ import {
   useMutation,
 } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import i18n from 'i18next';
+import { getI18n } from 'react-i18next';
 import {
   SAFE_REMAINDER_CANCEL,
   SAFE_REMAINDER_DO_TR,
@@ -32,16 +32,19 @@ const commonOptions = (
   return {
     onError: (error: ApolloError) => {
       toast({
-        title: i18n.t('accounting:error'),
-        description: error.message,
+        title: getI18n().t('error', { ns: 'accounting' }),
+        description: getI18n().t(error.message, {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
         variant: 'destructive',
       });
       options?.onError?.(error);
     },
     onCompleted: (data: SafeRemainderMutationData) => {
       toast({
-        title: i18n.t('accounting:success'),
-        description: i18n.t(`accounting:${successMessage}`),
+        title: getI18n().t('success', { ns: 'accounting' }),
+        description: getI18n().t(successMessage, { ns: 'accounting' }),
       });
       options?.onCompleted?.(data);
     },

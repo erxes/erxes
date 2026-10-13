@@ -7,8 +7,10 @@ import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { IconLock, IconLockOpen } from '@tabler/icons-react';
 import { Button, Spinner, cn } from 'erxes-ui';
 import { ApprovalLockButton } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationCanvasLockAction = () => {
+  const { t } = useTranslation('automations');
   const { automationId, canLock, ownerId } = useAutomationLockAction();
 
   if (!automationId || !canLock) {
@@ -27,7 +29,7 @@ export const AutomationCanvasLockAction = () => {
           variant="ghost"
           size="icon"
           disabled={loading}
-          title="Lock automation"
+          title={t('controls-lock-automation')}
           className={CANVAS_CONTROL_BUTTON_CLASS}
         >
           {loading ? <Spinner /> : <IconLock />}
@@ -40,7 +42,9 @@ export const AutomationCanvasLockAction = () => {
           size="icon"
           disabled={!canRelease || loading}
           onClick={onRelease}
-          title={canRelease ? 'Unlock automation' : 'Locked'}
+          title={
+            canRelease ? t('controls-unlock-automation') : t('controls-locked')
+          }
           className={cn(
             CANVAS_CONTROL_BUTTON_CLASS,
             CANVAS_ACTIVE_CONTROL_BUTTON_CLASS,

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import {
   IconCalendar,
   IconEdit,
@@ -5,7 +6,7 @@ import {
   IconMoneybag,
   IconTrash,
 } from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
   Combobox,
@@ -23,11 +24,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import {
-  TR_JOURNAL_LABELS,
-  TR_STATUS_LABELS,
-  TrJournalEnum,
-} from '../types/constants';
+import { TR_JOURNAL_LABELS, TR_STATUS_LABELS } from '../types/constants';
 import { ITransaction } from '../types/Transaction';
 import {
   buildTransactionEditPath,
@@ -75,23 +72,24 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
-const StatusCell = ({ row }: any) => {
+const StatusCell = ({ row }: { row: Row<ITransaction> }) => {
+  const { t } = useTranslation('accounting');
   const { status } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_STATUS_LABELS[status] || status}
+      {t(TR_STATUS_LABELS[status || ''] || '') || status}
     </RecordTableInlineCell>
   );
 };
 
-const JournalCell = ({ row }: any) => {
+const JournalCell = ({ row }: { row: Row<ITransaction> }) => {
   const { t } = useTranslation('accounting');
   const { journal } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || t('main')}
+      {t(TR_JOURNAL_LABELS[journal] || '') || t('main')}
     </RecordTableInlineCell>
   );
 };
@@ -266,32 +264,42 @@ const transactionMoreColumn = {
   size: 33,
 };
 
-export const transactionColumns: ColumnDef<ITransaction>[] = [
+export const transactionColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ITransaction>[] => [
   transactionMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ITransaction>,
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('account')} />
+    ),
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 300,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Дугаар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('number')} />
+    ),
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
     size: 100,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />
@@ -300,20 +308,24 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   },
   {
     id: 'status',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('status')} />
+    ),
     accessorKey: 'status',
     cell: ({ row }) => <StatusCell row={row} />,
   },
   {
     id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('journal')} />
+    ),
     accessorKey: 'journal',
     cell: ({ row }) => <JournalCell row={row} />,
   },
   {
     id: 'sumDt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Дебет дүн" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('debit-amount')} />
     ),
     accessorKey: 'sumDt',
     cell: ({ getValue, row }) => <SumDebitCell getValue={getValue} row={row} />,
@@ -321,7 +333,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   {
     id: 'sumCt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Кредит дүн" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('credit-amount')} />
     ),
     accessorKey: 'sumCt',
     cell: ({ getValue, row }) => (
@@ -330,13 +342,17 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('branch')} />
+    ),
     accessorKey: 'branch',
     cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('department')} />
+    ),
     accessorKey: 'department',
     cell: ({ getValue, row }) => (
       <DepartmentCell getValue={getValue} row={row} />

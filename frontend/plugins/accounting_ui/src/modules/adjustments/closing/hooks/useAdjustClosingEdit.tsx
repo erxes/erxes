@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { ADJUST_CLOSING_EDIT } from '../graphql/adjustClosingEdit';
 
 export const useAdjustClosingEdit = () => {
+  const { t } = useTranslation('accounting');
   const [adjustClosingId] = useQueryState<string>('adjustClosingId');
   const [mutate, { loading }] = useMutation(ADJUST_CLOSING_EDIT);
 
@@ -19,7 +21,7 @@ export const useAdjustClosingEdit = () => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

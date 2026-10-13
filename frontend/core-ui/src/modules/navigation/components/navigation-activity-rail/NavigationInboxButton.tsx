@@ -28,7 +28,7 @@ export const NavigationInboxButton = ({
       activity={inboxActivity}
       active={isInboxActive}
       expanded={expanded}
-      indicator={<NotificationCount />}
+      indicator={<NotificationCount dot={!expanded} />}
       onSelect={onSelectInbox}
     />
   );

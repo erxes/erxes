@@ -18,17 +18,17 @@ const DUPLICATE_RULES: {
   {
     value: 'last',
     label: 'last',
-    description: 'Давтагдсан бол сүүлийн утгыг авна',
+    description: 'use-the-last-value-for-duplicates',
   },
   {
     value: 'skip',
     label: 'skip',
-    description: 'Давтагдсан бол анхны утгыг хадгална',
+    description: 'keep-the-first-value-for-duplicates',
   },
   {
     value: 'add',
     label: 'add',
-    description: 'Давтагдсан бол утгуудыг нэмнэ',
+    description: 'add-values-for-duplicates',
   },
 ];
 
@@ -57,8 +57,12 @@ const DuplicateRuleOptions = ({
             className="mt-0.5"
           />
           <div>
-            <p className="text-sm font-medium">{t(rule.label)}</p>
-            <p className="text-xs text-muted-foreground">{rule.description}</p>
+            <p className="text-sm font-medium">
+              {t(rule.label, { nsSeparator: false })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t(rule.description)}
+            </p>
           </div>
         </Label>
       ))}
@@ -78,9 +82,9 @@ export const SafeRemainderImport = ({
   const [importFormat, setImportFormat] = useState<ImportFormat>('txt');
   const [selectedFileName, setSelectedFileName] = useState('');
   const [duplicateRule, setDuplicateRule] = useState<DuplicateRule>('last');
-  const [pendingItems, setPendingItems] = useState<
-    TSafeRemainderImportItem[]
-  >([]);
+  const [pendingItems, setPendingItems] = useState<TSafeRemainderImportItem[]>(
+    [],
+  );
   const { bulkEditRemItems, loading } = useSafeRemainderItemsBulkEdit();
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -93,14 +97,14 @@ export const SafeRemainderImport = ({
 
       try {
         const items = parseSafeRemainderImport(target.result, file.name);
-        if (!items.length) throw new Error('Импортлох мөр олдсонгүй');
+        if (!items.length) throw new Error(t('no-rows-found-to-import'));
         setPendingItems(items);
         setSelectedFileName(file.name);
       } catch (error) {
         toast({
           title: t('error'),
           description:
-            error instanceof Error ? error.message : 'Файлын формат буруу байна',
+            error instanceof Error ? error.message : t('invalid-file-format'),
           variant: 'destructive',
         });
       }
@@ -161,10 +165,11 @@ export const SafeRemainderImport = ({
                   onChange={handleFile}
                 />
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">TXT файлын формат</p>
+                  <p className="text-sm font-medium">{t('txt-file-format')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Header-гүй code,count мөрүүд. Бүртгэлийн нийт өртгийг
-                    системээс авна.
+                    {t(
+                      'headerless-code-count-rows-the-system-retrieves-the-recorded-total-cost',
+                    )}
                   </p>
                 </div>
                 <Button
@@ -173,7 +178,7 @@ export const SafeRemainderImport = ({
                   onClick={() => txtInputRef.current?.click()}
                 >
                   <IconFileImport />
-                  TXT импортлох
+                  {t('import-txt')}
                 </Button>
               </Tabs.Content>
               <Tabs.Content value="csv" className="space-y-4 pt-4">
@@ -185,12 +190,11 @@ export const SafeRemainderImport = ({
                   onChange={handleFile}
                 />
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">CSV файлын формат</p>
+                  <p className="text-sm font-medium">{t('csv-file-format')}</p>
                   <p className="text-sm text-muted-foreground">
-                    productCode,count,totalCost,isSale,unitPrice. totalCost нь
-                    тооллогын нийт өртөг бөгөөд хоосон бол одоогийн нэгжийн
-                    өртгөөр автоматаар бодно; unitCost болон trInfo.unitCost
-                    нэрийг мөн дэмжинэ.
+                    {t(
+                      'productcode-count-totalcost-issale-unitprice-totalcost-is-the-counted-total-cost-if-blank-it-is-calculated-using-the-current-unit-cost-unitcost-and-trinfo-unitcost-are-also-supported',
+                    )}
                   </p>
                 </div>
                 <Button
@@ -199,7 +203,7 @@ export const SafeRemainderImport = ({
                   onClick={() => csvInputRef.current?.click()}
                 >
                   <IconFileImport />
-                  CSV импортлох
+                  {t('import-csv')}
                 </Button>
               </Tabs.Content>
             </Tabs>
@@ -207,10 +211,12 @@ export const SafeRemainderImport = ({
             {pendingItems.length > 0 && (
               <div className="space-y-4 border-t pt-4">
                 <p className="text-sm font-medium">
-                  {selectedFileName} ({pendingItems.length} мөр)
+                  {selectedFileName} ({pendingItems.length} {t('rows')}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Давтагдсан productCode-тэй мөрүүдийг хэрхэн боловсруулах вэ?
+                  {t(
+                    'how-should-rows-with-duplicate-productcode-values-be-handled',
+                  )}
                 </p>
                 <DuplicateRuleOptions
                   value={duplicateRule}
@@ -221,13 +227,14 @@ export const SafeRemainderImport = ({
           </div>
           <Sheet.Footer className="px-5 border-t bg-background shrink-0 mt-4">
             <Button variant="secondary" onClick={() => handleOpenChange(false)}>
-              Цуцлах
+              {t('cancel')}
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={loading || pendingItems.length === 0}
             >
-              Импортлох ({pendingItems.length} мөр)
+              {t('import-label')}
+              {pendingItems.length} {t('rows')}
             </Button>
           </Sheet.Footer>
         </div>

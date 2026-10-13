@@ -396,6 +396,7 @@ export const SelectLabelsFilterBar = ({
   initialValue?: string[];
   showLabels?: boolean;
 }) => {
+  const { t } = useTranslation('sales');
   const isCardVariant = variant === 'card' || variant === 'detail';
 
   const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
@@ -464,7 +465,7 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         {variant === 'detail' ? (
-          <DealChipTrigger>
+          <DealChipTrigger label={t('labels')}>
             <SelectLabelsValue showLabels={showLabels} />
           </DealChipTrigger>
         ) : (

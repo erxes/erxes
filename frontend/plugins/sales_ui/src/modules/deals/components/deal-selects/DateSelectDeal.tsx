@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import {
-  Calendar,
   RecordTableInlineCell,
   Combobox,
   PopoverScoped,
   Popover,
   Button,
   Form,
+  DatePicker,
+  cn,
 } from 'erxes-ui';
 import {
   IconCalendarPlus,
@@ -16,6 +17,7 @@ import {
 } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import { useTranslation } from 'react-i18next';
 import {
   formatDealDateForMutation,
@@ -30,6 +32,7 @@ export enum DateSelectVariant {
   TABLE = 'table',
   FILTER = 'filter',
   DETAIL = 'detail',
+  INPUT = 'input',
   CARD = 'card',
   FORM = 'form',
   BUTTON = 'button',
@@ -59,6 +62,15 @@ const useDateSelectContext = () => {
 
 const areDatesEqual = (left?: Date, right?: Date) =>
   left?.getTime() === right?.getTime();
+
+const toSingleDate = (date: unknown) =>
+  date instanceof Date ? date : undefined;
+
+const formatDateLabel = (date: Date) =>
+  format(
+    date,
+    date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',
+  );
 
 export const DateSelectProvider = ({
   children,
@@ -95,25 +107,23 @@ const DateSelectValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <>
       <IconCalendarTime className="size-4 text-muted-foreground" />
-      {format(
-        value,
-        value.getFullYear() === new Date().getFullYear()
-          ? 'MMM d'
-          : 'MMM d, yyyy',
-      )}
+      {formatDateLabel(value)}
     </>
   );
 };
 
 const DateSelectContent = () => {
+  const { t } = useTranslation('sales');
   const { value, onValueChange } = useDateSelectContext();
 
   return (
-    <Calendar
-      mode="single"
-      selected={value}
-      onSelect={onValueChange}
-      defaultMonth={value}
+    <DatePicker
+      inline
+      value={value}
+      onChange={(date) => onValueChange(toSingleDate(date))}
+      placeholder={t('select-date')}
+      clearLabel={t('clear', 'Clear')}
+      className="h-8"
     />
   );
 };
@@ -157,6 +167,7 @@ export const DateSelectDealRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
   placeholder,
+  label,
 }: {
   value?: Date | string;
   id?: string;
@@ -164,6 +175,7 @@ export const DateSelectDealRoot = ({
   scope?: string;
   variant?: `${DateSelectVariant}`;
   placeholder?: string;
+  label?: string;
 }) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
@@ -183,7 +195,7 @@ export const DateSelectDealRoot = ({
         editDeals({
           variables: {
             _id: id,
-            [type]: formatDealDateForMutation(nextValue),
+            [type]: formatDealDateForMutation(nextValue) ?? null,
           },
         }),
       );
@@ -203,6 +215,48 @@ export const DateSelectDealRoot = ({
     optimisticDate.setValue(value);
     setOpen(false);
   };
+
+  if (variant === DateSelectVariant.INPUT) {
+    return (
+      <DateSelectProvider
+        value={dateValue}
+        onValueChange={handleValueChange}
+        variant={DateSelectVariant.INPUT}
+        loading={loading}
+        error={error}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <DealChipTrigger
+            label={label}
+            onClear={
+              dateValue ? () => optimisticDate.setValue(undefined) : undefined
+            }
+            clearLabel={t('clear', 'Clear')}
+          >
+            {dateValue ? (
+              <span className={cn(isEnded && 'text-destructive')}>
+                {formatDateLabel(dateValue)}
+              </span>
+            ) : (
+              <span className="text-accent-foreground">
+                {placeholder || t('select-date')}
+              </span>
+            )}
+            {isEnded && (
+              <span className="flex items-center gap-1 rounded bg-red-50 px-1.5 text-xs text-red-400">
+                <IconAlertCircleFilled />
+                {t('ended')} {endedDiff}{' '}
+                {endedDiff === 1 ? t('day') : t('days')} {t('ago')}
+              </span>
+            )}
+          </DealChipTrigger>
+          <Combobox.Content className="w-fit">
+            <DateSelectContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </DateSelectProvider>
+    );
+  }
 
   const Content =
     variant === 'table' ? RecordTableInlineCell.Content : Combobox.Content;

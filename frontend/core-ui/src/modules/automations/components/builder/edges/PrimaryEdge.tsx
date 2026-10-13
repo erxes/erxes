@@ -218,8 +218,8 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
                   variant="outline"
                   className="rounded-full"
                   size="icon"
-                  aria-label="Disconnect"
-                  title="Disconnect"
+                  aria-label={t('edge-disconnect')}
+                  title={t('edge-disconnect')}
                   onClick={() => onDisconnect(edge)}
                 >
                   <IconScissors className="w-4 h-4 text-destructive" />
@@ -236,8 +236,8 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
                       variant="outline"
                       className="rounded-full"
                       size="icon"
-                      aria-label="Insert action here"
-                      title="Insert action here"
+                      aria-label={t('edge-insert-action-here')}
+                      title={t('edge-insert-action-here')}
                       onClick={onOpenLibraryForInsert}
                     >
                       {/* A plus reads as "connect one more"; this says the

@@ -25,7 +25,14 @@ export const PRODUCT_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   SegmentField.text({ key: 'uom', label: 'Unit of measure' }),
 
   SegmentField.text({ key: 'categoryId', label: 'Category' }),
-  SegmentField.text({ key: 'vendorId', label: 'Vendor' }),
+  SegmentField.lookup({
+    key: 'vendorId',
+    label: 'Vendor',
+    query: {
+      name: 'companies',
+      labelField: 'primaryName',
+    },
+  }),
   SegmentField.text({ key: 'scopeBrandIds', label: 'Brands' }),
 
   SegmentField.lookup({

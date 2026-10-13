@@ -32,7 +32,15 @@
     "expand-plugin-navigation": "Плагины навигацийг дэлгэх",
     "close-other-tabs": "Бусад табыг хаах",
     "close-tabs-to-right": "Баруун талын табуудыг хаах",
-    "new-tab": "Шинэ таб"
+    "new-tab": "Шинэ таб",
+    "add-to-favorites": "Дуртайд нэмэх",
+    "remove-from-favorites": "Дуртайгаас хасах",
+    "open-in-new-tab": "Шинэ табаар нээх",
+    "move-up": "Sidebar-д дээш зөөх",
+    "move-down": "Sidebar-д доош зөөх",
+    "pin": "Тогтоох",
+    "unpin": "Тогтоолтыг цуцлах",
+    "more-actions": "Нэмэлт үйлдлүүд"
   },
   "core-modules": {
     "_": "Үндсэн модулиуд",
