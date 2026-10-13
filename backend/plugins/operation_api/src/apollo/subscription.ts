@@ -55,8 +55,14 @@ export default {
             if (filter.teamId && task.teamId !== filter.teamId) return false;
             if (filter.createdBy && task.createdBy !== filter.createdBy)
               return false;
-            if (filter.assigneeId && task.assigneeId !== filter.assigneeId)
+            if (filter.assigneeId === 'no-assignee') {
+              if (task.assigneeId != null) return false;
+            } else if (
+              filter.assigneeId &&
+              task.assigneeId !== filter.assigneeId
+            ) {
               return false;
+            }
             if (filter.cycleId && task.cycleId !== filter.cycleId) return false;
             if (filter.projectId && task.projectId !== filter.projectId)
               return false;
