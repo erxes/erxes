@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.2.22](https://github.com/erxes/erxes/compare/3.2.21...3.2.22) (2026-10-13)
+
+
+### Bug Fixes
+
+* **operation:** add showInactive prop to display inactive members in various components ([#9683](https://github.com/erxes/erxes/issues/9683)) ([c5dd16f](https://github.com/erxes/erxes/commit/c5dd16f281f4d48bbb54861329e984930aabcd6c))
+* **operation:** add teamId parameter to fetch triages based on selected team ([#9680](https://github.com/erxes/erxes/issues/9680)) ([5a238e4](https://github.com/erxes/erxes/commit/5a238e4c7f910516275971290f0a873362a40101))
+* **operation:** rename targetDate to dueDate across the application ([#9581](https://github.com/erxes/erxes/issues/9581)) ([72d21c8](https://github.com/erxes/erxes/commit/72d21c8a07d997bfa5e209260472457cc4127fc4))
+* **saas:** don't add Company Brain to v2 workspaces that don't have it ([#9744](https://github.com/erxes/erxes/issues/9744)) ([35e2790](https://github.com/erxes/erxes/commit/35e2790065f024634829105ecf3c73501cc320f8))
+
+
+### Features
+
+* **automations:** conditional field values, AI agent setup steps, runtime loyalty detection ([#9746](https://github.com/erxes/erxes/issues/9746)) ([7553f30](https://github.com/erxes/erxes/commit/7553f3060a3f61bd5ae731db0487232f7badd641))
+
 ## [3.2.21](https://github.com/erxes/erxes/compare/3.2.20...3.2.21) (2026-10-13)
 
 
