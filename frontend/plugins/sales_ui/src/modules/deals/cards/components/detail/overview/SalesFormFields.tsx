@@ -1,6 +1,3 @@
-import { useRef, useCallback } from 'react';
-import { Editor, Separator } from 'erxes-ui';
-import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import {
   DealAssigneeChip,
   DealBranchesChip,
@@ -10,20 +7,25 @@ import {
   DealDepartmentsChip,
   DealTagsChip,
 } from '@/deals/components/deal-selects/DealDetailChips';
-import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
-import { IDeal } from '@/deals/types/deals';
-import { useDealsContext } from '@/deals/context/DealContext';
-import { useTranslation } from 'react-i18next';
-import { AttachmentUploader } from './attachments/AttachmentUploader';
-import { Attachments } from './attachments/Attachments';
-import { ChecklistOverview } from './checklist/ChecklistOverview';
+import { Editor, Separator } from 'erxes-ui';
 import {
   areIdListsEqual,
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
+import { useCallback, useRef, useState } from 'react';
+
+import { AttachmentUploader } from './attachments/AttachmentUploader';
+import { Attachments } from './attachments/Attachments';
+import { ChecklistOverview } from './checklist/ChecklistOverview';
+import { Checklists } from './checklist/Checklists';
+import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { IDeal } from '@/deals/types/deals';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { useDealsContext } from '@/deals/context/DealContext';
+import { useTranslation } from 'react-i18next';
 
 const ARRAY_KEYS = new Set([
   'assignedUserIds',
@@ -60,6 +62,7 @@ const areBrokerSelectionsEqual = (
 
 export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+  const [newChecklistId, setNewChecklistId] = useState<string>();
   const descriptionRef = useRef<string | undefined>(undefined);
   const lastSavedDescriptionRef = useRef<string | undefined>(deal.description);
 
@@ -252,12 +255,17 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ChecklistOverview />
+          <ChecklistOverview onCreated={setNewChecklistId} />
           <AttachmentUploader />
         </div>
       </div>
       <Attachments />
       <Separator className="mt-4" />
+      <Checklists
+        dealId={_id}
+        stageId={deal.stageId}
+        newChecklistId={newChecklistId}
+      />
       <div
         className="min-h-56 overflow-y-auto"
         onBlur={(e) => {
