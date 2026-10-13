@@ -120,6 +120,7 @@ export const FxaOwnerRecordActionSheet = ({
 
   const handleSubmit = (values: TOwnerRecordActionForm) => {
     if (mode === 'transfer') {
+      if (!values.fromOwnerId || !values.toOwnerId) return handleInvalid();
       transferFixedAssetOwnerRecord({
         variables: {
           fixedAssetId: values.fixedAssetId,
@@ -134,6 +135,7 @@ export const FxaOwnerRecordActionSheet = ({
       return;
     }
 
+    if (!values.ownerId) return handleInvalid();
     addFixedAssetOwnerRecord({
       variables: {
         fixedAssetId: values.fixedAssetId,

@@ -1,22 +1,29 @@
 import { useTranslation } from 'react-i18next';
 import { QueryHookOptions } from '@apollo/client';
-import { IAdjustClosingDetail } from '../types/AdjustClosing';
+
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
 import { useAdjustClosingDetail } from './useAdjustClosingDetail';
 import { useEffect } from 'react';
+import type {
+  AccountingAdjustClosingDetailQuery,
+  AccountingAdjustClosingDetailQueryVariables,
+} from '~/gql/graphql';
 
 export const useAdjustClosingDetailWithQuery = (
-  options?: QueryHookOptions<{ adjustClosingDetail: IAdjustClosingDetail }>,
+  options?: QueryHookOptions<
+    AccountingAdjustClosingDetailQuery,
+    AccountingAdjustClosingDetailQueryVariables
+  >,
 ) => {
   const { t } = useTranslation('accounting');
-  const [_id] = useQueryState('adjustClosingId');
+  const [_id] = useQueryState<string>('adjustClosingId');
   const setRendering = useSetAtom(renderingAdjustClosingDetailAtom);
 
   const { adjustClosingDetail, loading, error } = useAdjustClosingDetail({
     ...options,
-    variables: { _id },
+    variables: { _id: _id ?? '' },
     skip: !_id,
   });
 

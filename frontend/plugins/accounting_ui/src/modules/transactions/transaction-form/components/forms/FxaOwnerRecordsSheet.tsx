@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Checkbox, InputNumber, RecordTable, Sheet, Table, cn } from 'erxes-ui';
@@ -29,10 +30,6 @@ type TFxaOwnerRecord = {
   action?: string;
   status?: string;
   ownerId?: string;
-};
-
-type TFxaOwnerRecordsQueryData = {
-  fxaOwnerRecords: TFxaOwnerRecord[];
 };
 
 const getRecordCurrentCount = (record: TFxaOwnerRecord) =>
@@ -75,17 +72,15 @@ export const FxaOwnerRecordsSheet = ({
     0,
   );
   const remainingCount = Math.max(0, detailCount - selectedCount);
-  const { data, loading } = useQuery<TFxaOwnerRecordsQueryData>(
-    FXA_OWNER_RECORDS_QUERY,
-    {
-      variables: {
-        fixedAssetIds: detail?.fixedAssetId ? [detail.fixedAssetId] : [],
-        status: 'active',
-        balanceOnly: true,
-      },
-      skip: !detail?.fixedAssetId,
+  const { data: queryData, loading } = useQuery(FXA_OWNER_RECORDS_QUERY, {
+    variables: {
+      fixedAssetIds: detail?.fixedAssetId ? [detail.fixedAssetId] : [],
+      status: 'active',
+      balanceOnly: true,
     },
-  );
+    skip: !detail?.fixedAssetId,
+  });
+  const data = toGraphqlView(queryData);
   const activeRecords = (data?.fxaOwnerRecords || []).filter(
     (record) => getRecordCurrentCount(record) > 0,
   );
@@ -97,7 +92,11 @@ export const FxaOwnerRecordsSheet = ({
   const syncRecords = (nextRecords: TFxaOwnerRecordInput[]) => {
     form.setValue(
       `trDocs.${journalIndex}.extraData.fxaOwnerRecords`,
-      nextRecords,
+      nextRecords.flatMap((record) =>
+        record.transactionDetailId
+          ? [{ ...record, transactionDetailId: record.transactionDetailId }]
+          : [],
+      ),
     );
   };
 

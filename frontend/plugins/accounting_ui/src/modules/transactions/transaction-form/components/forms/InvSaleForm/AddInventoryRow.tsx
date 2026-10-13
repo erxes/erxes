@@ -1,3 +1,4 @@
+import { toInvCostMap } from '../../../hooks/useGetInvCostInfo';
 import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
@@ -60,9 +61,7 @@ export const AddDetailRowButton = ({
           let currentCostInfo: IInvCostInfo = {};
 
           if (trDoc.followInfos?.saleOutAccountId) {
-            const { data } = await client.query<{
-              getAccCurrentCost: IInvCostInfo;
-            }>({
+            const { data } = await client.query({
               query: GET_ACC_CURRENT_COST_QUERY,
               variables: {
                 productIds,
@@ -72,7 +71,7 @@ export const AddDetailRowButton = ({
               },
               fetchPolicy: 'network-only',
             });
-            currentCostInfo = data.getAccCurrentCost;
+            currentCostInfo = toInvCostMap(data.getAccCurrentCost);
           }
 
           const details = productIds.map((productId) => {

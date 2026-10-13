@@ -20,26 +20,9 @@ import {
 } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
 
-type TFxaIncomeOwnerRecord = {
-  _id?: string;
-  tempId?: string;
-  transactionDetailId?: string;
-  fixedAssetId?: string;
-  code?: string;
-  sequence?: number;
-  count?: number;
-  ownerId?: string;
-};
-
-type TFxaIncomeDetailFollowInfo = {
-  _id?: string;
-  tempId?: string;
-  transactionDetailId?: string;
-  fixedAssetId?: string;
-  salvageValue?: number;
-  preDeprecation?: number;
-  openingAccumulatedDepreciation?: number;
-};
+type TFxaIncomeOwnerRecord = NonNullable<
+  NonNullable<TFxaIncomeJournal['extraData']>['fxaOwnerRecords']
+>[number];
 
 const getDetailOwnerCount = (owners: TFxaIncomeOwnerRecord[]) =>
   owners.reduce(
@@ -47,42 +30,10 @@ const getDetailOwnerCount = (owners: TFxaIncomeOwnerRecord[]) =>
     0,
   );
 
-const getDetailFollowInfo = (
-  detailId: string,
-  previous: TFxaIncomeDetailFollowInfo[],
-) =>
-  previous.find(
-    (followInfo) =>
-      followInfo.transactionDetailId === detailId ||
-      followInfo.tempId === detailId,
-  );
-
-const buildDetailFollowInfos = (
-  trDoc: TFxaIncomeJournal,
-): TFxaIncomeDetailFollowInfo[] => {
-  const previous = trDoc.followInfos?.fxaIncomeDetails || [];
-
-  return (trDoc.details || []).map((detail) => {
-    const previousInfo = getDetailFollowInfo(detail._id, previous);
-
-    return {
-      _id: previousInfo?._id,
-      tempId: detail._id,
-      transactionDetailId: detail._id,
-      fixedAssetId: detail.fixedAssetId,
-      salvageValue: previousInfo?.salvageValue || 0,
-      preDeprecation:
-        previousInfo?.preDeprecation ||
-        previousInfo?.openingAccumulatedDepreciation ||
-        0,
-    };
-  });
-};
-
 const normalizeOwnerRecords = (trDoc: TFxaIncomeJournal) => {
   const detailIds = new Set((trDoc.details || []).map((detail) => detail._id));
 
-  return ((trDoc.extraData?.fxaOwnerRecords || []) as TFxaIncomeOwnerRecord[])
+  return (trDoc.extraData?.fxaOwnerRecords || [])
     .filter((owner) => owner.transactionDetailId)
     .filter((owner) => detailIds.has(owner.transactionDetailId || ''))
     .map((owner) => {
@@ -92,6 +43,7 @@ const normalizeOwnerRecords = (trDoc: TFxaIncomeJournal) => {
 
       return {
         ...owner,
+        transactionDetailId: owner.transactionDetailId || '',
         fixedAssetId: detail?.fixedAssetId || owner.fixedAssetId,
       };
     });
@@ -112,22 +64,11 @@ export const FxaIncomeOwnerRecordsSync = ({
   useEffect(() => {
     const previousOwners = trDoc.extraData?.fxaOwnerRecords || [];
     const nextOwners = normalizeOwnerRecords(trDoc);
-    const previousFollowInfos = trDoc.followInfos?.fxaIncomeDetails || [];
-    const nextFollowInfos = buildDetailFollowInfos(trDoc);
 
     if (JSON.stringify(previousOwners) !== JSON.stringify(nextOwners)) {
       form.setValue(
         `trDocs.${journalIndex}.extraData.fxaOwnerRecords`,
         nextOwners,
-      );
-    }
-
-    if (
-      JSON.stringify(previousFollowInfos) !== JSON.stringify(nextFollowInfos)
-    ) {
-      form.setValue(
-        `trDocs.${journalIndex}.followInfos.fxaIncomeDetails`,
-        nextFollowInfos,
       );
     }
   }, [form, journalIndex, JSON.stringify(trDoc)]);
@@ -150,16 +91,10 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
     name: `trDocs.${journalIndex}`,
   }) as TFxaIncomeJournal;
   const detail = trDoc.details?.[detailIndex];
-  const managedOwners = (trDoc.extraData?.fxaOwnerRecords ||
-    []) as TFxaIncomeOwnerRecord[];
+  const managedOwners = trDoc.extraData?.fxaOwnerRecords || [];
   const detailOwners = managedOwners
     .map((owner, ownerIndex) => ({ owner, ownerIndex }))
     .filter(({ owner }) => owner.transactionDetailId === detail?._id);
-  const followInfoIndex = (trDoc.followInfos?.fxaIncomeDetails || []).findIndex(
-    (followInfo) =>
-      followInfo.transactionDetailId === detail?._id ||
-      followInfo.tempId === detail?._id,
-  );
   const ownerCount = getDetailOwnerCount(
     detailOwners.map(({ owner }) => owner),
   );
@@ -176,7 +111,11 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   const syncOwners = (nextOwners: TFxaIncomeOwnerRecord[]) => {
     form.setValue(
       `trDocs.${journalIndex}.extraData.fxaOwnerRecords`,
-      nextOwners,
+      nextOwners.flatMap((owner) =>
+        owner.transactionDetailId
+          ? [{ ...owner, transactionDetailId: owner.transactionDetailId }]
+          : [],
+      ),
     );
   };
 
@@ -253,11 +192,11 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
-          {followInfoIndex >= 0 && (
+          {detail && (
             <div className="grid grid-cols-2 gap-4 mb-4">
               <Form.Field
                 control={form.control}
-                name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.salvageValue`}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.salvageValue`}
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>{t('residual-value')}</Form.Label>
@@ -272,7 +211,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
               />
               <Form.Field
                 control={form.control}
-                name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.preDeprecation`}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>

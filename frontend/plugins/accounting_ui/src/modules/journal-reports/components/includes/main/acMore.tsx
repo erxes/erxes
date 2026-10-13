@@ -1,5 +1,5 @@
+import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
 import { cn, displayNum, ReportTable } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { TR_SIDES } from '~/modules/transactions/types/constants';

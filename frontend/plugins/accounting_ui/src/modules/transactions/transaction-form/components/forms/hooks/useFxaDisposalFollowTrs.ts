@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
@@ -30,10 +31,10 @@ type TFxaDisposalSummary = {
   bookValue: number;
 };
 
-const buildSummary = (
+export const buildFxaDisposalPreviewSummaries = (
   details: TFxaDetail[],
   fixedAssets: TFxaDisposalInstance[] = [],
-) =>
+): TFxaDisposalSummary[] =>
   details
     .map((detail) => {
       const fixedAsset = fixedAssets.find(
@@ -45,12 +46,17 @@ const buildSummary = (
       const perUnitAccumulated = currentCount
         ? (fixedAsset?.accumulatedDepreciation || 0) / currentCount
         : 0;
-      const accumulatedDepreciation = fixNum(perUnitAccumulated * count);
-      const bookValue = fixNum(
+      const unitDepreciation =
+        detail.followInfos?.preDeprecation ?? perUnitAccumulated;
+      const accumulatedDepreciation = fixNum(unitDepreciation * count);
+      let bookValue = fixNum(
         fixedAsset?.bookValue
           ? (fixedAsset.bookValue / (currentCount || count || 1)) * count
           : originalCost - accumulatedDepreciation,
       );
+      if (detail.followInfos?.preDeprecation !== undefined) {
+        bookValue = fixNum(originalCost - accumulatedDepreciation);
+      }
 
       return {
         detailId: detail._id,
@@ -129,7 +135,7 @@ const buildFollowDetails = ({
             ? fixNum(summary[amountKey] / summary.count)
             : 0,
           amount: summary[amountKey],
-        }) as ITrDetail,
+        } as ITrDetail),
     );
 
 const buildFollowTr = ({
@@ -190,12 +196,11 @@ export const useFxaDisposalFollowTrs = ({
       ),
     [trDoc?.details],
   );
-  const { data, loading } = useQuery<{
-    fixedAssets: TFxaDisposalInstance[];
-  }>(FIXED_ASSETS_QUERY, {
+  const { data: queryData, loading } = useQuery(FIXED_ASSETS_QUERY, {
     variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
     skip: !fixedAssetIds.length,
   });
+  const data = toGraphqlView(queryData);
 
   useEffect(() => {
     if (!trDoc || loading || !data) {
@@ -203,7 +208,7 @@ export const useFxaDisposalFollowTrs = ({
     }
 
     const hasAllFixedAssets = fixedAssetIds.every((fixedAssetId) =>
-      data.fixedAssets.some((fixedAsset) => fixedAsset._id === fixedAssetId),
+      data.fixedAssets?.some((fixedAsset) => fixedAsset._id === fixedAssetId),
     );
     if (!hasAllFixedAssets) {
       return;
@@ -217,7 +222,7 @@ export const useFxaDisposalFollowTrs = ({
       return;
     }
 
-    const summaries = buildSummary(
+    const summaries = buildFxaDisposalPreviewSummaries(
       (trDoc?.details || []) as TFxaDetail[],
       data.fixedAssets,
     );

@@ -1,4 +1,6 @@
-import { gql, useQuery } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { gql } from '~/gql';
+import { useQuery } from '@apollo/client';
 import { IconActivity, IconExternalLink } from '@tabler/icons-react';
 import { ITransactionGroupForm } from '../types/JournalForms';
 import { TR_STATUS_LABELS } from '../../types/constants';
@@ -122,17 +124,17 @@ const transactionCustomActivities: ActivityLogCustomActivity[] = [
   },
 ];
 
-const DEAL_LINK_QUERY = gql`
-  query DealLink($_id: String) {
-    dealLink(_id: $_id)
-  }
-`;
+const DEAL_LINK_QUERY = gql(`
+query accountingDealLink($_id: String) {
+  dealLink(_id: $_id)
+}
+`);
 
-const POS_ORDER_LINK_QUERY = gql`
-  query PosOrderLink($_id: String) {
-    posOrderLink(_id: $_id)
-  }
-`;
+const POS_ORDER_LINK_QUERY = gql(`
+query accountingPosOrderLink($_id: String) {
+  posOrderLink(_id: $_id)
+}
+`);
 
 const isDealContent = (contentType?: string) =>
   ['sales:deal', 'sales:sales.deals'].includes(contentType || '');
@@ -158,16 +160,26 @@ export const TrRightSidebar = ({ form }: { form: ITransactionGroupForm }) => {
   const [parentId] = useQueryState<string>('parentId');
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const { data: dealLinkData } = useQuery(DEAL_LINK_QUERY, {
-    variables: { _id: contentId },
+  const { data: rawGraphqlDealLinkData } = useQuery(DEAL_LINK_QUERY, {
+    variables: { _id: contentId ?? '' },
     skip: !contentId || !isDealContent(contentType),
   });
-  const { data: posOrderLinkData } = useQuery(POS_ORDER_LINK_QUERY, {
-    variables: { _id: contentId },
+  const dealLinkData = toGraphqlView(rawGraphqlDealLinkData);
+  const { data: rawGraphqlPosOrderLinkData } = useQuery(POS_ORDER_LINK_QUERY, {
+    variables: { _id: contentId ?? '' },
     skip: !contentId || !isPosOrderContent(contentType),
   });
+  const posOrderLinkData = toGraphqlView(rawGraphqlPosOrderLinkData);
+  const readHref = (value: unknown) =>
+    value &&
+    typeof value === 'object' &&
+    'href' in value &&
+    typeof value.href === 'string'
+      ? value.href
+      : undefined;
   const relatedContentHref =
-    dealLinkData?.dealLink?.href || posOrderLinkData?.posOrderLink?.href;
+    readHref(dealLinkData?.dealLink) ||
+    readHref(posOrderLinkData?.posOrderLink);
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen} modal>

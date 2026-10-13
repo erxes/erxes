@@ -24,13 +24,8 @@ import { useAdjustFundRateRemove } from '../hooks/useAdjustFundRateRemove';
 import { useAdjustFundRateDetail } from '../hooks/useAdjustFundRateDetail';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
-import {
-  eachDayOfInterval,
-  format,
-  isAfter,
-  isBefore,
-  isSameDay,
-} from 'date-fns';
+import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
+import { formatDate as format } from '@/utils/graphqlDate';
 import { EditAdjustFundRate } from './AdjustFundRateForm';
 import { useAdjustFundRateRun } from '../hooks/useAdjustFundRateRun';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
@@ -44,7 +39,7 @@ import type { IAccount } from '@/settings/account/types/Account';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
 
-const DetailField = ({ label, value }: { label: string; value: string }) => (
+const DetailField = ({ label, value }: { label: string; value?: string }) => (
   <div className="min-w-0">
     <p className="text-xs text-muted-foreground">{label}</p>
     <p className="truncate text-sm font-medium">{value || '-'}</p>
@@ -124,7 +119,7 @@ const TransactionAccountCell = ({ row }: { row: TLinkedTransactionRow }) => {
             '-'}
         </div>
         <div className="truncate text-xs text-muted-foreground">
-          {t(row.transaction.journal)}
+          {row.transaction.journal ? t(row.transaction.journal) : '-'}
         </div>
       </div>
     </RecordTableInlineCell>
@@ -263,12 +258,12 @@ export const AdjustFundRateDetail = () => {
   const [editOpen, setEditOpen] = useState(false);
 
   const { adjustFundRate, loading } = useAdjustFundRateDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
   const { transactions = [], loading: transactionsLoading } =
     useTransactionsDetail({
-      variables: { _id: adjustFundRate?.transactionId },
+      variables: { _id: adjustFundRate?.transactionId ?? '' },
       skip: !adjustFundRate?.transactionId,
     });
 
@@ -390,14 +385,14 @@ export const AdjustFundRateDetail = () => {
             <DetailField
               label={t('Gain Account')}
               value={formatAccount(
-                accountById[adjustFundRate.gainAccountId],
+                accountById[adjustFundRate.gainAccountId ?? ''],
                 adjustFundRate.gainAccountId,
               )}
             />
             <DetailField
               label={t('Loss Account')}
               value={formatAccount(
-                accountById[adjustFundRate.lossAccountId],
+                accountById[adjustFundRate.lossAccountId ?? ''],
                 adjustFundRate.lossAccountId,
               )}
             />
@@ -443,7 +438,7 @@ export const AdjustFundRateDetail = () => {
           {`${
             adjustFundRate.checkedAt
               ? format(
-                  new Date(adjustFundRate.checkedAt),
+                  new Date(adjustFundRate.checkedAt ?? Date.now()),
                   'yyyy-MM-dd HH:mm:ss',
                 )
               : ''
@@ -595,12 +590,12 @@ const LinkedTransactionsTable = ({
 const StatusBar = ({ adjustFundRate }: { adjustFundRate: IAdjustFundRate }) => {
   const start = adjustFundRate.beginDate || adjustFundRate.date;
   const end = adjustFundRate.date;
-  const current = adjustFundRate.successDate || start;
 
   if (!start || !end) {
     return null;
   }
 
+  const current = adjustFundRate.successDate || start;
   const days = eachDayOfInterval({
     start: new Date(start),
     end: new Date(end),

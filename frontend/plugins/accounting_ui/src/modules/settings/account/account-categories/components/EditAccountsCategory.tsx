@@ -34,6 +34,7 @@ export const EditAccountCategoryForm = ({
   }, [accountCategoryDetail, reset]);
 
   const handleSubmit = (data: TAccountCategoryForm) => {
+    if (!accountCategoryDetail) return;
     const initialData = {
       ...ACCOUNT_CATEGORY_DEFAULT_VALUES,
       ...accountCategoryDetail,
@@ -46,7 +47,7 @@ export const EditAccountCategoryForm = ({
     }
     editAccountCategory({
       variables: {
-        _id: accountCategoryDetail?._id,
+        _id: accountCategoryDetail._id,
         ...data,
       },
       onCompleted: () => {

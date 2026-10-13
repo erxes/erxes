@@ -1,5 +1,5 @@
+import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
 import {
   Button,
   Checkbox,

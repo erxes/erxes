@@ -1,3 +1,4 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import {
   IconCards,
@@ -22,21 +23,6 @@ import {
   ACCOUNTING_SALES_STAGES_QUERY,
 } from '../graphql/checkSyncedDeals';
 
-type SalesBoard = {
-  _id: string;
-  name: string;
-};
-
-type SalesPipeline = {
-  _id: string;
-  name: string;
-};
-
-type SalesStage = {
-  _id: string;
-  name: string;
-};
-
 type DateType = {
   value: string;
   label: string;
@@ -56,9 +42,8 @@ const SalesBoardContent = ({
   onValueChange: (value: string) => void;
 }) => {
   const { t } = useTranslation('accounting');
-  const { data, loading } = useQuery<{ salesBoards?: SalesBoard[] }>(
-    ACCOUNTING_SALES_BOARDS_QUERY,
-  );
+  const { data: queryData, loading } = useQuery(ACCOUNTING_SALES_BOARDS_QUERY);
+  const data = toGraphqlView(queryData);
 
   if (loading) {
     return (
@@ -100,12 +85,14 @@ const SalesPipelineContent = ({
   onValueChange: (value: string) => void;
 }) => {
   const { t } = useTranslation('accounting');
-  const { data, loading } = useQuery<{
-    salesPipelines?: { list?: SalesPipeline[] };
-  }>(ACCOUNTING_SALES_PIPELINES_QUERY, {
-    variables: { boardId },
-    skip: !boardId,
-  });
+  const { data: queryData, loading } = useQuery(
+    ACCOUNTING_SALES_PIPELINES_QUERY,
+    {
+      variables: { boardId },
+      skip: !boardId,
+    },
+  );
+  const data = toGraphqlView(queryData);
 
   if (!boardId) {
     return (
@@ -155,13 +142,11 @@ const SalesStageContent = ({
   onValueChange: (value: string) => void;
 }) => {
   const { t } = useTranslation('accounting');
-  const { data, loading } = useQuery<{ salesStages?: SalesStage[] }>(
-    ACCOUNTING_SALES_STAGES_QUERY,
-    {
-      variables: { pipelineId },
-      skip: !pipelineId,
-    },
-  );
+  const { data: queryData, loading } = useQuery(ACCOUNTING_SALES_STAGES_QUERY, {
+    variables: { pipelineId: pipelineId ?? '' },
+    skip: !pipelineId,
+  });
+  const data = toGraphqlView(queryData);
 
   if (!pipelineId) {
     return (
@@ -367,9 +352,8 @@ export const AccountingDealBoardFilterBar = () => {
   const [, setPipelineId] = useQueryState<string>('pipelineId');
   const [, setStageId] = useQueryState<string>('stageId');
   const [open, setOpen] = useState(false);
-  const { data } = useQuery<{ salesBoards?: SalesBoard[] }>(
-    ACCOUNTING_SALES_BOARDS_QUERY,
-  );
+  const { data: queryData } = useQuery(ACCOUNTING_SALES_BOARDS_QUERY);
+  const data = toGraphqlView(queryData);
 
   return (
     <Filter.BarItem queryKey="boardId">
@@ -408,13 +392,11 @@ export const AccountingDealPipelineFilterBar = ({
   const [pipelineId, setPipelineId] = useQueryState<string>('pipelineId');
   const [, setStageId] = useQueryState<string>('stageId');
   const [open, setOpen] = useState(false);
-  const { data } = useQuery<{ salesPipelines?: { list?: SalesPipeline[] } }>(
-    ACCOUNTING_SALES_PIPELINES_QUERY,
-    {
-      variables: { boardId },
-      skip: !boardId,
-    },
-  );
+  const { data: queryData } = useQuery(ACCOUNTING_SALES_PIPELINES_QUERY, {
+    variables: { boardId },
+    skip: !boardId,
+  });
+  const data = toGraphqlView(queryData);
 
   return (
     <Filter.BarItem queryKey="pipelineId">
@@ -458,13 +440,11 @@ export const AccountingDealStageFilterBar = ({
   const { t } = useTranslation('accounting');
   const [stageId, setStageId] = useQueryState<string>('stageId');
   const [open, setOpen] = useState(false);
-  const { data } = useQuery<{ salesStages?: SalesStage[] }>(
-    ACCOUNTING_SALES_STAGES_QUERY,
-    {
-      variables: { pipelineId },
-      skip: !pipelineId,
-    },
-  );
+  const { data: queryData } = useQuery(ACCOUNTING_SALES_STAGES_QUERY, {
+    variables: { pipelineId: pipelineId ?? '' },
+    skip: !pipelineId,
+  });
+  const data = toGraphqlView(queryData);
 
   return (
     <Filter.BarItem queryKey="stageId">

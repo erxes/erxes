@@ -133,9 +133,9 @@ const FormFields = memo(
                   <Select.Content>
                     {statusGroups.map((group, groupIndex) => (
                       <Select.Group key={group.label}>
-                        {t(group.label || '', { nsSeparator: false }) && (
+                        {group.label && (
                           <Select.Label>
-                            {t(group.label || '', { nsSeparator: false })}
+                            {t(group.label, { nsSeparator: false })}
                           </Select.Label>
                         )}
                         {group.options.map((side) => (
@@ -201,7 +201,7 @@ export const TransactionsGroupForm = () => {
   const currentUser = useAtomValue(currentUserState) as IUser;
   const [parentId] = useQueryState<string>('parentId');
   const { activeTrs, error, followTrs, loading } = useTransactionsDetail({
-    variables: { _id: parentId },
+    variables: { _id: parentId ?? '' },
     skip: !parentId,
   });
 
@@ -223,6 +223,9 @@ export const TransactionsGroupForm = () => {
   const { updateTransaction } = useTransactionsUpdate();
 
   const onSubmit = (data: TAddTransactionGroup) => {
+    if (error) {
+      return;
+    }
     if (data.trDocs?.some((trDoc: any) => trDoc?.permission === 'hidden')) {
       return;
     }
