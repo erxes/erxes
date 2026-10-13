@@ -13,7 +13,6 @@ import {
   IconTextScan2,
   IconTextSize,
   IconUserCircle,
-  IconUsersGroup,
   IconWorld,
   IconWorldWww,
 } from '@tabler/icons-react';
@@ -270,18 +269,27 @@ export const FORM_FIELD_TYPES = [
   },
 
   {
+    value: 'core:company:avatar',
+    label: 'Logo',
+    defaultLabel: 'Company Logo',
+    icon: <IconUserCircle />,
+  },
+  {
     value: 'core:company:primaryName',
-    label: 'Company Name',
+    label: 'Name',
+    defaultLabel: 'Company Name',
     icon: <IconBuilding />,
   },
   {
     value: 'core:company:primaryEmail',
-    label: 'Company Email',
+    label: 'Email',
+    defaultLabel: 'Company Email',
     icon: <IconAt />,
   },
   {
     value: 'core:company:primaryPhone',
-    label: 'Company Phone',
+    label: 'Phone',
+    defaultLabel: 'Company Phone',
     icon: <IconPhoneSpark />,
   },
   {
@@ -290,19 +298,10 @@ export const FORM_FIELD_TYPES = [
     icon: <IconWorldWww />,
   },
   {
-    value: 'core:company:size',
-    label: 'Company Size',
-    icon: <IconUsersGroup />,
-  },
-  {
     value: 'core:company:description',
-    label: 'Company Description',
+    label: 'Description',
+    defaultLabel: 'Company Description',
     icon: <IconTextSize />,
-  },
-  {
-    value: 'core:company:avatar',
-    label: 'Company Logo',
-    icon: <IconUserCircle />,
   },
 ];
 

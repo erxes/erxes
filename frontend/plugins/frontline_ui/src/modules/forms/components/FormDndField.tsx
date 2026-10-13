@@ -26,7 +26,6 @@ import {
   IconChevronLeft,
   IconWorld,
   IconBuilding,
-  IconUsersGroup,
   IconWorldWww,
 } from '@tabler/icons-react';
 import {
@@ -141,8 +140,6 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconBuilding />;
     case 'core:company:website':
       return <IconWorldWww />;
-    case 'core:company:size':
-      return <IconUsersGroup />;
     default:
       return <IconTextSize />;
   }

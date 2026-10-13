@@ -53,10 +53,17 @@ function mapPronounToCode(pronoun: string): number {
 
 type CompanyFormDoc = Pick<
   ICompany,
-  'primaryName' | 'avatar' | 'website' | 'size' | 'description'
+  'primaryName' | 'avatar' | 'website' | 'description'
 > & {
   email?: string;
   phone?: string;
+};
+
+type FormCompany = {
+  _id?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  trackedData?: ICustomField[];
 };
 
 function getFileUrl(value: unknown): string | undefined {
@@ -103,11 +110,6 @@ function handleCoreCompanyField(
     case 'website':
       companyDoc.website = text;
       break;
-    case 'size': {
-      const size = Number(text);
-      if (!Number.isNaN(size)) companyDoc.size = size;
-      break;
-    }
     case 'description':
       companyDoc.description = text;
       break;
@@ -133,17 +135,45 @@ async function saveFormCompany(
     }
   }
 
-  const { primaryName, email, phone } = companyDoc;
+  const { primaryName, email, phone, ...rest } = companyDoc;
 
   if (!primaryName && !email && !phone) return;
 
-  const company: { _id?: string } | null =
-    (await findMessengerCompany(subdomain, {
-      name: primaryName,
-      email,
-      phone,
-    })) ||
-    (await sendTRPCMessage({
+  let company: FormCompany | null = await findMessengerCompany(subdomain, {
+    name: primaryName,
+    email,
+    phone,
+  });
+
+  if (company?._id) {
+    const doc: Record<string, unknown> = {
+      ...rest,
+      trackedData: company.trackedData || [],
+    };
+
+    if (primaryName) doc.names = [primaryName];
+
+    if (email) {
+      if (company.primaryEmail) doc.emails = [email];
+      else doc.email = email;
+    }
+
+    if (phone) {
+      if (company.primaryPhone) doc.phones = [phone];
+      else doc.phone = phone;
+    }
+
+    company = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'companies',
+      action: 'updateCompany',
+      input: { _id: company._id, doc },
+      defaultValue: company,
+    });
+  } else {
+    company = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
@@ -153,7 +183,8 @@ async function saveFormCompany(
         doc: { ...companyDoc, names: primaryName ? [primaryName] : [] },
       },
       defaultValue: null,
-    }));
+    });
+  }
 
   if (!company?._id) return;
 

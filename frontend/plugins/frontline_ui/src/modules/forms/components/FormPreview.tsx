@@ -280,10 +280,7 @@ export const FormPreviewContent = ({
                       name={erxesField.id}
                       control={form.control}
                       render={({ field }) => {
-                        if (
-                          erxesField.type === 'number' ||
-                          erxesField.type === 'core:company:size'
-                        ) {
+                        if (erxesField.type === 'number') {
                           return (
                             <ErxesFormItem span={erxesField.span}>
                               <Form.Label>{erxesField.label}</Form.Label>

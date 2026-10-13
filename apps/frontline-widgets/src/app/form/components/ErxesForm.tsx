@@ -301,7 +301,8 @@ export const ErxesForm = ({
                   }
                   if (
                     erxesField.type === 'textarea' ||
-                    erxesField.type === 'core:customer:description'
+                    erxesField.type === 'core:customer:description' ||
+                    erxesField.type === 'core:company:description'
                   ) {
                     return (
                       <ErxesFormItem span={erxesField.column}>
@@ -498,8 +499,8 @@ export const ErxesForm = ({
                           <Upload.Root
                             value={
                               Array.isArray(field.value)
-                                ? (field.value[field.value.length - 1] ?? '')
-                                : (field.value ?? '')
+                                ? field.value[field.value.length - 1] ?? ''
+                                : field.value ?? ''
                             }
                             onChange={(fileInfo) => {
                               if (typeof fileInfo === 'string') {
