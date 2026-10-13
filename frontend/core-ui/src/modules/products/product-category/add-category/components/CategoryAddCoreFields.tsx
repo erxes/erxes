@@ -4,6 +4,7 @@ import { Form, Input, Select } from 'erxes-ui';
 import { SelectCategory } from '../../components/SelectCategory';
 import { ACCOUNT_CATEGORY_MASK_TYPES } from './CategoryAddMoreFields';
 import { ProductFormValues } from './formSchema';
+import { useTranslation } from 'react-i18next';
 
 interface ProductCategoriesAddCoreFieldsProps {
   form: UseFormReturn<ProductFormValues>;
@@ -12,6 +13,9 @@ interface ProductCategoriesAddCoreFieldsProps {
 export const ProductCategoriesAddCoreFields: React.FC<
   ProductCategoriesAddCoreFieldsProps
 > = ({ form }) => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'product-category',
+  });
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2">
@@ -22,7 +26,7 @@ export const ProductCategoriesAddCoreFields: React.FC<
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  NAME <span className="text-destructive">*</span>
+                  {t('label-name')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <Input {...field} />
@@ -39,7 +43,7 @@ export const ProductCategoriesAddCoreFields: React.FC<
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  CODE <span className="text-destructive">*</span>
+                  {t('label-code')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <Input {...field} />
@@ -56,7 +60,7 @@ export const ProductCategoriesAddCoreFields: React.FC<
         name="parentId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Parent Category</Form.Label>
+            <Form.Label>{t('parent-category')}</Form.Label>
             <Form.Control>
               <SelectCategory
                 selected={field.value}
@@ -73,23 +77,21 @@ export const ProductCategoriesAddCoreFields: React.FC<
         name="maskType"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Mask Type</Form.Label>
+            <Form.Label>{t('mask-type')}</Form.Label>
             <Select onValueChange={field.onChange} value={field.value}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Choose mask type">
-                    {
-                      ACCOUNT_CATEGORY_MASK_TYPES.find(
-                        (type) => type.value === field.value,
-                      )?.label
-                    }
+                  <Select.Value placeholder={t('choose-mask-type')}>
+                    {ACCOUNT_CATEGORY_MASK_TYPES.filter(
+                      (type) => type.value === field.value,
+                    ).map((type) => t(type.labelKey))}
                   </Select.Value>
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>
                 {ACCOUNT_CATEGORY_MASK_TYPES.map((type) => (
                   <Select.Item key={type.value} value={type.value}>
-                    {type.label}
+                    {t(type.labelKey)}
                   </Select.Item>
                 ))}
               </Select.Content>

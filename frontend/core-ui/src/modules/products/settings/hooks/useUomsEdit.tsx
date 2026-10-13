@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { UOMS_EDIT } from '../graphql/mutations/cudUoms';
 import { useToast } from 'erxes-ui';
@@ -5,6 +6,7 @@ import { useToast } from 'erxes-ui';
 export const useUomsEdit = () => {
   const [editUomMutation, { loading, error }] = useMutation(UOMS_EDIT);
   const { toast } = useToast();
+  const { t } = useTranslation('product', { keyPrefix: 'uoms' });
 
   const mutate = ({ variables, ...options }: MutationHookOptions) => {
     editUomMutation({
@@ -24,7 +26,7 @@ export const useUomsEdit = () => {
       },
       onCompleted: (data) => {
         if (data?.uomsEdit) {
-          toast({ title: 'Uom updated successfully!', variant: 'success' });
+          toast({ title: t('uom-updated'), variant: 'success' });
           options?.onCompleted?.(data);
         }
       },

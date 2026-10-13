@@ -328,6 +328,7 @@
   "re-enrollment-no-fields": "The trigger's conditions have no properties to watch. Add a condition to choose one.",
   "re-enrollment-every-time": "Run every time it happens",
   "re-enrollment-every-time-hint": "A record that already went through starts it again on the next occurrence. Off, each record runs once.",
+  "load-more": "Load more",
   "sent-in-messenger": "Sent in Messenger",
   "reply-to-comment": "Reply to comment",
   "discord-servers": "Discord Servers",

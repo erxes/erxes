@@ -328,6 +328,7 @@
   "re-enrollment-no-fields": "Trigger-ийн нөхцөлд хянах талбар алга. Сонгохын тулд нөхцөл нэмнэ үү.",
   "re-enrollment-every-time": "Тохиолдох бүрт ажиллах",
   "re-enrollment-every-time-hint": "Өмнө нь ажилласан record дараагийн удаа дахин ажиллана. Унтраавал record бүрт нэг л удаа ажиллана.",
+  "load-more": "Дахин ачаалах",
   "sent-in-messenger": "Мессенжерээр илгээсэн",
   "reply-to-comment": "Сэтгэгдэлд хариулсан",
   "discord-servers": "Discord серверүүд",

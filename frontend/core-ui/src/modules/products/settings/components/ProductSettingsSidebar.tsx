@@ -15,7 +15,7 @@ export function ProductSettingsSidebar() {
                 isActive={pathname === '/settings/products'}
                 asChild
               >
-                <Link to="/settings/products">General</Link>
+                <Link to="/settings/products">{t('general')}</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
             <Sidebar.MenuItem>
@@ -23,7 +23,7 @@ export function ProductSettingsSidebar() {
                 isActive={pathname === '/settings/products/uom'}
                 asChild
               >
-                <Link to="/settings/products/uom">Uom</Link>
+                <Link to="/settings/products/uom">{t('uom')}</Link>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
             <Sidebar.MenuItem>

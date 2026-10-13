@@ -8,5 +8,23 @@
   "dark": "Харанхуй",
   "light": "Гэрэлтэй",
   "system": "Системийн",
-  "version": "Хувилбар"
+  "version": "Хувилбар",
+  "create-owner": {
+    "enter-email": "Имэйл оруулна уу",
+    "enter-first-name": "Нэр оруулна уу",
+    "enter-last-name": "Овог оруулна уу",
+    "enter-password": "Нууц үг оруулна уу",
+    "confirm-password": "Нууц үг баталгаажуулах",
+    "select-purpose": "Зорилго сонгох",
+    "subscribe-to-email-updates": "Имэйл мэдээлэл хүлээн авах",
+    "create-owner": "Эзэмшигч үүсгэх",
+    "purpose-personal-project": "Хувийн төсөл удирдах",
+    "purpose-internal-company": "Компанийн дотоод хэрэгцээнд ашиглах",
+    "purpose-attract-businesses": "Шинэ бизнес татах",
+    "success": "Амжилттай",
+    "owner-created": "Эзэмшигч амжилттай үүслээ",
+    "something-went-wrong": "Уучлаарай! Алдаа гарлаа.",
+    "initial-configuration-steps": "Анхны тохиргооны алхамууд",
+    "fill-out-form": "Суулгалтаа дуусгахын тулд дараах маягтыг бөглөнө үү"
+  }
 }
