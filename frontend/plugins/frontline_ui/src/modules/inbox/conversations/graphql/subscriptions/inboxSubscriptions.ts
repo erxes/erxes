@@ -27,9 +27,7 @@ export const CONVERSATION_CHANGED = gql`
   }
 `;
 
-export const CONVERSATION_MESSAGE_INSERTED = gql`
-  subscription FrontlineConversationMessageInserted($_id: String!) {
-    conversationMessageInserted(_id: $_id) {
+const CONVERSATION_MESSAGE_FIELDS = `
       _id
       ${STRUCTURED_MESSAGE_FIELDS}
       conversationId
@@ -47,6 +45,12 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       source
       relatedMessage
       fromBot
+`;
+
+export const CONVERSATION_MESSAGE_INSERTED = gql`
+  subscription FrontlineConversationMessageInserted($_id: String!) {
+    conversationMessageInserted(_id: $_id) {
+      ${CONVERSATION_MESSAGE_FIELDS}
     }
   }
 `;
@@ -54,9 +58,7 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
 export const CONVERSATION_MESSAGE_UPDATED = gql`
   subscription FrontlineConversationMessageUpdated($_id: String!) {
     conversationMessageUpdated(_id: $_id) {
-      _id
-      conversationId
-      isCustomerRead
+      ${CONVERSATION_MESSAGE_FIELDS}
     }
   }
 `;
@@ -108,7 +110,7 @@ const customerConnectionChanged = `
   }
 `;
 
-export default {
+export const inboxSubscriptions = {
   conversationChanged,
   conversationMessageInserted,
   conversationClientTypingStatusChanged:

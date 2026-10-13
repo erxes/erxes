@@ -5,12 +5,14 @@ import { z } from 'zod';
 import { CLIENTPORTAL_FIREBASE_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { IClientPortal } from '@/client-portal/types/clientPortal';
 import { useUpdateClientPortal } from '@/client-portal/hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   clientPortal?: IClientPortal | null;
 }
 
 export function ClientPortalDetailFirebase({ clientPortal }: Props) {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const form = useForm<z.infer<typeof CLIENTPORTAL_FIREBASE_SCHEMA>>({
     resolver: zodResolver(CLIENTPORTAL_FIREBASE_SCHEMA),
     defaultValues: {
@@ -36,7 +38,7 @@ export function ClientPortalDetailFirebase({ clientPortal }: Props) {
   }
 
   return (
-    <InfoCard title="Firebase Configuration">
+    <InfoCard title={t('firebase-configuration')}>
       <InfoCard.Content>
         <Form {...form}>
           <form
@@ -56,11 +58,11 @@ export function ClientPortalDetailFirebase({ clientPortal }: Props) {
                       />
                     </Form.Control>
                     <Form.Label variant="peer">
-                      Enable push notifications (Firebase)
+                      {t('enable-push-notifications')}
                     </Form.Label>
                   </div>
                   <Form.Description>
-                    Send push notifications to client portal users via FCM
+                    {t('push-notifications-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -71,7 +73,7 @@ export function ClientPortalDetailFirebase({ clientPortal }: Props) {
               name="serviceAccountKey"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Service account key</Form.Label>
+                  <Form.Label>{t('service-account-key')}</Form.Label>
                   <Form.Control>
                     <Textarea
                       {...field}
@@ -81,8 +83,7 @@ export function ClientPortalDetailFirebase({ clientPortal }: Props) {
                     />
                   </Form.Control>
                   <Form.Description>
-                    Paste the JSON from Firebase Console → Project settings →
-                    Service accounts → Generate new private key
+                    {t('service-account-key-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -95,7 +96,7 @@ export function ClientPortalDetailFirebase({ clientPortal }: Props) {
               disabled={loading}
             >
               {loading && <Spinner containerClassName="w-auto flex-none" />}
-              Save
+              {t('save')}
             </Button>
           </form>
         </Form>

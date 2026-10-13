@@ -5,12 +5,14 @@ import { useAutomationExecutionResultPanel } from '@/automations/components/buil
 import { IconX } from '@tabler/icons-react';
 import { Button, ScrollArea, Separator, Skeleton } from 'erxes-ui';
 import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * The one place an action result is read in full. Both history views select
  * into it, so no result ever has to open a popover or a dialog of its own.
  */
 export const AutomationExecutionResultPanel = () => {
+  const { t } = useTranslation('automations');
   const {
     action,
     actionStatus,
@@ -41,7 +43,7 @@ export const AutomationExecutionResultPanel = () => {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Close result panel"
+          aria-label={t('history-close-result-panel')}
           onClick={onClose}
         >
           <IconX className="size-4" />

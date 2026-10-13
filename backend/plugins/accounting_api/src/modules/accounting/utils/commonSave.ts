@@ -9,7 +9,7 @@ import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
-import { commonRemove } from './commonRemove';
+import { commonRemoveValidation } from './commonRemove';
 import { syncFxaIncomeDetails } from './fxaIncome';
 import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from './fxaOut';
 import {
@@ -32,6 +32,29 @@ import {
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
+
+export const commonSaveValidation = async (
+  subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+): Promise<void> => {
+  const validators: Record<
+    string,
+    (
+      subdomain: string,
+      models: IModels,
+      userId: string,
+      doc: ITransaction,
+      oldTr?: ITransactionDocument,
+    ) => Promise<void>
+  > = {
+    fxaIncome: validateFxaIncomeSave,
+  };
+  const validator = validators[doc.journal];
+  if (validator) await validator(subdomain, models, userId, doc, oldTr);
+};
 
 export const commonSave = async (
   subdomain: string,
@@ -399,6 +422,22 @@ async function handleInvSaleReturn(
   return { mainTr: transaction, otherTrs };
 }
 
+async function validateFxaIncomeSave(
+  subdomain: string,
+  models: IModels,
+  _userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+): Promise<void> {
+  if (!oldTr) return;
+  const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
+  if (removedDetailIds.length) {
+    await commonRemoveValidation(subdomain, models, oldTr, undefined, {
+      detailIds: removedDetailIds,
+    });
+  }
+}
+
 async function handleFxaIncome(
   subdomain: string,
   models: IModels,
@@ -408,17 +447,6 @@ async function handleFxaIncome(
 ) {
   const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
   await taxTrsClass.checkTaxValidation();
-
-  if (oldTr) {
-    const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
-
-    if (removedDetailIds.length) {
-      await commonRemove(subdomain, models, oldTr, undefined, {
-        detailIds: removedDetailIds,
-        validateOnly: true,
-      });
-    }
-  }
 
   const transaction = await createOrUpdateTr(
     models,

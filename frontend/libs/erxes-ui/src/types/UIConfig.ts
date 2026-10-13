@@ -147,6 +147,19 @@ export type IUIConfig = {
       icon?: React.ElementType;
       label?: string;
     }[];
+    // Sections a plugin adds to another plugin's settings page, e.g. what a
+    // POS or a pipeline sends to loyalty.
+    relationSettingsWidgets?: {
+      name: string;
+      icon?: React.ElementType;
+      label?: string;
+    }[];
+    // Fields a plugin offers for picking its own records inside another
+    // plugin's form, with whatever creating one there takes.
+    recordPickerWidgets?: {
+      name: string;
+      contentType: string;
+    }[];
     customerDetailWidgets?: {
       name: string;
     }[];

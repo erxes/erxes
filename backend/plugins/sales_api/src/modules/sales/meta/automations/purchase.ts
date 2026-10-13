@@ -3,6 +3,8 @@ import { IDeal } from '../../@types';
 
 // The loyalty action that reads a deal as a purchase.
 export const LOYALTY_ADJUST_SCORE_ACTION = 'loyalty:score.score.create';
+// Set tier by amount bands reads the same purchase total.
+export const LOYALTY_SET_TIER_ACTION = 'loyalty:score.tier.create';
 
 const isScoreProduct = (product: { tickUsed?: boolean }) => !!product.tickUsed;
 
@@ -12,7 +14,10 @@ const isScoreProduct = (product: { tickUsed?: boolean }) => !!product.tickUsed;
  */
 export const dealPaidAmount = async (
   models: IModels,
-  deal: Pick<IDeal, 'stageId' | 'totalAmount' | 'productsData' | 'paymentsData'>,
+  deal: Pick<
+    IDeal,
+    'stageId' | 'totalAmount' | 'productsData' | 'paymentsData'
+  >,
 ) => {
   const stage = deal.stageId
     ? await models.Stages.findOne({ _id: deal.stageId }).lean()
@@ -39,6 +44,12 @@ export const dealPaidAmount = async (
 
   return Math.max(0, totalAmount - pointsPaid);
 };
+
+// What the deal earns on: the rows marked for score, before points.
+export const dealScoreTotal = (deal: Pick<IDeal, 'productsData'>) =>
+  (deal.productsData || [])
+    .filter(isScoreProduct)
+    .reduce((sum, product) => sum + (Number(product.amount) || 0), 0);
 
 export const dealPurchaseItems = (deal: Pick<IDeal, 'productsData'>) =>
   (deal.productsData || []).filter(isScoreProduct).map((product) => ({

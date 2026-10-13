@@ -4,7 +4,7 @@ import { Sidebar, Skeleton, useConfirm, useQueryState } from 'erxes-ui';
 import { useBoardRemove, useBoards } from '@/deals/boards/hooks/useBoards';
 import { useEffect, useMemo } from 'react';
 
-import { BoardForm } from './BoardForm';
+import { BoardForm } from '@/deals/boards/components/settings/BoardForm';
 import { IBoard } from '@/deals/types/boards';
 import { useTranslation } from 'react-i18next';
 
@@ -32,9 +32,13 @@ export const BoardsList = () => {
   const { t } = useTranslation('sales');
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel
+      className="flex-none border-r"
+      label={`${t('boards')} (${boards?.length || 0})`}
+      actions={<BoardForm />}
+    >
       <Sidebar.Group>
-        <div className="flex w-full items-center justify-between">
+        <div className="mt-(--navigation-top-controls-space,0rem) flex w-full items-center justify-between">
           <Sidebar.GroupLabel>
             {t('boards')} ({boards?.length || 0})
           </Sidebar.GroupLabel>
@@ -56,7 +60,7 @@ export const BoardsList = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

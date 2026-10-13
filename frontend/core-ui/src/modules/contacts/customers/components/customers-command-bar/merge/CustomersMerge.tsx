@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { MergeSheet } from './MergeSheet';
 import { ICustomer } from '@/contacts/types/customerType';
@@ -27,6 +28,7 @@ export const CustomersMerge = ({
   rows,
 }: MergeProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const { mergeCustomers } = useMergeCustomers();
   const handleSave = () => {
@@ -37,7 +39,7 @@ export const CustomersMerge = ({
       },
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error-title'),
           description: e.message,
           variant: 'destructive',
         });
@@ -48,9 +50,9 @@ export const CustomersMerge = ({
         });
         setSheetOpen(false);
         toast({
-          title: 'Success',
+          title: t('success-title'),
           variant: 'success',
-          description: 'Customers merged successfully',
+          description: t('merged-success'),
         });
       },
     });
@@ -343,7 +345,9 @@ export const CustomersMerge = ({
       </div>
 
       <div className="flex-[1.2] ml-5 flex flex-col gap-2">
-        <span className="text-sm font-semibold text-primary mb-1">Merge</span>
+        <span className="text-sm font-semibold text-primary mb-1">
+          {t('action-merge')}
+        </span>
 
         {value ? (
           <div className="flex flex-col gap-2 ">

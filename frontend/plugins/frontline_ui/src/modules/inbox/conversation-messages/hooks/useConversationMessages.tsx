@@ -2,7 +2,10 @@ import { useQuery } from '@apollo/client';
 import type { QueryHookOptions } from '@apollo/client';
 import { useCallback, useEffect, useRef } from 'react';
 import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import {
+  CONVERSATION_MESSAGE_INSERTED,
+  CONVERSATION_MESSAGE_UPDATED,
+} from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 import type { IMessage } from '@/inbox/types/Conversation';
 
 export const useConversationMessages = (
@@ -94,7 +97,7 @@ export const useConversationMessages = (
   ]);
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<{
+    const unsubscribeInserted = subscribeToMore<{
       conversationMessageInserted: IMessage;
     }>({
       document: CONVERSATION_MESSAGE_INSERTED,
@@ -123,25 +126,19 @@ export const useConversationMessages = (
           return { ...prev, conversationMessages };
         }
 
-        try {
-          // Get the cache ID for the conversation
-          const conversationId = client.cache.identify({
-            __typename: 'Conversation',
-            _id: conversationId,
-          });
+        const cacheId = client.cache.identify({
+          __typename: 'Conversation',
+          _id: conversationId,
+        });
 
-          if (conversationId && !newMessage.internal) {
-            // Update the conversation in the cache
-            client.cache.modify({
-              id: conversationId,
-              fields: {
-                content: () => newMessage.content,
-                updatedAt: () => newMessage.createdAt,
-              },
-            });
-          }
-        } catch (error) {
-          console.error('Error updating cache:', error);
+        if (cacheId && !newMessage.internal) {
+          client.cache.modify({
+            id: cacheId,
+            fields: {
+              content: () => newMessage.content,
+              updatedAt: () => newMessage.createdAt,
+            },
+          });
         }
 
         return {
@@ -151,7 +148,33 @@ export const useConversationMessages = (
         };
       },
     });
-    return unsubscribe;
+    const unsubscribeUpdated = subscribeToMore<{
+      conversationMessageUpdated: IMessage;
+    }>({
+      document: CONVERSATION_MESSAGE_UPDATED,
+      variables: { _id: conversationId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const message = subscriptionData.data?.conversationMessageUpdated;
+        if (!prev || !message || message.conversationId !== conversationId) {
+          return prev;
+        }
+        if (!prev.conversationMessages.some(({ _id }) => _id === message._id)) {
+          return prev;
+        }
+        return {
+          ...prev,
+          conversationMessages: prev.conversationMessages.map((previous) =>
+            previous._id === message._id
+              ? { ...previous, ...message }
+              : previous,
+          ),
+        };
+      },
+    });
+    return () => {
+      unsubscribeInserted();
+      unsubscribeUpdated();
+    };
   }, [client.cache, conversationId, subscribeToMore]);
 
   return {

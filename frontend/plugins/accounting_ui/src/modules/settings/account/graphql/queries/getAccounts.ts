@@ -1,121 +1,163 @@
-import { gql } from '@apollo/client';
-import {
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_PAGE_INFO,
-  GQL_CURSOR_PARAMS,
-} from 'erxes-ui';
+import { gql } from '~/gql';
 
-export const ACCOUNT_MINI_FIELDS = `
-  _id
-  code
-  name
-  status
-  currency
-  kind
-  journal
-  branchId
-  departmentId
-  isTemp
-  isOutBalance
-  extra 
-`;
-
-export const ACCOUNT_FIELDS = `
-  ${ACCOUNT_MINI_FIELDS}
-
-  description
-  categoryId
-  parentId
-  createdAt
-  scopeBrandIds
-`;
-
-const ACCOUNT_PARAM_DEFS = `
-  $status: String
-  $categoryId: String
-  $currency: String
-  $searchValue: String
-  $brand: String
-  $ids: [String]
-  $excludeIds: Boolean
-  $isTemp: Boolean
-  $isOutBalance: Boolean
-  $branchId: String
-  $departmentId: String
-  $journal: String
-  $journals: [String]
-  $kind: String
-  $code: String
-  $name: String
-  $permissionMode: String
-  ${GQL_CURSOR_PARAM_DEFS}
-`;
-
-const ACCOUNT_PARAMS = `
-  status: $status
-  categoryId: $categoryId
-  searchValue: $searchValue
-  brand: $brand
-  ids: $ids
-  excludeIds: $excludeIds
-  isTemp: $isTemp
-  isOutBalance: $isOutBalance
-  branchId: $branchId
-  currency: $currency
-  departmentId: $departmentId
-  journal: $journal
-  journals: $journals
-  kind: $kind
-  code: $code
-  name: $name
-  permissionMode: $permissionMode
-  ${GQL_CURSOR_PARAMS}
-`;
-
-export const GET_ACCOUNTS_MAIN = gql`
-  query AccountsMain(
-    ${ACCOUNT_PARAM_DEFS}
+export const GET_ACCOUNTS_MAIN = gql(`
+query accountingAccountsMain($status: String, $categoryId: String, $currency: String, $searchValue: String, $brand: String, $ids: [String], $excludeIds: Boolean, $isTemp: Boolean, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $journal: String, $journals: [String], $kind: String, $code: String, $name: String, $permissionMode: String, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
+  accountsMain(
+    status: $status
+    categoryId: $categoryId
+    searchValue: $searchValue
+    brand: $brand
+    ids: $ids
+    excludeIds: $excludeIds
+    isTemp: $isTemp
+    isOutBalance: $isOutBalance
+    branchId: $branchId
+    currency: $currency
+    departmentId: $departmentId
+    journal: $journal
+    journals: $journals
+    kind: $kind
+    code: $code
+    name: $name
+    permissionMode: $permissionMode
+    cursor: $cursor
+    cursorMode: $cursorMode
+    direction: $direction
+    limit: $limit
   ) {
-    accountsMain(
-      ${ACCOUNT_PARAMS}
-    ) {
-      list {
-        ${ACCOUNT_FIELDS}
+    list {
+      _id
+      code
+      name
+      status
+      currency
+      kind
+      journal
+      branchId
+      departmentId
+      isTemp
+      isOutBalance
+      extra {
+        bank
+        bankAccount
       }
-      totalCount
-      ${GQL_PAGE_INFO}
+      description
+      categoryId
+      parentId
+      createdAt
+      scopeBrandIds
+    }
+    totalCount
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
     }
   }
-`;
+}
+`);
 
-export const GET_ACCOUNTS = gql`
-  query Accounts(
-    ${ACCOUNT_PARAM_DEFS}
+export const GET_ACCOUNTS = gql(`
+query accountingAccounts($status: String, $categoryId: String, $currency: String, $searchValue: String, $brand: String, $ids: [String], $excludeIds: Boolean, $isTemp: Boolean, $isOutBalance: Boolean, $branchId: String, $departmentId: String, $journal: String, $journals: [String], $kind: String, $code: String, $name: String, $permissionMode: String, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
+  accountsMain(
+    status: $status
+    categoryId: $categoryId
+    searchValue: $searchValue
+    brand: $brand
+    ids: $ids
+    excludeIds: $excludeIds
+    isTemp: $isTemp
+    isOutBalance: $isOutBalance
+    branchId: $branchId
+    currency: $currency
+    departmentId: $departmentId
+    journal: $journal
+    journals: $journals
+    kind: $kind
+    code: $code
+    name: $name
+    permissionMode: $permissionMode
+    cursor: $cursor
+    cursorMode: $cursorMode
+    direction: $direction
+    limit: $limit
   ) {
-    accountsMain(
-      ${ACCOUNT_PARAMS}
-    ) {
-      list {
-        ${ACCOUNT_MINI_FIELDS}
+    list {
+      _id
+      code
+      name
+      status
+      currency
+      kind
+      journal
+      branchId
+      departmentId
+      isTemp
+      isOutBalance
+      extra {
+        bank
+        bankAccount
       }
-      totalCount
-      ${GQL_PAGE_INFO}
+    }
+    totalCount
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
     }
   }
-`;
+}
+`);
 
-export const GET_ACCOUNT_DETAIL = gql`
-  query accountDetail($id: String) {
-    accountDetail(_id: $id) {
-      ${ACCOUNT_FIELDS}
+export const GET_ACCOUNT_DETAIL = gql(`
+query accountingAccountDetail($id: String!) {
+  accountDetail(_id: $id) {
+    _id
+    code
+    name
+    status
+    currency
+    kind
+    journal
+    branchId
+    departmentId
+    isTemp
+    isOutBalance
+    extra {
+      bank
+      bankAccount
     }
+    description
+    categoryId
+    parentId
+    createdAt
+    scopeBrandIds
   }
-`;
+}
+`);
 
-export const GET_ASSIGNED_ACCOUNTS = gql`
-  query AssignedAccounts($ids: [String], $permissionMode: String) {
-    accounts(ids: $ids, permissionMode: $permissionMode) {
-      ${ACCOUNT_MINI_FIELDS}
+export const GET_ASSIGNED_ACCOUNTS = gql(`
+query accountingAssignedAccounts($ids: [String], $permissionMode: String) {
+  accounts(ids: $ids, permissionMode: $permissionMode) {
+    _id
+    code
+    name
+    status
+    currency
+    kind
+    journal
+    branchId
+    departmentId
+    isTemp
+    isOutBalance
+    extra {
+      bank
+      bankAccount
     }
   }
-`;
+}
+`);

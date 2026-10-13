@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectEmailTemplate } from '@/automations/components/builder/nodes/actions/sendEmail/components/SelectEmailTemplate';
 import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
 import {
@@ -20,6 +21,7 @@ export const EmailTemplateSelector = ({
   /** Only offer templates this editor can open without switching away. */
   format?: TEmailContentFormat;
 }) => {
+  const { t } = useTranslation('automations');
   const { setValue } = useFormContext();
   const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
   const { confirm } = useConfirm();
@@ -31,8 +33,7 @@ export const EmailTemplateSelector = ({
 
     if (content?.trim()) {
       confirm({
-        message:
-          'Are you sure you want to set this template to the email content? This will replace the current content.',
+        message: t('send-email-template-replace-confirm'),
       }).then(() => loadEmailTemplate(templateId));
 
       return;
@@ -62,7 +63,7 @@ export const EmailTemplateSelector = ({
   return (
     <SelectEmailTemplate
       onSelect={handleTemplateSelect}
-      placeholder="Select email template to load"
+      placeholder={t('send-email-select-template-to-load-placeholder')}
       format={format}
     />
   );

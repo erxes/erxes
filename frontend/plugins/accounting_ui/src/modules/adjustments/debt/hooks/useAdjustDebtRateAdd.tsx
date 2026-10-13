@@ -1,20 +1,28 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { ADJUST_DEBT_RATE_ADD } from '../graphql/adjustDebtRateAdd';
 import { toast } from 'erxes-ui';
 import { ADJUST_DEBT_RATE_QUERY } from '../graphql/adjustDebtRateQueries';
 
-export const useAdjustDebtRateAdd = (options?: OperationVariables) => {
+export const useAdjustDebtRateAdd = (
+  options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_ADD>,
+) => {
+  const { t } = useTranslation('accounting');
   const [_addAdjustDebtRate, { loading }] = useMutation(
     ADJUST_DEBT_RATE_ADD,
     options,
   );
 
-  const addAdjustDebtRate = (options?: OperationVariables) => {
+  const addAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_ADD>,
+  ) => {
     return _addAdjustDebtRate({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -22,8 +30,8 @@ export const useAdjustDebtRateAdd = (options?: OperationVariables) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Debt Rate Adjustment created successfully',
+          title: t('success'),
+          description: t('Debt Rate Adjustment created successfully'),
         });
         options?.onCompleted?.(data);
       },

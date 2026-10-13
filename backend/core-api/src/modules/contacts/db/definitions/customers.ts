@@ -17,13 +17,13 @@ const getEnum = (fieldName: string): string[] => {
 export const customerSearchTokenConfig: ISearchTokenConfig = {
   enabled: true,
   fields: [
-    { path: 'firstName', mode: 'prefix', minLength: 2 },
-    { path: 'middleName', mode: 'prefix', minLength: 2 },
-    { path: 'lastName', mode: 'prefix', minLength: 2 },
+    { path: 'firstName', mode: 'word-prefix', minLength: 2 },
+    { path: 'middleName', mode: 'word-prefix', minLength: 2 },
+    { path: 'lastName', mode: 'word-prefix', minLength: 2 },
     { path: 'primaryEmail', mode: 'word-prefix', minLength: 3 },
     { path: 'emails', mode: 'word-prefix', minLength: 3 },
-    { path: 'primaryPhone', mode: 'word-prefix', minLength: 1 },
-    { path: 'phones', mode: 'word-prefix', minLength: 1 },
+    { path: 'primaryPhone', mode: 'word-prefix', minLength: 3 },
+    { path: 'phones', mode: 'word-prefix', minLength: 3 },
     { path: 'code', mode: 'exact', minLength: 1 },
     { path: 'visitorContactInfo.email', mode: 'word-prefix', minLength: 3 },
     { path: 'visitorContactInfo.phone', mode: 'word-prefix', minLength: 1 },

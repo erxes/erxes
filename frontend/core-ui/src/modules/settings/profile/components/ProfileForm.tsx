@@ -95,15 +95,13 @@ export const ProfileForm = () => {
         </div>
         <div className="flex flex-col gap-3">
           <Form.Label>{t('email')}</Form.Label>
-          <Form.Description>
-            {t('email-description')}
-          </Form.Description>
+          <Form.Description>{t('email-description')}</Form.Description>
           <FormField
             name={'email' as keyof FormType}
             element="input"
             attributes={{
               type: 'email',
-              placeholder: 'Enter email',
+              placeholder: t('enter-email'),
             }}
           />
         </div>

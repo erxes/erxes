@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
 import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
 import { emailTemplateFormat, IEmailTemplate } from '@/emailTemplates/types';
@@ -107,10 +108,12 @@ function EmailTemplateMenu({
   emailTemplates,
   loading,
 }: EmailTemplateMenuProps) {
+  const { t } = useTranslation('automations');
+
   if (loading) {
     return (
       <SuggestionMenu>
-        <div className="p-2">Loading email templates...</div>
+        <div className="p-2">{t('send-email-loading-templates')}</div>
       </SuggestionMenu>
     );
   }
@@ -118,7 +121,7 @@ function EmailTemplateMenu({
   if (items.length === 0) {
     return (
       <SuggestionMenu>
-        <div className="p-2">No email templates found.</div>
+        <div className="p-2">{t('send-email-no-templates-found-period')}</div>
       </SuggestionMenu>
     );
   }

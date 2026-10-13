@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -20,7 +20,7 @@
 - Channel settings (list, detail, members, integrations) and channel forms.
 - The `Move to channel` action on every channel-owned resource: integrations,
   ticket pipelines, forms, surveys and response templates.
-- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
+- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord, Telegram,
   calls, Call Pro, and the erxes messenger.
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
@@ -47,17 +47,18 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
-  and a record table behind one list/thumbnail toggle — and,
-  per topic, the `articles`, `categories` and `kbsettings` routes behind a shared
-  knowledge base sidebar — record tables with inline editing, filters, command
-  bar bulk delete, and the topic, category and article drawers. A topic's
-  embed script opens as a dialog from its `kbsettings` page.
+- Knowledge base UI: a topic tree sidebar beside every knowledge base page —
+  each topic collapses open to its categories (nested by parent, with article
+  counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
+  routes: record tables with inline editing, filters, command bar bulk delete,
+  and the topic, category and article drawers. A topic's embed script opens as
+  a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
-  help center drawer (General, Appearance, and — when editing — Embed), which is
+  help center drawer (General, Appearance, and — when editing — Embed and
+  Domain), which is
   the only place a help center is edited. Its **Forms** card, shown only while the ticket
   switch is on, has its own channel select and a multi-select of that
   channel's forms (`formChannelId` / `formIds`); its **CMS** card multi-selects
@@ -86,6 +87,22 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Telegram setup derives its public address from `REACT_APP_API_URL` and the
+  existing `/pl:frontline` gateway route. Local/non-public API addresses require
+  an explicit HTTPS tunnel; custom deployments can override the address.
+  Existing connections retain their registered callback. Connection names are
+  optional and default to the verified bot's name. Create/edit preview the
+  generated callback URL. Bot
+  health/webhook actions, chat/topic labels, quotes, polls, media, edits,
+  observed reactions and safe link cards integrate with the existing inbox.
+- Telegram Disconnect remains available after a webhook status failure. It
+  reports local deactivation separately from unconfirmed provider cleanup and
+  refetches active setup/integration queries; status errors remain inline.
+- Integrations config includes a Telegram section with setup instructions and
+  links to personal and team inbox settings. Each bot is configured through
+  the existing inbox integration sheet; no workspace-wide bot credentials are
+  duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
   (`SelectErxesMessenger`, saved as `config.integrationId`); empty means every
@@ -392,7 +409,8 @@
 - The inbox composer is note-only (Reply tab disabled, Internal Note selected)
   for `lead`, `calls`, `callpro` and `mail` conversations — the first three
   cannot carry an outbound reply, and mail replies go through the mail compose
-  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in `MessageInput.tsx`.
+  box. The list lives in `NOTE_ONLY_INTEGRATION_KINDS` in
+  `conversation-detail/constants/composer.ts`.
 - The ticket list/board filter offers Branch and Department multi-selects
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
@@ -461,12 +479,27 @@
 
 ## Architecture
 
+Telegram setup and provider-specific presentation live in
+`src/modules/integrations/telegram/`. It reuses `ComposerShell`, `ComposerEditor`,
+`ComposerToolbar`, `useComposerSend`, `messageReplyState` and `MessageAttachments`.
+Composer components live in `conversation-detail/components/composer/` and
+their hooks in `conversation-detail/hooks/composer/`. `MessageInput` composes
+the shared draft, attachment, gallery and send hooks; Telegram keeps its
+provider flags at those existing entry points.
+`TelegramMessageAttachments.tsx` only adds the Cloudflare Stream player and
+media open links; native audio/video/image/file rendering remains shared within
+Frontline. No separate Telegram editor or reply atom is needed.
+`TelegramConfig.tsx` provides the Integrations config entry and links to the
+existing personal/team inbox routes, where `TelegramIntegrationDetail.tsx`
+owns the setup form and connection actions.
+
 | Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
+| Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
 | Settings routes           | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
 | Channel picker            | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
 | Move to channel           | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
@@ -498,11 +531,12 @@
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                        |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel   |
-| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                         |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
+| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
-| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
+| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
 | Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
 | Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
@@ -750,6 +784,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Data and State
 
+- Telegram reply selection uses the inbox `messageReplyState`; provider IDs
+  come from `extraData.telegram.messageId` or the first outbound `messageIds`
+  receipt. The existing conversation-change cleanup and user/conversation
+  scoped session drafts apply to Telegram too.
+
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -813,6 +852,48 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- The conversations filter bar header (`ConversationsHeader`) uses
+  `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
+  the sidebar tint.
+- Expandable navigation rows end in the host sidebar's chevron:
+  `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
+  open, never a filled caret, so the rotation stays on the compositor and
+  matches the main sidebar. Expandable group trigger buttons use `rounded`
+  like `Sidebar.MenuButton`.
+- The Team Inbox unread `NotificationCount` badge in `FrontlineNavigation.tsx`
+  stays the same compact size as the host's My inbox count
+  (`h-5 min-w-5 rounded-full px-1.5 text-[11px] tabular-nums`).
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
+  own open state (`sidebarPanelOpenState`), separate from the host's context
+  column. Never stack two headings: a menu without a heading passes one as
+  `label` (header row with the heading, optional `actions` and the collapse
+  toggle); a menu that starts with its own heading row (group label, collapsible
+  or accordion trigger) omits `label` and ends that row with
+  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
+  inside sheets and dialogs.
+- `PipelineSidebar` stays `<Sidebar collapsible="none">`: below `md` it turns
+  into a horizontal tab strip that must never collapse.
+- Telegram consumes existing message/attachment/poll contracts and adds only
+  optional `extraData.telegram` display metadata. Use native message actions
+  and reply previews. Telegram poll labels name Telegram; other providers keep
+  their defaults. Observed Telegram reactions do not enable send-reaction UI.
+- Keep Telegram linkification, authenticated preview lookup and Stream-origin
+  validation inside its module. Quotes render literal provider text. Never
+  put Telegram bot tokens or token-bearing download URLs in browser data.
+- Reconcile a saved Telegram bot with the server before retrying inbox linking;
+  a lost mutation response may hide an already-committed integration.
+- Telegram chat-label loads explicitly settle both success and rejection;
+  failed metadata reads preserve existing labels or the inbox/customer fallback.
+- Telegram attachment selection enforces both the configured upload limit
+  (20 MiB by default) and 50 MiB total across uploaded and pending files.
+  Immediate refs must account for rapid selections before the next render.
+- Cloudflare Stream players use the validated cross-origin host and a sandbox
+  permitting scripts, their own origin and presentation, without top navigation.
+- Telegram suppresses automatic response-template suggestions while typing;
+  the explicit template selector remains available. Preserve other providers'
+  composer behavior, Facebook partial-delivery recovery, Instagram error
+  feedback and stale-send/draft guards.
 
 - The inbox and ticket composers pick their mode through the one
   `ComposerModeTabs`; a composer that separates a customer reply from an
@@ -937,6 +1018,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   patch on top, and refuses the write when `title` would end up empty. `title`
   is the only required field — `brandId` is optional, and a brand-less help
   center stays inline-editable.
+- Help center save feedback uses its own `help-center-saved`,
+  `help-center-created` and `help-center-needs-name` keys in
+  `useSaveHelpCenter` and `useEditHelpCenter`; never reuse the knowledge base
+  `kb-topic-*` keys, whose defaults say "Topic".
 - The table's ticket channel/pipeline/status cells reuse the ticket module's
   `Select*` components in their `table` variant, but pass their own
   `onValueChange` — those components' roots save onto a ticket, and
@@ -970,9 +1055,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
 - `HelpCenterDrawer` splits across `SheetNavSidebar` tabs — **general** and
-  **appearance** always, plus **embed** while editing (`HELP_CENTER_TABS` vs
-  `HELP_CENTER_CREATE_TABS`, because a config must exist before its script is
-  worth showing): general stacks full-width cards in a fixed order — general
+  **appearance** always, plus **embed** and **domain** while editing
+  (`HELP_CENTER_TABS` vs `HELP_CENTER_CREATE_TABS`, because a config must exist
+  before its script or domain is worth showing): general stacks full-width cards in a fixed order — general
   settings (name and client portal side by side, then description), knowledge
   base,
   tickets, forms, and CMS. Each feature card keeps its
@@ -1149,7 +1234,15 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `knowledgeBaseBundle.js` output is a published contract with every site that
   already embedded a topic: change the surface around it, never the generated
   text. It needs no query and no new field — a topic's `_id` is the whole
-  input.
+  input. The bundle it loads is built by `apps/frontline-widgets`
+  (`compile:knowledgebase`); the panel's install hint names the optional
+  `<div data-erxes-kbase></div>` that embeds the widget inline instead of as a
+  corner button.
+- Every install snippet (messenger, form, knowledge base) takes its host from
+  `REACT_APP_WIDGETS_URL` in `src/modules/utils.ts`: `window.env` first, then
+  the build-time value `rspack.config.ts` defines from `.env`, then
+  `http://localhost:4200` (the `frontline-widgets` dev server) in development.
+  Never fall back to the gateway — it serves none of the bundles.
 
 - Appearance fields are one nested `styles` block on the config, addressed as
   `styles.<name>` through React Hook Form and rendered by the four
@@ -1231,7 +1324,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   document because `Survey.results` runs two aggregations per survey; the
   management list must not select it.
 - The composer shows two different controls by integration kind:
-  `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
+  `PollComposer` (ad-hoc, provider-native) for `discord-messenger` and
+  `telegram-messenger`, and
   `SendSurveyDialog` (saved survey) for `messenger`. Neither is a fallback for
   the other.
 - Discord polls and erxes surveys are separate all the way down. Discord writes
@@ -1276,11 +1370,12 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   want the sidebar filters applied must not pass `variables` at all.
 - Both inbox nav groups render channels through `ChannelNavItem`, so `Me` and
   `Team inbox` stay structurally identical: the row itself selects the whole
-  channel (`channelId` set, `integrationType` cleared) and the caret expands the
+  channel (`channelId` set, `integrationType` cleared) and the chevron (the same
+  `IconChevronRight` the host sidebar uses for expandable rows) expands the
   integration types inside it, each of which narrows the same channel by source.
   A `NavigationMenuGroup` header is itself a collapse control, so a group that
   holds exactly one channel renders that channel with `collapsible={false}`:
-  the personal row therefore has no caret of its own, since a second caret there
+  the personal row therefore has no chevron of its own, since a second one there
   would collapse the very rows the group header already collapses. Do not turn a
   group header into a selection control to work around this.
 - The personal channel row is labelled `personal-channel` ("Personal channel"),
@@ -1582,19 +1677,22 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `useRestoreTicketChartFilters` reports back — it holds the query with `skip`
   and shows its skeleton, otherwise the card flashes unfiltered data before the
   saved filters land.
-- The Facebook board is reached through `/frontline/reports/facebook` and the
-  page header's `ToggleGroup` in `ReportIndexPage`, which is the only report
-  navigation a user can actually click. `ReportsView` also still renders it for
-  `?reportModule=facebook`; keep both, because the query-param path is what the
-  `REPORT_MODULES` entry uses. The KPI row reads the header's
-  `OVERVIEW_KPI_DATE_FILTER_ID` date atom, exactly like the conversation board,
-  so the header filter keeps driving it.
+- The report boards (overview, ticket, Facebook, call center) are picked from
+  the `ToggleGroup` header tabs in `ReportIndexPage`; there is no context-
+  column navigation for `/frontline/reports*`. The boards' paths, labels,
+  icons and path matching live in
+  `src/modules/report/constants/reportSections.ts` — add a board there, not
+  in the page. The Facebook board lives at `/frontline/reports/facebook`.
+  `ReportsView` also still renders it for `?reportModule=facebook`; keep
+  both, because the query-param path is what the `REPORT_MODULES` entry uses.
+  The KPI row reads the header's `OVERVIEW_KPI_DATE_FILTER_ID` date atom,
+  exactly like the conversation board, so the header filter keeps driving it.
 - **`REPORT_MODULES` is not a visible menu.** `ChooseReportModule` renders it,
-  but its only consumer `ReportNavigations` is imported nowhere and
-  `FrontlineSubGroups` computes `isReport` and then returns `null` for
-  `/frontline/reports`. Adding an entry to `REPORT_MODULES` therefore ships no
-  clickable surface — a new report board needs a `ReportIndexPage` route and
-  toggle item as well.
+  but its only consumer `ReportNavigations` is imported nowhere; the report
+  boards are the `ReportIndexPage` header tabs. Adding an entry to
+  `REPORT_MODULES` therefore ships no clickable surface — a new report board
+  needs a `reportSections.ts` entry and a `reportContent` branch in
+  `ReportIndexPage`.
 - The posts card's "On Meta" column shows `—` until a sync has run, and the
   signed difference next to Meta's count is `meta − (comments + replies)` — a
   positive number means Meta has comments erxes never received, which is the
@@ -1639,19 +1737,105 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `useIsSettings` matches any path containing `/settings` and would swap the
   host's second navigation column for the workspace settings menu (the CMS
   names its own route `cmssettings` for the same reason).
-- The knowledge base is route-driven, not query-param driven: the topics index
-  lives at `/frontline/knowledgebase` and every per-topic surface at
+- The knowledge base is route-driven, not query-param driven: the index lives
+  at `/frontline/knowledgebase` and every per-topic surface at
   `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
   sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
-  reintroduce a `?topicId=`/`?categoryId=` selection for navigation. `editId`
-  (and the articles table's `categoryId` and `status` filters) stay query
-  params, because they are filter and drawer state, not routes.
-- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
-  default, mirroring the CMS website list) and the record table
-  (`TopicsRecordTable`), switched by the header toggle and sharing one
-  `useTopics` query and filter bar. Never drop one of the two.
+  reintroduce a `?topicId=` selection. A sidebar category links to its topic's
+  `articles` route with the existing `categoryId` filter param, so the sidebar
+  and the filter bar chip always show the same selection. `editId`,
+  `createTopic`, `categoryId` and `status` stay query params, because they are
+  filter and drawer state, not routes.
+- `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
+  every knowledge base page, including the index; there is no topics card grid
+  or topics table. The index redirects to the first topic's `articles` route,
+  carrying the query string so `?createTopic=true` from the Frontline
+  navigation still opens the sidebar's topic drawer; with no topics it shows
+  `TopicsEmptyState`.
+- The sidebar reads its selection from the route through
+  `useKnowledgeBaseRoute` and its expanded topic from
+  `kbSidebarOpenTopicIdAtom`. The tree is an accordion: at most one topic is
+  open, opening a topic closes the one before it, and closing a topic only
+  clears the atom when that topic is the open one. Arriving on a topic's
+  route opens it, and the open topic survives moving between that topic's
+  pages. It queries `TOPICS` (with nested
+  categories) without the search/brand filters — the articles search box must
+  never filter the tree. Article, category and topic writes all refetch
+  `TOPICS`, so tree titles and per-category article counts stay live.
+- The sidebar is an erxes-ui `Sidebar.Panel` (collapsible, `w-60`, its own
+  open state) without a `label`, laid out like the host's context column on
+  the Tickets/Forms pages: `KnowledgeBaseLayout` puts the panel full height to
+  the left of the `PageContainer`, so its first row — "Knowledge Base"
+  (`text-sm font-medium`, `h-12` to line up with `PageHeader`) with a `size-8`
+  `Sidebar.PanelTrigger`, with the ghost `+` (new topic) beside it — sits
+  beside the page header, followed by a `Separator` that continues the page
+  header's rule. There is no second "Knowledge bases" heading under it; the
+  panel's built-in `label` is not used either, because its mono face differs
+  from the other headings. When collapsed the panel still portals its expand trigger
+  into the page header's `data-sidebar-panel-slot`.
+  The panel resizes like the host's main sidebar: `sidebar/components/KbResizeHandle`
+  (a copy of core-ui's `NavigationResizeHandle`) sits on its right edge —
+  drag or arrow keys between `KB_SIDEBAR_MIN_WIDTH` (180) and
+  `KB_SIDEBAR_MAX_WIDTH` (480), double-click to reset. The width lives in
+  `kbSidebarWidthAtom` (`atomWithStorage` under `frontline:kb-sidebar-width`,
+  `null` = the panel's default `w-60`) and is passed as an inline `width`;
+  the panel's width transition is switched off while `kbSidebarResizingAtom`
+  is set, and its collapsed `w-0!` still wins over the inline width. The panel
+  keeps its children mounted while collapsed, so the topic and category
+  drawers inside it still open from `?createTopic=true`. The `+` opens
+  the full `TopicDrawer` sheet (every topic field, including appearance), and
+  creating or editing a category from the sidebar opens the full
+  `CategoryDrawer` sheet — never a reduced create dialog for either. A topic
+  row has one `...` button, shown on hover, that opens a dropdown through
+  `KbSidebarRowActions` (new category, manage categories, settings — a topic
+  is deleted only from its `kbsettings` danger zone). A category row has no
+  dropdown: `CategoryRowActions` shows two inline icon buttons on hover or
+  focus — pencil (edit, opens `CategoryDrawer`) and trash (delete, confirms
+  first, turns destructive on hover) — `size-5` with `size-3.5` icons and a
+  `title`. A topic row
+  uses the default `Sidebar.MenuButton` size (`h-7`) with the title only — no
+  chevron and no topic icon (a deliberate exception to the expandable-row
+  chevron rule above, asked for by the product owner), and there is no "All
+  articles" child — the topic
+  row is that link. Opening and closing copies the host's main sidebar
+  (`core-ui` `NavigationDisclosure`) through the plugin's own
+  `sidebar/components/KbDisclosure`: a `grid-rows-[0fr]`/`[1fr]` transition
+  (250ms, `cubic-bezier(0.22,1,0.36,1)`) with an opacity fade, children
+  mounted on first open and kept mounted afterwards. The topic row is a plain
+  `Sidebar.MenuButton` with `aria-expanded`/`aria-controls`, not a Radix
+  `Collapsible` — `Collapsible.Content` unmounts on close and cannot run that
+  transition. Clicking a topic that is not
+  showing its full article list (another topic, or the current one while a
+  category or `categories`/`kbsettings` is open) opens it — closing the
+  previous one — and navigates to `/:topicId/articles` in a transition whose
+  `isPending` already counts as active, so the row reacts on click.
+  Clicking the topic while its full list is showing only toggles it. The
+  current topic row is `isActive`, and erxes-ui's `Sidebar.MenuButton` turns
+  an active row that holds a `Sidebar.Sub` into the grey group highlight
+  (`bg-foreground/5`) — so an open current topic is grey and the selected
+  category inside it is the purple pill. Never recolour the topic row from
+  the plugin; that shared group rule owns it. Hovering
+  or focusing a non-current topic row prefetches that topic's
+  `ARTICLES`, `CATEGORIES` and `TOPIC_DETAIL` through `usePrefetchTopic`, so
+  its articles usually open from the Apollo cache. The prefetch builds its
+  variables with the same `articlesQueryVariables` /
+  `categoriesQueryVariables` the page hooks use — change those builders,
+  never hand-copy the variables, or the prefetch stops hitting the cache.
+  Topic and category rows are `rounded-sm` and press with
+  `active:bg-primary/10`. Categories render as a real tree: `groupCategoriesByParent` (sidebar `utils/`) groups them by parent,
+  sorted by title, re-attaching orphans and cycles to the root so none is lost
+  or rendered twice, and `CategoryTreeItem` recurses into a bordered
+  `Sidebar.Sub` per level. Category rows show title and an article-count pill
+  only, no category icon, muted until hovered or active; on hover or focus
+  the pill hides and the row reserves `pr-12` so the title truncates before
+  the two icons. Each hover group is `group/kb-row` on the
+  row itself (the topic row's wrapper `div`, the category `SubItem`), never the
+  enclosing `group/menu-item`, so hovering a category never reveals its topic's
+  menu. Deleting the selected category returns to its topic's articles.
+  Category deletion goes through `useConfirmRemoveCategory`, shared with the
+  categories table.
 - `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
-  are navigated from the topics index and the per-topic sidebar, never from a
+  are navigated from the knowledge base's own sidebar panel, never from a
   second navigation column.
 - The topic, category and article sheets group their fields into `InfoCard`
   sections inside a `ScrollArea`, the same shape the help center drawer uses —
@@ -1671,6 +1855,25 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   never silently drops it. Add a missing name to `ICONS` rather than rewriting
   the stored value. Its `variant="table"` renders through
   `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- Knowledge base tables are tuned for switching topics without a hitch; keep
+  these when touching them. `KbRecordTable` mounts rows in batches of
+  `PROGRESSIVE_BATCH_SIZE` (20) through `shared/hooks/useProgressiveRows`,
+  restarting only when its `resetKey` (the topic id) changes, so an inline
+  edit's refetch never shrinks the list. Smaller batches cost more, because
+  erxes-ui rows are not memoised and each batch re-renders the earlier rows.
+  Per-row text uses `shared/components/KbOverflowText`, which renders a plain
+  truncated span and swaps in erxes-ui's `TextOverflowTooltip` only on hover —
+  never put `TextOverflowTooltip` straight into a table cell, since every
+  instance runs its own timer and forced layout. `ArticlesRecordTable` is
+  `memo`ised and memoises its `KbRecordTable` element, so the `Articles` page
+  must pass stable callbacks and must not subscribe to `ARTICLES` itself (the
+  mutations already refetch it).
+- Topic, category and article `code` sit behind a **sparse** unique index, so a
+  missing code is fine but an empty string `""` counts as a value and the
+  second one fails with `E11000`. Every topic and category write
+  (`useSaveTopic`, `useSaveCategory`, `useEditCategoryField`) passes its doc
+  through `utils/withoutEmptyCode`, which drops a blank code; a new write path
+  must do the same.
 - `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
   whole query fail with a 400. A category's topic comes from the route
   (`useParams().topicId`), and that is what an edit sends back in the doc.
@@ -1687,12 +1890,67 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   there is no cursor query for them. Knowledge base tables therefore use
   `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
   `RecordTable.CursorProvider`.
+- A topic's three sections are switched only by the `ToggleGroup` tabs that
+  `KnowledgeBaseLayout` renders after the topic in the header breadcrumb (the
+  contacts header pattern); there is no knowledge base sidebar. Add a new
+  section to `SECTIONS` there and to `TKnowledgeBaseSection`, never as a
+  second navigation surface.
+- A parent category's article count is its own plus every descendant's
+  (`countCategoryArticles`), and `useArticles` filters a `categoryId` by
+  `getCategoryWithDescendantIds`, waiting for the topic's categories before it
+  queries. Keep the table badge and the filter on these helpers so they never
+  disagree.
+- Article status is a filter-popover item and filter-bar chip, like category;
+  do not promote it to a separate tab strip beside the filter.
+- `ARTICLE_STATUSES` lists every status for labels, the filter and the drawer;
+  `QUICK_ARTICLE_STATUSES` drops `scheduled` for the inline status cell and the
+  bulk command bar, because scheduling needs a date — the cell's `Schedule…`
+  item opens the drawer instead. The drawer sends `scheduledDate` only while
+  the status is `scheduled`; `useUpdateArticle` resends the stored
+  `scheduledDate` so an inline edit of a scheduled article passes the backend's
+  date check.
+- `C` is wired through `shared/hooks/useKbCreateHotkey`, which sets the page
+  scope (`TopicsPage`, `ArticlesPage`, `CategoriesPage`) and switches to
+  `KnowledgeBaseHotKeyScope.FormSheet` while a drawer is open. The erxes
+  hotkeys fire inside content-editable elements by default, so a page must
+  never keep its page scope while the article editor is open. A header button
+  that shows `<Kbd>C</Kbd>` must have this hook on its page.
+- Every article write goes through `useUpdateArticle` in
+  `articles/hooks/useArticleMutations.ts`: it re-reads the detail and sends the
+  whole doc with the patch on top. Inline edits and command bar bulk edits
+  (`useBulkEditArticles`) both use it; a patch touching `status` or
+  `categoryId` refetches the article and category lists, because the row may
+  leave the current filter and category counts change.
+- `useDuplicateArticle` copies an article as a `draft` titled
+  `<title> (copy)`, rebuilding every attachment through `toAttachmentInput` —
+  query results carry `__typename`, which `AttachmentInput` rejects.
+- Articles load `ARTICLES_PER_PAGE` at a time. `useArticles` exposes
+  `hasMore` / `handleFetchMore` (next `page`, de-duplicated by `_id`), and
+  `KbRecordTable` renders an in-view skeleton row that loads the next page.
+  A refetch after a write resets the list to the first page.
+- `Articles` opens the create drawer once when the URL carries
+  `createArticle=true` (with `categoryId` preselecting the category), then
+  clears the param; the category row action links there.
+- The articles table reads left to right as identity, placement, state, reach,
+  freshness, author, then summary: `title`, `categoryId`, `status`,
+  `viewCount` (right-aligned, locale-formatted, muted at zero),
+  `modifiedDate`, `createdUser` (avatar + name), `summary` (muted). Status
+  badges are `success` for published, `warning` for draft and `secondary` for
+  archived — archived is retired, not an error.
 - Every knowledge base list refetches after a write (`refetchQueries`, or
   `client.refetchQueries` for bulk deletes) so a create, edit or delete shows up
   without a manual refresh.
-- Category and article writes stay inside the topic in the URL: a category's
-  `topicId` and an article's `categoryId` always come from the current route or
-  the topic's own categories, never from an unrelated topic.
+- A category's `topicId` and parent, and an article's `topicId` and
+  `categoryId`, always come from the knowledge base picked in the drawer (the
+  route topic by default); changing that topic clears the parent or category.
+  Inline edits, bulk edits and duplicates keep the route topic. The category
+  drawer sends `parentCategoryId: ''` for "No parent category" — an omitted
+  field would leave the old parent in place.
+- The categories page's `useCategories` call uses `cache-and-network` with
+  `nextFetchPolicy: 'cache-first'`, so counts changed by a write on another
+  page refresh when it opens. The topics and articles lists load one page
+  (`TOPICS_PER_PAGE` / `ARTICLES_PER_PAGE`) and stay current through the
+  writes' `refetchQueries`; there is no load-more.
 - Message reactions are read through `getMessageReactions` /
   `findOwnReaction` in `conversation-messages/utils/message.ts`
   (`reactions`, falling back to `extraData.reactions`); do not re-derive the
@@ -1706,18 +1964,35 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ## Validation
 
-- Smoke: open `/frontline/knowledgebase`, create a topic, open it, add a
-  category, then an article in that category — each list updates without a
-  reload. Rename a topic and an article from their inline cells, change an
-  article's status and category from the table, filter articles by status and
-  category, bulk-delete from the command bar, then edit the topic on its
-  `kbsettings` route and delete it from the danger zone.
+- Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
+  articles. Create a topic from the sidebar `+`, add a category from its
+  `...` menu, click the category and create an article in it — the tree, its count
+  and the table update without a reload. Open another topic and confirm the
+  previous one closes and its articles open; click a category, then the
+  topic again to return to its full list; move between `articles`, `categories` and
+  `kbsettings` and confirm the current topic stays open.
+  Rename an article inline, change its status and category, filter by status,
+  bulk-delete from the command bar, edit and delete a category from the
+  sidebar, then delete the topic from its `kbsettings` danger zone.
 - `pnpm nx build frontline_ui`
-- `npx eslint src/...` on touched files — the project carries pre-existing lint
-  errors and TypeScript errors elsewhere, so lint and typecheck the files you
-  changed rather than the whole project.
-- `project.json` defines only `build`, `serve`, and `serve-static` — there is no
-  `test` target for this project; do not invent one.
+- `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
+  `groupCategoriesByParent` and `withoutEmptyCode` specs.
+- `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
+  distinguish existing baseline failures from regressions in touched files.
+- `pnpm nx test frontline_ui` — the project defines a Jest test target for
+  Telegram setup/rendering and inbox composer regression coverage.
+  Composer send regression tests import `hooks/composer/useComposerSend`;
+  keep them aligned with the production hook when composer paths change.
+- Telegram smoke: config-page personal/team inbox links, production callback
+  defaults, local tunnel validation, saved callback preservation, optional
+  connection names, private/group/topic history,
+  native replies, note isolation, media playback/open links, link cards and
+  poll labels. Verify switching conversations during a send preserves the new
+  draft, and other providers retain their reply and partial-delivery behavior.
+- Telegram recovery smoke: retry setup after a lost integration-create response
+  and confirm it resumes webhook registration without another integration;
+  select files in quick succession and confirm the combined size guard includes
+  pending uploads and releases capacity after removal or composer reset.
 - Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
   Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
   `Move to channel`, pick another channel and confirm the row leaves this list
@@ -1747,7 +2022,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   the same snippet on its own **Embed** tab for the topic picked on
   **General**, with `Copy Script` turning into `Copied!` for three seconds, a
   prompt to pick one when `kbTopicId` is empty, and no Embed tab at all while
-  creating one.
+  creating one. Paste the snippet into a plain HTML page served from another
+  origin: a corner button opens the topic's categories and articles (inline
+  inside a `<div data-erxes-kbase>` when the page has one).
+- Smoke (knowledge base counts): on a topic's `categories` page a parent such as
+  `1. ТАНИЛЦУУЛГА` shows the sum of its subcategories' articles; its badge
+  opens `articles?categoryId=<parent>` listing every subcategory's article.
+  The sidebar's per-category counts match those badges. In the article drawer, switching the knowledge base clears the
+  category, and saving moves the article to that topic's list and counts.
+  Moving a parent category from its drawer takes its subcategories and their
+  articles along; the articles page's "records found" matches the topic's
+  article count, duplicated articles included.
 - Smoke (help center footer): on **Appearance** open the Footer card, press
   "Start from the built-in columns", rename a heading, add a link and remove
   another, then save and reload — the drawer shows what was saved and
@@ -1804,3 +2089,37 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram metadata promise handling
+
+- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
+- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
+- **Contracts changed:** None.
+
+### `2026-10-06` — Telegram setup recovery and attachment guards
+
+- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
+- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
+- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
+- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
+- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
+
+### `2026-10-06` — Telegram config entry and automatic setup defaults
+
+- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
+- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
+- **Contracts changed:** None; existing routes and per-bot setup are reused.
+
+### `2026-10-06` — Telegram on the native composer and message components
+
+- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
+- **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
 import { PERMISSIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { usePermissionsMain } from '../hooks/usePermissionsMain';
@@ -6,6 +7,7 @@ import { PermissionsCommandbar } from './PermissionsCommandBar';
 import { useMemo } from 'react';
 
 const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const { t } = useTranslation('accounting');
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, () => crypto.randomUUID()),
     [rows],
@@ -14,7 +16,7 @@ const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {permissionsColumns.map((col, colIndex) => (
+          {permissionsColumns(t).map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -29,6 +31,7 @@ const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
 };
 
 export const PermissionsTable = () => {
+  const { t } = useTranslation('accounting');
   const { permissionsMain, loading, handleFetchMore, pageInfo } =
     usePermissionsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -37,7 +40,7 @@ export const PermissionsTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={permissionsColumns}
+      columns={permissionsColumns(t)}
       data={isInitialLoading ? [] : permissionsMain || []}
       stickyColumns={['checkbox', 'accountName']}
       tableId="accounting_permissions_record_table"

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -11,6 +12,7 @@ import { useAppsRemove } from '../hooks/useAppsRemove';
 import { Can } from 'ui-modules';
 
 export const AppsCommandBar = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const { table } = RecordTable.useRecordTable();
   const { appsRemove } = useAppsRemove();
   const { confirm } = useConfirm();
@@ -21,7 +23,7 @@ export const AppsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: `Are you sure you want to remove the selected (${ids.length})?`,
+      message: t('remove-selected-confirm', { selectedCount: ids.length }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {
@@ -31,7 +33,7 @@ export const AppsCommandBar = () => {
               variables: { _id },
               onError: (error) => {
                 toast({
-                  title: 'Error',
+                  title: t('error'),
                   description: error.message,
                   variant: 'destructive',
                 });
@@ -49,14 +51,16 @@ export const AppsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected-count', {
+            selectedCount: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Can action="appsManage">
           <>
             <Separator.Inline />
             <Button variant="destructive" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete')}
             </Button>
           </>
         </Can>

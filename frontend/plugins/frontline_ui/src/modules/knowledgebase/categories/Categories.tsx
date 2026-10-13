@@ -7,19 +7,30 @@ import { CategoriesRecordTable } from '@/knowledgebase/categories/components/Cat
 import { CategoryDrawer } from '@/knowledgebase/categories/components/CategoryDrawer';
 import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
+import { useKbCreateHotkey } from '@/knowledgebase/shared/hooks/useKbCreateHotkey';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
+import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 export const Categories = () => {
   const { t } = useTranslation('frontline');
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
-  const { categories, refetch } = useCategories(topicId);
+  const { categories, refetch } = useCategories(topicId, {
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
+  });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editId, setEditId] = useQueryState<string>('editId');
 
   const editing = (categories ?? []).find(
     (category) => category._id === editId,
   );
+
+  useKbCreateHotkey({
+    scope: KnowledgeBaseHotKeyScope.CategoriesPage,
+    isSheetOpen: isCreateOpen || !!editing,
+    onCreate: () => setIsCreateOpen(true),
+  });
 
   const handleClose = () => {
     setIsCreateOpen(false);

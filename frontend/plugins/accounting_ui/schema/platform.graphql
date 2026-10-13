@@ -1,0 +1,290 @@
+# Public GraphQL contract snapshot consumed by accounting UI.
+
+# Sources are listed per type. This is codegen input, not accounting API SDL.
+
+# backend/core-api/src/modules/organization/structure/graphql/schemas/branch.ts
+
+extend type Branch {
+  code: String
+  title: String
+}
+
+# backend/core-api/src/modules/organization/settings/graphql/configs/schemas.ts
+
+type Config {
+  code: String!
+  value: JSON
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+type Deal {
+  _id: String!
+  name: String
+  amount: JSON
+  number: String
+  createdAt: Date
+  stageChangedDate: Date
+  modifiedAt: Date
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+type DealsListResponse {
+  list: [Deal]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+# backend/core-api/src/modules/organization/structure/graphql/schemas/department.ts
+
+extend type Department {
+  code: String
+  title: String
+}
+
+# backend/plugins/mongolian_api/src/modules/ebarimt/graphql/schemas/productRule.ts
+
+type EbarimtProductRule {
+  _id: String
+  title: String
+  kind: String
+}
+
+# backend/plugins/mongolian_api/src/modules/ebarimt/graphql/schemas/productRule.ts
+
+type EbarimtProductRuleListResponse {
+  list: [EbarimtProductRule]
+}
+
+# backend/plugins/mongolian_api/src/modules/exchangeRates/graphql/schemas/index.ts
+
+type ExchangeRate {
+  _id: String!
+  createdAt: Date
+  modifiedAt: Date
+  date: Date
+  mainCurrency: String
+  rateCurrency: String
+  rate: Float
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/field.ts
+
+type Field {
+  _id: String
+  name: String
+  code: String
+  type: String
+  groupId: String
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/group.ts
+
+type FieldGroup {
+  _id: String
+  name: String
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/group.ts
+
+type FieldGroupListResponse {
+  list: [FieldGroup]
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/group.ts
+
+input FieldGroupParams {
+  contentType: String!
+  codes: [String]
+  archived: Boolean
+  cursor: String
+  cursorMode: CURSOR_MODE
+  direction: CURSOR_DIRECTION
+  limit: Int
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/field.ts
+
+type FieldListResponse {
+  list: [Field]
+}
+
+# backend/core-api/src/modules/properties/graphql/schemas/field.ts
+
+input FieldsParams {
+  contentType: String
+  contentTypeId: String
+  groupId: String
+  archived: Boolean
+  cursor: String
+  cursorMode: CURSOR_MODE
+  direction: CURSOR_DIRECTION
+  limit: Int
+}
+
+# backend/plugins/sales_api/src/modules/pos/graphql/schemas/pos.ts
+
+type Pos {
+  _id: String
+  name: String
+  description: String
+  token: String
+  paymentTypes: [JSON]
+}
+
+# backend/plugins/sales_api/src/modules/pos/graphql/schemas/orders.ts
+
+type PosOrder {
+  _id: String
+  createdAt: Date
+  paidDate: Date
+  number: String
+  totalAmount: Float
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/product.ts
+
+extend type Product {
+  code: String
+  name: String
+  categoryId: String
+  createdAt: Date
+  category: ProductCategory
+  shortName: String
+  uom: String
+  unitPrice: Float
+  type: String
+  inventories: JSON
+  remainder: JSON
+  weight: Float
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/category.ts
+
+extend type ProductCategory {
+  name: String
+  parentId: String
+  attachment: Attachment
+  code: String!
+  order: String!
+  productCount: Int
+  description: String
+  meta: String
+  scopeBrandIds: [String]
+  status: String
+  isRoot: Boolean
+  maskType: String
+  mask: JSON
+  isSimilarity: Boolean
+  similarities: JSON
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/product.ts
+
+type ProductsListResponse {
+  list: [Product]
+  totalCount: Int
+  pageInfo: PageInfo
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+extend type Query {
+  deals(stageId: String, initialStageId: String, _ids: [String], date: SalesItemDate, parentId: String, pipelineId: String, pipelineIds: [String], customerIds: [String], vendorCustomerIds: [String], companyIds: [String], assignedUserIds: [String], productIds: [String], closeDateType: String, labelIds: [String], search: String, priority: [String], userIds: [String], segment: String, assignedToMe: String, startDate: String, endDate: String, hasStartAndCloseDate: Boolean, stageChangedStartDate: Date, stageChangedEndDate: Date, noSkipArchive: Boolean, status: String, tagIds: [String], number: String, branchIds: [String], departmentIds: [String], boardIds: [String], stageCodes: [String], dateRangeFilters: JSON, createdStartDate: Date, createdEndDate: Date, stateChangedStartDate: Date, stateChangedEndDate: Date, startDateStartDate: Date, startDateEndDate: Date, closeDateStartDate: Date, closeDateEndDate: Date, resolvedDayBetween: [Int], relationType: String, relationId: String, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, limit: Int): DealsListResponse
+  salesBoards: [SalesBoard]
+  salesPipelines(boardId: String, isAll: Boolean, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, limit: Int): SalesPipelinesListResponse
+  salesStages(isNotLost: Boolean, isAll: Boolean, pipelineId: String, pipelineIds: [String], search: String, companyIds: [String], customerIds: [String], assignedUserIds: [String], labelIds: [String], extraParams: JSON, closeDateType: String, assignedToMe: String, age: Int, branchIds: [String], departmentIds: [String], segment: String, createdStartDate: Date, createdEndDate: Date, stateChangedStartDate: Date, stateChangedEndDate: Date, startDateStartDate: Date, startDateEndDate: Date, closeDateStartDate: Date, closeDateEndDate: Date): [SalesStage]
+  posOrders(page: Int, perPage: Int, sortField: String, sortDirection: Int, search: String, paidStartDate: Date, paidEndDate: Date, createdStartDate: Date, createdEndDate: Date, paidDate: String, userId: String, customerId: String, customerType: String, posId: String, posToken: String, types: [String], statuses: [String], excludeStatuses: [String], hasPaidDate: Boolean, brandId: String, dealId: String): [PosOrder]
+  posOrdersTotalCount(page: Int, perPage: Int, sortField: String, sortDirection: Int, search: String, paidStartDate: Date, paidEndDate: Date, createdStartDate: Date, createdEndDate: Date, paidDate: String, userId: String, customerId: String, customerType: String, posId: String, posToken: String, types: [String], statuses: [String], excludeStatuses: [String], hasPaidDate: Boolean, brandId: String, dealId: String): JSON
+  posList(page: Int, perPage: Int, isOnline: String, search: String, sortField: String, sortDirection: Int): [Pos]
+  productsMain(type: String, status: String, categoryId: String, categoryIds: [String], searchValue: String, vendorId: String, brandIds: [String], tag: String, tagIds: [String], ids: [String], excludeIds: Boolean, excludeTagIds: [String], tagWithRelated: Boolean, pipelineId: String, boardId: String, segment: String, segmentIds: [String], propertiesData: String, groupedSimilarity: String, similarity: Boolean, image: String, brand: String, branchId: String, departmentId: String, minRemainder: Float, maxRemainder: Float, minPrice: Float, maxPrice: Float, minDiscountValue: Float, maxDiscountValue: Float, minDiscountPercent: Float, maxDiscountPercent: Float, discountConditions: JSON, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, limit: Int, sortField: String, sortDirection: Int): ProductsListResponse
+  productCategories(ids: [String], parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brandIds: [String]): [ProductCategory]
+  tags(type: String, searchValue: String, parentId: String, ids: [String], excludeIds: Boolean, isGroup: Boolean, instanceId: String, includeWorkspaceTags: Boolean, sortField: String, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, limit: Int): TagsListResponse
+  productCategoryDetail(_id: String): ProductCategory
+  segments(contentTypes: [String]!, ids: [String], excludeIds: [String], searchValue: String): [Segment]
+  exchangeGetRate(date: Date, currency: String, mainCurrency: String): ExchangeRate
+  posDetail(_id: String!): Pos
+  salesPipelineDetail(_id: String!): SalesPipeline
+  fieldGroups(params: FieldGroupParams): FieldGroupListResponse
+  fields(params: FieldsParams): FieldListResponse
+  configsByCode(codes: [String], pattern: String): [Config]
+  ebarimtProductRules(searchValue: String, productId: String, kind: String, taxCode: String, taxType: String, taxPercent: Float): EbarimtProductRuleListResponse
+  dealLink(_id: String): JSON
+  posOrderLink(_id: String): JSON
+  productDetail(_id: String): Product
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/board.ts
+
+type SalesBoard {
+  _id: String!
+  name: String!
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+input SalesItemDate {
+  month: Int
+  year: Int
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/pipeline.ts
+
+type SalesPipeline {
+  _id: String!
+  name: String!
+  paymentIds: [String]
+  paymentTypes: JSON
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/pipeline.ts
+
+type SalesPipelinesListResponse {
+  list: [SalesPipeline]
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/stage.ts
+
+type SalesStage {
+  _id: String!
+  name: String!
+}
+
+# backend/core-api/src/modules/segments/graphql/schemas/index.ts
+
+type Segment {
+  _id: ID!
+  """Absent only while a feature owns the segment."""
+  name: String
+  color: String
+}
+
+# backend/core-api/src/modules/tags/graphql/schemas.ts
+
+type Tag {
+  _id: String
+  colorCode: String
+  order: String
+  name: String
+}
+
+# backend/core-api/src/modules/tags/graphql/schemas.ts
+
+type TagsListResponse {
+  list: [Tag]
+}
+
+# backend/core-api/src/modules/organization/team-member/graphql/schema.ts
+
+extend type User {
+  details: UserDetailsType
+  email: String
+}
+
+# backend/core-api/src/modules/organization/team-member/graphql/schema.ts
+
+type UserDetailsType {
+  avatar: String
+  fullName: String
+}

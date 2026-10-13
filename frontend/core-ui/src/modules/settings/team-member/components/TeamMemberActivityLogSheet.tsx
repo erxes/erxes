@@ -1,6 +1,7 @@
 import { EmailAddressesRecordTable } from '@/settings/email-addresses/components/EmailAddressesRecordTable';
 import { EmailDeliveriesRecordTable } from '@/settings/email-deliveries/components/EmailDeliveriesRecordTable';
 import { Sheet, Tabs, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const TeamMemberActivityLogSheet = ({
   email,
@@ -12,6 +13,7 @@ export const TeamMemberActivityLogSheet = ({
   onOpenChange: (open: boolean) => void;
 }): JSX.Element => {
   const [, setDeliveryId] = useQueryState<string>('deliveryId');
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   return (
     <Sheet
@@ -23,7 +25,7 @@ export const TeamMemberActivityLogSheet = ({
     >
       <Sheet.View className="flex flex-col gap-0 sm:max-w-6xl">
         <Sheet.Header>
-          <Sheet.Title>Activity log</Sheet.Title>
+          <Sheet.Title>{t('activity-log')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="min-h-0 flex-1 overflow-auto">
@@ -37,8 +39,10 @@ export const TeamMemberActivityLogSheet = ({
                   className="w-full justify-start px-4"
                   aria-label="Email activity"
                 >
-                  <Tabs.Trigger value="messages">Messages</Tabs.Trigger>
-                  <Tabs.Trigger value="addresses">Addresses</Tabs.Trigger>
+                  <Tabs.Trigger value="messages">{t('messages')}</Tabs.Trigger>
+                  <Tabs.Trigger value="addresses">
+                    {t('addresses')}
+                  </Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="messages">
                   <EmailDeliveriesRecordTable
@@ -53,7 +57,7 @@ export const TeamMemberActivityLogSheet = ({
               </Tabs>
             ) : (
               <p className="p-4 text-muted-foreground">
-                This member has no email address.
+                {t('no-email-address')}
               </p>
             ))}
         </Sheet.Content>

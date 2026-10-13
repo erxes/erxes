@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { BUNDLE_RULES_EDIT } from '../graphql/mutations/bundleRules';
 import { useToast } from 'erxes-ui';
@@ -5,6 +6,7 @@ import { useToast } from 'erxes-ui';
 export const useBundleRulesEdit = () => {
   const [editMutation, { loading, error }] = useMutation(BUNDLE_RULES_EDIT);
   const { toast } = useToast();
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-rules' });
 
   const mutate = ({ variables, ...options }: MutationHookOptions) => {
     editMutation({
@@ -27,7 +29,7 @@ export const useBundleRulesEdit = () => {
       onCompleted: (data) => {
         if (data?.bundleRulesEdit) {
           toast({
-            title: 'Bundle rule updated successfully',
+            title: t('rule-updated'),
             variant: 'success',
           });
           options?.onCompleted?.(data);

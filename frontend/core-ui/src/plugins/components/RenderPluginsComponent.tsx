@@ -1,22 +1,29 @@
-import { loadRemote } from '@module-federation/enhanced/runtime';
-import { Spinner } from 'erxes-ui';
-import { Suspense, useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react';
+
 import {
   RemoteComponent,
   RemoteComponentProps,
   RemoteModule,
   resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
+import { Suspense, useEffect, useState } from 'react';
+
+import { ErrorBoundary } from 'react-error-boundary';
+import { RenderPluginsComponentCrashState } from './RenderPluginsComponentCrashState';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
+import { Spinner } from 'erxes-ui';
+import { loadRemote } from '@module-federation/enhanced/runtime';
 
 export function RenderPluginsComponent({
   pluginName,
   remoteModuleName,
   props,
+  withMascot,
 }: {
   pluginName: string;
   remoteModuleName: string;
   props?: RemoteComponentProps;
+  withMascot?: boolean;
 }) {
   const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,29 +75,40 @@ export function RenderPluginsComponent({
     );
   }
 
+  const loader = (
+    <div className="flex justify-center items-center h-full">
+      <Spinner withMascot={withMascot} />
+    </div>
+  );
+
   if (isLoading || !Plugin) {
-    return (
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center h-full">
-            <Spinner />
-          </div>
-        }
-      >
-        <div />
-      </Suspense>
-    );
+    return loader;
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-full">
-          <Spinner />
-        </div>
-      }
-    >
-      <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+    <Suspense fallback={loader}>
+      {/* One plugin breaking while drawing must not take its host down. */}
+      <ErrorBoundary
+        FallbackComponent={RenderPluginsComponentCrashState}
+        resetKeys={[pluginName, remoteModuleName]}
+        onError={(error, info) => {
+          // The fallback hides the error; keep it visible for debugging.
+          console.error(
+            `[${pluginName}/${remoteModuleName}] render failed`,
+            error,
+            info.componentStack,
+          );
+          Sentry.captureException(error, {
+            extra: {
+              pluginName,
+              remoteModuleName,
+              componentStack: info.componentStack,
+            },
+          });
+        }}
+      >
+        <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+      </ErrorBoundary>
     </Suspense>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TManagePropertiesForm } from '@/automations/components/builder/nodes/actions/manageProperties/states/managePropertiesForm';
 import { PROPERTY_OPERATOR } from '@/automations/constants';
 import { useCallback, useEffect, useRef } from 'react';
@@ -191,6 +192,7 @@ const useManagePropertyRuleInputProps = (
   rule?: TManagePropertiesForm['rules'][number],
   operators: { value: string; label: string }[] = [],
 ) => {
+  const { t } = useTranslation('automations');
   const enabled = selectedField ? [TPlaceholderInputSuggestion.Attribute] : [];
   const suggestionsOptions: Partial<
     Record<TPlaceholderInputSuggestion, TPlaceholderInputSuggestionsOption>
@@ -232,11 +234,11 @@ const useManagePropertyRuleInputProps = (
     suggestionsOptions.option = {
       options: [
         {
-          label: 'True',
+          label: t('manage-properties-boolean-true'),
           value: 'true',
         },
         {
-          label: 'False',
+          label: t('manage-properties-boolean-false'),
           value: 'false',
         },
       ],

@@ -1,4 +1,5 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SAFE_REMAINDER_ITEMS_REMOVE } from '../graphql/safeRemainderChange';
@@ -9,8 +10,12 @@ export const useSafeRemainderItemsRemove = () => {
     SAFE_REMAINDER_ITEMS_REMOVE,
   );
 
-  const removeRemItems = (options: OperationVariables) => {
-    const variables = options?.variables || {};
+  const removeRemItems = (
+    options: GraphqlMutationOptions<typeof SAFE_REMAINDER_ITEMS_REMOVE>,
+  ) => {
+    const variables = options?.variables;
+    if (!variables?.ids?.length)
+      throw new Error('Safe remainder item ids are required');
 
     return _removeRemItems({
       ...options,
@@ -31,7 +36,7 @@ export const useSafeRemainderItemsRemove = () => {
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['SafeRemainderItems'],
+      refetchQueries: ['accountingSafeRemainderItems'],
     });
   };
 

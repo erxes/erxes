@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import {
   Popover,
@@ -20,6 +21,7 @@ export const OAuthClientsMoreColumnCell = ({
 }: {
   cell: Cell<IOAuthClientApp, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const { _id, name, status } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -29,13 +31,13 @@ export const OAuthClientsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${name}"?`,
+      message: t('confirm-delete-client', { name }),
     }).then(async () => {
       try {
         await oauthClientAppsRemove({ variables: { _id } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -45,17 +47,17 @@ export const OAuthClientsMoreColumnCell = ({
 
   const handleRevoke = () => {
     confirm({
-      message: `Are you sure you want to revoke "${name}"?`,
+      message: t('confirm-revoke-client', { name }),
     }).then(async () => {
       try {
         await oauthClientAppsRevoke({ variables: { _id } });
         toast({
           variant: 'success',
-          title: 'OAuth client revoked successfully',
+          title: t('client-revoked'),
         });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -77,15 +79,15 @@ export const OAuthClientsMoreColumnCell = ({
               value="edit"
               onSelect={() => setEditingOAuthClient(cell.row.original)}
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             {status === 'active' && (
               <Command.Item value="revoke" onSelect={handleRevoke}>
-                <IconLock /> Revoke
+                <IconLock /> {t('revoke')}
               </Command.Item>
             )}
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

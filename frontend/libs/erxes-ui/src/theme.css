@@ -92,6 +92,11 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-spinner: spinner 0.96s linear infinite;
+  --animate-bot-appear: bot-appear 0.3s ease-out 0.25s backwards;
+  --animate-bot-rock: bot-rock 2.6s ease-in-out infinite;
+  --animate-bot-glance: bot-glance 4.5s ease-in-out infinite;
+  --animate-bot-blink: bot-blink 4.5s infinite;
+  --animate-bot-dots: bot-dots 1.2s infinite;
 
   --animate-first: move-vertical 30s ease infinite;
   --animate-second: move-in-circle 20s reverse infinite;
@@ -144,6 +149,59 @@
     }
     to {
       opacity: 0.15;
+    }
+  }
+  /* Waiting bot: hugs its knees and rocks, glancing around; dots pulse. */
+  @keyframes bot-appear {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes bot-rock {
+    0%,
+    100% {
+      transform: rotate(-5deg);
+    }
+    50% {
+      transform: rotate(5deg);
+    }
+  }
+  @keyframes bot-glance {
+    0%,
+    20%,
+    80%,
+    100% {
+      transform: translateX(0);
+    }
+    30%,
+    45% {
+      transform: translateX(-5px);
+    }
+    55%,
+    70% {
+      transform: translateX(5px);
+    }
+  }
+  @keyframes bot-blink {
+    0%,
+    46%,
+    50%,
+    96%,
+    100% {
+      transform: scaleY(1);
+    }
+    48%,
+    98% {
+      transform: scaleY(0.1);
+    }
+  }
+  @keyframes bot-dots {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    40% {
+      opacity: 1;
     }
   }
 

@@ -177,7 +177,7 @@ const getArrangeProducts = async (
     } else if (
       !config.hasCitytax &&
       taxRule.citytaxCode &&
-      config.reverseCtaxRules?.includes(taxRule.citytaxCode)
+      config.reverseCtaxRules?.length
     ) {
       // when has a reverseCtitytax
       const pCtaxPercent = Number(taxRule.citytaxPercent) || 0; // productCitytaxPercent per

@@ -39,16 +39,18 @@ const makeOption = () => {
   return { id: `opt-${optionIdSeq}`, value: '' };
 };
 
-/** Composer for creating a native (Discord) poll. */
+/** Composer for the native poll shape shared by supported integrations. */
 export const PollComposer = ({
   onSubmit,
   loading,
   disabled,
+  provider = 'Discord',
 }: {
   // Resolve `true` when the poll was sent, so the dialog can close + reset.
   onSubmit: (poll: PollDraft) => Promise<boolean>;
   loading?: boolean;
   disabled?: boolean;
+  provider?: 'Discord' | 'Telegram';
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
@@ -131,8 +133,9 @@ export const PollComposer = ({
           <Dialog.Title>{t('create-poll', 'Create poll')}</Dialog.Title>
           <Dialog.Description className="sr-only">
             {t(
-              'compose-a-poll-to-post-to-the-discord-channel',
-              'Compose a poll to post to the Discord channel.',
+              'compose-a-provider-poll',
+              'Compose a poll to send to {{provider}}.',
+              { provider },
             )}
           </Dialog.Description>
         </Dialog.Header>
@@ -155,7 +158,7 @@ export const PollComposer = ({
               <div key={option.id} className="flex items-center gap-2">
                 <Input
                   value={option.value}
-                  maxLength={55}
+                  maxLength={provider === 'Telegram' ? 100 : 55}
                   placeholder={`${t('option', 'Option')} ${index + 1}`}
                   onChange={(e) => setOption(index, e.target.value)}
                 />

@@ -4,6 +4,7 @@ import { IconArrowsSplit2 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useCallback } from 'react';
 import { IAutomationHistoryAction } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 // Result cell for workflow node actions: input values summary + in-place
 // drill-down into the child execution (same sheet, back stack) — a nested
@@ -13,6 +14,7 @@ export const WorkflowExecutionResultCell = ({
 }: {
   action: IAutomationHistoryAction;
 }) => {
+  const { t } = useTranslation('automations');
   const { openChildExecution } = useAutomationHistoryDetail();
 
   const childExecutionId =
@@ -32,11 +34,11 @@ export const WorkflowExecutionResultCell = ({
       {childExecutionId ? (
         <Button variant="outline" size="sm" onClick={handleOpenChild}>
           <IconArrowsSplit2 className="size-4" />
-          View workflow run
+          {t('history-view-workflow-run')}
         </Button>
       ) : (
         <span className="text-xs text-muted-foreground">
-          Child execution not recorded
+          {t('history-child-execution-not-recorded')}
         </span>
       )}
       {errorText ? (
@@ -54,8 +56,10 @@ export const WorkflowExecutionResultCell = ({
               )
               .join('\n')}
           >
-            {inputNames.length} input{inputNames.length > 1 ? 's' : ''}:{' '}
-            {inputNames.join(', ')}
+            {t('history-inputs-summary', {
+              count: inputNames.length,
+              names: inputNames.join(', '),
+            })}
           </span>
         )
       )}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import {
   Popover,
@@ -38,6 +39,7 @@ export const TagsListNameField = ({
   const [isOpen, setIsOpen] = useState(defaultOpen || false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { editTag } = useTagEdit();
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { toast } = useToast();
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
@@ -100,8 +102,8 @@ export const TagsListNameField = ({
         if (!warned && !open && !form.getValues('name') && isForm) {
           setTimeout(() => textareaRef.current?.focus());
           toast({
-            title: 'Error',
-            description: 'Name cannot be empty',
+            title: t('error'),
+            description: t('name-cannot-be-empty'),
             variant: 'destructive',
           });
           setWarned(true);
@@ -126,7 +128,7 @@ export const TagsListNameField = ({
             />
           ) : (
             <p className="text-xs font-medium truncate  text-accent-foreground">
-              Add tag name
+              {t('add-tag-name')}
             </p>
           )}
         </Badge>
@@ -139,7 +141,7 @@ export const TagsListNameField = ({
       >
         <Textarea
           value={form.watch('name')}
-          placeholder="Add tag name"
+          placeholder={t('add-tag-name')}
           className="focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium min-h-0 px-2 py-[calc((24px-var(--text-xs--line-height))/2)] overflow-hidden "
           maxLength={64}
           onClick={(e) => e.stopPropagation()}
@@ -159,7 +161,7 @@ export const TagsListNameField = ({
                 (e) => {
                   toast({
                     variant: 'destructive',
-                    title: 'Error',
+                    title: t('error'),
                     description: Object.values(e)[0].message,
                   });
                 },
