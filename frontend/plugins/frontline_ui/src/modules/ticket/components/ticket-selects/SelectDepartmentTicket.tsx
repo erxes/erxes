@@ -75,7 +75,9 @@ const SelectDepartmentTicketRoot = ({
       mode="single"
       value={value}
       onValueChange={(departmentId) =>
-        handleValueChange(departmentId === value ? '' : (departmentId as string))
+        handleValueChange(
+          departmentId === value ? '' : (departmentId as string),
+        )
       }
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
