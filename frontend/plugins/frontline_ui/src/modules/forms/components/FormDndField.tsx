@@ -2,7 +2,7 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
-import { Button, cn, DropdownMenu, Input } from 'erxes-ui';
+import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { CSS } from '@dnd-kit/utilities';
 import {
   IconCheck,
@@ -14,6 +14,7 @@ import {
   IconTextSize,
   IconChevronDown,
   IconDots,
+  IconDragDrop2,
   IconEdit,
   IconTrash,
   IconListCheck,
@@ -32,6 +33,8 @@ import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
 
+const DRAG_DISTANCE = 10;
+
 export const FormDndField = ({
   field,
   step,
@@ -40,15 +43,12 @@ export const FormDndField = ({
   step: UniqueIdentifier;
 }) => {
   const [open, setOpen] = useState(false);
-  const [isEditingLabel, setIsEditingLabel] = useState(false);
-  const [labelDraft, setLabelDraft] = useState('');
-  const isLabelEditCancelled = useRef(false);
+  const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
   const { setNodeRef, listeners, isDragging, transform, transition } =
     useSortable({
       id: field,
     });
-  const { getFieldValue, handleChangeField, newFieldId, clearNewFieldId } =
-    useFormDnd();
+  const { getFieldValue, newFieldId, clearNewFieldId } = useFormDnd();
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
 
@@ -61,19 +61,16 @@ export const FormDndField = ({
 
   const mountedWhileDragging = isDragging && !mounted;
 
-  const startLabelEdit = () => {
-    isLabelEditCancelled.current = false;
-    setLabelDraft(fieldData?.label ?? '');
-    setIsEditingLabel(true);
-  };
-
-  const finishLabelEdit = () => {
-    setIsEditingLabel(false);
-    const label = labelDraft.trim();
-    if (isLabelEditCancelled.current || !fieldData || !label) return;
-    if (label !== fieldData.label) {
-      handleChangeField(step, field, { ...fieldData, label });
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const start = pointerDownAt.current;
+    pointerDownAt.current = null;
+    if (
+      start &&
+      Math.hypot(e.clientX - start.x, e.clientY - start.y) >= DRAG_DISTANCE
+    ) {
+      return;
     }
+    setOpen(true);
   };
 
   // const handleChangeSpan = (span: number) => {
@@ -88,40 +85,23 @@ export const FormDndField = ({
     <>
       <div
         className={cn(
-          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2 min-w-0',
+          'group p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2 min-w-0 cursor-grab bg-background hover:border-muted-foreground/40',
           fieldData?.span === 2 && 'col-span-2',
           mountedWhileDragging && 'fade-in',
+          isDragging &&
+            'relative z-10 cursor-grabbing shadow-lg border-primary ring-2 ring-primary/20',
         )}
         ref={setNodeRef}
         style={{ transition, transform: CSS.Translate.toString(transform) }}
         {...listeners}
+        onPointerDown={(e) => {
+          pointerDownAt.current = { x: e.clientX, y: e.clientY };
+        }}
+        onClick={handleClick}
       >
+        <IconDragDrop2 className="shrink-0 text-muted-foreground opacity-60 group-hover:opacity-100" />
         <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
-        {isEditingLabel ? (
-          <Input
-            autoFocus
-            value={labelDraft}
-            className="h-6 min-w-0 flex-1 px-1"
-            onChange={(e) => setLabelDraft(e.target.value)}
-            onBlur={finishLabelEdit}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              e.stopPropagation();
-              if (e.nativeEvent.isComposing) return;
-              if (e.key === 'Enter') {
-                e.currentTarget.blur();
-              } else if (e.key === 'Escape') {
-                isLabelEditCancelled.current = true;
-                e.currentTarget.blur();
-              }
-            }}
-          />
-        ) : (
-          <span className="truncate min-w-0" onDoubleClick={startLabelEdit}>
-            {fieldData?.label}
-          </span>
-        )}
+        <span className="truncate min-w-0">{fieldData?.label}</span>
         <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
@@ -285,11 +265,15 @@ export const FieldContextMenu = ({
   return (
     <DropdownMenu open={_open} onOpenChange={_setOpen}>
       <DropdownMenu.Trigger className="ml-auto">
-        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => e.stopPropagation()}
+        >
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content>
+      <DropdownMenu.Content onClick={(e) => e.stopPropagation()}>
         <DropdownMenu.Item onClick={() => setOpen(true)}>
           <IconEdit />
           {t('edit-attributes', 'Edit attributes')}

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -905,6 +905,16 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   equals the loaded content; the save effect skips while the debounced content
   is still the loaded reference (`loadedDescriptionRef`) and only writes after a
   real editor change.
+- In the form builder's field list, the whole field row is the drag source:
+  it leads with an `IconDragDrop2` drag hint, shows a
+  `grab` cursor, and while dragging lifts with `shadow-lg` and a `primary`
+  border/ring. A single click anywhere on the row opens that field's
+  `FormFieldDetailSheet`, which is where its label and other attributes are
+  edited; there is no inline rename. `FormDndField` skips the
+  click when the pointer moved at least the `MouseSensor` drag distance (10px)
+  since pointer-down, so dropping a dragged field does not open its sheet. The
+  row's `...` trigger and the dropdown content stop click propagation, so menu
+  actions such as **Remove Field** never reach the row's click handler.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
