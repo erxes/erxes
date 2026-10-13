@@ -101,13 +101,19 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
     const enabledPluginsArray = ENABLED_PLUGINS.split(',');
 
-    // dashboard.erxes.io organizations: only what their Stripe customer pays for
-    // or has for free, bundled plugins included.
-    if (isGlobalProfileV2(organizationInfo)) {
+    const isV2 = isGlobalProfileV2(organizationInfo);
+
+    // dev.erxes.io (global profile v2) organizations: only what their Stripe
+    // customer pays for or has for free, bundled plugins included.
+    if (isV2) {
       const plugins = await getGlobalProfileV2Plugins(organizationInfo);
 
       for (const pluginName of plugins) {
-        if (enabledPluginsArray.includes(pluginName)) {
+        // Company Brain (agent) loads from the plugins CDN like the default below.
+        if (
+          pluginName === 'agent' ||
+          enabledPluginsArray.includes(pluginName)
+        ) {
           remotes.push({
             name: remoteName(pluginName),
             entry: await getPluginEntry(pluginName),
@@ -116,7 +122,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       }
     }
 
-    const charges = isGlobalProfileV2(organizationInfo)
+    const charges = isV2
       ? {}
       : (organizationInfo.charge as IOrganizationCharge);
 
@@ -138,7 +144,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
     const hasAgentUi = remotes.some((remote) => remote.name === 'agent_ui');
 
-    if (!hasAgentUi) {
+    // Every original-profile workspace gets Company Brain (agent). A v2
+    // workspace only gets it when its Stripe customer has the agent plugin.
+    if (!hasAgentUi && !isV2) {
       remotes.push({
         name: 'agent_ui',
         entry: await getPluginEntry('agent'),
