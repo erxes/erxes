@@ -78,7 +78,6 @@
       ],
       "inputs": [
         "{projectRoot}/codegen.ts",
-        "{projectRoot}/codegen/**/*.graphql",
         "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",

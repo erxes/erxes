@@ -1,9 +1,0 @@
-extend type Query {
-  contentCMSList: [ContentCMS]
-}
-
-type ContentCMS {
-  _id: String!
-  name: String
-  clientPortalId: String
-}

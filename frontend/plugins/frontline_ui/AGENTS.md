@@ -581,9 +581,9 @@
   visible in its table, in their on-screen order and with the same headers,
   including property columns. It is disabled until the table has rendered.
 - GraphQL codegen (`client-preset`) validates every GraphQL document against
-  the printed `frontline_api` schema, the core snapshot
-  `schema/platform.graphql` and `codegen/external-plugins.graphql`, and
-  generates result and variable types into `src/gql/`.
+  the printed `frontline_api` schema and the core snapshot
+  `schema/platform.graphql` only, and generates result and variable types
+  into `src/gql/`.
 - Mail documents, including provider setup and pipeline mail settings, use
   `gql()` from `~/gql`. Thread, draft, sender, connection, zone, quota and
   readiness response types derive from generated operation selections.
@@ -612,7 +612,7 @@ owns the setup form and connection actions.
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
-| GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`, `codegen/external-plugins.graphql`                                                                       | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema, the core snapshot and the optional-plugin mirror                     |
+| GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`                                                                                                           | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema, the core snapshot                                                    |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
 | Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
@@ -804,20 +804,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `cache-and-network` so a form created elsewhere shows up the next time the
   drawer opens. The API matches `status` literally — a form document written
   without `status` is not listed.
-- `content_api` GraphQL `contentCMSList` as `frontlineHelpCenterCmsOptions` —
-  the CMS picker's options (`_id`, `name`, `clientPortalId`), read-only, and
-  read once per drawer by `hooks/useHelpCenterCmsOptions.ts`. The content plugin
-  is optional, so this field may be absent from the supergraph entirely: the
-  hook reads that as `unavailable` (a `GRAPHQL_VALIDATION_FAILED` GraphQL
-  error) and the General tab then renders **no CMS card at all**, rather than a
-  picker that can only report an error. A transient network failure is not
-  `unavailable` — it still surfaces inside the picker. The request itself cannot
-  be skipped from this remote: `ENABLED_PLUGINS` is defined only in `core-ui`'s
-  rspack config and `window.env` carries `REACT_APP_*` only, so a plugin bundle
-  cannot know which plugins are on without asking the server.
-- `core-api` GraphQL `getClientPortal(_id)` as
-  `frontlineHelpCenterCmsPortalToken` — read once when a CMS is picked, to copy
-  that CMS's client portal `token` into `cmsAppToken`.
 - `core-api` GraphQL `getClientPortals` as `frontlineHelpCenterWebsiteOptions` —
   the `Client portal` picker's options (`_id`, `name`, `domain`, `token`),
   read-only.
@@ -911,9 +897,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   target, consumed only at codegen time.
 - Core types and fields this plugin selects, declared for codegen only in
   `schema/platform.graphql`.
-- Optional plugin query `contentCMSList` (content), declared for codegen only
-  in `codegen/external-plugins.graphql`. No frontline document reads the
-  operation schema.
+- No optional plugin schema: no frontline document reads the operation or
+  content schema.
 
 ## Data and State
 
@@ -1225,20 +1210,12 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `formChannelId` is independent of `ticketChannelId`; the two channel selects
   are deliberate. The forms card has no switch of its own: it follows
   `ticketToggle`, and its channel is optional — no channel means no forms.
-  The CMS card is a **multi-select** over `cmsConfigs`, a list of
-  `{ cmsId, cmsAppToken }` — a help center can publish announcements from
-  several CMSes, and each entry carries the app token of the client portal that
-  CMS belongs to, because the site's `cp*` post queries are scoped per token.
-  Picking a CMS reads that token lazily; a CMS whose portal has no token is
-  refused with a toast and never enters the list, and picking a selected CMS
-  again removes it. The API mirrors the first entry back into the legacy
-  `cmsId` / `cmsAppToken`, and `toCmsConfigsInput` turns a config written
-  before the list existed into a one-entry list, so opening and saving an old
-  help center never drops its CMS. `SelectHelpCenterCms` owns no options query —
-  the tab passes `cmsList` / `loading` / `error` down and the component keeps
-  only the lazy portal-token read, so one drawer makes one options request.
-  Hiding the card never clears a saved CMS: the form is not registered with
-  `shouldUnregister`, so `toHelpCenterConfigInput`'s value survives the save.
+  The drawer has no CMS card: picking a CMS needed the content plugin's
+  `contentCMSList`. The help center's own `cmsId`, `cmsAppToken` and
+  `cmsConfigs` stay in the form untouched — `toHelpCenterConfigInput` loads
+  them, the form is not registered with `shouldUnregister`, and
+  `useEditHelpCenter` spreads them back — so saving never clears a CMS the
+  public help center app still reads.
   The API blanks a switched-off feature's whole group in
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
@@ -2474,9 +2451,10 @@ null }`, fall back to the route pipeline and skip without one; never pass
   source. When a document selects another core field, or core changes one it
   selects, update the snapshot from that source; codegen fails on a field the
   snapshot lacks.
-- `codegen/external-plugins.graphql` mirrors only the optional-plugin
-  operations and fields this plugin selects, copied from
-  content_api SDL; extend it by hand when a document selects more of them.
+- Codegen reads only the `frontline_api` printed schema and the core
+  snapshot. A document that selects an optional plugin's field fails
+  codegen; read such data through `frontline_api` instead of adding a schema
+  mirror.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names. `refetchQueries` strings name
   operations, so a rename updates them in the same change.

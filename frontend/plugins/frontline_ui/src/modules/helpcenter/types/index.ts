@@ -1,6 +1,5 @@
 import type {
   CustomDomainFieldsFragment,
-  FrontlineHelpCenterCmsOptionsQuery,
   HelpCenterConfigFieldsFragment,
 } from '~/gql/graphql';
 
@@ -91,10 +90,6 @@ export interface IHelpCenterCmsConfig {
   cmsId: string;
   cmsAppToken: string;
 }
-
-export type IHelpCenterCmsOption = NonNullable<
-  NonNullable<FrontlineHelpCenterCmsOptionsQuery['contentCMSList']>[number]
->;
 
 export type THelpCenterTab = 'general' | 'appearance' | 'embed' | 'domain';
 
