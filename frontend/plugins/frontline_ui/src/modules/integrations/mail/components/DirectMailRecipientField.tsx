@@ -159,7 +159,7 @@ const VerifiedEmailSelect = ({
           aria-label="Recipient email"
           placeholder="Recipients"
           value={value}
-          className="h-9 min-w-0 border-0 px-0 shadow-none focus-visible:ring-0"
+          className="h-9 min-w-0 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
           onChange={(event) => {
             onValueChange(event.target.value);
             onRecipientSelect();

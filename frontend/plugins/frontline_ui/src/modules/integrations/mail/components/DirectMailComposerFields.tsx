@@ -46,7 +46,7 @@ export const ComposerHeader = ({
   loading: boolean;
 }) => (
   <header
-    className="flex h-9 flex-none items-center justify-between bg-[#f2f6fc] px-4 text-[#041e49]"
+    className="flex h-9 flex-none items-center justify-between bg-muted px-4 text-foreground"
     onDoubleClick={(event) => {
       if (!(event.target instanceof Element) || !event.target.closest('button'))
         onExpand();
@@ -223,7 +223,7 @@ const CcBccField = ({ field }: { field: 'cc' | 'bcc' }) => {
       </label>
       <Input
         id={`direct-mail-${field}`}
-        className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
+        className="h-9 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
         {...register(field)}
       />
       {error && (
@@ -264,7 +264,7 @@ export const SubjectRow = () => {
       </label>
       <Input
         id="direct-mail-subject"
-        className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
+        className="h-9 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
         {...register('subject')}
       />
       {errors.subject && (
@@ -294,7 +294,7 @@ export const BodyField = ({
     formState: { errors },
   } = useFormContext<ComposeValues>();
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-3">
+    <div className="min-h-0 flex-1 overflow-y-auto bg-background px-4 py-3">
       <Controller
         name="body"
         control={control}
@@ -314,7 +314,7 @@ export const BodyField = ({
               sideMenu={false}
               formattingToolbar={false}
               slashMenuOnTop
-              className="min-h-full w-full [&_.bn-editor]:min-h-52 [&_.bn-editor]:bg-white [&_.bn-editor]:px-0 [&_.bn-editor]:text-sm [&_.bn-editor]:text-[#202124]"
+              className="min-h-full w-full [&_.bn-editor]:min-h-52 [&_.bn-editor]:bg-background [&_.bn-editor]:px-0 [&_.bn-editor]:text-sm [&_.bn-editor]:text-foreground"
             />
           </fieldset>
         )}
@@ -339,7 +339,7 @@ export const ComposerFields = ({
 }) => (
   <fieldset
     disabled={disabled}
-    className="flex min-h-0 flex-1 flex-col text-[#444746]"
+    className="flex min-h-0 flex-1 flex-col text-foreground"
   >
     <FromRow {...senderProps} disabled={disabled} />
     <ToRow onRecipientSelect={onRecipientSelect} />
@@ -374,7 +374,7 @@ export const ComposerFooter = ({
 }) => {
   const { t } = useTranslation('frontline');
   return (
-    <footer className="flex flex-none flex-col gap-3 bg-white px-4 pb-3 pt-2 text-[#444746]">
+    <footer className="flex flex-none flex-col gap-3 bg-background px-4 pb-3 pt-2 text-foreground">
       {showFormatting && (
         <DirectMailFormatting editor={editor} disabled={editingDisabled} />
       )}
@@ -391,7 +391,7 @@ export const ComposerFooter = ({
           type="button"
           variant="ghost"
           size="icon"
-          className="size-8 aria-pressed:bg-[#d3e3fd]"
+          className="size-8 aria-pressed:bg-accent"
           title="Formatting options"
           aria-label="Formatting options"
           aria-pressed={showFormatting}

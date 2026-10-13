@@ -22,7 +22,7 @@ export const ComposerAttachments = ({
       {attachments.map((attachment) => (
         <li
           key={attachment.id}
-          className="flex items-center gap-1 rounded bg-[#f2f6fc] px-2"
+          className="flex items-center gap-1 rounded bg-muted px-2"
         >
           <span className="max-w-48 truncate">{attachment.name}</span>
           <Button

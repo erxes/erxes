@@ -56,7 +56,7 @@ const ComposerWindow = ({
     <section
       aria-label="New email"
       className={cn(
-        'fixed z-50 flex flex-col overflow-hidden rounded-t-lg border bg-white shadow-2xl font-[Arial,sans-serif]',
+        'fixed z-50 flex flex-col overflow-hidden rounded-t-lg border bg-background text-foreground shadow-2xl font-[Arial,sans-serif]',
         expanded && !minimized
           ? 'inset-x-4 top-6 bottom-4 sm:inset-x-[8vw] sm:top-[6vh]'
           : 'inset-x-2 bottom-0 sm:inset-x-auto sm:right-4',

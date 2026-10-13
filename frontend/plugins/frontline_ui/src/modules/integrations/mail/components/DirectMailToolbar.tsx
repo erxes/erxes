@@ -40,7 +40,7 @@ const ToolButton = ({
     type="button"
     variant="ghost"
     size="icon"
-    className="size-7 rounded-sm aria-pressed:bg-[#d3e3fd]"
+    className="size-7 rounded-sm aria-pressed:bg-accent"
     title={label}
     aria-label={label}
     aria-pressed={active}
@@ -93,7 +93,7 @@ export const DirectMailFormatting = ({
     <fieldset
       disabled={disabled}
       aria-label="Formatting options"
-      className="flex w-fit max-w-full flex-wrap items-center gap-0.5 rounded-full bg-[#f2f6fc] px-2 py-1 text-[#444746]"
+      className="flex w-fit max-w-full flex-wrap items-center gap-0.5 rounded-full bg-muted px-2 py-1 text-foreground"
     >
       <ToolButton
         label="Undo"
