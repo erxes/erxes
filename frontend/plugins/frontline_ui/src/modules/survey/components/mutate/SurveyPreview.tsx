@@ -7,7 +7,7 @@ import { Separator, ToggleGroup } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageSurvey } from '@/inbox/conversation-messages/components/MessageSurvey';
+import { MessageSurvey } from '@/inbox/conversation-messages/components/content/MessageSurvey';
 import { IMessageSurvey } from '@/inbox/types/Conversation';
 import {
   surveySetupConfirmationAtom,

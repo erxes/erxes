@@ -1,4 +1,4 @@
-import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
+import { MessageContent } from '@/inbox/conversation-messages/components/content/MessageContent';
 import { TBotData } from '@/integrations/facebook/types/FacebookTypes';
 import { cn } from 'erxes-ui';
 

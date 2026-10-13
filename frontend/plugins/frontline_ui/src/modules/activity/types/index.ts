@@ -1,0 +1,141 @@
+import type { IAttachment } from 'erxes-ui';
+import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
+export interface IActivityFormField {
+  label: string;
+  value: unknown;
+}
+
+export interface IActivity {
+  _id: string;
+  module: string;
+  action: string;
+  contentId: string;
+  metadata: {
+    newValue: string;
+    previousValue?: string;
+    conversationId?: string;
+    ticketId?: string;
+    formId?: string;
+    formTitle?: string;
+    submissions?: IActivityFormField[];
+  };
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface INote {
+  _id: string;
+  content: string;
+  createdAt: string;
+  createdBy: string;
+  contentId: string;
+  mentions: string[];
+  attachments?: IAttachment[];
+  isInternal?: boolean;
+  mailMessageId?: string | null;
+  mailDelivery?: ITicketNoteMailDelivery | null;
+  unsavedAttachments?: ITicketNoteUnsavedAttachment[] | null;
+  updatedAt: string;
+}
+
+export interface ITicketNoteUnsavedAttachment {
+  name?: string | null;
+  url?: string | null;
+  type?: string | null;
+  size?: number | null;
+  error?: string | null;
+  expiresAt?: string | null;
+}
+
+export interface ITicketNoteMailDelivery {
+  status?: MailDeliveryStatus | null;
+  error?: string | null;
+  to?: string[] | null;
+  bouncedRecipients?: string[] | null;
+  retryable?: boolean | null;
+  canRetry?: boolean | null;
+}
+
+export type TNoteKind =
+  | 'internal'
+  | 'emailReceived'
+  | 'portalReceived'
+  | 'emailSent'
+  | 'customerVisible';
+
+export interface ITicketReplyTarget {
+  from: string;
+  to?: string | null;
+}
+
+export interface INoteTemplateSuggestion {
+  _id: string;
+  name: string;
+  content: string;
+  channelId?: string;
+  updatedAt?: string;
+  preview?: string;
+}
+
+export interface INoteAttachment {
+  name: string;
+  type: string;
+  size: number;
+  url?: string;
+  data?: string;
+}
+
+export interface NoteInputToolbarProps {
+  isInternalNote: boolean;
+  onTemplateSelect: (templateContent: string) => void;
+  onFilesSelected: (files: FileList) => void;
+  onSend: () => void;
+  isSending: boolean;
+}
+
+export interface NoteInputReadOnlyProps {
+  newValueId: string;
+}
+
+export type NoteDeliveryStatusProps = {
+  delivery: ITicketNoteMailDelivery;
+};
+
+export type NoteDeliveryRetryProps = {
+  noteId: string;
+  delivery: ITicketNoteMailDelivery;
+};
+
+export type NoteDeliveryIssueProps = {
+  noteId: string;
+  delivery: ITicketNoteMailDelivery;
+};
+
+export type NoteKindBadgeProps = { note: INote; kind: TNoteKind };
+
+export type NoteMailBodyProps = { note: INote };
+
+export type NoteTextProps = { note: INote; kind: TNoteKind };
+
+export type NoteReadOnlyAttachmentsProps = {
+  attachments?: IAttachment[];
+};
+
+export type NoteReadOnlyAttachmentProps = {
+  attachment: IAttachment;
+  single: boolean;
+};
+
+export type NoteUnsavedAttachmentProps = {
+  attachment: ITicketNoteUnsavedAttachment;
+};
+
+export type NoteUnsavedAttachmentsProps = {
+  attachments?: ITicketNoteUnsavedAttachment[] | null;
+};
+
+export type NoteInputProps = { contentId: string };
+export type NoteTemplateSuggestionsOptions = {
+  editor: ReturnType<typeof import('erxes-ui').useBlockEditor>;
+  enabled: boolean;
+};

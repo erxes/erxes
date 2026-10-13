@@ -1,1 +1,1 @@
-export { MessageAttachments as FbMessengerMessageAttachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+export { MessageAttachments as FbMessengerMessageAttachments } from '@/inbox/conversation-messages/components/attachments/MessageAttachments';

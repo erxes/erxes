@@ -1,7 +1,7 @@
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
 import { useInstagramConversationMessages } from '@/integrations/instagram/hooks/useInstagramConversationMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
-import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
+import { MessageItem } from '@/inbox/conversation-messages/components/messages/MessageItem';
 import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';
 import { useQueryState } from 'erxes-ui';
 import { useMemo } from 'react';

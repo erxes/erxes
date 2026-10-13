@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
+import { MessageItem } from '@/inbox/conversation-messages/components/messages/MessageItem';
 import type { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
 import { useConversationTypingStatus } from '@/inbox/conversation-messages/hooks/useConversationTypingStatus';
