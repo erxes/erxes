@@ -4,6 +4,7 @@ import {
 } from '@/automations/components/settings/components/agents/components/AutomationAiAgentMoreColumn';
 import { getAiAgentKind } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Badge,
   RecordTable,
@@ -16,12 +17,14 @@ const isValidDateValue = (value?: string) => {
   return !!value && !Number.isNaN(new Date(value).getTime());
 };
 
-export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
+export const automationAiAgentColumns = (
+  t: TFunction,
+): ColumnDef<TAiAgentRecord>[] => [
   automationAiAgentMoreColumn,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="truncate font-medium">
         {cell.getValue() as string}
@@ -31,7 +34,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   },
   {
     id: 'visibility',
-    header: () => <RecordTable.InlineHead label="Visibility" />,
+    header: () => <RecordTable.InlineHead label={t('visibility')} />,
     cell: ({ cell }) => {
       const lockState = cell.row.original.approvalLockState;
       const isPrivate = lockState?.locked === true;
@@ -41,7 +44,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
           {isPrivate ? (
             <ApprovalLockedBadge state={lockState} />
           ) : (
-            <Badge variant="secondary">Public</Badge>
+            <Badge variant="secondary">{t('public')}</Badge>
           )}
         </RecordTableInlineCell>
       );
@@ -51,7 +54,9 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'provider',
     accessorFn: (row) => row.connection?.provider,
-    header: () => <RecordTable.InlineHead label="Provider" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('settings-agents-column-provider')} />
+    ),
     cell: ({ cell }) => {
       const provider = getAiAgentKind(cell.getValue() as string | undefined);
 
@@ -68,13 +73,17 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'model',
     accessorFn: (row) => row.connection?.model,
-    header: () => <RecordTable.InlineHead label="Model" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('settings-agents-column-model')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell
         className="truncate text-sm text-muted-foreground"
-        title={(cell.getValue() as string) || 'Model not set'}
+        title={
+          (cell.getValue() as string) || t('settings-agents-model-not-set')
+        }
       >
-        {(cell.getValue() as string) || 'Model not set'}
+        {(cell.getValue() as string) || t('settings-agents-model-not-set')}
       </RecordTableInlineCell>
     ),
     size: 180,
@@ -82,7 +91,7 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label={t('description')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell
         className="truncate text-sm text-muted-foreground"
@@ -96,7 +105,9 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'usage',
     accessorFn: (row) => row.usage?.total ?? 0,
-    header: () => <RecordTable.InlineHead label="Used by" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('settings-agents-used-by')} />
+    ),
     cell: ({ cell }) => {
       const usage = cell.row.original.usage;
       const total = usage?.total ?? 0;
@@ -104,20 +115,28 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
       if (!total) {
         return (
           <RecordTableInlineCell className="text-sm text-muted-foreground">
-            Not used
+            {t('settings-agents-not-used')}
           </RecordTableInlineCell>
         );
       }
 
       const names = (usage?.automations || [])
-        .map(({ name, status }) => `${name || 'Untitled'} (${status})`)
+        .map(
+          ({ name, status }) => `${name || t('sidebar-untitled')} (${status})`,
+        )
         .join('\n');
 
       return (
         <RecordTableInlineCell className="min-w-0" title={names}>
           <Badge variant="secondary">
-            {total} automation{total > 1 ? 's' : ''}
-            {usage?.active ? ` · ${usage.active} active` : ''}
+            {total > 1
+              ? t('settings-agents-usage-automations', { value: total })
+              : t('settings-agents-usage-automation', { value: total })}
+            {usage?.active
+              ? ` · ${t('settings-agents-usage-active', {
+                  value: usage.active,
+                })}`
+              : ''}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -127,7 +146,9 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Created" />,
+    header: () => (
+      <RecordTable.InlineHead label={t('settings-agents-column-created')} />
+    ),
     cell: ({ cell }) => {
       const createdAt = cell.getValue() as string;
 

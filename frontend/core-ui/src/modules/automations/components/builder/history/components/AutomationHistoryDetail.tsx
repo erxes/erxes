@@ -8,12 +8,14 @@ import { AutomationHistoryDetailProvider } from '@/automations/components/builde
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { IconEye } from '@tabler/icons-react';
 import { cn, RecordTable, RecordTableInlineCell, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryDetail = ({
   executionId,
 }: {
   executionId: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { isSplitView, selectedExecutionId, selectExecution } =
     useAutomationHistoryView();
   const isOpen = selectedExecutionId === executionId;
@@ -21,7 +23,7 @@ export const AutomationHistoryDetail = ({
   const trigger = (
     <RecordTable.MoreButton
       className="w-full h-full"
-      aria-label="Show execution detail"
+      aria-label={t('history-show-execution-detail')}
     >
       <IconEye className={cn(isOpen && 'text-primary')} />
     </RecordTable.MoreButton>
@@ -58,6 +60,7 @@ export const AutomationHistoryDetail = ({
 };
 
 const AutomationHistorySheetHeader = () => {
+  const { t } = useTranslation('automations');
   const title = useAutomationExecutionDetailTitle();
 
   return (
@@ -69,7 +72,7 @@ const AutomationHistorySheetHeader = () => {
             <Sheet.Title>{title}</Sheet.Title>
           </div>
           <Sheet.Description>
-            View the execution log of your automation in table or flow format.
+            {t('history-sheet-description')}
           </Sheet.Description>
         </div>
       </div>

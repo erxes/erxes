@@ -9,8 +9,10 @@ import { AutomationNodeType } from '@/automations/types';
 import { IconTrash } from '@tabler/icons-react';
 import { AlertDialog, Button, Command } from 'erxes-ui';
 import { MouseEvent, PointerEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const WorkflowNodeLibraryContent = () => {
+  const { t } = useTranslation('automations');
   const { templates, loading, insertTemplate, removeTemplate } =
     useWorkflowTemplates();
   // The confirm dialog lives OUTSIDE the Command.Item rows: cmdk items select
@@ -40,7 +42,10 @@ export const WorkflowNodeLibraryContent = () => {
   return (
     <>
       <Command.Empty />
-      <Command.Group heading="Templates" className={NODE_LIBRARY_GROUP_CLASS}>
+      <Command.Group
+        heading={t('templates')}
+        className={NODE_LIBRARY_GROUP_CLASS}
+      >
         {templates.map((template) => (
           <NodeLibraryRow
             key={template._id}
@@ -78,19 +83,22 @@ export const WorkflowNodeLibraryContent = () => {
       <AlertDialog open={!!removeTarget} onOpenChange={handleDialogOpenChange}>
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>Delete template?</AlertDialog.Title>
+            <AlertDialog.Title>
+              {t('sidebar-delete-template-title')}
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              "{removeTarget?.name}" will be permanently deleted. Workflows
-              already inserted from it are not affected.
+              {t('sidebar-delete-template-description', {
+                name: removeTarget?.name,
+              })}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
             <AlertDialog.Action
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleConfirmRemove}
             >
-              Delete
+              {t('delete')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>

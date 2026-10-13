@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   transformConfigFormSchema,
   TRANSFORM_VALUE_TYPES,
@@ -51,6 +52,7 @@ export const TransformConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Transform Configuration',
   });
+  const { t } = useTranslation('automations');
   const form = useForm<TTransformConfigForm>({
     resolver: zodResolver(transformConfigFormSchema),
     defaultValues: generateDefaultValues(currentAction),
@@ -68,7 +70,7 @@ export const TransformConfigForm = ({
         <div className="flex w-[560px] flex-col gap-5">
           <div className="flex items-center justify-between">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Output mappings
+              {t('transform-output-mappings')}
             </Label>
             <Button
               type="button"
@@ -83,7 +85,7 @@ export const TransformConfigForm = ({
               }
             >
               <IconPlus />
-              Add mapping
+              {t('transform-add-mapping')}
             </Button>
           </div>
 
@@ -115,6 +117,7 @@ const TranformConfigRow = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { control, setValue } = useFormContext<TTransformConfigForm>();
+  const { t } = useTranslation('automations');
 
   return (
     <Collapsible
@@ -142,7 +145,7 @@ const TranformConfigRow = ({
           name={`mappings.${index}.key`}
           render={({ field }) => (
             <Form.Item className="flex-1">
-              {isOpen && <Form.Label>Output key</Form.Label>}
+              {isOpen && <Form.Label>{t('transform-output-key')}</Form.Label>}
               <Input placeholder="fullName" {...field} />
               <Form.Message />
             </Form.Item>
@@ -153,7 +156,7 @@ const TranformConfigRow = ({
           name={`mappings.${index}.type`}
           render={({ field }) => (
             <Form.Item className="w-32">
-              {isOpen && <Form.Label>Type</Form.Label>}
+              {isOpen && <Form.Label>{t('transform-type')}</Form.Label>}
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value />
@@ -189,7 +192,7 @@ const TranformConfigRow = ({
             name={`mappings.${index}.value`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Value</Form.Label>
+                <Form.Label>{t('value')}</Form.Label>
                 <PlaceholderInput
                   value={field.value ?? ''}
                   onChange={field.onChange}

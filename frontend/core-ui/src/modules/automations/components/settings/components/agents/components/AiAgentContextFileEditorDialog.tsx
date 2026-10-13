@@ -20,6 +20,7 @@ import {
 } from '@/automations/components/settings/components/agents/utils/contextFiles';
 import { IconClock, IconLoader2, IconX } from '@tabler/icons-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const readContextFile = async (
   file: TAiAgentContextFile | TAiAgentContextFileVersion,
@@ -86,6 +87,7 @@ export const AiAgentContextFileEditorDialog = ({
   onOpenChange: (open: boolean) => void;
   onSave: (file: TAiAgentContextFile) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -118,9 +120,11 @@ export const AiAgentContextFileEditorDialog = ({
       }
 
       toast({
-        title: 'Failed to load context file',
+        title: t('settings-editor-load-failed'),
         description:
-          error instanceof Error ? error.message : 'Please try again.',
+          error instanceof Error
+            ? error.message
+            : t('settings-editor-try-again'),
         variant: 'destructive',
       });
 
@@ -168,9 +172,11 @@ export const AiAgentContextFileEditorDialog = ({
       onOpenChange(false);
     } catch (error: any) {
       toast({
-        title: 'Failed to save context file',
+        title: t('settings-editor-save-failed'),
         description:
-          error instanceof Error ? error.message : 'Please try again.',
+          error instanceof Error
+            ? error.message
+            : t('settings-editor-try-again'),
         variant: 'destructive',
       });
     } finally {
@@ -183,9 +189,9 @@ export const AiAgentContextFileEditorDialog = ({
       <Dialog.Content className="flex h-[85vh] max-w-6xl flex-col overflow-hidden p-0">
         <div className="border-b px-6 py-4">
           <Dialog.Header className="relative space-y-1 pr-12 text-left">
-            <Dialog.Title>Edit Context File</Dialog.Title>
+            <Dialog.Title>{t('settings-editor-title')}</Dialog.Title>
             <Dialog.Description className="text-sm text-muted-foreground">
-              Edit this context file, rename it, and save a new version.
+              {t('settings-editor-description')}
             </Dialog.Description>
             <Dialog.Close asChild>
               <Button
@@ -204,15 +210,17 @@ export const AiAgentContextFileEditorDialog = ({
             <div className="space-y-4 border-b px-6 py-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-medium">File Name</h3>
+                  <h3 className="text-sm font-medium">
+                    {t('settings-editor-file-name')}
+                  </h3>
                   <p className="text-xs text-muted-foreground">
-                    Saving creates a new uploaded file and keeps the previous
-                    one in version history.
+                    {t('settings-editor-saving-creates')}
                   </p>
                 </div>
                 <Badge variant="secondary">
-                  {getContextFileVersionCount(file || undefined)} previous
-                  versions
+                  {t('settings-editor-previous-versions', {
+                    count: getContextFileVersionCount(file || undefined),
+                  })}
                 </Badge>
               </div>
 
@@ -230,7 +238,7 @@ export const AiAgentContextFileEditorDialog = ({
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Only the file name changes. The extension stays fixed.
+                {t('settings-editor-only-name-changes')}
               </p>
             </div>
 
@@ -239,14 +247,14 @@ export const AiAgentContextFileEditorDialog = ({
                 {isLoading ? (
                   <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                     <IconLoader2 className="mr-2 size-4 animate-spin" />
-                    Loading markdown...
+                    {t('settings-editor-loading-markdown')}
                   </div>
                 ) : (
                   <Textarea
                     value={content}
                     onChange={(event) => setContent(event.target.value)}
                     className="h-full min-h-full resize-none border-0 bg-transparent p-4 font-mono text-sm shadow-none focus-visible:ring-0"
-                    placeholder="Write markdown context here..."
+                    placeholder={t('settings-editor-markdown-placeholder')}
                     disabled={isSaving}
                   />
                 )}
@@ -258,7 +266,9 @@ export const AiAgentContextFileEditorDialog = ({
             <ScrollArea className="h-full" viewportClassName="[&>div]:!block">
               <div className="space-y-4 p-6">
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Current File</h3>
+                  <h3 className="text-sm font-medium">
+                    {t('settings-editor-current-file')}
+                  </h3>
                   <button
                     type="button"
                     onClick={() => file && void loadSource(file)}
@@ -269,14 +279,16 @@ export const AiAgentContextFileEditorDialog = ({
                     }`}
                   >
                     <div className="break-all font-medium">
-                      {file?.name || 'Untitled'}
+                      {file?.name || t('sidebar-untitled')}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
                       {formatContextFileSize(file?.size)}
                     </div>
                     {formatContextFileUploadedAt(file?.uploadedAt) && (
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Added {formatContextFileUploadedAt(file?.uploadedAt)}
+                        {t('settings-files-added', {
+                          date: formatContextFileUploadedAt(file?.uploadedAt),
+                        })}
                       </div>
                     )}
                   </button>
@@ -285,7 +297,9 @@ export const AiAgentContextFileEditorDialog = ({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <IconClock className="size-4 text-muted-foreground" />
-                    <h3 className="text-sm font-medium">Version History</h3>
+                    <h3 className="text-sm font-medium">
+                      {t('settings-editor-version-history')}
+                    </h3>
                   </div>
 
                   {versions.length ? (
@@ -311,8 +325,11 @@ export const AiAgentContextFileEditorDialog = ({
                           </div>
                           {formatContextFileUploadedAt(version.uploadedAt) && (
                             <div className="mt-1 text-xs text-muted-foreground">
-                              Saved{' '}
-                              {formatContextFileUploadedAt(version.uploadedAt)}
+                              {t('settings-editor-saved-at', {
+                                date: formatContextFileUploadedAt(
+                                  version.uploadedAt,
+                                ),
+                              })}
                             </div>
                           )}
                         </button>
@@ -320,8 +337,7 @@ export const AiAgentContextFileEditorDialog = ({
                     </div>
                   ) : (
                     <div className="rounded-xl border border-dashed bg-background px-4 py-6 text-sm text-muted-foreground">
-                      No previous versions yet. The first save from this dialog
-                      will keep the current file as history.
+                      {t('settings-editor-no-versions')}
                     </div>
                   )}
                 </div>
@@ -337,7 +353,7 @@ export const AiAgentContextFileEditorDialog = ({
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="button"
@@ -347,10 +363,10 @@ export const AiAgentContextFileEditorDialog = ({
             {isSaving ? (
               <>
                 <IconLoader2 className="mr-2 size-4 animate-spin" />
-                Saving...
+                {t('common-saving')}
               </>
             ) : (
-              'Save'
+              t('save')
             )}
           </Button>
         </Dialog.Footer>

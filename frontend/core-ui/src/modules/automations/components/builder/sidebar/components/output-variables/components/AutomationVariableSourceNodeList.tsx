@@ -14,6 +14,7 @@ import {
 import { useMemo, useState } from 'react';
 import { TAutomationVariableSourceNode } from '../AutomationVariableBrowserTypes';
 import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationVariableSourceNodeList = ({
   activeSourceNodeId,
@@ -24,6 +25,7 @@ export const AutomationVariableSourceNodeList = ({
   sourceNodes: TAutomationVariableSourceNode[];
   onSelectSourceNode: (nodeId: string) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
   const { fitView, getNode } = useReactFlow<Node<NodeData>>();
   const selectedNode = useMemo(
@@ -51,7 +53,7 @@ export const AutomationVariableSourceNodeList = ({
           {selectedNode ? (
             <AutomationVariableSourceNodeValue node={selectedNode} />
           ) : (
-            <Combobox.Value placeholder="Select node" />
+            <Combobox.Value placeholder={t('sidebar-select-node')} />
           )}
         </Combobox.Trigger>
         <Tooltip>
@@ -61,20 +63,20 @@ export const AutomationVariableSourceNodeList = ({
               variant="outline"
               size="icon"
               className="shrink-0"
-              aria-label="Focus selected node"
+              aria-label={t('sidebar-focus-selected-node')}
               disabled={!selectedNode}
               onClick={focusSelectedNode}
             >
               <IconFocusCentered className="size-4" />
             </Button>
           </Tooltip.Trigger>
-          <Tooltip.Content>Focus selected node</Tooltip.Content>
+          <Tooltip.Content>{t('sidebar-focus-selected-node')}</Tooltip.Content>
         </Tooltip>
       </div>
       <Combobox.Content>
         <Command shouldFilter>
-          <Command.Input placeholder="Search nodes..." />
-          <Command.Empty>No nodes found.</Command.Empty>
+          <Command.Input placeholder={t('sidebar-search-nodes')} />
+          <Command.Empty>{t('sidebar-no-nodes-found')}</Command.Empty>
           <Command.List>
             {sourceNodes.map((node) => (
               <Command.Item
@@ -103,6 +105,7 @@ const AutomationVariableSourceNodeValue = ({
 }: {
   node: TAutomationVariableSourceNode;
 }) => {
+  const { t } = useTranslation('automations');
   return (
     <div className="flex min-w-0 items-center gap-2">
       <span className={cn('rounded-md p-1.5', getNodeColor(node.nodeType))}>
@@ -113,7 +116,9 @@ const AutomationVariableSourceNodeValue = ({
       </span>
       <span className="text-xs text-muted-foreground">
         {node.kindLabel ??
-          (node.nodeType === AutomationNodeType.Trigger ? 'Trigger' : 'Action')}
+          (node.nodeType === AutomationNodeType.Trigger
+            ? t('trigger')
+            : t('action'))}
       </span>
     </div>
   );
