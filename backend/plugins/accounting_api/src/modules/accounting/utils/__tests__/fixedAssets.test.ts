@@ -1009,7 +1009,7 @@ describe('fixed asset move follow transaction', () => {
     );
   });
 
-  it('uses migration supplied accumulated depreciation summaries for internal moves', async () => {
+  it('multiplies detail unit preDeprecation for internal move follows', async () => {
     const models = makeModels();
     const transaction = {
       _id: 'move-a',
@@ -1025,21 +1025,16 @@ describe('fixed asset move follow transaction', () => {
         moveInBranchId: 'dest-branch',
         moveInDepartmentId: 'dest-dept',
         accumulatedDepreciationAccountId: 'acc-dep-account',
-        fxaDisposalSummaries: [
-          {
-            transactionDetailId: 'detail-move',
-            accumulatedDepreciation: 245000,
-          },
-        ],
       },
       details: [
         {
           _id: 'detail-move',
+          followInfos: { preDeprecation: 245000 },
           fixedAssetId: 'asset-a',
           accountId: 'asset-account',
-          count: 1,
+          count: 2,
           unitPrice: 350000,
-          amount: 350000,
+          amount: 700000,
         },
       ],
     };
@@ -1077,7 +1072,8 @@ describe('fixed asset move follow transaction', () => {
           branchId: 'source-branch',
           details: [
             expect.objectContaining({
-              amount: 245000,
+              amount: 490000,
+              unitPrice: 245000,
               branchId: 'source-branch',
             }),
           ],
@@ -1089,7 +1085,8 @@ describe('fixed asset move follow transaction', () => {
           branchId: 'dest-branch',
           details: [
             expect.objectContaining({
-              amount: 245000,
+              amount: 490000,
+              unitPrice: 245000,
               branchId: 'dest-branch',
             }),
           ],
@@ -1451,6 +1448,64 @@ describe('fixed asset adjustment', () => {
 });
 
 describe('fixed asset sale and disposal summaries', () => {
+  it.each([-1, NaN, Infinity])(
+    'rejects invalid unit preDeprecation %s',
+    async (value) => {
+      const models = makeModels();
+      await expect(
+        getFxaDisposalSummaries(
+          models as never,
+          {
+            journal: JOURNALS.FXA_OUT,
+            details: [
+              {
+                fixedAssetId: 'asset-a',
+                count: 2,
+                followInfos: { preDeprecation: value },
+              },
+            ],
+          } as never,
+        ),
+      ).rejects.toThrow('Fixed asset unit depreciation must be nonnegative');
+    },
+  );
+
+  it.each([0, 25])(
+    'uses explicit unit preDeprecation %s for each same-asset row',
+    async (amount) => {
+      const models = makeModels();
+      models.FixedAssets.find.mockReturnValue(
+        queryResult([
+          { _id: 'asset-a', originalCost: 100, count: 2, currentCount: 0 },
+        ]),
+      );
+      const summaries = await getFxaDisposalSummaries(
+        models as never,
+        {
+          journal: JOURNALS.FXA_OUT,
+          details: [
+            {
+              _id: 'row-1',
+              fixedAssetId: 'asset-a',
+              count: 2,
+              followInfos: { preDeprecation: amount },
+            },
+            {
+              _id: 'row-2',
+              fixedAssetId: 'asset-a',
+              count: 3,
+              followInfos: { preDeprecation: 10 },
+            },
+          ],
+        } as never,
+      );
+      expect(summaries.map((row) => row.accumulatedDepreciation)).toEqual([
+        amount * 2,
+        30,
+      ]);
+    },
+  );
+
   it('summarizes disposal from fixed asset cost base and latest adjustment cache', async () => {
     const models = makeModels();
 

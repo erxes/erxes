@@ -36,7 +36,7 @@ export const transactionDetailFollowInfoSchema = z
     currencyDiffAccountId: undefed(z.string()),
     moveInBranchId: undefed(z.string()),
     moveInDepartmentId: undefed(z.string()),
-    preDeprecation: undefed(z.number()),
+    preDeprecation: undefed(z.number().nonnegative()),
     salvageValue: undefed(z.number()),
   })
   .passthrough();
@@ -407,6 +407,7 @@ export const fxaDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
+    followInfos: undefed(transactionDetailFollowInfoSchema),
     fixedAssetId: z.string().refine(
       (val) => val?.length,
       () => ({

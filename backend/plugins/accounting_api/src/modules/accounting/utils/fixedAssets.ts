@@ -30,11 +30,6 @@ export type TFxaMoveFollowInfos = {
   moveInBranchId?: string;
   moveInDepartmentId?: string;
   accumulatedDepreciationAccountId?: string;
-  fxaDisposalSummaries?: {
-    transactionDetailId?: string;
-    fixedAssetId?: string;
-    accumulatedDepreciation?: number;
-  }[];
 };
 
 export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos & {
@@ -526,14 +521,6 @@ export const getFxaDisposalSummaries = async (
     fixedAssetIds,
     transaction.date,
   );
-  const summaryOverrides = new Map(
-    (getFxaDisposalFollowInfos(transaction).fxaDisposalSummaries || []).map(
-      (summary) => [
-        summary.transactionDetailId || summary.fixedAssetId || '',
-        summary,
-      ],
-    ),
-  );
 
   return (transaction.details || [])
     .map((detail) => {
@@ -547,17 +534,23 @@ export const getFxaDisposalSummaries = async (
         : undefined;
       const currentCount = fixedAsset?.currentCount ?? fixedAsset?.count ?? 0;
       const countBeforeThisDisposal = currentCount + count;
-      const summaryOverride =
-        summaryOverrides.get(detail._id || '') ||
-        summaryOverrides.get(detail.fixedAssetId || '');
+      const suppliedUnitDepreciation = detail.followInfos?.preDeprecation;
+      if (
+        suppliedUnitDepreciation !== undefined &&
+        (!Number.isFinite(suppliedUnitDepreciation) || suppliedUnitDepreciation < 0)
+      ) {
+        throw new Error(
+          'Fixed asset unit depreciation must be nonnegative',
+        );
+      }
+      const adjustmentDepreciation = countBeforeThisDisposal
+        ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
+            countBeforeThisDisposal) * count
+        : 0;
       const accumulatedDepreciation = fixNum(
-        typeof summaryOverride?.accumulatedDepreciation === 'number'
-          ? summaryOverride.accumulatedDepreciation
-          : countBeforeThisDisposal
-          ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
-              countBeforeThisDisposal) *
-            count
-          : 0,
+        suppliedUnitDepreciation === undefined
+          ? adjustmentDepreciation
+          : suppliedUnitDepreciation * count,
       );
 
       return {

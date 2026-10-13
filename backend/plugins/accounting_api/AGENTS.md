@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-12`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -31,10 +31,11 @@
 - Permission metadata exposes safe remainder read, manage, remove, and system-count visibility actions; users without count visibility see safe remainder item system counts as zero and cannot apply difference filters.
 - Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store the supplied acquisition quantity and cost.
 - Fixed asset categories store default annual depreciation percentages; fixed asset income copies the category's annual rate onto the generated fixed asset, and straight-line depreciation turns the annual percentage into monthly depreciation prorated by each month's day count.
-- Fixed asset income accepts unit accumulated depreciation as `details[].followInfos.preDeprecation`; it creates or updates only the transaction-linked `fxaDepIn` credit follow transaction and reduces the paired opening balance `main` transaction to net book value, without creating fixed asset adjustment records.
+- Fixed asset income accepts unit accumulated depreciation as `details[].followInfos.preDeprecation`; it creates or updates only the transaction-linked `fxaDepIn` credit follow transaction, without creating fixed asset adjustment records.
 - Fixed asset owner records in `fxa_owner_records` are optional responsible-user/serial allocation ledger rows for income, disposal, sale, move details, and direct owner-record operations; `action: "received"` increases an owner balance and `action: "handedOver"` decreases it, transaction-level `followInfos.ownerId` is used as a fallback when no explicit owner rows are sent, while financial quantity, cost, branch/department movement, and depreciation remain driven by transaction details.
 - Provides `fxaOwnerRecords` and `fxaOwnerRecordsCount`, which list owner records with fixed asset, category-derived filtering, owner, action, status, created-date, and optional `balanceOnly` aggregate rows for selection sheets.
 - Fixed asset out, sale, move, and move-in journals derive quantity and branch/department movement from transaction details; internal moves keep the same fixed asset id, use the generated `fxaMoveIn` transaction for the destination branch and/or department, and generate accumulated-depreciation transfer follows as `fxaDepOut`/`fxaDepIn` when the move has prior depreciation.
+- Fixed asset income, disposal, sale, and movement details use `details[].followInfos.preDeprecation` for unit accumulated depreciation. Disposal/movement follows multiply it by detail count for their total amount and retain it as unit price; explicit zero is authoritative and negative or non-finite disposal inputs are rejected. No duplicate detail field or root summary array is consumed.
 - Provides `fixedAssetLocationRemainder`, which returns fixed asset quantity at a branch/department/date location from business-active fixed asset transaction detail movements, excluding the edited transaction's entire parent workflow when requested.
 - Provides `fixedAssetLocationRemainders`, which lists positive fixed asset quantities grouped by fixed asset, branch, and department with fixed asset, category, location, date, and search filters using the same transaction movement aggregation helper as `fixedAssetLocationRemainder`.
 - Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day from transaction detail movements, caches period-end rows in `adjust_fxa_details`, allocates depreciation by active branch/department quantity while ignoring responsible-user allocation, and creates accounting transactions under the `fxaDep` journal.
@@ -132,7 +133,6 @@
 - Fixed asset income transaction detail follow-info owns residual value and `preDeprecation` inputs; `extraData.fxaOwnerRecords` owns only optional responsible-user/serial allocation rows.
 - Income handlers read `preDeprecation` and `salvageValue` only from transaction detail `followInfos`, preserving explicit zero. Missing depreciation is zero; missing residual value falls back only to the category default. Root income-detail metadata is not a financial-input fallback.
 - GraphQL detail input/output uses the existing `followInfos: JSON` contract; `ITrDetailFollowInfos` types known journal metadata and leaves extension keys unknown, without a duplicate root income-detail array.
-- Erkhet migration source account/location codes and opening-balance markers are extension metadata, not named runtime detail fields; narrow unknown code values before using them as strings.
 - Fixed asset transaction details store `fixedAssetId` for existing assets and store `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` for acquisition input; income synchronization writes the generated fixed asset id back to the detail.
 - Fixed asset documents store acquisition identity, account, unit cost, original quantity, current quantity cache, category depreciation defaults, acquisition date, depreciation start date, transaction id, and transaction detail id.
 - Fixed asset owner records store optional responsible-user/serial allocation ledger rows with fixed asset, code, sequence, count, action, status, owner, transaction, and transaction-detail linkage; they must not store branch, department, cost, depreciation method, acquisition date, or financial movement source-of-truth fields.

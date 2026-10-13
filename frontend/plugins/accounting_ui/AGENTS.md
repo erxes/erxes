@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-12`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -208,6 +208,7 @@
 - Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
 - Loading or refetching a fixed asset location remainder must not mutate an existing transaction detail count; apply the limit only when the user changes the count.
 - Fixed asset disposal preview hooks must never rebuild saved main or follow rows from master-data queries; tab and T-balance remounts must leave Mongo-backed amounts, counts, sides, and generated `fxaDepOut` rows unchanged.
+- Fixed asset income, out, movement, and sale forms preserve nonnegative unit accumulated depreciation in `details[].followInfos.preDeprecation`, including explicit zero. Quantity edits leave the unit value unchanged; preview/backend follow amounts multiply it by count. Changing the selected disposal asset clears its old unit override, while mount/refetch does not rewrite it. Do not introduce a second detail depreciation field or root summary array.
 - Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
 - Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
 - Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.

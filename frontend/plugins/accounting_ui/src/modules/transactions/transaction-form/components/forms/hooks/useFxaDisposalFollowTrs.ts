@@ -31,10 +31,10 @@ type TFxaDisposalSummary = {
   bookValue: number;
 };
 
-const buildSummary = (
+export const buildFxaDisposalPreviewSummaries = (
   details: TFxaDetail[],
   fixedAssets: TFxaDisposalInstance[] = [],
-) =>
+): TFxaDisposalSummary[] =>
   details
     .map((detail) => {
       const fixedAsset = fixedAssets.find(
@@ -46,12 +46,17 @@ const buildSummary = (
       const perUnitAccumulated = currentCount
         ? (fixedAsset?.accumulatedDepreciation || 0) / currentCount
         : 0;
-      const accumulatedDepreciation = fixNum(perUnitAccumulated * count);
-      const bookValue = fixNum(
+      const unitDepreciation =
+        detail.followInfos?.preDeprecation ?? perUnitAccumulated;
+      const accumulatedDepreciation = fixNum(unitDepreciation * count);
+      let bookValue = fixNum(
         fixedAsset?.bookValue
           ? (fixedAsset.bookValue / (currentCount || count || 1)) * count
           : originalCost - accumulatedDepreciation,
       );
+      if (detail.followInfos?.preDeprecation !== undefined) {
+        bookValue = fixNum(originalCost - accumulatedDepreciation);
+      }
 
       return {
         detailId: detail._id,
@@ -217,7 +222,7 @@ export const useFxaDisposalFollowTrs = ({
       return;
     }
 
-    const summaries = buildSummary(
+    const summaries = buildFxaDisposalPreviewSummaries(
       (trDoc?.details || []) as TFxaDetail[],
       data.fixedAssets,
     );
