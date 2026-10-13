@@ -58,6 +58,9 @@ export interface IOrganization {
   // Legacy single domain, moved into helpCenterDomains on the next write
   helpCenterDomain?: ISaasHelpCenterDomain;
   helpCenterDomains?: ISaasHelpCenterDomain[];
+  // 'new' for dashboard.erxes.io organizations; missing or 'old' otherwise
+  gpStatus?: string;
+  gpStripeCustomerId?: string;
 }
 
 export interface ISaasBundle {

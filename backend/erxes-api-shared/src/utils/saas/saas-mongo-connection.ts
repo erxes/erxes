@@ -124,7 +124,25 @@ export const getSaasOrgsCache = async ({
   }
 
   if (subdomain) {
-    return organizations.find((org) => org.subdomain === subdomain);
+    const cached = organizations.find((org) => org.subdomain === subdomain);
+
+    if (cached) {
+      return cached;
+    }
+
+    // dashboard.erxes.io creates organizations without access to this cache:
+    // read a missing subdomain from the database and rebuild the cache if found.
+    await getSaasCoreConnection();
+
+    const organization = await coreModelOrganizations
+      .findOne({ subdomain })
+      .lean();
+
+    if (organization) {
+      await redis.set('core_organizations', '');
+    }
+
+    return organization || undefined;
   }
 
   if (excludeSubdomains) {
