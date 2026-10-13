@@ -23,7 +23,12 @@ import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
-import { SegmentsFilter } from 'ui-modules';
+import {
+  PropertiesFilter,
+  SegmentsFilter,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 
 const TicketsFilterPopover = () => {
   const { t } = useTranslation('frontline');
@@ -39,6 +44,9 @@ const TicketsFilterPopover = () => {
     startDateStartDate: string;
     targetDateStartDate: string;
     statusChangedStartDate: string;
+    branchIds: string[];
+    departmentIds: string[];
+    propertiesData: string;
   }>([
     'searchValue',
     'assignee',
@@ -51,6 +59,9 @@ const TicketsFilterPopover = () => {
     'startDateStartDate',
     'targetDateStartDate',
     'statusChangedStartDate',
+    'branchIds',
+    'departmentIds',
+    'propertiesData',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -69,8 +80,11 @@ const TicketsFilterPopover = () => {
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
+    propertiesData,
   } = queries || {};
   const segments = JSON.stringify(queries?.segments);
+  const branchIds = JSON.stringify(queries?.branchIds);
+  const departmentIds = JSON.stringify(queries?.departmentIds);
 
   useEffect(() => {
     setFetchedTickets([]);
@@ -86,6 +100,9 @@ const TicketsFilterPopover = () => {
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
+    branchIds,
+    departmentIds,
+    propertiesData,
     setFetchedTickets,
   ]);
   return (
@@ -125,6 +142,15 @@ const TicketsFilterPopover = () => {
                     {t('status-label', 'Status')}
                   </Filter.Item>
                 )}
+                <SelectBranches.FilterItem
+                  value="branchIds"
+                  label={t('branch-label', 'Branch')}
+                />
+                <SelectDepartments.FilterItem
+                  value="departmentIds"
+                  label={t('department-label', 'Department')}
+                />
+                <PropertiesFilter />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="createdStartDate">
                   <IconCalendarPlus />
@@ -148,6 +174,12 @@ const TicketsFilterPopover = () => {
           <SelectAssigneeTicket.FilterView />
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
+          <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
+          <SelectDepartments.FilterView
+            mode="multiple"
+            filterKey="departmentIds"
+          />
+          <PropertiesFilter.View contentType="frontline:ticket" />
           <SegmentsFilter.View contentType="frontline:tickets.tickets" />
           <Filter.View filterKey="createdStartDate">
             <Filter.DateView
@@ -323,6 +355,17 @@ export const TicketsFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTicket.FilterBar />
         </Filter.BarItem>
+        <SelectBranches.FilterBar
+          mode="multiple"
+          filterKey="branchIds"
+          label={t('branch-label', 'Branch')}
+        />
+        <SelectDepartments.FilterBar
+          mode="multiple"
+          filterKey="departmentIds"
+          label={t('department-label', 'Department')}
+        />
+        <PropertiesFilter.Bar contentType="frontline:ticket" />
       </Filter.Bar>
     </Filter>
   );

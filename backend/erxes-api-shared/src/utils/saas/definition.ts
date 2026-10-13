@@ -72,6 +72,8 @@ export const saasOrganizationsSchema = new mongoose.Schema({
   // Kept apart from `domain` / `dnsStatus`, which drive the white-label app
   // domain, so a help center hostname never changes how the app sets cookies.
   helpCenterDomain: { type: Object },
+  // One entry per connected help center domain (see ISaasHelpCenterDomain)
+  helpCenterDomains: { type: [Object], default: undefined },
 });
 
 export const saasInstallationSchema = new mongoose.Schema({

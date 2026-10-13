@@ -197,7 +197,7 @@ export const SelectLeadInlineCell = ({
   ...props
 }: {
   teamIds?: string[] | string;
-  value?: string;
+  value?: string | null;
   id?: string;
   onValueChange?: (value: string | string[]) => void;
   scope?: string;
@@ -214,7 +214,7 @@ export const SelectLeadInlineCell = ({
       updateProject({
         variables: {
           _id: id,
-          leadId: value,
+          leadId: Array.isArray(value) ? undefined : value,
         },
       });
     }
@@ -354,7 +354,7 @@ export const SelectLeadDetail = React.forwardRef<
       updateProject({
         variables: {
           _id: id,
-          leadId: lead,
+          leadId: Array.isArray(lead) ? undefined : lead,
         },
       });
     }

@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { ReportTable, useQueryState } from 'erxes-ui';
 import { getReportHeaderRows } from './reportTableLayout';
 
 export const ReportTableHeader = () => {
-  const [report] = useQueryState('report');
+  const { t } = useTranslation('accounting');
+  const [report] = useQueryState<string>('report');
   const reportCode = typeof report === 'string' ? report : '';
   const headerRows = getReportHeaderRows(reportCode);
 
@@ -20,7 +22,7 @@ export const ReportTableHeader = () => {
               rowSpan={cell.rowSpan}
               colSpan={cell.colSpan}
             >
-              {cell.label}
+              {t(cell.label || '', { nsSeparator: false })}
             </ReportTable.Head>
           ))}
         </ReportTable.Row>

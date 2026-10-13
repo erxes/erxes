@@ -10,14 +10,19 @@
   "count": "Тоо",
   "not-counted": "Хараахан тоолоогүй",
   "create-segment": "Сегмент үүсгэх",
+  "empty-title": "Сегмент хараахан алга",
+  "empty-description": "Энэ төрөлд сегмент байхгүй байна. Нөхцөлөөр бичлэгүүдийг бүлэглэхийн тулд сегмент үүсгэнэ үү.",
+  "error-title": "Сегментүүдийг ачаалж чадсангүй",
+  "error-description": "Сегментүүдийг ачаалахад алдаа гарлаа. Дахин оролдоно уу.",
+  "retry": "Дахин оролдох",
   "edit": "Засах",
   "create": "Үүсгэх",
   "a-segment": "сегмент",
   "detail": {
     "automations": "Automation",
-    "automations-title": "Орох, гарах automation",
-    "automations-hint": "Бичлэг энэ segment-д орох эсвэл гарах үед эхэлдэг automation-ууд.",
-    "automations-empty": "Энэ segment-ийг сонсож буй automation алга.",
+    "automations-title": "Automation ба broadcast",
+    "automations-hint": "Энэ segment-ээр ажилладаг зүйлс: segment-д орох/гарах үед эхэлдэг automation болон гишүүдэд нь илгээдэг broadcast.",
+    "automations-empty": "Энэ segment-ээр одоогоор юу ч ажиллахгүй байна.",
     "automations-create": "Automation үүсгэх",
     "automations-unsupported": "Энэ төрлийн бичлэгт automation trigger байхгүй.",
     "add-condition": "Нөхцөл нэмэх",
@@ -82,7 +87,10 @@
     "visibility-hint": "Энэ segment-ийг хэн жагсаалтаасаа олохыг заана. Тохирсон бичлэгүүдийг хэн харахыг өөрчлөхгүй.",
     "visible-to-everyone": "Байгууллагын бүх хүн",
     "visible-to-me": "Зөвхөн би",
-    "broadcast-create": "Шөнө бүрийн broadcast"
+    "broadcast-create": "Шөнө бүрийн broadcast",
+    "automation-kind": "Automation",
+    "broadcast-kind": "Broadcast",
+    "broadcast-kind-nightly": "Шөнийн broadcast"
   },
   "filter": {
     "segments": "Сегмент",
@@ -137,7 +145,10 @@
     "woad": "... хоногийн өмнө",
     "woam": "... минутын өмнө",
     "wobd": "... хоногийн дараа",
-    "wobm": "... минутын дараа"
+    "wobm": "... минутын дараа",
+    "dtm": "энэ сард",
+    "dtq": "энэ улиралд",
+    "dty": "энэ жилд"
   },
   "operator-hint": {
     "annago": "Тэр сар, өдөр сүүлд эргэж ирснээс хойш ухарч тоолно.",
@@ -146,7 +157,10 @@
     "woad": "Яг тэр нэг өдөр, түүнээс хойшхи бүхэн биш.",
     "woam": "Яг тэр нэг минут, түүнээс хойшхи бүхэн биш.",
     "wobd": "Яг тэр нэг өдөр, хооронд нь бүхэн биш.",
-    "wobm": "Яг тэр нэг минут, хооронд нь бүхэн биш."
+    "wobm": "Яг тэр нэг минут, хооронд нь бүхэн биш.",
+    "dtm": "Тухайн сарын 1-нээс; сар бүр өөрөө шилжинэ.",
+    "dtq": "Тухайн улирлын эхний өдрөөс; өөрөө шилжинэ.",
+    "dty": "Тухайн оны 1-р сарын 1-нээс; жил бүр өөрөө шилжинэ."
   },
   "field": {
     "avatar": "Зураг",
@@ -237,5 +251,17 @@
   "relation": {
     "user-companies": "Хариуцсан компаниуд",
     "user-customers": "Хариуцсан харилцагчид"
-  }
+  },
+  "segments": "Сегментүүд",
+  "error": "Алдаа",
+  "success": "Амжилттай",
+  "delete": "Устгах",
+  "segment-id-missing": "Сегментийн ID байхгүй байна",
+  "delete-undone": "Энэ үйлдлийг буцаах боломжгүй.",
+  "delete-in-use": "{{total}} автоматжуулалт энэ сегментийг ашиглаж байна: {{names}}. Тэд хэнийг ч шинээр хамруулахаа болино. Энэ үйлдлийг буцаах боломжгүй.",
+  "delete-usage-unknown": "Энэ сегментийг юу ашиглаж байгааг шалгаж чадсангүй. Энэ үйлдлийг буцаах боломжгүй.",
+  "delete-confirm": "\"{{name}}\" устгах уу?",
+  "delete-selected-confirm": "Сонгосон {{total}} сегментийг устгахдаа итгэлтэй байна уу?",
+  "segment-deleted": "Сегмент амжилттай устгагдлаа",
+  "segments-deleted": "Сегментүүд амжилттай устгагдлаа"
 }

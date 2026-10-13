@@ -2,12 +2,12 @@ import { IReportConfig } from './common';
 
 export const fixedAssetReportRules: Record<string, IReportConfig> = {
   fxa: {
-    title: 'Үндсэн хөрөнгийн тайлан',
+    title: 'fixed-asset-report',
     colCount: 9,
     choices: [
-      { code: 'fixedAsset', title: 'Хөрөнгөөр' },
-      { code: 'accountFixedAsset', title: 'Данс-Хөрөнгө' },
-      { code: 'branchDepartmentFixedAsset', title: 'Салбар-Хэлтэс-Хөрөнгө' },
+      { code: 'fixedAsset', title: 'by-asset' },
+      { code: 'accountFixedAsset', title: 'account-asset' },
+      { code: 'branchDepartmentFixedAsset', title: 'branch-department-asset' },
     ],
     groups: {
       fixedAsset: {

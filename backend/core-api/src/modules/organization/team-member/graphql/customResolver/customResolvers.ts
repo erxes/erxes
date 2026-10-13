@@ -13,6 +13,18 @@ export default {
     return user;
   },
 
+  async hasPassword(
+    user: IUserDocument,
+    _args: undefined,
+    { user: currentUser }: IContext,
+  ) {
+    if (currentUser?._id !== user._id) {
+      return null;
+    }
+
+    return !!user.password;
+  },
+
   async status(user: IUserDocument) {
     if (user.registrationToken) {
       return 'Not verified';

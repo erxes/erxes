@@ -11,6 +11,8 @@ export const currentUser = gql`
       details {
         avatar
         fullName
+        firstName
+        lastName
         birthDate
         shortName
         workStartedDate
@@ -23,6 +25,7 @@ export const currentUser = gql`
       getNotificationByEmail
       configs
       isOnboarded
+      hasPassword
       isShowNotification
     }
   }

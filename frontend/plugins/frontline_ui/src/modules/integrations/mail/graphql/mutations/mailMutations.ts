@@ -34,6 +34,20 @@ export const MAIL_SEND_MAIL_MUTATION = gql`
   }
 `;
 
+export const MAIL_SEND_REACTION_MUTATION = gql`
+  mutation frontlineMailSendReaction(
+    $conversationId: String!
+    $messageId: String!
+    $emoji: String!
+  ) {
+    mailSendReaction(
+      conversationId: $conversationId
+      messageId: $messageId
+      emoji: $emoji
+    )
+  }
+`;
+
 export const MAIL_MESSAGE_RETRY_MUTATION = gql`
   mutation mailMessageRetry($_id: String!) {
     mailMessageRetry(_id: $_id)

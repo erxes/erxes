@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-08`
 
 ## Scope
 
@@ -29,8 +29,8 @@
 - Forms: form definitions, fields, and form submissions (with submission export).
 - Surveys: channel-scoped survey definitions, the snapshot an agent posts into a
   messenger conversation, and the per-voter vote ledger behind the tallies.
-- Knowledge base: topics, categories, articles, and the AI knowledge source
-  provider that indexes articles.
+- Knowledge base: topics, categories, articles, scheduled article publishing,
+  and the AI knowledge source provider that indexes articles.
 - Help centers: the client portal config record behind a published help center
   site — its general settings (name, description, website, the knowledge base,
   ticket and form feature groups, and the CMS behind its announcements), its
@@ -61,6 +61,26 @@
 
 ## Current Capabilities
 
+- Telegram bot setup and webhook status; private chats, groups, channels and
+  forum topics; text, files, media, polls, edits, observed reactions and visible
+  fallbacks. Long replies split into complete ordered text chunks, with caption
+  overflow sent after the media. Inbox replies use the provider dispatcher in
+  `inbox/graphql/resolvers/mutations/conversationAutomation.ts`, while
+  `conversationMessageMutations.ts` owns canonical storage and publication.
+
+- Messenger `uiOptions` stores the appearance step: logo pair, colours,
+  `heroStyleVariant`, `navigationVariant`, and the `isSupportInAppView` flag.
+  `saveMessengerAppearanceData` lists every field explicitly — a new
+  `uiOptions` field must be added there or it is silently dropped.
+- The Erxes Messenger Message trigger (`frontline:inbox.messages`) can be
+  scoped to one messenger through `config.integrationId`. The widget puts the
+  message's `integrationId` on the trigger target; `checkCustomTrigger` rejects
+  other messengers. An empty `integrationId` fires for every messenger — keep
+  that, existing automations rely on it.
+- A messenger ticket form only offers live property options: the config keeps
+  the options it was saved with, and `widgetsMessengerConnect` re-reads them
+  from core (`withLiveTicketOptions`) so an option archived since stops
+  showing. Archived options are dropped when a config is saved, too.
 - A ticket raised from a help center tells the person who raised it what
   happens to it: a confirmation when it is created, a notification when the
   team posts a reply the portal can see, and one when the ticket moves to a
@@ -90,6 +110,15 @@
   whose `contentType` is not `frontline:ticket` (the ticket detail only lists
   `frontline:ticket` fields). Ticket↔customer/company links live in v2
   `conformities` and are moved by core `migrateConformitiesToRelations`.
+- `src/migrations/migrateCallProConversationCustomers.ts` repairs Call Pro
+  conversations saved without `customerId`: it sets `callProPhone` from
+  `conversations_callpros.recipientPhoneNumber`, links the customer when exactly
+  one non-deleted core customer has that phone (and back-fills the empty
+  `customers_callpros.erxesApiId`), and fills `callProPotentialCustomerIds`
+  when several do. Customers are looked up in one `$in` query because
+  `customers` phone fields may be unindexed. It is a dry run unless
+  `DRY_RUN=false`, and backs up touched conversations into
+  `conversations_bak_callpro_customers` before writing.
 - `src/migrations/migrateLegacyIntegrations.ts` copies provider data from the
   legacy v2 `erxes_facebook` (`LEGACY_FACEBOOK_DB`) and v1 `erxes_integrations`
   (`LEGACY_INTEGRATIONS_DB`) databases into the frontline collections of the
@@ -298,7 +327,15 @@
   with a per-conversation tagged `Reply-To`; delivery is recorded per message (`pending` →
   `sent` / `bounced` / `failed`) and a failed message — or one left `pending`
   for more than ten minutes after its last attempt (`deliveryAttemptedAt`,
-  `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`. Once a mail
+  `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`, or from a
+  ticket with `mailTicketNoteRetry`. `retrySend` claims the message atomically
+  (`resendableFilter`), so two clicks never send it twice. Each attempt owns
+  the message through its `deliveryAttemptedAt`: `deliver` writes the outcome
+  only while that value is unchanged, so an attempt a retry has superseded can
+  never overwrite the retry's status, integration health or conversation
+  status. Nothing cancels a transport call already in flight, so attachment
+  downloads time out after two minutes to keep an attempt well inside the
+  ten-minute window. Once a mail
   is marked delivered, `deliver` never rejects: integration health and the
   requested conversation status are best-effort and logged on failure. A
   delivered reply whose conversation status was not applied keeps no
@@ -416,6 +453,10 @@
 - Conversation and ticket segment `tagIds` lookups list their own tags
   (`frontline:conversation`, `frontline:ticket`) plus workspace tags
   (`query.variables`).
+- Conversation and ticket segments declare a `propertiesData`
+  `segmentFieldNamespaces` entry (`propertyType` `frontline:conversation`,
+  `frontline:ticket`), so core lists their custom properties as segment fields
+  and the members filter and evaluator resolve them.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company
@@ -426,6 +467,11 @@
   of creating a duplicate.
 
 ## Architecture
+
+Telegram lives in `src/modules/integrations/telegram/`: `controller/` ingests,
+reconciles and sends messages; `db/` owns provider mappings; `client.ts` owns
+Bot API calls; `graphql/` owns bot setup, status, chat labels and link previews.
+The root router mounts its authenticated webhook at `/telegram`.
 
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -442,7 +488,7 @@
 | Integrations             | `src/modules/integrations/<kind>/`                                                                                                                               | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                                |
 | Mail integration         | `src/modules/integrations/mail/`                                                                                                                                 | Inbound webhook, threading, outbound send/retry                                                                                                                                                                        |
 | Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,allocate,settings,scope}.ts`                                                                                      | Gives a ticket pipeline an address of its own, and keeps the two mail lanes apart                                                                                                                                      |
-| Note ↔ mail              | `src/modules/integrations/mail/utils/{notes,tickets,thread,noteContent}.ts`                                                                                      | Mails an agent's note from the pipeline address as a reply on the requester's thread, and turns an inbound reply back into a note                                                                                      |
+| Note ↔ mail              | `src/modules/integrations/mail/utils/{note*,tickets,thread}.ts`                                                                                                  | Mails an agent's note from the pipeline address as a reply on the requester's thread, and turns an inbound reply back into a note that carries the mail's attachments                                                  |
 | Mail transports          | `src/modules/integrations/mail/utils/transports/`                                                                                                                | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport`                 |
 | Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                                                                                                                | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                                   |
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
@@ -453,6 +499,7 @@
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
+| IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
@@ -486,6 +533,7 @@
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
+| IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
 | Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`                                                                                                    | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                                         |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
@@ -506,6 +554,15 @@
 ## Contracts
 
 ### Provides
+
+- Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
+  secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
+  `telegramMessageLinkPreviews` expose permission-checked setup/status and
+  message metadata. `telegramAddBot`, `telegramUpdateBot`, `telegramDisconnectBot`
+  and `telegramSetWebhook` own bot lifecycle. Canonical inbox messages retain
+  the existing content/attachment/poll contracts plus `extraData.telegram`.
+  `telegramDisconnectBot` pauses locally before provider cleanup; its Boolean
+  reports whether remote webhook removal was confirmed.
 
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
   `helpCenterConfigs(page, perPage, searchValue, brandId)`,
@@ -788,6 +845,13 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
   something the report queries accept; the persisted subset is narrowed by
   `pickReportChartFilters`. Saving never touches the default charts — they are
   a frontend constant, not rows in this collection.
+- GraphQL `reportTicketExport(filters)` — every matching ticket, unpaged, with
+  ids resolved to display names (`assigneeName`, `createdByName`,
+  `pipelineName`, `statusName`, `channelName`, `branchName`, `departmentName`,
+  `tagNames`) plus raw `number` and `propertiesData`. Users, tags, branches and
+  departments resolve through core tRPC `find`; statuses and channels through
+  this plugin's models. Property values are returned raw; the UI maps option
+  labels.
 - GraphQL Facebook reports — `reportFacebookPages`, `reportFacebookSummary`,
   `reportFacebookActivity`, `reportFacebookPosts`, `reportFacebookBots`. All but
   the first take a `FacebookReportFilter` (`date`, `fromDate`, `toDate`,
@@ -815,6 +879,24 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   applied only by `reportFacebookPosts`, never by the summary, activity, or bot
   queries. The term is escaped before it becomes a `RegExp`, so a user typing
   `a.b(c` searches for that literal string instead of crashing the resolver.
+- `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
+  list's branch and department filters. `generateFilter` turns a non-empty list
+  into `branchId` / `departmentId` `$in`, and the `ticketListChanged`
+  subscription drops tickets outside the same lists so live updates match the
+  query. They narrow on top of pipeline `isCheckBranch` / `isCheckDepartment`
+  visibility, never replace it.
+- `ITicketFilter.propertiesData: String` — the encoded property conditions
+  (`fieldId:operator:value;…`) the shared `PropertiesFilter` writes. Both
+  `generateFilter` and the `ticketListChanged` subscription build them with
+  `buildPropertyFilter` from `erxes-api-shared/core-modules`; never hand-parse
+  the string. The subscription checks a create/update through the
+  `ticket.matchesProperties` tRPC query (`Ticket.exists` with those conditions)
+  and lets deletes through so removals still reach the list.
+- `src/apollo/subscription.ts` is downloaded and executed by the gateway, not by
+  this service: it may import only packages the gateway resolves
+  (`erxes-api-shared/utils`, `graphql-subscriptions`), never `~/` or `@/` plugin
+  paths. Anything that needs models goes through a frontline tRPC procedure via
+  `sendTRPCMessage`.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
@@ -867,10 +949,69 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   requires `showIntegrations` and pipeline access, and answers `null` for a
   pipeline with no address or a disconnected one.
 - GraphQL: a note that is not `isInternal` on a pipeline that owns a mail
-  address is also sent to the requester, and the note carries the
-  `mailMessageId` of the message it produced. An `isInternal` note stays inside
-  the team's ticket detail and is never mailed. `ticketGetNotes(contentId!,
-isInternal)` is the agent-side list and requires `showTickets`.
+  address is also sent to the requester. `ticketCreateNote` runs
+  `prepareTicketNoteMail` first: when the workspace cannot send
+  (`assertSendableIntegration`) or the ticket has no customer email
+  (`resolveTicketRecipient`), the mutation throws and no note is written. It
+  then creates the note, mails it with `sendTicketNoteMail` and links the
+  returned `mailMessageId` onto the note, so a failed note write can never
+  leave a mail behind for the composer's retry to send again. If the send
+  itself throws, the note is removed and the error rethrown, so a retry starts
+  clean. A transport failure or bounce does not throw: `deliver` records it
+  on the message and the note keeps its `mailMessageId`. An `isInternal` note
+  stays inside the team's ticket detail and is never mailed.
+  `ticketGetNotes(contentId!, isInternal)` is the agent-side list and requires
+  `showTickets`.
+- GraphQL: `mailTicketNoteRetry(noteId!): TicketNote` — requires
+  `showTickets` and view access to the note's ticket (`findViewableTicket`),
+  resends the note's outbound message through `retrySend` and returns the
+  note so `mailDelivery` comes back fresh. `TicketNoteMailDelivery.retryable`
+  says whether the failure looked temporary and `canRetry` (`canResend`) says
+  whether the resend would be accepted now.
+- GraphQL: `TicketNote.mailDelivery: TicketNoteMailDelivery` —
+  `{ status, error, to, bouncedRecipients }` read from the outbound message
+  behind `mailMessageId`. It is `null` for a note that was not mailed, for one
+  created from inbound mail, and for a client portal caller, so a delivery
+  error never reaches the requester.
+- GraphQL: `mailTicketReplyTarget(ticketId!): MailTicketReplyTarget` —
+  requires `showTickets` and view access to the ticket's pipeline and status,
+  answers `null` when the ticket's pipeline has no connected mail address, and
+  otherwise returns `{ from, to }`: the pipeline address and the address a
+  non-internal note would be mailed to. `to` comes from
+  `resolveTicketRecipient` (the latest inbound sender, else the related
+  customer's `primaryEmail`), the same function `sendTicketMail` uses, and is
+  `null` when neither exists.
+- A mailed note sends every uploaded attachment with it (`toMailAttachments`
+  passes each `{ name, url, type, size }` that has a `url`; the transport reads
+  a storage key back itself). Cloudflare needs an HTML or text part, so a note
+  with attachments but no text is mailed with `attachmentListToHtml` — a plain
+  list of the file names — as its body. A note with neither is not mailed.
+  An image the note shows by storage key (anything not starting with a URL
+  scheme or `/`) is rewritten to `cid:<uuid>@erxes` and sent as an inline
+  attachment (`inlineStorageImages`), so the requester sees it inside the
+  mail; a key that cannot be read back fails the whole delivery, which then
+  shows as Not delivered with the reason.
+- A ticket note written by a customer — a `cp:` author, which covers inbound
+  mail and `cpTicketCreateNote` — raises one `ticketCustomerReply`
+  notification ("New message from the customer") for the ticket's assignee,
+  assigned members and subscribers (`findCustomerReplyRecipients`, `cp:` ids
+  dropped), or for the pipeline owner when nobody follows the ticket. Users
+  the note @-mentions get only their mention notification. An agent's note
+  notifies only the users it mentions. Messenger widget comments store a bare
+  customer id, not a `cp:` author, so they raise no notification.
+- An inbound mail on a pipeline ticket becomes a customer-authored note
+  (`createdBy: cp:<customerId>`, `mailMessageId` set). `toNoteAttachments`
+  copies every attachment that reached storage into `TicketNote.attachments`
+  as `{ name, url, type, size }`, except an inline image whose `cid:` the body
+  already shows. One that failed to store stays out of `attachments` and is
+  served instead by `TicketNote.unsavedAttachments` (`toUnsavedAttachments`):
+  `{ name, url, type, size, error, expiresAt }`, where `url` is the mail
+  worker's signed link (or `null` when there is none) and `expiresAt` is the
+  message's `createdAt` plus `MAIL_RETENTION_DAYS` (the R2 lifecycle that
+  deletes it); client portal callers get an empty list. A mail with no text
+  but a stored or unsaved attachment still becomes a note, because a note's
+  `content` is required only when it carries neither attachments nor a
+  `mailMessageId`.
 - `channelMoveResources(resourceType: ChannelResourceType!, resourceIds: [String!]!, sourceChannelId: String!, targetChannelId: String!): ChannelMoveResourcesResult`
   — moves channel-owned resources between channels. `ChannelResourceType` is
   `integration | pipeline | form | survey | responseTemplate`;
@@ -959,22 +1100,133 @@ isInternal)` is the agent-side list and requires `showTickets`.
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
   typo here fails silently.
 
+## Data and State
+
+- Models are generated per request subdomain. Telegram owns `telegram_bots`,
+  `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
+  and `telegram_reactions`; canonical inbox history stays in Frontline's
+  existing conversation collections and Core owns customer records.
+- Telegram bot tokens and webhook secrets are server-only. Provider IDs are
+  strings; deduplication, poll/reaction updates and reply lookup are scoped by
+  tenant, integration and chat, with topic identity included where applicable.
+
 ## Local Invariants
 
+- A `scheduled` article is published by a delayed BullMQ job on the
+  `knowledgeBaseScheduledPublish` queue (`frontline`), never by a cross-tenant
+  cron. `knowledgeBaseArticlesAdd` / `Edit` call `scheduleArticlePublish` with
+  the saved article; each job carries its own `subdomain` and `articleId`, and
+  `startScheduledPublishWorker` (started in `main.ts`) publishes only while the
+  article is still `scheduled` with `scheduledDate <= now`. A reschedule
+  therefore never cancels the old job: a stale job finds a later date or another
+  status and does nothing. A queue failure is logged and never fails the save.
+  Publishing sets `publishedAt` and queues the AI knowledge source refresh
+  through `utils/refreshKnowledgeArticle.ts`, the one helper both the mutations
+  and the worker use.
+- Article `searchValue` matches `title`, `code`, `summary` and `content`
+  (`buildQuery` in `knowledgeBaseQueries.ts`, shared with topics and
+  categories, which also match `description`).
+  `knowledgeBaseArticlesTotalCount` accepts the same `searchValue`, so a
+  searched list and its count agree.
+- `knowledgeBaseArticles` and `knowledgeBaseArticlesTotalCount` both build
+  their selector with `buildArticleQuery`, which turns `topicIds` into the
+  topics' category ids. An article's own `topicId` is never the filter: older
+  and duplicated articles may lack it, and the list and its count must agree.
+- `Category.updateDoc` moves a category to another topic (`doc.topicId`
+  differing from the stored one) together with its whole subtree
+  (`getSubtreeIds`) and every article in it (their `topicId` too). A moved
+  category without a parent in the doc becomes a root (`parentCategoryId:
+''`), and a parent from another topic is rejected. `''` and a missing
+  `parentCategoryId` both mean a root category.
+- Keep Telegram as an additive dispatcher case. Preserve other providers'
+  delivery receipts, notifications, human-handoff state and message storage.
+  Only Telegram chats without `customerId` may reply without a Core customer;
+  a broken customer link must still fail. Internal notes never call Telegram.
+- Telegram downloads enforce size/time/host bounds, persist to workspace
+  storage and never expose token-bearing file URLs. Unsupported content gets
+  a visible fallback. Transient ingestion failures remain retryable; uncertain
+  outbound delivery must not be retried automatically.
+- Absolute attachment URLs always use the bounded public HTTPS downloader,
+  including URLs whose path is `/read-file`. Only relative `/read-file?key=`
+  references and validated storage keys use workspace storage.
+- A group upgrade stores `migratedToChatId` even when its service message is
+  the first message seen for that group. Subsequent supergroup messages reuse
+  the existing history, and replies target the new provider ID.
+- Telegram text chunks contain at most 4096 code points; the first media caption
+  contains at most 1024. Never truncate remaining text or trim chunk boundaries.
+  Store every provider ID in one inbox message's `extraData.telegram.messageIds`;
+  `textChunked` tells edit synchronization to concatenate without added separators.
+  Common-field integration edits require no Telegram API call.
+- Captionless Telegram media and polls still need conversation-list previews.
+  Keep the filename/type/question fallback separate from message content so
+  native attachment and poll bubbles do not gain artificial captions. Write
+  the preview before publishing a new inbox message, including retry recovery.
+- Disconnect must pause locally even when Telegram rejects the token. Removal
+  detaches the bot and rotates its webhook secret before best-effort provider
+  cleanup. Database failures still propagate. Inbox kind discovery includes
+  `telegram-messenger`; URL/metadata parsing must avoid repeated suffix rescans.
+
+- A ticket property option marked `deprecated` (archived) in core is never
+  sent to the widget; records that already hold it keep it.
+
+- Call Pro sends several webhooks per call, so `getOrCreateCustomer` in
+  `src/modules/integrations/callpro/controller.ts` must never trust a
+  `customers_callpros` row without `erxesApiId`: it links the core customer
+  (`get-create-update-customer`) before returning, reuses the row a concurrent
+  request inserted instead of failing, and deletes only a row it created
+  itself. Every new Call Pro conversation stores `callProPhone`, so the caller
+  number shows even when no customer is linked.
+- Pipeline `isCheckUser` / `isCheckDepartment` / `isCheckBranch` filter which
+  tickets a user sees; they never block opening a pipeline or creating a ticket
+  in it (v2 parity). `validatePipelineAccess` only enforces private-pipeline
+  membership. `buildVisibilityCondition` in
+  `src/modules/ticket/utils/ticketVisibility.ts` exempts `role: 'system'`,
+  `isOwner` and `excludeCheckUserIds` users; everyone else sees the OR of own
+  (`createdBy`), assigned (`assigneeId`), own-department / own-branch tickets,
+  and tickets of departments they supervise (core `departments.findWithChild`
+  by `supervisorId`, intersected with the pipeline's `departmentIds`).
+  `isCheckDate` stays an extra AND condition. `generateFilter` needs the
+  request `subdomain` to resolve supervised departments.
+- Staff pipeline rules (private-pipeline hiding and `isCheck*` visibility) never
+  apply to client portal reads scoped by `createdBy`: `cpGetTickets` and
+  `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
+  a customer sees their own `cp:<id>` tickets in private pipelines. Without
+  `createdBy` the staff rules still apply.
+- A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
+  `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
+  ticket's `channelId` and `pipelineId` with `ticketId`; without them the
+  tickets page falls back to the channel's first pipeline.
 - Ticket activity logging (`createActivity` in
   `src/modules/ticket/utils/ticket.ts`) receives the whole ticket as `newDoc`
   (`{ ...ticket.toObject(), ...rest }`), so every field is compared on every
   update. `startDate`/`targetDate` must be compared by timestamp, never by
   reference: `toObject()` returns new `Date` instances and a reference compare
   logs a "changed start date X → X" activity on every unrelated edit.
+- Instagram message state changes (reactions, deletions, read/delivery
+  receipts) are written to both `instagram_conversation_messages` and the inbox
+  `conversation_messages` row matched by `providerData.messageId`/`mid`, then
+  published with `publishInstagramMessage`; updating only one side leaves the
+  open timeline stale. Sender reactions are replaced through
+  `replaceSenderReaction` so each sender keeps at most one reaction.
+- `reactToConversationMessage` routes by integration kind through its
+  `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
+  added there, never as another `if` branch.
 
 ## Validation
 
 - `pnpm nx lint frontline_api`
 - `pnpm nx build frontline_api`
-- `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
-  (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
-  `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
+  Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
+  Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
+  new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- Knowledge base: schedule an article a few minutes ahead, confirm it stays
+  `scheduled` and absent from the help center, then becomes `publish` with
+  `publishedAt` at that time; reschedule another one later and confirm the old
+  time does not publish it. Search articles by a word that appears only in a
+  body and confirm the list and its total count both find it. Move a parent
+  category to another topic and confirm its subcategories and their articles
+  follow it, and that each topic's article list and total count agree.
 - Mail agent: build an automation Email Received → AI Agent → Draft Email
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
@@ -988,8 +1240,49 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
   `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
   before `cmsConfigs` existed still returns its single CMS as a one-entry list.
+- Mail a pipeline address a message with a PDF and an inline image, and a
+  second message with only an attachment. Confirm the ticket's first note
+  lists the PDF but not the inline image, and the second message still becomes
+  a note that lists its file.
+- On that ticket, post a non-internal note with a PDF and text, then one with
+  only a PDF. Confirm the requester receives both mails with the PDF attached,
+  and that the second one's body lists the file name.
 - Save a conversation's properties through `conversationEditCustomFields` and
   confirm the value round-trips on `Conversation.propertiesData`, a validation
   rejection throws instead of silently keeping the unvalidated input, and
   clearing every property to `{}` stays `{}` on the next read rather than
   reverting to any legacy value.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-06` — Telegram group upgrades and attachment URLs
+
+- **Summary:** Retains the reply target for first-seen group upgrades and downloads absolute attachment URLs from their stated host.
+- **Affected areas:** Telegram conversation mapping, reply attachment reader and regression tests.
+- **Contracts changed:** None; existing migration metadata and attachment input shapes are preserved.
+
+### `2026-10-06` — Telegram previews and review hygiene
+
+- **Summary:** Preserves captionless media and poll previews and documents Telegram lifecycle contracts while cleaning up test fixtures.
+- **Affected areas:** Telegram ingestion/content adapters, module documentation and regression tests.
+- **Contracts changed:** None; previews use the existing conversation content field.
+
+### `2026-10-06` — Complete long Telegram replies and connection edits
+
+- **Summary:** Sends long text and caption overflow in ordered parts and lets Telegram common-field edits complete successfully.
+- **Affected areas:** Telegram reply delivery, edit synchronization, inbox integration dispatcher and regression tests.
+- **Contracts changed:** Optional `extraData.telegram.textChunked` metadata; existing inbox and GraphQL shapes are preserved.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Restores Telegram kind discovery, permits local disconnect/removal during provider failures and bounds link parsing work.
+- **Affected areas:** Inbox kind map, Telegram lifecycle, link previews and regression tests.
+- **Contracts changed:** `telegramDisconnectBot` returns remote-cleanup confirmation after local deactivation; provider cleanup failures no longer block removal.
+
+### `2026-10-06` — Telegram integration on the current inbox architecture
+
+- **Summary:** Adds Telegram setup, webhook ingestion and replies through the existing provider dispatcher and inbox persistence flow.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider dispatch, model registration and routes.
+- **Contracts changed:** Telegram bot lifecycle/status GraphQL and `/telegram/receive/:_id`; provider metadata uses `extraData.telegram`.

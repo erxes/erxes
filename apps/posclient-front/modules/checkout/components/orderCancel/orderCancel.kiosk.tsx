@@ -1,3 +1,4 @@
+import { clearCartWithAuditAtom } from "@/store/cart.store"
 import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -9,6 +10,7 @@ import mutations from "../../graphql/mutations"
 const OrderCancel = () => {
   const id = useAtomValue(activeOrderIdAtom)
   const setInitialState = useSetAtom(setInitialAtom)
+  const clearCart = useSetAtom(clearCartWithAuditAtom)
 
   const reset = () => setInitialState()
 
@@ -19,7 +21,10 @@ const OrderCancel = () => {
   })
 
   const handleCancel = () => {
-    if (!id) return reset()
+    if (!id) {
+      clearCart()
+      return reset()
+    }
     return cancel({ variables: { id } })
   }
 

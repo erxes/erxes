@@ -1,35 +1,43 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
-import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { Command, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useRemoveCustomers } from '@/contacts/customers/hooks/useRemoveCustomers';
 import { ApolloError } from '@apollo/client';
 
-export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
+export const CustomersDelete = ({
+  customerIds,
+  onCompleted,
+}: {
+  customerIds: string[];
+  onCompleted: () => void;
+}) => {
   const { confirm } = useConfirm();
   const { removeCustomers } = useRemoveCustomers();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
-    <Button
-      variant="secondary"
+    <Command.Item
       className="text-destructive"
-      onClick={() =>
+      onSelect={() =>
         confirm({
-          message: `Are you sure you want to delete the ${customerIds.length} selected customers?`,
+          message: t('confirm-delete-selected', { count: customerIds.length }),
         }).then(() => {
           removeCustomers(customerIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error-title'),
                 description: e.message,
                 variant: 'destructive',
               });
             },
             onCompleted: () => {
               table.setRowSelection({});
+              onCompleted();
               toast({
-                title: 'Success',
+                title: t('success-title'),
                 variant: 'success',
-                description: 'Customers deleted successfully',
+                description: t('deleted-success'),
               });
             },
           });
@@ -37,7 +45,7 @@ export const CustomersDelete = ({ customerIds }: { customerIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
-    </Button>
+      {t('action-delete')}
+    </Command.Item>
   );
 };

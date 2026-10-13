@@ -14,6 +14,7 @@ export const DeleteTeamForm = () => {
   const navigate = useNavigate();
 
   const handleRemoveTeam = () => {
+    if (!teamId) return;
     removeTeam({
       variables: {
         id: teamId,

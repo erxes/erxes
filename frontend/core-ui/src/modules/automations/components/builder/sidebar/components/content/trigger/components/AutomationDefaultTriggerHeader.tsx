@@ -4,7 +4,12 @@ import { IconSettings } from '@tabler/icons-react';
 import { Button, Checkbox, Label, Popover, Select, Skeleton } from 'erxes-ui';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useReEnrollmentRules } from '../hooks/useReEnrollmentRules';
+import { useSegmentFields } from 'ui-modules';
+import {
+  ReEnrollmentOption,
+  ReEnrollmentRelation,
+  useReEnrollmentRules,
+} from '../hooks/useReEnrollmentRules';
 import { useTriggerReEnrollment } from '../hooks/useTriggerReEnrollment';
 
 export const AutomationDefaultTriggerHeader = ({
@@ -12,6 +17,7 @@ export const AutomationDefaultTriggerHeader = ({
 }: {
   activeNode: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const { control, setValue } = useFormContext<TAutomationBuilderForm>();
   const configFieldNamePrefix: `triggers.${number}.config` = `triggers.${activeNode.nodeIndex}.config`;
   const config = useWatch<TAutomationBuilderForm>({
@@ -28,12 +34,14 @@ export const AutomationDefaultTriggerHeader = ({
         }}
       >
         <Select.Trigger>
-          <Select.Value placeholder="Every records" />
+          <Select.Value placeholder={t('sidebar-records-every')} />
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="every">Every records</Select.Item>
-          <Select.Item value="new">New records only</Select.Item>
-          <Select.Item value="existing">Existing records only</Select.Item>
+          <Select.Item value="every">{t('sidebar-records-every')}</Select.Item>
+          <Select.Item value="new">{t('sidebar-records-new')}</Select.Item>
+          <Select.Item value="existing">
+            {t('sidebar-records-existing')}
+          </Select.Item>
         </Select.Content>
       </Select>
       {recordType !== 'new' && (
@@ -109,10 +117,42 @@ const AutomationTriggerReEnrollmentPopoverContent = ({
             }
           />
           <Label htmlFor={`reEnroll-${option.propertyName}`}>
-            {option.label}
+            <ReEnrollmentOptionLabel option={option} />
           </Label>
         </div>
       ))}
     </div>
   );
 };
+
+const MEASURE_PREFIX: Record<string, string> = {
+  sum: 'Sum of',
+  avg: 'Average of',
+  min: 'Lowest',
+  max: 'Highest',
+};
+
+const ReEnrollmentRelationLabel = ({
+  relation,
+}: {
+  relation: ReEnrollmentRelation;
+}) => {
+  const { fieldByKey } = useSegmentFields(relation.relatedType || undefined);
+  const { measure } = relation;
+
+  const measured =
+    'fieldKey' in measure
+      ? `${MEASURE_PREFIX[measure.op]} ${(
+          fieldByKey(measure.fieldKey)?.label || measure.fieldKey
+        ).toLowerCase()}`
+      : 'Count';
+
+  return <>{`${relation.label} · ${measured}`}</>;
+};
+
+const ReEnrollmentOptionLabel = ({ option }: { option: ReEnrollmentOption }) =>
+  option.relation ? (
+    <ReEnrollmentRelationLabel relation={option.relation} />
+  ) : (
+    <>{option.label}</>
+  );

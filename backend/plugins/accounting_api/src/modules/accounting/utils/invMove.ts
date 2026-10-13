@@ -121,6 +121,14 @@ class InvMoveInTrs {
 
         originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
         accountId: this.moveInAccount?._id ?? '',
+        branchId:
+          detail.followInfos?.moveInBranchId ||
+          oldInDetail?.branchId ||
+          this.trDoc.followInfos.moveInBranchId,
+        departmentId:
+          detail.followInfos?.moveInDepartmentId ||
+          oldInDetail?.departmentId ||
+          this.trDoc.followInfos.moveInDepartmentId,
       });
     }
 

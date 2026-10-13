@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationFunctionOptions,
   MutationHookOptions,
@@ -8,6 +9,7 @@ import { useToast } from 'erxes-ui';
 
 export const useProductRulesRemove = (options?: MutationHookOptions) => {
   const { toast } = useToast();
+  const { t } = useTranslation('product', { keyPrefix: 'product-rules' });
   const [_remove, { loading, error }] = useMutation(
     PRODUCT_RULES_REMOVE,
     options,
@@ -18,7 +20,7 @@ export const useProductRulesRemove = (options?: MutationHookOptions) => {
       ...options,
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e?.message,
           variant: 'destructive',
         });
@@ -26,8 +28,8 @@ export const useProductRulesRemove = (options?: MutationHookOptions) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Product rule removed successfully',
+          title: t('success'),
+          description: t('rule-removed'),
           variant: 'default',
         });
         options?.onCompleted?.(data);

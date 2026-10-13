@@ -25,6 +25,8 @@ export interface IInboundAttachment {
 
 export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 
+const DOWNLOAD_TIMEOUT_MS = 2 * 60 * 1000;
+
 const upload = async (
   subdomain: string,
   fileName: string,
@@ -91,7 +93,9 @@ export const downloadAttachment = async (source: string) => {
     throw new Error(`Unsupported attachment protocol ${protocol}`);
   }
 
-  const response = await fetch(source);
+  const response = await fetch(source, {
+    signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
+  });
 
   if (!response.ok) {
     throw new Error(`Attachment download failed with ${response.status}`);

@@ -370,3 +370,23 @@ export const sendEmail = async (
     `/accounts/${accountId}/email/sending/send`,
     { method: 'POST', body: JSON.stringify(payload) },
   );
+
+export const sendRawEmail = async (
+  token: string,
+  accountId: string,
+  from: string,
+  to: string,
+  mimeMessage: string,
+) =>
+  await cloudflareRequest<ICloudflareSendResult>(
+    token,
+    `/accounts/${accountId}/email/sending/send_raw`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        from,
+        recipients: [to],
+        mime_message: mimeMessage,
+      }),
+    },
+  );

@@ -4,7 +4,10 @@ import {
   announcementHref,
   formatDate as formatPostDate,
 } from '@/modules/cms/utils/format';
-import { getTopicWithArticles } from '@/modules/knowledge-base/api';
+import {
+  getTopicArticleList,
+  getTopicWithArticles,
+} from '@/modules/knowledge-base/api';
 import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
 import { PopularArticles } from '@/modules/knowledge-base/components/PopularArticles';
 import {
@@ -34,7 +37,6 @@ import { Section } from '@/modules/ui/components/Section';
 const POST_LIMIT = 20;
 const POPULAR_COUNT = 6;
 const CATEGORY_COUNT = 6;
-const SUGGESTION_COUNT = 4;
 const POPULAR_MINIMUM = 3;
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
@@ -106,7 +108,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const term = (raw ?? '').trim();
 
   const [topic, announcements] = await Promise.all([
-    getTopicWithArticles(),
+    term ? getTopicWithArticles() : getTopicArticleList(),
     term ? getAnnouncements(POST_LIMIT, term) : null,
   ]);
 
@@ -129,9 +131,6 @@ export default async function SearchPage({ searchParams }: Props) {
 
   const knowledgeBase = knowledgeBaseName(topic.data.knowledgeBaseLabel, t);
   const readMost = sortByReadership(articleEntries(topic.data));
-  const suggestions = readMost
-    .slice(0, SUGGESTION_COUNT)
-    .map(({ article }) => article.title);
 
   if (!term) {
     const popular = readMost.slice(0, POPULAR_COUNT);
@@ -139,7 +138,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
     return (
       <>
-        <Hero headline={headline} as="p" searchSuggestions={suggestions} />
+        <Hero headline={headline} as="p" />
 
         <Container className="py-10 lg:py-14">
           <h1 className="text-2xl font-semibold tracking-[-0.02em] text-ink">

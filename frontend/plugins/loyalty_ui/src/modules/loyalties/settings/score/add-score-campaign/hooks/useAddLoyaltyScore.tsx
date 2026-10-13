@@ -29,6 +29,7 @@ export interface AddScoreCampaignVariables {
   add?: ReturnType<typeof toAddInput>;
   subtract?: ReturnType<typeof toSubtractInput>;
   accountTypeId?: string;
+  status?: string;
 }
 export const SCORE_PER_PAGE = 30;
 
@@ -48,6 +49,8 @@ export const useAddScoreCampaign = () => {
         query: LOYALTY_SCORE_CAMPAIGN_QUERY,
         variables: { limit: SCORE_PER_PAGE, cursor },
       },
+      // Campaign pickers list from their own query.
+      'ScoreCampaignsSimple',
     ],
     update: (cache, { data }) => {
       try {

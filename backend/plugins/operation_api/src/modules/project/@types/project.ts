@@ -22,6 +22,7 @@ export interface IProject {
   targetDate?: Date;
   leadId?: string;
   memberIds?: string[];
+  icon?: string;
   createdBy?: string;
   convertedFromId?: string;
   propertiesData?: Record<string, unknown>;

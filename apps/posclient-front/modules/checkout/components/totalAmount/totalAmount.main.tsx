@@ -1,5 +1,4 @@
-import { totalAmountAtom } from "@/store/cart.store"
-import { orderNumberAtom } from "@/store/order.store"
+import { orderNumberAtom, previewTotalAmountAtom } from "@/store/order.store"
 import { useAtomValue } from "jotai"
 import { Hash } from "lucide-react"
 
@@ -7,7 +6,7 @@ import { formatNum } from "@/lib/utils"
 
 const TotalAmount = () => {
   const number = useAtomValue(orderNumberAtom)
-  const total = useAtomValue(totalAmountAtom)
+  const total = useAtomValue(previewTotalAmountAtom)
   return (
     <div className="col-span-2 flex items-center justify-between text-base font-extrabold leading-none">
       <div className="flex items-baseline gap-0.5 mr-2">

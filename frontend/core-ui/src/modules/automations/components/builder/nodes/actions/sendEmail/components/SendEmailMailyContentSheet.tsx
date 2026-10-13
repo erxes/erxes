@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EmailPastedVariables } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailPastedVariables';
 import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
 import {
@@ -68,6 +69,7 @@ export const SendEmailMailyContentSheet = ({
   variableSourceNodes: TAutomationVariableSourceNode[];
   onChange: (contentJson: JSONContent) => void;
 }) => {
+  const { t } = useTranslation('automations');
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [editor, setEditor] = useState<TiptapEditor | null>(null);
@@ -185,7 +187,7 @@ export const SendEmailMailyContentSheet = ({
         onClick={openSheet}
       >
         <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-          {teaser || 'Nothing written yet'}
+          {teaser || t('send-email-nothing-written')}
         </p>
 
         {isHovered && (
@@ -200,7 +202,7 @@ export const SendEmailMailyContentSheet = ({
               }}
             >
               <IconEdit className="size-4" />
-              Edit Content
+              {t('send-email-edit-content')}
             </Button>
           </div>
         )}
@@ -210,9 +212,9 @@ export const SendEmailMailyContentSheet = ({
         <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
           <Sheet.Header>
             <div className="space-y-1">
-              <Sheet.Title>Edit Email Content</Sheet.Title>
+              <Sheet.Title>{t('send-email-edit-content-title')}</Sheet.Title>
               <Sheet.Description>
-                Edit the email content for the email action.
+                {t('send-email-edit-content-description')}
               </Sheet.Description>
             </div>
             <Sheet.Close />
@@ -228,11 +230,12 @@ export const SendEmailMailyContentSheet = ({
                     editor && insertVariable({ payload, editor })
                   }
                   emptyState={{
-                    title: 'No variables available yet',
-                    description:
-                      'Add a trigger or an earlier action to this automation to insert variables into the email content.',
+                    title: t('send-email-no-variables-title'),
+                    description: t(
+                      'send-email-no-variables-content-description',
+                    ),
                   }}
-                  sourceSectionTitle="Variable Sources"
+                  sourceSectionTitle={t('send-email-variable-sources')}
                 />
               </div>
             </aside>
@@ -252,9 +255,9 @@ export const SendEmailMailyContentSheet = ({
           </Sheet.Content>
           <Sheet.Footer>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button onClick={onSave}>Save</Button>
+            <Button onClick={onSave}>{t('save')}</Button>
           </Sheet.Footer>
         </Sheet.View>
       </Sheet>

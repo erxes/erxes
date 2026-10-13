@@ -122,30 +122,6 @@ export class PermissionValidator {
         );
       }
     }
-
-    if (pipeline.isCheckDepartment && pipeline.departmentIds?.length) {
-      const userDeptIds = user.departmentIds || [];
-      const hasAccess = pipeline.departmentIds.some((id) =>
-        userDeptIds.includes(id),
-      );
-      if (!hasAccess) {
-        throw new PermissionError(
-          'Access denied: You do not belong to the required department for this pipeline',
-        );
-      }
-    }
-
-    if (pipeline.isCheckBranch && pipeline.branchIds?.length) {
-      const userBranchIds = user.branchIds || [];
-      const hasAccess = pipeline.branchIds.some((id) =>
-        userBranchIds.includes(id),
-      );
-      if (!hasAccess) {
-        throw new PermissionError(
-          'Access denied: You do not belong to the required branch for this pipeline',
-        );
-      }
-    }
   }
 
   async getTicketPermissions(

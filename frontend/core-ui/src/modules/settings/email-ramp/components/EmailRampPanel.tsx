@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ResumeSendingDialog } from '@/settings/email-ramp/components/ResumeSendingDialog';
 import { useEmailRampStatus } from '@/settings/email-ramp/hooks/useEmailRamp';
 import { IEmailRampStatus } from '@/settings/email-ramp/types';
@@ -23,6 +24,7 @@ const rateTone = (status: IEmailRampStatus) => {
 };
 
 const AllowanceCard = ({ status }: { status: IEmailRampStatus }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-ramp' });
   const remaining = Math.max(0, status.dailyBudget - status.usedToday);
   const used = status.dailyBudget
     ? Math.min(100, (status.usedToday / status.dailyBudget) * 100)
@@ -31,11 +33,8 @@ const AllowanceCard = ({ status }: { status: IEmailRampStatus }) => {
   return (
     <Card className="border">
       <Card.Header className="pb-3">
-        <Card.Title className="text-base">Daily allowance</Card.Title>
-        <Card.Description>
-          Applies only to addresses that have not accepted mail before. Proven
-          addresses are never rationed.
-        </Card.Description>
+        <Card.Title className="text-base">{t('daily-allowance')}</Card.Title>
+        <Card.Description>{t('daily-allowance-description')}</Card.Description>
       </Card.Header>
 
       <Card.Content className="flex flex-col gap-4">
@@ -48,7 +47,9 @@ const AllowanceCard = ({ status }: { status: IEmailRampStatus }) => {
             </span>
           </span>
           <span className="text-sm text-muted-foreground">
-            {count(remaining)} left today
+            {t('left-today', {
+              left: count(remaining),
+            })}
           </span>
         </div>
 
@@ -70,7 +71,10 @@ const AllowanceCard = ({ status }: { status: IEmailRampStatus }) => {
             </Badge>
           ))}
           <span className="text-xs text-muted-foreground ml-1">
-            step {status.tier + 1} of {status.tiers.length}
+            {t('step-of', {
+              step: status.tier + 1,
+              total: status.tiers.length,
+            })}
           </span>
         </div>
       </Card.Content>
@@ -78,45 +82,54 @@ const AllowanceCard = ({ status }: { status: IEmailRampStatus }) => {
   );
 };
 
-const RateCard = ({ status }: { status: IEmailRampStatus }) => (
-  <Card className="border">
-    <Card.Header className="pb-3">
-      <Card.Title className="text-base">Failure rate</Card.Title>
-      <Card.Description>
-        Bounces and spam complaints across all mail over the last{' '}
-        {status.windowDays} days — the same thing the provider measures.
-      </Card.Description>
-    </Card.Header>
+const RateCard = ({ status }: { status: IEmailRampStatus }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-ramp' });
 
-    <Card.Content className="flex flex-col gap-4">
-      <div className="flex items-baseline justify-between">
-        <span className="text-2xl font-semibold">
-          {(status.lastRate ?? 0).toFixed(2)}%
-        </span>
-        <Badge variant={rateTone(status)}>
-          {status.lastEvaluatedAt
-            ? `checked ${dayjs(status.lastEvaluatedAt).format('HH:mm')}`
-            : 'not measured yet'}
-        </Badge>
-      </div>
+  return (
+    <Card className="border">
+      <Card.Header className="pb-3">
+        <Card.Title className="text-base">{t('failure-rate')}</Card.Title>
+        <Card.Description>
+          {t('failure-rate-description', { windowDays: status.windowDays })}
+        </Card.Description>
+      </Card.Header>
 
-      <dl className="grid grid-cols-3 gap-2 text-sm">
-        <div>
-          <dt className="text-muted-foreground text-xs">Step up under</dt>
-          <dd className="font-medium">{status.advanceRate}%</dd>
+      <Card.Content className="flex flex-col gap-4">
+        <div className="flex items-baseline justify-between">
+          <span className="text-2xl font-semibold">
+            {(status.lastRate ?? 0).toFixed(2)}%
+          </span>
+          <Badge variant={rateTone(status)}>
+            {status.lastEvaluatedAt
+              ? t('checked-at', {
+                  time: dayjs(status.lastEvaluatedAt).format('HH:mm'),
+                })
+              : t('not-measured-yet')}
+          </Badge>
         </div>
-        <div>
-          <dt className="text-muted-foreground text-xs">Step down at</dt>
-          <dd className="font-medium">{status.dropRate}%</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground text-xs">Stop at</dt>
-          <dd className="font-medium">{status.haltRate}%</dd>
-        </div>
-      </dl>
-    </Card.Content>
-  </Card>
-);
+
+        <dl className="grid grid-cols-3 gap-2 text-sm">
+          <div>
+            <dt className="text-muted-foreground text-xs">
+              {t('step-up-under')}
+            </dt>
+            <dd className="font-medium">{status.advanceRate}%</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground text-xs">
+              {t('step-down-at')}
+            </dt>
+            <dd className="font-medium">{status.dropRate}%</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground text-xs">{t('stop-at')}</dt>
+            <dd className="font-medium">{status.haltRate}%</dd>
+          </div>
+        </dl>
+      </Card.Content>
+    </Card>
+  );
+};
 
 const HaltAlert = ({
   status,
@@ -124,25 +137,31 @@ const HaltAlert = ({
 }: {
   status: IEmailRampStatus;
   onResume: () => void;
-}) => (
-  <Alert variant="destructive" className="items-center">
-    <IconAlertTriangle />
-    <div className="flex flex-col gap-1">
-      <Alert.Title>Sending is stopped</Alert.Title>
-      <Alert.Description>
-        {status.haltReason ?? 'Too much mail was failing.'} Stopped{' '}
-        {dayjs(status.haltedAt).format('MMM D, HH:mm')}. Addresses that recently
-        accepted mail are still being written to; everything else is held.
-      </Alert.Description>
-    </div>
-    <Button size="sm" className="ml-auto" onClick={onResume}>
-      <IconPlayerPlay className="size-4" />
-      Resume
-    </Button>
-  </Alert>
-);
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-ramp' });
+
+  return (
+    <Alert variant="destructive" className="items-center">
+      <IconAlertTriangle />
+      <div className="flex flex-col gap-1">
+        <Alert.Title>{t('sending-stopped')}</Alert.Title>
+        <Alert.Description>
+          {status.haltReason ?? t('too-much-mail-failing')}{' '}
+          {t('halt-description', {
+            haltedAt: dayjs(status.haltedAt).format('MMM D, HH:mm'),
+          })}
+        </Alert.Description>
+      </div>
+      <Button size="sm" className="ml-auto" onClick={onResume}>
+        <IconPlayerPlay className="size-4" />
+        {t('resume')}
+      </Button>
+    </Alert>
+  );
+};
 
 export const EmailRampPanel = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-ramp' });
   const { status, loading, error } = useEmailRampStatus();
   const [resuming, setResuming] = useState(false);
 
@@ -160,9 +179,9 @@ export const EmailRampPanel = () => {
       <div className="p-6">
         <Alert variant="destructive">
           <IconAlertTriangle />
-          <Alert.Title>Could not load sending limits</Alert.Title>
+          <Alert.Title>{t('could-not-load')}</Alert.Title>
           <Alert.Description>
-            {error?.message ?? 'No status was returned.'}
+            {error?.message ?? t('no-status-returned')}
           </Alert.Description>
         </Alert>
       </div>

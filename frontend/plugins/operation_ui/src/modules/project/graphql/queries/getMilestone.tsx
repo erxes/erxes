@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_MILESTONE = gql`
+export const GET_MILESTONE = gql(`
   query getMilestone($_id: String!) {
     getMilestone(_id: $_id) {
       _id
@@ -8,4 +8,4 @@ export const GET_MILESTONE = gql`
       targetDate
     }
   }
-`;
+`);

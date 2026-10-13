@@ -18,7 +18,7 @@ export const ActivityConvertToProject = ({
     <div className="inline-flex items-center gap-1">
       {t('converted-task-to-project')}
       <span className="font-bold">
-        <ProjectInline projectId={metadata.newValue} />
+        <ProjectInline projectId={metadata?.newValue} />
       </span>
     </div>
   );

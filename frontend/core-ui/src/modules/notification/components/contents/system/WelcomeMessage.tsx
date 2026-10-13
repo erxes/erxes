@@ -1,14 +1,15 @@
 import {
   IconAddressBook,
-  IconShoppingCart,
-  IconChartPie,
   IconAffiliate,
+  IconChartPie,
   IconFile,
+  IconShoppingCart,
 } from '@tabler/icons-react';
 import {
-  WelcomeNotificationContentLayout,
   TOnboardingStepItem,
+  WelcomeNotificationContentLayout,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 const OnboardingSteps: TOnboardingStepItem[] = [
   {
     icon: <IconAddressBook className="size-5" />,
@@ -65,11 +66,12 @@ const OnboardingSteps: TOnboardingStepItem[] = [
 ];
 
 export const WelcomeMessageContent = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   return (
     <WelcomeNotificationContentLayout
-      title="Welcome to erxes"
-      description="A New Experience Begins!"
-      videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/intro.mp4"
+      title={t('welcome-title')}
+      description={t('welcome-description')}
+      videoSrc="https://youtu.be/W-dkAmrk96Q"
       onboardingSteps={OnboardingSteps}
     />
   );

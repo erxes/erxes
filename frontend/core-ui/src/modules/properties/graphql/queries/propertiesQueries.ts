@@ -14,6 +14,10 @@ export const PROPERTY_SYSTEM_FIELD_SELECTION = `
   isVisibleToCreate
   isRequired
   logics
+  requiredGroup
+  alwaysFilled
+  notOnCreate
+  outsideLayout
 `;
 
 export const PROPERTY_SYSTEM_FIELDS_QUERY = gql`
@@ -23,3 +27,47 @@ export const PROPERTY_SYSTEM_FIELDS_QUERY = gql`
     }
   }
 `;
+
+export const FIELD_USAGE_QUERY = gql`
+  query FieldUsage(
+    $fieldIds: [String!]
+    $groupId: String
+    $contentType: String!
+  ) {
+    fieldUsage(
+      fieldIds: $fieldIds
+      groupId: $groupId
+      contentType: $contentType
+    ) {
+      dependents
+      hasValues
+      removable
+    }
+  }
+`;
+
+export const ARCHIVED_FIELD_GROUPS_QUERY = gql`
+  query ArchivedFieldGroups($contentType: String!) {
+    fieldGroups(params: { contentType: $contentType, archived: true }) {
+      list {
+        _id
+        name
+        archivedAt
+      }
+    }
+  }
+`;
+
+export const ARCHIVED_FIELDS_QUERY = gql`
+  query ArchivedFields($contentType: String!) {
+    fields(params: { contentType: $contentType, archived: true, limit: 100 }) {
+      list {
+        _id
+        name
+        groupId
+        archivedAt
+      }
+    }
+  }
+`;
+

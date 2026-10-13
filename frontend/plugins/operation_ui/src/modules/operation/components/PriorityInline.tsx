@@ -5,15 +5,16 @@ import { useTranslation } from 'react-i18next';
 
 export const PriorityIcon = React.forwardRef<
   SVGSVGElement,
-  React.SVGProps<SVGSVGElement> & { priority: number }
+  React.SVGProps<SVGSVGElement> & { priority?: number | null }
 >(({ priority, className, ...props }, ref) => {
+  const level = priority ?? 0;
   const color = [
     'text-muted-foreground',
     'text-success',
     'text-info',
     'text-warning',
     'text-destructive',
-  ][priority];
+  ][level];
 
   return (
     <svg
@@ -31,19 +32,19 @@ export const PriorityIcon = React.forwardRef<
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path
         d="M6 18l0 -3"
-        className={priority > 0 ? 'stroke-current' : 'stroke-scroll'}
+        className={level > 0 ? 'stroke-current' : 'stroke-scroll'}
       />
       <path
         d="M10 18l0 -6"
-        className={priority > 1 ? 'stroke-current' : 'stroke-scroll'}
+        className={level > 1 ? 'stroke-current' : 'stroke-scroll'}
       />
       <path
         d="M14 18l0 -9"
-        className={priority > 2 ? 'stroke-current' : 'stroke-scroll'}
+        className={level > 2 ? 'stroke-current' : 'stroke-scroll'}
       />
       <path
         d="M18 18l0 -12"
-        className={priority > 3 ? 'stroke-current' : 'stroke-scroll'}
+        className={level > 3 ? 'stroke-current' : 'stroke-scroll'}
       />
     </svg>
   );
@@ -53,16 +54,17 @@ PriorityIcon.displayName = 'PriorityIcon';
 
 export const PriorityTitle = React.forwardRef<
   HTMLSpanElement,
-  React.ComponentProps<'span'> & { priority: number }
+  React.ComponentProps<'span'> & { priority?: number | null }
 >(({ priority, className, ...props }, ref) => {
   const { t } = useTranslation('operation');
-  const text = PROJECT_PRIORITIES_OPTIONS[priority];
+  const level = priority ?? 0;
+  const text = PROJECT_PRIORITIES_OPTIONS[level];
   return (
     <span
       ref={ref}
       className={cn(
         'font-medium',
-        priority === 0 && 'text-muted-foreground',
+        level === 0 && 'text-muted-foreground',
         className,
       )}
       {...props}
@@ -74,17 +76,23 @@ export const PriorityTitle = React.forwardRef<
 
 PriorityTitle.displayName = 'PriorityTitle';
 
+const PRIORITY_BADGE_VARIANTS = [
+  'secondary',
+  'success',
+  'info',
+  'warning',
+  'destructive',
+] as const;
+
 export const PriorityBadge = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof Badge> & { priority?: number }
+  React.ComponentProps<typeof Badge> & { priority?: number | null }
 >(({ priority, ...props }, ref) => {
-  const variant = ['secondary', 'success', 'info', 'warning', 'destructive'][
-    priority ?? 0
-  ];
+  const variant = PRIORITY_BADGE_VARIANTS[priority ?? 0];
   return (
-    <Badge ref={ref} variant={variant as any} {...props}>
-      <PriorityIcon priority={priority ?? 0} />
-      <PriorityTitle priority={priority ?? 0} />
+    <Badge ref={ref} variant={variant} {...props}>
+      <PriorityIcon priority={priority} />
+      <PriorityTitle priority={priority} />
     </Badge>
   );
 });

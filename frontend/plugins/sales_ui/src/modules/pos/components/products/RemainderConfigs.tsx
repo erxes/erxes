@@ -22,6 +22,27 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Form.Field
           control={control}
+          name="isShowRemainder"
+          render={({ field }) => (
+            <Form.Item>
+              <div className="flex gap-2 items-center">
+                <Form.Control>
+                  <Checkbox
+                    id="isShowRemainder"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Control>
+                <Label htmlFor="isShowRemainder" className="cursor-pointer">
+                  {t('show-remainder', { defaultValue: 'Show remainder' })}
+                </Label>
+              </div>
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={control}
           name="isCheckRemainder"
           render={({ field }) => (
             <Form.Item>

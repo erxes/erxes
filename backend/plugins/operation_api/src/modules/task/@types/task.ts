@@ -59,6 +59,7 @@ export interface ITaskDocument extends ITask, Document {
 }
 
 export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
+  _id?: string;
   userId?: string;
   cycleFilter?: CycleFilterType;
   projectStatus?: number;

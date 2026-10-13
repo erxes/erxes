@@ -1,6 +1,11 @@
 import { readImage } from 'erxes-ui';
 import type { IAttachment } from 'erxes-ui';
 
+export const isImageAttachment = (attachment: IAttachment): boolean =>
+  Boolean(
+    attachment.type?.startsWith('image') || attachment.type === 'sticker',
+  );
+
 export const canCopyAttachment = (attachment: IAttachment): boolean => {
   if (
     !attachment.url ||
@@ -10,8 +15,7 @@ export const canCopyAttachment = (attachment: IAttachment): boolean => {
   ) {
     return false;
   }
-  const isImage =
-    attachment.type?.startsWith('image') || attachment.type === 'sticker';
+  const isImage = isImageAttachment(attachment);
   const type = isImage ? 'image/png' : attachment.type;
   if (!type) return false;
   return ClipboardItem.supports
@@ -25,8 +29,7 @@ const attachmentBlob = async (attachment: IAttachment): Promise<Blob> => {
   return response.blob();
 };
 
-const imageBlob = async (attachment: IAttachment): Promise<Blob> => {
-  const blob = await attachmentBlob(attachment);
+export const toPngBlob = async (blob: Blob): Promise<Blob> => {
   if (blob.type === 'image/png') return blob;
   const bitmap = await createImageBitmap(blob);
   try {
@@ -56,8 +59,7 @@ export const copyAttachment = async (
       'This browser cannot copy files. Open the attachment to save it.',
     );
   }
-  const isImage =
-    attachment.type?.startsWith('image') || attachment.type === 'sticker';
+  const isImage = isImageAttachment(attachment);
   const type = isImage ? 'image/png' : attachment.type;
   if (!canCopyAttachment(attachment)) {
     throw new Error(
@@ -67,7 +69,9 @@ export const copyAttachment = async (
   // Start the write during the click gesture, before the download completes.
   await navigator.clipboard.write([
     new ClipboardItem({
-      [type]: isImage ? imageBlob(attachment) : attachmentBlob(attachment),
+      [type]: isImage
+        ? attachmentBlob(attachment).then(toPngBlob)
+        : attachmentBlob(attachment),
     }),
   ]);
 };

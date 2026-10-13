@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CMS_POSTIZ_DELIVERIES,
+  CMS_POSTIZ_REFRESH,
   CMS_POSTIZ_RETRY,
   type PostizDelivery,
 } from './graphql';
@@ -21,7 +22,19 @@ export function PostizDeliveryList({
   }>(CMS_POSTIZ_DELIVERIES, {
     variables: { postId, language },
     fetchPolicy: 'network-only',
-    pollInterval: 15000,
+  });
+  const [refreshDeliveries, refreshState] = useMutation<{
+    cmsPostizRefresh: PostizDelivery[];
+  }>(CMS_POSTIZ_REFRESH, {
+    variables: { postId, language },
+    update: (cache, result) => {
+      if (!result.data) return;
+      cache.writeQuery({
+        query: CMS_POSTIZ_DELIVERIES,
+        variables: { postId, language },
+        data: { cmsPostizDeliveries: result.data.cmsPostizRefresh },
+      });
+    },
   });
   if (loading && !data)
     return (
@@ -67,6 +80,28 @@ export function PostizDeliveryList({
             'Queued means Postiz accepted the request, not that the channel has published it. Review failed or unconfirmed deliveries in Postiz before sharing again.',
         })}
       </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11"
+          disabled={refreshState.loading}
+          onClick={() => void refreshDeliveries().catch(() => undefined)}
+        >
+          {refreshState.loading
+            ? t('cms-social-refreshing', {
+                defaultValue: 'Checking Postiz…',
+              })
+            : t('cms-social-refresh', { defaultValue: 'Refresh status' })}
+        </Button>
+        {refreshState.error && (
+          <p role="alert" className="text-sm text-destructive">
+            {t('cms-social-refresh-error', {
+              defaultValue: 'Could not check Postiz. Try again in a moment.',
+            })}
+          </p>
+        )}
+      </div>
       <ul className="divide-y border rounded">
         {deliveries.map((delivery) => (
           <li key={delivery._id} className="p-3 space-y-1 text-sm break-words">

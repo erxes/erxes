@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-01`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -24,6 +24,8 @@
 
 ## Current Capabilities
 
+- Uses statically analyzable typed GraphQL documents with generated operation result and variable types; build, serve, and contract tests regenerate them automatically.
+- Rspack awaits accounting schema export and codegen before its first build or watch compilation, including remotes launched directly by the Module Federation host without Nx task dependencies.
 - Displays, creates, updates, prints, and removes accounting transactions.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
@@ -32,6 +34,8 @@
 - Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
+- Lists the check-sync rule pages (deal, POS order) in the `CheckSyncNavigation` navigation sub group, shown only on `/accounting/check-sync` routes, so the check-sync page carries no in-page sidebar.
+- Navigation `content` renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice; the host unfolds them in the main sidebar. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading inside the main sidebar. Navigation `subGroup` holds only page-level menus the host lists in its context column: `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`. Keep section entry points in `content`: an always-rendered sub group would occupy the context column on every accounting page and leave any page with its own side menu (journal reports) with three columns.
 - Opens fund, debt, and closing adjustment create/edit forms in `AccountingSheet` panels where those forms exist.
 - Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
@@ -42,6 +46,8 @@
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - Inventory out and internal movement rows show active unit cost and amount as read-only values; inventory sale unit price remains editable because it is the sale price, while its generated inventory and cost-of-goods rows retain the fetched active cost across sale quantity edits and are costed by the backend on save.
 - Inventory income, out, move, sale, and sale-return bulk product additions fetch journal-specific fill data once, then append rows with the same price, cost, amount, and weight rules as single-row product selection.
+- Inventory internal movement rows can toggle detailed view to edit source branch/department on the outgoing detail and destination branch/department on the generated incoming detail.
+- Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
 - Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
 - Safe remainder detail tables expose persistent user-controlled column order and subtly highlight editable counted quantity and total-cost inputs.
@@ -53,7 +59,7 @@
 - Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
 - Fixed asset category forms show both derived useful years and annual depreciation percentage; changing either field updates the other rounded to two decimals, while the backend stores the annual percentage as the canonical value.
 - Fixed asset settings list income-created asset records without a direct add button; asset creation belongs to fixed asset income transactions.
-- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and keeps residual value plus `preDeprecation` as detail-level follow-info.
+- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and binds residual value plus `preDeprecation` only to each transaction detail's `followInfos`.
 - Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records up to the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, branch/department values stay on each detail, `fxaOut` only asks for accumulated depreciation account, and generated sale/depreciation follow previews use `fxaSaleOut`, `fxaDepOut`, and `fxaSaleCost`.
 - Fixed asset out, move, and sale edit forms preserve persisted detail counts while location remainder loads; the remainder limits subsequent user edits but must not rewrite saved values during form initialization.
 - Fixed asset disposal follow previews run only for unsaved transactions; persisted edit forms keep Mongo-backed main details and generated follow transactions until the backend recalculates them on save.
@@ -69,6 +75,7 @@
 
 | Area                | Path                                                                            | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| GraphQL generation | `frontend/plugins/accounting_ui/codegen.ts` | Validates static feature documents against accounting SDL and consumed platform contracts; emits ignored `src/gql/`. |
 | Runtime             | `src/main.ts`                                                                   | Starts the accounting UI remote.                                                                                |
 | Dev server config   | `rspack.config.ts`                                                              | Configures Module Federation development serving and ignores generated folders during watch mode.               |
 | Plugin config       | `src/config.tsx`                                                                | Registers accounting routes and navigation with the host.                                                       |
@@ -102,6 +109,8 @@
 
 ### Consumes
 
+- `backend/plugins/accounting_api/generated/schema.graphql` is the accounting contract; `schema/platform.graphql` snapshots only consumed public Core, Sales, and Mongolian fields, with authoritative SDL source comments. Update this local snapshot when those published contracts change; never import another plugin's source at runtime.
+- `codegen.ts` generates ignored `src/gql/` documents and types. Import `gql` from `~/gql` and operation types from `~/gql/graphql`; do not import `gql` from Apollo or handwrite GraphQL response interfaces.
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind`, grouped drill-down, `ptrId`, and detail-row filters.
 - Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
 - Safe remainder item `trInfo` consumes optional active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata; CSV import sends editable counted-cost/sale metadata while active cost remains backend-derived.
@@ -119,6 +128,7 @@
 - Core system currency settings through `configsByCode(codes)` for `dealCurrency` and `mainCurrency`.
 - Core product, branch, department, customer, company, and team member selectors through public `ui-modules` APIs.
 - Core product lookup for inventory split source/result units of measure through the accounting-prefixed `accountingInventorySplitProducts` operation.
+- Accounting config contracts for `syncDealMovement` rules, including `sourceAccountId`, `destinationAccountId`, default source/destination branch/department ids, and `dealLocationSide`.
 - UI primitives, form components, tables, sheets, comboboxes, filters, toasts, and currency inputs from `erxes-ui`.
 
 ## Data and State
@@ -127,6 +137,8 @@
 - React Hook Form owns editable accounting transaction and adjustment form state.
 - Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
 - Inventory split form state is detail-level `details[].followInfos.invSplit`; generated preview transactions live only in `followTrDocsState` and are excluded from submitted root transaction documents. Loading a legacy root `followInfos.invSplitDetails` entry migrates it into the matching detail form state.
+- Inventory internal movement detail-level destination branch/department lives in `details[].followInfos.moveInBranchId` and `details[].followInfos.moveInDepartmentId`; generated `invMoveIn` details use those values and fall back to persisted generated detail locations or the root movement destination.
+- Deal movement sync settings persist under the accounting config code `syncDealMovement`; each row uses the configured stage id as its config `subId`, and the check/resync page keeps a separate filter/table session from regular deal sync.
 - Inventory cost adjustment detail state stores `count: 0`, `unitPrice` as the absolute per-unit cost delta, and `amount` as delta multiplied by current remainder; quantity is display-only, while editing after-unit cost derives the delta and increase/decrease side from its difference against current unit cost.
 - Safe remainder blank counted cost defaults proportionally from active total cost; when quantity increases while active total is zero, the increased quantity uses `lastIncomePrice`. Explicit manual or CSV total cost, including zero, must bypass this fallback.
 - Safe remainder transaction labels and cost tabs must normalize adjustment differences from `-0.005` through `0.005` to zero, matching backend journal generation.
@@ -138,6 +150,20 @@
 
 ## Local Invariants
 
+- Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
+- `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
+
+- Closing detail forms reuse the generated `IAdjustClosing` view type rather than defining an identical detail alias.
+
+- Saved transaction JSON metadata must not silently become undefined when validation fails; reject invalid metadata before initializing an editable transaction form. Optional null values remain absent and valid extension fields remain intact.
+- Transaction subscriptions must depend on a stable serialized filter key, not the per-render variables object, so ordinary renders do not cancel pending refreshes.
+
+- Keep GraphQL operation text static and named, without string interpolation. Apollo hooks infer from generated documents; do not supply manual response generics.
+- Generated JSON scalars are `unknown`; narrow genuinely extensible config/report/transaction metadata with existing Zod schemas before consuming it. Generated Date outputs are strings; convert only at date-editing boundaries.
+- Nullable SDL fields remain nullable in generated types. `src/modules/utils/graphql.ts` normalizes display values while retaining immutable Apollo reference identity; `graphqlCursor.ts` adapts nullable platform PageInfo through public `erxes-ui` cursor helpers without changing shared SDL.
+- Inventory cost and last-income-price operations select structured rows and map them to product dictionaries only at the UI boundary. Persisted bank, inventory expense, sale/movement, and fixed asset form metadata must survive edit/refetch.
+- Expandable navigation rows and section headers use the host sidebar's chevron: `IconChevronRight` (`size-3.5`) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Tailwind group names on these rows stay accounting-specific (`group/accounting-nav-section`): the host sidebar is an open ancestor, so a shared name such as `navigation-section` would rotate every closed chevron.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
@@ -160,6 +186,9 @@
 - Inventory cost adjustment forms must not expose editable quantity; one required side selector labeled `Өртгийн өөрчлөлт` controls whether the entered per-unit delta increases or decreases after-unit cost, and editing after-unit cost must update the delta, amount, and side so both inputs remain algebraically consistent.
 - Inventory cost adjustment UI must remain in `forms/InvJustifyForm` as an independent journal form; `InvOutForm` must contain only inventory-out behavior and must not accept an adjustment-mode flag.
 - Inventory out and internal movement forms must not allow unit cost or cost amount edits; changing product, account, quantity, or source location must refresh active cost, and editing an existing movement must exclude both its source and generated destination transactions from that lookup.
+- Inventory internal movement detailed view must keep source branch/department on the outgoing detail and destination branch/department on the generated incoming detail; saved incoming detail locations must remain visible and must not be overwritten by root destination values unless the user changes them.
+- Deal movement sync settings must use inventory journal accounts for both source and destination accounts, and the deal-location side selector must determine only which side receives product/deal branch and department; the other side remains the configured default source or destination.
+- Regular deal check/resync must not show `syncDealMovement` rules; `/accounting/check-sync/deal-movement` is the only check/resync route that exposes deal movement rules.
 - Inventory move, sale, and sale-return follow details must retain each source detail `_id` as `originId`; quantity edits update only that source row's generated follow details, preserve every other row's fetched active cost, and ignore transient current-cost responses that do not contain the selected product.
 - Inventory split previews must create one `invOut` and one `invIncome` follow transaction per source transaction, keep both `originId` values pointed at the source transaction, give the pair one shared pointer distinct from the source transaction pointer, include only enabled split details, preserve total cost, derive converted count and unit price from the ratio, and use destination account/location for internal movements.
 - Inventory income and movement forms must batch all visible source/result product unit lookups through one `InventorySplitProvider`; preview transaction and detail ids remain stable while editing.
@@ -171,11 +200,15 @@
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
 - Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
 - Fixed asset detail tables must tolerate an uninitialized `details` watch value during create-route bootstrap and render with an empty array until form defaults arrive.
-- Fixed asset income owner sheet state must preserve `followInfos.fxaIncomeDetails` residual value and `preDeprecation` per detail; owner rows in `extraData.fxaOwnerRecords` are optional and represent responsible-user/serial allocation only.
+- Fixed asset income initialization, Zod validation, generated GraphQL JSON conversion, and field controls use `details[].followInfos` for residual value and `preDeprecation`, without a duplicate root detail array or identity lookup. Explicit zero stays authoritative. Owner rows in `extraData.fxaOwnerRecords` are optional allocation records and retain `transactionDetailId` to link to their detail.
+- `transactionDetailFollowInfoSchema` defines known detail metadata fields for response conversion and income forms; extensible JSON keys remain unknown without weakening known currency, movement, or fixed-asset field types.
+- Fixed asset transaction forms and adjustment GraphQL documents use `preDeprecation` as the sole opening accumulated depreciation field name.
+- The journal-default factory must narrow a literal `FXA_INCOME` request to `TFxaIncomeJournal` so fixed-asset detail follow-info fields remain type-safe for callers.
 - Fixed asset disposal, move, and sale forms must not require owner-record selection or a row-level category selector; category filtering belongs in the multi-add sheet, while quantity, branch, and department are owned by transaction details.
 - Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
 - Loading or refetching a fixed asset location remainder must not mutate an existing transaction detail count; apply the limit only when the user changes the count.
 - Fixed asset disposal preview hooks must never rebuild saved main or follow rows from master-data queries; tab and T-balance remounts must leave Mongo-backed amounts, counts, sides, and generated `fxaDepOut` rows unchanged.
+- Fixed asset income, out, movement, and sale forms preserve nonnegative unit accumulated depreciation in `details[].followInfos.preDeprecation`, including explicit zero. Quantity edits leave the unit value unchanged; preview/backend follow amounts multiply it by count. Changing the selected disposal asset clears its old unit override, while mount/refetch does not rewrite it. Do not introduce a second detail depreciation field or root summary array.
 - Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
 - Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
 - Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.
@@ -191,6 +224,9 @@
 
 ## Validation
 
+- `pnpm nx run accounting_ui:codegen --skip-nx-cache`
+- `pnpm nx lint accounting_ui`
+- `pnpm nx test accounting_ui`
 - `pnpm nx build accounting_ui`
 - `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`
 - Smoke scenario: create fund and debt rate adjustments, verify main/foreign currency options come from system `dealCurrency`, calculate details, run transactions, and confirm detail subscriptions/linked transaction display update without manual refresh.
@@ -198,6 +234,8 @@
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
 - Smoke scenario: open `/accounting/main` and `/accounting/records`, apply journal/search/date/account filters, export without selection, then select rows and export again to verify filtered and selected-id exports start successfully.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload; in a sale row, change quantity repeatedly and verify both generated follow transactions keep the fetched active unit cost.
+- Smoke scenario: in inventory internal movement, enable "Дэлгэрэнгүй харагдац", set different source and destination branch/department values per detail row, verify `TBalance` shows generated `invMoveIn` rows at the destination detail locations, then save/refetch and confirm the source and destination row locations remain visible.
+- Smoke scenario: open `/settings/accounting/config/sync-deal-movement`, add and edit a rule with source/destination inventory accounts, default source/destination locations, and each deal-location side option; verify the rule appears only in `/accounting/check-sync/deal-movement`, then check/resync deals there and confirm regular `/accounting/check-sync/deal` still lists only sale/return rules.
 - Smoke scenario: create inventory cost increase and decrease transactions, add multiple products, verify current remainder/current unit cost display, enter per-unit deltas, confirm after-unit cost and total amount recalculate, then save without changing quantity.
 - Smoke scenario: in inventory income, out, move, sale, and sale return, use "Олон бараа нэмэх" and verify one journal-specific bulk lookup fills every selected row with count one plus matching amount/weight/follow values; then change one row's product, including back to its initial product, and verify only that row's fill values refresh.
 - Smoke scenario: in inventory income and internal movement, verify only the source unit appears as a split-related table column, open each row's leading action sheet, enable "Задлах эсэх", select result products, enter ratios, verify result units appear in the sheet, confirm `TBalance` shows linked `invOut` and `invIncome` rows with unchanged total cost and converted count/unit price, then save, refetch, edit, disable one split, and verify follow rows update immediately.

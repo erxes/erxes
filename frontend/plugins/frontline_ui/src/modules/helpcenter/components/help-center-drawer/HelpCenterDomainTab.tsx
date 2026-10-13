@@ -81,9 +81,15 @@ const DnsRecord = ({
   </li>
 );
 
-const ConnectDomain = ({ t }: { t: TFunction }) => {
+const ConnectDomain = ({
+  helpCenterId,
+  t,
+}: {
+  helpCenterId: string;
+  t: TFunction;
+}) => {
   const [hostname, setHostname] = useState('');
-  const { saveDomain, saving } = useCustomDomainActions();
+  const { saveDomain, saving } = useCustomDomainActions(helpCenterId);
 
   // This tab sits inside the help center form, so it cannot be a form of its
   // own: Enter saves the domain instead of submitting the help center.
@@ -131,15 +137,17 @@ const ConnectDomain = ({ t }: { t: TFunction }) => {
 };
 
 const ConnectedDomain = ({
+  helpCenterId,
   domain,
   t,
 }: {
+  helpCenterId: string;
   domain: ICustomDomain;
   t: TFunction;
 }) => {
   const { confirm } = useConfirm();
   const { refreshDomain, resetDomain, refreshing, resetting } =
-    useCustomDomainActions();
+    useCustomDomainActions(helpCenterId);
 
   const busy = refreshing || resetting;
 
@@ -274,12 +282,15 @@ const DnsRecords = ({ domain, t }: { domain: ICustomDomain; t: TFunction }) => (
 );
 
 /**
- * The workspace's help center domain. It is one per workspace rather than per
- * help center: the domain serves the help center whose url is the domain, or
- * else the one published on <subdomain>.helpcenter.
+ * This help center's own domain. Each help center has at most one, and a
+ * workspace can connect one per help center.
  */
-export function HelpCenterDomainTab({ t }: Readonly<{ t: TFunction }>) {
-  const { customDomain, loading, error, refetch } = useCustomDomain();
+export function HelpCenterDomainTab({
+  helpCenterId,
+  t,
+}: Readonly<{ helpCenterId: string; t: TFunction }>) {
+  const { customDomain, loading, error, refetch } =
+    useCustomDomain(helpCenterId);
 
   if (loading && !customDomain) {
     return (
@@ -331,14 +342,17 @@ export function HelpCenterDomainTab({ t }: Readonly<{ t: TFunction }>) {
           <p className="text-sm text-muted-foreground">
             {t(
               'customdomain-description',
-              'Serve your help center from your own domain. Visitors stay on your domain while seeing the help center at {{target}}.',
-              { target: customDomain.cnameTarget },
+              'Serve this help center from your own domain, such as help.yourcompany.com. Each help center can have its own domain, and visitors stay on it.',
             )}
           </p>
           {customDomain.hostname ? (
-            <ConnectedDomain domain={customDomain} t={t} />
+            <ConnectedDomain
+              helpCenterId={helpCenterId}
+              domain={customDomain}
+              t={t}
+            />
           ) : (
-            <ConnectDomain t={t} />
+            <ConnectDomain helpCenterId={helpCenterId} t={t} />
           )}
         </InfoCard.Content>
       </InfoCard>

@@ -175,6 +175,7 @@ export const validateOrder = async (
         config,
         checkProducts,
         doc.branchId || config.branchId,
+        true,
       );
 
       const errors: string[] = [];
@@ -273,6 +274,7 @@ export const updateOrderItems = async (
       isPackage: item.isPackage,
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
+      conditionCode: item.conditionCode,
       description: item.description,
       attachment: item.attachment,
       byDevice: item.byDevice,

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -63,6 +63,7 @@
 
 ## Local Invariants
 
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
 - This plugin is the Module Federation remote `content_ui`.
 - Dev server port is `3003` from `project.json`.
 - Public exposes are `./config` and `./content` in
@@ -98,7 +99,7 @@
 ### UI Conventions
 
 - Published CMS posts check `agentPostizTenantEnabled` before offering the Postiz sheet. Disabled or unavailable Postiz access keeps the normal CMS publish path; enabled tenants retain the sharing sheet and its CMS-only action.
-- Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`.
+- Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`. The delivery list does not poll; its Refresh status button calls `cmsPostizRefresh` and writes the result into the `cmsPostizDeliveries` cache.
 - Match existing CMS page structure: header, optional CMS sidebar, content area,
   and drawers.
 - Use `erxes-ui` and `ui-modules` components before creating new primitives.

@@ -44,6 +44,7 @@ export interface PosDetailQueryResponse {
     deliveryConfig?: any;
     permissionConfig?: any;
     allowTypes?: string[];
+    isShowRemainder?: boolean;
     isCheckRemainder?: boolean;
     checkExcludeCategoryIds?: string[];
     saveRemainder?: boolean;

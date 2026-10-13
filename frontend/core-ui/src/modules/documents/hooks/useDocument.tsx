@@ -4,8 +4,10 @@ import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { SAVE_DOCUMENT } from '../graphql/documentMutations';
 import { GET_DOCUMENT_DETAIL } from '../graphql/queries';
+import { useTranslation } from 'react-i18next';
 
 export const useDocument = () => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [documentId, setDocumentId] = useQueryState('documentId');
   const [contentType] = useQueryState('contentType');
 
@@ -84,12 +86,12 @@ export const useDocument = () => {
             }, 0);
           }
 
-          toast({ title: 'Successfully saved document', variant: 'success' });
+          toast({ title: t('saved-success'), variant: 'success' });
         }
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error?.message,
           variant: 'destructive',
         });

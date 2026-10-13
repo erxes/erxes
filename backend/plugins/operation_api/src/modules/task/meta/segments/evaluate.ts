@@ -7,11 +7,13 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { taskSegmentSource } from './collections';
 import { TASK_SEGMENT_FIELD_MAP } from './fields';
+import { TASK_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { TASK_SEGMENT_RELATIONS } from './relations';
 
 const contract = (models: IModels): SegmentOwnerContract => ({
   sourceFor: (contentType) => taskSegmentSource(models, contentType),
   fields: TASK_SEGMENT_FIELD_MAP,
+  namespaces: TASK_SEGMENT_FIELD_NAMESPACES,
   relations: TASK_SEGMENT_RELATIONS,
 });
 

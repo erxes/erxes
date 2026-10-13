@@ -7,7 +7,7 @@ import {
 } from '@/team/@types/team';
 import { teamSchema } from '@/team/db/definitions/team';
 import { getEnv, updateSaasOrganization } from 'erxes-api-shared/utils';
-import { Document } from 'mongodb';
+import { DeleteResult, Document } from 'mongodb';
 import { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
@@ -28,9 +28,8 @@ export interface ITeamModel extends Model<ITeamDocument> {
     memberIds: string[];
     adminId: string;
   }): Promise<ITeamDocument>;
-  addMembers(_id: string, memberIds: string[]): Promise<ITeamDocument>;
-  updateTeam(_id: string, doc: ITeam): Promise<ITeamDocument>;
-  removeTeam(teamId: string): Promise<{ ok: number }>;
+  updateTeam(_id: string, doc: Partial<ITeam>): Promise<ITeamDocument>;
+  removeTeam(teamId: string): Promise<DeleteResult>;
 }
 
 export const loadTeamClass = (models: IModels, subdomain: string) => {
@@ -113,7 +112,7 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
       return team;
     }
 
-    public static async updateTeam(_id: string, doc: ITeam) {
+    public static async updateTeam(_id: string, doc: Partial<ITeam>) {
       const VERSION = getEnv({ name: 'VERSION' });
 
       const team = await models.Team.findOne({ _id });

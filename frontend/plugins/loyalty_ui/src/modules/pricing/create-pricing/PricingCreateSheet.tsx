@@ -540,7 +540,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                         </Form.Label>
                         <Form.Control>
                           <SelectTags
-                            tagType="sales:product"
+                            tagType="core:product"
                             mode="multiple"
                             value={field.value}
                             onValueChange={(value) =>
@@ -561,7 +561,7 @@ export function PricingCreateSheet({ trigger }: PricingCreateSheetProps) {
                         <Form.Label>{t('exclude-tags')}</Form.Label>
                         <Form.Control>
                           <SelectTags
-                            tagType="sales:product"
+                            tagType="core:product"
                             mode="multiple"
                             value={field.value}
                             onValueChange={(value) =>

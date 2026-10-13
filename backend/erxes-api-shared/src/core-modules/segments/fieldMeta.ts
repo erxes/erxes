@@ -62,6 +62,8 @@ export type SegmentFieldNamespace = {
   prefix: string;
   label: string;
   path: string;
+  // properties `contentType` the fields are listed from, e.g. `sales:deal`
+  propertyType?: string;
 };
 
 export const resolveSegmentFieldOperators = (

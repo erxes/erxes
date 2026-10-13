@@ -1,13 +1,13 @@
 export const type = `
   type GithubConfig {
-    _id: String
-    teamId: String
-    repoName: String
-    installationId: Int
-    syncMode: String
-    subdomain: String
-    createdAt: Date
-    updatedAt: Date
+    _id: String!
+    teamId: String!
+    repoName: String!
+    installationId: Int!
+    syncMode: String!
+    subdomain: String!
+    createdAt: Date!
+    updatedAt: Date!
   }
 `;
 

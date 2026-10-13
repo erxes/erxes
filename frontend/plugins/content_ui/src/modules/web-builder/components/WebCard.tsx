@@ -12,6 +12,7 @@ import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
 import { REACT_APP_WEBBUILDER_URL } from '@/utils';
+import { readImage } from 'erxes-ui/utils/core';
 import { TEMPLATES } from '../constants';
 
 interface WebCardProps {
@@ -28,7 +29,9 @@ export const WebCard = ({ web, index }: WebCardProps) => {
   const templateThumbnail = web.templateId
     ? TEMPLATES.find((t) => t.id === web.templateId)?.thumbnail
     : undefined;
-  const thumbnailUrl = web.thumbnail?.url || templateThumbnail;
+  const thumbnailUrl = web.thumbnail?.url
+    ? readImage(web.thumbnail.url, 800)
+    : templateThumbnail;
 
   const sessionCode = sessionStorage.getItem('sessioncode') || '';
   const buildUrl = `${REACT_APP_WEBBUILDER_URL}/dashboard/projects/${

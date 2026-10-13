@@ -29,32 +29,26 @@ import {
 import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/operation/components/StatusInline';
 
-const fetchedTasksState = atom<BoardItemProps[]>([]);
-export const allTasksMapState = atom<Record<string, ITask>>({});
+type TaskBoardItem = BoardItemProps & { task: ITask };
 
-const taskSortMapState = atom<Record<string, string>>({});
+const fetchedTasksState = atom<TaskBoardItem[]>([]);
 
 export function TasksBoard() {
   const { t } = useTranslation('operation');
   const { teamId } = useParams();
-  const allTasksMap = useAtomValue(allTasksMapState);
   const { updateTask } = useUpdateTask();
   const [tasks, setTasks] = useAtom(fetchedTasksState);
-  const setAllTasksMap = useSetAtom(allTasksMapState);
-  const setTaskSortMap = useSetAtom(taskSortMapState);
   const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
   useEffect(() => {
-    setTasks([]);
-    setAllTasksMap({});
-    setTaskSortMap({});
-    setTaskCountByBoard({});
-  }, [teamId, setAllTasksMap, setTaskCountByBoard, setTaskSortMap, setTasks]);
+    return () => {
+      setTasks([]);
+      setTaskCountByBoard({});
+    };
+  }, [teamId, setTaskCountByBoard, setTasks]);
 
   const { statuses, loading } = useGetStatusByTeam({
-    variables: {
-      teamId: teamId || undefined,
-    },
+    variables: teamId ? { teamId } : undefined,
     skip: !teamId,
   });
 
@@ -70,26 +64,29 @@ export function TasksBoard() {
     if (!over) {
       return;
     }
-    const activeItem = allTasksMap[active.id as string];
-    const overItem = allTasksMap[over.id as string];
+    const activeItem = tasks.find((task) => task.id === active.id)?.task;
+    if (!activeItem) {
+      return;
+    }
+    const overItem = tasks.find((task) => task.id === over.id)?.task;
     const overColumn =
       overItem?.status ||
       columns?.find((col) => col.id === over.id)?.id ||
       columns?.[0]?.id;
 
-    if (activeItem?.status === overColumn) {
+    if (!overColumn || activeItem.status === overColumn) {
       return;
     }
     updateTask({
       variables: {
-        _id: activeItem?._id,
+        _id: activeItem._id,
         status: overColumn,
       },
     });
     const newSort = new Date().toISOString();
     setTasks((prev) =>
       prev.map((task) => {
-        if (task.id === activeItem?._id) {
+        if (task.id === activeItem._id) {
           return {
             ...task,
             column: overColumn,
@@ -100,12 +97,9 @@ export function TasksBoard() {
       }),
     );
 
-    if (activeItem?._id) {
-      setTaskSortMap((prev) => ({ ...prev, [activeItem._id]: newSort }));
-    }
     setTaskCountByBoard((prev) => ({
       ...prev,
-      [activeItem?.status]: prev[activeItem?.status] - 1 || 0,
+      [activeItem.status]: Math.max((prev[activeItem.status] || 0) - 1, 0),
       [overColumn]: (prev[overColumn] || 0) + 1,
     }));
   };
@@ -172,57 +166,31 @@ export function TasksBoardCards({
     },
   });
   const isInitialLoading = loading && !tasks;
-  const setAllTasksMap = useSetAtom(allTasksMapState);
-  const [taskSortMap, setTaskSortMap] = useAtom(taskSortMapState);
 
   useEffect(() => {
     if (!tasks) return;
-    const unseen = tasks.filter((task) => !(task._id in taskSortMap));
-    if (unseen.length === 0) return;
-    setTaskSortMap((prev) => {
-      const next = { ...prev };
-      unseen.forEach((task) => {
-        if (!(task._id in next)) {
-          next[task._id] = task.updatedAt;
-        }
-      });
-      return next;
+    setTaskCards((prev) => {
+      const prevById = new Map(prev.map((task) => [task.id, task]));
+      return [
+        ...prev.filter(
+          (task) =>
+            task.column !== column.id && !tasks.some((t) => t._id === task.id),
+        ),
+        ...tasks.map((task) => ({
+          id: task._id,
+          column: task.status,
+          sort: prevById.get(task._id)?.sort ?? task.updatedAt,
+          task,
+        })),
+      ];
     });
-  }, [tasks, taskSortMap, setTaskSortMap]);
+  }, [tasks, setTaskCards, column.id]);
 
   useEffect(() => {
-    if (tasks) {
-      setTaskCards((prev) => {
-        const previousTasks = prev.filter(
-          (task) => !tasks.some((t) => t._id === task.id),
-        );
-        return [
-          ...previousTasks,
-          ...tasks.map((task) => ({
-            id: task._id,
-            column: task.status,
-            sort: taskSortMap[task._id] ?? task.updatedAt,
-          })),
-        ];
-      });
-      setAllTasksMap((prev) => {
-        const newTasks = tasks.reduce(
-          (acc, task) => {
-            acc[task._id] = task;
-            return acc;
-          },
-          {} as Record<string, ITask>,
-        );
-        return { ...prev, ...newTasks };
-      });
-    }
-  }, [tasks, taskSortMap, setTaskCards, setAllTasksMap, column.id]);
-
-  useEffect(() => {
-    if (totalCount) {
+    if (typeof totalCount === 'number') {
       setTaskCountByBoard((prev) => ({
         ...prev,
-        [column.id]: totalCount || 0,
+        [column.id]: totalCount,
       }));
     }
   }, [totalCount, setTaskCountByBoard, column.id]);
@@ -254,10 +222,10 @@ export function TasksBoardCards({
             <Board.Card
               key={task.id}
               id={task.id}
-              name={task.name}
+              name={task.task.name}
               column={column.id}
             >
-              <TaskBoardCard id={task.id} column={column.id} />
+              <TaskBoardCard task={task.task} column={column.id} />
             </Board.Card>
           ))
         )}

@@ -4,7 +4,8 @@ import { MembersInline } from 'ui-modules';
 
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { useGetCycleProgressByMember } from '@/cycle/hooks/useGetCycleProgressByMember';
-import { IProjectProgressByMember } from '@/project/types';
+import { ICycleProgressByMember, ICycleStatistics } from '@/cycle/types';
+
 import { ProgressDot } from '@/cycle/components/detail/CycleProgress';
 
 export const CycleProgressByMember = ({
@@ -14,21 +15,18 @@ export const CycleProgressByMember = ({
 }: {
   cycleId: string;
   isCompleted: boolean;
-  statistics: any;
+  statistics?: ICycleStatistics;
 }) => {
   const { t } = useTranslation('operation');
   const [assignee, setAssignee] = useQueryState<string | null>('assignee');
 
-  const { cycleProgressByMember } = useGetCycleProgressByMember({
-    variables: { _id: cycleId },
-    skip: !cycleId || isCompleted,
-  });
+  const { cycleProgressByMember } = useGetCycleProgressByMember(
+    isCompleted ? undefined : cycleId,
+  );
 
-  let progress =
-    cycleProgressByMember ||
-    (statistics.progressByMember as IProjectProgressByMember[]);
+  let progress = cycleProgressByMember || statistics?.progressByMember;
 
-  const getProgress = (item: IProjectProgressByMember) => {
+  const getProgress = (item: ICycleProgressByMember) => {
     return Math.round(
       ((item.totalCompletedScope + item.totalStartedScope * 0.5) /
         item.totalScope) *
@@ -37,13 +35,17 @@ export const CycleProgressByMember = ({
   };
 
   if (isCompleted && assignee) {
-    progress = progress.filter((item) => item.assigneeId === assignee);
+    progress = progress?.filter((item) => item.assigneeId === assignee);
   }
 
   return (
     <div className="space-y-1">
       {progress?.map((item) => (
-        <HoverCard openDelay={150} closeDelay={150} key={item.assigneeId}>
+        <HoverCard
+          openDelay={150}
+          closeDelay={150}
+          key={item.assigneeId ?? 'unassigned'}
+        >
           <HoverCard.Trigger asChild>
             <div className="flex justify-start items-center gap-2 text-sm font-normal py-1">
               <Button
@@ -56,7 +58,7 @@ export const CycleProgressByMember = ({
                 }}
               >
                 <MembersInline
-                  memberIds={[item.assigneeId]}
+                  memberIds={item.assigneeId ? [item.assigneeId] : []}
                   placeholder={t('no-assignee')}
                 />
               </Button>

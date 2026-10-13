@@ -1,4 +1,10 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import {
+  useMutation,
+  type ApolloError,
+  type MutationHookOptions,
+} from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_DETAIL_QUERY } from '../graphql/adjustClosingDetail';
 import {
@@ -8,8 +14,12 @@ import {
 
 export const useAdjustClosingRun = (
   adjustId: string,
-  options?: OperationVariables,
+  options?: Pick<
+    GraphqlMutationOptions<typeof ADJUST_CLOSING_CALCULATE>,
+    'onError' | 'fetchPolicy' | 'errorPolicy'
+  >,
 ) => {
+  const { t } = useTranslation('accounting');
   const [_calculateMutation, { loading: calculateLoading }] = useMutation(
     ADJUST_CLOSING_CALCULATE,
     options,
@@ -19,8 +29,8 @@ export const useAdjustClosingRun = (
     options,
   );
 
-  const makeOptions = (
-    callOptions: OperationVariables | undefined,
+  const makeOptions = <Data,>(
+    callOptions: MutationHookOptions<Data, { _id: string }> | undefined,
     description: string,
   ) => ({
     ...callOptions,
@@ -29,18 +39,18 @@ export const useAdjustClosingRun = (
       ...callOptions?.variables,
     },
 
-    onError: (error: Error) => {
+    onError: (error: ApolloError) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       });
       callOptions?.onError?.(error);
     },
 
-    onCompleted: (data: unknown) => {
+    onCompleted: (data: Data) => {
       toast({
-        title: 'Success',
+        title: t('success'),
         description,
       });
       callOptions?.onCompleted?.(data);
@@ -49,19 +59,23 @@ export const useAdjustClosingRun = (
     refetchQueries: [
       {
         query: ADJUST_CLOSING_DETAIL_QUERY,
-        variables: { _id: adjustId },
+        variables: { _id: adjustId ?? '' },
       },
     ],
     awaitRefetchQueries: true,
   });
 
-  const calculateAdjust = (callOptions?: OperationVariables) => {
+  const calculateAdjust = (
+    callOptions?: GraphqlMutationOptions<typeof ADJUST_CLOSING_CALCULATE>,
+  ) => {
     return _calculateMutation(
       makeOptions(callOptions, 'Closing adjustment calculated successfully'),
     );
   };
 
-  const runAdjust = (callOptions?: OperationVariables) => {
+  const runAdjust = (
+    callOptions?: GraphqlMutationOptions<typeof ADJUST_CLOSING_DO_TRANSACTION>,
+  ) => {
     return _runMutation(
       makeOptions(callOptions, 'Closing transactions created successfully'),
     );

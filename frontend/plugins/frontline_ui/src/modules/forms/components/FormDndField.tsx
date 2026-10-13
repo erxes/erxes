@@ -34,7 +34,7 @@ import {
   FormGroupKey,
   GroupedFields,
 } from '@/forms/constants/formFieldTypes';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FormFieldDetail,
   FormFieldDetailSheet,
@@ -54,9 +54,17 @@ export const FormDndField = ({
     useSortable({
       id: field,
     });
-  const { getFieldValue, handleChangeField } = useFormDnd();
+  const { getFieldValue, handleChangeField, newFieldId, clearNewFieldId } =
+    useFormDnd();
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
+
+  useEffect(() => {
+    if (newFieldId !== field) return;
+
+    setOpen(true);
+    clearNewFieldId();
+  }, [newFieldId, field, clearNewFieldId]);
 
   const mountedWhileDragging = isDragging && !mounted;
 

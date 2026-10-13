@@ -5,33 +5,32 @@ import {
   type Reaction,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
+import { useReactionTarget } from '@/inbox/conversation-messages/hooks/useReactionTarget';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 
-export function ReactionMenu({
-  conversationId,
-  messageId,
-  disabled,
-  disabledReason,
-  selectedReaction,
-  reactions,
-}: Readonly<{
-  conversationId: string;
-  messageId: string;
-  disabled: boolean;
-  disabledReason: string;
-  selectedReaction?: string;
-  reactions: readonly Reaction[];
-}>) {
-  const { toggleReaction, loading } = useMessageReaction();
+export function ReactionMenu() {
+  const {
+    visible,
+    isInstagram,
+    conversationId,
+    messageId,
+    disabled,
+    disabledReason,
+    selectedReactions,
+    reactions,
+  } = useReactionTarget();
+  const { toggleReaction, loading } = useMessageReaction(isInstagram);
 
   const handleReaction = async (reaction: Reaction) => {
-    const remove = selectedReaction === reaction;
+    const remove = selectedReactions.includes(reaction);
     await toggleReaction({ conversationId, messageId, reaction, remove });
   };
 
+  if (!visible) return null;
+
   if (reactions.length === 1) {
     const reaction = reactions[0];
-    const selected = selectedReaction === reaction;
+    const selected = selectedReactions.includes(reaction);
 
     let reactionLabel = 'Add love reaction';
     if (disabled) {
@@ -102,7 +101,7 @@ export function ReactionMenu({
           >
             <span
               className={
-                selectedReaction === reaction
+                selectedReactions.includes(reaction)
                   ? 'rounded bg-accent ring-1 ring-primary'
                   : undefined
               }

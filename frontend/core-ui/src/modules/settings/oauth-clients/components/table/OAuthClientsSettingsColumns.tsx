@@ -1,3 +1,5 @@
+import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import {
   IOAuthClientApp,
   OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS,
@@ -16,6 +18,7 @@ import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
 
 const ClientIdCell = ({ clientId }: { clientId: string }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -23,10 +26,10 @@ const ClientIdCell = ({ clientId }: { clientId: string }) => {
     try {
       await navigator.clipboard.writeText(clientId);
       setCopied(true);
-      toast({ variant: 'success', title: 'Client ID copied to clipboard' });
+      toast({ variant: 'success', title: t('client-id-copied') });
       setTimeout(() => setCopied(false), 1000);
     } catch {
-      toast({ variant: 'destructive', title: 'Failed to copy client ID' });
+      toast({ variant: 'destructive', title: t('client-id-copy-failed') });
     }
   };
 
@@ -51,12 +54,14 @@ const getAccessTokenLifetimeLabel = (
   )?.label;
 };
 
-export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
+export const oauthClientsSettingsColumns = (
+  t: TFunction,
+): ColumnDef<IOAuthClientApp>[] => [
   { ...RecordTable.checkboxColumn, size: 33 } as ColumnDef<IOAuthClientApp>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'Name',
+    header: t('name'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -64,13 +69,13 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
   {
     id: 'clientId',
     accessorKey: 'clientId',
-    header: 'Client ID',
+    header: t('client-id'),
     cell: ({ cell }) => <ClientIdCell clientId={cell.getValue() as string} />,
   },
   {
     id: 'type',
     accessorKey: 'type',
-    header: 'Type',
+    header: t('type'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <Badge variant="secondary">{cell.getValue() as string}</Badge>
@@ -80,7 +85,7 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
   {
     id: 'accessTokenLifetime',
     accessorKey: 'accessTokenLifetime',
-    header: 'Token lifetime',
+    header: t('token-lifetime'),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {row.original.type === 'confidential'
@@ -93,7 +98,7 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: 'Status',
+    header: t('status'),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
 
@@ -109,7 +114,7 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: 'Created',
+    header: t('created'),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         {format(new Date(cell.getValue() as string), 'yyyy/MM/dd')}

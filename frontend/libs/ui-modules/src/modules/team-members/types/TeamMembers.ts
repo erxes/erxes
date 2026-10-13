@@ -8,6 +8,7 @@ export interface IUser {
   isActive?: boolean;
   configs?: any;
   isOnboarded: boolean;
+  hasPassword?: boolean | null;
   details?: {
     firstName?: string;
     lastName?: string;

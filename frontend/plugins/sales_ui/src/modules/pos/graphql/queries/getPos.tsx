@@ -12,6 +12,9 @@ export const posCommonFields = `
   cashierIds
   paymentIds
   paymentTypes
+  earnScoreCampaignId
+  earnTier
+  acceptCoupons
   user {
     _id
     details {
@@ -46,6 +49,7 @@ export const posCommonFields = `
   deliveryConfig
   permissionConfig
   allowTypes
+  isShowRemainder
   isCheckRemainder
   checkExcludeCategoryIds
   saveRemainder

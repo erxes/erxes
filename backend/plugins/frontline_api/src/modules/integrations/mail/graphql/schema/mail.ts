@@ -1,4 +1,23 @@
 export const types = `
+  type MailVerifiedContact {
+    _id: String!
+    firstName: String
+    lastName: String
+    primaryEmail: String
+    emails: [String]
+    emailValidationStatus: String
+  }
+
+  type MailVerifiedContactsPageInfo {
+    endCursor: String!
+    hasNextPage: Boolean!
+  }
+
+  type MailVerifiedContacts {
+    list: [MailVerifiedContact!]!
+    pageInfo: MailVerifiedContactsPageInfo!
+  }
+
   type MailMessage {
     _id: String!
     mailData: JSON
@@ -69,6 +88,29 @@ export const types = `
     error: String
   }
 
+  type MailTicketReplyTarget {
+    from: String!
+    to: String
+  }
+
+  type TicketNoteMailDelivery {
+    status: String
+    error: String
+    to: [String]
+    bouncedRecipients: [String]
+    retryable: Boolean
+    canRetry: Boolean
+  }
+
+  type TicketNoteUnsavedAttachment {
+    name: String
+    url: String
+    type: String
+    size: Float
+    error: String
+    expiresAt: Date
+  }
+
   type MailCloudflareZone {
     id: String
     name: String
@@ -120,13 +162,22 @@ export const types = `
     error: String
     connectedAt: Date
   }
+
+  type MailSender {
+    integrationId: String!
+    name: String!
+    address: String!
+  }
 `;
 
 export const queries = `
+  mailVerifiedContacts(searchValue: String, cursor: String): MailVerifiedContacts!
   mailConversationDetail(
     conversationId: String!
     limit: Int
   ): MailConversationMessages
+  mailConversationInternalNotes(conversationId: String!, skip: Int, limit: Int): [ConversationMessage!]!
+  mailConversationInternalNotesCount(conversationId: String!): Int!
 
   mailSendingReadiness: MailSendingReadiness
 
@@ -134,6 +185,9 @@ export const queries = `
   mailInboxes: [MailInbox]
 
   mailPipelineIntegration(pipelineId: String!): MailPipelineIntegration
+  mailSenders: [MailSender!]!
+
+  mailTicketReplyTarget(ticketId: String!): MailTicketReplyTarget
 
   mailCloudflareConnection: MailCloudflareConnection
   mailCloudflareSendingQuota: MailCloudflareSendingQuota
@@ -157,6 +211,8 @@ export const mutations = `
     customerId: String
   ): JSON
 
+  mailSendReaction(conversationId: String!, messageId: String!, emoji: String!): JSON
+
   mailPipelineConnect(
     pipelineId: String!
     senderName: String
@@ -174,6 +230,8 @@ export const mutations = `
   mailPipelineForwardVerified(pipelineId: String!): MailPipelineIntegration
 
   mailPipelineDisconnect(pipelineId: String!): Boolean
+
+  mailTicketNoteRetry(noteId: String!): TicketNote
 
   mailMessageRetry(_id: String!): JSON
 

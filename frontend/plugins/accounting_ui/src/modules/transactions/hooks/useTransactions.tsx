@@ -1,46 +1,56 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import {
+  mergeGraphqlCursorData,
+  toCursorPageInfo,
+} from '@/utils/graphqlCursor';
+import type {
+  AccountingAccTransactionsQuery,
+  AccountingAccTransactionsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { currentUserState, IUser } from 'ui-modules';
-import {
-  EnumCursorDirection,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
 import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
 import { ACCOUNTING_TRANSACTION_CHANGED } from '../graphql/transactionSubscriptions';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
-import { ITransaction } from '../types/Transaction';
+
 import { useTransactionsVariables } from './useTransactionVars';
 
-export const useTransactions = (options?: OperationVariables) => {
+export const useTransactions = (
+  options?: QueryHookOptions<
+    AccountingAccTransactionsQuery,
+    AccountingAccTransactionsQueryVariables
+  >,
+) => {
   const variables = useTransactionsVariables(options?.variables);
   const refetchTimer = useRef<ReturnType<typeof setTimeout>>();
   const currentUser = useAtomValue(currentUserState) as IUser;
   const subscriptionFilterKey = JSON.stringify(variables);
 
-  const { data, loading, error, fetchMore, refetch, subscribeToMore } =
-    useQuery<{
-      accTransactionsMain: {
-        list: ITransaction[];
-        totalCount: number;
-        pageInfo: IRecordTableCursorPageInfo;
-      };
-    }>(TRANSACTIONS_QUERY, {
-      ...options,
-      variables: {
-        ...options?.variables,
-        ...variables,
-      },
-    });
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+    refetch,
+    subscribeToMore,
+  } = useQuery(TRANSACTIONS_QUERY, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      ...variables,
+    },
+  });
+  const data = toGraphqlView(queryData);
 
   useEffect(() => {
     const unsubscribe = subscribeToMore({
       document: ACCOUNTING_TRANSACTION_CHANGED,
       variables: {
-        filter: variables,
-        userId: currentUser?._id,
+        parentId: undefined,
       },
       updateQuery: (prev, { subscriptionData }) => {
         if (subscriptionData.data) {
@@ -69,7 +79,6 @@ export const useTransactions = (options?: OperationVariables) => {
     refetch,
     subscribeToMore,
     subscriptionFilterKey,
-    variables,
   ]);
 
   const {
@@ -86,7 +95,7 @@ export const useTransactions = (options?: OperationVariables) => {
     if (
       !validateFetchMore({
         direction,
-        pageInfo,
+        pageInfo: toCursorPageInfo(pageInfo),
       })
     ) {
       return;
@@ -104,7 +113,7 @@ export const useTransactions = (options?: OperationVariables) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return Object.assign({}, prev, {
-          accTransactionsMain: mergeCursorData({
+          accTransactionsMain: mergeGraphqlCursorData({
             direction,
             fetchMoreResult: fetchMoreResult.accTransactionsMain,
             prevResult: prev.accTransactionsMain,
@@ -120,6 +129,6 @@ export const useTransactions = (options?: OperationVariables) => {
     totalCount,
     error,
     handleFetchMore,
-    pageInfo,
+    pageInfo: toCursorPageInfo(pageInfo),
   };
 };

@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
@@ -11,15 +12,15 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { ITask } from '@/task/types';
-import { Block } from '@blocknote/core';
+import type { ITaskDetail } from '@/task/types';
 import {
   BlockEditor,
   Separator,
   Textarea,
-  useBlockEditor,
   Combobox,
   Button,
+  Spinner,
+  type IBlockEditor,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
@@ -30,8 +31,10 @@ import {
   IconTags,
 } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { useDescriptionEditor } from '@/operation/hooks/useDescriptionEditor';
+import { normalizeDescriptionBlocks } from '@/operation/utils/normalizeDescriptionBlocks';
 
-export const TaskFields = ({ task }: { task: ITask }) => {
+export const TaskFields = ({ task }: { task: ITaskDetail }) => {
   const { t } = useTranslation('operation');
   const {
     _id: taskId,
@@ -51,27 +54,19 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     githubRepoName,
   } = task || {};
 
-  const startDate = (task as any)?.startDate;
-  const description = (task as any)?.description;
-  const initialDescriptionContent = parseDescriptionBlocks(description);
-
-  const [descriptionContent, setDescriptionContent] = useState<
-    Block[] | undefined
-  >(initialDescriptionContent);
-
-  const editor = useBlockEditor({
-    initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: t('description-placeholder'),
-  });
+  const startDate = task.startDate;
+  const description = task.description;
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
+  const { editor, isReady: isDescriptionReady } = useDescriptionEditor(
+    description,
+    t('description-placeholder'),
+  );
   const { updateTask } = useUpdateTask();
   const [name, setName] = useState(_name);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
-    }
+  const handleDescriptionChange = (): void => {
+    setDescriptionContent(normalizeDescriptionBlocks(editor.document));
   };
 
   const [debouncedDescriptionContent] = useDebounce(descriptionContent, 1000);
@@ -141,7 +136,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
       />
       <TagsSelect.Provider
         mode="multiple"
-        value={tagIds}
+        value={compactList(tagIds)}
         type="operation:task"
         targetIds={[taskId]}
       >
@@ -164,13 +159,13 @@ export const TaskFields = ({ task }: { task: ITask }) => {
             teamIds={teamId ? [teamId] : undefined}
           />
           <DateSelectTask
-            value={startDate ? new Date(startDate) : undefined}
+            value={startDate}
             id={taskId}
             type="startDate"
             variant="detail"
           />
           <DateSelectTask
-            value={targetDate ? new Date(targetDate) : undefined}
+            value={targetDate}
             id={taskId}
             type="targetDate"
             variant="detail"
@@ -216,11 +211,15 @@ export const TaskFields = ({ task }: { task: ITask }) => {
       </TagsSelect.Provider>
       <Separator className="mb-4 mt-2" />
       <div className="min-h-56 overflow-y-auto">
-        <BlockEditor
-          editor={editor}
-          onChange={handleDescriptionChange}
-          className="min-h-full read-only"
-        />
+        {isDescriptionReady ? (
+          <BlockEditor
+            editor={editor}
+            onChange={handleDescriptionChange}
+            className="min-h-full read-only"
+          />
+        ) : (
+          <Spinner />
+        )}
       </div>
       <ActivityList contentId={taskId} contentDetail={task} />
     </div>

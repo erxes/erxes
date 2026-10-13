@@ -1,6 +1,7 @@
 import { mutations } from '@/settings/team-member/graphql';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type InviteResendResult = {
   usersResendInvitation: string;
@@ -34,6 +35,7 @@ export const useResendInvite = () => {
 };
 
 export const useResendInvites = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [mutate, { error }] = useMutation<
     InviteResendResult,
     InviteResendVariables
@@ -48,7 +50,7 @@ export const useResendInvites = () => {
         const { data } = await mutate({ variables: { email } });
 
         if (!data?.usersResendInvitation) {
-          throw new Error('Invitation could not be resent');
+          throw new Error(t('invitation-resend-failed'));
         }
       }),
     ).finally(() => setLoading(false));

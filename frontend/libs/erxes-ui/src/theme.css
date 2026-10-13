@@ -17,10 +17,12 @@
 
 @theme {
   --font-*: initial;
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-sans:
+    var(--font-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
 
   --text-*: initial;
   --text-xs: 0.75rem;
@@ -90,20 +92,36 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-spinner: spinner 0.96s linear infinite;
+  --animate-bot-appear: bot-appear 0.3s ease-out 0.25s backwards;
+  --animate-bot-rock: bot-rock 2.6s ease-in-out infinite;
+  --animate-bot-glance: bot-glance 4.5s ease-in-out infinite;
+  --animate-bot-blink: bot-blink 4.5s infinite;
+  --animate-bot-dots: bot-dots 1.2s infinite;
 
-  --shadow-focus: 0px 0px 0px 4px rgba(79, 70, 229, 0.25),
-    0px 0px 0px 1px var(--primary);
+  --animate-first: move-vertical 30s ease infinite;
+  --animate-second: move-in-circle 20s reverse infinite;
+  --animate-third: move-in-circle 40s linear infinite;
+  --animate-fourth: move-horizontal 40s ease infinite;
+  --animate-fifth: move-in-circle 20s ease infinite;
+
+  --shadow-focus:
+    0px 0px 0px 4px rgba(79, 70, 229, 0.25), 0px 0px 0px 1px var(--primary);
   --shadow-subtle: 0px 0px 0px 1px var(--primary);
   --shadow-destructive: 0px 0px 0px 1px var(--destructive);
-  --shadow-focus-destructive: 0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
+  --shadow-focus-destructive:
+    0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
     0px 0px 0px 1px var(--destructive);
-  --shadow-xs: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-xs:
+    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow);
-  --shadow-sm: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-sm:
+    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow), 0 4px 4px var(--shadow);
-  --shadow-lg: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-lg:
+    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow);
-  --shadow-xl: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-xl:
+    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow),
     0 16px 16px var(--shadow);
 
@@ -131,6 +149,93 @@
     }
     to {
       opacity: 0.15;
+    }
+  }
+  /* Waiting bot: hugs its knees and rocks, glancing around; dots pulse. */
+  @keyframes bot-appear {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes bot-rock {
+    0%,
+    100% {
+      transform: rotate(-5deg);
+    }
+    50% {
+      transform: rotate(5deg);
+    }
+  }
+  @keyframes bot-glance {
+    0%,
+    20%,
+    80%,
+    100% {
+      transform: translateX(0);
+    }
+    30%,
+    45% {
+      transform: translateX(-5px);
+    }
+    55%,
+    70% {
+      transform: translateX(5px);
+    }
+  }
+  @keyframes bot-blink {
+    0%,
+    46%,
+    50%,
+    96%,
+    100% {
+      transform: scaleY(1);
+    }
+    48%,
+    98% {
+      transform: scaleY(0.1);
+    }
+  }
+  @keyframes bot-dots {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes move-vertical {
+    0% {
+      transform: translateY(-50%);
+    }
+    50% {
+      transform: translateY(50%);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+  @keyframes move-in-circle {
+    0% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes move-horizontal {
+    0% {
+      transform: translateX(-50%) translateY(-10%);
+    }
+    50% {
+      transform: translateX(50%) translateY(10%);
+    }
+    100% {
+      transform: translateX(-50%) translateY(-10%);
     }
   }
 }

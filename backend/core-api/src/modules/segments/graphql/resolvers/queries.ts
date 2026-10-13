@@ -4,6 +4,7 @@ import {
   resolveSegmentFieldOperators,
   SEGMENT_NUMBER_OPERATORS,
   SegmentFieldMeta,
+  SegmentFieldNamespace,
   SegmentNode,
   SegmentRelationMeta,
 } from 'erxes-api-shared/core-modules';
@@ -11,6 +12,7 @@ import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ISegmentDocument } from '../../db/definitions/segments';
 import { visibleTo } from '../../utils/access';
+import { listPropertySegmentFields } from '../../utils/propertyFields';
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
@@ -144,12 +146,26 @@ export const segmentQueries = {
     });
   },
 
-  async segmentFields(_root, { contentType }: { contentType: string }) {
+  async segmentFields(
+    _root,
+    { contentType }: { contentType: string },
+    { models }: IContext,
+  ) {
     const [pluginName] = contentType.split(':');
     const plugin = await getPlugin(pluginName);
-    const declared = plugin.config?.meta?.segments?.segmentFields || {};
+    const segments = plugin.config?.meta?.segments;
+    const declared: SegmentFieldMeta[] =
+      segments?.segmentFields?.[contentType] || [];
+    const namespaces: SegmentFieldNamespace[] =
+      segments?.segmentFieldNamespaces?.[contentType] || [];
 
-    return (declared[contentType] || []).map((field: SegmentFieldMeta) => ({
+    const properties = await Promise.all(
+      namespaces.map((namespace) =>
+        listPropertySegmentFields(models, namespace),
+      ),
+    );
+
+    return [...declared, ...properties.flat()].map((field) => ({
       ...field,
       operators: resolveSegmentFieldOperators(field),
     }));

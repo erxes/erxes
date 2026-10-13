@@ -1,10 +1,11 @@
-import { cn, Combobox, Command, Filter, useFilterContext } from 'erxes-ui';
+import { Combobox, Command, Filter } from 'erxes-ui';
+import { ReportDateFilterMenu as DateView } from './ReportDateFilterMenu';
 import { IconCheck } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { IChannel } from '@/inbox/types/Channel';
+import { ReportChannelFilter } from './ReportChannelFilter';
 import { CALL_STATUS_OPTIONS, SOURCE_OPTIONS } from '@/report/constants/data';
 import {
   getReportCallStatusFilterAtom,
@@ -15,11 +16,7 @@ import {
 } from '@/report/states';
 import { MemberFormContent } from '../frontline-card/MemberFormContent';
 import { SelectMember } from 'ui-modules';
-import {
-  getReportDisplayValue,
-  REPORT_FIXED_DATES,
-  ReportDateFilter,
-} from './ReportDateFilter';
+import { ReportDateFilter } from './ReportDateFilter';
 interface ReportFilterProps {
   cardId: string;
 }
@@ -114,13 +111,11 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
             </Command>
           </Filter.View>
           <Filter.View filterKey="channel">
-            <Command shouldFilter={false}>
-              <ChannelFilterView
-                value={channelFilter}
-                onValueChange={setChannelFilter}
-                channels={channels || []}
-              />
-            </Command>
+            <ReportChannelFilter
+              value={channelFilter}
+              onValueChange={setChannelFilter}
+              channels={channels || []}
+            />
           </Filter.View>
           <Filter.View filterKey="member">
             <Command shouldFilter={false}>
@@ -201,57 +196,6 @@ const SourceFilterView = ({
   );
 };
 
-const ChannelFilterView = ({
-  value,
-  onValueChange,
-  channels,
-}: {
-  value: string[];
-  onValueChange: (value: string[]) => void;
-  channels: IChannel[];
-}) => {
-  const { t } = useTranslation('frontline');
-  const handleSelect = (selectedValue: string) => {
-    let newValue: string[];
-
-    if (selectedValue === 'all') {
-      newValue = [];
-    } else {
-      const isSelected = value.includes(selectedValue);
-      if (isSelected) {
-        newValue = value.filter((id) => id !== selectedValue);
-      } else {
-        newValue = [...value, selectedValue];
-      }
-    }
-
-    onValueChange(newValue);
-  };
-
-  return (
-    <Command.List className="max-h-[500px] overflow-y-auto">
-      <Command.Item value="all" onSelect={() => handleSelect('all')}>
-        <div className="flex items-center gap-2">
-          {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>{t('all-channels', 'All Channels')}</span>
-        </div>
-      </Command.Item>
-      {channels.map((channel) => (
-        <Command.Item
-          key={channel._id}
-          value={channel._id}
-          onSelect={() => handleSelect(channel._id)}
-        >
-          <div className="flex items-center gap-2">
-            {value.includes(channel._id) && <IconCheck className="size-4" />}
-            <span>{channel.name}</span>
-          </div>
-        </Command.Item>
-      ))}
-    </Command.List>
-  );
-};
-
 const MemberFilterView = ({
   value,
   onValueChange,
@@ -292,74 +236,4 @@ export const ReportDateFilterView = ({
   );
 };
 
-export const DateFilterCommand = ({
-  value,
-  selected,
-  onSelect,
-  focusOnMount,
-}: {
-  value: string;
-  selected: string;
-  onSelect: (value: string | null) => void;
-  focusOnMount?: boolean;
-}) => {
-  const { t } = useTranslation('frontline');
-  const { setDialogView, setOpenDialog } = useFilterContext();
-  return (
-    <Command>
-      <Command.Input
-        placeholder={value.charAt(0).toUpperCase() + value.slice(1) + ' date'}
-        focusOnMount={focusOnMount}
-      />
-      <Command.List>
-        {REPORT_FIXED_DATES.map((date) => (
-          <Command.Item
-            key={date}
-            value={date}
-            onSelect={() => {
-              onSelect(date);
-            }}
-            className={cn('h-8', selected === date && 'text-primary')}
-          >
-            {getReportDisplayValue(date)}
-            <Combobox.Check
-              checked={selected === date}
-              className="text-primary"
-            />
-          </Command.Item>
-        ))}
-        <Command.Item
-          className="h-8"
-          value="custom-date"
-          onSelect={() => {
-            setDialogView(value);
-            setOpenDialog(true);
-          }}
-        >
-          {t('custom-date', 'Custom Date')}
-        </Command.Item>
-      </Command.List>
-    </Command>
-  );
-};
-
-export const DateView = ({
-  filterKey,
-  selected,
-  onSelect,
-}: {
-  filterKey: string;
-  selected?: string;
-  onSelect?: (value: string) => void;
-}) => {
-  return (
-    <DateFilterCommand
-      focusOnMount
-      value={filterKey}
-      selected={selected ?? ''}
-      onSelect={(value) => {
-        onSelect?.(value ?? '');
-      }}
-    />
-  );
-};
+export { ReportDateFilterMenu as DateView } from './ReportDateFilterMenu';

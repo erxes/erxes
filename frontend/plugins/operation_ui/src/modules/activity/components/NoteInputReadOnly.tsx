@@ -2,12 +2,10 @@ import { BlockEditorReadOnly } from 'erxes-ui';
 import { useGetNote } from '@/task/hooks/useGetNote';
 
 interface NoteInputReadOnlyProps {
-  newValueId: string;
+  newValueId: string | null | undefined;
 }
 
-export const NoteInputReadOnly = ({
-  newValueId,
-}: NoteInputReadOnlyProps) => {
+export const NoteInputReadOnly = ({ newValueId }: NoteInputReadOnlyProps) => {
   const { note, loading } = useGetNote(newValueId);
 
   return (

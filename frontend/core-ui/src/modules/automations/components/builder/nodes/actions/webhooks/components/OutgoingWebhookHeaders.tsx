@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 
 export const OutgoingWebhookHeaders = () => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
@@ -23,17 +25,17 @@ export const OutgoingWebhookHeaders = () => {
               return (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-row justify-between">
-                    <Form.Label>Headers</Form.Label>
+                    <Form.Label>{t('headers')}</Form.Label>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleAddHeader}
                     >
-                      <IconPlus /> Add Header
+                      <IconPlus /> {t('webhook-add-header')}
                     </Button>
                   </div>
                   <div className="text-sm text-muted-foreground text-center py-8">
-                    No headers added yet. Click "Add Header" to get started.
+                    {t('webhook-headers-empty')}
                   </div>
                 </div>
               );
@@ -42,17 +44,17 @@ export const OutgoingWebhookHeaders = () => {
             return (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <Label className="text-sm font-medium">Headers</Label>
+                  <Label className="text-sm font-medium">{t('headers')}</Label>
                   <Button variant="outline" size="sm" onClick={handleAddHeader}>
                     <IconPlus className="h-4 w-4 mr-2" />
-                    Add Header
+                    {t('webhook-add-header')}
                   </Button>
                 </div>
 
                 {headers.map((header, index) => (
                   <div key={index} className="flex gap-2 items-center">
                     <Input
-                      placeholder="Header name"
+                      placeholder={t('webhook-header-name-placeholder')}
                       value={header.key}
                       onChange={(e) => {
                         const newHeaders = [...headers];
@@ -62,7 +64,7 @@ export const OutgoingWebhookHeaders = () => {
                       className="flex-1"
                     />
                     <Input
-                      placeholder="Value or expression"
+                      placeholder={t('webhook-value-placeholder')}
                       value={header.value}
                       onChange={(e) => {
                         const newHeaders = [...headers];

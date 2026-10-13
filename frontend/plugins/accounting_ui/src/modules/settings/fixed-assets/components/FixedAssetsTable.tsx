@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -23,16 +25,17 @@ import { useFixedAssets } from '../hooks/useFixedAssets';
 import { IFixedAsset, IFixedAssetCategory } from '../types/FixedAsset';
 
 const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
-  const [, setOpen] = useQueryState('fixedAssetId');
+  const { t } = useTranslation('accounting');
+  const [, setOpen] = useQueryState<string>('fixedAssetId');
   const { confirm } = useConfirm();
   const { removeFixedAsset } = useFixedAssetRemove();
 
   const handleDelete = () =>
     confirm({
-      message: 'Үндсэн хөрөнгийг устгах уу?',
+      message: t('delete-this-fixed-asset'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel-label'),
       },
     }).then(() => {
       removeFixedAsset({
@@ -52,10 +55,10 @@ const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
               value="edit"
               onSelect={() => setOpen(cell.row.original._id)}
             >
-              <IconEdit /> Засах
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Устгах
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -71,7 +74,9 @@ const CategoryCell = ({
   cell: Cell<IFixedAsset, unknown>;
   categoriesById: Record<string, IFixedAssetCategory>;
 }) => {
-  const category = categoriesById[cell.row.original.categoryId];
+  const category = cell.row.original.categoryId
+    ? categoriesById[cell.row.original.categoryId]
+    : undefined;
 
   return (
     <RecordTableInlineCell>
@@ -82,6 +87,7 @@ const CategoryCell = ({
 
 const getFixedAssetColumns = (
   categoriesById: Record<string, IFixedAssetCategory>,
+  t: TFunction<'accounting'>,
 ): ColumnDef<IFixedAsset>[] => [
   {
     ...moreColumn,
@@ -91,7 +97,7 @@ const getFixedAssetColumns = (
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -100,7 +106,7 @@ const getFixedAssetColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -109,7 +115,7 @@ const getFixedAssetColumns = (
   {
     id: 'categoryId',
     accessorKey: 'categoryId',
-    header: () => <RecordTable.InlineHead label="Бүлэг" />,
+    header: () => <RecordTable.InlineHead label={t('category-label')} />,
     cell: ({ cell }) => (
       <CategoryCell cell={cell} categoriesById={categoriesById} />
     ),
@@ -118,7 +124,7 @@ const getFixedAssetColumns = (
   {
     id: 'depreciationMethod',
     accessorKey: 'depreciationMethod',
-    header: () => <RecordTable.InlineHead label="Элэгдлийн арга" />,
+    header: () => <RecordTable.InlineHead label={t('depreciation-method')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -127,7 +133,7 @@ const getFixedAssetColumns = (
   {
     id: 'annualDepreciationRate',
     accessorKey: 'annualDepreciationRate',
-    header: () => <RecordTable.InlineHead label="Жилийн %" />,
+    header: () => <RecordTable.InlineHead label={t('annual-rate')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -136,7 +142,7 @@ const getFixedAssetColumns = (
   {
     id: 'salvageValue',
     accessorKey: 'salvageValue',
-    header: () => <RecordTable.InlineHead label="Үлдэх өртөг" />,
+    header: () => <RecordTable.InlineHead label={t('residual-value')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
@@ -145,13 +151,15 @@ const getFixedAssetColumns = (
 ];
 
 const FixedAssetsCommandbar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} сонгосон
+          {table.getFilteredSelectedRowModel().rows.length}{' '}
+          {t('selected-label-4')}
         </CommandBar.Value>
         <Separator.Inline />
         <FixedAssetsDelete />
@@ -161,16 +169,17 @@ const FixedAssetsCommandbar = () => {
 };
 
 const FixedAssetsDelete = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeFixedAsset, loading } = useFixedAssetRemove();
 
   const handleDelete = () =>
     confirm({
-      message: 'Эдгээр үндсэн хөрөнгийг устгах уу?',
+      message: t('delete-these-fixed-assets'),
       options: {
-        okLabel: 'Устгах',
-        cancelLabel: 'Болих',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel-label'),
       },
     }).then(() => {
       table.getFilteredSelectedRowModel().rows.forEach((row) => {
@@ -184,12 +193,13 @@ const FixedAssetsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Устгах
+      {t('delete')}
     </Button>
   );
 };
 
 export const FixedAssetsTable = () => {
+  const { t } = useTranslation('accounting');
   const { fixedAssets, loading } = useFixedAssets();
   const { fixedAssetCategories } = useFixedAssetCategories();
   const categoriesById = useMemo(
@@ -204,8 +214,8 @@ export const FixedAssetsTable = () => {
     [fixedAssetCategories],
   );
   const columns = useMemo(
-    () => getFixedAssetColumns(categoriesById),
-    [categoriesById],
+    () => getFixedAssetColumns(categoriesById, t),
+    [categoriesById, t],
   );
 
   return (

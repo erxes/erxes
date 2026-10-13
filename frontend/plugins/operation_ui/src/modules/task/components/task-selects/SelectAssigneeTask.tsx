@@ -110,7 +110,9 @@ const ExpandableSection = <T,>({
                   setExpanded(!expanded);
                 }}
               >
-                {expanded ? t('show-less') : t('show-more', { count: remainingCount })}
+                {expanded
+                  ? t('show-less')
+                  : t('show-more', { count: remainingCount })}
               </Button>
             )}
           </>
@@ -258,7 +260,9 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return (
+    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+  );
 };
 
 const SelectTeamMemberContent = ({
@@ -398,7 +402,7 @@ const SelectAssigneeTaskRoot = ({
   id,
   teamIds,
 }: {
-  value: string;
+  value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
@@ -415,12 +419,12 @@ const SelectAssigneeTaskRoot = ({
   }, [value]);
 
   const handleValueChange = (newValue: string | string[] | null) => {
-    setInternalValue((newValue as string) ?? undefined);
+    setInternalValue(typeof newValue === 'string' ? newValue : null);
     if (id) {
       updateTask({
         variables: {
           _id: id,
-          assigneeId: newValue,
+          assigneeId: Array.isArray(newValue) ? newValue[0] : newValue,
         },
       });
     }
@@ -459,7 +463,7 @@ const SelectAssigneeTaskRoot = ({
 
   return (
     <SelectAssigneeProvider
-      value={internalValue}
+      value={internalValue ?? undefined}
       onValueChange={handleValueChange}
       mode="single"
       allowUnassigned

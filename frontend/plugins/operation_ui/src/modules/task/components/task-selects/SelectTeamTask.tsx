@@ -17,7 +17,12 @@ export const SelectTeamTask = ({
     <SelectTeam
       value={value}
       onValueChange={(value) =>
-        updateTask({ variables: { _id: taskId, teamId: value } })
+        updateTask({
+          variables: {
+            _id: taskId,
+            teamId: Array.isArray(value) ? value[0] : value,
+          },
+        })
       }
       mode="single"
       variant={variant}

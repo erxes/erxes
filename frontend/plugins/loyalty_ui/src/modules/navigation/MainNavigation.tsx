@@ -2,15 +2,15 @@ import { NavigationMenuLinkItem } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 const NAV_ITEMS = [
-  { label: 'vouchers', path: '/loyalty/vouchers' },
-  { label: 'lotteries', path: '/loyalty/lotteries' },
-  { label: 'spins', path: '/loyalty/spins' },
-  { label: 'donates', path: '/loyalty/donates' },
   { label: 'scores', path: '/loyalty/scores' },
   { label: 'loyalty-accounts', path: '/loyalty/accounts' },
+  { label: 'vouchers', path: '/loyalty/vouchers' },
+  { label: 'coupons', path: '/loyalty/coupons' },
+  { label: 'donates', path: '/loyalty/donates' },
+  { label: 'spins', path: '/loyalty/spins' },
+  { label: 'lotteries', path: '/loyalty/lotteries' },
   { label: 'assignments', path: '/loyalty/assignments' },
   { label: 'agents', path: '/loyalty/agents' },
-  { label: 'coupons', path: '/loyalty/coupons' },
 ];
 
 export const MainNavigation = () => {

@@ -28,10 +28,7 @@ export const FormWidgetMessage = ({
         !isDeleted ? (
           <>
             <div className={MESSAGE_ACTION_BAR_CLASS}>
-              <MessageActions
-                message={message}
-                additionalActions={additionalActions}
-              />
+              <MessageActions additionalActions={additionalActions} />
             </div>
             <Button
               type="button"
@@ -57,10 +54,7 @@ export const FormWidgetMessage = ({
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
             <div className="mb-3 text-sm font-semibold">Message actions</div>
             <div className="flex min-h-12 items-center justify-center gap-1 rounded-xl border bg-muted/35 p-2">
-              <MessageActions
-                message={message}
-                additionalActions={additionalActions}
-              />
+              <MessageActions additionalActions={additionalActions} />
             </div>
           </Sheet.View>
         </Sheet>

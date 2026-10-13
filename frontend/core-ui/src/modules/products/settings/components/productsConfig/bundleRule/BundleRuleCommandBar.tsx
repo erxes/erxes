@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -12,6 +13,7 @@ import { useBundleRulesRemove } from '@/products/settings/hooks/useBundleRulesRe
 export const BundleRuleCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-rules' });
   const { removeBundleRules } = useBundleRulesRemove();
   const confirmOptions = { confirmationValue: 'delete' };
 
@@ -21,9 +23,7 @@ export const BundleRuleCommandBar = () => {
       .rows.map((row) => row.original._id);
 
     confirm({
-      message: `Are you sure you want to delete the ${
-        selectedIds.length
-      } selected bundle rule${selectedIds.length === 1 ? '' : 's'}?`,
+      message: t('confirm-delete-selected', { count: selectedIds.length }),
       options: confirmOptions,
     }).then(() => {
       removeBundleRules({
@@ -39,7 +39,9 @@ export const BundleRuleCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', {
+            count: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="bundleRulesManage">
@@ -49,7 +51,7 @@ export const BundleRuleCommandBar = () => {
             onClick={handleDelete}
           >
             <IconTrash />
-            Delete
+            {t('delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

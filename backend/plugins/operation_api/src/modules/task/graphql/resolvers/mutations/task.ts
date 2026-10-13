@@ -215,7 +215,9 @@ export const taskMutations = {
   ) => {
     await checkPermission('taskRemove');
 
-    const deletedTask = await models.Task.removeTask(_id);
+    const deletedTask = await models.Task.getTask(_id);
+
+    await models.Task.removeTask([_id]);
 
     graphqlPubsub.publish(`operationTaskChanged:${_id}`, {
       operationTaskChanged: {

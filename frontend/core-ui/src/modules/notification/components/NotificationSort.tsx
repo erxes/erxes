@@ -2,8 +2,10 @@ import { IconSortDescending } from '@tabler/icons-react';
 import { Button, cn, Select, useMultiQueryState } from 'erxes-ui';
 import { Select as SelectPrimitive } from 'radix-ui';
 import { TNotificationStatus } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationSort = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   const [
     { notificationOrderBy: orderBy, notificationStatus: status },
     setQueries,
@@ -26,11 +28,11 @@ export const NotificationSort = () => {
         </Button>
       </SelectPrimitive.Trigger>
       <Select.Content>
-        <Select.Item value="new">Newest</Select.Item>
-        <Select.Item value="old">Oldest</Select.Item>
-        <Select.Item value="priority">Priority</Select.Item>
+        <Select.Item value="new">{t('newest')}</Select.Item>
+        <Select.Item value="old">{t('oldest')}</Select.Item>
+        <Select.Item value="priority">{t('priority')}</Select.Item>
         {status && status !== 'unread' && (
-          <Select.Item value="readAt">Read at</Select.Item>
+          <Select.Item value="readAt">{t('read-at')}</Select.Item>
         )}
       </Select.Content>
     </Select>

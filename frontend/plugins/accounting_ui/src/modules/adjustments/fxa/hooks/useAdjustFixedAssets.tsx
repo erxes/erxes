@@ -1,13 +1,25 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingAdjustFixedAssetsQuery,
+  AccountingAdjustFixedAssetsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 import { ADJUST_FIXED_ASSETS_QUERY } from '../graphql/adjustFixedAssetQueries';
-import { IAdjustFixedAsset } from '../types/AdjustFixedAsset';
 
-export const useAdjustFixedAssets = (options?: OperationVariables) => {
-  const { data, loading, error, fetchMore } = useQuery<{
-    adjustFixedAssets: IAdjustFixedAsset[];
-    adjustFixedAssetsCount: number;
-  }>(ADJUST_FIXED_ASSETS_QUERY, {
+export const useAdjustFixedAssets = (
+  options?: QueryHookOptions<
+    AccountingAdjustFixedAssetsQuery,
+    AccountingAdjustFixedAssetsQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(ADJUST_FIXED_ASSETS_QUERY, {
     ...options,
     variables: {
       ...options?.variables,
@@ -15,6 +27,7 @@ export const useAdjustFixedAssets = (options?: OperationVariables) => {
       perPage: ACC_TRS__PER_PAGE,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const adjustFixedAssets = data?.adjustFixedAssets || [];
   const totalCount = data?.adjustFixedAssetsCount || 0;
@@ -33,8 +46,8 @@ export const useAdjustFixedAssets = (options?: OperationVariables) => {
         ...prev,
         ...fetchMoreResult,
         adjustFixedAssets: [
-          ...prev.adjustFixedAssets,
-          ...fetchMoreResult.adjustFixedAssets,
+          ...(prev.adjustFixedAssets ?? []),
+          ...(fetchMoreResult.adjustFixedAssets ?? []),
         ],
       }),
     });

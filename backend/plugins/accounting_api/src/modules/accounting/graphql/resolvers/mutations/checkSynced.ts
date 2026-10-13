@@ -1,5 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { dealToMovementTrs } from '~/meta/afterProcessHandlers/dealToMovementTrs';
 import { dealToReturnTrs } from '~/meta/afterProcessHandlers/dealToReturnTrs';
 import { dealToTrs } from '~/meta/afterProcessHandlers/dealToTrs';
 import { orderToReturnTrs } from '~/meta/afterProcessHandlers/orderToReturnTrs';
@@ -16,6 +17,27 @@ import {
 type SalesDeal = {
   _id: string;
   stageId?: string;
+  number?: string;
+  name?: string;
+  productsData?: Array<{
+    productId?: string;
+    quantity?: number;
+    unitPrice?: number;
+    amount?: number;
+    tickUsed?: boolean;
+    currency?: string;
+    branchId?: string;
+    departmentId?: string;
+    branch?: string | { _id?: string } | null;
+    department?: string | { _id?: string } | null;
+  }>;
+  branchId?: string;
+  departmentId?: string;
+  branch?: string | { _id?: string } | null;
+  department?: string | { _id?: string } | null;
+  branchIds?: string[];
+  departmentIds?: string[];
+  assignedUserIds?: string[];
 };
 
 type PosOrder = {
@@ -30,6 +52,13 @@ type DealSyncConfig = Parameters<typeof dealToTrs>[0]['config'] & {
 };
 
 type DealReturnSyncConfig = Parameters<typeof dealToReturnTrs>[0]['config'] & {
+  stageId?: string;
+  responseFieldId?: string;
+};
+
+type DealMovementSyncConfig = Parameters<
+  typeof dealToMovementTrs
+>[0]['config'] & {
   stageId?: string;
   responseFieldId?: string;
 };
@@ -97,11 +126,14 @@ const checkSyncedMutations = {
       return result;
     }
 
-    const rule = (await models.Configs.getConfigDetail(
-      ruleId,
-    )) as AccountingConfigDocument<DealSyncConfig | DealReturnSyncConfig>;
+    const rule = (await models.Configs.getConfigDetail(ruleId)) as
+      | AccountingConfigDocument<DealSyncConfig | DealReturnSyncConfig>
+      | AccountingConfigDocument<DealMovementSyncConfig>;
 
-    if (!['syncDeal', 'syncDealReturn'].includes(rule.code) || !rule.value) {
+    if (
+      !['syncDeal', 'syncDealReturn', 'syncDealMovement'].includes(rule.code) ||
+      !rule.value
+    ) {
       result.skipped.push(...ids);
       return result;
     }
@@ -125,6 +157,15 @@ const checkSyncedMutations = {
             userId: user?._id,
             deal,
             config: config as DealReturnSyncConfig,
+            dateType,
+          });
+        } else if (rule.code === 'syncDealMovement') {
+          await dealToMovementTrs({
+            subdomain,
+            models,
+            userId: user?._id,
+            deal,
+            config: config as DealMovementSyncConfig,
             dateType,
           });
         } else {

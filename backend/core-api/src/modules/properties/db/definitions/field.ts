@@ -61,6 +61,12 @@ export const fieldSchema = schemaWrapper(
       },
 
       owner: { type: featuredOwnerSchema, label: 'Featured field owner' },
+
+      // Archived fields are hidden everywhere; their values stay on records.
+      archivedAt: { type: Date, label: 'Archived at' },
+      archivedBy: { type: String, label: 'Archived by' },
+      // Archived along with its group, so restoring the group brings it back.
+      archivedWithGroup: { type: Boolean, label: 'Archived with group' },
       index: {
         type: new Schema(
           {

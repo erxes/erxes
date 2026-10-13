@@ -1,6 +1,7 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
+import { mongolianProductRemainderProvider } from '@/erkhet-sync/product-remainders/productRemainderProvider';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const MainNavigation = lazy(() =>
@@ -34,7 +35,9 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
   },
-  widgets: {},
+  widgets: {
+    productRemainderProviders: [mongolianProductRemainderProvider],
+  },
   modules: [
     {
       name: 'put-response',

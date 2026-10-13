@@ -11,4 +11,20 @@ export const systemFieldMutations = {
 
     return models.SystemFieldSettings.updateSystemField(doc, user._id);
   },
+  propertySystemFieldsLayoutSave: async (
+    _root: undefined,
+    {
+      contentType,
+      layout,
+    }: { contentType: string; layout?: string[][] | null },
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldsManage');
+
+    return models.SystemFieldSettings.saveSystemFieldsLayout(
+      contentType,
+      layout ?? null,
+      user._id,
+    );
+  },
 };

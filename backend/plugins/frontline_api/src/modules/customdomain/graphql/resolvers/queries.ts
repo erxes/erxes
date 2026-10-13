@@ -1,3 +1,4 @@
+import { assertHelpCenter } from '@/customdomain/graphql/resolvers/mutations';
 import {
   checkActiveDomainOnOpen,
   getCustomDomainView,
@@ -7,13 +8,14 @@ import { IContext } from '~/connectionResolvers';
 export const customDomainQueries = {
   async frontlineCustomDomain(
     _root,
-    _args,
-    { subdomain, checkPermission }: IContext,
+    { helpCenterId }: { helpCenterId: string },
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('showHelpCenter');
+    await assertHelpCenter(models, helpCenterId);
 
-    await checkActiveDomainOnOpen(subdomain);
+    await checkActiveDomainOnOpen(models, subdomain, helpCenterId);
 
-    return getCustomDomainView(subdomain);
+    return getCustomDomainView(models, subdomain, helpCenterId);
   },
 };

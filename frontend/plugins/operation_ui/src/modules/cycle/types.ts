@@ -1,40 +1,41 @@
 import { addCycleSchema } from './validations';
+import type {
+  CycleInput,
+  GetActiveCyclesQuery,
+  GetCycleDetailQuery,
+  GetCycleProgressByMemberQuery,
+  GetCycleProgressByProjectQuery,
+  GetCycleProgressChartQuery,
+  GetCycleProgressQuery,
+} from '~/gql/graphql';
 import { z } from 'zod';
 
-export interface ICycle {
-  _id: string;
-  description: string;
-  donePercent: number;
-  endDate: string;
-  isActive: boolean;
-  isCompleted: boolean;
-  name: string;
-  startDate: string;
-  statistics: any;
-  teamId: string;
-  unFinishedTasks: number;
-}
+export type ICycle = NonNullable<GetCycleDetailQuery['getCycle']>;
 
-export interface ICycleInput {
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  teamId: string;
-}
+export type IActiveCycle = NonNullable<
+  NonNullable<
+    NonNullable<GetActiveCyclesQuery['getCyclesActive']>['list']
+  >[number]
+>;
+
+export type ICycleInput = CycleInput;
 
 export type ICycleInputType = z.infer<typeof addCycleSchema>;
 
-export interface ICycleProgressByMember {
-  assigneeId: string;
-  totalScope: number;
-  totalStartedScope: number;
-  totalCompletedScope: number;
-}
+export type ICycleProgressByMember =
+  GetCycleProgressByMemberQuery['getCycleProgressByMember'][number];
 
-export interface ICycleProgressByProject {
-  projectId: string;
-  totalScope: number;
-  totalStartedScope: number;
-  totalCompletedScope: number;
-}
+export type ICycleProgressByProject =
+  GetCycleProgressByProjectQuery['getCycleProgressByProject'][number];
+
+export type ICycleProgressChart = NonNullable<
+  GetCycleProgressChartQuery['getCycleProgressChart']
+>;
+
+export type ICycleStatistics = NonNullable<
+  NonNullable<GetCycleDetailQuery['getCycle']>['statistics']
+>;
+
+export type ICycleProgress = NonNullable<
+  GetCycleProgressQuery['getCycleProgress']
+>;

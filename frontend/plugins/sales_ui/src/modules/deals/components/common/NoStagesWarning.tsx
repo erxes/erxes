@@ -1,10 +1,17 @@
-import { Button } from 'erxes-ui';
+import { Button, useMultiQueryState } from 'erxes-ui';
 import { IconBrandTrello, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 export const NoStagesWarning = () => {
   const { t } = useTranslation('sales');
+  const [{ boardId, pipelineId }] = useMultiQueryState<{
+    boardId: string;
+    pipelineId: string;
+  }>(['boardId', 'pipelineId']);
+  const settingsSearchParams = new URLSearchParams();
+  if (boardId) settingsSearchParams.set('activeBoardId', boardId);
+  if (pipelineId) settingsSearchParams.set('pipelineId', pipelineId);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2">
@@ -20,7 +27,7 @@ export const NoStagesWarning = () => {
         {t('create-stage-to-your-board')}
       </p>
       <Button variant="outline" asChild>
-        <Link to={'/settings/deals'}>
+        <Link to={`/settings/sales/deals?${settingsSearchParams.toString()}`}>
           <IconSettings />
           {t('go-to-settings')}
         </Link>

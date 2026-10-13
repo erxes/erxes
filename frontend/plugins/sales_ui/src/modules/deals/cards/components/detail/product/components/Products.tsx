@@ -35,6 +35,7 @@ export const Products = ({
             products={deal.products || ([] as IProduct[])}
             productsData={deal.productsData || ([] as IProductData[])}
             dealId={deal._id}
+            pipelineId={deal.pipelineId || deal.pipeline?._id}
             refetch={refetch}
             tickUsed={deal.stage?.defaultTick ?? true}
           />

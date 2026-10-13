@@ -236,7 +236,7 @@ export const DateSelectInlineCell = ({
   type,
   status,
 }: {
-  value?: Date;
+  value?: Date | string | null;
   id?: string;
   onValueChange?: (value?: Date) => void;
   scope?: string;
@@ -268,7 +268,10 @@ export const DateSelectInlineCell = ({
       : undefined);
 
   return (
-    <DateSelectProvider value={value} onValueChange={handleValueChange}>
+    <DateSelectProvider
+      value={typeof value === 'string' ? new Date(value) : (value ?? undefined)}
+      onValueChange={handleValueChange}
+    >
       <PopoverScoped
         open={open}
         onOpenChange={setOpen}
@@ -373,7 +376,7 @@ export const DateSelectDetail = React.forwardRef<
   {
     className?: string;
     placeholder?: string;
-    value?: Date;
+    value?: Date | string | null;
     onValueChange?: (value?: Date) => void;
     type?: 'start' | 'target';
     id?: string;
@@ -397,7 +400,10 @@ export const DateSelectDetail = React.forwardRef<
   };
 
   return (
-    <DateSelectProvider value={value} onValueChange={handleValueChange}>
+    <DateSelectProvider
+      value={typeof value === 'string' ? new Date(value) : (value ?? undefined)}
+      onValueChange={handleValueChange}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase
           ref={ref}

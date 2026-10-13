@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const ADD_TEAM = gql`
+export const ADD_TEAM = gql(`
   mutation teamAdd(
     $name: String!
     $icon: String!
@@ -16,4 +16,4 @@ export const ADD_TEAM = gql`
       _id
     }
   }
-`;
+`);

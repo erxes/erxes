@@ -31,6 +31,7 @@ export interface ProductsFormData {
   kioskExcludeCategoryIds: string[];
   kioskExcludeProductIds: string[];
   catProdMappings: CatProd[];
+  isShowRemainder: boolean;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
@@ -46,6 +47,7 @@ const DEFAULT_FORM_VALUES: ProductsFormData = {
   kioskExcludeCategoryIds: [],
   kioskExcludeProductIds: [],
   catProdMappings: [],
+  isShowRemainder: false,
   isCheckRemainder: false,
   checkExcludeCategoryIds: [],
   saveRemainder: false,
@@ -108,6 +110,7 @@ const Products: React.FC<ProductsProps> = ({
       kioskExcludeCategoryIds: posDetail.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: posDetail.kioskExcludeProductIds || [],
       catProdMappings: posDetail.catProdMappings || [],
+      isShowRemainder: posDetail.isShowRemainder || false,
       isCheckRemainder: posDetail.isCheckRemainder || false,
       checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
       saveRemainder: posDetail.saveRemainder || false,
@@ -168,6 +171,7 @@ const Products: React.FC<ProductsProps> = ({
 
             catProdMappings: sanitizeMappings(data.catProdMappings),
 
+            isShowRemainder: data.isShowRemainder,
             isCheckRemainder: data.isCheckRemainder,
             checkExcludeCategoryIds: data.checkExcludeCategoryIds,
             saveRemainder: data.saveRemainder,

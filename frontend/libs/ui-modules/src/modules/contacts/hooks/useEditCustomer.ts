@@ -1,7 +1,7 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { EDIT_CUSTOMERS } from '../graphql/mutations/editCustomers';
 import { toast } from 'erxes-ui';
-import { ICustomer } from '../types';
+import { ICustomerDetail } from '../types';
 
 export const useCustomerEdit = () => {
   const [mutate, { loading }] = useMutation(EDIT_CUSTOMERS);
@@ -12,7 +12,7 @@ export const useCustomerEdit = () => {
     ...options
   }: MutationHookOptions<
     { customersEdit: { _id: string } },
-    Partial<ICustomer>
+    Partial<ICustomerDetail>
   >) => {
     mutate({
       ...options,
@@ -28,7 +28,7 @@ export const useCustomerEdit = () => {
           id: cache.identify(customersEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => variables?.[field as keyof ICustomer];
+              fields[field] = () => variables?.[field as keyof ICustomerDetail];
               return fields;
             },
             {},

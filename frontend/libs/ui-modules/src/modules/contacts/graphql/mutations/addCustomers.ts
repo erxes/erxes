@@ -5,13 +5,14 @@ export const CUSTOMERS_ADD = gql`
     $avatar: String
     $firstName: String
     $lastName: String
+    $middleName: String
+    $sex: Int
     $primaryEmail: String
     $primaryPhone: String
     $ownerId: String
     $description: String
     $isSubscribed: String
     $code: String
-    $emailValidationStatus: String
     $phoneValidationStatus: String
     $state: String
     $propertiesData: JSON
@@ -21,13 +22,14 @@ export const CUSTOMERS_ADD = gql`
       avatar: $avatar
       firstName: $firstName
       lastName: $lastName
+      middleName: $middleName
+      sex: $sex
       primaryEmail: $primaryEmail
       primaryPhone: $primaryPhone
       ownerId: $ownerId
       description: $description
       isSubscribed: $isSubscribed
       code: $code
-      emailValidationStatus: $emailValidationStatus
       phoneValidationStatus: $phoneValidationStatus
       state: $state
       propertiesData: $propertiesData

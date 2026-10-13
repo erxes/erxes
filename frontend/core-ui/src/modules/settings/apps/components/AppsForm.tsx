@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import { TAppsForm } from '../hooks/useAppsForm';
 
 export const AppsForm = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'apps' });
   const form = useFormContext<TAppsForm>();
   return (
     <div className="flex flex-col gap-3">
@@ -11,10 +13,12 @@ export const AppsForm = () => {
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>App Name</Form.Label>
-            <Form.Description className="sr-only">App Name</Form.Description>
+            <Form.Label>{t('app-name')}</Form.Label>
+            <Form.Description className="sr-only">
+              {t('app-name')}
+            </Form.Description>
             <Form.Control>
-              <Input {...field} placeholder="My App" />
+              <Input {...field} placeholder={t('my-app')} />
             </Form.Control>
             <Form.Message />
           </Form.Item>

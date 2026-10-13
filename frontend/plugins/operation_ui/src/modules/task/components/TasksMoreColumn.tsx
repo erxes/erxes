@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { IconEdit } from '@tabler/icons-react';
-import { Cell } from '@tanstack/react-table';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 
 export const TasksMoreColumnCell = ({
@@ -36,9 +36,9 @@ export const TasksMoreColumnCell = ({
   );
 };
 
-export const tasksMoreColumn = {
+export const tasksMoreColumn: ColumnDef<ITask> = {
   id: 'more',
-  header: RecordTable.ColumnSelector,
+  header: () => <RecordTable.ColumnSelector />,
   cell: TasksMoreColumnCell,
   size: 33,
 };

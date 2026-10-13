@@ -1,9 +1,4 @@
-import {
-  coreModelOrganizations,
-  getSaasCoreConnection,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
-import mongoose from 'mongoose';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
   generateModels,
   type IContext,
@@ -168,77 +163,28 @@ export async function runCmsDeliveries(subdomain?: string, models?: IModels) {
   }
 }
 
-async function hasDueCmsDelivery(organizationId: string) {
-  await mongoose.connection.asPromise();
-  const dbName = (process.env.DB_NAME || 'erxes_<organizationId>').replace(
-    '<organizationId>',
-    organizationId,
-  );
-  const now = new Date();
-  return !!(await mongoose.connection
-    .getClient()
-    .db(dbName)
-    .collection('cms_postiz_deliveries')
-    .findOne(
-      {
-        state: { $in: ['PENDING', 'QUEUED'] },
-        nextCheck: { $lte: now },
-        leaseUntil: { $lte: now },
-      },
-      { projection: { _id: 1 } },
-    ));
-}
+const activeRuns = new Map<string, Promise<void>>();
 
-export function startCmsDeliveryWorker() {
-  if (!process.env.JWT_TOKEN_SECRET?.trim()) return;
-  let running = false;
-  const modelsByTenant = new Map<string, Promise<IModels>>();
-  const tick = async () => {
-    if (running) return;
-    running = true;
-    try {
-      if (process.env.VERSION !== 'saas') {
-        await runCmsDeliveries();
-        return;
-      }
-      await getSaasCoreConnection();
-      const tenants: AsyncIterable<{ _id: string; subdomain: string }> =
-        coreModelOrganizations
-          .find({})
-          .select({ _id: 1, subdomain: 1 })
-          .lean()
-          .cursor();
-      for await (const tenant of tenants) {
-        if (!tenant.subdomain) continue;
-        try {
-          if (!(await hasDueCmsDelivery(String(tenant._id)))) continue;
-          let models = modelsByTenant.get(tenant.subdomain);
-          if (!models) {
-            models = generateModels(tenant.subdomain).catch(
-              (error: unknown) => {
-                modelsByTenant.delete(tenant.subdomain);
-                throw error;
-              },
-            );
-            modelsByTenant.set(tenant.subdomain, models);
-          }
-          await runCmsDeliveries(tenant.subdomain, await models);
-        } catch (error) {
-          console.error(
-            '[content:postiz] Delivery sweep failed; it will retry.',
-            error instanceof Error ? error.name : 'UnknownError',
-          );
-        }
-      }
-    } catch (error) {
+// Deliveries run only when a user shares, retries or refreshes; there is no
+// background sweep across tenants. One run per tenant database at a time in
+// this process; the database lease still guards other replicas.
+export function triggerCmsDeliveries(
+  subdomain: string,
+  models: IModels,
+): Promise<void> {
+  if (!process.env.JWT_TOKEN_SECRET?.trim()) return Promise.resolve();
+  const databaseTenant =
+    process.env.VERSION === 'saas' ? requireDeliveryTenant(subdomain) : '';
+  const active = activeRuns.get(databaseTenant);
+  if (active) return active;
+  const run = runCmsDeliveries(databaseTenant || undefined, models)
+    .catch((error: unknown) => {
       console.error(
-        '[content:postiz] Tenant discovery failed; it will retry.',
+        '[content:postiz] Delivery run failed; refresh to retry.',
         error instanceof Error ? error.name : 'UnknownError',
       );
-    } finally {
-      running = false;
-    }
-  };
-  setTimeout(() => void tick(), 1000).unref();
-  setInterval(() => void tick(), 15000).unref();
+    })
+    .finally(() => activeRuns.delete(databaseTenant));
+  activeRuns.set(databaseTenant, run);
+  return run;
 }

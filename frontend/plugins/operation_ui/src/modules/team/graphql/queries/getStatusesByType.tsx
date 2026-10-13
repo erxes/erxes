@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const GET_STATUSES_BY_TYPE = gql`
+export const GET_STATUSES_BY_TYPE = gql(`
   query getStatusesByType($teamId: String!, $type: Int!) {
     getStatusesByType(teamId: $teamId, type: $type) {
       _id
@@ -11,4 +11,4 @@ export const GET_STATUSES_BY_TYPE = gql`
       type
     }
   }
-`;
+`);

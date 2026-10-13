@@ -42,36 +42,48 @@ export const useTicketsVariables = (
     priority,
     statusId,
     state,
+    channelId,
     pipelineId,
     segments,
     createdStartDate,
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
+    branchIds,
+    departmentIds,
+    propertiesData,
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
-    priority: string;
+    priority: number;
     statusId: string;
     state: string;
+    channelId: string;
     pipelineId: string;
     segments: string[];
     createdStartDate: string;
     startDateStartDate: string;
     targetDateStartDate: string;
     statusChangedStartDate: string;
+    branchIds: string[];
+    departmentIds: string[];
+    propertiesData: string;
   }>([
     'searchValue',
     'assignee',
     'priority',
     'statusId',
     'state',
+    'channelId',
     'pipelineId',
     'segments',
     'createdStartDate',
     'startDateStartDate',
     'targetDateStartDate',
     'statusChangedStartDate',
+    'branchIds',
+    'departmentIds',
+    'propertiesData',
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
@@ -88,6 +100,7 @@ export const useTicketsVariables = (
     assigneeId: assignee,
     priority: priority,
     statusId: statusId,
+    channelId: channelId,
     pipelineId: pipelineId,
     state: state,
     segmentIds: segments || undefined,
@@ -100,6 +113,9 @@ export const useTicketsVariables = (
     statusChangedStartDate: parseDateRangeFromString(statusChangedStartDate)
       ?.from,
     statusChangedEndDate: parseDateRangeFromString(statusChangedStartDate)?.to,
+    branchIds: branchIds || undefined,
+    departmentIds: departmentIds || undefined,
+    propertiesData: propertiesData || undefined,
     ...variables,
   };
 };

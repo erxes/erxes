@@ -1,6 +1,7 @@
 import { IconExternalLink } from '@tabler/icons-react';
 import { Badge, Button, Card } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type TAiAgentUsage = {
   total: number;
@@ -13,17 +14,20 @@ type TAiAgentUsage = {
  * so the dependents are named here rather than discovered later.
  */
 export const AiAgentUsageCard = ({ usage }: { usage?: TAiAgentUsage }) => {
+  const { t } = useTranslation('automations');
   const navigate = useNavigate();
   const automations = usage?.automations || [];
 
   return (
     <Card className="p-4">
       <div className="space-y-1">
-        <div className="text-sm font-medium">Used by</div>
+        <div className="text-sm font-medium">
+          {t('settings-agents-used-by')}
+        </div>
         <p className="text-xs text-muted-foreground">
           {automations.length
-            ? 'These automations run this agent. Remove it from them before deleting it.'
-            : 'No automation uses this agent yet.'}
+            ? t('settings-agents-used-by-description')
+            : t('settings-agents-unused-description')}
         </p>
       </div>
 
@@ -37,7 +41,9 @@ export const AiAgentUsageCard = ({ usage }: { usage?: TAiAgentUsage }) => {
               onClick={() => navigate(`/automations/edit/${_id}`)}
             >
               <IconExternalLink className="size-3.5 shrink-0" />
-              <span className="min-w-0 truncate">{name || 'Untitled'}</span>
+              <span className="min-w-0 truncate">
+                {name || t('sidebar-untitled')}
+              </span>
               <Badge variant="secondary" className="ml-auto shrink-0">
                 {status}
               </Badge>

@@ -1,9 +1,5 @@
-import {
-  logicSchema,
-  propertyGroupSchema,
-  propertySchema,
-} from '@/properties/propertySchema';
 import { z } from 'zod';
+import { logicSchema } from 'ui-modules';
 
 export interface IPropertyType {
   contentType: string;
@@ -15,9 +11,6 @@ export enum PropertiesHotkeyScope {
   AddPropertiesDropdown = 'add-properties-dropdown',
 }
 
-export type IPropertyGroupForm = z.infer<typeof propertyGroupSchema>;
-export type IPropertyForm = z.infer<typeof propertySchema>;
-
 export interface IFieldGroup {
   _id: string;
   name: string;
@@ -26,7 +19,7 @@ export interface IFieldGroup {
   contentType: string;
   order: number;
   logics?: Record<string, unknown>;
-  configs?: { isMultiple?: boolean };
+  configs?: { isMultiple?: boolean; layout?: string[][] };
   // Set when a plugin feature keeps its featured fields in this group.
   owner?: { plugin?: string; module?: string; status?: string } | null;
 }
@@ -44,4 +37,9 @@ export interface IPropertySystemField extends IPropertySystemFieldConfig {
   code: string;
   name: string;
   type: string;
+  // Declared by the owning content type; they lock the toggles below.
+  requiredGroup?: string | null;
+  alwaysFilled?: boolean | null;
+  notOnCreate?: boolean | null;
+  outsideLayout?: boolean | null;
 }

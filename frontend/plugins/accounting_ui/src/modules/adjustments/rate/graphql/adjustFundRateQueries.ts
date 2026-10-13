@@ -1,77 +1,82 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const adjustFundRateFields = `
-  _id
-  date
-  mainCurrency
-  currency
-  description
-  spotRate
-  gainAccountId
-  lossAccountId
-  transactionId
-  status
-  beginDate
-  successDate
-  checkedAt
-  error
-  warning
-  createdBy
-  modifiedBy
-  createdAt
-  updatedAt
-`;
+export const ADJUST_FUND_RATE_QUERY = gql(`
+query AccountingAdjustFundRates($limit: Int, $cursor: String, $orderBy: JSON, $searchValue: String) {
+  adjustFundRates(
+    limit: $limit
+    cursor: $cursor
+    orderBy: $orderBy
+    searchValue: $searchValue
+  ) {
+    list {
+      _id
+      date
+      mainCurrency
+      currency
+      description
+      spotRate
+      gainAccountId
+      lossAccountId
+      transactionId
+      status
+      beginDate
+      successDate
+      checkedAt
+      error
+      warning
+      createdBy
+      modifiedBy
+      createdAt
+      updatedAt
+    }
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+  }
+}
+`);
 
-export const adjustFundRateDetailFields = `
-  ${adjustFundRateFields}
-  details {
+export const ADJUST_FUND_RATE_DETAIL_QUERY = gql(`
+query AccountingAdjustFundRateDetail($_id: String!) {
+  adjustFundRateDetail(_id: $_id) {
     _id
-    accountId
-    accountCode
-    accountName
-    accountCurrency
-    mainBalance
-    currencyBalance
-    diff
+    date
+    mainCurrency
+    currency
+    description
+    spotRate
+    gainAccountId
+    lossAccountId
     transactionId
-    branchId
-    departmentId
+    status
+    beginDate
+    successDate
+    checkedAt
+    error
+    warning
+    createdBy
+    modifiedBy
     createdAt
     updatedAt
-  }
-`;
-
-export const ADJUST_FUND_RATE_QUERY = gql`
-  query AccountingAdjustFundRates(
-    $limit: Int
-    $cursor: String
-    $orderBy: JSON
-    $searchValue: String
-  ) {
-    adjustFundRates(
-      limit: $limit
-      cursor: $cursor
-      orderBy: $orderBy
-      searchValue: $searchValue
-    ) {
-      list {
-        ${adjustFundRateFields}
-      }
-      totalCount
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
+    details {
+      _id
+      accountId
+      accountCode
+      accountName
+      accountCurrency
+      mainBalance
+      currencyBalance
+      diff
+      transactionId
+      branchId
+      departmentId
+      createdAt
+      updatedAt
     }
   }
-`;
-
-export const ADJUST_FUND_RATE_DETAIL_QUERY = gql`
-  query AccountingAdjustFundRateDetail($_id: String!) {
-    adjustFundRateDetail(_id: $_id) {
-      ${adjustFundRateDetailFields}
-    }
-  }
-`;
+}
+`);

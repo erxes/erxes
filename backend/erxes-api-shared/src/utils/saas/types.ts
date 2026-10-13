@@ -5,6 +5,9 @@ export interface ISaasHelpCenterDomainRecord {
 
 export interface ISaasHelpCenterDomain {
   hostname: string;
+  // The help center the domain serves. Unset on a domain connected before
+  // domains were per help center: it serves the workspace's default one.
+  helpCenterId?: string;
   cloudflareId?: string;
   // Cloudflare custom hostname status: pending, active, moved, blocked, ...
   status?: string;
@@ -52,7 +55,9 @@ export interface IOrganization {
   customDomainStatus?: Record<string, unknown>;
   hostNameStatus?: string;
   sslStatus?: string;
+  // Legacy single domain, moved into helpCenterDomains on the next write
   helpCenterDomain?: ISaasHelpCenterDomain;
+  helpCenterDomains?: ISaasHelpCenterDomain[];
 }
 
 export interface ISaasBundle {

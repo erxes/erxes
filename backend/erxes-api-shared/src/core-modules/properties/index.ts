@@ -3,4 +3,7 @@ export * from './importExport';
 export * from './keys';
 export * from './mergeRows';
 export * from './operators';
+export * from './options';
+export * from './setupPropertyProducers';
 export * from './types';
+export * from './valueUsage';

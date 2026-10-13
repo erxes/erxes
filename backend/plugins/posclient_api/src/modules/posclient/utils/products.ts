@@ -592,6 +592,7 @@ export const checkRemainders = async (
   config: IConfigDocument,
   checkProducts: IProductDocument[],
   paramBranchId?: string,
+  forValidation = false,
 ) => {
   const products: ProductWithRemainder[] = checkProducts;
 
@@ -599,11 +600,15 @@ export const checkRemainders = async (
     return products;
   }
 
-  if (config.isCheckRemainder && config.erkhetConfig?.useRemainder) {
+  if (config.isShowRemainder && config.erkhetConfig?.useRemainder) {
     return applyErkhetRemainders(models, config, products, paramBranchId);
   }
 
-  if (!config.isCheckRemainder && !config.saveRemainder) {
+  if (
+    !config.isShowRemainder &&
+    !config.saveRemainder &&
+    !(forValidation && config.isCheckRemainder)
+  ) {
     return products;
   }
 

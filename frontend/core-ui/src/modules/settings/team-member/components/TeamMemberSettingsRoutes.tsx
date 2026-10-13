@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { TeamMembersPath } from '../constants/teamMemberRoutes';
-import { TeamMemberSidebar } from './TeamMemberSidebar';
 import { TeamMemberSettingsBreadcrumb } from './TeamMemberSettingsBreadcrumb';
 import { TeamMemberTopbar } from './header/TeamMemberTopbar';
 import { PageContainer, Spinner } from 'erxes-ui';
@@ -30,7 +29,6 @@ export const TeamMemberSettingsRoutes = () => {
         <TeamMemberTopbar />
       </SettingsHeader>
       <div className="flex flex-auto w-full overflow-hidden">
-        <TeamMemberSidebar />
         <Suspense
           fallback={
             <div className="flex justify-center items-center h-full w-full">
