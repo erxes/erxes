@@ -6,8 +6,10 @@ import {
   IconVectorBezier2,
 } from '@tabler/icons-react';
 import { DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationCanvasDownloadOptions = () => {
+  const { t } = useTranslation('automations');
   const { onExportPng, onExportSvg, onExportJson } =
     useAutomationCanvasExport();
 
@@ -15,7 +17,7 @@ export const AutomationCanvasDownloadOptions = () => {
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
         <IconDownload className="size-4" />
-        Download
+        {t('controls-download')}
       </DropdownMenu.SubTrigger>
       <DropdownMenu.SubContent className="w-48">
         <DropdownMenu.Sub>
@@ -27,12 +29,12 @@ export const AutomationCanvasDownloadOptions = () => {
             <DropdownMenu.Item
               onClick={() => onExportPng({ withBackground: true })}
             >
-              With background
+              {t('controls-png-with-background')}
             </DropdownMenu.Item>
             <DropdownMenu.Item
               onClick={() => onExportPng({ withBackground: false })}
             >
-              Transparent
+              {t('controls-png-transparent')}
             </DropdownMenu.Item>
           </DropdownMenu.SubContent>
         </DropdownMenu.Sub>
@@ -42,7 +44,7 @@ export const AutomationCanvasDownloadOptions = () => {
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={onExportJson}>
           <IconBraces className="size-4" />
-          Export JSON
+          {t('controls-export-json')}
         </DropdownMenu.Item>
       </DropdownMenu.SubContent>
     </DropdownMenu.Sub>

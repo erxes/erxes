@@ -16,7 +16,7 @@ export const useAutomationBuilderSecondaryPanels = () => {
     { title: string; description: string; icon: Icon }
   > = {
     [AutomationSecondaryPanel.Variables]: {
-      title: 'Variables',
+      title: t('sidebar-variables'),
       description: t('variables-help-description'),
       icon: IconVariable,
     },

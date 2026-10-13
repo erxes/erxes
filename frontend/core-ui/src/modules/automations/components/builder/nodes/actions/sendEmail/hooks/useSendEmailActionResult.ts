@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { getActionResultErrorText } from '@/automations/utils/automationHistoryUtils/executionResultPreview';
 import { IAutomationHistoryAction } from 'ui-modules';
@@ -6,6 +7,7 @@ export const useSendEmailActionResult = (
   result: any,
   action: IAutomationHistoryAction,
 ) => {
+  const { t } = useTranslation('automations');
   const config = (action?.actionConfig ||
     {}) as Partial<TAutomationSendEmailConfig>;
   const response = result?.response || {};
@@ -19,12 +21,12 @@ export const useSendEmailActionResult = (
     hasError,
     statusText: hasError
       ? getActionResultErrorText(response.error)
-      : 'Sent successfully',
+      : t('send-email-sent-successfully'),
     from:
       response?.from ||
       result?.fromEmail ||
       (config.type === 'default'
-        ? 'COMPANY EMAIL'
+        ? t('send-email-company-email')
         : config.fromEmailPlaceHolder) ||
       '',
     subject: result?.title || config.subject || '',

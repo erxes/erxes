@@ -57,7 +57,8 @@
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
-  help center drawer (General, Appearance, and — when editing — Embed), which is
+  help center drawer (General, Appearance, and — when editing — Embed and
+  Domain), which is
   the only place a help center is edited. Its **Forms** card, shown only while the ticket
   switch is on, has its own channel select and a multi-select of that
   channel's forms (`formChannelId` / `formIds`); its **CMS** card multi-selects
@@ -535,7 +536,7 @@ owns the setup form and connection actions.
 | Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
-| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
+| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
 | Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
 | Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
@@ -1017,6 +1018,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   patch on top, and refuses the write when `title` would end up empty. `title`
   is the only required field — `brandId` is optional, and a brand-less help
   center stays inline-editable.
+- Help center save feedback uses its own `help-center-saved`,
+  `help-center-created` and `help-center-needs-name` keys in
+  `useSaveHelpCenter` and `useEditHelpCenter`; never reuse the knowledge base
+  `kb-topic-*` keys, whose defaults say "Topic".
 - The table's ticket channel/pipeline/status cells reuse the ticket module's
   `Select*` components in their `table` variant, but pass their own
   `onValueChange` — those components' roots save onto a ticket, and
@@ -1050,9 +1055,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
 - `HelpCenterDrawer` splits across `SheetNavSidebar` tabs — **general** and
-  **appearance** always, plus **embed** while editing (`HELP_CENTER_TABS` vs
-  `HELP_CENTER_CREATE_TABS`, because a config must exist before its script is
-  worth showing): general stacks full-width cards in a fixed order — general
+  **appearance** always, plus **embed** and **domain** while editing
+  (`HELP_CENTER_TABS` vs `HELP_CENTER_CREATE_TABS`, because a config must exist
+  before its script or domain is worth showing): general stacks full-width cards in a fixed order — general
   settings (name and client portal side by side, then description), knowledge
   base,
   tickets, forms, and CMS. Each feature card keeps its
@@ -1229,7 +1234,15 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `knowledgeBaseBundle.js` output is a published contract with every site that
   already embedded a topic: change the surface around it, never the generated
   text. It needs no query and no new field — a topic's `_id` is the whole
-  input.
+  input. The bundle it loads is built by `apps/frontline-widgets`
+  (`compile:knowledgebase`); the panel's install hint names the optional
+  `<div data-erxes-kbase></div>` that embeds the widget inline instead of as a
+  corner button.
+- Every install snippet (messenger, form, knowledge base) takes its host from
+  `REACT_APP_WIDGETS_URL` in `src/modules/utils.ts`: `window.env` first, then
+  the build-time value `rspack.config.ts` defines from `.env`, then
+  `http://localhost:4200` (the `frontline-widgets` dev server) in development.
+  Never fall back to the gateway — it serves none of the bundles.
 
 - Appearance fields are one nested `styles` block on the config, addressed as
   `styles.<name>` through React Hook Form and rendered by the four
@@ -1822,7 +1835,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Category deletion goes through `useConfirmRemoveCategory`, shared with the
   categories table.
 - `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
-  are navigated from the topics index and the per-topic sidebar, never from a
+  are navigated from the knowledge base's own sidebar panel, never from a
   second navigation column.
 - The topic, category and article sheets group their fields into `InfoCard`
   sections inside a `ScrollArea`, the same shape the help center drawer uses —
@@ -1877,12 +1890,67 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   there is no cursor query for them. Knowledge base tables therefore use
   `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
   `RecordTable.CursorProvider`.
+- A topic's three sections are switched only by the `ToggleGroup` tabs that
+  `KnowledgeBaseLayout` renders after the topic in the header breadcrumb (the
+  contacts header pattern); there is no knowledge base sidebar. Add a new
+  section to `SECTIONS` there and to `TKnowledgeBaseSection`, never as a
+  second navigation surface.
+- A parent category's article count is its own plus every descendant's
+  (`countCategoryArticles`), and `useArticles` filters a `categoryId` by
+  `getCategoryWithDescendantIds`, waiting for the topic's categories before it
+  queries. Keep the table badge and the filter on these helpers so they never
+  disagree.
+- Article status is a filter-popover item and filter-bar chip, like category;
+  do not promote it to a separate tab strip beside the filter.
+- `ARTICLE_STATUSES` lists every status for labels, the filter and the drawer;
+  `QUICK_ARTICLE_STATUSES` drops `scheduled` for the inline status cell and the
+  bulk command bar, because scheduling needs a date — the cell's `Schedule…`
+  item opens the drawer instead. The drawer sends `scheduledDate` only while
+  the status is `scheduled`; `useUpdateArticle` resends the stored
+  `scheduledDate` so an inline edit of a scheduled article passes the backend's
+  date check.
+- `C` is wired through `shared/hooks/useKbCreateHotkey`, which sets the page
+  scope (`TopicsPage`, `ArticlesPage`, `CategoriesPage`) and switches to
+  `KnowledgeBaseHotKeyScope.FormSheet` while a drawer is open. The erxes
+  hotkeys fire inside content-editable elements by default, so a page must
+  never keep its page scope while the article editor is open. A header button
+  that shows `<Kbd>C</Kbd>` must have this hook on its page.
+- Every article write goes through `useUpdateArticle` in
+  `articles/hooks/useArticleMutations.ts`: it re-reads the detail and sends the
+  whole doc with the patch on top. Inline edits and command bar bulk edits
+  (`useBulkEditArticles`) both use it; a patch touching `status` or
+  `categoryId` refetches the article and category lists, because the row may
+  leave the current filter and category counts change.
+- `useDuplicateArticle` copies an article as a `draft` titled
+  `<title> (copy)`, rebuilding every attachment through `toAttachmentInput` —
+  query results carry `__typename`, which `AttachmentInput` rejects.
+- Articles load `ARTICLES_PER_PAGE` at a time. `useArticles` exposes
+  `hasMore` / `handleFetchMore` (next `page`, de-duplicated by `_id`), and
+  `KbRecordTable` renders an in-view skeleton row that loads the next page.
+  A refetch after a write resets the list to the first page.
+- `Articles` opens the create drawer once when the URL carries
+  `createArticle=true` (with `categoryId` preselecting the category), then
+  clears the param; the category row action links there.
+- The articles table reads left to right as identity, placement, state, reach,
+  freshness, author, then summary: `title`, `categoryId`, `status`,
+  `viewCount` (right-aligned, locale-formatted, muted at zero),
+  `modifiedDate`, `createdUser` (avatar + name), `summary` (muted). Status
+  badges are `success` for published, `warning` for draft and `secondary` for
+  archived — archived is retired, not an error.
 - Every knowledge base list refetches after a write (`refetchQueries`, or
   `client.refetchQueries` for bulk deletes) so a create, edit or delete shows up
   without a manual refresh.
-- Category and article writes stay inside the topic in the URL: a category's
-  `topicId` and an article's `categoryId` always come from the current route or
-  the topic's own categories, never from an unrelated topic.
+- A category's `topicId` and parent, and an article's `topicId` and
+  `categoryId`, always come from the knowledge base picked in the drawer (the
+  route topic by default); changing that topic clears the parent or category.
+  Inline edits, bulk edits and duplicates keep the route topic. The category
+  drawer sends `parentCategoryId: ''` for "No parent category" — an omitted
+  field would leave the old parent in place.
+- The categories page's `useCategories` call uses `cache-and-network` with
+  `nextFetchPolicy: 'cache-first'`, so counts changed by a write on another
+  page refresh when it opens. The topics and articles lists load one page
+  (`TOPICS_PER_PAGE` / `ARTICLES_PER_PAGE`) and stay current through the
+  writes' `refetchQueries`; there is no load-more.
 - Message reactions are read through `getMessageReactions` /
   `findOwnReaction` in `conversation-messages/utils/message.ts`
   (`reactions`, falling back to `extraData.reactions`); do not re-derive the
@@ -1954,7 +2022,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   the same snippet on its own **Embed** tab for the topic picked on
   **General**, with `Copy Script` turning into `Copied!` for three seconds, a
   prompt to pick one when `kbTopicId` is empty, and no Embed tab at all while
-  creating one.
+  creating one. Paste the snippet into a plain HTML page served from another
+  origin: a corner button opens the topic's categories and articles (inline
+  inside a `<div data-erxes-kbase>` when the page has one).
+- Smoke (knowledge base counts): on a topic's `categories` page a parent such as
+  `1. ТАНИЛЦУУЛГА` shows the sum of its subcategories' articles; its badge
+  opens `articles?categoryId=<parent>` listing every subcategory's article.
+  The sidebar's per-category counts match those badges. In the article drawer, switching the knowledge base clears the
+  category, and saving moves the article to that topic's list and counts.
+  Moving a parent category from its drawer takes its subcategories and their
+  articles along; the articles page's "records found" matches the topic's
+  article count, duplicated articles included.
 - Smoke (help center footer): on **Appearance** open the Footer card, press
   "Start from the built-in columns", rename a heading, add a link and remove
   another, then save and reload — the drawer shows what was saved and

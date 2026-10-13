@@ -14,6 +14,7 @@ import {
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { TNotification } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type StructureDetailItem = {
   label: string;
@@ -51,6 +52,7 @@ export const StructureNotificationDetail = ({
   openLabel,
   openPath,
 }: StructureNotificationDetailProps) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
@@ -69,12 +71,11 @@ export const StructureNotificationDetail = ({
             </Empty.Media>
             <Empty.Title className="capitalize">
               {error
-                ? `Failed to load ${contentType}`
-                : `${contentType} not found`}
+                ? t('failed-to-load', { contentType })
+                : t('not-found', { contentType })}
             </Empty.Title>
             <Empty.Description>
-              {error?.message ||
-                `This ${contentType} may have been removed or is no longer available.`}
+              {error?.message || t('may-be-removed', { contentType })}
             </Empty.Description>
           </Empty.Header>
         </Empty>

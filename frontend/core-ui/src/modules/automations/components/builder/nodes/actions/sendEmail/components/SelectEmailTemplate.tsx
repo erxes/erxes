@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
 import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
 import {
@@ -24,6 +25,7 @@ export const SelectEmailTemplate = ({
   placeholder = 'Select email template',
   format,
 }: SelectEmailTemplateProps) => {
+  const { t } = useTranslation('automations');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
@@ -64,13 +66,13 @@ export const SelectEmailTemplate = ({
             variant="secondary"
             wrapperClassName="flex-auto"
             focusOnMount
-            placeholder="Search email templates..."
+            placeholder={t('send-email-search-templates-placeholder')}
           />
           <Command.List className="max-h-[300px] overflow-y-auto">
             <Combobox.Empty loading={loading} />
             {!loading && emailTemplates.length === 0 && (
               <div className="p-4 text-center text-muted-foreground">
-                No email templates found
+                {t('send-email-no-templates-found')}
               </div>
             )}
             {!loading &&
@@ -101,7 +103,7 @@ export const SelectEmailTemplate = ({
                           e.stopPropagation();
                           loadEmailTemplate(template._id);
                         }}
-                        title="Insert template content"
+                        title={t('send-email-insert-template-content')}
                       >
                         <IconPlus className="h-4 w-4" />
                       </Button>

@@ -7,6 +7,7 @@ import {
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useCallback } from 'react';
 import { PlaceholderInput } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationWorkflowContentSidebar = () => {
   // Node data carries no id — the active node id lives in the query params,
@@ -21,20 +22,20 @@ export const AutomationWorkflowContentSidebar = () => {
 };
 
 const WorkflowInputBindingFields = () => {
+  const { t } = useTranslation('automations');
   const { bindings } = useWorkflowNodeContext();
 
   if (!bindings.length) {
     return (
       <p className="p-4 text-sm text-muted-foreground">
-        This workflow has no inputs. Inputs appear automatically when member
-        actions reference values from outside the workflow.
+        {t('sidebar-workflow-no-inputs')}
       </p>
     );
   }
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <h4 className="text-sm font-semibold">Inputs</h4>
+      <h4 className="text-sm font-semibold">{t('inputs')}</h4>
       {bindings.map((binding) => (
         <WorkflowInputBindingField key={binding.name} binding={binding} />
       ))}

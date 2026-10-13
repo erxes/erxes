@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { memo, useState, useMemo, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
@@ -29,6 +30,7 @@ export const JSONTreeNode = memo(function JSONTreeNode({
   additionalContent,
 }: JSONTreeNodeProps) {
   const { getValues, setValue } = useFormContext();
+  const { t: tr } = useTranslation('automations');
   const type = useMemo(() => detectJSONPropertyValueType(value), [value]);
   const [expanded, setExpanded] = useState(false);
 
@@ -62,7 +64,9 @@ export const JSONTreeNode = memo(function JSONTreeNode({
             size="icon"
             variant="ghost"
             onClick={() => setExpanded(!expanded)}
-            aria-label={expanded ? 'Collapse' : 'Expand'}
+            aria-label={
+              expanded ? tr('webhook-json-collapse') : tr('webhook-json-expand')
+            }
           >
             {expanded ? (
               <IconChevronDown className="h-3 w-3" />

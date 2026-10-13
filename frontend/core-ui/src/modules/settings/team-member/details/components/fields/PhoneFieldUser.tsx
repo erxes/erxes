@@ -2,6 +2,7 @@ import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { IUserDetailsType } from '@/settings/team-member/types';
 import { PhoneInput } from 'erxes-ui';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PhoneFieldUserProps {
   _id: string;
@@ -9,6 +10,7 @@ interface PhoneFieldUserProps {
 }
 
 export const PhoneFieldUser = ({ _id, details }: PhoneFieldUserProps) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { __typename, operatorPhone, ...rest } = details || {};
   const { usersEdit } = useUserEdit();
   const phoneInputRef = useRef<HTMLInputElement>(null);
@@ -18,7 +20,7 @@ export const PhoneFieldUser = ({ _id, details }: PhoneFieldUserProps) => {
 
   const handleSave = () => {
     if (!isPhoneValid) {
-      setErrorMessage('Please enter a valid phone number.');
+      setErrorMessage(t('invalid-phone-number'));
       return;
     }
     const normalizedPhone = editingValue.replace(/\D/g, '');

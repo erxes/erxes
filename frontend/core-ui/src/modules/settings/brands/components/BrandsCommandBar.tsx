@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 
 import {
@@ -16,6 +17,7 @@ export const BrandsCommandBar = () => {
   const { brandsRemove } = useBrandsRemove();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'brands' });
 
   const confirmOptions = { confirmationValue: 'delete' };
 
@@ -24,7 +26,7 @@ export const BrandsCommandBar = () => {
       table.getSelectedRowModel().rows?.map((row) => row.original._id) || [];
 
     confirm({
-      message: `Are you sure you want to remove the selected(${ids?.length})?`,
+      message: t('confirm-remove-selected', { total: ids?.length }),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -34,7 +36,7 @@ export const BrandsCommandBar = () => {
           },
           onError: (error) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: error.message,
               variant: 'destructive',
             });
@@ -50,14 +52,16 @@ export const BrandsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected-count', {
+            total: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Can action="brandsDelete">
           <>
             <Separator.Inline />
             <Button variant="secondary" onClick={onRemove}>
               <IconTrash />
-              Delete
+              {t('delete')}
             </Button>
           </>
         </Can>

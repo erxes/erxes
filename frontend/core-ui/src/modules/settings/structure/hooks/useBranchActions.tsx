@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationHookOptions,
   OperationVariables,
@@ -42,10 +43,14 @@ export function useBranchEdit(
 }
 
 export function useRemoveBranch() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { toast } = useToast();
   const [handleRemove, { loading, error }] = useMutation(REMOVE_BRANCHES, {
     onCompleted: () =>
-      toast({ title: 'Removed successfully!', variant: 'success' }),
+      toast({
+        title: t('removed-successfully'),
+        variant: 'success',
+      }),
     refetchQueries: ['Branches'],
   });
 
@@ -57,6 +62,7 @@ export function useRemoveBranch() {
 }
 
 export function useBranchInlineEdit() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [_branchesEdit, { loading }] = useMutation(EDIT_BRANCH);
   const { toast } = useToast();
 
@@ -83,14 +89,14 @@ export function useBranchInlineEdit() {
       onCompleted: (data) => {
         if (data?.branchesEdit) {
           toast({
-            title: 'Branch updated successfully!',
+            title: t('branch-updated-toast'),
             variant: 'success',
           });
         }
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

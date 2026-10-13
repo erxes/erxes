@@ -1,6 +1,7 @@
 import { useAutomationHistoryFilterOptions } from '@/automations/components/builder/history/hooks/useAutomationHistoryFilterOptions';
 import { IconCheck } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryActionFilterView = ({
   filterKey,
@@ -9,6 +10,7 @@ export const AutomationHistoryActionFilterView = ({
   filterKey: 'failedActionId' | 'waitingActionId';
   inDialog?: boolean;
 }) => {
+  const { t } = useTranslation('automations');
   const { queries, setQueries, actionOptions } =
     useAutomationHistoryFilterOptions();
   const selectedId = queries[filterKey];
@@ -16,7 +18,10 @@ export const AutomationHistoryActionFilterView = ({
   return (
     <Filter.View filterKey={filterKey} inDialog={inDialog}>
       <Command>
-        <Filter.CommandInput placeholder="Search action" variant="secondary" />
+        <Filter.CommandInput
+          placeholder={t('history-search-action')}
+          variant="secondary"
+        />
         <Command.List className="p-1">
           <Combobox.Empty />
           {actionOptions.map(({ id, label }) => (

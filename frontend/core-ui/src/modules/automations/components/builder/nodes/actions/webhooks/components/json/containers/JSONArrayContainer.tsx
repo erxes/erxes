@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { memo, useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IconPlus } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ export const JSONArrayContainer = memo(function JSONArrayContainer({
   value,
 }: JSONArrayContainerProps) {
   const { getValues, setValue } = useFormContext();
+  const { t } = useTranslation('automations');
 
   const apply = useCallback(
     (next: any[]) => {
@@ -52,11 +54,13 @@ export const JSONArrayContainer = memo(function JSONArrayContainer({
           />
         ))}
         {(value ?? []).length === 0 && (
-          <div className="text-xs text-muted-foreground">Empty array</div>
+          <div className="text-xs text-muted-foreground">
+            {t('webhook-json-empty-array')}
+          </div>
         )}
       </div>
       <Button variant="outline" size="sm" className="w-full" onClick={addItem}>
-        <IconPlus className="mr-1 h-3 w-3" /> Add item
+        <IconPlus className="mr-1 h-3 w-3" /> {t('webhook-json-add-item')}
       </Button>
     </div>
   );
