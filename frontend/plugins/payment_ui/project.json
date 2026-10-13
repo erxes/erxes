@@ -11,6 +11,7 @@
         "{options.outputPath}"
       ],
       "defaultConfiguration": "production",
+      "dependsOn": ["^build", "codegen"],
       "options": {
         "target": "web",
         "outputPath": "dist/frontend/plugins/payment_ui",
@@ -35,6 +36,7 @@
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
+      "dependsOn": ["codegen"],
       "options": {
         "buildTarget": "payment_ui:build:development",
         "port": 3010
@@ -59,6 +61,29 @@
         "production": {
           "serveTarget": "payment_ui:serve:production"
         }
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["payment_api"],
+          "target": "schema:print"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/payment_ui",
+        "command": "graphql-codegen --config codegen.ts"
       }
     }
   }

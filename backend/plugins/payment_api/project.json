@@ -46,7 +46,20 @@
         "command": "NODE_ENV=development pnpm dev"
       }
     },
-
+    "schema:print": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/print-schema.ts",
+        "{projectRoot}/src/**/*.ts",
+        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
+      ],
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "cwd": "backend/plugins/payment_api",
+        "command": "pnpm schema:print"
+      }
+    },
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/payment_api/Dockerfile . -t erxes/erxes-next-payment_api"
