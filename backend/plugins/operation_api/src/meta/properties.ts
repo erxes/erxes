@@ -19,7 +19,7 @@ export const properties: IPropertyMeta = {
         { code: 'labelIds', name: 'Labels', type: 'multiSelect' },
         { code: 'tagIds', name: 'Tags', type: 'multiSelect' },
         { code: 'startDate', name: 'Start date', type: 'date' },
-        { code: 'targetDate', name: 'Target date', type: 'date' },
+        { code: 'targetDate', name: 'Due date', type: 'date' },
         { code: 'description', name: 'Description', type: 'textarea' },
       ],
     },

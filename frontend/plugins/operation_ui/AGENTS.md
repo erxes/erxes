@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-06`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -19,6 +19,8 @@
 - Operation backend persistence or GraphQL resolvers, core UI primitives, shared libraries, or another plugin's source.
 
 ## Current Capabilities
+
+- Task date filters use the shared date picker for due, start, creation, update, and completion ranges. Task lists and statistics parse the same URL ranges into paired API bounds, and date-filtered lists refetch on task subscription events.
 
 - The automations widget answers built-in template prerequisites: the
   `templateRequirement` component type resolves `operation:task.status` by
@@ -85,6 +87,8 @@
 - Task and project custom values are read from and submitted as `propertiesData` through their existing Apollo detail/update flows.
 
 ## Local Invariants
+
+- Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 
 - Expandable navigation rows end in the host sidebar's chevron: `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Expandable group trigger buttons use `rounded-lg` like `Sidebar.MenuButton`.
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
