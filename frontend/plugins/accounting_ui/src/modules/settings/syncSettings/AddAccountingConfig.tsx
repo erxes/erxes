@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
@@ -11,18 +12,19 @@ export const AddAccountingConfig = ({
 }: {
   code: ACCOUNTING_SETTINGS_CODES;
 }) => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Тохиргоо нэмэх
+          {t('add-configuration')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-4xl">
         <Sheet.Header>
-          <Sheet.Title>Тохиргоо нэмэх</Sheet.Title>
+          <Sheet.Title>{t('add-configuration')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <AddAccountingConfigForm code={code} setOpen={setOpen} />
@@ -38,6 +40,7 @@ export const AddAccountingConfigForm = ({
   code: ACCOUNTING_SETTINGS_CODES;
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const rule = SettingsRuleByCode[code];
   const form = useForm<any>({ defaultValues: {} });
 
@@ -49,7 +52,7 @@ export const AddAccountingConfigForm = ({
   });
 
   if (!rule) {
-    return <div>Тохиргооны төрөл тодорхойгүй байна</div>;
+    return <div>{t('unknown-configuration-type')}</div>;
   }
 
   const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};

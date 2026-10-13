@@ -11,7 +11,7 @@ export const AdjustmentHome = () => {
 
       {adjustTypes.map((at) => (
         <Link to={`/accounting/adjustment/${at.value}`}>
-          <div>{t(at.label)}</div>
+          <div>{t(at.label, { nsSeparator: false })}</div>
         </Link>
       ))}
     </AccountingLayout>

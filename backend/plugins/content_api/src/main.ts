@@ -5,7 +5,6 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { initMQWorkers } from './worker';
 import { permissions } from './meta/permissions';
-import { startCmsDeliveryWorker } from './modules/cms/postiz/worker';
 
 startPlugin({
   name: 'content',
@@ -23,7 +22,6 @@ startPlugin({
   },
   onServerInit: async () => {
     // await initMQWorkers(redis);
-    startCmsDeliveryWorker();
   },
   meta: {
     permissions,

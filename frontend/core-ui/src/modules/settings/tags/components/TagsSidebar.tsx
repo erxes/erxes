@@ -6,12 +6,15 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
   const [type, setType] = useQueryState<string>('tagType');
 
   return (
-    <Sidebar collapsible="none" className={cn('border-r flex-none', className)}>
-      {Object.entries(types).map(([key, value]) => (
+    <Sidebar.Panel className={cn('border-r flex-none', className)}>
+      {Object.entries(types).map(([key, value], index) => (
         <Sidebar.Group key={key}>
-          <Sidebar.GroupLabel>
-            {key === 'core' ? 'Core tags' : `${key} tags`}
-          </Sidebar.GroupLabel>
+          <div className="flex items-center">
+            <Sidebar.GroupLabel className="min-w-0 flex-1">
+              {key === 'core' ? 'Core tags' : `${key} tags`}
+            </Sidebar.GroupLabel>
+            {index === 0 && <Sidebar.PanelTrigger />}
+          </div>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {key === 'core' && (
@@ -38,6 +41,6 @@ export const TagsSidebar = ({ className }: { className?: string }) => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

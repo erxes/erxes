@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
 import { Combobox, Command, Popover, TextOverflowTooltip } from 'erxes-ui';
 import { useCtaxRows } from '../hooks/useCtaxRows';
@@ -45,6 +46,7 @@ export const SelectCtaxList = ({
   selectedCtax: ICtaxRow | undefined;
   setSelectedCtax: (ctaxRow: ICtaxRow) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const [searchValue, setSearchValue] = useState('');
   const { ctaxRows, totalCount, loading, error, handleFetchMore } = useCtaxRows(
     {
@@ -57,7 +59,7 @@ export const SelectCtaxList = ({
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="НХАТ хайх"
+        placeholder={t('search-city-tax')}
         value={searchValue}
         onValueChange={(value) => setSearchValue(value)}
       />
@@ -92,6 +94,7 @@ export const SelectCtaxValue = ({
   ctaxRow?: ICtaxRow;
   onCallback?: (row: ICtaxRow) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const { ctaxRowDetail, loading } = useCtaxValue({
     variables: {
       id: ctaxRowId,
@@ -109,7 +112,9 @@ export const SelectCtaxValue = ({
   }, [lastCtaxRow, loading]);
 
   if (!lastCtaxRow?._id) {
-    return <Combobox.Value placeholder="НХАТ сонгох" loading={loading} />;
+    return (
+      <Combobox.Value placeholder={t('select-city-tax')} loading={loading} />
+    );
   }
 
   return (

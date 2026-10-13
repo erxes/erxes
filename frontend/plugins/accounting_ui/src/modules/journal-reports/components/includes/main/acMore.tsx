@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { cn, displayNum, ReportTable } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +36,7 @@ export const HandleMainACMore = ({
   currentKey: string;
   nodeExtra?: Record<string, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const frDiff = typeof nodeExtra?.fr_diff === 'number' ? nodeExtra.fr_diff : 0;
   const navigate = useNavigate();
   const rows: AccountStatementMoreRecord[] = [];
@@ -68,15 +70,19 @@ export const HandleMainACMore = ({
         <ReportTable>
           <ReportTable.Header>
             <ReportTable.Row>
-              <ReportTable.Head>Огноо</ReportTable.Head>
-              <ReportTable.Head>Дугаар</ReportTable.Head>
-              <ReportTable.Head>Харилцагч</ReportTable.Head>
-              <ReportTable.Head>Гүйлгээний утга</ReportTable.Head>
-              <ReportTable.Head>Валют дүн</ReportTable.Head>
-              <ReportTable.Head>Дебет</ReportTable.Head>
-              <ReportTable.Head>Кредит</ReportTable.Head>
-              <ReportTable.Head>Үлдэгдэл</ReportTable.Head>
-              <ReportTable.Head>Харьцсан данс</ReportTable.Head>
+              <ReportTable.Head>{t('date')}</ReportTable.Head>
+              <ReportTable.Head>{t('number')}</ReportTable.Head>
+              <ReportTable.Head>{t('contact')}</ReportTable.Head>
+              <ReportTable.Head>
+                {t('transaction-description')}
+              </ReportTable.Head>
+              <ReportTable.Head>
+                {t('foreign-currency-amount')}
+              </ReportTable.Head>
+              <ReportTable.Head>{t('debit')}</ReportTable.Head>
+              <ReportTable.Head>{t('credit')}</ReportTable.Head>
+              <ReportTable.Head>{t('remainder')}</ReportTable.Head>
+              <ReportTable.Head>{t('corresponding-account')}</ReportTable.Head>
             </ReportTable.Row>
           </ReportTable.Header>
           <ReportTable.Body>

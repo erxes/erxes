@@ -6,7 +6,10 @@ import { Toaster } from 'erxes-ui';
 
 import { AppRoutes } from './app/routes';
 import { apolloClient } from './lib/apollo-client';
+import { holdEarlyPublisherMessages } from './lib/earlyPublisherMessages';
 import './styles.css';
+
+holdEarlyPublisherMessages();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,

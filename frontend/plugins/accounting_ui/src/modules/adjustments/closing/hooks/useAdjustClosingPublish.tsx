@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_PUBLISH } from '../graphql/adjustClosingPublish';
@@ -11,6 +12,7 @@ export const useAdjustClosingPublish = (
   adjustId: string,
   options?: OperationVariables,
 ) => {
+  const { t } = useTranslation('accounting');
   const [_publishMutation, { loading }] = useMutation(
     ADJUST_CLOSING_PUBLISH,
     options,
@@ -25,7 +27,7 @@ export const useAdjustClosingPublish = (
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -33,8 +35,8 @@ export const useAdjustClosingPublish = (
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Closing adjust published successfully',
+          title: t('success'),
+          description: t('Closing adjust published successfully'),
         });
         options?.onCompleted?.(data);
       },

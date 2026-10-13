@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useMemo } from 'react';
 import { cn, RecordTable, Table } from 'erxes-ui';
 import { flexRender } from '@tanstack/react-table';
@@ -9,6 +10,7 @@ export const TBalanceTableRow = ({
   handleRowViewChange?: (id: string, inView: boolean) => void;
   Row?: React.ComponentType<React.HTMLAttributes<HTMLTableRowElement>>;
 }) => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const RowComponent = Row || RecordTable.Row;
   const rows = table.getRowModel().rows;
@@ -38,9 +40,7 @@ export const TBalanceTableRow = ({
                 row.original.ptrStatus === 'diff' && 'bg-red-50/25',
               )}
             >
-              {`
-                Ажил гүйлгээ                
-              `}
+              {t('business-transaction')}
             </Table.Cell>
           </RowComponent>
         ) : null}
