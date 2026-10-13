@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { ArticlesBulkActions } from '@/knowledgebase/articles/components/articles-command-bar/ArticlesBulkActions';
 import { useRemoveArticles } from '@/knowledgebase/articles/hooks/useArticleMutations';
 import { KbSelectionCommandBar } from '@/knowledgebase/shared/components/KbSelectionCommandBar';
 
@@ -17,6 +18,7 @@ export const ArticlesCommandBar = () => {
       removedMessage={t('kb-articles-deleted', 'Articles deleted')}
       remove={removeArticles}
       loading={loading}
+      actions={<ArticlesBulkActions />}
     />
   );
 };

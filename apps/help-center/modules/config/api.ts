@@ -7,6 +7,10 @@ import {
   setResolvedApiUrlReader,
 } from '@/modules/apollo/utils/env';
 import {
+  createSharedCache,
+  TIMED_OUT,
+} from '@/modules/apollo/utils/sharedCache';
+import {
   errorBodyMatches,
   errorMessage,
   graphqlErrorMessage,
@@ -161,7 +165,17 @@ const fetchConfig = async (
   return { state: 'error', message: mismatch };
 };
 
-const configFor = cache(fetchConfig);
+const sharedConfig = createSharedCache<PortalResult<PortalConfig>>({
+  ttlMs: 5_000,
+  staleMs: 0,
+  maxEntries: 1_000,
+  keep: (result) => result.state === 'ready' || result.state === 'unpublished',
+  timedOut: () => ({ state: 'error', message: TIMED_OUT }),
+});
+
+const configFor = cache((apiUrl: string, domain: string) =>
+  sharedConfig(`${apiUrl}|${domain}`, () => fetchConfig(apiUrl, domain)),
+);
 
 export const getPortalConfig = async (): Promise<
   PortalResult<PortalConfig>

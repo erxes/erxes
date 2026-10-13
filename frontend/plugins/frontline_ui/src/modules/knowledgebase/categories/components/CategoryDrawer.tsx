@@ -9,6 +9,7 @@ import { IconPicker } from '@/knowledgebase/shared/components/IconPicker';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
+import { SelectKbTopic } from '@/knowledgebase/shared/components/SelectKbTopic';
 import { ICategory } from '@/knowledgebase/types';
 
 const categorySchema = z.object({
@@ -16,18 +17,20 @@ const categorySchema = z.object({
   code: z.string().trim().optional(),
   description: z.string().trim().optional(),
   icon: z.string().min(1, { message: 'Icon is required' }),
+  topicId: z.string().min(1, { message: 'Knowledge base is required' }),
   parentCategoryId: z.string().optional(),
 });
 
 type TCategoryForm = z.infer<typeof categorySchema>;
 
-const EMPTY_CATEGORY: TCategoryForm = {
+const emptyCategory = (topicId: string): TCategoryForm => ({
   title: '',
   code: '',
   description: '',
   icon: 'book',
+  topicId,
   parentCategoryId: '',
-};
+});
 
 export const CategoryDrawer = ({
   category,
@@ -48,8 +51,10 @@ export const CategoryDrawer = ({
 
   const form = useForm<TCategoryForm>({
     resolver: zodResolver(categorySchema),
-    defaultValues: EMPTY_CATEGORY,
+    defaultValues: emptyCategory(topicId),
   });
+
+  const selectedTopicId = form.watch('topicId');
 
   useEffect(() => {
     form.reset(
@@ -58,19 +63,19 @@ export const CategoryDrawer = ({
             title: category.title || '',
             code: category.code || '',
             description: category.description || '',
-            icon: category.icon || EMPTY_CATEGORY.icon,
+            icon: category.icon || emptyCategory(topicId).icon,
+            topicId,
             parentCategoryId: category.parentCategoryId || '',
           }
-        : EMPTY_CATEGORY,
+        : emptyCategory(topicId),
     );
-  }, [category, form]);
+  }, [category, topicId, form]);
 
   const submit = form.handleSubmit(async (values) => {
     const saved = await saveCategory(
       {
         ...values,
-        topicId,
-        parentCategoryId: values.parentCategoryId || undefined,
+        parentCategoryId: values.parentCategoryId || '',
       },
       category?._id,
     );
@@ -79,7 +84,7 @@ export const CategoryDrawer = ({
 
     onSaved?.();
     onClose();
-    form.reset(EMPTY_CATEGORY);
+    form.reset(emptyCategory(topicId));
   });
 
   return (
@@ -153,6 +158,39 @@ export const CategoryDrawer = ({
 
               <Form.Field
                 control={form.control}
+                name="topicId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('knowledge-base', 'Knowledge Base')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Form.Control>
+                      <SelectKbTopic
+                        value={field.value}
+                        onValueChange={(nextTopicId) => {
+                          if (nextTopicId === field.value) return;
+
+                          field.onChange(nextTopicId);
+                          form.setValue('parentCategoryId', '');
+                        }}
+                      />
+                    </Form.Control>
+                    {isEditing && field.value !== topicId && (
+                      <Form.Description>
+                        {t(
+                          'kb-move-category-help',
+                          'Its subcategories and articles move with it.',
+                        )}
+                      </Form.Description>
+                    )}
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
                 name="parentCategoryId"
                 render={({ field }) => (
                   <Form.Item>
@@ -161,7 +199,7 @@ export const CategoryDrawer = ({
                     </Form.Label>
                     <Form.Control>
                       <SelectKbCategory
-                        topicId={topicId}
+                        topicId={selectedTopicId}
                         value={field.value}
                         excludeId={category?._id}
                         allowEmpty

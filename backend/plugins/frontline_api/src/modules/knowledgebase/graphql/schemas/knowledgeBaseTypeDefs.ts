@@ -157,7 +157,7 @@ export const queries = `
     knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int, status: String): [KnowledgeBaseArticle]
     knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
-    knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String): Int
+    knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String, searchValue: String): Int
 
     cpKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   `;
