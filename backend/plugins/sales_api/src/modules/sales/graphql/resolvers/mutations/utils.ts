@@ -31,6 +31,7 @@ import {
   syncDealPoints,
 } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
+import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
 
 export const addDeal = async ({
   models,
@@ -44,6 +45,12 @@ export const addDeal = async ({
   user: IUserDocument;
 }) => {
   doc.initialStageId = doc.stageId;
+  if (doc.productsData) {
+    doc.productsData = await normalizeProductCurrencies(
+      subdomain,
+      doc.productsData,
+    );
+  }
   doc.watchedUserIds = user && [user._id];
 
   const extendedDoc = {
@@ -168,6 +175,10 @@ export const editDeal = async ({
   }
 
   if (doc.productsData) {
+    doc.productsData = await normalizeProductCurrencies(
+      subdomain,
+      doc.productsData,
+    );
     const { assignedUserIds } = checkAssignedUserFromPData(
       oldDeal.assignedUserIds,
       doc.productsData
@@ -437,11 +448,13 @@ export const changeDeal = async (
 
 export const createProductsData = async ({
   models,
+  subdomain,
   processId,
   dealId,
   docs,
 }: {
   models: IModels;
+  subdomain: string;
   processId: string;
   dealId: string;
   docs: IProductData[];
@@ -480,8 +493,9 @@ export const createProductsData = async ({
   const addDocs = normalizeProductDiscountInfos(
     (docs || []).map((doc) => ({ ...doc, tickUsed })),
   );
-  const productsData: IProductData[] = (deal.productsData || []).concat(
-    addDocs,
+  const productsData = await normalizeProductCurrencies(
+    subdomain,
+    (deal.productsData || []).concat(addDocs),
   );
 
   const updatedItem = await models.Deals.findOneAndUpdate(

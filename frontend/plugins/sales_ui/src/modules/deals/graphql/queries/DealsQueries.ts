@@ -271,6 +271,8 @@ export const GET_DEAL_DETAIL = gql`
         code
         type
         unitPrice
+        uom
+        subUoms
         category {
           _id
           name

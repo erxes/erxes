@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -32,6 +32,9 @@
 
 ## Current Capabilities
 
+- Deal creation, saving, and product-row creation/editing fill missing or blank
+  currencies from the tenant's first Core `dealCurrency` configuration value
+  (fallback `MNT`) before calculating totals, preserving explicit currencies.
 - POS catalog sync checks loyalty base pricing in batches of 100 products,
   with at most eight concurrent requests, and merges discounts by product id
   before applying them to prices. Product-group pushes propagate POS client
@@ -228,6 +231,8 @@
 
 ## Local Invariants
 
+- Default missing product-row currencies before calculating deal totals; read
+  Core `configs.getConfig` with the current tenant's `subdomain`.
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.

@@ -10,6 +10,7 @@ import {
 } from '~/modules/sales/utils';
 import { withoutPointPayments } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
+import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -286,11 +287,11 @@ export const dealMutations: Record<string, Resolver> = {
       dealId,
       docs,
     }: { processId: string; dealId: string; docs: IProductData[] },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
-    return createProductsData({ models, processId, dealId, docs });
+    return createProductsData({ models, subdomain, processId, dealId, docs });
   },
 
   async dealsEditProductData(
@@ -306,7 +307,7 @@ export const dealMutations: Record<string, Resolver> = {
       dataId: string;
       doc: IProductData;
     },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
     await checkPermission('dealsProductsEdit');
@@ -324,9 +325,12 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = normalizeProductDiscountInfos(
-      (deal.productsData || []).map((data) =>
-        data._id === dataId ? { ...doc } : data,
+    const productsData = await normalizeProductCurrencies(
+      subdomain,
+      normalizeProductDiscountInfos(
+        (deal.productsData || []).map((data) =>
+          data._id === dataId ? { ...doc } : data,
+        ),
       ),
     );
 
@@ -390,9 +394,9 @@ export const dealMutations: Record<string, Resolver> = {
       dealId,
       docs,
     }: { processId: string; dealId: string; docs: IProductData[] },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    return createProductsData({ models, processId, dealId, docs });
+    return createProductsData({ models, subdomain, processId, dealId, docs });
   },
 
   async cpDealsEditProductData(
@@ -408,7 +412,7 @@ export const dealMutations: Record<string, Resolver> = {
       dataId: string;
       doc: IProductData;
     },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const deal = await models.Deals.getDeal(dealId);
 
@@ -424,9 +428,12 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = normalizeProductDiscountInfos(
-      (deal.productsData || []).map((data) =>
-        data._id === dataId ? { ...doc } : data,
+    const productsData = await normalizeProductCurrencies(
+      subdomain,
+      normalizeProductDiscountInfos(
+        (deal.productsData || []).map((data) =>
+          data._id === dataId ? { ...doc } : data,
+        ),
       ),
     );
 

@@ -9,6 +9,7 @@ import {
   ProductDataWithDiscountInfos,
   applyFooterDiscountPercent,
 } from '../utils/discountInfos';
+import { getProductDefaultUom } from '../utils/productUom';
 
 interface UseDealProductActionsParams {
   tickUsed: boolean;
@@ -110,6 +111,7 @@ export const useDealProductActions = ({
           product,
           quantity: 1,
           productId: product._id,
+          uom: getProductDefaultUom(product),
           unitPrice: product.unitPrice,
           globalUnitPrice: product.unitPrice,
           unitPricePercent: 100,

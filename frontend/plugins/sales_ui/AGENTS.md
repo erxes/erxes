@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-12`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -104,6 +104,14 @@
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
   tables.
+- Deal product rows default their UOM to the selected product's base UOM when
+  adding or replacing a product. The row UOM selector includes the saved row
+  UOM, even when absent from the product's base UOM and `subUoms[].uom`.
+  Deal detail fetches product `uom` and `subUoms` so these choices remain
+  available after reload without opening the product chooser.
+  Empty row UOMs use the product's base UOM in the table and save payload.
+  Empty row currencies use the first configured `dealCurrency` (or `MNT`
+  without a configured currency) in local state, table totals, and save payloads.
 - Deal product bulk add passes the deal pipeline id into the shared product
   chooser so enabled plugin remainder providers can resolve pipeline-scoped
   stock without sales importing those plugins.
@@ -227,6 +235,11 @@
   properties are not offered.
 - Deal product create, update, and delete flows must keep the table responsive
   without requiring a manual refresh.
+- Deal product UOM choices include the base `product.uom`,
+  `product.subUoms[].uom`, and the current row UOM. Preserve the saved row
+  UOM as the selected value even when it is no longer a product UOM.
+  Only empty or whitespace-only row UOMs fall back to the product's base UOM;
+  saving deal products must persist that fallback.
 - Deal product selectors may pass sales context such as `pipelineId` into
   shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline
@@ -257,6 +270,9 @@
 ## Validation
 
 - `pnpm nx build sales_ui`
+- Deal UOM smoke scenario: save a row UOM absent from its product's UOMs,
+  reload the deal, and verify it remains selected alongside the product's
+  base UOM and sub-UOM choices without opening the product chooser.
 - Deal product smoke scenario: open a deal's Products tab, toggle expanded view,
   filter products, edit a row, add products, save, close the expanded view, and
   verify the inline table shows the same state.

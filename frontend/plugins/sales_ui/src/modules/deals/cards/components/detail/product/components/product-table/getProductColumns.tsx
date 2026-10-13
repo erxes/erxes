@@ -9,14 +9,10 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
+  Select,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import {
-  IProductData,
-  SelectBranches,
-  SelectDepartments,
-  SelectUOM,
-} from 'ui-modules';
+import { IProductData, SelectBranches, SelectDepartments } from 'ui-modules';
 import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
 
@@ -26,6 +22,7 @@ import clsx from 'clsx';
 import { useUpdateProductRecord } from '../../hooks/useProductRecord';
 import { calculateProductValues } from '../../hooks/useProductCalculations';
 import { applyRowDiscount, productBaseAmount } from '../../utils/discountInfos';
+import { getProductUomCodes } from '../../utils/productUom';
 
 export const ProductNumberField = ({
   value,
@@ -274,17 +271,37 @@ export const ProductUOMField = ({
   field,
   product,
 }: {
-  value: string;
+  value?: string;
   field: string;
   product: IProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
+  const uomCodes = getProductUomCodes(product.product, value);
+  const selectedValue = value || '';
 
   return (
-    <SelectUOM
-      value={value}
+    <Select
+      value={selectedValue}
       onValueChange={(value) => updateRecord(product, { [field]: value })}
-    />
+      disabled={uomCodes.length === 0}
+    >
+      <Select.Trigger>
+        <Select.Value placeholder="Choose UOM" />
+      </Select.Trigger>
+      <Select.Content>
+        {uomCodes.length ? (
+          uomCodes.map((uom) => (
+            <Select.Item key={uom} value={uom}>
+              {uom}
+            </Select.Item>
+          ))
+        ) : (
+          <div className="flex flex-col gap-2 justify-center items-center py-8 text-sm text-center text-muted-foreground">
+            No UOMs available
+          </div>
+        )}
+      </Select.Content>
+    </Select>
   );
 };
 
