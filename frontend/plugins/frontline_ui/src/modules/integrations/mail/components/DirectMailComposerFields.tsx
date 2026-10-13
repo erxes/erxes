@@ -3,7 +3,6 @@ import {
   IconMinus,
   IconArrowsMaximize,
   IconArrowsMinimize,
-  IconTypography,
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
@@ -27,10 +26,7 @@ import type {
 } from '@/integrations/mail/types/directMailComposer';
 import { RecipientRow } from './DirectMailRecipientField';
 import { splitAddresses } from '@/integrations/mail/utils/directMailComposer';
-import {
-  DirectMailFormatting,
-  DirectMailInsertTools,
-} from './DirectMailToolbar';
+import { DirectMailInsertTools } from './DirectMailToolbar';
 
 export const ComposerHeader = ({
   onClose,
@@ -332,7 +328,18 @@ export const BodyField = ({
         name="body"
         control={control}
         render={({ field }) => (
-          <fieldset aria-label="Email message" className="min-w-0">
+          <fieldset
+            aria-label="Email message"
+            data-mail-editor
+            className="min-w-0"
+            onMouseDownCapture={(event) => {
+              if (
+                event.target instanceof Element &&
+                event.target.closest('.bn-formatting-toolbar button')
+              )
+                event.preventDefault();
+            }}
+          >
             <BlockEditor
               editor={editor}
               disabled={disabled}
@@ -345,7 +352,6 @@ export const BodyField = ({
                 goBackToPreviousHotkeyScope();
               }}
               sideMenu={false}
-              formattingToolbar={false}
               slashMenuOnTop
               className="min-h-full w-full [&_.bn-editor]:min-h-52 [&_.bn-editor]:bg-background [&_.bn-editor]:px-0 [&_.bn-editor]:text-sm [&_.bn-editor]:text-foreground"
             />
@@ -386,8 +392,6 @@ export const ComposerFooter = ({
   loading,
   retry = false,
   editor,
-  showFormatting,
-  onToggleFormatting,
   onDiscard,
   onUploadingChange,
   onAttachment,
@@ -397,8 +401,6 @@ export const ComposerFooter = ({
   loading: boolean;
   retry?: boolean;
   editor: ReturnType<typeof useBlockEditor>;
-  showFormatting: boolean;
-  onToggleFormatting: () => void;
   onDiscard: () => void;
   onUploadingChange: (uploading: boolean) => void;
   onAttachment: (attachment: MailAttachmentInput) => void;
@@ -407,26 +409,10 @@ export const ComposerFooter = ({
   const { t } = useTranslation('frontline');
   return (
     <footer className="flex flex-none flex-col gap-3 bg-background px-4 pb-3 pt-2 text-foreground">
-      {showFormatting && (
-        <DirectMailFormatting editor={editor} disabled={editingDisabled} />
-      )}
       <div className="flex items-center gap-1">
         <Button type="submit" disabled={disabled} className="mr-2">
           {loading && <Spinner size="sm" />}
           {t(retry ? 'email-delivery-retry' : 'send', retry ? 'Retry' : 'Send')}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-8 aria-pressed:bg-accent"
-          title="Formatting options"
-          aria-label="Formatting options"
-          aria-pressed={showFormatting}
-          onClick={onToggleFormatting}
-          disabled={editingDisabled}
-        >
-          <IconTypography className="size-4" />
         </Button>
         <DirectMailInsertTools
           editor={editor}

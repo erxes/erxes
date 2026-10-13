@@ -74,7 +74,6 @@ export const DirectMailComposer = () => {
   const { canComposeEmail } = useComposeEmail();
   const [minimized, setMinimized] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [showFormatting, setShowFormatting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
@@ -162,7 +161,6 @@ export const DirectMailComposer = () => {
       }
       setMinimized(false);
       setExpanded(false);
-      setShowFormatting(false);
       setAttachments([]);
       setTarget(detail);
       setRecipientCustomerId(detail.customerId);
@@ -218,6 +216,53 @@ export const DirectMailComposer = () => {
     setTarget(null);
     setFailedDelivery(() => undefined);
     reset();
+  };
+
+  const handleBodyChange = () => {
+    const fileBlocks: typeof editor.document = [];
+    const collectFiles = (blocks: typeof editor.document) => {
+      for (const block of blocks) {
+        if (block.type === 'file' && block.props.url) fileBlocks.push(block);
+        collectFiles(block.children);
+      }
+    };
+    collectFiles(editor.document);
+    if (fileBlocks.length) {
+      // Let the file panel finish updating both the URL and filename first.
+      queueMicrotask(() => {
+        const completedBlocks: typeof editor.document = [];
+        const uploadedAttachments: ComposerAttachment[] = [];
+        for (const { id } of fileBlocks) {
+          const block = editor.getBlock(id);
+          if (block?.type !== 'file' || !block.props.url) continue;
+          completedBlocks.push(block);
+          uploadedAttachments.push({
+            id: block.id,
+            name: block.props.name || 'Attachment',
+            url: block.props.url,
+            disposition: 'attachment',
+          });
+        }
+        if (!completedBlocks.length) return;
+        editor.filePanel?.closeMenu();
+        setAttachments((current) => [
+          ...current,
+          ...uploadedAttachments.filter(
+            ({ url }) => !current.some((attachment) => attachment.url === url),
+          ),
+        ]);
+        editor.removeBlocks(completedBlocks);
+        editor.focus();
+      });
+    }
+    setValue(
+      'body',
+      serializeNoteBlocks(trimEmptyBlocks(editor.document as Block[])),
+      {
+        shouldDirty: true,
+        shouldValidate: form.formState.isSubmitted,
+      },
+    );
   };
 
   const submit = async (values: ComposeValues) => {
@@ -299,22 +344,19 @@ export const DirectMailComposer = () => {
               'flex min-h-0 flex-1 flex-col',
               minimized && 'hidden',
             )}
-            onSubmit={handleSubmit(submit)}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (
+                event.nativeEvent instanceof SubmitEvent &&
+                event.nativeEvent.submitter?.closest('[data-mail-editor]')
+              )
+                return;
+              void handleSubmit(submit)(event);
+            }}
           >
             <ComposerFields
               editor={editor}
-              onBodyChange={() =>
-                setValue(
-                  'body',
-                  serializeNoteBlocks(
-                    trimEmptyBlocks(editor.document as Block[]),
-                  ),
-                  {
-                    shouldDirty: true,
-                    shouldValidate: form.formState.isSubmitted,
-                  },
-                )
-              }
+              onBodyChange={handleBodyChange}
               disabled={sending || Boolean(failedDelivery)}
               sendersLoading={sendersLoading}
               selectedSender={selectedSender}
@@ -342,8 +384,6 @@ export const DirectMailComposer = () => {
               loading={sending}
               retry={Boolean(failedDelivery)}
               editor={editor}
-              showFormatting={showFormatting}
-              onToggleFormatting={() => setShowFormatting((value) => !value)}
               onDiscard={close}
               onUploadingChange={setUploading}
               onAttachment={(attachment) =>
