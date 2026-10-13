@@ -57,10 +57,6 @@ export const ConversationConvert = () => {
       convert: t('convert-to-a-deal', 'Convert to a deal'),
       goTo: t('go-to-a-deal', 'Go to a deal'),
     },
-    task: {
-      convert: t('convert-to-a-task', 'Convert to a task'),
-      goTo: t('go-to-a-task', 'Go to a task'),
-    },
   };
 
   const handleOpenChange = (open: boolean) => {

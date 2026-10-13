@@ -370,9 +370,11 @@
 - The conversation header carries a **Convert** menu. Each entry opens
   `ConvertDialog`, a centred dialog laid out like the 1.x convert modal: the
   target fields (ticket: channel → pipeline → status; deal: board → pipeline →
-  stage; task: team → status), then name, assigned to, branch and department
-  (not for a task; single for a ticket, multiple for a deal), attachments (not
-  for a task), description and the Settings → Properties fields. Saving calls
+  stage), then name, assigned to, branch and department (single for a ticket,
+  multiple for a deal), attachments, description and the Settings → Properties
+  fields. A conversation converts to a ticket or a deal only; there is no task
+  target, because operation's own `tasks` relation widget in the conversation
+  sidebar creates and lists related tasks. Saving calls
   `conversationConvertToCard`; once a kind exists the entry becomes
   `Go to a …` and navigates to the item's URL.
 - Inbox navigation splits into **Me** — the integration types in use by the
@@ -893,10 +895,6 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `useChartPagination`.
 - `frontline_api` GraphQL `conversationConvertToCard` and
   `conversationConvertedItems` — the conversation Convert menu.
-- `operation_api` GraphQL `getTeams(userId)` and
-  `getStatusesChoicesByTeam(teamId)` under the operation names
-  `FrontlineConvertTaskTeams` / `FrontlineConvertTaskStatuses` — the task
-  convert dialog's team and status pickers.
 - `ui-modules` `SelectBoard`, `SelectPipeline`, `SelectStage`, `SelectMember`,
   `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
   the Convert menu's visibility; `useFields`, `PropertyFormField` and
@@ -913,9 +911,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   target, consumed only at codegen time.
 - Core types and fields this plugin selects, declared for codegen only in
   `schema/platform.graphql`.
-- Optional plugin queries `getTeams`, `getStatusesChoicesByTeam` (operation)
-  and `contentCMSList` (content), declared for codegen only in
-  `codegen/external-plugins.graphql`.
+- Optional plugin query `contentCMSList` (content), declared for codegen only
+  in `codegen/external-plugins.graphql`. No frontline document reads the
+  operation schema.
 
 ## Data and State
 
@@ -1131,10 +1129,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `Initial step` when it has no steps, and places a field without
   `pageNumber` on page 1 — never dereference `payload.leadData` directly.
 - The Convert menu shows the deal entry only when the `sales` plugin config is
-  loaded and the task entry only when `operation` is, and each entry only with
-  its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
-  `conversationConvertToCard`. The task fields query operation's GraphQL, so
-  they must never render without that plugin.
+  loaded, and each entry only with its create action (`createTicket`,
+  `dealsAdd`) on top of `conversationConvertToCard`.
 - The convert dialog keeps its own open state and never touches
   `ticketCreateSheetState` / `ticketCreateDefaultValuesState`, which the ticket
   relation widget in the same sidebar drives. Its ticket pickers reuse
@@ -1142,7 +1138,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   status pickers watch `channelId` / `pipelineId` on whatever form they are
   given, so a form using them must name those fields exactly that.
 - Convert-time properties come only from Settings → Properties, the same way
-  for every kind: `frontline:ticket`, `sales:deal` or `operation:task` fields
+  for every kind: `frontline:ticket` or `sales:deal` fields
   whose `Visible to create` (`isVisibleToCreate`) is on and whose display logic
   passes, rendered per field group under a `Properties` heading at the bottom
   of the dialog. Ticket pipeline property selection does not filter them.
@@ -2283,9 +2279,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
   explicitly (mark as read, edit custom fields).
 - The customer progress hooks have no live subscription: `conversationChanged`
   needs a conversation `_id`, and the progress queries are per customer.
-- `FrontlineConvertTaskStatuses` / `FrontlineConvertTaskTeams` and
-  `useConvertTaskTargets` stay untyped until the operation status choice fix
-  lands; the plugin mirror still declares `getStatusesChoicesByTeam: JSON`.
 - Discord hooks in `useDiscordSetup` infer from the `gql()` documents and drop
   null list items with `compactList`. `DiscordConversationChannel` is the
   `discordConversationChannels` row; consumers default its nullable
@@ -2482,7 +2475,7 @@ null }`, fall back to the route pipeline and skip without one; never pass
   selects, update the snapshot from that source; codegen fails on a field the
   snapshot lacks.
 - `codegen/external-plugins.graphql` mirrors only the optional-plugin
-  operations and fields this plugin selects, copied from operation_api and
+  operations and fields this plugin selects, copied from
   content_api SDL; extend it by hand when a document selects more of them.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names. `refetchQueries` strings name

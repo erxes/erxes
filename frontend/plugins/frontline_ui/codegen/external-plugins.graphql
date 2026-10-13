@@ -1,21 +1,5 @@
 extend type Query {
-  getTeams(
-    name: String
-    userId: String
-    teamIds: [String]
-    projectId: String
-    isTriageEnabled: Boolean
-    teamId: String
-    orderBy: JSON
-  ): [Team]
-  getStatusesChoicesByTeam(teamId: String!): JSON
   contentCMSList: [ContentCMS]
-}
-
-type Team {
-  _id: String
-  icon: String
-  name: String
 }
 
 type ContentCMS {

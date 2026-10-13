@@ -429,10 +429,11 @@
   SES or SendGrid path: mail enters and leaves through Cloudflare only.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
-- Converts an inbox conversation into a ticket (created here), a deal (created
-  by `sales` over tRPC) or a task (created by `operation` over tRPC), relates the
-  new item to the conversation and its customer, and refuses a second item of
-  the same kind for one conversation.
+- Converts an inbox conversation into a ticket (created here) or a deal
+  (created by `sales` over tRPC), relates the new item to the conversation and
+  its customer, and refuses a second item of the same kind for one
+  conversation. There is no task target; `conversationConvertToCard` rejects
+  `type: "task"` as an unsupported convert type.
 - Read-only inbox, integration, and form-submission tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains

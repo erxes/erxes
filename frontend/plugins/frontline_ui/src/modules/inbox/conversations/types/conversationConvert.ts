@@ -5,7 +5,7 @@ export interface IConversationConvertAttachment {
   type: string;
 }
 
-export type ConversationConvertType = 'ticket' | 'deal' | 'task';
+export type ConversationConvertType = 'ticket' | 'deal';
 
 export interface IConversationConvertVariables {
   _id: string;
@@ -22,17 +22,4 @@ export interface IConversationConvertVariables {
   tagIds?: string[];
   startDate?: Date;
   closeDate?: Date;
-}
-
-export interface IConvertTaskTeam {
-  _id: string;
-  name: string;
-  icon?: string;
-}
-
-export interface IConvertTaskStatus {
-  label: string;
-  value: string;
-  color?: string;
-  type?: number;
 }
