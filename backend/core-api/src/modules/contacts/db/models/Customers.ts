@@ -285,6 +285,7 @@ export const loadCustomerClass = (
 
       if (
         doc.primaryEmail !== undefined &&
+        doc.emailValidationStatus === undefined &&
         (doc.primaryEmail ?? '').trim().toLowerCase() !==
           (oldCustomer.primaryEmail ?? '').trim().toLowerCase()
       ) {
