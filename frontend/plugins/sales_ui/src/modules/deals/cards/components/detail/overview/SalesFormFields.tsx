@@ -1,6 +1,3 @@
-import { useRef, useCallback } from 'react';
-import { Editor, Separator } from 'erxes-ui';
-import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import {
   DealAssigneeChip,
   DealBranchesChip,
@@ -10,20 +7,24 @@ import {
   DealDepartmentsChip,
   DealTagsChip,
 } from '@/deals/components/deal-selects/DealDetailChips';
-import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
-import { IDeal } from '@/deals/types/deals';
-import { useDealsContext } from '@/deals/context/DealContext';
-import { useTranslation } from 'react-i18next';
-import { AttachmentUploader } from './attachments/AttachmentUploader';
-import { Attachments } from './attachments/Attachments';
-import { ChecklistOverview } from './checklist/ChecklistOverview';
+import { Editor, Separator } from 'erxes-ui';
 import {
   areIdListsEqual,
   rejectOnMutationError,
   useOptimisticField,
 } from '@/deals/components/deal-selects/hooks/useOptimisticField';
+import { useCallback, useRef } from 'react';
+
+import { AttachmentUploader } from './attachments/AttachmentUploader';
+import { Attachments } from './attachments/Attachments';
+import { ChecklistOverview } from './checklist/ChecklistOverview';
+import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { IDeal } from '@/deals/types/deals';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { useDealsContext } from '@/deals/context/DealContext';
+import { useTranslation } from 'react-i18next';
 
 const ARRAY_KEYS = new Set([
   'assignedUserIds',
@@ -164,13 +165,13 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             }
             placeholder={t('assigned-to')}
           />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <SelectDealPriority
             dealId={_id}
             value={priority || ''}
             variant="detail"
           />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
           {optimisticBroker.value.type === 'customer' && (
             <DealCustomerChip
               value={optimisticBroker.value.id}

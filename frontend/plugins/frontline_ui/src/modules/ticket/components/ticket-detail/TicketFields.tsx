@@ -1,24 +1,3 @@
-import { ActivityList } from '@/activity/components/ActivityList';
-import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
-import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
-import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
-import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
-import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
-import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
-import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
-import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ITicket } from '@/ticket/types';
-import { IAttachment } from '@/ticket/types/attachments';
-import { Block } from '@blocknote/core';
-import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
@@ -30,11 +9,33 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useDebounce } from 'use-debounce';
+
+import { ActivityList } from '@/activity/components/ActivityList';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
 import AttachmentUploader from '../attachments/AttachmentUploader';
+import { Block } from '@blocknote/core';
+import { IAttachment } from '@/ticket/types/attachments';
+import { ITicket } from '@/ticket/types';
+import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
+import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
+import { useDebounce } from 'use-debounce';
+import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
+import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
+import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
+import { useTranslation } from 'react-i18next';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const { t } = useTranslation('frontline');
@@ -289,7 +290,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           <Tooltip>
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <SelectChannel value={channelId} variant="detail" disabled />
+              <SelectChannel value={channelId} variant="detail" />
             </div>
             <Tooltip.Content>
               {t('channel-cannot-be-changed', 'Channel cannot be changed')}
@@ -302,7 +303,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                 value={pipelineId}
                 variant="detail"
                 channelId={channelId}
-                disabled
               />
             </div>
             <Tooltip.Content>
@@ -312,11 +312,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           <Tooltip>
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <SelectBranchTicket
-                value={branchId || ''}
-                variant="detail"
-                disabled
-              />
+              <SelectBranchTicket value={branchId || ''} variant="detail" />
             </div>
             <Tooltip.Content>
               {t('branch-cannot-be-changed', 'Branch cannot be changed')}
@@ -328,7 +324,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               <SelectDepartmentTicket
                 value={departmentId || ''}
                 variant="detail"
-                disabled
               />
             </div>
             <Tooltip.Content>
