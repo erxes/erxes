@@ -16,7 +16,6 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
@@ -30,6 +29,7 @@ import {
   kbDateColumn,
   KbTextCell,
 } from '@/knowledgebase/shared/components/kbColumns';
+import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText';
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
 import { IArticle, KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
@@ -221,7 +221,7 @@ const createArticlesColumns = (
     icon: IconUser,
     render: (cell) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip
+        <KbOverflowText
           value={
             cell.row.original.createdUser?.details?.fullName ||
             cell.row.original.createdUser?.email ||
