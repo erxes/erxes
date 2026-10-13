@@ -30,7 +30,7 @@ export const initMQWorkers = async (redis: TRedisConnection) => {
     await schedulerQueue.upsertJobScheduler(
       'posclient-hourly-sync-remainder',
       {
-        pattern: '* * * * *',
+        pattern: '0 * * * *',
         tz: 'UTC',
       },
       {
