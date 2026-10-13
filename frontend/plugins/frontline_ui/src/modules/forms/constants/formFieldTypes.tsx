@@ -1,6 +1,5 @@
 import {
   IconAt,
-  IconBriefcase,
   IconBuilding,
   IconCalendarEvent,
   IconCheck,
@@ -18,7 +17,6 @@ import {
   IconWorld,
   IconWorldWww,
 } from '@tabler/icons-react';
-import { DEFAULT_COMPANY_INDUSTRY_TYPES } from 'ui-modules/modules/contacts/constants/companyConstants';
 
 export const COUNTRIES = [
   'Afghanistan',
@@ -290,13 +288,6 @@ export const FORM_FIELD_TYPES = [
     value: 'core:company:website',
     label: 'Website',
     icon: <IconWorldWww />,
-  },
-  {
-    value: 'core:company:industry',
-    label: 'Industry',
-    icon: <IconBriefcase />,
-    defaultOptions: DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean),
-    defaultAllowSearch: true,
   },
   {
     value: 'core:company:size',

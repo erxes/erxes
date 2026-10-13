@@ -360,8 +360,7 @@ export const FormFieldDetail = ({
             )}
 
             {(draft?.type === 'select' ||
-              draft?.type === 'select:countries' ||
-              draft?.type === 'core:company:industry') && (
+              draft?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
                   {t('allow-search', 'Allow search')}
@@ -394,7 +393,6 @@ export const FormFieldDetail = ({
             )}
             {(draft?.type === 'select' ||
               draft?.type === 'select:countries' ||
-              draft?.type === 'core:company:industry' ||
               draft?.type === 'radio' ||
               draft?.type === 'check' ||
               draft?.type === 'core:customer:sex') && (

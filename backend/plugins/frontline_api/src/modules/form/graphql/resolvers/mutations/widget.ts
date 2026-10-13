@@ -57,7 +57,6 @@ type CompanyFormDoc = Pick<
 > & {
   email?: string;
   phone?: string;
-  industry?: string[];
 };
 
 function getFileUrl(value: unknown): string | undefined {
@@ -103,9 +102,6 @@ function handleCoreCompanyField(
       break;
     case 'website':
       companyDoc.website = text;
-      break;
-    case 'industry':
-      companyDoc.industry = [text];
       break;
     case 'size': {
       const size = Number(text);

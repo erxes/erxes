@@ -346,10 +346,7 @@ export const FormPreviewContent = ({
                           );
                         }
 
-                        if (
-                          erxesField.type === 'select' ||
-                          erxesField.type === 'core:company:industry'
-                        ) {
+                        if (erxesField.type === 'select') {
                           if (erxesField.allowSearch) {
                             return (
                               <ErxesFormComboboxField
