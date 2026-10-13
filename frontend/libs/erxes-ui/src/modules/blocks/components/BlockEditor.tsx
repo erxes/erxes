@@ -1,7 +1,7 @@
-import { createReactInlineContentSpec } from '@blocknote/react';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { getSlashMenuItems } from '../utils/getSlashMenuItems';
 import {
+  createReactInlineContentSpec,
   SuggestionMenuController,
   TableHandlesController,
 } from '@blocknote/react';
