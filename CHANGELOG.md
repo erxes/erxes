@@ -1,5 +1,48 @@
 # Changelog
 
+## [3.2.22](https://github.com/erxes/erxes/compare/3.2.21...3.2.22) (2026-10-13)
+
+
+### Bug Fixes
+
+* **operation:** add showInactive prop to display inactive members in various components ([#9683](https://github.com/erxes/erxes/issues/9683)) ([c5dd16f](https://github.com/erxes/erxes/commit/c5dd16f281f4d48bbb54861329e984930aabcd6c))
+* **operation:** add teamId parameter to fetch triages based on selected team ([#9680](https://github.com/erxes/erxes/issues/9680)) ([5a238e4](https://github.com/erxes/erxes/commit/5a238e4c7f910516275971290f0a873362a40101))
+* **operation:** rename targetDate to dueDate across the application ([#9581](https://github.com/erxes/erxes/issues/9581)) ([72d21c8](https://github.com/erxes/erxes/commit/72d21c8a07d997bfa5e209260472457cc4127fc4))
+* **saas:** don't add Company Brain to v2 workspaces that don't have it ([#9744](https://github.com/erxes/erxes/issues/9744)) ([35e2790](https://github.com/erxes/erxes/commit/35e2790065f024634829105ecf3c73501cc320f8))
+
+
+### Features
+
+* **automations:** conditional field values, AI agent setup steps, runtime loyalty detection ([#9746](https://github.com/erxes/erxes/issues/9746)) ([7553f30](https://github.com/erxes/erxes/commit/7553f3060a3f61bd5ae731db0487232f7badd641))
+
+## [3.2.21](https://github.com/erxes/erxes/compare/3.2.20...3.2.21) (2026-10-13)
+
+
+### Bug Fixes
+
+* **accounting:** graphql schema and some improvement ([#9631](https://github.com/erxes/erxes/issues/9631)) ([88d33cd](https://github.com/erxes/erxes/commit/88d33cde9f7b3138b0ce9b4b8c2701b16486e7a6))
+* **content:** keep each language's data when switching post editor language ([#9736](https://github.com/erxes/erxes/issues/9736)) ([0e33645](https://github.com/erxes/erxes/commit/0e336457413c8d7ab6745dceae1fb539efb5b89b))
+* **content:** run Postiz deliveries on demand instead of a 15s tenant sweep ([#9679](https://github.com/erxes/erxes/issues/9679)) ([48cd27e](https://github.com/erxes/erxes/commit/48cd27e499a2795f4c2d093e536a21ce460e384e))
+* **frontline:** knowledge base widget and help center improvement ([#9622](https://github.com/erxes/erxes/issues/9622)) ([165b6bd](https://github.com/erxes/erxes/commit/165b6bdeee9d9d4db949129c18766d874aa603bd))
+* **sales:** update checklist item on deal detail ([#9657](https://github.com/erxes/erxes/issues/9657)) ([424e06d](https://github.com/erxes/erxes/commit/424e06db7a22aa5be844e727d3547c8ac7a474ab))
+
+
+### Features
+
+* **frontline:** update knowledgebase ([#9685](https://github.com/erxes/erxes/issues/9685)) ([03c9396](https://github.com/erxes/erxes/commit/03c9396b8337b79528ef7838dff3f985a9ec4aab))
+* **payment:** corporate golomtbank method ([#8874](https://github.com/erxes/erxes/issues/8874)) ([94b8616](https://github.com/erxes/erxes/commit/94b8616a207222e52a795c953222bd64d92cb495))
+* **reports:** add tickets new columns, filters for status changes and implement new report filters ([#9623](https://github.com/erxes/erxes/issues/9623)) ([8878b57](https://github.com/erxes/erxes/commit/8878b57e5edce066ae20c9e07987c4a99ea6f6a0))
+* **saas:** read dashboard.erxes.io organizations' plugins from Stripe ([#9741](https://github.com/erxes/erxes/issues/9741)) ([e78a4cc](https://github.com/erxes/erxes/commit/e78a4cce51bfe14944e44a79e9c173a5d7ebe7c3))
+* **sales:** add label in deal detail chips([#9661](https://github.com/erxes/erxes/issues/9661)) ([e7492e5](https://github.com/erxes/erxes/commit/e7492e520a9447b8d88f1ea53fc075809bcc97aa))
+* **ticket:** add branchId and departmentId to ticket updates and UI components ([e7d6b05](https://github.com/erxes/erxes/commit/e7d6b058b17decee10aade98d8eec26f79800331))
+
+
+### Performance Improvements
+
+* **core-ui:** translate automations module ([#9619](https://github.com/erxes/erxes/issues/9619)) ([e0cf667](https://github.com/erxes/erxes/commit/e0cf6674c51f02bf8edcd5458fb4c690635c492d))
+* **core-ui:** translate products and remaining modules to Mongolian ([#9617](https://github.com/erxes/erxes/issues/9617)) ([acadbc6](https://github.com/erxes/erxes/commit/acadbc6b18cd80eafb6e5f11135e6a16ef4be954))
+* **core-ui:** translate settings and contacts modules ([#9615](https://github.com/erxes/erxes/issues/9615)) ([e8cf348](https://github.com/erxes/erxes/commit/e8cf3481f73883feb82b07dc0162c0d393b52619))
+
 ## [3.2.20](https://github.com/erxes/erxes/compare/3.2.19...3.2.20) (2026-10-12)
 
 

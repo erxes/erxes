@@ -1,9 +1,7 @@
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { AiAgentContextFilesForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextFilesForm';
 import { AiAgentProductKnowledgeForm } from '@/automations/components/settings/components/agents/components/form/AiAgentProductKnowledgeForm';
 import { useAiAgentKnowledgeSources } from '@/automations/components/settings/components/agents/context/AiAgentKnowledgeSourcesContext';
 import {
-  CONTEXT_FILES_KEY,
   findSourceSelection,
   getSourceStatuses,
   hasSourceSelection,
@@ -12,7 +10,7 @@ import { Switch } from 'erxes-ui';
 import { TAiKnowledgeSourceConfig } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
-const AiAgentKnowledgeSourceSelector = ({
+export const AiAgentKnowledgeSourceSelector = ({
   source,
 }: {
   source: TAiKnowledgeSourceConfig;
@@ -98,22 +96,4 @@ const AiAgentKnowledgeSourceSelector = ({
       )}
     </div>
   );
-};
-
-export const AiAgentKnowledgeSourcePanel = ({
-  activeKey,
-  activeSource,
-}: {
-  activeKey?: string;
-  activeSource?: TAiKnowledgeSourceConfig;
-}) => {
-  if (activeKey === CONTEXT_FILES_KEY) {
-    return <AiAgentContextFilesForm />;
-  }
-
-  if (!activeSource) {
-    return null;
-  }
-
-  return <AiAgentKnowledgeSourceSelector source={activeSource} />;
 };

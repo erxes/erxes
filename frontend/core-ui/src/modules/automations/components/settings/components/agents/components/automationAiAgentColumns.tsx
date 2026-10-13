@@ -1,3 +1,4 @@
+import { AiAgentProviderLogo } from '@/automations/components/settings/components/agents/components/AiAgentProviderLogo';
 import {
   automationAiAgentMoreColumn,
   TAiAgentRecord,
@@ -63,6 +64,10 @@ export const automationAiAgentColumns = (
       return (
         <RecordTableInlineCell className="min-w-0">
           <Badge variant="secondary" className="w-fit">
+            <AiAgentProviderLogo
+              provider={provider.type}
+              className="size-3.5"
+            />
             {provider.label}
           </Badge>
         </RecordTableInlineCell>

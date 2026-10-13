@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-08`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -86,6 +86,9 @@
   team posts a reply the portal can see, and one when the ticket moves to a
   new status. Each is filed as a client portal notification against
   `frontline:ticket`, so the help center can link straight back to the ticket.
+- A ticket holds a single `branchId` / `departmentId`, settable on both
+  `createTicket` and `updateTicket`; changing them can move the ticket out of
+  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline.
 - `src/migrations/migrateForms.ts` copies a v2 form field into
   `frontline_form_fields` when its `contentType` is `form` or its
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,

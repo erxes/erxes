@@ -1,10 +1,11 @@
+import { useInView } from 'react-intersection-observer';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Button, ScrollArea, Spinner } from 'erxes-ui';
-import { useInView } from 'react-intersection-observer';
 import { useGetTriages } from '@/triage/hooks/useGetTriages';
 import { TriageHeader } from './TriageHeader';
 import { TriageItem } from './TriageItem';
-import { useTranslation } from 'react-i18next';
 
 export const Triages = () => {
   return (
@@ -17,7 +18,10 @@ export const Triages = () => {
 
 const TriageList = () => {
   const { t } = useTranslation('operation');
-  const { triages, loading, handleFetchMore, totalCount } = useGetTriages();
+  const { teamId } = useParams();
+  const { triages, loading, handleFetchMore, totalCount } = useGetTriages({
+    variables: { teamId },
+  });
   const { ref: inViewRef } = useInView({
     onChange: (inView) => {
       if (inView) {
