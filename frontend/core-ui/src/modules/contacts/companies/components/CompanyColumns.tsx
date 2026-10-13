@@ -33,13 +33,13 @@ import {
   TagsSelect,
   getCompanyDisplayName,
   useCompaniesEdit,
+  useComposeEmail,
 } from 'ui-modules';
 import { useSetAtom } from 'jotai';
 import { renderingCompanyDetailAtom } from '@/contacts/states/companyDetailStates';
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { companyMoreColumn } from './CompanyMoreColumn';
-import { useComposeEmail } from 'ui-modules';
 
 const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
   const { canComposeEmail, composeEmail } = useComposeEmail();

@@ -162,7 +162,7 @@ const VerifiedEmailSelect = ({
           className="h-9 min-w-0 border-0 px-0 shadow-none focus-visible:ring-0"
           onChange={(event) => {
             onValueChange(event.target.value);
-            onRecipientSelect(undefined);
+            onRecipientSelect();
           }}
         />
         <Popover.Trigger asChild>

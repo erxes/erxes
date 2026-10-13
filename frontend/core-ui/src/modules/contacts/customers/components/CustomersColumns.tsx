@@ -33,13 +33,13 @@ import {
   ICustomer,
   TagsSelect,
   useCustomerEdit,
+  useComposeEmail,
 } from 'ui-modules';
 import { useSetAtom } from 'jotai';
 import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
 import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { customerMoreColumn } from './CustomerMoreColumn';
-import { useComposeEmail } from 'ui-modules';
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICustomer>;
 
