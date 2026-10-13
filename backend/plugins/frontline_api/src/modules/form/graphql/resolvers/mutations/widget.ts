@@ -118,11 +118,7 @@ function handleCoreCompanyField(
   }
 }
 
-async function saveFormCompany(
-  subdomain: string,
-  submissions: ISubmission[],
-  customerId: string,
-) {
+function buildFormCompanyDoc(submissions: ISubmission[]): CompanyFormDoc {
   const companyDoc: CompanyFormDoc = {};
 
   for (const { type, value } of submissions) {
@@ -135,59 +131,79 @@ async function saveFormCompany(
     }
   }
 
+  return companyDoc;
+}
+
+function buildCompanyUpdateDoc(
+  company: FormCompany,
+  companyDoc: CompanyFormDoc,
+): Record<string, unknown> {
   const { primaryName, email, phone, ...rest } = companyDoc;
+  const doc: Record<string, unknown> = {
+    ...rest,
+    trackedData: company.trackedData || [],
+  };
 
-  if (!primaryName && !email && !phone) return;
+  if (primaryName) doc.names = [primaryName];
 
-  let company: FormCompany | null = await findMessengerCompany(subdomain, {
+  if (email) {
+    if (company.primaryEmail) doc.emails = [email];
+    else doc.email = email;
+  }
+
+  if (phone) {
+    if (company.primaryPhone) doc.phones = [phone];
+    else doc.phone = phone;
+  }
+
+  return doc;
+}
+
+async function upsertFormCompany(
+  subdomain: string,
+  companyDoc: CompanyFormDoc,
+): Promise<FormCompany | null> {
+  const { primaryName, email, phone } = companyDoc;
+
+  const company: FormCompany | null = await findMessengerCompany(subdomain, {
     name: primaryName,
     email,
     phone,
   });
 
   if (company?._id) {
-    const doc: Record<string, unknown> = {
-      ...rest,
-      trackedData: company.trackedData || [],
-    };
-
-    if (primaryName) doc.names = [primaryName];
-
-    if (email) {
-      if (company.primaryEmail) doc.emails = [email];
-      else doc.email = email;
-    }
-
-    if (phone) {
-      if (company.primaryPhone) doc.phones = [phone];
-      else doc.phone = phone;
-    }
-
-    company = await sendTRPCMessage({
+    return sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'mutation',
       module: 'companies',
       action: 'updateCompany',
-      input: { _id: company._id, doc },
-      defaultValue: company,
-    });
-  } else {
-    company = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'companies',
-      action: 'createCompany',
       input: {
-        doc: { ...companyDoc, names: primaryName ? [primaryName] : [] },
+        _id: company._id,
+        doc: buildCompanyUpdateDoc(company, companyDoc),
       },
-      defaultValue: null,
+      defaultValue: company,
     });
   }
 
-  if (!company?._id) return;
+  return sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'companies',
+    action: 'createCompany',
+    input: {
+      doc: { ...companyDoc, names: primaryName ? [primaryName] : [] },
+    },
+    defaultValue: null,
+  });
+}
 
+async function linkCompanyToCustomer(
+  subdomain: string,
+  companyId: string,
+  customerId: string,
+) {
   const relatedCompanyIds: string[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -202,7 +218,7 @@ async function saveFormCompany(
     defaultValue: [],
   });
 
-  if (relatedCompanyIds.includes(company._id)) return;
+  if (relatedCompanyIds.includes(companyId)) return;
 
   await sendTRPCMessage({
     subdomain,
@@ -214,11 +230,28 @@ async function saveFormCompany(
       relation: {
         entities: [
           { contentType: 'core:customer', contentId: customerId },
-          { contentType: 'core:company', contentId: company._id },
+          { contentType: 'core:company', contentId: companyId },
         ],
       },
     },
   });
+}
+
+async function saveFormCompany(
+  subdomain: string,
+  submissions: ISubmission[],
+  customerId: string,
+) {
+  const companyDoc = buildFormCompanyDoc(submissions);
+  const { primaryName, email, phone } = companyDoc;
+
+  if (!primaryName && !email && !phone) return;
+
+  const company = await upsertFormCompany(subdomain, companyDoc);
+
+  if (!company?._id) return;
+
+  await linkCompanyToCustomer(subdomain, company._id, customerId);
 }
 
 function handleCoreCustomerField(
