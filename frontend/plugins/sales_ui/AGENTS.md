@@ -243,16 +243,15 @@
   discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
-- Deal start/close date selects: the `input` variant (used by deal detail) is
-  the erxes-ui `DatePicker` input itself (own popover); a past close date turns
-  it red and appends an "Ended N days ago" segment. Its wrapper mirrors
-  `DealChipTrigger` (`h-7`, `rounded`, `shadow-xs` outline, muted label
-  segment) and strips the inner `DatePicker` shadow so it matches the detail
-  chips. Other variants keep a
-  trigger button whose popover holds `DatePicker` in `inline` mode (typed input
-  above the calendar), with the "Ended" badge as the trigger for a past close
-  date. Typing uses `YYYY-MM-DD`; a complete valid date or a calendar pick
-  commits, and clearing sends `null` so the backend unsets the date.
+- Deal start/close date selects: every variant opens a popover holding
+  `DatePicker` in `inline` mode (typed input above the calendar). The `input`
+  variant (used by deal detail) renders a labelled `DealChipTrigger` showing
+  the date (red plus an "Ended N days ago" badge for a past close date) and an
+  X button that clears it; `DealChipTrigger` swaps its chevron for that X only
+  when `onClear` is passed. Other variants keep their own trigger, with the
+  "Ended" badge as the trigger for a past close date. A padded `YYYY-MM-DD` or
+  a calendar pick commits immediately; unpadded `YYYY-M-D` commits on Enter or
+  blur; clearing sends `null` so the backend unsets the date.
 
 ## Validation
 
