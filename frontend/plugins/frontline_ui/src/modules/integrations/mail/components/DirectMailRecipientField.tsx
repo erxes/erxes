@@ -1,94 +1,146 @@
-import { IconChevronDown, IconMail } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
-import { Button, Combobox, Command, Input, Popover } from 'erxes-ui';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Badge, Button, Command, Input, Popover } from 'erxes-ui';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { MAIL_VERIFIED_CONTACTS_QUERY } from '@/integrations/mail/graphql/queries/mailRecipients';
 import { useDirectMailComposerFields } from '@/integrations/mail/hooks/useDirectMailComposerFields';
 import type {
   ComposeValues,
   MailRecipientsResult,
 } from '@/integrations/mail/types/directMailComposer';
+import { splitAddresses } from '@/integrations/mail/utils/directMailComposer';
 
-const VerifiedEmailSelect = ({
+type RecipientFieldName = 'to' | 'cc' | 'bcc';
+
+const VerifiedEmailField = ({
+  fieldName,
   value,
   onValueChange,
   onRecipientSelect,
 }: {
+  fieldName: RecipientFieldName;
   value: string;
   onValueChange: (value: string) => void;
-  onRecipientSelect: (customerId?: string) => void;
+  onRecipientSelect?: (customerId?: string) => void;
 }) => {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [focused, setFocused] = useState(false);
+  const [suggestionsEnabled, setSuggestionsEnabled] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
+  const [selectedNames, setSelectedNames] = useState<Record<string, string>>(
+    {},
+  );
   const [searchValue, setSearchValue] = useState('');
+  const [activeEmail, setActiveEmail] = useState('');
+  const listId = useId();
   const [loadMoreError, setLoadMoreError] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSearchValue(search.trim()), 250);
-    return () => window.clearTimeout(timer);
-  }, [search]);
+  const lastEmitted = useRef<string>();
 
-  const { data, loading, error, fetchMore, refetch } =
+  useEffect(() => {
+    if (value === lastEmitted.current) return;
+    const addresses = splitAddresses(value);
+    setSelected(
+      addresses.filter(
+        (address) => z.string().email().safeParse(address).success,
+      ),
+    );
+    setDraft(
+      addresses
+        .filter((address) => !z.string().email().safeParse(address).success)
+        .join(', '),
+    );
+  }, [value]);
+
+  useEffect(() => {
+    if (!focused || !suggestionsEnabled || !draft.trim()) return;
+    const timer = window.setTimeout(() => setSearchValue(draft.trim()), 300);
+    return () => window.clearTimeout(timer);
+  }, [draft, focused, suggestionsEnabled]);
+
+  const showSuggestions =
+    focused &&
+    suggestionsEnabled &&
+    Boolean(draft.trim()) &&
+    Boolean(searchValue);
+
+  const closeSuggestions = () => {
+    setSuggestionsEnabled(false);
+    setSearchValue('');
+    setActiveEmail('');
+  };
+
+  const emit = (addresses: string[], text: string) => {
+    const next = [...addresses, text.trim()].filter(Boolean).join(', ');
+    lastEmitted.current = next;
+    onValueChange(next);
+  };
+
+  const { data, previousData, loading, error, fetchMore, refetch } =
     useQuery<MailRecipientsResult>(MAIL_VERIFIED_CONTACTS_QUERY, {
-      variables: { searchValue: searchValue || undefined },
-      skip: !open,
+      variables: { searchValue },
+      skip: !showSuggestions,
     });
+
+  const contacts = data ?? previousData;
+
   const options = useMemo(() => {
     const byEmail = new Map<
       string,
-      { email: string; customerId?: string; name?: string }
+      { email: string; customerId: string; name: string }
     >();
-    for (const contact of data?.customers.list ?? []) {
-      if (
-        !['valid', 'verified'].includes(contact.emailValidationStatus ?? '')
-      ) {
+    for (const contact of contacts?.customers.list ?? []) {
+      if (!['valid', 'verified'].includes(contact.emailValidationStatus ?? ''))
         continue;
-      }
       const name = [contact.firstName, contact.lastName]
         .filter(Boolean)
         .join(' ');
-      for (const email of [contact.primaryEmail]) {
-        if (email)
-          byEmail.set(email.toLowerCase(), {
-            email,
-            customerId: contact._id,
-            name,
-          });
+      const email = contact.primaryEmail;
+      if (email && !byEmail.has(email.toLowerCase())) {
+        byEmail.set(email.toLowerCase(), {
+          email,
+          customerId: contact._id,
+          name,
+        });
       }
     }
-    const normalizedSearch = search.trim().toLowerCase();
     return [...byEmail.values()].filter(
-      ({ email, name }) =>
-        email.toLowerCase().includes(normalizedSearch) ||
-        Boolean(name?.toLowerCase().includes(normalizedSearch)),
+      ({ email }) =>
+        !selected.some((item) => item.toLowerCase() === email.toLowerCase()),
     );
-  }, [data, search]);
+  }, [contacts, selected]);
 
-  useEffect(() => {
-    setLoadMoreError(false);
-  }, [open, searchValue]);
+  useEffect(() => setLoadMoreError(false), [searchValue]);
 
   const loadMore = useCallback(() => {
     const cursor = data?.customers.pageInfo.endCursor;
     if (
-      !open ||
+      !showSuggestions ||
+      draft.trim() !== searchValue ||
       loading ||
       isFetchingRef.current ||
       !cursor ||
       !data?.customers.pageInfo.hasNextPage
-    ) {
+    )
       return;
-    }
-
     isFetchingRef.current = true;
     setLoadingMore(true);
     fetchMore({
-      variables: { cursor },
+      variables: { cursor, searchValue },
       updateQuery: (previous, { fetchMoreResult }) => {
         if (!fetchMoreResult) return previous;
         const loadedIds = new Set(
@@ -111,30 +163,27 @@ const VerifiedEmailSelect = ({
         if (
           next.customers.pageInfo.hasNextPage &&
           next.customers.pageInfo.endCursor === cursor
-        ) {
+        )
           setLoadMoreError(true);
-        }
       })
       .catch(() => setLoadMoreError(true))
       .finally(() => {
         isFetchingRef.current = false;
         setLoadingMore(false);
       });
-  }, [data, fetchMore, loading, open]);
+  }, [data, draft, fetchMore, showSuggestions, searchValue, loading]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
     const list = listRef.current;
     if (
-      !open ||
+      !showSuggestions ||
       !sentinel ||
       !list ||
       loadMoreError ||
       !data?.customers.pageInfo.hasNextPage
-    ) {
-      return undefined;
-    }
-
+    )
+      return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) loadMore();
@@ -146,50 +195,215 @@ const VerifiedEmailSelect = ({
   }, [
     data?.customers.list.length,
     data?.customers.pageInfo.hasNextPage,
+    showSuggestions,
     loadMore,
     loadMoreError,
-    open,
   ]);
 
+  const selectEmail = (
+    email: string,
+    customerId?: string,
+    name?: string,
+    focusInput = true,
+  ) => {
+    closeSuggestions();
+    const next = selected.some(
+      (item) => item.toLowerCase() === email.toLowerCase(),
+    )
+      ? selected
+      : [...selected, email];
+    setSelected(next);
+    if (name) setSelectedNames((names) => ({ ...names, [email]: name }));
+    setDraft('');
+    emit(next, '');
+    if (fieldName === 'to')
+      onRecipientSelect?.(next.length === 1 ? customerId : undefined);
+    if (focusInput) inputRef.current?.focus();
+  };
+
+  const commitDraft = (focusInput = true) => {
+    const addresses = splitAddresses(draft);
+    if (
+      !addresses.length ||
+      addresses.some((email) => !z.string().email().safeParse(email).success)
+    )
+      return;
+    const next = [...selected];
+    for (const email of addresses) {
+      if (!next.some((item) => item.toLowerCase() === email.toLowerCase()))
+        next.push(email);
+    }
+    closeSuggestions();
+    setSelected(next);
+    setDraft('');
+    emit(next, '');
+    if (fieldName === 'to') onRecipientSelect?.();
+    if (focusInput) inputRef.current?.focus();
+  };
+
+  const activeOptionIndex = options.findIndex(
+    (option) => option.email === activeEmail,
+  );
+
+  const removeEmail = (email: string) => {
+    const next = selected.filter((item) => item !== email);
+    setSelected(next);
+    emit(next, draft);
+    if (fieldName === 'to') onRecipientSelect?.();
+    inputRef.current?.focus();
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <div className="flex min-w-0 items-center">
-        <Input
-          id="direct-mail-to"
-          aria-label="Recipient email"
-          placeholder="Recipients"
-          value={value}
-          className="h-9 min-w-0 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
-          onChange={(event) => {
-            onValueChange(event.target.value);
-            onRecipientSelect();
+    <Popover
+      open={showSuggestions}
+      onOpenChange={(open) => {
+        if (!open) closeSuggestions();
+      }}
+    >
+      <Popover.Anchor asChild>
+        <div
+          className="flex min-h-9 min-w-0 flex-wrap items-center gap-1 py-1"
+          onFocusCapture={() => setFocused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+              commitDraft(false);
+              setFocused(false);
+              closeSuggestions();
+            }
           }}
-        />
-        <Popover.Trigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7 shrink-0"
-            aria-label="Select recipient from contacts"
-          >
-            <IconChevronDown className="size-4 text-muted-foreground" />
-          </Button>
-        </Popover.Trigger>
-      </div>
+        >
+          {!focused && selected.length > 0 && (
+            <label
+              htmlFor={`direct-mail-${fieldName}`}
+              className="min-w-0 cursor-text truncate text-sm"
+              title={selected.join(', ')}
+            >
+              {selected
+                .map((email) => selectedNames[email] || email)
+                .join(', ')}
+            </label>
+          )}
+          {focused &&
+            selected.map((email) => (
+              <Badge
+                key={email}
+                variant="secondary"
+                className="max-w-full pr-1"
+              >
+                <span className="truncate" title={email}>
+                  {selectedNames[email] || email}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-5 shrink-0"
+                  aria-label={`Remove ${email}`}
+                  onClick={() => removeEmail(email)}
+                >
+                  <IconX className="size-3" />
+                </Button>
+              </Badge>
+            ))}
+          <Input
+            ref={inputRef}
+            id={`direct-mail-${fieldName}`}
+            aria-label={`${fieldName.toUpperCase()} recipient email`}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showSuggestions}
+            aria-controls={showSuggestions ? listId : undefined}
+            aria-activedescendant={
+              showSuggestions && activeOptionIndex >= 0
+                ? `${listId}-${activeOptionIndex}`
+                : undefined
+            }
+            placeholder={selected.length ? '' : 'Recipients'}
+            value={draft}
+            className="h-7 min-w-24 flex-1 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
+            onChange={(event) => {
+              const text = event.target.value;
+              setFocused(true);
+              setSuggestionsEnabled(Boolean(text.trim()));
+              if (!text.trim()) setSearchValue('');
+              if (text.endsWith(',') || text.endsWith(';')) {
+                const email = text.slice(0, -1).trim();
+                if (z.string().email().safeParse(email).success) {
+                  selectEmail(email);
+                  return;
+                }
+              }
+              setDraft(text);
+              emit(selected, text);
+              if (fieldName === 'to') onRecipientSelect?.();
+            }}
+            onKeyDown={(event) => {
+              if (
+                showSuggestions &&
+                !loading &&
+                options.length &&
+                draft.trim() === searchValue &&
+                (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+              ) {
+                event.preventDefault();
+                const current = options.findIndex(
+                  (option) => option.email === activeEmail,
+                );
+                const next =
+                  event.key === 'ArrowDown'
+                    ? (current + 1) % options.length
+                    : current <= 0
+                    ? options.length - 1
+                    : current - 1;
+                setActiveEmail(options[next].email);
+              } else if (
+                event.key === 'Enter' &&
+                showSuggestions &&
+                !loading &&
+                draft.trim() === searchValue &&
+                options.length
+              ) {
+                event.preventDefault();
+                const option =
+                  options.find((item) => item.email === activeEmail) ??
+                  options[0];
+                selectEmail(option.email, option.customerId, option.name);
+              } else if (event.key === 'Enter' || event.key === 'Tab') {
+                if (event.key === 'Enter') event.preventDefault();
+                commitDraft(event.key !== 'Tab');
+              } else if (
+                event.key === 'Backspace' &&
+                !draft &&
+                selected.length
+              ) {
+                removeEmail(selected[selected.length - 1]);
+              } else if (event.key === 'Escape') closeSuggestions();
+            }}
+          />
+        </div>
+      </Popover.Anchor>
       <Popover.Content
         align="start"
-        className="z-60 w-[min(24rem,calc(100vw-2rem))] p-0"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+        onCloseAutoFocus={(event) => event.preventDefault()}
+        onMouseDown={(event) => event.preventDefault()}
+        onInteractOutside={(event) => {
+          if (event.target === inputRef.current) event.preventDefault();
+          else closeSuggestions();
+        }}
+        className="z-60 w-[min(26rem,calc(100vw-2rem))] p-0"
       >
-        <Command shouldFilter={false}>
-          <Command.Input
-            placeholder="Search verified contact emails"
-            value={search}
-            onValueChange={setSearch}
-            focusOnMount
-          />
-          <Command.List ref={listRef} className="max-h-64 overflow-y-auto">
-            {loading && (
+        <Command
+          shouldFilter={false}
+          value={activeEmail}
+          onValueChange={setActiveEmail}
+        >
+          <Command.List
+            id={listId}
+            ref={listRef}
+            className="max-h-64 overflow-y-auto"
+          >
+            {loading && options.length === 0 && (
               <p className="p-3 text-sm text-muted-foreground">
                 Loading contacts…
               </p>
@@ -209,24 +423,25 @@ const VerifiedEmailSelect = ({
                 No verified contact emails found.
               </p>
             )}
-            {options.map(({ email, customerId, name }) => (
+            {options.map(({ email, customerId, name }, index) => (
               <Command.Item
+                id={`${listId}-${index}`}
                 key={email}
                 value={email}
-                onSelect={() => {
-                  onValueChange(email);
-                  onRecipientSelect(customerId);
-                  setOpen(false);
-                }}
+                onPointerDown={(event) => event.preventDefault()}
+                onSelect={() => selectEmail(email, customerId, name)}
+                className="gap-3"
               >
-                <IconMail className="size-4 text-muted-foreground" />
-                <span className="truncate">{email}</span>
-                {name && (
-                  <span className="ml-auto truncate text-xs text-muted-foreground">
-                    {name}
+                <span className="min-w-0">
+                  <span className="block truncate text-sm">
+                    {name || email}
                   </span>
-                )}
-                <Combobox.Check checked={email === value} />
+                  {name && (
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {email}
+                    </span>
+                  )}
+                </span>
               </Command.Item>
             ))}
             {loadMoreError && (
@@ -257,10 +472,12 @@ const VerifiedEmailSelect = ({
   );
 };
 
-export const ToRow = ({
+export const RecipientRow = ({
+  fieldName,
   onRecipientSelect,
 }: {
-  onRecipientSelect: (customerId?: string) => void;
+  fieldName: RecipientFieldName;
+  onRecipientSelect?: (customerId?: string) => void;
 }) => {
   const { t } = useTranslation('frontline');
   const { showCc, showBcc, openCc, openBcc } = useDirectMailComposerFields();
@@ -268,50 +485,58 @@ export const ToRow = ({
     control,
     formState: { errors },
   } = useFormContext<ComposeValues>();
-
   return (
     <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center border-b px-4 py-1.5">
-      <label className="text-xs text-muted-foreground" htmlFor="direct-mail-to">
-        To
+      <label
+        className="text-xs text-muted-foreground"
+        htmlFor={`direct-mail-${fieldName}`}
+      >
+        {fieldName === 'to' ? 'To' : t(fieldName)}
       </label>
       <Controller
-        name="to"
+        name={fieldName}
         control={control}
         render={({ field }) => (
-          <VerifiedEmailSelect
+          <VerifiedEmailField
+            fieldName={fieldName}
             value={field.value}
             onValueChange={field.onChange}
             onRecipientSelect={onRecipientSelect}
           />
         )}
       />
-      <div className="flex items-center gap-1">
-        {!showCc && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs text-muted-foreground"
-            onClick={openCc}
-          >
-            {t('cc')}
-          </Button>
-        )}
-        {!showBcc && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs text-muted-foreground"
-            onClick={openBcc}
-          >
-            {t('bcc')}
-          </Button>
-        )}
-      </div>
-      {errors.to && (
-        <p className="col-start-2 col-span-2 text-xs text-destructive">
-          {errors.to.message}
+      {(fieldName === 'to' || fieldName === 'cc') && (
+        <div className="flex items-center gap-1">
+          {fieldName === 'to' && !showCc && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground"
+              onClick={openCc}
+            >
+              {t('cc')}
+            </Button>
+          )}
+          {!showBcc && (fieldName === 'cc' || !showCc) && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground"
+              onClick={openBcc}
+            >
+              {t('bcc')}
+            </Button>
+          )}
+        </div>
+      )}
+      {errors[fieldName] && (
+        <p
+          className="col-start-2 col-span-2 text-xs text-destructive"
+          role="alert"
+        >
+          {errors[fieldName]?.message}
         </p>
       )}
     </div>

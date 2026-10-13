@@ -18,7 +18,10 @@ const optionalRecipients = z
 
 export const composeSchema = z.object({
   integrationId: z.string().min(1, 'Choose a sender'),
-  to: z.string().trim().email('Enter a valid recipient email'),
+  to: optionalRecipients.refine(
+    (value) => splitAddresses(value).length > 0,
+    'Add at least one recipient',
+  ),
   cc: optionalRecipients,
   bcc: optionalRecipients,
   subject: z.string().trim().min(1, 'Subject is required'),

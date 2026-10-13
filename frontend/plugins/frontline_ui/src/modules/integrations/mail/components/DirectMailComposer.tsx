@@ -56,7 +56,7 @@ const ComposerWindow = ({
     <section
       aria-label="New email"
       className={cn(
-        'fixed z-50 flex flex-col overflow-hidden rounded-t-lg border bg-background text-foreground shadow-2xl font-[Arial,sans-serif]',
+        'fixed z-50 flex flex-col overflow-hidden rounded-t-lg border bg-background text-foreground shadow-2xl',
         expanded && !minimized
           ? 'inset-x-4 top-6 bottom-4 sm:inset-x-[8vw] sm:top-[6vh]'
           : 'inset-x-2 bottom-0 sm:inset-x-auto sm:right-4',
@@ -93,7 +93,7 @@ export const DirectMailComposer = () => {
   }>(MAIL_SENDERS_QUERY, { skip: !target || !canComposeEmail });
   const { mailSendMail, loading } = useMailSendMail();
   const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
-  const editor = useBlockEditor({ placeholder: ' ' });
+  const editor = useBlockEditor({ placeholder: "Type '/' for commands" });
   const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
   const form = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
@@ -106,7 +106,7 @@ export const DirectMailComposer = () => {
       body: '',
     },
   });
-  const { handleSubmit, reset, setValue, setError, watch } = form;
+  const { handleSubmit, reset, setValue, setError, watch, getValues } = form;
   const sending =
     loading || retryLoading || uploading || form.formState.isSubmitting;
   const integrationId = watch('integrationId');
@@ -130,16 +130,31 @@ export const DirectMailComposer = () => {
   const selectedSender = senders.find(
     (sender) => sender.integrationId === integrationId,
   );
-  const openCc = useCallback(() => setShowCc(true), []);
-  const openBcc = useCallback(() => setShowBcc(true), []);
+  const openCc = useCallback(() => {
+    setShowCc(true);
+    window.requestAnimationFrame(() =>
+      document.getElementById('direct-mail-cc')?.focus(),
+    );
+  }, []);
+  const openBcc = useCallback(() => {
+    setShowBcc(true);
+    window.requestAnimationFrame(() =>
+      document.getElementById('direct-mail-bcc')?.focus(),
+    );
+  }, []);
+  const closeEmptyFields = useCallback(() => {
+    if (!getValues('cc').trim()) setShowCc(false);
+    if (!getValues('bcc').trim()) setShowBcc(false);
+  }, [getValues]);
   const fieldActions = useMemo(
     () => ({
       showCc,
       showBcc,
       openCc,
       openBcc,
+      closeEmptyFields,
     }),
-    [showCc, showBcc, openCc, openBcc],
+    [showCc, showBcc, openCc, openBcc, closeEmptyFields],
   );
 
   useEffect(() => {
@@ -266,7 +281,7 @@ export const DirectMailComposer = () => {
             disposition,
           }),
         ),
-        to: [values.to.trim()],
+        to: splitAddresses(values.to),
         cc: showCc ? splitAddresses(values.cc) : undefined,
         bcc: showBcc ? splitAddresses(values.bcc) : undefined,
       },

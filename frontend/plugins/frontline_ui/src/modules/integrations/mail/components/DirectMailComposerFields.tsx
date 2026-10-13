@@ -16,7 +16,8 @@ import {
   useBlockEditor,
   usePreviousHotkeyScope,
 } from 'erxes-ui';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useState } from 'react';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDirectMailComposerFields } from '@/integrations/mail/hooks/useDirectMailComposerFields';
@@ -24,7 +25,8 @@ import type {
   ComposeValues,
   MailSender,
 } from '@/integrations/mail/types/directMailComposer';
-import { ToRow } from './DirectMailRecipientField';
+import { RecipientRow } from './DirectMailRecipientField';
+import { splitAddresses } from '@/integrations/mail/utils/directMailComposer';
 import {
   DirectMailFormatting,
   DirectMailInsertTools,
@@ -205,36 +207,6 @@ export const FromRow = ({
   );
 };
 
-const CcBccField = ({ field }: { field: 'cc' | 'bcc' }) => {
-  const { t } = useTranslation('frontline');
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<ComposeValues>();
-  const error = errors[field];
-
-  return (
-    <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
-      <label
-        className="text-xs text-muted-foreground"
-        htmlFor={`direct-mail-${field}`}
-      >
-        {t(field)}
-      </label>
-      <Input
-        id={`direct-mail-${field}`}
-        className="h-9 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
-        {...register(field)}
-      />
-      {error && (
-        <p className="col-start-2 text-xs text-destructive" role="alert">
-          {error.message}
-        </p>
-      )}
-    </div>
-  );
-};
-
 export const CcBccFields = () => {
   const { showCc, showBcc } = useDirectMailComposerFields();
   return (
@@ -242,8 +214,69 @@ export const CcBccFields = () => {
       {(['cc', 'bcc'] as const).map(
         (field) =>
           (field === 'cc' ? showCc : showBcc) && (
-            <CcBccField key={field} field={field} />
+            <RecipientRow key={field} fieldName={field} />
           ),
+      )}
+    </>
+  );
+};
+
+const ComposerRecipients = ({
+  onRecipientSelect,
+}: {
+  onRecipientSelect: (customerId?: string) => void;
+}) => {
+  const [expanded, setExpanded] = useState(true);
+  const { closeEmptyFields } = useDirectMailComposerFields();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<ComposeValues>();
+  const showFields = expanded || Boolean(errors.to || errors.cc || errors.bcc);
+  const [to, cc, bcc] = useWatch({ control, name: ['to', 'cc', 'bcc'] });
+  const recipients = [
+    ...splitAddresses(to),
+    ...splitAddresses(cc),
+    ...splitAddresses(bcc),
+  ];
+
+  return (
+    <>
+      <div
+        className={showFields ? undefined : 'hidden'}
+        onFocusCapture={() => setExpanded(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setExpanded(false);
+            closeEmptyFields();
+          }
+        }}
+      >
+        <RecipientRow fieldName="to" onRecipientSelect={onRecipientSelect} />
+        <CcBccFields />
+      </div>
+      {!showFields && (
+        <div className="flex flex-none items-center border-b px-4 py-1.5">
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-9 min-w-0 w-full justify-start px-0 hover:bg-transparent"
+            aria-label="Edit recipients"
+            onClick={() => {
+              setExpanded(true);
+              window.requestAnimationFrame(() =>
+                document.getElementById('direct-mail-to')?.focus(),
+              );
+            }}
+          >
+            <span className="truncate text-sm text-muted-foreground">
+              {recipients[0] || 'Recipients'}
+              {recipients.length > 1 && ` +${recipients.length - 1}`}
+              {splitAddresses(bcc).length > 0 &&
+                ` (${splitAddresses(bcc).length} Bcc)`}
+            </span>
+          </Button>
+        </div>
       )}
     </>
   );
@@ -342,8 +375,7 @@ export const ComposerFields = ({
     className="flex min-h-0 flex-1 flex-col text-foreground"
   >
     <FromRow {...senderProps} disabled={disabled} />
-    <ToRow onRecipientSelect={onRecipientSelect} />
-    <CcBccFields />
+    <ComposerRecipients onRecipientSelect={onRecipientSelect} />
     <SubjectRow />
     <BodyField editor={editor} disabled={disabled} onChange={onBodyChange} />
   </fieldset>
@@ -379,11 +411,7 @@ export const ComposerFooter = ({
         <DirectMailFormatting editor={editor} disabled={editingDisabled} />
       )}
       <div className="flex items-center gap-1">
-        <Button
-          type="submit"
-          disabled={disabled}
-          className="mr-2 h-9 rounded-full bg-[#0b57d0] px-6 text-white hover:bg-[#0842a0]"
-        >
+        <Button type="submit" disabled={disabled} className="mr-2">
           {loading && <Spinner size="sm" />}
           {t(retry ? 'email-delivery-retry' : 'send', retry ? 'Retry' : 'Send')}
         </Button>

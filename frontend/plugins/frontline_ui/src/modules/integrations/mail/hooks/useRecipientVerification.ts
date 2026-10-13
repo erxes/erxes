@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { z } from 'zod';
+import { useDebounce } from 'use-debounce';
 import { MAIL_UNVERIFIED_RECIPIENTS_QUERY } from '@/integrations/mail/graphql/queries/mailRecipients';
 import { splitAddresses } from '@/integrations/mail/utils/directMailComposer';
 
@@ -30,7 +31,7 @@ export const useRecipientVerification = ({
       [
         ...new Set(
           [
-            to.trim().toLowerCase(),
+            ...splitAddresses(to),
             ...(showCc ? splitAddresses(cc) : []),
             ...(showBcc ? splitAddresses(bcc) : []),
           ]
@@ -45,6 +46,9 @@ export const useRecipientVerification = ({
     recipientEmails.every(
       (email) => z.string().email().safeParse(email).success,
     );
+  const recipientKey = recipientEmails.join(',');
+  const [debouncedRecipientKey] = useDebounce(recipientKey, 300);
+  const waitingForRecipients = recipientKey !== debouncedRecipientKey;
   const {
     data,
     loading: checkingRecipients,
@@ -53,18 +57,21 @@ export const useRecipientVerification = ({
   } = useQuery<{ mailUnverifiedRecipients: string[] }>(
     MAIL_UNVERIFIED_RECIPIENTS_QUERY,
     {
-      variables: { emails: recipientEmails },
-      skip: !active || !validRecipients,
+      variables: {
+        emails: debouncedRecipientKey ? debouncedRecipientKey.split(',') : [],
+      },
+      skip: !active || !validRecipients || waitingForRecipients,
       fetchPolicy: 'network-only',
     },
   );
 
   return {
     validRecipients,
-    checkingRecipients,
+    checkingRecipients: checkingRecipients || waitingForRecipients,
     recipientVerificationError: Boolean(error),
     recipientsVerified:
       validRecipients &&
+      !waitingForRecipients &&
       !checkingRecipients &&
       !error &&
       data?.mailUnverifiedRecipients.length === 0,

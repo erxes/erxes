@@ -93,7 +93,7 @@ export const DirectMailFormatting = ({
     <fieldset
       disabled={disabled}
       aria-label="Formatting options"
-      className="flex w-fit max-w-full flex-wrap items-center gap-0.5 rounded-full bg-muted px-2 py-1 text-foreground"
+      className="flex w-fit max-w-full flex-wrap items-center gap-0.5 rounded bg-muted px-2 py-1 text-foreground"
     >
       <ToolButton
         label="Undo"

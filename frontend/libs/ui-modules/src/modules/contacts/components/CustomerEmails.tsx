@@ -1,5 +1,4 @@
 import { useComposeEmail } from '../hooks/useComposeEmail';
-import { SendEmailButton } from './SendEmailButton';
 import {
   EmailDisplay,
   EmailListField,
@@ -88,10 +87,6 @@ export function CustomerEmails({
             onEmailKeyActivate={activateEmail || handleVerifiedEmailClick}
           />
         </Trigger>
-        <SendEmailButton
-          compact
-          target={{ customerId: _id, email: primaryEmail || emails[0] }}
-        />
       </div>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField
