@@ -52,11 +52,8 @@ export const EmailTemplatePicker = ({
           />
           <Command.List className="max-h-72 overflow-y-auto">
             {loading && !templates.length && (
-              <div
-                role="status"
-                aria-label="Loading email templates"
-                className="space-y-2 p-2"
-              >
+              <div className="space-y-2 p-2">
+                <output className="sr-only">Loading email templates</output>
                 {[0, 1, 2].map((row) => (
                   <Skeleton key={row} className="h-8 w-full" />
                 ))}
@@ -105,11 +102,8 @@ export const EmailTemplatePicker = ({
                   </Button>
                 )}
                 {applyingId === template._id && (
-                  <span
-                    role="status"
-                    aria-label="Inserting template"
-                    className="ml-auto flex shrink-0"
-                  >
+                  <span className="ml-auto flex shrink-0">
+                    <output className="sr-only">Inserting template</output>
                     <Spinner size="sm" />
                   </span>
                 )}

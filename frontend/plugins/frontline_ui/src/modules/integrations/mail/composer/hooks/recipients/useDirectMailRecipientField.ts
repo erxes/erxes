@@ -131,12 +131,8 @@ export const useDirectMailRecipientField =
         const current = options.findIndex(
           (option) => option.email === activeEmail,
         );
-        const next =
-          event.key === 'ArrowDown'
-            ? (current + 1) % options.length
-            : current <= 0
-            ? options.length - 1
-            : current - 1;
+        let next = current <= 0 ? options.length - 1 : current - 1;
+        if (event.key === 'ArrowDown') next = (current + 1) % options.length;
         setActiveEmail(options[next].email);
       } else if (
         event.key === 'Enter' &&

@@ -31,12 +31,13 @@ export const FromRow = () => {
             From
           </Label>
           <div className="flex min-h-9 min-w-0 items-center text-sm">
-            {sendersLoading ? (
+            {sendersLoading && (
               <span className="flex items-center gap-2 text-muted-foreground">
                 <Spinner size="sm" />
                 {'Loading sender…'}
               </span>
-            ) : senders.length ? (
+            )}
+            {!sendersLoading && senders.length > 0 && (
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
@@ -68,7 +69,7 @@ export const FromRow = () => {
                   ))}
                 </Select.Content>
               </Select>
-            ) : null}
+            )}
           </div>
           <Form.Message
             id="direct-mail-sender-error"

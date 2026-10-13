@@ -36,12 +36,13 @@ export const useDirectMailBody = (): (() => void) => {
         }
         if (!completedBlocks.length) return;
         editor.filePanel?.closeMenu();
-        setAttachments((current) => [
-          ...current,
-          ...uploadedAttachments.filter(
-            ({ url }) => !current.some((attachment) => attachment.url === url),
-          ),
-        ]);
+        setAttachments((current) => {
+          const existingUrls = new Set(current.map(({ url }) => url));
+          return [
+            ...current,
+            ...uploadedAttachments.filter(({ url }) => !existingUrls.has(url)),
+          ];
+        });
         editor.removeBlocks(completedBlocks);
         editor.focus();
       });

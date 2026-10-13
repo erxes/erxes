@@ -31,7 +31,6 @@ export const BodyField = () => {
             <Form.Item
               role="group"
               aria-label="Email message"
-              aria-invalid={fieldState.invalid}
               aria-describedby={
                 fieldState.error ? 'direct-mail-body-error' : undefined
               }

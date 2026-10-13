@@ -140,12 +140,9 @@ export const VerifiedEmailFieldContent = () => {
             className="max-h-64 overflow-y-auto"
           >
             {loading && options.length === 0 && (
-              <div
-                role="status"
-                className="flex items-center gap-2 p-3 text-sm text-muted-foreground"
-              >
+              <div className="flex items-center gap-2 p-3 text-sm text-muted-foreground">
                 <Spinner size="sm" />
-                Loading contacts…
+                <output>Loading contacts…</output>
               </div>
             )}
             {error && (
