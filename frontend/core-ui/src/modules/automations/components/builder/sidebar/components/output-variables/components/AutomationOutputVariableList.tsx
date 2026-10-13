@@ -38,7 +38,7 @@ export const AutomationOutputVariableList = ({
       />
     );
   }
-
+  console.log({ variables });
   return (
     <AutomationVariableListProvider
       value={{

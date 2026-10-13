@@ -97,6 +97,7 @@
   --animate-bot-glance: bot-glance 4.5s ease-in-out infinite;
   --animate-bot-blink: bot-blink 4.5s infinite;
   --animate-bot-dots: bot-dots 1.2s infinite;
+  --animate-text-shimmer: text-shimmer 1.8s linear infinite;
 
   --animate-first: move-vertical 30s ease infinite;
   --animate-second: move-in-circle 20s reverse infinite;
@@ -202,6 +203,14 @@
     }
     40% {
       opacity: 1;
+    }
+  }
+  @keyframes text-shimmer {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0% 0;
     }
   }
 
