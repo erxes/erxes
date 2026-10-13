@@ -14,6 +14,10 @@ export interface TicketExportItem {
   startDate?: string;
   targetDate?: string;
   updatedAt?: string;
+  description?: string;
+  statusChangedDate?: string;
+  statusChangedByName?: string;
+  updatedByName?: string;
   number?: string;
   statusName?: string;
   createdByName?: string;
