@@ -574,9 +574,9 @@
   visible in its table, in their on-screen order and with the same headers,
   including property columns. It is disabled until the table has rendered.
 - GraphQL codegen (`client-preset`) validates every GraphQL document against
-  the printed `frontline_api` and `core-api` schemas plus
-  `codegen/external-plugins.graphql`, and generates result and variable types
-  into `src/gql/`.
+  the printed `frontline_api` schema, the core snapshot
+  `schema/platform.graphql` and `codegen/external-plugins.graphql`, and
+  generates result and variable types into `src/gql/`.
 
 ## Architecture
 
@@ -598,7 +598,7 @@ owns the setup form and connection actions.
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
-| GraphQL codegen           | `codegen.ts`, `codegen/external-plugins.graphql`                                                                                                  | Generates `src/gql/` (gitignored) from the printed `frontline_api` and `core-api` schemas and the optional-plugin mirror                        |
+| GraphQL codegen           | `codegen.ts`, `schema/platform.graphql`, `codegen/external-plugins.graphql`                                                                       | Generates `src/gql/` (gitignored) from the printed `frontline_api` schema, the core snapshot and the optional-plugin mirror                     |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
 | Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
@@ -889,8 +889,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `note-email-sent-to`, `ticket-reply-not-delivered`,
   `email-delivery-stuck-hint`, `email-delivery-resent` and
   `attachment-not-saved-days`.
-- The printed `frontline_api` and `core-api` subgraph schemas from their
-  `schema:print` Nx targets, consumed only at codegen time.
+- The printed `frontline_api` subgraph schema from its `schema:print` Nx
+  target, consumed only at codegen time.
+- Core types and fields this plugin selects, declared for codegen only in
+  `schema/platform.graphql`.
 - Optional plugin queries `getTeams`, `getStatusesChoicesByTeam` (operation)
   and `contentCMSList` (content), declared for codegen only in
   `codegen/external-plugins.graphql`.
@@ -2143,9 +2145,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `FrontlineConversationMessageFields`, so an update replaces a message with
   the same full shape.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the
-  `codegen` target, which depends on `frontline_api:schema:print` and
-  `core-api:schema:print`. The plugin never depends on an optional plugin's
-  printed schema.
+  `codegen` target, which depends on `frontline_api:schema:print` only. The
+  plugin never depends on core's or an optional plugin's printed schema.
+- `schema/platform.graphql` snapshots only the core types and fields frontline
+  documents select, each block headed by its `backend/core-api/src` SDL
+  source. When a document selects another core field, or core changes one it
+  selects, update the snapshot from that source; codegen fails on a field the
+  snapshot lacks.
 - `codegen/external-plugins.graphql` mirrors only the optional-plugin
   operations and fields this plugin selects, copied from operation_api and
   content_api SDL; extend it by hand when a document selects more of them.
@@ -2168,10 +2174,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Rename an article inline, change its status and category, filter by status,
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
-- `pnpm nx run frontline_ui:codegen --skip-nx-cache` - fails only on
-  `conversationMessagePin` until the Discord message-sync backend declares
-  that mutation; `build` and `serve` run codegen first, so they fail until then
-  too.
+- `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
+  document against the printed `frontline_api` schema and the core snapshot;
+  `build` and `serve` run it first.
 - `pnpm nx build frontline_ui`
 - `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
   `groupCategoriesByParent` and `withoutEmptyCode` specs.

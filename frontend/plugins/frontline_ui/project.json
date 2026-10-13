@@ -72,13 +72,14 @@
       "cache": true,
       "dependsOn": [
         {
-          "projects": ["frontline_api", "core-api"],
+          "projects": ["frontline_api"],
           "target": "schema:print"
         }
       ],
       "inputs": [
         "{projectRoot}/codegen.ts",
         "{projectRoot}/codegen/**/*.graphql",
+        "{projectRoot}/schema/**/*.graphql",
         "{projectRoot}/src/**/*.{ts,tsx}",
         "!{projectRoot}/src/gql/**",
         {

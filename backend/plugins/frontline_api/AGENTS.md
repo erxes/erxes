@@ -1089,7 +1089,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
 - Nx target `schema:print` (cached, output `generated/schema.graphql`),
-  consumed by `frontline_ui:codegen` together with `core-api:schema:print`.
+  consumed by `frontline_ui:codegen` together with the UI's own core snapshot
+  `schema/platform.graphql`.
 
 ### Consumes
 
