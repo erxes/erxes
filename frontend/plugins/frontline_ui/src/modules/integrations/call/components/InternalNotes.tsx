@@ -1,6 +1,6 @@
 import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
-import { MessageContent } from '@/inbox/conversation-messages/components/content/MessageContent';
+import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { useCallConversationNoteContext } from '@/integrations/call/context/conversationNoteContext';
 import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';

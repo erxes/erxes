@@ -1,10 +1,96 @@
-import type { ComposerShellProps } from '@/inbox/conversations/conversation-detail/types/composerUi';
-import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
+import {
+  INTERNAL_NOTE_BACKGROUND,
+  INTERNAL_NOTE_ICON,
+} from '@/inbox/constants/internalNoteStyles';
 import { Button, cn } from 'erxes-ui';
-import { IconChevronUp, IconLock } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronUp, IconLock } from '@tabler/icons-react';
+import type { DragEventHandler, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ComposerShellHeader } from './ComposerShellHeader';
-import { useComposerShell } from '../../hooks/composer/useComposerShell';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { ComposerModeTabs } from '@/inbox/conversations/conversation-detail/components/ComposerModeTabs';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import {
+  isInternalNoteCollapsedState,
+  isInternalState,
+  onlyInternalState,
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import { IntegrationType } from '@/types/Integration';
+
+type ComposerShellProps = {
+  children: ReactNode;
+  replyPreview?: ReactNode;
+  disabled: boolean;
+  onDrop: DragEventHandler<HTMLFormElement>;
+  onInternalNoteChange: (internal: boolean) => void;
+};
+
+const ComposerShellHeader = ({
+  noteOnly,
+  isInternalNote,
+  onlyInternal,
+  disabled,
+  onInternalNoteChange,
+  replyPreview,
+  onCollapse,
+}: Pick<
+  ComposerShellProps,
+  'disabled' | 'onInternalNoteChange' | 'replyPreview'
+> & {
+  noteOnly: boolean;
+  isInternalNote: boolean;
+  onlyInternal: boolean;
+  onCollapse: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <div
+      data-composer-header
+      className="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/50 px-3 py-2"
+    >
+      {noteOnly ? (
+        <div
+          className={cn(
+            'flex h-8 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium',
+            INTERNAL_NOTE_ICON,
+          )}
+        >
+          <IconLock className="size-3.5" />
+          {t('internal-note', 'Internal Note')}
+        </div>
+      ) : (
+        <div className="w-full min-w-0 shrink-0 sm:w-80">
+          <ComposerModeTabs
+            isInternalNote={isInternalNote}
+            disabled={disabled}
+            replyDisabled={onlyInternal}
+            onInternalNoteChange={onInternalNoteChange}
+          />
+        </div>
+      )}
+      {replyPreview && (
+        <div className="min-w-0 flex-1 basis-48">{replyPreview}</div>
+      )}
+      {isInternalNote && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={cn(
+            'ml-auto size-7 shrink-0 rounded-full',
+            INTERNAL_NOTE_ICON,
+          )}
+          aria-label={t(
+            'collapse-internal-note-composer',
+            'Collapse internal note composer',
+          )}
+          onClick={onCollapse}
+        >
+          <IconChevronDown className="size-4" />
+        </Button>
+      )}
+    </div>
+  );
+};
 
 export const ComposerShell = ({
   children,
@@ -14,8 +100,12 @@ export const ComposerShell = ({
   onInternalNoteChange,
 }: ComposerShellProps) => {
   const { t } = useTranslation('frontline');
-  const { collapsed, setCollapsed, isInternalNote, onlyInternal, noteOnly } =
-    useComposerShell();
+  const collapsed = useAtomValue(isInternalNoteCollapsedState);
+  const setCollapsed = useSetAtom(isInternalNoteCollapsedState);
+  const isInternalNote = useAtomValue(isInternalState);
+  const onlyInternal = useAtomValue(onlyInternalState);
+  const { integration } = useConversationContext();
+  const noteOnly = integration?.kind === IntegrationType.MAIL;
 
   if (isInternalNote && collapsed) {
     return (

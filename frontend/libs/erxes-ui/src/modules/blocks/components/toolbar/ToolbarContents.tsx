@@ -12,8 +12,8 @@ import {
   TextAlignButton,
   UnnestBlockButton,
 } from '@blocknote/react';
-import { FontFamilyButton } from './buttons/FontFamilyButton';
-import { ImageStyleButton } from './buttons/ImageStyleButton';
+import { FontFamilyButton } from '../FontFamilyButton';
+import { ImageStyleButton } from '../ImageStyleButton';
 
 import { useToolbarComponents } from '../../hooks/toolbar/useToolbarComponents';
 

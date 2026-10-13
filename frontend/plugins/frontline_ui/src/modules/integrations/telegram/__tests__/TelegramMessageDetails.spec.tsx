@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { TelegramMessageStatus } from '../TelegramMessageDetails';
-import { MessagePoll } from '@/inbox/conversation-messages/components/content/MessagePoll';
+import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import { getMessageDisplay } from '@/inbox/conversation-messages/utils/messageDisplay';
 import { IntegrationType } from '@/types/Integration';
 import type { PropsWithChildren } from 'react';

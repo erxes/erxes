@@ -1,4 +1,4 @@
-import { activityCustomerId } from '@/activity/components/timeline/ActivityAuthor';
+import { activityCustomerId } from '@/activity/components/ActivityAuthor';
 import { INote, TNoteKind } from '@/activity/types';
 
 export const getNoteKind = (

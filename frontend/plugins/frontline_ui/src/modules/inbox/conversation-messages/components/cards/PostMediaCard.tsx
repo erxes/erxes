@@ -1,6 +1,6 @@
 import { IconExternalLink, IconPhotoOff } from '@tabler/icons-react';
 import { Skeleton, readImage } from 'erxes-ui';
-import { InboxImage } from '@/inbox/conversation-messages/components/attachments/InboxImage';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 import { useFacebookPost } from '@/integrations/facebook/hooks/useFacebookPost';
 import { useIgPost } from '@/integrations/instagram/hooks/useIgPost';
 import { IntegrationType } from '@/types/Integration';

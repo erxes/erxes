@@ -1,4 +1,4 @@
-import { ActivityList } from '@/activity/components/timeline/ActivityList';
+import { ActivityList } from '@/activity/components/ActivityList';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';

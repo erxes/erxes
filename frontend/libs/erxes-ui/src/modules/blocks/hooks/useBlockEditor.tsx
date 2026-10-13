@@ -5,6 +5,7 @@ import { useErxesUpload, useUploadChunked, useToast } from 'erxes-ui/hooks';
 import { readImage } from 'erxes-ui/utils';
 import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
 import type { IBlockEditor } from '../types';
+import { removeCodeFormattingFromHTML } from '../utils/removeCodeFormattingFromHTML';
 
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
@@ -60,6 +61,16 @@ export const useBlockEditor = (args?: {
     resolveFileUrl: (url) => Promise.resolve(readImage(url)),
     ...restArgs,
   });
+
+  useEffect(() => {
+    const exportHTML = editor.blocksToHTMLLossy;
+    editor.blocksToHTMLLossy = async (blocks) =>
+      removeCodeFormattingFromHTML(await exportHTML.call(editor, blocks));
+
+    return () => {
+      editor.blocksToHTMLLossy = exportHTML;
+    };
+  }, [editor]);
 
   return editor;
 };

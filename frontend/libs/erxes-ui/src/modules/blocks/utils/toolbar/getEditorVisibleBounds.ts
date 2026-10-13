@@ -4,8 +4,8 @@ export const getEditorVisibleBounds = (
   editor: HTMLElement,
 ): EditorVisibleBounds => {
   const bounds = editor.getBoundingClientRect();
-  let top = Math.max(0, bounds.top);
-  let bottom = Math.min(window.innerHeight, bounds.bottom);
+  let top = 0;
+  let bottom = window.innerHeight;
   let left = Math.max(0, bounds.left);
   let right = Math.min(window.innerWidth, bounds.right);
   for (
@@ -14,13 +14,18 @@ export const getEditorVisibleBounds = (
     parent = parent.parentElement
   ) {
     const style = getComputedStyle(parent);
-    if (!/(auto|scroll|hidden|clip)/.test(style.overflowY + style.overflowX))
-      continue;
+    const clipsY = /(auto|scroll|hidden|clip)/.test(style.overflowY);
+    const clipsX = /(auto|scroll|hidden|clip)/.test(style.overflowX);
+    if (!clipsY && !clipsX) continue;
     const rect = parent.getBoundingClientRect();
-    top = Math.max(top, rect.top);
-    bottom = Math.min(bottom, rect.bottom);
-    left = Math.max(left, rect.left);
-    right = Math.min(right, rect.right);
+    if (clipsY) {
+      top = Math.max(top, rect.top);
+      bottom = Math.min(bottom, rect.bottom);
+    }
+    if (clipsX) {
+      left = Math.max(left, rect.left);
+      right = Math.min(right, rect.right);
+    }
   }
   return { top, bottom, left, right };
 };

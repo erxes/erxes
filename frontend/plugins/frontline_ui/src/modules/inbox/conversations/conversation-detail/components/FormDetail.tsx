@@ -1,7 +1,7 @@
 import { Empty, ScrollArea, Skeleton, useQueryState } from 'erxes-ui';
 import { IMessage } from '@/inbox/types/Conversation';
 import React from 'react';
-import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/content/ConversationFormDisplay';
+import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/ConversationFormDisplay';
 import { InternalNoteDisplay } from 'ui-modules';
 import { MessageInput } from '@/inbox/conversations/conversation-detail/components/MessageInput';
 import { ConversationDetailLayout } from '@/inbox/conversations/conversation-detail/components/ConversationDetailLayout';

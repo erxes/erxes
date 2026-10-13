@@ -4,8 +4,8 @@ import { CustomersInline, MembersInline } from 'ui-modules';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
-import { ConversationFormDisplay } from './content/ConversationFormDisplay';
-import { MessageContent } from './content/MessageContent';
+import { ConversationFormDisplay } from './ConversationFormDisplay';
+import { MessageContent } from './MessageContent';
 
 export const ConversationMessage = () => {
   const message = useConversationMessageContext();

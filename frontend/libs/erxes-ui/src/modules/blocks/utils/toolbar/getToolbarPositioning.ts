@@ -25,8 +25,10 @@ export const getToolbarPositioning = (
           anchor.bottom <= top || anchor.top >= bottom ? 'hidden' : '';
         return {
           x:
-            Math.max(left, Math.min(x + originX, right - rects.floating.width)) -
-            originX,
+            Math.max(
+              left,
+              Math.min(x + originX, right - rects.floating.width),
+            ) - originX,
           y:
             Math.max(
               top,
@@ -40,6 +42,7 @@ export const getToolbarPositioning = (
     },
   ],
   whileElementsMounted: (_reference, _floating, update) => {
+    update();
     const editor = getEditorElement();
     if (!editor) return () => undefined;
     editor.ownerDocument.addEventListener('scroll', update, true);

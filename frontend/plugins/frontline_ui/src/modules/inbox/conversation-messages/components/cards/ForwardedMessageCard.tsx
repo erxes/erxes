@@ -1,8 +1,8 @@
 import { cn, type IAttachment } from 'erxes-ui';
-import { Attachments } from '@/inbox/conversation-messages/components/attachments/MessageAttachments';
-import { MessageContent } from '@/inbox/conversation-messages/components/content/MessageContent';
-import { MessageEmbeds } from '@/inbox/conversation-messages/components/content/MessageEmbeds';
-import { MessagePoll } from '@/inbox/conversation-messages/components/content/MessagePoll';
+import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
+import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
+import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import type {
   IMessageForwardedSnapshot,
   IMessageSticker,
