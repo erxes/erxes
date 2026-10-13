@@ -10,6 +10,7 @@ import {
   ARTICLE_DETAIL,
   ARTICLES,
   CATEGORIES,
+  TOPICS,
 } from '@/knowledgebase/graphql/queries';
 import {
   IArticle,
@@ -19,7 +20,7 @@ import {
 } from '@/knowledgebase/types';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 
-const ARTICLE_QUERIES = [ARTICLES, CATEGORIES];
+const ARTICLE_QUERIES = [ARTICLES, CATEGORIES, TOPICS];
 
 export const useSaveArticle = () => {
   const { t } = useTranslation('frontline');

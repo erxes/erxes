@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -47,30 +47,12 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
-  and a record table behind one list/thumbnail toggle that keeps the last
-  choice per browser — and,
-  per topic, the `articles`, `categories` and `kbsettings` routes switched by
-  `Articles / Categories / Settings` tabs in the page header — record tables
-  with inline editing, filters, command bar bulk delete, and the topic,
-  category and article drawers. Selected articles can also be given one status
-  or moved to one category from the command bar, an article can be duplicated
-  as a draft from its row menu, a category's article count links to its
-  filtered articles, and a category row offers `Write an article here`. The
-  article drawer lists each attachment with an open link and a remove button.
-  An article can be scheduled from the drawer (status `Scheduled` plus a
-  date and time, validated to be in the future) or from the table status cell's
-  `Schedule…` item, and shows as a blue `Scheduled · <date>` badge until the
-  backend publishes it. Article search also matches summary and body text.
-  `C` opens the create drawer on the topics, articles and categories pages.
-  A topic's embed script opens as a dialog from its `kbsettings` page.
-  A parent category's count and article filter include its subcategories, and
-  parent categories render bold in the categories table and category pickers.
-  The topics table shows each topic's category and article counts, like the
-  card grid, and lists the `Code` column before `Brand`.
-  The article and category drawers pick the knowledge base first, so an
-  article or a whole category (with its subcategories and their articles) can
-  be moved to another topic.
+- Knowledge base UI: a topic tree sidebar beside every knowledge base page —
+  each topic collapses open to its categories (nested by parent, with article
+  counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
+  routes: record tables with inline editing, filters, command bar bulk delete,
+  and the topic, category and article drawers. A topic's embed script opens as
+  a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
@@ -511,69 +493,70 @@ Frontline. No separate Telegram editor or reply atom is needed.
 existing personal/team inbox routes, where `TelegramIntegrationDetail.tsx`
 owns the setup form and connection actions.
 
-| Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                                |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                              |
-| Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                                    |
-| Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                                         |
-| Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                                       |
-| Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                                      |
-| Settings routes           | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                                     |
-| Channel picker            | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                              |
-| Move to channel           | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                                 |
-| Move to channel mutation  | `src/modules/channels/hooks/useChannelMoveResources.tsx`                                                                                          | `channelMoveResources` plus the per-resource list of queries a move refetches                                                                                 |
-| Inbox nav trees           | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                                |
-| Channel nav row           | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                         | The shared selectable, collapsible channel row both inbox nav groups render                                                                                   |
-| Nav group actions         | `src/modules/NavigationGroupActions.tsx`                                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                                        |
-| Sidebar counts            | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                                         |
-| Live unread               | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                                  |
-| Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                                        |
-| Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                                     |
-| Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                              |
-| Conversation convert      | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                                         |
-| Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                                   |
-| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                               |
-| Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                                            |
-| Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                                    |
-| Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                                         |
-| Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                                            |
-| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it               |
-| Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                                            |
-| Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                                 |
-| Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                                |
-| Survey wizard state       | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                                        |
-| Surveys channel row       | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                                       |
-| Surveys results           | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                                     |
-| Surveys data              | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                                            |
-| Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                                      |
-| Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                                           |
-| Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                                      |
-| Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                                            |
-| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                                      |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout with header section tabs, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel |
-| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                                       |
-| Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                                         |
-| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, page-by-page loading, drawer, bulk status/category command bar, duplicate, mutation hooks            |
-| Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                                |
-| Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                              |
-| Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                                  |
-| FB message action         | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                                            |
-| FB post composer          | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                                          |
-| Call report filters       | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                               |
-| Call report export        | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                                    |
-| Call report tables        | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                               |
-| Call SLA tab              | `src/modules/report/call/components/SlaSection/`, `hooks/useSlaReport.ts`, `slaExcel.ts`                                                          | Agent and callback-window selectors, SLA KPIs, missed reasons, trend, per-queue table, breach list, Excel export                                              |
-| Reports board             | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                                      |
-| Saved charts              | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                              |
-| Mail conversation         | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                                 |
-| Mail AI drafts            | `src/modules/integrations/mail/components/MailDraft{s,Card,EditForm}.tsx`, `src/modules/integrations/mail/hooks/useMailDrafts.tsx`                | Pending draft list under the thread, per-draft send/edit/delete, `mailDraftChanged` refetch                                                                   |
-| Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                              |
-| Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                                    |
-| Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                              |
-| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                                            |
-| Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config                         |
-| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                                |
-| Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                                   |
+| Area                      | Path                                                                                                                                              | Responsibility                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
+| Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
+| Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
+| Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
+| Report navigation         | `src/modules/report/constants/reportSections.ts`                                                                                                  | Report board paths, labels, icons and path matching shared by `ReportIndexPage`, which renders the boards as header tabs                        |
+| Settings routes           | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
+| Channel picker            | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
+| Move to channel           | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
+| Move to channel mutation  | `src/modules/channels/hooks/useChannelMoveResources.tsx`                                                                                          | `channelMoveResources` plus the per-resource list of queries a move refetches                                                                   |
+| Inbox nav trees           | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                  |
+| Channel nav row           | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                         | The shared selectable, collapsible channel row both inbox nav groups render                                                                     |
+| Nav group actions         | `src/modules/NavigationGroupActions.tsx`                                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                          |
+| Sidebar counts            | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                           |
+| Live unread               | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                    |
+| Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
+| Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
+| Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
+| Conversation convert      | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
+| Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
+| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
+| Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
+| Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
+| Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
+| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
+| Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
+| Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
+| Survey wizard state       | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                          |
+| Surveys channel row       | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                         |
+| Surveys results           | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                       |
+| Surveys data              | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
+| Send survey               | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
+| Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
+| Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
+| Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
+| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
+| Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
+| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
+| Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
+| Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
+| Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
+| FB message action         | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
+| FB post composer          | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
+| Call report filters       | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
+| Call report export        | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
+| Call report tables        | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
+| Call SLA tab              | `src/modules/report/call/components/SlaSection/`, `hooks/useSlaReport.ts`, `slaExcel.ts`                                                          | Agent and callback-window selectors, SLA KPIs, missed reasons, trend, per-queue table, breach list, Excel export                                |
+| Reports board             | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
+| Saved charts              | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
+| Mail conversation         | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
+| Mail AI drafts            | `src/modules/integrations/mail/components/MailDraft{s,Card,EditForm}.tsx`, `src/modules/integrations/mail/hooks/useMailDrafts.tsx`                | Pending draft list under the thread, per-draft send/edit/delete, `mailDraftChanged` refetch                                                     |
+| Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
+| Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
+| Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
+| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
+| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
+| Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
 
 ## Contracts
 
@@ -1754,24 +1737,105 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `useIsSettings` matches any path containing `/settings` and would swap the
   host's second navigation column for the workspace settings menu (the CMS
   names its own route `cmssettings` for the same reason).
-- The knowledge base is route-driven, not query-param driven: the topics index
-  lives at `/frontline/knowledgebase` and every per-topic surface at
+- The knowledge base is route-driven, not query-param driven: the index lives
+  at `/frontline/knowledgebase` and every per-topic surface at
   `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
-  header tabs and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
-  reintroduce a `?topicId=`/`?categoryId=` selection for navigation. `editId`
-  (and the articles table's `categoryId` and `status` filters) stay query
-  params, because they are filter and drawer state, not routes.
-- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
-  default, mirroring the CMS website list) and the record table
-  (`TopicsRecordTable`), switched by the header toggle and sharing one
-  `useTopics` query and filter bar. Never drop one of the two. The toggle reads
-  and writes `topicsViewAtom` (`topics/states/topicsViewState.ts`, an
-  `atomWithStorage` under `kbTopicsView`), never component state, so leaving a
-  topic and returning to the index keeps the chosen view. Both show each
-  topic's category and article counts; the article count is
-  `countTopicArticles` over the topic's categories in either view.
+  sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
+  reintroduce a `?topicId=` selection. A sidebar category links to its topic's
+  `articles` route with the existing `categoryId` filter param, so the sidebar
+  and the filter bar chip always show the same selection. `editId`,
+  `createTopic`, `categoryId` and `status` stay query params, because they are
+  filter and drawer state, not routes.
+- `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
+  every knowledge base page, including the index; there is no topics card grid
+  or topics table. The index redirects to the first topic's `articles` route,
+  carrying the query string so `?createTopic=true` from the Frontline
+  navigation still opens the sidebar's topic drawer; with no topics it shows
+  `TopicsEmptyState`.
+- The sidebar reads its selection from the route through
+  `useKnowledgeBaseRoute` and its expanded topic from
+  `kbSidebarOpenTopicIdAtom`. The tree is an accordion: at most one topic is
+  open, opening a topic closes the one before it, and closing a topic only
+  clears the atom when that topic is the open one. Arriving on a topic's
+  route opens it, and the open topic survives moving between that topic's
+  pages. It queries `TOPICS` (with nested
+  categories) without the search/brand filters — the articles search box must
+  never filter the tree. Article, category and topic writes all refetch
+  `TOPICS`, so tree titles and per-category article counts stay live.
+- The sidebar is an erxes-ui `Sidebar.Panel` (collapsible, `w-60`, its own
+  open state) without a `label`, laid out like the host's context column on
+  the Tickets/Forms pages: `KnowledgeBaseLayout` puts the panel full height to
+  the left of the `PageContainer`, so its first row — "Knowledge Base"
+  (`text-sm font-medium`, `h-12` to line up with `PageHeader`) with a `size-8`
+  `Sidebar.PanelTrigger`, with the ghost `+` (new topic) beside it — sits
+  beside the page header, followed by a `Separator` that continues the page
+  header's rule. There is no second "Knowledge bases" heading under it; the
+  panel's built-in `label` is not used either, because its mono face differs
+  from the other headings. When collapsed the panel still portals its expand trigger
+  into the page header's `data-sidebar-panel-slot`.
+  The panel resizes like the host's main sidebar: `sidebar/components/KbResizeHandle`
+  (a copy of core-ui's `NavigationResizeHandle`) sits on its right edge —
+  drag or arrow keys between `KB_SIDEBAR_MIN_WIDTH` (180) and
+  `KB_SIDEBAR_MAX_WIDTH` (480), double-click to reset. The width lives in
+  `kbSidebarWidthAtom` (`atomWithStorage` under `frontline:kb-sidebar-width`,
+  `null` = the panel's default `w-60`) and is passed as an inline `width`;
+  the panel's width transition is switched off while `kbSidebarResizingAtom`
+  is set, and its collapsed `w-0!` still wins over the inline width. The panel
+  keeps its children mounted while collapsed, so the topic and category
+  drawers inside it still open from `?createTopic=true`. The `+` opens
+  the full `TopicDrawer` sheet (every topic field, including appearance), and
+  creating or editing a category from the sidebar opens the full
+  `CategoryDrawer` sheet — never a reduced create dialog for either. A topic
+  row has one `...` button, shown on hover, that opens a dropdown through
+  `KbSidebarRowActions` (new category, manage categories, settings — a topic
+  is deleted only from its `kbsettings` danger zone). A category row has no
+  dropdown: `CategoryRowActions` shows two inline icon buttons on hover or
+  focus — pencil (edit, opens `CategoryDrawer`) and trash (delete, confirms
+  first, turns destructive on hover) — `size-5` with `size-3.5` icons and a
+  `title`. A topic row
+  uses the default `Sidebar.MenuButton` size (`h-7`) with the title only — no
+  chevron and no topic icon (a deliberate exception to the expandable-row
+  chevron rule above, asked for by the product owner), and there is no "All
+  articles" child — the topic
+  row is that link. Opening and closing copies the host's main sidebar
+  (`core-ui` `NavigationDisclosure`) through the plugin's own
+  `sidebar/components/KbDisclosure`: a `grid-rows-[0fr]`/`[1fr]` transition
+  (250ms, `cubic-bezier(0.22,1,0.36,1)`) with an opacity fade, children
+  mounted on first open and kept mounted afterwards. The topic row is a plain
+  `Sidebar.MenuButton` with `aria-expanded`/`aria-controls`, not a Radix
+  `Collapsible` — `Collapsible.Content` unmounts on close and cannot run that
+  transition. Clicking a topic that is not
+  showing its full article list (another topic, or the current one while a
+  category or `categories`/`kbsettings` is open) opens it — closing the
+  previous one — and navigates to `/:topicId/articles` in a transition whose
+  `isPending` already counts as active, so the row reacts on click.
+  Clicking the topic while its full list is showing only toggles it. The
+  current topic row is `isActive`, and erxes-ui's `Sidebar.MenuButton` turns
+  an active row that holds a `Sidebar.Sub` into the grey group highlight
+  (`bg-foreground/5`) — so an open current topic is grey and the selected
+  category inside it is the purple pill. Never recolour the topic row from
+  the plugin; that shared group rule owns it. Hovering
+  or focusing a non-current topic row prefetches that topic's
+  `ARTICLES`, `CATEGORIES` and `TOPIC_DETAIL` through `usePrefetchTopic`, so
+  its articles usually open from the Apollo cache. The prefetch builds its
+  variables with the same `articlesQueryVariables` /
+  `categoriesQueryVariables` the page hooks use — change those builders,
+  never hand-copy the variables, or the prefetch stops hitting the cache.
+  Topic and category rows are `rounded-sm` and press with
+  `active:bg-primary/10`. Categories render as a real tree: `groupCategoriesByParent` (sidebar `utils/`) groups them by parent,
+  sorted by title, re-attaching orphans and cycles to the root so none is lost
+  or rendered twice, and `CategoryTreeItem` recurses into a bordered
+  `Sidebar.Sub` per level. Category rows show title and an article-count pill
+  only, no category icon, muted until hovered or active; on hover or focus
+  the pill hides and the row reserves `pr-12` so the title truncates before
+  the two icons. Each hover group is `group/kb-row` on the
+  row itself (the topic row's wrapper `div`, the category `SubItem`), never the
+  enclosing `group/menu-item`, so hovering a category never reveals its topic's
+  menu. Deleting the selected category returns to its topic's articles.
+  Category deletion goes through `useConfirmRemoveCategory`, shared with the
+  categories table.
 - `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
-  are navigated from the topics index and the topic header breadcrumb, never from a
+  are navigated from the knowledge base's own sidebar panel, never from a
   second navigation column.
 - The topic, category and article sheets group their fields into `InfoCard`
   sections inside a `ScrollArea`, the same shape the help center drawer uses —
@@ -1791,6 +1855,25 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   never silently drops it. Add a missing name to `ICONS` rather than rewriting
   the stored value. Its `variant="table"` renders through
   `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- Knowledge base tables are tuned for switching topics without a hitch; keep
+  these when touching them. `KbRecordTable` mounts rows in batches of
+  `PROGRESSIVE_BATCH_SIZE` (20) through `shared/hooks/useProgressiveRows`,
+  restarting only when its `resetKey` (the topic id) changes, so an inline
+  edit's refetch never shrinks the list. Smaller batches cost more, because
+  erxes-ui rows are not memoised and each batch re-renders the earlier rows.
+  Per-row text uses `shared/components/KbOverflowText`, which renders a plain
+  truncated span and swaps in erxes-ui's `TextOverflowTooltip` only on hover —
+  never put `TextOverflowTooltip` straight into a table cell, since every
+  instance runs its own timer and forced layout. `ArticlesRecordTable` is
+  `memo`ised and memoises its `KbRecordTable` element, so the `Articles` page
+  must pass stable callbacks and must not subscribe to `ARTICLES` itself (the
+  mutations already refetch it).
+- Topic, category and article `code` sit behind a **sparse** unique index, so a
+  missing code is fine but an empty string `""` counts as a value and the
+  second one fails with `E11000`. Every topic and category write
+  (`useSaveTopic`, `useSaveCategory`, `useEditCategoryField`) passes its doc
+  through `utils/withoutEmptyCode`, which drops a blank code; a new write path
+  must do the same.
 - `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
   whole query fail with a 400. A category's topic comes from the route
   (`useParams().topicId`), and that is what an edit sends back in the doc.
@@ -1863,16 +1946,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Inline edits, bulk edits and duplicates keep the route topic. The category
   drawer sends `parentCategoryId: ''` for "No parent category" — an omitted
   field would leave the old parent in place.
-- The topics list (`useTopics`), the articles list (`useArticles`) and the
-  page-level `useCategories` calls on the articles and categories pages use
-  `cache-and-network` with `nextFetchPolicy: 'cache-first'`: a write only
-  refetches the active queries, so the counts and lists of a page opened
-  afterwards — another topic, or the topics index — must refresh on open, while
-  later cache updates (load-more pages, edits) must not send the list back to
-  the network and reset it to page one.
-- The topics table's brand cell passes a brand only when the topic's resolved
-  `brand` carries a `name`. A `brandId` whose brand no longer resolves leaves
-  the cell empty instead of letting `SelectBrand` print the raw id.
+- The categories page's `useCategories` call uses `cache-and-network` with
+  `nextFetchPolicy: 'cache-first'`, so counts changed by a write on another
+  page refresh when it opens. The topics and articles lists load one page
+  (`TOPICS_PER_PAGE` / `ARTICLES_PER_PAGE`) and stay current through the
+  writes' `refetchQueries`; there is no load-more.
 - Message reactions are read through `getMessageReactions` /
   `findOwnReaction` in `conversation-messages/utils/message.ts`
   (`reactions`, falling back to `extraData.reactions`); do not re-derive the
@@ -1886,22 +1964,19 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ## Validation
 
-- Smoke: open `/frontline/knowledgebase`, create a topic, open it, add a
-  category, then an article in that category — each list updates without a
-  reload. Rename a topic and an article from their inline cells, change an
-  article's status and category from the table, filter articles by status and
-  category, move between the header `Articles / Categories / Settings` tabs,
-  press `C` on each list page (and confirm typing `c` in an open drawer does
-  nothing), select articles and set their status and category from the
-  command bar, duplicate an article, click a category's article count, add and
-  remove attachments in the drawer, bulk-delete from the command bar, then edit the topic on its
-  `kbsettings` route and delete it from the danger zone.
-- Smoke (scheduling): set an article to `Scheduled` with a time a few minutes
-  ahead — a past time is refused — and confirm the blue badge, then that it
-  turns `Published` after that time; pick `Schedule…` from a status cell and
-  confirm the drawer opens on that article. Search by a word that appears only
-  in an article body and confirm the row and the count both update.
+- Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
+  articles. Create a topic from the sidebar `+`, add a category from its
+  `...` menu, click the category and create an article in it — the tree, its count
+  and the table update without a reload. Open another topic and confirm the
+  previous one closes and its articles open; click a category, then the
+  topic again to return to its full list; move between `articles`, `categories` and
+  `kbsettings` and confirm the current topic stays open.
+  Rename an article inline, change its status and category, filter by status,
+  bulk-delete from the command bar, edit and delete a category from the
+  sidebar, then delete the topic from its `kbsettings` danger zone.
 - `pnpm nx build frontline_ui`
+- `pnpm nx test frontline_ui` — includes the knowledge base sidebar's
+  `groupCategoriesByParent` and `withoutEmptyCode` specs.
 - `pnpm nx lint frontline_ui` and `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` from the repository root;
   distinguish existing baseline failures from regressions in touched files.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
@@ -1953,8 +2028,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Smoke (knowledge base counts): on a topic's `categories` page a parent such as
   `1. ТАНИЛЦУУЛГА` shows the sum of its subcategories' articles; its badge
   opens `articles?categoryId=<parent>` listing every subcategory's article.
-  The topics table's **Articles** column matches the card grid's article
-  count. In the article drawer, switching the knowledge base clears the
+  The sidebar's per-category counts match those badges. In the article drawer, switching the knowledge base clears the
   category, and saving moves the article to that topic's list and counts.
   Moving a parent category from its drawer takes its subcategories and their
   articles along; the articles page's "records found" matches the topic's

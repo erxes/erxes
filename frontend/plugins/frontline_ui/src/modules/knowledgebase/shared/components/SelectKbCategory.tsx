@@ -1,15 +1,14 @@
 import {
-  cn,
   Combobox,
   Command,
   PopoverScoped,
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
-import { sortCategoriesAsTree } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
+import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText';
 
 export const SelectKbCategory = ({
   topicId,
@@ -34,12 +33,8 @@ export const SelectKbCategory = ({
   const [open, setOpen] = useState(false);
   const { categories, loading } = useCategories(topicId);
 
-  const options = useMemo(
-    () =>
-      sortCategoriesAsTree(categories ?? []).filter(
-        (category) => category._id !== excludeId,
-      ),
-    [categories, excludeId],
+  const options = (categories ?? []).filter(
+    (category) => category._id !== excludeId,
   );
   const selected = options.find((category) => category._id === value);
   const label =
@@ -56,7 +51,7 @@ export const SelectKbCategory = ({
     <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
       {variant === 'table' ? (
         <RecordTableInlineCell.Trigger>
-          <TextOverflowTooltip value={label} />
+          <KbOverflowText value={label} />
         </RecordTableInlineCell.Trigger>
       ) : (
         <Combobox.Trigger className="w-full h-8 font-medium">
@@ -79,10 +74,8 @@ export const SelectKbCategory = ({
             {options.map((category) => (
               <Command.Item
                 key={category._id}
-                value={`${category.title} ${category._id}`}
+                value={category.title}
                 onSelect={() => handleSelect(category._id)}
-                style={{ paddingLeft: 8 + category.depth * 12 }}
-                className={cn(category.hasChildren && 'font-semibold')}
               >
                 <TextOverflowTooltip
                   value={category.title || t('unnamed-category')}

@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { KbErrorState } from '@/knowledgebase/shared/components/KbStates';
+import { useProgressiveRows } from '@/knowledgebase/shared/hooks/useProgressiveRows';
 
 export const KbRecordTable = <T,>({
   columns,
@@ -11,9 +12,7 @@ export const KbRecordTable = <T,>({
   tableId,
   empty,
   commandBar,
-  hasMore,
-  fetchingMore,
-  onLoadMore,
+  resetKey,
 }: {
   columns: ColumnDef<T>[];
   data: T[];
@@ -22,10 +21,10 @@ export const KbRecordTable = <T,>({
   tableId: string;
   empty: ReactNode;
   commandBar: ReactNode;
-  hasMore?: boolean;
-  fetchingMore?: boolean;
-  onLoadMore?: () => void;
+  resetKey?: string;
 }) => {
+  const rows = useProgressiveRows(data, resetKey);
+
   if (error) {
     return <KbErrorState message={error.message} />;
   }
@@ -37,7 +36,7 @@ export const KbRecordTable = <T,>({
   return (
     <RecordTable.Provider
       columns={columns}
-      data={data}
+      data={rows}
       stickyColumns={['more', 'checkbox', 'title']}
       className="m-3"
       tableId={tableId}
@@ -49,13 +48,7 @@ export const KbRecordTable = <T,>({
             {loading ? (
               <RecordTable.RowSkeleton rows={10} />
             ) : (
-              <>
-                <RecordTable.RowList />
-                {fetchingMore && <RecordTable.RowSkeleton rows={3} />}
-                {hasMore && !fetchingMore && (
-                  <RecordTable.RowSkeleton rows={1} handleInView={onLoadMore} />
-                )}
-              </>
+              <RecordTable.RowList />
             )}
           </RecordTable.Body>
         </RecordTable>

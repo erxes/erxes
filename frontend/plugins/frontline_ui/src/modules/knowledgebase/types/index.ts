@@ -14,7 +14,6 @@ export interface IKbPdfAttachment {
 export type TKnowledgeBaseSection = 'articles' | 'categories' | 'kbsettings';
 
 export enum KnowledgeBaseHotKeyScope {
-  TopicsPage = 'knowledge-base-topics-page',
   CategoriesPage = 'knowledge-base-categories-page',
   ArticlesPage = 'knowledge-base-articles-page',
   FormSheet = 'knowledge-base-form-sheet',
