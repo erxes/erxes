@@ -1,9 +1,10 @@
 import { Collapsible, Sidebar } from 'erxes-ui/components';
 import { Link, useLocation } from 'react-router-dom';
 
-import { IconCaretRightFilled } from '@tabler/icons-react';
+import { IconChevronRight } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib';
 import { forwardRef } from 'react';
+import { useNavigationMenuItemControls } from './NavigationMenuItemControls';
 
 export const NavigationMenuLinkItem = forwardRef<
   React.ElementRef<typeof Sidebar.MenuButton>,
@@ -42,9 +43,15 @@ export const NavigationMenuLinkItem = forwardRef<
     const fullPath =
       `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
     const isActive = pathname.startsWith(fullPath);
+    const controls = useNavigationMenuItemControls();
+    const order = controls?.getOrder(fullPath);
 
     return (
-      <Sidebar.MenuItem className={itemClassName}>
+      <Sidebar.MenuItem
+        className={itemClassName}
+        data-nav-path={controls ? fullPath : undefined}
+        style={order === undefined ? undefined : { order }}
+      >
         <Sidebar.MenuButton
           asChild
           isActive={isActiveProp ? isActiveProp : isActive}
@@ -68,6 +75,7 @@ export const NavigationMenuLinkItem = forwardRef<
           </Link>
         </Sidebar.MenuButton>
         {action}
+        {controls?.renderActions({ name, path: fullPath, icon: IconComponent })}
       </Sidebar.MenuItem>
     );
   },
@@ -141,13 +149,15 @@ export const NavigationMenuGroup = forwardRef<
         >
           <Sidebar.Group
             {...props}
-            className={cn('group/navigation-menu', className)}
+            className={cn('group/navigation-menu py-4', className)}
             ref={ref}
           >
             <Sidebar.GroupLabel asChild>
               <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
-                <IconCaretRightFilled className="size-3.5 transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                <span className="font-sans text-xs font-semibold normal-case">
+                <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible-menu:rotate-90 motion-reduce:transition-none">
+                  <IconChevronRight className="size-3.5" />
+                </span>
+                <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {name}
                 </span>
                 {actions && (

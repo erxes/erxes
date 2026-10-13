@@ -19,7 +19,7 @@ import { PipelineStageLoyaltyBadge } from '@/deals/loyaltyRules/components/Pipel
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type TPipelineStageForm = Omit<TPipelineForm, 'stages'> & {
   stages?: Array<
@@ -35,6 +35,8 @@ interface Props extends Omit<SortableItemProps, 'index'> {
     probability: string;
   };
   control: Control<TPipelineStageForm>;
+  autoFocusName?: boolean;
+  onNameFocus?: () => void;
   onRemoveStage: () => void;
 }
 
@@ -68,10 +70,13 @@ export const PipelineStageItem = (props: Props) => {
     index,
     stage,
     control,
+    autoFocusName,
+    onNameFocus,
     onRemoveStage,
   } = props;
 
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation('sales');
   const { errors } = useFormState({
     control,
@@ -84,6 +89,12 @@ export const PipelineStageItem = (props: Props) => {
       setShowExtraFields(true);
     }
   }, [codeError]);
+
+  useEffect(() => {
+    if (autoFocusName && !dragOverlay) {
+      nameInputRef.current?.focus();
+    }
+  }, [autoFocusName, dragOverlay]);
 
   return (
     <div
@@ -151,7 +162,12 @@ export const PipelineStageItem = (props: Props) => {
                     <Form.Control>
                       <Input
                         {...field}
+                        ref={(element) => {
+                          field.ref(element);
+                          nameInputRef.current = element;
+                        }}
                         type="text"
+                        onFocus={onNameFocus}
                         placeholder={t('enter-stage-name')}
                       />
                     </Form.Control>

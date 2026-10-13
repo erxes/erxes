@@ -21,9 +21,11 @@ export const CmsSidebar = () => {
   const { customTypes } = useCustomTypes({ clientPortalId: websiteId });
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel
+      className="flex-none border-r"
+      label={t('content-management')}
+    >
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('content-management')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {postsFieldTypes.map((item) =>
@@ -42,7 +44,7 @@ export const CmsSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

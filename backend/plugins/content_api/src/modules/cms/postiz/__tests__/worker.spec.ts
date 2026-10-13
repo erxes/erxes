@@ -1,20 +1,11 @@
 import { generateModels } from '~/connectionResolvers';
-import {
-  coreModelOrganizations,
-  getSaasCoreConnection,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
-import mongoose from 'mongoose';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { postizBridge } from '../bridge';
 import { requireSharePost } from '../service';
-import { runCmsDeliveries, startCmsDeliveryWorker } from '../worker';
+import { runCmsDeliveries, triggerCmsDeliveries } from '../worker';
 
 jest.mock('~/connectionResolvers', () => ({ generateModels: jest.fn() }));
-jest.mock('erxes-api-shared/utils', () => ({
-  sendTRPCMessage: jest.fn(),
-  getSaasCoreConnection: jest.fn(),
-  coreModelOrganizations: { find: jest.fn() },
-}));
+jest.mock('erxes-api-shared/utils', () => ({ sendTRPCMessage: jest.fn() }));
 jest.mock('../bridge', () => ({
   ...jest.requireActual('../bridge'),
   postizBridge: jest.fn(),
@@ -257,114 +248,71 @@ test('an exhausted ambiguous request becomes UNKNOWN without a new request ID', 
   );
 });
 
-describe('worker startup authentication configuration', () => {
+describe('triggered deliveries', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.replaceProperty(process, 'env', {
-      ...process.env,
-      JWT_TOKEN_SECRET: 'cms-test-jwt',
-      VERSION: 'saas',
-    });
-    delete process.env.CMS_POSTIZ_SHARED_SECRET;
+    process.env.JWT_TOKEN_SECRET = 'cms-test-jwt';
   });
 
-  afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
-    jest.restoreAllMocks();
-  });
-
-  test('JWT alone starts the worker and preserves separate tenant sweeps', async () => {
-    setup();
-    const due = jest.fn().mockResolvedValue({ _id: 'jobA' });
-    const collection = jest.fn(() => ({ findOne: due }));
-    const db = jest.fn(() => ({ collection }));
-    jest
-      .spyOn(mongoose.connection, 'asPromise')
-      .mockResolvedValue(mongoose.connection);
-    jest
-      .spyOn(mongoose.connection, 'getClient')
-      .mockReturnValue({ db } as never);
-    jest.mocked(coreModelOrganizations.find).mockReturnValue({
-      select: () => ({
-        lean: () => ({
-          cursor: async function* () {
-            yield { _id: 'orgA', subdomain: 'tenantA' };
-            yield { _id: 'orgB', subdomain: 'tenantB' };
-          },
-        }),
-      }),
-    });
-    startCmsDeliveryWorker();
-    expect(jest.getTimerCount()).toBe(2);
-    await jest.advanceTimersByTimeAsync(1000);
-    expect(getSaasCoreConnection).toHaveBeenCalled();
-    expect(db).toHaveBeenCalledWith('erxes_orgA');
-    expect(db).toHaveBeenCalledWith('erxes_orgB');
-    expect(generateModels).toHaveBeenCalledWith('tenantA');
-    expect(generateModels).toHaveBeenCalledWith('tenantB');
+  test('a trigger runs only the requesting tenant with its request models', async () => {
+    const { models } = setup();
+    await triggerCmsDeliveries('tenantA', models as never);
+    expect(generateModels).not.toHaveBeenCalled();
     expect(postizBridge).toHaveBeenCalledWith(
       'tenantA',
       'userA',
       'publish',
-      expect.anything(),
+      expect.objectContaining({ requestId: 'requestA' }),
     );
-    await jest.advanceTimersByTimeAsync(15000);
-    expect(generateModels).toHaveBeenCalledTimes(2);
   });
 
-  test('tenants without due deliveries do not create cached models', async () => {
-    const findOne = jest.fn().mockResolvedValue(null);
-    jest
-      .spyOn(mongoose.connection, 'asPromise')
-      .mockResolvedValue(mongoose.connection);
-    jest.spyOn(mongoose.connection, 'getClient').mockReturnValue({
-      db: () => ({ collection: () => ({ findOne }) }),
-    } as never);
-    jest.mocked(coreModelOrganizations.find).mockReturnValue({
-      select: () => ({
-        lean: () => ({
-          cursor: async function* () {
-            yield { _id: 'idleOrg', subdomain: 'idleTenant' };
-          },
-        }),
-      }),
+  test('concurrent triggers for one tenant share a single run', async () => {
+    const { models } = setup();
+    await Promise.all([
+      triggerCmsDeliveries('tenantA', models as never),
+      triggerCmsDeliveries('tenantA', models as never),
+    ]);
+    expect(models.CmsShares.findOneAndUpdate).toHaveBeenCalledTimes(2);
+    expect(postizBridge).toHaveBeenCalledTimes(1);
+  });
+
+  test('a failed run is logged without rejecting the trigger', async () => {
+    const { models } = setup();
+    models.CmsShares.findOneAndUpdate.mockImplementation(() => {
+      throw new Error('database down');
     });
-    startCmsDeliveryWorker();
-    await jest.advanceTimersByTimeAsync(16000);
-    expect(findOne).toHaveBeenCalledTimes(2);
-    expect(generateModels).not.toHaveBeenCalled();
+    const log = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    await expect(
+      triggerCmsDeliveries('tenantA', models as never),
+    ).resolves.toBeUndefined();
+    expect(log).toHaveBeenCalled();
   });
 
   test.each(['os', 'enterprise', undefined])(
-    'enterprise startup (%s) reads persisted jobs without SaaS discovery or a domain setting',
+    'enterprise trigger (%s) routes each snapshot by its saved tenant',
     async (version) => {
       if (version === undefined) delete process.env.VERSION;
       else process.env.VERSION = version;
-      delete process.env.DOMAIN;
-      setup({ subdomain: 'another-enterprise' });
-      startCmsDeliveryWorker();
-      await jest.advanceTimersByTimeAsync(1000);
-      expect(getSaasCoreConnection).not.toHaveBeenCalled();
+      const { models } = setup({ subdomain: 'another-enterprise' });
+      await triggerCmsDeliveries('officenext', models as never);
       expect(postizBridge).toHaveBeenCalledWith(
         'another-enterprise',
         'userA',
         'publish',
         expect.anything(),
       );
-      expect(generateModels).not.toHaveBeenCalledWith('os');
     },
   );
 
   test.each([undefined, '', ' \t\n'])(
-    'no timers start without JWT (%s)',
-    (secret) => {
+    'nothing runs without JWT (%s)',
+    async (secret) => {
       if (secret === undefined) delete process.env.JWT_TOKEN_SECRET;
       else process.env.JWT_TOKEN_SECRET = secret;
-      process.env.CMS_POSTIZ_SHARED_SECRET = 'retired-key'.repeat(8);
-      startCmsDeliveryWorker();
-      expect(jest.getTimerCount()).toBe(0);
-      expect(generateModels).not.toHaveBeenCalled();
+      const { models } = setup();
+      await triggerCmsDeliveries('tenantA', models as never);
+      expect(models.CmsShares.findOneAndUpdate).not.toHaveBeenCalled();
     },
   );
 });

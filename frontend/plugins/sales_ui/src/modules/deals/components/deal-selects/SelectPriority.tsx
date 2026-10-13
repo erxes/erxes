@@ -134,6 +134,7 @@ const SelectPriorityRoot = ({
   scope?: string;
   variant: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   return (
     <SelectPriorityProvider
@@ -146,7 +147,7 @@ const SelectPriorityRoot = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         {variant === SelectTriggerVariant.DETAIL ? (
-          <DealChipTrigger>
+          <DealChipTrigger label={t('field.priority')}>
             <SelectPriorityValue />
           </DealChipTrigger>
         ) : (

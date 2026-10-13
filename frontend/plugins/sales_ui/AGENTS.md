@@ -87,9 +87,19 @@
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
-- Deal detail broker selection shows `Broker: None` until a broker type is
-  chosen, then renders a matching entity selector with a `Select broker`
+- Deal detail chips (priority, assignee, dates, labels, tags, branch,
+  department, broker) render as a field group: a muted label segment, then the
+  value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
+  The broker entity selector that follows is
+  labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
   placeholder.
+- Deal detail header shows a `⋯` actions menu (`DealsActions`
+  `variant="menu"`) with watch/unwatch, duplicate, print (shared
+  `PrintDocument` sheet), archive/unarchive, and remove for archived deals.
+  These actions appear only there, not in the detail overview body.
+- Deal detail overview lays fields out in three rows: stage, start date, close
+  date, assignee and priority; then labels, tags, branch, department and
+  broker; then checklist and attachment upload.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
@@ -198,7 +208,17 @@
 
 ## Local Invariants
 
+- Expandable navigation rows end in the host sidebar's chevron:
+  `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when
+  open, never a filled caret, so the rotation stays on the compositor and
+  matches the main sidebar.
+- Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
+  gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
+  the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
 - Property choices must come only from Core `sales:deal` fields.
+- Deal detail chips render through `DealChipTrigger`; every chip except stage
+  passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
 - An enabled POS customer form must keep `primaryEmail` or `primaryPhone`;
@@ -223,13 +243,15 @@
   discount state.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
-- Deal start/close date selects: the `input` variant (used by deal detail) is
-  the erxes-ui `DatePicker` input itself (own popover); a past close date turns
-  it red and appends an "Ended N days ago" segment. Other variants keep a
-  trigger button whose popover holds `DatePicker` in `inline` mode (typed input
-  above the calendar), with the "Ended" badge as the trigger for a past close
-  date. Typing uses `YYYY-MM-DD`; a complete valid date or a calendar pick
-  commits, and clearing sends `null` so the backend unsets the date.
+- Deal start/close date selects: every variant opens a popover holding
+  `DatePicker` in `inline` mode (typed input above the calendar). The `input`
+  variant (used by deal detail) renders a labelled `DealChipTrigger` showing
+  the date (red plus an "Ended N days ago" badge for a past close date) and an
+  X button that clears it; `DealChipTrigger` swaps its chevron for that X only
+  when `onClear` is passed. Other variants keep their own trigger, with the
+  "Ended" badge as the trigger for a past close date. A padded `YYYY-MM-DD` or
+  a calendar pick commits immediately; unpadded `YYYY-M-D` commits on Enter or
+  blur; clearing sends `null` so the backend unsets the date.
 
 ## Validation
 
