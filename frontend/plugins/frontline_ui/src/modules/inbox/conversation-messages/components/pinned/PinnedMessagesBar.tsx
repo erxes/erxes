@@ -12,7 +12,7 @@ import { IconChevronDown, IconPin, IconPinnedOff } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import { useConversationPinnedMessages } from '@/inbox/conversation-messages/hooks/useConversationPinnedMessages';
-import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
+import { InboxImage } from '@/inbox/conversation-messages/components/attachments/InboxImage';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
 import type { IMessage } from '@/inbox/types/Conversation';

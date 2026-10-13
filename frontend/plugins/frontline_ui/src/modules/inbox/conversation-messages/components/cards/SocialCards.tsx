@@ -1,6 +1,6 @@
 import { IconExternalLink, IconPlayerPlay } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
+import { InboxImage } from '@/inbox/conversation-messages/components/attachments/InboxImage';
 import { UnsupportedMessage } from '@/inbox/conversation-messages/components/messages/MessageStatus';
 
 export const StoryCard = ({

@@ -4,7 +4,7 @@ import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageCont
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { CustomersInline, MembersInline } from 'ui-modules';
-import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
+import { MessageContent } from '@/inbox/conversation-messages/components/content/MessageContent';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { FbMessengerBotMessageItem } from './FbMessengerBotMessageBlocks/FbMessengerBotMessageItem';
 import { FbMessengerMessageAttachments } from './FbMessengerMessageAttachments';

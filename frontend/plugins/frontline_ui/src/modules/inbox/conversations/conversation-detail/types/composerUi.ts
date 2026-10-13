@@ -1,8 +1,8 @@
-import type { ChangeEvent } from 'react';
+import type { DragEventHandler, ReactNode } from 'react';
 import type { EditorMentionItem } from 'ui-modules';
 import type { ComposerBlockEditor } from './composer';
 import type { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/composer/PollComposer';
 
 export type ComposerEditorProps = {
   editor: ComposerBlockEditor;
@@ -27,10 +27,18 @@ export type ComposerToolbarProps = {
   isUploading: boolean;
   loading: boolean;
   sendDisabled: boolean;
-  onFilesSelected: (event: ChangeEvent<HTMLInputElement>) => void;
+  onFilesSelected: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onTemplateSelect: (content: string, templateId?: string) => void;
   onSendPoll: (poll: PollDraft) => Promise<boolean>;
   onSubmit: () => void;
+};
+
+export type ComposerShellProps = {
+  children: ReactNode;
+  replyPreview?: ReactNode;
+  disabled: boolean;
+  onDrop: DragEventHandler<HTMLFormElement>;
+  onInternalNoteChange: (internal: boolean) => void;
 };
 
 export type ComposerModeTabsProps = {
@@ -38,4 +46,22 @@ export type ComposerModeTabsProps = {
   disabled: boolean;
   replyDisabled?: boolean;
   onInternalNoteChange: (internal: boolean) => void;
+};
+
+export type ComposerShellHeaderProps = Pick<
+  ComposerShellProps,
+  'disabled' | 'onInternalNoteChange' | 'replyPreview'
+> & {
+  noteOnly: boolean;
+  isInternalNote: boolean;
+  onlyInternal: boolean;
+  onCollapse: () => void;
+};
+
+export type ComposerShellState = {
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+  isInternalNote: boolean;
+  onlyInternal: boolean;
+  noteOnly: boolean;
 };

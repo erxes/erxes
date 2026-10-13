@@ -1,5 +1,3 @@
-import { createReactInlineContentSpec } from '@blocknote/react';
-import { BarcodeAttribute } from './BarcodeAttribute';
 import { getSlashMenuItems } from '../utils/getSlashMenuItems';
 import {
   SuggestionMenuController,
@@ -13,7 +11,7 @@ import { useAtomValue } from 'jotai';
 import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
-import { Toolbar } from './Toolbar';
+import { Toolbar } from './toolbar/Toolbar';
 import { isEmptyBlock } from '../utils/isEmptyBlock';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 import { editorUIComponents } from '../constant/toolbar/editorUIComponents';
@@ -146,66 +144,3 @@ export const BlockEditor = ({
     </div>
   );
 };
-
-export const Mention = createReactInlineContentSpec(
-  {
-    type: 'mention',
-    propSchema: {
-      fullName: {
-        default: 'Unknown',
-      },
-      _id: {
-        default: '',
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) => (
-      <span className="bg-primary/10 p-1 rounded font-bold text-sm text-primary inline-flex items-center">
-        @{props.inlineContent.props.fullName}
-      </span>
-    ),
-  },
-);
-
-export const Attribute = createReactInlineContentSpec(
-  {
-    type: 'attribute',
-    propSchema: {
-      name: {
-        default: 'Unknown',
-      },
-      value: {
-        default: '',
-      },
-      width: {
-        default: 150,
-      },
-      height: {
-        default: 50,
-      },
-    },
-    content: 'none',
-  },
-  {
-    render: (props) =>
-      props.inlineContent.props.value === 'barcode' ? (
-        <BarcodeAttribute
-          editable={props.editor.isEditable}
-          height={props.inlineContent.props.height}
-          width={props.inlineContent.props.width}
-          onResize={({ width, height }) =>
-            props.updateInlineContent({
-              type: 'attribute',
-              props: { ...props.inlineContent.props, width, height },
-            })
-          }
-        />
-      ) : (
-        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
-          {props.inlineContent.props.name}
-        </span>
-      ),
-  },
-);
