@@ -1,8 +1,10 @@
 import {
   getEnv,
+  getGlobalProfileV2Plugins,
   getPlugin,
   getSaasOrganizationDetail,
   getSubdomain,
+  isGlobalProfileV2,
 } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -97,9 +99,26 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       subdomain,
     });
 
-    const charges = organizationInfo.charge as IOrganizationCharge;
-
     const enabledPluginsArray = ENABLED_PLUGINS.split(',');
+
+    // dashboard.erxes.io organizations: only what their Stripe customer pays for
+    // or has for free, bundled plugins included.
+    if (isGlobalProfileV2(organizationInfo)) {
+      const plugins = await getGlobalProfileV2Plugins(organizationInfo);
+
+      for (const pluginName of plugins) {
+        if (enabledPluginsArray.includes(pluginName)) {
+          remotes.push({
+            name: remoteName(pluginName),
+            entry: await getPluginEntry(pluginName),
+          });
+        }
+      }
+    }
+
+    const charges = isGlobalProfileV2(organizationInfo)
+      ? {}
+      : (organizationInfo.charge as IOrganizationCharge);
 
     for (const key of Object.keys(charges)) {
       if (
