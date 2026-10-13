@@ -915,6 +915,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   since pointer-down, so dropping a dragged field does not open its sheet. The
   row's `...` trigger and the dropdown content stop click propagation, so menu
   actions such as **Remove Field** never reach the row's click handler.
+  The row is keyboard reachable (`role="button"`, `tabIndex={0}`): **Enter**
+  opens the sheet, while every other key is forwarded to the dnd-kit
+  `KeyboardSensor`, so **Space** still picks the field up, arrows move it and
+  **Space** drops it.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel

@@ -44,10 +44,16 @@ export const FormDndField = ({
 }) => {
   const [open, setOpen] = useState(false);
   const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
-  const { setNodeRef, listeners, isDragging, transform, transition } =
-    useSortable({
-      id: field,
-    });
+  const {
+    attributes,
+    setNodeRef,
+    listeners,
+    isDragging,
+    transform,
+    transition,
+  } = useSortable({
+    id: field,
+  });
   const { getFieldValue, newFieldId, clearNewFieldId } = useFormDnd();
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
@@ -73,6 +79,15 @@ export const FormDndField = ({
     setOpen(true);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' && e.target === e.currentTarget && !isDragging) {
+      e.preventDefault();
+      setOpen(true);
+      return;
+    }
+    listeners?.onKeyDown?.(e);
+  };
+
   // const handleChangeSpan = (span: number) => {
   //   fieldData &&
   //     handleChangeField(step, field, {
@@ -93,7 +108,11 @@ export const FormDndField = ({
         )}
         ref={setNodeRef}
         style={{ transition, transform: CSS.Translate.toString(transform) }}
+        {...attributes}
         {...listeners}
+        role="button"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
         onPointerDown={(e) => {
           pointerDownAt.current = { x: e.clientX, y: e.clientY };
         }}
