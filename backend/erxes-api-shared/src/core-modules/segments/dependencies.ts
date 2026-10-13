@@ -49,6 +49,9 @@ const CLOCK_OPERATORS = new Set<SegmentOperator>([
   SegmentOperator.AnniversaryToday,
   SegmentOperator.AnniversaryFromNow,
   SegmentOperator.AnniversaryAgo,
+  SegmentOperator.DateThisMonth,
+  SegmentOperator.DateThisQuarter,
+  SegmentOperator.DateThisYear,
 ]);
 
 export const segmentDependsOnClock = (root: SegmentNode): boolean => {

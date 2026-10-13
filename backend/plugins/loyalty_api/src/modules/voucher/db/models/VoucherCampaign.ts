@@ -1,6 +1,10 @@
 import {
+  IVoucherAutoIssue,
   IVoucherCampaign,
   IVoucherCampaignDocument,
+  TVoucherAutoIssueKind,
+  VOUCHER_AUTO_ISSUE_ENGINES,
+  VOUCHER_AUTO_ISSUE_KINDS,
 } from '@/voucher/@types/voucherCampaign';
 import { voucherCampaignSchema } from '@/voucher/db/definitions/voucherCampaign';
 import { Model } from 'mongoose';
@@ -19,6 +23,14 @@ export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
     doc: IVoucherCampaign,
   ): Promise<IVoucherCampaignDocument>;
   removeVoucherCampaigns(_ids: string[]): void;
+  setVoucherAutoIssue(
+    _id: string,
+    autoIssue: IVoucherAutoIssue,
+  ): Promise<IVoucherCampaignDocument>;
+  removeVoucherAutoIssue(
+    _id: string,
+    kind: TVoucherAutoIssueKind,
+  ): Promise<IVoucherCampaignDocument>;
 }
 
 const validVoucherCampaign = async (doc) => {
@@ -39,6 +51,29 @@ const validVoucherCampaign = async (doc) => {
   // A score voucher leaves only a score log behind, with nothing to count.
   if (doc.perOwnerLimit && doc.voucherType === 'score') {
     throw new Error('A score voucher cannot be limited per owner');
+  }
+};
+
+const validAutoIssue = ({ kind, segmentId, parts = [] }: IVoucherAutoIssue) => {
+  if (!VOUCHER_AUTO_ISSUE_KINDS.includes(kind)) {
+    throw new Error(`Unknown auto issue kind: ${kind}`);
+  }
+
+  if (!segmentId) {
+    throw new Error('Auto issue needs the segment it follows');
+  }
+
+  // Each engine at most once, so switching and removing reach every part.
+  const engines = parts.map(({ engine }) => engine);
+
+  if (
+    !parts.length ||
+    parts.some(
+      ({ engine, id }) => !id || !VOUCHER_AUTO_ISSUE_ENGINES.includes(engine),
+    ) ||
+    new Set(engines).size !== engines.length
+  ) {
+    throw new Error('Auto issue parts are invalid');
   }
 };
 
@@ -208,6 +243,58 @@ export const loadVoucherCampaignClass = (
       }
 
       return { deletedCount: 0 };
+    }
+
+    /** One entry per kind: setting it again replaces the earlier one. */
+    public static async setVoucherAutoIssue(
+      _id: string,
+      autoIssue: IVoucherAutoIssue,
+    ) {
+      validAutoIssue(autoIssue);
+
+      const campaign = await models.VoucherCampaigns.getVoucherCampaign(_id);
+      const next = [
+        ...(campaign.autoIssue || []).filter(
+          ({ kind }) => kind !== autoIssue.kind,
+        ),
+        autoIssue,
+      ];
+
+      return VoucherCampaign.writeAutoIssue(_id, next, campaign.autoIssue);
+    }
+
+    public static async removeVoucherAutoIssue(
+      _id: string,
+      kind: TVoucherAutoIssueKind,
+    ) {
+      const campaign = await models.VoucherCampaigns.getVoucherCampaign(_id);
+      const next = (campaign.autoIssue || []).filter(
+        (entry) => entry.kind !== kind,
+      );
+
+      return VoucherCampaign.writeAutoIssue(_id, next, campaign.autoIssue);
+    }
+
+    private static async writeAutoIssue(
+      _id: string,
+      autoIssue: IVoucherAutoIssue[],
+      prevAutoIssue?: IVoucherAutoIssue[],
+    ) {
+      const modifiedAt = new Date();
+
+      await models.VoucherCampaigns.updateOne(
+        { _id },
+        { $set: { autoIssue, modifiedAt } },
+      );
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: { autoIssue, modifiedAt },
+        prevDocument: { autoIssue: prevAutoIssue },
+      });
+
+      return models.VoucherCampaigns.getVoucherCampaign(_id);
     }
   }
 

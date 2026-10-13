@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { ISafeRemainder } from '../types/SafeRemainder';
@@ -46,17 +47,23 @@ const transactionMoreColumn = {
   size: 33,
 };
 
-export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
+export const safeRemainderColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ISafeRemainder>[] => [
   transactionMoreColumn,
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     accessorKey: 'date',
     cell: ({ row }) => <DateCell value={row.original.date} />,
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('branch')} />
+    ),
     accessorKey: 'branch',
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -66,7 +73,9 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('department')} />
+    ),
     accessorKey: 'department',
     cell: ({ row }) => (
       <RecordTableInlineCell>
@@ -76,7 +85,9 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
     accessorKey: 'description',
     cell: ({ getValue }) => (
       <RecordTableInlineCell>{getValue() as string}</RecordTableInlineCell>

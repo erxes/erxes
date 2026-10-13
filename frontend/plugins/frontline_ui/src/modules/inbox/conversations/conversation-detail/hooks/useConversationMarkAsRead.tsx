@@ -1,4 +1,8 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import {
+  MutationHookOptions,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
 import { MARK_AS_READ_CONVERSATION } from '@/inbox/conversations/conversation-detail/graphql/mutations/markAsReadConversation';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
@@ -22,6 +26,7 @@ type MarkConversationAsReadOptions = MutationHookOptions<
 
 export const useConversationMarkAsRead = () => {
   const { t } = useTranslation('frontline');
+  const client = useApolloClient();
   const [markAsRead] = useMutation<
     MarkConversationAsReadResponse,
     { id: string }
@@ -56,13 +61,21 @@ export const useConversationMarkAsRead = () => {
       },
       // The sidebar badges count conversations this user has not read, so they
       // have to fall as soon as one is read.
-      refetchQueries: [
-        'ConversationCounts',
-        'FrontlineInboxSidebarWorkCounts',
-        'FrontlineInboxUnreadConversationCount',
-        'GetMyChannels',
-        'IntegrationsGetUsedTypesByChannel',
-      ],
+      refetchQueries: () =>
+        [...client.getObservableQueries('active').values()]
+          .filter((query) =>
+            [
+              'ConversationCounts',
+              'FrontlineInboxSidebarWorkCounts',
+              'FrontlineInboxUnreadConversationCount',
+              'GetMyChannels',
+              'IntegrationsGetUsedTypesByChannel',
+            ].includes(query.queryName ?? ''),
+          )
+          .map((query) => ({
+            query: query.options.query,
+            variables: query.variables,
+          })),
       onError: (error) => {
         toast({
           title: t('error', 'Error'),

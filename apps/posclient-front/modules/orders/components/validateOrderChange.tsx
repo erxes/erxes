@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { nextOrderIdAtom, slotFilterAtom } from "@/store"
-import { cartChangedAtom } from "@/store/cart.store"
+import { cartChangedAtom, clearCartWithAuditAtom } from "@/store/cart.store"
 import {
   activeOrderIdAtom,
   askSaveAtom,
@@ -28,6 +28,7 @@ const ValidateOrderChange = () => {
   const orderNumber = useAtomValue(orderNumberAtom)
   const setCartChanged = useSetAtom(cartChangedAtom)
   const setInitialState = useSetAtom(setInitialAtom)
+  const clearCart = useSetAtom(clearCartWithAuditAtom)
   const setFilterSlot = useSetAtom(slotFilterAtom)
   const [nextOrder, setNextOrder] = useAtom(nextOrderIdAtom)
   const shouldAsk = useAtomValue(askSaveAtom)
@@ -81,7 +82,14 @@ const ValidateOrderChange = () => {
           <Button disabled={loading} onClick={() => orderCU()}>
             Хадгалах
           </Button>
-          <Button variant="outline" disabled={loading} onClick={finalAction}>
+          <Button
+            variant="outline"
+            disabled={loading}
+            onClick={() => {
+              clearCart()
+              finalAction()
+            }}
+          >
             Хадгалахгүй
           </Button>
           <AlertDialogCancel disabled={loading}>Буцах</AlertDialogCancel>

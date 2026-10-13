@@ -7,7 +7,7 @@ import {
 import { customerPopoverAtom } from "@/store/ui.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue } from "jotai"
-import { Check, ChevronsUpDown, XIcon } from "lucide-react"
+import { Check, ChevronsUpDown, Plus, XIcon } from "lucide-react"
 
 import {
   Customer as CustomerT,
@@ -18,7 +18,6 @@ import { cn, getCustomerLabel } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -33,8 +32,13 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import useOrderCU from "../orders/hooks/useOrderCU"
+import { CouponInput } from "./components/CouponInput"
+import { CustomerAddDialog } from "./components/CustomerAddDialog"
+import { CustomerLoyaltyPanel } from "./components/CustomerLoyaltyPanel"
 import CustomerType from "./CustomerType"
 import { queries } from "./graphql"
+import { useCustomerForm } from "./hooks/useCustomerForm"
+import { useLoyaltyPreviewSync } from "./hooks/useLoyaltyPreviewSync"
 
 const placeHolder = (type: CustomerTypeT) => {
   if (type === "company") return "Байгууллага"
@@ -48,8 +52,12 @@ const Customer = () => {
   const [customerType, setCustomerType] = useAtom(customerTypeAtom)
   const [value, setValue] = React.useState("")
   const [searchValue, setSearchValue] = useState("")
+  const [addOpen, setAddOpen] = useState(false)
   const { orderCU, loading: loadingCU } = useOrderCU()
+  const isCustomerType = customerType !== "company" && customerType !== "user"
+  const { canCreate, rows } = useCustomerForm(!isCustomerType)
   useKeyEvent(() => setOpen(true), "F9")
+  useLoyaltyPreviewSync()
 
   const { loading, data } = useQuery(queries.poscCustomers, {
     fetchPolicy: "network-only",
@@ -70,6 +78,12 @@ const Customer = () => {
   const handleSelect = (cus: CustomerT) => {
     setCustomer(cus._id === customer?._id ? null : cus)
     setOpen(false)
+    _id && setTimeout(orderCU, 100)
+  }
+
+  const handleCreated = (cus: CustomerT) => {
+    setAddOpen(false)
+    setCustomer(cus)
     _id && setTimeout(orderCU, 100)
   }
 
@@ -117,11 +131,14 @@ const Customer = () => {
                 onValueChange={(value) => setValue(value)}
                 value={value}
               />
-              <CommandEmpty>
-                {loading
-                  ? "Хайж байна..."
-                  : `${placeHolder(customerType)} олдсонгүй`}
-              </CommandEmpty>
+              {/* The add row counts as an item, so CommandEmpty would never show. */}
+              {(loading || !(poscCustomers || []).length) && (
+                <div className="py-6 text-center text-sm">
+                  {loading
+                    ? "Хайж байна..."
+                    : `${placeHolder(customerType)} олдсонгүй`}
+                </div>
+              )}
               {!!(poscCustomers || []).length && (
                 <CommandGroup>
                   <ScrollArea className="h-[300px]">
@@ -144,10 +161,32 @@ const Customer = () => {
                   </ScrollArea>
                 </CommandGroup>
               )}
+              {isCustomerType && canCreate && (
+                <CommandGroup className="border-t">
+                  <CommandItem
+                    onSelect={() => {
+                      setOpen(false)
+                      setAddOpen(true)
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Хэрэглэгч нэмэх
+                  </CommandItem>
+                </CommandGroup>
+              )}
             </Command>
           </PopoverContent>
         </Popover>
       </div>
+      <CustomerLoyaltyPanel />
+      <CouponInput />
+      <CustomerAddDialog
+        open={addOpen}
+        rows={rows}
+        search={value}
+        onCreated={handleCreated}
+        onClose={() => setAddOpen(false)}
+      />
       {loadingCU && <Loader className="absolute inset-0 bg-white/50" />}
     </>
   )

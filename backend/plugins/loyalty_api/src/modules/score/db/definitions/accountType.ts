@@ -45,6 +45,19 @@ const loyaltyAccountTypeExpirySchema = new Schema(
   { _id: false },
 );
 
+const loyaltyEarnEligibilitySchema = new Schema(
+  {
+    who: {
+      type: String,
+      enum: ['all', 'clientPortal', 'segment'],
+      default: 'all',
+      label: 'Who may earn',
+    },
+    segmentId: { type: String, label: 'Segment that may earn' },
+  },
+  { _id: false },
+);
+
 export const loyaltyAccountTypeSchema = new Schema(
   {
     _id: mongooseStringRandomId,
@@ -77,6 +90,10 @@ export const loyaltyAccountTypeSchema = new Schema(
       min: 0,
       default: 1,
       label: 'Money a point pays',
+    },
+    earnEligibility: {
+      type: loyaltyEarnEligibilitySchema,
+      label: 'Who may earn',
     },
     // Featured field on the owner record that mirrors the ledger balance.
     fieldId: { type: String, label: 'Balance field' },

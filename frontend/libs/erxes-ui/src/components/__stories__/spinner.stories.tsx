@@ -29,3 +29,11 @@ export const Default: Story = {
     </div>
   ),
 };
+
+export const WithMascot: Story = {
+  render: () => (
+    <div className="flex items-center h-60">
+      <Spinner withMascot />
+    </div>
+  ),
+};

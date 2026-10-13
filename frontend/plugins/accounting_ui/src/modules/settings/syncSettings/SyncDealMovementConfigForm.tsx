@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { TR_STATUSES } from '@/transactions/types/constants';
@@ -41,25 +42,27 @@ const InventoryAccountField = ({
   form: UseFormReturn<ConfigFormValues>;
   name: 'sourceAccountId' | 'destinationAccountId';
   label: string;
-}) => (
-  <Form.Field
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>{label}</Form.Label>
-        <Form.Control>
-          <SelectAccount.FormItem
-            value={field.value}
-            onValueChange={field.onChange}
-            defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-          />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
+}) => {
+  return (
+    <Form.Field
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>
+            <SelectAccount.FormItem
+              value={field.value}
+              onValueChange={field.onChange}
+              defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
 
 const LocationFields = ({
   form,
@@ -75,77 +78,86 @@ const LocationFields = ({
     | 'defaultDestinationDepartmentId';
   branchLabel: string;
   departmentLabel: string;
-}) => (
-  <>
-    <Form.Field
-      control={form.control}
-      name={branchName}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{branchLabel}</Form.Label>
-          <Form.Control>
-            <SelectBranches.FormItem
-              mode="single"
-              value={field.value ?? ''}
-              onValueChange={field.onChange}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-    <Form.Field
-      control={form.control}
-      name={departmentName}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{departmentLabel}</Form.Label>
-          <Form.Control>
-            <SelectDepartments.FormItem
-              mode="single"
-              value={field.value ?? ''}
-              onValueChange={field.onChange}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  </>
-);
+}) => {
+  return (
+    <>
+      <Form.Field
+        control={form.control}
+        name={branchName}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{branchLabel}</Form.Label>
+            <Form.Control>
+              <SelectBranches.FormItem
+                mode="single"
+                value={field.value ?? ''}
+                onValueChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name={departmentName}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{departmentLabel}</Form.Label>
+            <Form.Control>
+              <SelectDepartments.FormItem
+                mode="single"
+                value={field.value ?? ''}
+                onValueChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </>
+  );
+};
 
 const DealLocationSideField = ({
   form,
 }: {
   form: UseFormReturn<ConfigFormValues>;
-}) => (
-  <Form.Field
-    control={form.control}
-    name="dealLocationSide"
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>Deal-ийн салбар/хэлтсийг ашиглах тал</Form.Label>
-        <Form.Control>
-          <Select
-            value={field.value}
-            onValueChange={(value) =>
-              field.onChange(value as ConfigFormValues['dealLocationSide'])
-            }
-          >
-            <Select.Trigger>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="source">Гарах тал</Select.Item>
-              <Select.Item value="destination">Орох тал</Select.Item>
-            </Select.Content>
-          </Select>
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <Form.Field
+      control={form.control}
+      name="dealLocationSide"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>
+            {t('side-using-the-deal-branch-and-department')}
+          </Form.Label>
+          <Form.Control>
+            <Select
+              value={field.value}
+              onValueChange={(value) =>
+                field.onChange(value as ConfigFormValues['dealLocationSide'])
+              }
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="source">{t('source-side')}</Select.Item>
+                <Select.Item value="destination">
+                  {t('destination-side')}
+                </Select.Item>
+              </Select.Content>
+            </Select>
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
 
 export const SyncDealMovementConfigForm = ({
   form,
@@ -156,6 +168,7 @@ export const SyncDealMovementConfigForm = ({
   onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('accounting');
   const { boardId, pipelineId } = usePipelineReset(form);
 
   useEffect(() => {
@@ -174,7 +187,7 @@ export const SyncDealMovementConfigForm = ({
         className="flex flex-col flex-1 min-h-0 bg-background"
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
-          <SyncSettingSection title="Ерөнхий">
+          <SyncSettingSection title={t('general')}>
             <SyncConfigGeneralFields control={form.control} />
           </SyncSettingSection>
 
@@ -184,36 +197,36 @@ export const SyncDealMovementConfigForm = ({
             form={form}
           />
 
-          <SyncSettingSection title="Данс">
+          <SyncSettingSection title={t('account')}>
             <InventoryAccountField
               form={form}
               name="sourceAccountId"
-              label="Гарах барааны данс"
+              label={t('source-inventory-account')}
             />
             <InventoryAccountField
               form={form}
               name="destinationAccountId"
-              label="Орох барааны данс"
+              label={t('destination-inventory-account')}
             />
           </SyncSettingSection>
 
-          <SyncSettingSection title="Default гарах байршил">
+          <SyncSettingSection title={t('default-source-location')}>
             <LocationFields
               form={form}
               branchName="defaultSourceBranchId"
               departmentName="defaultSourceDepartmentId"
-              branchLabel="Гарах салбар"
-              departmentLabel="Гарах хэлтэс"
+              branchLabel={t('source-branch')}
+              departmentLabel={t('source-department')}
             />
           </SyncSettingSection>
 
-          <SyncSettingSection title="Default орох байршил">
+          <SyncSettingSection title={t('default-destination-location')}>
             <LocationFields
               form={form}
               branchName="defaultDestinationBranchId"
               departmentName="defaultDestinationDepartmentId"
-              branchLabel="Орох салбар"
-              departmentLabel="Орох хэлтэс"
+              branchLabel={t('destination-branch')}
+              departmentLabel={t('destination-department')}
             />
             <DealLocationSideField form={form} />
           </SyncSettingSection>

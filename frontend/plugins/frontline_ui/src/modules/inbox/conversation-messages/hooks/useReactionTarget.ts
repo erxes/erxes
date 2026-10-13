@@ -8,7 +8,7 @@ import {
   REACTION_KINDS,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import {
-  findOwnReaction,
+  getOwnReactionKeys,
   getProviderMessageId,
 } from '@/inbox/conversation-messages/utils/message';
 import { IntegrationType } from '@/types/Integration';
@@ -25,7 +25,7 @@ export const useReactionTarget = () => {
     (!message.userId &&
       !message.fromBot &&
       INSTAGRAM_REACTION_MESSAGE_KINDS.has(message.messageKind || 'text'));
-  const selectedReaction = findOwnReaction(message, currentUser?._id)?.reaction;
+  const selectedReactions = getOwnReactionKeys(message, currentUser?._id);
 
   return {
     visible: REACTION_KINDS.has(kind) && supportedMessage,
@@ -34,7 +34,7 @@ export const useReactionTarget = () => {
     messageId,
     disabled: !messageId,
     disabledReason: 'This message has no provider ID to react to',
-    selectedReaction,
+    selectedReactions,
     reactions: isInstagram ? REACTIONS.slice(0, 1) : REACTIONS,
   };
 };

@@ -1,16 +1,19 @@
 import { Polygons } from '@/auth/components/Polygons';
-import { Button } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { motion } from 'motion/react';
+import { ReactNode } from 'react';
 import { FallbackProps } from 'react-error-boundary';
 
 type GenericErrorFallbackProps = FallbackProps & {
   title?: string;
+  children?: ReactNode;
 };
 
 export const GenericErrorFallback = ({
   resetErrorBoundary,
   error,
   title = 'Sorry, something went wrong',
+  children,
 }: GenericErrorFallbackProps) => {
   return (
     <div className="h-dvh w-dvw p-2 bg-sidebar">
@@ -26,13 +29,23 @@ export const GenericErrorFallback = ({
             className="absolute top-0 left-1/2 -translate-x-1/2"
           />
         </motion.div>
-        <div className="relative z-10 text-center max-w-md pb-20 ">
+        <div
+          className={cn(
+            'relative z-10 text-center max-w-md',
+            children ? 'mb-6' : 'pb-20',
+          )}
+        >
           <h1 className="mb-2 text-xl font-semibold text-foreground">
             {title}
           </h1>
           <p className="mb-4 text-muted-foreground">{error?.message}</p>
           <Button onClick={resetErrorBoundary}>Try Again</Button>
         </div>
+        {children && (
+          <div className="relative z-10 flex w-full justify-center pb-20">
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

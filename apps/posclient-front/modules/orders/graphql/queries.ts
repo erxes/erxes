@@ -22,6 +22,7 @@ export const orderFields = `
   isPre
   directDiscount
   directIsAmount
+  extraInfo
 `
 export const orderItemBaseFields = `
  _id
@@ -41,6 +42,7 @@ export const orderItemFields = `
     discountPercent
     bonusCount
     manufacturedDate
+    conditionCode
     description
     attachment
 `
@@ -187,6 +189,24 @@ const historyDetail = gql`
       billId
       putResponses {
         ${putResponseFields}
+      }
+    }
+  }
+`
+
+const orderChangeLogs = gql`
+  query posclientOrderChangeLogs($orderId: String!) {
+    orderChangeLogs(orderId: $orderId) {
+      _id
+      createdAt
+      changes {
+        field
+        oldValue
+        newValue
+      }
+      user {
+        email
+        primaryEmail
       }
     }
   }
@@ -426,6 +446,7 @@ const queries = {
   ordersHistory,
   activeOrders,
   historyDetail,
+  orderChangeLogs,
   progressHistory,
   progressDoneOrders,
   progressDetail,

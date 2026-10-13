@@ -33,6 +33,7 @@ export interface IConfig {
   allowTypes: IOrderType[]
   orderPassword?: string
   banFractions?: boolean
+  acceptCoupons?: boolean
   permissionConfig?: {
     admins?: IPermissionConfig
     cashiers?: IPermissionConfig
