@@ -62,7 +62,6 @@ const onlyStrings = (meta: TPropertyInputMeta): Record<string, string> =>
 const getDateValue = (value: unknown): Date | undefined => {
   if (value instanceof Date) return value;
 
-  // Saved dates arrive as strings from GraphQL.
   if (typeof value === 'string' && value) return new Date(value);
 
   return undefined;
