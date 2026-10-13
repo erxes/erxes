@@ -1,4 +1,4 @@
-import { IconInbox, IconLoader, IconPencil } from '@tabler/icons-react';
+import { IconInbox, IconLoader } from '@tabler/icons-react';
 import {
   telegramChatLabel,
   useTelegramChats,
@@ -8,7 +8,7 @@ import { ConversationListContext } from '@/inbox/conversations/context/Conversat
 import { IConversation } from '@/inbox/types/Conversation';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 
-import { Button, Empty, Filter, Separator, Skeleton } from 'erxes-ui';
+import { Empty, Filter, Separator, Skeleton } from 'erxes-ui';
 
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
@@ -18,7 +18,6 @@ import { useDiscordConversationChannels } from '@/integrations/discord/hooks/use
 import { useMemo } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
-import { useComposeEmail } from 'ui-modules';
 
 const ConversationsLoading = () => (
   <div className="divide-y" aria-label="Loading conversations">
@@ -39,7 +38,6 @@ const ConversationsLoading = () => (
 
 export const Conversations = () => {
   const { t } = useTranslation('frontline');
-  const { canComposeEmail, composeEmail } = useComposeEmail();
   const {
     totalCount,
     conversations,
@@ -166,16 +164,6 @@ export const Conversations = () => {
                 <IconLoader className="size-4 animate-spin" />
               </div>
             </div>
-          )}
-          {canComposeEmail && (
-            <Button
-              type="button"
-              className="absolute bottom-4 right-4"
-              onClick={() => composeEmail()}
-            >
-              <IconPencil className="size-4" />
-              Compose
-            </Button>
           )}
         </div>
       </div>

@@ -1,8 +1,13 @@
-import { useComposeEmail } from 'ui-modules';
+import { currentUserState, useComposeEmail } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import {
+  directMailDraftSchema,
+  draftBlocksSchema,
+} from '../utils/directMailDraft';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { z } from 'zod';
 import type { Block } from '@blocknote/core';
@@ -72,6 +77,13 @@ const ComposerWindow = ({
 
 export const DirectMailComposer = () => {
   const { canComposeEmail } = useComposeEmail();
+  const currentUser = useAtomValue(currentUserState);
+  const draftKey = currentUser?._id
+    ? `frontline:mail-draft:${currentUser._id}`
+    : undefined;
+  const restoredKey = useRef<string>();
+  const storageErrorShown = useRef(false);
+  const draftClosed = useRef(false);
   const [minimized, setMinimized] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -139,6 +151,71 @@ export const DirectMailComposer = () => {
   );
 
   useEffect(() => {
+    if (!draftKey || !canComposeEmail || restoredKey.current === draftKey)
+      return;
+    restoredKey.current = draftKey;
+    try {
+      const saved = sessionStorage.getItem(draftKey);
+      if (!saved) return;
+      const parsed: unknown = JSON.parse(saved);
+      const draft = directMailDraftSchema.parse(parsed);
+      if (draft.values.body) {
+        const blocks: unknown = JSON.parse(draft.values.body);
+        editor.replaceBlocks(editor.document, draftBlocksSchema.parse(blocks));
+      }
+      reset(draft.values);
+      setTarget(draft.target);
+      setRecipientCustomerId(draft.recipientCustomerId);
+      setAttachments(draft.attachments);
+      setShowCc(draft.showCc);
+      setShowBcc(draft.showBcc);
+    } catch {
+      toast({ title: 'Unable to restore email draft', variant: 'destructive' });
+    }
+  }, [canComposeEmail, draftKey, editor, reset]);
+
+  useEffect(() => {
+    if (!draftKey || !target || !canComposeEmail) return;
+    const save = () => {
+      if (draftClosed.current) return;
+      try {
+        sessionStorage.setItem(
+          draftKey,
+          JSON.stringify({
+            target,
+            values: getValues(),
+            attachments,
+            recipientCustomerId,
+            showCc,
+            showBcc,
+          }),
+        );
+      } catch {
+        if (!storageErrorShown.current) {
+          storageErrorShown.current = true;
+          toast({
+            title: 'Unable to save email draft in this browser',
+            variant: 'destructive',
+          });
+        }
+      }
+    };
+    save();
+    const subscription = watch(() => save());
+    return () => subscription.unsubscribe();
+  }, [
+    attachments,
+    canComposeEmail,
+    draftKey,
+    getValues,
+    recipientCustomerId,
+    showBcc,
+    showCc,
+    target,
+    watch,
+  ]);
+
+  useEffect(() => {
     const handleComposeRequest = (event: Event) => {
       const detail = (event as CustomEvent<ComposeEmailTarget>).detail;
       if (
@@ -159,6 +236,7 @@ export const DirectMailComposer = () => {
           });
         return;
       }
+      draftClosed.current = false;
       setMinimized(false);
       setExpanded(false);
       setAttachments([]);
@@ -212,6 +290,17 @@ export const DirectMailComposer = () => {
   if (!target || !canComposeEmail) return null;
 
   const close = () => {
+    draftClosed.current = true;
+    if (draftKey) {
+      try {
+        sessionStorage.removeItem(draftKey);
+      } catch {
+        toast({
+          title: 'Unable to clear saved email draft',
+          variant: 'destructive',
+        });
+      }
+    }
     editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
     setTarget(null);
     setFailedDelivery(() => undefined);

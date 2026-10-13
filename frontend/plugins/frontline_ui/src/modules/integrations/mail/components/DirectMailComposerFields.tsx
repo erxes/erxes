@@ -149,7 +149,7 @@ export const FromRow = ({
             >
               <Select.Trigger
                 aria-label="From"
-                className="h-9 min-w-0 border-0 px-0 shadow-none"
+                className="h-9 min-w-0 border-0 px-0 shadow-none focus:shadow-none"
               >
                 <Select.Value placeholder="Select sender">
                   {selectedSender &&
@@ -352,7 +352,7 @@ export const BodyField = ({
                 goBackToPreviousHotkeyScope();
               }}
               sideMenu={false}
-              slashMenuOnTop
+              slashMenuOnTop={false}
               className="min-h-full w-full [&_.bn-editor]:min-h-52 [&_.bn-editor]:bg-background [&_.bn-editor]:px-0 [&_.bn-editor]:text-sm [&_.bn-editor]:text-foreground"
             />
           </fieldset>

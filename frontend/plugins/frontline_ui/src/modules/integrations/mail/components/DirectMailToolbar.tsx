@@ -1,5 +1,6 @@
+import { DirectMailTemplateSelector } from './DirectMailTemplateSelector';
 import type { MailAttachmentInput } from '../types/mailDelivery';
-import { IconPhoto, IconPaperclip } from '@tabler/icons-react';
+import { IconPhoto, IconPaperclip, IconTemplate } from '@tabler/icons-react';
 import { Button, Input, toast } from 'erxes-ui';
 import type { IBlockEditor } from 'erxes-ui';
 import { useRef } from 'react';
@@ -46,6 +47,30 @@ export const DirectMailInsertTools = ({
   const attachmentInput = useRef<HTMLInputElement>(null);
   return (
     <>
+      <DirectMailTemplateSelector
+        disabled={disabled}
+        onSelect={async (content) => {
+          const blocks = await editor.tryParseHTMLToBlocks(content);
+          editor.insertBlocks(
+            blocks,
+            editor.getTextCursorPosition().block,
+            'after',
+          );
+          editor.focus();
+        }}
+      >
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7 rounded-sm"
+          title="Email templates"
+          aria-label="Email templates"
+          disabled={disabled}
+        >
+          <IconTemplate className="size-4" />
+        </Button>
+      </DirectMailTemplateSelector>
       <ToolButton
         label="Attach files"
         icon={IconPaperclip}

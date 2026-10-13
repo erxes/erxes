@@ -31,47 +31,6 @@ export const validateMailRecipients = (recipients: {
     ]);
 };
 
-export const readUnverifiedMailRecipients = async (
-  subdomain: string,
-  emails: string[],
-): Promise<string[]> => {
-  const recipients = [
-    ...new Set(
-      z
-        .array(z.string().trim().email().max(320))
-        .max(500)
-        .parse(emails)
-        .map((email) => email.toLowerCase()),
-    ),
-  ];
-  if (!recipients.length) return [];
-
-  const contacts: MailVerifiedContact[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'customers',
-    action: 'findActiveCustomers',
-    input: {
-      query: {
-        emailValidationStatus: { $in: ['valid', 'verified'] },
-        $or: recipients.map((email) => ({
-          primaryEmail: { $regex: `^${escapeRegExp(email)}$`, $options: 'i' },
-        })),
-      },
-      fields: { primaryEmail: 1, emailValidationStatus: 1 },
-    },
-    throwOnError: true,
-  });
-  const verified = new Set(
-    contacts
-      .filter((contact) =>
-        ['valid', 'verified'].includes(contact.emailValidationStatus ?? ''),
-      )
-      .map((contact) => contact.primaryEmail?.trim().toLowerCase()),
-  );
-  return recipients.filter((email) => !verified.has(email));
-};
-
 export const readMailVerifiedContacts = async (
   subdomain: string,
   args: { searchValue?: string; cursor?: string },

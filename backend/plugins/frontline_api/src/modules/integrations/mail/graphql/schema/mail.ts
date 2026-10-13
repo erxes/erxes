@@ -171,7 +171,6 @@ export const types = `
 `;
 
 export const queries = `
-  mailUnverifiedRecipients(emails: [String!]!): [String!]!
   mailVerifiedContacts(searchValue: String, cursor: String): MailVerifiedContacts!
   mailConversationDetail(
     conversationId: String!

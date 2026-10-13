@@ -1,4 +1,4 @@
-import { IconMail } from '@tabler/icons-react';
+import { IconPencil } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useComposeEmail } from '../hooks/useComposeEmail';
 import type { ComposeEmailRequest } from '../hooks/useComposeEmail';
@@ -27,7 +27,7 @@ export const SendEmailButton = ({
         composeEmail(target);
       }}
     >
-      <IconMail className="size-4" />
+      <IconPencil className="size-4" />
       {!compact && 'Send email'}
     </Button>
   );
