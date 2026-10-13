@@ -6,6 +6,11 @@
  */
 
 import * as Sentry from '@sentry/node';
+import {
+  sentryTracingOptions,
+  startTracing,
+  warnTracingWithoutDsn,
+} from './tracing';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -115,14 +120,20 @@ export function initErxesSentry(
   serverName?: string,
 ) {
   const dsn = process.env.SENTRY_DSN;
-  if (!dsn) return;
+  if (!dsn) {
+    warnTracingWithoutDsn();
+    return;
+  }
 
   Sentry.init({
     dsn,
+    ...sentryTracingOptions(),
     environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV,
     release: getSentryRelease(),
     serverName: serverName || process.env.SENTRY_SERVER_NAME,
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
     ...(beforeSend ? { beforeSend } : {}),
   });
+
+  startTracing();
 }
