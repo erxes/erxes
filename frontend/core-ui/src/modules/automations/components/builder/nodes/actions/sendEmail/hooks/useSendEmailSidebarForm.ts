@@ -41,6 +41,8 @@ export const useSendEmailSidebarForm = (
       ccEmailsPlaceHolders: config?.ccEmailsPlaceHolders || '',
       subject: config?.subject || '',
       content: config?.content || '',
+      contentJson: config?.contentJson,
+      contentFormat: config?.contentFormat,
       html: config?.html || '',
       type: config?.type || 'default',
     },

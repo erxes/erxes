@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const PROJECT_LIST_CHANGED = gql`
+export const PROJECT_LIST_CHANGED = gql(`
   subscription operationProjectListChanged($filter: IProjectFilter) {
     operationProjectListChanged(filter: $filter) {
       type
@@ -12,7 +12,10 @@ export const PROJECT_LIST_CHANGED = gql`
         status
         priority
         teamIds
+        tagIds
         leadId
+        memberIds
+        createdBy
         startDate
         targetDate
         createdAt
@@ -20,4 +23,4 @@ export const PROJECT_LIST_CHANGED = gql`
       }
     }
   }
-`;
+`);

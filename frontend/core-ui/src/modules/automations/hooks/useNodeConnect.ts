@@ -14,6 +14,7 @@ import {
   folkKeyOfHandle,
   resolveActionFolks,
 } from '@/automations/utils/automationBuilderUtils/actionFolks';
+import { resolveTriggerFolks } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import {
   generateFolkConnection,
   generateOptionalConnection,
@@ -142,6 +143,18 @@ export const useNodeConnect = () => {
           setAutomationBuilderFormValue('workflows', [...workflows, workFlow]);
           return applyConnectionUpdate(sourceAction, sourceType, sourceIndex);
         }
+      }
+    }
+
+    if (sourceType === AutomationNodeType.Trigger) {
+      const folkKey = folkKeyOfHandle(
+        sourceHandle,
+        resolveTriggerFolks(sourceNode.config),
+      );
+
+      if (folkKey) {
+        const updated = generateFolkConnection(sourceNode, targetId, folkKey);
+        return applyConnectionUpdate(updated, sourceType, sourceIndex);
       }
     }
 

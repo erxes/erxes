@@ -2,6 +2,11 @@ import { Schema, FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { INote, INoteDocument } from '@/ticket/@types/note';
 import { createNotifications } from '~/utils/notifications';
+import {
+  isPortalAuthor,
+  notificationText,
+  notifyTicketOwner,
+} from '@/ticket/utils/cpNotifications';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -103,6 +108,22 @@ export const loadNoteClass = (models: IModels) => {
           userIds: Array.from(subscriberUserIds),
           action: 'updated',
         });
+      }
+
+      if (!doc.isInternal && !isPortalAuthor(doc.createdBy) && note.contentId) {
+        const ticket = await models.Ticket.findOne({ _id: note.contentId });
+
+        if (ticket) {
+          await notifyTicketOwner(subdomain, {
+            ticket,
+            eventType: 'ticketReplied',
+            title: 'New reply on your ticket',
+            message:
+              notificationText(doc.content) ||
+              'The support team replied to your ticket.',
+            priority: 'high',
+          });
+        }
       }
 
       return note;

@@ -41,6 +41,7 @@ const currentConfig = gql`
       }
       allowTypes
       banFractions
+      acceptCoupons
       paymentIds
       paymentTypes
       permissionConfig
@@ -58,6 +59,7 @@ const currentConfig = gql`
         hasSumQty
         isCleanTaxPrice
       }
+      isShowRemainder
       saveRemainder
       serviceCharge
       serviceChargeApplicableProductId

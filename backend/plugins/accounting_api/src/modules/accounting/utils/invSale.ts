@@ -120,6 +120,7 @@ class InvSaleOutCostTrs {
       transaction.branchId,
       transaction.departmentId,
       details.map((d) => d.productId),
+      oldFollowOutTr?._id ? [oldFollowOutTr._id] : [],
     );
 
     for (const detail of details) {
@@ -131,7 +132,7 @@ class InvSaleOutCostTrs {
       );
 
       const cost = costs[detail.productId] || {};
-      const unitPrice = cost?.totalCost / (cost?.remainder ?? 1);
+      const unitPrice = cost?.unitCost ?? 0;
       const amount = fixNum(unitPrice * detail.count, 4);
 
       const commonDetail = {

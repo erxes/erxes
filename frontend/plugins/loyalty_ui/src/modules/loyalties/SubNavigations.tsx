@@ -33,6 +33,12 @@ const ScorePage = lazy(() =>
   })),
 );
 
+const AccountPage = lazy(() =>
+  import('~/pages/loyalties/AccountPage').then((module) => ({
+    default: module.AccountPage,
+  })),
+);
+
 const AssignmentPage = lazy(() =>
   import('~/pages/loyalties/AssignmentPage').then((module) => ({
     default: module.AssignmentPage,
@@ -67,6 +73,7 @@ const LoyaltyNavigationRoutes = () => {
           <Route path="spins" element={<SpinPage />} />
           <Route path="donates" element={<DonatePage />} />
           <Route path="scores" element={<ScorePage />} />
+          <Route path="accounts" element={<AccountPage />} />
           <Route path="assignments" element={<AssignmentPage />} />
           <Route path="agents" element={<AgentPage />} />
           <Route path="coupons" element={<CouponPage />} />

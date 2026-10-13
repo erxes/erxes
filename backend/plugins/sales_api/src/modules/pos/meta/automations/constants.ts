@@ -2,8 +2,15 @@ import {
   AutomationConstants,
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
+  TAutomationTriggerActionInputs,
 } from 'erxes-api-shared/core-modules';
+import { generateModels } from '~/connectionResolvers';
+import {
+  LOYALTY_ADJUST_SCORE_ACTION,
+  LOYALTY_SET_TIER_ACTION,
+} from '~/modules/sales/meta/automations/purchase';
 import { IPosOrder } from '~/modules/pos/@types/orders';
+import { posOrderPaidAmount, posOrderPurchaseItems } from './purchase';
 import { resolvePosOrderPaymentUrl } from './resolvers/resolvePosOrderPaymentUrl';
 
 type TPosOrderAutomationTarget = IPosOrder & {
@@ -41,6 +48,14 @@ const POS_ORDER_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
     label: 'POS order',
     type: 'sales:pos.orders',
     source: 'target',
+    cardinality: 'one',
+  },
+  // The buyer's own record, e.g. a purchase counter a reward is built on.
+  {
+    label: 'Order customer',
+    type: 'core:contacts.customers',
+    source: 'targetField',
+    targetPath: 'customerId',
     cardinality: 'one',
   },
 ];
@@ -90,6 +105,16 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
       { key: 'items.count', label: 'Items count' },
       { key: 'items.amount', label: 'Items amount' },
       { key: 'paymentTypes', label: 'Payment types' },
+      { key: 'paidAmount', label: 'Paid amount (without points)' },
+      {
+        key: 'purchaseItems',
+        label: 'Purchased items',
+        fields: [
+          { key: 'productId', label: 'Product ID' },
+          { key: 'amount', label: 'Amount' },
+          { key: 'discounted', label: 'Discounted' },
+        ],
+      },
       { key: 'subscriptionInfo.status', label: 'Subscription status' },
       { key: 'link', label: 'POS order link' },
       { key: 'onlinePaymentUrl', label: 'Online payment URL' },
@@ -123,8 +148,21 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
           : '',
       onlinePaymentUrl: ({ subdomain, source }) =>
         resolvePosOrderPaymentUrl({ source, subdomain }),
+      paidAmount: async ({ subdomain, source }) =>
+        posOrderPaidAmount(await generateModels(subdomain), source),
+      purchaseItems: ({ source }) => posOrderPurchaseItems(source),
     },
   };
+
+// A POS order handed to loyalty as a purchase.
+const POS_ORDER_ACTION_INPUTS: TAutomationTriggerActionInputs = {
+  [LOYALTY_ADJUST_SCORE_ACTION]: {
+    totalAmount: 'totalAmount',
+    paidAmount: 'paidAmount',
+    items: 'purchaseItems',
+  },
+  [LOYALTY_SET_TIER_ACTION]: { totalAmount: 'totalAmount' },
+};
 
 export const posAutomationConstants = {
   triggers: [
@@ -138,6 +176,7 @@ export const posAutomationConstants = {
         'Start this workflow when a POS order matches the selected event.',
       isCustom: true,
       output: POS_ORDER_OUTPUT,
+      actionInputs: POS_ORDER_ACTION_INPUTS,
       setPropertyTargets: POS_ORDER_SET_PROPERTY_TARGETS,
     },
   ],

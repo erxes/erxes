@@ -1,9 +1,11 @@
+import { useQuery } from '@apollo/client';
 import { Button, Form, ScrollArea, Sheet } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PostizDeliveryList } from '../../postiz/PostizDeliveryList';
+import { CMS_POSTIZ_TENANT_ENABLED } from '../../postiz/graphql';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
@@ -47,6 +49,12 @@ export const AddPostForm = ({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const currentEditingPost = editingPost || locationState?.post;
+  const { data: postizAccess } = useQuery<{
+    agentPostizTenantEnabled: boolean;
+  }>(CMS_POSTIZ_TENANT_ENABLED, {
+    fetchPolicy: 'no-cache',
+    skip: !currentEditingPost?._id,
+  });
 
   const {
     form,
@@ -129,6 +137,7 @@ export const AddPostForm = ({
   });
 
   const formInitializedRef = useRef(false);
+  const lastBusyRef = useRef({ creating: false, saving: false });
 
   const handleLanguageChangeRef = useRef<(lang: string) => void>(
     () => undefined,
@@ -161,7 +170,13 @@ export const AddPostForm = ({
   );
 
   useEffect(() => {
-    if (onFormReady && form && !formInitializedRef.current) {
+    if (
+      onFormReady &&
+      form &&
+      (!formInitializedRef.current ||
+        lastBusyRef.current.creating !== creating ||
+        lastBusyRef.current.saving !== saving)
+    ) {
       // Same safe widening as formForColumns — consumers only read known fields.
       onFormReady({
         form: form as unknown as UseFormReturn<FieldValues>,
@@ -171,6 +186,7 @@ export const AddPostForm = ({
         handleLanguageChange: handleLanguageChangeStable,
       });
       formInitializedRef.current = true;
+      lastBusyRef.current = { creating, saving };
     }
   }, [
     form,
@@ -361,7 +377,8 @@ export const AddPostForm = ({
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
       {postizSheet}
-      {currentEditingPost?._id &&
+      {postizAccess?.agentPostizTenantEnabled &&
+        currentEditingPost?._id &&
         fullPost?.type === 'post' &&
         fullPost.status === 'published' && (
           <>

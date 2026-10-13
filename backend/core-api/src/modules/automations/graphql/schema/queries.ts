@@ -18,6 +18,7 @@ const queryParams = `
   updatedAtTo: Date
   triggerTypes: [String]
   actionTypes: [String]
+  triggerSegmentId: String
 `;
 
 const historiesParams = `

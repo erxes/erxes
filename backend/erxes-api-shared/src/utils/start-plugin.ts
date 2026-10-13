@@ -27,6 +27,7 @@ import type {
 } from '../core-modules';
 import {
   initApproval,
+  initPropertyProducers,
   initRecordReferences,
   initSegmentProducers,
   startAutomations,
@@ -417,6 +418,7 @@ export async function startPlugin(
       references,
       importExport,
       approval,
+      properties,
     } = meta || {};
 
     if (beforeResolvers) {
@@ -441,6 +443,10 @@ export async function startPlugin(
 
     if (segments) {
       await initSegmentProducers(app, name, segments);
+    }
+
+    if (properties?.valueUsage) {
+      initPropertyProducers(app, properties.valueUsage);
     }
 
     if (notifications) {

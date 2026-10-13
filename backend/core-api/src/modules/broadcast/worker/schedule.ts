@@ -1,7 +1,17 @@
-import { setEventHandlerRuntimeContext } from 'erxes-api-shared/core-modules';
+import {
+  SegmentMaterializedPayload,
+  setEventHandlerRuntimeContext,
+  zonedDate,
+  zonedDayStart,
+} from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { publishBroadcastChanged } from '../utils/publishBroadcast';
-import { armSchedule, isRecurring, scheduledAt } from '../utils/schedule';
+import {
+  AFTER_SEGMENT_SCHEDULE,
+  armSchedule,
+  isRecurring,
+  scheduledAt,
+} from '../utils/schedule';
 
 export interface ISchedulePayload {
   subdomain: string;
@@ -47,6 +57,50 @@ export const fireSchedule = async (payload: ISchedulePayload) => {
     return;
   }
 
+  await startOccurrence(models, subdomain, engageMessageId, occurrence);
+};
+
+/**
+ * A segment the clock moves finished its nightly materialization: every live
+ * campaign following it sends to today's members. The day is the occurrence,
+ * so a retried job finds it taken.
+ */
+export const fireAfterSegment = async ({
+  subdomain,
+  segmentId,
+  materializedAt,
+}: SegmentMaterializedPayload) => {
+  const models = await generateModels(subdomain);
+
+  const campaigns = await models.EngageMessages.find(
+    {
+      isDraft: { $ne: true },
+      'scheduleDate.type': AFTER_SEGMENT_SCHEDULE,
+      targetType: 'segment',
+      targetIds: segmentId,
+    },
+    { _id: 1, createdBy: 1, scheduleDate: 1 },
+  ).lean();
+
+  for (const campaign of campaigns) {
+    setEventHandlerRuntimeContext(subdomain, { userId: campaign.createdBy });
+
+    const timeZone = campaign.scheduleDate?.timeZone || 'UTC';
+    const occurrence = zonedDayStart(
+      zonedDate(new Date(materializedAt), timeZone),
+      timeZone,
+    );
+
+    await startOccurrence(models, subdomain, campaign._id, occurrence);
+  }
+};
+
+const startOccurrence = async (
+  models: IModels,
+  subdomain: string,
+  engageMessageId: string,
+  occurrence: Date,
+) => {
   // One occurrence, one run. The unique index is the guarantee; this only
   // saves the work of finding out the expensive way.
   const already = await models.BroadcastRuns.findOne(

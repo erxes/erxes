@@ -113,9 +113,9 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
   let ableCityTaxAmount = 0;
 
   const vatPercent = (config.hasVat && Number(config.vatPercent)) || 0;
-  const cityTaxPercent =
-    (config.hasCitytax && Number(config.cityTaxPercent)) || 0;
-  const totalPercent = vatPercent + cityTaxPercent + 100;
+  const citytaxPercent =
+    (config.hasCitytax && Number(config.citytaxPercent)) || 0;
+  const totalPercent = vatPercent + citytaxPercent + 100;
 
   for (const detail of (doc.details || []).filter((d) => d.product)) {
     const { product } = detail;
@@ -156,7 +156,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
     } else {
       // when a main
       const totalVAT = (detail.totalAmount / totalPercent) * vatPercent;
-      const totalCityTax = (detail.totalAmount / totalPercent) * cityTaxPercent;
+      const totalCityTax = (detail.totalAmount / totalPercent) * citytaxPercent;
       ableAmount += detail.totalAmount;
       ableVATAmount += totalVAT;
       ableCityTaxAmount += totalCityTax;

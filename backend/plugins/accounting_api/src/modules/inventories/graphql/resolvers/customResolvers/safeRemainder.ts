@@ -30,7 +30,7 @@ export default {
     };
   },
 
-  async productCategory(reserveRem: any) {
+  async productCategory(reserveRem: ISafeRemainderDocument) {
     if (!reserveRem.productCategoryId) {
       return;
     }

@@ -2,6 +2,32 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 import { commonCampaignInputs, commonCampaignTypes } from '~/utils/common';
 
 export const types = `
+  type VoucherOwnerLimit {
+    count: Int
+    period: String
+  }
+
+  input VoucherOwnerLimitInput {
+    count: Int!
+    period: String!
+  }
+
+  type VoucherAutoIssuePart {
+    engine: String
+    id: String
+  }
+
+  input VoucherAutoIssuePartInput {
+    engine: String!
+    id: String!
+  }
+
+  type VoucherAutoIssue {
+    kind: String
+    segmentId: String
+    parts: [VoucherAutoIssuePart]
+  }
+
   type VoucherCampaign @key(fields: "_id") {
     _id: String,
     ${commonCampaignTypes}
@@ -33,6 +59,8 @@ export const types = `
     kind: Kind
     value: Float
     restrictions: JSON
+    perOwnerLimit: VoucherOwnerLimit
+    autoIssue: [VoucherAutoIssue]
   }
 
   type VoucherCampaignListResponse {
@@ -85,10 +113,18 @@ const mutationParams = `
   kind: Kind
   value: Float
   restrictions: JSON
+  perOwnerLimit: VoucherOwnerLimitInput
 `;
 
 export const mutations = `
   voucherCampaignsAdd(${mutationParams}): VoucherCampaign
   voucherCampaignsEdit(_id: String!, ${mutationParams}): VoucherCampaign
   voucherCampaignsRemove(_ids: [String]): JSON
+  voucherCampaignSetAutoIssue(
+    _id: String!
+    kind: String!
+    segmentId: String!
+    parts: [VoucherAutoIssuePartInput!]!
+  ): VoucherCampaign
+  voucherCampaignRemoveAutoIssue(_id: String!, kind: String!): VoucherCampaign
 `;

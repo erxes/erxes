@@ -53,6 +53,7 @@ import {
 } from '../propertyUtils';
 import { nanoid } from 'nanoid';
 import { Field, FieldMultiple } from './Field';
+import { GroupFieldRows } from './GroupFieldRows';
 import { useNavigate } from 'react-router-dom';
 
 export const PropertyGroupShell = ({
@@ -204,6 +205,7 @@ export const FieldsInDetail = ({
 };
 
 export const FieldsInGroup = ({
+  group,
   propertiesData,
   mutateHook,
   id,
@@ -221,8 +223,10 @@ export const FieldsInGroup = ({
   fields: IField[];
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {fields.map((field) => (
+    <GroupFieldRows
+      group={group}
+      fields={fields}
+      renderField={(field) => (
         <Field
           key={field._id}
           field={field}
@@ -231,8 +235,8 @@ export const FieldsInGroup = ({
           id={id}
           mutateHook={mutateHook}
         />
-      ))}
-    </div>
+      )}
+    />
   );
 };
 
@@ -350,19 +354,23 @@ const PropertyGroupRow = forwardRef<
           </AlertDialog>
         </div>
 
-        <Collapsible.Content className="grid grid-cols-2 gap-4 p-3 pt-1">
-          {fields.map((field) => (
-            <FieldMultiple
-              key={field._id}
-              group={group}
-              field={field}
-              rowId={row._id}
-              value={row[field._id] as string}
-              propertiesData={propertiesData}
-              id={id}
-              mutateHook={mutateHook}
-            />
-          ))}
+        <Collapsible.Content className="p-3 pt-1">
+          <GroupFieldRows
+            group={group}
+            fields={fields}
+            renderField={(field) => (
+              <FieldMultiple
+                key={field._id}
+                group={group}
+                field={field}
+                rowId={row._id}
+                value={row[field._id] as string}
+                propertiesData={propertiesData}
+                id={id}
+                mutateHook={mutateHook}
+              />
+            )}
+          />
         </Collapsible.Content>
       </Collapsible>
     );

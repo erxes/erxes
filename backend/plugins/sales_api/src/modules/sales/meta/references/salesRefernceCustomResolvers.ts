@@ -2,6 +2,7 @@ import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { IDealDocument } from '../../@types';
 import { getEnv } from 'erxes-api-shared/utils';
+import { dealPaidAmount } from '../automations/purchase';
 
 export const salesReferenceCustomResolvers: TRecordReferencesConfig<
   IModels,
@@ -43,29 +44,6 @@ export const salesReferenceCustomResolvers: TRecordReferencesConfig<
       return total + (product?.amount || 0);
     }, 0);
   },
-  excludeLoyaltyAmount: async ({ models, target, ...props }) => {
-    const stage = await models.Stages.getStage(target.stageId);
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-
-    const scorePaymentTypes = new Set(
-      (pipeline?.paymentTypes || [])
-        .filter(({ scoreCampaignId }) => !!scoreCampaignId)
-        .map(({ type }) => type),
-    );
-    const fallbackTotalAmount = (target.productsData || []).reduce(
-      (sum, product) =>
-        product.tickUsed ? sum + (Number(product?.amount) || 0) : sum,
-      0,
-    );
-    const targetTotalAmount = Number(target.totalAmount);
-    const totalAmount =
-      target.totalAmount === undefined || !Number.isFinite(targetTotalAmount)
-        ? fallbackTotalAmount
-        : targetTotalAmount;
-    const scorePaymentAmount = Object.entries(target?.paymentsData || {})
-      .filter(([type]) => scorePaymentTypes.has(type))
-      .reduce((sum, [, payment]) => sum + (Number(payment?.amount) || 0), 0);
-
-    return Math.max(0, totalAmount - scorePaymentAmount);
-  },
+  excludeLoyaltyAmount: async ({ models, target }) =>
+    dealPaidAmount(models, target),
 };

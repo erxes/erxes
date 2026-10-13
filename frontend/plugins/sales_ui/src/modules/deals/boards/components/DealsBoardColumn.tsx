@@ -265,7 +265,7 @@ export function DealsBoardColumn({
     <DealsBoardColumnHeader
       column={column}
       loading={loading}
-      totalCount={count || 0}
+      totalCount={totalCount ?? count}
     />
   );
 }

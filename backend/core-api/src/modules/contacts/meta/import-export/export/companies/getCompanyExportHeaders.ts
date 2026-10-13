@@ -30,7 +30,9 @@ export async function getCompanyExportHeaders(
 
   if (!models) return systemFields;
 
-  const customFields = await getCustomPropertyHeaders(models, 'core:company');
+  const customFields = await getCustomPropertyHeaders(models, 'core:company', {
+    includeArchived: true,
+  });
 
   return [...systemFields, ...customFields];
 }

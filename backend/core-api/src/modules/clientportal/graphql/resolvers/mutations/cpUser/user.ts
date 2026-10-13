@@ -24,6 +24,7 @@ import type {
   ChangePasswordParams,
 } from '@/clientportal/types/cpUserParams';
 import { validatePassword } from '@/clientportal/services/helpers/validators';
+import { requireClientPortal } from '@/clientportal/services/helpers/requireClientPortal';
 
 export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalUserEdit(
@@ -129,11 +130,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       throw new AuthenticationError('Authentication required');
     }
 
+    const portal = await requireClientPortal(models, clientPortal);
     const user = await socialAuthService.linkSocialAccount(
       cpUser._id,
       provider,
       token,
-      clientPortal,
+      portal,
       models,
     );
 
@@ -235,10 +237,11 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     if (!cpUser) {
       throw new AuthenticationError('User not authenticated');
     }
+    const portal = await requireClientPortal(models, clientPortal);
     await changeContactService.requestChangeEmail(
       cpUser._id,
       newEmail,
-      clientPortal,
+      portal,
       models,
       subdomain,
     );
@@ -264,10 +267,11 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     if (!cpUser) {
       throw new AuthenticationError('User not authenticated');
     }
+    const portal = await requireClientPortal(models, clientPortal);
     await changeContactService.requestChangePhone(
       cpUser._id,
       newPhone,
-      clientPortal,
+      portal,
       models,
       subdomain,
     );

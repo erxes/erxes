@@ -2,6 +2,10 @@ import { Schema } from 'mongoose';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { schemaWrapper } from 'erxes-api-shared/utils';
+import {
+  providerDataSchema,
+  replyToSchema,
+} from '@/inbox/db/definitions/conversationMessages';
 
 export const conversationMessageSchema = schemaWrapper(
   new Schema({
@@ -24,6 +28,13 @@ export const conversationMessageSchema = schemaWrapper(
     internal: { type: Boolean, label: 'Internal' },
     botId: { type: String, label: 'Bot', optional: true },
     botData: { type: Object, optional: true },
+    extraData: { type: Object, optional: true },
+    messageKind: { type: String, optional: true },
+    providerData: { type: providerDataSchema, optional: true },
+    replyTo: { type: replyToSchema, optional: true },
+    reactions: { type: [Schema.Types.Mixed], optional: true },
+    deliveryStatus: { type: String, optional: true },
+    expiresAt: { type: Date, optional: true },
   }),
 );
 

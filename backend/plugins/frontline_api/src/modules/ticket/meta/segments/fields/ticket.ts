@@ -63,7 +63,11 @@ export const TICKET_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
-    query: { name: 'tags', labelField: 'name' },
+    query: {
+      name: 'tags',
+      labelField: 'name',
+      variables: { type: 'frontline:ticket', includeWorkspaceTags: true },
+    },
   }),
 
   SegmentField.lookup({

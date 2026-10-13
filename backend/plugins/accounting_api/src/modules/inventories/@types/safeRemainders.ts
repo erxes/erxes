@@ -10,20 +10,24 @@ export interface IUpdateRemaindersParams {
 
 export interface ISafeRemainderTrRule {
   accountId: string;
-  customerType: string;
-  customerId: string;
-  [key: string]: any;
+  customerType?: string;
+  customerId?: string;
+  [key: string]: unknown;
 }
 
 export interface ISafeRemEditFields {
   description?: string;
-  status: string;
+  status?: string;
   incomeRule?: ISafeRemainderTrRule;
   outRule?: ISafeRemainderTrRule;
   saleRule?: ISafeRemainderTrRule;
+  costIncreaseRule?: ISafeRemainderTrRule;
+  costDecreaseRule?: ISafeRemainderTrRule;
   incomeTrId?: string;
   outTrId?: string;
   saleTrId?: string;
+  costIncreaseTrId?: string;
+  costDecreaseTrId?: string;
 }
 
 export interface ISafeRemainder {
@@ -42,6 +46,10 @@ export interface ISafeRemainder {
   outTrId?: string;
   saleRule?: ISafeRemainderTrRule;
   saleTrId?: string;
+  costIncreaseRule?: ISafeRemainderTrRule;
+  costDecreaseRule?: ISafeRemainderTrRule;
+  costIncreaseTrId?: string;
+  costDecreaseTrId?: string;
 }
 
 export interface ISafeRemainderDocument extends ISafeRemainder, Document {

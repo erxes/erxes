@@ -1,17 +1,18 @@
+import type {
+  OperationGetTriageListQuery,
+  OperationGetTriageQuery,
+} from '~/gql/graphql';
 import { z } from 'zod';
 
-export interface ITriage {
-  _id: string;
-  name: string;
-  description: string;
-  teamId: string;
-  createdBy: string;
-  number: number;
-  createdAt: string;
-  updatedAt: string;
-  priority: number;
-  status: number;
-}
+export type ITriage = NonNullable<
+  NonNullable<
+    NonNullable<OperationGetTriageListQuery['operationGetTriageList']>['list']
+  >[number]
+>;
+
+export type ITriageDetail = NonNullable<
+  OperationGetTriageQuery['operationGetTriage']
+>;
 
 export interface IAddTriage {
   name: string;

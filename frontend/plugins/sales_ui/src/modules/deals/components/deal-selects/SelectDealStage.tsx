@@ -56,7 +56,7 @@ export const SelectDealStage = memo(function SelectDealStage({
         />
       </div>
       <DealStageProgress
-        className="flex-1"
+        className="min-w-0 flex-1"
         stages={stages}
         stageId={stage.value}
         onSelect={stage.setValue}

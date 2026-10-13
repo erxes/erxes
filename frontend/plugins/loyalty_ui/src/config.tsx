@@ -15,7 +15,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'loyalty',
-    defaultPath: 'loyalty/vouchers',
+    defaultPath: 'loyalty/scores',
     icon: IconAward,
     content: () => (
       <Suspense fallback={<div />}>
@@ -52,6 +52,11 @@ export const CONFIG: IUIConfig = {
       icon: IconAward,
     },
     {
+      name: 'accounts',
+      path: 'loyalty/accounts',
+      icon: IconAward,
+    },
+    {
       name: 'assignments',
       path: 'loyalty/assignments',
       icon: IconAward,
@@ -78,11 +83,21 @@ export const CONFIG: IUIConfig = {
     },
   ],
   widgets: {
+    relationSettingsWidgets: [
+      {
+        name: 'loyalty',
+        label: 'Loyalty',
+        icon: IconAward,
+      },
+    ],
     relationWidgets: [
       {
         name: 'loyalty',
         icon: IconAward,
       },
+    ],
+    recordPickerWidgets: [
+      { name: 'scoreCampaign', contentType: 'loyalty:score.campaigns' },
     ],
   },
   searchProviders: SEARCH_PROVIDERS,

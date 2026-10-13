@@ -16,6 +16,11 @@ import {
   withForwardedCallKeys,
 } from '@/reports/callReportService';
 import {
+  ISlaOptions,
+  buildSlaReport,
+  resolveCallbackWindowMinutes,
+} from '@/reports/callSlaService';
+import {
   buildCallHistoryEntries,
   countRepeatCallers,
   groupLegsByCall,
@@ -902,6 +907,123 @@ export const reportCallQueries = {
         },
       },
     ]);
+  },
+
+  async callSlaReport(
+    _args,
+    {
+      startDate,
+      endDate,
+      integrationId,
+      queueId,
+      agentExtension,
+      callbackWindowMinutes,
+      breachLimit,
+    }: ICallReportArgs &
+      Pick<
+        ISlaOptions,
+        'agentExtension' | 'callbackWindowMinutes' | 'breachLimit'
+      >,
+    { models, user, subdomain }: IContext,
+  ) {
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
+
+    const callbackWindowMs =
+      resolveCallbackWindowMinutes(callbackWindowMinutes) * 60 * 1000;
+
+    const [inboundCdrs, outboundCdrs] = scope.inboxIds.length
+      ? await Promise.all([
+          models.CallCdrs.find({
+            ...buildCdrFilter({
+              startDate,
+              endDate,
+              queueId: scope.queueId,
+              direction: 'Inbound',
+            }),
+            ...inboxScopeFilter(scope),
+          })
+            .select(CDR_REPORT_FIELDS)
+            .lean<ICdrLeg[]>(),
+
+          callbackWindowMs > 0
+            ? models.CallCdrs.find({
+                ...buildCdrFilter({
+                  startDate,
+                  endDate: new Date(
+                    new Date(endDate).getTime() + callbackWindowMs,
+                  ).toISOString(),
+                  direction: 'Outbound',
+                }),
+                ...inboxScopeFilter(scope),
+              })
+                .select(CDR_REPORT_FIELDS)
+                .lean<ICdrLeg[]>()
+            : [],
+        ])
+      : [[], []];
+
+    const userIdByExtension = operatorUserIdByExtension(scope);
+
+    const report = buildSlaReport(
+      inboundCdrs,
+      {
+        agentExtension,
+        callbackWindowMinutes,
+        breachLimit,
+        knownExtensions: new Set(userIdByExtension.keys()),
+      },
+      outboundCdrs,
+    );
+
+    const operatorUserIds = [
+      ...new Set(
+        report.agents
+          .map((extension) => userIdByExtension.get(extension))
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+
+    const operators: {
+      _id: string;
+      details?: { fullName?: string };
+      email?: string;
+    }[] = operatorUserIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'users',
+          action: 'find',
+          input: { query: { _id: { $in: operatorUserIds } } },
+        })
+      : [];
+
+    const nameByUserId = new Map(
+      (operators ?? []).map((operator) => [
+        String(operator._id),
+        operator.details?.fullName || operator.email || '',
+      ]),
+    );
+
+    const agentNameOf = (extension: string | null): string | null =>
+      (extension && nameByUserId.get(userIdByExtension.get(extension) ?? '')) ||
+      null;
+
+    return {
+      ...report,
+      agents: report.agents
+        .map((extension) => ({ extension, name: agentNameOf(extension) }))
+        .sort((a, b) =>
+          (a.name ?? a.extension).localeCompare(b.name ?? b.extension),
+        ),
+      breaches: report.breaches.map((breach) => ({
+        ...breach,
+        agentName: agentNameOf(breach.agent),
+      })),
+    };
   },
 
   async callHistoryList(

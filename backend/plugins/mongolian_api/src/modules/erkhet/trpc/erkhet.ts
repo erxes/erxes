@@ -3,7 +3,6 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { afterMutationHandlers } from '../afterMutations';
-import { afterQueryHandlers } from '../afterQueries';
 import {
   getPosPostData,
   loansTransactionToErkhet,
@@ -23,11 +22,6 @@ export const erkhetTrpcRouter = t.router({
         const { subdomain } = ctx;
         return await afterMutationHandlers(subdomain, input);
       }),
-
-    afterQuery: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { subdomain } = ctx;
-      return await afterQueryHandlers(subdomain, input);
-    }),
 
     toOrder: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;

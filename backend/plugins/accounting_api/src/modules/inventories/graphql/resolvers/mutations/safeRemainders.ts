@@ -1,7 +1,5 @@
-import { fixNum } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { JOURNALS } from '~/modules/accounting/@types/constants';
-import { ITrDetail } from '~/modules/accounting/@types/transaction';
+import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
 import {
@@ -13,10 +11,12 @@ import {
   safeRemainderUndoTrs,
   setSafeRemItems,
 } from './utils';
+import { buildSafeRemainderTransactionDetails } from '~/modules/inventories/utils/safeRemainderTransactions';
+import { getLastIncomePrices } from '~/modules/accounting/utils/inventories';
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
-    _root: any,
+    _root: unknown,
     params: ISafeRemainder,
     { models, subdomain, user, checkPermission }: IContext,
   ) => {
@@ -32,7 +32,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderEdit: async (
-    _root: any,
+    _root: unknown,
     params: ISafeRemEditFields & { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
@@ -42,7 +42,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderRemove: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
@@ -53,7 +53,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderReCalc: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) => {
@@ -69,7 +69,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderSubmit: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
@@ -110,7 +110,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderCancel: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
@@ -148,7 +148,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderDoTr: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
@@ -157,8 +157,29 @@ const safeRemainderMutations = {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     const items: ISafeRemainderItemDocument[] =
       await models.SafeRemainderItems.find({ remainderId: _id }).lean();
-    const { incomeRule, incomeTrId, outRule, outTrId, saleRule, saleTrId } =
-      safeRemainder;
+    const lastIncomePrices = await getLastIncomePrices(
+      models,
+      items.map((item) => item.productId),
+    );
+    const transactionItems = items.map((item) => ({
+      ...item,
+      trInfo: {
+        ...item.trInfo,
+        lastIncomePrice: lastIncomePrices[item.productId] ?? 0,
+      },
+    })) as ISafeRemainderItemDocument[];
+    const {
+      incomeRule,
+      incomeTrId,
+      outRule,
+      outTrId,
+      saleRule,
+      saleTrId,
+      costIncreaseRule,
+      costDecreaseRule,
+      costIncreaseTrId,
+      costDecreaseTrId,
+    } = safeRemainder;
 
     const { mainTr: oldIncomeTr, otherTrs: incomeOtherTrs } = incomeTrId
       ? await models.Transactions.getOriginTransactions(incomeTrId)
@@ -169,48 +190,32 @@ const safeRemainderMutations = {
     const { mainTr: oldSaleTr, otherTrs: saleOtherTrs } = saleTrId
       ? await models.Transactions.getOriginTransactions(saleTrId)
       : {};
+    const { mainTr: oldCostIncreaseTr } = costIncreaseTrId
+      ? await models.Transactions.getOriginTransactions(costIncreaseTrId)
+      : {};
+    const { mainTr: oldCostDecreaseTr } = costDecreaseTrId
+      ? await models.Transactions.getOriginTransactions(costDecreaseTrId)
+      : {};
 
-    const incomeDetails: ITrDetail[] = [];
-    const outDetails: ITrDetail[] = [];
-    const saleDetails: ITrDetail[] = [];
+    const {
+      incomeDetails,
+      outDetails,
+      saleDetails,
+      costIncreaseDetails,
+      costDecreaseDetails,
+    } = buildSafeRemainderTransactionDetails(transactionItems, {
+      incomeAccountId: incomeRule?.accountId ?? '',
+      outAccountId: outRule?.accountId ?? '',
+      saleAccountId: saleRule?.accountId ?? '',
+      costIncreaseAccountId: costIncreaseRule?.accountId ?? '',
+      costDecreaseAccountId: costDecreaseRule?.accountId ?? '',
+    });
 
-    for (const item of items) {
-      const { productId, preCount, count } = item;
-      if (preCount === count) {
-        continue;
-      }
-
-      if (preCount < count) {
-        const incomeCount = count - preCount;
-        incomeDetails.push({
-          accountId: incomeRule?.accountId ?? '',
-          amount: fixNum(incomeCount * (item.trInfo?.unitCost ?? 0), 6),
-          unitPrice: fixNum(item.trInfo.unitCost, 6),
-          productId,
-          count: incomeCount,
-        });
-        continue;
-      }
-
-      const outCount = preCount - count;
-      if (item.trInfo?.isSale) {
-        saleDetails.push({
-          accountId: saleRule?.accountId ?? '',
-          amount: fixNum(outCount * (item.trInfo?.unitPrice ?? 0), 6),
-          unitPrice: fixNum(item.trInfo?.unitPrice ?? 0, 6),
-          productId,
-          count: outCount,
-        });
-        continue;
-      }
-
-      outDetails.push({
-        accountId: outRule?.accountId ?? '',
-        amount: fixNum(outCount * (item.trInfo?.unitCost ?? 0), 6),
-        unitPrice: fixNum(item.trInfo?.unitCost ?? 0, 6),
-        productId,
-        count: outCount,
-      });
+    if (costIncreaseDetails.length && !costIncreaseRule?.accountId) {
+      throw new Error('Cost increase inventory account is required');
+    }
+    if (costDecreaseDetails.length && !costDecreaseRule?.accountId) {
+      throw new Error('Cost decrease inventory account is required');
     }
 
     const newIncomeTrId = await safeRemainderDoTrs(models, {
@@ -241,6 +246,22 @@ const safeRemainderMutations = {
         saleCostAccountId: safeRemainder.saleRule?.costAccountId,
       },
     });
+    const newCostIncreaseTrId = await safeRemainderDoTrs(models, {
+      safeRemainder,
+      details: costIncreaseDetails,
+      journal: JOURNALS.INV_JUSTIFY,
+      side: TR_SIDES.DEBIT,
+      oldMainTr: oldCostIncreaseTr,
+      user,
+    });
+    const newCostDecreaseTrId = await safeRemainderDoTrs(models, {
+      safeRemainder,
+      details: costDecreaseDetails,
+      journal: JOURNALS.INV_JUSTIFY,
+      side: TR_SIDES.CREDIT,
+      oldMainTr: oldCostDecreaseTr,
+      user,
+    });
     await models.SafeRemainders.updateOne(
       { _id: safeRemainder._id },
       {
@@ -248,6 +269,8 @@ const safeRemainderMutations = {
           incomeTrId: newIncomeTrId,
           outTrId: newOutTrId,
           saleTrId: newSaleTrId,
+          costIncreaseTrId: newCostIncreaseTrId,
+          costDecreaseTrId: newCostDecreaseTrId,
           status: SAFE_REMAINDER_STATUSES.PUBLISHED,
         },
       },
@@ -256,23 +279,33 @@ const safeRemainderMutations = {
   },
 
   safeRemainderUndoTr: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
     await checkPermission('manageSafeRemainders');
 
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
-    const { incomeTrId, outTrId, saleTrId } = safeRemainder;
+    const {
+      incomeTrId,
+      outTrId,
+      saleTrId,
+      costIncreaseTrId,
+      costDecreaseTrId,
+    } = safeRemainder;
     await safeRemainderUndoTrs(models, incomeTrId);
     await safeRemainderUndoTrs(models, outTrId);
     await safeRemainderUndoTrs(models, saleTrId);
+    await safeRemainderUndoTrs(models, costIncreaseTrId);
+    await safeRemainderUndoTrs(models, costDecreaseTrId);
     await models.SafeRemainders.updateRemainder(
       {
         _id: safeRemainder._id,
         incomeTrId: '',
         outTrId: '',
         saleTrId: '',
+        costIncreaseTrId: '',
+        costDecreaseTrId: '',
         status: SAFE_REMAINDER_STATUSES.DONE,
       },
       user._id,

@@ -1,3 +1,9 @@
+import { IFeaturedFieldOwner } from './types';
+
+// Deterministic, so an owner can address its field by code without storing ids.
+export const featuredFieldCode = (owner: IFeaturedFieldOwner, key: string) =>
+  [owner.plugin, owner.module, owner.refId, key].filter(Boolean).join(':');
+
 export const generateFieldsFromSchema = async (
   queSchema: any,
   namePrefix: string,

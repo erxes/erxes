@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import { format } from 'date-fns';
 import {
-  Area,
-  AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
   Tooltip,
@@ -47,21 +47,11 @@ export const VolumeChart = memo(function VolumeChart({
 
   return (
     <ChartContainer config={CHART_CONFIG} className="h-64 w-full">
-      <AreaChart
+      <BarChart
         data={chartData}
         margin={{ top: 10, right: 16, left: 0, bottom: 0 }}
+        barGap={2}
       >
-        <defs>
-          <linearGradient id="cr-vol-incoming" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
-          </linearGradient>
-          <linearGradient id="cr-vol-outgoing" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--chart-5)" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="var(--chart-5)" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
           dataKey="day"
@@ -74,49 +64,40 @@ export const VolumeChart = memo(function VolumeChart({
           axisLine={false}
           tick={{ fontSize: 11 }}
           width={32}
+          allowDecimals={false}
         />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
 
-        <Area
-          type="monotone"
+        <Bar
           dataKey="incoming"
           name={t('inbound', 'Inbound')}
-          stroke="var(--chart-1)"
-          fill="url(#cr-vol-incoming)"
-          strokeWidth={2}
-          dot={false}
+          fill="var(--chart-1)"
+          radius={[3, 3, 0, 0]}
+          maxBarSize={18}
         />
-        <Area
-          type="monotone"
+        <Bar
           dataKey="outgoing"
           name={t('outbound', 'Outbound')}
-          stroke="var(--chart-5)"
-          fill="url(#cr-vol-outgoing)"
-          strokeWidth={2}
-          dot={false}
+          fill="var(--chart-5)"
+          radius={[3, 3, 0, 0]}
+          maxBarSize={18}
         />
-        <Area
-          type="monotone"
+        <Bar
           dataKey="answered"
           name="Answered"
-          stroke="var(--success)"
-          fill="none"
-          strokeWidth={1.5}
-          strokeDasharray="4 2"
-          dot={false}
+          fill="var(--success)"
+          radius={[3, 3, 0, 0]}
+          maxBarSize={18}
         />
-        <Area
-          type="monotone"
+        <Bar
           dataKey="noAnswer"
           name={t('no-answer', 'No answer')}
-          stroke="var(--destructive)"
-          fill="none"
-          strokeWidth={1.5}
-          strokeDasharray="2 3"
-          dot={false}
+          fill="var(--destructive)"
+          radius={[3, 3, 0, 0]}
+          maxBarSize={18}
         />
-      </AreaChart>
+      </BarChart>
     </ChartContainer>
   );
 });

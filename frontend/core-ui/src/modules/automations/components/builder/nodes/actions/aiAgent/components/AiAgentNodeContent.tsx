@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { NodeContentComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { useAutomationOptionalConnect } from 'ui-modules';
@@ -38,6 +39,7 @@ export const AiAgentNodeContent = (
 };
 
 const AiAgentMemorySummary = ({ config }: { config?: TAiAgentConfigForm }) => {
+  const { t } = useTranslation('automations');
   const readEnabled = config?.memory?.read?.enabled;
   const writeEnabled = config?.memory?.write?.enabled;
 
@@ -49,12 +51,14 @@ const AiAgentMemorySummary = ({ config }: { config?: TAiAgentConfigForm }) => {
     <div className="flex flex-wrap gap-2 px-2 pb-2">
       {readEnabled ? (
         <div className="rounded-xs bg-info/10 px-2 py-1 text-xs font-semibold text-info">
-          reads memory
+          {t('ai-agent-reads-memory')}
         </div>
       ) : null}
       {writeEnabled ? (
         <div className="rounded-xs bg-success/10 px-2 py-1 text-xs font-semibold text-success">
-          saves {config?.memory?.write?.key || 'result'}
+          {t('ai-agent-saves-memory', {
+            key: config?.memory?.write?.key || 'result',
+          })}
         </div>
       ) : null}
     </div>
@@ -88,13 +92,14 @@ const AiAgentClassifyTopic = ({
 const AiAgentClassification = ({
   config,
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
+  const { t } = useTranslation('automations');
   const { objectFields = [] } = (config || {}) as Extract<
     TAiAgentConfigForm,
     { goalType: 'classification' }
   >;
 
   if (!objectFields.length) {
-    return <div>Classification</div>;
+    return <div>{t('ai-agent-classification')}</div>;
   }
 
   return (
@@ -109,7 +114,7 @@ const AiAgentClassification = ({
       ))}
       {objectFields.length > 3 ? (
         <div className="rounded-xs bg-background p-2 text-xs font-semibold shadow">
-          +{objectFields.length - 3} more
+          {t('ai-agent-more-count', { count: objectFields.length - 3 })}
         </div>
       ) : null}
     </div>
@@ -120,6 +125,7 @@ const AiAgentGenerateText = ({
   config,
   nodeData,
 }: NodeContentComponentProps<TAiAgentConfigForm>) => {
+  const { t } = useTranslation('automations');
   const OptionConnectHandle = useAutomationOptionalConnect({
     id: nodeData.id,
     flowDirection: nodeData.flowDirection,
@@ -137,7 +143,7 @@ const AiAgentGenerateText = ({
     <>
       <div className="p-2">
         <div className="line-clamp-3 text-xs text-muted-foreground">
-          {prompt || 'Generate text'}
+          {prompt || t('ai-agent-generate-text')}
         </div>
         {captureFields.length ? (
           <div className="mt-2 flex flex-wrap gap-2">
@@ -151,7 +157,9 @@ const AiAgentGenerateText = ({
             ))}
             {captureFields.length > 3 ? (
               <div className="rounded-xs bg-background p-2 text-xs font-semibold shadow">
-                +{captureFields.length - 3} more
+                {t('ai-agent-more-count', {
+                  count: captureFields.length - 3,
+                })}
               </div>
             ) : null}
           </div>

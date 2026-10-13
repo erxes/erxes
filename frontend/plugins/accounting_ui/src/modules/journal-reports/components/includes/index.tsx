@@ -3,12 +3,18 @@ import {
   debtCalcReportHandlers,
   debtRenderMoreHandlers,
 } from './handlers/debt';
-import { fixedAssetCalcReportHandlers } from './handlers/fixedAsset';
+import {
+  fixedAssetCalcReportHandlers,
+  fixedAssetRenderMoreHandlers,
+} from './handlers/fixedAsset';
 import {
   fundCalcReportHandlers,
   fundRenderMoreHandlers,
 } from './handlers/fund';
-import { inventoryCalcReportHandlers } from './handlers/inventory';
+import {
+  inventoryCalcReportHandlers,
+  inventoryRenderMoreHandlers,
+} from './handlers/inventory';
 import {
   mainCalcReportHandlers,
   mainRenderMoreHandlers,
@@ -34,6 +40,8 @@ const renderMoreHandlers: Record<string, RenderMoreHandler> = {
   ...mainRenderMoreHandlers,
   ...fundRenderMoreHandlers,
   ...debtRenderMoreHandlers,
+  ...inventoryRenderMoreHandlers,
+  ...fixedAssetRenderMoreHandlers,
 };
 
 export const getCalcReport = (report: string): CalcReportHandler => {

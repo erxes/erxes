@@ -8,6 +8,7 @@ import {
   isBranchingOnError,
   resolveActionFolks,
 } from '@/automations/utils/automationBuilderUtils/actionFolks';
+import { resolveTriggerFolks } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import {
   TAutomationAction,
   TAutomationOptionalConnect,
@@ -98,11 +99,11 @@ export const buildFindObjectEdges = (
 
 const buildFolksEdges = (
   nodeType: AutomationNodeType,
-  edge: TAutomationAction,
+  edge: { id: string },
   config: Record<string, any>,
   folks: IAutomationsActionFolkConfig[] = [],
 ): Edge[] =>
-  folks.flatMap(({ key }) =>
+  folks.flatMap(({ key, label, type }) =>
     config?.[key]
       ? [
           {
@@ -113,7 +114,7 @@ const buildFolksEdges = (
             target: config[key],
             style: COMMON_EDGE_STYLES,
             type: 'primary',
-            data: { type: nodeType },
+            data: { type: nodeType, folkLabel: label, folkType: type },
           },
         ]
       : [],
@@ -187,6 +188,14 @@ export const generateEdge = (
   const generatedEdges = [];
   const target = (edge as any)[targetField];
   const { optionalConnects = [], ...config } = edge?.config || {};
+
+  if (type === AutomationNodeType.Trigger) {
+    const folks = resolveTriggerFolks(config);
+
+    if (folks.length) {
+      generatedEdges.push(...buildFolksEdges(type, edge, config, folks));
+    }
+  }
 
   if (type === AutomationNodeType.Action) {
     // Per node, not per type: an action that branches on error carries two

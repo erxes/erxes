@@ -42,8 +42,9 @@ export const productRuleQueries = {
   ebarimtProductRules: async (
     _root: undefined,
     params,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('showEbarimtProductRules');
     const filter = await generateFilter(params);
 
     // Default TAX sorting (v2.x style)

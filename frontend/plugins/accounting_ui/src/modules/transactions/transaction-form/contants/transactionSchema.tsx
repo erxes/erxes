@@ -1,3 +1,4 @@
+import { getI18n } from 'react-i18next';
 import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
 import { TR_SIDES, TR_STATUSES, TrJournalEnum } from '../../types/constants';
@@ -34,9 +35,15 @@ export const baseTrDetailSchema = z.object({
   _id: z.string(),
   transactionId: undefed(z.string()),
 
-  accountId: undefed(z.string()).refine((val) => val?.length, {
-    message: 'Must fill account',
-  }),
+  accountId: undefed(z.string()).refine(
+    (val) => val?.length,
+    () => ({
+      message: getI18n().t('Must fill account', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
   branchId: undefed(z.string()),
   departmentId: undefed(z.string()),
   amount: z.number().min(0),
@@ -90,9 +97,15 @@ export const baseTransactionSchema = z.object({
   departmentId: undefed(z.string()),
   assignedUserIds: undefed(z.array(z.string())),
   details: z.array(baseTrDetailSchema).min(1),
-  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
-    message: 'wrong side',
-  }),
+  side: z.string().refine(
+    (val) => TR_SIDES.ALL.includes(val),
+    () => ({
+      message: getI18n().t('wrong side', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
   relAccounts: undefed(
     z.object({
       dt: undefed(z.array(z.string())),
@@ -182,16 +195,42 @@ export const transactionTaxSchema = z.object({
 // #endregion Single trs
 
 // #region Inventories
+const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
+  z.object({
+    hasSplit: z.literal(false),
+    productId: undefed(z.string()),
+    ratio: undefed(z.number()),
+  }),
+  z.object({
+    hasSplit: z.literal(true),
+    productId: z.string().min(1, 'Задрах бараа сонгоно уу'),
+    ratio: z.number().gt(0, 'Задрах харьцаа 0-ээс их байна'),
+  }),
+]);
+
 export const invDetailSchema = z
   .object({
     ...baseTrDetailSchema.shape,
   })
   .extend({
-    productId: z
-      .string()
-      .refine((val) => val?.length, { message: 'Must fill product' }),
+    productId: z.string().refine(
+      (val) => val?.length,
+      () => ({
+        message: getI18n().t('Must fill product', {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
+      }),
+    ),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
+    followInfos: undefed(
+      z.object({
+        invSplit: undefed(invSplitInfoSchema),
+        moveInBranchId: undefed(z.string()),
+        moveInDepartmentId: undefed(z.string()),
+      }),
+    ),
   });
 
 export const transactionInvIncomeSchema = z
@@ -244,6 +283,27 @@ export const transactionInvOutSchema = z
     ),
   });
 // #endregion invOut
+// #region invJustify
+const invJustifyDetailSchema = invDetailSchema.extend({
+  count: z.number().min(0).max(0),
+});
+
+export const transactionInvJustifySchema = z
+  .object({
+    journal: z.literal(TrJournalEnum.INV_JUSTIFY),
+    ...baseTransactionSchema.shape,
+  })
+  .extend({
+    customerId: undefed(z.string()),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
+    details: z.array(
+      z.object({
+        ...invJustifyDetailSchema.shape,
+      }),
+    ),
+  });
+// #endregion invJustify
 // #region invMove
 export const transactionInvMoveSchema = z
   .object({
@@ -337,9 +397,15 @@ export const fxaDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
-    fixedAssetId: z
-      .string()
-      .refine((val) => val?.length, { message: 'Must fill fixed asset' }),
+    fixedAssetId: z.string().refine(
+      (val) => val?.length,
+      () => ({
+        message: getI18n().t('Must fill fixed asset', {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
+      }),
+    ),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });
@@ -349,15 +415,33 @@ export const fxaIncomeDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
-    fixedAssetCategoryId: z.string().refine((val) => val?.length, {
-      message: 'Must fill fixed asset category',
-    }),
-    fixedAssetCode: z.string().refine((val) => val?.length, {
-      message: 'Must fill fixed asset code',
-    }),
-    fixedAssetName: z.string().refine((val) => val?.length, {
-      message: 'Must fill fixed asset name',
-    }),
+    fixedAssetCategoryId: z.string().refine(
+      (val) => val?.length,
+      () => ({
+        message: getI18n().t('Must fill fixed asset category', {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
+      }),
+    ),
+    fixedAssetCode: z.string().refine(
+      (val) => val?.length,
+      () => ({
+        message: getI18n().t('Must fill fixed asset code', {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
+      }),
+    ),
+    fixedAssetName: z.string().refine(
+      (val) => val?.length,
+      () => ({
+        message: getI18n().t('Must fill fixed asset name', {
+          ns: 'accounting',
+          nsSeparator: false,
+        }),
+      }),
+    ),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });
@@ -392,24 +476,48 @@ export const fxaIncomeFollowInfosSchema = fxaFollowInfosSchema.extend({
 });
 
 export const fxaOutFollowInfosSchema = fxaFollowInfosSchema.extend({
-  accumulatedDepreciationAccountId: z.string().refine((val) => val?.length, {
-    message: 'Must fill accumulated depreciation account',
-  }),
+  accumulatedDepreciationAccountId: z.string().refine(
+    (val) => val?.length,
+    () => ({
+      message: getI18n().t('Must fill accumulated depreciation account', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
 });
 
 export const fxaSaleFollowInfosSchema = fxaOutFollowInfosSchema.extend({
-  saleOutAccountId: z.string().refine((val) => val?.length, {
-    message: 'Must fill fixed asset sale out account',
-  }),
-  saleCostAccountId: z.string().refine((val) => val?.length, {
-    message: 'Must fill fixed asset sale cost account',
-  }),
+  saleOutAccountId: z.string().refine(
+    (val) => val?.length,
+    () => ({
+      message: getI18n().t('Must fill fixed asset sale out account', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
+  saleCostAccountId: z.string().refine(
+    (val) => val?.length,
+    () => ({
+      message: getI18n().t('Must fill fixed asset sale cost account', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
 });
 
 export const fxaMoveFollowInfosSchema = fxaOutFollowInfosSchema.extend({
-  moveInBranchId: z.string().refine((val) => val?.length, {
-    message: 'Must fill destination branch',
-  }),
+  moveInBranchId: z.string().refine(
+    (val) => val?.length,
+    () => ({
+      message: getI18n().t('Must fill destination branch', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
   moveInDepartmentId: undefed(z.string()),
 });
 
@@ -532,6 +640,7 @@ export const trDocSchema = z
 
     transactionInvIncomeSchema,
     transactionInvOutSchema,
+    transactionInvJustifySchema,
     transactionInvMoveSchema,
     transactionInvSaleSchema,
     transactionInvSaleReturnSchema,
@@ -553,10 +662,13 @@ export const trDocSchema = z
       }
       return true;
     },
-    {
+    () => ({
       path: ['vatRow'],
-      message: 'VAT row is required',
-    },
+      message: getI18n().t('VAT row is required', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
   )
   .refine(
     (data) => {
@@ -567,10 +679,13 @@ export const trDocSchema = z
       }
       return true;
     },
-    {
+    () => ({
       path: ['vatAmount'],
-      message: 'VAT amount is required',
-    },
+      message: getI18n().t('VAT amount is required', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
   );
 //ctax
 
@@ -583,9 +698,15 @@ export const transactionGroupSchema = z.object({
   contentType: undefed(z.string()),
   contentId: undefed(z.string()),
   date: z.date(),
-  status: z.string().refine((val) => TR_STATUSES.ALL.includes(val), {
-    message: 'wrong side',
-  }),
+  status: z.string().refine(
+    (val) => TR_STATUSES.ALL.includes(val),
+    () => ({
+      message: getI18n().t('wrong side', {
+        ns: 'accounting',
+        nsSeparator: false,
+      }),
+    }),
+  ),
   mentionOwnerId: z.string().optional(),
   mentionUserIds: z.array(z.string()).optional(),
   trDocs: z.array(trDocSchema).min(1),

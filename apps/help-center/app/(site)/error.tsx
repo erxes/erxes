@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { Button, ButtonLink } from '@/modules/ui/components/Button';
 import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
@@ -12,6 +13,8 @@ export default function SiteError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useT();
+
   useEffect(() => {
     reportError(error);
   }, [error]);
@@ -24,21 +27,22 @@ export default function SiteError({
       <span className="mb-6 flex size-14 items-center justify-center rounded-full bg-danger-soft text-danger">
         <Icon name="alert" size={26} />
       </span>
-      <h1 className="text-2xl font-semibold text-ink">Something went wrong</h1>
+      <h1 className="text-2xl font-semibold text-ink">
+        {t('error.siteTitle')}
+      </h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        The page could not be loaded. Please try again, and contact the support
-        team if it keeps happening.
+        {t('error.siteText')}
       </p>
       {error.digest ? (
         <p className="mt-3 text-[13px] tabular-nums text-muted-foreground">
-          Error code: {error.digest}
+          {t('error.code', { code: error.digest })}
         </p>
       ) : null}
 
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <Button onClick={reset}>Try again</Button>
+        <Button onClick={reset}>{t('common.tryAgain')}</Button>
         <ButtonLink href="/" variant="secondary">
-          Home page
+          {t('common.homePage')}
         </ButtonLink>
       </div>
     </Container>

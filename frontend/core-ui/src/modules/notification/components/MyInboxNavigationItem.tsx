@@ -16,18 +16,28 @@ export const MyInboxNavigationItem = () => {
   );
 };
 
-export const NotificationCount = () => {
+export const NotificationCount = ({ dot = false }: { dot?: boolean }) => {
   const { unreadNotificationsCount, loading } = useUnreadNotificationCount();
+
   if (loading) {
-    return <Skeleton className="size-4 rounded-sm" />;
+    return dot ? null : <Skeleton className="size-4 rounded-sm" />;
   }
 
   if (unreadNotificationsCount === 0) {
     return null;
   }
 
+  if (dot) {
+    return (
+      <span
+        aria-hidden
+        className="absolute top-1 right-1 size-1.5 rounded-full bg-primary ring-2 ring-sidebar"
+      />
+    );
+  }
+
   return (
-    <Badge className="ml-auto text-xs min-w-6 px-1 justify-center">
+    <Badge className="ml-auto h-5 min-w-5 justify-center rounded-full px-1.5 text-[11px] tabular-nums">
       {unreadNotificationsCount}
     </Badge>
   );

@@ -45,13 +45,15 @@ export const scoreCampaignMutations = {
       ownerType,
       targetId,
     }: { ownerId: string; ownerType: string; targetId: string },
-    { models, checkPermission }: IContext,
+    { models, checkPermission, user }: IContext,
   ) {
     await checkPermission('scoreRefund');
-    return await models.ScoreCampaigns.refundLoyaltyScore(
+    return await models.ScoreCampaigns.refundTarget({
       targetId,
       ownerType,
       ownerId,
-    );
+      actorId: user?._id,
+      description: 'Refunded by hand',
+    });
   },
 };

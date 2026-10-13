@@ -104,7 +104,7 @@ export const LogContentTypeFilter = ({
 }: {
   onValueChange?: () => void;
 }) => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [queries, setQueries] = useMultiQueryState<{
     contentType: string;
     contentTypeOperator: string;
@@ -166,7 +166,7 @@ export const LogContentTypeFilter = ({
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder={t('logs.searchContentType')}
+        placeholder={t('searchContentType')}
         value={search}
         onValueChange={setSearch}
       />

@@ -6,12 +6,14 @@ export const GET_ACC_CURRENT_COST_QUERY = gql`
     $accountId: String
     $branchId: String
     $departmentId: String
+    $excludedTransactionIds: [String]
   ) {
     getAccCurrentCost(
       productIds: $productIds
       accountId: $accountId
       branchId: $branchId
       departmentId: $departmentId
+      excludedTransactionIds: $excludedTransactionIds
     )
   }
 `;

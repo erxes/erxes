@@ -1,4 +1,5 @@
 //tslint:disable
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { withFilter } from 'graphql-subscriptions';
 
 export default {
@@ -38,14 +39,12 @@ export default {
             const task = payload.operationTaskListChanged.task;
             const filter = variables.filter || {};
 
-            if (!filter) return true;
-
             if (filter._id && task._id === filter._id) {
               return true;
             }
 
             if (filter.name) {
-              const regex = new RegExp(filter.name, 'i');
+              const regex = new RegExp(escapeRegExp(filter.name), 'i');
               if (!regex.test(task.name)) return false;
             }
 
@@ -108,14 +107,12 @@ export default {
             const project = payload.operationProjectListChanged.project;
             const filter = variables.filter || {};
 
-            if (!filter) return true;
-
             if (filter._id && project._id === filter._id) {
               return true;
             }
 
             if (filter.name) {
-              const regex = new RegExp(filter.name, 'i');
+              const regex = new RegExp(escapeRegExp(filter.name), 'i');
               if (!regex.test(project.name)) return false;
             }
 

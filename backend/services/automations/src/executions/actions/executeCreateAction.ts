@@ -5,6 +5,7 @@ import {
   IAutomationAction,
   IAutomationDeferredMarker,
   IAutomationExecutionDocument,
+  resolveAutomationActionInputs,
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
@@ -53,6 +54,13 @@ export const executeCreateAction = async (
     action.type,
   );
 
+  const inputs = await resolveAutomationActionInputs({
+    subdomain,
+    triggerType: execution.triggerType,
+    actionType: action.type,
+    target: execution.target || {},
+  });
+
   let actionResponse = await sendCoreModuleProducer({
     subdomain,
     moduleName: 'automations',
@@ -64,6 +72,7 @@ export const executeCreateAction = async (
       action,
       execution,
       collectionType,
+      inputs,
     },
     defaultValue: null,
   });

@@ -1,4 +1,5 @@
 import { IScoreLog } from '@/score/@types/scoreLog';
+import { getOwnerBalance } from '@/score/services/scoreLedger';
 import { IContext } from '~/connectionResolvers';
 import { fetchScoreTarget } from './_scoreTarget';
 import { getLoyaltyOwner } from '~/utils/getOwner';
@@ -27,11 +28,18 @@ export default {
       lastOwner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
     }
 
-    const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId }).lean();
-    if (campaign?.fieldId) {
-      return lastOwner?.propertiesData?.[campaign?.fieldId]
-    }
-    return 0;
+    const campaign = await models.ScoreCampaigns.findOne({
+      _id: campaignId,
+    }).lean();
+
+    return getOwnerBalance({
+      models,
+      subdomain,
+      ownerType,
+      ownerId,
+      fieldId: campaign?.fieldId,
+      owner: lastOwner,
+    });
   },
 
   async campaign(

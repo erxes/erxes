@@ -1,138 +1,11 @@
+@import '@maily-to/core/style.css';
 @import 'tailwindcss' source(none);
+@import '../../libs/erxes-ui/src/theme.css';
 @source '.';
 @source '../../libs/';
 @source '../../plugins/';
 
 @plugin 'tailwindcss-animate';
-@custom-variant dark (&:is(.dark *));
-
-@utility container {
-  margin-inline: auto;
-  padding-inline: 2rem;
-  @media (width >= 1400px) {
-    max-width: 1400px;
-  }
-}
-
-@theme {
-  --font-*: initial;
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, 'Liberation Mono', 'Courier New', monospace;
-
-  --text-*: initial;
-  --text-xs: 0.75rem;
-  --text-xs--line-height: 0.875rem;
-  --text-sm: 0.8125rem;
-  --text-sm--line-height: 1rem;
-  --text-base: 0.875rem;
-  --text-base--line-height: 1.125rem;
-  --text-lg: 1rem;
-  --text-lg--line-height: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-xl--line-height: 1.5rem;
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: 1.75rem;
-
-  --color-border: var(--border);
-  --color-scroll: var(--scroll);
-  --color-ring: var(--ring);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-info: var(--info);
-
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-
-  --color-sidebar: var(--sidebar-background);
-
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-
-  --color-chart-50: var(--chart-50);
-  --color-chart-100: var(--chart-100);
-  --color-chart-200: var(--chart-200);
-  --color-chart-300: var(--chart-300);
-  --color-chart-400: var(--chart-400);
-  --color-chart-500: var(--chart-500);
-  --color-chart-600: var(--chart-600);
-  --color-chart-700: var(--chart-700);
-  --color-chart-800: var(--chart-800);
-  --color-chart-900: var(--chart-900);
-  --color-chart-950: var(--chart-950);
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --spacing-cell: 33px;
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-spinner: spinner 0.96s linear infinite;
-
-  --shadow-focus: 0px 0px 0px 4px rgba(79, 70, 229, 0.25),
-    0px 0px 0px 1px var(--primary);
-  --shadow-subtle: 0px 0px 0px 1px var(--primary);
-  --shadow-destructive: 0px 0px 0px 1px var(--destructive);
-  --shadow-focus-destructive: 0px 0px 0px 4px oklch(0.6334 0.2103 25.32 / 25%),
-    0px 0px 0px 1px var(--destructive);
-  --shadow-xs: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow);
-  --shadow-sm: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow), 0 4px 4px var(--shadow);
-  --shadow-lg: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow);
-  --shadow-xl: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
-    0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow),
-    0 16px 16px var(--shadow);
-
-  --ring-color: var(--ring);
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
-  @keyframes spinner {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0.15;
-    }
-  }
-}
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
@@ -149,40 +22,6 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
-@utility hide-scroll {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-@utility styled-scroll {
-  /* Custom scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    width: 1px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--border);
-    border-radius: 10px;
-    border: 3px solid var(--background);
-  }
-
-  /* Custom scrollbar for IE, Edge and Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-@utility block-child {
-  & > * {
-    @apply block!;
   }
 }
 
@@ -303,7 +142,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
   h1 {
     @apply text-2xl font-bold;
@@ -473,4 +314,150 @@
 
 [data-content-type='heading'][data-level='3'] {
   --level: 16px;
+}
+
+/* Second sidebar: top-level groups use 0.5rem padding on all sides; groups
+   nested inside a group (like sales board rows) keep their own padding */
+[data-navigation-context]
+  [data-sidebar='group']:not([data-sidebar='group'] [data-sidebar='group']) {
+  padding: 0.5rem;
+}
+/* Second sidebar: the first group starts flush with the title row, however deeply it is wrapped */
+[data-navigation-context] > [data-sidebar='group']:first-child,
+[data-navigation-context] > :first-child [data-sidebar='group']:first-child,
+[data-navigation-context]
+  > [data-sidebar='separator']:first-child
+  + *
+  [data-sidebar='group']:first-child,
+[data-navigation-context]
+  > [data-sidebar='separator']:first-child
+  + [data-sidebar='group'] {
+  padding-top: 0;
+}
+/* Navigation rail: every group title shares one height, including plugin overrides */
+.nav-rail [data-sidebar='group-label'] {
+  height: 2rem;
+}
+/* Main navigation scroll area: soft fade at the edges that can scroll */
+@property --nav-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --nav-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes nav-fade-top {
+  from {
+    --nav-fade-top: 0px;
+  }
+  to {
+    --nav-fade-top: 24px;
+  }
+}
+@keyframes nav-fade-bottom {
+  from {
+    --nav-fade-bottom: 24px;
+  }
+  to {
+    --nav-fade-bottom: 0px;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .nav-scroll-fade {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--nav-fade-top),
+      #000 calc(100% - var(--nav-fade-bottom)),
+      transparent
+    );
+    animation:
+      nav-fade-top linear both,
+      nav-fade-bottom linear both;
+    animation-timeline: scroll(self), scroll(self);
+    animation-range:
+      0 24px,
+      calc(100% - 24px) 100%;
+  }
+}
+/* All sidebar menus: muted icons, sharper labels */
+:is(
+  [data-sidebar='menu-button'],
+  [data-sidebar='menu-sub-button'],
+  [data-nav-row]
+) {
+  transition: color 0.15s ease-out;
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  )
+  svg {
+  color: inherit;
+  transition: color 0.15s ease-out;
+}
+:is(
+  [data-sidebar='menu-button'],
+  [data-sidebar='menu-sub-button'],
+  [data-nav-row]
+):not([data-active='true'], [data-state='active'], .text-primary) {
+  color: color-mix(in oklab, var(--foreground) 85%, transparent);
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary)
+  svg {
+  color: var(--muted-foreground);
+}
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary):hover,
+:is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='menu-sub-button'],
+    [data-nav-row]
+  ):not([data-active='true'], [data-state='active'], .text-primary):hover
+  svg {
+  color: var(--foreground);
+}
+/* Main navigation accordion: flat rounded items, soft tint when active */
+.nav-activity-accordion [data-sidebar='group'] {
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+}
+.nav-activity-accordion [data-sidebar='menu-button'],
+.nav-activity-accordion [data-sidebar='menu-sub-button'] {
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  transition:
+    background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-activity-accordion [data-sidebar='menu-button']:hover,
+.nav-activity-accordion [data-sidebar='menu-sub-button']:hover {
+  background-color: color-mix(in oklab, var(--accent) 60%, transparent);
+}
+.nav-activity-accordion [data-sidebar='menu-button'][data-active='true'],
+.nav-activity-accordion [data-sidebar='menu-sub-button'][data-active='true'] {
+  background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+.nav-activity-accordion
+  [data-sidebar='menu-item']:has([data-nav-actions])
+  [data-sidebar='menu-button'] {
+  padding-right: 3.75rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-activity-accordion [data-sidebar='menu-button'],
+  .nav-activity-accordion [data-sidebar='menu-sub-button'] {
+    transition: none;
+  }
 }

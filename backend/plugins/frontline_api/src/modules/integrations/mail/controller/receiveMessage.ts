@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { getSubdomain } from 'erxes-api-shared/utils';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
@@ -11,8 +12,11 @@ import {
 import {
   IMailAddress,
   IMailAttachment,
+  IMailMessageDocument,
 } from '@/integrations/mail/@types/message';
+import { TMailTriggerTarget } from '@/integrations/mail/meta/automation/types';
 import {
+  MAIL_MESSAGE_TRIGGER_TYPE,
   MAIL_MESSAGE_TYPES,
   MAIL_SIGNATURE_HEADER,
   MAIL_TIMESTAMP_HEADER,
@@ -40,6 +44,7 @@ import { describeError } from '@/integrations/mail/utils/errors';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { verifySignature } from '@/integrations/mail/utils/signature';
 import { resolveInboundKeys } from '@/integrations/mail/utils/inboundKeys';
+import { readInboundMailReaction } from '@/integrations/mail/utils/reactions';
 
 const SUBJECT_PREFIX = /^\s*(?:re|fwd?|aw|antw|sv|vs)(?:\s*\[\d+\])?\s*:\s*/i;
 
@@ -140,6 +145,7 @@ interface IInboundContext {
   isAuto: boolean;
   body: string;
   attachments: IMailAttachment[];
+  reactionEmoji?: string;
 }
 
 interface ITicketTarget {
@@ -309,6 +315,8 @@ const storeMessage = (
     references: payload.references ?? [],
     subject: payload.subject,
     body,
+    reactionEmoji: context.reactionEmoji,
+    hasReplyTo: Boolean(payload.headers?.['reply-to']?.trim()),
     from: toStoredAddresses(payload.from ? [payload.from] : []),
     to: toStoredAddresses(payload.recipients),
     cc: toStoredAddresses(payload.cc),
@@ -320,6 +328,33 @@ const storeMessage = (
     type: MAIL_MESSAGE_TYPES.INBOX,
     createdAt,
   });
+};
+
+const triggerMailAutomations = (
+  context: IInboundContext,
+  message: IMailMessageDocument,
+  conversationId: string,
+) => {
+  const target: TMailTriggerTarget = {
+    _id: String(message._id),
+    messageId: message.messageId,
+    subject: message.subject ?? '',
+    content: context.body,
+    from: context.sender.address,
+    to: message.to.map((entry) => entry.address),
+    conversationId,
+    customerId: context.customerId,
+    integrationId: context.scopeId,
+    hasAttachments: context.attachments.length > 0,
+    senderMismatch: context.sender.mismatch,
+    createdAt: context.createdAt,
+  };
+
+  sendAutomationTrigger(
+    context.subdomain,
+    { type: MAIL_MESSAGE_TRIGGER_TYPE, targets: [target] },
+    { transport: 'trpc' },
+  );
 };
 
 const storeConversationMail = async (context: IInboundContext) => {
@@ -349,6 +384,10 @@ const storeConversationMail = async (context: IInboundContext) => {
     conversationId,
     createdAt,
   });
+
+  if (!isAuto) {
+    triggerMailAutomations(context, message, conversationId);
+  }
 
   return {
     status: 'ok',
@@ -429,6 +468,10 @@ const storeInboundMessage = async (
     createdAt: resolveReceivedAt(payload.receivedAt),
     isAuto: isAutomatedMessage(payload.headers),
     attachments,
+    reactionEmoji: await readInboundMailReaction(
+      subdomain,
+      payload.attachments,
+    ),
     body: resolveInlineImages(payload.html ?? '', attachments),
     customerId: await models.MailCustomers.findOrCreate(
       subdomain,

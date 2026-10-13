@@ -1,12 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Icon } from '@/modules/ui/components/Icon';
 import { cn } from '@/modules/ui/lib/cn';
-import { site } from '../constants/site';
-
-const ROTATE_MS = 3200;
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import { startRouteProgress } from '@/modules/layout/utils/routeProgress';
 
 const STEP = 2;
 
@@ -120,39 +119,21 @@ const scatter = (
 export const SearchBar = ({
   initialQuery = '',
   placeholder = '',
-  suggestions = [],
 }: {
   initialQuery?: string;
   placeholder?: string;
-  suggestions?: string[];
 }) => {
   const router = useRouter();
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frame = useRef(0);
 
   const [query, setQuery] = useState(initialQuery);
   const [vanishing, setVanishing] = useState(false);
-  const [slot, setSlot] = useState({ index: 0, previous: -1 });
 
-  const label = placeholder || site.searchPlaceholder;
-  const rotating = [label, ...suggestions];
-  const rotates = rotating.length > 1;
-
-  useEffect(() => {
-    if (!rotates || query || vanishing || reducedMotion()) {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      setSlot((current) => ({
-        index: (current.index + 1) % rotating.length,
-        previous: current.index,
-      }));
-    }, ROTATE_MS);
-
-    return () => window.clearInterval(timer);
-  }, [rotates, rotating.length, query, vanishing]);
+  const label = placeholder || t('site.searchPlaceholder');
+  const inputId = useId();
 
   useEffect(() => () => cancelAnimationFrame(frame.current), []);
 
@@ -163,7 +144,10 @@ export const SearchBar = ({
     const input = inputRef.current;
     const canvas = canvasRef.current;
 
-    router.push(term ? `/search?q=${encodeURIComponent(term)}` : '/search');
+    const target = term ? `/search?q=${encodeURIComponent(term)}` : '/search';
+
+    startRouteProgress(target);
+    router.push(target);
 
     if (!term || !input || !canvas || reducedMotion()) {
       return;
@@ -180,7 +164,7 @@ export const SearchBar = ({
       role="search"
       className="group relative w-full"
     >
-      <label htmlFor="kb-search" className="sr-only">
+      <label htmlFor={inputId} className="sr-only">
         {label}
       </label>
 
@@ -190,40 +174,16 @@ export const SearchBar = ({
         className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-white/40 transition-colors duration-300 group-focus-within:text-white/80"
       />
 
-      {rotates ? (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-        >
-          {rotating.map((text, index) => (
-            <span
-              key={`${index}-${text}`}
-              className={cn(
-                'absolute inset-y-0 left-11 right-24 flex items-center text-[15px] text-white/35 transition-[opacity,transform] duration-500 ease-out-soft',
-                query || vanishing
-                  ? 'opacity-0'
-                  : index === slot.index
-                  ? 'translate-y-0 opacity-100'
-                  : index === slot.previous
-                  ? '-translate-y-4 opacity-0'
-                  : 'translate-y-4 opacity-0',
-              )}
-            >
-              <span className="min-w-0 truncate">{text}</span>
-            </span>
-          ))}
-        </span>
-      ) : null}
-
       <input
         ref={inputRef}
-        id="kb-search"
+        id={inputId}
         type="search"
+        autoComplete="off"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder={rotates ? undefined : label}
+        placeholder={label}
         className={cn(
-          'relative h-12 w-full rounded-xl border border-shell-line bg-shell-soft pl-11 pr-24 text-[15px] text-white transition-[border-color,background-color,box-shadow] duration-300 ease-out-soft placeholder:text-white/35 focus:border-brand/50 focus:bg-shell-soft/80 focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus:outline-none',
+          'relative h-12 w-full rounded-xl border border-shell-line bg-shell-soft pl-11 pr-24 text-[15px] text-white transition-[border-color,background-color,box-shadow] duration-300 ease-out-soft placeholder:text-white/50 focus:border-brand/50 focus:bg-shell-soft/80 focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus:outline-none [&::-webkit-search-cancel-button]:hidden',
           vanishing && 'text-transparent caret-transparent',
         )}
       />
@@ -241,7 +201,7 @@ export const SearchBar = ({
         type="submit"
         className="absolute right-2 top-1/2 z-10 h-8 -translate-y-1/2 rounded-lg bg-white px-3.5 text-[13px] font-semibold text-shell transition-[background-color,transform] duration-300 ease-out-soft hover:scale-[1.03] hover:bg-white/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
       >
-        Search
+        {t('common.search')}
       </button>
     </form>
   );

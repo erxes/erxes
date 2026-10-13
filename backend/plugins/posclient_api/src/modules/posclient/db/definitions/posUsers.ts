@@ -33,7 +33,6 @@ export const posUserSchema = new Schema({
   isOwner: field({ type: Boolean, label: 'Is owner', default: false }),
   email: field({
     type: String,
-    unique: true,
     match: [
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
       'Please fill a valid email address',
@@ -44,3 +43,5 @@ export const posUserSchema = new Schema({
   details: field({ type: detailSchema, default: {}, label: 'Details' }),
   tokens: field({ type: [String] }),
 });
+
+posUserSchema.index({ email: 1 }, { unique: true });

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Checkbox, InputNumber, RecordTable, Sheet, Table, cn } from 'erxes-ui';
 import { useEffect } from 'react';
@@ -54,6 +55,7 @@ export const FxaOwnerRecordsSheet = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -178,21 +180,22 @@ export const FxaOwnerRecordsSheet = ({
       <Sheet.Trigger asChild>
         <RecordTable.MoreButton
           type="button"
-          className="w-10 p-0"
+          className="w-8 p-0"
           disabled={!detail?.fixedAssetId || detailCount <= 0}
-          aria-label="Эд хариуцагч сонгох"
-          title="Эд хариуцагч сонгох"
+          aria-label={t('select-asset-custodian')}
+          title={t('select-asset-custodian')}
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
           <div className="min-w-0">
-            <Sheet.Title>{title || 'Эд хариуцагч сонгох'}</Sheet.Title>
+            <Sheet.Title>{title || t('select-asset-custodian')}</Sheet.Title>
             <Sheet.Description
               className={cn(!isWithinLimit && 'text-destructive')}
             >
-              Дээд тоо: {detailCount} | Сонгосон: {selectedCount} | Боломжит:{' '}
-              {remainingCount}
+              {t('maximum-quantity', { nsSeparator: false })} {detailCount}{' '}
+              {t('selected-label', { nsSeparator: false })} {selectedCount}{' '}
+              {t('available', { nsSeparator: false })} {remainingCount}
             </Sheet.Description>
           </div>
           <Sheet.Close />
@@ -201,11 +204,11 @@ export const FxaOwnerRecordsSheet = ({
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head className="w-10" />
-                <Table.Head>Код</Table.Head>
-                <Table.Head>Боломжит тоо</Table.Head>
-                <Table.Head>Сонгох тоо</Table.Head>
-                <Table.Head>Эд хариуцагч</Table.Head>
+                <Table.Head className="w-8" />
+                <Table.Head>{t('code')}</Table.Head>
+                <Table.Head>{t('available-quantity')}</Table.Head>
+                <Table.Head>{t('quantity-to-select')}</Table.Head>
+                <Table.Head>{t('asset-custodian')}</Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -217,7 +220,7 @@ export const FxaOwnerRecordsSheet = ({
 
                 return (
                   <Table.Row key={record._id}>
-                    <Table.Cell>
+                    <Table.Cell className="w-8">
                       <div className="flex items-center justify-center">
                         <Checkbox
                           checked={selected}
@@ -268,8 +271,8 @@ export const FxaOwnerRecordsSheet = ({
                     className="text-center text-muted-foreground"
                   >
                     {loading
-                      ? 'Уншиж байна...'
-                      : 'Идэвхтэй эд хариуцагчийн бүртгэл алга.'}
+                      ? t('loading')
+                      : t('no-active-asset-custodian-records-found')}
                   </Table.Cell>
                 </Table.Row>
               )}

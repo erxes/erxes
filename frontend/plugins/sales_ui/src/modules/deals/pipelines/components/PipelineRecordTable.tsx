@@ -38,7 +38,10 @@ import {
   usePipelineRemove,
   usePipelines,
 } from '@/deals/boards/hooks/usePipelines';
+import { BoardEmptyState } from '@/deals/boards/components/BoardEmptyState';
+import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
 import { PipelineCommandBar } from '@/deals/pipelines/components/PipelineCommandBar';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { IPipeline } from '@/deals/types/pipelines';
 
 export const PipelineMoreColumnCell = ({
@@ -320,9 +323,14 @@ const PipelineRecordTable = () => {
   }>(['contentType', 'searchValue', 'activeBoardId']);
 
   const { contentType, searchValue } = queries;
+  const { boards, loading: boardsLoading, error: boardsError } = useBoards();
+  const hasSelectedBoard = boards?.some(
+    (board) => board._id === queries.activeBoardId,
+  );
 
-  const { pipelines, loading, pageInfo, handleFetchMore, totalCount } =
+  const { pipelines, loading, error, pageInfo, handleFetchMore, totalCount } =
     usePipelines({
+      skip: !hasSelectedBoard,
       variables: {
         type: contentType || '',
         searchValue: searchValue ?? undefined,
@@ -330,6 +338,21 @@ const PipelineRecordTable = () => {
         isAll: true,
       },
     });
+
+  if (!boardsLoading && !boardsError && boards && !hasSelectedBoard) {
+    return <BoardEmptyState isSettings hasBoards={boards.length > 0} />;
+  }
+
+  if (
+    !boardsLoading &&
+    !boardsError &&
+    hasSelectedBoard &&
+    !loading &&
+    !error &&
+    pipelines?.length === 0
+  ) {
+    return <PipelineEmptyState isSettings />;
+  }
 
   return (
     <>
@@ -349,7 +372,9 @@ const PipelineRecordTable = () => {
               <RecordTable.Header />
               <RecordTable.Body>
                 <RecordTable.RowList Row={RecordTableTree.Row} />
-                {loading && <RecordTable.RowSkeleton rows={30} />}
+                {(boardsLoading || loading) && (
+                  <RecordTable.RowSkeleton rows={30} />
+                )}
                 {!loading && pageInfo?.hasNextPage && (
                   <RecordTable.RowSkeleton
                     rows={1}

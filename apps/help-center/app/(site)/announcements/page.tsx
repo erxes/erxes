@@ -1,5 +1,6 @@
 import { getAnnouncements } from '@/modules/cms/api';
 import { AnnouncementList } from '@/modules/cms/components/AnnouncementList';
+import { getT } from '@/modules/i18n/server';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { CountBadge } from '@/modules/ui/components/PageHeader';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
@@ -9,19 +10,27 @@ import {
   Unpublished,
 } from '@/modules/ui/components/PortalState';
 
-export const metadata = { title: 'Announcements' };
+export const generateMetadata = async () => ({
+  title: (await getT())('cms.title'),
+});
 
 export default async function AnnouncementsPage() {
-  const posts = await getAnnouncements();
+  const [posts, t] = await Promise.all([getAnnouncements(), getT()]);
 
   return (
     <PortalShell
-      breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Announcements' }]}
-      title="Announcements"
-      description="Notices and updates from the team."
+      breadcrumbs={[
+        { label: t('nav.home'), href: '/' },
+        { label: t('cms.title') },
+      ]}
+      title={t('cms.title')}
+      description={t('cms.description')}
       meta={
         posts.state === 'ready' && posts.data.length ? (
-          <CountBadge count={posts.data.length} label="posts" />
+          <CountBadge
+            count={posts.data.length}
+            label={t('cms.posts', { count: posts.data.length })}
+          />
         ) : null
       }
     >
@@ -36,8 +45,8 @@ export default async function AnnouncementsPage() {
       ) : (
         <EmptyState
           icon="megaphone"
-          title="No announcements yet"
-          description="Nothing has been published in the CMS yet. New notices appear here as soon as they go live."
+          title={t('cms.noneYet')}
+          description={t('cms.noneYetText')}
         />
       )}
     </PortalShell>

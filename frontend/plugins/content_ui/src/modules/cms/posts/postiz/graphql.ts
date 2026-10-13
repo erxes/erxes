@@ -38,6 +38,11 @@ const deliveryFields = gql`
     message
   }
 `;
+export const CMS_POSTIZ_TENANT_ENABLED = gql`
+  query CmsPostizTenantEnabled {
+    agentPostizTenantEnabled
+  }
+`;
 export const CMS_POSTIZ_OPTIONS = gql`
   query CmsSocialOptions($clientPortalId: String!, $language: String) {
     cmsPostizOptions(clientPortalId: $clientPortalId, language: $language) {
@@ -89,6 +94,14 @@ export const CMS_POSTIZ_DELIVERIES = gql`
 export const CMS_POSTIZ_RETRY = gql`
   mutation CmsSocialRetry($id: String!, $reviewedInPostiz: Boolean!) {
     cmsPostizRetry(id: $id, reviewedInPostiz: $reviewedInPostiz) {
+      ...CmsSocialDeliveryFields
+    }
+  }
+  ${deliveryFields}
+`;
+export const CMS_POSTIZ_REFRESH = gql`
+  mutation CmsSocialRefresh($postId: String!, $language: String!) {
+    cmsPostizRefresh(postId: $postId, language: $language) {
       ...CmsSocialDeliveryFields
     }
   }

@@ -58,25 +58,24 @@ interface IProvisionContext {
 const isOptionalStep = (step: TProvisionStep) =>
   (MAIL_OPTIONAL_PROVISION_STEPS as readonly string[]).includes(step);
 
-const PERMISSION_HINTS: Record<TProvisionStep, string> = {
-  verifyToken: 'the token itself',
-  resolveAccount: 'Account · Workers Scripts · Edit',
-  checkZone: 'Zone · Zone · Read and Zone · DNS · Read',
+const ACCESS_HINTS: Record<TProvisionStep, string> = {
+  verifyToken: 'Check that the API token is active',
+  resolveAccount: 'Check Account · Workers Scripts · Edit access',
+  checkZone: 'Check Zone · Zone · Read and Zone · DNS · Read access',
   enableEmailRouting:
-    'Zone · Email Routing Rules · Edit, Zone · Zone Settings · Edit and Zone · DNS · Edit — or enable Email Routing once in the Cloudflare dashboard and run this again',
-  ensureBucket: 'Account · Workers R2 Storage · Edit',
-  ensureLifecycle: 'Account · Workers R2 Storage · Edit',
-  ensureQueues:
-    'Account · Queues · Edit, and a Workers Paid plan — queues are not on the free plan',
-  uploadScript: 'Account · Workers Scripts · Edit',
-  putSecret: 'Account · Workers Scripts · Edit',
-  enableWorkersDev: 'Account · Workers Scripts · Edit',
-  attachConsumer: 'Account · Queues · Edit',
-  setCatchAll: 'Zone · Email Routing Rules · Edit',
+    'Check Zone · Email Routing Rules · Edit, Zone · Zone Settings · Edit and Zone · DNS · Edit access',
+  ensureBucket: 'Check Account · Workers R2 Storage · Edit access',
+  ensureLifecycle: 'Check Account · Workers R2 Storage · Edit access',
+  ensureQueues: 'Check Account · Queues · Edit access',
+  uploadScript: 'Check Account · Workers Scripts · Edit access',
+  putSecret: 'Check Account · Workers Scripts · Edit access',
+  enableWorkersDev: 'Check Account · Workers Scripts · Edit access',
+  attachConsumer: 'Check Account · Queues · Edit access',
+  setCatchAll: 'Check Zone · Email Routing Rules · Edit access',
   enableEmailSending:
-    'a Workers Paid plan — Email Sending is not on the free plan — plus Account · Email Sending · Edit and Zone · DNS · Edit. Activating the plan and onboarding this domain once under Compute & AI · Email Service · Email Sending, then running this again, is the usual fix',
+    'Check that this Cloudflare account has Workers Paid and the token has Account · Email Sending · Edit and Zone · DNS · Edit access',
   checkSendingDns:
-    'a Workers Paid plan and Account · Email Sending · Edit. Activating the plan and onboarding this domain once under Compute & AI · Email Service · Email Sending, then running this again, is the usual fix',
+    'Check Account · Email Sending · Edit and Zone · DNS · Edit access',
 };
 
 const isAuthFailure = (error: unknown) =>
@@ -87,7 +86,7 @@ const explainFailure = (step: TProvisionStep, error: unknown) => {
   const described = describeCloudflareError(error);
 
   if (isAuthFailure(error)) {
-    return `${described} — this token is missing ${PERMISSION_HINTS[step]}`;
+    return `${described} — ${ACCESS_HINTS[step]}`;
   }
 
   return described;

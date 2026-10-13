@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowMerge,
   IconLayoutSidebarLeftCollapse,
@@ -25,13 +26,14 @@ export const MergeSheet = ({
   onSave = noop,
   ...props
 }: MergeSheetProps) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
     <Sheet {...props}>
       <MergeTooltip disabled={!disabled}>
         <Sheet.Trigger asChild>
           <Button variant={'secondary'} disabled={disabled}>
             <IconArrowMerge />
-            Merge
+            {t('action-merge')}
           </Button>
         </Sheet.Trigger>
       </MergeTooltip>
@@ -64,6 +66,7 @@ interface MergeSheetFooterProps {
 }
 
 const MergeSheetFooter = ({ onDiscard, onSave }: MergeSheetFooterProps) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
     <Sheet.Footer className="flex justify-end p-5">
       <Button
@@ -72,14 +75,14 @@ const MergeSheetFooter = ({ onDiscard, onSave }: MergeSheetFooterProps) => {
         }}
         variant="secondary"
       >
-        Discard
+        {t('action-discard')}
       </Button>
       <Button
         onClick={() => {
           onSave();
         }}
       >
-        Save
+        {t('action-save')}
       </Button>
     </Sheet.Footer>
   );

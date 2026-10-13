@@ -19,6 +19,10 @@
   job, optional sales-deal job, QR ticket email).
 - Ticket codes issued per paid invoice, plus their scan/redeem state.
 - The embeddable payment widget served from `/pl:payment/widget/`.
+  Its `package.json` declares `graphql-ws@^6` because `createClient` feeds
+  `@apollo/client`'s `GraphQLWsLink`, whose types resolve against the
+  graphql-ws version pnpm picks for the peer; an undeclared import resolved
+  to v5 and broke the widget build when v6 entered the workspace.
 
 ### Does not own
 
@@ -142,41 +146,3 @@
 - Smoke: scan a paid ticket with its matching `eventSlug` (succeeds), then scan
   an unused ticket with a different `eventSlug` and confirm it is rejected and
   remains unused.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-08-12` — `Event-scoped ticket redemption`
-
-- **Summary:** Added an optional expected event slug to barcode redemption so
-  scanners can reject a ticket for another event without consuming its code.
-- **Affected areas:** `src/modules/payment/db/models/Invoices.ts`,
-  `src/modules/payment/graphql/schemas/invoices.ts`,
-  `src/modules/payment/graphql/resolvers/mutations/invoices.ts`
-- **Contracts changed:** `invoiceScanBarcode` now accepts optional
-  `eventSlug: String`.
-
-### `2026-08-10` — `Invoice edit permission and mutation`
-
-- **Summary:** Added the plugin permission config with a `payment:admin`
-  default group and an `invoiceEdit` mutation that validates and updates an
-  invoice's description, amount, currency, and status behind
-  `checkPermission('paymentInvoiceEdit')`; editing the status into `paid` sends
-  the QR ticket email through the extracted `sendPaidInvoiceQrEmail` helper.
-- **Affected areas:** `src/meta/permissions.ts`, `src/main.ts`,
-  `src/modules/payment/graphql/schemas/invoices.ts`,
-  `src/modules/payment/graphql/resolvers/mutations/invoices.ts`,
-  `src/modules/payment/@types/invoices.ts`,
-  `src/modules/payment/services/paidInvoiceCallback.ts`
-- **Contracts changed:** Added mutation `invoiceEdit` and input
-  `InvoiceEditInput`; published permission actions `paymentInvoiceView` /
-  `paymentInvoiceEdit` and default groups `payment:admin` / `payment:viewer`.
-
-### `2026-08-06` — `Fix QR ticket email attachment on SendGrid deployments`
-
-- **Summary:** The ticket PDF is now attached as base64 `content` instead of a
-  `data:` URI in `path`, which failed on SendGrid/SaaS while working locally on
-  SMTP/SES.
-- **Affected areas:** `src/modules/payment/services/invoiceQrEmail.ts`
-- **Contracts changed:** `None`

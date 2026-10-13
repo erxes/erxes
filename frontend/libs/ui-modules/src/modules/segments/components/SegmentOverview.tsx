@@ -11,7 +11,7 @@ import {
   Label,
   Spinner,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Bar,
@@ -81,10 +81,13 @@ export const SegmentOverview = ({
   segment,
   days = 30,
   onRefresh,
+  actions,
 }: {
   segment?: ISegment;
   days?: number;
   onRefresh?: () => Promise<unknown> | void;
+  // The host's own buttons for this segment, placed beside rebuild.
+  actions?: ReactNode;
 }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'analytics' });
   const {
@@ -184,6 +187,7 @@ export const SegmentOverview = ({
           {segment?.status !== 'building' && (
             <SegmentRebuildButton segment={segment} size="sm" />
           )}
+          {actions}
         </div>
       </div>
 

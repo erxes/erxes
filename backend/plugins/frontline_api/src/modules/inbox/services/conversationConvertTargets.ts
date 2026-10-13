@@ -28,6 +28,8 @@ export interface IConvertInput {
 export interface IConvertedTarget {
   _id: string;
   stageId?: string;
+  channelId?: string;
+  pipelineId?: string;
 }
 
 export interface IConvertTargetHandler {
@@ -88,13 +90,27 @@ const ticketHandler: IConvertTargetHandler = {
         ],
         state: { $ne: 'deleted' },
       },
-      { _id: 1 },
+      { _id: 1, channelId: 1, pipelineId: 1 },
     ).lean();
 
-    return ticket ? { _id: ticket._id } : null;
+    return ticket
+      ? {
+          _id: ticket._id,
+          channelId: ticket.channelId,
+          pipelineId: ticket.pipelineId,
+        }
+      : null;
   },
 
-  getUrl: async (_subdomain, { _id }) => `/frontline/tickets?ticketId=${_id}`,
+  getUrl: async (_subdomain, { _id, channelId, pipelineId }) => {
+    const params = new URLSearchParams({
+      ...(channelId && { channelId }),
+      ...(pipelineId && { pipelineId }),
+      ticketId: _id,
+    });
+
+    return `/frontline/tickets?${params.toString()}`;
+  },
 
   create: async (
     { models, subdomain, user, checkPermission },

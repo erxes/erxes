@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { Card } from '@/modules/ui/components/Card';
 import { Icon } from '@/modules/ui/components/Icon';
-import { plural } from '@/modules/ui/lib/plural';
+import { getLocale, getT } from '@/modules/i18n/server';
 import { formatDate, type ArticleEntry } from '../utils/selectors';
 
-export const PopularArticles = ({ entries }: { entries: ArticleEntry[] }) => {
+export const PopularArticles = async ({
+  entries,
+}: {
+  entries: ArticleEntry[];
+}) => {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
   const most = Math.max(...entries.map(({ article }) => article.viewCount), 0);
 
   return (
@@ -54,13 +59,13 @@ export const PopularArticles = ({ entries }: { entries: ArticleEntry[] }) => {
 
                   {article.viewCount > 0 ? (
                     <span className="tabular-nums">
-                      {plural(article.viewCount, 'view')}
+                      {t('kb.views', { count: article.viewCount })}
                     </span>
                   ) : null}
 
                   {article.modifiedAt ? (
                     <span className="tabular-nums">
-                      {formatDate(article.modifiedAt)}
+                      {formatDate(article.modifiedAt, locale)}
                     </span>
                   ) : null}
                 </span>

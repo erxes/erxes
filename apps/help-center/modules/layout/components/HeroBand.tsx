@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { Container } from '@/modules/ui/components/Container';
 import { cn } from '@/modules/ui/lib/cn';
 import { getPortalSettings } from '../api';
-import { HeaderSession } from './HeaderSession';
 
 export const HeroBand = async ({
   className,
@@ -53,14 +52,6 @@ export const HeroBand = async ({
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand/60 to-transparent"
       />
-
-      <div className="pointer-events-none absolute inset-x-0 top-0 hidden lg:block">
-        <Container className="flex h-14 items-center justify-end">
-          <div className="pointer-events-auto">
-            <HeaderSession />
-          </div>
-        </Container>
-      </div>
 
       <Container className="relative">{children}</Container>
     </section>

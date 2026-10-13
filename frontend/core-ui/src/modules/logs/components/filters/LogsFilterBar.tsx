@@ -15,8 +15,10 @@ import { LogContentTypeFilter } from './LogContentTypeFilter';
 import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
 import { LogsTotalCount } from '../LogsTotalCount';
+import { useTranslation } from 'react-i18next';
 
 const LogStatusBarItem = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [status] = useFilterQueryState<string>('status');
   const [open, setOpen] = useState(false);
 
@@ -24,12 +26,12 @@ const LogStatusBarItem = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconProgressCheck />
-        Status
+        {t('status-label')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="status">
-            {status || 'Set value'}
+            {status || t('set-value')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -41,6 +43,7 @@ const LogStatusBarItem = () => {
 };
 
 const LogSourceBarItem = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [source] = useFilterQueryState<string>('source');
   const [open, setOpen] = useState(false);
 
@@ -48,12 +51,12 @@ const LogSourceBarItem = () => {
     <Filter.BarItem queryKey="source">
       <Filter.BarName>
         <IconSourceCode />
-        Source
+        {t('source')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="source">
-            {source || 'Set value'}
+            {source || t('set-value')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -65,6 +68,7 @@ const LogSourceBarItem = () => {
 };
 
 const LogActionBarItem = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [action] = useFilterQueryState<string>('action');
   const [open, setOpen] = useState(false);
 
@@ -72,12 +76,12 @@ const LogActionBarItem = () => {
     <Filter.BarItem queryKey="action">
       <Filter.BarName>
         <IconProgressCheck />
-        Action
+        {t('action')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="action">
-            {action || 'Set value'}
+            {action || t('set-value')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -89,6 +93,7 @@ const LogActionBarItem = () => {
 };
 
 const LogContentTypeBarItem = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [contentType] = useFilterQueryState<string>('contentType');
   const [open, setOpen] = useState(false);
 
@@ -96,12 +101,12 @@ const LogContentTypeBarItem = () => {
     <Filter.BarItem queryKey="contentType">
       <Filter.BarName>
         <IconTag />
-        Content Type
+        {t('content-type')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="contentType">
-            {formatLogContentTypeLabel(contentType) || 'Set value'}
+            {formatLogContentTypeLabel(contentType) || t('set-value')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -113,6 +118,7 @@ const LogContentTypeBarItem = () => {
 };
 
 export const LogsFilterBar = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const [source] = useFilterQueryState<string>('source');
   const [docId] = useFilterQueryState<string>('docId');
 
@@ -127,17 +133,17 @@ export const LogsFilterBar = () => {
       <Filter.BarItem queryKey="docId">
         <Filter.BarName>
           <IconHash />
-          Document ID
+          {t('document-id')}
         </Filter.BarName>
         <Filter.BarButton filterKey="docId" inDialog>
-          {docId || 'Set value'}
+          {docId || t('set-value')}
         </Filter.BarButton>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="createdAt">
         <Filter.BarName>
           <IconCalendarPlus />
-          Created At
+          {t('created-at')}
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>

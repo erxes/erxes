@@ -46,11 +46,12 @@ export const LoyaltyScoreAddSheet = () => {
         </Button>
       </Sheet.Trigger>
       <Sheet.View
-        className="sm:max-w-2xl p-0"
+        className="p-0 md:max-w-7xl md:w-[calc(100vw-(--spacing(4)))] flex flex-col gap-0 overflow-hidden"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
+        <LoyaltyScoreAddSheetHeader />
         <AddLoyaltyScoreForm onOpenChange={setOpen} />
       </Sheet.View>
     </Sheet>

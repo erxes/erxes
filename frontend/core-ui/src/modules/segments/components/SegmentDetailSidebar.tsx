@@ -1,7 +1,11 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-export const SEGMENT_DETAIL_TABS = ['overview', 'definition'] as const;
+export const SEGMENT_DETAIL_TABS = [
+  'overview',
+  'definition',
+  'automations',
+] as const;
 
 export type SegmentDetailTab = (typeof SEGMENT_DETAIL_TABS)[number];
 

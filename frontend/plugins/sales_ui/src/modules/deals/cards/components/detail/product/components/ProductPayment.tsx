@@ -10,7 +10,6 @@ import {
 } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import {
-  IconAward,
   IconCircleCheck,
   IconDeviceFloppy,
   IconKey,
@@ -22,16 +21,12 @@ import {
   CurrencyField,
   Dialog,
   Input,
-  Popover,
   Sheet,
-  useConfirm,
   useToast,
 } from 'erxes-ui';
-import { ICustomer } from 'ui-modules';
 import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { useRefundScoreCampaign } from '../hooks/payment/useRefundScoreCampaign';
-import { useCheckOwnerScore } from '../hooks/payment/useCheckOwnerScore';
+import { DealPointPaymentLimit } from './DealPointPaymentLimit';
 import { useTranslation } from 'react-i18next';
 import type { PaymentConfigItem } from '@/payments';
 import {
@@ -99,152 +94,6 @@ const parsePaymentConfig = (config: unknown): PaymentConfig => {
         ? configRecord.preTax
         : undefined,
   };
-};
-
-const OwnerScoreCampaignScore = ({
-  paymentType,
-  customers,
-  dealId,
-  onScoreFetched,
-}: {
-  paymentType: PaymentConfigItem;
-  customers: ICustomer[];
-  dealId: string;
-  onScoreFetched?: (
-    score: number,
-    paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
-    scoreOwnerId: string,
-    scoreCampaignId: string,
-  ) => void;
-}) => {
-  const [customer] = customers || [];
-  const { refundScoreCampaign, loading: refundLoading } =
-    useRefundScoreCampaign();
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
-  const {
-    checkOwnerScore = 0,
-    refetch: refetchCheckOwnerScore,
-    loading: checkLoading,
-  } = useCheckOwnerScore({
-    variables: {
-      ownerId: customer?._id,
-      ownerType: 'customer',
-      campaignId: paymentType?.scoreCampaignId,
-    },
-    skip: !paymentType?.scoreCampaignId || !customer?._id,
-  }) || {};
-
-  useEffect(() => {
-    if (
-      !checkLoading &&
-      paymentType.scoreCampaignId &&
-      customer?._id &&
-      onScoreFetched
-    ) {
-      onScoreFetched(
-        checkOwnerScore,
-        {
-          type: paymentType.type,
-          config: paymentType.config,
-        },
-        customer._id,
-        paymentType.scoreCampaignId,
-      );
-    }
-  }, [
-    checkLoading,
-    checkOwnerScore,
-    customer?._id,
-    onScoreFetched,
-    paymentType.config,
-    paymentType.scoreCampaignId,
-    paymentType.type,
-  ]);
-
-  const { t } = useTranslation('sales');
-
-  if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
-
-  const refundScore = () => {
-    confirm({
-      message: t('loyalty-score-refund-confirm'),
-    }).then(() => {
-      refundScoreCampaign({
-        variables: {
-          ownerId: customer._id,
-          ownerType: 'customer',
-          targetId: dealId,
-        },
-      })
-        .then(() =>
-          toast({
-            variant: 'success',
-            title: t('success'),
-            description: t('loyalty-score-refunded'),
-          }),
-        )
-        .catch((error: unknown) =>
-          toast({
-            variant: 'destructive',
-            title: t('error'),
-            description: error instanceof Error ? error.message : t('error'),
-          }),
-        );
-      refetchCheckOwnerScore();
-    });
-  };
-
-  return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <Button variant="ghost" className="w-1">
-          <IconAward size={16} className="text-amber-500" />
-        </Button>
-      </Popover.Trigger>
-      <Popover.Content className="w-72 p-0 overflow-hidden rounded-lg shadow-lg border">
-        <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b">
-          <IconAward size={16} className="text-amber-500 shrink-0" />
-          <span className="font-semibold text-sm text-foreground truncate">
-            {t('score-campaign')}
-          </span>
-        </div>
-        <div className="p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {t('customer')}
-            </span>
-            <span className="text-sm text-foreground truncate max-w-44">
-              {customer.primaryEmail || customer._id}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {t('available-score')}
-            </span>
-            <span className="text-xl font-bold text-foreground">
-              {checkLoading ? (
-                <span className="text-sm text-muted-foreground">
-                  {t('loading')}…
-                </span>
-              ) : (
-                checkOwnerScore.toLocaleString()
-              )}
-            </span>
-          </div>
-          <Button
-            onClick={refundScore}
-            disabled={refundLoading || checkLoading}
-            variant="destructive"
-            size="sm"
-            className="w-full mt-1"
-          >
-            {refundLoading ? t('refunding') : t('refund-score')}
-          </Button>
-        </div>
-      </Popover.Content>
-    </Popover>
-  );
 };
 
 export const ProductsPayment = ({
@@ -483,31 +332,29 @@ export const ProductsPayment = ({
     ],
   );
 
-  const handleScoreFetched = useCallback(
-    (
-      score: number,
-      paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
-      scoreOwnerId: string,
-      scoreCampaignId: string,
-    ) => {
-      const typeName = paymentType.type;
-      const paymentConfig = parsePaymentConfig(paymentType.config);
+  const [pointsCustomer] = deal.customers || [];
+
+  const handlePointLimit = useCallback(
+    (typeName: string, limit: number, unavailable: boolean) => {
+      const paymentType = deal.pipeline?.paymentTypes?.find(
+        ({ type }) => type === typeName,
+      );
+      const paymentConfig = parsePaymentConfig(paymentType?.config);
       const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
-      const initialAmount = getInitialPaymentAmount(typeName);
 
       setPayInfoByType((prev) =>
         updatePayInfoForScore(
           prev,
           typeName,
-          score,
-          initialAmount,
+          limit,
+          unavailable,
           requiresQr,
-          scoreOwnerId,
-          scoreCampaignId,
+          pointsCustomer?._id || '',
+          paymentType?.scoreCampaignId || '',
         ),
       );
     },
-    [getInitialPaymentAmount],
+    [deal.pipeline?.paymentTypes, pointsCustomer?._id],
   );
 
   const openQrModal = (paymentType: PaymentConfigItem) => {
@@ -538,8 +385,8 @@ export const ProductsPayment = ({
     if (!typeName) return;
 
     if (qrModal.password && customer?._id === qrModal.password) {
-      const score = payInfoByType[typeName]?.score ?? 0;
-      const availableAmount = score + getInitialPaymentAmount(typeName);
+      const payInfo = payInfoByType[typeName];
+      const availableAmount = payInfo?.unavailable ? 0 : payInfo?.limit ?? 0;
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
@@ -660,8 +507,8 @@ export const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-success'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                  ? 'text-destructive'
-                  : ''
+                ? 'text-destructive'
+                : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
@@ -816,6 +663,10 @@ export const ProductsPayment = ({
               validQr: false,
             };
             const showQrUnlockInput = isQr && !payInfo.validQr;
+            const paysWithPoints = !!paymentType.scoreCampaignId;
+            // Locked until loyalty says how much the customer may pay.
+            const pointsLocked =
+              paysWithPoints && payInfo.unavailable !== false;
             return (
               <div
                 key={paymentType.type}
@@ -831,17 +682,12 @@ export const ProductsPayment = ({
                         <IconLock size={14} className="text-muted-foreground" />
                       ))}
                   </span>
-                  <OwnerScoreCampaignScore
-                    paymentType={paymentType}
-                    customers={deal.customers || []}
-                    dealId={deal._id}
-                    onScoreFetched={handleScoreFetched}
-                  />
                 </div>
-                <div className="flex items-center">
+                <div className="flex flex-col gap-1">
                   {showQrUnlockInput ? (
                     <Input
                       readOnly
+                      disabled={pointsLocked}
                       className="cursor-pointer font-medium tabular-nums text-muted-foreground"
                       placeholder={t('read-qrcode')}
                       onClick={() => openQrModal(paymentType)}
@@ -868,8 +714,18 @@ export const ProductsPayment = ({
                       onClick={() =>
                         fillRemainingIfEmpty(typeName, payInfo.maxVal)
                       }
+                      disabled={pointsLocked}
                       className="font-medium tabular-nums"
                       placeholder={t('type-amount')}
+                    />
+                  )}
+                  {paysWithPoints && (
+                    <DealPointPaymentLimit
+                      paymentType={paymentType}
+                      customerId={pointsCustomer?._id}
+                      dealId={deal._id}
+                      totalAmount={total[defaultCurrency] || 0}
+                      onLimit={handlePointLimit}
                     />
                   )}
                 </div>
@@ -888,6 +744,7 @@ export const ProductsPayment = ({
                   <Button
                     variant="ghost"
                     size="icon"
+                    disabled={pointsLocked}
                     onClick={() =>
                       showQrUnlockInput
                         ? openQrModal(paymentType)

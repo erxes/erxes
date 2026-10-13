@@ -13,6 +13,8 @@ import { pricingPlanMutations } from '@/pricing/graphql/resolvers/mutations/pric
 import { pricingFixedValueMutations } from '@/pricing/graphql/resolvers/mutations/pricingFixedValue';
 import { scoreCampaignMutations } from '@/score/graphql/resolvers/mutations/scoreCampaign';
 import { scoreLogMutations } from '@/score/graphql/resolvers/mutations/scoreLog';
+import { loyaltyAccountTypeMutations } from '@/score/graphql/resolvers/mutations/accountType';
+import { loyaltyAccountMutations } from '@/score/graphql/resolvers/mutations/account';
 import { spinsMutations } from '@/spin/graphql/resolvers/mutations/spin';
 import { spinCampaignMutations } from '@/spin/graphql/resolvers/mutations/spinCampaign';
 import { voucherMutations } from '@/voucher/graphql/resolvers/mutations/voucher';
@@ -38,6 +40,8 @@ export const mutations = {
 
   ...scoreLogMutations,
   ...scoreCampaignMutations,
+  ...loyaltyAccountTypeMutations,
+  ...loyaltyAccountMutations,
 
   ...spinsMutations,
   ...spinCampaignMutations,

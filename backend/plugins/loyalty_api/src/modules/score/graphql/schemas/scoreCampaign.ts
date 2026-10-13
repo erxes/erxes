@@ -8,20 +8,32 @@ export const types = `
     order: Int,
     add:JSON,
     subtract:JSON,
-    set:JSON,
     createdAt:Date,
     createdUserId:String,
     status:String,
     ownerType:String,
-    fieldGroupId:String,
-    fieldName:String,
+    accountTypeId:String,
+    accountType: LoyaltyAccountType,
     fieldId:String,
-    fieldOrigin:String,
     serviceName:String,
     additionalConfig:JSON
 
     restrictions: JSON
-    onlyClientPortal: Boolean
+  }
+
+  type LoyaltyScoreSpendLimit {
+    balance: Float
+    pointValue: Float
+    maxAmount: Float
+    step: Float
+    blocked: String
+  }
+
+  type ScoreCampaignEarnPreview {
+    tierKey: String
+    tierName: String
+    total: Float
+    breakdown: JSON
   }
 
   type ScoreCampaignListResponse {
@@ -42,9 +54,10 @@ const queryParams = `
 export const queries = `
   scoreCampaigns(${queryParams}): ScoreCampaignListResponse
   scoreCampaign(_id:String): ScoreCampaign
-  scoreCampaignAttributes(serviceName:String): JSON
   scoreCampaignServices: JSON
+  scoreCampaignEarnPreview(accountTypeId: String, table: JSON!, amount: Float!): [ScoreCampaignEarnPreview]
   checkOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
+  loyaltyScoreSpendLimit(campaignId: String!, ownerType: String!, ownerId: String!, totalAmount: Float, targetId: String): LoyaltyScoreSpendLimit
   cpCheckOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
 `;
 
@@ -54,19 +67,13 @@ const mutationParams = `
   order: Int,
   add:JSON,
   subtract:JSON,
-  set:JSON,
   createdAt:Date,
   createdUserId:String,
-  ownerType:String,
   status:String,
-  fieldGroupId:String
-  fieldName: String
-  fieldId: String
-  fieldOrigin:String,
+  accountTypeId: String
   serviceName:String
   additionalConfig:JSON
   restrictions: JSON
-  onlyClientPortal: Boolean
 `;
 
 export const mutations = `

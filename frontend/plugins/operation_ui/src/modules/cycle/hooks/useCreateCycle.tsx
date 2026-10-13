@@ -4,13 +4,22 @@ import { useToast } from 'erxes-ui';
 import { GET_CYCLES } from '@/cycle/graphql/queries/getCycles';
 import { useCyclesVariables } from '@/cycle/hooks/useGetCycles';
 import { useTranslation } from 'react-i18next';
+import {
+  CreateCycleMutation,
+  CreateCycleMutationVariables,
+} from '~/gql/graphql';
 
 export const useCreateCycle = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [_createCycle, { loading, error }] = useMutation(CREATE_CYCLE);
   const variables = useCyclesVariables({ cursor: '' });
-  const createCycle = (options: MutationFunctionOptions) => {
+  const createCycle = (
+    options: MutationFunctionOptions<
+      CreateCycleMutation,
+      CreateCycleMutationVariables
+    >,
+  ) => {
     _createCycle({
       ...options,
       onCompleted: (data) => {

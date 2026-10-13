@@ -1,7 +1,7 @@
+import { getOwnerBalance } from '@/score/services/scoreLedger';
 import { IContext } from '~/connectionResolvers';
 import {
   checkVouchersSale,
-  getLoyaltyOwner,
   ICommonParams,
   IProductD,
 } from '~/utils';
@@ -30,10 +30,12 @@ export const loyaltyQueries = {
     { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('loyaltyView');
-    const score = (await getLoyaltyOwner(subdomain, {
+    const score = await getOwnerBalance({
+      models,
+      subdomain,
       ownerType: params.ownerType,
       ownerId: params.ownerId,
-    }))?.score || 0
+    });
 
 
     const filter: any = {

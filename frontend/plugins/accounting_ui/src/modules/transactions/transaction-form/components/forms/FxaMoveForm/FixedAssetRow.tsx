@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   SelectFixedAsset,
   TSelectedFixedAsset,
@@ -31,6 +32,7 @@ export const FixedAssetRow = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -105,7 +107,7 @@ export const FixedAssetRow = ({
 
   return (
     <Table.Row className="overflow-hidden h-cell hover:bg-background!">
-      <Table.Cell className="w-10 p-0">
+      <Table.Cell className="w-8 p-0">
         <FxaOwnerRecordsSheet
           form={form}
           journalIndex={journalIndex}
@@ -117,7 +119,7 @@ export const FixedAssetRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell className="w-10">
+        <Table.Cell className="w-8">
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}
@@ -147,7 +149,7 @@ export const FixedAssetRow = ({
                 value={field.value || ''}
                 onValueChange={handleFixedAssetChange}
                 onCallback={handleFixedAssetCallback}
-                placeholder="Үндсэн хөрөнгө"
+                placeholder={t('fixed-asset')}
                 className="h-8 min-w-60"
               />
             )}

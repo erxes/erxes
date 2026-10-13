@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '../../../../hooks/usePostMutations';
@@ -10,6 +11,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { getAutoArchiveDate } from './getAutoArchiveDate';
 import { PostizPublishSheet } from '../../../postiz/PostizPublishSheet';
+import { CMS_POSTIZ_TENANT_ENABLED } from '../../../postiz/graphql';
 
 interface InlineContent {
   text?: string;
@@ -367,6 +369,7 @@ export const usePostSubmission = ({
   onSaved,
 }: UsePostSubmissionProps) => {
   const { t } = useTranslation('content');
+  const apollo = useApolloClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [pendingPublish, setPendingPublish] = useState<{
@@ -375,6 +378,7 @@ export const usePostSubmission = ({
     language: string;
   } | null>(null);
   const pendingPublishRef = useRef(false);
+  const [checkingPostiz, setCheckingPostiz] = useState(false);
 
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
@@ -524,11 +528,34 @@ export const usePostSubmission = ({
       data.status === 'published'
     ) {
       pendingPublishRef.current = true;
-      setPendingPublish({
-        input,
-        data,
-        language: currentLanguage || curDefaultLanguage || 'en',
-      });
+      setCheckingPostiz(true);
+      let tenantEnabled = false;
+      try {
+        const result = await apollo.query<{
+          agentPostizTenantEnabled: boolean;
+        }>({
+          query: CMS_POSTIZ_TENANT_ENABLED,
+          fetchPolicy: 'no-cache',
+        });
+        tenantEnabled = result.data.agentPostizTenantEnabled;
+      } catch {
+        tenantEnabled = false;
+      } finally {
+        setCheckingPostiz(false);
+      }
+      if (tenantEnabled) {
+        setPendingPublish({
+          input,
+          data,
+          language: currentLanguage || curDefaultLanguage || 'en',
+        });
+        return;
+      }
+      try {
+        await savePost(input, data, options);
+      } finally {
+        pendingPublishRef.current = false;
+      }
       return;
     }
     await savePost(input, data, options);
@@ -543,8 +570,8 @@ export const usePostSubmission = ({
 
   return {
     onSubmit,
-    creating,
-    saving,
+    creating: creating || checkingPostiz,
+    saving: saving || checkingPostiz,
     postizSheet: pendingPublish && (
       <PostizPublishSheet
         websiteId={websiteId}

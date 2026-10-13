@@ -12,15 +12,6 @@ const createBonusProductDataId = (productId: string) => {
   return `${productId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 };
 
-function toPlainDeal(deal: IDeal): IDeal;
-function toPlainDeal(deal?: IDeal): IDeal | undefined;
-function toPlainDeal(deal?: IDeal) {
-  const maybeDocument = deal as
-    | (IDeal & { toObject?: () => IDeal })
-    | undefined;
-  return maybeDocument?.toObject?.() || maybeDocument;
-}
-
 export const checkLoyalties = async (
   subdomain: string,
   _id: string,
@@ -187,7 +178,7 @@ export const checkPricing = async (
         quantity: bonusProductsToAdd[bonusProductId].count,
         amount: 0,
         tickUsed: true,
-      }) as IProductData,
+      } as IProductData),
   );
 
   return [
@@ -226,91 +217,6 @@ export const confirmLoyalties = async (
         targetType: 'sales',
         targetId: _id,
       },
-    },
-    defaultValue: null,
-  });
-};
-
-export const doScoreCampaign = async (
-  subdomain: string,
-  models: IModels,
-  _id: string,
-  deal: IDeal,
-  oldDeal?: IDeal,
-) => {
-  if (!deal?.stageId) {
-    return;
-  }
-
-  const target = toPlainDeal(deal);
-  const oldTarget = toPlainDeal(oldDeal);
-
-  const [oldStage, currentStage, [customerId], [companyId]] = await Promise.all(
-    [
-      oldTarget?.stageId
-        ? models.Stages.findOne({ _id: oldTarget.stageId }).lean()
-        : null,
-      models.Stages.findOne({ _id: target.stageId }).lean(),
-      getCustomerIds(subdomain, _id),
-      getCompanyIds(subdomain, _id),
-    ],
-  );
-
-  const [oldPipeline, currentPipeline] = await Promise.all([
-    oldStage?.pipelineId
-      ? models.Pipelines.findOne({ _id: oldStage.pipelineId }).lean()
-      : null,
-    currentStage?.pipelineId
-      ? models.Pipelines.findOne({ _id: currentStage.pipelineId }).lean()
-      : null,
-  ]);
-
-  let cpUserId: string | undefined;
-  if (customerId) {
-    const cpUser = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'cpUsers',
-      action: 'get',
-      input: { erxesCustomerId: customerId },
-      defaultValue: null,
-    });
-    cpUserId = cpUser?._id;
-  }
-
-  const ownerHints = Object.fromEntries(
-    Object.entries({
-      customer: customerId,
-      company: companyId,
-      user: target.userId,
-      cpUser: cpUserId,
-    }).filter(([, value]) => !!value),
-  );
-
-  return sendTRPCMessage({
-    subdomain,
-    pluginName: 'loyalty',
-    method: 'mutation',
-    module: 'score',
-    action: 'consumeTargetChange',
-    input: {
-      contentType: 'sales:deal',
-      serviceName: 'sales',
-      targetId: _id,
-      target,
-      oldTarget,
-      stageContexts: {
-        old: {
-          stage: oldStage,
-          pipeline: oldPipeline,
-        },
-        current: {
-          stage: currentStage,
-          pipeline: currentPipeline,
-        },
-      },
-      ownerHints,
     },
     defaultValue: null,
   });

@@ -1,3 +1,4 @@
+import { TVoucherOwnerLimit } from '../utils/voucherOwnerLimit';
 export interface IVoucher {
   _id: string;
   title: string;
@@ -24,5 +25,6 @@ export interface IVoucher {
     tag?: string;
     orExcludeTag?: string;
   };
+  perOwnerLimit?: TVoucherOwnerLimit | null;
   conditions: any;
 }

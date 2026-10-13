@@ -64,12 +64,19 @@ export const types = `
     attachments: [Attachment]
     fromBot: Boolean
     botData: JSON
+    extraData: JSON
     customerId: String
     userId: String
     createdAt: Date
     isCustomerRead: Boolean
     mid: String
     internal: Boolean
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
     permalink_url:String
     postContent: String
     customer: Customer
@@ -84,6 +91,12 @@ export const types = `
     userId: String
     createdAt: Date
     commentId: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
 
     customer: Customer
     user: User
@@ -128,6 +141,7 @@ export const types = `
 `;
 
 export const queries = `
+  frontlineInstagramCopyImage(conversationId: String!, messageId: String!, url: String!): String!
   instagramGetAccounts(kind: String): JSON
   instagramGetIntegrations(kind: String): JSON
   instagramGetIntegrationDetail(erxesApiId: String): JSON

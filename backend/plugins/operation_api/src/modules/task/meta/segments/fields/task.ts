@@ -46,7 +46,11 @@ export const TASK_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
-    query: { name: 'tags', labelField: 'name' },
+    query: {
+      name: 'tags',
+      labelField: 'name',
+      variables: { type: 'operation:task', includeWorkspaceTags: true },
+    },
   }),
 
   SegmentField.date({ key: 'startDate', label: 'Start date' }),

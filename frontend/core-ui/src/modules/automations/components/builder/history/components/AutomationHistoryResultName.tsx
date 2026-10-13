@@ -8,12 +8,14 @@ import {
   IUser,
   splitAutomationNodeType,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryResultName = ({
   executionDetail,
 }: {
   executionDetail: IAutomationHistory;
 }) => {
+  const { t } = useTranslation('automations');
   const { triggerType, target } = executionDetail;
   const [pluginName, moduleName, collectionType] =
     splitAutomationNodeType(triggerType);
@@ -42,13 +44,13 @@ export const AutomationHistoryResultName = ({
     return (
       <Button asChild variant="link">
         <Link target="_blank" to={link || '#'}>
-          {name || 'Empty'}
+          {name || t('history-empty')}
         </Link>
       </Button>
     );
   }
 
-  return 'Empty';
+  return t('history-empty');
 };
 
 /**

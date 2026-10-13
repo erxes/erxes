@@ -1,3 +1,15 @@
+import React from 'react';
+import { SubmitHandler } from 'react-hook-form';
+import {
+  Button,
+  Dialog,
+  Form,
+  Input,
+  Skeleton,
+  Spinner,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
 import {
   useAddBoardForm,
   useBoardAdd,
@@ -6,10 +18,6 @@ import {
 } from '@/deals/boards/hooks/useBoards';
 import { TBoardForm } from '@/deals/types/boards';
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Input, Sheet, Skeleton, Spinner, toast, useQueryState } from 'erxes-ui';
-import React from 'react';
-import { SubmitHandler } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState('boardId');
@@ -35,12 +43,10 @@ export const BoardForm = () => {
   const { addBoard, loading: addLoading } = useBoardAdd();
   const { editBoard, loading: editLoading } = useBoardEdit();
 
-  const { t } = useTranslation('sales');
-
   const submitHandler: SubmitHandler<TBoardForm> = React.useCallback(
     async (data) => {
       const manageBoard = boardId ? editBoard : addBoard;
-      const successTitle = boardId ? t('board-updated') : t('board-created');
+      const successTitle = boardId ? 'Updated a board' : 'Created a board';
 
       manageBoard({
         variables: {
@@ -52,26 +58,29 @@ export const BoardForm = () => {
         },
       });
     },
-    [addBoard, editBoard, boardId, handleClose, t],
+    [addBoard, editBoard, boardId, handleClose],
   );
 
   return (
-    <Sheet
+    <Dialog
       open={open}
       onOpenChange={(isOpen) =>
         boardId ? !isOpen && handleClose() : setOpen(isOpen)
       }
     >
-      <Sheet.Trigger asChild>
+      <Dialog.Trigger asChild>
         <Button
           variant="ghost"
           className="text-xs font-semibold text-accent-foreground"
         >
           <IconPlus />
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View
-        className="p-0"
+      </Dialog.Trigger>
+      <Dialog.ContentCombined
+        title={boardId ? 'Edit Board' : 'Add Board'}
+        description={
+          boardId ? 'Edit existing board details' : 'Create a new board'
+        }
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
@@ -79,29 +88,23 @@ export const BoardForm = () => {
         <Form {...methods}>
           <form
             onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
+            className="flex flex-col gap-4 w-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                {boardId ? t('edit-board') : t('add-board')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-3">
+            <div className="flex flex-col gap-3">
               {boardDetailLoading ? (
-                <Skeleton className="w-full h-4 my-1" />
+                <Skeleton className="w-full h-10 my-1" />
               ) : (
                 <Form.Field
                   control={methods.control}
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('board-name')}</Form.Label>
+                      <Form.Label>Board Name</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           type="text"
-                          placeholder={t('enter-board-name')}
+                          placeholder="Enter board name"
                           className="input"
                           value={field.value || boardDetail?.name || ''}
                         />
@@ -111,18 +114,18 @@ export const BoardForm = () => {
                   )}
                 />
               )}
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={handleClose}>
-                {t('cancel')}
+            </div>
+            <Dialog.Footer className="pt-2">
+              <Button type="button" variant="ghost" onClick={handleClose}>
+                Cancel
               </Button>
               <Button type="submit" disabled={addLoading || editLoading}>
-                {addLoading || editLoading ? <Spinner /> : t('save')}
+                {addLoading || editLoading ? <Spinner /> : 'Save'}
               </Button>
-            </Sheet.Footer>
+            </Dialog.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </Dialog.ContentCombined>
+    </Dialog>
   );
 };

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IAccount, JournalEnum } from '../types/Account';
 import {
@@ -148,13 +149,15 @@ export const accountMoreColumn = {
   size: 33,
 };
 
-export const accountsColumns: ColumnDef<IAccount>[] = [
+export const accountsColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<IAccount>[] => [
   accountMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IAccount>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Код" />,
+    header: () => <RecordTable.InlineHead label={t('code')} />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -169,7 +172,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -185,21 +188,21 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'categoryId',
     accessorKey: 'categoryId',
-    header: () => <RecordTable.InlineHead label="Ангилал" />,
+    header: () => <RecordTable.InlineHead label={t('category')} />,
     cell: ({ cell }) => <AccountCategoryCell cell={cell} />,
     size: 240,
   },
   {
     id: 'currency',
     accessorKey: 'currency',
-    header: () => <RecordTable.InlineHead label="Валют" />,
+    header: () => <RecordTable.InlineHead label={t('currency')} />,
     cell: AccountCurrencyCell,
     size: 240,
   },
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Төрөл" />,
+    header: () => <RecordTable.InlineHead label={t('type')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -211,11 +214,11 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'journal',
     accessorKey: 'journal',
-    header: () => <RecordTable.InlineHead label="Журнал" />,
+    header: () => <RecordTable.InlineHead label={t('journal')} />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {JOURNAL_LABELS[cell.getValue() as JournalEnum]}
+          {t(JOURNAL_LABELS[cell.getValue() as JournalEnum] || '')}
         </RecordTableInlineCell>
       );
     },
@@ -223,7 +226,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isTemp',
     accessorKey: 'isTemp',
-    header: () => <RecordTable.InlineHead label="Түр" />,
+    header: () => <RecordTable.InlineHead label={t('temporary')} />,
     size: 80,
     cell: ({ cell }) => {
       return (
@@ -236,12 +239,12 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isOutBalance',
     accessorKey: 'isOutBalance',
-    header: () => <RecordTable.InlineHead label="Баланс бус" />,
+    header: () => <RecordTable.InlineHead label={t('off-balance-sheet')} />,
     size: 80,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {cell.getValue() ? 'Баланс бус' : '-'}
+          {cell.getValue() ? t('off-balance-sheet') : '-'}
         </RecordTableInlineCell>
       );
     },

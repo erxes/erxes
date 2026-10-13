@@ -32,6 +32,9 @@ export const voucherFormSchema = z.object({
   spinCampaignId: z.string().optional(),
   lottery: z.string().optional(),
   lotteryCount: z.number().min(0, 'Lottery count must be positive').optional(),
+  // Empty count means no limit.
+  ownerLimitCount: z.number().int().min(1).optional(),
+  ownerLimitPeriod: z.enum(['campaign', 'year', 'month']).default('year'),
 });
 
 export type VoucherFormValues = z.infer<typeof voucherFormSchema>;

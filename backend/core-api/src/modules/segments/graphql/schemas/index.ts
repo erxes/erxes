@@ -31,6 +31,9 @@ export const types = `
     membersCount: Int
     membersCountedAt: Date
 
+    """Members change with the clock (a birthday today), so it is rebuilt nightly."""
+    timeSensitive: Boolean
+
     """Set only while a rebuild is running. There is no total to compare to."""
     buildStartedAt: Date
     buildProcessed: Int

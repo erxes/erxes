@@ -8,11 +8,16 @@ import {
 } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Sheet, Spinner, toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { Control, FieldPath, FieldValues, useForm } from 'react-hook-form';
+import {
+  useForm,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
-import { mailFormSheetAtom } from '../states/mailStates';
+import { mailFormSheetAtom } from '@/integrations/mail/states/mailStates';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
@@ -21,7 +26,7 @@ import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 import { MailSendingRequired } from './MailSendingRequired';
-import { useMailSendingReadiness } from '../hooks/useMailSendingReadiness';
+import { useMailSendingReadiness } from '@/integrations/mail/hooks/useMailSendingReadiness';
 
 export const MAIL_SENDER_NAME_MAX_LENGTH = 64;
 
@@ -192,14 +197,11 @@ const MailSendingSummary = ({
   );
 };
 
-const STEP_DETAILS = [
-  { title: 'mail-step-basics', description: 'mail-step-basics-description' },
-  {
-    title: 'mail-step-receiving',
-    description: 'mail-step-receiving-description',
-  },
-  { title: 'mail-step-sending', description: 'mail-step-sending-description' },
-  { title: 'mail-step-done', description: 'mail-step-done-description' },
+const STEP_TITLES = [
+  'mail-step-basics',
+  'mail-step-receiving',
+  'mail-step-sending',
+  'mail-step-done',
 ];
 
 const MailIntegrationCreated = ({
@@ -345,7 +347,7 @@ export const MailIntegrationFormSheet = () => {
             >
               <Sheet.Header>
                 <Sheet.Title>{t('add-email-integration')}</Sheet.Title>
-                <Sheet.Description>
+                <Sheet.Description className="sr-only">
                   {t('mail-setup-description')}
                 </Sheet.Description>
                 <Sheet.Close />
@@ -354,9 +356,8 @@ export const MailIntegrationFormSheet = () => {
               <Sheet.Content className="flex flex-col overflow-hidden">
                 <IntegrationSteps
                   step={step}
-                  title={t(STEP_DETAILS[step - 1].title)}
-                  stepsLength={STEP_DETAILS.length}
-                  description={t(STEP_DETAILS[step - 1].description)}
+                  title={t(STEP_TITLES[step - 1])}
+                  stepsLength={STEP_TITLES.length}
                 />
 
                 <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 pt-0">

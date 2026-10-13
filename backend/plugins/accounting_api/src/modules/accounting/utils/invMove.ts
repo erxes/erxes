@@ -66,15 +66,23 @@ class InvMoveInTrs {
     return oldTr;
   }
 
-  public async doTrs(transaction) {
-    const { details } = transaction;
-
-    const oldFollowInTrs = await this.models.Transactions.find({
-      originId: transaction._id,
+  public async getOldFollowInTrs(originId: string) {
+    return this.models.Transactions.find({
+      originId,
       originType: TR_FOLLOW_TYPES.INV_MOVE_IN,
     })
       .sort({ createdAt: -1 })
       .lean();
+  }
+
+  public async doTrs(
+    transaction: ITransactionDocument,
+    existingFollowInTrs?: ITransactionDocument[],
+  ) {
+    const { details } = transaction;
+
+    const oldFollowInTrs =
+      existingFollowInTrs || (await this.getOldFollowInTrs(transaction._id));
 
     const oldFollowInTr = await this.cleanFollowTrs(oldFollowInTrs);
 
@@ -113,6 +121,14 @@ class InvMoveInTrs {
 
         originType: TR_DETAIL_FOLLOW_TYPES.MOVE_IN,
         accountId: this.moveInAccount?._id ?? '',
+        branchId:
+          detail.followInfos?.moveInBranchId ||
+          oldInDetail?.branchId ||
+          this.trDoc.followInfos.moveInBranchId,
+        departmentId:
+          detail.followInfos?.moveInDepartmentId ||
+          oldInDetail?.departmentId ||
+          this.trDoc.followInfos.moveInDepartmentId,
       });
     }
 

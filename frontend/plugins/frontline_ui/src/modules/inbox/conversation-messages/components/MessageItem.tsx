@@ -1,222 +1,110 @@
-import { Button, RelativeDateDisplay, Sheet, cn, stripHtml } from 'erxes-ui';
-
-import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
-import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
-import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
-import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
-import { MessageSurvey } from '@/inbox/conversation-messages/components/MessageSurvey';
-import {
-  DiscordEditedStatus,
-  ReactionLabel,
-  getMessageBubbleClassName,
-} from '@/inbox/conversation-messages/components/MessageItemHelpers';
+import { useMessagePresentation } from '@/inbox/conversation-messages/hooks/useMessagePresentation';
+import { MessageTextBubble } from '@/inbox/conversation-messages/components/messages/MessageTextBubble';
+import { Button, cn } from 'erxes-ui';
 import { MESSAGE_ACTION_BAR_CLASS } from '@/inbox/conversation-messages/constants/messageActions';
-import {
-  aggregateReactions,
-  getProviderMessageId,
-  getReactionKey,
-} from '@/inbox/conversation-messages/utils/message';
-import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
-import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
-import {
-  DeliveryStatus,
-  ForwardedMessageCard,
-  MessageDaySeparator,
-  PostMediaCard,
-  ShareCard,
-  StickerCard,
-  StoryCard,
-  UnsupportedMessage,
-} from '@/inbox/conversation-messages/components/MessagePresentation';
+import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
+import { MessageDaySeparator } from '@/inbox/conversation-messages/components/messages/MessageStatus';
 import { MessageWrapper } from '@/inbox/conversation-messages/components/MessageWrapper';
 import { FormWidgetMessage } from '@/inbox/conversation-messages/components/FormWidgetMessage';
 import { MessageAuthorHeader } from '@/inbox/conversation-messages/components/MessageAuthorHeader';
-import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
-import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
-import { IntegrationType } from '@/types/Integration';
-import { IconMicrophone, IconPin } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { IconDots } from '@tabler/icons-react';
+import { useState, type ReactNode } from 'react';
+import type { MessagePresentationState } from '@/inbox/conversation-messages/types/MessagePresentation';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
-import type {
-  IMessageReaction,
-  IMessageSticker,
-} from '@/inbox/types/Conversation';
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
-import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
-export { MessageDaySeparator };
+import {
+  DeletedMessage,
+  MessageForwardedIndicator,
+  MessageMobileActions,
+  MessagePinnedIndicator,
+  MessageReactions,
+  MessageReplyPreview,
+} from '@/inbox/conversation-messages/components/MessageItemDetails';
 
-const getPostAttachmentType = (type?: string): string =>
-  !type || type === 'file' ? 'image' : type;
+import {
+  MessageItemMedia,
+  MessageItemContent,
+} from '@/inbox/conversation-messages/components/MessageItemContent';
 
-const getReplyPreview = (content?: string) => {
-  if (!content) return '';
-
-  const withoutQuotedReply = content.replace(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-    '',
+const MessageItemStatus = ({
+  presentation,
+  actionsOpen,
+  onActionsOpenChange,
+  additionalActions,
+}: {
+  presentation: MessagePresentationState;
+  actionsOpen: boolean;
+  onActionsOpenChange: (open: boolean) => void;
+  additionalActions: ReactNode;
+}) => {
+  const {
+    message,
+    integration,
+    isDeleted,
+    showAuthorName,
+    showBotName,
+    effectiveReplyTo,
+    isForwardedMessage,
+  } = presentation;
+  const { userId, createdAt, extraData, separatePrevious, separateNext } =
+    message;
+  return (
+    <>
+      {!isDeleted && extraData?.discordPinned && (
+        <MessagePinnedIndicator userId={userId} />
+      )}
+      {!isDeleted && (
+        <MessageMobileActions
+          open={actionsOpen}
+          onOpenChange={onActionsOpenChange}
+          additionalActions={additionalActions}
+        />
+      )}
+      {isDeleted && (
+        <DeletedMessage
+          createdAt={createdAt}
+          integrationKind={integration?.kind}
+          separatePrevious={separatePrevious}
+          separateNext={separateNext}
+          showAuthorName={showAuthorName}
+          showBotName={showBotName}
+        />
+      )}
+      {effectiveReplyTo && !isDeleted && (
+        <MessageReplyPreview replyTo={effectiveReplyTo} />
+      )}
+      {isForwardedMessage && !isDeleted && <MessageForwardedIndicator />}
+    </>
   );
-  return stripHtml(withoutQuotedReply);
 };
 
-// skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
-  const { t } = useTranslation('frontline');
   const [actionsOpen, setActionsOpen] = useState(false);
-  const currentUser = useAtomValue(currentUserState);
-  const { toggleReaction, loading: reactionLoading } = useMessageReaction();
-  const { previousMessage, ...message } = useConversationMessageContext();
-  const { _id: conversationId, integration } = useConversationContext();
+  const presentation = useMessagePresentation();
+  const {
+    message,
+    previousMessage,
+    forwardedSnapshot,
+    normalizedDisplayContent,
+    isDeleted,
+    hasTextBubble,
+    showAuthorName,
+    showBotName,
+    emptyMessageSpacing,
+    hasRenderableContent,
+    telegramAuthor,
+  } = presentation;
   const {
     _id,
     userId,
     customerId,
-    content,
     createdAt,
     attachments,
     formWidgetData,
     extraData,
-    internal,
     fromBot,
-    separatePrevious,
-    separateNext,
-    isGroupConversation,
-    isBotMessage,
-    botData,
-    messageKind,
-    providerData,
-    replyTo,
-    reactions: messageReactions,
-    deliveryStatus,
-    expiresAt,
   } = message;
 
-  const poll = extraData?.poll;
-  const survey = extraData?.survey;
-  const embeds = extraData?.embeds;
-  const stickers = extraData?.stickers;
-  const forwardedSnapshot = extraData?.forwardedSnapshot;
-  const forwardedContentMatch = content?.match(
-    /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-  );
-
-  const botText =
-    isBotMessage && botData?.length
-      ? (botData as Array<{ type?: string; text?: string; content?: string }>)
-          .filter(
-            (item) =>
-              item?.type !== 'quickReplies' && item?.type !== 'ticketForm',
-          )
-          .map((item) => item?.text || item?.content || '')
-          .join('')
-      : undefined;
-
-  const legacyReplyMatch = content?.match(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-  );
-  const legacyReplyPreview = legacyReplyMatch?.[0]
-    ? replaceHtmlTags(legacyReplyMatch[0], ' ')
-        .replace(/^\s*Replying to\s*/i, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : undefined;
-  let effectiveReplyTo: typeof replyTo;
-  if (!forwardedSnapshot) {
-    if (replyTo) {
-      effectiveReplyTo = {
-        ...replyTo,
-        content: getReplyPreview(replyTo.content) || 'Attachment',
-      };
-    } else if (legacyReplyPreview) {
-      effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
-    }
-  }
-  const displayContent =
-    botText ||
-    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
-      ?.replace(forwardedContentMatch?.[0] || '', '')
-      .trim();
-  const postIntegrationKind =
-    integration?.kind === IntegrationType.FACEBOOK_POST ||
-    integration?.kind === IntegrationType.INSTAGRAM_POST
-      ? integration.kind
-      : undefined;
-  const isPostConversation = Boolean(postIntegrationKind);
-  const typedAttachments = isPostConversation
-    ? attachments?.map((attachment) => ({
-        ...attachment,
-        type: getPostAttachmentType(attachment.type),
-      }))
-    : attachments;
-  const displayAttachments =
-    integration?.kind === IntegrationType.FACEBOOK_MESSENGER
-      ? typedAttachments?.filter(
-          (attachment, index, allAttachments) =>
-            attachment.type !== 'sticker' ||
-            !allAttachments.some(
-              (candidate, candidateIndex) =>
-                candidateIndex !== index &&
-                candidate.url === attachment.url &&
-                candidate.type?.startsWith('image'),
-            ),
-        )
-      : typedAttachments;
-  const socialShareAttachment = displayAttachments?.find(
-    (attachment) =>
-      attachment.type === 'share' ||
-      attachment.type === 'post' ||
-      attachment.type === 'reel' ||
-      attachment.type === 'ig_post' ||
-      attachment.type === 'ig_reel',
-  );
-  const hasImageAttachments = Boolean(
-    displayAttachments?.some((attachment) =>
-      attachment.type?.startsWith('image'),
-    ),
-  );
-  const isFacebookAttachmentPlaceholder =
-    integration?.kind === IntegrationType.FACEBOOK_MESSENGER &&
-    Boolean(displayAttachments?.length) &&
-    [
-      'Sent an image',
-      'Sent a sticker',
-      'Sent a video',
-      'Voice message',
-      'Sent a file',
-      'Shared content',
-    ].includes(displayContent || '');
-  const isSocialSharePlaceholder =
-    Boolean(socialShareAttachment) &&
-    ['This message has an attachment', 'Shared content'].includes(
-      displayContent || '',
-    );
-  const strippedFigureContent =
-    hasImageAttachments && displayContent
-      ? displayContent.replace(
-          /<figure\b[^>]*data-url=["'][^"']+["'][^>]*>[\s\S]*?<\/figure>/gi,
-          '',
-        )
-      : displayContent;
-  const normalizedDisplayContent =
-    isFacebookAttachmentPlaceholder || isSocialSharePlaceholder
-      ? undefined
-      : strippedFigureContent;
-
-  const isDeleted =
-    Boolean(extraData?.discordDeletedAt) ||
-    messageKind === 'deleted' ||
-    deliveryStatus === 'deleted';
-  const hasTextBubble =
-    !isDeleted &&
-    Boolean(normalizedDisplayContent) &&
-    normalizedDisplayContent !== HAS_ATTACHMENT &&
-    Boolean(
-      normalizedDisplayContent
-        ? stripHtml(normalizedDisplayContent).replace(/\s/g, '')
-        : '',
-    );
   const discordActionContent = hasTextBubble
     ? normalizedDisplayContent
     : undefined;
@@ -238,44 +126,6 @@ export const MessageItem = () => {
       />
     );
 
-  const showAuthorName = Boolean(
-    (isGroupConversation ||
-      integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-      !userId &&
-      customerId &&
-      separatePrevious,
-  );
-
-  const showBotName = Boolean(fromBot) && separatePrevious;
-  const emptyMessageSpacing = separatePrevious ? 'mt-6' : 'mt-1';
-
-  const isStory =
-    messageKind === 'story_mention' || messageKind === 'story_reply';
-  const fallbackText = providerData?.fallbackReason;
-  const reactions = messageReactions?.length
-    ? messageReactions
-    : extraData?.reactions;
-  const aggregatedReactions = aggregateReactions(reactions);
-  const ownReaction = reactions?.find(
-    (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
-  );
-  const ownReactionKey = ownReaction ? getReactionKey(ownReaction) : undefined;
-  const providerMessageId = getProviderMessageId(message);
-
-  const hasRenderableContent =
-    isDeleted ||
-    hasTextBubble ||
-    Boolean(attachments?.length) ||
-    messageKind === 'share' ||
-    Boolean(extraData?.voiceMessage) ||
-    Boolean(poll) ||
-    Boolean(survey) ||
-    Boolean(embeds?.length) ||
-    Boolean(stickers?.length) ||
-    Boolean(forwardedSnapshot) ||
-    Boolean(fallbackText) ||
-    isStory;
-
   if (!hasRenderableContent) {
     return null;
   }
@@ -287,54 +137,31 @@ export const MessageItem = () => {
         previousCreatedAt={previousMessage?.createdAt}
       />
       <MessageAuthorHeader
+        authorName={showAuthorName ? telegramAuthor : undefined}
         customerId={showAuthorName ? customerId : undefined}
         showBotName={showBotName}
       />
-      {/* skipcq: JS-0357 */}
       <MessageWrapper
         actions={
           !isDeleted ? (
-            <div className={MESSAGE_ACTION_BAR_CLASS}>
-              <MessageActions
-                message={message}
-                additionalActions={additionalActions}
-              />
-            </div>
+            <>
+              <div className={MESSAGE_ACTION_BAR_CLASS}>
+                <MessageActions additionalActions={additionalActions} />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0 rounded-full bg-background shadow-sm md:hidden"
+                aria-label="Message actions"
+                onClick={() => setActionsOpen(true)}
+              >
+                <IconDots className="size-4" />
+              </Button>
+            </>
           ) : undefined
         }
-        below={
-          !isDeleted && aggregatedReactions.length ? (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {aggregatedReactions.map((reaction) => (
-                <button
-                  type="button"
-                  key={reaction.label}
-                  className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted disabled:cursor-wait"
-                  disabled={reactionLoading || !providerMessageId}
-                  aria-label={`${
-                    ownReactionKey === reaction.reaction ? 'Remove' : 'Add'
-                  } ${reaction.reaction} reaction`}
-                  onClick={() => {
-                    if (!providerMessageId) return;
-                    toggleReaction({
-                      conversationId,
-                      messageId: providerMessageId,
-                      reaction: reaction.reaction,
-                      remove: ownReactionKey === reaction.reaction,
-                    });
-                  }}
-                >
-                  <ReactionLabel label={reaction.label} />
-                  {reaction.count > 1 && (
-                    <span className="ml-1 text-muted-foreground">
-                      {reaction.count}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          ) : undefined
-        }
+        below={!isDeleted ? <MessageReactions /> : undefined}
       >
         <div
           id={`conversation-message-${_id}`}
@@ -348,247 +175,25 @@ export const MessageItem = () => {
           className="relative w-fit min-w-0 max-w-full"
           key={_id}
         >
-          {!isDeleted && extraData?.discordPinned && (
-            <span
-              aria-label="Pinned message"
-              title="Pinned message"
-              className={cn(
-                'absolute -top-2 z-20 inline-flex size-6 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-md',
-                userId ? '-right-2' : '-left-2',
-              )}
-            >
-              <IconPin className="size-3.5" />
-            </span>
-          )}
-          {!isDeleted && (
-            <Sheet open={actionsOpen} onOpenChange={setActionsOpen}>
-              <Sheet.View
-                side="bottom"
-                className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] [@media(hover:hover)]:hidden"
-              >
-                <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
-                <div className="mb-3 text-sm font-semibold">
-                  Message actions
-                </div>
-                <div className="flex min-h-12 items-center justify-center gap-1 rounded-xl border bg-muted/35 p-2">
-                  <MessageActions
-                    message={message}
-                    additionalActions={additionalActions}
-                  />
-                </div>
-              </Sheet.View>
-            </Sheet>
-          )}
-          {isDeleted && (
-            <div
-              className={cn(
-                'mt-2 rounded-md border border-dashed px-3 py-2 text-sm italic text-muted-foreground',
-                separatePrevious &&
-                  (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
-              )}
-            >
-              {integration?.kind === IntegrationType.DISCORD_MESSENGER
-                ? t('message-deleted-on-discord', 'Message deleted on Discord')
-                : t('message-deleted', 'Message deleted')}
-              {separateNext && (
-                <div className="mt-1 text-xs not-italic">
-                  <RelativeDateDisplay value={createdAt}>
-                    <RelativeDateDisplay.Value value={createdAt} />
-                  </RelativeDateDisplay>
-                </div>
-              )}
-            </div>
-          )}
-          {effectiveReplyTo && !isDeleted && (
-            <button
-              type="button"
-              onClick={() => {
-                if (!effectiveReplyTo.messageId) return;
-                const target =
-                  document.querySelector<HTMLElement>(
-                    `[data-provider-message-id="${CSS.escape(
-                      effectiveReplyTo.messageId,
-                    )}"]`,
-                  ) ||
-                  document.getElementById(
-                    `conversation-message-${effectiveReplyTo.messageId}`,
-                  );
-                target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                target?.animate(
-                  [
-                    { backgroundColor: 'transparent' },
-                    { backgroundColor: 'hsl(var(--accent))' },
-                    { backgroundColor: 'transparent' },
-                  ],
-                  { duration: 900 },
-                );
-                if (!target) {
-                  window.dispatchEvent(
-                    new CustomEvent('frontline:jump-to-message', {
-                      detail: effectiveReplyTo.messageId,
-                    }),
-                  );
-                }
-              }}
-              className="mt-2 block w-full max-w-full rounded-t-xl border border-b-0 border-border/60 bg-muted/45 px-3.5 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/70"
-            >
-              <div className="font-medium text-foreground">
-                {effectiveReplyTo.authorName
-                  ? `Replying to ${effectiveReplyTo.authorName}`
-                  : 'Replying to a message'}
-              </div>
-              <div className="truncate">
-                {effectiveReplyTo.content || effectiveReplyTo.messageId}
-              </div>
-            </button>
-          )}
+          <MessageItemStatus
+            presentation={presentation}
+            actionsOpen={actionsOpen}
+            onActionsOpenChange={setActionsOpen}
+            additionalActions={additionalActions}
+          />
           {hasTextBubble ? (
-            <Button
-              variant="secondary"
-              className={getMessageBubbleClassName({
-                userId,
-                internal,
-                fromBot,
-                isBotMessage,
-                separatePrevious,
-                showAuthorName,
-                showBotName,
-                hasReply: Boolean(effectiveReplyTo),
-              })}
-              asChild
-            >
-              <div>
-                <MessageContent
-                  content={normalizedDisplayContent}
-                  internal={internal}
-                />
-                {separateNext && (
-                  <div className="text-muted-foreground mt-1 flex items-center gap-1">
-                    <RelativeDateDisplay value={createdAt}>
-                      <RelativeDateDisplay.Value value={createdAt} />
-                    </RelativeDateDisplay>
-                    <DeliveryStatus
-                      status={userId ? deliveryStatus : undefined}
-                    />
-                    <DiscordEditedStatus
-                      edited={Boolean(extraData?.discordEditedAt)}
-                    />
-                  </div>
-                )}
-              </div>
-            </Button>
+            <MessageTextBubble presentation={presentation} />
           ) : (
             !isDeleted &&
             !forwardedSnapshot &&
             !attachments?.length && <div className={cn(emptyMessageSpacing)} />
           )}
-          {/* skipcq: JS-0357 */}
-          {!isDeleted && isStory && (
-            <StoryCard
-              kind={messageKind}
-              url={
-                providerData?.storyUrl ||
-                (providerData?.attachmentType !== 'share'
-                  ? displayAttachments?.[0]?.url
-                  : undefined)
-              }
-              sourceUrl={
-                providerData?.attachmentType === 'share'
-                  ? displayAttachments?.[0]?.url
-                  : undefined
-              }
-              expiresAt={expiresAt}
-              fallbackText={fallbackText}
-              mediaType={displayAttachments?.[0]?.type}
-            />
+          {!isDeleted && (
+            <>
+              <MessageItemMedia presentation={presentation} />
+              <MessageItemContent presentation={presentation} />
+            </>
           )}
-          {!isDeleted &&
-            !isStory &&
-            (messageKind === 'share' || socialShareAttachment) && (
-              <ShareCard
-                url={socialShareAttachment?.url || displayAttachments?.[0]?.url}
-                title={
-                  socialShareAttachment?.name || displayAttachments?.[0]?.name
-                }
-                previewUrl={providerData?.previewUrl}
-                shareType={providerData?.shareType}
-                attachmentType={
-                  socialShareAttachment?.type || providerData?.attachmentType
-                }
-              />
-            )}
-          {!isDeleted &&
-            !isStory &&
-            messageKind !== 'share' &&
-            !socialShareAttachment &&
-            (postIntegrationKind && displayAttachments?.length ? (
-              <PostMediaCard
-                conversationId={conversationId}
-                integrationKind={postIntegrationKind}
-                fallbackUrl={displayAttachments[0]?.url}
-              />
-            ) : (
-              <Attachments
-                attachments={forwardedSnapshot ? undefined : displayAttachments}
-              />
-            ))}
-          {!isDeleted && Boolean(stickers?.length) && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {stickers?.map((sticker: IMessageSticker) => (
-                <StickerCard key={sticker.id} sticker={sticker} />
-              ))}
-            </div>
-          )}
-          {!isDeleted && forwardedSnapshot && (
-            <ForwardedMessageCard
-              snapshot={forwardedSnapshot}
-              className={getMessageBubbleClassName({
-                userId,
-                internal,
-                fromBot,
-                isBotMessage,
-                separatePrevious,
-                showAuthorName,
-                showBotName,
-                hasReply: Boolean(effectiveReplyTo),
-              })}
-            />
-          )}
-          {!isDeleted && extraData?.voiceMessage && (
-            <div className="mt-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-              <IconMicrophone className="size-3.5" /> Voice message
-            </div>
-          )}
-          {!isDeleted &&
-            !hasTextBubble &&
-            !isStory &&
-            !socialShareAttachment &&
-            fallbackText && <UnsupportedMessage text={fallbackText} />}
-          {!isDeleted && poll && <MessagePoll poll={poll} />}
-          {!isDeleted && survey && <MessageSurvey survey={survey} />}
-          {!isDeleted && <MessageEmbeds embeds={embeds} />}
-          {!isDeleted &&
-            !hasTextBubble &&
-            separateNext &&
-            (Boolean(displayAttachments?.length) ||
-              Boolean(poll) ||
-              Boolean(survey) ||
-              Boolean(embeds?.length)) && (
-              <div
-                className={cn(
-                  'text-muted-foreground mt-1 text-xs',
-                  userId ? 'text-right' : 'text-left',
-                )}
-              >
-                <RelativeDateDisplay value={createdAt}>
-                  <RelativeDateDisplay.Value value={createdAt} />
-                </RelativeDateDisplay>
-                <DeliveryStatus status={userId ? deliveryStatus : undefined} />
-                <DiscordEditedStatus
-                  edited={Boolean(extraData?.discordEditedAt)}
-                />
-              </div>
-            )}
         </div>
       </MessageWrapper>
     </>

@@ -7,10 +7,12 @@ import callMutations from '@/integrations/call/graphql/resolvers/mutations';
 import callProMutations from '@/integrations/callpro/graphql/resolvers/mutations';
 import { facebookMutations } from '@/integrations/facebook/graphql/resolvers/mutations';
 import { discordMutations } from '@/integrations/discord/graphql/resolvers/mutations';
+import { telegramMutations } from '@/integrations/telegram/graphql/resolvers/mutations';
 import { instagramMutations } from '@/integrations/instagram/graphql/resolvers/mutations';
 import { mailMutations } from '@/integrations/mail/graphql/resolvers/mutations';
 import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
 import { helpCenterConfigMutations } from '@/helpcenter/graphql/resolvers/mutations/helpCenterConfig';
+import { customDomainMutations } from '@/customdomain/graphql/resolvers/mutations';
 import { reportChartMutations } from '@/reports/graphql/resolvers/chartMutations';
 import { reportFacebookMutations } from '@/reports/graphql/resolvers/facebookMutations';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
@@ -30,6 +32,7 @@ export const mutations = {
   ...cpInboxMutations,
   ...facebookMutations,
   ...discordMutations,
+  ...telegramMutations,
   ...instagramMutations,
   ...callMutations,
   ...callProMutations,
@@ -44,6 +47,7 @@ export const mutations = {
   ...cpSurveyMutations,
   ...knowledgeBaseMutations,
   ...helpCenterConfigMutations,
+  ...customDomainMutations,
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...reportChartMutations,

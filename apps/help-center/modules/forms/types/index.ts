@@ -1,3 +1,5 @@
+import type { Translate } from '@/modules/i18n/translate';
+
 export type FormField = {
   _id: string;
   type: string | null;
@@ -63,5 +65,5 @@ export type SaveLeadResponse = {
   } | null;
 };
 
-export const formTitle = (form: FormSummary): string =>
-  form.title?.trim() || form.name?.trim() || 'Untitled form';
+export const formTitle = (form: FormSummary, t: Translate): string =>
+  form.title?.trim() || form.name?.trim() || t('forms.untitled');

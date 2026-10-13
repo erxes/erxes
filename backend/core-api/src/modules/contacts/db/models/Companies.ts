@@ -24,6 +24,10 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
+  setPropertyValues(
+    _id: string,
+    values: Record<string, unknown>,
+  ): Promise<ICompanyDocument | null>;
   removeCompanies(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeCompanies(
     companyIds: string[],
@@ -145,7 +149,7 @@ export const loadCompanyClass = (
 
       if (doc.propertiesData) {
         doc.propertiesData = await models.Fields.validateFieldValues(
-          doc.propertiesData,
+          await models.Fields.keepFeaturedValues(doc.propertiesData, undefined),
         );
       }
 
@@ -194,7 +198,10 @@ export const loadCompanyClass = (
       // clean custom field values
       if (doc.propertiesData) {
         const propertiesData = await models.Fields.validateFieldValues(
-          doc.propertiesData,
+          await models.Fields.keepFeaturedValues(
+            doc.propertiesData,
+            company.propertiesData,
+          ),
         );
 
         doc.propertiesData = propertiesData;
@@ -225,6 +232,41 @@ export const loadCompanyClass = (
         );
       }
       return updatedCompany;
+    }
+
+    // Per-key write so values other writers hold in propertiesData survive.
+    public static async setPropertyValues(
+      _id: string,
+      values: Record<string, unknown>,
+    ) {
+      const prev = await models.Companies.getCompany(_id);
+      const $set: Record<string, unknown> = {};
+      const $unset: Record<string, ''> = {};
+
+      for (const [fieldId, value] of Object.entries(values)) {
+        if (value === null) {
+          $unset[`propertiesData.${fieldId}`] = '';
+        } else {
+          $set[`propertiesData.${fieldId}`] = value;
+        }
+      }
+
+      const updated = await models.Companies.findOneAndUpdate(
+        { _id },
+        { $set, $unset },
+        { new: true },
+      );
+
+      if (updated) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updated.toObject(),
+          prevDocument: prev.toObject(),
+        });
+      }
+
+      return updated;
     }
 
     /**

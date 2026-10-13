@@ -880,41 +880,67 @@ export const reportTicketQueries = {
       return [];
     }
 
-    const assigneeIds = [
-      ...new Set(tickets.map((t: any) => t.assigneeId).filter(Boolean)),
+    const uniqueIds = (key: string) => [
+      ...new Set(tickets.map((t: any) => t[key]).filter(Boolean)),
     ];
-    const pipelineIds = [
-      ...new Set(tickets.map((t: any) => t.pipelineId).filter(Boolean)),
+    const memberIds = [
+      ...new Set([
+        ...uniqueIds('assigneeId'),
+        ...uniqueIds('createdBy'),
+        ...uniqueIds('statusChangedBy'),
+        ...uniqueIds('updatedBy'),
+      ]),
     ];
+    const pipelineIds = uniqueIds('pipelineId');
+    const statusIds = uniqueIds('statusId');
+    const channelIds = uniqueIds('channelId');
+    const branchIds = uniqueIds('branchId');
+    const departmentIds = uniqueIds('departmentId');
     const allTagIds = [...new Set(tickets.flatMap((t: any) => t.tagIds || []))];
 
-    const [members, pipelines, tags] = await Promise.all([
-      assigneeIds.length
+    const findInCore = (module: string, ids: unknown[]) =>
+      ids.length
         ? sendTRPCMessage({
             subdomain,
             pluginName: 'core',
             method: 'query',
-            module: 'users',
+            module,
             action: 'find',
-            input: { query: { _id: { $in: assigneeIds } } },
+            input: { query: { _id: { $in: ids } } },
             defaultValue: [],
           })
-        : [],
+        : [];
+
+    const [
+      members,
+      pipelines,
+      tags,
+      statuses,
+      channels,
+      branches,
+      departments,
+    ] = await Promise.all([
+      findInCore('users', memberIds),
       pipelineIds.length
         ? models.Pipeline.find({ _id: { $in: pipelineIds } }).lean()
         : [],
-      allTagIds.length
-        ? sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'tags',
-            action: 'find',
-            input: { query: { _id: { $in: allTagIds } } },
-            defaultValue: [],
-          })
+      findInCore('tags', allTagIds),
+      statusIds.length
+        ? models.Status.find({ _id: { $in: statusIds } }, { name: 1 }).lean()
         : [],
+      channelIds.length
+        ? models.Channels.find({ _id: { $in: channelIds } }, { name: 1 }).lean()
+        : [],
+      findInCore('branches', branchIds),
+      findInCore('departments', departmentIds),
     ]);
+
+    const toNameMap = (docs: any[], key: string) =>
+      new Map(docs.map((doc: any) => [doc._id.toString(), doc[key]]));
+    const statusNameMap = toNameMap(statuses as any[], 'name');
+    const channelMap = toNameMap(channels as any[], 'name');
+    const branchMap = toNameMap(branches as any[], 'title');
+    const departmentMap = toNameMap(departments as any[], 'title');
 
     const memberMap = new Map(
       (members as any[]).map((m: any) => [
@@ -939,6 +965,7 @@ export const reportTicketQueries = {
     return tickets.map((ticket: any) => ({
       _id: ticket._id,
       name: ticket.name,
+      number: ticket.number,
       state: ticket.state || 'active',
       priorityLabel: priorityMap.get(ticket.priority) || 'No Priority',
       statusLabel: statusMap.get(ticket.statusType) || 'Unknown',
@@ -955,6 +982,30 @@ export const reportTicketQueries = {
       startDate: ticket.startDate,
       targetDate: ticket.targetDate,
       updatedAt: ticket.updatedAt,
+      description: ticket.description,
+      statusChangedDate: ticket.statusChangedDate,
+      statusChangedByName: ticket.statusChangedBy
+        ? memberMap.get(ticket.statusChangedBy.toString()) || 'Unknown'
+        : '',
+      updatedByName: ticket.updatedBy
+        ? memberMap.get(ticket.updatedBy.toString()) || 'Unknown'
+        : '',
+      statusName: ticket.statusId
+        ? statusNameMap.get(ticket.statusId.toString()) || ''
+        : '',
+      createdByName: ticket.createdBy
+        ? memberMap.get(ticket.createdBy.toString()) || 'Unknown'
+        : '',
+      channelName: ticket.channelId
+        ? channelMap.get(ticket.channelId.toString()) || ''
+        : '',
+      branchName: ticket.branchId
+        ? branchMap.get(ticket.branchId.toString()) || ''
+        : '',
+      departmentName: ticket.departmentId
+        ? departmentMap.get(ticket.departmentId.toString()) || ''
+        : '',
+      propertiesData: ticket.propertiesData || {},
     }));
   },
 };

@@ -1,6 +1,7 @@
 import { useBroadcastSchedulePreview } from '../../hooks/useBroadcastSchedulePreview';
 import {
   describeRecurrence,
+  isAfterSegmentForm,
   isRecurringForm,
   scheduleToForm,
 } from '../../utils/scheduleForm';
@@ -43,6 +44,22 @@ export const BroadcastScheduleSummary = ({
 
   if (!schedule) {
     return null;
+  }
+
+  // No moment to name: the segment decides when, so only how often it ran.
+  if (isAfterSegmentForm(schedule)) {
+    return (
+      <div className="space-x-8">
+        <Fact
+          label={t('schedule.starts')}
+          value={t('schedule.after-segment-summary')}
+        />
+        <Fact
+          label={t('schedule.runs')}
+          value={String(message?.runCount || 0)}
+        />
+      </div>
+    );
   }
 
   if (!isRecurringForm(schedule)) {

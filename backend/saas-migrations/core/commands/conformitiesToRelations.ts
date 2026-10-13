@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { Collection, Db, MongoClient } from 'mongodb';
+import { Collection, Db, Document, MongoClient } from 'mongodb';
 
 dotenv.config();
 
@@ -28,17 +28,28 @@ let db: Db;
 let Conformities: Collection;
 let Relations: Collection;
 
-const confTypeRelType = {
+const confTypeRelType: Record<string, string> = {
   customer: 'core:customer',
   company: 'core:company',
+  product: 'core:product',
   deal: 'sales:deal',
+  ticket: 'frontline:ticket',
 };
 
 const BATCH_SIZE = 5000;
 
 const conformityFilter = {
   _synced: { $ne: true },
+  _syncSkipped: { $ne: true },
 };
+
+const isConvertible = (conformity: Document): boolean =>
+  Boolean(
+    confTypeRelType[conformity.mainType] &&
+      confTypeRelType[conformity.relType] &&
+      conformity.mainTypeId &&
+      conformity.relTypeId,
+  );
 
 const command = async () => {
   await client.connect();
@@ -70,15 +81,35 @@ const command = async () => {
   console.log(`Process start at: ${new Date().toISOString()}`);
 
   let migratedCount = 0;
+  const skippedByType = new Map<string, number>();
 
   while (true) {
-    const conformities = await Conformities.find(conformityFilter)
+    const batch = await Conformities.find(conformityFilter)
       .sort({ _id: 1 })
       .limit(BATCH_SIZE)
       .toArray();
 
-    if (!conformities.length) {
+    if (!batch.length) {
       break;
+    }
+
+    const conformities = batch.filter(isConvertible);
+    const skipped = batch.filter((conformity) => !isConvertible(conformity));
+
+    for (const conformity of skipped) {
+      const key = `${conformity.mainType}→${conformity.relType}`;
+      skippedByType.set(key, (skippedByType.get(key) || 0) + 1);
+    }
+
+    if (skipped.length) {
+      await Conformities.updateMany(
+        { _id: { $in: skipped.map((conformity) => conformity._id) } },
+        { $set: { _syncSkipped: true } },
+      );
+    }
+
+    if (!conformities.length) {
+      continue;
     }
 
     const now = new Date();
@@ -118,6 +149,12 @@ const command = async () => {
 
     migratedCount += conformities.length;
     console.log(`Migrated ${migratedCount} conformities`);
+  }
+
+  for (const [types, count] of skippedByType) {
+    console.log(
+      `[SKIP] ${count} conformity(ies) of ${types}: unsupported type or missing id`,
+    );
   }
 
   console.log(`Process finished at: ${new Date().toISOString()}`);

@@ -20,6 +20,7 @@ export type CalcReportProps = {
 };
 
 export type RenderMoreProps = {
+  report: string;
   moreData: Record<string, unknown>[];
   currentKey: string;
   nodeExtra?: Record<string, unknown>;

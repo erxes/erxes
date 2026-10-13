@@ -7,6 +7,11 @@ import {
   removeProject,
 } from '~/modules/webbuilder/utils/utils';
 import { diffWeb } from '~/modules/webbuilder/utils/diffWeb';
+import {
+  addCustomDomain,
+  refreshCustomDomain,
+  removeCustomDomain,
+} from '~/modules/webbuilder/utils/customDomains';
 
 export const webBuilderMutations: Record<string, Resolver> = {
   async createWeb(_root, { doc }: { doc: IWeb }, { models }: IContext) {
@@ -105,6 +110,30 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
   async removeWeb(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Web.removeWeb(_id);
+  },
+
+  async webCustomDomainAdd(
+    _root,
+    { webId, hostname }: { webId: string; hostname: string },
+    { models }: IContext,
+  ) {
+    return addCustomDomain(models, webId, hostname);
+  },
+
+  async webCustomDomainRefresh(
+    _root,
+    { webId, hostname }: { webId: string; hostname: string },
+    { models }: IContext,
+  ) {
+    return refreshCustomDomain(models, webId, hostname);
+  },
+
+  async webCustomDomainRemove(
+    _root,
+    { webId, hostname }: { webId: string; hostname: string },
+    { models }: IContext,
+  ) {
+    return removeCustomDomain(models, webId, hostname);
   },
 
   async cpEditWeb(

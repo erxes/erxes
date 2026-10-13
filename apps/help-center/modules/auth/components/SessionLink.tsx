@@ -4,6 +4,7 @@ import { toast } from 'erxes-ui/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps, MouseEvent } from 'react';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { withNext } from '../utils/redirect';
 import { useSession } from './SessionProvider';
 
@@ -19,6 +20,7 @@ export const SessionLink = ({
   ...props
 }: SessionLinkProps) => {
   const router = useRouter();
+  const t = useT();
   const { user, ready } = useSession();
   const blocked = ready && !user;
 
@@ -40,7 +42,7 @@ export const SessionLink = ({
 
     toast({
       variant: 'warning',
-      title: 'Sign-in required',
+      title: t('auth.signInRequired'),
       description: reason,
     });
 

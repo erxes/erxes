@@ -8,6 +8,7 @@ import {
   getNewOrder,
   getTotalAmounts,
 } from '~/modules/sales/utils';
+import { withoutPointPayments } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import {
   checkAssignedUserFromPData,
@@ -209,6 +210,12 @@ export const dealMutations: Record<string, Resolver> = {
     ]) {
       doc[param] = item[param];
     }
+
+    doc.paymentsData = await withoutPointPayments(
+      models,
+      item.stageId,
+      item.paymentsData,
+    );
 
     const clone = await models.Deals.createDeal(doc);
 

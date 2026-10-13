@@ -7,6 +7,7 @@ import {
   IHelpCenterHeader,
   IHelpCenterStyles,
   THelpCenterTab,
+  TStyleName,
 } from '@/helpcenter/types';
 
 export const HELP_CENTERS_PER_PAGE = 100;
@@ -96,6 +97,13 @@ export const DEFAULT_HELP_CENTER_STYLES: IHelpCenterStyles = {
 
   headerHtml: '',
   footerHtml: '',
+};
+
+export const defaultStyleColor = (name: TStyleName): string | undefined => {
+  const key = name.slice('styles.'.length) as keyof IHelpCenterStyles;
+  const value = DEFAULT_HELP_CENTER_STYLES[key];
+
+  return value?.startsWith('#') ? value : undefined;
 };
 
 export const DEFAULT_HELP_CENTER_HEADER: IHelpCenterHeader = {

@@ -6,9 +6,11 @@ import { ListQueryResponse, SEGMENTS } from 'ui-modules';
 export const useSegments = () => {
   const [selectedContentType] = useQueryState('contentType');
 
-  const { data, loading, fetchMore } = useQuery<ListQueryResponse>(SEGMENTS, {
-    variables: { contentTypes: [selectedContentType] },
-  });
+  const { data, loading, error, refetch, fetchMore } =
+    useQuery<ListQueryResponse>(SEGMENTS, {
+      variables: { contentTypes: [selectedContentType] },
+      notifyOnNetworkStatusChange: true,
+    });
 
   const { segments = [] } = data || {};
 
@@ -25,5 +27,7 @@ export const useSegments = () => {
     segments,
     handleRefresh,
     loading,
+    error,
+    refetch,
   };
 };

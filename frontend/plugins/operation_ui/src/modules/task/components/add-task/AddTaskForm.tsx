@@ -1,3 +1,4 @@
+import { isRecord } from '@/operation/utils/isRecord';
 import { useTranslation } from 'react-i18next';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { useGetProject } from '@/project/hooks/useGetProject';
@@ -52,10 +53,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   const [defaultValuesState, setDefaultValues] = useAtom(
     taskCreateDefaultValuesState,
   );
-  const { project } = useGetProject({
-    variables: { _id: projectId || '' },
-    skip: !projectId,
-  });
+  const { project } = useGetProject(projectId);
 
   const [_teamId, _setTeamId] = useState<string | undefined>(
     teamId ? teamId : project?.teamIds?.[0] ? project?.teamIds?.[0] : undefined,
@@ -122,10 +120,11 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
   };
 
   const onTemplateSelect = async (template: IOperationTemplate) => {
-    if (template.defaults) {
-      if (template.defaults.description) {
+    if (isRecord(template.defaults)) {
+      const defaults = template.defaults;
+      if (typeof defaults.description === 'string') {
         try {
-          const content = JSON.parse(template.defaults.description);
+          const content = JSON.parse(defaults.description);
           editor.replaceBlocks(editor.document, content);
           setDescriptionContent(content);
         } catch (e) {
@@ -133,13 +132,9 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
         }
       }
 
-      const ALLOWED_FIELDS = ['name'];
-
-      Object.keys(template.defaults).forEach((key) => {
-        if (ALLOWED_FIELDS.includes(key)) {
-          form.setValue(key as any, template.defaults[key]);
-        }
-      });
+      if (typeof defaults.name === 'string') {
+        form.setValue('name', defaults.name);
+      }
     }
   };
 
@@ -178,10 +173,7 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">{t('new-task')}</Sheet.Title>
           <div className="ml-auto">
-            <SelectTemplate
-              teamId={_teamId}
-              onSelect={onTemplateSelect}
-            />
+            <SelectTemplate teamId={_teamId} onSelect={onTemplateSelect} />
           </div>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
@@ -282,7 +274,9 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('estimate-point')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('estimate-point')}
+                  </Form.Label>
                   <SelectEstimatedPoint.FormItem
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
@@ -331,7 +325,9 @@ export const AddTaskForm = ({ onClose }: { onClose: () => void }) => {
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('target-date')}
+                  </Form.Label>
                   <DateSelectTask.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}

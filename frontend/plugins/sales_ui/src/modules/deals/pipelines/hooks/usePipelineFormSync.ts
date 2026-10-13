@@ -29,6 +29,7 @@ const mapPipelineStages = (
     memberIds: stage.memberIds ?? [],
     departmentIds: stage.departmentIds ?? [],
     defaultTick: stage.defaultTick ?? true,
+    // Left unset, the stage's probability decides.
   }));
 
 const getPipelineFormValues = (

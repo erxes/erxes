@@ -59,7 +59,11 @@ export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
-    query: { name: 'tags', labelField: 'name' },
+    query: {
+      name: 'tags',
+      labelField: 'name',
+      variables: { type: 'sales:deal', includeWorkspaceTags: true },
+    },
   }),
   SegmentField.lookup({
     key: 'productId',

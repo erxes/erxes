@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ADD_STATUS = gql`
-  mutation Mutation(
+export const ADD_STATUS = gql(`
+  mutation AddStatus(
     $name: String!
     $teamId: String!
     $description: String
@@ -26,4 +26,4 @@ export const ADD_STATUS = gql`
       type
     }
   }
-`;
+`);

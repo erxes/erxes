@@ -5,6 +5,7 @@ import {
 } from '@/activity/components/ActivityItem';
 import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem';
 import { ActivityActor } from '@/activity/components/ActivityActor';
+
 interface ActivityItemWrapperProps {
   activity: IActivity;
 }

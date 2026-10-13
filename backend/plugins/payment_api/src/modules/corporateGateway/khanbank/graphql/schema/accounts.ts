@@ -93,4 +93,5 @@ export const queries = `
 
   khanbankStatements(configId: String!, accountNumber: String!, ${paginationParams} ${dateParams} ): KhanbankStatement
   khanbankStatementsAfterRecord(configId: String!, accountNumber: String!, record: Int! ${paginationParams}): KhanbankStatement
+  khanbankFindTransaction(configId: String!, accountNumber: String!, amount: Float!, description: String, record: Int): KhanbankTransaction
 `;

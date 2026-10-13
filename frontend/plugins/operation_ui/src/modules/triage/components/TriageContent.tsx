@@ -1,6 +1,6 @@
-import { ScrollArea, Spinner } from 'erxes-ui';
+import { FocusSheet, ScrollArea, Spinner } from 'erxes-ui';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 import { NoTriageSelected } from './NoTriageSelected';
 import { TriageFields } from './TriageFields';
 import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
@@ -15,10 +15,7 @@ export const TriageContent = ({
 }) => {
   const { triageId } = useParams<{ triageId: string }>();
   const triageIdToUse = triageIdProp || triageId;
-  const { triage, loading } = useGetTriage({
-    variables: { _id: triageIdToUse },
-    skip: !triageIdToUse,
-  });
+  const { triage, loading } = useGetTriage(triageIdToUse);
 
   if (loading) {
     return <Spinner />;
@@ -33,12 +30,14 @@ export const TriageContent = ({
       <ScrollArea className="overflow-hidden h-full flex-1">
         <TriageContentWrapper triage={triage} />
       </ScrollArea>
-      <TaskSideWidgets contentId={triage._id} />
+      <FocusSheet>
+        <TaskSideWidgets contentId={triage._id} />
+      </FocusSheet>
     </div>
   );
 };
 
-const TriageContentWrapper = ({ triage }: { triage: ITriage }) => {
+const TriageContentWrapper = ({ triage }: { triage: ITriageDetail }) => {
   return (
     <Suspense>
       <TaskDetailSheet />

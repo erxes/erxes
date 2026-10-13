@@ -54,6 +54,8 @@ export interface IAutomationExecution {
   nextActionId?: string;
   targetId: string;
   target: any;
+  // Relation measures the trigger's re-enrollment watches, by rule.
+  watched?: Record<string, unknown>;
   status: string;
   description: string;
   actions?: IAutomationExecAction[];
@@ -137,6 +139,7 @@ export const automationExecutionSchema = new Schema({
   nextActionId: { type: String },
   targetId: { type: String, required: true, index: true },
   target: { type: Object },
+  watched: { type: Object },
   status: {
     type: String,
     enum: AUTOMATION_EXECUTION_STATUS.ALL,

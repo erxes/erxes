@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Combobox,
   Command,
@@ -210,6 +209,7 @@ const TagsSelectContent = () => {
     handleChange,
     loading,
     type,
+    tags,
   } = useTagsSelectContext();
   const { addTag } = useTagAdd();
   const { types } = useTagsTypes();
@@ -219,6 +219,38 @@ const TagsSelectContent = () => {
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+  const trimmedSearch = search.trim();
+  const hasExactMatch = useMemo(
+    () =>
+      trimmedSearch.length > 0 &&
+      (tags || []).some(
+        (tag) => tag.name?.toLowerCase() === trimmedSearch.toLowerCase(),
+      ),
+    [tags, trimmedSearch],
+  );
+  const showCreate = !loading && trimmedSearch.length > 0 && !hasExactMatch;
+  const isEmptyCatalogue = !loading && (rootTags?.length || 0) === 0;
+
+  const handleAddTag = (tagType: string | null) => {
+    if (!trimmedSearch) return;
+    addTag({
+      variables: {
+        name: trimmedSearch,
+        type: tagType,
+        colorCode: DEFAULT_COLOR,
+      },
+      onCompleted: (data) => {
+        if (data?.tagsAdd) {
+          handleChange(data.tagsAdd);
+          setSearch('');
+        }
+      },
+    });
+  };
+
+  const typeDescription = type
+    ? getTagTypeDescription({ tagTypes: types, type })
+    : '';
   return (
     <Command>
       <Command.Input
@@ -245,60 +277,53 @@ const TagsSelectContent = () => {
               <Skeleton className="w-32 h-4" />
             </div>
           </Command.Empty>
-        ) : rootTags?.length === 0 ? (
-          <Command.Empty>
-            <div>No results found.</div>
-          </Command.Empty>
         ) : (
-          <Command.Empty className="p-0">
-            <div className="flex flex-col gap-px">
-              <Button
-                variant="ghost"
-                className="w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer"
-                onClick={() => {
-                  addTag({
-                    variables: {
-                      name: search,
-                      type: null,
-                      colorCode: DEFAULT_COLOR,
-                    },
-                    onCompleted: (data) => {
-                      handleChange(data.tagsAdd);
-                    },
-                  });
-                }}
-              >
-                <IconPlus />
-                Add workspace tag: "{search}"
-              </Button>
-              {type && (
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer"
-                  onClick={() => {
-                    addTag({
-                      variables: {
-                        name: search,
-                        colorCode: DEFAULT_COLOR,
-                        type,
-                      },
-                      onCompleted: (data) => {
-                        handleChange(data.tagsAdd);
-                      },
-                    });
-                  }}
+          <>
+            {showCreate && (
+              <Command.Group heading="Create tag">
+                <Command.Item
+                  value={`Add workspace tag ${trimmedSearch}`}
+                  keywords={[trimmedSearch]}
+                  onSelect={() => handleAddTag(null)}
+                  className="justify-start gap-2"
                 >
-                  <IconPlus />
-                  Add{' '}
-                  {getTagTypeDescription({
-                    tagTypes: types,
-                    type,
-                  })}{' '}
-                  tag: "{search}"
-                </Button>
-              )}
-            </div>
-          </Command.Empty>
+                  <IconPlus className="size-4 shrink-0" />
+                  <span className="shrink-0">Add workspace tag:</span>
+                  <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                    &quot;{trimmedSearch}&quot;
+                  </span>
+                </Command.Item>
+                {type && (
+                  <Command.Item
+                    value={`Add ${typeDescription} tag ${trimmedSearch}`}
+                    keywords={[trimmedSearch]}
+                    onSelect={() => handleAddTag(type)}
+                    className="justify-start gap-2"
+                  >
+                    <IconPlus className="size-4 shrink-0" />
+                    <span className="shrink-0">Add {typeDescription} tag:</span>
+                    <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                      &quot;{trimmedSearch}&quot;
+                    </span>
+                  </Command.Item>
+                )}
+              </Command.Group>
+            )}
+            {isEmptyCatalogue && !showCreate ? (
+              <Command.Empty>
+                <div className="flex flex-col gap-1 p-4 text-center">
+                  <div>No results found.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Type a name above to create the first tag.
+                  </div>
+                </div>
+              </Command.Empty>
+            ) : (
+              <Command.Empty>
+                <div>No results found.</div>
+              </Command.Empty>
+            )}
+          </>
         )}
         {rootTags?.map(
           (tag) =>
@@ -472,23 +497,24 @@ const TagsSelectedList = ({
           {...props}
         />
       ))}
-      {missingIds.map((id) =>
-        renderAsPlainText ? (
-          <span key={id} className="font-mono text-xs truncate">
-            {id}
-          </span>
-        ) : (
-          <Badge
-            key={id}
-            variant="secondary"
-            className="font-mono"
-            title={`Unknown id: ${id}`}
-            onClose={() => removeId(id)}
-          >
-            <span className="max-w-24 truncate">{id}</span>
-          </Badge>
-        ),
-      )}
+      {missingIds.map((id) => (
+        <TagBadge
+          key={id}
+          tagId={id}
+          renderAsPlainText={renderAsPlainText}
+          variant="secondary"
+          onCompleted={(tag) => {
+            if (!tag) return;
+            setSelectedTags((currentTags: ITag[]) =>
+              currentTags.some((currentTag: ITag) => currentTag._id === tag._id)
+                ? currentTags
+                : [...currentTags, tag],
+            );
+          }}
+          onClose={() => removeId(id)}
+          {...props}
+        />
+      ))}
     </>
   );
 };

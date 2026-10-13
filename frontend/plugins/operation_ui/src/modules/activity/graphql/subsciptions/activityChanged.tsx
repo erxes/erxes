@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ACTIVITY_CHANGED = gql`
+export const ACTIVITY_CHANGED = gql(`
   subscription operationActivityChanged($contentId: String!) {
     operationActivityChanged(contentId: $contentId) {
       type
@@ -19,4 +19,4 @@ export const ACTIVITY_CHANGED = gql`
       }
     }
   }
-`;
+`);

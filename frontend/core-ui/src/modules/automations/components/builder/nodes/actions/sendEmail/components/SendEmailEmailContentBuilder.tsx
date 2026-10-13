@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
 import { SendEmailEmailContentEditorSheet } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailEmailContentEditorSheet';
 import { SendEmailEmailContentPreview } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailEmailContentPreview';
@@ -6,7 +7,7 @@ import { useSendEmailMailyHtml } from '@/automations/components/builder/nodes/ac
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
 import { SendEmailMailyContentSheet } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailMailyContentSheet';
-import { JSONContent } from 'erxes-ui';
+import { Button, JSONContent, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -23,8 +24,10 @@ export const SendEmailEmailContentBuilder = ({
   variableSourceNodes,
   onChange,
 }: SendEmailEmailContentBuilderProps) => {
+  const { t } = useTranslation('automations');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { watch, setValue } = useFormContext<TAutomationSendEmailConfig>();
+  const { confirm } = useConfirm();
 
   const contentJson = watch('contentJson');
   // An action that already carries block content keeps the editor it was
@@ -40,17 +43,53 @@ export const SendEmailEmailContentBuilder = ({
     setValue('contentFormat', 'maily', { shouldDirty: true });
   };
 
+  // The two editors store different things, so switching starts over.
+  const switchEditor = () => {
+    const apply = () => {
+      setValue('contentFormat', format === 'maily' ? 'blocks' : 'maily', {
+        shouldDirty: true,
+      });
+      setValue('contentJson', undefined, { shouldDirty: true });
+      setValue('content', '', { shouldDirty: true });
+      setValue('html', '', { shouldDirty: true });
+    };
+
+    if (!content.trim() && !contentJson) {
+      apply();
+      return;
+    }
+
+    confirm({
+      message: t('send-email-switch-editor-confirm'),
+    }).then(apply);
+  };
+
+  const switchButton = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="h-5 self-end px-1 font-normal text-muted-foreground"
+      onClick={switchEditor}
+    >
+      {format === 'maily'
+        ? t('send-email-use-block-editor')
+        : t('send-email-use-email-editor')}
+    </Button>
+  );
+
   if (format === 'maily') {
-    // The template picker lives inside the editor now: it replaces the email,
-    // and that decision belongs next to the email it replaces.
     return (
-      <SendEmailMailyContentSheet
-        contentJson={contentJson}
-        contentType={contentType}
-        content={content}
-        variableSourceNodes={variableSourceNodes}
-        onChange={handleContentJsonChange}
-      />
+      <div className="flex flex-col gap-1">
+        <SendEmailMailyContentSheet
+          contentJson={contentJson}
+          contentType={contentType}
+          content={content}
+          variableSourceNodes={variableSourceNodes}
+          onChange={handleContentJsonChange}
+        />
+        {switchButton}
+      </div>
     );
   }
 
@@ -71,6 +110,7 @@ export const SendEmailEmailContentBuilder = ({
         editor={editor}
         onChange={onChange}
       />
+      {switchButton}
     </div>
   );
 };

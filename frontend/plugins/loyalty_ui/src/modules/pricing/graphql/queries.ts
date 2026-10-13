@@ -39,6 +39,8 @@ export const GET_STAGES = gql`
 
 export const PRICING_PLANS = gql`
   query PricingPlans(
+    $page: Int
+    $perPage: Int
     $status: String
     $priority: String
     $branchId: String
@@ -51,6 +53,8 @@ export const PRICING_PLANS = gql`
     $isRepeatEnabled: Boolean
   ) {
     pricingPlans(
+      page: $page
+      perPage: $perPage
       status: $status
       priority: $priority
       branchId: $branchId
@@ -91,6 +95,18 @@ export const PRICING_PLANS = gql`
         email
       }
     }
+    pricingPlansCount(
+      status: $status
+      priority: $priority
+      branchId: $branchId
+      departmentId: $departmentId
+      productId: $productId
+      date: $date
+      isQuantityEnabled: $isQuantityEnabled
+      isPriceEnabled: $isPriceEnabled
+      isExpiryEnabled: $isExpiryEnabled
+      isRepeatEnabled: $isRepeatEnabled
+    )
   }
 `;
 
@@ -177,6 +193,14 @@ export const PRICING_PLAN_DETAIL = gql`
         priceAdjustType
         priceAdjustFactor
       }
+      conditionRules {
+        conditionCode
+        discountType
+        discountValue
+        discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
+      }
       isRepeatEnabled
       repeatRules {
         type
@@ -256,8 +280,20 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
         uom
         unitPrice
         newPrice
+        productStatus
         status
       }
+    }
+  }
+`;
+
+// Core product conditions a plan can give a discount to, matched by code.
+export const PRICING_PRODUCT_CONDITIONS = gql`
+  query pricingProductConditions {
+    productConditions {
+      _id
+      code
+      name
     }
   }
 `;

@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
 import { Icon } from './Icon';
 
 const SHOW_AFTER = 640;
 
-export const BackToTop = ({ label = 'Back to top' }: { label?: string }) => {
+export const BackToTop = ({ label }: { label?: string }) => {
+  const t = useT();
+  const title = label ?? t('common.backToTop');
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -33,7 +36,7 @@ export const BackToTop = ({ label = 'Back to top' }: { label?: string }) => {
       onClick={handleClick}
       aria-hidden={!shown}
       tabIndex={shown ? 0 : -1}
-      title={label}
+      title={title}
       className={cn(
         'fixed bottom-6 right-6 z-40 flex size-11 items-center justify-center rounded-full border border-line bg-white text-ink-soft shadow-card-hover',
         'transition-[opacity,transform,color,border-color] duration-300 ease-out',
@@ -43,7 +46,7 @@ export const BackToTop = ({ label = 'Back to top' }: { label?: string }) => {
           : 'pointer-events-none translate-y-3 opacity-0',
       )}
     >
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{title}</span>
       <Icon name="chevronDown" size={18} className="rotate-180" />
     </button>
   );

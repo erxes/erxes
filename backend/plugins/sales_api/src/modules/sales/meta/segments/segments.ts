@@ -7,6 +7,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { evaluateSalesFields } from './evaluate';
 import { SALES_SEGMENT_FIELDS } from './fields';
+import { SALES_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { SALES_SEGMENT_RELATIONS } from './relations';
 import { countDealSegmentMembers, listDealSegmentMembers } from './members';
 import { applyDealSegmentMembership } from './membership';
@@ -17,6 +18,8 @@ export const salesSegments = {
   contentTypes: salesSegmentConfigs.contentTypes,
 
   segmentFields: SALES_SEGMENT_FIELDS,
+
+  segmentFieldNamespaces: SALES_SEGMENT_FIELD_NAMESPACES,
 
   segmentRelations: SALES_SEGMENT_RELATIONS,
 

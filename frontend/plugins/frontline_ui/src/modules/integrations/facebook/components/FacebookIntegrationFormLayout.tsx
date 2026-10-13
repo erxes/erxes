@@ -7,10 +7,10 @@ import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
   resetFacebookAddStateAtom,
-} from '../states/facebookStates';
-import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { FacebookGetPages } from './FacebookGetPages';
-import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
+} from '@/integrations/facebook/states/facebookStates';
+import { FacebookGetAccounts } from '@/integrations/facebook/components/FacebookGetAccounts';
+import { FacebookGetPages } from '@/integrations/facebook/components/FacebookGetPages';
+import { FacebookIntegrationSetup } from '@/integrations/facebook/components/FacebookIntegrationSetup';
 
 export const FacebookIntegrationFormSheet = () => {
   const { t } = useTranslation('frontline');
@@ -30,7 +30,7 @@ export const FacebookIntegrationFormSheet = () => {
         <Sheet.View>
           <Sheet.Header>
             <Sheet.Title>{t('add-facebook-messenger')}</Sheet.Title>
-            <Sheet.Description>
+            <Sheet.Description className="sr-only">
               {t('fb-messenger-setup-description')}
             </Sheet.Description>
             <Sheet.Close />
@@ -68,7 +68,7 @@ export const FacebookIntegrationFormLayout = ({
     <>
       <Sheet.Header>
         <Sheet.Title>{t('add-facebook-messenger')}</Sheet.Title>
-        <Sheet.Description>
+        <Sheet.Description className="sr-only">
           {t('fb-messenger-setup-description')}
         </Sheet.Description>
         <Sheet.Close />
@@ -95,19 +95,16 @@ export const FacebookIntegrationFormLayout = ({
 export const FacebookIntegrationFormSteps = ({
   title,
   step,
-  description,
 }: {
   title: string;
   step: number;
-  description: string;
 }) => {
-  const { t } = useTranslation('frontline');
   return (
     <IntegrationSteps
       step={step}
-      title={t('connect-accounts')}
+      title={title}
       stepsLength={3}
-      description={description}
+      description=""
     />
   );
 };

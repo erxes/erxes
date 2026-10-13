@@ -8,6 +8,7 @@ import {
   getTotalAmounts,
   watchItem,
 } from '../../utils';
+import { refundDealPoints } from '../../utils/dealPoints';
 import { normalizeProductDiscountInfos } from '../../utils/discountInfos';
 import { dealSchema } from '../definitions/deals';
 import {
@@ -120,6 +121,11 @@ export const loadDealClass = (
 
     public static async removeDeals(_ids: string[]) {
       const deals = await models.Deals.find({ _id: { $in: _ids } });
+
+      // A removed deal keeps none of the points it spent or earned.
+      for (const deal of deals) {
+        await refundDealPoints(subdomain, deal._id, 'Deal removed');
+      }
 
       for (const deal of deals) {
         sendDbEventLog({

@@ -20,10 +20,10 @@ export enum CtaxKind {
 }
 
 export const CTAX_KIND_LABELS = {
-  [CtaxKind.NORMAL]: 'Энгийн',
-  [CtaxKind.FORMULA]: 'Томьёо',
-  [CtaxKind.TITLE]: 'Гарчиг',
-  [CtaxKind.HIDDEN]: 'Нуусан',
+  [CtaxKind.NORMAL]: 'standard',
+  [CtaxKind.FORMULA]: 'formula',
+  [CtaxKind.TITLE]: 'title',
+  [CtaxKind.HIDDEN]: 'hidden',
 };
 
 export enum CtaxStatus {
@@ -32,8 +32,8 @@ export enum CtaxStatus {
 }
 
 export const CTAX_STATUS_LABELS = {
-  [CtaxStatus.ACTIVE]: 'Идэвхтэй',
-  [CtaxStatus.DELETED]: 'Устгасан',
+  [CtaxStatus.ACTIVE]: 'active',
+  [CtaxStatus.DELETED]: 'deleted',
 };
 
 export type TCtaxRowForm = z.infer<typeof ctaxFormSchema>;

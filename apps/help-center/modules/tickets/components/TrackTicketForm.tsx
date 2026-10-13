@@ -11,28 +11,32 @@ import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { TextInput } from '@/modules/ui/components/FormInput';
 import { Icon } from '@/modules/ui/components/Icon';
 import { LoadError } from '@/modules/ui/components/PortalState';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import type { Translate } from '@/modules/i18n/translate';
 import { TICKET_PORTAL_LIST } from '../graphql/queries/tickets';
 import type { Ticket } from '../types';
 import { TicketListItem } from './TicketListItem';
 
 type ListResponse = { cpGetTickets: Ticket[] | null };
 
-const trackFormSchema = z.object({
-  ticketNumber: z.string().refine((value) => value.trim().length > 0, {
-    message: 'Please enter the ticket number.',
-  }),
-});
+const trackFormSchema = (t: Translate) =>
+  z.object({
+    ticketNumber: z.string().refine((value) => value.trim().length > 0, {
+      message: t('validation.ticketNumber'),
+    }),
+  });
 
-type TrackFormValues = z.infer<typeof trackFormSchema>;
+type TrackFormValues = z.infer<ReturnType<typeof trackFormSchema>>;
 
 export const TrackTicketForm = () => {
+  const t = useT();
   const [runSearch, { data, loading, error: queryError, called }] =
     useLazyQuery<ListResponse>(TICKET_PORTAL_LIST, {
       fetchPolicy: 'network-only',
     });
 
   const form = useForm<TrackFormValues>({
-    resolver: zodResolver(trackFormSchema),
+    resolver: zodResolver(trackFormSchema(t)),
     defaultValues: { ticketNumber: '' },
   });
 
@@ -61,14 +65,15 @@ export const TrackTicketForm = () => {
                   className="text-[13px] font-medium text-ink"
                   variant="peer"
                 >
-                  Ticket number
+                  {t('tickets.number')}
                 </Form.Label>
                 <Form.Control>
-                  <TextInput {...field} placeholder="For example: 1042" />
+                  <TextInput
+                    {...field}
+                    placeholder={t('tickets.numberPlaceholder')}
+                  />
                 </Form.Control>
-                <Form.Description>
-                  Enter the number you were given when the ticket was created.
-                </Form.Description>
+                <Form.Description>{t('tickets.numberHint')}</Form.Description>
                 <Form.Message />
               </Form.Item>
             )}
@@ -77,7 +82,7 @@ export const TrackTicketForm = () => {
           <div className="mt-5">
             <Button type="submit" disabled={loading}>
               <Icon name="binoculars" size={15} />
-              {loading ? 'Searching…' : 'Find ticket'}
+              {loading ? t('common.searching') : t('tickets.find')}
             </Button>
           </div>
         </form>
@@ -85,7 +90,7 @@ export const TrackTicketForm = () => {
 
       {queryError ? (
         <LoadError
-          title="Could not load the ticket"
+          title={t('tickets.loadOneFailed')}
           message={queryError.message}
         />
       ) : loading ? (
@@ -103,8 +108,8 @@ export const TrackTicketForm = () => {
         ) : (
           <EmptyState
             icon="binoculars"
-            title="Ticket not found"
-            description="No ticket was found with that number. Check the number and try again."
+            title={t('tickets.notFound')}
+            description={t('tickets.notFoundText')}
           />
         )
       ) : null}

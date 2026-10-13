@@ -1,6 +1,5 @@
-import { usePayment } from "../../hooks/use-payment";
-import { Input } from "../ui/input";
-
+import { usePayment } from '../../hooks/use-payment';
+import { Input } from '../ui/input';
 
 const LabelInputRow = ({
   label,
@@ -13,22 +12,24 @@ const LabelInputRow = ({
   onCopy: () => void;
   apiDomain: string;
 }) => (
-  <div className='mb-4 w-full'>
-    <label className='text-sm mb-1 block'>{label}</label>
-    <div className='flex items-center gap-2 w-full'>
+  <div className="mb-4 w-full">
+    <label className="text-sm mb-1 block">{label}</label>
+
+    <div className="flex items-center gap-2 w-full">
       <Input
-        className='w-full border rounded-lg grow'
+        className="w-full border rounded-lg grow"
         value={value}
         readOnly
       />
+
       <button
         onClick={onCopy}
-        className='ml-2 w-10 h-10 shrink-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg'
+        className="ml-2 w-10 h-10 shrink-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg"
       >
         <img
           src={`${apiDomain}/pl:payment/static/images/copy.svg`}
-          alt='Copy Icon'
-          className='w-5 h-5'
+          alt="Copy Icon"
+          className="w-5 h-5"
         />
       </button>
     </div>
@@ -47,41 +48,46 @@ const KhanbankForm = () => {
       .catch(() => alert('Failed to copy!'));
   };
 
+  const accountNumber = apiResponse?.accountNumber || '';
+  const ibanAcctNo = apiResponse?.ibanAcctNo || '';
+  const accountName = apiResponse?.accountName?.trim() || '';
+  const amount = transaction.amount.toString();
+  const description = invoiceDetail?.description || '';
+
   return (
-    <div className='p-4'>
-
+    <div className="p-4">
       <LabelInputRow
-        label='Дансны дугаар'
-        value={apiResponse.accountNumber}
-        onCopy={() => copyToClipboard(apiResponse.accountNumber)}
+        label="Дансны дугаар"
+        value={accountNumber}
+        onCopy={() => copyToClipboard(accountNumber)}
         apiDomain={apiDomain}
       />
 
       <LabelInputRow
-        label='IBAN'
-        value={apiResponse.ibanAcctNo}
-        onCopy={() => copyToClipboard(apiResponse.ibanAcctNo)}
+        label="IBAN"
+        value={ibanAcctNo}
+        onCopy={() => copyToClipboard(ibanAcctNo)}
         apiDomain={apiDomain}
       />
 
       <LabelInputRow
-        label='Дансны эзэмшигч'
-        value={apiResponse.accountName?.trim()}
-        onCopy={() => copyToClipboard(apiResponse.accountName)}
+        label="Дансны эзэмшигч"
+        value={accountName}
+        onCopy={() => copyToClipboard(accountName)}
         apiDomain={apiDomain}
       />
 
       <LabelInputRow
-        label='Гүйлгээний дүн'
-        value={transaction.amount.toString()}
-        onCopy={() => copyToClipboard(transaction.amount.toString())}
+        label="Гүйлгээний дүн"
+        value={amount}
+        onCopy={() => copyToClipboard(amount)}
         apiDomain={apiDomain}
       />
 
       <LabelInputRow
-        label='Гүйлгээний утга'
-        value={invoiceDetail.description}
-        onCopy={() => copyToClipboard(apiResponse.description)}
+        label="Гүйлгээний утга"
+        value={description}
+        onCopy={() => copyToClipboard(description)}
         apiDomain={apiDomain}
       />
     </div>

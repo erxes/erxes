@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 import { getActionResultErrorText } from '@/automations/utils/automationHistoryUtils/executionResultPreview';
 import { ActionResult } from 'ui-modules';
@@ -26,6 +27,7 @@ export const TransformActionResult = ({
   error?: unknown;
 }>) => {
   const { entries, hiddenCount, total } = useTransformActionResult(result);
+  const { t } = useTranslation('automations');
 
   if (result?.error) {
     return (
@@ -36,13 +38,15 @@ export const TransformActionResult = ({
   }
 
   if (!total) {
-    return <ActionResult.Status>No output</ActionResult.Status>;
+    return (
+      <ActionResult.Status>{t('transform-no-output')}</ActionResult.Status>
+    );
   }
 
   return (
     <>
       <ActionResult.Status>
-        {total} field{total > 1 ? 's' : ''} produced
+        {t('transform-fields-produced', { count: total })}
       </ActionResult.Status>
       <ActionResult.Fields>
         {entries.map(([key, value]) => (
@@ -54,7 +58,9 @@ export const TransformActionResult = ({
         ))}
       </ActionResult.Fields>
       {hiddenCount ? (
-        <ActionResult.Body title={`${hiddenCount} more fields`}>
+        <ActionResult.Body
+          title={t('transform-more-fields', { count: hiddenCount })}
+        >
           <ActionResult.Json value={result?.data} />
         </ActionResult.Body>
       ) : null}

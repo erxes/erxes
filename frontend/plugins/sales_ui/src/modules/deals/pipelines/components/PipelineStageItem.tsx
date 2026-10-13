@@ -15,10 +15,11 @@ import { Controller, type Control, useFormState } from 'react-hook-form';
 import { IStage } from '@/deals/types/stages';
 import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
+import { PipelineStageLoyaltyBadge } from '@/deals/loyaltyRules/components/PipelineStageLoyaltyBadge';
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type TPipelineStageForm = Omit<TPipelineForm, 'stages'> & {
   stages?: Array<
@@ -34,6 +35,8 @@ interface Props extends Omit<SortableItemProps, 'index'> {
     probability: string;
   };
   control: Control<TPipelineStageForm>;
+  autoFocusName?: boolean;
+  onNameFocus?: () => void;
   onRemoveStage: () => void;
 }
 
@@ -67,10 +70,13 @@ export const PipelineStageItem = (props: Props) => {
     index,
     stage,
     control,
+    autoFocusName,
+    onNameFocus,
     onRemoveStage,
   } = props;
 
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation('sales');
   const { errors } = useFormState({
     control,
@@ -83,6 +89,12 @@ export const PipelineStageItem = (props: Props) => {
       setShowExtraFields(true);
     }
   }, [codeError]);
+
+  useEffect(() => {
+    if (autoFocusName && !dragOverlay) {
+      nameInputRef.current?.focus();
+    }
+  }, [autoFocusName, dragOverlay]);
 
   return (
     <div
@@ -150,7 +162,12 @@ export const PipelineStageItem = (props: Props) => {
                     <Form.Control>
                       <Input
                         {...field}
+                        ref={(element) => {
+                          field.ref(element);
+                          nameInputRef.current = element;
+                        }}
                         type="text"
+                        onFocus={onNameFocus}
                         placeholder={t('enter-stage-name')}
                       />
                     </Form.Control>
@@ -250,6 +267,10 @@ export const PipelineStageItem = (props: Props) => {
                 )}
               />
             </div>
+            <PipelineStageLoyaltyBadge
+              stageId={stage._id}
+              probability={stage.probability}
+            />
             {showExtraFields && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 <Form.Field

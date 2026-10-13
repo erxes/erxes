@@ -1,5 +1,6 @@
 import { Button, Dialog } from 'erxes-ui';
 import { useState } from 'react';
+import { useBroadcastFollowableSegment } from '../../hooks/useBroadcastFollowableSegment';
 import {
   isRecurringForm,
   isScheduleReady,
@@ -17,6 +18,8 @@ type TBroadcastScheduleDialogProps = {
   initial?: TBroadcastScheduleForm;
   onConfirm: (schedule: TBroadcastScheduleForm) => void;
   loading?: boolean;
+  targetType?: string;
+  targetIds?: string[];
 };
 
 /**
@@ -48,10 +51,17 @@ const BroadcastScheduleDialogBody = ({
   initial,
   onConfirm,
   loading,
+  targetType,
+  targetIds,
 }: Omit<TBroadcastScheduleDialogProps, 'open'>) => {
   const { t } = useTranslation('broadcasts');
   const [schedule, setSchedule] = useState<TBroadcastScheduleForm>(
     () => initial ?? emptySchedule(),
+  );
+  // Asked only once the dialog is open, not for every row that could open it.
+  const { canFollowSegment } = useBroadcastFollowableSegment(
+    targetType,
+    targetIds,
   );
 
   return (
@@ -62,7 +72,11 @@ const BroadcastScheduleDialogBody = ({
       </Dialog.Header>
 
       <div className="px-6">
-        <BroadcastScheduleFields value={schedule} onChange={setSchedule} />
+        <BroadcastScheduleFields
+          value={schedule}
+          onChange={setSchedule}
+          canFollowSegment={canFollowSegment}
+        />
       </div>
 
       <Dialog.Footer>

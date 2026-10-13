@@ -11,6 +11,10 @@ import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
+import {
+  isClosingStatus,
+  notifyTicketOwner,
+} from '@/ticket/utils/cpNotifications';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface ITicketModel extends Model<ITicketDocument> {
@@ -37,7 +41,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
 
 export const loadTicketClass = (
   models: IModels,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  { sendDbEventLog }: EventDispatcherReturn,
 ) => {
   class Ticket {
     public static async getTicket(_id: string): Promise<ITicketDocument> {
@@ -172,10 +176,12 @@ export const loadTicketClass = (
         });
       }
 
+      let movedTo: { name: string; type: number } | null = null;
+
       if (doc.statusId && doc.statusId !== ticket.statusId) {
-        rest.statusChangedDate = new Date();
         const status = await models.Status.getStatus(doc.statusId || '');
         rest.statusType = status.type;
+        movedTo = { name: status.name, type: status.type };
       }
 
       if (doc.pipelineId && doc.pipelineId !== ticket.pipelineId) {
@@ -203,6 +209,12 @@ export const loadTicketClass = (
         rest.statusId = newStatus?._id;
       }
 
+      rest.updatedBy = userId;
+      if (rest.statusId && rest.statusId !== ticket.statusId) {
+        rest.statusChangedDate = new Date();
+        rest.statusChangedBy = userId;
+      }
+
       await createActivity({
         contentType: 'ticket',
         oldDoc: ticket,
@@ -223,9 +235,10 @@ export const loadTicketClass = (
           action: 'assignee',
         });
       }
-      const update: { $set: Record<string, any>; [key: string]: any } = {
-        $set: { ...rest },
-      };
+      const update: { $set: Record<string, unknown>; [key: string]: unknown } =
+        {
+          $set: { ...rest },
+        };
 
       if (incomingPropertiesData) {
         for (const [key, value] of Object.entries(incomingPropertiesData)) {
@@ -264,6 +277,17 @@ export const loadTicketClass = (
           action: 'updated',
         });
       }
+      if (detail && movedTo) {
+        await notifyTicketOwner(subdomain, {
+          ticket,
+          eventType: 'ticketStatusChanged',
+          title: 'Your ticket was updated',
+          message: `${ticket.name || 'Your ticket'} is now ${movedTo.name}.`,
+          type: isClosingStatus(movedTo.type) ? 'success' : 'info',
+          actorId: userId,
+        });
+      }
+
       if (detail) {
         sendDbEventLog?.({
           action: 'update',

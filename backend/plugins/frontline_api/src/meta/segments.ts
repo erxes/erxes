@@ -25,6 +25,10 @@ export default {
     ...ticketsSegments.segmentFields,
     ...inboxSegments.segmentFields,
   },
+  segmentFieldNamespaces: {
+    ...ticketsSegments.segmentFieldNamespaces,
+    ...inboxSegments.segmentFieldNamespaces,
+  },
   segmentRelations: [
     ...(ticketsSegments.segmentRelations || []),
     ...(inboxSegments.segmentRelations || []),

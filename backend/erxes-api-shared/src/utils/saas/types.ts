@@ -1,3 +1,28 @@
+export interface ISaasHelpCenterDomainRecord {
+  name: string;
+  value: string;
+}
+
+export interface ISaasHelpCenterDomain {
+  hostname: string;
+  // The help center the domain serves. Unset on a domain connected before
+  // domains were per help center: it serves the workspace's default one.
+  helpCenterId?: string;
+  cloudflareId?: string;
+  // Cloudflare custom hostname status: pending, active, moved, blocked, ...
+  status?: string;
+  sslStatus?: string;
+  // Whether the hostname CNAMEs to the tenant's help center: pending or active
+  dnsStatus?: string;
+  ownershipVerification?: ISaasHelpCenterDomainRecord;
+  sslValidationRecords?: ISaasHelpCenterDomainRecord[];
+  verificationErrors?: string[];
+  // While pending, checked in the background until this date; unset once active
+  autoCheckUntil?: Date;
+  lastCheckedAt?: Date;
+  createdAt?: Date;
+}
+
 export interface IOrganization {
   _id?: string;
   name: string;
@@ -27,6 +52,12 @@ export interface IOrganization {
   promoCodes?: string[];
   partnerKey?: string;
   awsSesAccountStatus?: string;
+  customDomainStatus?: Record<string, unknown>;
+  hostNameStatus?: string;
+  sslStatus?: string;
+  // Legacy single domain, moved into helpCenterDomains on the next write
+  helpCenterDomain?: ISaasHelpCenterDomain;
+  helpCenterDomains?: ISaasHelpCenterDomain[];
 }
 
 export interface ISaasBundle {

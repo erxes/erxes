@@ -21,12 +21,11 @@ import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
 import { SelectTags, SelectMember } from 'ui-modules';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { compactList } from '@/operation/utils/cursorList';
 
 export const ProjectFields = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
-  const { project } = useGetProject({
-    variables: { _id: projectId },
-  });
+  const { project } = useGetProject(projectId);
 
   const {
     teamIds,
@@ -51,15 +50,15 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
   });
   const { updateProject } = useUpdateProject();
 
+  const memberIdList = memberIds ? compactList(memberIds) : [];
+
   const [name, setName] = useState(_name);
-  const [localMemberIds, setLocalMemberIds] = useState<string[]>(
-    memberIds || [],
-  );
+  const [localMemberIds, setLocalMemberIds] = useState<string[]>(memberIdList);
   const [debouncedMemberIds] = useDebounce(localMemberIds, 1000);
-  const serverMemberIdsString = JSON.stringify(memberIds || []);
+  const serverMemberIdsString = JSON.stringify(memberIdList);
 
   useEffect(() => {
-    const currentServerIds = JSON.stringify(memberIds || []);
+    const currentServerIds = JSON.stringify(memberIdList);
     const currentDebouncedIds = JSON.stringify(debouncedMemberIds);
     const currentLocalIds = JSON.stringify(localMemberIds);
 
@@ -82,7 +81,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
       currentLocalIds === currentDebouncedIds &&
       currentLocalIds !== serverMemberIdsString
     ) {
-      setLocalMemberIds(memberIds || []);
+      setLocalMemberIds(memberIdList);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverMemberIdsString]);
@@ -131,7 +130,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
         variant="secondary"
         size="icon"
         className="w-min p-2"
-        value={icon}
+        value={icon ?? undefined}
         onValueChange={(_icon) => {
           if (_icon !== icon) {
             updateProject({ variables: { _id: projectId, icon: _icon } });
@@ -147,7 +146,11 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
       <div className="gap-2 flex flex-wrap w-full">
         <SelectProjectStatus value={status} projectId={projectId} />
         <SelectProjectPriority projectId={projectId} value={priority} />
-        <SelectLead.Detail value={leadId} id={projectId} teamIds={teamIds} />
+        <SelectLead.Detail
+          value={leadId ?? undefined}
+          id={projectId}
+          teamIds={teamIds}
+        />
         <DateSelect.Detail value={startDate} id={projectId} type="start" />
         <DateSelect.Detail value={targetDate} id={projectId} type="target" />
         <SelectMember.CustomDetail
@@ -164,13 +167,13 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
           variant="detail"
         />
         <SelectTags.Detail
-          value={tagIds || []}
+          value={tagIds ? compactList(tagIds) : []}
           tagType="operation:project"
-          onValueChange={(newTagIds: string[]) => {
+          onValueChange={(newTagIds) => {
             updateProject({
               variables: {
                 _id: projectId,
-                tagIds: newTagIds,
+                tagIds: Array.isArray(newTagIds) ? newTagIds : [newTagIds],
               },
             });
           }}

@@ -5,8 +5,8 @@ export const CycleStatusDisplay = ({
   isActive,
   isCompleted,
 }: {
-  isActive: boolean;
-  isCompleted: boolean;
+  isActive: boolean | null;
+  isCompleted: boolean | null;
 }) => {
   const { t } = useTranslation('operation');
   return (

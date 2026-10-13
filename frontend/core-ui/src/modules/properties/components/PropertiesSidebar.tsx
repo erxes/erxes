@@ -7,14 +7,18 @@ import { usePropertyTypes } from '../hooks/usePropertyTypes';
 export const PropertiesSidebar = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { propertyTypes } = usePropertyTypes();
+  const [firstPluginName] = Object.keys(propertyTypes);
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar.Panel className="border-r flex-none">
       {Object.entries(propertyTypes).map(([pluginName, propertyTypes]) => (
         <Sidebar.Group key={pluginName}>
-          <Sidebar.GroupLabel className="mb-1">
-            {t(`plugin.${pluginName}`, `${pluginName} properties`)}
-          </Sidebar.GroupLabel>
+          <div className="mb-1 flex items-center">
+            <Sidebar.GroupLabel className="min-w-0 flex-1">
+              {t(`plugin.${pluginName}`, `${pluginName} properties`)}
+            </Sidebar.GroupLabel>
+            {pluginName === firstPluginName && <Sidebar.PanelTrigger />}
+          </div>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {propertyTypes.map((propertyType) => (
@@ -26,7 +30,7 @@ export const PropertiesSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

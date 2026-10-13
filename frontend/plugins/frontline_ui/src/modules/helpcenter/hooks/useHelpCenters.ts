@@ -1,33 +1,18 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { isUndefinedOrNull, useMultiQueryState } from 'erxes-ui';
+import { isUndefinedOrNull } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { HELP_CENTERS_PER_PAGE } from '@/helpcenter/constants';
 import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
 import { helpCenterTotalCountAtom } from '@/helpcenter/states/helpCentersTotalCountState';
 import { IHelpCenter, IHelpCenterListResponse } from '@/helpcenter/types';
-
-export interface IHelpCenterFilters {
-  searchValue?: string;
-  brandId?: string;
-}
-
-export const useHelpCenterFilters = (): IHelpCenterFilters => {
-  const [queries] = useMultiQueryState<{
-    searchValue: string;
-    brand: string;
-  }>(['searchValue', 'brand']);
-
-  const { searchValue, brand } = queries || {};
-
-  return {
-    searchValue: searchValue || undefined,
-    brandId: brand || undefined,
-  };
-};
+import {
+  TSearchBrandFilters,
+  useSearchBrandFilters,
+} from '@/knowledgebase/shared/hooks/useSearchBrandFilters';
 
 const useHelpCentersQuery = (
-  filters: IHelpCenterFilters,
+  filters: TSearchBrandFilters,
   options?: QueryHookOptions<IHelpCenterListResponse>,
 ) => {
   const { data, loading, error, refetch } = useQuery<IHelpCenterListResponse>(
@@ -57,7 +42,7 @@ export const useHelpCenters = (
   options?: QueryHookOptions<IHelpCenterListResponse>,
 ) => {
   const setHelpCenterTotalCount = useSetAtom(helpCenterTotalCountAtom);
-  const filters = useHelpCenterFilters();
+  const filters = useSearchBrandFilters();
   const { helpCenters, loading, error, refetch, serverTotalCount } =
     useHelpCentersQuery(filters, options);
 

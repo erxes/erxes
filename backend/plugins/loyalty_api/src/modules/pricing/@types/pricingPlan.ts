@@ -6,6 +6,23 @@ import { IRepeatRule } from './repeatRule';
 
 export type PricingPlanPriority = '' | 'public' | 'posBase' | 'pipelineBase';
 
+// Matched by core product condition code, which outlives the condition itself.
+// Once the plan applies to a line, this rule alone decides its discount.
+export interface IPricingConditionRule {
+  conditionCode: string;
+  discountType: 'default' | 'subtraction' | 'percentage' | 'bonus';
+  discountValue: number;
+  discountBonusProduct?: string;
+  priceAdjustType:
+    | 'none'
+    | 'default'
+    | 'round'
+    | 'floor'
+    | 'ceil'
+    | 'endsWith9';
+  priceAdjustFactor: number;
+}
+
 export interface IPricingPlan {
   name: string;
   status: string;
@@ -79,6 +96,8 @@ export interface IPricingPlan {
 
   isRepeatEnabled?: boolean;
   repeatRules?: IRepeatRule[];
+
+  conditionRules?: IPricingConditionRule[];
 
   createdBy?: string;
   updatedBy?: string;

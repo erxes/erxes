@@ -1,9 +1,14 @@
+'use client';
+
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { Container } from '@/modules/ui/components/Container';
 
 export default function SiteLoading() {
+  const t = useT();
+
   return (
     <Container className="py-10 lg:py-14" aria-busy>
-      <span className="sr-only">Loading…</span>
+      <span className="sr-only">{t('common.loading')}</span>
       <span className="block h-4 w-56 animate-pulse rounded bg-line" />
       <span className="mt-6 block h-8 w-80 max-w-full animate-pulse rounded bg-line" />
 

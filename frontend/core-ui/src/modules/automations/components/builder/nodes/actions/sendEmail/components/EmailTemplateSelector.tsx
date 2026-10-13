@@ -1,6 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { SelectEmailTemplate } from '@/automations/components/builder/nodes/actions/sendEmail/components/SelectEmailTemplate';
 import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
-import { emailTemplateFormat } from '@/emailTemplates/types';
+import {
+  emailTemplateFormat,
+  TEmailContentFormat,
+} from '@/emailTemplates/types';
 import { useConfirm } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -9,7 +13,15 @@ import { useFormContext } from 'react-hook-form';
  * Loading a template into the action brings its format with it: a block
  * template keeps the block editor, an email-editor one switches to that.
  */
-export const EmailTemplateSelector = ({ content }: { content: string }) => {
+export const EmailTemplateSelector = ({
+  content,
+  format,
+}: {
+  content: string;
+  /** Only offer templates this editor can open without switching away. */
+  format?: TEmailContentFormat;
+}) => {
+  const { t } = useTranslation('automations');
   const { setValue } = useFormContext();
   const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
   const { confirm } = useConfirm();
@@ -21,8 +33,7 @@ export const EmailTemplateSelector = ({ content }: { content: string }) => {
 
     if (content?.trim()) {
       confirm({
-        message:
-          'Are you sure you want to set this template to the email content? This will replace the current content.',
+        message: t('send-email-template-replace-confirm'),
       }).then(() => loadEmailTemplate(templateId));
 
       return;
@@ -36,25 +47,24 @@ export const EmailTemplateSelector = ({ content }: { content: string }) => {
       return;
     }
 
-    const format = emailTemplateFormat(emailTemplate);
+    const templateFormat = emailTemplateFormat(emailTemplate);
 
-    setValue('contentFormat', format, { shouldDirty: true });
+    setValue('contentFormat', templateFormat, { shouldDirty: true });
 
-    if (format === 'maily') {
+    if (templateFormat === 'maily') {
       setValue('contentJson', emailTemplate.contentJson, {
         shouldDirty: true,
       });
-
-      return;
+    } else {
+      setValue('content', emailTemplate.content || '', { shouldDirty: true });
     }
-
-    setValue('content', emailTemplate.content || '', { shouldDirty: true });
   }, [emailTemplate, setValue]);
 
   return (
     <SelectEmailTemplate
       onSelect={handleTemplateSelect}
-      placeholder="Select email template to load"
+      placeholder={t('send-email-select-template-to-load-placeholder')}
+      format={format}
     />
   );
 };

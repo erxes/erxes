@@ -1,6 +1,7 @@
 export * from './blocksToHtml';
 export * from './constants';
 export * from './emailFooter';
+export * from './expandRepeatRows';
 export * from './renderEmailContent';
 export * from './replacePlaceholders';
 export * from './types';

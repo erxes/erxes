@@ -19,10 +19,15 @@ export const readOptions = (
     }
     return parsed;
   };
-  const flag = (env.DRY_RUN ?? 'true').trim().toLowerCase();
-  if (!['true', 'false', '1', '0'].includes(flag)) {
-    throw new Error('DRY_RUN must be true, false, 1, or 0.');
-  }
+  const boolean = (name: string, fallback: string): boolean => {
+    const value = (env[name] ?? fallback).trim().toLowerCase();
+    if (!['true', 'false', '1', '0'].includes(value)) {
+      throw new Error(`${name} must be true, false, 1, or 0.`);
+    }
+    return value === 'true' || value === '1';
+  };
+  const dryRun = boolean('DRY_RUN', 'true');
+  const sharedMediaStorage = boolean('KB_MEDIA_SHARED_STORAGE', 'false');
   let parsed: unknown = {};
   try {
     parsed = JSON.parse(env.KB_AUTHOR_MAP || '{}');
@@ -62,6 +67,12 @@ export const readOptions = (
     }
     return value;
   };
+  const mediaBaseUrl = httpUrl('KB_MEDIA_BASE_URL');
+  if (mediaBaseUrl && sharedMediaStorage) {
+    throw new Error(
+      'Set either KB_MEDIA_BASE_URL or KB_MEDIA_SHARED_STORAGE, not both.',
+    );
+  }
   const sourceArticleUrlTemplate = httpUrl('KB_ARTICLE_URL_TEMPLATE');
   if (sourceArticleUrlTemplate && !sourceArticleUrlTemplate.includes('{id}')) {
     throw new Error('KB_ARTICLE_URL_TEMPLATE must contain {id}.');
@@ -81,11 +92,12 @@ export const readOptions = (
     ],
     authorMap,
     fallbackAuthorId: env.ADMIN_USER_ID?.trim() || undefined,
-    dryRun: flag === 'true' || flag === '1',
+    dryRun,
     batchSize: Math.min(positive('BATCH_SIZE', 500), 1000),
     maxDocuments: positive('KB_MAX_DOCUMENTS', 100000),
     maxBytes: positive('KB_MAX_BYTES', 134217728),
     sourceArticleUrlTemplate,
-    mediaBaseUrl: httpUrl('KB_MEDIA_BASE_URL'),
+    mediaBaseUrl,
+    sharedMediaStorage,
   };
 };

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCertificate } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useProductRules } from '@/products/settings/hooks/useProductRules';
@@ -7,6 +8,7 @@ import { ProductRuleSheet } from './ProductRuleSheet';
 
 export const ProductRuleRecordTable = () => {
   const { productRules, loading } = useProductRules();
+  const { t } = useTranslation('product', { keyPrefix: 'product-rules' });
 
   if (!loading && (productRules?.length ?? 0) === 0) {
     return <EmptyStateRow />;
@@ -14,7 +16,7 @@ export const ProductRuleRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={productRuleColumns}
+      columns={productRuleColumns(t)}
       data={productRules || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -34,6 +36,7 @@ export const ProductRuleRecordTable = () => {
 };
 
 function EmptyStateRow() {
+  const { t } = useTranslation('product', { keyPrefix: 'product-rules' });
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
       <IconCertificate
@@ -42,11 +45,9 @@ function EmptyStateRow() {
         className="text-muted-foreground"
       />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No product rules yet
+        {t('empty-title')}
       </h2>
-      <p className="mb-4 text-md text-muted-foreground">
-        Get started by creating your first product rule.
-      </p>
+      <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
       <ProductRuleSheet />
     </div>
   );

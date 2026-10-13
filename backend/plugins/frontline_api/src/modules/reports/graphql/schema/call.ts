@@ -126,6 +126,75 @@ export const types = `
     repeatAnswered: Int
   }
 
+  type CallSlaTotals {
+    totalCalls: Int!
+    offeredCalls: Int!
+    answeredCalls: Int!
+    abandonedCalls: Int!
+    shortAbandonedCalls: Int!
+    calledBackCalls: Int!
+    pendingCallbacks: Int!
+    breachedCalls: Int!
+    serviceLevel: Float
+  }
+
+  type CallSlaQueue {
+    queue: String!
+    totalCalls: Int!
+    offeredCalls: Int!
+    answeredCalls: Int!
+    abandonedCalls: Int!
+    shortAbandonedCalls: Int!
+    calledBackCalls: Int!
+    pendingCallbacks: Int!
+    breachedCalls: Int!
+    serviceLevel: Float
+  }
+
+  type CallSlaPoint {
+    day: Date
+    offeredCalls: Int!
+    answeredCalls: Int!
+    breachedCalls: Int!
+    serviceLevel: Float
+  }
+
+  type CallSlaBreach {
+    uniqueid: String!
+    startedAt: Date
+    customerPhone: String
+    queue: String
+    agent: String
+    agentName: String
+    waitTime: Float!
+    isPendingCallback: Boolean!
+  }
+
+  type CallMissedReason {
+    reason: String!
+    count: Int!
+    calledBack: Int!
+  }
+
+  type CallMissedHour {
+    hour: Int!
+    reason: String!
+    count: Int!
+  }
+
+  type CallSlaReport {
+    shortAbandonSeconds: Int!
+    callbackWindowMinutes: Int!
+    agents: [CallHistoryAgent!]!
+    missedReasons: [CallMissedReason!]!
+    missedByHour: [CallMissedHour!]!
+    summary: CallSlaTotals!
+    series: [CallSlaPoint!]!
+    queues: [CallSlaQueue!]!
+    breachCount: Int!
+    breaches: [CallSlaBreach!]!
+  }
+
   type CallHistoryAgent {
     extension: String!
     name: String
@@ -158,5 +227,6 @@ export const queries = `
   callCalculateAverageHandlingTime(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callCalculateOccupancyRate(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callGetOperatorStats(startDate: Date!, endDate: Date!): [OperatorStat]
+  callSlaReport(startDate: String!, endDate: String!, integrationId: String, queueId: String, agentExtension: String, callbackWindowMinutes: Int, breachLimit: Int): CallSlaReport!
   callHistoryList(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String, outcome: String, agentExtension: String, resolution: String, searchValue: String, skip: Int, limit: Int): CallHistoryPage
 `;

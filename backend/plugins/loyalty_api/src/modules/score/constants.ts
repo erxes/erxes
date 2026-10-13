@@ -4,7 +4,8 @@ export const SCORE_ACTION = {
   REFUND: 'refund',
   SET: 'set',
   RETURN: 'return',
-  ALL: ['add', 'subtract', 'set', 'refund', 'return'],
+  EXPIRE: 'expire',
+  ALL: ['add', 'subtract', 'set', 'refund', 'return', 'expire'],
 };
 
 export const SCORE_CAMPAIGN_STATUSES = {
@@ -27,3 +28,8 @@ export const SCORE_OWNER_TYPES = {
     moduleName: 'user',
   },
 };
+
+export const LOYALTY_ACCOUNT_TYPE_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+} as const;

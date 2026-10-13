@@ -59,7 +59,7 @@ export const AddCustomer = ({
     >
       {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
       <FocusSheet.View
-        className="w-[50%] md:w-[50%] lg:w-[50%]"
+        className="w-full lg:w-1/2"
         onClick={stopPropagation}
         onSubmit={stopPropagation}
       >

@@ -6,7 +6,7 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'onHero' | 'onHeroSoft';
 type Size = 'sm' | 'md' | 'lg';
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-out-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+  'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-out-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
 
 const variants: Record<Variant, string> = {
   primary:

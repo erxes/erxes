@@ -1,6 +1,7 @@
 import { IStatus, IStatusDocument } from '@/status/@types/status';
 import { statusSchema } from '@/status/db/definitions/status';
 import { generateDefaultStatuses } from '@/status/utils';
+import { DeleteResult } from 'mongodb';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
@@ -10,7 +11,7 @@ export interface IStatusModel extends Model<IStatusDocument> {
   addStatus(doc: IStatus): Promise<IStatusDocument>;
   createDefaultStatuses(teamId: string): Promise<IStatusDocument[]>;
   updateStatus(_id: string, doc: IStatus): Promise<IStatusDocument>;
-  removeStatus(_id: string): Promise<{ ok: number }>;
+  removeStatus(_id: string): Promise<DeleteResult>;
 }
 
 export const loadStatusClass = (models: IModels) => {
@@ -64,6 +65,7 @@ export const loadStatusClass = (models: IModels) => {
       return await models.Status.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },
+        { new: true },
       );
     }
 

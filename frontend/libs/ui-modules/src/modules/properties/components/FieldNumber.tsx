@@ -2,6 +2,8 @@ import { NumberInput, PopoverScoped } from 'erxes-ui';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import { useState } from 'react';
 import { SpecificFieldProps } from './Field';
+import { useInlineCellEdit } from '../hooks/useInlineCellEdit';
+import { InlineEditHint } from './InlineEditHint';
 
 export const FieldNumber = (props: SpecificFieldProps) => {
   const { inCell } = props;
@@ -15,28 +17,19 @@ export const FieldNumber = (props: SpecificFieldProps) => {
 
 export const FieldNumberInCell = (props: SpecificFieldProps) => {
   const { value, handleChange } = props;
-  const [currentValue, setCurrentValue] = useState<number>(value);
+  const { currentValue, setCurrentValue, onOpenChange, onEscapeKeyDown } =
+    useInlineCellEdit<number>(value, value, handleChange);
   return (
-    <PopoverScoped
-      closeOnEnter
-      scope={props.id}
-      onOpenChange={(open, reason) => {
-        if (!open) {
-          reason === 'close' && setCurrentValue(value);
-          if (reason === 'enter') {
-            currentValue !== value && handleChange(currentValue);
-          }
-        }
-      }}
-    >
+    <PopoverScoped closeOnEnter scope={props.id} onOpenChange={onOpenChange}>
       <RecordTableInlineCell.Trigger>
         {currentValue?.toLocaleString()}
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
+      <RecordTableInlineCell.Content onEscapeKeyDown={onEscapeKeyDown}>
         <NumberInput
           value={currentValue}
           onChange={(value) => setCurrentValue(value)}
         />
+        <InlineEditHint />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );

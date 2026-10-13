@@ -1,9 +1,9 @@
 import { IconTrash } from '@tabler/icons-react';
-import { Button, CommandBar, useConfirm, useToast } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { Button, CommandBar } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
-import { useFieldsBulkRemove } from '../../hooks/useFieldsBulkRemove';
+import { archiveTargetState } from '../../states/archiveTargetState';
 import { selectedFieldIdsState } from '../../states/selectedFieldsState';
 
 export const PropertiesCommandBar = () => {
@@ -11,35 +11,16 @@ export const PropertiesCommandBar = () => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(
     selectedFieldIdsState,
   );
-  const { confirm } = useConfirm();
-  const { toast } = useToast();
-  const { removeFields, loading } = useFieldsBulkRemove();
+  const setArchiveTarget = useSetAtom(archiveTargetState);
   const ids = Object.keys(selectedFieldIds);
 
-  const handleBulkDelete = () => {
-    confirm({
-      message: t(
-        'confirm-delete-fields',
-        'Are you sure you want to delete the {{count}} selected field(s)?',
-        { count: ids.length },
-      ),
-    }).then(async () => {
-      try {
-        await removeFields(ids);
-        setSelectedFieldIds({});
-        toast({
-          title: 'Success',
-          variant: 'success',
-          description: t('fields-deleted', 'Fields deleted successfully'),
-        });
-      } catch (e: any) {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      }
+  const handleBulkRemove = () => {
+    setArchiveTarget({
+      kind: 'fields',
+      ids,
+      label: t('n-fields', '{{count}} fields', { count: ids.length }),
     });
+    setSelectedFieldIds({});
   };
 
   return (
@@ -51,14 +32,9 @@ export const PropertiesCommandBar = () => {
           })}
         </CommandBar.Value>
         <Can action="fieldsManage">
-          <Button
-            variant="secondary"
-            className="text-destructive"
-            disabled={loading}
-            onClick={handleBulkDelete}
-          >
+          <Button variant="secondary" onClick={handleBulkRemove}>
             <IconTrash />
-            {t('delete', 'Delete')}
+            {t('remove', 'Remove')}
           </Button>
         </Can>
       </CommandBar.Bar>

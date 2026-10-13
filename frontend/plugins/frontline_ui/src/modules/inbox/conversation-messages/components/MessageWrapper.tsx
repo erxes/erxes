@@ -5,6 +5,7 @@ import { CustomersInline, MembersInline } from 'ui-modules';
 
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
+import { isSlashMenuOpenState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 
 type InlineCustomers = React.ComponentProps<
   typeof CustomersInline.Provider
@@ -36,6 +37,8 @@ const MessageActionBar = ({
   actions?: React.ReactNode;
   isOutgoing: boolean;
 }) => {
+  const isSlashMenuOpen = useAtomValue(isSlashMenuOpenState);
+
   if (!actions) {
     return null;
   }
@@ -45,6 +48,7 @@ const MessageActionBar = ({
       className={cn(
         'z-30 shrink-0 self-end pb-1',
         isOutgoing ? '-mr-1' : '-ml-1',
+        isSlashMenuOpen && 'invisible pointer-events-none',
       )}
     >
       {actions}

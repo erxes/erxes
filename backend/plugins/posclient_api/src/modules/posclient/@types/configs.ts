@@ -15,11 +15,13 @@ export interface IEbarimtConfig {
   hasCitytax: boolean;
   defaultUnitedCode: string;
   vatPercent: number;
-  cityTaxPercent: number;
+  citytaxPercent: number;
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];
+  headerText?: string;
   footerText?: string;
   hasCopy: boolean;
+  hasSumQty: boolean;
   isCleanTaxPrice?: boolean;
 }
 
@@ -58,6 +60,13 @@ interface ICatProd {
   productId: string;
 }
 
+export interface IPosCustomerCreateConfig {
+  enabled: boolean;
+  assignCashierAsOwner?: boolean;
+  // Rows of system field codes and 'property:<fieldId>' entries.
+  layout: string[][];
+}
+
 export interface IConfig {
   name: string;
   description?: string;
@@ -70,6 +79,8 @@ export interface IConfig {
   cashierIds: string[];
   paymentIds: string[];
   paymentTypes: any[];
+  earnScoreCampaignId?: string;
+  acceptCoupons?: boolean;
   beginNumber?: string;
   maxSkipNumber?: number;
   kitchenScreen?: any;
@@ -92,7 +103,9 @@ export interface IConfig {
   departmentId?: string;
   allowBranchIds?: string[];
   permissionConfig?: any;
+  customerCreateConfig?: IPosCustomerCreateConfig;
   allowTypes: string[];
+  isShowRemainder?: boolean;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;

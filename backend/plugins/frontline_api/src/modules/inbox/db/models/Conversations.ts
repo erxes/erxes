@@ -6,7 +6,12 @@ import {
 } from '@/inbox/@types/conversations';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { conversationSchema } from '@/inbox/db/definitions/conversations';
-import { cleanHtml, graphqlPubsub, stream } from 'erxes-api-shared/utils';
+import {
+  cleanHtml,
+  graphqlPubsub,
+  sendTRPCMessage,
+  stream,
+} from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { conversationsChanged } from '@/inbox/meta/segments';
 import { IModels } from '~/connectionResolvers';
@@ -139,7 +144,23 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       doc.updatedAt = new Date();
 
-      // clean custom field values
+      if (doc.propertiesData) {
+        const validatedPropertiesData = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'fields',
+          action: 'validateFieldValues',
+          input: { data: doc.propertiesData },
+          throwOnError: true,
+        });
+
+        if (!validatedPropertiesData) {
+          throw new Error('Failed to validate conversation properties');
+        }
+
+        doc.propertiesData = validatedPropertiesData;
+      }
 
       const updated = await models.Conversations.updateOne(
         { _id },

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
@@ -5,12 +6,15 @@ import { useWatch } from 'react-hook-form';
 import { SelectProductsBulk } from 'ui-modules';
 import { GET_ACC_CURRENT_COST_QUERY } from '../../../graphql/queries/invCostInfo';
 import type { IInvCostInfo } from '../../../hooks/useGetInvCostInfo';
+import { followTrDocsState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvDetail,
   TInvMoveJournal,
 } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
+import { TrJournalEnum } from '~/modules/transactions/types/constants';
+import { useAtomValue } from 'jotai';
 
 export const AddDetailRowButton = ({
   append,
@@ -21,6 +25,7 @@ export const AddDetailRowButton = ({
   journalIndex: number;
   append: (detail: TInvDetail | TInvDetail[]) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const client = useApolloClient();
   const { control } = form;
 
@@ -28,6 +33,15 @@ export const AddDetailRowButton = ({
     control,
     name: `trDocs.${journalIndex}`,
   }) as TInvMoveJournal;
+  const followTrDocs = useAtomValue(followTrDocsState);
+  const moveInTransaction = followTrDocs.find(
+    (transaction) =>
+      transaction.originId === trDoc._id &&
+      transaction.originType === TrJournalEnum.INV_MOVE_IN,
+  );
+  const excludedTransactionIds = [trDoc._id, moveInTransaction?._id].filter(
+    (transactionId): transactionId is string => Boolean(transactionId),
+  );
 
   const lastDetail = trDoc.details[trDoc.details.length - 1];
 
@@ -36,8 +50,11 @@ export const AddDetailRowButton = ({
     _id: getTempId(),
     amount: 0,
     productId,
-    count: 0,
+    count: 1,
     unitPrice: 0,
+    followInfos: lastDetail?.followInfos
+      ? { ...lastDetail.followInfos, invSplit: undefined }
+      : undefined,
   });
 
   return (
@@ -48,7 +65,7 @@ export const AddDetailRowButton = ({
         onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
-        Шинэ мөр
+        {t('new-row')}
       </Button>
       <SelectProductsBulk
         productIds={[]}
@@ -63,8 +80,9 @@ export const AddDetailRowButton = ({
               variables: {
                 productIds,
                 accountId: lastDetail.accountId,
-                branchId: trDoc.branchId,
-                departmentId: trDoc.departmentId,
+                branchId: lastDetail.branchId || trDoc.branchId,
+                departmentId: lastDetail.departmentId || trDoc.departmentId,
+                excludedTransactionIds,
               },
               fetchPolicy: 'network-only',
             });
@@ -87,7 +105,7 @@ export const AddDetailRowButton = ({
       >
         <Button variant="secondary" className="bg-border">
           <IconPlus />
-          Олон бараа нэмэх
+          {t('add-multiple-products')}
         </Button>
       </SelectProductsBulk>
     </>

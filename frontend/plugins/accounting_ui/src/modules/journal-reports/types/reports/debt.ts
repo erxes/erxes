@@ -2,15 +2,12 @@ import { IReportConfig } from './common';
 
 export const debtReportRules: Record<string, IReportConfig> = {
   debt: {
-    title: 'Авлага өглөгийн тайлан',
+    title: 'receivables-and-payables-report',
     colCount: 6,
     choices: [
-      { code: 'customerAccount', title: 'Харилцагч-Данс' },
-      { code: 'accountCustomer', title: 'Данс-Харилцагч' },
+      { code: 'customerAccount', title: 'contact-account' },
+      { code: 'accountCustomer', title: 'account-contact' },
     ],
-    initParams: {
-      isMore: true,
-    },
     groups: {
       customerAccount: {
         group: 'customerId',

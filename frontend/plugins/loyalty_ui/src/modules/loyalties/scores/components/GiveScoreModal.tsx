@@ -38,7 +38,11 @@ interface GiveScoreModalProps {
 }
 export const GiveScoreModal = ({
   triggerLabel,
-  refetchQueries = ['ScoreLogs', 'ScoreLogStatistics'],
+  refetchQueries = [
+    'ScoreLogs',
+    'ScoreLogStatistics',
+    'LoyaltyAccountOfOwner',
+  ],
 }: GiveScoreModalProps) => {
   const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);

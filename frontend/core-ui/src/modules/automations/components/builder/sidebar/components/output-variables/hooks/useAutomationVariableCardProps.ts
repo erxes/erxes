@@ -11,10 +11,12 @@ export const useAutomationVariableCardProps = ({
   variableKey,
   label,
   isLink,
+  fields,
 }: {
   variableKey: string;
   label: string;
   isLink?: boolean;
+  fields?: { key: string; label: string }[];
 }) => {
   const {
     buildVariablePath,
@@ -26,12 +28,12 @@ export const useAutomationVariableCardProps = ({
 
   const path = buildVariablePath(variableKey);
   const token = buildVariableToken(variableKey);
-  const payload = buildVariablePayload({
-    key: variableKey,
-    label,
-    path,
-    token,
-  });
+  const payload = {
+    ...buildVariablePayload({ key: variableKey, label, path, token }),
+    ...(fields?.length
+      ? { fields: fields.map((field) => ({ key: field.key, label: field.label })) }
+      : {}),
+  };
 
   return {
     title: label,

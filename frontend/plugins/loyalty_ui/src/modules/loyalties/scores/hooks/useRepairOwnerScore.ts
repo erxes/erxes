@@ -9,7 +9,11 @@ export interface RepairOwnerScoreVariables {
 }
 
 export const useRepairOwnerScore = (
-  refetchQueries: string[] = ['ScoreLogStatistics', 'ScoreLogs'],
+  refetchQueries: string[] = [
+    'ScoreLogStatistics',
+    'ScoreLogs',
+    'LoyaltyAccountOfOwner',
+  ],
 ) => {
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();

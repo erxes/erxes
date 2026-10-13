@@ -22,7 +22,9 @@ export const ActivityTeam = ({
     const selectedTeams = teams?.filter((team) => teamIds.includes(team._id));
     const teamNames = selectedTeams.map((team) => team.name).join(', ');
     if (selectedTeams.length === 0)
-      return <span className="text-accent-foreground text-sm">{t('team')}</span>;
+      return (
+        <span className="text-accent-foreground text-sm">{t('team')}</span>
+      );
 
     return (
       <div className="flex items-center gap-2 max-w-[200px]">
@@ -34,7 +36,7 @@ export const ActivityTeam = ({
     );
   };
 
-  const { previousValue, newValue } = metadata;
+  const { previousValue, newValue } = metadata ?? {};
 
   const previousTeam = teams?.find((team) => team._id === previousValue);
   const newTeam = teams?.find((team) => team._id === newValue);
@@ -43,12 +45,15 @@ export const ActivityTeam = ({
     <div className="inline-flex items-center gap-1">
       {t('changed-team-to')}
       <Badge variant="secondary" className="flex-none">
-        <IconComponent name={newTeam?.icon} className="size-4" />
-        {renderTeamValue([newValue])}
+        <IconComponent name={newTeam?.icon ?? undefined} className="size-4" />
+        {renderTeamValue(newValue ? [newValue] : [])}
       </Badge>
       {t('from')}
       <Badge variant="secondary" className="flex-none">
-        <IconComponent name={previousTeam?.icon} className="size-4" />
+        <IconComponent
+          name={previousTeam?.icon ?? undefined}
+          className="size-4"
+        />
         {previousValue && renderTeamValue([previousValue])}
       </Badge>
     </div>

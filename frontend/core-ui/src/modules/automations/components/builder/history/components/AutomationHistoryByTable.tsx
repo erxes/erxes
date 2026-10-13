@@ -154,7 +154,7 @@ export const AutomationHistoryByTable = () => {
           className="shrink-0"
           onClick={() => refetch()}
         >
-          Reload <IconRefresh />
+          {t('history-reload')} <IconRefresh />
         </Button>
       </div>
       <RecordTable.Provider

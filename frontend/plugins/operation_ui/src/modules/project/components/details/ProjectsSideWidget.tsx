@@ -6,6 +6,7 @@ import ProjectMilestone from '@/project/components/details/ProjectMilestone';
 import { PropertiesSidePanel } from '@/operation/components/PropertiesSidePanel';
 import { useGetProject } from '@/project/hooks/useGetProject';
 import { useProjectCustomFieldEdit } from '@/project/hooks/useProjectCustomFieldEdit';
+import { isRecord } from '@/operation/utils/isRecord';
 import {
   IconCaretRightFilled,
   IconChartHistogram,
@@ -33,10 +34,7 @@ export enum ProjectsSideWidgetTabsEnum {
 const PROPERTIES_TAB = 'operation-properties';
 
 const ProjectPropertiesSidePanel = ({ projectId }: { projectId: string }) => {
-  const { project, loading, error } = useGetProject({
-    variables: { _id: projectId },
-    skip: !projectId,
-  });
+  const { project, loading, error } = useGetProject(projectId);
 
   if (loading) {
     return <Spinner containerClassName="py-20" />;
@@ -54,7 +52,9 @@ const ProjectPropertiesSidePanel = ({ projectId }: { projectId: string }) => {
     <PropertiesSidePanel
       contentType="operation:project"
       contentId={projectId}
-      propertiesData={project?.propertiesData}
+      propertiesData={
+        isRecord(project.propertiesData) ? project.propertiesData : undefined
+      }
       mutateHook={useProjectCustomFieldEdit}
     />
   );

@@ -7,10 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 export const TaskWidget = ({ taskId }: { taskId: string }) => {
   const { t } = useTranslation('operation');
-  const { loading, task } = useGetTask({ variables: { _id: taskId } });
+  const { loading, task } = useGetTask(taskId);
 
-  const { loading: loadingTriage, triage } = useGetTriage({
-    variables: { _id: taskId },
+  const { loading: loadingTriage, triage } = useGetTriage(taskId, {
     skip: !!task?._id || loading,
   });
 

@@ -26,6 +26,7 @@ export const ADD_CONVERSATION_MESSAGE = gql`
       replyToMessageId: $replyToMessageId
     ) {
       _id
+      extraData
     }
   }
 `;

@@ -14,6 +14,7 @@ export * from './components/AutomationNodeMetaInfoRow';
 export * from './components/actionResult/ActionResult';
 export type { TActionResultStatus } from './components/actionResult/ActionResultParts';
 export * from './contexts/AutomationVariableInsertionContext';
+export * from './contexts/AutomationNodeIssuesContext';
 export * from './hooks/useFormValidationErrorHandler';
 export * from './utils/automationVariableDragUtils';
 export * from './utils/automationVariableBlockEditorUtils';

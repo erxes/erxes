@@ -10,6 +10,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { DEAL_TYPE } from './collections';
 import { SALES_SEGMENT_FIELDS } from './fields';
+import { SALES_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 
 type PagedCollection = {
   countDocuments: (filter: Record<string, unknown>) => Promise<number>;
@@ -43,7 +44,11 @@ const compile = (contentType: string, node: SegmentNode, timeZone?: string) => {
     return null;
   }
 
-  return compileSegmentMongoFilter(node, { fields, timeZone });
+  return compileSegmentMongoFilter(node, {
+    fields,
+    namespaces: SALES_SEGMENT_FIELD_NAMESPACES[contentType],
+    timeZone,
+  });
 };
 
 export const listDealSegmentMembers = async (

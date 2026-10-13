@@ -7,6 +7,7 @@ import { IModels } from '~/connectionResolvers';
 import { ticketsSegmentConfigs } from './configs';
 import { evaluateTicketFields } from './evaluate';
 import { FRONTLINE_SEGMENT_FIELDS } from './fields';
+import { TICKET_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { countTicketSegmentMembers, listTicketSegmentMembers } from './members';
 import { applyTicketSegmentMembership } from './membership';
 import { TICKET_SEGMENT_RELATIONS } from './relations';
@@ -17,6 +18,7 @@ export const ticketsSegments = {
   contentTypes: ticketsSegmentConfigs.contentTypes,
 
   segmentFields: FRONTLINE_SEGMENT_FIELDS,
+  segmentFieldNamespaces: TICKET_SEGMENT_FIELD_NAMESPACES,
 
   segmentRelations: TICKET_SEGMENT_RELATIONS,
 

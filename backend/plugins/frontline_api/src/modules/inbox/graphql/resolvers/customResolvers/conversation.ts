@@ -1,11 +1,53 @@
+import { ICustomField } from 'erxes-api-shared/core-types';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { isCallProEnabled } from '@/integrations/callpro/config';
-import { debugCallProError } from '@/integrations/callpro/debuggers';
+import {
+  debugCallPro,
+  debugCallProError,
+} from '@/integrations/callpro/debuggers';
 import { callProGetAudio } from '@/integrations/callpro/messageBroker';
 
 import { IContext } from '~/connectionResolvers';
 
+function resolvePropertiesData(conversation: IConversationDocument) {
+  if (conversation.propertiesData != null) {
+    return conversation.propertiesData;
+  }
+
+  const rawConversation = conversation as unknown as {
+    toObject?: () => { customsData?: ICustomField[] };
+    customsData?: ICustomField[];
+  };
+
+  const legacyCustomFieldsData =
+    typeof rawConversation.toObject === 'function'
+      ? rawConversation.toObject().customsData
+      : rawConversation.customsData;
+
+  if (
+    !Array.isArray(legacyCustomFieldsData) ||
+    !legacyCustomFieldsData.length
+  ) {
+    return conversation.propertiesData;
+  }
+
+  return legacyCustomFieldsData.reduce<Record<string, unknown>>(
+    (acc, customField) => {
+      if (customField.field) {
+        acc[customField.field] = customField.value ?? customField.stringValue;
+      }
+
+      return acc;
+    },
+    {},
+  );
+}
+
 export default {
+  propertiesData: resolvePropertiesData,
+
+  customFieldsData: resolvePropertiesData,
+
   /**
    * Get idle time in minutes
    */
@@ -86,6 +128,7 @@ export default {
     { models, subdomain, user }: IContext,
   ) {
     if (!isCallProEnabled()) {
+      debugCallPro(`Audio skipped conv=${conv._id}: CALLPRO_ENABLED is off`);
       return null;
     }
 
@@ -98,16 +141,26 @@ export default {
     }
 
     if (!user?.isOwner && user?._id !== conv.assignedUserId) {
+      debugCallPro(
+        `Audio hidden conv=${conv._id}: user=${user?._id} is not owner and not assignee (assignedUserId=${conv.assignedUserId})`,
+      );
       return null;
     }
 
     try {
-      return await callProGetAudio(subdomain, {
+      const audioUrl = await callProGetAudio(subdomain, {
         erxesApiId: conv._id,
         integrationId: integration._id,
       });
+
+      debugCallPro(`Audio resolved conv=${conv._id} url=${audioUrl}`);
+
+      return audioUrl;
     } catch (e) {
-      debugCallProError('Failed to resolve Call Pro audio', e.message);
+      debugCallProError(
+        `Failed to resolve Call Pro audio conv=${conv._id}`,
+        e.message,
+      );
       return null;
     }
   },

@@ -168,10 +168,10 @@ export const InboxMessagesContainer = ({
   }, [conversationId, loading, messagesLength, runFetchMore, totalCount]);
 
   return (
-    <ScrollArea.Root className="h-full bg-muted/20">
+    <ScrollArea.Root className="h-full w-full min-w-0 bg-muted/20">
       <ScrollArea.Viewport
         ref={viewportRef}
-        className="h-full"
+        className="h-full w-full overflow-x-hidden! [&>div]:block! [&>div]:w-full [&>div]:min-w-0"
         onScroll={handleScroll}
       >
         {!loading && totalCount === 0 ? (
@@ -208,7 +208,6 @@ export const InboxMessagesContainer = ({
         <InboxMessagesSkeleton isFetched={!loading} />
       </ScrollArea.Viewport>
       <ScrollArea.Bar orientation="vertical" />
-      <ScrollArea.Bar orientation="horizontal" />
     </ScrollArea.Root>
   );
 };

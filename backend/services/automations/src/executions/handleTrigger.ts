@@ -3,6 +3,7 @@ import { debugError } from '../debugger';
 import { repeatActionExecution } from './repeatActionExecution';
 import { checkIsWaitingAction } from './checkIsWaitingActionTarget';
 import { executeWaitingAction } from './executeWaitingAction';
+import { receiveRelatedTrigger } from './receiveRelatedTrigger';
 import { receiveTrigger } from './receiveTrigger';
 
 type TriggerHandlerInput = {
@@ -66,6 +67,15 @@ export const handleTrigger = async (
     type,
     targets,
     recordType,
+    eventUpdateDescription,
+    excludeAutomationIds,
+  });
+
+  await receiveRelatedTrigger({
+    models,
+    subdomain,
+    type,
+    targets,
     eventUpdateDescription,
     excludeAutomationIds,
   });

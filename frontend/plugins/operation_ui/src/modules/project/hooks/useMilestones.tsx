@@ -1,53 +1,67 @@
 import { GET_MILESTONES_INLINE } from '@/project/graphql/queries/getMilestones';
-import { IMilestone } from '@/project/types';
-import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
-  EnumCursorDirection,
-  ICursorListResponse,
-  mergeCursorData,
-  validateFetchMore,
-} from 'erxes-ui';
-import { useParams } from 'react-router-dom';
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/operation/utils/cursorList';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { EnumCursorDirection, validateFetchMore } from 'erxes-ui';
+import type {
+  GetMilestonesQuery,
+  GetMilestonesQueryVariables,
+} from '~/gql/graphql';
 
 export const useMilestones = (
-  options?: QueryHookOptions<ICursorListResponse<IMilestone>>,
+  projectId?: string | null,
+  options?: Omit<
+    QueryHookOptions<GetMilestonesQuery, GetMilestonesQueryVariables>,
+    'variables'
+  > & {
+    variables?: Omit<GetMilestonesQueryVariables, 'projectId'>;
+  },
 ) => {
-  const { projectId } = useParams<{ projectId: string }>();
-
   const { data, loading, fetchMore } = useQuery(GET_MILESTONES_INLINE, {
     ...options,
-    variables: { projectId, ...options?.variables },
+    skip: options?.skip || !projectId,
+    variables: projectId ? { ...options?.variables, projectId } : undefined,
   });
 
-  const { list: milestones, pageInfo, totalCount } = data?.milestones || {};
+  const milestones = data?.milestones?.list
+    ? compactList(data.milestones.list)
+    : undefined;
+  const pageInfo = toCursorPageInfo(data?.milestones?.pageInfo);
+  const totalCount = data?.milestones?.totalCount;
 
   const handleFetchMore = (
     direction: EnumCursorDirection = EnumCursorDirection.FORWARD,
   ) => {
-    if (!validateFetchMore({ direction, pageInfo })) {
+    if (!projectId || !validateFetchMore({ direction, pageInfo })) {
       return;
     }
 
     fetchMore({
       variables: {
         ...options?.variables,
+        projectId,
         cursor:
           direction === EnumCursorDirection.FORWARD
             ? pageInfo?.endCursor
             : pageInfo?.startCursor,
         limit: 20,
-        direction,
+        direction:
+          direction === EnumCursorDirection.FORWARD ? 'forward' : 'backward',
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.milestones || !prev.milestones) return prev;
 
-        return Object.assign({}, prev, {
-          milestones: mergeCursorData({
+        return {
+          ...prev,
+          milestones: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.milestones,
-            prevResult: prev.milestones,
-          }),
-        });
+            prev.milestones,
+            fetchMoreResult.milestones,
+          ),
+        };
       },
     });
   };

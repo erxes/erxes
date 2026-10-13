@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { readApiUrl } from '@/modules/apollo/utils/env';
 import { Button } from '@/modules/ui/components/Button';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { Icon } from '@/modules/ui/components/Icon';
 import type { FormAttachment } from '../types';
 import type { FormValue } from '../utils/fields';
@@ -24,6 +25,7 @@ export const FileField = ({
 }) => {
   const apiUrl = readApiUrl();
   const input = useRef<HTMLInputElement>(null);
+  const t = useT();
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
 
@@ -39,14 +41,12 @@ export const FileField = ({
 
     try {
       const uploaded = await Promise.all(
-        Array.from(picked).map((file) => uploadFormFile(file, apiUrl)),
+        Array.from(picked).map((file) => uploadFormFile(file, apiUrl, t)),
       );
 
       onChange([...files, ...uploaded]);
     } catch (caught) {
-      setFailure(
-        caught instanceof Error ? caught.message : 'Could not upload the file.',
-      );
+      setFailure(caught instanceof Error ? caught.message : t('upload.failed'));
     } finally {
       setBusy(false);
 
@@ -80,7 +80,7 @@ export const FileField = ({
               </span>
               <button
                 type="button"
-                aria-label={`Remove ${file.name}`}
+                aria-label={t('forms.removeFile', { name: file.name })}
                 onClick={() =>
                   onChange(files.filter((entry) => entry.url !== file.url))
                 }
@@ -108,7 +108,7 @@ export const FileField = ({
         onClick={() => input.current?.click()}
       >
         <Icon name="paperclip" size={15} />
-        {busy ? 'Uploading…' : 'Attach a file'}
+        {busy ? t('forms.uploading') : t('forms.attach')}
       </Button>
 
       {failure ? (

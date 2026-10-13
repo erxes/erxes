@@ -114,6 +114,18 @@ base, including a trailing slash for directory-relative paths:
 KB_MEDIA_BASE_URL=https://old-files.example.com/uploads/
 ```
 
+When source and target tenants share the same file storage (for example the
+SaaS Cloudflare bucket, where attachment URLs are storage keys such as
+`erxes-saas/<file>`), keep those keys unchanged instead:
+
+```dotenv
+KB_MEDIA_SHARED_STORAGE=true
+```
+
+The target UI then reads them through its own `read-file` endpoint. Set only one
+of `KB_MEDIA_BASE_URL` and `KB_MEDIA_SHARED_STORAGE`. An empty
+`pdfAttachment` (no `pdf` and no `pages`) is treated as absent.
+
 URL resolution follows standard URL rules: `/file` resolves from the origin,
 while `file` resolves relative to the base directory. Verify the real source
 file-serving endpoint before applying. Cross-tenant article and translation

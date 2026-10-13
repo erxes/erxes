@@ -1,7 +1,10 @@
 import type { PaymentConfigItem } from '@/payments';
 
 export type PayInfo = {
-  score?: number;
+  // The most money points may pay, from loyalty; this deal's own spend included.
+  limit?: number;
+  // No customer, a refused account, or the limit still loading.
+  unavailable?: boolean;
   maxVal?: number;
   hasPopup: boolean;
   validQr: boolean;
@@ -21,8 +24,8 @@ export const selectPaymentTypesForRender = (
 export const updatePayInfoForScore = (
   previous: Record<string, PayInfo>,
   type: string,
-  score: number,
-  initialAmount: number,
+  limit: number,
+  unavailable: boolean,
   requiresQr: boolean,
   scoreOwnerId: string,
   scoreCampaignId: string,
@@ -30,19 +33,15 @@ export const updatePayInfoForScore = (
   const current = previous[type];
   const validQr = Boolean(
     current?.validQr &&
-    current.scoreOwnerId === scoreOwnerId &&
-    current.scoreCampaignId === scoreCampaignId,
+      current.scoreOwnerId === scoreOwnerId &&
+      current.scoreCampaignId === scoreCampaignId,
   );
-  const availableAmount = score + initialAmount;
-  let maxVal = availableAmount;
-
-  if (requiresQr && !validQr) {
-    maxVal = 0;
-  }
+  const maxVal = unavailable || (requiresQr && !validQr) ? 0 : limit;
 
   const next: PayInfo = {
     hasPopup: requiresQr,
-    score,
+    limit,
+    unavailable,
     maxVal,
     validQr,
     scoreOwnerId,
@@ -51,7 +50,8 @@ export const updatePayInfoForScore = (
 
   if (
     current?.hasPopup === next.hasPopup &&
-    current.score === next.score &&
+    current.limit === next.limit &&
+    current.unavailable === next.unavailable &&
     current.maxVal === next.maxVal &&
     current.validQr === next.validQr &&
     current.scoreOwnerId === next.scoreOwnerId &&

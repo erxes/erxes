@@ -13,12 +13,22 @@ import {
   IconSearch,
   IconUser,
   IconArchive,
+  IconCalendarPlus,
+  IconCalendarBolt,
+  IconCalendarX,
+  IconCalendarClock,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
+import {
+  PropertiesFilter,
+  SegmentsFilter,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 
 const TicketsFilterPopover = () => {
   const { t } = useTranslation('frontline');
@@ -29,6 +39,14 @@ const TicketsFilterPopover = () => {
     statusId: string;
     pipelineId: string;
     state: string;
+    segments: string[];
+    createdStartDate: string;
+    startDateStartDate: string;
+    targetDateStartDate: string;
+    statusChangedStartDate: string;
+    branchIds: string[];
+    departmentIds: string[];
+    propertiesData: string;
   }>([
     'searchValue',
     'assignee',
@@ -36,6 +54,14 @@ const TicketsFilterPopover = () => {
     'statusId',
     'pipelineId',
     'state',
+    'segments',
+    'createdStartDate',
+    'startDateStartDate',
+    'targetDateStartDate',
+    'statusChangedStartDate',
+    'branchIds',
+    'departmentIds',
+    'propertiesData',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -43,13 +69,42 @@ const TicketsFilterPopover = () => {
   const view = useAtomValue(ticketViewAtom);
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
 
-  const { searchValue, assignee, priority, statusId, pipelineId, state } =
-    queries || {};
+  const {
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    pipelineId,
+    state,
+    createdStartDate,
+    startDateStartDate,
+    targetDateStartDate,
+    statusChangedStartDate,
+    propertiesData,
+  } = queries || {};
+  const segments = JSON.stringify(queries?.segments);
+  const branchIds = JSON.stringify(queries?.branchIds);
+  const departmentIds = JSON.stringify(queries?.departmentIds);
 
   useEffect(() => {
     setFetchedTickets([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, assignee, priority, statusId, pipelineId, state]);
+  }, [
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    pipelineId,
+    state,
+    segments,
+    createdStartDate,
+    startDateStartDate,
+    targetDateStartDate,
+    statusChangedStartDate,
+    branchIds,
+    departmentIds,
+    propertiesData,
+    setFetchedTickets,
+  ]);
   return (
     <>
       <Filter.Popover scope={TicketHotKeyScope.TicketPage}>
@@ -68,6 +123,7 @@ const TicketsFilterPopover = () => {
                   {t('search', 'Search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
+                <SegmentsFilter />
                 <Filter.Item value="assignee">
                   <IconUser />
                   {t('assignee-label', 'Assignee')}
@@ -86,12 +142,69 @@ const TicketsFilterPopover = () => {
                     {t('status-label', 'Status')}
                   </Filter.Item>
                 )}
+                <SelectBranches.FilterItem
+                  value="branchIds"
+                  label={t('branch-label', 'Branch')}
+                />
+                <SelectDepartments.FilterItem
+                  value="departmentIds"
+                  label={t('department-label', 'Department')}
+                />
+                <PropertiesFilter />
+                <Command.Separator className="my-1" />
+                <Filter.Item value="createdStartDate">
+                  <IconCalendarPlus />
+                  {t('created-at-label', 'Date created')}
+                </Filter.Item>
+                <Filter.Item value="startDateStartDate">
+                  <IconCalendarBolt />
+                  {t('start-date-label', 'Start date')}
+                </Filter.Item>
+                <Filter.Item value="targetDateStartDate">
+                  <IconCalendarX />
+                  {t('due-date-label', 'Due date')}
+                </Filter.Item>
+                <Filter.Item value="statusChangedStartDate">
+                  <IconCalendarClock />
+                  {t('status-changed-date', 'Status changed date')}
+                </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
           <SelectAssigneeTicket.FilterView />
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
+          <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
+          <SelectDepartments.FilterView
+            mode="multiple"
+            filterKey="departmentIds"
+          />
+          <PropertiesFilter.View contentType="frontline:ticket" />
+          <SegmentsFilter.View contentType="frontline:tickets.tickets" />
+          <Filter.View filterKey="createdStartDate">
+            <Filter.DateView
+              filterKey="createdStartDate"
+              label={t('created-at-label', 'Date created')}
+            />
+          </Filter.View>
+          <Filter.View filterKey="startDateStartDate">
+            <Filter.DateView
+              filterKey="startDateStartDate"
+              label={t('start-date-label', 'Start date')}
+            />
+          </Filter.View>
+          <Filter.View filterKey="targetDateStartDate">
+            <Filter.DateView
+              filterKey="targetDateStartDate"
+              label={t('due-date-label', 'Due date')}
+            />
+          </Filter.View>
+          <Filter.View filterKey="statusChangedStartDate">
+            <Filter.DateView
+              filterKey="statusChangedStartDate"
+              label={t('status-changed-date', 'Status changed date')}
+            />
+          </Filter.View>
           {view === 'list' && (
             <SelectStatusTicket.FilterView
               pipelineId={queries?.pipelineId || ''}
@@ -102,6 +215,30 @@ const TicketsFilterPopover = () => {
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
+        </Filter.View>
+        <Filter.View filterKey="createdStartDate" inDialog>
+          <Filter.DialogDateView
+            filterKey="createdStartDate"
+            label={t('created-at-label', 'Date created')}
+          />
+        </Filter.View>
+        <Filter.View filterKey="startDateStartDate" inDialog>
+          <Filter.DialogDateView
+            filterKey="startDateStartDate"
+            label={t('start-date-label', 'Start date')}
+          />
+        </Filter.View>
+        <Filter.View filterKey="targetDateStartDate" inDialog>
+          <Filter.DialogDateView
+            filterKey="targetDateStartDate"
+            label={t('due-date-label', 'Due date')}
+          />
+        </Filter.View>
+        <Filter.View filterKey="statusChangedStartDate" inDialog>
+          <Filter.DialogDateView
+            filterKey="statusChangedStartDate"
+            label={t('status-changed-date', 'Status changed date')}
+          />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -132,6 +269,47 @@ export const TicketsFilter = () => {
       <Filter.Bar>
         <TicketsFilterPopover />
         <TicketsTotalCount />
+        <SegmentsFilter.Bar contentType="frontline:tickets.tickets" />
+        <Filter.BarItem queryKey="createdStartDate">
+          <Filter.BarName>
+            <IconCalendarPlus />
+            {t('created-at-label', 'Date created')}
+          </Filter.BarName>
+          <Filter.Date
+            filterKey="createdStartDate"
+            label={t('created-at-label', 'Date created')}
+          />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="startDateStartDate">
+          <Filter.BarName>
+            <IconCalendarBolt />
+            {t('start-date-label', 'Start date')}
+          </Filter.BarName>
+          <Filter.Date
+            filterKey="startDateStartDate"
+            label={t('start-date-label', 'Start date')}
+          />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="targetDateStartDate">
+          <Filter.BarName>
+            <IconCalendarX />
+            {t('due-date-label', 'Due date')}
+          </Filter.BarName>
+          <Filter.Date
+            filterKey="targetDateStartDate"
+            label={t('due-date-label', 'Due date')}
+          />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="statusChangedStartDate">
+          <Filter.BarName>
+            <IconCalendarClock />
+            {t('status-changed-date', 'Status changed date')}
+          </Filter.BarName>
+          <Filter.Date
+            filterKey="statusChangedStartDate"
+            label={t('status-changed-date', 'Status changed date')}
+          />
+        </Filter.BarItem>
         {searchValue && (
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
@@ -177,6 +355,17 @@ export const TicketsFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTicket.FilterBar />
         </Filter.BarItem>
+        <SelectBranches.FilterBar
+          mode="multiple"
+          filterKey="branchIds"
+          label={t('branch-label', 'Branch')}
+        />
+        <SelectDepartments.FilterBar
+          mode="multiple"
+          filterKey="departmentIds"
+          label={t('department-label', 'Department')}
+        />
+        <PropertiesFilter.Bar contentType="frontline:ticket" />
       </Filter.Bar>
     </Filter>
   );

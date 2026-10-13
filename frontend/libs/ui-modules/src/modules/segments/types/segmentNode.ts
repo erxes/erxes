@@ -51,7 +51,12 @@ export type TSegmentField = {
   input: TSegmentFieldInput;
   source?: 'static' | 'query' | 'component';
   options?: { value: string; label: string }[];
-  query?: { name: string; labelField: string; valueField?: string };
+  query?: {
+    name: string;
+    labelField: string;
+    valueField?: string;
+    variables?: Record<string, string | boolean>;
+  };
   component?: string;
 };
 

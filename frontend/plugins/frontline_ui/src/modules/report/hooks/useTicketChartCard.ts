@@ -22,9 +22,18 @@ export const useTicketChartCard = ({
   const filterConfig = useTicketChartFilterConfig(id);
 
   const queryFilters = useMemo(() => {
-    const { date, ...rest } = filterConfig;
+    const { date, statusChangedDate, updatedAtDate, ...rest } = filterConfig;
+    const stageRange = getFilters(statusChangedDate);
+    const modifiedRange = getFilters(updatedAtDate);
 
-    return { ...getFilters(date || undefined), ...rest };
+    return {
+      ...getFilters(date || undefined),
+      ...rest,
+      statusChangedFromDate: stageRange.fromDate,
+      statusChangedToDate: stageRange.toDate,
+      updatedFromDate: modifiedRange.fromDate,
+      updatedToDate: modifiedRange.toDate,
+    };
   }, [filterConfig]);
 
   return { id, filterConfig, queryFilters, filtersRestored };

@@ -8,4 +8,11 @@ export const systemFieldQueries = {
   ) => {
     return models.SystemFieldSettings.getSystemFields(contentType);
   },
+  propertySystemFieldsLayout: async (
+    _root: undefined,
+    { contentType }: { contentType: string },
+    { models }: IContext,
+  ) => {
+    return models.SystemFieldSettings.getSystemFieldsLayout(contentType);
+  },
 };

@@ -7,10 +7,12 @@ import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import callProQueries from '@/integrations/callpro/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
 import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries';
+import { telegramQueries } from '@/integrations/telegram/graphql/resolvers/queries';
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
 import { mailQueries } from '@/integrations/mail/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
 import { helpCenterConfigQueries } from '@/helpcenter/graphql/resolvers/queries/helpCenterConfig';
+import { customDomainQueries } from '@/customdomain/graphql/resolvers/queries';
 import { reportCallQueries } from '@/reports/graphql/resolvers/callQueries';
 import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
 import { reportFacebookQueries } from '@/reports/graphql/resolvers/facebookQueries';
@@ -30,6 +32,7 @@ export const queries = {
   ...cpInboxQueries,
   ...facebookQueries,
   ...discordQueries,
+  ...telegramQueries,
   ...instagramQueries,
   ...callQueries,
   ...callProQueries,
@@ -48,4 +51,5 @@ export const queries = {
   ...reportCallQueries,
   ...knowledgeBaseQueries,
   ...helpCenterConfigQueries,
+  ...customDomainQueries,
 };

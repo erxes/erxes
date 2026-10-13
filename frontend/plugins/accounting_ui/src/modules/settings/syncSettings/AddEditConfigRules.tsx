@@ -1,4 +1,5 @@
 import { SyncDealConfigForm } from './SyncDealConfigForm';
+import { SyncDealMovementConfigForm } from './SyncDealMovementConfigForm';
 import { SyncOrderConfigForm } from './SyncOrderConfigForm';
 import { SyncDealReturnConfigForm } from './SyncDealConfigReturnForm';
 import { UseFormReturn } from 'react-hook-form';
@@ -20,6 +21,10 @@ export const SettingsRuleByCode: Record<
   syncDeal: {
     subIdFieldName: 'stageId',
     FormComponent: SyncDealConfigForm,
+  },
+  syncDealMovement: {
+    subIdFieldName: 'stageId',
+    FormComponent: SyncDealMovementConfigForm,
   },
   syncDealReturn: {
     subIdFieldName: 'stageId',

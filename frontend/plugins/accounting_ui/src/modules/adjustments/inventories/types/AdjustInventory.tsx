@@ -3,19 +3,19 @@ import { IBranch, IDepartment, IProduct } from 'ui-modules';
 
 export interface IAdjustInventory {
   _id: string;
-  createdAt: Date;
+  createdAt: Date | string;
   createdBy: string;
-  updatedAt: Date;
+  updatedAt: Date | string;
   modifiedBy: string;
 
-  date: Date;
+  date: Date | string;
   description: string;
   status: string;
   error?: string;
   warning?: string;
-  beginDate?: Date;
-  successDate?: Date;
-  checkedAt?: Date;
+  beginDate?: Date | string;
+  successDate?: Date | string;
+  checkedAt?: Date | string;
 }
 
 export interface IAdjustInvDetail {

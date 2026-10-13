@@ -1,13 +1,19 @@
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debugger';
 import { resolveAutomationErrorCode } from './errorCodes';
-import { isInSegment } from '../utils/isInSegment';
+import { isInSegment, measureWatched } from '../utils/isInSegment';
 import { isDiffValue } from '../utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  AUTOMATION_RE_ENROLL_EVERY_TIME,
+  AUTOMATION_RE_ENROLL_RELATION_PREFIX,
   IAutomationTrigger,
+  isReEnrollableTrigger,
+  isReEnrollingTrigger,
+  reEnrollmentRelationPaths,
+  reEnrollsEveryTime,
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
@@ -114,7 +120,9 @@ export const buildExecutionTarget = (
  * owner. `runId` is left out: the execution is the run, and filling it would
  * cost a second write on the enrolment path for an id nothing reads back.
  */
-const buildTriggeredVia = (automation: IAutomationDocument): TCreatedVia => ({
+export const buildTriggeredVia = (
+  automation: IAutomationDocument,
+): TCreatedVia => ({
   source: 'automation',
   sourceId: automation._id,
   sourceName: automation.name,
@@ -178,23 +186,44 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
-  if (latestExecution) {
+  // A relation condition (the sum of a customer's deals) changes without the
+  // customer changing, so its value is measured and kept on the run.
+  const relationPaths = reEnrollment
+    ? reEnrollmentRelationPaths(reEnrollmentRules)
+    : [];
+  const watched = relationPaths.length
+    ? await measureWatched(
+        subdomain,
+        config?.contentId,
+        executionTarget._id,
+        relationPaths,
+      )
+    : undefined;
+
+  if (latestExecution && !(await isReEnrollingTrigger(type))) {
     if (!reEnrollment || !reEnrollmentRules.length) {
       return;
     }
 
-    let isChanged = false;
+    // "Every time it happens" counts only where the trigger offers it.
+    const everyTime =
+      reEnrollsEveryTime(config) && (await isReEnrollableTrigger(type));
 
-    for (const reEnrollmentRule of reEnrollmentRules) {
-      if (
-        isDiffValue(latestExecution.target, executionTarget, reEnrollmentRule)
-      ) {
-        isChanged = true;
-        break;
-      }
-    }
+    const fieldChanged = reEnrollmentRules.some(
+      (rule) =>
+        rule !== AUTOMATION_RE_ENROLL_EVERY_TIME &&
+        !rule.startsWith(AUTOMATION_RE_ENROLL_RELATION_PREFIX) &&
+        isDiffValue(latestExecution.target, executionTarget, rule),
+    );
+    const relationChanged =
+      !!watched &&
+      relationPaths.some(
+        (path) =>
+          JSON.stringify(latestExecution.watched?.[path] ?? null) !==
+          JSON.stringify(watched[path] ?? null),
+      );
 
-    if (!isChanged) {
+    if (!everyTime && !fieldChanged && !relationChanged) {
       return;
     }
   }
@@ -206,6 +235,7 @@ export const calculateExecution = async ({
     triggerConfig: config,
     targetId: executionTarget._id,
     target: executionTarget,
+    ...(watched ? { watched } : {}),
     status: AUTOMATION_EXECUTION_STATUS.ACTIVE,
     description: `Met enrollment criteria`,
     createdVia: buildTriggeredVia(automation),

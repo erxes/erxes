@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getAnnouncement } from '@/modules/cms/api';
 import { formatDate } from '@/modules/cms/utils/format';
+import { getLocale, getT } from '@/modules/i18n/server';
+import type { Translate } from '@/modules/i18n/translate';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
@@ -16,32 +18,42 @@ import {
 
 type Props = { params: Promise<{ slug: string }> };
 
-const crumbs = (label: string) => [
-  { label: 'Home', href: '/' },
-  { label: 'Announcements', href: '/announcements' },
+const crumbs = (label: string, t: Translate) => [
+  { label: t('nav.home'), href: '/' },
+  { label: t('cms.title'), href: '/announcements' },
   { label },
 ];
 
 export const generateMetadata = async ({ params }: Props) => {
   const { slug } = await params;
-  const post = await getAnnouncement(decodeURIComponent(slug));
+  const [post, t] = await Promise.all([
+    getAnnouncement(decodeURIComponent(slug)),
+    getT(),
+  ]);
 
   return {
     title:
       post.state === 'ready' && post.data
-        ? post.data.title ?? 'Announcement'
-        : 'Announcement',
+        ? (post.data.title ?? t('nav.announcement'))
+        : t('nav.announcement'),
   };
 };
 
 export default async function AnnouncementPage({ params }: Props) {
   const { slug } = await params;
 
-  const post = await getAnnouncement(decodeURIComponent(slug));
+  const [post, t, locale] = await Promise.all([
+    getAnnouncement(decodeURIComponent(slug)),
+    getT(),
+    getLocale(),
+  ]);
 
   if (post.state !== 'ready') {
     return (
-      <PortalShell breadcrumbs={crumbs('Announcement')} title="Announcement">
+      <PortalShell
+        breadcrumbs={crumbs(t('nav.announcement'), t)}
+        title={t('nav.announcement')}
+      >
         {post.state === 'unconfigured' ? (
           <SetupNotice missing={post.missing} />
         ) : post.state === 'unpublished' ? (
@@ -57,12 +69,15 @@ export default async function AnnouncementPage({ params }: Props) {
     notFound();
   }
 
-  const title = post.data.title ?? 'Untitled announcement';
-  const published = formatDate(post.data.publishedDate ?? post.data.createdAt);
+  const title = post.data.title ?? t('cms.untitled');
+  const published = formatDate(
+    post.data.publishedDate ?? post.data.createdAt,
+    locale,
+  );
 
   return (
     <PortalShell
-      breadcrumbs={crumbs(title)}
+      breadcrumbs={crumbs(title, t)}
       title={title}
       meta={
         <span className="inline-flex items-center gap-1.5 text-[13px] text-white/60">
@@ -78,8 +93,8 @@ export default async function AnnouncementPage({ params }: Props) {
           ) : (
             <EmptyState
               icon="megaphone"
-              title="This announcement is empty"
-              description="No content has been added to this announcement."
+              title={t('cms.emptyPost')}
+              description={t('cms.emptyPostText')}
             />
           )}
         </article>
@@ -89,16 +104,16 @@ export default async function AnnouncementPage({ params }: Props) {
             <IconOrb name="megaphone" size="sm" />
             <div className="min-w-0">
               <h2 className="text-[15px] font-semibold text-ink">
-                More from the team
+                {t('cms.moreFromTeam')}
               </h2>
               <p className="mt-0.5 text-[13px] text-muted-foreground">
-                Browse every notice and update.
+                {t('cms.moreText')}
               </p>
             </div>
           </div>
 
           <ButtonLink href="/announcements" size="sm" variant="secondary">
-            All announcements
+            {t('cms.all')}
             <Icon name="chevronRight" size={15} />
           </ButtonLink>
         </Card>

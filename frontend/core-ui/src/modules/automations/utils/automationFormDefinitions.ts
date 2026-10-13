@@ -1,6 +1,7 @@
 import { AutomationNodesType, AutomationNodeType } from '@/automations/types';
 import { AUTOMATION_EDGE_TYPE_VALUES } from '@/automations/constants/edgeTypes';
 import { AUTOMATION_FLOW_DIRECTION_VALUES } from '@/automations/constants/flowDirection';
+import { isSegmentMembershipTrigger } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { z } from 'zod';
 
 export const automationNodePositionSchema = z
@@ -42,7 +43,10 @@ const automationTriggerSchema = automationTriggerBaseSchema
       // Only enforce contentId check if not custom
 
       if (!isCustom) {
-        return !!config?.contentId;
+        // A membership trigger listens to a shared segment it does not own.
+        return isSegmentMembershipTrigger(config)
+          ? !!config?.segmentId
+          : !!config?.contentId;
       }
 
       // If custom, it's valid regardless of contentId

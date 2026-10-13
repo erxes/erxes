@@ -39,6 +39,11 @@ export const stageSchema = new Schema(
       label: 'Default tick used',
       optional: true,
     },
+    refundPoints: {
+      type: Boolean,
+      label: 'Refund loyalty points on entry',
+      optional: true,
+    },
     userId: { type: String, label: 'Created by' },
     order: { type: Number, label: 'Order' },
     type: {

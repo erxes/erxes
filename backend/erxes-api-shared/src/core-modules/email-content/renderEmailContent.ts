@@ -1,6 +1,7 @@
 import { blocksToHtml } from './blocksToHtml';
 import { EMAIL_CONTENT_FORMATS } from './constants';
 import { appendUnsubscribeFooter } from './emailFooter';
+import { expandRepeatRows } from './expandRepeatRows';
 import { replacePlaceholders } from './replacePlaceholders';
 import {
   TEmailContent,
@@ -55,6 +56,22 @@ const renderBody = async (
 };
 
 /**
+ * The body as html with its placeholders still in, a row reading
+ * `{{ list.$.field }}` already written once per item. A sender that resolves
+ * placeholders in one batch reads them from this.
+ */
+export const renderEmailBody = async (
+  email: TEmailContent,
+  options: TRenderEmailContentOptions = {},
+): Promise<string> => {
+  const body = await renderBody(email, options);
+
+  return options.countItems
+    ? expandRepeatRows(body, options.countItems)
+    : body;
+};
+
+/**
  * The one place an email body becomes the html a recipient gets, whichever
  * editor wrote it and whichever service is sending it.
  */
@@ -64,7 +81,7 @@ export const renderEmailContent = async (
 ): Promise<string> => {
   const { resolvers = [], onFields, markMissing } = options;
 
-  return replacePlaceholders(await renderBody(email, options), resolvers, {
+  return replacePlaceholders(await renderEmailBody(email, options), resolvers, {
     onFields,
     markMissing,
   });

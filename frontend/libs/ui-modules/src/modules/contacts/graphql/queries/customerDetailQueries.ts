@@ -14,7 +14,10 @@ export const CUSTOMER_DETAIL = gql`
       isSubscribed
       department
       leadStatus
+      state
+      links
       sex
+      birthDate
       email
       emailValidationStatus
       emails

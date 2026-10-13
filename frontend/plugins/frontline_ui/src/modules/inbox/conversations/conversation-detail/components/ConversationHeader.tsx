@@ -1,3 +1,7 @@
+import {
+  telegramChatLabel,
+  useTelegramChats,
+} from '@/integrations/telegram/useTelegramChats';
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
 import { useConversationAutomatedReplyControl } from '@/inbox/conversations/hooks/useConversationAutomatedReplyControl';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
@@ -36,7 +40,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
+import { CustomersInline, SelectMember, TagsSelect } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
@@ -76,13 +80,21 @@ const ConversationListToggle = () => {
 
 const ConversationHeaderProfile = () => {
   const { _id, integration, customer, customerId } = useConversationContext();
+  const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
+  const { chats, loading: telegramLoading } = useTelegramChats(
+    isTelegram && _id ? [_id] : [],
+  );
+  const telegramName = telegramChatLabel(chats.get(_id));
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const { channel, loading } = useDiscordConversationChannel(
     _id,
     !_id || !isDiscord,
   );
 
-  if (isDiscord && loading && !channel?.channelName) {
+  if (
+    (isDiscord && loading && !channel?.channelName) ||
+    (isTelegram && telegramLoading && !chats.has(_id))
+  ) {
     return (
       <div className="flex items-center gap-2 flex-none">
         <Skeleton className="size-6 rounded-full" />
@@ -90,6 +102,13 @@ const ConversationHeaderProfile = () => {
       </div>
     );
   }
+
+  if (telegramName)
+    return (
+      <span className="text-sm font-medium truncate" title={telegramName}>
+        {telegramName}
+      </span>
+    );
 
   if (isDiscord && channel?.channelName) {
     const letter = channel.channelName.trim().charAt(0).toUpperCase();
@@ -251,26 +270,16 @@ export const ConversationTags = ({
 }) => {
   const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
-  const TagSelector = showAllTags
-    ? SelectTags.Detail
-    : SelectTags.ConversationDetail;
-
   if (!_id) return null;
 
-  const handleTagChange = (newTagIds: string[] | string) => {
-    const ids = Array.isArray(newTagIds) ? newTagIds : [newTagIds];
-
-    setTagIds?.(ids);
-  };
-
   return (
-    <div className="flex-none">
-      <TagSelector
-        tagType="frontline:conversation"
+    <div className="min-w-0 flex-none">
+      <TagsSelect.Provider
+        type="frontline:conversation"
         mode="multiple"
         value={tagIds}
         targetIds={[_id]}
-        onValueChange={handleTagChange}
+        onValueChange={setTagIds}
         options={() => ({
           onCompleted: () => {
             toast({
@@ -286,10 +295,39 @@ export const ConversationTags = ({
             });
           },
         })}
-        onPointerDown={withinDropdown ? stopEventPropagation : undefined}
-        onClick={withinDropdown ? stopEventPropagation : undefined}
-        onKeyDown={withinDropdown ? stopEventPropagation : undefined}
-      />
+      >
+        <div
+          className={cn(
+            'flex items-center gap-2',
+            showAllTags && 'flex-col items-stretch',
+          )}
+        >
+          {showAllTags && (
+            <div className="flex max-h-28 w-full flex-wrap gap-2 overflow-y-auto pr-1">
+              <TagsSelect.SelectedList />
+            </div>
+          )}
+          <TagsSelect.Trigger
+            showValue={!showAllTags}
+            placeholder={
+              showAllTags ? t('add-tags', 'Add tags') : t('tags', 'Tags')
+            }
+            variant="outline"
+            size="sm"
+            className={cn(
+              'shrink-0',
+              showAllTags &&
+                'order-last w-full justify-between border-dashed bg-muted/30',
+            )}
+            onPointerDown={withinDropdown ? stopEventPropagation : undefined}
+            onClick={withinDropdown ? stopEventPropagation : undefined}
+            onKeyDown={withinDropdown ? stopEventPropagation : undefined}
+          />
+        </div>
+        <Combobox.Content align="end" className="w-64 min-w-0 p-0">
+          <TagsSelect.Content />
+        </Combobox.Content>
+      </TagsSelect.Provider>
     </div>
   );
 };
@@ -353,7 +391,7 @@ const ConversationActionsDropdown = ({
           <IconTags className="size-4" />
           {t('tags', 'Tags')}
         </DropdownMenu.Label>
-        <div className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1">
+        <div className="px-1 pb-2">
           <ConversationTags showAllTags withinDropdown />
         </div>
         <DropdownMenu.Separator />
@@ -406,7 +444,7 @@ export const ConversationHeader = () => {
       <Separator.Inline />
       {!hideAssignee && <AssignConversation />}
       <AutomatedReplyStatusBadge />
-      <div className="flex items-center gap-3 ml-auto flex-none">
+      <div className="ml-auto flex min-w-0 items-center gap-3">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
         <ConversationConvert />

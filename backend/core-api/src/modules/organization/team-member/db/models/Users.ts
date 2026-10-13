@@ -85,6 +85,10 @@ export interface IUserModel extends Model<IUserDocument> {
   generateToken(duration?: number): Promise<{ token: string; expires: Date }>;
   createUser(doc: IUser & { notUsePassword?: boolean }): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
+  setPropertyValues(
+    _id: string,
+    values: Record<string, unknown>,
+  ): Promise<IUserDocument | null>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
   generateUserCodeField(): Promise<void>;
@@ -147,6 +151,41 @@ export const loadUserClass = (
     'users',
   );
   class User {
+    // Per-key write so values other writers hold in propertiesData survive.
+    public static async setPropertyValues(
+      _id: string,
+      values: Record<string, unknown>,
+    ) {
+      const prev = await models.Users.getUser(_id);
+      const $set: Record<string, unknown> = {};
+      const $unset: Record<string, ''> = {};
+
+      for (const [fieldId, value] of Object.entries(values)) {
+        if (value === null) {
+          $unset[`propertiesData.${fieldId}`] = '';
+        } else {
+          $set[`propertiesData.${fieldId}`] = value;
+        }
+      }
+
+      const updated = await models.Users.findOneAndUpdate(
+        { _id },
+        { $set, $unset },
+        { new: true },
+      );
+
+      if (updated) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updated.toObject(),
+          prevDocument: prev.toObject(),
+        });
+      }
+
+      return updated;
+    }
+
     public static async getUser(_id: string) {
       const user = await models.Users.findOne({ _id });
 
@@ -310,7 +349,10 @@ export const loadUserClass = (
 
       if (doc.propertiesData) {
         const propertiesData = await models.Fields.validateFieldValues(
-          doc.propertiesData,
+          await models.Fields.keepFeaturedValues(
+            doc.propertiesData,
+            user.propertiesData,
+          ),
         );
 
         doc.propertiesData = propertiesData;

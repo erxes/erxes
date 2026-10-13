@@ -58,7 +58,7 @@ export const getRecMore = async (
   const reportBase = getReportBase(report);
   if (!reportBase) throw new Error(`Unsupported journal: ${report}`);
 
-  if (!reportBase.supportsMore) {
+  if (reportBase.supportsMore === false) {
     return [];
   }
 

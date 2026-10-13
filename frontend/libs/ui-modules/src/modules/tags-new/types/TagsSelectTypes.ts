@@ -31,7 +31,7 @@ export type TagsSelectContextType = {
   open: boolean;
   setOpen: (open: boolean) => void;
   selectedTags: ITag[];
-  setSelectedTags: (tags: ITag[]) => void;
+  setSelectedTags: React.Dispatch<React.SetStateAction<ITag[]>>;
   tags?: ITag[];
   rootTags?: ITag[];
   tagsByParentId: Record<string, ITag[]>;

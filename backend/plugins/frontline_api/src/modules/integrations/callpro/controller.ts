@@ -33,6 +33,32 @@ const logEvent = async (models: IModels, body: ICallProEvent) => {
   }
 };
 
+const createCallProCustomer = async (
+  models: IModels,
+  { integrationId, phoneNumber },
+): Promise<{ customer: ICallProCustomerDocument; created: boolean }> => {
+  try {
+    const customer = await models.CallProCustomers.create({
+      phoneNumber,
+      integrationId,
+    });
+
+    return { customer, created: true };
+  } catch (e) {
+    if (!isDuplicateError(e)) {
+      throw new Error(e.message);
+    }
+
+    const customer = await models.CallProCustomers.findOne({ phoneNumber });
+
+    if (!customer) {
+      throw new Error('Concurrent request: customer duplication');
+    }
+
+    return { customer, created: false };
+  }
+};
+
 const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -40,23 +66,25 @@ const getOrCreateCustomer = async (
 ): Promise<ICallProCustomerDocument> => {
   const existing = await models.CallProCustomers.findOne({ phoneNumber });
 
-  if (existing) {
+  if (existing?.erxesApiId) {
+    debugCallPro(
+      `Customer found phone=${phoneNumber} erxesApiId=${existing.erxesApiId}`,
+    );
     return existing;
   }
 
-  let customer: ICallProCustomerDocument;
+  debugCallPro(
+    existing
+      ? `Linking core customer phone=${phoneNumber}`
+      : `Creating customer phone=${phoneNumber}`,
+  );
 
-  try {
-    customer = await models.CallProCustomers.create({
-      phoneNumber,
-      integrationId,
-    });
-  } catch (e) {
-    throw new Error(
-      isDuplicateError(e)
-        ? 'Concurrent request: customer duplication'
-        : e.message,
-    );
+  const { customer, created } = existing
+    ? { customer: existing, created: false }
+    : await createCallProCustomer(models, { integrationId, phoneNumber });
+
+  if (customer.erxesApiId) {
+    return customer;
   }
 
   try {
@@ -76,8 +104,14 @@ const getOrCreateCustomer = async (
 
     customer.erxesApiId = response.data._id;
     await customer.save();
+
+    debugCallPro(
+      `Customer linked phone=${phoneNumber} erxesApiId=${customer.erxesApiId}`,
+    );
   } catch (e) {
-    await models.CallProCustomers.deleteOne({ _id: customer._id });
+    if (created) {
+      await models.CallProCustomers.deleteOne({ _id: customer._id });
+    }
     debugCallProError('Failed to create or update customer on core', e.message);
     throw new Error(e.message);
   }
@@ -92,8 +126,13 @@ const getOrCreateConversation = async (
   const existing = await models.CallProConversations.findOne({ callId });
 
   if (existing) {
+    debugCallPro(
+      `Conversation found callId=${callId} state=${existing.state} erxesApiId=${existing.erxesApiId}`,
+    );
     return existing;
   }
+
+  debugCallPro(`Creating conversation callId=${callId} state=${disp}`);
 
   try {
     return await models.CallProConversations.create({
@@ -132,9 +171,16 @@ const findCustomerIdsByPhone = async (
       defaultValue: [],
     });
 
-    return (customers || []).map((customer: { _id: string }) =>
+    const customerIds = (customers || []).map((customer: { _id: string }) =>
       customer._id.toString(),
     );
+
+    debugCallPro(
+      `Customers matching phone=${phone}: ${customerIds.length}`,
+      customerIds,
+    );
+
+    return customerIds;
   } catch (e) {
     debugCallProError('Failed checking customers by phone', e.message);
     return [];
@@ -147,6 +193,12 @@ export const receiveCallProEvent = async (
 ) => {
   const models = await generateModels(subdomain);
   const { numberTo, numberFrom, disp, callID, owner } = body;
+
+  debugCallPro(
+    `Event received subdomain=${subdomain} callID=${callID} numberFrom=${numberFrom} numberTo=${numberTo} disp=${disp} owner=${
+      owner || ''
+    }`,
+  );
 
   await logEvent(models, body);
 
@@ -164,6 +216,7 @@ export const receiveCallProEvent = async (
   }).lean();
 
   if (!inboxIntegration) {
+    debugCallProError(`Inbox integration not found: ${integration.inboxId}`);
     throw new Error(`Inbox integration not found: ${integration.inboxId}`);
   }
 
@@ -182,6 +235,10 @@ export const receiveCallProEvent = async (
   });
 
   if (conversation.state !== disp) {
+    debugCallPro(
+      `Conversation state change callId=${callID} ${conversation.state} -> ${disp}`,
+    );
+
     await models.CallProConversations.updateOne(
       { callId: callID },
       { $set: { state: disp } },
@@ -198,8 +255,14 @@ export const receiveCallProEvent = async (
     });
 
     if (response.status !== 'success') {
+      debugCallProError(
+        `Conversation update failed callID=${callID}`,
+        response.errorMessage,
+      );
       throw new Error(`Conversation update failed: ${response.errorMessage}`);
     }
+
+    debugCallPro(`Conversation updated callID=${callID} state=${disp}`);
 
     return;
   }
@@ -215,11 +278,11 @@ export const receiveCallProEvent = async (
       content: disp,
       integrationId: inboxIntegration._id,
       owner,
+      callProPhone: numberFrom,
     };
 
     if (hasMultipleCustomers) {
       payload.callProPotentialCustomerIds = potentialCustomerIds;
-      payload.callProPhone = numberFrom;
     } else {
       payload.customerId = customer.erxesApiId;
     }
@@ -235,6 +298,10 @@ export const receiveCallProEvent = async (
 
     conversation.erxesApiId = response.data._id;
     await conversation.save();
+
+    debugCallPro(
+      `Conversation created callID=${callID} erxesApiId=${conversation.erxesApiId} multipleCustomers=${hasMultipleCustomers}`,
+    );
   } catch (e) {
     await models.CallProConversations.deleteOne({ _id: conversation._id });
     debugCallProError(
@@ -274,6 +341,10 @@ const notifyChannelMembers = async (
     conversation,
     integration: inboxIntegration,
   };
+
+  debugCallPro(
+    `Notifying ${members.length} channel members conversation=${conversation.erxesApiId}`,
+  );
 
   for (const { memberId } of members) {
     await graphqlPubsub.publish(

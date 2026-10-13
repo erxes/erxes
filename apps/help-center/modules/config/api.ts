@@ -3,8 +3,13 @@ import { cache } from 'react';
 import { query, setAppTokenReader } from '@/modules/apollo/apolloClient';
 import {
   apiUrlForHost,
+  apiUrlForSubdomain,
   setResolvedApiUrlReader,
 } from '@/modules/apollo/utils/env';
+import {
+  createSharedCache,
+  TIMED_OUT,
+} from '@/modules/apollo/utils/sharedCache';
 import {
   errorBodyMatches,
   errorMessage,
@@ -16,11 +21,13 @@ import {
   HELP_CENTER_CONFIG_BY_DOMAIN_LEGACY,
   HELP_CENTER_CONFIG_BY_DOMAIN_PLAIN,
 } from './graphql/queries/helpCenterConfig';
+import { isCustomDomainHost, resolveCustomDomain } from './customDomain';
 import {
   readScopedApiUrl,
   readScopedAppToken,
   writeScopedApiUrl,
   writeScopedAppToken,
+  writeScopedCustomDomainSubdomain,
 } from './requestScope';
 import { normalizeConfig } from './utils/normalize';
 import type { HelpCenterConfig, PortalConfig } from './types';
@@ -30,16 +37,39 @@ type ConfigResponse = { helpCenterGetConfigByDomain: HelpCenterConfig | null };
 const isLocalHost = (host: string): boolean =>
   host.startsWith('localhost') || host.startsWith('127.0.0.1');
 
-const requestOrigins = async (): Promise<string[]> => {
+const requestHost = async (): Promise<string> => {
   const list = await headers();
 
-  const host = list.get('x-forwarded-host') ?? list.get('host') ?? '';
+  return list.get('x-forwarded-host') ?? list.get('host') ?? '';
+};
 
-  writeScopedApiUrl(apiUrlForHost(host));
+/*
+ * A tenant's own domain is matched against its help center configs first, so
+ * a config whose url is the custom domain wins; otherwise the config published
+ * on the tenant's help center subdomain answers for it.
+ */
+const customDomainOrigins = (host: string, subdomain: string): string[] => {
+  const base = (process.env.HELPCENTER_DOMAIN ?? '').trim().toLowerCase();
 
+  return [`https://${host}`, `https://${subdomain}.${base}`];
+};
+
+const requestOrigins = async (host: string): Promise<string[]> => {
   if (!host) {
+    writeScopedApiUrl('');
     return [];
   }
+
+  if (isCustomDomainHost(host)) {
+    const subdomain = await resolveCustomDomain(host);
+
+    writeScopedApiUrl(apiUrlForSubdomain(subdomain));
+    writeScopedCustomDomainSubdomain(subdomain);
+
+    return subdomain ? customDomainOrigins(host, subdomain) : [];
+  }
+
+  writeScopedApiUrl(apiUrlForHost(host));
 
   if (isLocalHost(host)) {
     return [`http://${host}`, `https://${host}`];
@@ -120,12 +150,6 @@ const fetchConfig = async (
     return { state: 'error', message: 'This request carried no host header.' };
   }
 
-  /*
-   * The richest document goes first on every request. Remembering the one a
-   * gateway accepted would save the rejected round trips on an old backend,
-   * but would also keep the portal on the reduced document after that backend
-   * is upgraded.
-   */
   let mismatch = '';
 
   for (const lookup of LOOKUPS) {
@@ -141,15 +165,31 @@ const fetchConfig = async (
   return { state: 'error', message: mismatch };
 };
 
-const configFor = cache(fetchConfig);
+const sharedConfig = createSharedCache<PortalResult<PortalConfig>>({
+  ttlMs: 5_000,
+  staleMs: 0,
+  maxEntries: 1_000,
+  keep: (result) => result.state === 'ready' || result.state === 'unpublished',
+  timedOut: () => ({ state: 'error', message: TIMED_OUT }),
+});
+
+const configFor = cache((apiUrl: string, domain: string) =>
+  sharedConfig(`${apiUrl}|${domain}`, () => fetchConfig(apiUrl, domain)),
+);
 
 export const getPortalConfig = async (): Promise<
   PortalResult<PortalConfig>
 > => {
-  const domains = await requestOrigins();
+  const host = await requestHost();
+  const domains = await requestOrigins(host);
   const apiUrl = readScopedApiUrl();
 
   if (!domains.length) {
+    // A host we serve but no tenant claims: nothing is published here.
+    if (host && isCustomDomainHost(host)) {
+      return { state: 'unpublished', domain: `https://${host}` };
+    }
+
     return { state: 'error', message: 'This request carried no host header.' };
   }
 

@@ -1,4 +1,7 @@
-import { atom } from 'jotai';
+import {
+  DEFAULT_COLORS,
+  DEFAULT_LANGUAGE,
+} from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
 import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupGreetingAtom,
@@ -6,15 +9,13 @@ import {
   erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
 } from './erxesMessengerSetupStates';
-import { processLinks } from '@/integrations/erxes-messenger/utils/emStateUtils';
-import { z } from 'zod';
+
 import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emConfigSchema';
-import {
-  DEFAULT_COLORS,
-  DEFAULT_LANGUAGE,
-} from '@/integrations/erxes-messenger/constants/emStatesDefaultValues';
 import { EnumResponseRate } from '@/integrations/erxes-messenger/types/ResponseRate';
 import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
+import { atom } from 'jotai';
+import { processLinks } from '@/integrations/erxes-messenger/utils/emStateUtils';
+import { z } from 'zod';
 
 /**
  * Atom that generates the messenger creation payload
@@ -99,6 +100,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       backgroundColor: appearance?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
       heroStyleVariant: appearance?.heroStyleVariant || 'glossy',
       navigationVariant: appearance?.navigationVariant || 'pill',
+      isSupportInAppView: settings?.isSupportInAppView ?? false,
     },
   });
 });

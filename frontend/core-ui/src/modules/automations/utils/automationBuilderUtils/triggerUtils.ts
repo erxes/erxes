@@ -1,3 +1,4 @@
+import { triggerStartActionIds } from '@/automations/utils/automationBuilderUtils/triggerFolks';
 import { toast } from 'erxes-ui';
 import {
   IAutomationsActionFolkConfig,
@@ -124,7 +125,9 @@ export const getTriggerOfAction = (
     visited.add(currentId);
 
     // Check if current node is a trigger
-    const trigger = triggers.find((t) => t.actionId === currentId);
+    const trigger = triggers.find((t) =>
+      triggerStartActionIds(t).includes(currentId),
+    );
     if (trigger) {
       return trigger;
     }

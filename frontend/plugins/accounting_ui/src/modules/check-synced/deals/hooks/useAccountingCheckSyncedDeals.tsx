@@ -3,15 +3,15 @@ import {
   ACCOUNTING_CHECK_SYNCED_MUTATION,
   ACCOUNTING_SYNC_DEALS_MUTATION,
 } from '../graphql/checkSyncedDeals';
-import {
+import type {
   AccountingCheckSyncedDeal,
   AccountingCheckSyncedResponse,
   AccountingCheckSyncedStatus,
   AccountingDealsQueryResult,
   AccountingSyncResult,
 } from '../types';
+import type { AccountingCheckSyncedDealsStatusCounts } from '../states';
 import {
-  AccountingCheckSyncedDealsStatusCounts,
   accountingCheckSyncedDealsStatusCountsAtom,
   accountingCheckSyncedDealsTotalCountAtom,
 } from '../states';
@@ -25,7 +25,8 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
-import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import type { QueryHookOptions } from '@apollo/client';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import {
   chunkIds,
@@ -42,6 +43,8 @@ const ACCOUNTING_CHECK_SYNCED_DEALS_PER_PAGE = 50;
 const ACCOUNTING_SYNC_DEALS_BATCH_SIZE = 1;
 export const ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY =
   'accounting-check-synced-deals';
+export const ACCOUNTING_CHECK_SYNCED_DEAL_MOVEMENTS_SESSION_KEY =
+  'accounting-check-synced-deal-movements';
 
 const checkedDealsAtom = atom<
   Record<string, Partial<AccountingCheckSyncedDeal>>
@@ -51,6 +54,7 @@ const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
 
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
+  sessionKey = ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
 ) => {
   const [
     {
@@ -91,7 +95,7 @@ export const useAccountingCheckSyncedDealsVariables = (
   ]);
 
   const { cursor } = useRecordTableCursor({
-    sessionKey: ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
+    sessionKey,
   });
 
   return {
@@ -118,9 +122,15 @@ export const useAccountingCheckSyncedDealsVariables = (
   };
 };
 
-export const useAccountingCheckSyncedDeals = (
-  options?: QueryHookOptions<AccountingDealsQueryResult>,
-) => {
+type UseAccountingCheckSyncedDealsOptions =
+  QueryHookOptions<AccountingDealsQueryResult> & {
+    sessionKey?: string;
+  };
+
+export const useAccountingCheckSyncedDeals = ({
+  sessionKey,
+  ...options
+}: UseAccountingCheckSyncedDealsOptions = {}) => {
   const { t } = useTranslation('accounting');
   const { toast } = useToast();
   const [checkedDeals, setCheckedDeals] = useAtom(checkedDealsAtom);
@@ -129,14 +139,17 @@ export const useAccountingCheckSyncedDeals = (
   const setStatusCounts = useSetAtom(
     accountingCheckSyncedDealsStatusCountsAtom,
   );
-  const variables = useAccountingCheckSyncedDealsVariables(options?.variables);
+  const variables = useAccountingCheckSyncedDealsVariables(
+    options.variables,
+    sessionKey,
+  );
 
   const { data, loading, fetchMore } = useQuery<AccountingDealsQueryResult>(
     ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
     {
       ...options,
       variables: {
-        skip: options?.skip || isUndefinedOrNull(variables.cursor),
+        skip: options.skip || isUndefinedOrNull(variables.cursor),
         ...variables,
       },
     },

@@ -17,6 +17,7 @@ export const GET_CONVERSATION_DETAIL = gql`
       callProAudio
       callProPotentialCustomerIds
       callProPhone
+      propertiesData
       customer {
         _id
         firstName

@@ -28,7 +28,8 @@ fs.writeFileSync( \
 ); \
 " \
     && pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
-    && find node_modules -type f \( \
+    && test -d node_modules \
+    && { { find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \
          -o -name "CHANGELOG*" -o -name "README*" \
@@ -39,7 +40,7 @@ fs.writeFileSync( \
          -name "test" -o -name "tests" -o -name "__tests__" -o -name "spec" \
          -o -name "docs" -o -name "doc" -o -name "examples" -o -name "example" \
          -o -name ".github" -o -name "coverage" \
-       \) -prune -exec rm -rf {} \; 2>/dev/null || true
+       \) -prune -exec rm -rf {} \; ; } 2>/dev/null || true; }
 
 # Stage 2: runtime with system Chromium
 FROM node:22-alpine3.22

@@ -1,3 +1,5 @@
+import { TEarnBreakdownItem } from './earnCalc';
+
 export interface IScoreOwner {
   _id?: string;
   firstName?: string;
@@ -27,6 +29,8 @@ export interface IScoreLog {
   change?: number;
   action?: string;
   description?: string;
+  // Earning table rows this entry came from.
+  breakdown?: TEarnBreakdownItem[] | null;
   campaignId?: string;
   campaign?: { _id: string; title: string };
   targetId?: string;

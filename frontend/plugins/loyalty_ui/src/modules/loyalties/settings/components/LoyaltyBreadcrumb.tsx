@@ -8,8 +8,7 @@ export const LoyaltyBreadcrumb = () => {
   const { t } = useTranslation('loyalty');
   const { pathname } = useLocation();
   const normalizePath = (value: string) => value.replace(/\/+$/, '');
-  const label =
-    SETTINGS_ROUTES[normalizePath(pathname) as keyof typeof SETTINGS_ROUTES];
+  const label = SETTINGS_ROUTES[normalizePath(pathname)];
   return (
     <div className="flex items-center w-full justify-between">
       <div className="flex items-center gap-2">

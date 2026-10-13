@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { useRemoveTemplate } from '../../hooks/useTemplateRemove';
+import { useTranslation } from 'react-i18next';
 
 export const TemplateDelete = ({
   templateIds,
@@ -11,6 +12,7 @@ export const TemplateDelete = ({
   templateIds: string[];
   rows: Row<any>[];
 }) => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const { confirm } = useConfirm();
   const { removeTemplate } = useRemoveTemplate();
 
@@ -22,12 +24,12 @@ export const TemplateDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${templateIds.length} selected broadcast?`,
+          message: t('delete-confirm', { count: templateIds.length }),
         }).then(() => {
           removeTemplate(templateIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -37,9 +39,9 @@ export const TemplateDelete = ({
                 row.toggleSelected(false);
               });
               toast({
-                title: 'Success',
+                title: t('success'),
                 variant: 'success',
-                description: 'Broadcast deleted successfully',
+                description: t('delete-success'),
               });
             },
           });
@@ -47,7 +49,7 @@ export const TemplateDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

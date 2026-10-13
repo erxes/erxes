@@ -13,6 +13,25 @@ export const trimEmptyBlocks = (blocks: Block[]) => {
   return blocks.slice(start, end + 1);
 };
 
+export const serializeNoteBlocks = (blocks: Block[]) =>
+  blocks.length ? JSON.stringify(blocks) : '';
+
+export const hasNoteText = (content?: string | null) => {
+  const text = (content ?? '').trim();
+
+  if (!text) {
+    return false;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(text);
+
+    return !Array.isArray(parsed) || parsed.length > 0;
+  } catch {
+    return true;
+  }
+};
+
 export const parseTemplateToBlocks = (templateHtml: string) => {
   try {
     const parsed = JSON.parse(templateHtml);

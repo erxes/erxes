@@ -1,26 +1,16 @@
 import { graphqlErrorMessage } from '@/modules/apollo/utils/result';
+import type { MessageKey, Translate } from '@/modules/i18n/translate';
 
-const REASONS: [RegExp, string][] = [
-  [
-    /duplicated phone/i,
-    'This phone number is registered to another customer. Please enter a different number.',
-  ],
-  [/duplicated email/i, 'This email is registered to another customer.'],
-  [
-    /no linked customer/i,
-    'Your account is not linked to a customer record. Please contact the support team.',
-  ],
-  [
-    /not authenticated|not logged in/i,
-    'Your session has expired. Please sign in and try again.',
-  ],
+const REASONS: [RegExp, MessageKey][] = [
+  [/duplicated phone/i, 'tickets.error.duplicatePhone'],
+  [/duplicated email/i, 'tickets.error.duplicateEmail'],
+  [/no linked customer/i, 'tickets.error.noCustomer'],
+  [/not authenticated|not logged in/i, 'tickets.error.sessionExpired'],
 ];
 
-const FALLBACK = 'Could not save your name and phone number to the record.';
-
-export const contactErrorMessage = (caught: unknown): string => {
+export const contactErrorMessage = (caught: unknown, t: Translate): string => {
   const raw = graphqlErrorMessage(caught);
   const known = REASONS.find(([pattern]) => pattern.test(raw));
 
-  return known?.[1] ?? FALLBACK;
+  return t(known?.[1] ?? 'tickets.error.contactFallback');
 };

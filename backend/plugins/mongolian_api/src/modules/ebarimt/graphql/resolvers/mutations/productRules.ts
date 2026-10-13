@@ -5,23 +5,26 @@ export const productRuleMutations = {
   async ebarimtProductRuleCreate(
     _root: undefined,
     doc: IProductRule,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageEbarimtProductRules');
     return await models.ProductRules.createProductRule({ ...doc });
   },
 
   async ebarimtProductRuleUpdate(
     _root: undefined,
     { _id, ...doc }: { _id: string } & IProductRule,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageEbarimtProductRules');
     return await models.ProductRules.updateProductRule(_id, { ...doc });
   },
   async ebarimtProductRulesRemove(
     _root: undefined,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageEbarimtProductRules');
     return await models.ProductRules.removeProductRules(ids);
   },
 };

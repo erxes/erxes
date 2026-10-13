@@ -262,10 +262,10 @@ export const loadClasses = (
   models.SafeRemainderItems = db.model<
     ISafeRemainderItemDocument,
     ISafeRemainderItemModel
-  >('safe_remainder_items', loadSafeRemainderItemClass(models, subdomain));
+  >('safe_remainder_items', loadSafeRemainderItemClass(models));
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
-    loadSafeRemainderClass(models, subdomain),
+    loadSafeRemainderClass(models),
   );
 
   return models;

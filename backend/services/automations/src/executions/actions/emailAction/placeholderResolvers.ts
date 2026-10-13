@@ -1,9 +1,12 @@
 import {
+  AUTOMATION_OUTPUT_ITEM_COUNT,
+  blocksToHtml,
   collectPlaceholderPaths,
   documentPlaceholderResolver,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
   TPlaceholderResolver,
+  TRepeatCounter,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { normalizeEmailActionPlaceholders } from './utils';
@@ -40,6 +43,34 @@ export const documentResolver = (
         })
       )?.content,
   });
+
+/**
+ * Rich text fields (a deal's description, say) are stored as block editor
+ * JSON. Dropped into an email as-is they read as raw JSON, so they are
+ * rendered the way the block editor would show them.
+ */
+const blocksValueToHtml = (value: string) => {
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith('[')) {
+    return value;
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    const isBlocks =
+      Array.isArray(parsed) &&
+      parsed.length > 0 &&
+      parsed.every(
+        (block) =>
+          block && typeof block === 'object' && typeof block.type === 'string',
+      );
+
+    return isBlocks ? blocksToHtml(parsed) : value;
+  } catch {
+    return value;
+  }
+};
 
 /**
  * The execution's outputs as a resolver. Outputs resolve in one batch, so
@@ -80,6 +111,35 @@ export const outputResolver = async ({
       return undefined;
     }
 
-    return value === null || value === '' ? null : String(value);
+    if (value === null || value === '') {
+      return null;
+    }
+
+    return blocksValueToHtml(String(value)) || null;
   };
 };
+
+/** How many items a list output holds, for a row written once per item. */
+export const outputItemCounter =
+  ({
+    subdomain,
+    execution,
+    targetType,
+  }: {
+    subdomain: string;
+    execution: IAutomationExecutionDocument;
+    targetType: string;
+  }): TRepeatCounter =>
+  async (listPath) => {
+    const token = normalizeEmailActionPlaceholders(
+      `{{ ${listPath}.${AUTOMATION_OUTPUT_ITEM_COUNT} }}`,
+      targetType,
+    );
+    const { count } = await replaceOutputPlaceholders({
+      subdomain,
+      execution,
+      values: { count: token },
+    });
+
+    return Number(count) || 0;
+  };

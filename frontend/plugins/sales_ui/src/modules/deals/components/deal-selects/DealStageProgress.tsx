@@ -3,8 +3,6 @@ import { IconCheck } from '@tabler/icons-react';
 import { Tooltip, cn } from 'erxes-ui';
 import { IStage } from '@/deals/types/stages';
 
-const CIRCLE_HALF = 18;
-
 interface DealStageProgressProps {
   stages: IStage[];
   stageId: string;
@@ -24,36 +22,22 @@ export const DealStageProgress = ({
   );
 
   const currentIndex = sorted.findIndex((stage) => stage._id === stageId);
-  const progressRatio =
-    sorted.length <= 1 || currentIndex <= 0
-      ? 0
-      : currentIndex / (sorted.length - 1);
 
   if (!sorted.length) return null;
 
   return (
     <Tooltip.Provider delayDuration={150}>
-      <div className={cn('relative', className)}>
-        <div
-          className="absolute top-1/2 -translate-y-1/2 h-0.5 bg-muted"
-          style={{ left: CIRCLE_HALF, right: CIRCLE_HALF }}
-        />
-        {progressRatio > 0 && (
-          <div
-            className="absolute top-1/2 -translate-y-1/2 h-0.5 bg-primary transition-all duration-300"
-            style={{
-              left: CIRCLE_HALF,
-              width: `calc((100% - ${CIRCLE_HALF * 2}px) * ${progressRatio})`,
-            }}
-          />
-        )}
-        <div className="relative flex justify-between">
-          {sorted.map((stage, index) => {
-            const isCurrent = index === currentIndex;
-            const isFilled = index <= currentIndex;
+      <div className={cn('flex flex-wrap items-center gap-y-2', className)}>
+        {sorted.map((stage, index) => {
+          const isCurrent = index === currentIndex;
+          const isFilled = index <= currentIndex;
 
-            return (
-              <Tooltip key={stage._id}>
+          return (
+            <div
+              key={stage._id}
+              className="flex min-w-11 flex-1 items-center last:min-w-9 last:flex-none"
+            >
+              <Tooltip>
                 <Tooltip.Trigger asChild>
                   <button
                     type="button"
@@ -61,7 +45,7 @@ export const DealStageProgress = ({
                     disabled={isCurrent}
                     aria-label={`Move to stage: ${stage.name}`}
                     className={cn(
-                      'relative z-10 w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+                      'relative z-10 w-9 h-9 shrink-0 rounded-full flex items-center justify-center border-2 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
                       isFilled
                         ? 'bg-primary border-primary text-primary-foreground'
                         : 'bg-background border-border hover:border-primary/60 hover:scale-110',
@@ -80,9 +64,18 @@ export const DealStageProgress = ({
                   )}
                 </Tooltip.Content>
               </Tooltip>
-            );
-          })}
-        </div>
+              {index < sorted.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'pointer-events-none h-0.5 min-w-2 flex-1 transition-colors duration-300',
+                    index < currentIndex ? 'bg-primary' : 'bg-muted',
+                  )}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </Tooltip.Provider>
   );

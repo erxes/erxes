@@ -20,6 +20,9 @@ export interface IPosInEbarimtConfigRow {
   reverseCtaxRules?: string[];
   headerText?: string;
   footerText?: string;
+  hasCopy?: boolean;
+  hasSumQty?: boolean;
+  isCleanTaxPrice?: boolean;
   withDescription?: boolean;
   skipEbarimt?: boolean;
   ebarimtUrl?: string;

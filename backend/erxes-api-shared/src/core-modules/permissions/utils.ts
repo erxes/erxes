@@ -28,12 +28,36 @@ export const wrapPermission = (resolver: Resolver, resolverKey: string) => {
   };
 };
 
-const applyPermissions = (
+type GrantedPermission = {
+  plugin?: string;
+  module?: string;
+  actions?: string[];
+};
+
+const resolveActionNames = async (
+  permission: GrantedPermission,
+): Promise<string[]> => {
+  const actions = permission.actions || [];
+
+  if (!actions.includes('*')) return actions;
+
+  if (!permission.plugin || !permission.module) return [];
+
+  const plugin = await getPlugin(permission.plugin);
+  
+  const modules: IPermissionModule[] = plugin?.config?.meta?.permissions?.modules || [];
+  
+  const permissionModule = modules.find((m) => m.name === permission.module);
+
+  return (permissionModule?.actions || []).map((action) => action.name);
+};
+
+const applyPermissions = async (
   actionsMap: Record<string, boolean>,
-  permissions: { actions?: string[] }[],
+  permissions: GrantedPermission[],
 ) => {
   for (const permission of permissions) {
-    for (const act of permission.actions || []) {
+    for (const act of await resolveActionNames(permission)) {
       actionsMap[act] = true;
     }
   }
@@ -53,7 +77,7 @@ const applyDefaultGroupActions = async (
 
     for (const group of defaultGroups) {
       if (defaultGroupIds.includes(group.id)) {
-        applyPermissions(actionsMap, group.permissions);
+        await applyPermissions(actionsMap, group.permissions);
       }
     }
   }
@@ -77,7 +101,7 @@ const applyCustomGroupActions = async (
   });
 
   for (const group of groups) {
-    applyPermissions(actionsMap, group.permissions || []);
+    await applyPermissions(actionsMap, group.permissions || []);
   }
 };
 
@@ -124,7 +148,7 @@ export const getGroupActionsMap = async (
     await applyCustomGroupActions(actionsMap, subdomain, customGroupIds);
   }
 
-  applyPermissions(actionsMap, user.customPermissions || []);
+  await applyPermissions(actionsMap, user.customPermissions || []);
 
   await redis.set(cacheKey, JSON.stringify(actionsMap));
 

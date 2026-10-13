@@ -2,63 +2,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Collapsible,
-  Editor,
   Form,
   InfoCard,
-  Input,
   ScrollArea,
-  Select,
   Spinner,
-  Switch,
-  Upload,
   toast,
   useQueryState,
 } from 'erxes-ui';
-import { useCallback } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { SelectMember } from '../../team-members/components/SelectMember';
 import { useAddCustomer } from '../hooks/useAddCustomer';
 import { useFieldGroups } from '../../properties/hooks/useFieldGroups';
 import { useFields } from '../../properties/hooks/useFields';
-import { IFieldGroup } from '../../properties/types/fieldsTypes';
+import { IField, IFieldGroup } from '../../properties/types/fieldsTypes';
 import { PropertyFormField } from '../../properties/components/PropertyFormField';
+import { GroupFieldRows } from '../../properties/components/GroupFieldRows';
+import { useSystemFieldRules } from '../../properties/hooks/useSystemFieldRules';
+import {
+  buildCustomerSchema,
+  CUSTOMER_FORM_DEFAULTS,
+  ICustomerFormValues,
+} from '../customer-fields/customerFormSchema';
+import { CustomerSystemFields } from '../customer-fields/CustomerSystemFields';
 
-const EMAIL_VALIDATION_STATUSES = [
-  { label: 'Valid', value: 'valid' },
-  { label: 'Invalid', value: 'invalid' },
-  { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
-  { label: 'Unknown', value: 'unknown' },
-  { label: 'Disposable', value: 'disposable' },
-  { label: 'Catch all', value: 'catchall' },
-  { label: 'Bad syntax', value: 'bad_syntax' },
-  { label: 'Not checked', value: 'not_checked' },
-];
-
-const PHONE_VALIDATION_STATUSES = [
-  { label: 'Valid', value: 'valid' },
-  { label: 'Invalid', value: 'invalid' },
-  { label: 'Unknown', value: 'unknown' },
-  { label: 'Unverifiable', value: 'unverifiable' },
-  { label: 'Mobile phone', value: 'mobile_phone' },
-];
-
-const SCHEMA = z.object({
-  avatar: z.string().optional(),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().optional(),
-  code: z.string().optional(),
-  ownerId: z.string().optional(),
-  primaryEmail: z.string().email('Invalid email').optional().or(z.literal('')),
-  emailValidationStatus: z.string().optional(),
-  primaryPhone: z.string().optional(),
-  phoneValidationStatus: z.string().optional(),
-  description: z.string().optional(),
-  isSubscribed: z.string().optional(),
-  propertiesData: z.record(z.unknown()).optional(),
-});
-
-type FormValues = z.infer<typeof SCHEMA>;
+const hasValue = (value: unknown) =>
+  value !== undefined && value !== null && String(value).trim() !== '';
 
 export function AddCustomerForm({
   onOpenChange,
@@ -71,45 +39,56 @@ export function AddCustomerForm({
 }>) {
   const { customersAdd, loading } = useAddCustomer();
   const [activeTab] = useQueryState<string>('tab');
+  const { rules, loading: rulesLoading } = useSystemFieldRules(
+    'core:customer',
+    'create',
+  );
+  const [propertiesData, setPropertiesData] = useState<Record<string, unknown>>(
+    {},
+  );
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(SCHEMA),
-    defaultValues: {
-      avatar: '',
-      firstName: '',
-      lastName: '',
-      code: '',
-      ownerId: '',
-      primaryEmail: '',
-      emailValidationStatus: 'unknown',
-      primaryPhone: '',
-      phoneValidationStatus: 'unknown',
-      description: '',
-      isSubscribed: 'Yes',
-      propertiesData: {},
-    },
+  // Rules arrive after the form mounts; validate against the latest ones.
+  const schemaRef = useRef(buildCustomerSchema(rules));
+  schemaRef.current = useMemo(() => buildCustomerSchema(rules), [rules]);
+
+  const form = useForm<ICustomerFormValues>({
+    resolver: (values, context, options) =>
+      zodResolver(schemaRef.current)(values, context, options),
+    defaultValues: CUSTOMER_FORM_DEFAULTS,
   });
 
   const updateCustomFieldValue = useCallback(
-    (fieldId: string, value: unknown) => {
-      const current = form.getValues('propertiesData') || {};
-      form.setValue('propertiesData', { ...current, [fieldId]: value });
-    },
-    [form],
+    (fieldId: string, value: unknown) =>
+      setPropertiesData((current) => ({ ...current, [fieldId]: value })),
+    [],
   );
 
-  function onSubmit({ propertiesData, ...rest }: FormValues) {
-    const cleanPropertiesData =
-      propertiesData && Object.keys(propertiesData).length > 0
-        ? Object.fromEntries(
-            Object.entries(propertiesData).filter(
-              ([, v]) => v !== undefined && v !== null && v !== '',
-            ),
-          )
-        : undefined;
+  // Lists and links are edited after creation; the state comes from the opener.
+  function onSubmit(values: ICustomerFormValues) {
+    const cleanPropertiesData = Object.fromEntries(
+      Object.entries(propertiesData).filter(([, value]) => hasValue(value)),
+    );
 
     customersAdd({
-      variables: { ...rest, state, propertiesData: cleanPropertiesData },
+      variables: {
+        avatar: values.avatar ?? undefined,
+        firstName: values.firstName,
+        middleName: values.middleName,
+        lastName: values.lastName,
+        code: values.code,
+        ownerId: values.ownerId,
+        primaryEmail: values.primaryEmail,
+        primaryPhone: values.primaryPhone,
+        phoneValidationStatus: values.phoneValidationStatus,
+        sex: values.sex ?? 0,
+        birthDate: values.birthDate ?? undefined,
+        description: values.description,
+        isSubscribed: values.isSubscribed,
+        state,
+        propertiesData: Object.keys(cleanPropertiesData).length
+          ? cleanPropertiesData
+          : undefined,
+      },
       onError: (e) => {
         toast({
           title: 'Error',
@@ -128,12 +107,12 @@ export function AddCustomerForm({
           variant: 'success',
         });
         form.reset();
+        setPropertiesData({});
         onOpenChange(false);
       },
     });
   }
 
-  const propertiesData = form.watch('propertiesData') || {};
   const title = state === 'lead' ? 'Create Lead' : 'Create Customer';
   const isPropertiesTab = activeTab === 'properties';
 
@@ -149,8 +128,18 @@ export function AddCustomerForm({
               propertiesData={propertiesData}
               onFieldChange={updateCustomFieldValue}
             />
+          ) : rulesLoading ? (
+            <Spinner containerClassName="py-12" />
           ) : (
-            <GeneralTab form={form} />
+            <InfoCard title="Customer Information">
+              <InfoCard.Content>
+                <CustomerSystemFields
+                  control={form.control}
+                  isShown={rules.isShown}
+                  isRequired={rules.isRequired}
+                />
+              </InfoCard.Content>
+            </InfoCard>
           )}
         </ScrollArea>
 
@@ -162,262 +151,12 @@ export function AddCustomerForm({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading || rulesLoading}>
             {loading ? 'Creating...' : title}
           </Button>
         </div>
       </form>
     </Form>
-  );
-}
-
-function GeneralTab({
-  form,
-}: Readonly<{
-  form: ReturnType<typeof useForm<FormValues>>;
-}>) {
-  return (
-    <InfoCard title="Customer Information">
-      <InfoCard.Content>
-        <Form.Field
-          name="avatar"
-          control={form.control}
-          render={({ field }) => (
-            <Form.Item className="mb-4">
-              <Form.Control>
-                <Upload.Root
-                  {...field}
-                  value={field.value || ''}
-                  onChange={(fileInfo) => {
-                    if ('url' in fileInfo) {
-                      field.onChange(fileInfo.url);
-                    }
-                  }}
-                >
-                  <Upload.Preview className="rounded-full" />
-                  <div className="flex flex-col justify-center gap-2">
-                    <div className="flex gap-4">
-                      <Upload.Button size="sm" variant="outline" type="button">
-                        Upload
-                      </Upload.Button>
-                      <Upload.RemoveButton
-                        size="sm"
-                        variant="outline"
-                        type="button"
-                      />
-                    </div>
-                    <Form.Description>
-                      Upload an avatar for the customer
-                    </Form.Description>
-                  </div>
-                </Upload.Root>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Form.Field
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  First Name <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Code</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="ownerId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Owner</Form.Label>
-                <Form.Control>
-                  <div className="w-full">
-                    <SelectMember.FormItem
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                      placeholder="Select owner"
-                    />
-                  </div>
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="primaryEmail"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Email</Form.Label>
-                <Form.Control>
-                  <Input
-                    type="email"
-                    placeholder="email@example.com"
-                    {...field}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="emailValidationStatus"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Email Verification Status</Form.Label>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Choose">
-                        {
-                          EMAIL_VALIDATION_STATUSES.find(
-                            (s) => s.value === field.value,
-                          )?.label
-                        }
-                      </Select.Value>
-                    </Select.Trigger>
-                  </Form.Control>
-                  <Select.Content>
-                    <Select.Group>
-                      {EMAIL_VALIDATION_STATUSES.map((s) => (
-                        <Select.Item key={s.value} value={s.value}>
-                          {s.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Group>
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="primaryPhone"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Phone</Form.Label>
-                <Form.Control>
-                  <Input placeholder="+1 234 567 8900" {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="phoneValidationStatus"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Phone Verification Status</Form.Label>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <Form.Control>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Choose">
-                        {
-                          PHONE_VALIDATION_STATUSES.find(
-                            (s) => s.value === field.value,
-                          )?.label
-                        }
-                      </Select.Value>
-                    </Select.Trigger>
-                  </Form.Control>
-                  <Select.Content>
-                    <Select.Group>
-                      {PHONE_VALIDATION_STATUSES.map((s) => (
-                        <Select.Item key={s.value} value={s.value}>
-                          {s.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Group>
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </div>
-
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="mt-4">
-              <Form.Label>Description</Form.Label>
-              <Form.Control>
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="customer-add-description"
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        <Form.Field
-          name="isSubscribed"
-          control={form.control}
-          render={({ field }) => (
-            <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
-              <Form.Control>
-                <Switch
-                  checked={field.value === 'Yes'}
-                  onCheckedChange={(checked) =>
-                    field.onChange(checked ? 'Yes' : 'No')
-                  }
-                />
-              </Form.Control>
-              <Form.Label variant="peer">Subscribed</Form.Label>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      </InfoCard.Content>
-    </InfoCard>
   );
 }
 
@@ -431,12 +170,32 @@ function CustomerPropertiesSection({
   const { fieldGroups, loading } = useFieldGroups({
     contentType: 'core:customer',
   });
+  const { fields, loading: fieldsLoading } = useFields({
+    contentType: 'core:customer',
+  });
 
-  if (loading) {
+  if (loading || fieldsLoading) {
     return (
       <InfoCard title="Customer Properties">
         <InfoCard.Content>
           <Spinner containerClassName="py-6" />
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  // Properties exist, but none is asked for at creation.
+  if (
+    fieldGroups.length > 0 &&
+    !fields.some((field) => field.isVisibleToCreate)
+  ) {
+    return (
+      <InfoCard title="Customer Properties">
+        <InfoCard.Content>
+          <p className="text-sm text-muted-foreground py-4 text-center">
+            No properties are asked for at creation. Turn on "Visible to create"
+            in Settings.
+          </p>
         </InfoCard.Content>
       </InfoCard>
     );
@@ -481,10 +240,11 @@ function CustomerPropertyGroup({
   propertiesData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {
-  const { fields, loading } = useFields({
+  const { fields: groupFields, loading } = useFields({
     groupId: group._id,
     contentType: 'core:customer',
   });
+  const fields = groupFields.filter((field) => field.isVisibleToCreate);
 
   if (loading) return <Spinner containerClassName="py-6" />;
   if (fields.length === 0) return null;
@@ -498,16 +258,18 @@ function CustomerPropertyGroup({
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content className="pt-4">
-        <div className="grid grid-cols-2 gap-4">
-          {fields.map((field) => (
+        <GroupFieldRows
+          group={group}
+          fields={fields}
+          renderField={(field) => (
             <CustomerPropertyField
               key={field._id}
               field={field}
               value={propertiesData[field._id]}
               onFieldChange={onFieldChange}
             />
-          ))}
-        </div>
+          )}
+        />
       </Collapsible.Content>
     </Collapsible>
   );
@@ -518,7 +280,7 @@ function CustomerPropertyField({
   value,
   onFieldChange,
 }: Readonly<{
-  field: any;
+  field: IField;
   value: unknown;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }>) {

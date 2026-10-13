@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useTagsColumns } from '@/settings/tags/components/TagsColumns';
 import { TagsCommandBar } from '@/settings/tags/components/TagsCommandBar';
 import { useTagsView } from '@/settings/tags/hooks/useTagsView';
@@ -5,6 +6,7 @@ import { IconTagsOff } from '@tabler/icons-react';
 import { RecordTable, RecordTableTree } from 'erxes-ui';
 
 export const TagsRecordTable = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const columns = useTagsColumns();
   const { rows, loading } = useTagsView();
 
@@ -12,9 +14,9 @@ export const TagsRecordTable = () => {
     return (
       <div className="m-3 flex h-full flex-col items-center justify-center rounded-lg border border-dashed bg-sidebar p-8 text-center">
         <IconTagsOff className="mb-4 size-12 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">No tags yet</h3>
+        <h3 className="text-lg font-semibold">{t('no-tags-yet')}</h3>
         <p className="text-sm text-muted-foreground">
-          Create a group or tag to organize your workspace.
+          {t('create-group-or-tag')}
         </p>
       </div>
     );

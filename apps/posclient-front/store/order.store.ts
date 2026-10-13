@@ -22,12 +22,13 @@ import {
   OrderItem,
   PayByProductItem,
 } from "@/types/order.types"
+import { fixNum, getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { customerSearchAtom, selectedTabAtom } from "."
 import { cartAtom, cartChangedAtom, totalAmountAtom } from "./cart.store"
+import { draftCartIdAtom } from "./cartAudit.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
-import { fixNum, getItemInputs } from "@/lib/utils"
 
 // order
 export const activeOrderIdAtom = atomWithStorage<string | null>(
@@ -43,6 +44,39 @@ export const previousOrderCountRefAtom = atom(0)
 // customer
 export const customerAtom = atom<Customer | null>(null)
 export const customerTypeAtom = atom<CustomerType>("")
+// One reward voucher per order, held with the customer it was chosen for so
+// switching customers drops it; bonus and discount vouchers apply by themselves.
+export const voucherChoiceAtom = atom<{
+  customerId: string
+  voucherId: string
+} | null>(null)
+export const voucherIdAtom = atom((get) => {
+  const choice = get(voucherChoiceAtom)
+  const customer = get(customerAtom)
+  return choice && !get(customerTypeAtom) && choice.customerId === customer?._id
+    ? choice.voucherId
+    : null
+})
+export const couponCodeAtom = atom<string | null>(null)
+// Pricing and loyalty discount per cart line a save would give, before it is saved.
+export const loyaltyPreviewAtom = atom<
+  Record<string, { percent: number; unitPrice: number }>
+>({})
+// Bonus products a save would add as new lines, shown under the cart until then.
+export const loyaltyPreviewBonusesAtom = atom<
+  { productId: string; name: string; count: number }[]
+>([])
+// Display only: payments always use the saved order's amounts.
+export const previewTotalAmountAtom = atom<number>((get) => {
+  const preview = get(loyaltyPreviewAtom)
+
+  return getCartTotal(
+    get(cartAtom).map((item) => ({
+      ...item,
+      unitPrice: preview[item._id]?.unitPrice ?? item.unitPrice,
+    }))
+  )
+})
 
 // broker
 export const brokerAtom = atomWithStorage<Customer | null>("broker", null)
@@ -180,9 +214,12 @@ export const setInitialAtom = atom(
   (get, set) => {
     set(mobileTabAtom, "products")
     set(cartAtom, [])
+    set(draftCartIdAtom, null)
     set(cartChangedAtom, false)
     set(customerAtom, null)
     set(customerTypeAtom, "")
+    set(voucherChoiceAtom, null)
+    set(couponCodeAtom, null)
     set(brokerAtom, null)
     set(brokerTypeAtom, "customer")
     set(orderTypeAtom, (get(allowTypesAtom) || [])[0] || "eat")
@@ -239,6 +276,7 @@ export const setOrderStatesAtom = atom(
       directIsAmount,
       brokerType,
       brokerId,
+      extraInfo,
     }: IOrder
   ) => {
     set(activeOrderIdAtom, _id || null)
@@ -276,6 +314,13 @@ export const setOrderStatesAtom = atom(
     set(customerSearchAtom, customer?.primaryPhone || customer?._id || "")
     set(dueDateAtom, dueDate)
     set(isPreAtom, isPre)
+    set(
+      voucherChoiceAtom,
+      customer?._id && extraInfo?.voucherId
+        ? { customerId: customer._id, voucherId: extraInfo.voucherId }
+        : null
+    )
+    set(couponCodeAtom, extraInfo?.couponCode || null)
   }
 )
 export const setOnOrderChangeAtom = atom(
@@ -325,4 +370,6 @@ export const orderValuesAtom = atom((get) => ({
   isPre: get(isPreAtom),
   brokerType: get(brokerTypeAtom) || null,
   brokerId: get(brokerAtom)?._id || null,
+  voucherId: get(voucherIdAtom),
+  couponCode: get(couponCodeAtom),
 }))

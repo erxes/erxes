@@ -73,7 +73,7 @@ export const AssignmentNotificationLayout = ({
   const { t } = useTranslation('operation');
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
+    <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center min-h-dvh p-6 pb-80 text-muted-foreground">
       <div className="size-36 bg-sidebar rounded-2xl border-2 border-dashed flex flex-col items-center justify-center">
         {icon}
       </div>

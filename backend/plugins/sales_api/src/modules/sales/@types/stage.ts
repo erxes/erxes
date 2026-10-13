@@ -14,6 +14,8 @@ export interface IStage {
   code?: string;
   age?: number;
   defaultTick?: boolean;
+  // Unset: a lost stage refunds, any other does not.
+  refundPoints?: boolean;
 
   userId?: string;
   order?: number;

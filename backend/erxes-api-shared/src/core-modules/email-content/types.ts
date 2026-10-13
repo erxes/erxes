@@ -1,5 +1,6 @@
 import { EMAIL_CONTENT_FORMATS } from './constants';
 import type { TBlocksToHtmlConfig } from './blocksToHtml';
+import type { TRepeatCounter } from './expandRepeatRows';
 import type { TPlaceholderResolver } from './replacePlaceholders';
 
 export type TEmailContentFormat =
@@ -43,4 +44,6 @@ export type TRenderEmailContentOptions = {
    * cannot be told apart from one that is working.
    */
   markMissing?: boolean;
+  /** How many items a list holds, for rows written once per item. */
+  countItems?: TRepeatCounter;
 };

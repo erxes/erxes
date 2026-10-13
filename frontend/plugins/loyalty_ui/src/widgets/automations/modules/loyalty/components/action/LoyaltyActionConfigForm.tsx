@@ -2,13 +2,19 @@ import { AutomationActionFormProps } from 'ui-modules';
 import { AdjustScoreCampaignActionConfigForm } from './adjust-score/AdjustScoreCampaignActionConfigForm';
 import { IssueVoucherActionConfigForm } from './voucher/IssueVoucherActionConfigForm';
 import { AwardSpinActionConfigForm } from './spin/AwardSpinActionConfigForm';
+import { SetTierActionConfigForm } from './set-tier/SetTierActionConfigForm';
 import {
   isAdjustScoreActionType,
   isAwardSpinActionType,
   isIssueVoucherActionType,
+  isSetTierActionType,
 } from '../../utils/loyaltyActionUtils';
 
 export const LoyaltyActionConfigForm = (props: AutomationActionFormProps) => {
+  if (isSetTierActionType(props.currentAction?.type || props.type)) {
+    return <SetTierActionConfigForm {...props} />;
+  }
+
   if (isAdjustScoreActionType(props.currentAction?.type || props.type)) {
     return <AdjustScoreCampaignActionConfigForm {...props} />;
   }

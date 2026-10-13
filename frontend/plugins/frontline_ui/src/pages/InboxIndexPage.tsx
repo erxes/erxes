@@ -11,7 +11,7 @@ const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     'Frontline',
-    t('inbox', 'Inbox'),
+    t('team-inbox', 'Team inbox'),
   );
 
   return (
@@ -24,7 +24,7 @@ const InboxIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/inbox">
                     <IconMail />
-                    {t('inbox', 'Inbox')}
+                    {t('team-inbox', 'Team inbox')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

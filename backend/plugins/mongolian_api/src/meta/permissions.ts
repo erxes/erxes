@@ -116,13 +116,13 @@ export const permissions: IPermissionConfig = {
       actions: [
         {
           title: 'View product rules',
-          name: 'showProductRules',
+          name: 'showEbarimtProductRules',
           description: 'View ebarimt product rules',
           always: true,
         },
         {
           title: 'Manage product rules',
-          name: 'manageProductRules',
+          name: 'manageEbarimtProductRules',
           description: 'Create, update, and delete product rules',
         },
       ],
@@ -141,13 +141,13 @@ export const permissions: IPermissionConfig = {
       actions: [
         {
           title: 'View product groups',
-          name: 'showProductGroups',
+          name: 'showEbarimtProductGroups',
           description: 'View ebarimt product groups',
           always: true,
         },
         {
           title: 'Manage product groups',
-          name: 'manageProductGroups',
+          name: 'manageEbarimtProductGroups',
           description: 'Create, update, and delete product groups',
         },
       ],
@@ -277,13 +277,13 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'mongolian',
           module: 'ebarimtProductRules',
-          actions: ['showProductRules', 'manageProductRules'],
+          actions: ['showEbarimtProductRules', 'manageEbarimtProductRules'],
           scope: 'all',
         },
         {
           plugin: 'mongolian',
           module: 'ebarimtProductGroups',
-          actions: ['showProductGroups', 'manageProductGroups'],
+          actions: ['showEbarimtProductGroups', 'manageEbarimtProductGroups'],
           scope: 'all',
         },
         {

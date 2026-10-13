@@ -1,6 +1,11 @@
-import { IconChartPie } from '@tabler/icons-react';
+import {
+  IconChartPie,
+  IconExternalLink,
+  IconSettings,
+} from '@tabler/icons-react';
 import {
   Badge,
+  Button,
   Combobox,
   Command,
   Filter,
@@ -11,6 +16,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useSelectSegments } from '../hooks/useSelectSegments';
 import { ISegment } from '../types';
 
@@ -82,6 +88,14 @@ const SegmentsFilterList = ({
           </Command.Item>
         ))}
       </Command.List>
+      <div className="p-1 border-t">
+        <Button variant="ghost" className="justify-start w-full" asChild>
+          <Link to={`/segments?contentType=${encodeURIComponent(contentType)}`}>
+            <IconExternalLink />
+            {t('show-all-segments')}
+          </Link>
+        </Button>
+      </div>
     </Command>
   );
 };
@@ -175,6 +189,17 @@ const SegmentsFilterBar = ({ contentType }: { contentType: string }) => {
           />
         </Combobox.Content>
       </Popover>
+      <Filter.BarButton size="icon" asChild>
+        <Link
+          to={`/segments?contentType=${encodeURIComponent(
+            contentType,
+          )}&segmentId=${encodeURIComponent(segments[0])}&tab=definition`}
+          aria-label={t('segment-settings')}
+          title={t('segment-settings')}
+        >
+          <IconSettings />
+        </Link>
+      </Filter.BarButton>
     </Filter.BarItem>
   );
 };

@@ -15,6 +15,7 @@ import {
   calculateScoreValueFromLogs,
   applyScoreChange,
   fixScoreNumber,
+  resolveBalanceOwner,
   updateOwnerScoreCache,
 } from '@/score/services/scoreLedger';
 import { scoreStatistic } from '@/score/utils';
@@ -24,20 +25,71 @@ import {
   PageInfo,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model, SortOrder } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
+
+const MAX_TARGET_TOTALS = 500;
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
+  getTargetTotals(
+    targetIds: string[],
+  ): Promise<{ targetId: string; total: number }[]>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument[]>;
   repairOwnerScore(
     doc: IRepairOwnerScoreParams,
   ): Promise<IRepairOwnerScoreResult>;
+  recordActivity(args: {
+    log: IScoreLogDocument;
+    actorId?: string;
+    changeScore: number;
+    previousScore: number;
+    newScore: number;
+    walletName?: string;
+  }): Promise<void>;
 }
+
+// Said by whoever the entry is recorded under: the automation's owner, the
+// cashier, the wallet's creator for a period run.
+const describeScoreChange = ({
+  action,
+  change,
+  previous,
+  next,
+  walletName,
+}: {
+  action: string;
+  change: number;
+  previous: number;
+  next: number;
+  walletName?: string;
+}) => {
+  const points = Math.abs(change);
+  const wallet = walletName || 'the score';
+  const balance = `(${previous} → ${next})`;
+
+  switch (action) {
+    case SCORE_ACTION.ADD:
+      return `added ${points} points to ${wallet} ${balance}`;
+    case SCORE_ACTION.SUBTRACT:
+      return `took ${points} points from ${wallet} for a payment ${balance}`;
+    case SCORE_ACTION.EXPIRE:
+      return `expired ${points} points in ${wallet} ${balance}`;
+    case SCORE_ACTION.SET:
+      return `reset ${wallet} ${balance}`;
+    default:
+      // A refund's sign tells what it undoes: a payment comes back, an
+      // earning is taken back.
+      return change >= 0
+        ? `returned ${points} points paid with ${wallet} ${balance}`
+        : `took back ${points} points earned in ${wallet} ${balance}`;
+  }
+};
 
 const generateFilter = async (
   params: IScoreLogParams,
@@ -76,6 +128,11 @@ const generateFilter = async (
     filter.campaignId = params.campaignId;
   }
 
+  // Everything one record (a deal, an order) moved, across owners.
+  if (params.targetId) {
+    filter.targetId = params.targetId;
+  }
+
   if (params.action) {
     const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
       action: { $in: ['refund', 'return'] },
@@ -94,22 +151,6 @@ const generateFilter = async (
     } else {
       filter.action = params.action;
     }
-  }
-
-  if (params.stageId) {
-    filter['target.stageId'] = params.stageId;
-  }
-
-  if (params.pipelineId) {
-    filter['target.pipelineId'] = params.pipelineId;
-  }
-
-  if (params.boardId) {
-    filter['target.boardId'] = params.boardId;
-  }
-
-  if (params.number) {
-    filter['target.number'] = params.number;
   }
 
   if (params.description) {
@@ -146,8 +187,95 @@ const addGroupedCampaignId = (
   ]);
 };
 
-export const loadScoreLogClass = (models: IModels, subdomain: string) => {
+export const loadScoreLogClass = (
+  models: IModels,
+  subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class ScoreLog {
+    /**
+     * Tells the owner's timeline, and the record the points came from, that
+     * the balance moved. Written without an actor it is dropped by core, so
+     * only changes someone answers for appear.
+     */
+    public static async recordActivity({
+      log,
+      actorId = log.createdBy || log.createdVia?.actorId,
+      changeScore,
+      previousScore,
+      newScore,
+      walletName,
+    }: {
+      log: IScoreLogDocument;
+      actorId?: string;
+      changeScore: number;
+      previousScore: number;
+      newScore: number;
+      walletName?: string;
+    }) {
+      if (!changeScore || !actorId) {
+        return;
+      }
+
+      const action = log.action || SCORE_ACTION.ADD;
+      const activityType = `loyalty.score.${action}`;
+      const description = describeScoreChange({
+        action,
+        change: changeScore,
+        previous: previousScore,
+        next: newScore,
+        walletName,
+      });
+      const changes = {
+        points: changeScore,
+        balance: { prev: previousScore, current: newScore },
+        wallet: walletName,
+      };
+      const metadata = {
+        scoreLogId: log._id,
+        campaignId: log.campaignId,
+        accountTypeId: log.accountTypeId,
+        targetId: log.targetId,
+        targetType: log.targetType,
+      };
+      const { recordId } = await resolveBalanceOwner(
+        subdomain,
+        log.ownerType || '',
+        log.ownerId || '',
+      );
+
+      createActivityLog(
+        [
+          {
+            activityType,
+            target: { _id: recordId, createdVia: log.createdVia },
+            action: { type: activityType, description },
+            changes,
+            metadata: { ...metadata, ownerType: log.ownerType },
+          },
+          ...(log.targetId && log.targetType
+            ? [
+                {
+                  activityType,
+                  target: { _id: log.targetId, createdVia: log.createdVia },
+                  action: {
+                    type: activityType,
+                    description: `${description} of the ${log.ownerType}`,
+                  },
+                  changes,
+                  metadata: {
+                    ...metadata,
+                    ownerType: log.ownerType,
+                    ownerId: recordId,
+                  },
+                },
+              ]
+            : []),
+        ],
+        actorId,
+      );
+    }
+
     public static async getScoreLog(_id: string) {
       const scoreLog = await models.ScoreLogs.findOne({ _id }).lean();
 
@@ -159,7 +287,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreLogParams) {
-      const { stageId, pipelineId, boardId, number } = doc;
       const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
       const direction = doc.direction === 'backward' ? 'backward' : 'forward';
 
@@ -178,29 +305,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const filter = await generateFilter(doc, models, subdomain);
 
-      const filterAggregate: any[] = [];
-
-      if (stageId || pipelineId || boardId || number) {
-        filterAggregate.push(
-          {
-            $lookup: {
-              from: 'deals',
-              localField: 'targetId',
-              foreignField: '_id',
-              as: 'target',
-            },
-          },
-          {
-            $unwind: '$target',
-          },
-        );
-      }
-
       // Each score log is returned as an individual row (no per-owner
       // grouping). A single person can therefore appear on multiple rows;
       // their detail is derived on demand from these rows by owner.
       const basePipeline: any[] = [
-        ...filterAggregate,
         {
           $match: { ...filter },
         },
@@ -278,10 +386,33 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       };
     }
 
+    // One page of a source's list at a time; a record moving nothing is left
+    // out, so the caller shows nothing for it.
+    public static async getTargetTotals(targetIds: string[]) {
+      const ids = [...new Set(targetIds)].slice(0, MAX_TARGET_TOTALS);
+
+      if (!ids.length) {
+        return [];
+      }
+
+      const totals = await models.ScoreLogs.aggregate<{
+        _id: string;
+        total: number;
+      }>([
+        { $match: { targetId: { $in: ids } } },
+        { $group: { _id: '$targetId', total: { $sum: '$changeScore' } } },
+      ]);
+
+      return totals.map(({ _id, total }) => ({
+        targetId: _id,
+        total: fixScoreNumber(total),
+      }));
+    }
+
     public static async getStatistic(doc: IScoreLogParams) {
       const filter = await generateFilter(doc, models, subdomain);
 
-      return scoreStatistic({ doc, models, filter });
+      return scoreStatistic({ models, filter });
     }
 
     public static async changeOwnersScore(doc: IScoreLog) {
@@ -439,13 +570,49 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         defaultCampaignIds.push(campaignId);
       }
 
-      const updatedCustomFieldsData = { ...owner?.propertiesData };
+      const updatedCustomFieldsData: Record<string, number> = {};
       const fieldScores: IRepairOwnerScoreResult['fieldScores'] = [];
+      // Campaign-less entries of an account type (period resets) count too.
+      const loggedAccountTypeIds = await models.ScoreLogs.distinct(
+        'accountTypeId',
+        {
+          ...baseFilter,
+          campaignId: { $in: [null, ''] },
+          accountTypeId: { $nin: [null, ''] },
+        },
+      );
+      const accountTypes = await models.LoyaltyAccountTypes.find({
+        $or: [
+          { fieldId: { $in: [...fieldCampaignIds.keys()] } },
+          { _id: { $in: loggedAccountTypeIds } },
+        ],
+      })
+        .select('_id fieldId')
+        .lean();
+      const accountTypeIds = new Map<string, string>();
+
+      for (const { _id, fieldId } of accountTypes) {
+        if (!fieldId) {
+          continue;
+        }
+
+        accountTypeIds.set(fieldId, _id);
+
+        if (!fieldCampaignIds.has(fieldId)) {
+          fieldCampaignIds.set(fieldId, []);
+        }
+      }
 
       for (const [fieldId, campaignIds] of fieldCampaignIds.entries()) {
+        const accountTypeId = accountTypeIds.get(fieldId);
         const score = await getScoreLogBalance(models, {
           ...baseFilter,
-          campaignId: { $in: campaignIds },
+          $or: [
+            { campaignId: { $in: campaignIds } },
+            ...(accountTypeId
+              ? [{ accountTypeId, campaignId: { $in: [null, ''] } }]
+              : []),
+          ],
         });
 
         updatedCustomFieldsData[fieldId] = score;
@@ -454,19 +621,22 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const noCampaignFilter = {
         ...baseFilter,
+        accountTypeId: { $in: [null, ''] },
         $or: [
           { campaignId: { $exists: false } },
           { campaignId: null },
           { campaignId: '' },
         ],
       };
-      const noCampaignLogCount =
-        await models.ScoreLogs.countDocuments(noCampaignFilter);
+      const noCampaignLogCount = await models.ScoreLogs.countDocuments(
+        noCampaignFilter,
+      );
       const shouldUpdateDefaultScore =
         defaultCampaignIds.length > 0 || noCampaignLogCount > 0;
       const updatedScore = shouldUpdateDefaultScore
         ? await getScoreLogBalance(models, {
             ...baseFilter,
+            accountTypeId: noCampaignFilter.accountTypeId,
             ...(defaultCampaignIds.length
               ? {
                   $or: [
@@ -483,6 +653,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         : undefined;
 
       await updateOwnerScoreCache({
+        models,
         subdomain,
         ownerId,
         ownerType,

@@ -20,6 +20,10 @@ export const isAdjustScoreActionType = (type?: string) => {
   return checkAction(type || '', 'score', 'score', 'create');
 };
 
+export const isSetTierActionType = (type?: string) => {
+  return checkAction(type || '', 'score', 'tier', 'create');
+};
+
 export const isIssueVoucherActionType = (type?: string) => {
   return checkAction(type || '', 'voucher', 'voucher', 'create');
 };

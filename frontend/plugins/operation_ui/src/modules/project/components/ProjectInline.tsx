@@ -7,14 +7,14 @@ export const ProjectInline = forwardRef<
   HTMLDivElement,
   {
     project?: IProject;
-    projectId: string;
+    projectId: string | null | undefined;
   } & React.HTMLAttributes<HTMLDivElement>
 >(({ project, projectId, className, ...props }, ref) => {
   const { projects } = useProjects({
     variables: {
-      _ids: [projectId],
+      _ids: projectId ? [projectId] : [],
     },
-    skip: Boolean(project),
+    skip: Boolean(project) || !projectId,
   });
 
   const name =

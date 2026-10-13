@@ -29,6 +29,9 @@ export type SegmentRebuildEvent = {
   kind: 'rebuild';
   subdomain: string;
   segmentId: string;
+  // Only the nightly pass says so: a create, edit or manual rebuild is not
+  // the day's materialization.
+  source?: 'reconcile';
 };
 
 export type SegmentReconcileEvent = {

@@ -1,5 +1,6 @@
 import { ApprovalLockState } from 'ui-modules';
 import {
+  isAfterSegment,
   isRecurring,
   isScheduled,
   TCampaignSchedule,
@@ -71,8 +72,10 @@ export const campaignActions = (campaign?: TCampaignState | null) => {
       ? !isSending
       : !!campaign && !campaign.isLive && !campaign.runCount,
     // Starting it by hand. On a scheduled campaign this is "send now", which
-    // uses up the moment it was waiting for.
-    canGoLive: canStart,
+    // uses up the moment it was waiting for. One that follows its segment is
+    // sent by the night's refresh alone: sending by hand would reach today's
+    // members twice.
+    canGoLive: canStart && !isAfterSegment(campaign),
     // Handing it to the clock instead. Offered wherever going live is, since
     // they are the same decision made at different times.
     canSchedule: canStart,

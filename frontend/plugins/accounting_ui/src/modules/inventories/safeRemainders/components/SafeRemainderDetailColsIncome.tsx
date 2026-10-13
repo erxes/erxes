@@ -1,169 +1,40 @@
+import type { TFunction } from 'i18next';
 import { IconMoneybag } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  CurrencyCode,
-  CurrencyFormatedDisplay,
-  INumberFieldContainerProps,
-  NumberField,
-  RecordTable,
-  RecordTableInlineCell,
-} from 'erxes-ui';
-import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
+import {
+  getSafeRemainderCostDifference,
+  getSafeRemainderIncomeAmount,
+} from '../utils/safeRemainderTransactions';
+import {
+  SafeRemainderCountField,
+  SafeRemainderDifferenceField,
+  SafeRemainderNumberCell,
+  SafeRemainderProductCell,
+} from './SafeRemainderCells';
+import { SafeRemainderUnitCostField } from './SafeRemainderUnitCostField';
 
-const ProductCell = ({ row }: any) => {
-  return (
-    <RecordTableInlineCell>
-      {`${row.original.product?.code} - ${row.original.product?.name}`}
-    </RecordTableInlineCell>
-  );
-};
-
-const NumberCell = ({ getValue }: any) => {
-  const value = getValue() as number;
-
-  return (
-    <RecordTableInlineCell>
-      <CurrencyFormatedDisplay
-        currencyValue={{
-          currencyCode: CurrencyCode.MNT,
-          amountMicros: value,
-        }}
-      />
-    </RecordTableInlineCell>
-  );
-};
-
-const RemainderField = ({
-  value,
-  _id,
-  remItem,
-}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
-  const { editRemItem } = useSafeRemainderItemEdit();
-
-  return (
-    <NumberField
-      value={value}
-      scope={`remItem-${_id}-count`}
-      onSave={(value) => {
-        editRemItem(
-          {
-            variables: { ...remItem, remainder: value, status: 'checked' },
-          },
-          ['count'],
-        );
-      }}
-      className={'shadow-none rounded-none px-2'}
-    />
-  );
-};
-
-const DiffField = ({
-  value,
-  _id,
-  remItem,
-}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
-  const { editRemItem } = useSafeRemainderItemEdit();
-
-  return (
-    <NumberField
-      value={value}
-      scope={`remItem-${_id}-diff`}
-      onSave={(value) => {
-        editRemItem(
-          {
-            variables: {
-              ...remItem,
-              remainder: remItem.preCount + value,
-              status: 'checked',
-            },
-          },
-          ['count'],
-        );
-      }}
-      className={'shadow-none rounded-none px-2'}
-    />
-  );
-};
-
-const UnitCostField = ({
-  value,
-  _id,
-  remItem,
-}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
-  const { editRemItem } = useSafeRemainderItemEdit();
-
-  return (
-    <NumberField
-      value={value}
-      scope={`remItem-${_id}-diff`}
-      onSave={(value) => {
-        editRemItem(
-          {
-            variables: {
-              ...remItem,
-              trInfo: { ...remItem.trInfo, unitCost: value },
-            },
-          },
-          ['count'],
-        );
-      }}
-      className={'shadow-none rounded-none px-2'}
-    />
-  );
-};
-
-const DebitCostField = ({
-  value,
-  _id,
-  remItem,
-}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
-  const { editRemItem } = useSafeRemainderItemEdit();
-
-  return (
-    <NumberField
-      value={value}
-      scope={`remItem-${_id}-diff`}
-      onSave={(value) => {
-        editRemItem(
-          {
-            variables: {
-              ...remItem,
-              trInfo: {
-                ...remItem.trInfo,
-                unitCost: value / (remItem.count - remItem.preCount || 1),
-              },
-            },
-          },
-          ['count'],
-        );
-      }}
-      className={'shadow-none rounded-none px-2'}
-    />
-  );
-};
-
-export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
+export const safeRemDetailColumnsIncome = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ISafeRemainderItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
-    accessorKey: 'product',
-    cell: ({ row }) => <ProductCell row={row} />,
-    size: 300,
-  },
-  {
-    id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('inventory')} />
     ),
-    accessorKey: 'preCount',
-    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
+    accessorKey: 'product',
+    cell: ({ row }) => <SafeRemainderProductCell row={row} />,
+    size: 300,
   },
   {
     id: 'uom',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('unit-of-measure-label-2')}
+      />
     ),
     accessorKey: 'uom',
     cell: ({ row }) => (
@@ -171,13 +42,41 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
     ),
   },
   {
+    id: 'preCount',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('recorded-balance')}
+      />
+    ),
+    accessorKey: 'preCount',
+    cell: ({ row }) => (
+      <SafeRemainderNumberCell value={row.original.preCount} />
+    ),
+  },
+  {
+    id: 'activeCost',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('recorded-total-cost')}
+      />
+    ),
+    cell: ({ row }) => (
+      <SafeRemainderNumberCell value={row.original.trInfo?.activeCost ?? 0} />
+    ),
+  },
+  {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('counted-balance')}
+      />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
-      <RemainderField
+      <SafeRemainderCountField
         value={row.original.count ?? 0}
         field="count"
         _id={row.original._id}
@@ -186,27 +85,19 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
     ),
   },
   {
-    id: 'diff',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Зөрүү" />,
-    accessorKey: 'diff',
-    cell: ({ row }) => (
-      <DiffField
-        value={row.original.count - row.original.preCount}
-        field="diff"
-        _id={row.original._id}
-        remItem={row.original}
-      />
-    ),
-  },
-  {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('counted-total-cost')}
+      />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
-      <UnitCostField
-        value={row.original.trInfo?.unitCost ?? 0}
+      <SafeRemainderUnitCostField
+        value={
+          row.original.trInfo?.unitCost ?? row.original.trInfo?.activeCost ?? 0
+        }
         field="trInfo.unitCost"
         _id={row.original._id}
         remItem={row.original}
@@ -216,18 +107,44 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'debitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Дебет өртөг" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('debit-cost')} />
     ),
     accessorKey: 'debitCost',
     cell: ({ row }) => (
-      <DebitCostField
-        value={
-          (row.original.trInfo?.unitCost ?? 0) *
-          (row.original.count - row.original.preCount)
-        }
-        field="debitCost"
+      <SafeRemainderNumberCell
+        value={getSafeRemainderIncomeAmount(row.original)}
+      />
+    ),
+  },
+  {
+    id: 'diff',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('quantity-difference')}
+      />
+    ),
+    accessorKey: 'diff',
+    cell: ({ row }) => (
+      <SafeRemainderDifferenceField
+        value={row.original.count - row.original.preCount}
+        field="diff"
         _id={row.original._id}
         remItem={row.original}
+      />
+    ),
+  },
+  {
+    id: 'costDifference',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconMoneybag}
+        label={t('cost-difference')}
+      />
+    ),
+    cell: ({ row }) => (
+      <SafeRemainderNumberCell
+        value={getSafeRemainderCostDifference(row.original)}
       />
     ),
   },

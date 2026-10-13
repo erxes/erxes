@@ -2,6 +2,7 @@ import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { Sheet, useMultiQueryState } from 'erxes-ui';
 import { useBroadcastContacts } from '../hooks/useBroadcastContacts';
 import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
+import { useBroadcastSegmentSeed } from '../hooks/useBroadcastSegmentSeed';
 import { BroadcastMethod } from './list/BroadcastMethod';
 import { BroadcastSteps } from './steps/BroadcastSteps';
 import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
@@ -27,6 +28,7 @@ export const BroadcastSheet = ({
 
   const { clearRange } = useBroadcastScheduleRange();
   const { clearContacts } = useBroadcastContacts();
+  const { clearSeedSegment } = useBroadcastSegmentSeed();
 
   const handleClose = () => {
     // The days picked on the calendar and the contact picked in the list were
@@ -34,6 +36,7 @@ export const BroadcastSheet = ({
     // next one.
     clearRange();
     clearContacts();
+    clearSeedSegment();
     setQueryParams({ method: null });
   };
 

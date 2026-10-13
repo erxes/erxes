@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { useSetAtom } from 'jotai';
 import { IconEdit, IconClock, IconTrash } from '@tabler/icons-react';
@@ -20,6 +21,7 @@ export const DepartmentsMoreColumnCell = ({
 }: {
   cell: Cell<IDepartmentListItem, unknown>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { _id, title } = cell.row.original;
   const [, setOpenDepartment] = useQueryState('department_id');
   const [, setOpenWorkingHours] = useQueryState('workingHoursId');
@@ -31,13 +33,13 @@ export const DepartmentsMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${title}"?`,
+      message: t('confirm-delete-item', { title }),
     }).then(async () => {
       try {
         await handleRemove({ variables: { ids: [_id] } });
       } catch (e: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -63,7 +65,7 @@ export const DepartmentsMoreColumnCell = ({
                   setRenderingDepartmentDetail(false);
                 }}
               >
-                <IconEdit /> Edit
+                <IconEdit /> {t('edit')}
               </Command.Item>
             </Can>
             <Can action="departmentsManage">
@@ -74,7 +76,7 @@ export const DepartmentsMoreColumnCell = ({
                   setRenderingDepartmentDetail(false);
                 }}
               >
-                <IconClock /> Working Hours
+                <IconClock /> {t('working-hours')}
               </Command.Item>
             </Can>
             <Can action="departmentsManage">
@@ -83,7 +85,7 @@ export const DepartmentsMoreColumnCell = ({
                 onSelect={handleDelete}
                 className="text-destructive"
               >
-                <IconTrash /> Delete
+                <IconTrash /> {t('delete')}
               </Command.Item>
             </Can>
           </Command.List>

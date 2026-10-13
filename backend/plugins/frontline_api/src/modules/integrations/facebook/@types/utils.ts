@@ -103,10 +103,19 @@ export interface IChannelData {
       type: string;
       payload: {
         url: string;
+        sticker_id?: string;
+        title?: string;
       };
     }>;
     quick_reply?: {
       payload: string;
+    };
+    reply_to?: {
+      mid?: string;
+      story?: {
+        id?: string;
+        url?: string;
+      };
     };
     referral?: {
       source: string;
@@ -119,6 +128,12 @@ export interface IChannelData {
       };
     };
     payload?: any;
+  };
+  reaction?: {
+    mid?: string;
+    action?: 'react' | 'unreact';
+    reaction?: string;
+    emoji?: string;
   };
   postback?: IMessagePostback;
 }

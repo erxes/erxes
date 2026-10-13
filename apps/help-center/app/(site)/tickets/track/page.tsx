@@ -1,33 +1,37 @@
+import { getT } from '@/modules/i18n/server';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
 import { getPortalSettings } from '@/modules/layout/api';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { TrackTicketForm } from '@/modules/tickets/components/TrackTicketForm';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
-import {
-  TICKETS_OFF_REASON,
-  TICKETS_OFF_TITLE,
-} from '@/modules/tickets/constants/guard';
+import { ticketsOffReason } from '@/modules/tickets/constants/guard';
 
-export const metadata = { title: 'Track a ticket' };
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.track'),
+});
 
 export default async function TrackTicketPage() {
-  const settings = await getPortalSettings();
+  const [settings, t] = await Promise.all([getPortalSettings(), getT()]);
 
   return (
     <PortalShell
       breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'Support', href: '/tickets' },
-        { label: 'Track a ticket' },
+        { label: t('nav.home'), href: '/' },
+        { label: t('tickets.crumb'), href: '/tickets' },
+        { label: t('tickets.track') },
       ]}
-      title="Track a ticket"
-      description="Use the number you were given when the ticket was created to check its status."
+      title={t('tickets.track')}
+      description={t('tickets.trackText')}
     >
       {settings.ticketsEnabled ? (
         <TrackTicketForm />
       ) : (
         <FeatureOff
-          title={TICKETS_OFF_TITLE}
-          description={TICKETS_OFF_REASON}
+          title={t('tickets.offTitle')}
+          description={ticketsOffReason(
+            knowledgeBaseName(settings.knowledgeBaseLabel, t),
+            t,
+          )}
         />
       )}
     </PortalShell>

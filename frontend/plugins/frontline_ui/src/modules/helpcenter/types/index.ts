@@ -136,12 +136,13 @@ export interface IHelpCenterCmsOption {
   clientPortalId?: string;
 }
 
-export type THelpCenterTab = 'general' | 'appearance' | 'embed';
+export type THelpCenterTab = 'general' | 'appearance' | 'embed' | 'domain';
 
 export const HELP_CENTER_TABS: THelpCenterTab[] = [
   'general',
   'appearance',
   'embed',
+  'domain',
 ];
 
 export const HELP_CENTER_CREATE_TABS: THelpCenterTab[] = [
@@ -172,4 +173,26 @@ export type HelpCenterHeaderField = {
 
 export enum HelpCenterHotKeyScope {
   HelpCentersPage = 'help-centers-page',
+}
+
+export interface ICustomDomainRecord {
+  type: string;
+  name: string;
+  value: string;
+  status: string;
+}
+
+// The workspace's help center domain, served by every help center whose url
+// matches it (or, failing that, the one on <subdomain>.helpcenter).
+export interface ICustomDomain {
+  isAvailable: boolean;
+  cnameTarget: string;
+  hostname?: string | null;
+  status?: string | null;
+  sslStatus?: string | null;
+  dnsStatus?: string | null;
+  isActive: boolean;
+  verificationErrors?: string[] | null;
+  lastCheckedAt?: string | null;
+  records: ICustomDomainRecord[];
 }

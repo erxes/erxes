@@ -5,7 +5,10 @@ jest.mock('erxes-api-shared/utils', () => ({
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
-import { recalculatePublicPricingPlanDiscounts } from '../publicDiscounts';
+import {
+  recalculateProductPricingPlanDiscounts,
+  recalculatePublicPricingPlanDiscounts,
+} from '../publicDiscounts';
 
 const mockedTRPC = sendTRPCMessage as jest.Mock;
 
@@ -50,4 +53,71 @@ it('synchronizes negative public and base adjustments', async () => {
       ],
     },
   ]);
+});
+
+it('replaces one product discounts when it matches active plans', async () => {
+  const models = {
+    PricingPlans: {
+      find: jest.fn(() => ({
+        sort: jest.fn().mockResolvedValue([plan('public')]),
+      })),
+    },
+  } as unknown as IModels;
+
+  mockedTRPC
+    .mockResolvedValueOnce([{ _id: 'product-1', unitPrice: 100 }])
+    .mockResolvedValueOnce(null);
+
+  const result = await recalculateProductPricingPlanDiscounts({
+    models,
+    subdomain: 'test',
+    productId: 'product-1',
+  });
+
+  expect(result.discounts).toEqual([
+    expect.objectContaining({ discount: -5, base: null }),
+  ]);
+  expect(mockedTRPC).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      action: 'updateProducts',
+      input: {
+        query: { _id: 'product-1' },
+        doc: { discounts: result.discounts },
+      },
+    }),
+  );
+});
+
+it('clears one product discounts when it no longer matches a plan', async () => {
+  const vendorPlan = {
+    ...plan('public'),
+    applyType: 'vendor',
+    products: [],
+    vendors: ['vendor-1'],
+  } as IPricingPlanDocument;
+  const models = {
+    PricingPlans: {
+      find: jest.fn(() => ({
+        sort: jest.fn().mockResolvedValue([vendorPlan]),
+      })),
+    },
+  } as unknown as IModels;
+
+  mockedTRPC.mockResolvedValueOnce([]).mockResolvedValueOnce(null);
+
+  await recalculateProductPricingPlanDiscounts({
+    models,
+    subdomain: 'test',
+    productId: 'product-1',
+  });
+
+  expect(mockedTRPC).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      action: 'updateProducts',
+      input: {
+        query: { _id: 'product-1' },
+        doc: { discounts: [] },
+      },
+    }),
+  );
 });

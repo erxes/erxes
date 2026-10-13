@@ -11,6 +11,7 @@ export interface IReportFilterParams {
   status?: string;
   searchValue?: string;
   number?: string;
+  ptrId?: string;
   ptrStatus?: string;
 
   accountId?: string;

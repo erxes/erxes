@@ -4,7 +4,11 @@ import {
   AssignmentSentence,
   isAssignmentActivityType,
 } from './AssignmentSentence';
-import { CreatedViaSentence, isCreatedViaActivity } from './CreatedViaSentence';
+import {
+  CreatedViaSentence,
+  CreatedViaSuffix,
+  isCreatedViaActivity,
+} from './CreatedViaSentence';
 import { FieldChangeSentence } from './FieldChangeSentence';
 import {
   isPermissionGroupActivityType,
@@ -21,9 +25,10 @@ export function DefaultActivitySentence({
     activity || {};
   const [entityType, eventType] = activityType.split('.');
 
-  // Provenance reads as a sentence of its own: the generic one would render
-  // the bare context type and say nothing.
-  if (isCreatedViaActivity(activity)) {
+  // Only the record's own creation reads as "created this from X"; any other
+  // entry an automation or campaign made keeps its own words, with the source
+  // after them.
+  if (isCreatedViaActivity(activity) && activityType === 'create') {
     return <CreatedViaSentence activity={activity} />;
   }
 
@@ -65,7 +70,9 @@ export function DefaultActivitySentence({
       <span className="text-muted-foreground">
         {action?.description || action?.action || 'did something'}
       </span>
-      {context?.text || contextType ? (
+      {isCreatedViaActivity(activity) ? (
+        <CreatedViaSuffix activity={activity} />
+      ) : context?.text || contextType ? (
         <span className="font-medium">{context?.text || contextType}</span>
       ) : null}
     </>

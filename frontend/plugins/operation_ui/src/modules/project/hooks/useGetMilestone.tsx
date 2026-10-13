@@ -1,16 +1,22 @@
 import { GET_MILESTONE } from '@/project/graphql/queries/getMilestone';
-import { IMilestone } from '@/project/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import type {
+  GetMilestoneQuery,
+  GetMilestoneQueryVariables,
+} from '~/gql/graphql';
 
-interface IGetMilestoneQueryResponse {
-  getMilestone: IMilestone;
-}
-
-export const useGetMilestone = (options: QueryHookOptions) => {
-  const { data, loading, refetch } = useQuery<IGetMilestoneQueryResponse>(
-    GET_MILESTONE,
-    options,
-  );
+export const useGetMilestone = (
+  milestoneId?: string | null,
+  options?: Omit<
+    QueryHookOptions<GetMilestoneQuery, GetMilestoneQueryVariables>,
+    'variables'
+  >,
+) => {
+  const { data, loading, refetch } = useQuery(GET_MILESTONE, {
+    ...options,
+    variables: milestoneId ? { _id: milestoneId } : undefined,
+    skip: !milestoneId || options?.skip,
+  });
 
   const milestone = data?.getMilestone;
 

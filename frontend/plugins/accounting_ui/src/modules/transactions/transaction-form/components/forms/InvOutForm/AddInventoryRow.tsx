@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
@@ -21,6 +22,7 @@ export const AddDetailRowButton = ({
   journalIndex: number;
   append: (detail: TInvDetail | TInvDetail[]) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   const client = useApolloClient();
   const { control } = form;
 
@@ -36,7 +38,7 @@ export const AddDetailRowButton = ({
     _id: getTempId(),
     amount: 0,
     productId,
-    count: 0,
+    count: 1,
     unitPrice: 0,
   });
 
@@ -48,7 +50,7 @@ export const AddDetailRowButton = ({
         onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
-        Шинэ мөр
+        {t('new-row')}
       </Button>
       <SelectProductsBulk
         productIds={[]}
@@ -63,8 +65,9 @@ export const AddDetailRowButton = ({
               variables: {
                 productIds,
                 accountId: lastDetail.accountId,
-                branchId: trDoc.branchId,
-                departmentId: trDoc.departmentId,
+                branchId: lastDetail.branchId || trDoc.branchId,
+                departmentId: lastDetail.departmentId || trDoc.departmentId,
+                excludedTransactionIds: trDoc._id ? [trDoc._id] : undefined,
               },
               fetchPolicy: 'network-only',
             });
@@ -87,7 +90,7 @@ export const AddDetailRowButton = ({
       >
         <Button variant="secondary" className="bg-border">
           <IconPlus />
-          Олон бараа нэмэх
+          {t('add-multiple-products')}
         </Button>
       </SelectProductsBulk>
     </>

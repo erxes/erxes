@@ -3,6 +3,7 @@ import {
   IListParams,
   IOffsetPaginateParams,
 } from 'erxes-api-shared/core-types';
+import { IFeaturedFieldOwner } from 'erxes-api-shared/core-modules';
 import { Document } from 'mongoose';
 
 export interface IFieldGroup {
@@ -15,7 +16,12 @@ export interface IFieldGroup {
   order: number;
 
   logics: string;
-  configs?: { isMultiple?: boolean };
+  configs?: { isMultiple?: boolean; layout?: string[][] };
+
+  owner?: IFeaturedFieldOwner & { key: string };
+
+  archivedAt?: Date;
+  archivedBy?: string;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -29,7 +35,10 @@ export interface IFieldGroupParams extends IListParams {
   contentType: string;
   contentTypeId?: string;
   codes?: string[];
+  archived?: boolean;
 }
 
-export interface IFieldGroupCursorParams extends ICursorPaginateParams {}
+export interface IFieldGroupCursorParams extends ICursorPaginateParams {
+  archived?: boolean;
+}
 export interface IFieldGroupOffsetParams extends IOffsetPaginateParams {}

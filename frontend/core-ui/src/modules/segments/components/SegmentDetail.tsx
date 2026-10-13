@@ -16,6 +16,8 @@ import {
   SegmentUnsavedBadge,
   useSegmentDetail,
 } from 'ui-modules';
+import { SegmentAutomationCreateButton } from './SegmentAutomationCreateButton';
+import { SegmentAutomations } from './SegmentAutomations';
 import { SegmentDetailSidebar } from './SegmentDetailSidebar';
 
 type Props = {
@@ -57,7 +59,18 @@ const SegmentDetailBody = ({
           >
             <Tabs.Content value="overview" className="h-full">
               <ScrollArea className="h-full">
-                <SegmentOverview segment={segment} onRefresh={refetch} />
+                <SegmentOverview
+                  segment={segment}
+                  onRefresh={refetch}
+                  actions={
+                    <SegmentAutomationCreateButton segment={segment} size="sm" />
+                  }
+                />
+              </ScrollArea>
+            </Tabs.Content>
+            <Tabs.Content value="automations" className="h-full">
+              <ScrollArea className="h-full">
+                <SegmentAutomations segment={segment} />
               </ScrollArea>
             </Tabs.Content>
             <Tabs.Content value="definition" className="h-full">

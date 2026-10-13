@@ -13,7 +13,7 @@ export interface IEbarimtConfig {
   hasCitytax: boolean;
   defaultUnitedCode: string;
   vatPercent: number;
-  cityTaxPercent: number;
+  citytaxPercent: number;
   skipEbarimt: boolean;
   sendEmail?: boolean;
 

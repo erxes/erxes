@@ -11,6 +11,7 @@ import { PipelineHotKeyScope } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
+import { useBoards } from '@/deals/boards/hooks/useBoards';
 
 import { PipelineForm } from './PipelineForm';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
 import { usePipelineFormSubmit } from '@/deals/pipelines/hooks/usePipelineFormSubmit';
 import { usePipelineFormSync } from '@/deals/pipelines/hooks/usePipelineFormSync';
+import { LoyaltyRulesDialog } from '@/deals/loyaltyRules/components/LoyaltyRulesDialog';
 
 export function PipelineFormBar() {
   const { t } = useTranslation('sales');
@@ -27,6 +29,10 @@ export function PipelineFormBar() {
   const searchParams = new URLSearchParams(location.search);
   const pipelineId = searchParams.get('pipelineId');
   const boardId = searchParams.get('activeBoardId');
+  const { boards, loading: boardsLoading } = useBoards();
+  const isCreateDisabled =
+    !pipelineId &&
+    (boardsLoading || !boards?.some((board) => board._id === boardId));
 
   const {
     methods,
@@ -56,11 +62,13 @@ export function PipelineFormBar() {
   });
 
   const onOpen = useCallback(() => {
+    if (isCreateDisabled) return;
+
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PipelineHotKeyScope.PipelineAddSheet,
     );
-  }, [setHotkeyScopeAndMemorizePreviousScope]);
+  }, [isCreateDisabled, setHotkeyScopeAndMemorizePreviousScope]);
 
   const onClose = useCallback(() => {
     setHotkeyScope(PipelineHotKeyScope.PipelineSettingsPage);
@@ -102,9 +110,10 @@ export function PipelineFormBar() {
 
   return (
     <div className="ml-auto flex items-center gap-3">
+      <LoyaltyRulesDialog />
       <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
         <Sheet.Trigger asChild>
-          <Button>
+          <Button disabled={isCreateDisabled}>
             <IconPlus /> {title}
           </Button>
         </Sheet.Trigger>
@@ -127,13 +136,20 @@ export function PipelineFormBar() {
                 <Sheet.Close />
               </Sheet.Header>
               <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">
-                <PipelineForm form={methods} stagesLoading={stagesLoading} />
+                <PipelineForm
+                  form={methods}
+                  stagesLoading={stagesLoading}
+                  pipelineId={pipelineId}
+                />
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>
                   {t('cancel')}
                 </Button>
-                <Button type="submit" disabled={submitLoading}>
+                <Button
+                  type="submit"
+                  disabled={submitLoading || isCreateDisabled}
+                >
                   {pipelineId ? t('update') : t('create')}
                 </Button>
               </Sheet.Footer>

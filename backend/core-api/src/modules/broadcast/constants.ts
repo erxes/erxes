@@ -1,3 +1,5 @@
+import { BROADCAST_TRIGGER_TYPE } from 'erxes-api-shared/core-modules';
+
 /**
  * What the approval module locks when it locks a campaign.
  *
@@ -151,7 +153,7 @@ export const CAMPAIGN_METHODS = {
 /** The trigger a broadcast-owned automation carries. Deliberately not
  * registered as a plugin trigger type, so no event can ever emit it and
  * `receiveTrigger` can never start these automations. */
-export const BROADCAST_AUTOMATION_TRIGGER_TYPE = 'core:broadcast';
+export const BROADCAST_AUTOMATION_TRIGGER_TYPE = BROADCAST_TRIGGER_TYPE;
 
 export const MESSENGER_KINDS = {
   CHAT: 'chat',

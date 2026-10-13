@@ -91,6 +91,16 @@ export const AccountingTopbar = () => {
     );
   }
 
+  if (pathname === '/settings/accounting/config/sync-deal-movement') {
+    return (
+      <div className="flex items-center gap-3">
+        <AddAccountingConfig
+          code={ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_MOVEMENT}
+        />
+      </div>
+    );
+  }
+
   if (pathname === '/settings/accounting/config/sync-deal-return') {
     return (
       <div className="flex items-center gap-3">

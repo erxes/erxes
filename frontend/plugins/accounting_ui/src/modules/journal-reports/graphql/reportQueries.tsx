@@ -4,6 +4,7 @@ const trsFilterParamDefs = `
   $status: String,
   $searchValue: String,
   $number: String,
+  $ptrId: String,
   
   $accountId: String,
   $accountIds: [String],
@@ -58,6 +59,7 @@ const trsFilterParams = `
   status: $status,
   searchValue: $searchValue,
   number: $number,
+  ptrId: $ptrId,
 
   accountId: $accountId,
   accountIds: $accountIds,

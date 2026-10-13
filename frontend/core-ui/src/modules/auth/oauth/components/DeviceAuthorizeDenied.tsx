@@ -1,8 +1,10 @@
 import { IconX } from '@tabler/icons-react';
 
 import { Card } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const DeviceAuthorizeDenied = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth' });
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-10">
       <Card className="w-full max-w-xl rounded-lg border">
@@ -11,9 +13,9 @@ export const DeviceAuthorizeDenied = () => {
             <IconX className="size-7" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold">Request canceled</h1>
+            <h1 className="text-2xl font-semibold">{t('request-canceled')}</h1>
             <p className="text-sm text-muted-foreground">
-              The application was not granted access to your workspace.
+              {t('access-not-granted')}
             </p>
           </div>
         </Card.Content>

@@ -14,9 +14,11 @@ import {
 import { FieldBoolean } from './FieldBoolean';
 import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
+import { FeaturedFieldValue } from './FeaturedFieldValue';
 import { FieldEditor } from './FieldEditor';
 import { FieldFile } from './FieldFile';
 import { FieldLabel } from './FieldLabel';
+import { useFieldSaveState } from '../hooks/useFieldSaveState';
 import { FieldNumber } from './FieldNumber';
 import { FieldObjectList } from './FieldObjectList';
 import { FieldPhone } from './FieldPhone';
@@ -76,6 +78,7 @@ export const Field = (props: FieldProps) => {
   };
 
   const [error, setError] = useState<string | null>(null);
+  const { saveState, startSave } = useFieldSaveState(loading);
 
   const handleChange = (value: unknown) => {
     // tabbing through an untouched empty input reports '' — nothing changed
@@ -100,7 +103,7 @@ export const Field = (props: FieldProps) => {
       delete nextData[field._id];
     }
 
-    mutate({ _id: id, propertiesData: nextData });
+    mutate({ _id: id, propertiesData: nextData }, startSave());
   };
 
   const fieldProps = {
@@ -119,8 +122,17 @@ export const Field = (props: FieldProps) => {
       inCell={props.inCell}
       value={props.value}
       error={error}
+      saveState={saveState}
     >
-      {FieldComponent && <FieldComponent {...fieldProps} />}
+      {field.owner ? (
+        <FeaturedFieldValue
+          field={field}
+          value={props.value}
+          inCell={props.inCell}
+        />
+      ) : (
+        FieldComponent && <FieldComponent {...fieldProps} />
+      )}
     </FieldLabel>
   );
 };
@@ -147,6 +159,7 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
   };
 
   const [error, setError] = useState<string | null>(null);
+  const { saveState, startSave } = useFieldSaveState(loading);
 
   const handleChange = (value: unknown) => {
     const groupKey = toPropertyGroupKey(group._id);
@@ -182,13 +195,16 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
       rows[index] = nextRow;
     }
 
-    mutate({
-      _id: id,
-      propertiesData: {
-        ...propertiesData,
-        [groupKey]: rows,
+    mutate(
+      {
+        _id: id,
+        propertiesData: {
+          ...propertiesData,
+          [groupKey]: rows,
+        },
       },
-    });
+      startSave(),
+    );
   };
 
   const fieldProps = {
@@ -207,6 +223,7 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
       inCell={props.inCell}
       value={props.value}
       error={error}
+      saveState={saveState}
     >
       {FieldComponent && <FieldComponent {...fieldProps} />}
     </FieldLabel>

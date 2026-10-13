@@ -143,6 +143,14 @@ const renderInlineContent = (content: any[], config?: TBlocksToHtmlConfig): stri
         return item.props?.html || '';
       }
 
+      // A field chip carries no text of its own; it becomes the placeholder
+      // the sender fills per recipient.
+      if (type === 'attribute') {
+        const value = item.props?.value || item.props?.name || '';
+
+        return value ? `{{ ${value} }}` : '';
+      }
+
       const escapedText = escapeHtml(text || '')
         .replace(/\n/g, '<br />')
         .replace(/ {2,}/g, (spaces) => '&nbsp;'.repeat(spaces.length));

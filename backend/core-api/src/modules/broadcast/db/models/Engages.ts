@@ -26,7 +26,9 @@ import {
 } from '@/broadcast/utils';
 import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
 import {
+  AFTER_SEGMENT_SCHEDULE,
   armSchedule,
+  isAfterSegment,
   isRecurring,
   nextFireAt,
   scheduledAt,
@@ -55,6 +57,7 @@ export type TGoLiveOptions = {
 export type TScheduleInput = {
   dateTime?: Date;
   recurrence?: TBroadcastRecurrence;
+  afterSegment?: { timeZone?: string | null };
 };
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
@@ -436,11 +439,51 @@ export const loadEngageMessageClass = (
     }
 
     public static async schedule(_id: string, input: TScheduleInput) {
-      const { dateTime, recurrence } = input;
+      const { dateTime, recurrence, afterSegment } = input;
       const campaign = await models.EngageMessages.getEngageMessage(_id);
 
       if (campaign.isLive && campaign.status === 'sending') {
         throw new Error('This campaign is sending right now');
+      }
+
+      if (afterSegment) {
+        // One segment: a second one materializing later would find the day
+        // already taken.
+        if (
+          campaign.targetType !== 'segment' ||
+          campaign.targetIds?.length !== 1
+        ) {
+          throw new Error('Pick exactly one segment to follow');
+        }
+
+        const segment = await models.Segments.findOne(
+          { _id: campaign.targetIds[0] },
+          { timeSensitive: 1 },
+        ).lean();
+
+        if (!segment?.timeSensitive) {
+          throw new Error(
+            "This segment's members only change when records do, so it has no nightly run to follow",
+          );
+        }
+
+        await checkCampaignDoc(models, {
+          ...campaign.toObject(),
+          isLive: true,
+        });
+
+        // When it began following, so a night before that is never reported
+        // as missed.
+        const followed = await models.EngageMessages.setSchedule(_id, {
+          type: AFTER_SEGMENT_SCHEDULE,
+          timeZone: afterSegment.timeZone,
+          startDate: new Date(),
+        });
+
+        // The sweep is what notices a night that never came.
+        await scheduleReconcile(subdomain);
+
+        return followed;
       }
 
       // A repeat may be given to a campaign that has gone out; a single send
@@ -479,7 +522,11 @@ export const loadEngageMessageClass = (
     public static async cancelSchedule(_id: string) {
       const campaign = await models.EngageMessages.getEngageMessage(_id);
 
-      if (!scheduledAt(campaign) && !isRecurring(campaign)) {
+      if (
+        !scheduledAt(campaign) &&
+        !isRecurring(campaign) &&
+        !isAfterSegment(campaign)
+      ) {
         throw new Error('This campaign is not scheduled');
       }
 

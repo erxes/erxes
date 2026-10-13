@@ -105,20 +105,33 @@ export const moreDataByKey = (
   const rules = getFirstGroupRule([], groupRule);
   const nextMoreData: Record<string, ReportRecord[]> = {};
 
+  const getRuleValue = (record: ReportRecord, rule: string) => {
+    const directValue = rule
+      .split('.')
+      .reduce<unknown>(
+        (acc, key) =>
+          acc && typeof acc === 'object'
+            ? (acc as ReportRecord)[key]
+            : undefined,
+        record,
+      );
+
+    if (rule === 'branchId' || rule === 'departmentId') {
+      const details = record.details;
+      if (details && typeof details === 'object') {
+        return (details as ReportRecord)[rule] || directValue;
+      }
+    }
+
+    if (rule === 'ptrId') {
+      return directValue || record.parentId;
+    }
+
+    return directValue;
+  };
+
   trDetails.forEach((tr) => {
-    const key = rules
-      .map((rule) =>
-        rule
-          .split('.')
-          .reduce<unknown>(
-            (acc, k) =>
-              acc && typeof acc === 'object'
-                ? (acc as ReportRecord)[k]
-                : undefined,
-            tr,
-          ),
-      )
-      .join('#');
+    const key = rules.map((rule) => getRuleValue(tr, rule)).join('#');
 
     nextMoreData[key] = [...(nextMoreData[key] || []), tr];
   });
@@ -131,6 +144,9 @@ const parseCellNumber = (text?: string | null) => {
   return Number.isNaN(recordValue) ? 0 : recordValue;
 };
 
+export const shouldKeepZeroRows = (isMore: boolean, unhideZero: boolean) =>
+  isMore || unhideZero;
+
 const hideZeroRows = (
   root: HTMLElement,
   excludedIndexes: Set<number>,
@@ -138,11 +154,11 @@ const hideZeroRows = (
 ) => {
   const rows = root.querySelectorAll('tr');
 
-  rows.forEach((row, rowIndex) => {
+  rows.forEach((row) => {
     const htmlRow = row as HTMLTableRowElement;
     htmlRow.style.display = '';
 
-    if (unhideZero || rowIndex <= 1) {
+    if (unhideZero) {
       return;
     }
 

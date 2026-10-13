@@ -13,6 +13,7 @@ interface NodeOutputHandlerProps extends React.HTMLAttributes<HTMLDivElement> {
   showAddButton: boolean;
   addButtonClassName?: string;
   flowDirection?: TAutomationFlowDirection;
+  label?: string;
 }
 
 type AwaitToConnectButtonProps = {
@@ -21,6 +22,7 @@ type AwaitToConnectButtonProps = {
   nodeHandleId: string;
   showButton: boolean;
   isVertical: boolean;
+  label?: string;
 };
 
 const AwaitToConnectButtonIcon = ({
@@ -73,6 +75,7 @@ const AwaitToConnectButton = memo(
     addButtonClassName,
     nodeHandleId,
     isVertical,
+    label,
   }: AwaitToConnectButtonProps) => {
     const {
       awaitingToConnectNodeId,
@@ -132,6 +135,16 @@ const AwaitToConnectButton = memo(
             />
           </AnimatePresence>
         </Button>
+        {label && (
+          <span
+            className={cn('whitespace-nowrap text-xs text-muted-foreground', {
+              'mt-1': isVertical,
+              'ml-2': !isVertical,
+            })}
+          >
+            {label}
+          </span>
+        )}
       </div>
     );
   },
@@ -147,7 +160,7 @@ export const NodeOutputHandler = memo(
         nodeType,
         handlerId,
         flowDirection = 'horizontal',
-        children,
+        label,
         ...props
       },
       ref,
@@ -164,7 +177,7 @@ export const NodeOutputHandler = memo(
           ref={ref}
           position={isVertical ? Position.Bottom : Position.Right}
           {...props}
-          className={cn('!size-4 -z-10', className)}
+          className={cn('!size-3 !border-2 !bg-background', className)}
         >
           <AwaitToConnectButton
             addButtonClassName={addButtonClassName}
@@ -172,8 +185,8 @@ export const NodeOutputHandler = memo(
             nodeHandleId={nodeHandleId}
             showButton={showAddButton}
             isVertical={isVertical}
+            label={label}
           />
-          {children}
         </Handle>
       );
     },

@@ -79,6 +79,18 @@ import {
   types as ScoreCampaignTypes,
 } from '@/score/graphql/schemas/scoreCampaign';
 
+import {
+  mutations as LoyaltyAccountTypeMutations,
+  queries as LoyaltyAccountTypeQueries,
+  types as LoyaltyAccountTypeTypes,
+} from '@/score/graphql/schemas/accountType';
+
+import {
+  mutations as LoyaltyAccountMutations,
+  queries as LoyaltyAccountQueries,
+  types as LoyaltyAccountTypes,
+} from '@/score/graphql/schemas/account';
+
 /* -------------------- Spin -------------------- */
 import {
   mutations as SpinMutations,
@@ -139,6 +151,8 @@ export const types = `
 
   ${ScoreLogTypes}
   ${ScoreCampaignTypes}
+  ${LoyaltyAccountTypeTypes}
+  ${LoyaltyAccountTypes}
 
   ${SpinTypes}
   ${SpinCampaignTypes}
@@ -169,6 +183,8 @@ export const queries = `
 
   ${ScoreLogQueries}
   ${ScoreCampaignQueries}
+  ${LoyaltyAccountTypeQueries}
+  ${LoyaltyAccountQueries}
 
   ${SpinQueries}
   ${SpinCampaignQueries}
@@ -199,6 +215,8 @@ export const mutations = `
 
   ${ScoreLogMutations}
   ${ScoreCampaignMutations}
+  ${LoyaltyAccountTypeMutations}
+  ${LoyaltyAccountMutations}
 
   ${SpinMutations}
   ${SpinCampaignMutations}

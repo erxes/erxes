@@ -61,6 +61,7 @@ export const useTransactionsQueryParams = () => {
     status: string;
     searchValue: string;
     number: string;
+    ptrId: string;
     accountIds: string;
     accountKind: string;
     accountExcludeIds: string;
@@ -110,6 +111,7 @@ export const useTransactionsQueryParams = () => {
     'status',
     'searchValue',
     'number',
+    'ptrId',
     'accountIds',
     'accountKind',
     'accountExcludeIds',

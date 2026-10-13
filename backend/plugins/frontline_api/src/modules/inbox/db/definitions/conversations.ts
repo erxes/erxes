@@ -6,7 +6,6 @@ import {
   CONVERSATION_STATUSES,
 } from './constants';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
-import { customFieldSchema } from 'erxes-api-shared/core-modules';
 
 // Conversation schema
 const automatedReplyControlSchema = new Schema(
@@ -110,10 +109,10 @@ export const conversationSchemaOptions = {
 export const conversationSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
-    customsData: {
-      type: [customFieldSchema],
+    propertiesData: {
+      type: Schema.Types.Mixed,
       optional: true,
-      label: 'Custom s data',
+      label: 'Properties data',
     },
     ...conversationSchemaOptions,
   }),

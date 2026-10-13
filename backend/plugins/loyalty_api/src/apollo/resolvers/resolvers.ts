@@ -9,6 +9,12 @@ import LotteryCampaign from '@/lottery/graphql/resolvers/customResolvers/lottery
 import { PricingPlan } from '@/pricing/graphql/resolvers/customResolvers/pricingPlan';
 import ScoreLog from '@/score/graphql/resolvers/customResolvers/scoreLog';
 import ScoreLogItem from '@/score/graphql/resolvers/customResolvers/scoreLogItem';
+import {
+  LoyaltyAccountType,
+  ScoreCampaign,
+} from '@/score/graphql/resolvers/customResolvers/loyaltyAccountType';
+import { LoyaltyAccount } from '@/score/graphql/resolvers/customResolvers/loyaltyAccount';
+import { LoyaltyTierLog } from '@/score/graphql/resolvers/customResolvers/loyaltyTierLog';
 import Spin from '@/spin/graphql/resolvers/customResolvers/spin';
 import SpinCampaign from '@/spin/graphql/resolvers/customResolvers/spinCampaign';
 import Voucher from '@/voucher/graphql/resolvers/customResolvers/voucher';
@@ -26,6 +32,10 @@ export const customResolvers = {
   LotteryCampaign,
   ScoreLog,
   ScoreLogItem,
+  LoyaltyAccountType,
+  LoyaltyAccount,
+  LoyaltyTierLog,
+  ScoreCampaign,
   Spin,
   SpinCampaign,
   Voucher,

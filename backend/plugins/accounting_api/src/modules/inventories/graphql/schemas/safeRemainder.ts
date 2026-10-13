@@ -20,6 +20,10 @@ export const types = `
     outTrId: String
     saleRule: JSON
     saleTrId: String
+    costIncreaseRule: JSON
+    costDecreaseRule: JSON
+    costIncreaseTrId: String
+    costDecreaseTrId: String
 
     createdAt: Date
     createdBy: String
@@ -76,7 +80,7 @@ export const mutations = `
     filterField: String,
     items: JSON
   ): SafeRemainder
-  safeRemainderEdit(_id: String!, description: String, incomeRule: JSON, outRule: JSON, saleRule: JSON): SafeRemainder
+  safeRemainderEdit(_id: String!, description: String, incomeRule: JSON, outRule: JSON, saleRule: JSON, costIncreaseRule: JSON, costDecreaseRule: JSON): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
   safeRemainderReCalc(_id: String!): String
   safeRemainderSubmit(_id: String!): SafeRemainder

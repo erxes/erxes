@@ -14,6 +14,8 @@ export type SegmentFieldQuery = {
   name: string;
   labelField: string;
   valueField?: string;
+  // Narrows the list, e.g. a tags lookup to the tags of one content type.
+  variables?: Record<string, string | boolean>;
 };
 
 export const DEFAULT_SEGMENT_VALUE_FIELD = '_id';
@@ -60,6 +62,8 @@ export type SegmentFieldNamespace = {
   prefix: string;
   label: string;
   path: string;
+  // properties `contentType` the fields are listed from, e.g. `sales:deal`
+  propertyType?: string;
 };
 
 export const resolveSegmentFieldOperators = (

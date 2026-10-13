@@ -253,7 +253,31 @@ export const PosInEBarimtConfigFormFields = ({
           />
         </div>
 
-        {/* Row 9: Checkboxes + URL */}
+        {/* Row 9: Receipt UI checkboxes */}
+        <div className="grid grid-cols-3 gap-4 items-center">
+          <FormCheckbox
+            name="hasCopy"
+            label={t('has-copy', { defaultValue: 'Has copy' })}
+            control={form.control}
+            labelPosition="before"
+          />
+          <FormCheckbox
+            name="hasSumQty"
+            label={t('has-summary-qty', { defaultValue: 'Has summary qty' })}
+            control={form.control}
+            labelPosition="before"
+          />
+          <FormCheckbox
+            name="isCleanTaxPrice"
+            label={t('is-clean-tax-price', {
+              defaultValue: 'Is clean tax price',
+            })}
+            control={form.control}
+            labelPosition="before"
+          />
+        </div>
+
+        {/* Row 10: Checkboxes + URL */}
         <div className="grid grid-cols-2 gap-4 items-center">
           <FormCheckbox
             name="withDescription"

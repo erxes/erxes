@@ -14,15 +14,43 @@ import { useSegmentNodeValue } from '../../hooks/useSegmentNodeValue';
 import { FieldWithError } from '../FieldWithError';
 import { QuerySelectInput } from '../QuerySelectInput';
 
-const listQuery = (name: string, labelField: string, valueField: string) => gql`
-  query ${name}($searchValue: String, $direction: CURSOR_DIRECTION, $cursor: String, $limit: Int) {
-    ${name}(searchValue: $searchValue, direction: $direction, cursor: $cursor, limit: $limit) {
+type TListVariables = Record<string, string | boolean>;
+
+// A field's own variables are declared with the GraphQL type of their value.
+const extraArgs = (variables: TListVariables = {}) => {
+  const keys = Object.keys(variables);
+
+  return {
+    declared: keys
+      .map(
+        (key) =>
+          `, $${key}: ${
+            typeof variables[key] === 'boolean' ? 'Boolean' : 'String'
+          }`,
+      )
+      .join(''),
+    passed: keys.map((key) => `, ${key}: $${key}`).join(''),
+  };
+};
+
+const listQuery = (
+  name: string,
+  labelField: string,
+  valueField: string,
+  variables?: TListVariables,
+) => {
+  const { declared, passed } = extraArgs(variables);
+
+  return gql`
+  query ${name}($searchValue: String, $direction: CURSOR_DIRECTION, $cursor: String, $limit: Int${declared}) {
+    ${name}(searchValue: $searchValue, direction: $direction, cursor: $cursor, limit: $limit${passed}) {
       list { ${labelField} ${valueField} }
       totalCount
       pageInfo { hasNextPage hasPreviousPage startCursor endCursor }
     }
   }
 `;
+};
 
 const onlyStrings = (meta: TPropertyInputMeta): Record<string, string> =>
   Object.fromEntries(
@@ -136,7 +164,9 @@ export const SegmentConditionValue = ({
                     declared.query.name,
                     declared.query.labelField,
                     declared.query.valueField || '_id',
+                    declared.query.variables,
                   )}
+                  variables={declared.query.variables}
                   queryName={declared.query.name}
                   labelField={declared.query.labelField}
                   valueField={declared.query.valueField || '_id'}

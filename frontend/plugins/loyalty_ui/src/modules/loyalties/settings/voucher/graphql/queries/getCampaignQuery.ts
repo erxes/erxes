@@ -40,6 +40,10 @@ export const QUERY_VOUCHER_CAMPAIGN = gql`
       kind
       value
       restrictions
+      perOwnerLimit {
+        count
+        period
+      }
     }
   }
 `;

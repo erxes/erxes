@@ -1,13 +1,18 @@
+import { useTranslation } from 'react-i18next';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
+  Label,
   RecordTableHotkeyProvider,
   ScrollArea,
+  Switch,
   Table,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
+import { showAdvancedViewState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvMoveJournal,
@@ -15,6 +20,7 @@ import {
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
+import { InventorySplitProvider } from '../InventorySplit';
 
 export const InventoryForm = ({
   form,
@@ -23,6 +29,7 @@ export const InventoryForm = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const { fields, append } = useFieldArray({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
@@ -30,13 +37,16 @@ export const InventoryForm = ({
   const setHotkeyScope = useSetHotkeyScope();
 
   const tableRef = useRef<HTMLTableElement>(null);
+  const [showAdvancedView, setShowAdvancedView] = useAtom(
+    showAdvancedViewState,
+  );
 
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    5;
+    8;
 
   return (
-    <>
+    <InventorySplitProvider form={form} journalIndex={journalIndex}>
       <RecordTableHotkeyProvider
         columnLength={columnsLength}
         rowLength={fields.length}
@@ -75,8 +85,17 @@ export const InventoryForm = ({
           journalIndex={journalIndex}
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
+        <div>
+          <Label className="mr-3">{t('detailed-view')}</Label>
+          <Switch
+            checked={showAdvancedView}
+            onCheckedChange={(checked) => {
+              setShowAdvancedView(checked);
+            }}
+          />
+        </div>
       </div>
-    </>
+    </InventorySplitProvider>
   );
 };
 
@@ -87,15 +106,18 @@ const InventoryTableHeader = ({
   form: ITransactionGroupForm;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as TInvMoveJournal;
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
 
   return (
     <Table.Header>
       <Table.Row>
-        <Table.Head className="w-10">
+        <Table.Head className="w-8" />
+        <Table.Head className="w-8">
           <div className="flex items-center justify-center">
             <Checkbox
               checked={!trDoc.details.filter((d) => !d.checked).length}
@@ -110,11 +132,20 @@ const InventoryTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Данс</Table.Head>
-        <Table.Head>Бараа</Table.Head>
-        <Table.Head>Тоо хэмжээ</Table.Head>
-        <Table.Head>Нэгж үнэ</Table.Head>
-        <Table.Head>Дүн</Table.Head>
+        <Table.Head>{t('account')}</Table.Head>
+        <Table.Head>{t('inventory')}</Table.Head>
+        <Table.Head>{t('base-unit')}</Table.Head>
+        <Table.Head>{t('quantity-label')}</Table.Head>
+        <Table.Head>{t('unit-price')}</Table.Head>
+        <Table.Head>{t('amount')}</Table.Head>
+        {showAdvancedView && (
+          <>
+            <Table.Head>{t('source-branch')}</Table.Head>
+            <Table.Head>{t('source-department')}</Table.Head>
+            <Table.Head>{t('destination-branch')}</Table.Head>
+            <Table.Head>{t('destination-department')}</Table.Head>
+          </>
+        )}
       </Table.Row>
     </Table.Header>
   );

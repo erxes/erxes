@@ -1,10 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { useLocale, useT } from '@/modules/i18n/components/LocaleProvider';
 import { Icon } from '@/modules/ui/components/Icon';
 import { formatDateTime, formatRelativeTime } from '../utils/format';
 import type { Ticket } from '../types';
 import { PriorityText, StatusText } from './TicketBadges';
 
 export const TicketListItem = ({ ticket }: { ticket: Ticket }) => {
+  const t = useT();
+  const locale = useLocale();
   const updated = ticket.updatedAt ?? ticket.createdAt;
 
   return (
@@ -15,7 +20,7 @@ export const TicketListItem = ({ ticket }: { ticket: Ticket }) => {
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[15px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-brand">
-            {ticket.name ?? 'Untitled ticket'}
+            {ticket.name ?? t('tickets.untitled')}
           </span>
 
           <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
@@ -30,11 +35,11 @@ export const TicketListItem = ({ ticket }: { ticket: Ticket }) => {
         </span>
 
         <span
-          title={formatDateTime(updated)}
+          title={formatDateTime(updated, locale)}
           className="hidden shrink-0 items-center gap-1.5 pt-0.5 text-[12px] tabular-nums text-muted-foreground sm:flex"
         >
           <Icon name="clock" size={13} />
-          {formatRelativeTime(updated)}
+          {formatRelativeTime(updated, locale, t)}
         </span>
 
         <span

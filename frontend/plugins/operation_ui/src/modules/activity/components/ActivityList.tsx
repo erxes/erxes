@@ -1,5 +1,5 @@
 import { useActivities } from '@/activity/hooks/useActivities';
-import { ITask } from '@/task/types';
+import { ITaskDetail } from '@/task/types';
 import { IProject } from '@/project/types';
 import { ActivityListProvider } from '@/activity/context/ActivityListContext';
 import { ACTIVITY_MODULES } from '@/activity/constants';
@@ -7,14 +7,14 @@ import { NoteInputReadOnly } from '@/activity/components/NoteInputReadOnly';
 import { NoteInput } from '@/activity/components/NoteInput';
 import { CreatorInfo } from '@/activity/components/CreatorInfo';
 import { ActivityItemWrapper } from '@/activity/components/ActivityItemWrapper';
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 
 export const ActivityList = ({
   contentId,
   contentDetail,
 }: {
   contentId: string;
-  contentDetail: ITask | IProject | ITriage;
+  contentDetail: ITaskDetail | IProject | ITriageDetail;
 }) => {
   const { activities, loading } = useActivities(contentId);
 

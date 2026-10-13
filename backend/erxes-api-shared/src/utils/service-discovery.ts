@@ -133,6 +133,9 @@ export const joinErxesGateway = async ({
 }: PluginConfig) => {
   const rawVersion = process.env.RELEASE_VERSION;
   const releaseVersion = rawVersion?.startsWith('3.') ? rawVersion : 'latest';
+  // Lets a plugin serve its own UI remote (a local dev server or its own
+  // versioned CDN path) instead of the plugins.erxes.io release folder.
+  const uiEntry = process.env.UI_ENTRY_URL || undefined;
 
   const existingConfigJson = await redis.get(keyForConfig(name));
   const existingConfig = existingConfigJson
@@ -150,6 +153,7 @@ export const joinErxesGateway = async ({
         ...meta,
       },
       releaseVersion,
+      uiEntry,
     }),
   );
 

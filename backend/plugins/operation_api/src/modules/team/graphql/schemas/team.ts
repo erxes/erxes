@@ -4,13 +4,13 @@ export const types = `
     }
 
     type Team {
-        _id: String
+        _id: String!
         icon: String
         name: String
         description: String
         estimateType: Int 
-        createdAt: Date
-        updatedAt: Date
+        createdAt: Date!
+        updatedAt: Date!
         cycleEnabled: Boolean
         triageEnabled: Boolean
         taskCount: Int
@@ -18,7 +18,7 @@ export const types = `
     }
 
     type TeamMember {
-        _id: String
+        _id: String!
         memberId: String
         teamId: String
 
@@ -33,16 +33,13 @@ export const queries = `
     getTeam(_id: String!): Team
     getTeams(name: String, userId: String, teamIds: [String], projectId: String, isTriageEnabled: Boolean, teamId: String, orderBy: JSON): [Team]
     getTeamMembers(teamId: String, teamIds: [String]): [TeamMember]
-    getTeamEstimateChoises(teamId: String): JSON
+    getTeamEstimateChoises(teamId: String!): [EstimateChoice]
 `;
 
 export const mutations = `
     teamAdd(name: String!, description: String, icon: String!, memberIds: [String]): Team
     teamUpdate(_id: String!, name: String, description: String, icon: String, memberIds: [String], estimateType: Int, cycleEnabled: Boolean, triageEnabled: Boolean): Team
     teamRemove(_id: String!): Team
-    teamAddMembers(_id: String!, memberIds: [String]): [TeamMember]
+    teamAddMembers(_id: String!, memberIds: [String]!): [TeamMember]
     teamRemoveMember(teamId: String!, memberId: String!): TeamMember
-    # ** Deprecated
-    # teamUpdateMember(_id: String!, role: String): TeamMember
-    teamUpdateMember(_id: String!): TeamMember
 `;

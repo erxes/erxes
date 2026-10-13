@@ -44,4 +44,19 @@ export const aggregateReactions = (
 export const getProviderMessageId = (message: IMessage) =>
   message.providerData?.messageId ||
   message.extraData?.discordMessageId ||
+  message.extraData?.telegram?.messageId ||
+  message.extraData?.telegram?.messageIds?.[0] ||
   message.mid;
+
+export const getMessageReactions = (message: IMessage) =>
+  message.reactions?.length ? message.reactions : message.extraData?.reactions;
+
+export const getOwnReactionKeys = (
+  message: IMessage,
+  userId?: string,
+): string[] =>
+  userId
+    ? (getMessageReactions(message) || [])
+        .filter((reaction) => reaction.senderId === userId)
+        .map(getReactionKey)
+    : [];

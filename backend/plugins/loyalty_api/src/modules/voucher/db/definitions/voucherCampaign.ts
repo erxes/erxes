@@ -1,6 +1,27 @@
 import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 import { commonCampaignSchema } from '~/utils';
+import {
+  VOUCHER_AUTO_ISSUE_ENGINES,
+  VOUCHER_AUTO_ISSUE_KINDS,
+} from '@/voucher/@types/voucherCampaign';
+
+const autoIssuePartSchema = new Schema(
+  {
+    engine: { type: String, enum: VOUCHER_AUTO_ISSUE_ENGINES, required: true },
+    id: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const autoIssueSchema = new Schema(
+  {
+    kind: { type: String, enum: VOUCHER_AUTO_ISSUE_KINDS, required: true },
+    segmentId: { type: String, required: true },
+    parts: { type: [autoIssuePartSchema], default: [] },
+  },
+  { _id: false },
+);
 
 export const voucherCampaignSchema = schemaWrapper(
   new Schema(
@@ -42,6 +63,27 @@ export const voucherCampaignSchema = schemaWrapper(
 
       restrictions: {
         type: Schema.Types.Mixed,
+      },
+
+      perOwnerLimit: {
+        type: new Schema(
+          {
+            count: { type: Number, min: 1, required: true },
+            period: {
+              type: String,
+              enum: ['campaign', 'year', 'month'],
+              required: true,
+            },
+          },
+          { _id: false },
+        ),
+        label: 'Per owner limit',
+      },
+
+      autoIssue: {
+        type: [autoIssueSchema],
+        default: undefined,
+        label: 'Auto issue',
       },
     },
     {

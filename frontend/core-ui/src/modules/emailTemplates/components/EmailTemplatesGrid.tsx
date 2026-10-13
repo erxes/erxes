@@ -20,10 +20,11 @@ import { useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router';
 import { MembersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 const FORMAT_LABEL = {
-  maily: 'Email editor',
-  blocks: 'Blocks',
+  maily: 'format-maily',
+  blocks: 'format-blocks',
 };
 
 const INITIAL_SKELETON_COUNT = 8;
@@ -64,6 +65,7 @@ const EmailTemplateCardsForwardSkeleton = ({
 };
 
 const EmailTemplateCard = ({ template }: { template: IEmailTemplate }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const navigate = useNavigate();
 
   return (
@@ -74,7 +76,7 @@ const EmailTemplateCard = ({ template }: { template: IEmailTemplate }) => {
       <Card.Content className="relative flex h-40 items-center justify-center overflow-hidden border-b bg-muted/30 p-0">
         <EmailTemplatePreview template={template} />
         <span className="absolute right-0 top-0 mr-2 mt-2 whitespace-nowrap rounded-lg border bg-background px-2 py-1 text-xs">
-          {FORMAT_LABEL[emailTemplateFormat(template)]}
+          {t(FORMAT_LABEL[emailTemplateFormat(template)])}
         </span>
       </Card.Content>
 
@@ -85,7 +87,7 @@ const EmailTemplateCard = ({ template }: { template: IEmailTemplate }) => {
           </div>
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold leading-tight">
-              {template.name || 'Untitled'}
+              {template.name || t('untitled')}
             </h3>
             {template.description && (
               <p className="truncate text-xs text-muted-foreground">
@@ -106,7 +108,7 @@ const EmailTemplateCard = ({ template }: { template: IEmailTemplate }) => {
                 value={dayjs(template.createdAt).format('YYYY-MM-DD HH:mm:ss')}
               />
             ) : (
-              'N/A'
+              t('not-available')
             )}
           </span>
         </div>
