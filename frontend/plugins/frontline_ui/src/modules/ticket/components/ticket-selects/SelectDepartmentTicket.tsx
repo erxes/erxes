@@ -3,6 +3,7 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { PopoverScoped } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,24 +49,34 @@ const SelectDepartmentTicketRoot = ({
   scope,
   value,
   onValueChange,
+  id,
 }: {
   variant?: `${SelectTriggerVariant}`;
   disabled?: boolean;
   scope?: string;
   value: string;
   onValueChange?: (value: string) => void;
+  id?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
+  const { updateTicket } = useUpdateTicket();
+
+  const handleValueChange = (departmentId: string) => {
+    if (id) {
+      updateTicket({ variables: { _id: id, departmentId } });
+    }
+    onValueChange?.(departmentId);
+    setOpen(false);
+  };
 
   return (
     <SelectDepartments
       mode="single"
       value={value}
-      onValueChange={(departmentId) => {
-        onValueChange?.(departmentId === value ? '' : (departmentId as string));
-        setOpen(false);
-      }}
+      onValueChange={(departmentId) =>
+        handleValueChange(departmentId === value ? '' : (departmentId as string))
+      }
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket variant={variant} disabled={disabled}>

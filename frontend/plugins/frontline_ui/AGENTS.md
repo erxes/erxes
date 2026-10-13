@@ -415,6 +415,10 @@
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
   as `ITicketFilter.branchIds` / `departmentIds`.
+- Ticket detail edits the single `branchId` / `departmentId` through
+  `SelectBranchTicket` / `SelectDepartmentTicket` with an `id`, gated by
+  `canEditTicket` like the other detail fields; the table columns keep them
+  read-only.
 - The same filter carries the shared `PropertiesFilter` from `ui-modules`
   scoped to `frontline:ticket`; its `propertiesData` query param is sent
   unchanged as `ITicketFilter.propertiesData`.
