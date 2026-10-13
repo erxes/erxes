@@ -3,7 +3,7 @@ import { Form, Input, Select, Spinner } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
-
+import { ConfigSelectField } from './ConfigSelectField';
 import { IPaymentDocument } from '../../../payment/types/Payment';
 
 const CONFIGS_QUERY = gql`
@@ -82,43 +82,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form }) => {
 
   return (
     <>
-      <Form.Field
-        name="configId"
-        control={control}
-        render={({ field }: any) => (
-          <Form.Item>
-            <Form.Label>{t('config')} *</Form.Label>
-
-            <Form.Control>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value placeholder={t('select-config')} />
-                </Select.Trigger>
-
-                <Select.Content>
-                  <Select.Group>
-                    {configs.map((config) => (
-                      <Select.Item key={config._id} value={config._id}>
-                        {config.name}
-                      </Select.Item>
-                    ))}
-                  </Select.Group>
-                </Select.Content>
-              </Select>
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-
-      {configId && (
-        <Form.Item>
-          <Form.Label>{t('account')}</Form.Label>
-
-          <Form.Control>
-            <Input value={selectedConfig?.accountId ?? ''} readOnly />
-          </Form.Control>
-        </Form.Item>
-      )}
+      <ConfigSelectField control={control} configs={configs} />
 
       <input type="hidden" {...form.register('accountId')} />
 
