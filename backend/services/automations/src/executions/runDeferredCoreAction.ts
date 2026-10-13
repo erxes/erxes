@@ -6,6 +6,7 @@ import {
   TDeferredActionRef,
 } from './completeDeferredAction';
 import { executeCoreActions } from './executeCoreActions';
+import { resolveActionForRun } from './resolveActionForRun';
 import { getTargetType } from './executeActions';
 import { getExecutionActionsMap } from '../utils/utils';
 import { AUTOMATION_STATUSES } from 'erxes-api-shared/core-modules';
@@ -59,13 +60,19 @@ export const runDeferredCoreAction = async (
   }
 
   try {
+    // The queued ref names the stored action, so its conditionals are
+    // decided here, at run time, exactly as on the synchronous path
+    const { action: runAction, conditionalMatches } =
+      await resolveActionForRun({ subdomain, execution, action });
+    execAction.conditionalMatches = conditionalMatches;
+
     const { actionResponse, shouldBreak } = await executeCoreActions(
       execution.triggerType,
       getTargetType(action, actionsMap, execution.triggerType),
       action.type,
       subdomain,
       execution,
-      action,
+      runAction,
       execAction,
       actionsMap,
     );

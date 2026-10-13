@@ -73,7 +73,17 @@ export const useAutomationCoreNodeOutput = ({
     .map((field: any) => ({
       key: field.fieldName.trim(),
       label: field.fieldName.trim(),
-      type: field.dataType === 'option' ? 'string' : field.dataType,
+      type: field.dataType,
+      // Option fields keep their values so conditions can offer them
+      options:
+        field.dataType === 'option'
+          ? (field.options || [])
+              .filter((option: { value?: string }) => option?.value)
+              .map((option: { value: string }) => ({
+                label: option.value,
+                value: option.value,
+              }))
+          : undefined,
     }));
 
   const aiAgentVariables = aiAgentAttributeFields.length
@@ -164,22 +174,11 @@ export const useAutomationCoreNodeOutput = ({
           }))
       : [];
 
-  const decisionTableVariables =
-    isAction && activeSourceNode?.type === 'decisionTable'
-      ? (sourceNodeConfig?.outputs || [])
-          .filter((output: { key?: string }) => output?.key)
-          .map((output: { key: string }) => ({
-            key: `data.${output.key}`,
-            label: output.key,
-          }))
-      : [];
-
   return {
     coreVariables: [
       ...enrichedVariables,
       ...findObjectVariables,
       ...transformVariables,
-      ...decisionTableVariables,
     ],
     corePropertySource: findObjectPropertySource || propertySource,
   };

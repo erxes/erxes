@@ -11,4 +11,4 @@ export * from './zodTypes';
 export * from './sendAutomationMessage';
 export * from './segmentMembership';
 export * from './reEnrollment';
-export * from './decisionTable';
+export * from './conditionals';

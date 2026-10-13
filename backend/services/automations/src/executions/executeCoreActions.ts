@@ -1,6 +1,5 @@
 import { executeEmailAction } from './actions/emailAction/executeEmailAction';
 import { executeAiAgentAction } from './actions/executeAiAgentAction';
-import { executeDecisionTableAction } from './actions/executeDecisionTableAction';
 import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
 import { executeMessageProAction } from './actions/executeMessageProAction';
@@ -113,14 +112,6 @@ export const executeCoreActions = async (
       subdomain,
       triggerType,
       targetType,
-      execution,
-      action,
-    });
-  }
-
-  if (actionType === AUTOMATION_CORE_ACTIONS.DECISION_TABLE) {
-    actionResponse = await executeDecisionTableAction({
-      subdomain,
       execution,
       action,
     });

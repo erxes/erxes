@@ -32,7 +32,7 @@ export const AutomationOutputVariableList = ({
   if (loading) {
     return <AutomationVariableBrowserLoadingState text="Loading outputs..." />;
   }
-
+  console.log({ variables });
   return (
     <AutomationVariableListProvider
       value={{

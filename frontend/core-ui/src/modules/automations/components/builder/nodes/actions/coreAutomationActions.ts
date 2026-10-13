@@ -1,5 +1,4 @@
 import { AiAgentComponents } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgent';
-import { DecisionTableComponents } from '@/automations/components/builder/nodes/actions/decisionTable/components/DecisionTable';
 import BranchComponents from '@/automations/components/builder/nodes/actions/branches/components/Branches';
 import DelayComponents from '@/automations/components/builder/nodes/actions/delay/components/Delay';
 import FindObjectComponents from '@/automations/components/builder/nodes/actions/findObject/components/FindObject';
@@ -32,7 +31,6 @@ const coreActions: AutomationComponentMap<AutomationNodeType.Action> = {
   ...WebhooksComponents,
   ...FindObjectComponents,
   ...SplitCondtionsComponents,
-  ...DecisionTableComponents,
 };
 
 type ActionName = keyof typeof coreActions & string;

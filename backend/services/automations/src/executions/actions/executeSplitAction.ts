@@ -1,6 +1,7 @@
 import {
   IAutomationAction,
   IAutomationExecutionDocument,
+  isAutomationConditionMatched,
 } from 'erxes-api-shared/core-modules';
 import { isInSegment } from '../../utils/isInSegment';
 
@@ -65,87 +66,12 @@ const getNestedValue = (target: any, path?: string) => {
   }, target);
 };
 
-const isEmptyValue = (value: any) =>
-  value === undefined ||
-  value === null ||
-  value === '' ||
-  (Array.isArray(value) && !value.length);
-
-const normalizeDate = (value: any) => {
-  const date = value instanceof Date ? value : new Date(value);
-
-  return Number.isNaN(date.getTime()) ? null : date.getTime();
-};
-
-const isConditionMatched = (target: any, condition: TSplitCondition) => {
-  const { propertyName, propertyOperator, propertyValue } = condition;
-  const actualValue = getNestedValue(target, propertyName);
-
-  switch (propertyOperator) {
-    case 'e':
-      return actualValue === propertyValue;
-
-    case 'numbere':
-      return Number(actualValue) === Number(propertyValue);
-
-    case 'dne':
-      return actualValue !== propertyValue;
-
-    case 'numberdne':
-      return Number(actualValue) !== Number(propertyValue);
-
-    case 'c':
-      return String(actualValue || '')
-        .toLowerCase()
-        .includes(String(propertyValue || '').toLowerCase());
-
-    case 'dnc':
-      return !String(actualValue || '')
-        .toLowerCase()
-        .includes(String(propertyValue || '').toLowerCase());
-
-    case 'it':
-      return actualValue === true;
-
-    case 'if':
-      return actualValue === false;
-
-    case 'is':
-    case 'dateis':
-      return !isEmptyValue(actualValue);
-
-    case 'ins':
-    case 'dateins':
-      return isEmptyValue(actualValue);
-
-    case 'numberigt':
-      return Number(actualValue) >= Number(propertyValue);
-
-    case 'numberilt':
-      return Number(actualValue) <= Number(propertyValue);
-
-    case 'dateigt': {
-      const actualDate = normalizeDate(actualValue);
-      const expectedDate = normalizeDate(propertyValue);
-
-      return actualDate !== null && expectedDate !== null
-        ? actualDate >= expectedDate
-        : false;
-    }
-
-    case 'dateilt': {
-      const actualDate = normalizeDate(actualValue);
-      const expectedDate = normalizeDate(propertyValue);
-
-      return actualDate !== null && expectedDate !== null
-        ? actualDate <= expectedDate
-        : false;
-    }
-
-    default:
-      return false;
-  }
-};
+const isConditionMatched = (target: any, condition: TSplitCondition) =>
+  isAutomationConditionMatched(
+    getNestedValue(target, condition.propertyName),
+    condition.propertyOperator,
+    condition.propertyValue,
+  );
 
 const isOptionConfigMatched = (target: any, option: TSplitOption) => {
   const conditions = option.config?.conditions || [];
