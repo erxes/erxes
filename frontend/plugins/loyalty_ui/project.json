@@ -31,7 +31,8 @@
           "sourceMap": false,
           "rspackConfig": "frontend/plugins/loyalty_ui/rspack.config.prod.ts"
         }
-      }
+      },
+      "dependsOn": ["^build", "codegen"]
     },
     "serve": {
       "executor": "@nx/rspack:module-federation-dev-server",
@@ -44,7 +45,8 @@
         "production": {
           "buildTarget": "loyalty_ui:build:production"
         }
-      }
+      },
+      "dependsOn": ["codegen"]
     },
     "serve-static": {
       "executor": "@nx/rspack:module-federation-static-server",
@@ -59,6 +61,37 @@
         "production": {
           "serveTarget": "loyalty_ui:serve:production"
         }
+      }
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["loyalty_api"],
+          "target": "schema:print"
+        }
+      ],
+      "inputs": [
+        "{projectRoot}/codegen.ts",
+        "{projectRoot}/schema/**/*.graphql",
+        "{projectRoot}/src/**/*.{ts,tsx}",
+        "!{projectRoot}/src/gql/**",
+        {
+          "dependentTasksOutputFiles": "**/*.graphql"
+        }
+      ],
+      "outputs": ["{projectRoot}/src/gql"],
+      "options": {
+        "cwd": "frontend/plugins/loyalty_ui",
+        "command": "graphql-codegen --config codegen.ts"
+      }
+    },
+    "codegen:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "frontend/plugins/loyalty_ui",
+        "command": "graphql-codegen --config codegen.ts --watch"
       }
     }
   }
