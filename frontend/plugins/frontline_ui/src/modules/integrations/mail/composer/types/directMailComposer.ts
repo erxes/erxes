@@ -1,8 +1,10 @@
+import type { ChannelScope } from '@/channels/types';
 import type { composeSchema } from '@/integrations/mail/composer/utils/directMailComposer';
 import type { MailAttachmentInput } from '@/integrations/mail/types/mailDelivery';
 import type { z } from 'zod';
 
 export interface MailSender {
+  channelScope: ChannelScope;
   integrationId: string;
   name: string;
   address: string;

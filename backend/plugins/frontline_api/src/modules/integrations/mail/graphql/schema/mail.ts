@@ -164,6 +164,7 @@ export const types = `
   }
 
   type MailSender {
+    channelScope: String!
     integrationId: String!
     name: String!
     address: String!

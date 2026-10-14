@@ -1,19 +1,16 @@
+import { DirectMailSenderSelect } from '@/integrations/mail/composer/components/fields/DirectMailSenderSelect';
 import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
-import { Alert, Button, Form, Label, Select, Spinner } from 'erxes-ui';
+import { Alert, Button, Form, Label, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const FromRow = () => {
   const {
     form: { control },
     sendersLoading,
-    selectedSender,
     sendersError,
     senders,
-    sending,
-    failedDelivery,
     handleRetry: onRetry,
   } = useDirectMailComposerContext();
-  const disabled = sending || Boolean(failedDelivery);
   const { t } = useTranslation('frontline');
   return (
     <Form.Field
@@ -31,42 +28,18 @@ export const FromRow = () => {
           <div className="flex min-h-9 min-w-0 items-center text-sm">
             {sendersLoading && (
               <span className="flex items-center gap-2 text-muted-foreground">
-                <Spinner size="sm" />
+                <Spinner size="sm" containerClassName="h-4 w-4 flex-none" />
                 {'Loading sender…'}
               </span>
             )}
             {!sendersLoading && senders.length > 0 && (
-              <Select
+              <DirectMailSenderSelect
                 value={field.value}
                 onValueChange={field.onChange}
-                disabled={disabled}
-              >
-                <Select.Trigger
-                  id="direct-mail-sender"
-                  aria-label="From"
-                  aria-invalid={fieldState.invalid}
-                  aria-describedby={
-                    fieldState.error ? 'direct-mail-sender-error' : undefined
-                  }
-                  onBlur={field.onBlur}
-                  className="h-9 min-w-0 border-0 px-0 shadow-none focus:shadow-none"
-                >
-                  <Select.Value placeholder="Select sender">
-                    {selectedSender &&
-                      `${selectedSender.name} <${selectedSender.address}>`}
-                  </Select.Value>
-                </Select.Trigger>
-                <Select.Content>
-                  {senders.map((sender) => (
-                    <Select.Item
-                      key={sender.integrationId}
-                      value={sender.integrationId}
-                    >
-                      {sender.name} &lt;{sender.address}&gt;
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
+                onBlur={field.onBlur}
+                invalid={fieldState.invalid}
+                hasError={Boolean(fieldState.error)}
+              />
             )}
           </div>
           <Form.Message

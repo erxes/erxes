@@ -141,7 +141,7 @@ export const VerifiedEmailFieldContent = () => {
           >
             {loading && options.length === 0 && (
               <div className="flex items-center gap-2 p-3 text-sm text-muted-foreground">
-                <Spinner size="sm" />
+                <Spinner size="sm" containerClassName="h-4 w-4 flex-none" />
                 <output>Loading contacts…</output>
               </div>
             )}
@@ -189,9 +189,11 @@ export const VerifiedEmailFieldContent = () => {
             {hasNextPage && !loadMoreError && (
               <div
                 ref={sentinelRef}
-                className="p-2 text-center text-xs text-muted-foreground"
+                className="flex items-center justify-center gap-2 p-2 text-xs text-muted-foreground"
               >
-                {loadingMore && <Spinner size="sm" />}
+                {loadingMore && (
+                  <Spinner size="sm" containerClassName="h-4 w-4 flex-none" />
+                )}
                 {loadingMore ? 'Loading…' : ''}
               </div>
             )}
