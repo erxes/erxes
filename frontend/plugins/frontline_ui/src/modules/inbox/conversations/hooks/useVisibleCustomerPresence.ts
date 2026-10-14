@@ -57,7 +57,9 @@ export const useVisibleCustomerPresence = (
     );
     const syncMarkers = () => {
       const markers = new Set(
-        root.querySelectorAll<HTMLElement>('[data-inbox-customer-id]'),
+        Array.from(
+          root.querySelectorAll<HTMLElement>('[data-inbox-customer-id]'),
+        ),
       );
       observed.forEach((element) => {
         if (markers.has(element)) return;
