@@ -484,15 +484,15 @@ export const confirmVoucherSale = async (
   subdomain: string,
   checkInfo: {
     [productId: string]: {
-      voucherId: string;
-      count: number;
+      voucherId?: string | null;
+      count?: number | null;
     };
   },
   extraInfo?: {
-    couponCode?: string;
-    voucherId?: string;
-    ownerType?: string;
-    ownerId?: string;
+    couponCode?: string | null;
+    voucherId?: string | null;
+    ownerType?: string | null;
+    ownerId?: string | null;
     targetid?: string;
     targetId?: string;
     targetType?: string;

@@ -81,19 +81,21 @@ const ownerSummaryInput = z.object({
   targetId: z.string().optional(),
 });
 
+// Selling sides send null for what was not chosen and every line, bonus or
+// not; a strict shape here refused the whole confirmation.
 const confirmLoyaltiesInput = z.object({
   checkInfo: z.record(
     z.object({
-      voucherId: z.string(),
-      count: z.number().int().nonnegative(),
+      voucherId: z.string().nullish(),
+      count: z.number().int().nonnegative().nullish(),
     }),
   ),
   extraInfo: z
     .object({
-      couponCode: z.string().optional(),
-      voucherId: z.string().optional(),
-      ownerType: z.string().optional(),
-      ownerId: z.string().optional(),
+      couponCode: z.string().nullish(),
+      voucherId: z.string().nullish(),
+      ownerType: z.string().nullish(),
+      ownerId: z.string().nullish(),
       targetid: z.string().optional(),
       targetId: z.string().optional(),
       targetType: z.string().optional(),
