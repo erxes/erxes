@@ -84,12 +84,14 @@ export const productCategories = gql`
 `;
 
 export const productTags = gql`
-  query Tags($searchValue: String, $perPage: Int) {
-    tags(type: "core:product", searchValue: $searchValue, perPage: $perPage) {
-      _id
-      colorCode
-      order
-      name
+  query salesDealProductTags($searchValue: String, $limit: Int) {
+    tags(type: "core:product", searchValue: $searchValue, limit: $limit) {
+      list {
+        _id
+        colorCode
+        order
+        name
+      }
     }
   }
 `;

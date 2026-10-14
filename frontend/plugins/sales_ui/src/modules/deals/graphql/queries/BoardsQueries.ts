@@ -59,8 +59,8 @@ export const GET_BOARD_DETAIL = gql`
 `;
 
 export const GET_BOARD_COUNTS = gql`
-  query SalesBoardCounts($type: String!) {
-    salesBoardCounts(type: $type) {
+  query SalesBoardCounts {
+    salesBoardCounts {
       _id
       name
       count

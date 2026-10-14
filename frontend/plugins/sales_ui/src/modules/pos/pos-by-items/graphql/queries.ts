@@ -85,8 +85,8 @@ export const POS_BY_ITEMS_QUERY = gql`
 `;
 
 export const DELETE_PRODUCT_MUTATION = gql`
-  mutation productsRemove($ids: [String!]!) {
-    productsRemove(ids: $ids)
+  mutation salesPosByItemsProductsRemove($ids: [String!]!) {
+    productsRemove(productIds: $ids)
   }
 `;
 

@@ -427,12 +427,10 @@ export const GET_ITEMS_COUNT_BY_SEGMENTS = gql`
 export const GET_ITEMS_COUNT_BY_ASSIGNED_USER = gql`
   query SalesItemsCountByAssignedUser(
     $pipelineId: String!
-    $type: String!
     $stackBy: String
   ) {
     salesItemsCountByAssignedUser(
       pipelineId: $pipelineId
-      type: $type
       stackBy: $stackBy
     )
   }

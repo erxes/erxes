@@ -142,10 +142,10 @@ export const GET_CONVERSION_STAGES = gql`
       canEditMemberIds
       memberIds
       departmentIds
-      compareNextStagePurchase
-      initialPurchasesTotalCount
-      stayedPurchasesTotalCount
-      inProcessPurchasesTotalCount
+      compareNextStage
+      initialDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;
