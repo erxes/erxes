@@ -11,6 +11,7 @@ import {
 import { withoutPointPayments } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
+import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -328,8 +329,11 @@ export const dealMutations: Record<string, Resolver> = {
     const productsData = await normalizeProductCurrencies(
       subdomain,
       normalizeProductDiscountInfos(
-        (deal.productsData || []).map((data) =>
-          data._id === dataId ? { ...doc } : data,
+        await normalizeProductUomInfo(
+          subdomain,
+          (deal.productsData || []).map((data) =>
+            data._id === dataId ? { ...doc } : data,
+          ),
         ),
       ),
     );
@@ -431,8 +435,11 @@ export const dealMutations: Record<string, Resolver> = {
     const productsData = await normalizeProductCurrencies(
       subdomain,
       normalizeProductDiscountInfos(
-        (deal.productsData || []).map((data) =>
-          data._id === dataId ? { ...doc } : data,
+        await normalizeProductUomInfo(
+          subdomain,
+          (deal.productsData || []).map((data) =>
+            data._id === dataId ? { ...doc } : data,
+          ),
         ),
       ),
     );

@@ -9,7 +9,7 @@ import {
   ProductDataWithDiscountInfos,
   applyFooterDiscountPercent,
 } from '../utils/discountInfos';
-import { getProductDefaultUom } from '../utils/productUom';
+import { getProductDefaultUom, normalizeProductUom } from '../utils/productUom';
 
 interface UseDealProductActionsParams {
   tickUsed: boolean;
@@ -119,7 +119,7 @@ export const useDealProductActions = ({
         };
 
         return applyFooterDiscountPercent(
-          row,
+          normalizeProductUom(row),
           discount[currency]?.percent || 0,
         );
       });
@@ -153,6 +153,7 @@ export const useDealProductActions = ({
         _id: crypto.randomUUID(),
         productId: productData.productId || productData.product?._id,
         uom: productData.uom,
+        uomInfo: sourceProductData.uomInfo,
         currency: productData.currency,
         quantity: productData.quantity,
         unitPrice: productData.unitPrice,

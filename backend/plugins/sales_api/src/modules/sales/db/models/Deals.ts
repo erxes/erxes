@@ -11,6 +11,7 @@ import {
 import { refundDealPoints } from '../../utils/dealPoints';
 import { normalizeProductDiscountInfos } from '../../utils/discountInfos';
 import { normalizeProductCurrencies } from '../../utils/productCurrency';
+import { normalizeProductUomInfo } from '../../utils/productUom';
 import { dealSchema } from '../definitions/deals';
 import {
   generateDealUpdateActivityLogs,
@@ -53,7 +54,10 @@ export const loadDealClass = (
       // Calculate totals
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
-          doc.productsData.filter((pd) => pd),
+          await normalizeProductUomInfo(
+            subdomain,
+            doc.productsData.filter((pd) => pd),
+          ),
         );
         doc.productsData = await normalizeProductCurrencies(
           subdomain,
@@ -85,7 +89,10 @@ export const loadDealClass = (
 
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
-          doc.productsData.filter((pd) => pd.productId),
+          await normalizeProductUomInfo(
+            subdomain,
+            doc.productsData.filter((pd) => pd.productId),
+          ),
         );
         doc.productsData = await normalizeProductCurrencies(
           subdomain,

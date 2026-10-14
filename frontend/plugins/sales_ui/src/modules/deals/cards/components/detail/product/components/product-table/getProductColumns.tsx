@@ -11,10 +11,13 @@ import {
   RecordTableInlineCell,
   Select,
   TextOverflowTooltip,
+  formatAmount,
+  useToast,
 } from 'erxes-ui';
 import { IProductData, SelectBranches, SelectDepartments } from 'ui-modules';
 import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
@@ -22,7 +25,14 @@ import clsx from 'clsx';
 import { useUpdateProductRecord } from '../../hooks/useProductRecord';
 import { calculateProductValues } from '../../hooks/useProductCalculations';
 import { applyRowDiscount, productBaseAmount } from '../../utils/discountInfos';
-import { getProductUomCodes } from '../../utils/productUom';
+import {
+  getProductBaseUom,
+  getProductUomCodes,
+  getProductUomInfo,
+  getProductUomRatio,
+  normalizeProductUom,
+  ProductDataWithUom,
+} from '../../utils/productUom';
 
 export const ProductNumberField = ({
   value,
@@ -79,6 +89,67 @@ export const ProductCalculatedNumberField = ({
         const updates = calculateProductValues(field, base);
         const fullUpdate = { [field]: value, ...updates };
         updateRecord(product, fullUpdate);
+      }}
+    />
+  );
+};
+
+const ProductUomInfoNumberField = ({
+  product,
+  field,
+}: {
+  product: ProductDataWithUom;
+  field: 'unitPrice' | 'quantity';
+}) => {
+  const { updateRecord } = useUpdateProductRecord();
+  const { toast } = useToast();
+  const { t } = useTranslation('sales');
+  const info = getProductUomInfo(product);
+  const value = info[field];
+
+  return (
+    <NumberField
+      key={`${product._id}-uom-info-${field}-${value}`}
+      value={value}
+      scope={`product-${product._id}-uom-info-${field}`}
+      formatValue={field === 'unitPrice' ? formatAmount : undefined}
+      onSave={(value) => {
+        if (!Number.isFinite(value) || value < 0) {
+          toast({
+            variant: 'destructive',
+            title: t('invalid-value', 'Invalid value'),
+            description: t(
+              'value-non-negative',
+              'Value must be a finite non-negative number.',
+            ),
+          });
+          return;
+        }
+
+        const next = normalizeProductUom({
+          ...product,
+          uomInfo: { ...info, [field]: value },
+        });
+        if (
+          !Number.isFinite(next.unitPrice) ||
+          !Number.isFinite(next.quantity)
+        ) {
+          toast({
+            variant: 'destructive',
+            title: t('invalid-value', 'Invalid value'),
+            description: t(
+              'uom-value-too-large',
+              'Value is too large for this UOM ratio.',
+            ),
+          });
+          return;
+        }
+        updateRecord(product, {
+          uomInfo: next.uomInfo,
+          unitPrice: next.unitPrice,
+          quantity: next.quantity,
+          ...calculateProductValues(field, next),
+        });
       }}
     />
   );
@@ -266,23 +337,30 @@ export const ProductCurrencyField = ({
   );
 };
 
-export const ProductUOMField = ({
-  value,
-  field,
+export const ProductUomField = ({
   product,
 }: {
-  value?: string;
-  field: string;
-  product: IProductData;
+  product: ProductDataWithUom;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
-  const uomCodes = getProductUomCodes(product.product, value);
-  const selectedValue = value || '';
+  const info = getProductUomInfo(product);
+  const baseUom = getProductBaseUom(product);
+  const uomCodes = getProductUomCodes(product.product, info.uom, baseUom);
 
   return (
     <Select
-      value={selectedValue}
-      onValueChange={(value) => updateRecord(product, { [field]: value })}
+      value={info.uom}
+      onValueChange={(uom) => {
+        const ratio =
+          uom === info.uom
+            ? info.ratio
+            : getProductUomRatio(product.product, uom, baseUom);
+        if (!ratio) return;
+
+        updateRecord(product, {
+          uomInfo: getProductUomInfo({ ...product, uomInfo: { uom, ratio } }),
+        });
+      }}
       disabled={uomCodes.length === 0}
     >
       <Select.Trigger>
@@ -291,7 +369,14 @@ export const ProductUOMField = ({
       <Select.Content>
         {uomCodes.length ? (
           uomCodes.map((uom) => (
-            <Select.Item key={uom} value={uom}>
+            <Select.Item
+              key={uom}
+              value={uom}
+              disabled={
+                uom !== info.uom &&
+                !getProductUomRatio(product.product, uom, baseUom)
+              }
+            >
               {uom}
             </Select.Item>
           ))
@@ -404,21 +489,70 @@ export const currency = (t: TFunction): ColumnDef<IProductData> => ({
   },
 });
 
-export const uom = (t: TFunction): ColumnDef<IProductData> => ({
+export const baseUom = (t: TFunction): ColumnDef<IProductData> => ({
   id: 'uom',
   accessorKey: 'uom',
   header: () => <RecordTable.InlineHead label={t('uom')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
-        <ProductUOMField
-          value={cell.getValue() as string}
-          field="uom"
-          product={cell.row.original}
-        />
+        <TextOverflowTooltip value={getProductBaseUom(cell.row.original)} />
       </RecordTableInlineCell>
     );
   },
+  size: 52,
+  minSize: 52,
+  maxSize: 52,
+});
+
+export const uomInfoUom = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'uomInfo.uom',
+  accessorFn: (row) => getProductUomInfo(row).uom,
+  header: () => <RecordTable.InlineHead label={t('uom')} />,
+  cell: ({ row }) => (
+    <RecordTableInlineCell>
+      <ProductUomField product={row.original} />
+    </RecordTableInlineCell>
+  ),
+  size: 140,
+});
+
+export const uomRatio = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'uomInfo.ratio',
+  accessorFn: (row) => getProductUomInfo(row).ratio,
+  header: () => <RecordTable.InlineHead label={t('ratio', 'Ratio')} />,
+  cell: ({ row }) => (
+    <RecordTableInlineCell>
+      <TextOverflowTooltip
+        value={String(getProductUomInfo(row.original).ratio)}
+      />
+    </RecordTableInlineCell>
+  ),
+  size: 90,
+});
+
+export const uomInfoUnitPrice = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'uomInfo.unitPrice',
+  accessorFn: (row) => getProductUomInfo(row).unitPrice,
+  header: () => <RecordTable.InlineHead label={t('unit-price')} />,
+  cell: ({ row }) => (
+    <RecordTableInlineCell>
+      <ProductUomInfoNumberField product={row.original} field="unitPrice" />
+    </RecordTableInlineCell>
+  ),
+  size: 130,
+});
+
+export const uomInfoQuantity = (t: TFunction): ColumnDef<IProductData> => ({
+  id: 'uomInfo.quantity',
+  accessorFn: (row) => getProductUomInfo(row).quantity,
+  header: () => <RecordTable.InlineHead label={t('quantity')} />,
+  cell: ({ row }) => (
+    <RecordTableInlineCell>
+      <ProductUomInfoNumberField product={row.original} field="quantity" />
+    </RecordTableInlineCell>
+  ),
+  size: 150,
 });
 
 export const branch = (t: TFunction): ColumnDef<IProductData> => ({

@@ -105,8 +105,13 @@
   save feedback, and an expanded dialog view for working with dense product
   tables.
 - Deal product rows default their UOM to the selected product's base UOM when
-  adding or replacing a product. The row UOM selector includes the saved row
-  UOM, even when absent from the product's base UOM and `subUoms[].uom`.
+  adding or replacing a product. Normal view edits UOM, unit price, and quantity
+  through `uomInfo: { uom, ratio, unitPrice, quantity }` immediately after the
+  product column. Advanced groups base unit price, base quantity, then the fixed
+  52px read-only base UOM immediately after the entry columns, including saved
+  table orders, and also shows the saved ratio. Entry info is filled from base
+  fields when empty or partial; updates preview base-unit calculations locally.
+  The selector includes saved units even when removed from the product.
   Deal detail fetches product `uom` and `subUoms` so these choices remain
   available after reload without opening the product chooser.
   Empty row UOMs use the product's base UOM in the table and save payload.
@@ -119,6 +124,7 @@
   while preserving automatic discount sources in `discountInfos`.
 - Deal product tax controls live behind a separate Tax view toggle; Advanced
   view no longer owns tax columns or footer total tax controls.
+  The `VAT applied` row column is present only with Tax view enabled.
 - POS permission settings assign admins and cashiers and persist cashier temp
   bill, report visibility, customer creation, and direct discount controls
   through `permissionConfig`.
@@ -235,11 +241,21 @@
   properties are not offered.
 - Deal product create, update, and delete flows must keep the table responsive
   without requiring a manual refresh.
-- Deal product UOM choices include the base `product.uom`,
-  `product.subUoms[].uom`, and the current row UOM. Preserve the saved row
-  UOM as the selected value even when it is no longer a product UOM.
-  Only empty or whitespace-only row UOMs fall back to the product's base UOM;
-  saving deal products must persist that fallback.
+- Root row `uom`, `unitPrice`, and `quantity` remain in base units for totals
+  and integrations. `uomInfo` holds input values: base price is info price
+  multiplied by ratio, base quantity is info quantity divided by ratio.
+  Backend repeats this calculation before persistence. Never refresh a saved ratio from current catalog
+  data; a new selection takes the current product ratio. Base units use 1.
+- UOM choices in both views include the product base and sub-UOMs, the cached base
+  UOM, and saved selection. Invalid catalog ratios are disabled.
+- Replacing a product resets its base UOM, price, and entry info; duplication
+  preserves the info. Advanced base price/quantity edits update entry values.
+  UOM entry defaults and selection changes use `utils/productUom.ts`; table
+  filtering and saved ordering share the same entry/base column-id groups.
+- `uomInfo` is the only entry-unit metadata field; missing info is filled from
+  base-unit fields rather than an alternate metadata format.
+  Backend omits info for base-unit selections. Acknowledgements compare such
+  saves with root price/quantity, and the UI reconstructs editable base info.
 - Deal product selectors may pass sales context such as `pipelineId` into
   shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline
@@ -270,9 +286,12 @@
 ## Validation
 
 - `pnpm nx build sales_ui`
-- Deal UOM smoke scenario: save a row UOM absent from its product's UOMs,
-  reload the deal, and verify it remains selected alongside the product's
-  base UOM and sub-UOM choices without opening the product chooser.
+- `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
+- Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
+  quantity, save and reload; verify Advanced shows base price/quantity and the
+  saved ratio. Switching units alone preserves totals; changing catalog ratios
+  must not change a saved ratio. Duplicate a row and replace its product to
+  verify info preservation and reset, respectively.
 - Deal product smoke scenario: open a deal's Products tab, toggle expanded view,
   filter products, edit a row, add products, save, close the expanded view, and
   verify the inline table shows the same state.

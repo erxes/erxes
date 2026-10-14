@@ -23,7 +23,7 @@ import {
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { filterProducts } from '../../utils/filterProducts';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
-import { getProductRowUom } from '../../utils/productUom';
+import { normalizeProductUom } from '../../utils/productUom';
 
 export const ProductsList = ({
   products,
@@ -107,9 +107,8 @@ export const ProductsList = ({
         : data.product;
 
       return {
-        ...data,
+        ...normalizeProductUom(data, product),
         product,
-        uom: getProductRowUom(product, data.uom),
         currency: data.currency?.trim() ? data.currency : defaultCurrency,
       };
     })

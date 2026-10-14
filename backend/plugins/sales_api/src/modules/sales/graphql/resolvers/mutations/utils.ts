@@ -32,6 +32,10 @@ import {
 } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
+import {
+  normalizeProductUomInfo,
+  syncProductUomInfo,
+} from '~/modules/sales/utils/productUom';
 
 export const addDeal = async ({
   models,
@@ -46,6 +50,10 @@ export const addDeal = async ({
 }) => {
   doc.initialStageId = doc.stageId;
   if (doc.productsData) {
+    doc.productsData = await normalizeProductUomInfo(
+      subdomain,
+      doc.productsData,
+    );
     doc.productsData = await normalizeProductCurrencies(
       subdomain,
       doc.productsData,
@@ -175,6 +183,10 @@ export const editDeal = async ({
   }
 
   if (doc.productsData) {
+    doc.productsData = await normalizeProductUomInfo(
+      subdomain,
+      doc.productsData,
+    );
     doc.productsData = await normalizeProductCurrencies(
       subdomain,
       doc.productsData,
@@ -200,6 +212,9 @@ export const editDeal = async ({
       ...oldDeal,
       ...doc,
     });
+    if (doc.productsData) {
+      doc.productsData = syncProductUomInfo(doc.productsData);
+    }
   }
 
   const extendedDoc = {
@@ -491,7 +506,10 @@ export const createProductsData = async ({
   // undefined or null then true
   const tickUsed = !(stage.defaultTick === false);
   const addDocs = normalizeProductDiscountInfos(
-    (docs || []).map((doc) => ({ ...doc, tickUsed })),
+    await normalizeProductUomInfo(
+      subdomain,
+      (docs || []).map((doc) => ({ ...doc, tickUsed })),
+    ),
   );
   const productsData = await normalizeProductCurrencies(
     subdomain,

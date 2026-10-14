@@ -9,7 +9,7 @@ import { IProduct, IProductData } from 'ui-modules';
 
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { isPatchAppliedByServer } from '../utils/isPatchAppliedByServer';
-import { getProductRowUom } from '../utils/productUom';
+import { normalizeProductUom, syncProductUomInfo } from '../utils/productUom';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -65,7 +65,7 @@ export const useSyncLocalProductsData = ({
           delete pendingProductPatchesRef.current[data._id];
         }
 
-        const updatedProductData = {
+        const incomingProductData = {
           ...data,
           product:
             data.product ||
@@ -76,11 +76,11 @@ export const useSyncLocalProductsData = ({
           ...pendingProductPatchesRef.current[data._id],
         };
         const productId =
-          updatedProductData.product?._id || updatedProductData.productId;
-        updatedProductData.uom = getProductRowUom(
+          incomingProductData.product?._id || incomingProductData.productId;
+        const updatedProductData = syncProductUomInfo(
+          incomingProductData,
           (productId ? productByIdRef.current[productId] : undefined) ||
-            updatedProductData.product,
-          updatedProductData.uom,
+            incomingProductData.product,
         );
         if (!updatedProductData.currency?.trim()) {
           updatedProductData.currency = defaultCurrency;
@@ -165,7 +165,7 @@ export const useVatPercent = ({
 
       calculatePerProductAmount('', pData, false);
 
-      return pData;
+      return syncProductUomInfo(pData);
     });
 
     setLocalProductsData(updatedData);
@@ -235,9 +235,8 @@ export const useSaveDealProducts = ({
         products.find((product) => product._id === productId) || data.product;
 
       return {
-        ...data,
+        ...normalizeProductUom(data, product),
         productId,
-        uom: getProductRowUom(product, data.uom),
         currency: data.currency?.trim() ? data.currency : defaultCurrency,
       };
     });
