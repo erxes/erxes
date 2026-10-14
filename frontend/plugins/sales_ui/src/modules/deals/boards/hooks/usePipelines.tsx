@@ -29,6 +29,7 @@ import {
 } from '@/deals/graphql/queries/PipelinesQueries';
 import { PIPELINE_LIST_CHANGED } from '@/deals/graphql/subscriptions/pipelineListChange';
 import { IPipeline } from '@/deals/types/pipelines';
+import { getSalesRefetchQueries } from '~/utils/getSalesRefetchQueries';
 
 const PIPELINES_PER_PAGE = 20;
 
@@ -207,6 +208,7 @@ export const usePipelineAdd = () => {
 };
 
 export const usePipelineEdit = () => {
+  const client = useApolloClient();
   const [editPipeline, { loading, error }] = useMutation(EDIT_PIPELINE);
   const { toast } = useToast();
 
@@ -214,7 +216,11 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines', 'SalesBoards', 'SalesStages'],
+      refetchQueries: () => [
+        'SalesPipelines',
+        'SalesBoards',
+        ...getSalesRefetchQueries(client, 'SalesStages'),
+      ],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
         if (salesPipelinesEdit) {

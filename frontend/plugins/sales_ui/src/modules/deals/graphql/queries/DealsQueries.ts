@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_DEALS_SEARCH_DROPDOWN = gql`
-  query Deals(
+  query salesDealSearchDropdown(
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
@@ -100,7 +100,7 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql`
 `;
 
 export const GET_DEALS = gql`
-  query Deals(
+  query salesDealList(
     $initialStageId: String
     $stageId: String
     $limit: Int

@@ -54,7 +54,7 @@ export const usePosByIds = (options: OperationVariables) => {
     posDetail: IPos;
   }>(
     gql`
-      query posDetail($_id: String!) {
+      query salesPosCoversSelectDetail($_id: String!) {
         posDetail(_id: $_id) {
           _id
           name

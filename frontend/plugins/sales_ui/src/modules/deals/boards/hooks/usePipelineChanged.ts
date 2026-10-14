@@ -4,6 +4,7 @@ import { PIPELINE_CHANGED } from '@/deals/graphql/subscriptions/pipelineChange';
 import { useAllDealsMap, useDealsBoard } from '@/deals/states/dealsBoardState';
 import { IDeal } from '@/deals/types/deals';
 import { useApolloClient, useSubscription } from '@apollo/client';
+import { getSalesRefetchQueries } from '~/utils/getSalesRefetchQueries';
 
 type ISalesPipelinesChange =
   | {
@@ -50,7 +51,9 @@ export const usePipelineChanged = (pipelineId?: string) => {
       }
 
       if (payload.action === 'stageStatusChanged') {
-        void client.refetchQueries({ include: ['SalesStages'] });
+        void client.refetchQueries({
+          include: getSalesRefetchQueries(client, 'SalesStages'),
+        });
         return;
       }
 

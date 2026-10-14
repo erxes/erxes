@@ -7,7 +7,7 @@ export const GET_ARCHIVED_STAGES_COUNT = gql`
 `;
 
 export const GET_STAGES = gql`
-  query SalesStages(
+  query salesDealStages(
     $isNotLost: Boolean
     $isAll: Boolean
     $pipelineId: String
@@ -77,7 +77,7 @@ export const GET_STAGES = gql`
 `;
 
 export const GET_CONVERSION_STAGES = gql`
-  query SalesStages(
+  query salesDealConversionStages(
     $isNotLost: Boolean
     $isAll: Boolean
     $pipelineId: String

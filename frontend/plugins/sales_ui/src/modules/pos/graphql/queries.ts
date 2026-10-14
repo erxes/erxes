@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const posList = gql`
-  query posList(
+  query salesPosSettingsList(
     $page: Int
     $perPage: Int
     $sortField: String
@@ -99,7 +99,7 @@ const posSlots = gql`
 `;
 
 const posDetail = gql`
-  query posDetail($_id: String!) {
+  query salesPosSettingsDetail($_id: String!) {
     posDetail(_id: $_id) {
       _id
       name

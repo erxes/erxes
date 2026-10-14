@@ -11,7 +11,7 @@ export interface IPosInlineQuery {
 }
 
 const POS_DETAIL_QUERY = gql`
-  query posDetail($_id: String!) {
+  query salesPosOrdersInlineDetail($_id: String!) {
     posDetail(_id: $_id) {
       _id
       name

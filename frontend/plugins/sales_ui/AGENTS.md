@@ -252,6 +252,13 @@
 - POS report operations use their report context in their names (Orders,
   ByItems, Covers, Items, or Summary), even when their selections are identical.
   Keep document exports stable for their existing hooks and selectors.
+- The `getSalesRefetchQueries` utility preserves the former Deals, SalesStages,
+  posList, and posDetail refetch groups after their operations receive unique
+  names. Keep its name lists aligned with those documents. It includes registered
+  queries without observers and unchanged legacy names outside Sales, excludes
+  standby queries, and returns only present names to avoid Apollo warnings.
+  Mutation callers resolve these groups in a `refetchQueries` callback so they
+  reflect the queries registered when the mutation completes.
 - Keep public-contract snapshots faithful to their owning SDL, including
   arguments and nullability. Do not add fields to the snapshot to make an
   unsupported operation validate. Including a contract does not register its
@@ -327,6 +334,8 @@
 - Run the standalone codegen configuration from this plugin directory with
   `../../../node_modules/.bin/graphql-codegen --config codegen.ts`.
 - `pnpm nx build sales_ui`
+- `pnpm nx test sales_ui --runInBand` covers Apollo refetch groups, variable
+  preservation, cache updates, and standby/absent-query handling.
 - `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
 - Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
   quantity, save and reload; verify Advanced shows base price/quantity and the

@@ -1,10 +1,12 @@
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import { MutationHookOptions, useApolloClient, useMutation } from '@apollo/client';
 
 import { DEALS_ARCHIVE } from '@/deals/graphql/mutations/DealsMutations';
+import { getSalesRefetchQueries } from '~/utils/getSalesRefetchQueries';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export function useDealsArchive(options?: MutationHookOptions) {
+  const client = useApolloClient();
   const { t } = useTranslation('sales');
   const [archiveDealsBase, { loading, error }] = useMutation(DEALS_ARCHIVE, {
     ...options,
@@ -32,7 +34,7 @@ export function useDealsArchive(options?: MutationHookOptions) {
   const archiveDeals = (stageId: string) =>
     archiveDealsBase({
       variables: { stageId },
-      refetchQueries: ['Deals'],
+      refetchQueries: () => getSalesRefetchQueries(client, 'Deals'),
     });
 
   return {

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const POS_LIST = gql`
-  query posList(
+  query salesPosNavigationList(
     $page: Int
     $perPage: Int
     $sortField: String
