@@ -17,10 +17,10 @@ export const FromRow = () => {
       control={control}
       name="integrationId"
       render={({ field, fieldState }) => (
-        <Form.Item className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
+        <Form.Item className="grid flex-none space-y-0 gap-y-1 grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
           <Label
             variant="peer"
-            className="text-xs text-muted-foreground"
+            className="text-xs leading-5 text-muted-foreground"
             htmlFor="direct-mail-sender"
           >
             From
