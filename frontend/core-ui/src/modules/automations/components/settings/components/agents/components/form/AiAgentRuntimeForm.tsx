@@ -1,4 +1,3 @@
-import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Button, Collapsible, Form, Input } from 'erxes-ui';
 import { useFormContext, useWatch } from 'react-hook-form';
@@ -25,25 +24,14 @@ const toNumber = (value: string) => {
 export const AiAgentRuntimeForm = () => {
   const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentForm>();
-  const values = useWatch({ control });
+  const runtime = useWatch({ control, name: 'runtime' });
 
-  const temperature =
-    values?.runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
-  const maxTokens = values?.runtime?.maxTokens ?? RUNTIME_DEFAULTS.maxTokens;
-  const timeoutMs = values?.runtime?.timeoutMs ?? RUNTIME_DEFAULTS.timeoutMs;
+  const temperature = runtime?.temperature ?? RUNTIME_DEFAULTS.temperature;
+  const maxTokens = runtime?.maxTokens ?? RUNTIME_DEFAULTS.maxTokens;
+  const timeoutMs = runtime?.timeoutMs ?? RUNTIME_DEFAULTS.timeoutMs;
 
   return (
     <div className="grid gap-4">
-      <AiAgentRuntimeInfo
-        agent={{
-          connection: values?.connection,
-          runtime: values?.runtime,
-          context: values?.context,
-        }}
-        title={t('settings-agent-budget')}
-        description={t('settings-agent-budget-description')}
-      />
-
       <Collapsible className="group">
         <Collapsible.Trigger asChild>
           <Button

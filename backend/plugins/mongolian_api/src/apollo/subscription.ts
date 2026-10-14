@@ -28,7 +28,10 @@ export default {
             graphqlPubsub.asyncIterator(`productPlacesResponded:${userId}`),
           (payload, variables) =>
             variables?.userId &&
-            payload?.productPlacesResponded?.userId === variables?.userId,
+            payload?.productPlacesResponded?.userId === variables?.userId &&
+            (!variables?.sessionCode ||
+              payload?.productPlacesResponded?.sessionCode ===
+                variables?.sessionCode),
         ),
         // no stringify
       },

@@ -225,29 +225,20 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               disabled
             />
           </LockedField>
-          <LockedField
-            message={t('branch-cannot-be-changed', 'Branch cannot be changed')}
-          >
-            <SelectBranchTicket
-              value={branchId || ''}
-              variant="detail"
-              label={t('branch-label', 'Branch')}
-              disabled
-            />
-          </LockedField>
-          <LockedField
-            message={t(
-              'department-cannot-be-changed',
-              'Department cannot be changed',
-            )}
-          >
-            <SelectDepartmentTicket
-              value={departmentId || ''}
-              variant="detail"
-              label={t('department-label', 'Department')}
-              disabled
-            />
-          </LockedField>
+          <SelectBranchTicket
+            id={ticketId}
+            value={branchId || ''}
+            variant="detail"
+            label={t('branch-label', 'Branch')}
+            disabled={!canEditTicket}
+          />
+          <SelectDepartmentTicket
+            id={ticketId}
+            value={departmentId || ''}
+            variant="detail"
+            label={t('department-label', 'Department')}
+            disabled={!canEditTicket}
+          />
           <SelectStatusTicket
             variant="detail"
             value={statusId}

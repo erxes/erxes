@@ -4,7 +4,7 @@ import { getReportColumnCount } from './reportTableLayout';
 
 export const ReportTableFooter = () => {
   const { t } = useTranslation('accounting');
-  const [report] = useQueryState('report');
+  const [report] = useQueryState<string>('report');
   const reportCode = typeof report === 'string' ? report : '';
   const columnCount = getReportColumnCount(reportCode);
 

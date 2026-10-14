@@ -69,6 +69,12 @@ export const saasOrganizationsSchema = new mongoose.Schema({
 
   cycleEnabled: { type: Boolean },
 
+  // Which global profile owns the organization. Missing or 'old': the original
+  // erxes.io profile, billed through `charge`. 'new': dashboard.erxes.io, whose
+  // plugins come from the Stripe customer below (see global-profile-v2.ts).
+  gpStatus: { type: String },
+  gpStripeCustomerId: { type: String },
+
   // Kept apart from `domain` / `dnsStatus`, which drive the white-label app
   // domain, so a help center hostname never changes how the app sets cookies.
   helpCenterDomain: { type: Object },

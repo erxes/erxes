@@ -1,5 +1,7 @@
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { OperationVariables, useMutation } from '@apollo/client';
 import {
   ADJUST_DEBT_RATE_CHANGE,
   ADJUST_DEBT_RATE_REMOVE,
@@ -8,17 +10,21 @@ import { toast } from 'erxes-ui';
 import { ADJUST_DEBT_RATE_QUERY } from '../graphql/adjustDebtRateQueries';
 import { useNavigate } from 'react-router-dom';
 
-export const useAdjustDebtRateChange = (options?: OperationVariables) => {
+export const useAdjustDebtRateChange = (
+  options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_CHANGE>,
+) => {
   const { t } = useTranslation('accounting');
   const [_changeAdjustDebtRate, { loading }] = useMutation(
     ADJUST_DEBT_RATE_CHANGE,
     options,
   );
 
-  const changeAdjustDebtRate = (options?: OperationVariables) => {
+  const changeAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_CHANGE>,
+  ) => {
     return _changeAdjustDebtRate({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -53,7 +59,9 @@ export const useAdjustDebtRateChange = (options?: OperationVariables) => {
   };
 };
 
-export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
+export const useAdjustDebtRateRemove = (
+  options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_REMOVE>,
+) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
   const [_removeAdjustDebtRate, { loading }] = useMutation(
@@ -61,10 +69,12 @@ export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
     options,
   );
 
-  const removeAdjustDebtRate = (options?: OperationVariables) => {
+  const removeAdjustDebtRate = (
+    options?: GraphqlMutationOptions<typeof ADJUST_DEBT_RATE_REMOVE>,
+  ) => {
     return _removeAdjustDebtRate({
       ...options,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,
@@ -72,12 +82,12 @@ export const useAdjustDebtRateRemove = (options?: OperationVariables) => {
         });
         options?.onError?.(error);
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         toast({
           title: t('success'),
           description: t('Debt Rate Adjustment removed successfully'),
         });
-        options?.onCompleted?.();
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {

@@ -365,6 +365,14 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The Create ticket action's Priority, Assignee and placement can be made
+  conditional: rows of conditions each with their own value, plus an Otherwise.
+  Placement (channel, pipeline, status) is one conditional over all three keys,
+  rendered by `TicketPlacementFields` for the plain value and every rule, so a
+  rule never pairs a status with another pipeline. The field
+  then stores a `<< cond:<id> >>` token; the rules live in the config's
+  `_conditionals`, are kept by the automations host and are decided by the
+  engine before `frontline_api` receives the config.
 - The mail module's `Email Received` trigger form filters by inbox (a checklist
   of `mailInboxes`, which lists only inboxes in channels the user can see;
   hidden inboxes already selected by someone else stay selected), sender addresses, subject keywords and body keywords, and
@@ -457,6 +465,9 @@
   (`SelectBranches` / `SelectDepartments` from `ui-modules`) bound to the
   `branchIds` / `departmentIds` query params, which `useTicketsVariables` sends
   as `ITicketFilter.branchIds` / `departmentIds`.
+- Ticket detail and the ticket table edit the single `branchId` /
+  `departmentId` through `SelectBranchTicket` / `SelectDepartmentTicket` with
+  an `id`; detail gates them by `canEditTicket` like its other fields.
 - The same filter carries the shared `PropertiesFilter` from `ui-modules`
   scoped to `frontline:ticket`; its `propertiesData` query param is sent
   unchanged as `ITicketFilter.propertiesData`.
@@ -668,6 +679,10 @@ owns the setup form and connection actions.
 
 ### Consumes
 
+- `ui-modules` `AutomationConditionalField` for conditional action values; it
+  is a drop-in for `Form.Field` taking the action form, the field names, a label
+  and the same `render`. It needs the automations host's
+  `AutomationConditionalsProvider`; without it the field stays plain.
 - `frontline_api` GraphQL: `GetMyChannels`, `GetChannels`, `GetChannel`,
   `GetPersonalChannel` (get-or-create — reading it provisions the channel),
   `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this

@@ -1,5 +1,7 @@
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { ADJUST_CLOSING_PUBLISH } from '../graphql/adjustClosingPublish';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
@@ -10,7 +12,7 @@ import {
 
 export const useAdjustClosingPublish = (
   adjustId: string,
-  options?: OperationVariables,
+  options?: GraphqlMutationOptions<typeof ADJUST_CLOSING_PUBLISH>,
 ) => {
   const { t } = useTranslation('accounting');
   const [_publishMutation, { loading }] = useMutation(
@@ -18,14 +20,16 @@ export const useAdjustClosingPublish = (
     options,
   );
 
-  const publishAdjust = (options?: OperationVariables) => {
+  const publishAdjust = (
+    options?: GraphqlMutationOptions<typeof ADJUST_CLOSING_PUBLISH>,
+  ) => {
     return _publishMutation({
       ...options,
       variables: {
         adjustId,
         ...options?.variables,
       },
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

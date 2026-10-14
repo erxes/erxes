@@ -1,5 +1,5 @@
+import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
 import { Separator, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import type { RefObject } from 'react';
@@ -20,9 +20,9 @@ const parseQueryDate = (value?: string): string => {
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
   const { t } = useTranslation('accounting');
   const [currentOrganization] = useAtom(currentOrganizationState);
-  const [report] = useQueryState('report');
-  const [fromDate] = useQueryState('fromDate');
-  const [toDate] = useQueryState('toDate');
+  const [report] = useQueryState<string>('report');
+  const [fromDate] = useQueryState<string>('fromDate');
+  const [toDate] = useQueryState<string>('toDate');
 
   const title = t(ReportRules[(report as string) || '']?.title || '');
   const from = parseQueryDate(fromDate as string);

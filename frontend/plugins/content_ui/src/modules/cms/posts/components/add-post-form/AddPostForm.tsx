@@ -324,22 +324,25 @@ export const AddPostForm = ({
 
     isSwitchingLanguageRef.current = true;
 
-    if (selectedLanguage === defaultLanguage) {
-      setDefaultLangData({
-        title: form.getValues('title') || '',
-        content: form.getValues('content') || '',
-        excerpt: form.getValues('description') || '',
-        customFieldsData: form.getValues('customFieldsData') || [],
-      });
+    // Snapshot the outgoing language's values synchronously, BEFORE the
+    // setValue calls below. State updaters run later during render, at which
+    // point the form already holds the incoming language's values — reading
+    // form.getValues() there would store the wrong language's data (e.g. the
+    // default-language title overwriting the translation being left).
+    const outgoingData = {
+      title: form.getValues('title') || '',
+      content: form.getValues('content') || '',
+      excerpt: form.getValues('description') || '',
+      customFieldsData: form.getValues('customFieldsData') || [],
+    };
+    const outgoingLanguage = selectedLanguage;
+
+    if (outgoingLanguage === defaultLanguage) {
+      setDefaultLangData(outgoingData);
     } else {
       setTranslations((prev) => ({
         ...prev,
-        [selectedLanguage]: {
-          title: form.getValues('title') || '',
-          content: form.getValues('content') || '',
-          excerpt: form.getValues('description') || '',
-          customFieldsData: form.getValues('customFieldsData') || [],
-        },
+        [outgoingLanguage]: outgoingData,
       }));
     }
 

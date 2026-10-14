@@ -150,6 +150,8 @@ const updateTicketParams = `
   statusId: String
   destinationStatusId: String
   priority: Int
+  branchId: String
+  departmentId: String
   labelIds: [String]
   tagIds: [String]
   assigneeId: String

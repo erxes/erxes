@@ -101,7 +101,9 @@ const getColumns = (
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <AccountsInline
-          accountIds={[cell.getValue() as string]}
+          accountIds={[cell.getValue() as string].filter((id): id is string =>
+            Boolean(id),
+          )}
           permissionMode="read"
         />
       </RecordTableInlineCell>
@@ -172,17 +174,12 @@ const AccountConfigSheet = ({
   const { add, edit, adding, editing } = useFixedAssetAccountConfigMutations();
 
   const handleSubmit = (data: TFixedAssetAccountConfigForm) => {
-    const options = {
-      variables: config ? { _id: config._id, ...data } : data,
-      onCompleted: onClose,
-    };
-
     if (config) {
-      edit(options);
+      edit({ variables: { _id: config._id, ...data }, onCompleted: onClose });
       return;
     }
 
-    add(options);
+    add({ variables: data, onCompleted: onClose });
   };
 
   return (

@@ -1,3 +1,4 @@
+import { normalizeAccountingRule } from '@/check-synced/utils/accountingRules';
 import { useQuery } from '@apollo/client';
 import { IconSettings } from '@tabler/icons-react';
 import {
@@ -13,10 +14,6 @@ import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_ORDER_RULES_QUERY } from '../graphql/checkSyncedOrders';
 import { AccountingOrderRule } from '../types';
-
-type AccountingSyncOrderRulesQueryResult = {
-  accountingsConfigs?: AccountingOrderRule[];
-};
 
 const ORDER_RETURN_TYPE_LABELS = {
   delete: 'delete',
@@ -37,13 +34,21 @@ const getRuleTypeLabelKeys = (rule: AccountingOrderRule) => {
     : ['sale-return'];
 };
 
-const useAccountingCheckSyncedOrderRules = () =>
-  useQuery<AccountingSyncOrderRulesQueryResult>(
-    ACCOUNTING_SYNC_ORDER_RULES_QUERY,
-    {
-      variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_ORDER },
-    },
-  );
+const useAccountingCheckSyncedOrderRules = () => {
+  const result = useQuery(ACCOUNTING_SYNC_ORDER_RULES_QUERY, {
+    variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_ORDER },
+  });
+  return {
+    ...result,
+    data: result.data
+      ? {
+          accountingsConfigs: (result.data.accountingsConfigs ?? []).flatMap(
+            (config) => (config ? [normalizeAccountingRule(config)] : []),
+          ),
+        }
+      : undefined,
+  };
+};
 
 const useApplyOrderRuleFilter = () => {
   const [{ orderRuleId, pos }, setQueries] = useMultiQueryState<{

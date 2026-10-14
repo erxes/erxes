@@ -94,7 +94,7 @@ const UserPickerCommand = ({
 
 const UserBarLabel = ({ userId }: { userId: string }) => {
   const { userDetail } = useMemberInline({
-    variables: { _id: userId },
+    variables: { _id: userId ?? '' },
     skip: !userId,
   });
   const fullName = userDetail?.details?.fullName || userDetail?.email || userId;

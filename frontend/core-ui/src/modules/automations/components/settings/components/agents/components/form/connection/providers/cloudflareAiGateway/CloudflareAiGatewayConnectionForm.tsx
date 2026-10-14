@@ -1,4 +1,3 @@
-import { AiAgentModelSelect } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentModelSelect';
 import { AiAgentSecretField } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentSecretField';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { Form, Input, Select } from 'erxes-ui';
@@ -17,8 +16,6 @@ export const CloudflareAiGatewayConnectionForm = ({
 
   return (
     <div className="grid gap-4">
-      <AiAgentModelSelect />
-
       <Form.Field
         control={control}
         name="connection.config.mode"

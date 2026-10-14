@@ -1,14 +1,17 @@
 import {
+  mergeGraphqlCursorData,
+  toCursorPageInfo,
+} from '@/utils/graphqlCursor';
+import { toGraphqlView } from '@/utils/graphql';
+import {
   ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
   ACCOUNTING_CHECK_SYNCED_MUTATION,
   ACCOUNTING_SYNC_DEALS_MUTATION,
 } from '../graphql/checkSyncedDeals';
 import type {
   AccountingCheckSyncedDeal,
-  AccountingCheckSyncedResponse,
   AccountingCheckSyncedStatus,
   AccountingDealsQueryResult,
-  AccountingSyncResult,
 } from '../types';
 import type { AccountingCheckSyncedDealsStatusCounts } from '../states';
 import {
@@ -18,7 +21,6 @@ import {
 import {
   EnumCursorDirection,
   isUndefinedOrNull,
-  mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
@@ -109,23 +111,30 @@ export const useAccountingCheckSyncedDealsVariables = (
     stageId: stageId || undefined,
     search: dealSearch || undefined,
     number: String(number ?? '') || undefined,
-    startDate: parseDateRangeFromString(dateRange)?.from,
-    endDate: parseDateRangeFromString(dateRange)?.to,
-    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
-    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
-    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
-      ?.from,
-    stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
+    startDate: parseDateRangeFromString(dateRange)?.from?.toISOString(),
+    endDate: parseDateRangeFromString(dateRange)?.to?.toISOString(),
+    createdStartDate:
+      parseDateRangeFromString(createdDateRange)?.from?.toISOString(),
+    createdEndDate:
+      parseDateRangeFromString(createdDateRange)?.to?.toISOString(),
+    stageChangedStartDate: parseDateRangeFromString(
+      stageChangedDateRange,
+    )?.from?.toISOString(),
+    stageChangedEndDate: parseDateRangeFromString(
+      stageChangedDateRange,
+    )?.to?.toISOString(),
     dateType: dateType || undefined,
     ruleId: ruleId || undefined,
     ...variables,
   };
 };
 
-type UseAccountingCheckSyncedDealsOptions =
-  QueryHookOptions<AccountingDealsQueryResult> & {
-    sessionKey?: string;
-  };
+type UseAccountingCheckSyncedDealsOptions = QueryHookOptions<
+  import('~/gql/graphql').AccountingCheckSyncedDealsQuery,
+  import('~/gql/graphql').AccountingCheckSyncedDealsQueryVariables
+> & {
+  sessionKey?: string;
+};
 
 export const useAccountingCheckSyncedDeals = ({
   sessionKey,
@@ -144,24 +153,26 @@ export const useAccountingCheckSyncedDeals = ({
     sessionKey,
   );
 
-  const { data, loading, fetchMore } = useQuery<AccountingDealsQueryResult>(
-    ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
-    {
-      ...options,
-      variables: {
-        skip: options.skip || isUndefinedOrNull(variables.cursor),
-        ...variables,
-      },
+  const {
+    data: queryData,
+    loading,
+    fetchMore,
+  } = useQuery(ACCOUNTING_CHECK_SYNCED_DEALS_QUERY, {
+    ...options,
+    skip: options.skip || isUndefinedOrNull(variables.cursor),
+    variables: {
+      ...variables,
     },
+  });
+  const data = toGraphqlView(queryData);
+
+  const [accountingCheckSynced, { loading: checking }] = useMutation(
+    ACCOUNTING_CHECK_SYNCED_MUTATION,
   );
 
-  const [accountingCheckSynced, { loading: checking }] = useMutation<{
-    accountingCheckSynced: AccountingCheckSyncedResponse[];
-  }>(ACCOUNTING_CHECK_SYNCED_MUTATION);
-
-  const [accountingSyncDeals, { loading: syncing }] = useMutation<{
-    accountingSyncDeals: AccountingSyncResult;
-  }>(ACCOUNTING_SYNC_DEALS_MUTATION);
+  const [accountingSyncDeals, { loading: syncing }] = useMutation(
+    ACCOUNTING_SYNC_DEALS_MUTATION,
+  );
 
   const { list: rawDeals, totalCount, pageInfo } = data?.deals || {};
 
@@ -260,7 +271,7 @@ export const useAccountingCheckSyncedDeals = ({
         },
       });
 
-      const result = response.data?.accountingSyncDeals;
+      const result = toGraphqlView(response.data?.accountingSyncDeals);
 
       if (!result) {
         summary.error += batchIds.length;
@@ -392,7 +403,9 @@ export const useAccountingCheckSyncedDeals = ({
   }: {
     direction: EnumCursorDirection;
   }) => {
-    if (!validateFetchMore({ direction, pageInfo })) {
+    if (
+      !validateFetchMore({ direction, pageInfo: toCursorPageInfo(pageInfo) })
+    ) {
       return;
     }
 
@@ -413,7 +426,7 @@ export const useAccountingCheckSyncedDeals = ({
         return {
           ...prev,
           deals: {
-            ...mergeCursorData({
+            ...mergeGraphqlCursorData({
               direction,
               fetchMoreResult: fetchMoreResult.deals,
               prevResult: prev.deals,

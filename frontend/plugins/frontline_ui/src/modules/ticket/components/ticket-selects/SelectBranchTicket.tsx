@@ -3,6 +3,7 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
+import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { PopoverScoped } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +50,7 @@ const SelectBranchTicketRoot = ({
   scope,
   value,
   onValueChange,
+  id,
 }: {
   variant?: `${SelectTriggerVariant}`;
   disabled?: boolean;
@@ -56,18 +58,27 @@ const SelectBranchTicketRoot = ({
   scope?: string;
   value: string;
   onValueChange?: (value: string) => void;
+  id?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
+  const { updateTicket } = useUpdateTicket();
+
+  const handleValueChange = (branchId: string) => {
+    if (id) {
+      updateTicket({ variables: { _id: id, branchId } });
+    }
+    onValueChange?.(branchId);
+    setOpen(false);
+  };
 
   return (
     <SelectBranches
       mode="single"
       value={value}
-      onValueChange={(branchId) => {
-        onValueChange?.(branchId === value ? '' : (branchId as string));
-        setOpen(false);
-      }}
+      onValueChange={(branchId) =>
+        handleValueChange(branchId === value ? '' : (branchId as string))
+      }
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket

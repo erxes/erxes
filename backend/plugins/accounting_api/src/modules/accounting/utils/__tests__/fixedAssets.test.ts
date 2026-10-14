@@ -224,7 +224,15 @@ describe('fixed asset income', () => {
   it('creates opening depreciation from detail follow info', async () => {
     const models = makeModels();
     const transaction = makeIncomeTransaction({
-      followInfos: {},
+      followInfos: {
+        fxaIncomeDetails: [
+          {
+            tempId: 'detail-income',
+            transactionDetailId: 'detail-income',
+            salvageValue: 50,
+          },
+        ],
+      },
       details: [
         {
           _id: 'detail-income',
@@ -268,6 +276,76 @@ describe('fixed asset income', () => {
       'user-a',
     );
   });
+
+  it.each([
+    {
+      name: 'detail residual value',
+      detailValue: 5,
+      detailDepreciation: 0,
+      legacyValue: 10,
+      expected: 5,
+    },
+    {
+      name: 'explicit zero residual value',
+      detailValue: 0,
+      detailDepreciation: 0,
+      legacyValue: 10,
+      expected: 0,
+    },
+    {
+      name: 'category default despite root residual value',
+      detailValue: undefined,
+      detailDepreciation: undefined,
+      legacyValue: 10,
+      expected: 50,
+    },
+    {
+      name: 'category default residual value',
+      detailValue: undefined,
+      detailDepreciation: undefined,
+      legacyValue: undefined,
+      expected: 50,
+    },
+  ])(
+    'preserves $name when synchronizing acquisition',
+    async ({ detailValue, detailDepreciation, legacyValue, expected }) => {
+      const models = makeModels();
+      const transaction = makeIncomeTransaction();
+      const doc = {
+        ...transaction,
+        details: [
+          {
+            ...transaction.details[0],
+            followInfos: {
+              salvageValue: detailValue,
+              preDeprecation: detailDepreciation,
+            },
+          },
+        ],
+        followInfos: {
+          fxaIncomeDetails: [
+            {
+              transactionDetailId: 'detail-income',
+              salvageValue: legacyValue,
+              preDeprecation: 20,
+            },
+          ],
+        },
+      };
+      await syncFxaIncomeDetails(models as never, 'user-a', doc as never);
+      expect(models.FixedAssets.create).toHaveBeenCalledWith(
+        expect.objectContaining({ salvageValue: expected }),
+      );
+      expect(models.Transactions.createTransaction).not.toHaveBeenCalledWith(
+        expect.objectContaining({ journal: JOURNALS.FXA_DEP_IN }),
+        expect.anything(),
+      );
+      expect(models.AdjustFixedAssets.updateOne).not.toHaveBeenCalled();
+      expect(
+        models.AdjustFxaDetails.replaceAdjustFxaDetails,
+      ).not.toHaveBeenCalled();
+    },
+  );
 
   it('reuses one fixed asset for income details with the same acquisition code', async () => {
     const models = makeModels();
@@ -931,7 +1009,7 @@ describe('fixed asset move follow transaction', () => {
     );
   });
 
-  it('uses migration supplied accumulated depreciation summaries for internal moves', async () => {
+  it('multiplies detail unit preDeprecation for internal move follows', async () => {
     const models = makeModels();
     const transaction = {
       _id: 'move-a',
@@ -947,21 +1025,16 @@ describe('fixed asset move follow transaction', () => {
         moveInBranchId: 'dest-branch',
         moveInDepartmentId: 'dest-dept',
         accumulatedDepreciationAccountId: 'acc-dep-account',
-        fxaDisposalSummaries: [
-          {
-            transactionDetailId: 'detail-move',
-            accumulatedDepreciation: 245000,
-          },
-        ],
       },
       details: [
         {
           _id: 'detail-move',
+          followInfos: { preDeprecation: 245000 },
           fixedAssetId: 'asset-a',
           accountId: 'asset-account',
-          count: 1,
+          count: 2,
           unitPrice: 350000,
-          amount: 350000,
+          amount: 700000,
         },
       ],
     };
@@ -999,7 +1072,8 @@ describe('fixed asset move follow transaction', () => {
           branchId: 'source-branch',
           details: [
             expect.objectContaining({
-              amount: 245000,
+              amount: 490000,
+              unitPrice: 245000,
               branchId: 'source-branch',
             }),
           ],
@@ -1011,7 +1085,8 @@ describe('fixed asset move follow transaction', () => {
           branchId: 'dest-branch',
           details: [
             expect.objectContaining({
-              amount: 245000,
+              amount: 490000,
+              unitPrice: 245000,
               branchId: 'dest-branch',
             }),
           ],
@@ -1275,6 +1350,7 @@ describe('fixed asset adjustment', () => {
             branchId: 'branch-a',
             departmentId: 'dept-a',
             originalCost: 2400,
+            preDeprecation: expect.any(Number),
             depreciationAmount: expect.any(Number),
           }),
           expect.objectContaining({
@@ -1282,6 +1358,7 @@ describe('fixed asset adjustment', () => {
             branchId: 'branch-b',
             departmentId: 'dept-b',
             originalCost: 2400,
+            preDeprecation: expect.any(Number),
             depreciationAmount: expect.any(Number),
           }),
         ]),
@@ -1371,6 +1448,64 @@ describe('fixed asset adjustment', () => {
 });
 
 describe('fixed asset sale and disposal summaries', () => {
+  it.each([-1, NaN, Infinity])(
+    'rejects invalid unit preDeprecation %s',
+    async (value) => {
+      const models = makeModels();
+      await expect(
+        getFxaDisposalSummaries(
+          models as never,
+          {
+            journal: JOURNALS.FXA_OUT,
+            details: [
+              {
+                fixedAssetId: 'asset-a',
+                count: 2,
+                followInfos: { preDeprecation: value },
+              },
+            ],
+          } as never,
+        ),
+      ).rejects.toThrow('Fixed asset unit depreciation must be nonnegative');
+    },
+  );
+
+  it.each([0, 25])(
+    'uses explicit unit preDeprecation %s for each same-asset row',
+    async (amount) => {
+      const models = makeModels();
+      models.FixedAssets.find.mockReturnValue(
+        queryResult([
+          { _id: 'asset-a', originalCost: 100, count: 2, currentCount: 0 },
+        ]),
+      );
+      const summaries = await getFxaDisposalSummaries(
+        models as never,
+        {
+          journal: JOURNALS.FXA_OUT,
+          details: [
+            {
+              _id: 'row-1',
+              fixedAssetId: 'asset-a',
+              count: 2,
+              followInfos: { preDeprecation: amount },
+            },
+            {
+              _id: 'row-2',
+              fixedAssetId: 'asset-a',
+              count: 3,
+              followInfos: { preDeprecation: 10 },
+            },
+          ],
+        } as never,
+      );
+      expect(summaries.map((row) => row.accumulatedDepreciation)).toEqual([
+        amount * 2,
+        30,
+      ]);
+    },
+  );
+
   it('summarizes disposal from fixed asset cost base and latest adjustment cache', async () => {
     const models = makeModels();
 
