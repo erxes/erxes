@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.24](https://github.com/erxes/erxes/compare/3.2.23...3.2.24) (2026-10-14)
+
+
+### Features
+
+* **pos, sales:** enhance payment validation and error handling for loyalty points ([a4eb4a2](https://github.com/erxes/erxes/commit/a4eb4a26c1d23d4b48e83c88cdfd2e159021b4fd))
+
 ## [3.2.23](https://github.com/erxes/erxes/compare/3.2.22...3.2.23) (2026-10-14)
 
 
