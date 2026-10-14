@@ -157,6 +157,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         // Provider updates may repeat the primary assignee without changing ownership.
         if (doc.assignedUserId !== current.assignedUserId) {
           doc.assignedUserIds = doc.assignedUserId ? [doc.assignedUserId] : [];
+        } else {
+          delete doc.assignedUserId;
         }
       }
       if (doc.content) {

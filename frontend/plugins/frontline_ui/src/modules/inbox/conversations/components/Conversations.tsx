@@ -56,7 +56,9 @@ export const Conversations = () => {
   );
   const presence = useVisibleCustomerPresence(
     containerRef,
-    (conversations ?? []).map((conversation) => conversation._id).join(','),
+    (conversations ?? [])
+      .map(({ _id, customer }) => `${_id}:${customer?._id ?? ''}`)
+      .join(','),
   );
 
   const discordConversationIds = useMemo(
