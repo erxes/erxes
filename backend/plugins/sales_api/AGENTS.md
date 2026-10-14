@@ -152,8 +152,15 @@
 - A deal's voucher and coupon (`extraData.voucherId` / `couponCode`) are used
   only where the deal earns: `syncDealPoints` calls loyalty `confirmLoyalties`
   (target `sales` + deal id) after the customer check, and a refund stage calls
-  `voucher.returnTarget` after `score.refund`. Deal saves no longer redeem them
-  on every edit. Deals have no voucher picker, so nothing holds one yet.
+  `voucher.returnTarget` after `score.refund`, then `voucher.releaseTarget`.
+  Deal saves no longer redeem them on every edit. Saving products with
+  `extraData` holds the picked voucher for the deal's first customer
+  (`syncDealVoucher` in `editDeal`, before pricing; it releases the previous
+  pick and refuses a deal without a customer), and `checkLoyalties` sends
+  `discountInfo {voucherId, couponCode, targetId}` so the deal is priced with
+  them. Removing a deal releases its held vouchers. Pricing and loyalty
+  restate their own `discountInfos` (`pricing`, `voucher`) on every save, so a
+  plan, voucher or coupon that no longer applies takes its discount with it.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
@@ -516,9 +523,9 @@
 
 ### `2026-10-14` — Vouchers used once, returned with the order
 
-- **Summary:** POS returns give vouchers back and a refused voucher no longer skips the points; deal vouchers and coupons are used only in an earning stage and returned in a refund stage.
-- **Affected areas:** `modules/pos/utils.ts`, `modules/sales/utils/dealPoints.ts` (+ test), `modules/sales/graphql/resolvers/mutations/{utils,loyaltyUtils}.ts` (deal `confirmLoyalties` helper removed).
-- **Contracts changed:** Consumes loyalty tRPC `voucher.returnTarget`.
+- **Summary:** POS returns give vouchers back and a refused voucher no longer skips the points; a deal holds its picked voucher, prices with it and its coupon, uses them only in an earning stage and returns or releases them in a refund stage or on removal.
+- **Affected areas:** `modules/pos/utils.ts`, `modules/sales/utils/dealPoints.ts` (+ test), `modules/sales/db/models/Deals.ts`, `modules/sales/graphql/resolvers/mutations/{utils,loyaltyUtils}.ts` (deal `confirmLoyalties` helper removed).
+- **Contracts changed:** Consumes loyalty tRPC `voucher.returnTarget`, `voucher.hold`, `voucher.release`, `voucher.releaseTarget`.
 
 ### `2026-10-09` — Purchases set a tier without automations
 

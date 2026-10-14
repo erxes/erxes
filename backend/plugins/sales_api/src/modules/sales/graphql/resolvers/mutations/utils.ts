@@ -29,6 +29,7 @@ import {
   checkDealPoints,
   planDealPoints,
   syncDealPoints,
+  syncDealVoucher,
 } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
@@ -200,6 +201,20 @@ export const editDeal = async ({
     );
 
     doc.assignedUserIds = assignedUserIds;
+
+    // A voucher picked or taken off is held or freed before it is priced in.
+    if (doc.extraData !== undefined) {
+      await syncDealVoucher({
+        subdomain,
+        dealId: _id,
+        previousVoucherId: oldDeal.extraData?.voucherId,
+        voucherId: doc.extraData?.voucherId,
+        totalAmount: (doc.productsData || [])
+          .filter((pd) => pd.tickUsed && !pd.bonusCount)
+          .reduce((sum, pd) => sum + (Number(pd.amount) || 0), 0),
+        userId: user._id,
+      });
+    }
 
     // Pricing first: a voucher or coupon comes off the priced amount, and
     // pricing never mistakes their discount for one a plan baked in.

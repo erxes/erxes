@@ -348,8 +348,12 @@ async function applyDiscountSource(
       targetId,
     });
   } else {
-    source = await models.Coupons.checkCoupon({ code: sourceId, ownerId });
-    await models.Coupons.checkCoupon({ code: sourceId, ownerId, totalAmount });
+    source = await models.Coupons.checkCoupon({
+      code: sourceId,
+      ownerId,
+      totalAmount,
+      targetId,
+    });
   }
   await applyDiscountRule(
     models,

@@ -173,3 +173,66 @@ export const getOwnerSummary = async (
     vouchers,
   };
 };
+
+/**
+ * What loyalty already settled on one order or deal: the vouchers it used
+ * there, and whether a coupon was redeemed there. Settled, its pick is final.
+ */
+export const getTargetSettled = async (
+  models: IModels,
+  {
+    ownerType,
+    ownerId,
+    targetId,
+  }: {
+    ownerType: TLoyaltyAccountOwnerType;
+    ownerId: string;
+    targetId: string;
+  },
+) => {
+  const [used, couponRedeemed] = await Promise.all([
+    models.Vouchers.find({
+      ownerType,
+      ownerId,
+      status: VOUCHER_STATUS.LOSS,
+      'usedIn.targetId': targetId,
+    }).lean(),
+    models.Coupons.exists({ 'usageLogs.targetId': targetId }),
+  ]);
+  const campaigns = used.length
+    ? await models.VoucherCampaigns.find({
+        _id: { $in: [...new Set(used.map((v) => v.campaignId))] },
+      }).lean()
+    : [];
+  const campaignById = new Map(campaigns.map((c) => [c._id, c]));
+
+  const vouchers: IOwnerSummaryVoucher[] = used.flatMap((voucher) => {
+    const campaign = campaignById.get(voucher.campaignId);
+
+    if (!campaign) {
+      return [];
+    }
+
+    const terms = voucherTerms(voucher, campaign);
+
+    return [
+      {
+        _id: voucher._id,
+        campaignId: campaign._id,
+        title: terms.title || campaign.title,
+        voucherType: terms.voucherType || '',
+        kind: terms.kind,
+        value: terms.value,
+        expiresAt: voucherExpiresAt(voucher, campaign),
+        status: VOUCHER_STATUS.LOSS,
+        autoApplied: false,
+        applicable: false,
+      },
+    ];
+  });
+
+  return {
+    vouchers,
+    settled: !!vouchers.length || !!couponRedeemed,
+  };
+};

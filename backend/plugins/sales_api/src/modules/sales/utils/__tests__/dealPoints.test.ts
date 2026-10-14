@@ -57,6 +57,7 @@ type TDealDoc = {
     tickUsed?: boolean;
   }[];
   paymentsData?: Record<string, { amount: number }>;
+  extraData?: { voucherId?: string };
 };
 
 const deal = (stageId: string, amount = 100_000, extra = {}): TDealDoc => ({
@@ -245,13 +246,13 @@ describe('syncWrittenDealPoints — writes outside the deal mutations count too'
     expect(askedOf()).toEqual(['confirmLoyalties', 'earn']);
   });
 
-  it('gives back points and vouchers for a deal an automation moved to a refund stage', async () => {
+  it('gives back points and vouchers, and lets go of held ones, for a deal an automation moved to a refund stage', async () => {
     await syncWritten(
       [{ _id: 'deal-1', ...deal('lost') }],
       [{ _id: 'deal-1', ...deal('won') }],
     );
 
-    expect(askedOf()).toEqual(['refund', 'returnTarget']);
+    expect(askedOf()).toEqual(['refund', 'returnTarget', 'releaseTarget']);
   });
 
   it('asks nothing for a deal written where nothing earns', async () => {

@@ -50,12 +50,21 @@ export const checkLoyalties = async (
         quantity: item.quantity,
         price: item.unitPrice,
       })),
+      // The deal's own held voucher and coupon pass; `targetId` says whose.
+      discountInfo: {
+        voucherId: deal.extraData?.voucherId || undefined,
+        couponCode: deal.extraData?.couponCode || undefined,
+        targetId: _id,
+      },
     },
     defaultValue: {},
   });
 
   for (const item of activeProductsData) {
-    item.discountInfos = ensureHandDiscountInfo(item);
+    // Restated every save: a voucher or coupon taken off takes its discount.
+    item.discountInfos = ensureHandDiscountInfo(item).filter(
+      (info) => info.type !== 'voucher',
+    );
 
     const loyalty = loyalties[item.productId];
 
@@ -142,7 +151,10 @@ export const checkPricing = async (
   const bonusProductsToAdd: Record<string, { count: number }> = {};
 
   for (const item of activeProductsData) {
-    item.discountInfos = ensureHandDiscountInfo(item);
+    // Restated every save: a plan that no longer applies takes its discount.
+    item.discountInfos = ensureHandDiscountInfo(item).filter(
+      (info) => info.type !== 'pricing',
+    );
 
     const discount = pricing[item._id || ''];
 

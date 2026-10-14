@@ -8,7 +8,10 @@ import {
   getTotalAmounts,
   watchItem,
 } from '../../utils';
-import { refundDealPoints } from '../../utils/dealPoints';
+import {
+  refundDealPoints,
+  releaseDealVouchers,
+} from '../../utils/dealPoints';
 import { normalizeProductDiscountInfos } from '../../utils/discountInfos';
 import { normalizeProductCurrencies } from '../../utils/productCurrency';
 import { normalizeProductUomInfo } from '../../utils/productUom';
@@ -141,6 +144,7 @@ export const loadDealClass = (
       // A removed deal keeps none of the points it spent or earned.
       for (const deal of deals) {
         await refundDealPoints(subdomain, deal._id, 'Deal removed');
+        await releaseDealVouchers(subdomain, deal._id);
       }
 
       for (const deal of deals) {
