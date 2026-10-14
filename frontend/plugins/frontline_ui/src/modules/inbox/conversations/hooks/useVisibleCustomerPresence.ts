@@ -27,30 +27,63 @@ export const useVisibleCustomerPresence = (
     const root = container.current;
     if (!root) return;
     const visible = new Set<HTMLElement>();
+    const observed = new Set<HTMLElement>();
+    const publishVisibleIds = () => {
+      const next = [
+        ...new Set(
+          [...visible]
+            .map((element) => element.dataset.inboxCustomerId)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ].sort((left, right) => left.localeCompare(right));
+      setIds((previous) =>
+        previous.join(',') === next.join(',') ? previous : next,
+      );
+    };
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!(entry.target instanceof HTMLElement)) return;
+          if (
+            !(entry.target instanceof HTMLElement) ||
+            !observed.has(entry.target)
+          )
+            return;
           if (entry.isIntersecting) visible.add(entry.target);
           else visible.delete(entry.target);
         });
-        const next = [
-          ...new Set(
-            [...visible]
-              .map((element) => element.dataset.inboxCustomerId)
-              .filter((id): id is string => Boolean(id)),
-          ),
-        ].sort((left, right) => left.localeCompare(right));
-        setIds((previous) =>
-          previous.join(',') === next.join(',') ? previous : next,
-        );
+        publishVisibleIds();
       },
       { root },
     );
-    root
-      .querySelectorAll('[data-inbox-customer-id]')
-      .forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
+    const syncMarkers = () => {
+      const markers = new Set(
+        root.querySelectorAll<HTMLElement>('[data-inbox-customer-id]'),
+      );
+      observed.forEach((element) => {
+        if (markers.has(element)) return;
+        observer.unobserve(element);
+        observed.delete(element);
+        visible.delete(element);
+      });
+      markers.forEach((element) => {
+        if (observed.has(element)) return;
+        observed.add(element);
+        observer.observe(element);
+      });
+      publishVisibleIds();
+    };
+    syncMarkers();
+    const mutations = new MutationObserver(syncMarkers);
+    mutations.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-inbox-customer-id'],
+    });
+    return () => {
+      mutations.disconnect();
+      observer.disconnect();
+    };
   }, [container, listKey]);
   const { data, startPolling, stopPolling } = useQuery<
     { customers?: { list?: CustomerPresence[] } | null },
