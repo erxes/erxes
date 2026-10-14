@@ -1,7 +1,14 @@
 import { loadScoreLogClass } from '@/score/db/models/ScoreLog';
 
+type TargetTotalsPipeline = [
+  { $match: { targetId: { $in: string[] } } },
+  ...unknown[],
+];
+
 const setup = (rows: { _id: string; total: number }[]) => {
-  const aggregate = jest.fn(async () => rows);
+  const aggregate = jest.fn<Promise<typeof rows>, [TargetTotalsPipeline]>(
+    async () => rows,
+  );
   const schema = loadScoreLogClass(
     { ScoreLogs: { aggregate } } as never,
     'test',
