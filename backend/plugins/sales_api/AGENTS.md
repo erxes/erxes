@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -32,6 +32,9 @@
 
 ## Current Capabilities
 
+- `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
+  including subscriptions, to `generated/schema.graphql` for type-generation
+  tooling without starting the Sales service or executing resolvers.
 - POS catalog sync checks loyalty base pricing in batches of 100 products,
   with at most eight concurrent requests, and merges discounts by product id
   before applying them to prices. Product-group pushes propagate POS client
@@ -65,6 +68,7 @@
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Schema export              | `print-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                       |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -228,6 +232,10 @@
 
 ## Local Invariants
 
+- `generated/schema.graphql` is generated and gitignored; edit the owning SDL
+  files and re-run `schema:print` instead of editing the exported schema.
+  The exporter exits explicitly because shared utility imports open Redis
+  clients that would otherwise keep the command running.
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.
@@ -446,6 +454,8 @@
 
 ## Validation
 
+- `pnpm nx run sales_api:schema:print --skip-nx-cache`
+- `pnpm nx lint sales_api`
 - POS catalog sync smoke: sync more than 100 products with base pricing and
   verify discounts apply to products on both sides of each batch boundary.
 - `pnpm nx build sales_api`

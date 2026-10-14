@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-12`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -181,6 +181,10 @@
 ### Consumes
 
 - `sales_api` GraphQL pipeline, deal, product, and POS contracts.
+- For type-generation tooling, `pnpm nx run sales_api:schema:print` exports
+  Sales' schema to `backend/plugins/sales_api/generated/schema.graphql`.
+  This file describes the Sales subgraph; documents using public Core or
+  other service fields also require those services' contracts for validation.
 - `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `SalesStage.loyaltyPoints`, `Pos.earnTier`; loyalty `loyaltyAccountTypes` (tier wallets); core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
 - Core properties through public `ui-modules` property hooks with
   `contentType: 'sales:deal'` and, for the POS customer form,
