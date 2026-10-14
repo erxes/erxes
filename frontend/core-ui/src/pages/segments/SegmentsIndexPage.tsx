@@ -1,4 +1,6 @@
 import {
+  Breadcrumb,
+  Button,
   PageContainer,
   Separator,
   Spinner,
@@ -51,10 +53,18 @@ export default function SegmentsIndexPage() {
 
   return (
     <PageContainer className="flex flex-col h-full">
-      <PageHeader className="p-3 mx-0">
+      <PageHeader>
         <PageHeader.Start>
-          <IconChartPie className="size-4" />
-          <span className="font-medium">{t('segment')}</span>
+          <Breadcrumb>
+            <Breadcrumb.List className="gap-1">
+              <Breadcrumb.Item>
+                <Button variant="ghost">
+                  <IconChartPie />
+                  {t('segment')}
+                </Button>
+              </Breadcrumb.Item>
+            </Breadcrumb.List>
+          </Breadcrumb>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}

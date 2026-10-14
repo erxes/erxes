@@ -150,6 +150,7 @@
 
 ## Local Invariants
 
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle. The accounting settings sidebar and breadcrumb translate `SETTINGS_ROUTES` keys with `t()`; never render a raw key.
 - Accounting UI labels, mutation feedback, and validation messages use the `accounting` translation namespace while retaining generated GraphQL inference and null-safe view adapters.
 - `graphql-codegen-plugin.ts` prepares documents before the first compile and regenerates them on accounting source changes through `beforeRun`/`watchRun`, excluding generated files to avoid rebuild loops. Do not invoke nested Nx commands from config evaluation or rely only on target dependencies for host-launched remotes.
 

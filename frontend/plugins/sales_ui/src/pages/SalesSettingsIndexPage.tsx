@@ -28,8 +28,8 @@ const DealsSettings = () => {
       <BoardsList />
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <SettingsHeader breadcrumbs={[]}>
-          <Button variant="ghost" className="font-semibold">
-            <IconSandbox className="w-4 h-4 text-accent-foreground" />
+          <Button variant="ghost">
+            <IconSandbox />
             {t('boards-and-pipelines')}
           </Button>
           <PipelineFormBar />

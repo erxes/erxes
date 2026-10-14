@@ -27,7 +27,6 @@ import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar
 import { SettingsContextNavigation } from '@/settings/components/SettingsContextNavigation';
 import { AppPath } from '@/types/paths/AppPath';
 import {
-  IconChevronsRight,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
 } from '@tabler/icons-react';
@@ -156,13 +155,13 @@ const NavigationContextPanelFrame = ({
           <Button
             aria-expanded={false}
             aria-label={toggleLabel}
-            className="size-8 shrink-0"
+            className="size-7 shrink-0"
             size="icon"
             title={toggleLabel}
             variant="ghost"
             onClick={() => setOpen(true)}
           >
-            <IconChevronsRight />
+            <IconLayoutSidebarLeftExpand />
           </Button>
           <Separator.Inline className="absolute top-1/2 right-0 -translate-y-1/2" />
         </div>
