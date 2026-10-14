@@ -1,15 +1,14 @@
 import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
-import type { ComposeValues } from '@/integrations/mail/composer/types/directMailComposer';
 import {
   BlockEditor,
   Form,
   ScrollArea,
   usePreviousHotkeyScope,
 } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 
 export const BodyField = () => {
   const {
+    form: { control },
     editor,
     handleBodyChange: onChange,
     sending,
@@ -20,7 +19,6 @@ export const BodyField = () => {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
-  const { control } = useFormContext<ComposeValues>();
   return (
     <ScrollArea.Root className="min-h-0 flex-1">
       <ScrollArea.Viewport className="bg-background px-4 py-3">

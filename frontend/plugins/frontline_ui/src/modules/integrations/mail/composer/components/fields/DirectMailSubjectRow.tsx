@@ -1,9 +1,10 @@
-import type { ComposeValues } from '@/integrations/mail/composer/types/directMailComposer';
+import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
 import { Form, Input, Label } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 
 export const SubjectRow = () => {
-  const { control } = useFormContext<ComposeValues>();
+  const {
+    form: { control },
+  } = useDirectMailComposerContext();
   return (
     <Form.Field
       control={control}

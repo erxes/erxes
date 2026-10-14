@@ -1,11 +1,10 @@
 import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
-import type { ComposeValues } from '@/integrations/mail/composer/types/directMailComposer';
 import { Alert, Button, Form, Label, Select, Spinner } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 export const FromRow = () => {
   const {
+    form: { control },
     sendersLoading,
     selectedSender,
     sendersError,
@@ -16,7 +15,6 @@ export const FromRow = () => {
   } = useDirectMailComposerContext();
   const disabled = sending || Boolean(failedDelivery);
   const { t } = useTranslation('frontline');
-  const { control } = useFormContext<ComposeValues>();
   return (
     <Form.Field
       control={control}

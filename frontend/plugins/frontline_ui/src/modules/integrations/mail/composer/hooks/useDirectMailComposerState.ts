@@ -38,7 +38,10 @@ export const useDirectMailComposerState = (): DirectMailComposerStore => {
     refetch,
   } = useQuery<{
     mailSenders: MailSender[];
-  }>(MAIL_SENDERS_QUERY, { skip: !target || !canComposeEmail });
+  }>(MAIL_SENDERS_QUERY, {
+    skip: !target || !canComposeEmail,
+    fetchPolicy: 'cache-and-network',
+  });
   const { mailSendMail, loading } = useMailSendMail();
   const { mailMessageRetry, loading: retryLoading } = useMailMessageRetry();
   const editor = useBlockEditor({ placeholder: "Type '/' for commands" });

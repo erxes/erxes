@@ -1,19 +1,23 @@
 import { CcBccFields } from '@/integrations/mail/composer/components/recipients/DirectMailCcBccFields';
 import { RecipientRow } from '@/integrations/mail/composer/components/recipients/DirectMailRecipientField';
 import { DirectMailRecipientContext } from '@/integrations/mail/composer/contexts/DirectMailRecipientContext';
-import { useDirectMailComposerFields } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
-import type { ComposeValues } from '@/integrations/mail/composer/types/directMailComposer';
+import {
+  useDirectMailComposerContext,
+  useDirectMailComposerFields,
+} from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
 import { splitAddresses } from '@/integrations/mail/composer/utils/directMailComposer';
 import { Button, Form } from 'erxes-ui';
 import { useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 export const ComposerRecipients = () => {
   const [expanded, setExpanded] = useState(true);
   const { closeEmptyFields } = useDirectMailComposerFields();
   const {
-    control,
-    formState: { errors },
-  } = useFormContext<ComposeValues>();
+    form: {
+      control,
+      formState: { errors },
+    },
+  } = useDirectMailComposerContext();
   const showFields = expanded || Boolean(errors.to || errors.cc || errors.bcc);
   const [to, cc, bcc] = useWatch({ control, name: ['to', 'cc', 'bcc'] });
   const recipients = [
