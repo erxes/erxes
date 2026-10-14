@@ -217,7 +217,7 @@ const fieldsCombinedByContentType = gql`
 `;
 
 const ProductCategories = gql`
-  query ProductCategories {
+  query salesPosSettingsProductCategories {
     productCategories {
       _id
       parentId

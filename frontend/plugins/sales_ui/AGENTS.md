@@ -249,6 +249,9 @@
   renaming an operation, check repository-wide string references such as
   Apollo `refetchQueries` and `include`; preserve the document's exports,
   variables, arguments, and selections.
+- POS report operations use their report context in their names (Orders,
+  ByItems, Covers, Items, or Summary), even when their selections are identical.
+  Keep document exports stable for their existing hooks and selectors.
 - Keep public-contract snapshots faithful to their owning SDL, including
   arguments and nullability. Do not add fields to the snapshot to make an
   unsupported operation validate. Including a contract does not register its

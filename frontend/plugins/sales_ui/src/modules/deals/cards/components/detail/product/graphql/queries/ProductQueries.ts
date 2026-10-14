@@ -68,7 +68,7 @@ export const GET_PRODUCTS = gql`
 `;
 
 export const productCategories = gql`
-  query ProductCategories {
+  query salesDealProductCategories {
     productCategories {
       _id
       parentId

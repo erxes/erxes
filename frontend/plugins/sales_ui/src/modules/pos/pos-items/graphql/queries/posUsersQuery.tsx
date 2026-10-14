@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POS_USERS_QUERY = gql`
-  query PosUsers(
+  query salesPosItemsUsers(
     $page: Int
     $perPage: Int
     $status: String

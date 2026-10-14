@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const POS_COMPANIES_QUERY = gql`
-  query Companies(
+  query salesPosOrdersCompanies(
     $segment: String
     $tagIds: [String]
     $excludeTagIds: [String]

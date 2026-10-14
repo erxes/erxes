@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const PRODUCT_CATEGORIES_QUERY = gql`
-  query ProductCategories(
+  query salesPosByItemsProductCategories(
     $ids: [String]
     $parentId: String
     $withChild: Boolean
