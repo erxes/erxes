@@ -178,12 +178,6 @@ const posRemove = gql`
   }
 `;
 
-const updateConfigs = gql`
-  mutation posConfigsUpdate($posId: String!, $configsMap: JSON!) {
-    posConfigsUpdate(posId: $posId, configsMap: $configsMap)
-  }
-`;
-
 const brandAdd = gql`
   mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON) {
     brandsAdd(
@@ -220,7 +214,6 @@ export default {
   posAdd,
   posEdit,
   posRemove,
-  updateConfigs,
   brandAdd,
   saveProductGroups,
   saveSlots,

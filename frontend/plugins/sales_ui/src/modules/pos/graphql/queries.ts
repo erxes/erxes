@@ -163,15 +163,6 @@ const posDetail = gql`
   }
 `;
 
-const getDbSchemaLabels = gql`
-  query getDbSchemaLabels($type: String) {
-    getDbSchemaLabels(type: $type) {
-      name
-      label
-    }
-  }
-`;
-
 const posEnv = gql`
   query posEnv {
     posEnv
@@ -234,7 +225,6 @@ export default {
   productGroups,
   posDetail,
   posEnv,
-  getDbSchemaLabels,
   posSlots,
   posOrdersSummary,
   ebarimtProductRules,

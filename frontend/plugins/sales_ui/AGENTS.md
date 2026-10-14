@@ -269,6 +269,10 @@
   Stage conversion statistics select `compareNextStage` and the
   `initialDealsTotalCount`, `stayedDealsTotalCount`, and
   `inProcessDealsTotalCount` fields provided by Sales.
+- Before removing an unsupported document, verify its hook, named or object
+  exports, and federation entry points have no consumers. Follow Operation's
+  migration pattern of removing an unused hook together with its unsupported
+  document; do not invent a backend operation to keep unused frontend code.
 - Codegen scans all Sales UI TypeScript documents, excluding only its generated
   `src/gql/` output. Generated files are ignored by Git. Its scalar mapping is
   `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.

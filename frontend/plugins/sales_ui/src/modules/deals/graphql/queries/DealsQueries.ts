@@ -410,20 +410,6 @@ export const GET_DEAL_DETAIL = gql`
   }
 `;
 
-export const GET_ITEMS_COUNT_BY_SEGMENTS = gql`
-  query SalesItemsCountBySegments(
-    $type: String!
-    $boardId: String
-    $pipelineId: String
-  ) {
-    salesItemsCountBySegments(
-      type: $type
-      boardId: $boardId
-      pipelineId: $pipelineId
-    )
-  }
-`;
-
 export const GET_ITEMS_COUNT_BY_ASSIGNED_USER = gql`
   query SalesItemsCountByAssignedUser(
     $pipelineId: String!
