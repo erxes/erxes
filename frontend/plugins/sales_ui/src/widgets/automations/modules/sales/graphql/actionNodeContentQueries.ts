@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_BOARD_PIPELINE_STAGE_NAME = gql`
-  query SalesBoardDetail(
+  query salesAutomationBoardPipelineStageNames(
     $boardId: String!
     $pipelineId: String!
     $stageId: String!

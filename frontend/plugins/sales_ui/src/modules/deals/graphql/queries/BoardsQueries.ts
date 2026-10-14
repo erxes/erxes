@@ -30,7 +30,7 @@ export const GET_BOARD_GET_LAST = gql`
 `;
 
 export const GET_BOARD_DETAIL = gql`
-  query SalesBoardDetail($_id: String!) {
+  query salesDealBoardDetail($_id: String!) {
     salesBoardDetail(_id: $_id) {
       _id
       name

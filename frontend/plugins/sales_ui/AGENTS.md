@@ -244,6 +244,11 @@
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
+- Give distinct GraphQL operations unique Sales-prefixed names, including
+  queries selecting the same backend field for different screens. Before
+  renaming an operation, check repository-wide string references such as
+  Apollo `refetchQueries` and `include`; preserve the document's exports,
+  variables, arguments, and selections.
 - Keep public-contract snapshots faithful to their owning SDL, including
   arguments and nullability. Do not add fields to the snapshot to make an
   unsupported operation validate. Including a contract does not register its
