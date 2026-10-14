@@ -11,27 +11,19 @@ import {
   PriceAdjustType,
 } from '@/pricing/edit-pricing/components';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
-import { IPricingPlanDetail, IPricingFixedValue } from '@/pricing/types';
+import { IPricingPlanDetail } from '@/pricing/types';
 import {
   PRICING_FIXED_VALUE_ADD,
   PRICING_FIXED_VALUE_EDIT,
 } from '@/pricing/graphql/mutations';
 import { FixedPricingTable } from './FixedPricingTable';
+import { CommonRuleFormValues } from './types';
 
 interface CommonRuleInfoProps {
   pricingId?: string;
   pricingDetail?: IPricingPlanDetail;
   embedded?: boolean;
   onSaveActionChange?: (action: ReactNode | null) => void;
-}
-
-interface CommonRuleFormValues {
-  discountType: DiscountType;
-  discountValue: number;
-  priceAdjustType: PriceAdjustType;
-  priceAdjustFactor: number;
-  bonusProductId: string | null;
-  fixedValues: IPricingFixedValue[];
 }
 
 export const CommonRuleInfo = ({
