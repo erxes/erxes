@@ -13,6 +13,7 @@ export const VOUCHERS_QUERY = gql`
     $toDate: String
     $sortField: String
     $sortDirection: Int
+    $expiresWithin: Int
   ) {
     vouchersMain(
       page: $page
@@ -26,6 +27,7 @@ export const VOUCHERS_QUERY = gql`
       toDate: $toDate
       sortField: $sortField
       sortDirection: $sortDirection
+      expiresWithin: $expiresWithin
     ) {
       list {
         _id
@@ -35,6 +37,14 @@ export const VOUCHERS_QUERY = gql`
         ownerType
         ownerId
         status
+        terms
+        expiresAt
+        usedIn
+        heldAt
+        cancelledAt
+        cancelReason
+        createdVia
+        history
       }
       totalCount
     }

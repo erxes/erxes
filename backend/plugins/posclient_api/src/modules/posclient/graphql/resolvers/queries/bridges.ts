@@ -274,7 +274,11 @@ const bridgesQueries = {
   // Shown to the cashier only for the customer chosen on the order.
   async poscCustomerLoyalty(
     _root,
-    { customerId, totalAmount }: { customerId: string; totalAmount?: number },
+    {
+      customerId,
+      totalAmount,
+      orderId,
+    }: { customerId: string; totalAmount?: number; orderId?: string },
     { subdomain, posUser }: IContext,
   ) {
     assertPosUser(posUser);
@@ -285,7 +289,13 @@ const bridgesQueries = {
       method: 'query',
       module: 'loyalty',
       action: 'ownerSummary',
-      input: { ownerType: 'customer', ownerId: customerId, totalAmount },
+      // The open order, so a voucher it already holds reads as its own.
+      input: {
+        ownerType: 'customer',
+        ownerId: customerId,
+        totalAmount,
+        ...(orderId ? { targetId: orderId } : {}),
+      },
       defaultValue: null,
     });
   },
@@ -332,6 +342,7 @@ const bridgesQueries = {
       customerId,
       couponCode,
       voucherId,
+      orderId,
     }: {
       items: {
         key: string;
@@ -343,6 +354,7 @@ const bridgesQueries = {
       customerId?: string;
       couponCode?: string;
       voucherId?: string;
+      orderId?: string;
     },
     { subdomain, models, posUser, config }: IContext,
   ) {
@@ -362,6 +374,7 @@ const bridgesQueries = {
     );
     const doc = await checkLoyalties(subdomain, {
       ...priced,
+      _id: orderId,
       couponCode,
       voucherId,
     });

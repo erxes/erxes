@@ -5,6 +5,7 @@ import { VoucherHotKeyScope } from '../types/path/VoucherHotKeyScope';
 import { VoucherTotalCount } from './VoucherTotalCount';
 import { useVoucherLeadSessionKey } from '../hooks/useVoucherLeadSessionKey';
 import { SelectStatus } from './selects/SelectStatus';
+import { SelectExpiresWithin } from './selects/SelectExpiresWithin';
 import { SelectVoucherCampaign } from './selects/SelectVoucherCampaign';
 import { SelectOwnerType } from './selects/SelectOwnerType';
 import { SelectOrderType } from './selects/SelectOrderType';
@@ -21,6 +22,7 @@ const VoucherFilterPopover = () => {
     orderType: string;
     status: string;
     date: string;
+    expiresWithin: string;
   }>([
     'voucherCampaignId',
     'ownerType',
@@ -29,6 +31,7 @@ const VoucherFilterPopover = () => {
     'orderType',
     'status',
     'date',
+    'expiresWithin',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -54,6 +57,7 @@ const VoucherFilterPopover = () => {
                 <SelectSortField.FilterItem />
                 <SelectOrderType.FilterItem />
                 <SelectStatus.FilterItem />
+                <SelectExpiresWithin.FilterItem />
                 <Filter.Item value="date">
                   <IconCalendar />
                   {t('date')}
@@ -67,6 +71,7 @@ const VoucherFilterPopover = () => {
           <SelectSortField.FilterView />
           <SelectOrderType.FilterView />
           <SelectStatus.FilterView />
+          <SelectExpiresWithin.FilterView />
           <Filter.View filterKey="date">
             <Filter.DateView filterKey="date" />
           </Filter.View>
@@ -112,6 +117,7 @@ export const VoucherFilter = () => {
         <SelectSortField.FilterBar />
         <SelectOrderType.FilterBar />
         <SelectStatus.FilterBar />
+        <SelectExpiresWithin.FilterBar />
         <Filter.BarItem queryKey="date">
           <Filter.BarName>
             <IconCalendar />

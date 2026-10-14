@@ -24,11 +24,12 @@ import {
   resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
-import { checkLoyalties, checkPricing, confirmLoyalties } from './loyaltyUtils';
+import { checkLoyalties, checkPricing } from './loyaltyUtils';
 import {
   checkDealPoints,
   planDealPoints,
   syncDealPoints,
+  syncDealVoucher,
 } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
@@ -201,13 +202,29 @@ export const editDeal = async ({
 
     doc.assignedUserIds = assignedUserIds;
 
-    doc.productsData = await checkLoyalties(subdomain, _id, {
+    // A voucher picked or taken off is held or freed before it is priced in.
+    if (doc.extraData !== undefined) {
+      await syncDealVoucher({
+        subdomain,
+        dealId: _id,
+        previousVoucherId: oldDeal.extraData?.voucherId,
+        voucherId: doc.extraData?.voucherId,
+        totalAmount: (doc.productsData || [])
+          .filter((pd) => pd.tickUsed && !pd.bonusCount)
+          .reduce((sum, pd) => sum + (Number(pd.amount) || 0), 0),
+        userId: user._id,
+      });
+    }
+
+    // Pricing first: a voucher or coupon comes off the priced amount, and
+    // pricing never mistakes their discount for one a plan baked in.
+    doc.productsData = await checkPricing(subdomain, models, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
     });
 
-    doc.productsData = await checkPricing(subdomain, models, {
+    doc.productsData = await checkLoyalties(subdomain, _id, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
@@ -345,7 +362,6 @@ export const editDeal = async ({
     oldDeal,
     userId: user._id,
   });
-  await confirmLoyalties(subdomain, _id, updatedItem);
 
   if (oldDeal.stageId === updatedItem.stageId) {
     return updatedItem;
@@ -425,7 +441,6 @@ export const changeDeal = async (
       oldDeal: item,
       userId,
     });
-    await confirmLoyalties(subdomain, item._id, updatedItem);
   }
 
   await itemMover(models, userId, item, destinationStageId);

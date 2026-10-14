@@ -69,6 +69,17 @@
   a POS's `earnScoreCampaignId` and `earnTier` wallet via `usePosDetail`). Save
   validates and saves only the changed forms, switches to the tab holding
   an error, and closes once both are saved.
+- With loyalty on, a deal's Products tab shows one voucher line
+  (`modules/deals/loyaltyVouchers`: `DealVoucherRow`, `DealVoucherDialog`,
+  `useDealVouchers`) for the first customer: the chosen voucher and coupon as
+  removable chips, one usable voucher applied in a click, and a dialog listing
+  the customer's vouchers (`loyaltyOwnerSaleVouchers`, grouped by campaign and
+  value, unusable ones greyed with the reason) and a coupon input checked with
+  `loyaltyCouponCheck` before it is saved. A choice is saved as
+  `extraData.voucherId` / `couponCode` together with the products, so the
+  backend holds the voucher and prices the deal again. Once loyalty reports
+  the pick `settled` (used in an earning stage), the line is read-only: chips
+  without remove, no picks or dialog, and a "used on this deal" note.
 - The POS Payment tab's `AcceptCouponsField` turns on the till's coupon
   input (`Pos.acceptCoupons`, off by default).
 - The POS Payment tab picks the score campaigns paid orders earn in
@@ -172,6 +183,7 @@
 | Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                      |
 | Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save |
 | Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata |
+| Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                        | Voucher and coupon line on a deal's Products tab, saved with the products        |
 | POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                |
 | POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                              |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                      |
