@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.2.23](https://github.com/erxes/erxes/compare/3.2.22...3.2.23) (2026-10-14)
+
+
+### Bug Fixes
+
+* **erxes-ui:** register IconCrown and IconStairs for automation nodes ([2c7d0d4](https://github.com/erxes/erxes/commit/2c7d0d4efc481eb91d89d51384bad3a72653dbea))
+* mongolian products places print check sessioncode ([9c8ba9a](https://github.com/erxes/erxes/commit/9c8ba9a15248cac1cf72776ea334b5fd5fef706c))
+* posclient work ([bfe1459](https://github.com/erxes/erxes/commit/bfe1459a0ca1776846e6aaed13d2eca8f4b356ae))
+* sales products data fix currency and uom ([1cb5bce](https://github.com/erxes/erxes/commit/1cb5bcef855fa21761bf27c53e2c08d09ec6719b))
+* **sales:** deals productsData uom ([dedf68f](https://github.com/erxes/erxes/commit/dedf68f9b169eae5fccbd674b5a03dd644741255))
+* **segments:** reach related subjects on create, delete and non-join updates ([486a02f](https://github.com/erxes/erxes/commit/486a02f46b4e46e01a4f5761dcf131c9dad994f9))
+
+
+### Features
+
+* **loyalty, sales, pos:** voucher lifecycle and vouchers/coupons on POS and deals ([#9758](https://github.com/erxes/erxes/issues/9758)) ([a1728ab](https://github.com/erxes/erxes/commit/a1728ab76f2d86973b12b744cb77fad6b804a61c))
+* **loyalty:** fixed points into a wallet from Adjust score ([2bf9e27](https://github.com/erxes/erxes/commit/2bf9e273780263774afe12443258fde69980007f))
+* **loyalty:** open-ended voucher campaigns and per-voucher validity ([a58c22f](https://github.com/erxes/erxes/commit/a58c22f8cec89dcc593af5aca9af134bfdcf7135))
+
 ## [3.2.22](https://github.com/erxes/erxes/compare/3.2.21...3.2.22) (2026-10-13)
 
 
