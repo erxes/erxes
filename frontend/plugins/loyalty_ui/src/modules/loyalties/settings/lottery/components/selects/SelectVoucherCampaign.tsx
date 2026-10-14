@@ -85,7 +85,7 @@ export const SelectVoucherCampaignProvider = ({
       onSelect,
       setVoucherCampaigns: setSelectedVoucherCampaigns,
       loading: false,
-      error: null,
+      error: undefined,
     }),
     [
       selectedVoucherCampaigns,

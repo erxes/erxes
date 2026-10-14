@@ -203,9 +203,9 @@
 - `pnpm nx build loyalty_ui`
 - `pnpm nx lint loyalty_ui` from the repository root; distinguish existing
   baseline lint warnings from regressions in touched files.
-- `npx tsc --noEmit -p frontend/plugins/loyalty_ui/tsconfig.app.json` - errors
-  reported inside `frontend/libs` are pre-existing and owned by those
-  libraries.
+- `npx tsc --noEmit -p frontend/plugins/loyalty_ui/tsconfig.app.json` - no
+  errors under `frontend/plugins/loyalty_ui`; errors reported inside
+  `frontend/libs` are pre-existing and owned by those libraries.
 - `project.json` defines `build`, `serve`, `serve-static`, `codegen` and
   `codegen:watch`; `lint` and `test` are inferred, and there are no tests yet.
 - Account types smoke scenario: create an account type, bind it to a new score campaign,
@@ -221,8 +221,8 @@
 
 ### `2026-10-14` — GraphQL codegen setup
 
-- **Summary:** Codegen validates every document against the printed `loyalty_api` schema and a core and sales snapshot. Cursor snippets are spelled out, two colliding operations renamed (`LoyaltyVoucherCampaignAdd`, `LoyaltyVouchersAdd`), and documents for fields no schema declares deleted. The assignment and wallet segment picker no longer asks core for segment v1 fields and the removed `config` argument, which failed the query, and the assignment form lists core v2 customer and lead segments (`core:contacts.customers`, `core:contacts.leads`) instead of the v1 names `core:customer` and `core:lead`.
-- **Affected areas:** `codegen.ts`, `schema/platform.graphql`, `project.json`, `eslint.config.js`, `.gitignore`; `settings/{assignment,coupon,donate,score,spin,voucher}/**/graphql`, `settings/assignment/add-assignment-campaign/components/assignment-campaign-field/AssignmentAddCampaignCoreFields.tsx`, `{donates,lotteries,spin,vouchers}/graphql`.
+- **Summary:** Codegen validates every document against the printed `loyalty_api` schema and a core and sales snapshot. Cursor snippets are spelled out, two colliding operations renamed (`LoyaltyVoucherCampaignAdd`, `LoyaltyVouchersAdd`), and documents for fields no schema declares deleted. The assignment and wallet segment picker no longer asks core for segment v1 fields and the removed `config` argument, which failed the query, and the assignment form lists core v2 customer and lead segments (`core:contacts.customers`, `core:contacts.leads`) instead of the v1 names `core:customer` and `core:lead`. The plugin's own type errors are fixed: the donate owner pickers narrow `string | string[]` to one id, the lottery voucher campaign picker passes `error: undefined` as its context declares, and the fixed pricing table takes the common rule form's typed control (`edit-pricing/components/rules/types.ts`) instead of `Control<any>`.
+- **Affected areas:** `codegen.ts`, `schema/platform.graphql`, `project.json`, `eslint.config.js`, `.gitignore`; `settings/{assignment,coupon,donate,score,spin,voucher}/**/graphql`, `settings/assignment/add-assignment-campaign/components/assignment-campaign-field/AssignmentAddCampaignCoreFields.tsx`, `{donates,lotteries,spin,vouchers}/graphql`, `donates/components/Donate{Add,Edit}Sheet.tsx`, `settings/lottery/components/selects/SelectVoucherCampaign.tsx`, `pricing/edit-pricing/components/rules/{types.ts,CommonRuleInfo.tsx,FixedPricingTable.tsx}`.
 - **Contracts changed:** `Segments` selects `_id`, `contentType`, `name`, `description`, `color`.
 
 ### `2026-10-14` — Issued vouchers: list, detail and actions

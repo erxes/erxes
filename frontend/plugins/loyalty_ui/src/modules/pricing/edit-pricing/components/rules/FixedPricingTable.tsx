@@ -17,6 +17,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
+import { CommonRuleFormValues } from './types';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
@@ -158,7 +159,7 @@ export const FixedPricingTable = ({
   pricingId,
   onSave,
 }: {
-  control: Control<any>;
+  control: Control<CommonRuleFormValues>;
   pricingId: string;
   onSave: () => void;
 }) => {
@@ -548,7 +549,7 @@ const FixedPricingRow = ({
 }: {
   rowId: string;
   index: number;
-  control: Control<any>;
+  control: Control<CommonRuleFormValues>;
   product: IProductRow;
   status: FixedPricingStatus;
   onSave: () => void;
