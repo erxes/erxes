@@ -280,7 +280,6 @@
       );
     };
   (function () {
-    var Q;
     let t = document.getElementById(te);
     if (t) {
       if (t.refreshErxesMessenger) {
@@ -293,14 +292,6 @@
     }
     let i = document.createElement('style');
     ((i.textContent = $), document.head.appendChild(i));
-    let f = localStorage.getItem('theme'),
-      w =
-        (Q = window.matchMedia) == null
-          ? void 0
-          : Q.call(window, '(prefers-color-scheme: dark)').matches;
-    f === 'dark' || (!f && w)
-      ? document.documentElement.classList.add('dark')
-      : document.documentElement.classList.remove('dark');
     let u =
         navigator.userAgent.match(/iPhone/i) ||
         navigator.userAgent.match(/iPad/i) ||

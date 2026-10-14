@@ -142,18 +142,6 @@ const sendMessageToIframe = (contentWindow: Window) => {
   styleElement.textContent = styles;
   document.head.appendChild(styleElement);
 
-  const theme = localStorage.getItem('theme');
-
-  const prefersColorSchemeDark = window.matchMedia?.(
-    '(prefers-color-scheme: dark)',
-  ).matches;
-
-  if (theme === 'dark' || (!theme && prefersColorSchemeDark)) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-
   const isMobile =
     navigator.userAgent.match(/iPhone/i) ||
     navigator.userAgent.match(/iPad/i) ||

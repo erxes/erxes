@@ -1,5 +1,7 @@
 import { currentOrganizationState, currentUserState } from 'ui-modules/states';
 
+import { resolveThemeValue } from '@/app/effect-components/ThemeEffect';
+import { themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useVersion } from 'ui-modules';
@@ -54,6 +56,7 @@ const getSupportMessengerConfig = () => {
 export const SupportMessenger = () => {
   const currentUser = useAtomValue(currentUserState);
   const currentOrganization = useAtomValue(currentOrganizationState);
+  const theme = useAtomValue(themeState);
   const isSaas = useVersion('saas');
 
   useEffect(() => {
@@ -117,24 +120,16 @@ export const SupportMessenger = () => {
       return;
     }
 
-    const storedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia?.(
-      '(prefers-color-scheme: dark)',
-    )?.matches;
-
     iframe.contentWindow.postMessage(
       {
         fromPublisher: true,
         settings: messenger,
         storage: localStorage.getItem('erxes') || '{}',
-        theme:
-          storedTheme === 'dark' || (!storedTheme && prefersDark)
-            ? 'dark'
-            : 'light',
+        theme: resolveThemeValue(theme),
       },
       '*',
     );
-  }, [isSaas, currentUser, currentOrganization]);
+  }, [isSaas, currentUser, currentOrganization, theme]);
 
   return null;
 };
