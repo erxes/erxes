@@ -51,6 +51,10 @@ export type LoyaltyAutomationExecution =
 export type LoyaltyAutomationAction = LoyaltyReceiveActionsInput['action'];
 
 export type AdjustScoreActionConfig = {
+  // `fixed` gives `points` into a wallet; otherwise a campaign's table earns.
+  mode?: 'campaign' | 'fixed';
+  accountTypeId?: string;
+  points?: number;
   campaignId?: string;
   action?: LoyaltyScoreAction;
   attribution?: string;

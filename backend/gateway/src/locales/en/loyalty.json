@@ -1007,5 +1007,16 @@
   "loyalty-source-campaign-inactive": "Campaign not active",
   "loyalty-source-also-built-in": "Also set built in; keep one",
   "loyalty-source-tiers-no-history": "This source does not say how its purchases add up, so tiers can only be set in its own settings.",
-  "loyalty-tier-via-purchase-of": "By purchase {{name}}"
+  "loyalty-tier-via-purchase-of": "By purchase {{name}}",
+  "score-give-mode": "Points",
+  "score-give-mode-option": {
+    "campaign": "From a campaign",
+    "fixed": "Fixed"
+  },
+  "score-give-mode-hint": {
+    "campaign": "The campaign's earning table decides how many, from the purchase the trigger hands over.",
+    "fixed": "The same number every time this step runs. No earning table, tier or cap applies; only the wallet's own rules do."
+  },
+  "score-fixed-points": "Points to give",
+  "score-fixed-points-node": "Give {{points}} points to a wallet"
 }

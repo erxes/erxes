@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -32,6 +32,7 @@
 - A score campaign writes to exactly one account type (`accountTypeId`), which also decides its `ownerType`; only campaigns created before account types may stay without one and keep writing the default score. Campaigns have no client-portal-only switch; who may earn is an automation or segment concern.
 - A campaign earns only through its earning table (`add.table`) and spends only through its spending rules (`subtract.rules`); formulas, the `set` action and the campaign `currencyRatio` are gone. The table has base and bonus rows with conditions (amount range, products, first purchase from this campaign, source), a value either the same for everyone (`values.all`) or per column (`values.none` for owners without a tier, then tier keys; an empty cell earns nothing) and an optional cap. Rules count money and divide by the account type's `currencyRatio` (1 point = N money). Rows are `base` (only the first matching one earns) or `bonus` (every matching one adds). Each row's `valueType` says how its value reads: a base row is `percent` (N% of the amount) or `multiplier` (the rate's points times N); a bonus row is `percent`, `fixed` points or `multiplier` (the base points times N, of which the base already gave one; each such bonus adds and is capped on its own). `normalizeEarnTable` keeps each kind to its own types and turns a former `multiplier` row into a bonus `multiplier`. `scoreCampaignEarnPreview` evaluates an unsaved table for a sample amount per tier. Callers may pass `earnRowKeys` to turn rows on. Score logs keep the per-row `breakdown`.
 - Points are earned only by the "Adjust score" automation action, from a purchase (`ILoyaltyPurchase`: `totalAmount`, `paidAmount` = paid with money, `items` of `{ productId, amount, discounted }`) that the action declares as `inputs` and the trigger's own plugin fills through its `actionInputs` (sales deal and POS order triggers). Loyalty never reads a deal or an order. A trigger that declares nothing (a customer, a tier change) gives a zero purchase, so only fixed-point rows earn on it. The action only gives; an older config with `action: 'subtract'` fails with CONFIG_INVALID.
+- The Adjust score action also has a fixed mode (`mode: 'fixed'`, `accountTypeId`, `points`): `giveFixedPoints` (`services/fixedPoints.ts`) writes `points` straight into the wallet's balance field through `applyScoreChange`, with no campaign (`campaignId` empty on the log), no earning table, tier column or cap. The wallet must be active and of the owner's type; its earn eligibility, freezing, pending and expiry still apply. Every run adds a new log (no standing entry per target); the run id is kept in `createdVia.runId`, so a retried run gives nothing more. Steps without `mode` earn through their campaign as before. A score log's `totalScore` reads the wallet the entry wrote to (`accountTypeId`), falling back to its campaign's for older logs.
 - When the action moves no one's balance, `ScoreCampaigns.earn` reports every reason through its optional `onSkip` (`explainEmptyEarn`: no selected rows, no value for the owner's tier column, row conditions unmet, no amount, rounded to zero) and the producer returns a `skipped` outcome.
 - Spending and refunds belong to the selling side: tRPC `score.checkSpend` / `score.spend` take `pointsPaymentAmount` (the whole amount paid with points; a repeat moves only the difference) and `totalAmount`, and `score.refund` undoes every standing earning and spending on a `targetId` (`ScoreCampaigns.refundTarget`). Campaigns have no deal-stage rules (`additionalConfig.cardBasedRule` is stripped on save).
 - Every ledger write records an activity log (`loyalty.score.<action>`) on the owner's record and, when the log has `targetId` + `targetType`, on that record too (`ScoreLogs.recordActivity`). Score logs carry `createdVia` (`TCreatedVia`) when nothing was typed in: automation earnings pass the execution's, period-run expiries and resets pass the wallet's (`walletRunVia`: source `wallet`, the wallet's name, the run id, actor = the wallet's creator), so the activity reads "from wallet X" under a real actor. Activity lines name the wallet and the balance move, e.g. "added 18 points to Лоялти үлдэгдэл (120 → 138) from automation scoring"; the source record's line ends "of the customer". Refund lines say what they undo by their sign: "returned N points paid with …" (a payment) or "took back N points earned in …" (an earning). Entries with neither `createdBy` nor a `createdVia.actorId` are not written, since core rejects them.
@@ -150,6 +151,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-14` — Fixed points from an automation
+
+- **Summary:** The Adjust score action can give a set number of points into a wallet each time it runs, without a campaign.
+- **Affected areas:** `modules/score/services/fixedPoints.ts` (+ test), `meta/automations/{types.ts,score/producers.ts}`.
+- **Contracts changed:** Adjust score action config `mode`, `accountTypeId`, `points`.
+
 ### `2026-10-10` — Sources filter their own records
 
 - **Summary:** The score log board/pipeline/stage/number filters, which `$lookup`-ed the sales `deals` collection and never matched board or pipeline, are gone; sales lists its deals and asks for their net points.
@@ -203,9 +210,3 @@
 - **Summary:** Loyalty's only trigger is now "Tier changed", started by every tier change except period resets; the broken birthday "Reward" trigger, its custom check and `handleLoyaltyReward` are removed.
 - **Affected areas:** `meta/automations/{constants,types,utils}.ts`, `meta/automations/{score,voucher}/producers.ts`, `services/{accountTier,accountReset,tierChanged}.ts`, `services/__tests__/tierChanged.test.ts`, `utils/utils.ts`, `trpc/init-trpc.ts`, `constants.ts`.
 - **Contracts changed:** Trigger `loyalty:score.tier` added, trigger `loyalty:voucher.reward` and tRPC `handleLoyaltyReward` removed.
-
-### `2026-09-30` — Period-run changes in the activity
-
-- **Summary:** Expiries and resets written by a period run now appear in the owner's activity as coming from the wallet, recorded under the wallet's creator through `createdVia`; automation earnings carry the automation's `createdVia` too.
-- **Affected areas:** `services/{accountReset,lotJobs,scoreLedger}.ts`, `db/models/{ScoreLog,ScoreCampaign}.ts`, score log schema, `meta/automations/score/producers.ts`, `src/worker/index.ts`.
-- **Contracts changed:** `score_logs.createdVia`.

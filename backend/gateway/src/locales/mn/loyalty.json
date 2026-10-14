@@ -1007,5 +1007,16 @@
   "loyalty-source-campaign-inactive": "Campaign идэвхгүй",
   "loyalty-source-also-built-in": "Built-in-ээр бас тохируулсан; нэгийг нь үлдээгээрэй",
   "loyalty-source-tiers-no-history": "Энэ эх үүсвэр худалдан авалтаа хэрхэн нэгтгэхийг заагаагүй тул tier-ийг зөвхөн өөрийн тохиргоонд тогтооно.",
-  "loyalty-tier-via-purchase-of": "{{name}} худалдан авалтаар"
+  "loyalty-tier-via-purchase-of": "{{name}} худалдан авалтаар",
+  "score-give-mode": "Оноо",
+  "score-give-mode-option": {
+    "campaign": "Campaign-аас",
+    "fixed": "Тогтмол"
+  },
+  "score-give-mode-hint": {
+    "campaign": "Trigger-ийн өгсөн худалдан авалтаас campaign-ийн earning table хэдийг өгөхийг шийднэ.",
+    "fixed": "Энэ алхам ажиллах бүрт ижил оноо өгнө. Earning table, tier, cap хамаарахгүй; зөвхөн wallet-ийн өөрийн дүрэм үйлчилнэ."
+  },
+  "score-fixed-points": "Өгөх оноо",
+  "score-fixed-points-node": "Wallet-д {{points}} оноо өгнө"
 }

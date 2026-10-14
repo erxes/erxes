@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -49,6 +49,7 @@
   `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
   through pricing form values.
 - Automation history renders loyalty action results through `LoyaltyActionResult` (`historyActionResult`), which picks by action type: Adjust score → `ScoreActionResult` / `useScoreActionResult` (skipped runs list each owner's reasons in words, successful runs show the score change); Set tier → `SetTierActionResult` / `useSetTierActionResult` (tier names from the action's account type, `from → to`, or skipped when nothing changed); Issue voucher → `IssueVoucherActionResult` / `useIssueVoucherActionResult` (count issued, campaign title, each recipient by owner type); other loyalty actions fall back to raw JSON. Tier changed runs are named in the history by the owner (`historyName` → `TierChangedHistoryName`, through `LoyaltyOwnerInline`: customer, company or team member inline from `ui-modules`).
+- The Adjust score step (`AdjustScoreCampaignActionConfigForm`) has a Points toggle: From a campaign (campaign + earning rows, as before) or Fixed (wallet via `SelectLoyaltyAccountType` + points). The schema (`adjustScoreActionConfigFormDefinitions.ts`) requires the campaign or the wallet and points by mode; steps without `mode` open as campaign. The node reads "Give N points to a wallet" for fixed steps, and the relation settings widget leaves fixed steps out of a source's campaign connections.
 - An earning's points are explained by `EarnCalcPopover` (steps from `scores/utils/earnCalcSteps.ts`, using the breakdown's `calc`): on the score list's Breakdown cell and on each tier's result in the campaign form's earn preview — amount × % or ×N, ÷ money per point, rounding, and what the points pay.
 - The voucher campaign Restriction tab (add and edit share `AddVoucherRestrictionForm`) has a "Per customer" limit (`VoucherOwnerLimitField`: count + period year/month/whole campaign); `toOwnerLimit` sends `perOwnerLimit`, or `null` when the count is empty so an edit clears it.
 - The "Tier changed" trigger is configured by `TierChangedTriggerConfigForm` / `useTierChangedTriggerForm` (wallet required, direction up/down/any defaulting to up, target tier or any) and summarized on its node by `TierChangedTriggerNodeContent`, both registered in `LoyaltyRemoteEntry` (`triggerForm`, `triggerConfigContent`).
@@ -165,6 +166,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-14` — Fixed points in Adjust score
+
+- **Summary:** An Adjust score step can give a fixed number of points into a chosen wallet instead of earning through a campaign.
+- **Affected areas:** `widgets/automations/modules/loyalty/{states/adjustScoreActionConfigFormDefinitions.ts,hooks/useAdjustScoreActionForm.ts,components/action/{adjust-score/AdjustScoreCampaignActionConfigForm.tsx,LoyaltyActionNodeContent.tsx}}`, `widgets/relationSettings/hooks/useLoyaltySourceAutomations.ts`; `score-give-mode*`, `score-fixed-points*` translations.
+- **Contracts changed:** None
+
 ### `2026-10-08` — Score campaign picker for other plugins
 
 - **Summary:** Loyalty offers a score campaign field with create and edit to other plugins' forms (first used by sales' score earn configuration).
@@ -212,9 +219,3 @@
 - **Summary:** Pricing settings load distinct 20-record pricing plan pages on scroll and display the API-backed filtered total count.
 - **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
 - **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.
-
-### `2026-09-22` — `Scoped base pricing controls`
-
-- **Summary:** Score campaigns no longer edit deal-stage rules (`cardBasedRule`); the Adjust score action only gives points (older subtract configs save back as add) and its node still marks a legacy subtract.
-- **Affected areas:** `settings/score/add-score-campaign/components/{ServiceConfigFields,ScoreCampaignSourceSection,AddLoyaltyScore}.tsx`, `score-detail/components/{LoyaltyScoreEditSheet,EditScoreForm}.tsx`, `constants/formSchema.ts`, `widgets/automations/modules/loyalty/{components/action,states,constants}`, `hooks/useScoreActionResult.ts`.
-- **Contracts changed:** None
