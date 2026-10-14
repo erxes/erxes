@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -31,6 +31,7 @@
 
 - Runs as the `operation_ui` Module Federation remote on port `3006`.
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
+- The main menu lists Projects, My Tasks, and each of the current user's teams. The host context column shows only the active team's Triage, Projects, Tasks, and Cycles, with team-settings and copy-link actions, on `operation/team/:teamId/*` routes and stays hidden on every other operation route.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
 - Task activity rows show the accepting member's avatar and name with a triage-acceptance action; the action component supplies only the action text while the shared activity wrapper supplies the actor and timestamp.
 - GitHub-created triages show a link to the originating repository issue above the name, like the task GitHub badge. Their creation timeline and relation widget card use the short "Created from GitHub issue" attribution; manually created triages retain their user attribution.
@@ -49,6 +50,7 @@
 | Federation config       | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                                              |
 | Dev server config       | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                                                |
 | Plugin config           | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                                               |
+| Navigation              | `frontend/plugins/operation_ui/src/modules/navigation`                                   | `MainNavigation` (`navigationGroup.content`) and the active-team `TeamsNavigation` (`navigationGroup.subGroup`).             |
 | Property side panel     | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state.                  |
 | Description editor      | `frontend/plugins/operation_ui/src/modules/operation/hooks/useDescriptionEditor.ts`      | Loads BlockNote JSON or imports Markdown for task and triage details.                                                        |
 | Operation modules       | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                                             |
@@ -90,7 +92,7 @@
 
 - Keep user-facing task labels as Due date while retaining `targetDate` in storage and API fields. Date-filtered task lists must refetch inside `useSubscription.onData` before applying create/delete cache changes; updates can move a task into or out of a range.
 
-- Expandable navigation rows end in the host sidebar's chevron: `IconChevronRight` (`size-3.5`, muted) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Expandable group trigger buttons use `rounded-lg` like `Sidebar.MenuButton`.
+- Teams are main-menu items in `MainNavigation` that link to `operation/team/:teamId`, which redirects to tasks, so every team sub-route keeps the team row active. `TeamsNavigation` renders only on `/operation/team/:teamId/*`, loads the team with `useGetTeam` so non-member team links still resolve, and returns `null` elsewhere. Its `subGroup` Suspense fallback is `null`, so the host context column stays hidden off team routes instead of flashing open while the chunk loads.
 - Keep operation-specific UI inside `frontend/plugins/operation_ui`.
 - Use `isGithubTriage` for GitHub triage attribution and source-link visibility: require a `system` creator, numeric triage status, non-empty issue URL, and numeric issue number. Tasks, projects without issue metadata, and other triages retain normal creator attribution.
 - GitHub triage attribution consumes `ITriageDetail` from the generated detail query, which selects the triage status and issue metadata. Keep the shared helper and relation card on detail types; `ITriage` is the list-query item and does not select those fields. Render the source link from the guarded triage object so `isGithubTriage` narrows the nullable issue URL.

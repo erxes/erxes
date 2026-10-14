@@ -30,10 +30,10 @@ export function Page() {
   };
 
   return (
-    <PageContainer>
-      <PagesHeader>{headerActions}</PagesHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <PagesHeader>{headerActions}</PagesHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <div className="px-4 pt-2">
             <PagesFilter />

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -163,7 +163,7 @@
 - Nullable SDL fields remain nullable in generated types. `src/modules/utils/graphql.ts` normalizes display values while retaining immutable Apollo reference identity; `graphqlCursor.ts` adapts nullable platform PageInfo through public `erxes-ui` cursor helpers without changing shared SDL.
 - Inventory cost and last-income-price operations select structured rows and map them to product dictionaries only at the UI boundary. Persisted bank, inventory expense, sale/movement, and fixed asset form metadata must survive edit/refetch.
 - Expandable navigation rows and section headers use the host sidebar's chevron: `IconChevronRight` (`size-3.5`) inside a span that rotates 90° when open, never a filled caret, so the rotation stays on the compositor and matches the main sidebar. Tailwind group names on these rows stay accounting-specific (`group/accounting-nav-section`): the host sidebar is an open ancestor, so a shared name such as `navigation-section` would rotate every closed chevron.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `AccountingSubSettings` and `JournalReports` render `AccountingSidebar` and `ReportsList` beside their headers; `ReportsList` uses the `Reports` label.
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.

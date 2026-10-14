@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-09`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -126,14 +126,7 @@
 
 ## Local Invariants
 
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its
-  own open state (`sidebarPanelOpenState`), separate from the host's context
-  column. Never stack two headings: a menu without a heading passes one as
-  `label` (header row with the heading, optional `actions` and the collapse
-  toggle); a menu that starts with its own heading row (group label, collapsible
-  or accordion trigger) omits `label` and ends that row with
-  `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
-  inside sheets and dialogs.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 48px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `PricingEdit` takes the pricing page header as `header` so `PricingEditSidebar` sits beside it.
 - Account types are labelled "Wallet(s)" (en) / "Хэтэвч" (mn) everywhere users see them, as balances inside the owner's loyalty account ("Account" / "Данс"); identifiers, routes, GraphQL documents and translation keys keep `accountType` / `loyalty-account-type`.
 - Pricing UI changes stay inside `frontend/plugins/loyalty_ui`.
 - Pricing form save mappings must preserve empty optional selectors as no
