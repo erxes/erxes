@@ -8,7 +8,7 @@ export const permissions: IPermissionConfig = {
       name: 'inbox',
       description: 'Inbox & conversations',
       scopeField: null,
-      ownerFields: ['assignedUserId'],
+      ownerFields: ['assignedUserId', 'assignedUserIds'],
       scopes: [
         { name: 'own', description: 'Conversations assigned to user' },
         { name: 'group', description: 'Conversations in user departments' },

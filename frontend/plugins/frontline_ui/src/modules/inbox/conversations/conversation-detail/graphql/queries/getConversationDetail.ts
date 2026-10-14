@@ -9,6 +9,17 @@ export const GET_CONVERSATION_DETAIL = gql`
       content
       integrationId
       assignedUserId
+      assignedUserIds
+      assignedUsers {
+        _id
+        username
+        email
+        isActive
+        details {
+          avatar
+          fullName
+        }
+      }
       readUserIds
       customerId
       updatedAt

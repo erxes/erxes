@@ -217,12 +217,15 @@ export const useConversations = (
     }
 
     const unsubscribe = subscribeToMoreRef.current<{
-      conversationClientMessageInserted: {
-        _id: string;
-        conversationId: string;
-        content: string;
-        createdAt: string;
-      } | null;
+      conversationClientMessageInserted:
+        | ({
+            _id: string;
+            conversationId: string;
+            content: string;
+            createdAt: string;
+            internal?: boolean;
+          } & NonNullable<IConversation['lastMessage']>)
+        | null;
     }>({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
@@ -232,6 +235,7 @@ export const useConversations = (
         const newMessage =
           subscriptionData.data?.conversationClientMessageInserted;
 
+        if (newMessage?.internal) return prev;
         if (!newMessage) {
           scheduleRefetch();
           return prev;
@@ -265,6 +269,11 @@ export const useConversations = (
           readUserIds: conversation.readUserIds?.filter((id) => id !== userId),
           status: ConversationStatus.OPEN,
           content: newMessage.content,
+          lastMessage:
+            Date.parse(newMessage.createdAt) >=
+            getConversationRecency(conversation)
+              ? newMessage
+              : conversation.lastMessage,
           // Events can arrive out of order; recency must never move backwards.
           updatedAt:
             Date.parse(newMessage.createdAt) >=

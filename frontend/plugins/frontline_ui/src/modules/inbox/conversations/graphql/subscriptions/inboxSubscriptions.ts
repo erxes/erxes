@@ -32,6 +32,7 @@ const CONVERSATION_MESSAGE_FIELDS = `
       ${STRUCTURED_MESSAGE_FIELDS}
       conversationId
       content
+      contentType
       formWidgetData
       extraData
       ${ATTACHMENT_GQL}
@@ -70,6 +71,16 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
       conversationId
       content
       createdAt
+      internal
+      contentType
+      messageKind
+      providerData
+      extraData
+      attachments {
+        name
+        type
+        url
+      }
     }
   }
 `;

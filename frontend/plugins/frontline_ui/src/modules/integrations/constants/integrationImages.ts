@@ -4,6 +4,7 @@ import {
   IconForms,
   IconMessageFilled,
   IconPhone,
+  IconMail,
 } from '@tabler/icons-react';
 import {
   InstagramIcon,
@@ -22,6 +23,7 @@ export const INTEGRATION_ICONS: Record<
   'instagram-post': InstagramIcon,
   messenger: IconMessageFilled,
   calls: IconPhone,
+  mail: IconMail,
   callpro: IconPhone,
   'telegram-messenger': IconBrandTelegram,
   'discord-messenger': IconBrandDiscord,

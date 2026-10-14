@@ -6,15 +6,31 @@ import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
 export interface IConversation {
   _id: string;
   content: string;
+  lastMessage?: Pick<
+    IMessage,
+    | '_id'
+    | 'content'
+    | 'attachments'
+    | 'messageKind'
+    | 'providerData'
+    | 'extraData'
+    | 'contentType'
+    | 'createdAt'
+  > | null;
   createdAt: string;
   updatedAt: string;
-  customer: ICustomerInline;
+  customer: ICustomerInline & {
+    isOnline?: boolean | null;
+    lastSeenAt?: string | null;
+  };
   customerId?: string;
   integrationId?: string;
   integration?: IIntegration;
   readUserIds?: string[];
   assignedUserId?: string;
   assignedUser?: IUser;
+  assignedUserIds?: string[];
+  assignedUsers?: (IUser | null)[];
   tagIds?: string[];
   status?: ConversationStatus;
   automatedReplyControl?: IAutomatedReplyControl;
@@ -165,6 +181,7 @@ export interface ITelegramMessageData {
 }
 
 export interface IMessage {
+  contentType?: string;
   _id: string;
   mid?: string;
   conversationId?: string;

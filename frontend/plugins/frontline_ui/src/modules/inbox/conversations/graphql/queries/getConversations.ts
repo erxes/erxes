@@ -53,6 +53,16 @@ export const GET_CONVERSATIONS = gql`
       list {
       _id
       content
+      lastMessage {
+        _id
+        content
+        createdAt
+        contentType
+        messageKind
+        providerData
+        extraData
+        attachments { name type url }
+      }
       createdAt
       updatedAt
       integrationId
@@ -63,6 +73,8 @@ export const GET_CONVERSATIONS = gql`
         lastName
         primaryEmail
         avatar
+        isOnline
+        lastSeenAt
         primaryPhone
         __typename
       }
@@ -70,6 +82,8 @@ export const GET_CONVERSATIONS = gql`
       tagIds
       __typename
       assignedUserId
+      assignedUserIds
+      assignedUsers { _id username email isActive details { avatar fullName } }
       assignedUser {
         _id
         details {
