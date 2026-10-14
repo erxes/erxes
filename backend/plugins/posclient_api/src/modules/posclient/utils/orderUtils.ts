@@ -798,7 +798,8 @@ export const checkScoreAviableSubtractScoreCampaign = async (
           pointsPaymentAmount,
           totalAmount: Number(order.totalAmount) || 0,
         },
-        defaultValue: false,
+        // Swallowed, a refusal would let the order pay with points it lacks.
+        throwOnError: true,
       }).catch((error) => {
         if (error.message === 'There has no enough score to subtract') {
           throw new Error(

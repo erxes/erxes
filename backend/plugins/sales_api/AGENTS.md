@@ -137,7 +137,8 @@
   that puts a deal into a stage must do the same.
   Removing deals refunds them (`Deals.removeDeals`). All loyalty calls throw;
   with loyalty disabled they do nothing. POS order sync calls `score.spend`
-  (`spendOrderPoints`, also after `posOrderChangePayments`), `score.earn` for
+  (`spendOrderPoints`, its own sync step and `throwOnError`, also after
+  `posOrderChangePayments`), `score.earn` for
   the POS's one `earnScoreCampaignId` once paid (`planOrderPoints` /
   `earnOrderPoints`), `score.applyPurchaseTier` for the POS's one `earnTier`
   (`{accountTypeId, bands, onlyUpgrade}`, checked by `validateEarnTier`) with

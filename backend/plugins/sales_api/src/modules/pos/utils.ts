@@ -4,7 +4,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
-import { IModels, generateModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
@@ -175,6 +175,7 @@ export const spendOrderPoints = async (
         totalAmount: Number(order.totalAmount) || 0,
         actorId: userId || order.userId,
       },
+      throwOnError: true,
     });
   }
 };
@@ -287,10 +288,6 @@ const returnOrderVouchers = async (
 };
 
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
-  const models = await generateModels(subdomain);
-
-  await spendOrderPoints(subdomain, models, order);
-
   const confirmItems = order.items || [];
 
   if (!confirmItems.length) {
@@ -812,6 +809,7 @@ export const syncOrderFromClient = async ({
             () => returnOrderVouchers(subdomain, newOrder),
           ]
         : [
+            () => spendOrderPoints(subdomain, models, newOrder),
             () => confirmLoyalties(subdomain, newOrder),
             () => earnOrderPoints(subdomain, models, newOrder),
           ];

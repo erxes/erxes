@@ -119,7 +119,8 @@
 - Synced `isShowRemainder`, `isCheckRemainder`, and `checkExcludeCategoryIds`
   from sales POS configuration.
 - Loyalty `score.checkSpend` validates point payment amounts against the order
-  total before payment completion.
+  total and the owner's balance before payment completion. It is called with
+  `throwOnError`, so a refusal stops the payment instead of being swallowed.
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, `permissionConfig`, and `customerCreateConfig`.
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
 - Core tRPC `fields.find`, `customers.findActiveCustomers`, and
