@@ -440,7 +440,7 @@ export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
   cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
-  pricingPlanDetail(id: String): PricingPlan
+  pricingPlanDetail(id: String!): PricingPlan
   cpPricingPlanDetail(id: String): PricingPlan
   pricingFixedValuesPage(
     pricingPlanId: String!
@@ -454,7 +454,7 @@ export const queries = `
 export const mutations = `
   pricingPlanAdd(doc: PricingPlanAddInput): PricingPlan
   pricingPlanEdit(doc: PricingPlanEditInput): PricingPlan
-  pricingPlanRemove(id: String): PricingPlan
+  pricingPlanRemove(id: String!): PricingPlan
   pricingPlansRecalculatePublicDiscounts: JSON
 
   pricingFixedValueAdd(pricingPlanId: String!, doc: PricingFixedValueInput!): PricingFixedValue

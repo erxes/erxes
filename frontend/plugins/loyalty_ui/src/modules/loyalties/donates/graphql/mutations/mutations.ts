@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 export const DONATES_ADD_MUTATION = gql`
   mutation DonatesAdd(
-    $campaignId: String
-    $ownerId: String
-    $ownerType: String
+    $campaignId: String!
+    $ownerId: String!
+    $ownerType: String!
     $status: String
     $voucherCampaignId: String
     $donateScore: Float
@@ -55,7 +55,7 @@ export const DONATES_EDIT_MUTATION = gql`
 `;
 
 export const DELETE_DONATE_MUTATION = gql`
-  mutation DonatesRemove($_ids: [String]!) {
+  mutation DonatesRemove($_ids: [String!]!) {
     donatesRemove(_ids: $_ids)
   }
 `;

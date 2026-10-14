@@ -48,7 +48,7 @@ const mutationParams = `
 export const mutations = `
   lotteryCampaignsAdd(${mutationParams}): LotteryCampaign
   lotteryCampaignsEdit(_id: String!, ${mutationParams}): LotteryCampaign
-  lotteryCampaignsRemove(_ids: [String]): JSON
+  lotteryCampaignsRemove(_ids: [String!]!): JSON
   doLottery(campaignId: String, awardId: String ): JSON
   doLotteryMultiple(campaignId: String, awardId: String,multiple: Int): String
   getNextChar(campaignId: String, awardId: String, prevChars: String):JSON

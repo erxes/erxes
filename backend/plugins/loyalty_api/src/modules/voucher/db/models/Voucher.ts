@@ -250,7 +250,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
     public static async createVouchers(doc: IVoucherInput) {
       let { campaignId, ownerType, ownerIds, tagIds, userId = '' } = doc;
 
-      if (!ownerIds?.length && !tagIds?.length) {
+      if (!ownerType || (!ownerIds?.length && !tagIds?.length)) {
         throw new Error('Cannot create voucher: owner is undefined');
       }
 

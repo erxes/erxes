@@ -42,5 +42,5 @@ const mutationParams = `
 export const mutations = `
   spinCampaignsAdd(${mutationParams}): SpinCampaign
   spinCampaignsEdit(_id: String!, ${mutationParams}): SpinCampaign
-  spinCampaignsRemove(_ids: [String]): JSON
+  spinCampaignsRemove(_ids: [String!]!): JSON
 `;

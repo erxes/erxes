@@ -57,5 +57,5 @@ const mutationParams = `
 export const mutations = `
   assignmentCampaignsAdd(${mutationParams}): AssignmentCampaign
   assignmentCampaignsEdit(_id: String!, ${mutationParams}): AssignmentCampaign
-  assignmentCampaignsRemove(_ids: [String]): JSON
+  assignmentCampaignsRemove(_ids: [String!]!): JSON
 `;

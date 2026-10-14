@@ -40,7 +40,7 @@ export const COUPON_EDIT_MUTATION = gql`
 `;
 
 export const COUPONS_REMOVE_MUTATION = gql`
-  mutation CouponsRemove($_ids: [String]) {
+  mutation CouponsRemove($_ids: [String!]!) {
     couponsRemove(_ids: $_ids)
   }
 `;

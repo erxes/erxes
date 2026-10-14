@@ -59,17 +59,25 @@ export const queries = `
 `;
 
 const mutationParams = `
-  campaignId: String
-  ownerType: String
-  ownerId: String
   status: String
   voucherCampaignId: String
 `;
 
 export const mutations = `
-  spinsAdd(${mutationParams}): Spin
-  spinsEdit(_id: String!, ${mutationParams}): Spin
-  spinsRemove(_ids: [String]): JSON
+  spinsAdd(
+    campaignId: String!
+    ownerType: String!
+    ownerId: String!
+    ${mutationParams}
+  ): Spin
+  spinsEdit(
+    _id: String!
+    campaignId: String
+    ownerType: String
+    ownerId: String
+    ${mutationParams}
+  ): Spin
+  spinsRemove(_ids: [String!]!): JSON
   doSpin(_id: String!): Spin
   buySpin(campaignId: String, ownerType: String, ownerId: String, count: Int): Spin
 `;
