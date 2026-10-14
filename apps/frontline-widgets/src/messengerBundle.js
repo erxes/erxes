@@ -273,7 +273,12 @@
               : u.call(window, '(prefers-color-scheme: dark)')) == null
             ? void 0
             : h.matches,
-        w = i === 'dark' || (!i && f) ? 'dark' : 'light';
+        w =
+          t != null && (t.theme === 'dark' || t.theme === 'light')
+            ? t.theme
+            : i === 'dark' || (!i && f)
+              ? 'dark'
+              : 'light';
       r.postMessage(
         { fromPublisher: !0, settings: t, storage: Le(), theme: w },
         '*',

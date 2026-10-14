@@ -1,7 +1,7 @@
 import { currentOrganizationState, currentUserState } from 'ui-modules/states';
 
-import { resolveThemeValue } from '@/app/effect-components/ThemeEffect';
-import { themeState } from 'erxes-ui';
+import { useResolvedTheme } from '@/app/effect-components/ThemeEffect';
+import { ThemeValue } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useVersion } from 'ui-modules';
@@ -15,6 +15,7 @@ declare global {
         phone?: string;
         data?: Record<string, unknown>;
         companyData?: { name?: string };
+        theme?: ThemeValue;
         customerData?: {
           email?: string;
           phone?: string;
@@ -56,7 +57,7 @@ const getSupportMessengerConfig = () => {
 export const SupportMessenger = () => {
   const currentUser = useAtomValue(currentUserState);
   const currentOrganization = useAtomValue(currentOrganizationState);
-  const theme = useAtomValue(themeState);
+  const theme = useResolvedTheme();
   const isSaas = useVersion('saas');
 
   useEffect(() => {
@@ -111,6 +112,7 @@ export const SupportMessenger = () => {
       userName: customerData.userName,
     };
     messenger.companyData = { name: currentOrganization?.name };
+    messenger.theme = theme;
 
     const iframe = document.getElementById(
       MESSENGER_IFRAME_ID,
@@ -125,7 +127,7 @@ export const SupportMessenger = () => {
         fromPublisher: true,
         settings: messenger,
         storage: localStorage.getItem('erxes') || '{}',
-        theme: resolveThemeValue(theme),
+        theme,
       },
       '*',
     );

@@ -1,15 +1,39 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { ThemeOption, themeState, ThemeValue } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+
+const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
 
 export const resolveThemeValue = (selected: ThemeOption): ThemeValue => {
   if (selected === 'system') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    return window.matchMedia(SYSTEM_DARK_QUERY).matches ? 'dark' : 'light';
   }
 
   return selected;
+};
+
+const subscribeToSystemTheme = (onChange: () => void) => {
+  const mediaQuery = window.matchMedia(SYSTEM_DARK_QUERY);
+
+  mediaQuery.addEventListener('change', onChange);
+
+  return () => mediaQuery.removeEventListener('change', onChange);
+};
+
+const getSystemPrefersDark = () => window.matchMedia(SYSTEM_DARK_QUERY).matches;
+
+export const useResolvedTheme = (): ThemeValue => {
+  const theme = useAtomValue(themeState);
+  const systemPrefersDark = useSyncExternalStore(
+    subscribeToSystemTheme,
+    getSystemPrefersDark,
+  );
+
+  if (theme === 'system') {
+    return systemPrefersDark ? 'dark' : 'light';
+  }
+
+  return theme;
 };
 
 const applyThemeValue = (html: HTMLElement, themeValue: ThemeValue) => {
@@ -36,7 +60,7 @@ export const ThemeEffect = () => {
     const applySelectedTheme = () =>
       applyThemeValue(html, resolveThemeValue(theme));
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia(SYSTEM_DARK_QUERY);
     const handleSystemThemeChange = () => {
       if (theme === 'system') {
         applySelectedTheme();
@@ -61,7 +85,7 @@ export const ThemeEffect = () => {
 
     applySelectedTheme();
 
-    void window.getComputedStyle(css).opacity;
+    window.getComputedStyle(css).getPropertyValue('opacity');
     document.head.removeChild(css);
 
     const observer = new MutationObserver(applySelectedTheme);
