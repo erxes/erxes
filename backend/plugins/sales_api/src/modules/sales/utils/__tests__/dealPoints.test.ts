@@ -237,13 +237,21 @@ describe('syncWrittenDealPoints — writes outside the deal mutations count too'
     expect(askedOf()).toEqual(['earn']);
   });
 
-  it('gives back for a deal an automation moved to a refund stage', async () => {
+  it('uses the deal voucher only where it earns', async () => {
+    await syncWritten([
+      { _id: 'deal-1', ...deal('won'), extraData: { voucherId: 'v1' } },
+    ]);
+
+    expect(askedOf()).toEqual(['confirmLoyalties', 'earn']);
+  });
+
+  it('gives back points and vouchers for a deal an automation moved to a refund stage', async () => {
     await syncWritten(
       [{ _id: 'deal-1', ...deal('lost') }],
       [{ _id: 'deal-1', ...deal('won') }],
     );
 
-    expect(askedOf()).toEqual(['refund']);
+    expect(askedOf()).toEqual(['refund', 'returnTarget']);
   });
 
   it('asks nothing for a deal written where nothing earns', async () => {

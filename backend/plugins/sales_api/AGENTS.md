@@ -143,7 +143,17 @@
   (`{accountTypeId, bands, onlyUpgrade}`, checked by `validateEarnTier`) with
   the order's `totalAmount` (with the order, named `POS #number`, and its
   cashier as target and actor), and `score.refund` for returned orders (the tier
-  stays), still without throwing.
+  stays), still without throwing. Each loyalty step of a paid or returned
+  sync runs on its own, so a refused voucher never skips the earning. A
+  returned order also gives its vouchers back (`voucher.returnTarget`); the
+  paid order's voucher is used through `confirmLoyalties` (target `pos` + order
+  id, the same pair posclient held it under; a repeat sync changes nothing).
+- A deal save prices `checkPricing` first, then `checkLoyalties`, so loyalty discounts sit on the priced amount; `checkLoyalties` keeps the bonus lines pricing just laid down.
+- A deal's voucher and coupon (`extraData.voucherId` / `couponCode`) are used
+  only where the deal earns: `syncDealPoints` calls loyalty `confirmLoyalties`
+  (target `sales` + deal id) after the customer check, and a refund stage calls
+  `voucher.returnTarget` after `score.refund`. Deal saves no longer redeem them
+  on every edit. Deals have no voucher picker, so nothing holds one yet.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
@@ -504,6 +514,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-14` — Vouchers used once, returned with the order
+
+- **Summary:** POS returns give vouchers back and a refused voucher no longer skips the points; deal vouchers and coupons are used only in an earning stage and returned in a refund stage.
+- **Affected areas:** `modules/pos/utils.ts`, `modules/sales/utils/dealPoints.ts` (+ test), `modules/sales/graphql/resolvers/mutations/{utils,loyaltyUtils}.ts` (deal `confirmLoyalties` helper removed).
+- **Contracts changed:** Consumes loyalty tRPC `voucher.returnTarget`.
+
 ### `2026-10-09` — Purchases set a tier without automations
 
 - **Summary:** One tier per purchase, configured beside the points rules: deals by the narrowest tier rule at their stage, POS orders by the POS's `earnTier`; both call loyalty `score.applyPurchaseTier` and never undo it.
@@ -574,9 +590,3 @@
   documented known values to avoid redundant literal-union Sonar warnings.
 - **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
 - **Contracts changed:** None.
-
-### `2026-09-12` — Deal product discount breakdowns
-
-- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
-- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
-- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.

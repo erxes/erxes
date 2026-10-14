@@ -266,6 +266,26 @@ export const refundOrderPoints = async (
   });
 };
 
+/** A fully returned order gives its vouchers back, with their own expiry. */
+const returnOrderVouchers = async (
+  subdomain: string,
+  order: IPosOrder & { _id?: string },
+) => {
+  if (!order._id) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'voucher',
+    action: 'returnTarget',
+    input: { targetId: order._id, userId: order.userId },
+    defaultValue: 0,
+  });
+};
+
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   const models = await generateModels(subdomain);
 
@@ -784,15 +804,26 @@ export const syncOrderFromClient = async ({
       }
     }
 
-    try {
-      if (newOrder.status === 'return') {
-        await refundOrderPoints(subdomain, newOrder);
-      } else {
-        await confirmLoyalties(subdomain, newOrder);
-        await earnOrderPoints(subdomain, models, newOrder);
+    // Each on its own: a voucher refused must not stop the points.
+    const steps =
+      newOrder.status === 'return'
+        ? [
+            () => refundOrderPoints(subdomain, newOrder),
+            () => returnOrderVouchers(subdomain, newOrder),
+          ]
+        : [
+            () => confirmLoyalties(subdomain, newOrder),
+            () => earnOrderPoints(subdomain, models, newOrder),
+          ];
+
+    for (const step of steps) {
+      try {
+        await step();
+      } catch (e) {
+        console.error(
+          `${subdomain}: loyalty for POS order ${newOrder.number}: ${e.message}`,
+        );
       }
-    } catch (e) {
-      console.log(subdomain, e.message);
     }
 
     try {
@@ -956,10 +987,12 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 
 export const calcProductsTaxRule = async (
   subdomain: string,
-  config: {
-    reverseVatRules?: string[];
-    reverseCtaxRules?: string[];
-  } | undefined,
+  config:
+    | {
+        reverseVatRules?: string[];
+        reverseCtaxRules?: string[];
+      }
+    | undefined,
   products,
 ) => {
   const vatRules =

@@ -75,9 +75,10 @@ export const checkLoyalties = async (
     });
   }
 
-  return (deal.productsData || [])
-    .filter((pd) => !pd.bonusCount)
-    .map((pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd);
+  // Pricing ran first and laid down this save's bonus lines; keep them.
+  return (deal.productsData || []).map(
+    (pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd,
+  );
 };
 
 export const checkPricing = async (
@@ -187,37 +188,4 @@ export const checkPricing = async (
       .map((pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd),
     ...addBonusPData,
   ];
-};
-
-export const confirmLoyalties = async (
-  subdomain: string,
-  _id: string,
-  deal: IDeal,
-) => {
-  const confirmItems = deal.productsData || [];
-
-  if (!confirmItems.length) {
-    return;
-  }
-
-  const [customerId] = (await getCustomerIds(subdomain, _id)) || [];
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'loyalty',
-    method: 'mutation',
-    module: 'loyalty',
-    action: 'confirmLoyalties',
-    input: {
-      checkInfo: {},
-      extraInfo: {
-        ...deal.extraData,
-        ownerType: 'customer',
-        ownerId: customerId || null,
-        targetType: 'sales',
-        targetId: _id,
-      },
-    },
-    defaultValue: null,
-  });
 };

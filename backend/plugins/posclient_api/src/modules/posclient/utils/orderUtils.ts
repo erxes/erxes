@@ -449,8 +449,11 @@ const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
   const { type } = preparedDoc;
 
   if (ORDER_TYPES.SALES.includes(type)) {
-    preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+    // Pricing first, as the preview does: a voucher or coupon comes off the
+    // priced amount, and pricing never mistakes their discount for one a
+    // posBase plan baked in at sync.
     preparedDoc = await checkPricing(subdomain, preparedDoc, config);
+    preparedDoc = await checkLoyalties(subdomain, preparedDoc);
     if (!preparedDoc.directDiscount) {
       for (const item of preparedDoc.items || []) {
         applyStoredHandDiscount(item);

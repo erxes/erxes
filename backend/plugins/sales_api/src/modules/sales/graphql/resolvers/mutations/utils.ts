@@ -24,7 +24,7 @@ import {
   resolveDealSubscriptionItem,
   subscriptionWrapper,
 } from '../utils';
-import { checkLoyalties, checkPricing, confirmLoyalties } from './loyaltyUtils';
+import { checkLoyalties, checkPricing } from './loyaltyUtils';
 import {
   checkDealPoints,
   planDealPoints,
@@ -201,13 +201,15 @@ export const editDeal = async ({
 
     doc.assignedUserIds = assignedUserIds;
 
-    doc.productsData = await checkLoyalties(subdomain, _id, {
+    // Pricing first: a voucher or coupon comes off the priced amount, and
+    // pricing never mistakes their discount for one a plan baked in.
+    doc.productsData = await checkPricing(subdomain, models, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
     });
 
-    doc.productsData = await checkPricing(subdomain, models, {
+    doc.productsData = await checkLoyalties(subdomain, _id, {
       ...oldDeal.toObject?.(),
       ...oldDeal,
       ...doc,
@@ -345,7 +347,6 @@ export const editDeal = async ({
     oldDeal,
     userId: user._id,
   });
-  await confirmLoyalties(subdomain, _id, updatedItem);
 
   if (oldDeal.stageId === updatedItem.stageId) {
     return updatedItem;
@@ -425,7 +426,6 @@ export const changeDeal = async (
       oldDeal: item,
       userId,
     });
-    await confirmLoyalties(subdomain, item._id, updatedItem);
   }
 
   await itemMover(models, userId, item, destinationStageId);

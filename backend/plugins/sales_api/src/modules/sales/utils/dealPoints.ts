@@ -296,6 +296,57 @@ export const checkDealPoints = async (
   }
 };
 
+// The deal's voucher and coupon are used where it earns, and given back with
+// its points; using them again on the same deal changes nothing.
+const confirmDealVouchers = (
+  subdomain: string,
+  dealId: string,
+  deal: IDeal,
+  customerId: string,
+  actorId?: string,
+) => {
+  const { voucherId, couponCode } = deal.extraData || {};
+
+  if (!voucherId && !couponCode) {
+    return;
+  }
+
+  return sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'loyalty',
+    action: 'confirmLoyalties',
+    input: {
+      checkInfo: {},
+      extraInfo: {
+        ...deal.extraData,
+        ownerType: 'customer',
+        ownerId: customerId,
+        targetType: 'sales',
+        targetId: dealId,
+        userId: actorId,
+      },
+    },
+    throwOnError: true,
+  });
+};
+
+const returnDealVouchers = (
+  subdomain: string,
+  dealId: string,
+  actorId?: string,
+) =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'voucher',
+    action: 'returnTarget',
+    input: { targetId: dealId, userId: actorId },
+    defaultValue: 0,
+  });
+
 export const refundDealPoints = (
   subdomain: string,
   dealId: string,
@@ -338,6 +389,7 @@ export const syncDealPoints = async ({
       'Deal moved to a refund stage',
       userId,
     );
+    await returnDealVouchers(subdomain, dealId, userId);
     return;
   }
 
@@ -368,6 +420,8 @@ export const syncDealPoints = async ({
   if (!plan.customerId) {
     return;
   }
+
+  await confirmDealVouchers(subdomain, dealId, deal, plan.customerId, userId);
 
   for (const { campaignId, totalAmount, paidAmount, items } of plan.earns) {
     await askLoyalty(subdomain, 'earn', {
