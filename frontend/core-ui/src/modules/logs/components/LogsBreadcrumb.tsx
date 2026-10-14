@@ -11,9 +11,15 @@ export const LogsBreadcrumb = () => {
         <Breadcrumb>
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item aria-current="page">
-              <Button variant="ghost">
-                <IconChartPie />
-                {t('system-logs')}
+              <Button
+                variant="ghost"
+                asChild
+                className="cursor-default hover:bg-transparent"
+              >
+                <span>
+                  <IconChartPie />
+                  {t('system-logs')}
+                </span>
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>

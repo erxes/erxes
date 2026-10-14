@@ -58,9 +58,15 @@ export default function SegmentsIndexPage() {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost">
-                  <IconChartPie />
-                  {t('segment')}
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="cursor-default hover:bg-transparent"
+                >
+                  <span>
+                    <IconChartPie />
+                    {t('segment')}
+                  </span>
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>

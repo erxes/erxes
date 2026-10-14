@@ -51,9 +51,15 @@ export const LoyaltyMainLayout = ({
             <Breadcrumb>
               <Breadcrumb.List className="gap-1">
                 <Breadcrumb.Item>
-                  <Button variant="ghost">
-                    <IconAward />
-                    {t('loyalty-title')}
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className="cursor-default hover:bg-transparent"
+                  >
+                    <span>
+                      <IconAward />
+                      {t('loyalty-title')}
+                    </span>
                   </Button>
                 </Breadcrumb.Item>
               </Breadcrumb.List>

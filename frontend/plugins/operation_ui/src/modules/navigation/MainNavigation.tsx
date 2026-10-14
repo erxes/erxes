@@ -11,6 +11,7 @@ export const MainNavigation = () => {
   const currentUser = useAtomValue(currentUserState);
   const { teams } = useGetTeams({
     variables: { userId: currentUser?._id },
+    skip: !currentUser?._id,
   });
 
   const showProjects =
