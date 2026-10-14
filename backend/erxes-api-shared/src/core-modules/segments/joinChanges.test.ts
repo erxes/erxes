@@ -93,4 +93,66 @@ describe('segmentJoinChanges', () => {
       await segmentJoinChanges('core:contacts.customers', undefined),
     ).toBeUndefined();
   });
+  it('reaches the owner of a record created without a diff', async () => {
+    const changes = await segmentJoinChanges(
+      'core:contacts.customers',
+      undefined,
+      { current: [{ _id: 'c1', ownerId: 'user_a' }] },
+    );
+
+    expect(changes).toEqual({ ownerId: { prev: undefined, next: ['user_a'] } });
+  });
+
+  it('reaches the owner when another field moved', async () => {
+    const changes = await segmentJoinChanges(
+      'core:contacts.customers',
+      { updated: { primaryEmail: { prev: 'a@x.mn', current: 'b@x.mn' } } },
+      {
+        prev: [{ _id: 'c1', ownerId: 'user_a' }],
+        current: [{ _id: 'c1', ownerId: 'user_a' }],
+      },
+    );
+
+    expect(changes).toEqual({
+      ownerId: { prev: ['user_a'], next: ['user_a'] },
+    });
+  });
+
+  it('reaches both owners when the documents say it moved', async () => {
+    const changes = await segmentJoinChanges(
+      'core:contacts.customers',
+      { updated: { ownerId: { prev: 'user_a', current: 'user_b' } } },
+      { current: [{ _id: 'c1', ownerId: 'user_b' }] },
+    );
+
+    expect(changes).toEqual({ ownerId: { prev: 'user_a', next: ['user_b'] } });
+  });
+
+  it('reaches the owner of a deleted record', async () => {
+    const changes = await segmentJoinChanges(
+      'core:contacts.customers',
+      undefined,
+      { prev: [{ _id: 'c1', ownerId: 'user_a' }] },
+    );
+
+    expect(changes).toEqual({ ownerId: { prev: ['user_a'], next: undefined } });
+  });
+
+  it('collects every owner of a batch', async () => {
+    const changes = await segmentJoinChanges(
+      'core:contacts.customers',
+      undefined,
+      {
+        current: [
+          { _id: 'c1', ownerId: 'user_a' },
+          { _id: 'c2' },
+          { _id: 'c3', ownerId: 'user_b' },
+        ],
+      },
+    );
+
+    expect(changes).toEqual({
+      ownerId: { prev: undefined, next: ['user_a', 'user_b'] },
+    });
+  });
 });

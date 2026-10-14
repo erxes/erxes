@@ -52,12 +52,6 @@ export const AUTOMATIONS_AI_AGENTS = gql`
   }
 `;
 
-export const AUTOMATIONS_AI_AGENT_TOTAL_COUNTS = gql`
-  query AutomationsAiAgentTotalCounts {
-    automationsAiAgentTotalCounts
-  }
-`;
-
 export const AUTOMATIONS_AI_AGENT_HEALTH = gql`
   query AutomationsAiAgentHealth($agentId: String!) {
     automationsAiAgentHealth(agentId: $agentId) {

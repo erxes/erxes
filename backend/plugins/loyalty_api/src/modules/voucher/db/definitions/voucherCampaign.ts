@@ -5,6 +5,7 @@ import {
   VOUCHER_AUTO_ISSUE_ENGINES,
   VOUCHER_AUTO_ISSUE_KINDS,
 } from '@/voucher/@types/voucherCampaign';
+import { VOUCHER_VALIDITY_UNITS } from '@/voucher/services/voucherTerm';
 
 const autoIssuePartSchema = new Schema(
   {
@@ -27,6 +28,10 @@ export const voucherCampaignSchema = schemaWrapper(
   new Schema(
     {
       ...commonCampaignSchema,
+
+      // Open-ended on either side when left empty.
+      startDate: { type: Date, label: 'Start date' },
+      endDate: { type: Date, label: 'End date' },
 
       buyScore: { type: Number, label: 'Buy score' },
 
@@ -78,6 +83,21 @@ export const voucherCampaignSchema = schemaWrapper(
           { _id: false },
         ),
         label: 'Per owner limit',
+      },
+
+      validity: {
+        type: new Schema(
+          {
+            count: { type: Number, min: 1, required: true },
+            unit: {
+              type: String,
+              enum: VOUCHER_VALIDITY_UNITS,
+              required: true,
+            },
+          },
+          { _id: false },
+        ),
+        label: 'Voucher validity',
       },
 
       autoIssue: {

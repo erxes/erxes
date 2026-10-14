@@ -28,6 +28,7 @@ export const AutomationExecActionInput = z.object({
   nextActionId: z.string().optional(),
   result: z.any().optional(),
   skipReason: z.string().optional(),
+  conditionalMatches: z.record(z.string()).optional(),
   attempt: z.number().optional(),
   jobId: z.string().optional(),
   // Dates arrive serialized across the producer boundary, but stay Date

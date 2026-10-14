@@ -101,6 +101,15 @@ export const applyDiscountInfo = (
   recalculateProductDiscount(productData);
 };
 
+// Restated by its source on every save; `discount` follows at once, so an
+// emptied list is never mistaken for a manual discount.
+export const dropDiscountInfo = (productData: IProductData, type: string) => {
+  productData.discountInfos = ensureHandDiscountInfo(productData).filter(
+    (info) => info.type !== type,
+  );
+  recalculateProductDiscount(productData);
+};
+
 export const recalculateProductDiscount = (productData: IProductData) => {
   const baseAmount = getBaseAmount(productData);
   const discountAmount = fixNum(

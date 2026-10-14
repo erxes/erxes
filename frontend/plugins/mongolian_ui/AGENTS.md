@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -54,7 +54,8 @@
 - Product places segment pickers use the shared `ui-modules` `SelectSegment`
   component with `core:products.products` for product segment selection.
 - Product places listens to the `productPlacesResponded` subscription from the
-  floating widget and opens printable receipt HTML for the current user.
+  floating widget and opens printable receipt HTML only when the payload
+  `sessionCode` matches the current tab's `sessionStorage.sessioncode`.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
 - Put response pagination preserves the full loaded range's start/end cursors,
@@ -99,9 +100,9 @@
   `/mongolian/msdynamic/*`.
 - Floating eBarimt response widget that listens for `ebarimtResponded` and
   opens printable deal receipt HTML.
-- Floating product-places response widget that listens for
-  `productPlacesResponded` and prints the JSON receipt content returned by the
-  backend.
+- Floating product-places response widget that listens for the session-scoped
+  `productPlacesResponded` payload and prints the JSON receipt content returned
+  by the backend.
 - Product chooser remainder provider through `CONFIG.widgets.productRemainderProviders`.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and

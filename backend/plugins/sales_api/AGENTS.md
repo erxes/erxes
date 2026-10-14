@@ -35,6 +35,18 @@
 - `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
   including subscriptions, to `generated/schema.graphql` for type-generation
   tooling without starting the Sales service or executing resolvers.
+- Deal product rows persist optional `uomInfo: { uom, ratio, unitPrice, quantity }`
+  for entry values. Writes derive base price (`info.unitPrice * ratio`), base
+  quantity (`info.quantity / ratio`), taxes and amount before totals/discounts.
+  Partial info uses base fields; missing base UOMs are fetched in one tenant-scoped
+  Core products query. `uomInfo` is the only supported entry-unit metadata field.
+  Base-unit selections copy entry price/quantity directly and omit `uomInfo`
+  from persistence; only a different selected unit needs stored metadata.
+  `utils/productUom.ts` separates missing-base-unit lookup from input
+  normalization, and validates the incoming ratio once before conversion.
+- Deal creation, saving, and product-row creation/editing fill missing or blank
+  currencies from the tenant's first Core `dealCurrency` configuration value
+  (fallback `MNT`) before calculating totals, preserving explicit currencies.
 - POS catalog sync checks loyalty base pricing in batches of 100 products,
   with at most eight concurrent requests, and merges discounts by product id
   before applying them to prices. Product-group pushes propagate POS client
@@ -129,13 +141,33 @@
   that puts a deal into a stage must do the same.
   Removing deals refunds them (`Deals.removeDeals`). All loyalty calls throw;
   with loyalty disabled they do nothing. POS order sync calls `score.spend`
-  (`spendOrderPoints`, also after `posOrderChangePayments`), `score.earn` for
+  (`spendOrderPoints`, its own sync step and `throwOnError`, also after
+  `posOrderChangePayments`), `score.earn` for
   the POS's one `earnScoreCampaignId` once paid (`planOrderPoints` /
   `earnOrderPoints`), `score.applyPurchaseTier` for the POS's one `earnTier`
   (`{accountTypeId, bands, onlyUpgrade}`, checked by `validateEarnTier`) with
   the order's `totalAmount` (with the order, named `POS #number`, and its
   cashier as target and actor), and `score.refund` for returned orders (the tier
-  stays), still without throwing.
+  stays), still without throwing. Each loyalty step of a paid or returned
+  sync runs on its own, so a refused voucher never skips the earning. A
+  returned order also gives its vouchers back (`voucher.returnTarget`); the
+  paid order's voucher is used through `confirmLoyalties` (target `pos` + order
+  id, the same pair posclient held it under; a repeat sync changes nothing).
+- A deal save prices `checkPricing` first, then `checkLoyalties`, so loyalty discounts sit on the priced amount; `checkLoyalties` keeps the bonus lines pricing just laid down.
+- A deal's voucher and coupon (`extraData.voucherId` / `couponCode`) are used
+  only where the deal earns: `syncDealPoints` calls loyalty `confirmLoyalties`
+  (target `sales` + deal id) after the customer check, and a refund stage calls
+  `voucher.returnTarget` after `score.refund`, then `voucher.releaseTarget`.
+  Deal saves no longer redeem them on every edit. Saving products with
+  `extraData` holds the picked voucher for the deal's first customer
+  (`syncDealVoucher` in `editDeal`, before pricing; it releases the previous
+  pick and refuses a deal without a customer), and `checkLoyalties` sends
+  `discountInfo {voucherId, couponCode, targetId}` so the deal is priced with
+  them. Removing a deal returns the vouchers it used and releases the ones it held. Pricing and loyalty
+  restate their own `discountInfos` (`pricing`, `voucher`) on every save
+  (`dropDiscountInfo`, which resets `discount` at once so an emptied list is
+  never rebuilt as a manual discount), so a plan, voucher or coupon that no
+  longer applies takes its discount with it.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
@@ -236,6 +268,12 @@
   files and re-run `schema:print` instead of editing the exported schema.
   The exporter exits explicitly because shared utility imports open Redis
   clients that would otherwise keep the command running.
+- `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
+  `unitPrice`, and amounts in base units before calculating deal totals.
+  Preserve saved ratios, and sync info values after server-side pricing changes
+  so later saves cannot restore stale input prices. Integrations use root fields.
+- Default missing product-row currencies before calculating deal totals; read
+  Core `configs.getConfig` with the current tenant's `subdomain`.
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.
@@ -496,6 +534,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-14` — Vouchers used once, returned with the order
+
+- **Summary:** POS returns give vouchers back and a refused voucher no longer skips the points; a deal holds its picked voucher, prices with it and its coupon, uses them only in an earning stage and returns or releases them in a refund stage or on removal.
+- **Affected areas:** `modules/pos/utils.ts`, `modules/sales/utils/dealPoints.ts` (+ test), `modules/sales/db/models/Deals.ts`, `modules/sales/graphql/resolvers/mutations/{utils,loyaltyUtils}.ts` (deal `confirmLoyalties` helper removed).
+- **Contracts changed:** Consumes loyalty tRPC `voucher.returnTarget`, `voucher.hold`, `voucher.release`, `voucher.releaseTarget`.
+
 ### `2026-10-09` — Purchases set a tier without automations
 
 - **Summary:** One tier per purchase, configured beside the points rules: deals by the narrowest tier rule at their stage, POS orders by the POS's `earnTier`; both call loyalty `score.applyPurchaseTier` and never undo it.
@@ -566,9 +610,3 @@
   documented known values to avoid redundant literal-union Sonar warnings.
 - **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
 - **Contracts changed:** None.
-
-### `2026-09-12` — Deal product discount breakdowns
-
-- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
-- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
-- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
