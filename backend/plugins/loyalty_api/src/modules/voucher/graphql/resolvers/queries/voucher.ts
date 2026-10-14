@@ -45,47 +45,29 @@ const generateFilter = (params: IVoucherParams) => {
 
   return filter;
 };
+// A portal user is their customer: vouchers are only ever the customer's.
+const customerOfPortalUser = async (subdomain: string, ownerId: string) => {
+  const cpUser = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'cpUsers',
+    action: 'get',
+    input: { id: ownerId },
+    defaultValue: null,
+  });
+
+  return cpUser?.erxesCustomerId || ownerId;
+};
+
 const getOwnerVouchers = async (
   models: IContext['models'],
-  subdomain: string,
   ownerId: string,
-  ownerType?: string,
+  ownerType = 'customer',
 ) => {
-  let resolvedOwnerId = ownerId;
-  let resolvedOwnerType = ownerType;
-
-  if (!resolvedOwnerType || resolvedOwnerType === 'customer') {
-    const cpUserById = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'cpUsers',
-      action: 'get',
-      input: { id: resolvedOwnerId },
-      defaultValue: null,
-    });
-
-    const cpUser =
-      cpUserById ||
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'cpUsers',
-        action: 'get',
-        input: { erxesCustomerId: resolvedOwnerId },
-        defaultValue: null,
-      }));
-
-    if (cpUser) {
-      resolvedOwnerId = cpUser._id;
-      resolvedOwnerType = 'cpUser';
-    }
-  }
-
   const ownerVouchers = await models.Vouchers.find({
-    ownerId: resolvedOwnerId,
-    ...(resolvedOwnerType && { ownerType: resolvedOwnerType }),
+    ownerId,
+    ownerType,
   }).lean();
 
   const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
@@ -204,14 +186,9 @@ export const voucherQueries = {
   async ownerVouchers(
     _parent: undefined,
     params: { ownerId: string; ownerType?: string },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
-    return getOwnerVouchers(
-      models,
-      subdomain,
-      params.ownerId,
-      params.ownerType,
-    );
+    return getOwnerVouchers(models, params.ownerId, params.ownerType);
   },
 
   async cpOwnerVouchers(
@@ -221,9 +198,7 @@ export const voucherQueries = {
   ) {
     return getOwnerVouchers(
       models,
-      subdomain,
-      params.ownerId,
-      params.ownerType,
+      await customerOfPortalUser(subdomain, params.ownerId),
     );
   },
 };

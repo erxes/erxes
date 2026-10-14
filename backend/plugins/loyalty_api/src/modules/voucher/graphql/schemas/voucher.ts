@@ -16,6 +16,16 @@ export const types = `
     createdBy: User
     updatedBy: User
     conditions: JSON
+    campaign: VoucherCampaign
+    # What it gives, fixed when issued; older vouchers read their campaign.
+    terms: JSON
+    expiresAt: Date
+    usedIn: JSON
+    heldAt: Date
+    createdVia: JSON
+    cancelledAt: Date
+    cancelReason: String
+    history: JSON
   }
 
   type VoucherListRepsponse {
@@ -85,4 +95,7 @@ export const mutations = `
   vouchersRemove(_ids: [String]): JSON
   vouchersRemoveByFilter(${mainQueryParams}): Int
   buyVoucher(campaignId: String, ownerType: String, ownerId: String, count: Int): Voucher
+  voucherCancel(_id: String!, reason: String!): Voucher
+  voucherMarkUsed(_id: String!, note: String!): Voucher
+  voucherExtend(_id: String!, endDate: Date!): Voucher
 `;

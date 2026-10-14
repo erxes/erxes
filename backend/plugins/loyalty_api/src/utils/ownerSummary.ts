@@ -1,12 +1,18 @@
 import { resolveAccountBalances } from '@/score/services/accountBalances';
 import { TLoyaltyAccountOwnerType } from '@/score/@types/account';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { voucherExpiresAt } from '@/voucher/services/voucherTerm';
+import { VOUCHER_STATUS } from '@/voucher/constants';
+import {
+  AUTO_SALE_VOUCHER_TYPES,
+  PICKED_SALE_VOUCHER_TYPES,
+  voucherExpiresAt,
+  voucherTerms,
+} from '@/voucher/services/voucherTerm';
 
-// Bonus and discount vouchers apply to a sale by themselves; reward ones are picked.
-const AUTO_VOUCHER_TYPES = ['bonus', 'discount'];
-const SALE_VOUCHER_TYPES = [...AUTO_VOUCHER_TYPES, 'reward'];
+const SALE_VOUCHER_TYPES = [
+  ...AUTO_SALE_VOUCHER_TYPES,
+  ...PICKED_SALE_VOUCHER_TYPES,
+];
 
 export interface IOwnerSummaryVoucher {
   _id: string;
@@ -16,49 +22,25 @@ export interface IOwnerSummaryVoucher {
   kind?: string;
   value?: number;
   expiresAt?: Date;
+  status: string;
+  // The order or deal it is held for, when on hold.
+  heldFor?: { targetType?: string; targetId?: string };
   autoApplied: boolean;
   applicable: boolean;
   reason?: string;
 }
 
-// A customer's vouchers may sit on their client portal user.
-const voucherOwners = async (
-  subdomain: string,
-  ownerType: TLoyaltyAccountOwnerType,
-  ownerId: string,
-) => {
-  const owners = [{ ownerType: ownerType as string, ownerId }];
-
-  if (ownerType !== 'customer') {
-    return owners;
-  }
-
-  const cpUser = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'cpUsers',
-    action: 'get',
-    input: { erxesCustomerId: ownerId },
-    defaultValue: null,
-  });
-
-  return cpUser?._id
-    ? [...owners, { ownerType: 'cpUser', ownerId: cpUser._id }]
-    : owners;
-};
-
 const saleVouchers = async (
   models: IModels,
-  subdomain: string,
   ownerType: TLoyaltyAccountOwnerType,
   ownerId: string,
   totalAmount?: number,
+  targetId?: string,
 ): Promise<IOwnerSummaryVoucher[]> => {
-  const owners = await voucherOwners(subdomain, ownerType, ownerId);
   const vouchers = await models.Vouchers.find({
-    $or: owners,
-    status: 'new',
+    ownerType,
+    ownerId,
+    status: { $in: [VOUCHER_STATUS.NEW, VOUCHER_STATUS.ONHOLD] },
   }).lean();
 
   if (!vouchers.length) {
@@ -68,7 +50,6 @@ const saleVouchers = async (
   const now = new Date();
   const campaigns = await models.VoucherCampaigns.find({
     _id: { $in: [...new Set(vouchers.map((v) => v.campaignId))] },
-    voucherType: { $in: SALE_VOUCHER_TYPES },
     status: 'active',
   }).lean();
   const campaignById = new Map(campaigns.map((c) => [c._id, c]));
@@ -82,16 +63,21 @@ const saleVouchers = async (
       continue;
     }
 
+    const terms = voucherTerms(voucher, campaign);
     const expiresAt = voucherExpiresAt(voucher, campaign);
+    const voucherType = terms.voucherType || '';
 
-    if (expiresAt && expiresAt < now) {
+    if (
+      !SALE_VOUCHER_TYPES.includes(voucherType) ||
+      (expiresAt && expiresAt < now)
+    ) {
       continue;
     }
 
-    const autoApplied = AUTO_VOUCHER_TYPES.includes(campaign.voucherType);
+    const autoApplied = AUTO_SALE_VOUCHER_TYPES.includes(voucherType);
     let reason: string | undefined;
 
-    // Reward vouchers go through the same check the sale itself runs.
+    // Picked vouchers go through the same check the sale itself runs.
     if (!autoApplied) {
       try {
         await models.Vouchers.checkVoucher({
@@ -99,6 +85,7 @@ const saleVouchers = async (
           ownerType: voucher.ownerType,
           ownerId: voucher.ownerId,
           totalAmount,
+          targetId,
         });
       } catch (e) {
         reason = e instanceof Error ? e.message : String(e);
@@ -108,11 +95,20 @@ const saleVouchers = async (
     result.push({
       _id: voucher._id,
       campaignId: campaign._id,
-      title: campaign.title,
-      voucherType: campaign.voucherType,
-      kind: campaign.kind,
-      value: campaign.value,
+      title: terms.title || campaign.title,
+      voucherType,
+      kind: terms.kind,
+      value: terms.value,
       expiresAt,
+      status: voucher.status || VOUCHER_STATUS.NEW,
+      ...(voucher.status === VOUCHER_STATUS.ONHOLD
+        ? {
+            heldFor: {
+              targetType: voucher.usedIn?.targetType,
+              targetId: voucher.usedIn?.targetId,
+            },
+          }
+        : {}),
       autoApplied,
       applicable: !reason,
       reason,
@@ -127,15 +123,18 @@ const saleVouchers = async (
 // What a selling screen may show about the owner it is serving.
 export const getOwnerSummary = async (
   models: IModels,
-  subdomain: string,
+  _subdomain: string,
   {
     ownerType,
     ownerId,
     totalAmount,
+    targetId,
   }: {
     ownerType: TLoyaltyAccountOwnerType;
     ownerId: string;
     totalAmount?: number;
+    // The order being sold, so its own held voucher shows as applicable.
+    targetId?: string;
   },
 ) => {
   const account = await models.LoyaltyAccounts.getOwnerAccount({
@@ -146,7 +145,7 @@ export const getOwnerSummary = async (
   const noBalances: Awaited<ReturnType<typeof resolveAccountBalances>> = [];
   const [balances, vouchers] = await Promise.all([
     account ? resolveAccountBalances(models, account) : noBalances,
-    saleVouchers(models, subdomain, ownerType, ownerId, totalAmount),
+    saleVouchers(models, ownerType, ownerId, totalAmount, targetId),
   ]);
 
   return {

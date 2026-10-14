@@ -1,4 +1,10 @@
 import { FilterQuery } from 'mongoose';
+import { IVoucherTerms } from '@/voucher/@types/voucher';
+
+// Bonus vouchers apply to a sale by themselves; these are picked, held for
+// one order and used once.
+export const AUTO_SALE_VOUCHER_TYPES = ['bonus'];
+export const PICKED_SALE_VOUCHER_TYPES = ['discount', 'reward'];
 
 export const VOUCHER_VALIDITY_UNITS = ['day', 'week', 'month'] as const;
 export type TVoucherValidityUnit = (typeof VOUCHER_VALIDITY_UNITS)[number];
@@ -70,3 +76,22 @@ export const voucherExpiresAt = (
 
   return deadline && deadline < own ? deadline : own;
 };
+
+type TCampaignTerms = IVoucherTerms & { restrictions?: unknown };
+
+/** What a campaign promises one voucher, to be kept on it when issued. */
+export const termsOfCampaign = (campaign: TCampaignTerms): IVoucherTerms => ({
+  title: campaign.title,
+  voucherType: campaign.voucherType,
+  kind: campaign.kind,
+  value: campaign.value,
+  restrictions: (campaign.restrictions || {}) as Record<string, unknown>,
+  bonusProductId: campaign.bonusProductId,
+  bonusCount: campaign.bonusCount,
+});
+
+/** A voucher's own terms; one issued before they were kept follows its campaign. */
+export const voucherTerms = (
+  voucher: { terms?: IVoucherTerms | null },
+  campaign: TCampaignTerms,
+): IVoucherTerms => voucher.terms || termsOfCampaign(campaign);
