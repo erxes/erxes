@@ -47,6 +47,7 @@ const queryParams = `
   status: String
   fromDate: String
   toDate: String
+  expiresWithin: Int
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -63,6 +64,7 @@ const mainQueryParams = `
   searchValue: String
   fromDate: String
   toDate: String
+  expiresWithin: Int
 `;
 
 export const queries = `

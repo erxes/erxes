@@ -53,6 +53,7 @@
 - An earning's points are explained by `EarnCalcPopover` (steps from `scores/utils/earnCalcSteps.ts`, using the breakdown's `calc`): on the score list's Breakdown cell and on each tier's result in the campaign form's earn preview — amount × % or ×N, ÷ money per point, rounding, and what the points pay.
 - The voucher campaign Restriction tab (add and edit share `AddVoucherRestrictionForm`) has a "Per customer" limit (`VoucherOwnerLimitField`: count + period year/month/whole campaign); `toOwnerLimit` sends `perOwnerLimit`, or `null` when the count is empty so an edit clears it.
 - The voucher campaign Campaign tab (add and edit) reads as three parts: what one voucher gives (type with a one-line hint; for `discount`/`reward` one Discount field with a %/Amount toggle and a sentence preview), Validity (each voucher works for a set time `validityCount`+`validityUnit` — default 1 month — or until the campaign ends; optional start, "No end" switch on by default for new campaigns) and Buy with points (`buyScore`). `toVoucherTerm` / `fromVoucherTerm` (`settings/voucher/utils/voucherTerm.ts`) turn the form into `startDate`/`endDate`/`validity` (nulls clear) and back. The list's End date column shows "No end". The Issue voucher automation step offers the campaign's validity or a custom `customRule {count, unit}`; older `customRule.duration` steps open as custom (one unit; `minute` reads as a day).
+- The Vouchers page (`modules/loyalties/vouchers`) lists issued vouchers as Recipient, What it gives (`terms`), Valid until (days left), Status (`voucherDisplayStatus`: an open voucher past `expiresAt` shows Expired), Received and Held or used in; the status filter offers Unused / On hold / Used / Cancelled / Expired and "Expires within" 1 / 3 / 7 / 30 days (`SelectExpiresWithin`, query `expiresWithin`), both server-side. There is no free edit: the recipient opens `VoucherDetailSheet` (applies to, validity, where held or used, history) whose only actions are Mark as used (note) and Cancel (reason) for unused vouchers and Extend (date) for unused or held ones (`useVoucherActions`, mutations `LoyaltyVoucherCancel` / `LoyaltyVoucherMarkUsed` / `LoyaltyVoucherExtend`, refetching `VouchersMain`). The customer's Score Summary widget shows `OwnerVouchersCard`: the vouchers still to use, each opening the same sheet, and a count of the rest.
 - The "Tier changed" trigger is configured by `TierChangedTriggerConfigForm` / `useTierChangedTriggerForm` (wallet required, direction up/down/any defaulting to up, target tier or any) and summarized on its node by `TierChangedTriggerNodeContent`, both registered in `LoyaltyRemoteEntry` (`triggerForm`, `triggerConfigContent`).
 - Loyalty action nodes report what their config still misses (`useLoyaltyActionNodeIssues`: the action's own zod form schema, reported through `useReportNodeIssues` from `ui-modules`); the builder draws the warning and blocks activation.
 - `/loyalty/accounts` ("Accounts" in the loyalty navigation) lists loyalty accounts: owner, owner type, account number, status, one column per active account type with its balance and an inline tier select, joined date. Filters: search (account number or owner name), status, owner type, account type and tier. Row menu: freeze (reason dialog) / unfreeze (confirm), tier history, score history (scores page filtered by owner), owner profile. Freeze, unfreeze and tier changes refetch `LoyaltyAccounts`; a tier change also refetches `LoyaltyTierLogs`.
@@ -167,6 +168,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-14` — Issued vouchers: list, detail and actions
+
+- **Summary:** The Vouchers page shows what each voucher gives, until when and where it was held or used; a voucher opens a detail sheet with its history and only cancel / mark used / extend; the customer's loyalty widget lists their vouchers.
+- **Affected areas:** `modules/loyalties/vouchers/{components/{VoucherColumns,VoucherRecordTable,VoucherOwner,VoucherStatusBadge,OwnerVouchersCard,detail/VoucherDetailSheet}.tsx,components/selects/SelectStatus.tsx,hooks/{useVoucherActions,useVoucherDetail,useOwnerVouchers}.ts,utils/voucherView.ts,types/voucher.ts,graphql/**}` (removed `VoucherEditSheet`, `useEditVoucher`), `modules/loyalties/scores/components/ScoreSummaryWidget.tsx`; `voucher-*` translations.
+- **Contracts changed:** None
+
 ### `2026-10-14` — Fixed points in Adjust score
 
 - **Summary:** An Adjust score step can give a fixed number of points into a chosen wallet instead of earning through a campaign.
@@ -218,5 +225,3 @@
 - **Summary:** Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment and Coupon moved from the inner config sidebar into the platform settings menu; the "Configs" item and the unused duplicate `components/LoyaltySettings.tsx` are gone.
 - **Affected areas:** `src/LoyaltySettingsNavigation.tsx`, `modules/loyalties/settings/{constants/settingRoutes.ts,components/LoyaltyLayout.tsx,components/LoyaltyBreadcrumb.tsx}`; `LoyaltySidebar.tsx` removed.
 - **Contracts changed:** None (routes unchanged).
-
-### `2026-09-29` — Stage rules and automation subtract removed

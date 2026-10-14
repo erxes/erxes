@@ -1067,5 +1067,67 @@
     "fixed": "Энэ алхам ажиллах бүрт ижил оноо өгнө. Earning table, tier, cap хамаарахгүй; зөвхөн wallet-ийн өөрийн дүрэм үйлчилнэ."
   },
   "score-fixed-points": "Өгөх оноо",
-  "score-fixed-points-node": "Wallet-д {{points}} оноо өгнө"
+  "score-fixed-points-node": "Wallet-д {{points}} оноо өгнө",
+  "voucher-status": {
+    "new": "Ашиглаагүй",
+    "onhold": "Барьсан",
+    "used": "Ашигласан",
+    "cancelled": "Цуцалсан",
+    "expired": "Хугацаа дууссан"
+  },
+  "voucher-gives-bonus": "{{count}} үнэгүй",
+  "voucher-gives-percent": "{{value}}% хөнгөлөлт",
+  "voucher-gives-amount": "{{value}} хөнгөлөлт",
+  "voucher-applies-products": "{{count}} бараа",
+  "voucher-applies-categories": "{{count}} ангилал",
+  "voucher-applies-tags": "{{count}} tag",
+  "voucher-applies-min": "{{value}}-аас дээш",
+  "voucher-applies-max": "{{value}} хүртэл",
+  "voucher-applies-anything": "Ямар ч худалдан авалт",
+  "voucher-where": {
+    "manual": "Борлуулалтаас гадуур",
+    "pos": "POS order",
+    "sales": "Deal"
+  },
+  "voucher-recipient": "Хэнд",
+  "voucher-valid-until": "Хүчинтэй",
+  "voucher-received": "Авсан",
+  "voucher-where-col": "Хаана",
+  "voucher-days-left": "{{count}} хоног үлдсэн",
+  "voucher-until": "{{date}} хүртэл",
+  "voucher-applies": "Юунд хэрэглэх",
+  "voucher-valid": "Хүчинтэй хугацаа",
+  "voucher-held-in": "Барьсан order",
+  "voucher-used-in": "Ашигласан газар",
+  "voucher-cancel-reason": "Цуцалсан шалтгаан",
+  "voucher-history": "Түүх",
+  "voucher-history-action": {
+    "issued": "Олгосон",
+    "held": "Order-т барьсан",
+    "released": "Суллагдсан",
+    "used": "Ашигласан",
+    "returned": "Order-той хамт буцсан",
+    "cancelled": "Цуцалсан",
+    "markedUsed": "Гараар ашигласан болгосон",
+    "extended": "Сунгасан"
+  },
+  "voucher-history-none": "Түүх хадгалагдаж эхлэхээс өмнөх voucher",
+  "voucher-mark-used": "Ашигласан болгох",
+  "voucher-extend": "Сунгах",
+  "voucher-cancel": "Цуцлах",
+  "voucher-extend-until": "Шинэ дуусах огноо",
+  "voucher-cancel-reason-placeholder": "Яагаад цуцалж байна",
+  "voucher-mark-used-placeholder": "Хаана ашигласан",
+  "voucher-action-confirm": {
+    "markUsed": "Ашигласан болгох",
+    "extend": "Сунгах",
+    "cancel": "Voucher цуцлах"
+  },
+  "voucher-cancelled": "Voucher цуцлагдлаа",
+  "voucher-marked-used": "Voucher ашигласан боллоо",
+  "voucher-extended": "Voucher сунгагдлаа",
+  "owner-vouchers-none": "Хэрэглэх voucher алга",
+  "owner-vouchers-closed": "{{count}} ашигласан, цуцалсан эсвэл дууссан",
+  "voucher-expires-within": "Дуусах хугацаа",
+  "voucher-expires-within-option": "{{count}} хоногт"
 }

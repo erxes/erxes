@@ -5,12 +5,16 @@ import {
 } from '@/voucher/@types/voucher';
 import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { voucherExpiresAt } from '@/voucher/services/voucherTerm';
+import {
+  voucherExpiresWithinSelector,
+  voucherStatusSelector,
+} from '@/voucher/services/voucherStatusFilter';
 
-const generateFilter = (params: IVoucherParams) => {
-  const filter: FilterQuery<IVoucher> = {};
+const generateFilter = async (models: IModels, params: IVoucherParams) => {
+  let filter: FilterQuery<IVoucher> = {};
 
   const { campaignId, ownerId, ownerType, status, fromDate, toDate } =
     params || {};
@@ -28,7 +32,18 @@ const generateFilter = (params: IVoucherParams) => {
   }
 
   if (status) {
-    filter.status = status;
+    filter = { ...filter, ...(await voucherStatusSelector(models, status)) };
+  }
+
+  // Ending soon, read from the same dates as expiry.
+  if (params.expiresWithin) {
+    filter = {
+      ...filter,
+      $and: [
+        ...(filter.$and || []),
+        await voucherExpiresWithinSelector(models, params.expiresWithin),
+      ],
+    };
   }
 
   if (fromDate || toDate) {
@@ -151,7 +166,7 @@ export const voucherQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('voucherView');
-    const filter = generateFilter(params);
+    const filter = await generateFilter(models, params);
 
     return await cursorPaginate<IVoucherDocument>({
       model: models.Vouchers,
@@ -172,7 +187,7 @@ export const voucherQueries = {
       sortField = 'createdAt',
       sortDirection = -1,
     } = params;
-    const filter = generateFilter(params);
+    const filter = await generateFilter(models, params);
 
     const totalCount = await models.Vouchers.countDocuments(filter);
     const list = await models.Vouchers.find(filter)

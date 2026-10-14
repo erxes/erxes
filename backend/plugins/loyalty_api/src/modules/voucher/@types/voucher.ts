@@ -73,6 +73,8 @@ export interface IVoucherParams extends ICursorPaginateParams {
   status?: string;
   fromDate?: string;
   toDate?: string;
+  // Open vouchers ending within this many days.
+  expiresWithin?: number;
   page?: number;
   perPage?: number;
   sortField?: string;
