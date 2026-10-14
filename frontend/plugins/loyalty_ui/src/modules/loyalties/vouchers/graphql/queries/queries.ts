@@ -88,22 +88,3 @@ export const VOUCHER_COMPANIES_QUERY = gql`
     }
   }
 `;
-
-export const VOUCHER_CUSTOMERS_QUERY = gql`
-  query VoucherCustomers($searchValue: String, $perPage: Int, $page: Int) {
-    voucherCustomers(
-      searchValue: $searchValue
-      perPage: $perPage
-      page: $page
-    ) {
-      _id
-      code
-      primaryPhone
-      primaryEmail
-      firstName
-      lastName
-      primaryAddress
-      addresses
-    }
-  }
-`;
