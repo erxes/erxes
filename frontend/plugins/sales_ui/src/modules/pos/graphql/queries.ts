@@ -1,89 +1,75 @@
 import { gql } from '@apollo/client';
 
-export const posCommonFields = `
-  _id
-  name
-  description
-  orderPassword
-  scopeBrandIds
-  pdomain
-  createdAt
-  token
-  serviceCharge
-  serviceChargeApplicableProductId
-  adminIds
-  cashierIds
-  paymentIds
-  paymentTypes
-  earnScoreCampaignId
-  earnTier
-  acceptCoupons
-  user {
-    _id
-    details {
-      avatar
-      fullName
-    }
-  }
-  isOnline
-  onServer
-  branchId
-  departmentId
-  allowBranchIds
-  beginNumber
-  maxSkipNumber
-  waitingScreen
-  kitchenScreen
-  kioskMachine
-  uiOptions
-  cardsConfig
-  catProdMappings {
-    _id
-    categoryId
-    code
-    name
-    productId
-  }
-
-  initialCategoryIds
-  kioskExcludeCategoryIds
-  kioskExcludeProductIds
-  deliveryConfig
-  permissionConfig
-  customerCreateConfig
-  allowTypes
-  isShowRemainder
-  isCheckRemainder
-  checkExcludeCategoryIds
-  saveRemainder
-  banFractions
-
-  branchTitle
-  departmentTitle
-`;
-
-const commonParamDefs = `
-  $page: Int,
-  $perPage: Int
-`;
-
-const commonParams = `
-  page: $page,
-  perPage: $perPage
-`;
-
 const posList = gql`
   query posList(
-    ${commonParamDefs}
+    $page: Int
+    $perPage: Int
     $sortField: String
     $sortDirection: Int
   ) {
     posList(
-      ${commonParams}
+      page: $page
+      perPage: $perPage
       sortField: $sortField
       sortDirection: $sortDirection
     ) {
-      ${posCommonFields}
+      _id
+      name
+      description
+      orderPassword
+      scopeBrandIds
+      pdomain
+      createdAt
+      token
+      serviceCharge
+      serviceChargeApplicableProductId
+      adminIds
+      cashierIds
+      paymentIds
+      paymentTypes
+      earnScoreCampaignId
+      earnTier
+      acceptCoupons
+      user {
+        _id
+        details {
+          avatar
+          fullName
+        }
+      }
+      isOnline
+      onServer
+      branchId
+      departmentId
+      allowBranchIds
+      beginNumber
+      maxSkipNumber
+      waitingScreen
+      kitchenScreen
+      kioskMachine
+      uiOptions
+      cardsConfig
+      catProdMappings {
+        _id
+        categoryId
+        code
+        name
+        productId
+      }
+      initialCategoryIds
+      kioskExcludeCategoryIds
+      kioskExcludeProductIds
+      deliveryConfig
+      permissionConfig
+      customerCreateConfig
+      allowTypes
+      isShowRemainder
+      isCheckRemainder
+      checkExcludeCategoryIds
+      saveRemainder
+      banFractions
+      branchTitle
+      departmentTitle
     }
   }
 `;
@@ -115,7 +101,63 @@ const posSlots = gql`
 const posDetail = gql`
   query posDetail($_id: String!) {
     posDetail(_id: $_id) {
-      ${posCommonFields}
+      _id
+      name
+      description
+      orderPassword
+      scopeBrandIds
+      pdomain
+      createdAt
+      token
+      serviceCharge
+      serviceChargeApplicableProductId
+      adminIds
+      cashierIds
+      paymentIds
+      paymentTypes
+      earnScoreCampaignId
+      earnTier
+      acceptCoupons
+      user {
+        _id
+        details {
+          avatar
+          fullName
+        }
+      }
+      isOnline
+      onServer
+      branchId
+      departmentId
+      allowBranchIds
+      beginNumber
+      maxSkipNumber
+      waitingScreen
+      kitchenScreen
+      kioskMachine
+      uiOptions
+      cardsConfig
+      catProdMappings {
+        _id
+        categoryId
+        code
+        name
+        productId
+      }
+      initialCategoryIds
+      kioskExcludeCategoryIds
+      kioskExcludeProductIds
+      deliveryConfig
+      permissionConfig
+      customerCreateConfig
+      allowTypes
+      isShowRemainder
+      isCheckRemainder
+      checkExcludeCategoryIds
+      saveRemainder
+      banFractions
+      branchTitle
+      departmentTitle
       productDetails
     }
   }

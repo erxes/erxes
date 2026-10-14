@@ -1,12 +1,73 @@
 import { gql } from '@apollo/client';
-import { commonListFields } from '@/deals/graphql/queries/DealsQueries';
 
 export const DEAL_CHANGED = gql`
   subscription salesDealChanged($_id: String!) {
     salesDealChanged(_id: $_id) {
       action
       deal {
-        ${commonListFields}
+        _id
+        name
+        companies {
+          _id
+          primaryName
+          primaryPhone
+          primaryEmail
+        }
+        customers {
+          _id
+          firstName
+          middleName
+          lastName
+          primaryPhone
+          primaryEmail
+          phones
+          emails
+        }
+        assignedUsers {
+          _id
+          details {
+            avatar
+            fullName
+          }
+        }
+        assignedUserIds
+        labels {
+          _id
+          name
+          colorCode
+        }
+        stage {
+          _id
+          name
+          pipelineId
+          defaultTick
+          age
+        }
+        stageId
+        pipelineId
+        order
+        isComplete
+        isWatched
+        relations
+        startDate
+        closeDate
+        createdAt
+        modifiedAt
+        priority
+        hasNotified
+        score
+        number
+        tagIds
+        customProperties
+        propertiesData
+        status
+        tags {
+          _id
+          name
+          colorCode
+        }
+        branchIds
+        departmentIds
         description
         attachments {
           url

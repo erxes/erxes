@@ -1,9 +1,3 @@
-import {
-  GQL_CURSOR_PARAMS,
-  GQL_CURSOR_PARAM_DEFS,
-  GQL_PAGE_INFO,
-} from 'erxes-ui';
-
 import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
@@ -17,7 +11,10 @@ export const GET_PRODUCTS = gql`
     $segment: String
     $sortField: String
     $sortDirection: Int
-     ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     productsMain(
       type: $type
@@ -29,7 +26,10 @@ export const GET_PRODUCTS = gql`
       segment: $segment
       sortField: $sortField
       sortDirection: $sortDirection
-      ${GQL_CURSOR_PARAMS}
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       list {
         _id
@@ -53,10 +53,16 @@ export const GET_PRODUCTS = gql`
         type
         vendor {
           _id
-            primaryName
-          }
+          primaryName
         }
-        ${GQL_PAGE_INFO}
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
 `;

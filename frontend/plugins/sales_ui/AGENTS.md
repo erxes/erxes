@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -237,6 +237,10 @@
   Placement is visibility: a field not in `layout` is hidden.
 
 ## Local Invariants
+
+- GraphQL documents are literal strings so codegen can read their complete
+  variables, arguments, and selections. Do not reintroduce JavaScript string
+  interpolation into query, mutation, or subscription documents.
 
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:

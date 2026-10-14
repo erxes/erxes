@@ -1,25 +1,21 @@
 import { gql } from '@apollo/client';
 
-const LOYALTY_RULE_FIELDS = `
-  _id
-  type
-  scoreCampaignId
-  boardId
-  pipelineId
-  earn {
-    probability
-    stageIds
-  }
-  refund {
-    probability
-    stageIds
-  }
-`;
-
 export const SALES_LOYALTY_RULES = gql`
   query SalesLoyaltyRules {
     salesLoyaltyRules {
-      ${LOYALTY_RULE_FIELDS}
+      _id
+      type
+      scoreCampaignId
+      boardId
+      pipelineId
+      earn {
+        probability
+        stageIds
+      }
+      refund {
+        probability
+        stageIds
+      }
     }
   }
 `;
@@ -27,7 +23,19 @@ export const SALES_LOYALTY_RULES = gql`
 export const SALES_LOYALTY_RULES_SAVE = gql`
   mutation SalesLoyaltyRulesSave($rules: [SalesLoyaltyRuleInput!]!) {
     salesLoyaltyRulesSave(rules: $rules) {
-      ${LOYALTY_RULE_FIELDS}
+      _id
+      type
+      scoreCampaignId
+      boardId
+      pipelineId
+      earn {
+        probability
+        stageIds
+      }
+      refund {
+        probability
+        stageIds
+      }
     }
   }
 `;
@@ -90,28 +98,24 @@ export const SALES_SCORE_CAMPAIGN_OPTIONS = gql`
   }
 `;
 
-const LOYALTY_TIER_RULE_FIELDS = `
-  _id
-  type
-  accountTypeId
-  bands {
-    tier
-    min
-    max
-  }
-  onlyUpgrade
-  boardId
-  pipelineId
-  earn {
-    probability
-    stageIds
-  }
-`;
-
 export const SALES_LOYALTY_TIER_RULES = gql`
   query SalesLoyaltyTierRules {
     salesLoyaltyTierRules {
-      ${LOYALTY_TIER_RULE_FIELDS}
+      _id
+      type
+      accountTypeId
+      bands {
+        tier
+        min
+        max
+      }
+      onlyUpgrade
+      boardId
+      pipelineId
+      earn {
+        probability
+        stageIds
+      }
     }
   }
 `;
@@ -119,7 +123,21 @@ export const SALES_LOYALTY_TIER_RULES = gql`
 export const SALES_LOYALTY_TIER_RULES_SAVE = gql`
   mutation SalesLoyaltyTierRulesSave($rules: [SalesLoyaltyTierRuleInput!]!) {
     salesLoyaltyTierRulesSave(rules: $rules) {
-      ${LOYALTY_TIER_RULE_FIELDS}
+      _id
+      type
+      accountTypeId
+      bands {
+        tier
+        min
+        max
+      }
+      onlyUpgrade
+      boardId
+      pipelineId
+      earn {
+        probability
+        stageIds
+      }
     }
   }
 `;

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -266,6 +266,8 @@
 
 - `generated/schema.graphql` is generated and gitignored; edit the owning SDL
   files and re-run `schema:print` instead of editing the exported schema.
+  The exported schema must preserve the runtime field types, nullability, and
+  subscription definitions; document conversion does not redefine the API.
   The exporter exits explicitly because shared utility imports open Redis
   clients that would otherwise keep the command running.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
