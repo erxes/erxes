@@ -2,6 +2,7 @@ import { resolveAccountBalances } from '@/score/services/accountBalances';
 import { TLoyaltyAccountOwnerType } from '@/score/@types/account';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { voucherExpiresAt } from '@/voucher/services/voucherTerm';
 
 // Bonus and discount vouchers apply to a sale by themselves; reward ones are picked.
 const AUTO_VOUCHER_TYPES = ['bonus', 'discount'];
@@ -81,10 +82,9 @@ const saleVouchers = async (
       continue;
     }
 
-    const expiresAt =
-      voucher.config?.endDate || campaign.finishDateOfUse || campaign.endDate;
+    const expiresAt = voucherExpiresAt(voucher, campaign);
 
-    if (expiresAt && new Date(expiresAt) < now) {
+    if (expiresAt && expiresAt < now) {
       continue;
     }
 

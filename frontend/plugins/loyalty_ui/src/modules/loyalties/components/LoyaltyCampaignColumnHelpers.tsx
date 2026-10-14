@@ -29,8 +29,10 @@ export const settingsStartDateColumn = <TData,>(
   size: 150,
 });
 
+// `emptyLabel` names a campaign left without an end.
 export const settingsEndDateColumn = <TData,>(
   t: TFunction<'loyalty'>,
+  emptyLabel = '-',
 ): ColumnDef<TData> => ({
   id: 'endDate',
   accessorKey: 'endDate',
@@ -40,7 +42,10 @@ export const settingsEndDateColumn = <TData,>(
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-        <SafeRelativeDate value={cell.getValue() as string} fallback="-" />
+        <SafeRelativeDate
+          value={cell.getValue() as string}
+          fallback={emptyLabel}
+        />
       </RecordTableInlineCell>
     );
   },

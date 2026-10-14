@@ -11,6 +11,11 @@ import {
   ownersWithinLimit,
   VoucherOwnerLimitError,
 } from '@/voucher/services/ownerLimit';
+import {
+  addValidity,
+  isCampaignIssuing,
+  voucherExpiresAt,
+} from '@/voucher/services/voucherTerm';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -45,6 +50,19 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
   }): Promise<IVoucherDocument>;
 }
 
+// The campaign's own term, unless the issuer gave one.
+const issuedConfig = (
+  campaign: IVoucherCampaignDocument,
+  issuedAt: Date,
+  config?: IVoucher['config'],
+) => {
+  if (config?.endDate || !campaign.validity) {
+    return config;
+  }
+
+  return { ...config, endDate: addValidity(issuedAt, campaign.validity) };
+};
+
 export const loadVoucherClass = (models: IModels, subdomain: string) => {
   class Voucher {
     public static async getVoucher(_id: string) {
@@ -70,8 +88,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         campaignId,
       );
 
-      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
-        throw new Error('Cannot create voucher: voucher is expired');
+      if (!isCampaignIssuing(voucherCampaign, now)) {
+        throw new Error('Cannot create voucher: campaign is not running');
       }
 
       const { refused, reason } = await ownersWithinLimit(
@@ -117,7 +135,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             createdAt: now,
             status: VOUCHER_STATUS.NEW,
             userId,
-            config,
+            config: issuedConfig(voucherCampaign, now, config),
           });
       }
     }
@@ -135,8 +153,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         campaignId,
       );
 
-      if (voucherCampaign.startDate > now || voucherCampaign.endDate < now) {
-        throw new Error('Cannot create voucher: campaign is expired');
+      if (!isCampaignIssuing(voucherCampaign, now)) {
+        throw new Error('Cannot create voucher: campaign is not running');
       }
 
       if (tagIds?.length) {
@@ -208,6 +226,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
                     createdAt: now,
                     status: VOUCHER_STATUS.NEW,
                     userId,
+                    config: issuedConfig(voucherCampaign, now),
                   });
               }
             }),
@@ -358,21 +377,10 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      const currentDate = new Date();
+      const expiresAt = voucherExpiresAt(voucher, voucherCampaign);
 
-      if (voucher?.config) {
-        const { endDate } = voucher.config;
-
-        if (endDate < currentDate) {
-          throw new Error(`This voucher is expired`);
-        }
-      }
-
-      if (
-        (voucherCampaign.finishDateOfUse || voucherCampaign.endDate) <
-        currentDate
-      ) {
-        throw new Error('The campaign has ended and the voucher is expired');
+      if (expiresAt && expiresAt < new Date()) {
+        throw new Error('This voucher is expired');
       }
 
       return voucherCampaign;

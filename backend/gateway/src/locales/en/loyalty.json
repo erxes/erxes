@@ -1008,6 +1008,55 @@
   "loyalty-source-also-built-in": "Also set built in; keep one",
   "loyalty-source-tiers-no-history": "This source does not say how its purchases add up, so tiers can only be set in its own settings.",
   "loyalty-tier-via-purchase-of": "By purchase {{name}}",
+  "clear": "Clear",
+  "voucher-gives": "What it gives",
+  "voucher-gives-hint": "What a customer gets with one voucher from this campaign.",
+  "voucher-type-hint": {
+    "discount": "Takes money off the products it covers.",
+    "bonus": "Gives a product for free.",
+    "lottery": "Gives lottery tickets.",
+    "spin": "Gives spins.",
+    "reward": "A discount the customer applies when paying."
+  },
+  "voucher-discount": "Discount",
+  "voucher-kind-unit": {
+    "percent": "%",
+    "amount": "Amount"
+  },
+  "voucher-discount-preview": {
+    "percent": "{{value}}% off the products it covers",
+    "amount": "{{value}} off the products it covers"
+  },
+  "voucher-term": "Validity",
+  "voucher-term-hint": "How long each voucher works, and when the campaign gives them out.",
+  "voucher-validity": "Each voucher works",
+  "voucher-validity-mode": {
+    "period": "For a set time",
+    "campaign": "Until the campaign ends"
+  },
+  "voucher-validity-unit": {
+    "day": "days",
+    "week": "weeks",
+    "month": "months"
+  },
+  "voucher-validity-hint": {
+    "period": "Counted from the moment each voucher is given. A voucher keeps working after the campaign ends.",
+    "campaign": "Every voucher stops when the campaign ends; one without an end never expires."
+  },
+  "voucher-starts-now": "Starts now",
+  "voucher-no-end-date": "No end",
+  "voucher-runs-until-stopped": "Runs until you turn it off",
+  "voucher-no-end": "No end",
+  "voucher-buy-section": "Buy with points",
+  "voucher-buy-section-hint": "Points a customer pays to buy one voucher. Leave 0 if it is not for sale.",
+  "voucher-validity-step": {
+    "campaign": "Campaign's validity",
+    "custom": "Custom"
+  },
+  "voucher-validity-step-hint": {
+    "campaign": "Each voucher lasts as long as its campaign says.",
+    "custom": "Overrides the campaign for vouchers given by this step."
+  },
   "score-give-mode": "Points",
   "score-give-mode-option": {
     "campaign": "From a campaign",

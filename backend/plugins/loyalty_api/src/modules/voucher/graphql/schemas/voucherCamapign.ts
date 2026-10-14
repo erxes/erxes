@@ -12,6 +12,16 @@ export const types = `
     period: String!
   }
 
+  type VoucherValidity {
+    count: Int
+    unit: String
+  }
+
+  input VoucherValidityInput {
+    count: Int!
+    unit: String!
+  }
+
   type VoucherAutoIssuePart {
     engine: String
     id: String
@@ -60,6 +70,7 @@ export const types = `
     value: Float
     restrictions: JSON
     perOwnerLimit: VoucherOwnerLimit
+    validity: VoucherValidity
     autoIssue: [VoucherAutoIssue]
   }
 
@@ -114,6 +125,7 @@ const mutationParams = `
   value: Float
   restrictions: JSON
   perOwnerLimit: VoucherOwnerLimitInput
+  validity: VoucherValidityInput
 `;
 
 export const mutations = `

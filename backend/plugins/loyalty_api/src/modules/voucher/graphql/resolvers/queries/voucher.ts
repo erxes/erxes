@@ -7,6 +7,7 @@ import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
+import { voucherExpiresAt } from '@/voucher/services/voucherTerm';
 
 const generateFilter = (params: IVoucherParams) => {
   const filter: FilterQuery<IVoucher> = {};
@@ -104,11 +105,10 @@ const getOwnerVouchers = async (
   const campaignIds = Array.from(campaignVoucherMap.keys());
   const now = new Date();
 
+  // A voucher outlives its campaign's issuing window, so each is judged alone.
   const campaigns = await models.VoucherCampaigns.find({
     _id: { $in: campaignIds },
     status: CAMPAIGN_STATUS.ACTIVE,
-    startDate: { $lte: now },
-    endDate: { $gte: now },
   }).lean();
 
   const vouchers: Array<{
@@ -128,6 +128,15 @@ const getOwnerVouchers = async (
     const voucherData = campaignVoucherMap.get(campaign._id.toString());
 
     if (!voucherData) continue;
+
+    voucherData.voucherIds = voucherData.voucherIds.filter((id) => {
+      const voucher = ownerVouchers.find((v) => v._id.toString() === id);
+      const expiresAt = voucher && voucherExpiresAt(voucher, campaign);
+
+      return !!voucher && (!expiresAt || expiresAt >= now);
+    });
+
+    if (!voucherData.voucherIds.length) continue;
 
     vouchers.push({
       campaign,

@@ -1,5 +1,7 @@
 import { replaceOutputPlaceholders } from 'erxes-api-shared/core-modules';
+import { addValidity } from '@/voucher/services/voucherTerm';
 import {
+  IssueVoucherActionConfig,
   LoyaltyAutomationExecution,
   LoyaltyAutomationTarget,
   LoyaltyOwnerType,
@@ -32,7 +34,18 @@ const splitListValue = (value: string) =>
 
 const unique = (values: string[]) => [...new Set(values)];
 
-export const getVoucherConfigByRule = (customRule?: { duration?: string }) => {
+export const getVoucherConfigByRule = (
+  customRule?: IssueVoucherActionConfig['customRule'],
+) => {
+  if (customRule?.count && customRule.unit) {
+    return {
+      endDate: addValidity(new Date(), {
+        count: customRule.count,
+        unit: customRule.unit,
+      }),
+    };
+  }
+
   if (!customRule?.duration) {
     return undefined;
   }

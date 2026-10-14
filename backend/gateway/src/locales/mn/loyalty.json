@@ -1008,6 +1008,55 @@
   "loyalty-source-also-built-in": "Built-in-ээр бас тохируулсан; нэгийг нь үлдээгээрэй",
   "loyalty-source-tiers-no-history": "Энэ эх үүсвэр худалдан авалтаа хэрхэн нэгтгэхийг заагаагүй тул tier-ийг зөвхөн өөрийн тохиргоонд тогтооно.",
   "loyalty-tier-via-purchase-of": "{{name}} худалдан авалтаар",
+  "clear": "Арилгах",
+  "voucher-gives": "Юу өгөх",
+  "voucher-gives-hint": "Энэ campaign-ийн нэг voucher-ээр хэрэглэгч юу авах вэ.",
+  "voucher-type-hint": {
+    "discount": "Хамаарах бараанаас хөнгөлнө.",
+    "bonus": "Бараа үнэгүй өгнө.",
+    "lottery": "Сугалааны эрх өгнө.",
+    "spin": "Эргүүлэх эрх өгнө.",
+    "reward": "Хэрэглэгч төлбөр төлөхдөө хэрэглэх хөнгөлөлт."
+  },
+  "voucher-discount": "Хөнгөлөлт",
+  "voucher-kind-unit": {
+    "percent": "%",
+    "amount": "Дүн"
+  },
+  "voucher-discount-preview": {
+    "percent": "Хамаарах бараанаас {{value}}% хөнгөлнө",
+    "amount": "Хамаарах бараанаас {{value}} хөнгөлнө"
+  },
+  "voucher-term": "Хугацаа",
+  "voucher-term-hint": "Voucher бүр хэр удаан ажиллах, campaign хэзээ voucher олгох.",
+  "voucher-validity": "Voucher бүр ажиллах хугацаа",
+  "voucher-validity-mode": {
+    "period": "Тодорхой хугацаа",
+    "campaign": "Campaign дуустал"
+  },
+  "voucher-validity-unit": {
+    "day": "өдөр",
+    "week": "долоо хоног",
+    "month": "сар"
+  },
+  "voucher-validity-hint": {
+    "period": "Voucher олгогдсон мөчөөс тоолно. Campaign дууссан ч voucher ажилласаар байна.",
+    "campaign": "Campaign дуусахад бүх voucher хүчингүй болно; дуусах хугацаагүй бол хэзээ ч дуусахгүй."
+  },
+  "voucher-starts-now": "Одоо эхэлнэ",
+  "voucher-no-end-date": "Дуусахгүй",
+  "voucher-runs-until-stopped": "Унтраах хүртэл ажиллана",
+  "voucher-no-end": "Дуусахгүй",
+  "voucher-buy-section": "Оноогоор худалдах",
+  "voucher-buy-section-hint": "Нэг voucher худалдаж авахад хэрэглэгчийн төлөх оноо. Худалдахгүй бол 0.",
+  "voucher-validity-step": {
+    "campaign": "Campaign-ийн хугацаа",
+    "custom": "Өөр хугацаа"
+  },
+  "voucher-validity-step-hint": {
+    "campaign": "Voucher бүр campaign-д заасан хугацаагаар ажиллана.",
+    "custom": "Энэ алхмаар олгох voucher-т campaign-ийн хугацааг давж тогтооно."
+  },
   "score-give-mode": "Оноо",
   "score-give-mode-option": {
     "campaign": "Campaign-аас",

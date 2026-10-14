@@ -52,6 +52,7 @@
 - The Adjust score step (`AdjustScoreCampaignActionConfigForm`) has a Points toggle: From a campaign (campaign + earning rows, as before) or Fixed (wallet via `SelectLoyaltyAccountType` + points). The schema (`adjustScoreActionConfigFormDefinitions.ts`) requires the campaign or the wallet and points by mode; steps without `mode` open as campaign. The node reads "Give N points to a wallet" for fixed steps, and the relation settings widget leaves fixed steps out of a source's campaign connections.
 - An earning's points are explained by `EarnCalcPopover` (steps from `scores/utils/earnCalcSteps.ts`, using the breakdown's `calc`): on the score list's Breakdown cell and on each tier's result in the campaign form's earn preview — amount × % or ×N, ÷ money per point, rounding, and what the points pay.
 - The voucher campaign Restriction tab (add and edit share `AddVoucherRestrictionForm`) has a "Per customer" limit (`VoucherOwnerLimitField`: count + period year/month/whole campaign); `toOwnerLimit` sends `perOwnerLimit`, or `null` when the count is empty so an edit clears it.
+- The voucher campaign Campaign tab (add and edit) reads as three parts: what one voucher gives (type with a one-line hint; for `discount`/`reward` one Discount field with a %/Amount toggle and a sentence preview), Validity (each voucher works for a set time `validityCount`+`validityUnit` — default 1 month — or until the campaign ends; optional start, "No end" switch on by default for new campaigns) and Buy with points (`buyScore`). `toVoucherTerm` / `fromVoucherTerm` (`settings/voucher/utils/voucherTerm.ts`) turn the form into `startDate`/`endDate`/`validity` (nulls clear) and back. The list's End date column shows "No end". The Issue voucher automation step offers the campaign's validity or a custom `customRule {count, unit}`; older `customRule.duration` steps open as custom (one unit; `minute` reads as a day).
 - The "Tier changed" trigger is configured by `TierChangedTriggerConfigForm` / `useTierChangedTriggerForm` (wallet required, direction up/down/any defaulting to up, target tier or any) and summarized on its node by `TierChangedTriggerNodeContent`, both registered in `LoyaltyRemoteEntry` (`triggerForm`, `triggerConfigContent`).
 - Loyalty action nodes report what their config still misses (`useLoyaltyActionNodeIssues`: the action's own zod form schema, reported through `useReportNodeIssues` from `ui-modules`); the builder draws the warning and blocks activation.
 - `/loyalty/accounts` ("Accounts" in the loyalty navigation) lists loyalty accounts: owner, owner type, account number, status, one column per active account type with its balance and an inline tier select, joined date. Filters: search (account number or owner name), status, owner type, account type and tier. Row menu: freeze (reason dialog) / unfreeze (confirm), tier history, score history (scores page filtered by owner), owner profile. Freeze, unfreeze and tier changes refetch `LoyaltyAccounts`; a tier change also refetches `LoyaltyTierLogs`.
@@ -172,6 +173,12 @@
 - **Affected areas:** `widgets/automations/modules/loyalty/{states/adjustScoreActionConfigFormDefinitions.ts,hooks/useAdjustScoreActionForm.ts,components/action/{adjust-score/AdjustScoreCampaignActionConfigForm.tsx,LoyaltyActionNodeContent.tsx}}`, `widgets/relationSettings/hooks/useLoyaltySourceAutomations.ts`; `score-give-mode*`, `score-fixed-points*` translations.
 - **Contracts changed:** None
 
+### `2026-10-14` — Voucher campaign form and validity
+
+- **Summary:** The voucher campaign form says what a voucher gives and how long it works; campaigns may run without an end, and automation steps may override a voucher's term. Creating a campaign now also sends the per-customer limit (the create document lacked it).
+- **Affected areas:** `settings/voucher/{constants/voucherFormSchema.ts,utils/voucherTerm.ts,types/voucherTypes.ts,hooks/useAddVoucher.tsx,graphql/mutations/{VoucherMutations.tsx,voucherEditStatusMutations.ts},graphql/queries/getCampaignQuery.ts,components/{VoucherAddSheet,VoucherColumns}.tsx}`, `add-voucher-campaign/components/{AddVoucherCampaignForm,VoucherTabs}.tsx`, `voucher-campaign-field/*`, `voucher-detail/components/{EditVoucherTabs,LoyaltyVoucherEditSheet}.tsx`, `components/LoyaltyCampaignColumnHelpers.tsx`, `widgets/automations/modules/loyalty/{states/campaignActionConfigFormDefinitions.ts,hooks/useCampaignActionForm.ts,components/action/voucher/IssueVoucherActionConfigForm.tsx}`; `voucher-*` translations.
+- **Contracts changed:** None
+
 ### `2026-10-08` — Score campaign picker for other plugins
 
 - **Summary:** Loyalty offers a score campaign field with create and edit to other plugins' forms (first used by sales' score earn configuration).
@@ -213,9 +220,3 @@
 - **Contracts changed:** None (routes unchanged).
 
 ### `2026-09-29` — Stage rules and automation subtract removed
-
-### `2026-09-29` — Pricing list pagination
-
-- **Summary:** Pricing settings load distinct 20-record pricing plan pages on scroll and display the API-backed filtered total count.
-- **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
-- **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.

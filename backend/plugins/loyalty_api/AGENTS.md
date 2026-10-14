@@ -54,6 +54,7 @@
 - Core product create and update events recalculate that product's active public and base pricing discounts, clearing stale discounts when it leaves every plan filter.
 - Voucher, coupon, lottery, spin, and agent modules provide their plugin-owned loyalty behaviors.
 - A voucher campaign may cap what one owner receives (`perOwnerLimit {count, period: campaign|year|month}`, calendar periods in the organization's time zone via `loyaltyTimeZone`). Every issue path enforces it in `modules/voucher/services/ownerLimit.ts`: `createVoucher` throws `VoucherOwnerLimitError`, `createVouchers` leaves those owners out, and the Issue voucher automation action reports them as `skipped` (all refused) or `refusedOwnerIds` (some refused). Vouchers, spins and lotteries issued from the campaign all count; a `score` voucher cannot be limited.
+- A voucher campaign's `startDate` and `endDate` are optional (open on that side; the other campaign kinds keep them required) and only bound **issuing** (`isCampaignIssuing`, query form `campaignIssuingSelector`, `services/voucherTerm.ts`). `validity {count, unit: day|week|month}` is the campaign's default term per voucher: every issue path writes `config.endDate = issued + validity` unless the issuer gave one (the Issue voucher action's `customRule {count, unit}`, or the older `customRule.duration`). A voucher stops at `voucherExpiresAt`: its own `config.endDate`, cut by `finishDateOfUse`; without one it follows `finishDateOfUse || endDate`. `checkVoucher`, `ownerSummary` and the owner voucher list all use it.
 - A voucher campaign records how it is handed out on its own in `autoIssue[] {kind, segmentId, parts[{engine: broadcast|automation, id}]}` (one entry per kind; only `birthday` today). Loyalty only stores the bundle: the core segment, broadcast and automation are created, switched and deleted by loyalty_ui through core's public GraphQL.
 - `loyaltyScoreSpendLimit(campaignId, ownerType, ownerId, totalAmount, targetId)` tells a paying screen the most money points may pay on an order (`ScoreCampaigns.spendLimit`, rules in `maxSpendMoney` beside `checkSpendRules` so the offer always passes the check): balance including what this target already spent, point value, step, and `blocked` (`frozen`, `belowMin`, `empty`).
 - Each earning row in a score log's `breakdown` keeps how it was counted (`calc`: value type and value, the tier column it came from, the money counted, money per point, base points for a multiplier bonus, the cap that cut it, and what a point pays), written by `evaluateEarnTable` so earnings and `scoreCampaignEarnPreview` explain themselves the same way; logs written before have no `calc`.
@@ -85,6 +86,7 @@
 - GraphQL contracts for loyalty modules registered through `src/apollo`, including `loyaltyAccountOfOwner`, `loyaltyAccountFreeze`, `loyaltyAccountUnfreeze`, `loyaltyAccountSetTier`, `loyaltyAccountTypes`, `loyaltyAccountType`, `loyaltyAccountTypeLegacyFieldCount`, `loyaltyAccountTypeAdd`, `loyaltyAccountTypeEdit`, `loyaltyAccountTypeArchive`, `loyaltyAccountTypeUnarchive`, and `loyaltyAccountTypesAdoptCampaignFields`; `ScoreCampaign` exposes `accountTypeId` and `accountType`.
 - tRPC procedures in `src/trpc/init-trpc.ts`, including `loyalty.ownerSummary`, `score.scoreCampaign`, `score.checkSpend`, `score.spend`, `score.earn` (a purchase as it stands now: the standing entry per campaign and target is moved, not added to; returns `changeScore` and `skips`), `score.applyPurchaseTier`, `score.refund` and `pricing.checkPricing`.
 - `VoucherCampaign.autoIssue`, mutations `voucherCampaignSetAutoIssue(_id, kind, segmentId, parts)` / `voucherCampaignRemoveAutoIssue(_id, kind)` (permission `loyaltyCampaignUpdate`).
+- `VoucherCampaign.validity {count, unit}` (`VoucherValidityInput`); voucher campaign `startDate`/`endDate` may be null.
 - Automation action `loyalty:score.score.create` declares `inputs` `totalAmount`, `paidAmount`, `items`.
 - Automation trigger `loyalty:score.tier` (Tier changed) with output `_id`, `ownerType`, `customerId` (reference to `core:customer`), `accountTypeName`, `fromTier`, `toTier`, `direction`.
 - Metadata, permission, automation, and after-process handlers under `src/meta`.
@@ -130,6 +132,7 @@
 - Earning, spending and previews need an active campaign (`status: 'active'`); a draft or archived one fails with an error naming the campaign and its status, not "Campaign not found".
 - `autoIssue` is written only through `setVoucherAutoIssue` / `removeVoucherAutoIssue` (validated kind, segment, at most one part per engine); `voucherCampaignsEdit` never touches it. Loyalty never calls core to create or delete the parts.
 - A voucher campaign's per-owner limit is checked only through `ownersWithinLimit`; no issue path may create a voucher, spin or lottery for a campaign without it.
+- Voucher dates are never compared directly (`null < date` is true in JS); use `isCampaignIssuing`, `campaignIssuingSelector` and `voucherExpiresAt`.
 - Every balance change goes through `changeBalance` in `scoreLedger.ts`: keyed balances (an account type, or `default` for the top-level score) change with one atomic `$inc`/`$set` on `loyalty_accounts.balances` (floor-checked for subtractions), and the featured field or owner `score` is only a copy that re-reads the account until it matches; never compute a new balance from an owner snapshot. Every read of a balance goes through `getOwnerBalance`: the account first, otherwise the featured field (typed) or the ledger sum (default score — customers have no `score` field, so `owner.score` is never a source). Repair writes ledger-derived balances through `updateOwnerScoreCache`; never `$set` a whole `propertiesData` object on an owner.
 - Invariant: available lots' `remaining` sums to `max(0, balance)` and pending lots to `pending`. Only `changeBalance`, the lot jobs and repair (`reconcileAvailable`) move lots; lot consumption is one atomic pipeline update per lot. Production runs MongoDB 4.4: no operators newer than 4.4 (`$dateAdd`, `$getField`, `$setWindowFields` …); dates are computed in Node.
 - `balances.<key>` entries are written per field (`balances.<key>.balance`, `.tier`, …), never as a whole object, so balance and tier writes never erase each other.
@@ -156,6 +159,12 @@
 - **Summary:** The Adjust score action can give a set number of points into a wallet each time it runs, without a campaign.
 - **Affected areas:** `modules/score/services/fixedPoints.ts` (+ test), `meta/automations/{types.ts,score/producers.ts}`.
 - **Contracts changed:** Adjust score action config `mode`, `accountTypeId`, `points`.
+
+### `2026-10-14` — Open-ended voucher campaigns and per-voucher validity
+
+- **Summary:** Voucher campaigns may run without dates and give each voucher its own term (e.g. one month from issue); a campaign's end stops issuing, not vouchers already given.
+- **Affected areas:** `modules/voucher/{services/voucherTerm.ts (+ test),@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/{Voucher,VoucherCampaign}.ts,graphql/schemas/voucherCamapign.ts,graphql/resolvers/queries/{voucher,voucherCampaign}.ts}`, `meta/automations/{types,utils}.ts`, `utils/ownerSummary.ts`.
+- **Contracts changed:** `VoucherCampaign.validity` / `VoucherValidityInput` on `voucherCampaignsAdd`/`voucherCampaignsEdit`; `startDate`/`endDate` nullable for voucher campaigns; Issue voucher `customRule {count, unit}`.
 
 ### `2026-10-10` — Sources filter their own records
 
@@ -204,9 +213,3 @@
 - **Summary:** A calendar reset also expires the old period's still-pending points, and purchases whose wait would end after the next reset earn nothing (skipped with a reason), so no points of one period reach the next.
 - **Affected areas:** `services/{accountReset,earnWindow,periodPreview}.ts`, `db/models/ScoreCampaign.ts`, `@types/earnTable.ts`, tests `accountReset.test.ts`, `earnWindow.test.ts`.
 - **Contracts changed:** `TScoreSkip` adds `held-past-reset`; `LoyaltyAccountTypePeriodPreview.noEarnFrom`.
-
-### `2026-09-30` — Tier changed trigger
-
-- **Summary:** Loyalty's only trigger is now "Tier changed", started by every tier change except period resets; the broken birthday "Reward" trigger, its custom check and `handleLoyaltyReward` are removed.
-- **Affected areas:** `meta/automations/{constants,types,utils}.ts`, `meta/automations/{score,voucher}/producers.ts`, `services/{accountTier,accountReset,tierChanged}.ts`, `services/__tests__/tierChanged.test.ts`, `utils/utils.ts`, `trpc/init-trpc.ts`, `constants.ts`.
-- **Contracts changed:** Trigger `loyalty:score.tier` added, trigger `loyalty:voucher.reward` and tRPC `handleLoyaltyReward` removed.
