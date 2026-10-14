@@ -57,10 +57,6 @@ export default {
     return await models.ScoreCampaigns.findOne({ _id: campaignId });
   },
 
-  type({ serviceName }: IScoreLog) {
-    return serviceName || null;
-  },
-
   async target(
     { targetId, serviceName }: IScoreLog,
     _args: undefined,
