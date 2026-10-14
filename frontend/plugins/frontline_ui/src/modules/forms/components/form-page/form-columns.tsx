@@ -27,6 +27,7 @@ import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import {
   GET_FORMS_CHANNEL_LIST,
   GET_FORMS_LIST,
+  GET_FORMS_TOTAL_COUNT,
 } from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
@@ -262,6 +263,9 @@ export const formColumns: ColumnDef<IForm>[] = [
           mode="multiple"
           value={cell.getValue() as string[]}
           targetIds={[cell.row.original._id]}
+          options={() => ({
+            refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
+          })}
         />
       );
     },

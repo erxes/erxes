@@ -22,5 +22,25 @@ export const formTrpcRouter = t.router({
 
         return getConversationFormSubmissions(models, conversationId);
       }),
+
+    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { action, _ids, tagIds, targetIds } = input;
+      const { models } = ctx;
+
+      if (action === 'count') {
+        return models.Forms.countDocuments({ tagIds: { $in: _ids } });
+      }
+
+      if (action === 'tagObject') {
+        await models.Forms.updateMany(
+          { _id: { $in: targetIds } },
+          { $set: { tagIds } },
+        );
+
+        return models.Forms.find({ _id: { $in: targetIds } }).lean();
+      }
+
+      return {};
+    }),
   }),
 });

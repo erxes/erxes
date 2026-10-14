@@ -1796,5 +1796,6 @@
   "customdomain-value": "Утга",
   "customdomain-status-active": "Идэвхтэй",
   "customdomain-status-pending": "Хүлээгдэж буй",
-  "retry": "Дахин оролдох"
+  "retry": "Дахин оролдох",
+  "no-tags-found": "Шошго олдсонгүй"
 }

@@ -1796,5 +1796,6 @@
   "customdomain-value": "Value",
   "customdomain-status-active": "Active",
   "customdomain-status-pending": "Pending",
-  "retry": "Try again"
+  "retry": "Try again",
+  "no-tags-found": "No tags found"
 }

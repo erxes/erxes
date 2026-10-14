@@ -6,20 +6,16 @@ import {
   PageSubHeader,
   Skeleton,
   useMultiQueryState,
-  useQueryState,
 } from 'erxes-ui';
 import { FormsPageHotKeyScope } from '@/forms/types/formTypes';
-import { IconTag } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { FormStatus } from './filters/FormStatus';
 import { FormChannelFilterView } from '@/forms/components/form-page/filters/FormChannelFilterView';
-import { SelectTags } from 'ui-modules';
 import { useFormsList } from '@/forms/hooks/useFormsList';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 
 export const FormSubHeader = () => {
   const { t } = useTranslation('common');
-  const { t: tf } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{
     channelId: string;
     tagId: string;
@@ -38,8 +34,8 @@ export const FormSubHeader = () => {
     },
   });
 
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
+  const hasFilters = [channelId, status, searchValue].some(
+    (value) => value !== null && value !== undefined,
   );
 
   return (
@@ -57,16 +53,11 @@ export const FormSubHeader = () => {
                 />
                 <Command.List className="p-1">
                   <Filter.SearchValueTrigger />
-                  <SelectTags.FilterItem
-                    value="tagId"
-                    label={tf('by-tag', 'By Tag')}
-                  />
                   <FormStatus.Item />
                   <SelectChannel.FilterItem />
                 </Command.List>
               </Command>
             </Filter.View>
-            <SelectTags.FilterView mode="single" filterKey="tagId" />
             <FormStatus.View />
             <FormChannelFilterView />
           </Combobox.Content>
@@ -75,7 +66,6 @@ export const FormSubHeader = () => {
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.Dialog>
         <Filter.SearchValueBarItem />
-        <FormTagFilterBarItem queryKey="tagId" />
         <FormStatus.BarItem />
         <SelectChannel.FilterBar />
 
@@ -88,25 +78,5 @@ export const FormSubHeader = () => {
         </div>
       </Filter>
     </PageSubHeader>
-  );
-};
-export const FormTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
-  const { t: tf } = useTranslation('frontline');
-  const [query, setQuery] = useQueryState<string | null>(queryKey);
-  return (
-    <Filter.BarItem queryKey={queryKey}>
-      <Filter.BarName>
-        <IconTag />
-      </Filter.BarName>
-      <SelectTags.FilterBar
-        mode="single"
-        filterKey={queryKey}
-        tagType="frontline:form"
-        variant="filter"
-        label={tf('by-tag', 'By Tag')}
-        initialValue={[query as string]}
-        onValueChange={(value) => setQuery(value as string)}
-      />
-    </Filter.BarItem>
   );
 };

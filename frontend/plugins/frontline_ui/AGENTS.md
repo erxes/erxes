@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -148,6 +148,12 @@
   API. Form create (`useFormMutate`), remove (`useRemoveForm`), the Channel
   column edit and channel moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) refetch
   it, so the count never needs a manual refresh.
+- Tags filter `frontline/forms` only from the sidebar's Tags group
+  (`ChooseFormTag`, under Channels); the sub-header filter has no tag entry.
+  The group lists non-group `frontline:form` tags from `useTags`, each with its
+  form count from `formsTotalCount.byTag`, and toggles the `tagId` query param.
+  Tagging from the Tags column and removing forms refetch `Forms` and
+  `FormsTotalCount`, so the counts never need a manual refresh.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,

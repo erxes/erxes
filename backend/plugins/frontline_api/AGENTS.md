@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -283,6 +283,14 @@
   on its original channel. Permission is the owning module's existing edit
   action — `integrationsEdit`, `updateTicket`, `formsEdit`, `surveyEdit`,
   `responseTemplatesEdit` — not a new one.
+
+- Forms are taggable as `frontline:form`. Core `tagsTag` reaches the
+  `form.tag` tRPC procedure (`modules/form/trpc/form.ts`), whose `tagObject`
+  action writes `Forms.tagIds` and whose `count` action counts forms carrying a
+  tag. The `forms`/`formsMain`/`cpForms`/`formsTotalCount` queries filter by
+  `tagId`, expanded with the tag's `relatedIds` from core `tags.findOne`.
+  `formsTotalCount.byTag` counts forms per tag over the caller's visible forms
+  (only `type` narrows it, not the list's other filters) in one aggregation.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
