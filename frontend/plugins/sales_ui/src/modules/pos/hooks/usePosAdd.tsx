@@ -1,18 +1,25 @@
-import { MutationHookOptions, useApolloClient, useMutation } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { mutations } from '../graphql';
 import { AddPosDetailResult, AddPosDetailVariables } from '../types/mutations';
-import { getSalesRefetchQueries } from '~/utils/getSalesRefetchQueries';
 
 export function usePosAdd(
   options?: MutationHookOptions<AddPosDetailResult, AddPosDetailVariables>,
 ) {
-  const client = useApolloClient();
   const [posAdd, { loading, error }] = useMutation<
     AddPosDetailResult,
     AddPosDetailVariables
   >(mutations.posAdd, {
     ...options,
-    refetchQueries: () => getSalesRefetchQueries(client, 'posList'),
+    refetchQueries: [
+      'salesPosSettingsList',
+      'salesPosNavigationList',
+      'salesPosOrdersPosList',
+      'salesPosByItemsPosList',
+      'salesPosCoversPosList',
+      'salesPosItemsPosList',
+      'salesPosSummaryPosList',
+      'posList', // Still used by the Mongolian plugin's POS sync screens.
+    ],
   });
 
   return { posAdd, loading, error };

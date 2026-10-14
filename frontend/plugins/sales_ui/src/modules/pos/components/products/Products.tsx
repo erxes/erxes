@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { useApolloClient, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -13,7 +13,6 @@ import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
-import { getSalesRefetchQueries } from '~/utils/getSalesRefetchQueries';
 
 interface ProductsProps {
   posId?: string;
@@ -82,7 +81,6 @@ const Products: React.FC<ProductsProps> = ({
   posType,
   onSaveActionChange,
 }) => {
-  const client = useApolloClient();
   const { t } = useTranslation('sales');
   const [showMore, setShowMore] = useState(false);
   const [productGroupSaveState, setProductGroupSaveState] =
@@ -184,7 +182,18 @@ const Products: React.FC<ProductsProps> = ({
             serviceChargeApplicableProductId:
               data.serviceChargeApplicableProductId || null,
           },
-          refetchQueries: () => getSalesRefetchQueries(client, 'posDetail'),
+          refetchQueries: [
+            'salesPosSettingsDetail',
+            'salesPosOrdersInlineDetail',
+            'salesPosOrdersSelectDetail',
+            'salesPosCoversInlineDetail',
+            'salesPosCoversSelectDetail',
+            'salesPosItemsInlineDetail',
+            'salesPosItemsSelectDetail',
+            'salesPosSummaryInlineDetail',
+            'salesPosSummarySelectDetail',
+            'posDetail', // Still used by the Mongolian plugin's POS sync screens.
+          ],
         });
 
         toast({
@@ -201,7 +210,6 @@ const Products: React.FC<ProductsProps> = ({
       }
     },
     [
-      client,
       posEdit,
       posId,
       reset,
