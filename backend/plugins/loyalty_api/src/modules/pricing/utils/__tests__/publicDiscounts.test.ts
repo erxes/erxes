@@ -94,7 +94,7 @@ it('clears one product discounts when it no longer matches a plan', async () => 
     applyType: 'vendor',
     products: [],
     vendors: ['vendor-1'],
-  } as IPricingPlanDocument;
+  };
   const models = {
     PricingPlans: {
       find: jest.fn(() => ({
