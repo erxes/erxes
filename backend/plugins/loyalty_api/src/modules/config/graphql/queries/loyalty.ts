@@ -1,10 +1,7 @@
 import { getOwnerBalance } from '@/score/services/scoreLedger';
 import { IContext } from '~/connectionResolvers';
-import {
-  checkVouchersSale,
-  ICommonParams,
-  IProductD,
-} from '~/utils';
+import { ICommonParams, IProductD } from '~/utils';
+import { checkVouchersSale } from '~/utils/utils';
 
 export const loyaltyQueries = {
   async checkLoyalties(
