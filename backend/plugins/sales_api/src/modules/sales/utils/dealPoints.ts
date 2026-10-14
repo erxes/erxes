@@ -413,7 +413,7 @@ export const releaseDealVouchers = (
     defaultValue: 0,
   });
 
-const returnDealVouchers = (
+export const returnDealVouchers = (
   subdomain: string,
   dealId: string,
   actorId?: string,

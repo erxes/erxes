@@ -4,7 +4,7 @@ import { IDeal, IProductData } from '~/modules/sales/@types';
 import { getCompanyIds, getCustomerIds } from '~/modules/sales/utils';
 import {
   applyDiscountInfo,
-  ensureHandDiscountInfo,
+  dropDiscountInfo,
   recalculateProductDiscount,
 } from '~/modules/sales/utils/discountInfos';
 
@@ -62,9 +62,7 @@ export const checkLoyalties = async (
 
   for (const item of activeProductsData) {
     // Restated every save: a voucher or coupon taken off takes its discount.
-    item.discountInfos = ensureHandDiscountInfo(item).filter(
-      (info) => info.type !== 'voucher',
-    );
+    dropDiscountInfo(item, 'voucher');
 
     const loyalty = loyalties[item.productId];
 
@@ -152,9 +150,7 @@ export const checkPricing = async (
 
   for (const item of activeProductsData) {
     // Restated every save: a plan that no longer applies takes its discount.
-    item.discountInfos = ensureHandDiscountInfo(item).filter(
-      (info) => info.type !== 'pricing',
-    );
+    dropDiscountInfo(item, 'pricing');
 
     const discount = pricing[item._id || ''];
 

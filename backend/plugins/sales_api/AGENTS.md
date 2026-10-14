@@ -158,9 +158,11 @@
   (`syncDealVoucher` in `editDeal`, before pricing; it releases the previous
   pick and refuses a deal without a customer), and `checkLoyalties` sends
   `discountInfo {voucherId, couponCode, targetId}` so the deal is priced with
-  them. Removing a deal releases its held vouchers. Pricing and loyalty
-  restate their own `discountInfos` (`pricing`, `voucher`) on every save, so a
-  plan, voucher or coupon that no longer applies takes its discount with it.
+  them. Removing a deal returns the vouchers it used and releases the ones it held. Pricing and loyalty
+  restate their own `discountInfos` (`pricing`, `voucher`) on every save
+  (`dropDiscountInfo`, which resets `discount` at once so an emptied list is
+  never rebuilt as a manual discount), so a plan, voucher or coupon that no
+  longer applies takes its discount with it.
 - The deal automation output `productsData.*` resolves a field as all products
   joined (`productsData.name`), one product by index (`productsData.0.name`,
   names looked up in core per item), or the product count
