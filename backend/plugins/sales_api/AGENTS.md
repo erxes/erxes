@@ -270,6 +270,9 @@
   subscription definitions; document conversion does not redefine the API.
   The exporter exits explicitly because shared utility imports open Redis
   clients that would otherwise keep the command running.
+- Public fields owned by other services belong in the frontend's tooling
+  snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
+  runtime SDL. Do not add backend fields just to satisfy frontend codegen.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.
   Preserve saved ratios, and sync info values after server-side pricing changes

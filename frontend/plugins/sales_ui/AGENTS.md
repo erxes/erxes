@@ -188,6 +188,7 @@
 | POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                              |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                      |
 | POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                              |
+| GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`, `frontend/plugins/sales_ui/schema/platform.graphql`           | Validates documents against the exported Sales schema and consumed public contracts |
 
 ## Contracts
 
@@ -209,8 +210,10 @@
 - `sales_api` GraphQL pipeline, deal, product, and POS contracts.
 - For type-generation tooling, `pnpm nx run sales_api:schema:print` exports
   Sales' schema to `backend/plugins/sales_api/generated/schema.graphql`.
-  This file describes the Sales subgraph; documents using public Core or
-  other service fields also require those services' contracts for validation.
+  `codegen.ts` combines this Sales subgraph with `schema/platform.graphql`,
+  a snapshot of the public Core, Accounting, Loyalty, Mongolian, Operation,
+  Payment, and POS client fields selected by Sales documents. Each snapshot
+  definition identifies its source; it is tooling input, not runtime API SDL.
 - `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `SalesStage.loyaltyPoints`, `Pos.earnTier`; loyalty `loyaltyAccountTypes` (tier wallets); core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
 - Core properties through public `ui-modules` property hooks with
   `contentType: 'sales:deal'` and, for the POS customer form,
@@ -241,6 +244,13 @@
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
+- Keep public-contract snapshots faithful to their owning SDL, including
+  arguments and nullability. Do not add fields to the snapshot to make an
+  unsupported operation validate. Including a contract does not register its
+  service with the runtime gateway.
+- Codegen scans all Sales UI TypeScript documents, excluding only its generated
+  `src/gql/` output. Generated files are ignored by Git. Its scalar mapping is
+  `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.
 
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
@@ -305,6 +315,9 @@
 
 ## Validation
 
+- Export the API schema with `pnpm nx run sales_api:schema:print --skip-nx-cache`.
+- Run the standalone codegen configuration from this plugin directory with
+  `../../../node_modules/.bin/graphql-codegen --config codegen.ts`.
 - `pnpm nx build sales_ui`
 - `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
 - Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
