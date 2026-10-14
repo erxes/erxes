@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-12`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -217,7 +217,7 @@
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
 - Property choices must come only from Core `sales:deal` fields.
-- Deal detail chips render through `DealChipTrigger`; every chip except stage
+- Deal detail chips render through erxes-ui `Combobox.ChipTrigger`; every chip except stage
   passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
@@ -245,9 +245,9 @@
   controls only product tax percent/amount columns and footer total tax.
 - Deal start/close date selects: every variant opens a popover holding
   `DatePicker` in `inline` mode (typed input above the calendar). The `input`
-  variant (used by deal detail) renders a labelled `DealChipTrigger` showing
+  variant (used by deal detail) renders a labelled `Combobox.ChipTrigger` showing
   the date (red plus an "Ended N days ago" badge for a past close date) and an
-  X button that clears it; `DealChipTrigger` swaps its chevron for that X only
+  X button that clears it; `Combobox.ChipTrigger` swaps its chevron for that X only
   when `onClear` is passed. Other variants keep their own trigger, with the
   "Ended" badge as the trigger for a past close date. A padded `YYYY-MM-DD` or
   a calendar pick commits immediately; unpadded `YYYY-M-D` commits on Enter or

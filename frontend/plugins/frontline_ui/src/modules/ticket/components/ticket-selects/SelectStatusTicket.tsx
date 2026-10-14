@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
   cn,
-  ColorPicker,
   Combobox,
   Command,
   Filter,
   Form,
-  Input,
   PopoverScoped,
   Select,
   useQueryState,
@@ -23,6 +21,7 @@ import {
   TICKET_STATUS_TYPES,
 } from '@/status/constants';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
+import { StatusNameColorField } from '@/status/components/StatusNameColorField';
 import {
   SelectTicketContent,
   SelectTriggerTicket,
@@ -245,45 +244,7 @@ const SelectStatusCreateForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         loading={loading}
       >
-        <Form.Field
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('name', 'Name')}</Form.Label>
-              <div className="flex items-center gap-2">
-                <Form.Field
-                  control={form.control}
-                  name="color"
-                  render={({ field: colorField }) => (
-                    <ColorPicker.Provider
-                      value={colorField.value || '#000000'}
-                      onValueChange={colorField.onChange}
-                    >
-                      <ColorPicker.Trigger
-                        aria-label={t('color', 'Color')}
-                        className="size-8 flex-none justify-center p-0"
-                        style={{
-                          backgroundColor: `${colorField.value || '#000000'}25`,
-                        }}
-                      >
-                        <StatusInlineIcon
-                          color={colorField.value}
-                          statusType={statusType}
-                        />
-                      </ColorPicker.Trigger>
-                      <ColorPicker.Content />
-                    </ColorPicker.Provider>
-                  )}
-                />
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-              </div>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        <StatusNameColorField statusType={statusType} />
         <Form.Field
           control={form.control}
           name="type"

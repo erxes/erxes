@@ -14,7 +14,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { IconCalendarPlus, IconCalendarTime } from '@tabler/icons-react';
 import { type ApolloError } from '@apollo/client';
-import { SelectTicketChipTrigger } from '@/ticket/components/ticket-selects/SelectTicket';
 
 export enum DateSelectVariant {
   TABLE = 'table',
@@ -236,11 +235,11 @@ export const DateSelectTicketRoot = ({
         onClose={() => setOpen(false)}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <SelectTicketChipTrigger
+          <Combobox.ChipTrigger
             label={label}
             disabled={disabled}
             onClear={
-              dateValue && !disabled ? () => commitValue(undefined) : undefined
+              dateValue && !disabled ? () => commitValue() : undefined
             }
             clearLabel={t('clear', 'Clear')}
           >
@@ -251,7 +250,7 @@ export const DateSelectTicketRoot = ({
                 {t('not-specified', 'Not specified')}
               </span>
             )}
-          </SelectTicketChipTrigger>
+          </Combobox.ChipTrigger>
           <Combobox.Content className="w-fit">
             <DateSelectContent />
           </Combobox.Content>

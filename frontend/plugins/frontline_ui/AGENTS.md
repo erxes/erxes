@@ -260,7 +260,7 @@
   chips do: a muted label segment, then the value and a chevron, e.g.
   `Priority | High ⌄`. A ticket select's root takes `label`, and
   `SelectTriggerTicket` and `SelectDateTicket` draw the chip
-  (`SelectTicketChipTrigger`) only for the `detail` variant with a label —
+  (erxes-ui `Combobox.ChipTrigger`, shared with Sales) only for the `detail` variant with a label —
   every other variant and unlabelled caller keeps its plain trigger. Every
   detail chip, status included, is labelled.
   Branch and department show `None` rather than repeating their label.
@@ -280,8 +280,9 @@
   the page. `useSelectCreate` (`ticket-selects/SelectCreate.tsx`) holds the
   search and the pending name; a `Create new …: "<search>"` item appears
   whenever the search matches no name exactly, and swaps the popover to
-  a small form that reuses `ChannelForm` / `CreatePipelineForm` (status adds
-  its own name, color and type fields) and selects the new record once its list
+  a small form that reuses `ChannelForm` / `CreatePipelineForm` (status reuses
+  the settings status sheet's `StatusNameColorField`, read through
+  `useFormContext`, and adds a type field) and selects the new record once its list
   has refetched. Create is on only where `allowCreate` is passed: every
   `FormItem` variant (add ticket, conversation convert, help center drawer,
   pipeline config, automation create-ticket action) and the status select's
