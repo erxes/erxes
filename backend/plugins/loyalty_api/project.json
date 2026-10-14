@@ -59,6 +59,20 @@
       "options": {
         "jestConfig": "backend/plugins/loyalty_api/jest.config.ts"
       }
+    },
+    "schema:print": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/print-schema.ts",
+        "{projectRoot}/src/**/*.ts",
+        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
+      ],
+      "outputs": ["{projectRoot}/generated"],
+      "options": {
+        "cwd": "backend/plugins/loyalty_api",
+        "command": "pnpm schema:print"
+      }
     }
   }
 }

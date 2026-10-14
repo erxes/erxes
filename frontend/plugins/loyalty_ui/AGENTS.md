@@ -70,6 +70,10 @@
 - A saved score campaign's sheet has an Automations tab (`ScoreCampaignAutomations` / `useScoreCampaignAutomations`) listing the automations giving its points (Adjust score with this `campaignId`) and, when its account type has tiers, the ones setting those tiers (Set tier with that `accountTypeId`), each linking to the builder, with a create button under each list (a point automation from here counts every row). Automations are also started where the rule lives (`useCampaignAutomationSeeds`, campaign id from `ScoreCampaignProvider`): each base/bonus row of the earning table has, in its row menu (`EarnRowActions`, with delete), an item that opens an unsaved builder with only an Adjust score action (campaign, add, that row's `earnRowKeys`) and no trigger, enabled once the row is saved; a "Create tier automation" button above the table seeds an empty customer trigger, a split with one branch per active tier (highest first) and a Set tier on each branch. Both seeds and the Automations tab's edit links carry `returnTo` (this page, labelled with the campaign title) so the builder offers a way back, kept after the first save. Account types carry no automation section.
 - Pricing list loads filtered plans in 20-record pages as users scroll and
   shows the full filtered record count from the API.
+- GraphQL codegen (`client-preset`) validates every GraphQL document against
+  the printed `loyalty_api` schema and the core and sales snapshot
+  `schema/platform.graphql`, and generates result and variable types into
+  `src/gql/`.
 
 ## Architecture
 
@@ -84,6 +88,7 @@
 | Loyalty account types | `src/modules/loyalties/settings/account-type/**`, `src/pages/loyalties-config/LoyaltyAccountTypePage.tsx` | Account list, sectioned form sheet, legacy field banner, and campaign account selector. |
 | Owner loyalty account | `src/modules/loyalties/accounts/**`, `src/modules/loyalties/scores/components/ScoreSummaryWidget.tsx`     | Account card, tier select and freeze dialog in the relation widget.                     |
 | Score campaigns       | `src/modules/loyalties/settings/score/**`                                                                 | Score campaign list, create sheet, and edit sheet.                                      |
+| GraphQL codegen       | `codegen.ts`, `schema/platform.graphql`                                                                   | Generates `src/gql/` (gitignored) from the printed `loyalty_api` schema and the snapshot. |
 
 ## Contracts
 
@@ -108,8 +113,12 @@
 - Core `productConditions` (product conditions owned by core products, matched by code).
 
 - Public components and hooks from `erxes-ui` and `ui-modules`.
-- Sales board, pipeline, and stage GraphQL queries exposed through platform
-  contracts.
+- Sales `salesBoards`, `salesPipelines` and `salesStages` (pricing options)
+  and `deals` (the Give score deal picker) through the gateway.
+- The printed `loyalty_api` subgraph schema from its `schema:print` Nx target,
+  consumed only at codegen time.
+- Core and sales_api types and fields this plugin selects, declared for codegen
+  only in `schema/platform.graphql`.
 - Loyalty pricing, score campaign, and loyalty account type API contracts provided
   by `backend/plugins/loyalty_api`.
 - Loyalty translations in `backend/gateway/src/locales/{en,mn}/loyalty.json`.
@@ -153,10 +162,38 @@
   after creation.
 - Changing a score campaign's owner type clears its account type; archived account types
   are listed in the campaign selector only when the campaign already uses one.
+- GraphQL documents interpolate no string snippets: codegen drops `${...}`
+  text, so an interpolated selection is sent at runtime but missing from
+  validation and the generated types. A shared field set is a `gql` fragment
+  defined in this plugin (`LoyaltyAccountFields`, `LoyaltyAccountTypeFields`)
+  and spread by name.
+- `src/gql/` is generated and gitignored; `build` and `serve` depend on the
+  `codegen` target, which depends on `loyalty_api:schema:print` only. The
+  plugin never depends on core's or sales' printed schema.
+- `schema/platform.graphql` snapshots only the core-api and sales_api types and
+  fields loyalty documents select, each block headed by its SDL source. When a
+  document selects another core or sales field, or its owner changes one it
+  selects, update the snapshot from that source; codegen fails on a field the
+  snapshot lacks.
+- Operation names are unique within the plugin even ignoring case, because
+  codegen PascalCases them into type names; codegen only accepts byte-identical
+  copies, as `GetCampaigns`, `UpdateLotteryCampaign` and `UpdateSpinCampaign`
+  are today. `refetchQueries` strings name operations, so a rename updates them
+  in the same change.
 
 ## Validation
 
+- `pnpm nx run loyalty_ui:codegen --skip-nx-cache` - validates every document
+  against the printed `loyalty_api` schema and the snapshot; `build` and
+  `serve` run it first.
 - `pnpm nx build loyalty_ui`
+- `pnpm nx lint loyalty_ui` from the repository root; distinguish existing
+  baseline lint warnings from regressions in touched files.
+- `npx tsc --noEmit -p frontend/plugins/loyalty_ui/tsconfig.app.json` - errors
+  reported inside `frontend/libs` are pre-existing and owned by those
+  libraries.
+- `project.json` defines `build`, `serve`, `serve-static`, `codegen` and
+  `codegen:watch`; `lint` and `test` are inferred, and there are no tests yet.
 - Account types smoke scenario: create an account type, bind it to a new score campaign,
   archive it, and confirm the campaign still opens while the selector hides the
   archived account type for other campaigns.
@@ -167,6 +204,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — GraphQL codegen setup
+
+- **Summary:** Codegen validates every document against the printed `loyalty_api` schema and a core and sales snapshot. Cursor snippets are spelled out, two colliding operations renamed (`LoyaltyVoucherCampaignAdd`, `LoyaltyVouchersAdd`), and documents for fields no schema declares deleted. The assignment and wallet segment picker no longer asks core for segment v1 fields and the removed `config` argument, which failed the query, and the assignment form lists core v2 customer and lead segments (`core:contacts.customers`, `core:contacts.leads`) instead of the v1 names `core:customer` and `core:lead`.
+- **Affected areas:** `codegen.ts`, `schema/platform.graphql`, `project.json`, `eslint.config.js`, `.gitignore`; `settings/{assignment,coupon,donate,score,spin,voucher}/**/graphql`, `settings/assignment/add-assignment-campaign/components/assignment-campaign-field/AssignmentAddCampaignCoreFields.tsx`, `{donates,lotteries,spin,vouchers}/graphql`.
+- **Contracts changed:** `Segments` selects `_id`, `contentType`, `name`, `description`, `color`.
 
 ### `2026-10-14` — Issued vouchers: list, detail and actions
 
@@ -219,9 +262,3 @@
 - **Summary:** The Wallets page tells when the next period run is, what it will do and how the last runs went.
 - **Affected areas:** `settings/account-type/{components/LoyaltyPeriodRunPanel.tsx,hooks/useLoyaltyPeriodRunStatus.ts,graphql/loyaltyAccountTypeQueries.ts,hooks/useLoyaltyAccountTypeMutations.ts}`, `pages/loyalties-config/LoyaltyAccountTypePage.tsx`; `period-run-*` translations.
 - **Contracts changed:** Consumes GraphQL `loyaltyPeriodRunStatus`.
-
-### `2026-09-30` — Loyalty settings pages in the settings menu
-
-- **Summary:** Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment and Coupon moved from the inner config sidebar into the platform settings menu; the "Configs" item and the unused duplicate `components/LoyaltySettings.tsx` are gone.
-- **Affected areas:** `src/LoyaltySettingsNavigation.tsx`, `modules/loyalties/settings/{constants/settingRoutes.ts,components/LoyaltyLayout.tsx,components/LoyaltyBreadcrumb.tsx}`; `LoyaltySidebar.tsx` removed.
-- **Contracts changed:** None (routes unchanged).

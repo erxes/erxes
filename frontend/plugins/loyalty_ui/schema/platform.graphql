@@ -1,0 +1,471 @@
+# Public core-api and sales_api GraphQL contract snapshot consumed by loyalty UI.
+# Generated from their subgraph SDL; lists only what loyalty documents select.
+# This is codegen input, not loyalty API SDL.
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+type Action {
+  config: JSON
+  id: String
+  type: String
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+type Automation {
+  _id: String!
+  actions: [Action]
+  name: String
+  status: String
+  triggers: [Trigger]
+}
+
+# backend/core-api/src/modules/contacts/graphql/schemas/company.ts
+
+type CompaniesListResponse {
+  list: [Company]
+  totalCount: Int
+}
+
+# backend/core-api/src/modules/contacts/graphql/schemas/company.ts
+
+extend type Company {
+  addresses: [JSON]
+  avatar: String
+  businessType: String
+  code: String
+  createdAt: Date
+  cursor: String
+  description: String
+  emails: [String]
+  getTags: [Tag]
+  industry: [String]
+  isSubscribed: String
+  links: JSON
+  location: String
+  mergedIds: [String]
+  names: [String]
+  owner: User
+  ownerId: String
+  parentCompany: Company
+  parentCompanyId: String
+  phones: [String]
+  primaryAddress: JSON
+  primaryEmail: String
+  primaryName: String
+  primaryPhone: String
+  propertiesData: JSON
+  score: Float
+  size: Int
+  status: String
+  tagIds: [String]
+  trackedData: JSON
+  updatedAt: Date
+  website: String
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/cpUser.ts
+
+type CPUser {
+  _id: String!
+  email: String
+  erxesCustomerId: String
+  firstName: String
+  lastName: String
+  phone: String
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/cpUser.ts
+
+type CPUserListResponse {
+  list: [CPUser]
+}
+
+# backend/core-api/src/modules/contacts/graphql/schemas/customer.ts
+
+extend type Customer {
+  firstName: String
+  lastName: String
+  primaryEmail: String
+  primaryPhone: String
+}
+
+# backend/core-api/src/modules/contacts/graphql/schemas/customer.ts
+
+type CustomersListResponse {
+  list: [Customer]
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+type Deal {
+  _id: String!
+  name: String
+  number: String
+  stageId: String
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+type DealsListResponse {
+  list: [Deal]
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+type EngageMessage {
+  _id: String!
+  lastRunAt: Date
+  nextRunAt: Date
+  scheduleDate: EngageScheduleDate
+  title: String
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+type EngageScheduleDate {
+  type: String
+}
+
+# core-api root fields
+
+extend type Mutation {
+  automationsAdd(name: String, status: String, edgeType: String, flowDirection: String, triggers: [TriggerInput], actions: [ActionInput], workflows: [WorkflowInput], notes: [NoteInput]): Automation
+  automationsEdit(_id: String, acknowledgeDuplicate: Boolean, name: String, status: String, edgeType: String, flowDirection: String, triggers: [TriggerInput], actions: [ActionInput], workflows: [WorkflowInput], notes: [NoteInput]): Automation
+  automationsRemove(automationIds: [String]): [String]
+  engageMessageAdd(title: String, kind: String, method: String, fromEmail: String, fromUserId: String, cpId: String, targetType: String, targetIds: [String], targetCount: Int, isDraft: Boolean, isLive: Boolean, email: EngageMessageEmail, messenger: EngageMessageMessenger, notification: EngageMessageNotification, workflow: JSON): EngageMessage
+  engageMessageCancelSchedule(_id: String!): EngageMessage
+  engageMessageRemove(_ids: [String]): JSON
+  engageMessageSetSchedule(_id: String!, dateTime: Date, recurrence: EngageRecurrenceInput, afterSegment: EngageAfterSegmentInput): EngageMessage
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/product.ts
+
+type Product {
+  _id: String!
+  barcodeDescription: String
+  barcodes: [String]
+  categoryId: String
+  code: String
+  createdAt: Date
+  currency: String
+  cursor: String
+  description: String
+  discount(branchId: String, departmentId: String, pipelineId: String, discountConditions: JSON): JSON
+  discounts: JSON
+  hasSimilarity: Boolean
+  inventories: JSON
+  name: String
+  propertiesData: JSON
+  remainder: JSON
+  scopeBrandIds: [String]
+  shortName: String
+  status: String
+  subUoms: JSON
+  tagIds: [String]
+  type: String
+  unitPrice: Float
+  uom: String
+  variants: JSON
+  vendorId: String
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/category.ts
+
+type ProductCategory {
+  _id: String!
+  code: String!
+  description: String
+  isRoot: Boolean
+  isSimilarity: Boolean
+  mask: JSON
+  maskType: String
+  meta: String
+  name: String
+  order: String!
+  parentId: String
+  productCount: Int
+  scopeBrandIds: [String]
+  similarities: JSON
+  status: String
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/condition.ts
+
+type ProductCondition {
+  _id: String!
+  code: String!
+  name: String!
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/rule.ts
+
+type ProductRule {
+  _id: String!
+  bundleId: String
+  categories: [ProductCategory]
+  categoryIds: [String]
+  excludeCategories: [ProductCategory]
+  excludeCategoryIds: [String]
+  excludeProductIds: [String]
+  excludeTagIds: [String]
+  name: String!
+  productIds: [String]
+  products: [Product]
+  tagIds: [String]
+  unitPrice: Float!
+}
+
+# backend/core-api/src/modules/products/graphql/schemas/product.ts
+
+type ProductsListResponse {
+  list: [Product]
+}
+
+# core-api root fields
+
+extend type Query {
+  automationDetail(_id: String!): Automation
+  automations(page: Int, perPage: Int, ids: [String], excludeIds: [String], searchValue: String, sortField: String, sortDirection: Int, status: String, tagIds: [String], createdByIds: [String], updatedByIds: [String], createdAtFrom: Date, createdAtTo: Date, updatedAtFrom: Date, updatedAtTo: Date, triggerTypes: [String], actionTypes: [String], triggerSegmentId: String): [Automation]
+  companies(segment: String, tagIds: [String], excludeTagIds: [String], tagWithRelated: Boolean, ids: [String], excludeIds: Boolean, searchValue: String, autoCompletion: Boolean, autoCompletionType: String, sortField: String, sortDirection: Int, dateFilters: String, status: CONTACT_STATUS, conformityMainType: String, conformityMainTypeId: String, conformityRelType: String, conformityIsRelated: Boolean, conformityIsSaved: Boolean, limit: Int, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, orderBy: JSON, sortMode: String, aggregationPipeline: [JSON]): CompaniesListResponse
+  customers(segment: String, type: String, ids: [String], excludeIds: Boolean, tagIds: [String], excludeTagIds: [String], tagWithRelated: Boolean, segmentIds: [String], brandIds: [String], integrationIds: [String], integrationTypes: [String], clientPortalId: String, formIds: [String], searchValue: String, autoCompletion: Boolean, autoCompletionType: String, startDate: String, endDate: String, leadStatus: String, sortField: String, sortDirection: Int, sex: Int, birthDate: Date, dateFilters: String, propertiesData: String, emailValidationStatus: String, status: CONTACT_STATUS, conformityMainType: String, conformityMainTypeId: String, conformityRelType: String, conformityIsRelated: Boolean, conformityIsSaved: Boolean, limit: Int, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, orderBy: JSON, sortMode: String, aggregationPipeline: [JSON]): CustomersListResponse
+  engageMessageDetail(_id: String): EngageMessage
+  getClientPortalUser(_id: String!): CPUser
+  getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
+  productCategories(ids: [String], parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brandIds: [String]): [ProductCategory]
+  productConditions: [ProductCondition]
+  productRules: [ProductRule]
+  productsMain(type: String, status: String, categoryId: String, categoryIds: [String], searchValue: String, vendorId: String, brandIds: [String], tag: String, tagIds: [String], ids: [String], excludeIds: Boolean, excludeTagIds: [String], tagWithRelated: Boolean, pipelineId: String, boardId: String, segment: String, segmentIds: [String], propertiesData: String, groupedSimilarity: String, similarity: Boolean, image: String, brand: String, branchId: String, departmentId: String, minRemainder: Float, maxRemainder: Float, minPrice: Float, maxPrice: Float, minDiscountValue: Float, maxDiscountValue: Float, minDiscountPercent: Float, maxDiscountPercent: Float, discountConditions: JSON, limit: Int, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, orderBy: JSON, sortMode: String, aggregationPipeline: [JSON], sortField: String, sortDirection: Int): ProductsListResponse
+  segments(contentTypes: [String]!, ids: [String], excludeIds: [String], searchValue: String): [Segment]
+}
+
+# sales_api root fields
+
+extend type Query {
+  deals(stageId: String, initialStageId: String, _ids: [String], date: SalesItemDate, parentId: String, pipelineId: String, pipelineIds: [String], customerIds: [String], vendorCustomerIds: [String], companyIds: [String], assignedUserIds: [String], productIds: [String], closeDateType: String, labelIds: [String], search: String, priority: [String], userIds: [String], segment: String, assignedToMe: String, startDate: String, endDate: String, hasStartAndCloseDate: Boolean, stageChangedStartDate: Date, stageChangedEndDate: Date, noSkipArchive: Boolean, status: String, tagIds: [String], number: String, branchIds: [String], departmentIds: [String], boardIds: [String], stageCodes: [String], dateRangeFilters: JSON, createdStartDate: Date, createdEndDate: Date, stateChangedStartDate: Date, stateChangedEndDate: Date, startDateStartDate: Date, startDateEndDate: Date, closeDateStartDate: Date, closeDateEndDate: Date, resolvedDayBetween: [Int], relationType: String, relationId: String, limit: Int, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, orderBy: JSON, sortMode: String, aggregationPipeline: [JSON]): DealsListResponse
+  salesBoards: [SalesBoard]
+  salesPipelines(boardId: String, isAll: Boolean, limit: Int, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, orderBy: JSON, sortMode: String, aggregationPipeline: [JSON]): SalesPipelinesListResponse
+  salesStages(isNotLost: Boolean, isAll: Boolean, pipelineId: String, pipelineIds: [String], search: String, companyIds: [String], customerIds: [String], assignedUserIds: [String], labelIds: [String], extraParams: JSON, closeDateType: String, assignedToMe: String, age: Int, branchIds: [String], departmentIds: [String], segment: String, createdStartDate: Date, createdEndDate: Date, stateChangedStartDate: Date, stateChangedEndDate: Date, startDateStartDate: Date, startDateEndDate: Date, closeDateStartDate: Date, closeDateEndDate: Date): [SalesStage]
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/board.ts
+
+type SalesBoard {
+  _id: String!
+  name: String!
+  pipelines: [SalesPipeline]
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/pipeline.ts
+
+type SalesPipeline {
+  _id: String!
+  boardId: String!
+  name: String!
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/pipeline.ts
+
+type SalesPipelinesListResponse {
+  list: [SalesPipeline]
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/stage.ts
+
+type SalesStage {
+  _id: String!
+  name: String!
+  order: Int
+  pipelineId: String!
+}
+
+# backend/core-api/src/modules/segments/graphql/schemas/index.ts
+
+type Segment {
+  _id: ID!
+  color: String
+  contentType: String!
+  description: String
+  name: String
+  root: JSON!
+  timeSensitive: Boolean
+}
+
+# backend/core-api/src/modules/tags/graphql/schemas.ts
+
+type Tag {
+  _id: String
+  colorCode: String
+  name: String
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+type Trigger {
+  config: JSON
+  id: String
+  type: String
+}
+
+# backend/core-api/src/modules/organization/team-member/graphql/schema.ts
+
+extend type User {
+  details: UserDetailsType
+  email: String
+}
+
+# backend/core-api/src/modules/organization/team-member/graphql/schema.ts
+
+type UserDetailsType {
+  fullName: String
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+input ActionInput {
+  id: String
+  type: String
+  style: JSON
+  config: JSON
+  icon: String
+  label: String
+  description: String
+  position: JSON
+  workflowId: String
+  nextActionId: String
+  targetActionId: String
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+input EngageAfterSegmentInput {
+  timeZone: String
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+input EngageMessageEmail {
+  content: String
+  contentJson: JSON
+  contentFormat: String
+  subject: String!
+  replyTo: String
+  sender: String
+  previewText: String
+  attachments: [JSON]
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+input EngageMessageMessenger {
+  integrationId: String!
+  kind: String
+  sentAs: String
+  content: String
+  rules: [InputRule]
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+input EngageMessageNotification {
+  title: String!
+  content: String!
+  isMobile: Boolean
+  inApp: Boolean
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+input EngageRecurrenceInput {
+  every: String!
+  hour: Int!
+  minute: Int
+  weekDay: Int
+  monthDay: Int
+  monthOfYear: Int
+  startDate: Date
+  endDate: Date!
+  timeZone: String
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/cpUser.ts
+
+input IClientPortalUserFilter {
+  limit: Int
+  cursor: String
+  cursorMode: CURSOR_MODE
+  direction: CURSOR_DIRECTION
+  orderBy: JSON
+  sortMode: String
+  aggregationPipeline: [JSON]
+  searchValue: String
+  type: CPUserType
+  isVerified: Boolean
+  clientPortalId: String
+}
+
+# backend/core-api/src/modules/broadcast/graphql/schemas/engage.ts
+
+input InputRule {
+  _id: String!
+  kind: String!
+  text: String!
+  condition: String!
+  value: String
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+input NoteInput {
+  id: String
+  content: String
+  position: JSON
+  width: Float
+  height: Float
+  color: String
+}
+
+# backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
+
+input SalesItemDate {
+  month: Int
+  year: Int
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+input TriggerInput {
+  id: String
+  type: String
+  style: JSON
+  config: JSON
+  icon: String
+  label: String
+  description: String
+  position: JSON
+  workflowId: String
+  actionId: String
+  isCustom: Boolean
+}
+
+# backend/core-api/src/modules/automations/graphql/schema/types.ts
+
+input WorkflowInput {
+  id: String
+  automationId: String
+  templateId: String
+  nextActionId: String
+  name: String
+  description: String
+  config: JSON
+  actions: [JSON]
+  icon: String
+  position: JSON
+}
+
+# backend/core-api/src/modules/clientportal/graphql/schemas/cpUser.ts
+
+enum CPUserType {
+  customer
+  company
+}
