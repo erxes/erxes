@@ -9,8 +9,10 @@ import {
   IconLayoutSidebarRightExpand,
 } from '@tabler/icons-react';
 import { ToggleGroup } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryViewModeToggle = () => {
+  const { t } = useTranslation('automations');
   const { viewMode, changeViewMode } = useAutomationHistoryView();
 
   return (
@@ -25,13 +27,13 @@ export const AutomationHistoryViewModeToggle = () => {
     >
       <ToggleGroup.Item
         value={AutomationHistoryViewMode.Sheet}
-        aria-label="Open execution detail in a sheet"
+        aria-label={t('history-open-in-sheet')}
       >
         <IconLayoutSidebarRightExpand />
       </ToggleGroup.Item>
       <ToggleGroup.Item
         value={AutomationHistoryViewMode.Split}
-        aria-label="Open execution detail in a split panel"
+        aria-label={t('history-open-in-split-panel')}
       >
         <IconLayoutRows />
       </ToggleGroup.Item>
@@ -40,6 +42,7 @@ export const AutomationHistoryViewModeToggle = () => {
 };
 
 export const AutomationHistorySplitDirectionToggle = () => {
+  const { t } = useTranslation('automations');
   const { splitDirection, setSplitDirection } = useAutomationHistoryView();
 
   return (
@@ -48,20 +51,20 @@ export const AutomationHistorySplitDirectionToggle = () => {
       variant="outline"
       size="sm"
       value={splitDirection}
-      aria-label="Split direction"
+      aria-label={t('history-split-direction')}
       onValueChange={(value) =>
         value && setSplitDirection(value as AutomationHistorySplitDirection)
       }
     >
       <ToggleGroup.Item
         value={AutomationHistorySplitDirection.Vertical}
-        aria-label="Split top and bottom"
+        aria-label={t('history-split-top-bottom')}
       >
         <IconLayoutRows />
       </ToggleGroup.Item>
       <ToggleGroup.Item
         value={AutomationHistorySplitDirection.Horizontal}
-        aria-label="Split left and right"
+        aria-label={t('history-split-left-right')}
       >
         <IconLayoutColumns />
       </ToggleGroup.Item>

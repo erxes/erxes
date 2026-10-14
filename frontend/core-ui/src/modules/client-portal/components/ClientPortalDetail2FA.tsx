@@ -1,17 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Label, Spinner, Switch, Tabs } from 'erxes-ui';
+import { Button, Form, Label, Spinner, Switch, Tabs } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_2FA_SCHEMA } from '../constants/clientPortalEditSchema';
 import { z } from 'zod';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  ClientPortalNumberField,
+  ClientPortalTextField,
+} from '@/client-portal/components/ClientPortalSecurityFields';
 
 export const ClientPortalDetail2FA = ({
   clientPortal,
 }: {
   clientPortal: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const multiFactorConfig = clientPortal?.securityAuthConfig?.multiFactorConfig;
   const isOpen = multiFactorConfig?.isEnabled ?? false;
   const [activeTab, setActiveTab] = useState<'email' | 'sms'>('email');
@@ -77,7 +83,7 @@ export const ClientPortalDetail2FA = ({
           disabled={loading}
         />
         <Label variant="peer" htmlFor="enable2FA">
-          Enable 2FA
+          {t('enable-2fa')}
         </Label>
       </div>
       {isOpen && (
@@ -91,177 +97,52 @@ export const ClientPortalDetail2FA = ({
               onValueChange={(val) => setActiveTab(val as 'email' | 'sms')}
             >
               <Tabs.List>
-                <Tabs.Trigger value="email">Email</Tabs.Trigger>
-                <Tabs.Trigger value="sms">SMS/Phone</Tabs.Trigger>
+                <Tabs.Trigger value="email">{t('email')}</Tabs.Trigger>
+                <Tabs.Trigger value="sms">{t('sms-phone')}</Tabs.Trigger>
               </Tabs.List>
 
-              <Tabs.Content value="email" className="mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={form.control}
-                    name="email.emailSubject"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Email Subject</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>2FA email subject</Form.Description>
-                        <Form.Message />
-                      </Form.Item>
+              {(['email', 'sms'] as const).map((channel) => (
+                <Tabs.Content key={channel} value={channel} className="mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {channel === 'email' ? (
+                      <ClientPortalTextField
+                        control={form.control}
+                        name="email.emailSubject"
+                        label={t('email-subject')}
+                        description={t('2fa-email-subject')}
+                      />
+                    ) : (
+                      <ClientPortalTextField
+                        control={form.control}
+                        name="sms.smsProvider"
+                        label={t('sms-provider')}
+                        description={t('sms-provider-description')}
+                      />
                     )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          2FA code length (4-6 digits)
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          Email message body with {'{{code}}'} placeholder
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="email.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          2FA code expiration duration in minutes
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              </Tabs.Content>
-
-              <Tabs.Content value="sms" className="mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={form.control}
-                    name="sms.smsProvider"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>SMS Provider</Form.Label>
-                        <Form.Control>
-                          <Input
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          SMS provider configuration
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          2FA code length (4-6 digits)
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          SMS message body with {'{{code}}'} placeholder
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="sms.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          2FA code expiration duration in minutes
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              </Tabs.Content>
+                    <ClientPortalNumberField
+                      control={form.control}
+                      name={`${channel}.codeLength` as const}
+                      label={t('code-length')}
+                      description={t('2fa-code-length-description')}
+                    />
+                    <ClientPortalTextField
+                      control={form.control}
+                      name={`${channel}.messageTemplate` as const}
+                      label={t('message-template')}
+                      description={t(`${channel}-message-body-description`, {
+                        placeholder: '{{code}}',
+                      })}
+                      fullWidth
+                    />
+                    <ClientPortalNumberField
+                      control={form.control}
+                      name={`${channel}.duration` as const}
+                      label={t('expiration-duration-minutes')}
+                      description={t('2fa-expiration-description')}
+                    />
+                  </div>
+                </Tabs.Content>
+              ))}
             </Tabs>
 
             <Button
@@ -273,7 +154,7 @@ export const ClientPortalDetail2FA = ({
               {loading && (
                 <Spinner containerClassName="w-auto flex-none mr-2" />
               )}
-              Save
+              {t('save')}
             </Button>
           </form>
         </Form>

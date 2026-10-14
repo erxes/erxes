@@ -1,7 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { IPropertyForm } from '../types/Properties';
 import { Form, Switch } from 'erxes-ui';
+import { IPropertyForm } from 'ui-modules';
 
 export const PropertyFormMultiple = ({
   form,

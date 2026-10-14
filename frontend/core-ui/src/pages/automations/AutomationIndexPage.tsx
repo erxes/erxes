@@ -1,5 +1,5 @@
 import { AutomationsRecordTable } from '@/automations/components/list/AutomationsRecordTable';
-import { useAutomationsListView } from '@/automations/components/list/AutomationsViewToggle';
+import { useAutomationsListView } from '@/automations/components/list/useAutomationsListView';
 import { WorkflowTemplatesList } from '@/automations/components/templates/WorkflowTemplatesList';
 import { PageContainer } from 'erxes-ui';
 

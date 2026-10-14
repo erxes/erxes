@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -9,14 +10,14 @@ import { IProductRule } from './types';
 import { productRuleNameColumn } from './ProductRuleNameColumn';
 import { productRuleMoreColumn } from './ProductRuleMoreColumn';
 
-export const productRuleColumns: ColumnDef<IProductRule>[] = [
+export const productRuleColumns = (t: TFunction): ColumnDef<IProductRule>[] => [
   productRuleMoreColumn,
   productRuleNameColumn,
   RecordTable.checkboxColumn as ColumnDef<IProductRule>,
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => <RecordTable.InlineHead label="Unit Price" />,
+    header: () => <RecordTable.InlineHead label={t('unit-price')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -29,7 +30,7 @@ export const productRuleColumns: ColumnDef<IProductRule>[] = [
   {
     id: 'categories',
     accessorKey: 'categories',
-    header: () => <RecordTable.InlineHead label="Categories" />,
+    header: () => <RecordTable.InlineHead label={t('categories')} />,
     cell: ({ cell }) => {
       const categories = (cell.getValue() as any[]) || [];
       return (
@@ -47,7 +48,7 @@ export const productRuleColumns: ColumnDef<IProductRule>[] = [
   {
     id: 'excludeCategories',
     accessorKey: 'excludeCategories',
-    header: () => <RecordTable.InlineHead label="Exclude Categories" />,
+    header: () => <RecordTable.InlineHead label={t('exclude-categories')} />,
     cell: ({ cell }) => {
       const excludeCategories = (cell.getValue() as any[]) || [];
       return (
@@ -65,7 +66,7 @@ export const productRuleColumns: ColumnDef<IProductRule>[] = [
   {
     id: 'products',
     accessorKey: 'products',
-    header: () => <RecordTable.InlineHead label="Products" />,
+    header: () => <RecordTable.InlineHead label={t('products')} />,
     cell: ({ cell }) => {
       const products = (cell.getValue() as any[]) || [];
       return (
@@ -83,7 +84,7 @@ export const productRuleColumns: ColumnDef<IProductRule>[] = [
   {
     id: 'excludeProducts',
     accessorKey: 'excludeProducts',
-    header: () => <RecordTable.InlineHead label="Exclude Products" />,
+    header: () => <RecordTable.InlineHead label={t('exclude-products')} />,
     cell: ({ cell }) => {
       const excludeProducts = (cell.getValue() as any[]) || [];
       return (
@@ -101,7 +102,7 @@ export const productRuleColumns: ColumnDef<IProductRule>[] = [
   {
     id: 'tags',
     accessorKey: 'tags',
-    header: () => <RecordTable.InlineHead label="Tags" />,
+    header: () => <RecordTable.InlineHead label={t('tags')} />,
     cell: ({ cell }) => {
       const tags = (cell.getValue() as any[]) || [];
       return (
@@ -119,7 +120,7 @@ export const productRuleColumns: ColumnDef<IProductRule>[] = [
   {
     id: 'excludeTags',
     accessorKey: 'excludeTags',
-    header: () => <RecordTable.InlineHead label="Exclude Tags" />,
+    header: () => <RecordTable.InlineHead label={t('exclude-tags')} />,
     cell: ({ cell }) => {
       const excludeTags = (cell.getValue() as any[]) || [];
       return (

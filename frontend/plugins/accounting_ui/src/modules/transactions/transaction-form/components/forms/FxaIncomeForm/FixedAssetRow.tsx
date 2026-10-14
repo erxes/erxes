@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Checkbox,
   CurrencyField,
@@ -34,6 +35,7 @@ export const FixedAssetRow = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -77,11 +79,6 @@ export const FixedAssetRow = ({
   };
   const [taxAmounts, setTaxAmounts] = useState(() =>
     calcTaxAmounts(detail.count, detail.unitPrice),
-  );
-  const followInfoIndex = (trDoc.followInfos?.fxaIncomeDetails || []).findIndex(
-    (followInfo) =>
-      followInfo.transactionDetailId === detail?._id ||
-      followInfo.tempId === detail?._id,
   );
 
   useEffect(() => {
@@ -238,7 +235,7 @@ export const FixedAssetRow = ({
               >
                 <Form.Control>
                   <RecordTableInlineCell.Trigger className="min-w-36">
-                    {field.value || 'Код'}
+                    {field.value || t('code')}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
                 <RecordTableInlineCell.Content>
@@ -246,7 +243,7 @@ export const FixedAssetRow = ({
                     value={field.value || ''}
                     onChange={field.onChange}
                     className="h-8 min-w-36"
-                    placeholder="Код"
+                    placeholder={t('code')}
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
@@ -270,7 +267,7 @@ export const FixedAssetRow = ({
               >
                 <Form.Control>
                   <RecordTableInlineCell.Trigger className="min-w-48">
-                    {field.value || 'Нэр'}
+                    {field.value || t('name')}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
                 <RecordTableInlineCell.Content>
@@ -278,7 +275,7 @@ export const FixedAssetRow = ({
                     value={field.value || ''}
                     onChange={field.onChange}
                     className="h-8 min-w-48"
-                    placeholder="Нэр"
+                    placeholder={t('name')}
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
@@ -482,32 +479,28 @@ export const FixedAssetRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              {followInfoIndex >= 0 ? (
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.preDeprecation`}
-                  render={({ field }) => (
-                    <PopoverScoped
-                      scope={`trDocs.${journalIndex}.details.${detailIndex}.preDeprecation`}
-                      closeOnEnter
-                    >
-                      <Form.Control>
-                        <RecordTableInlineCell.Trigger>
-                          {(field.value || 0).toLocaleString()}
-                        </RecordTableInlineCell.Trigger>
-                      </Form.Control>
-                      <RecordTableInlineCell.Content>
-                        <CurrencyField.ValueInput
-                          value={field.value ?? 0}
-                          onChange={(value) => field.onChange(value || 0)}
-                        />
-                      </RecordTableInlineCell.Content>
-                    </PopoverScoped>
-                  )}
-                />
-              ) : (
-                <RecordTableInlineCell>0</RecordTableInlineCell>
-              )}
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
+                render={({ field }) => (
+                  <PopoverScoped
+                    scope={`trDocs.${journalIndex}.details.${detailIndex}.preDeprecation`}
+                    closeOnEnter
+                  >
+                    <Form.Control>
+                      <RecordTableInlineCell.Trigger>
+                        {(field.value || 0).toLocaleString()}
+                      </RecordTableInlineCell.Trigger>
+                    </Form.Control>
+                    <RecordTableInlineCell.Content>
+                      <CurrencyField.ValueInput
+                        value={field.value ?? 0}
+                        onChange={(value) => field.onChange(value || 0)}
+                      />
+                    </RecordTableInlineCell.Content>
+                  </PopoverScoped>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
           <FxaDetailLocationCells

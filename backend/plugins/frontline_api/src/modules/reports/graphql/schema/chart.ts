@@ -6,6 +6,11 @@ export const types = `
   }
 
   type ReportChartFilters {
+    statusChangedDate: String
+    updatedAtDate: String
+    description: String
+    statusChangedByIds: [String]
+    updatedByIds: [String]
     date: String
     fromDate: String
     toDate: String

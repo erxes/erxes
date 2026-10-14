@@ -1,6 +1,6 @@
 export const AUTOMATION_FLOW_DIRECTIONS = [
-  { value: 'horizontal', label: 'Horizontal' },
-  { value: 'vertical', label: 'Vertical' },
+  { value: 'horizontal', labelKey: 'controls-direction-horizontal' },
+  { value: 'vertical', labelKey: 'controls-direction-vertical' },
 ] as const;
 
 export type TAutomationFlowDirection =

@@ -6,21 +6,35 @@ import { useConversationTypingStatus } from '@/inbox/conversation-messages/hooks
 import { TypingIndicator } from '@/inbox/conversation-messages/components/TypingIndicator';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { useMessageNavigation } from '@/inbox/conversation-messages/hooks/useMessageNavigation';
+import { PinnedMessagesBar } from '@/inbox/conversation-messages/components/pinned/PinnedMessagesBar';
+import { IntegrationType } from '@/types/Integration';
 
 export const ConversationMessages = ({
   conversationId,
 }: {
   conversationId: string;
 }) => {
+  const { integration } = useConversationContext();
+  const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const { messages, loading, handleFetchMore, totalCount } =
     useConversationMessages({
       variables: {
         conversationId,
-        limit: 10,
+        limit: isDiscord ? 50 : 10,
         skip: 0,
       },
       fetchPolicy: 'cache-and-network',
     });
+
+  const { containerRef, jumpToMessage } = useMessageNavigation({
+    conversationId,
+    messagesLength: messages.length,
+    totalCount,
+    loading,
+    handleFetchMore,
+  });
 
   const { typingNames, clearTypist } =
     useConversationTypingStatus(conversationId);
@@ -40,28 +54,39 @@ export const ConversationMessages = ({
       .size > 1;
 
   return (
-    <InboxMessagesContainer
-      conversationId={conversationId}
-      fetchMore={handleFetchMore}
-      messagesLength={messages?.length || 0}
-      totalCount={totalCount}
-      loading={loading}
-    >
-      {messages?.map((message: IMessage, index: number) => (
-        <ConversationMessageContext.Provider
-          value={{
-            ...message,
-            conversationId: message.conversationId || conversationId,
-            previousMessage: messages[index - 1],
-            nextMessage: messages[index + 1],
-            isGroupConversation,
-          }}
-          key={message._id}
+    <div ref={containerRef} className="flex h-full min-h-0 flex-col">
+      {isDiscord && (
+        <PinnedMessagesBar
+          key={conversationId}
+          conversationId={conversationId}
+          onSelectMessage={jumpToMessage}
+        />
+      )}
+      <div className="min-h-0 flex-1">
+        <InboxMessagesContainer
+          conversationId={conversationId}
+          fetchMore={handleFetchMore}
+          messagesLength={messages?.length || 0}
+          totalCount={totalCount}
+          loading={loading}
         >
-          <MessageItem />
-        </ConversationMessageContext.Provider>
-      ))}
-      <TypingIndicator names={typingNames} />
-    </InboxMessagesContainer>
+          {messages?.map((message: IMessage, index: number) => (
+            <ConversationMessageContext.Provider
+              value={{
+                ...message,
+                conversationId: message.conversationId || conversationId,
+                previousMessage: messages[index - 1],
+                nextMessage: messages[index + 1],
+                isGroupConversation,
+              }}
+              key={message._id}
+            >
+              <MessageItem />
+            </ConversationMessageContext.Provider>
+          ))}
+          <TypingIndicator names={typingNames} />
+        </InboxMessagesContainer>
+      </div>
+    </div>
   );
 };

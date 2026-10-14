@@ -34,6 +34,8 @@ const posOrderItemSchema = schemaWrapper(
       default: false,
     },
     manufacturedDate: { type: String, label: 'manufactured' },
+    // Code of the core product condition the line was sold under, if any.
+    conditionCode: { type: String, optional: true, label: 'Condition' },
     description: { type: String, label: 'Description' },
     attachment: { type: Object, label: 'Attachment' },
     closeDate: {

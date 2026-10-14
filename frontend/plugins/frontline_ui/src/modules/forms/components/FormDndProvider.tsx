@@ -1,5 +1,5 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { z } from 'zod';
 import { FormFieldType } from '../constants/formFieldTypes';
@@ -33,6 +33,8 @@ export const FormDndContext = createContext<{
     fieldId: UniqueIdentifier,
   ) => IFieldData | undefined;
   handleAddField: (stepId: UniqueIdentifier, type: FormFieldType) => void;
+  newFieldId: UniqueIdentifier | null;
+  clearNewFieldId: () => void;
   removeStep: (stepId: UniqueIdentifier) => void;
   handleChangeField: (
     stepId: UniqueIdentifier,
@@ -80,6 +82,8 @@ export function FormDndProvider({
   >;
   onValueChange: (values: z.infer<typeof FORM_CONTENT_SCHEMA>['steps']) => void;
 }) {
+  const [newFieldId, setNewFieldId] = useState<UniqueIdentifier | null>(null);
+
   const steps = Object.entries(value)
     .sort((a, b) => a[1].order - b[1].order)
     .map(([key]) => key);
@@ -127,7 +131,7 @@ export function FormDndProvider({
         step,
         {
           order: index + 1,
-          name: `Step ${step}`,
+          name: `Step ${index + 1}`,
           description: '',
         },
       ],
@@ -179,6 +183,7 @@ export function FormDndProvider({
 
   const handleAddField = (stepId: UniqueIdentifier, type: FormFieldType) => {
     const fieldId = nanoid() as string;
+    setNewFieldId(fieldId);
     const field = {
       id: fieldId,
       type: type.value,
@@ -269,6 +274,8 @@ export function FormDndProvider({
         setFields,
         getFieldValue,
         handleAddField,
+        newFieldId,
+        clearNewFieldId: () => setNewFieldId(null),
         removeStep,
         handleChangeField,
         handleChangeStepValue,

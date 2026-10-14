@@ -2,8 +2,10 @@ import { Polygons } from '../components/Polygons';
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
 import { Logo } from './Logo';
+import { useTranslation } from 'react-i18next';
 
 export const DynamicBanner = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const organization = useAtomValue(currentOrganizationState);
 
   return (
@@ -15,12 +17,10 @@ export const DynamicBanner = () => {
         </div>
         <div className="max-w-[500px] flex-col flex justify-center gap-2">
           <h1 className="text-2xl font-semibold leading-7 text-background dark:text-foreground">
-            {organization?.orgLoginText ||
-              'Grow your business better and faster'}
+            {organization?.orgLoginText || t('banner-title')}
           </h1>
           <p className="text-lg font-medium leading-6 text-muted-foreground">
-            {organization?.orgLoginDescription ||
-              'A single XOS (experience operating system) enables to create unique and life-changing experiences that work for all types of businesses.'}
+            {organization?.orgLoginDescription || t('banner-description')}
           </p>
         </div>
       </div>

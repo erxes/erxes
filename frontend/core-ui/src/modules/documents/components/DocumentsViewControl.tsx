@@ -8,6 +8,7 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 
 import { DocumentsView, documentsViewAtom } from '../states/documentsViewState';
+import { useTranslation } from 'react-i18next';
 
 function DocumentsViewOptions({
   onValueChange,
@@ -16,6 +17,8 @@ function DocumentsViewOptions({
   onValueChange: (value: string) => void;
   value: DocumentsView;
 }) {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+
   return (
     <ToggleGroup
       type="single"
@@ -30,7 +33,7 @@ function DocumentsViewOptions({
           className="h-11 flex-col gap-0 border"
         >
           <IconList className="size-5!" />
-          <span className="text-xs font-normal">List</span>
+          <span className="text-xs font-normal">{t('list')}</span>
         </Button>
       </ToggleGroup.Item>
       <ToggleGroup.Item value="grid" asChild>
@@ -40,7 +43,7 @@ function DocumentsViewOptions({
           className="h-11 flex-col gap-0 border"
         >
           <IconLayoutGrid className="size-5!" />
-          <span className="text-xs font-normal">Grid</span>
+          <span className="text-xs font-normal">{t('grid')}</span>
         </Button>
       </ToggleGroup.Item>
     </ToggleGroup>
@@ -48,6 +51,7 @@ function DocumentsViewOptions({
 }
 
 export function DocumentsViewControl() {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useAtom(documentsViewAtom);
 
@@ -65,7 +69,7 @@ export function DocumentsViewControl() {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          Display
+          {t('display')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>

@@ -52,6 +52,7 @@ export interface IOrderItemInput {
   bonusCount?: number;
   bonusVoucherId?: string;
   manufacturedDate?: string; // Unix epoch number
+  conditionCode?: string;
   description?: string;
   attachment?: IAttachment;
   closeDate?: Date;

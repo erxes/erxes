@@ -1,3 +1,5 @@
+import { parsePaymentTypes } from './paymentTypes';
+import { toGraphqlView } from '@/utils/graphql';
 import { Form, isEnabled } from 'erxes-ui';
 import {
   SyncConfigAccountsSection,
@@ -6,7 +8,6 @@ import {
   SyncConfigPaymentsSection,
   SyncConfigPipelineSection,
   SyncConfigVatCtaxSection,
-  TPaymentType,
   normalizeSyncConfigData,
   usePipelineReset,
 } from './SyncConfigFormSections';
@@ -66,14 +67,15 @@ export const SyncDealConfigForm = ({
   const { t } = useTranslation('accounting');
   const { boardId, pipelineId } = usePipelineReset(form);
 
-  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
+  const { data: rawGraphqlPipelineDetail, refetch: pipelineRefetch } = useQuery(
     PIPELINE_DETAIL,
     {
-      variables: { _id: pipelineId },
+      variables: { _id: pipelineId ?? '' },
       skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
       fetchPolicy: 'network-only', // заавал backend-ээс авна
     },
   );
+  const pipelineDetail = toGraphqlView(rawGraphqlPipelineDetail);
 
   useEffect(() => {
     if (pipelineId) {
@@ -88,8 +90,9 @@ export const SyncDealConfigForm = ({
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: TPaymentType[] =
-    pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
+  const paymentTypes = parsePaymentTypes(
+    pipelineDetail?.salesPipelineDetail?.paymentTypes,
+  );
   const mongolianEnabled = isEnabled('mongolian');
 
   const handleSubmit = (data: ConfigFormValues) =>

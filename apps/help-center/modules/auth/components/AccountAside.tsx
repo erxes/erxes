@@ -10,6 +10,7 @@ import { Icon, type IconName } from '@/modules/ui/components/Icon';
 import { useT } from '@/modules/i18n/components/LocaleProvider';
 import type { MessageKey } from '@/modules/i18n/translate';
 import { cn } from '@/modules/ui/lib/cn';
+import { startRouteProgress } from '@/modules/layout/utils/routeProgress';
 import { useSession } from './SessionProvider';
 
 export const accountShell = 'overflow-hidden rounded-2xl bg-white shadow-shell';
@@ -216,6 +217,7 @@ export const AccountAside = ({
           danger
           onClick={() => {
             signOut();
+            startRouteProgress('/');
             router.push('/');
           }}
         />

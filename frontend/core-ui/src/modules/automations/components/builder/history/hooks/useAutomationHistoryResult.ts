@@ -2,8 +2,10 @@ import { useAutomationExecutionDetail } from '@/automations/components/builder/h
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { format, isValid } from 'date-fns';
 import { IAutomationHistory } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const useAutomationHistoryResult = () => {
+  const { t } = useTranslation('automations');
   const { executionDetail, loading, refetch } = useAutomationExecutionDetail();
 
   const { actionsConst } = useAutomation();
@@ -11,7 +13,9 @@ export const useAutomationHistoryResult = () => {
 
   const getCreatedAtLabel = (createdAt: Date) => {
     const date = createdAt ? new Date(createdAt) : '';
-    return isValid(date) ? format(date, 'yyyy-MM-dd HH:mm:ss') : 'N/A';
+    return isValid(date)
+      ? format(date, 'yyyy-MM-dd HH:mm:ss')
+      : t('history-not-available');
   };
 
   const list = actions.map((action) => ({
@@ -20,7 +24,7 @@ export const useAutomationHistoryResult = () => {
     actionTypeLabel:
       actionsConst.find(({ type }) => type === action.actionType)?.label ||
       action.actionType ||
-      'Empty',
+      t('history-empty'),
   }));
 
   return {

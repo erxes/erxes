@@ -6,6 +6,7 @@ export type ISelectPosContext = {
   pos: IPos[];
   setPos: (pos: IPos[]) => void;
   onSelect: (pos: IPos) => void;
+  clear: () => void;
   loading: boolean;
   error: string | null;
 };

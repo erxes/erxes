@@ -9,12 +9,22 @@ import { removeFxaMoveInstances } from './fxaMove';
 import {
   getUniqueFxaOwnerRecordIds,
   rebuildFixedAssetCurrentCounts,
-  TFxaIncomeDetailRemoveOptions,
 } from './fixedAssets';
 import { removeInvJustify } from './invJustify';
 import { isInvSplitFollow, removeInvSplitFollowTrs } from './invSplit';
 
-export type TCommonRemoveOptions = TFxaIncomeDetailRemoveOptions;
+export type TCommonRemoveOptions = {
+  detailIds?: string[];
+  validateOnly?: boolean;
+};
+
+type TJournalRemoveHandler = (
+  models: IModels,
+  subdomain: string,
+  transaction: ITransactionDocument,
+  followTrs?: ITransactionDocument[],
+  options?: TCommonRemoveOptions,
+) => Promise<void>;
 
 const removeFollowTransactions = async (
   models: IModels,
@@ -33,24 +43,44 @@ export const commonRemove = async (
   transaction: ITransactionDocument,
   followTrs?: ITransactionDocument[],
   options: TCommonRemoveOptions = {},
-) => {
+): Promise<void> => {
+  if (options.validateOnly) {
+    await commonRemoveValidation(
+      subdomain,
+      models,
+      transaction,
+      followTrs,
+      options,
+    );
+    return;
+  }
   const handler = getJournalHandler(transaction.journal);
   if (!handler) return;
 
   await handler(models, subdomain, transaction, followTrs, options);
 };
 
+export const commonRemoveValidation = async (
+  subdomain: string,
+  models: IModels,
+  transaction: ITransactionDocument,
+  followTrs?: ITransactionDocument[],
+  options: TCommonRemoveOptions = {},
+): Promise<void> => {
+  const validators: Record<string, TJournalRemoveHandler> = {
+    fxaIncome: validateFxaIncomeRemove,
+  };
+  const validator = validators[transaction.journal];
+  if (validator) {
+    await validator(models, subdomain, transaction, followTrs, {
+      ...options,
+      validateOnly: true,
+    });
+  }
+};
+
 function getJournalHandler(journal: string) {
-  const handlers: Record<
-    string,
-    (
-      models: IModels,
-      subdomain: string,
-      transaction: ITransactionDocument,
-      followTrs?: ITransactionDocument[],
-      options?: TCommonRemoveOptions,
-    ) => Promise<void>
-  > = {
+  const handlers: Record<string, TJournalRemoveHandler> = {
     main: handleNone,
     cash: handleNone,
     bank: handleNone,
@@ -161,6 +191,19 @@ async function handleInvSaleReturn(
   }
 }
 
+async function validateFxaIncomeRemove(
+  models: IModels,
+  _subdomain: string,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[],
+  options?: TCommonRemoveOptions,
+): Promise<void> {
+  await removeFxaIncomeDetails(models, transaction, {
+    ...options,
+    validateOnly: true,
+  });
+}
+
 async function handleFxaIncome(
   models: IModels,
   _subdomain: string,
@@ -169,6 +212,7 @@ async function handleFxaIncome(
   options?: TCommonRemoveOptions,
 ) {
   await removeFxaIncomeDetails(models, transaction, options);
+  if (options?.validateOnly) return;
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_DEP_IN,
   ]);

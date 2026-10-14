@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   EMAIL_RAMP_RELEASE,
   EMAIL_RAMP_STATUS,
@@ -16,6 +17,7 @@ export const useEmailRampStatus = () => {
 
 export const useResumeSending = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('settings', { keyPrefix: 'email-ramp' });
 
   const [mutate, { loading }] = useMutation(EMAIL_RAMP_RELEASE);
 
@@ -33,7 +35,10 @@ export const useResumeSending = () => {
         });
       },
       onCompleted: () =>
-        toast({ title: 'Sending resumed', variant: 'success' }),
+        toast({
+          title: t('sending-resumed'),
+          variant: 'success',
+        }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),
     }).then((result) => Boolean(result.data?.emailRampRelease));

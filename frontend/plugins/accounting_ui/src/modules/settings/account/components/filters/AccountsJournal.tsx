@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover } from 'erxes-ui';
 import { JournalEnum } from '../../types/Account';
 import React from 'react';
@@ -14,12 +15,13 @@ export const SelectAccountJournalCommand = React.forwardRef<
     onSelect?: (kind: string | null) => void;
   }
 >(({ selected, onSelect, ...props }, ref) => {
+  const { t } = useTranslation('accounting');
   const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ? JOURNAL_LABELS[selected as JournalEnum] : 'Бүгд'}
+        {selected ? t(JOURNAL_LABELS[selected as JournalEnum] || '') : t('all')}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsJournalCommand
@@ -44,9 +46,13 @@ export const AccountsJournalCommand = ({
   selected: string | null;
   onSelect?: (journal: string | null) => void;
 }) => {
+  const { t } = useTranslation('accounting');
   return (
     <Command>
-      <Command.Input placeholder="Журналаар шүүх" focusOnMount={focusOnMount} />
+      <Command.Input
+        placeholder={t('filter-by-journal')}
+        focusOnMount={focusOnMount}
+      />
       <Command.List>
         {Object.values(JournalEnum).map((journal) => (
           <Command.Item
@@ -54,7 +60,7 @@ export const AccountsJournalCommand = ({
             value={journal}
             onSelect={() => onSelect?.(journal)}
           >
-            {JOURNAL_LABELS[journal]}
+            {t(JOURNAL_LABELS[journal] || '')}
             <Combobox.Check checked={selected === journal} />
           </Command.Item>
         ))}

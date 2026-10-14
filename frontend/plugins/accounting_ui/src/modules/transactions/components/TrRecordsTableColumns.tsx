@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import {
   IconCalendar,
   IconEdit,
@@ -27,7 +28,6 @@ import {
   TR_JOURNAL_LABELS,
   TR_SIDES,
   TR_STATUS_LABELS,
-  TrJournalEnum,
 } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
 import {
@@ -62,19 +62,25 @@ const AmountCell = ({ value }: { value: number }) => {
 
 const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details, side } = row.original;
-  const { amount } = details;
+  const { amount } = details ?? {};
 
   return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
 const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details, side } = row.original;
-  const { amount } = details;
+  const { amount } = details ?? {};
 
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const AmountItemCell = ({ row, value }: { row: any; value: number }) => {
+const AmountItemCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITrRecord>;
+  value: number;
+}) => {
   const { details } = row.original;
   if (!details?.productId && !details?.fixedAssetId) {
     return undefined;
@@ -112,23 +118,27 @@ const DepartmentCell = ({ row }: any) => {
   );
 };
 
-const StatusCell = ({ row }: any) => {
+const StatusCell = ({ row }: { row: Row<ITrRecord> }) => {
+  const { t } = useTranslation('accounting');
   const { status } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_STATUS_LABELS[status] || status}
+      {t(TR_STATUS_LABELS[status || ''] || '') || status}
     </RecordTableInlineCell>
   );
 };
 
-const JournalCell = ({ row }: any) => {
+const JournalCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { t } = useTranslation('accounting');
   const { journal } = row.original;
+  const label = Object.entries(TR_JOURNAL_LABELS).find(
+    ([key]) => key === journal,
+  )?.[1];
 
   return (
     <RecordTableInlineCell>
-      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || t('main')}
+      {label ? t(label) : t('main')}
     </RecordTableInlineCell>
   );
 };
@@ -243,45 +253,57 @@ const transactionMoreColumn = {
   size: 33,
 };
 
-export const trRecordColumns: ColumnDef<ITrRecord>[] = [
+export const trRecordColumns = (
+  t: TFunction<'accounting'>,
+): ColumnDef<ITrRecord>[] => [
   transactionMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ITrRecord>,
   {
     id: 'account',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('account')} />
+    ),
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 300,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Дугаар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('number')} />
+    ),
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
     size: 100,
   },
   {
     id: 'status',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('status')} />
+    ),
     accessorKey: 'status',
     cell: ({ row }) => <StatusCell row={row} />,
   },
   {
     id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('journal')} />
+    ),
     accessorKey: 'journal',
     cell: ({ row }) => <JournalCell row={row} />,
   },
   {
     id: 'product-inv',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Бараа/Хөрөнгө" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('product-asset')} />
     ),
     accessorKey: 'product-inv',
     cell: ({ row }) => <ProductCell row={row} />,
@@ -289,7 +311,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   {
     id: 'unitPrice-inv',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж үнэ" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('unit-price')} />
     ),
     accessorKey: 'unitPrice-inv',
     cell: ({ row }) => (
@@ -299,7 +321,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   {
     id: 'count-inv',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Тоо хэмжээ" />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('quantity-label')} />
     ),
     accessorKey: 'count-inv',
     cell: ({ row }) => (
@@ -308,19 +330,25 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   },
   {
     id: 'Debit',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Дебет" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('debit')} />
+    ),
     accessorKey: 'Debit',
-    cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DebitCell row={row} />,
   },
   {
     id: 'Credit',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Кредит" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('credit')} />
+    ),
     accessorKey: 'Credit',
-    cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <CreditCell row={row} />,
   },
   {
     id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('description')} />
+    ),
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />
@@ -329,13 +357,17 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('branch')} />
+    ),
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('department')} />
+    ),
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
   },

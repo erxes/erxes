@@ -12,7 +12,7 @@ export const useCustomerDetailSubmit = (
 ) => {
   const { customerEdit } = useCustomerEdit();
   const { changeCustomerState } = useChangeCustomerState();
-  const { t } = useTranslation('contact');
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { toast } = useToast();
 
   const onError = (e: Error) =>

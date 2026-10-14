@@ -1,4 +1,13 @@
-import { OperationVariables, useMutation, useQuery } from '@apollo/client';
+import type { MutationHookOptions } from '@apollo/client';
+import { withMutationToast } from '@/utils/graphqlMutation';
+import type { ResultOf, VariablesOf } from '@graphql-typed-document-node/core';
+import { z } from 'zod';
+import { useMemo } from 'react';
+
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { toGraphqlView } from '@/utils/graphql';
+import { useMutation, useQuery } from '@apollo/client';
+import { getI18n, useTranslation } from 'react-i18next';
 import { toast } from 'erxes-ui';
 import {
   ACCOUNTINGS_CONFIGS_ADD,
@@ -6,46 +15,60 @@ import {
   ACCOUNTINGS_CONFIGS_REMOVE,
 } from '@/settings/graphql/mutations/updateConfig';
 import { GET_ACCOUNTING_CONFIGS } from '@/settings/graphql/queries/mainConfigs';
-import { IFixedAssetAccountConfig } from '../types/FixedAssetAccountConfig';
+
+import { fixedAssetAccountConfigSchema } from '../constants/schema';
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 
-type TAccountingConfig = {
-  _id: string;
-  subId?: string;
-  value?: IFixedAssetAccountConfig['value'];
+type AccountConfigOptions<Document> = Omit<
+  GraphqlMutationOptions<Document>,
+  'variables'
+> & {
+  variables: Omit<VariablesOf<Document>, 'code' | 'subId' | 'value'> &
+    z.infer<typeof fixedAssetAccountConfigSchema>;
 };
 
-const withToast = (options: OperationVariables, message: string) => ({
-  ...options,
-  onError: (error: Error) => {
-    toast({
-      title: 'Алдаа',
-      description: error.message,
-      variant: 'destructive',
-    });
-    options.onError?.(error);
-  },
-  onCompleted: (data: unknown) => {
-    toast({ title: 'Амжилттай', description: message, variant: 'success' });
-    options.onCompleted?.(data);
-  },
-});
+const withToast = <Data, Variables extends Record<string, unknown>>(
+  options: MutationHookOptions<Data, Variables>,
+  message: string,
+) =>
+  withMutationToast(
+    options,
+    (success, description) => {
+      toast({
+        title: getI18n().t(success ? 'success' : 'error', { ns: 'accounting' }),
+        description,
+        variant: success ? 'success' : 'destructive',
+      });
+    },
+    message,
+  );
 
 export const useFixedAssetAccountConfigs = () => {
-  const { data, loading, error } = useQuery<{
-    accountingsConfigs: TAccountingConfig[];
-  }>(GET_ACCOUNTING_CONFIGS, {
+  const {
+    data: queryData,
+    loading,
+    error,
+  } = useQuery(GET_ACCOUNTING_CONFIGS, {
     variables: { code: FIXED_ASSET_ACCOUNTS_CODE },
   });
+  const data = toGraphqlView(queryData);
 
-  const configs = data?.accountingsConfigs
-    .filter((config) => Boolean(config.subId))
-    .map((config) => ({
-      _id: config._id,
-      accountId: config.value?.accountId || (config.subId as string),
-      value: config.value || { accountId: config.subId as string },
-    }));
+  const configs = useMemo(
+    () =>
+      (data?.accountingsConfigs ?? []).flatMap((config) => {
+        if (!config.subId) return [];
+        const parsed = fixedAssetAccountConfigSchema.shape.value.safeParse(
+          config.value,
+        );
+        const value = parsed.success
+          ? parsed.data
+          : { accountId: config.subId };
+        const accountId = value.accountId || config.subId;
+        return [{ _id: config._id, accountId, value: { ...value, accountId } }];
+      }),
+    [data?.accountingsConfigs],
+  );
 
   return { configs, loading, error };
 };
@@ -53,6 +76,7 @@ export const useFixedAssetAccountConfigs = () => {
 const mutationOptions = { refetchQueries: ['AccountingsConfigs'] };
 
 export const useFixedAssetAccountConfigMutations = () => {
+  const { t } = useTranslation('accounting');
   const [add, addState] = useMutation(ACCOUNTINGS_CONFIGS_ADD, mutationOptions);
   const [edit, editState] = useMutation(
     ACCOUNTINGS_CONFIGS_EDIT,
@@ -64,10 +88,13 @@ export const useFixedAssetAccountConfigMutations = () => {
   );
 
   return {
-    add: (options: OperationVariables) => {
+    add: (options: AccountConfigOptions<typeof ACCOUNTINGS_CONFIGS_ADD>) => {
       const { accountId, value } = options.variables;
       return add(
-        withToast(
+        withToast<
+          ResultOf<typeof ACCOUNTINGS_CONFIGS_ADD>,
+          VariablesOf<typeof ACCOUNTINGS_CONFIGS_ADD>
+        >(
           {
             ...options,
             variables: {
@@ -76,14 +103,17 @@ export const useFixedAssetAccountConfigMutations = () => {
               value: { ...value, accountId },
             },
           },
-          'Дансны багц нэмэгдлээ',
+          t('account-configuration-created-successfully'),
         ),
       );
     },
-    edit: (options: OperationVariables) => {
+    edit: (options: AccountConfigOptions<typeof ACCOUNTINGS_CONFIGS_EDIT>) => {
       const { _id, accountId, value } = options.variables;
       return edit(
-        withToast(
+        withToast<
+          ResultOf<typeof ACCOUNTINGS_CONFIGS_EDIT>,
+          VariablesOf<typeof ACCOUNTINGS_CONFIGS_EDIT>
+        >(
           {
             ...options,
             variables: {
@@ -92,12 +122,16 @@ export const useFixedAssetAccountConfigMutations = () => {
               value: { ...value, accountId },
             },
           },
-          'Дансны багц шинэчлэгдлээ',
+          t('account-configuration-updated-successfully'),
         ),
       );
     },
-    remove: (options: OperationVariables) =>
-      remove(withToast(options, 'Дансны багц устгагдлаа')),
+    remove: (
+      options: GraphqlMutationOptions<typeof ACCOUNTINGS_CONFIGS_REMOVE>,
+    ) =>
+      remove(
+        withToast(options, t('account-configuration-deleted-successfully')),
+      ),
     adding: addState.loading,
     editing: editState.loading,
     removing: removeState.loading,

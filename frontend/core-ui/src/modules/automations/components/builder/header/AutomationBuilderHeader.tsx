@@ -3,6 +3,7 @@ import { AutomationBuilderNameInput } from '@/automations/components/builder/hea
 import { AutomationBuilderStatusSwitch } from '@/automations/components/builder/header/AutomationBuilderStatusSwitch';
 import { AutomationDuplicatedFromLink } from '@/automations/components/builder/header/AutomationDuplicatedFromLink';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
+import { AutomationReturnLink } from '@/automations/components/builder/header/AutomationReturnLink';
 import { AutomationOwnerBadge } from '@/automations/components/builder/header/AutomationOwnerBadge';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 import { useAutomation } from '@/automations/context/AutomationProvider';
@@ -33,12 +34,15 @@ export const AutomationBuilderHeader = () => {
     gotoAutomationSettings,
   } = useAutomationHeader();
   const { isEmpty } = useAutomationNodes();
-  const { isReadOnly } = useAutomation();
+  const { isReadOnly, detail } = useAutomation();
   const { t } = useTranslation('automations');
 
   const isEmptyFlow =
     isEmpty(AutomationNodeType.Trigger) && isEmpty(AutomationNodeType.Action);
-  const canSave = isDirty && !isEmptyFlow;
+  // A flow opened from a seed is its defaults, so it is never dirty; a new
+  // automation with anything in it still has to be savable.
+  const hasUnsaved = isDirty || (!detail && !isEmptyFlow);
+  const canSave = hasUnsaved && !isEmptyFlow;
 
   return (
     <div>
@@ -57,6 +61,7 @@ export const AutomationBuilderHeader = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <AutomationDuplicatedFromLink />
+          <AutomationReturnLink />
         </PageHeader.Start>
         <PageHeader.End>
           <Button variant="outline" asChild>
@@ -95,7 +100,7 @@ export const AutomationBuilderHeader = () => {
               <IconEye className="size-3.5" /> Read only
             </Badge>
           )}
-          {isDirty && !isReadOnly && (
+          {hasUnsaved && !isReadOnly && (
             <Badge variant="warning" className="shrink-0">
               <IconAlertTriangle className="size-3.5" /> Unsaved
             </Badge>

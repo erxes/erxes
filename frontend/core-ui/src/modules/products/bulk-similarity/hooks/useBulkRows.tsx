@@ -1,7 +1,11 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
+import { useTranslation } from 'react-i18next';
 
 export const useBulkRows = () => {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'bulk-similarity',
+  });
   const { control, formState, setValue, trigger } =
     useFormContext<BulkSimilarityFormValues>();
 
@@ -35,11 +39,7 @@ export const useBulkRows = () => {
   const validation = {
     canSave: duplicateCodes.size === 0,
     errors: duplicateCodes.size
-      ? [
-          `${duplicateCodes.size} duplicate ${
-            duplicateCodes.size === 1 ? 'code' : 'codes'
-          } across included products.`,
-        ]
+      ? [t('duplicate-codes', { count: duplicateCodes.size })]
       : [],
   };
 

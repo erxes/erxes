@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -13,6 +14,7 @@ import { useProductRulesRemove } from '@/products/settings/hooks/useProductRules
 export const ProductRuleCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
+  const { t } = useTranslation('product', { keyPrefix: 'product-rules' });
   const { toast } = useToast();
   const { removeProductRules } = useProductRulesRemove();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -23,9 +25,7 @@ export const ProductRuleCommandBar = () => {
       .rows.map((row) => row.original._id);
 
     confirm({
-      message: `Are you sure you want to delete the ${
-        selectedIds.length
-      } selected product rule${selectedIds.length === 1 ? '' : 's'}?`,
+      message: t('confirm-delete-selected', { count: selectedIds.length }),
       options: confirmOptions,
     }).then(() => {
       removeProductRules({
@@ -35,7 +35,7 @@ export const ProductRuleCommandBar = () => {
         },
         onError: (e) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -48,7 +48,9 @@ export const ProductRuleCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', {
+            count: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </CommandBar.Value>
         <Separator.Inline />
         <Can action="productRulesManage">
@@ -58,7 +60,7 @@ export const ProductRuleCommandBar = () => {
             onClick={handleDelete}
           >
             <IconTrash />
-            Delete
+            {t('delete')}
           </Button>
         </Can>
       </CommandBar.Bar>

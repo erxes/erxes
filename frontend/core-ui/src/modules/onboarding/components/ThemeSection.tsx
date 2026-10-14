@@ -3,14 +3,16 @@ import { Button, cn, themeState } from 'erxes-ui';
 import type { ThemeOption } from 'erxes-ui';
 import { motion } from 'framer-motion';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
-const THEME_OPTIONS: { value: ThemeOption; label: string; src: string }[] = [
-  { value: 'system', label: 'System', src: '/assets/ui-system.webp' },
-  { value: 'light', label: 'Light', src: '/assets/ui-light.webp' },
-  { value: 'dark', label: 'Dark', src: '/assets/ui-dark.webp' },
+const THEME_OPTIONS: { value: ThemeOption; labelKey: string; src: string }[] = [
+  { value: 'system', labelKey: 'theme-system', src: '/assets/ui-system.webp' },
+  { value: 'light', labelKey: 'theme-light', src: '/assets/ui-light.webp' },
+  { value: 'dark', labelKey: 'theme-dark', src: '/assets/ui-dark.webp' },
 ];
 
 export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [theme, setTheme] = useAtom(themeState);
 
   const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
@@ -37,10 +39,10 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
         className="flex flex-col gap-2 items-center"
       >
         <h2 className="text-xl md:text-2xl font-semibold text-foreground text-center">
-          Choose your theme
+          {t('choose-theme')}
         </h2>
         <p className="text-xs md:text-sm text-muted-foreground text-center px-4">
-          Select the appearance that suits your preference
+          {t('choose-theme-description')}
         </p>
       </motion.div>
       <motion.div
@@ -49,7 +51,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.4 }}
       >
-        {THEME_OPTIONS.map(({ value, label, src }) => (
+        {THEME_OPTIONS.map(({ value, labelKey, src }) => (
           <div key={value} className="flex flex-col gap-2 items-center">
             <div
               className={cn(
@@ -63,7 +65,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
                 role="button"
                 tabIndex={0}
                 src={src}
-                alt={`${label} Theme`}
+                alt={t('theme-alt', { label: t(labelKey) })}
                 onClick={() => setTheme(value)}
                 onKeyDown={(e) => handleKeyDown(e, () => setTheme(value))}
                 draggable={false}
@@ -78,7 +80,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
               )}
               aria-hidden="true"
             >
-              {label}
+              {t(labelKey)}
             </span>
           </div>
         ))}
@@ -98,7 +100,7 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
           variant={'secondary'}
           onClick={onContinue}
         >
-          Continue
+          {t('continue')}
         </Button>
       </motion.div>
     </motion.div>

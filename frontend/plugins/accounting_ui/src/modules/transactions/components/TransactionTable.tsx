@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { RecordTable } from 'erxes-ui';
 import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { useTransactions } from '../hooks/useTransactions';
@@ -6,13 +7,14 @@ import { transactionColumns } from './TransactionsTableColumns';
 import { TransactionCommandBar } from './TransactionCommandBar';
 
 export const TransactionTable = () => {
+  const { t } = useTranslation('accounting');
   const { transactions, loading, handleFetchMore, pageInfo } =
     useTransactions();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
-      columns={transactionColumns}
+      columns={transactionColumns(t)}
       data={transactions || []}
       stickyColumns={['more', 'checkbox', 'account']}
       tableId="accounting_transactions_record_table"

@@ -1,4 +1,6 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +14,15 @@ export const useSafeRemainderRemove = () => {
   const filterVariables = useSafeRemainderVariables();
   const [_removeMutation, { loading }] = useMutation(SAFE_REMAINDER_REMOVE);
 
-  const removeSafeRemainder = (options?: OperationVariables) => {
-    const variables = options?.variables || {};
+  const removeSafeRemainder = (
+    options?: GraphqlMutationOptions<typeof SAFE_REMAINDER_REMOVE>,
+  ) => {
+    const variables = options?.variables;
+    if (!variables?._id) throw new Error('Safe remainder id is required');
     return _removeMutation({
       ...options,
       variables,
-      onError: (error: Error) => {
+      onError: (error: ApolloError) => {
         toast({
           title: t('error'),
           description: error.message,

@@ -1,11 +1,13 @@
-import { loadRemote } from '@module-federation/enhanced/runtime';
-import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import type { Dispatch, SetStateAction } from 'react';
+import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import {
   RemoteComponent,
   RemoteModule,
   resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
+
+import { loadRemote } from '@module-federation/enhanced/runtime';
+import { useTranslation } from 'react-i18next';
 
 export const RenderPluginsComponentErrorState = ({
   pluginName,
@@ -24,6 +26,7 @@ export const RenderPluginsComponentErrorState = ({
   >;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'plugins' });
   const retry = () => {
     setHasError(null);
     setIsLoading(true);
@@ -57,18 +60,18 @@ export const RenderPluginsComponentErrorState = ({
         <IconAlertTriangle className="size-5 text-amber-500" />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-semibold">Module unavailable</p>
+        <p className="text-sm font-semibold">{t('module-unavailable')}</p>
         <code className="block text-xs text-muted-foreground">
           {pluginName}/{remoteModuleName}
         </code>
-        <p className="text-xs text-muted-foreground">failed to load</p>
+        <p className="text-xs text-muted-foreground">{t('failed-to-load')}</p>
       </div>
       <button
         onClick={retry}
         className="flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
       >
         <IconRefresh className="size-3.5" />
-        Try again
+        {t('try-again')}
       </button>
     </div>
   );

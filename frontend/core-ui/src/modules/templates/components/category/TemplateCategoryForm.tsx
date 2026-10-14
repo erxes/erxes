@@ -6,6 +6,7 @@ import { useTemplateCategoryAdd } from '@/templates/hooks/useTemplateCategoryAdd
 import { useTemplateCategoryEdit } from '@/templates/hooks/useTemplateCategoryEdit';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { Button, Form, Input, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -26,6 +27,7 @@ export const TemplateCategoryForm = ({
   onCompleted,
   onClose,
 }: TemplateCategoryFormProps) => {
+  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,7 +59,7 @@ export const TemplateCategoryForm = ({
         },
         onError: (error) => {
           form.setError('root', {
-            message: error.message || 'Failed to update category',
+            message: error.message || t('update-failed'),
           });
         },
       });
@@ -75,7 +77,7 @@ export const TemplateCategoryForm = ({
         },
         onError: (error) => {
           form.setError('root', {
-            message: error.message || 'Failed to create category',
+            message: error.message || t('create-failed'),
           });
         },
       });
@@ -95,7 +97,7 @@ export const TemplateCategoryForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -107,7 +109,7 @@ export const TemplateCategoryForm = ({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Code</Form.Label>
+                  <Form.Label>{t('code')}</Form.Label>
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
@@ -139,7 +141,7 @@ export const TemplateCategoryForm = ({
             className="bg-background hover:bg-background/90"
             onClick={onClose}
           >
-            Cancel
+            {t('cancel')}
           </Button>
 
           <Button
@@ -148,10 +150,10 @@ export const TemplateCategoryForm = ({
             disabled={addLoading || editLoading}
           >
             {addLoading || editLoading
-              ? 'Saving...'
+              ? t('saving')
               : category
-                ? 'Update Category'
-                : 'Create Category'}
+                ? t('update-category')
+                : t('create-category')}
           </Button>
         </Sheet.Footer>
       </form>

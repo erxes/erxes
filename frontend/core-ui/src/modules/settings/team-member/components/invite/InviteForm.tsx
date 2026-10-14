@@ -73,12 +73,12 @@ export function InviteForm({
 
     const validation = emailSchema.safeParse(normalizedValue);
     if (!validation.success) {
-      setError('Please enter a valid email address');
+      setError(t('invalid-email'));
       return;
     }
 
     if (tags.includes(normalizedValue)) {
-      setError('This email has already been added');
+      setError(t('email-already-added'));
       return;
     }
 
@@ -136,24 +136,24 @@ export function InviteForm({
 
     if (tags.length === 0 && isEmpty) {
       toast({
-        title: 'Please add at least one email address',
+        title: t('add-at-least-one-email'),
         variant: 'destructive',
       });
       return false;
     }
 
     if (!isEmpty && !isValid) {
-      setError('Please enter a valid email address');
+      setError(t('invalid-email'));
       return false;
     }
 
     if (isDuplicate) {
-      setError('This email has already been added');
+      setError(t('email-already-added'));
       return false;
     }
 
     return true;
-  }, [getDraftState, tags.length, toast]);
+  }, [getDraftState, t, tags.length, toast]);
 
   const getInvitationEntries = useCallback(() => {
     const { draftEmail, isDuplicate, isValid } = getDraftState();
@@ -196,12 +196,15 @@ export function InviteForm({
         entries: getInvitationEntries(),
       },
       onCompleted() {
-        toast({ title: 'Invitation has been sent', variant: 'success' });
+        toast({
+          title: t('invitation-sent'),
+          variant: 'success',
+        });
         setIsOpen(false);
       },
       onError(e: ApolloError) {
         toast({
-          title: 'Failed to send invitation',
+          title: t('failed-to-send-invitation'),
           description: e.message,
           variant: 'destructive',
         });
@@ -327,7 +330,7 @@ export function InviteForm({
             <div className="w-full">
               <Input
                 name="email"
-                placeholder="Enter email addresses"
+                placeholder={t('enter-email-addresses')}
                 value={inputValue}
                 autoFocus
                 onChange={handleChange}

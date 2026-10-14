@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useResumeSending } from '@/settings/email-ramp/hooks/useEmailRamp';
 import { IconPlayerPlay } from '@tabler/icons-react';
 import { Button, Dialog, Input, Label } from 'erxes-ui';
@@ -12,6 +13,7 @@ export const ResumeSendingDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-ramp' });
   const [note, setNote] = useState('');
   const { resume, loading } = useResumeSending();
 
@@ -33,32 +35,29 @@ export const ResumeSendingDialog = ({
     <Dialog open={open} onOpenChange={close}>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Resume sending</Dialog.Title>
+          <Dialog.Title>{t('resume-sending')}</Dialog.Title>
           <Dialog.Description>
-            {reason ?? 'Sending was stopped because too much mail was failing.'}{' '}
-            Measuring starts over from now, so the rate that stopped it will not
-            stop it again — if the cause is still there, it will trip a second
-            time.
+            {reason ?? t('stopped-reason-default')} {t('resume-description')}
           </Dialog.Description>
         </Dialog.Header>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="resume-note">What was fixed?</Label>
+          <Label htmlFor="resume-note">{t('what-was-fixed')}</Label>
           <Input
             id="resume-note"
             value={note}
-            placeholder="Removed the imported list that was bouncing"
+            placeholder={t('what-was-fixed-placeholder')}
             onChange={(event) => setNote(event.target.value)}
           />
         </div>
 
         <Dialog.Footer>
           <Button variant="secondary" onClick={() => close(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button disabled={!note.trim() || loading} onClick={onSubmit}>
             <IconPlayerPlay className="size-4" />
-            Resume sending
+            {t('resume-sending')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

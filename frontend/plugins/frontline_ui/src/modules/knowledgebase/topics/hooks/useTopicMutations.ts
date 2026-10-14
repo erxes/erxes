@@ -1,5 +1,4 @@
 import { useApolloClient, useMutation } from '@apollo/client';
-import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   ADD_TOPIC,
@@ -7,8 +6,9 @@ import {
   REMOVE_TOPIC,
 } from '@/knowledgebase/graphql/mutations';
 import { TOPICS, TOPIC_OPTIONS } from '@/knowledgebase/graphql/queries';
-import { ITopic, ITopicDoc } from '@/knowledgebase/types';
+import { ITopicDoc } from '@/knowledgebase/types';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
+import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
 
 export const useSaveTopic = () => {
   const { t } = useTranslation('frontline');
@@ -26,9 +26,11 @@ export const useSaveTopic = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveTopic = (doc: ITopicDoc, topicId?: string) =>
+  const saveTopic = (topicDoc: ITopicDoc, topicId?: string) =>
     run(
       async () => {
+        const doc = withoutEmptyCode(topicDoc);
+
         if (topicId) {
           await editTopic({ variables: { _id: topicId, doc } });
         } else {
@@ -41,38 +43,6 @@ export const useSaveTopic = () => {
     );
 
   return { saveTopic, loading: adding || editing };
-};
-
-export const useEditTopicField = () => {
-  const { t } = useTranslation('frontline');
-  const { toast } = useToast();
-  const [editTopic, { loading }] = useMutation(EDIT_TOPIC);
-
-  const editTopicField = (topic: ITopic, patch: Partial<ITopicDoc>) =>
-    editTopic({
-      variables: {
-        _id: topic._id,
-        doc: {
-          title: topic.title,
-          description: topic.description,
-          code: topic.code,
-          brandId: topic.brandId ?? topic.brand?._id,
-          color: topic.color,
-          backgroundImage: topic.backgroundImage,
-          languageCode: topic.languageCode,
-          notificationSegmentId: topic.notificationSegmentId,
-          ...patch,
-        },
-      },
-      onError: (error) =>
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        }),
-    });
-
-  return { editTopicField, loading };
 };
 
 export const useRemoveTopics = () => {
