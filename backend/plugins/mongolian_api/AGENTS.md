@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -32,7 +32,7 @@
 - Provides `erkhetRemainders` for callers that need Erkhet stock by product ids
   and sales pipeline/stage/POS remainder configuration.
 - Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
-- Product places publishes full printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
+- Product places publishes session-scoped printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
 
 ## Architecture
 
@@ -91,7 +91,10 @@
 - Product-place place assignment evaluates every matching condition in order so
   later matching conditions may overwrite earlier branch/department values,
   matching the legacy productplaces plugin behavior.
-- Product-place print subscriptions keep receipt `content` as JSON so branch, department, product, and text payloads survive without narrowing the schema.
+- Product-place print subscriptions must carry the originating `sessionCode`
+  so multiple tabs or locations for the same user do not print each other's
+  receipts, and keep receipt `content` as JSON so branch, department, product,
+  and text payloads survive without narrowing the schema.
 - Plugin data access must remain tenant-scoped through generated models.
 - Put response list fallback ordering must remain `{ createdAt: -1 }`; cursor
   pagination adds `_id` as a stable tie-breaker.

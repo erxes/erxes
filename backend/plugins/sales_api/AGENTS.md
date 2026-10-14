@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-11`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -32,6 +32,18 @@
 
 ## Current Capabilities
 
+- Deal product rows persist optional `uomInfo: { uom, ratio, unitPrice, quantity }`
+  for entry values. Writes derive base price (`info.unitPrice * ratio`), base
+  quantity (`info.quantity / ratio`), taxes and amount before totals/discounts.
+  Partial info uses base fields; missing base UOMs are fetched in one tenant-scoped
+  Core products query. `uomInfo` is the only supported entry-unit metadata field.
+  Base-unit selections copy entry price/quantity directly and omit `uomInfo`
+  from persistence; only a different selected unit needs stored metadata.
+  `utils/productUom.ts` separates missing-base-unit lookup from input
+  normalization, and validates the incoming ratio once before conversion.
+- Deal creation, saving, and product-row creation/editing fill missing or blank
+  currencies from the tenant's first Core `dealCurrency` configuration value
+  (fallback `MNT`) before calculating totals, preserving explicit currencies.
 - POS catalog sync checks loyalty base pricing in batches of 100 products,
   with at most eight concurrent requests, and merges discounts by product id
   before applying them to prices. Product-group pushes propagate POS client
@@ -228,6 +240,12 @@
 
 ## Local Invariants
 
+- `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
+  `unitPrice`, and amounts in base units before calculating deal totals.
+  Preserve saved ratios, and sync info values after server-side pricing changes
+  so later saves cannot restore stale input prices. Integrations use root fields.
+- Default missing product-row currencies before calculating deal totals; read
+  Core `configs.getConfig` with the current tenant's `subdomain`.
 - Catalog pricing batches preserve `prioritizeRule: 'only'`, `totalAmount: 0`,
   quantity 1, and the request's tenant, branch, and department. Failed pricing
   calls abort sync instead of returning a partially discounted catalog.

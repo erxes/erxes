@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-10`
+- **Last synchronized:** `2026-10-13`
 
 ## Scope
 
@@ -158,7 +158,8 @@
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
-- The hourly remainder repeatable job runs on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain`.
+- The remainder scheduler runs every minute on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain` (SaaS organizations or `os` for self-hosted deployments).
+- Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure; missing tenant data is an unrecoverable failure. Queue metadata remains while the queues are in use.
 
 ## Local Invariants
 
@@ -220,6 +221,7 @@
   `source: cart`, `action: update` and item-specific details. Admin audit UI
   displays the action and keeps action-less historical entries readable.
 - `pnpm nx build posclient_api`
+- `node --test backend/plugins/posclient_api/src/worker/__tests__/remainder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/orders.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/cancelOrder.test.cjs`
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/customResolvers/__tests__/orderChangeLog.test.cjs`
