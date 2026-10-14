@@ -175,12 +175,14 @@ const SelectTeamRoot = ({
   value,
   onValueChange,
   mode = 'single',
+  label,
 }: {
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
   value: string | string[];
   onValueChange: (value: string | string[]) => void;
   mode: 'single' | 'multiple';
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -191,7 +193,7 @@ const SelectTeamRoot = ({
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectTeamValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
