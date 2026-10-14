@@ -29,7 +29,7 @@ function LoadingSkeleton() {
   );
 }
 
-function ActiveTeamNavigation({ teamId }: { teamId: string }) {
+function ActiveTeamNavigation({ teamId }: Readonly<{ teamId: string }>) {
   const { t } = useTranslation('operation');
   const { team, loading } = useGetTeam(teamId);
 
@@ -88,7 +88,7 @@ export function TeamsNavigation() {
   return <ActiveTeamNavigation teamId={teamId} />;
 }
 
-const TeamActionsMenu = ({ teamId }: { teamId: string }) => {
+const TeamActionsMenu = ({ teamId }: Readonly<{ teamId: string }>) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();
 
