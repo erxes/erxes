@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -179,8 +179,8 @@
   agent-created survey), and the channel sub-header carries a
   `<n> pending approval` shortcut that filters the list — it reads its own
   `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
-  other filter, and is skipped without a `channelId` so the read-only
-  `frontline/surveys` board never offers an approval it cannot perform. A
+  other filter, and is skipped without a `channelId` so the
+  `frontline/surveys` page never shows that shortcut. A
   pending row's row menu swaps Archive/Unarchive for `Approve` and `Reject`,
   and the command bar shows an `Approve` button whenever the selection holds a
   pending or rejected survey and a `Reject` button whenever it holds a pending
@@ -239,7 +239,19 @@
   the right), the status/search filters and a card board of aggregated
   `Survey.results` per survey; its empty state links only to the survey
   settings. The header button opens the wizard on `frontline/surveys/create`,
-  where the header breadcrumb reads `Surveys / Create survey`.
+  where the header breadcrumb reads `Surveys / Create survey`. Its sidebar
+  carries the same `Channels` group as `frontline/forms` (`ChooseChannel` in
+  `FrontlineSubGroups`), which toggles the `channelId` query param; the
+  sub-header filter also offers `By Channel` (`SelectChannel.FilterItem`,
+  `FilterView` and `FilterBar`, only without a `channelId` prop) on the same
+  param. The board and `SurveySubHeader`'s record count filter by it, while the pending-approval
+  shortcut still only follows a channel settings page's own channel. A `View`
+  control (`SurveysViewControl`, only where `SurveySubHeader` has no
+  `channelId` prop) switches between the card board and the `SurveyPageList`
+  record table, with its row actions and command bar; the choice persists in
+  `surveyViewAtom` (`localStorage` key `surveyView`, default `grid`). Each
+  board card is a link to the survey's edit wizard under its channel settings
+  (`settings/frontline/channels/:channelId/surveys/:surveyId`).
 - In a messenger conversation the composer's survey button opens
   `SendSurveyDialog`, scoped to the conversation integration's `channelId`, which
   posts a saved survey through `surveySendToConversation`.
