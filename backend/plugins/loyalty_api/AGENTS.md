@@ -90,6 +90,7 @@
 | GraphQL               | `src/apollo`, `src/modules/*/graphql`                                                                                    | Provide plugin-owned schemas, queries, mutations, and custom resolvers.                                                     |
 | Commands              | `src/commands`                                                                                                           | Run bounded maintenance and recovery scripts for loyalty-owned data.                                                        |
 | Schema print          | `print-schema.ts`                                                                                                        | Print the subgraph schema for `loyalty_ui` codegen (`generated/`, gitignored).                                              |
+| Lint rules            | `eslint.config.js`                                                                                                       | Base config plus the rule that requires `escapeRegExp` around request text in `new RegExp()` and `$regex`.                  |
 
 ## Contracts
 
@@ -162,6 +163,11 @@
   decimal counts. Confirmation must also accept null or omitted voucher IDs
   and counts for sale lines without a selected bonus voucher.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils` opens a Redis client on import that would otherwise keep it alive.
+- Arguments a resolver cannot run without are non-null on the operations `loyalty_ui` calls: the id on `pricingPlanDetail`, `pricingPlanRemove`, `couponCampaign`, `couponCampaignEdit`, `scoreCampaign`, `scoreCampaignUpdate` and `voucherCampaignDetail`; `_ids: [String!]!` on every remove `loyalty_ui` sends; `campaignId`, `ownerId` and `ownerType` on `donatesAdd`, `lotteriesAdd`, `spinsAdd`, `vouchersAdd` and `assignmentsAdd`; `campaignId` and `ownerType` on `vouchersAddMany`. Those adds declare the three themselves, and the shared `mutationParams` strings hold only optional fields, so the edit and `cp*` variants keep them optional.
+- Client portal (`cp*`) operations and operations no repository client calls (`buy*`, `doLottery`, `doLotteryMultiple`, `getNextChar`, `shareScore`, `loyalties`, `checkLoyalties`, `checkOwnerScore`, `refundLoyaltyScore`, `scoreCampaignRemove`) keep nullable arguments so outside clients are not broken; their resolvers still reject a missing value.
+- GraphQL validation lets an empty string through a non-null argument, so model writes reject an empty owner themselves (`createDonate`, `createLottery`, `createSpin`, `createVoucher`, `createVouchers`, `createAssignment`).
+- Every query and mutation declared in the SDL has a resolver, and every resolver (root or type field) is declared in the SDL.
+- Request text that reaches `new RegExp()` or `$regex` goes through `escapeRegExp` from `erxes-api-shared/utils`; `eslint.config.js` (copied from `operation_api`) fails the lint otherwise.
 
 ## Validation
 
@@ -172,11 +178,19 @@
 - `pnpm nx test loyalty_api --testPathPattern publicDiscounts`
 - `pnpm nx test loyalty_api --testPathPattern afterProcess`
 - `pnpm nx run loyalty_api:schema:print` - writes `generated/schema.graphql`.
+- `npx tsc --noEmit -p backend/plugins/loyalty_api/tsconfig.json` - no errors.
+- `pnpm nx lint loyalty_api` - the remaining errors (`prefer-const`, one `no-useless-escape`) are pre-existing; the regex rule reports none.
 - Smoke scenario: trigger a sales deal and POS order score campaign with mixed product rows; only rows matching product/category/tag restrictions should contribute to `totalAmount`, deal rows must also have `tickUsed === true`, and discounted deal rows should be skipped only when `additionalConfig.discountCheck` is enabled.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — SDL is the contract for loyalty_ui
+
+- **Summary:** Arguments the admin resolvers cannot run without are non-null, resolvers no SDL field declares are gone, `doSpin` reads its `_id` argument (it passed the whole argument object and always failed), request text is escaped before it becomes a regex, and the backend tsc is clean.
+- **Affected areas:** `graphql/schemas` of pricing, coupon, score, voucher, donate, lottery, spin and assignment; custom resolvers of coupon, donate, lottery, spin, voucher, score log (the assignment campaign one is deleted); `assignment/graphql/resolvers/queries/assignmentCampaign.ts`, `spin/graphql/resolvers/mutations/spin.ts`; models `Assignment`, `Voucher`, `LotteryCampaign`, `CouponCampaign`, `ScoreLog`; `pricing/graphql/resolvers/queries/pricingPlan.ts`, `agent/graphql/resolvers/queries/agent.ts`; `eslint.config.js`; tests `afterProcess`, `publicDiscounts`, `scoreTargetTotals`.
+- **Contracts changed:** the non-null arguments above; removed undeclared resolvers `Query.cpAssignmentCampaigns`, `AssignmentCampaign.assignmentsCount`, `Coupon.usageLogs`, `Donate/Lottery/Spin/Voucher.campaign`, `ScoreLog.change/campaign/target`, `ScoreLogItem.type`.
 
 ### `2026-10-14` — Printed schema for UI codegen
 
@@ -231,9 +245,3 @@
 - **Summary:** A voucher campaign keeps the ids of the core broadcast and automation that hand it out on birthdays, so the pair is shown, switched and removed as one.
 - **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/VoucherCampaign.ts,graphql/schemas/voucherCamapign.ts,graphql/resolvers/{mutations,queries}/voucherCampaign.ts}`.
 - **Contracts changed:** `VoucherCampaign.autoIssue`, `voucherCampaignSetAutoIssue`, `voucherCampaignRemoveAutoIssue`.
-
-### `2026-10-01` — Spend limit for paying screens
-
-- **Summary:** Paying screens can ask how much an order may pay with points instead of treating the point balance as money.
-- **Affected areas:** `modules/score/services/spendRules.ts` (+ tests), `db/models/ScoreCampaign.ts`, `graphql/{schemas,resolvers/queries}/scoreCampaign.ts`.
-- **Contracts changed:** Query `loyaltyScoreSpendLimit`, type `LoyaltyScoreSpendLimit`.
