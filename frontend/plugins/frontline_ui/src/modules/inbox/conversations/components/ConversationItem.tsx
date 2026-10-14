@@ -1,3 +1,4 @@
+import { useConversationPreviewTranslation } from '../translations';
 import { conversationMessagePreview } from '../utils/conversationMessagePreview';
 import {
   Avatar,
@@ -203,11 +204,13 @@ export const ConversationItemContent = () => {
   const { t } = useTranslation('frontline');
   const conversation = useConversationContext();
   const { integration } = conversation;
-  const { content, label } = conversationMessagePreview(conversation);
+  const { t: translatePreview } = useConversationPreviewTranslation();
+  const { content, label, labelKey, count } =
+    conversationMessagePreview(conversation);
   if (!content)
     return (
       <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-        {label === 'No messages yet' ? t('no-messages-yet', label) : label}
+        {labelKey ? translatePreview(labelKey, count) : label}
       </span>
     );
   const call =

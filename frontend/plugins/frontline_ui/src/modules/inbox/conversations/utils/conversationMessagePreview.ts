@@ -1,8 +1,14 @@
 import type { IConversation } from '@/inbox/types/Conversation';
+import type { ConversationPreviewLabel } from '../translations';
 
 export const conversationMessagePreview = (
   conversation: Pick<IConversation, 'content' | 'lastMessage'>,
-): { content: string; label?: string } => {
+): {
+  content: string;
+  label?: string;
+  labelKey?: ConversationPreviewLabel;
+  count?: number;
+} => {
   const message = conversation.lastMessage;
   const content = message ? message.content || '' : conversation.content || '';
   const visibleText = content
@@ -10,43 +16,44 @@ export const conversationMessagePreview = (
     .replace(/&nbsp;|&#160;/g, ' ')
     .trim();
   if (visibleText) return { content };
-  if (/<img\b/i.test(content)) return { content: '', label: 'Photo' };
-  if (/<video\b/i.test(content)) return { content: '', label: 'Video' };
-  if (/<audio\b/i.test(content)) return { content: '', label: 'Audio' };
-  if (!message) return { content: '', label: 'No messages yet' };
+  if (/<img\b/i.test(content)) return { content: '', labelKey: 'photo' };
+  if (/<video\b/i.test(content)) return { content: '', labelKey: 'video' };
+  if (/<audio\b/i.test(content)) return { content: '', labelKey: 'audio' };
+  if (!message) return { content: '', labelKey: 'noMessages' };
   const { messageKind, attachments, extraData, providerData } = message;
   if (messageKind === 'sticker' || extraData?.stickers?.length)
-    return { content: '', label: 'Sticker' };
+    return { content: '', labelKey: 'sticker' };
   if (messageKind === 'unsupported')
-    return { content: '', label: 'Unsupported message' };
+    return { content: '', labelKey: 'unsupported' };
   if (messageKind === 'deleted' || extraData?.discordDeletedAt)
-    return { content: '', label: 'Message deleted' };
-  if (extraData?.poll) return { content: '', label: 'Poll' };
-  if (extraData?.survey) return { content: '', label: 'Survey' };
+    return { content: '', labelKey: 'deleted' };
+  if (extraData?.poll) return { content: '', labelKey: 'poll' };
+  if (extraData?.survey) return { content: '', labelKey: 'survey' };
   if (extraData?.voiceMessage || messageKind === 'voice')
-    return { content: '', label: 'Voice message' };
+    return { content: '', labelKey: 'voice' };
   if (providerData?.previewText)
     return { content: '', label: providerData.previewText };
   const kind = messageKind || attachments?.[0]?.type?.split('/')[0];
-  const labels: Record<string, string> = {
-    image: 'Photo',
-    video: 'Video',
-    audio: 'Audio',
-    file: 'Attachment',
-    share: 'Shared post',
-    story_mention: 'Story mention',
-    story_reply: 'Story reply',
-    forwarded: 'Forwarded message',
+  const labels: Record<string, ConversationPreviewLabel> = {
+    image: 'photo',
+    video: 'video',
+    audio: 'audio',
+    file: 'attachment',
+    share: 'share',
+    story_mention: 'storyMention',
+    story_reply: 'storyReply',
+    forwarded: 'forwarded',
   };
   if (attachments?.length && attachments.length > 1)
-    return { content: '', label: `${attachments.length} attachments` };
-  if (kind && labels[kind]) return { content: '', label: labels[kind] };
+    return { content: '', labelKey: 'attachments', count: attachments.length };
+  if (kind && labels[kind]) return { content: '', labelKey: labels[kind] };
   if (attachments?.length)
-    return { content: '', label: attachments[0].name || 'Attachment' };
+    return attachments[0].name
+      ? { content: '', label: attachments[0].name }
+      : { content: '', labelKey: 'attachment' };
   if (extraData?.embeds?.length)
-    return {
-      content: '',
-      label: extraData.embeds[0].title || 'Shared content',
-    };
-  return { content: '', label: 'Unsupported message' };
+    return extraData.embeds[0].title
+      ? { content: '', label: extraData.embeds[0].title }
+      : { content: '', labelKey: 'sharedContent' };
+  return { content: '', labelKey: 'unsupported' };
 };

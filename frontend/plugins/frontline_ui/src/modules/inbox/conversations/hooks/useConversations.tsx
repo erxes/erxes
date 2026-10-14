@@ -264,16 +264,18 @@ export const useConversations = (
 
         const list = [...prev.conversations.list];
         const [conversation] = list.splice(index, 1);
+        const previousMessageTime = Date.parse(
+          conversation.lastMessage?.createdAt || conversation.createdAt,
+        );
+        const isLatestMessage =
+          Date.parse(newMessage.createdAt) >=
+          (Number.isNaN(previousMessageTime) ? 0 : previousMessageTime);
         list.unshift({
           ...conversation,
           readUserIds: conversation.readUserIds?.filter((id) => id !== userId),
           status: ConversationStatus.OPEN,
-          content: newMessage.content,
-          lastMessage:
-            Date.parse(newMessage.createdAt) >=
-            getConversationRecency(conversation)
-              ? newMessage
-              : conversation.lastMessage,
+          content: isLatestMessage ? newMessage.content : conversation.content,
+          lastMessage: isLatestMessage ? newMessage : conversation.lastMessage,
           // Events can arrive out of order; recency must never move backwards.
           updatedAt:
             Date.parse(newMessage.createdAt) >=
