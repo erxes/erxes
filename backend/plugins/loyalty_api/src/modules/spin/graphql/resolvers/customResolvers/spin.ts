@@ -13,11 +13,4 @@ export default {
       ownerId,
     });
   },
-  async campaign(
-    { campaignId }: ISpinDocument,
-    _args: undefined,
-    { models }: IContext,
-  ) {
-    return models.SpinCampaigns.findOne({ _id: campaignId }).lean();
-  },
 };
