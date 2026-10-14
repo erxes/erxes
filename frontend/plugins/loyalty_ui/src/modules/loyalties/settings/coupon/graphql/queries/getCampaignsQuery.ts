@@ -1,18 +1,22 @@
 import { gql } from '@apollo/client';
-import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const QUERY_COUPON_CAMPAIGNS = gql`
   query GetCouponCampaigns(
     $searchValue: String
     $status: String
-   
-    ${GQL_CURSOR_PARAM_DEFS}
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $limit: Int
   ) {
     couponCampaigns(
       searchValue: $searchValue
       status: $status
-      
-      ${GQL_CURSOR_PARAMS}
+
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      limit: $limit
     ) {
       list {
         _id

@@ -24,24 +24,6 @@ export const LOTTERIES_ADD_MUTATION = gql`
   }
 `;
 
-export const LOTTERIES_ADD_MANY_MUTATION = gql`
-  mutation LotteriesAddMany(
-    $campaignId: String
-    $ownerType: String
-    $ownerIds: [String]
-    $tagIds: [String]
-    $status: String
-  ) {
-    lotteriesAddMany(
-      campaignId: $campaignId
-      ownerType: $ownerType
-      ownerIds: $ownerIds
-      tagIds: $tagIds
-      status: $status
-    )
-  }
-`;
-
 export const LOTTERIES_EDIT_MUTATION = gql`
   mutation LotteriesEdit(
     $_id: String!
