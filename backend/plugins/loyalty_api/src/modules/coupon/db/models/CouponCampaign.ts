@@ -4,6 +4,7 @@ import {
 } from '@/coupon/@types/couponCampaign';
 import { couponCampaignSchema } from '@/coupon/db/definitions/couponCampaign';
 import { IUser } from 'erxes-api-shared/core-types';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
@@ -56,7 +57,7 @@ export const loadCouponCampaignClass = (
         }
 
         const allowedChars = charSet.join('');
-        const charSetRegex = new RegExp(`^[${allowedChars}#-]*$`);
+        const charSetRegex = new RegExp(`^[${escapeRegExp(allowedChars)}#-]*$`);
 
         if (pattern && !charSetRegex.test(pattern)) {
           throw new Error(
