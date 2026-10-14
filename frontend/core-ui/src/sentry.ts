@@ -25,6 +25,7 @@ import {
   REACT_APP_SENTRY_DSN,
   REACT_APP_SENTRY_ENVIRONMENT,
 } from 'erxes-ui';
+import { scrubBrowserEvent } from './sentryScrub';
 
 // Browser/runtime noise + expected business errors that must never reach Sentry.
 const NOISE_PATTERNS: RegExp[] = [
@@ -56,13 +57,15 @@ export function initSentry() {
     integrations: [Sentry.browserTracingIntegration()],
     // Full traces locally, light sampling in prod.
     tracesSampleRate: NODE_ENV === 'development' ? 1.0 : 0.1,
+    sendDefaultPii: false,
+    beforeSendTransaction: (event) => scrubBrowserEvent(event),
     beforeSend(event) {
       const message =
         event.exception?.values?.[0]?.value || event.message || '';
       if (NOISE_PATTERNS.some((pattern) => pattern.test(message))) {
         return null;
       }
-      return event;
+      return scrubBrowserEvent(event);
     },
   });
 
