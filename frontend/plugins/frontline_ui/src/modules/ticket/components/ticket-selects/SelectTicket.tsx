@@ -59,6 +59,13 @@ export const SelectTriggerTicket = ({
   }
 
   if (variant === SelectTriggerVariant.FORM) {
+    if (label) {
+      return (
+        <Combobox.ChipTrigger label={label} disabled={disabled}>
+          {children}
+        </Combobox.ChipTrigger>
+      );
+    }
     return (
       <Form.Control>
         <Combobox.TriggerBase className="w-fit h-7 font-medium max-w-64">

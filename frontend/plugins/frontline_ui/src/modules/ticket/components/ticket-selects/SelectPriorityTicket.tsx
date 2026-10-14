@@ -247,9 +247,11 @@ const SelectPriorityFilterBar = ({ scope }: { scope?: string }) => {
 export const SelectPriorityFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: number;
   onValueChange: (value: number) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -261,7 +263,7 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectPriorityValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">

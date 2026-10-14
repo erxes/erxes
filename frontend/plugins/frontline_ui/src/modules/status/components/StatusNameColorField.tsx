@@ -1,6 +1,6 @@
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { ColorPicker, Form, Input } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
+import { Control, FieldValues, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 type TStatusNameColorFields = {
@@ -8,13 +8,17 @@ type TStatusNameColorFields = {
   color?: string;
 };
 
-export const StatusNameColorField = ({
+export const StatusNameColorField = <
+  TFieldValues extends TStatusNameColorFields,
+>({
+  form,
   statusType,
 }: {
+  form: UseFormReturn<TFieldValues>;
   statusType: number;
 }) => {
   const { t } = useTranslation('frontline');
-  const { control } = useFormContext<TStatusNameColorFields>();
+  const control = form.control as Control<FieldValues>;
 
   return (
     <Form.Field

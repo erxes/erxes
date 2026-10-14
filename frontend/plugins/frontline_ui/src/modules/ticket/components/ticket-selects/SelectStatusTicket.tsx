@@ -244,7 +244,7 @@ const SelectStatusCreateForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         loading={loading}
       >
-        <StatusNameColorField statusType={statusType} />
+        <StatusNameColorField form={form} statusType={statusType} />
         <Form.Field
           control={form.control}
           name="type"
@@ -473,15 +473,13 @@ export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
   value,
   onValueChange,
   form,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   form?: UseFormReturn<TFieldValues>;
+  label?: string;
 }) => {
-  // The caller must hand over its own control: this remote and `erxes-ui` hold
-  // separate react-hook-form instances, so `useFormContext` here cannot see the
-  // provider `erxes-ui`'s `Form` renders. The cast is the react-hook-form
-  // generic boundary — `Control<T>` is invariant across schemas.
   const control = form?.control as Control<FieldValues> | undefined;
   const pipelineId: string | undefined = useWatch({
     name: 'pipelineId',
@@ -514,7 +512,7 @@ export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
       pipelineId={pipelineId || undefined}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectStatusValue />
         </SelectTriggerTicket>
         <Combobox.Content>

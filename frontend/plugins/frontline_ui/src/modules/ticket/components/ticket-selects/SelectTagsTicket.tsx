@@ -58,13 +58,16 @@ const SelectTagsTicketRoot = ({
 const SelectTagsTicketFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value?: string[];
   onValueChange: (value: string[]) => void;
+  label?: string;
 }) => (
   <SelectTagsTicketRoot
     value={value}
     variant="form"
+    label={label}
     onValueChange={onValueChange}
   />
 );

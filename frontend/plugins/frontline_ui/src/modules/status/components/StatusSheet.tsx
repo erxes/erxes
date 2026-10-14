@@ -113,7 +113,7 @@ const StatusSheetForm = ({
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
-          <StatusNameColorField statusType={statusType} />
+          <StatusNameColorField form={form} statusType={statusType} />
           <Form.Field
             control={form.control}
             name="description"

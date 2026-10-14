@@ -285,16 +285,20 @@ export const DateSelectTicketFormItem = ({
   value,
   onValueChange,
   placeholder,
+  label,
 }: {
   value?: Date | string;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
+  label?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
+  const dateValue = value ? new Date(value) : undefined;
 
   return (
     <DateSelectProvider
-      value={value ? new Date(value) : undefined}
+      value={dateValue}
       onValueChange={(date) => {
         onValueChange?.(date);
         setOpen(false);
@@ -303,11 +307,27 @@ export const DateSelectTicketFormItem = ({
       onClose={() => setOpen(false)}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <Form.Control>
-          <Combobox.TriggerBase className="w-fit h-7">
-            <DateSelectValue placeholder={placeholder} />
-          </Combobox.TriggerBase>
-        </Form.Control>
+        {label ? (
+          <Combobox.ChipTrigger
+            label={label}
+            onClear={dateValue ? () => onValueChange?.() : undefined}
+            clearLabel={t('clear', 'Clear')}
+          >
+            {dateValue ? (
+              formatDateLabel(dateValue)
+            ) : (
+              <span className="text-accent-foreground">
+                {t('not-specified', 'Not specified')}
+              </span>
+            )}
+          </Combobox.ChipTrigger>
+        ) : (
+          <Form.Control>
+            <Combobox.TriggerBase className="w-fit h-7">
+              <DateSelectValue placeholder={placeholder} />
+            </Combobox.TriggerBase>
+          </Form.Control>
+        )}
         <Popover.Content className="w-fit">
           <DateSelectContent />
         </Popover.Content>

@@ -12,9 +12,11 @@ import { SelectDepartments } from 'ui-modules';
 const SelectDepartmentTicketFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  label?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
@@ -29,9 +31,9 @@ const SelectDepartmentTicketFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectDepartments.List
-            placeholder={t('department-label', 'Department')}
+            placeholder={label ? t('none', 'None') : t('department-label', 'Department')}
             renderAsPlainText
           />
         </SelectTriggerTicket>

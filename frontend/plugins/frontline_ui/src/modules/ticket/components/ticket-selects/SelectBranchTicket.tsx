@@ -12,9 +12,11 @@ import { SelectBranches } from 'ui-modules';
 const SelectBranchTicketFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  label?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
@@ -29,9 +31,9 @@ const SelectBranchTicketFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectBranches.List
-            placeholder={t('branch-label', 'Branch')}
+            placeholder={label ? t('none', 'None') : t('branch-label', 'Branch')}
             renderAsPlainText
           />
         </SelectTriggerTicket>

@@ -330,9 +330,11 @@ const SelectChannelFilterView = () => {
 const SelectChannelFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -342,7 +344,7 @@ const SelectChannelFormItem = ({
       setOpen={setOpen}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectChannelValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant="form">

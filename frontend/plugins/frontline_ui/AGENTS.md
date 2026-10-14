@@ -258,11 +258,12 @@
   While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
-  `Priority | High ⌄`. A ticket select's root takes `label`, and
-  `SelectTriggerTicket` and `SelectDateTicket` draw the chip
-  (erxes-ui `Combobox.ChipTrigger`, shared with Sales) only for the `detail` variant with a label —
-  every other variant and unlabelled caller keeps its plain trigger. Every
-  detail chip, status included, is labelled.
+  `Priority | High ⌄`. A ticket select's root and `FormItem` take `label`,
+  and `SelectTriggerTicket` and `SelectDateTicket` draw the chip (erxes-ui
+  `Combobox.ChipTrigger`, shared with Sales) only for the `detail` and `form`
+  variants with a label — every other variant and unlabelled caller keeps its
+  plain trigger. Every ticket detail chip, status included, and every add
+  ticket form chip is labelled; other `FormItem` callers stay unlabelled.
   Branch and department show `None` rather than repeating their label.
 - Ticket start/target dates follow Sales' `DateSelectDeal`: every variant's
   popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the
@@ -281,8 +282,8 @@
   search and the pending name; a `Create new …: "<search>"` item appears
   whenever the search matches no name exactly, and swaps the popover to
   a small form that reuses `ChannelForm` / `CreatePipelineForm` (status reuses
-  the settings status sheet's `StatusNameColorField`, read through
-  `useFormContext`, and adds a type field) and selects the new record once its list
+  the settings status sheet's `StatusNameColorField`, which takes the
+  caller's `form`, and adds a type field) and selects the new record once its list
   has refetched. Create is on only where `allowCreate` is passed: every
   `FormItem` variant (add ticket, conversation convert, help center drawer,
   pipeline config, automation create-ticket action) and the status select's
