@@ -26,16 +26,13 @@ export const InboxLayout = ({
     return () => observer.disconnect();
   }, []);
   const layout = preferredLayout === 'split' && width >= 640 ? 'split' : 'list';
+  const listContent = conversationId ? conversationDetail : conversations;
   const collapse = isHidden && Boolean(conversationId) && 'hidden';
   return (
     <div ref={root} className="min-h-0 min-w-0 flex-1 overflow-hidden">
       <InboxLayoutContext.Provider value={layout}>
         {layout === 'list' ? (
-          conversationId ? (
-            conversationDetail
-          ) : (
-            conversations
-          )
+          listContent
         ) : (
           <Resizable.PanelGroup
             direction="horizontal"

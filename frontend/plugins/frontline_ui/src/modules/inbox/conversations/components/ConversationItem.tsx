@@ -58,6 +58,17 @@ export const ConversationItem = ({
   const appearance = integrationAppearance(integration?.kind);
   const Icon = INTEGRATION_ICONS[integration?.kind ?? ''] ?? IconInbox;
   const profile = channelInfo?.channelName;
+  let title = (
+    <CustomersInline.Title className="min-w-0 text-sm font-semibold text-foreground" />
+  );
+  if (channelInfoPending) title = <Skeleton className="h-4 w-3/4" />;
+  else if (profile)
+    title = (
+      <TextOverflowTooltip
+        value={`#${profile}`}
+        className="min-w-0 text-sm font-semibold text-foreground"
+      />
+    );
   return (
     <ConversationContainer
       onConversationSelect={onConversationSelect}
@@ -84,16 +95,7 @@ export const ConversationItem = ({
               !split && '@min-[640px]:row-span-2',
             )}
           >
-            {channelInfoPending ? (
-              <Skeleton className="h-4 w-3/4" />
-            ) : profile ? (
-              <TextOverflowTooltip
-                value={`#${profile}`}
-                className="min-w-0 text-sm font-semibold text-foreground"
-              />
-            ) : (
-              <CustomersInline.Title className="min-w-0 text-sm font-semibold text-foreground" />
-            )}
+            {title}
             <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[11px] font-normal text-muted-foreground">
               <span
                 className={cn(
@@ -176,12 +178,15 @@ const ConversationAssignees = () => {
       {ids.length > 2 && (
         <Tooltip>
           <Tooltip.Trigger asChild>
-            <span
-              tabIndex={0}
-              className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] ring-2 ring-background"
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={(event) => event.stopPropagation()}
+              className="p-0 flex size-5 items-center justify-center rounded-full bg-muted text-[10px] ring-2 ring-background"
             >
               +{ids.length - 2}
-            </span>
+            </Button>
           </Tooltip.Trigger>
           <Tooltip.Content>
             {members
@@ -201,7 +206,6 @@ const ConversationAssignees = () => {
 };
 
 export const ConversationItemContent = () => {
-  const { t } = useTranslation('frontline');
   const conversation = useConversationContext();
   const { integration } = conversation;
   const { t: translatePreview } = useConversationPreviewTranslation();
@@ -218,38 +222,39 @@ export const ConversationItemContent = () => {
     content.includes('callDirection/')
       ? parseCallConversationContent(content)
       : null;
-  if (call) {
-    const { direction, status } = call;
-    const missed = Boolean(status && NOT_ANSWERED_STATUSES.includes(status));
-    const Icon = missed
-      ? IconPhoneX
-      : direction === 'incoming'
-      ? IconPhoneIncoming
-      : IconPhoneOutgoing;
-    return (
-      <div
-        className={cn(
-          'flex min-w-0 flex-1 items-center gap-1 text-xs',
-          missed
-            ? 'text-destructive'
-            : status === 'answered'
-            ? 'text-success'
-            : 'text-muted-foreground',
-        )}
-      >
-        <Icon className="size-3.5 shrink-0" />
-        <span className="truncate">
-          {direction === 'incoming'
-            ? t('incoming-call', 'Incoming call')
-            : t('outgoing-call', 'Outgoing call')}
-          {status && ` · ${t(CALL_STATUS_LABEL_KEYS[status])}`}
-        </span>
-      </div>
-    );
-  }
+  if (call) return <ConversationCallPreview call={call} />;
   return (
     <div className="min-w-0 flex-1 overflow-hidden h-4 text-left **:text-left! **:truncate [&_p]:w-full **:text-xs **:leading-tight **:font-normal">
       <BlockEditorReadOnly content={content} />
+    </div>
+  );
+};
+
+const ConversationCallPreview = ({
+  call,
+}: {
+  call: NonNullable<ReturnType<typeof parseCallConversationContent>>;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { direction, status } = call;
+  const missed = Boolean(status && NOT_ANSWERED_STATUSES.includes(status));
+  let Icon = direction === 'incoming' ? IconPhoneIncoming : IconPhoneOutgoing;
+  let color = status === 'answered' ? 'text-success' : 'text-muted-foreground';
+  if (missed) {
+    Icon = IconPhoneX;
+    color = 'text-destructive';
+  }
+  return (
+    <div
+      className={cn('flex min-w-0 flex-1 items-center gap-1 text-xs', color)}
+    >
+      <Icon className="size-3.5 shrink-0" />
+      <span className="truncate">
+        {direction === 'incoming'
+          ? t('incoming-call', 'Incoming call')
+          : t('outgoing-call', 'Outgoing call')}
+        {status && ` · ${t(CALL_STATUS_LABEL_KEYS[status])}`}
+      </span>
     </div>
   );
 };

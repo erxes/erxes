@@ -677,7 +677,7 @@ export const inboxAutomationWorkers = {
       update: async ({ selector: itemSelector, modifier }) => {
         const fields: Partial<IConversation> = modifier.$set ?? {};
         if (
-          Object.prototype.hasOwnProperty.call(fields, 'assignedUserId') ||
+          Object.keys(fields).includes('assignedUserId') ||
           fields.assignedUserIds !== undefined ||
           modifier.$unset?.assignedUserId
         ) {

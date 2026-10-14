@@ -152,7 +152,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       if (doc.assignedUserIds !== undefined) {
         doc.assignedUserIds = getConversationAssigneeIds(doc);
         doc.assignedUserId = doc.assignedUserIds[0];
-      } else if (Object.prototype.hasOwnProperty.call(doc, 'assignedUserId')) {
+      } else if (Object.keys(doc).includes('assignedUserId')) {
         const current = await models.Conversations.getConversation(_id);
         // Provider updates may repeat the primary assignee without changing ownership.
         if (doc.assignedUserId !== current.assignedUserId) {

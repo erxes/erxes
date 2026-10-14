@@ -18,7 +18,9 @@ export const ReplaceAssignee = () => {
   useEffect(() => setIds([]), [selectionKey]);
   const assign = async (value: string | string[] | null) => {
     if (busy.current || !conversationIds.length) return;
-    const nextIds = Array.isArray(value) ? value : value ? [value] : [];
+    const nextIds = Array.isArray(value)
+      ? value
+      : [value].filter((id): id is string => typeof id === 'string');
     busy.current = true;
     const previous = ids;
     setIds(nextIds);

@@ -16,7 +16,7 @@ import { ConversationItem } from '@/inbox/conversations/components/ConversationI
 import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
 import { useVisibleCustomerPresence } from '../hooks/useVisibleCustomerPresence';
@@ -83,18 +83,10 @@ export const Conversations = () => {
     useTelegramChats(telegramIds);
 
   const renderConversationItem = (conversation: IConversation) => (
-    <ConversationContext.Provider
+    <ConversationRowProvider
       key={conversation._id}
-      value={{
-        ...conversation,
-        customer: conversation.customer
-          ? {
-              ...conversation.customer,
-              ...presence.get(conversation.customer._id),
-            }
-          : conversation.customer,
-        tagIds: conversation.tagIds ?? [],
-      }}
+      conversation={conversation}
+      presence={presence}
     >
       <ConversationItem
         channelInfo={
@@ -112,7 +104,7 @@ export const Conversations = () => {
         }
         onConversationSelect={handleConversationSelect}
       />
-    </ConversationContext.Provider>
+    </ConversationRowProvider>
   );
 
   const renderContent = () => {
@@ -183,5 +175,34 @@ export const Conversations = () => {
         </div>
       </div>
     </ConversationListContext.Provider>
+  );
+};
+
+const ConversationRowProvider = ({
+  conversation,
+  presence,
+  children,
+}: {
+  conversation: IConversation;
+  presence: ReturnType<typeof useVisibleCustomerPresence>;
+  children: ReactNode;
+}) => {
+  const value = useMemo(
+    () => ({
+      ...conversation,
+      customer: conversation.customer
+        ? {
+            ...conversation.customer,
+            ...presence.get(conversation.customer._id),
+          }
+        : conversation.customer,
+      tagIds: conversation.tagIds ?? [],
+    }),
+    [conversation, presence],
+  );
+  return (
+    <ConversationContext.Provider value={value}>
+      {children}
+    </ConversationContext.Provider>
   );
 };

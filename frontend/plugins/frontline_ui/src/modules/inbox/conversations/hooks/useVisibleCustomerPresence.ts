@@ -26,21 +26,21 @@ export const useVisibleCustomerPresence = (
   useEffect(() => {
     const root = container.current;
     if (!root) return;
-    const visible = new Set<Element>();
+    const visible = new Set<HTMLElement>();
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) =>
-          entry.isIntersecting
-            ? visible.add(entry.target)
-            : visible.delete(entry.target),
-        );
+        entries.forEach((entry) => {
+          if (!(entry.target instanceof HTMLElement)) return;
+          if (entry.isIntersecting) visible.add(entry.target);
+          else visible.delete(entry.target);
+        });
         const next = [
           ...new Set(
             [...visible]
-              .map((element) => element.getAttribute('data-inbox-customer-id'))
+              .map((element) => element.dataset.inboxCustomerId)
               .filter((id): id is string => Boolean(id)),
           ),
-        ].sort();
+        ].sort((left, right) => left.localeCompare(right));
         setIds((previous) =>
           previous.join(',') === next.join(',') ? previous : next,
         );

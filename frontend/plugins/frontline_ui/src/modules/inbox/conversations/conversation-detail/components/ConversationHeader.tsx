@@ -219,7 +219,9 @@ const AssignConversation = ({
 
   const handleAssignConversations = async (value: null | string | string[]) => {
     if (busy.current) return;
-    const ids = Array.isArray(value) ? value : value ? [value] : [];
+    const ids = Array.isArray(value)
+      ? value
+      : [value].filter((id): id is string => typeof id === 'string');
     busy.current = true;
     setPendingIds(ids);
     try {
@@ -271,12 +273,9 @@ const AssignConversation = ({
           <Combobox.Content className="w-80">
             <SelectMember.Content />
             {(loading || pendingIds !== null) && (
-              <span
-                role="status"
-                className="block px-3 pb-2 text-xs text-muted-foreground"
-              >
+              <output className="block px-3 pb-2 text-xs text-muted-foreground">
                 {t('saving', 'Saving...')}
-              </span>
+              </output>
             )}
           </Combobox.Content>
         </PopoverScoped>

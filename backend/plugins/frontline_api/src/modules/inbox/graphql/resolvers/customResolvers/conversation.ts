@@ -117,7 +117,7 @@ export default {
     return conv.participatedUserIds?.length ?? 0;
   },
 
-  async lastMessage(
+  lastMessage(
     conversation: IConversationDocument,
     _args,
     { models }: IContext,

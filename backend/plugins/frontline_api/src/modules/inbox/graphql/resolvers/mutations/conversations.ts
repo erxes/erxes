@@ -116,36 +116,38 @@ export const conversationMutations = {
       type: 'conversationAssigneeChange',
     });
 
-    for (const conversation of conversations) {
-      const old = previous.find((item) => item._id === conversation._id);
-      const previousIds = getConversationAssigneeIds(old ?? {});
-      const added = ids.filter(
-        (id) => id !== user._id && !previousIds.includes(id),
-      );
-      const removed = previousIds.filter(
-        (id) => id !== user._id && !ids.includes(id),
-      );
-      if (removed.length)
-        await createNotifications({
-          contentType: 'inbox',
-          contentTypeId: conversation._id,
-          fromUserId: user._id,
-          subdomain,
-          notificationType: 'inboxAssignee',
-          userIds: removed,
-          action: 'unassign',
-        });
-      if (added.length)
-        await createNotifications({
-          contentType: 'inbox',
-          contentTypeId: conversation._id,
-          fromUserId: user?._id,
-          subdomain,
-          notificationType: 'inboxAssignee',
-          userIds: added,
-          action: 'assignee',
-        });
-    }
+    await Promise.all(
+      conversations.map(async (conversation) => {
+        const old = previous.find((item) => item._id === conversation._id);
+        const previousIds = getConversationAssigneeIds(old ?? {});
+        const added = ids.filter(
+          (id) => id !== user._id && !previousIds.includes(id),
+        );
+        const removed = previousIds.filter(
+          (id) => id !== user._id && !ids.includes(id),
+        );
+        if (removed.length)
+          await createNotifications({
+            contentType: 'inbox',
+            contentTypeId: conversation._id,
+            fromUserId: user._id,
+            subdomain,
+            notificationType: 'inboxAssignee',
+            userIds: removed,
+            action: 'unassign',
+          });
+        if (added.length)
+          await createNotifications({
+            contentType: 'inbox',
+            contentTypeId: conversation._id,
+            fromUserId: user?._id,
+            subdomain,
+            notificationType: 'inboxAssignee',
+            userIds: added,
+            action: 'assignee',
+          });
+      }),
+    );
     return conversations;
   },
 
