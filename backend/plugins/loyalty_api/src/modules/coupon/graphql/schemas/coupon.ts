@@ -52,5 +52,5 @@ export const queries = `
 export const mutations = `
   couponAdd(campaignId: String!): [Coupon]
   couponEdit(_id: String!, status: String, usageLimit: Int, redemptionLimitPerUser: Int): Coupon
-  couponsRemove(_ids: [String]): JSON
+  couponsRemove(_ids: [String!]!): JSON
 `;

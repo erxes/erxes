@@ -41,6 +41,10 @@ export const loadAssignmentClass = (models: IModels) => {
         status,
       } = doc;
 
+      if (!ownerId || !ownerType) {
+        throw new Error('Not create assignment, owner is undefined');
+      }
+
       const assignmentCampaign =
         await models.AssignmentCampaigns.getAssignmentCampaign(campaignId);
 

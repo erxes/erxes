@@ -43,17 +43,24 @@ export const queries = `
 `;
 
 const mutationParams = `
-  campaignId: String,
-  ownerType: String,
-  ownerId: String,
   usedAt: Date,
 
   segmentIds: [String],
 `;
 
 export const mutations = `
-  assignmentsAdd(${mutationParams}): Assignment
-  assignmentsRemove(_ids: [String]): JSON
-  cpAssignmentsAdd(${mutationParams}): Assignment
+  assignmentsAdd(
+    campaignId: String!
+    ownerType: String!
+    ownerId: String!
+    ${mutationParams}
+  ): Assignment
+  assignmentsRemove(_ids: [String!]!): JSON
+  cpAssignmentsAdd(
+    campaignId: String
+    ownerType: String
+    ownerId: String
+    ${mutationParams}
+  ): Assignment
   cpAssignmentsRemove(_ids: [String]): JSON
 `;

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN = gql`
-  query LoyaltyBirthdayVoucherCampaign($_id: String) {
+  query LoyaltyBirthdayVoucherCampaign($_id: String!) {
     voucherCampaignDetail(_id: $_id) {
       _id
       title

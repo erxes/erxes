@@ -41,5 +41,5 @@ const mutationParams = `
 export const mutations = `
   donateCampaignsAdd(${mutationParams}): DonateCampaign
   donateCampaignsEdit(_id: String!, ${mutationParams}): DonateCampaign
-  donateCampaignsRemove(_ids: [String]): JSON
+  donateCampaignsRemove(_ids: [String!]!): JSON
 `;

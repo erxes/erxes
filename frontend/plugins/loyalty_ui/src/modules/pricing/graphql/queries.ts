@@ -111,7 +111,7 @@ export const PRICING_PLANS = gql`
 `;
 
 export const PRICING_PLAN_DETAIL = gql`
-  query PricingPlanDetail($pricingPlanDetailId: String) {
+  query PricingPlanDetail($pricingPlanDetailId: String!) {
     pricingPlanDetail(id: $pricingPlanDetailId) {
       _id
       name
