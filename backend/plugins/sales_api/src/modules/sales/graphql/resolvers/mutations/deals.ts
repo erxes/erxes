@@ -12,6 +12,7 @@ import { withoutPointPayments } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
 import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
+import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -321,6 +322,7 @@ export const dealMutations: Record<string, Resolver> = {
     if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
       throw new Error('doc must be a product object');
     }
+    validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -433,6 +435,7 @@ export const dealMutations: Record<string, Resolver> = {
     if (!doc || typeof doc !== 'object' || Array.isArray(doc)) {
       throw new Error('doc must be a product object');
     }
+    validateProductDataInput(doc);
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {

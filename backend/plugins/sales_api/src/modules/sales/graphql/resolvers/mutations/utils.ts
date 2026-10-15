@@ -33,6 +33,7 @@ import {
 } from '~/modules/sales/utils/dealPoints';
 import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrency';
+import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import {
   normalizeProductUomInfo,
   syncProductUomInfo,
@@ -498,6 +499,7 @@ export const createProductsData = async ({
   ) {
     throw new Error('docs must be an array of product objects');
   }
+  docs.forEach(validateProductDataInput);
 
   const deal = await models.Deals.getDeal(dealId);
   const stage = await models.Stages.getStage(deal.stageId);

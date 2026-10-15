@@ -293,6 +293,12 @@
   slots and for an empty deal-product selection; position `0` is valid.
   Tightening those SDL arguments requires coordinating their caller documents,
   including `mongolian_ui`'s nullable POS order-detail id.
+- Deal product JSON create/edit inputs require a non-empty string `productId`
+  and finite price/quantity (root values or authoritative `uomInfo` values).
+  Validate every incoming row before model access, including client-portal
+  mutations. Preserve zero values, missing currency defaults, and legacy rows
+  without entry-unit metadata; leave ratio/conversion validation to the UOM
+  normalizer. Supplied UOM/currency and pricing fields must have valid types.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.
   Preserve saved ratios, and sync info values after server-side pricing changes

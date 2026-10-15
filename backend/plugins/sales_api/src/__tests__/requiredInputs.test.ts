@@ -60,10 +60,6 @@ jest.mock('../modules/sales/utils/productCurrency', () => ({
     rows: IProductData[],
   ) => rows,
 }));
-jest.mock('../modules/sales/utils/productUom', () => ({
-  normalizeProductUomInfo: async (_subdomain: string, rows: IProductData[]) =>
-    rows,
-}));
 jest.mock('../modules/sales/utils/discountInfos', () => ({
   normalizeProductDiscountInfos: (rows: IProductData[]) => rows,
 }));
@@ -362,6 +358,90 @@ describe('nullable caller contracts still validate required values at runtime', 
     }
     expectNoModelCalls();
   });
+});
+
+describe('product row contents', () => {
+  it.each([
+    ['dealsCreateProductsData', true],
+    ['cpDealsCreateProductsData', true],
+    ['dealsEditProductData', false],
+    ['cpDealsEditProductData', false],
+  ])(
+    '%s rejects malformed rows before model access',
+    async (operation, create) => {
+      const valid = { productId: 'product', quantity: 1, unitPrice: 100 };
+      const source = create
+        ? `mutation salesRequiredInputProductContents($payload: JSON) { ${operation}(dealId: "deal", docs: $payload) }`
+        : `mutation salesRequiredInputProductContentsEdit($payload: JSON) { ${operation}(dealId: "deal", dataId: "row", doc: $payload) }`;
+      for (const doc of [
+        {},
+        { ...valid, productId: '' },
+        { ...valid, productId: '  ' },
+        { ...valid, productId: 1 },
+        { ...valid, quantity: undefined },
+        { ...valid, quantity: '1' },
+        { ...valid, unitPrice: null },
+        { ...valid, unitPrice: '100' },
+        { ...valid, unitPrice: Number.POSITIVE_INFINITY },
+        { ...valid, globalUnitPrice: '100' },
+        { ...valid, unitPricePercent: {} },
+        { ...valid, currency: 1 },
+        { ...valid, uom: [] },
+        { ...valid, uomInfo: 'bad' },
+      ]) {
+        const result = await run(source, {
+          payload: create ? [valid, doc] : doc,
+        });
+        expect(result.errors?.[0].message).toMatch(/^Product /);
+        expectNoModelCalls();
+      }
+    },
+  );
+
+  it.each(['dealsCreateProductsData', 'cpDealsCreateProductsData'])(
+    '%s preserves zero values and authoritative entry-unit values',
+    async (operation) => {
+      const result = await run(
+        `mutation salesRequiredInputProductEntryValues($docs: JSON) { ${operation}(dealId: "deal", docs: $docs) }`,
+        {
+          docs: [
+            { productId: 'free', unitPrice: 0, quantity: 0 },
+            {
+              productId: 'converted',
+              uom: 'each',
+              uomInfo: {
+                uom: 'box',
+                ratio: 0.1,
+                unitPrice: 100,
+                quantity: 2,
+              },
+            },
+          ],
+        },
+      );
+      expect(result.errors).toBeUndefined();
+      expect(context.models.Deals.findOneAndUpdate).toHaveBeenCalledWith(
+        { _id: 'deal' },
+        expect.objectContaining({
+          $set: expect.objectContaining({
+            productsData: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 'free',
+                unitPrice: 0,
+                quantity: 0,
+              }),
+              expect.objectContaining({
+                productId: 'converted',
+                unitPrice: 10,
+                quantity: 20,
+              }),
+            ]),
+          }),
+        }),
+        { new: true },
+      );
+    },
+  );
 });
 
 describe('supported requests keep their behavior', () => {
