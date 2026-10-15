@@ -64,6 +64,7 @@ export const ConversationMessages = ({
       )}
       <div className="min-h-0 flex-1">
         <InboxMessagesContainer
+          fullWidth={integration?.kind === 'lead'}
           conversationId={conversationId}
           fetchMore={handleFetchMore}
           messagesLength={messages?.length || 0}
