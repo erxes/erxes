@@ -12,16 +12,13 @@ export const useCouponEdit = (
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
-  const refetchQueries: any[] = [QUERY_COUPON_CAMPAIGNS];
-  if (editCouponId) {
-    refetchQueries.push({
-      query: QUERY_COUPON_CAMPAIGN,
-      variables: { _id: editCouponId },
-    });
-  }
-
   const [couponEdit, { loading }] = useMutation(UPDATE_COUPON_CAMPAIGN, {
-    refetchQueries,
+    refetchQueries: editCouponId
+      ? [
+          QUERY_COUPON_CAMPAIGNS,
+          { query: QUERY_COUPON_CAMPAIGN, variables: { _id: editCouponId } },
+        ]
+      : [QUERY_COUPON_CAMPAIGNS],
     onCompleted: () => {
       toast({
         title: t('success'),

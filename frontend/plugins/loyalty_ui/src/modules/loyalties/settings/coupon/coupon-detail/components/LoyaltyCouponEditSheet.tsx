@@ -16,6 +16,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CouponHotKeyScope } from '../../types/CouponHotKeyScope';
 
 import { useCouponDetailWithQuery } from '../hooks/useCouponDetailWithQuery';
+import { parseCampaignRestrictions } from '@/loyalties/utils/campaignRestrictions';
+import { parseCouponCodeRule } from '../../utils/couponCodeRule';
 import {
   couponFormSchema,
   CouponFormValues,
@@ -57,13 +59,13 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
 
   useEffect(() => {
     if (couponDetail && couponDetail._id === editCouponId) {
-      const restrictions = couponDetail.restrictions || {};
-      const codeRule = couponDetail.codeRule || {};
+      const restrictions = parseCampaignRestrictions(couponDetail.restrictions);
+      const codeRule = parseCouponCodeRule(couponDetail.codeRule);
 
       form.reset({
         title: couponDetail.title || '',
         buyScore: couponDetail.buyScore || 0,
-        count: couponDetail.value,
+        count: couponDetail.value ?? undefined,
         description: couponDetail.description || '',
         status: couponDetail.status || 'active',
         startDate: couponDetail.startDate
@@ -72,23 +74,15 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
         endDate: couponDetail.endDate
           ? new Date(couponDetail.endDate)
           : undefined,
-        kind: couponDetail.kind || '',
+        kind: couponDetail.kind ?? 'amount',
         minimumSpend: restrictions.minimumSpend,
         maximumSpend: restrictions.maximumSpend,
         categoryIds: restrictions.categoryIds,
         excludeCategoryIds: restrictions.excludeCategoryIds,
         productIds: restrictions.productIds,
         excludeProductIds: restrictions.excludeProductIds,
-        tag: Array.isArray(restrictions.tag)
-          ? restrictions.tag
-          : restrictions.tag
-            ? [restrictions.tag]
-            : [],
-        orExcludeTag: Array.isArray(restrictions.orExcludeTag)
-          ? restrictions.orExcludeTag
-          : restrictions.orExcludeTag
-            ? [restrictions.orExcludeTag]
-            : [],
+        tag: restrictions.tag,
+        orExcludeTag: restrictions.orExcludeTag,
         codeLength: codeRule.codeLength,
         prefixUppercase: codeRule.prefixUppercase,
         pattern: codeRule.pattern,
@@ -97,7 +91,7 @@ export const LoyaltyCouponEditSheet = ({ couponId }: Props) => {
         numberOfCodes: codeRule.numberOfCodes,
         postfixUppercase: codeRule.postfixUppercase,
         usageLimit: codeRule.usageLimit,
-        staticCode: codeRule.staticCode ?? '',
+        staticCode: codeRule.staticCode,
       });
     }
   }, [couponDetail, editCouponId, form]);
