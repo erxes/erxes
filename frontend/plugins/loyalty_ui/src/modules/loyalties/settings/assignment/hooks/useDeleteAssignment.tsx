@@ -22,51 +22,6 @@ export const useDeleteAssignment = () => {
           },
         },
       ],
-      update: (cache, { data }) => {
-        try {
-          const deletedCampaign = data?.assignmentCampaignsRemove || {};
-
-          if (!deletedCampaign) {
-            return;
-          }
-
-          const existingData: any = cache.readQuery({
-            query: QUERY_ASSIGNMENT_CAMPAIGNS,
-            variables: {
-              limit: ASSIGNMENTS_PER_PAGE,
-              cursor,
-            },
-          });
-
-          if (!existingData?.assignmentCampaigns) {
-            return;
-          }
-
-          cache.writeQuery({
-            query: QUERY_ASSIGNMENT_CAMPAIGNS,
-            variables: {
-              limit: ASSIGNMENTS_PER_PAGE,
-              cursor,
-            },
-            data: {
-              assignmentCampaigns: {
-                ...existingData.assignmentCampaigns,
-                list: existingData.assignmentCampaigns.list.filter(
-                  (campaign: any) =>
-                    !deletedCampaign?._ids?.includes(campaign._id),
-                ),
-                totalCount: Math.max(
-                  (existingData.assignmentCampaigns.totalCount || 0) -
-                    deletedCampaign?._ids?.length,
-                  0,
-                ),
-              },
-            },
-          });
-        } catch (e) {
-          console.error('Cache update error:', e);
-        }
-      },
       awaitRefetchQueries: true,
     },
   );

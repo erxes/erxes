@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_ASSIGNMENT_CAMPAIGN = gql`
+export const UPDATE_ASSIGNMENT_CAMPAIGN = gql(`
   mutation UpdateAssignmentCampaign(
     $_id: String!
     $title: String
@@ -53,4 +53,4 @@ export const UPDATE_ASSIGNMENT_CAMPAIGN = gql`
       voucherCampaignId
     }
   }
-`;
+`);
