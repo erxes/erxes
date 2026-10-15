@@ -12,6 +12,10 @@ export const validateProductDataInput = (product: IProductData): void => {
     throw new Error('Product uomInfo must be an object');
   }
 
+  if (product.uomInfo?.uom != null && typeof product.uomInfo.uom !== 'string') {
+    throw new Error('Product uomInfo.uom must be a string');
+  }
+
   // Entry-unit values can supply price and quantity; the UOM normalizer
   // converts them to base units and validates the saved ratio before writing.
   for (const field of ['unitPrice', 'quantity'] as const) {

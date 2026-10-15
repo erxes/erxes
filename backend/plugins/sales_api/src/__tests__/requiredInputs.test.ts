@@ -388,6 +388,7 @@ describe('product row contents', () => {
         { ...valid, currency: 1 },
         { ...valid, uom: [] },
         { ...valid, uomInfo: 'bad' },
+        { ...valid, uomInfo: { uom: 7 } },
       ]) {
         const result = await run(source, {
           payload: create ? [valid, doc] : doc,

@@ -298,7 +298,8 @@
   Validate every incoming row before model access, including client-portal
   mutations. Preserve zero values, missing currency defaults, and legacy rows
   without entry-unit metadata; leave ratio/conversion validation to the UOM
-  normalizer. Supplied UOM/currency and pricing fields must have valid types.
+  normalizer. Supplied root/entry UOM, currency, and pricing fields must have
+  valid types, including the unit name inside `uomInfo`.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.
   Preserve saved ratios, and sync info values after server-side pricing changes
