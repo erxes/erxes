@@ -46,4 +46,19 @@ describe('sale quantity tRPC inputs', () => {
       }),
     ).toThrow();
   });
+
+  it('confirms fractional voucher use alongside lines without a voucher', () => {
+    const input = confirmLoyaltiesInput.parse({
+      checkInfo: {
+        flour: { voucherId: 'voucher-1', count: 0.5 },
+        milk: { voucherId: null, count: null },
+        bread: {},
+      },
+      extraInfo: { couponCode: null, voucherId: null, ownerId: null },
+    });
+
+    expect(input.checkInfo.flour.count).toBe(0.5);
+    expect(input.checkInfo.milk).toEqual({ voucherId: null, count: null });
+    expect(input.checkInfo.bread).toEqual({});
+  });
 });

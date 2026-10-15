@@ -44,6 +44,10 @@ export const QUERY_VOUCHER_CAMPAIGN = gql`
         count
         period
       }
+      validity {
+        count
+        unit
+      }
     }
   }
 `;
