@@ -114,37 +114,39 @@ const ErkhetSettingsHeader = () => {
 const ErkhetSettings = () => {
   return (
     <Filter id="sync-erkhet-settings">
-      <div className="flex h-full min-h-0 flex-auto flex-col overflow-hidden">
-        <ErkhetSettingsHeader />
-        <div className="flex min-h-0 flex-auto overflow-hidden">
-          <SyncErkhetSidebar />
-          <Suspense
-            fallback={
-              <div className="flex justify-center items-center h-full w-full">
-                <Spinner />
+      <div className="flex h-full min-h-0 flex-auto overflow-hidden">
+        <SyncErkhetSidebar />
+        <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+          <ErkhetSettingsHeader />
+          <div className="flex min-h-0 flex-auto overflow-hidden">
+            <Suspense
+              fallback={
+                <div className="flex justify-center items-center h-full w-full">
+                  <Spinner />
+                </div>
+              }
+            >
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                <Routes>
+                  <Route path="/" element={<ErkhetSyncGeneralConfig />} />
+                  <Route path="/stage-in" element={<StageInErkhetConfig />} />
+                  <Route path="/pos-order" element={<PosOrderErkhetConfig />} />
+                  <Route
+                    path="/return"
+                    element={<StageInReturnErkhetConfig />}
+                  />
+                  <Route
+                    path="/remainder"
+                    element={<PipelineRemainderConfig />}
+                  />
+                  <Route
+                    path="/movement"
+                    element={<StageInErkhetMovementConfig />}
+                  />
+                </Routes>
               </div>
-            }
-          >
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-              <Routes>
-                <Route path="/" element={<ErkhetSyncGeneralConfig />} />
-                <Route path="/stage-in" element={<StageInErkhetConfig />} />
-                <Route path="/pos-order" element={<PosOrderErkhetConfig />} />
-                <Route
-                  path="/return"
-                  element={<StageInReturnErkhetConfig />}
-                />
-                <Route
-                  path="/remainder"
-                  element={<PipelineRemainderConfig />}
-                />
-                <Route
-                  path="/movement"
-                  element={<StageInErkhetMovementConfig />}
-                />
-              </Routes>
-            </div>
-          </Suspense>
+            </Suspense>
+          </div>
         </div>
       </div>
     </Filter>

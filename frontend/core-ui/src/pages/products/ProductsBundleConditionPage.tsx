@@ -7,13 +7,12 @@ import { BundleConditionFilter } from '@/products/settings/components/productsCo
 
 export const ProductsBundleConditionPage = () => {
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <BundleConditionSheet />
-      </ProductsHeader>
-
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <BundleConditionSheet />
+        </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <ProductsBundleConditionPageContent />
         </div>

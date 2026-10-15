@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -77,6 +77,7 @@
 
 ## Local Invariants
 
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Sales board/pipeline/stage pickers must come from `ui-modules`. Do not add payment-local
   GraphQL documents for `salesBoards` / `salesPipelines` / `salesStages`.
 - **Never deep-import a context-bearing component from `erxes-ui`.** `module-federation.config.ts`

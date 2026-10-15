@@ -5,10 +5,10 @@ import { ProductSidebar } from '@/products/components/ProductSidebar';
 
 export const ProductsGeneralConfigPage = () => {
   return (
-    <PageContainer>
-      <ProductsHeader />
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader />
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="p-3">
             <GeneralConfigForm />

@@ -11,10 +11,12 @@ import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
+import { NavigationActivitySearchButton } from '@/navigation/components/navigation-activity-rail/NavigationActivitySearchButton';
 import { NavigationDisclosure } from '@/navigation/components/navigation-activity-rail/NavigationDisclosure';
 import { findActiveNavigationPath } from '@/navigation/utils/navigationPathMatch';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { getNavigationPlacement } from '@/navigation/utils/navigationPlacement';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { usePageTrackerStore } from 'react-page-tracker';
 import { useSettingsSubNavigation } from '@/settings/hooks/useSettingsSubNavigation';
 import { useTranslation } from 'react-i18next';
@@ -235,9 +237,14 @@ export function SettingsExitButton() {
   const { t } = useTranslation('common', {
     keyPrefix: 'sidebar',
   });
+  const setSearchOpen = useSetAtom(globalSearchOpenState);
 
   return (
     <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+      <NavigationActivitySearchButton
+        expanded
+        onSearch={() => setSearchOpen(true)}
+      />
       <Sidebar.Menu>
         <Sidebar.MenuItem>
           <Sidebar.MenuButton onClick={handleExitSettings}>
