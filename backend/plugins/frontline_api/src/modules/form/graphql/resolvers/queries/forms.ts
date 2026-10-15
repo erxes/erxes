@@ -177,14 +177,14 @@ const formQueries: Record<string, Resolver> = {
       user,
       subdomain,
     );
-    const groupCounts = async (
+    const groupCounts = (
       field: 'tagIds' | 'channelId',
     ): Promise<{ _id: string; count: number }[]> =>
-      models.Forms.aggregate([
+      models.Forms.aggregate<{ _id: string; count: number }>([
         { $match: field === 'channelId' ? channelQry : tagQry },
         ...(field === 'tagIds' ? [{ $unwind: '$tagIds' }] : []),
         { $group: { _id: `$${field}`, count: { $sum: 1 } } },
-      ]);
+      ]).exec();
 
     for (const { _id, count: tagCount } of await groupCounts('tagIds')) {
       counts.byTag[_id] = tagCount;
