@@ -80,7 +80,11 @@ class ErxesPayment {
         this.api = new TDBAPI(payment.config, this.domain);
         break;
       case 'tdb_cgw':
-        this.api = new TdbCgwAPI(payment.config, models!, this.domain);
+        if (!models) { 
+          throw new Error('Models are required for TDB Corporate Gateway');
+        }
+
+        this.api = new TdbCgwAPI(payment.config, models, this.domain);
         break;
       default:
         this.api = null;

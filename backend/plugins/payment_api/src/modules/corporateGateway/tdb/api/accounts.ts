@@ -82,11 +82,13 @@ export class AccountsApi extends BaseApi {
       },
     });
 
-    const header = Array.isArray(response.header)
-      ? response.header
-      : response.header
-        ? [response.header]
-        : [];
+    let header: TdbStatementResponse['header'] = [];
+
+    if (Array.isArray(response.header)) {
+      header = response.header;
+    } else if (response.header) {
+      header = [response.header];
+    }
 
     return {
       success: response.success,
