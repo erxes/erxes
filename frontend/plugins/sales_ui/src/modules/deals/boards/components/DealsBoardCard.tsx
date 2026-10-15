@@ -337,6 +337,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCustomerFilterBar
             filterKey=""
             mode="multiple"
+            label={t('by-customer', 'By Customer')}
             variant="card"
             initialValue={
               currentCustomers?.map((customer) => customer._id || '') || []

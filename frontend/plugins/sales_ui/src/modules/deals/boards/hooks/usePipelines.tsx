@@ -266,9 +266,6 @@ export const usePipelineArchive = (
     optimisticResponse: {
       salesPipelinesArchive: true,
     },
-    variables: {
-      ...options?.variables,
-    },
     update: (cache, _result, { variables }) => {
       if (!variables?._id) return;
 

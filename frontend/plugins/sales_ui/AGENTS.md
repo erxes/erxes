@@ -311,6 +311,14 @@
   passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
+- Pipeline archive keeps optional hook variables intact; the row action supplies
+  the required `_id` when it invokes the mutation.
+- POS category mappings use `SelectCategory`'s `value`/`onValueChange` contract
+  in single mode, normalizing string/array values and clearing to an empty id.
+- Stage name inputs use a mutable nullable ref so React Hook Form registration
+  and autofocus both receive the same input element. Sortable drag overlays stay
+  portaled to `document.body`; its React 18 portal assertion is confined to the
+  React DOM boundary where installed type packages resolve different versions.
 - POS creation refetches the explicit POS query names that are currently active,
   preserving each query's variables. Unmounted report queries must not produce
   Apollo unknown-query warnings.
