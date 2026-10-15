@@ -70,7 +70,7 @@ export const EditVoucherTabs = ({ onOpenChange, form }: Props) => {
       showSpinTab,
     });
 
-  const toNumber = (value: any) =>
+  const toNumber = (value: string | number | null | undefined) =>
     value === '' || value == null ? undefined : Number(value);
 
   const handleSubmit = form.handleSubmit(

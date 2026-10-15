@@ -1,39 +1,21 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  VouchersAddMutation,
+  VouchersAddMutationVariables,
+} from '~/gql/graphql';
 import { GENERATE_VOUCHER } from '../graphql/mutations/generateVoucherMutation';
-
-export interface GenerateVoucherResult {
-  vouchersAdd: {
-    _id: string;
-    campaignId: string;
-    ownerId: string;
-    ownerType: string;
-    status: string;
-    createdAt: string;
-  };
-}
-
-export interface GenerateVoucherVariables {
-  campaignId?: string;
-  ownerId?: string;
-  ownerType?: string;
-  status?: string;
-  conditions?: any;
-}
 
 export const useGenerateVoucher = () => {
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();
-  const [generateVoucher, { loading, error }] = useMutation<
-    GenerateVoucherResult,
-    GenerateVoucherVariables
-  >(GENERATE_VOUCHER);
+  const [generateVoucher, { loading, error }] = useMutation(GENERATE_VOUCHER);
 
   const voucherGenerate = async (
     options: MutationHookOptions<
-      GenerateVoucherResult,
-      GenerateVoucherVariables
+      VouchersAddMutation,
+      VouchersAddMutationVariables
     >,
   ) => {
     return generateVoucher({

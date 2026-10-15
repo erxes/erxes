@@ -1,53 +1,14 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  CreateVoucherCampaignMutation,
+  CreateVoucherCampaignMutationVariables,
+} from '~/gql/graphql';
 import { VOUCHERS_CURSOR_SESSION_KEY } from '../constants/vouchersCursorSessionKey';
 import { CREATE_VOUCHER_CAMPAIGN } from '../graphql/mutations/VoucherMutations';
 import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 import { VOUCHERS_PER_PAGE } from './useVouchers';
-import { TVoucherOwnerLimit } from '../utils/voucherOwnerLimit';
-import { TVoucherValidity } from '../utils/voucherTerm';
-
-export interface AddVoucherResult {
-  voucherCampaignsAdd: any;
-}
-
-export interface AddVoucherVariables {
-  title: string;
-  description?: string;
-  status?: string;
-
-  startDate?: string | null;
-  endDate?: string | null;
-
-  buyScore?: number;
-  score?: number;
-  scoreAction?: string;
-
-  voucherType?: string;
-
-  productCategoryIds?: string[];
-  productIds?: string[];
-  discountPercent?: number;
-
-  bonusProductId?: string;
-  bonusCount?: number;
-
-  coupon?: string;
-
-  spinCampaignId?: string;
-  spinCount?: number;
-
-  lotteryCampaignId?: string;
-  lotteryCount?: number;
-
-  kind?: string;
-  value?: number;
-
-  restrictions?: any;
-  perOwnerLimit?: TVoucherOwnerLimit | null;
-  validity?: TVoucherValidity | null;
-}
 
 export const useAddVoucher = () => {
   const { t } = useTranslation('loyalty');
@@ -55,52 +16,23 @@ export const useAddVoucher = () => {
   const { cursor } = useRecordTableCursor({
     sessionKey: VOUCHERS_CURSOR_SESSION_KEY,
   });
-  const [addVoucher, { loading, error }] = useMutation<
-    AddVoucherResult,
-    AddVoucherVariables
-  >(CREATE_VOUCHER_CAMPAIGN, {
-    refetchQueries: [
-      {
-        query: QUERY_VOUCHER_CAMPAIGNS,
-        variables: { limit: VOUCHERS_PER_PAGE, cursor },
-      },
-    ],
-    update: (cache, { data }) => {
-      try {
-        const newCampaign = data?.voucherCampaignsAdd;
-
-        if (!newCampaign) {
-          return;
-        }
-
-        const existingData: any = cache.readQuery({
+  const [addVoucher, { loading, error }] = useMutation(
+    CREATE_VOUCHER_CAMPAIGN,
+    {
+      refetchQueries: [
+        {
           query: QUERY_VOUCHER_CAMPAIGNS,
           variables: { limit: VOUCHERS_PER_PAGE, cursor },
-        });
-
-        if (!existingData?.voucherCampaigns) {
-          return;
-        }
-
-        cache.writeQuery({
-          query: QUERY_VOUCHER_CAMPAIGNS,
-          variables: { limit: VOUCHERS_PER_PAGE, cursor },
-          data: {
-            voucherCampaigns: {
-              ...existingData.voucherCampaigns,
-              list: [newCampaign, ...existingData.voucherCampaigns.list],
-              totalCount: (existingData.voucherCampaigns.totalCount || 0) + 1,
-            },
-          },
-        });
-      } catch (e) {
-        console.error('Cache update error:', e);
-      }
+        },
+      ],
     },
-  });
+  );
 
   const voucherAdd = async (
-    options: MutationHookOptions<AddVoucherResult, AddVoucherVariables>,
+    options: MutationHookOptions<
+      CreateVoucherCampaignMutation,
+      CreateVoucherCampaignMutationVariables
+    >,
   ) => {
     return addVoucher({
       ...options,

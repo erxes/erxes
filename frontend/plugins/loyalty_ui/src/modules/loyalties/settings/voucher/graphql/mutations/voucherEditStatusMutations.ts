@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_VOUCHER_CAMPAIGN = gql`
+export const UPDATE_VOUCHER_CAMPAIGN = gql(`
   mutation UpdateVoucherCampaign(
     $_id: String!
     $title: String
@@ -106,4 +106,4 @@ export const UPDATE_VOUCHER_CAMPAIGN = gql`
       }
     }
   }
-`;
+`);

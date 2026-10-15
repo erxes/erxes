@@ -46,7 +46,7 @@ export const VoucherTabs = ({ onOpenChange, form }: Props) => {
     if (next) setActiveTab(next);
   };
 
-  const toNumber = (value: any) =>
+  const toNumber = (value: string | number | null | undefined) =>
     value === '' || value == null ? undefined : Number(value);
 
   const handleSubmit = form.handleSubmit(
