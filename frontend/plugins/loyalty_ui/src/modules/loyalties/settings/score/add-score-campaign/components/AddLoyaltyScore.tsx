@@ -9,10 +9,9 @@ import {
   loyaltyScoreFormSchema,
   LoyaltyScoreFormValues,
 } from '../../constants/formSchema';
-import {
-  AddScoreCampaignVariables,
-  useAddScoreCampaign,
-} from '../hooks/useAddLoyaltyScore';
+import { isRecord } from '@/loyalties/utils/isRecord';
+import type { CreateScoreCampaignMutationVariables } from '~/gql/graphql';
+import { useAddScoreCampaign } from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
@@ -48,7 +47,7 @@ export function AddLoyaltyScoreForm({
   });
 
   async function onSubmit(data: LoyaltyScoreFormValues) {
-    const variables: AddScoreCampaignVariables = {
+    const variables: CreateScoreCampaignMutationVariables = {
       title: data.title,
       description: data.description || '',
       order: data.order,
@@ -72,7 +71,11 @@ export function AddLoyaltyScoreForm({
     scoreCampaignAdd({
       variables,
       onCompleted: (data) => {
-        const createdId = data?.scoreCampaignAdd?._id;
+        const created = data?.scoreCampaignAdd;
+        const createdId =
+          isRecord(created) && typeof created._id === 'string'
+            ? created._id
+            : undefined;
 
         if (createdId) {
           onCreated?.(createdId);

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_SCORE_CAMPAIGN = gql`
+export const UPDATE_SCORE_CAMPAIGN = gql(`
   mutation updateScoreCampaign(
     $_id: String!
     $title: String
@@ -45,4 +45,4 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
       restrictions
     }
   }
-`;
+`);
