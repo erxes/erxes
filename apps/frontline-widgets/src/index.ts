@@ -83,17 +83,27 @@ const needsEarlyConnect = () => {
   );
 };
 
+const getHostTheme = (settings?: { theme?: string }) => {
+  if (settings?.theme === 'dark' || settings?.theme === 'light') {
+    return settings.theme;
+  }
+
+  const storedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia?.(
+    '(prefers-color-scheme: dark)',
+  )?.matches;
+
+  return storedTheme === 'dark' || (!storedTheme && prefersDark)
+    ? 'dark'
+    : 'light';
+};
+
 // Re-sends the host page's current erxesSettings/theme/storage to an
 // already-loaded messenger iframe. Used both on first load and whenever this
 // script is re-injected on an already-mounted widget (see below).
 const sendMessageToIframe = (contentWindow: Window) => {
   const settings = getMessengerSettings();
-  const storedTheme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia?.(
-    '(prefers-color-scheme: dark)',
-  )?.matches;
-  const theme =
-    storedTheme === 'dark' || (!storedTheme && prefersDark) ? 'dark' : 'light';
+  const theme = getHostTheme(settings);
   contentWindow.postMessage(
     {
       fromPublisher: true,
@@ -141,18 +151,6 @@ const sendMessageToIframe = (contentWindow: Window) => {
   const styleElement = document.createElement('style');
   styleElement.textContent = styles;
   document.head.appendChild(styleElement);
-
-  const theme = localStorage.getItem('theme');
-
-  const prefersColorSchemeDark = window.matchMedia?.(
-    '(prefers-color-scheme: dark)',
-  ).matches;
-
-  if (theme === 'dark' || (!theme && prefersColorSchemeDark)) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
 
   const isMobile =
     navigator.userAgent.match(/iPhone/i) ||
