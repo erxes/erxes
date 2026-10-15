@@ -11,6 +11,7 @@ import {
   Popover,
   Spinner,
   cn,
+  toast,
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
@@ -81,7 +82,16 @@ export const LabelForm = ({
     });
 
   const onSubmit = (data: LabelFormType) => {
-    if (labelId && pipelineId) {
+    if (!pipelineId) {
+      toast({
+        title: t('pipeline-not-selected'),
+        description: t('select-pipeline-first'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (labelId) {
       editPipelineLabel({
         variables: {
           ...data,
@@ -89,7 +99,7 @@ export const LabelForm = ({
           pipelineId,
         },
       });
-    } else if (pipelineId) {
+    } else {
       addPipelineLabel({
         variables: {
           ...data,

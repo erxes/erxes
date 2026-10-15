@@ -69,8 +69,14 @@ export const DealWidgetCard = ({ deal }: { deal: IDealDetail }) => {
 
   const priorityNum = PRIORITY_MAP[priority || ''] ?? 0;
   const isArchived = status === 'archived';
-  const hasDepartments = !!departments?.length;
-  const hasBranches = !!branches?.length;
+  const departmentItems = (departments ?? [])
+    .filter(isDefined)
+    .map(({ title }) => ({ title: title ?? '' }));
+  const branchItems = (branches ?? [])
+    .filter(isDefined)
+    .map(({ title }) => ({ title: title ?? '' }));
+  const hasDepartments = departmentItems.length > 0;
+  const hasBranches = branchItems.length > 0;
 
   const onCardClick = () => {
     const searchParams = new URLSearchParams({ salesItemId: _id });
@@ -147,11 +153,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDealDetail }) => {
                     <IconBuildingSkyscraper className="size-3.5 shrink-0" />
                     {t('dept')}
                   </span>
-                  <OverflowItems
-                    items={departments
-                      .filter(isDefined)
-                      .map(({ title }) => ({ title: title ?? '' }))}
-                  />
+                  <OverflowItems items={departmentItems} />
                 </>
               )}
               {hasBranches && (
@@ -160,11 +162,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDealDetail }) => {
                     <IconMapPin className="size-3.5 shrink-0" />
                     {t('branch')}
                   </span>
-                  <OverflowItems
-                    items={branches
-                      .filter(isDefined)
-                      .map(({ title }) => ({ title: title ?? '' }))}
-                  />
+                  <OverflowItems items={branchItems} />
                 </>
               )}
               {isArchived && (

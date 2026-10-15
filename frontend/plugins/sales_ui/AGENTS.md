@@ -262,6 +262,10 @@
   booleans. Filter nullable list members before passing rows to UI components.
   Memoize filtered query collections by the source array; form synchronization
   and board effects rely on stable references when Apollo data is unchanged.
+- Memoize overview attachment inputs by the server attachment array so unrelated
+  rerenders cannot discard pending uploads. Relation-card section visibility
+  must use the same filtered collection passed to its renderer. Label forms
+  report a missing pipeline before attempting either add or edit.
 - Deal printing owns typed documents for the public Core document service;
   their tooling snapshot does not change that service's runtime contract.
 
@@ -436,6 +440,7 @@
   `ENABLED_PLUGINS=sales pnpm dev:uis` must generate it before booting. During
   development, editing a GraphQL document must trigger the codegen watcher.
 - `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealJson.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealReviewRegressions.test.cjs`
 - Deals migration smoke: create/edit/watch a deal; move stages, edit labels and
   checklists, and add/edit/remove products. Verify immediate list/detail updates
   and subscription updates with no Apollo cache or missing-field warnings.
