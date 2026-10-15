@@ -15,6 +15,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { isDefined, toast, useQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   SalesBoardsAddMutation,
@@ -41,7 +42,12 @@ export const useBoards = (
     variables: options?.variables,
   });
 
-  return { boards: data?.salesBoards?.filter(isDefined), loading, error };
+  const boards = useMemo(
+    () => data?.salesBoards?.filter(isDefined),
+    [data?.salesBoards],
+  );
+
+  return { boards, loading, error };
 };
 
 export const useBoardDetail = (

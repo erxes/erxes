@@ -48,7 +48,7 @@ export const ProductsList = ({
   const pendingProductPatchesRef = useRef<
     Record<string, Partial<DealProductData>>
   >({});
-  const productOrderRef = useRef<string[]>(
+  const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
   );
   const productByIdRef = useRef<Record<string, DealProduct>>(
@@ -193,8 +193,8 @@ export const ProductsList = ({
         );
 
         affectedProductData.forEach((productData) => {
-          pendingProductPatchesRef.current[productData._id] = {
-            ...pendingProductPatchesRef.current[productData._id],
+          pendingProductPatchesRef.current[String(productData._id)] = {
+            ...pendingProductPatchesRef.current[String(productData._id)],
             ...patch,
           };
         });

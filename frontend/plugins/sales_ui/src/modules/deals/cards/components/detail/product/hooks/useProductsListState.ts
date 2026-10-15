@@ -20,7 +20,7 @@ interface UseSyncLocalProductsDataParams {
   pendingProductPatchesRef: MutableRefObject<
     Record<string, Partial<DealProductData>>
   >;
-  pendingProductDeletionsRef: MutableRefObject<Set<string>>;
+  pendingProductDeletionsRef: MutableRefObject<Set<DealProductData['_id']>>;
   productByIdRef: MutableRefObject<Record<string, DealProduct>>;
   sortByStableProductOrder: (data: DealProductData[]) => DealProductData[];
 }
@@ -55,14 +55,14 @@ export const useSyncLocalProductsData = ({
         (data) => !pendingProductDeletionsRef.current.has(data._id),
       );
       const previousById = new Map(prev.map((data) => [data._id, data]));
-      const incomingById = new Map<string, DealProductData>();
+      const incomingById = new Map<DealProductData['_id'], DealProductData>();
 
       const updatedIncoming = incomingProductsData.map((data) => {
         const previousRecord = previousById.get(data._id);
-        const pendingPatch = pendingProductPatchesRef.current[data._id];
+        const pendingPatch = pendingProductPatchesRef.current[String(data._id)];
 
         if (pendingPatch && isPatchAppliedByServer(data, pendingPatch)) {
-          delete pendingProductPatchesRef.current[data._id];
+          delete pendingProductPatchesRef.current[String(data._id)];
         }
 
         const incomingProductData = {
@@ -73,7 +73,7 @@ export const useSyncLocalProductsData = ({
             (data.productId
               ? productByIdRef.current[data.productId]
               : undefined),
-          ...pendingProductPatchesRef.current[data._id],
+          ...pendingProductPatchesRef.current[String(data._id)],
         };
         const productId =
           incomingProductData.product?._id || incomingProductData.productId;

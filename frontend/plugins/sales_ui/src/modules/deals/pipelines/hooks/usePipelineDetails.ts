@@ -15,6 +15,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { isDefined, toast, useQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   SalesPipelineLabelDetailQuery,
@@ -60,8 +61,13 @@ export const usePipelineLabels = (
     variables: options?.variables,
   });
 
+  const pipelineLabels = useMemo(
+    () => data?.salesPipelineLabels?.filter(isDefined),
+    [data?.salesPipelineLabels],
+  );
+
   return {
-    pipelineLabels: data?.salesPipelineLabels?.filter(isDefined),
+    pipelineLabels,
     loading,
     error,
   };

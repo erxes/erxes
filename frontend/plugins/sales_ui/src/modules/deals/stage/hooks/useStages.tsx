@@ -11,6 +11,7 @@ import {
   useQuery,
 } from '@apollo/client';
 import { isDefined, toast, useQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   SalesDealStagesQuery,
@@ -44,7 +45,12 @@ export const useStages = (
     variables: options?.variables,
   });
 
-  return { stages: data?.salesStages?.filter(isDefined) || [], loading, error };
+  const stages = useMemo(
+    () => data?.salesStages?.filter(isDefined) ?? [],
+    [data?.salesStages],
+  );
+
+  return { stages, loading, error };
 };
 
 export const useStagesOrder = (

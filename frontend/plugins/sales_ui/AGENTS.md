@@ -252,11 +252,16 @@
   in Sales UI (`deals/utils/dealJson.ts` and the owning hook); preserve extra
   JSON keys on round trips. Invalid editable data must show an error and block
   saving, rather than becoming an empty form.
+  Legacy product rows can omit `_id`; preserve them without inventing row IDs
+  or rejecting the whole deal. Product mutation identifiers follow the existing
+  nullable GraphQL arguments.
 - List and detail deal subscriptions select the fields used by their respective
   queries. Pipeline order events carry stored JSON, so move an existing card
   immediately and refetch active lists for complete computed data.
 - `deals/utils/cursorList.ts` follows Operation's adapter for nullable PageInfo
   booleans. Filter nullable list members before passing rows to UI components.
+  Memoize filtered query collections by the source array; form synchronization
+  and board effects rely on stable references when Apollo data is unchanged.
 - Deal printing owns typed documents for the public Core document service;
   their tooling snapshot does not change that service's runtime contract.
 
@@ -382,6 +387,10 @@
   base-unit fields rather than an alternate metadata format.
   Backend omits info for base-unit selections. Acknowledgements compare such
   saves with root price/quantity, and the UI reconstructs editable base info.
+- The product replacement chooser keeps its cached initial selection. Its
+  `IProduct` assertion is limited to the shared `initialProducts` prop, which
+  reads only `_id`, `name`, and `code`; selected replacements come from the
+  shared chooser's full product query. Do not widen the Sales query types.
 - Deal product selectors may pass sales context such as `pipelineId` into
   shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline

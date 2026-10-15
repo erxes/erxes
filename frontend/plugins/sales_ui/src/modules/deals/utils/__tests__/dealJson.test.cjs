@@ -66,6 +66,26 @@ test('nullable and incomplete legacy product rows keep existing UOM fallbacks', 
   assert.deepEqual(json.parseDealProducts(null), []);
 });
 
+test('legacy rows without identifiers remain readable and unchanged on round trips', () => {
+  const legacy = {
+    productId: 'product',
+    quantity: 1.5,
+    unitPrice: 100,
+    amount: 150,
+    information: { booking: 'legacy-booking' },
+  };
+  const parsed = json.toDealDetail({
+    _id: 'deal',
+    productsData: [legacy, { ...legacy, _id: null }],
+  });
+  assert.deepEqual(parsed.productsData, [legacy, { ...legacy, _id: null }]);
+  assert.equal(Object.hasOwn(parsed.productsData[0], '_id'), false);
+  assert.deepEqual(
+    json.parseDealProductMutation({ productsData: parsed.productsData }),
+    parsed.productsData,
+  );
+});
+
 test('malformed editable products and money fail instead of becoming an empty save', () => {
   for (const value of [
     {},
@@ -147,7 +167,9 @@ test('detail parsing retains extras and accepts nullable GraphQL product list me
   assert.deepEqual(deal.extraData.custom, { enabled: true });
   assert.deepEqual(deal.propertiesData.custom, ['value']);
   assert.deepEqual(deal.pipeline.paymentTypes, []);
-  assert.throws(() => json.toDealDetail({ ...deal, productsData: [{}] }));
+  assert.throws(() =>
+    json.toDealDetail({ ...deal, productsData: [{ quantity: 'invalid' }] }),
+  );
 });
 
 test('subscription filters preserve clearing and normalize GraphQL singleton list coercion', () => {

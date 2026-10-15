@@ -49,7 +49,7 @@ export const dealProductSchema = z
 
 export const dealProductDataSchema = z
   .object({
-    _id: z.string(),
+    _id: optionalString,
     productId: optionalString,
     product: dealProductSchema
       .nullish()

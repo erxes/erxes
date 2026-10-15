@@ -53,7 +53,7 @@ export const useDealProductActions = ({
 
   // Deletions in flight: read by ProductsList's server-sync effect so a
   // pending delete isn't resurrected by a stale productsData snapshot.
-  const pendingProductDeletionsRef = useRef(new Set<string>());
+  const pendingProductDeletionsRef = useRef(new Set<DealProductData['_id']>());
 
   const appendRows = useCallback(
     (rows: DealProductData[]) => {
@@ -67,7 +67,7 @@ export const useDealProductActions = ({
   );
 
   const removeRows = useCallback(
-    (ids: string[]) => {
+    (ids: Array<DealProductData['_id']>) => {
       setLocalProductsData((prev) => {
         const next = prev.filter((row) => !ids.includes(row._id));
         updateTotal(next);

@@ -1,6 +1,6 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import { useTranslation } from 'react-i18next';
-import { SelectProductsBulk } from 'ui-modules';
+import { type IProduct, SelectProductsBulk } from 'ui-modules';
 
 import { calculateProductValues } from '@/deals/cards/components/detail/product/hooks/useProductCalculations';
 import { useUpdateProductRecord } from '@/deals/cards/components/detail/product/hooks/useProductRecord';
@@ -63,6 +63,9 @@ export const ProductEditSheet = ({
       open={open}
       onOpenChange={onOpenChange}
       productIds={[currentProduct._id]}
+      // The shared picker reads only _id/name/code from its initial selection.
+      // Keep the cached preview without claiming the query returns a full product.
+      initialProducts={[currentProduct as IProduct]}
       selectionLimit={1}
       title={t('edit-product')}
       description={t('edit-product-description')}

@@ -28,7 +28,7 @@ import {
 
 interface EditProductDataVariables {
   processId: string;
-  dataId: string;
+  dataId: DealsEditProductDataMutationVariables['dataId'];
   doc: DealProductData;
 }
 

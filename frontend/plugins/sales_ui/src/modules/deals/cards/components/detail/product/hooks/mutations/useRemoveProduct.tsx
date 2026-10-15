@@ -23,7 +23,7 @@ import {
 
 interface RemoveProductsVariables {
   processId: string;
-  dataIds: string[];
+  dataIds: DealsDeleteProductDataMutationVariables['dataIds'];
 }
 
 export const useRemoveProducts = () => {

@@ -35,6 +35,11 @@ import {
   normalizeProductUom,
 } from '../../utils/productUom';
 
+type ProductNumberFieldProps = Omit<INumberFieldContainerProps, '_id'> & {
+  _id: DealProductData['_id'];
+  product: DealProductData;
+};
+
 export const ProductNumberField = ({
   value,
   field,
@@ -43,8 +48,7 @@ export const ProductNumberField = ({
   formatValue,
   calculateProduct = false,
   children,
-}: INumberFieldContainerProps & {
-  product: DealProductData;
+}: ProductNumberFieldProps & {
   formatValue?: (value: number) => string;
   calculateProduct?: boolean;
   children?: React.ReactNode;
@@ -78,7 +82,7 @@ export const ProductCalculatedNumberField = ({
   field,
   _id,
   product,
-}: INumberFieldContainerProps & { product: DealProductData }) => {
+}: ProductNumberFieldProps) => {
   const { updateRecord } = useUpdateProductRecord();
 
   return (
@@ -161,7 +165,7 @@ export const ProductDiscountNumberField = ({
   field,
   _id,
   product,
-}: INumberFieldContainerProps & { product: DealProductData }) => {
+}: ProductNumberFieldProps) => {
   const { updateRecord } = useUpdateProductRecord();
   const [isOpen, setIsOpen] = useState(false);
   const [editingValue, setEditingValue] = useState(String(value));
@@ -298,7 +302,7 @@ export const ProductAssigneeField = ({
 }: {
   value: string[];
   field: string;
-  _id: string;
+  _id: DealProductData['_id'];
   product: DealProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
@@ -306,7 +310,7 @@ export const ProductAssigneeField = ({
   return (
     <SelectAssigneeDeal
       variant="table"
-      id={_id}
+      id={_id ?? undefined}
       value={value}
       scope={clsx(_id, 'Assignee')}
       onValueChange={(value) => {

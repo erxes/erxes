@@ -14,7 +14,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   SalesDealListChangedSubscription,
@@ -122,8 +122,14 @@ export const useDeals = (
 
   const lastPipelineId = pipelineId || qryStrPipelineId || '';
 
-  const deals = data?.deals?.list?.filter(isDefined);
-  const pageInfo = toCursorPageInfo(data?.deals?.pageInfo);
+  const deals = useMemo(
+    () => data?.deals?.list?.filter(isDefined),
+    [data?.deals?.list],
+  );
+  const pageInfo = useMemo(
+    () => toCursorPageInfo(data?.deals?.pageInfo),
+    [data?.deals?.pageInfo],
+  );
   const totalCount = data?.deals?.totalCount ?? undefined;
 
   const filterVariables = options?.variables;

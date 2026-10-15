@@ -15,6 +15,7 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   SalesPipelineDetailQuery,
@@ -105,11 +106,15 @@ export const usePipelines = (
     totalCount: rawTotalCount,
     pageInfo,
   } = data?.salesPipelines || {};
-  const pipelines = list?.filter(isDefined);
+  const pipelines = useMemo(() => list?.filter(isDefined), [list]);
   const totalCount = rawTotalCount ?? 0;
-  const visiblePipelines = options?.variables?.isAll
-    ? pipelines
-    : pipelines?.filter(({ status }) => status !== 'archived');
+  const visiblePipelines = useMemo(
+    () =>
+      options?.variables?.isAll
+        ? pipelines
+        : pipelines?.filter(({ status }) => status !== 'archived'),
+    [options?.variables?.isAll, pipelines],
+  );
 
   const handleFetchMore = () => {
     if (totalCount <= (pipelines?.length || 0)) return;
