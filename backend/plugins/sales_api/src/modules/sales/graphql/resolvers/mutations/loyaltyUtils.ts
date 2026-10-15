@@ -4,7 +4,7 @@ import { IDeal, IProductData } from '~/modules/sales/@types';
 import { getCompanyIds, getCustomerIds } from '~/modules/sales/utils';
 import {
   applyDiscountInfo,
-  ensureHandDiscountInfo,
+  dropDiscountInfo,
   recalculateProductDiscount,
 } from '~/modules/sales/utils/discountInfos';
 
@@ -50,12 +50,19 @@ export const checkLoyalties = async (
         quantity: item.quantity,
         price: item.unitPrice,
       })),
+      // The deal's own held voucher and coupon pass; `targetId` says whose.
+      discountInfo: {
+        voucherId: deal.extraData?.voucherId || undefined,
+        couponCode: deal.extraData?.couponCode || undefined,
+        targetId: _id,
+      },
     },
     defaultValue: {},
   });
 
   for (const item of activeProductsData) {
-    item.discountInfos = ensureHandDiscountInfo(item);
+    // Restated every save: a voucher or coupon taken off takes its discount.
+    dropDiscountInfo(item, 'voucher');
 
     const loyalty = loyalties[item.productId];
 
@@ -75,9 +82,10 @@ export const checkLoyalties = async (
     });
   }
 
-  return (deal.productsData || [])
-    .filter((pd) => !pd.bonusCount)
-    .map((pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd);
+  // Pricing ran first and laid down this save's bonus lines; keep them.
+  return (deal.productsData || []).map(
+    (pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd,
+  );
 };
 
 export const checkPricing = async (
@@ -141,7 +149,8 @@ export const checkPricing = async (
   const bonusProductsToAdd: Record<string, { count: number }> = {};
 
   for (const item of activeProductsData) {
-    item.discountInfos = ensureHandDiscountInfo(item);
+    // Restated every save: a plan that no longer applies takes its discount.
+    dropDiscountInfo(item, 'pricing');
 
     const discount = pricing[item._id || ''];
 
@@ -187,37 +196,4 @@ export const checkPricing = async (
       .map((pd) => activeProductsData.find((apd) => apd._id === pd._id) || pd),
     ...addBonusPData,
   ];
-};
-
-export const confirmLoyalties = async (
-  subdomain: string,
-  _id: string,
-  deal: IDeal,
-) => {
-  const confirmItems = deal.productsData || [];
-
-  if (!confirmItems.length) {
-    return;
-  }
-
-  const [customerId] = (await getCustomerIds(subdomain, _id)) || [];
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'loyalty',
-    method: 'mutation',
-    module: 'loyalty',
-    action: 'confirmLoyalties',
-    input: {
-      checkInfo: {},
-      extraInfo: {
-        ...deal.extraData,
-        ownerType: 'customer',
-        ownerId: customerId || null,
-        targetType: 'sales',
-        targetId: _id,
-      },
-    },
-    defaultValue: null,
-  });
 };

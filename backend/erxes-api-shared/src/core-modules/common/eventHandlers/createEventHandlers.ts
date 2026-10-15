@@ -15,7 +15,7 @@ import {
 } from './utils';
 import { sendAutomationTrigger } from '../../automations';
 import { sendSegmentChanged } from '../../segments/events';
-import { segmentJoinChanges } from '../../segments/joinChanges';
+import { segmentJoinChanges, SegmentTouched } from '../../segments/joinChanges';
 import { INotificationData, sendNotification } from '../../notifications';
 import { logActivityLogError } from '../../logs/activityLog/utils';
 
@@ -24,6 +24,20 @@ const toIdList = (ids?: string | string[]): string[] =>
   (Array.isArray(ids) ? ids : [ids]).filter(
     (id): id is string => typeof id === 'string' && id.length > 0,
   );
+
+/** The documents an action carried, before and after. */
+const touchedOf = (input: LogEventInput): SegmentTouched => ({
+  prev: [
+    ...('prevDocument' in input && input.prevDocument
+      ? [input.prevDocument]
+      : []),
+    ...('prevDocuments' in input ? input.prevDocuments || [] : []),
+  ],
+  current:
+    'currentDocument' in input && input.currentDocument
+      ? [input.currentDocument]
+      : [],
+});
 
 /**
  * Create an event dispatcher instance with methods for logging and automation triggers
@@ -93,7 +107,11 @@ export function createEventHandlers(
       });
     const docIds = toIdList(eventPayload.docIds ?? eventPayload.docId);
 
-    segmentJoinChanges(contentType, payload?.updateDescription)
+    segmentJoinChanges(
+      contentType,
+      payload?.updateDescription,
+      touchedOf(parsed),
+    )
       .then((changed) =>
         sendSegmentChanged({ subdomain, contentType, docIds, changed }),
       )

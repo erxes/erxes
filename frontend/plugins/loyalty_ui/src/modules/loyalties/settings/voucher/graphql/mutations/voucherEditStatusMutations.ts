@@ -28,6 +28,7 @@ export const UPDATE_VOUCHER_CAMPAIGN = gql`
     $value: Float
     $restrictions: JSON
     $perOwnerLimit: VoucherOwnerLimitInput
+    $validity: VoucherValidityInput
   ) {
     voucherCampaignsEdit(
       _id: $_id
@@ -56,6 +57,7 @@ export const UPDATE_VOUCHER_CAMPAIGN = gql`
       value: $value
       restrictions: $restrictions
       perOwnerLimit: $perOwnerLimit
+      validity: $validity
     ) {
       _id
       createdAt
@@ -97,6 +99,10 @@ export const UPDATE_VOUCHER_CAMPAIGN = gql`
       perOwnerLimit {
         count
         period
+      }
+      validity {
+        count
+        unit
       }
     }
   }

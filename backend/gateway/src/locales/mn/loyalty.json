@@ -1007,5 +1007,127 @@
   "loyalty-source-campaign-inactive": "Campaign идэвхгүй",
   "loyalty-source-also-built-in": "Built-in-ээр бас тохируулсан; нэгийг нь үлдээгээрэй",
   "loyalty-source-tiers-no-history": "Энэ эх үүсвэр худалдан авалтаа хэрхэн нэгтгэхийг заагаагүй тул tier-ийг зөвхөн өөрийн тохиргоонд тогтооно.",
-  "loyalty-tier-via-purchase-of": "{{name}} худалдан авалтаар"
+  "loyalty-tier-via-purchase-of": "{{name}} худалдан авалтаар",
+  "clear": "Арилгах",
+  "voucher-gives": "Юу өгөх",
+  "voucher-gives-hint": "Энэ campaign-ийн нэг voucher-ээр хэрэглэгч юу авах вэ.",
+  "voucher-type-hint": {
+    "discount": "Хамаарах бараанаас хөнгөлнө.",
+    "bonus": "Бараа үнэгүй өгнө.",
+    "lottery": "Сугалааны эрх өгнө.",
+    "spin": "Эргүүлэх эрх өгнө.",
+    "reward": "Хэрэглэгч төлбөр төлөхдөө хэрэглэх хөнгөлөлт."
+  },
+  "voucher-discount": "Хөнгөлөлт",
+  "voucher-kind-unit": {
+    "percent": "%",
+    "amount": "Дүн"
+  },
+  "voucher-discount-preview": {
+    "percent": "Хамаарах бараанаас {{value}}% хөнгөлнө",
+    "amount": "Хамаарах бараанаас {{value}} хөнгөлнө"
+  },
+  "voucher-term": "Хугацаа",
+  "voucher-term-hint": "Voucher бүр хэр удаан ажиллах, campaign хэзээ voucher олгох.",
+  "voucher-validity": "Voucher бүр ажиллах хугацаа",
+  "voucher-validity-mode": {
+    "period": "Тодорхой хугацаа",
+    "campaign": "Campaign дуустал"
+  },
+  "voucher-validity-unit": {
+    "day": "өдөр",
+    "week": "долоо хоног",
+    "month": "сар"
+  },
+  "voucher-validity-hint": {
+    "period": "Voucher олгогдсон мөчөөс тоолно. Campaign дууссан ч voucher ажилласаар байна.",
+    "campaign": "Campaign дуусахад бүх voucher хүчингүй болно; дуусах хугацаагүй бол хэзээ ч дуусахгүй."
+  },
+  "voucher-starts-now": "Одоо эхэлнэ",
+  "voucher-no-end-date": "Дуусахгүй",
+  "voucher-runs-until-stopped": "Унтраах хүртэл ажиллана",
+  "voucher-no-end": "Дуусахгүй",
+  "voucher-buy-section": "Оноогоор худалдах",
+  "voucher-buy-section-hint": "Нэг voucher худалдаж авахад хэрэглэгчийн төлөх оноо. Худалдахгүй бол 0.",
+  "voucher-validity-step": {
+    "campaign": "Campaign-ийн хугацаа",
+    "custom": "Өөр хугацаа"
+  },
+  "voucher-validity-step-hint": {
+    "campaign": "Voucher бүр campaign-д заасан хугацаагаар ажиллана.",
+    "custom": "Энэ алхмаар олгох voucher-т campaign-ийн хугацааг давж тогтооно."
+  },
+  "score-give-mode": "Оноо",
+  "score-give-mode-option": {
+    "campaign": "Campaign-аас",
+    "fixed": "Тогтмол"
+  },
+  "score-give-mode-hint": {
+    "campaign": "Trigger-ийн өгсөн худалдан авалтаас campaign-ийн earning table хэдийг өгөхийг шийднэ.",
+    "fixed": "Энэ алхам ажиллах бүрт ижил оноо өгнө. Earning table, tier, cap хамаарахгүй; зөвхөн wallet-ийн өөрийн дүрэм үйлчилнэ."
+  },
+  "score-fixed-points": "Өгөх оноо",
+  "score-fixed-points-node": "Wallet-д {{points}} оноо өгнө",
+  "voucher-status": {
+    "new": "Ашиглаагүй",
+    "onhold": "Барьсан",
+    "used": "Ашигласан",
+    "cancelled": "Цуцалсан",
+    "expired": "Хугацаа дууссан"
+  },
+  "voucher-gives-bonus": "{{count}} үнэгүй",
+  "voucher-gives-percent": "{{value}}% хөнгөлөлт",
+  "voucher-gives-amount": "{{value}} хөнгөлөлт",
+  "voucher-applies-products": "{{count}} бараа",
+  "voucher-applies-categories": "{{count}} ангилал",
+  "voucher-applies-tags": "{{count}} tag",
+  "voucher-applies-min": "{{value}}-аас дээш",
+  "voucher-applies-max": "{{value}} хүртэл",
+  "voucher-applies-anything": "Ямар ч худалдан авалт",
+  "voucher-where": {
+    "manual": "Борлуулалтаас гадуур",
+    "pos": "POS order",
+    "sales": "Deal"
+  },
+  "voucher-recipient": "Хэнд",
+  "voucher-valid-until": "Хүчинтэй",
+  "voucher-received": "Авсан",
+  "voucher-where-col": "Хаана",
+  "voucher-days-left": "{{count}} хоног үлдсэн",
+  "voucher-until": "{{date}} хүртэл",
+  "voucher-applies": "Юунд хэрэглэх",
+  "voucher-valid": "Хүчинтэй хугацаа",
+  "voucher-held-in": "Барьсан order",
+  "voucher-used-in": "Ашигласан газар",
+  "voucher-cancel-reason": "Цуцалсан шалтгаан",
+  "voucher-history": "Түүх",
+  "voucher-history-action": {
+    "issued": "Олгосон",
+    "held": "Order-т барьсан",
+    "released": "Суллагдсан",
+    "used": "Ашигласан",
+    "returned": "Order-той хамт буцсан",
+    "cancelled": "Цуцалсан",
+    "markedUsed": "Гараар ашигласан болгосон",
+    "extended": "Сунгасан"
+  },
+  "voucher-history-none": "Түүх хадгалагдаж эхлэхээс өмнөх voucher",
+  "voucher-mark-used": "Ашигласан болгох",
+  "voucher-extend": "Сунгах",
+  "voucher-cancel": "Цуцлах",
+  "voucher-extend-until": "Шинэ дуусах огноо",
+  "voucher-cancel-reason-placeholder": "Яагаад цуцалж байна",
+  "voucher-mark-used-placeholder": "Хаана ашигласан",
+  "voucher-action-confirm": {
+    "markUsed": "Ашигласан болгох",
+    "extend": "Сунгах",
+    "cancel": "Voucher цуцлах"
+  },
+  "voucher-cancelled": "Voucher цуцлагдлаа",
+  "voucher-marked-used": "Voucher ашигласан боллоо",
+  "voucher-extended": "Voucher сунгагдлаа",
+  "owner-vouchers-none": "Хэрэглэх voucher алга",
+  "owner-vouchers-closed": "{{count}} ашигласан, цуцалсан эсвэл дууссан",
+  "voucher-expires-within": "Дуусах хугацаа",
+  "voucher-expires-within-option": "{{count}} хоногт"
 }

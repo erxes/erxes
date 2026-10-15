@@ -57,14 +57,12 @@ export const PostsIndexPage = ({
   };
 
   return (
-    <PageContainer>
-      <PostsHeader>
-        <PostsAdd clientPortalId={clientPortalId} />
-      </PostsHeader>
-
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
-
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <PostsHeader>
+          <PostsAdd clientPortalId={clientPortalId} />
+        </PostsHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <PostsPageContent
             clientPortalId={clientPortalId}

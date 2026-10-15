@@ -30,7 +30,7 @@ export const initMQWorkers = async (redis: TRedisConnection) => {
     await schedulerQueue.upsertJobScheduler(
       'posclient-hourly-sync-remainder',
       {
-        pattern: '0 * * * *',
+        pattern: '0 20 * * *',
         tz: 'UTC',
       },
       {
@@ -51,9 +51,7 @@ export const initMQWorkers = async (redis: TRedisConnection) => {
     'sync-remainder',
     runner,
     redis,
-    () => {
-      console.log('Worker for queue posclient-sync-remainder is ready');
-    },
+    () => {},
   );
 
   createMQWorkerWithListeners(
@@ -61,8 +59,6 @@ export const initMQWorkers = async (redis: TRedisConnection) => {
     'hourly-sync-remainder',
     mainScheduler,
     redis,
-    () => {
-      console.log('Worker for queue posclient is ready');
-    },
+    () => {},
   );
 };

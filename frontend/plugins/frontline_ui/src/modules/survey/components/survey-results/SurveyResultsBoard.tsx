@@ -50,7 +50,10 @@ const SurveyResultCard = ({ survey }: { survey: ISurvey }) => {
       }));
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border bg-background p-4">
+    <Link
+      to={`${SETTINGS_PATH}/${survey.channelId}/surveys/${survey._id}`}
+      className="flex flex-col gap-3 rounded-lg border bg-background p-4 transition-colors hover:border-primary/50 hover:bg-accent/40"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{survey.title}</p>
@@ -87,22 +90,24 @@ const SurveyResultCard = ({ survey }: { survey: ISurvey }) => {
           })}
         </span>
       </div>
-    </div>
+    </Link>
   );
 };
 
 export const SurveyResultsBoard = () => {
   const { t } = useTranslation('frontline');
-  const [{ status, searchValue }] = useMultiQueryState<{
+  const [{ status, searchValue, channelId }] = useMultiQueryState<{
     status?: string;
     searchValue?: string;
-  }>(['status', 'searchValue']);
+    channelId?: string;
+  }>(['status', 'searchValue', 'channelId']);
 
   const { surveys, loading } = useSurveyList({
     withResults: true,
     variables: {
       status: status || undefined,
       searchValue: searchValue || undefined,
+      channelId: channelId || undefined,
     },
   });
 

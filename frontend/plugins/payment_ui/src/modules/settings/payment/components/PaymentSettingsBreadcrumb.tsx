@@ -11,8 +11,8 @@ export const PaymentSettingsBreadcrumb = () => {
   return (
     <>
       <Link to="/settings/payment">
-        <Button variant="ghost" className="font-semibold">
-          <IconCurrencyDollar className="w-4 h-4 text-accent-foreground" />
+        <Button variant="ghost">
+          <IconCurrencyDollar />
           {t('payment')}
         </Button>
       </Link>
@@ -20,9 +20,7 @@ export const PaymentSettingsBreadcrumb = () => {
       {isMatchingLocation('/methods') && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            {t('methods')}
-          </Button>
+          <Button variant="ghost">{t('methods')}</Button>
           <span className="ml-auto">
             <PaymentAddSheet />
           </span>
@@ -32,18 +30,14 @@ export const PaymentSettingsBreadcrumb = () => {
       {isMatchingLocation('/invoices') && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            {t('invoices')}
-          </Button>
+          <Button variant="ghost">{t('invoices')}</Button>
         </>
       )}
 
       {isMatchingLocation('/corporate-gateway') && (
         <>
           <Separator.Inline />
-          <Button variant="ghost" className="font-semibold">
-            {t('corporate-gateway')}
-          </Button>
+          <Button variant="ghost">{t('corporate-gateway')}</Button>
         </>
       )}
     </>

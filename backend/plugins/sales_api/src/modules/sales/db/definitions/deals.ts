@@ -16,12 +16,42 @@ const discountInfoSchema = new Schema(
   { _id: false },
 );
 
+const uomInfoSchema = new Schema(
+  {
+    uom: { type: String, required: true },
+    ratio: {
+      type: Number,
+      required: true,
+      min: Number.MIN_VALUE,
+      validate: Number.isFinite,
+    },
+    unitPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+      validate: Number.isFinite,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 0,
+      validate: Number.isFinite,
+    },
+  },
+  { _id: false },
+);
+
 export const productDataSchema = new Schema(
   {
     _id: { type: String },
     productId: { type: String }, // Product
     name: { type: String }, // Product name
     uom: { type: String }, // Units of measurement
+    uomInfo: {
+      type: uomInfoSchema,
+      optional: true,
+      label: 'Entry UOM information',
+    },
     currency: { type: String }, // Currency
     quantity: { type: Number, label: 'Quantity' }, // Quantity
     maxQuantity: { type: Number, label: 'Max' }, // Max quantity when selected bonus voucher

@@ -1,24 +1,33 @@
 import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useDealsEditProductData } from './mutations/useDealsEditProductData';
-import { IProductData } from 'ui-modules';
 import { ProductDataWithDiscountInfos } from '../utils/discountInfos';
+import { normalizeProductUom, syncProductUomInfo } from '../utils/productUom';
 
 export const useUpdateProductRecord = () => {
   const { editDealsProductData } = useDealsEditProductData();
-  const processId = localStorage.getItem('processId') || '';
   const onLocalChange = useAtomValue(onLocalChangeAtom);
 
   const updateRecord = (
-    product: IProductData,
+    product: ProductDataWithDiscountInfos,
     patch: Partial<ProductDataWithDiscountInfos>,
   ) => {
-    const doc = { ...product, ...patch };
+    const merged = { ...product, ...patch };
+    const doc = patch.uomInfo
+      ? normalizeProductUom(merged)
+      : syncProductUomInfo(merged);
+    const normalizedPatch = {
+      ...patch,
+      uom: doc.uom,
+      uomInfo: doc.uomInfo,
+      unitPrice: doc.unitPrice,
+      quantity: doc.quantity,
+    };
     const processId = crypto.randomUUID();
     localStorage.setItem('processId', processId);
 
     if (onLocalChange && product._id) {
-      onLocalChange(product._id, patch);
+      onLocalChange(product._id, normalizedPatch);
     }
 
     const request = editDealsProductData({
@@ -34,9 +43,9 @@ export const useUpdateProductRecord = () => {
     request.catch(() => {
       if (onLocalChange && product._id) {
         const revertPatch = Object.fromEntries(
-          Object.keys(patch).map((key) => [
+          Object.keys(normalizedPatch).map((key) => [
             key,
-            product[key as keyof IProductData],
+            product[key as keyof ProductDataWithDiscountInfos],
           ]),
         ) as Partial<ProductDataWithDiscountInfos>;
 

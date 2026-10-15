@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-13`
+- **Last synchronized:** `2026-10-14`
 
 ## Scope
 
@@ -44,9 +44,9 @@
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
 - Surveys UI: per-channel survey management inside channel settings (list, the
-  step-based create/edit wizard, archive, remove), the read-only results board
-  on the main `frontline/surveys` route, and the composer dialog that posts a
-  saved survey into a messenger conversation.
+  step-based create/edit wizard, archive, remove), the results board and the
+  create wizard on the main `frontline/surveys` route, and the composer dialog
+  that posts a saved survey into a messenger conversation.
 - Knowledge base UI: a topic tree sidebar beside every knowledge base page —
   each topic collapses open to its categories (nested by parent, with article
   counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
@@ -136,6 +136,26 @@
   finishing returns to `frontline/forms`; the settings flow
   (`settings/frontline/channels/:id/forms/create`) still returns to the
   channel's forms page.
+- The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
+  sub-header's channel filter (`FormChannelFilterView`, in place of the shared
+  `SelectChannel.FilterView`) and the sidebar Tags group (`ChooseFormTag`,
+  under Channels) show a form count next to each entry. Channel names come from
+  the `frontlineFormsChannelList` query (`getMyChannels`) through
+  `useFormsChannelList`, not `GET_MY_CHANNELS`; every count comes from
+  `useFormsFilterCounts`, which calls `formsTotalCount` with the URL's
+  `channelId`, `tagId`, `status` and `searchValue` and reads its `byChannel`
+  and `byTag`. A count never reacts to a pick in its own group, so choosing a
+  channel or tag never zeroes the others: channel counts ignore the channel and
+  tag picks and follow only status and search; tag counts ignore the tag pick and
+  follow channel, status and search. Channel and tag filters combine (AND) on
+  the list.
+- Tags filter `frontline/forms` only from the sidebar's Tags group; the
+  sub-header filter has no tag entry. The group lists non-group
+  `frontline:form` tags from `useTags` and toggles the `tagId` query param.
+- Form create (`useFormMutate`), remove (`useRemoveForm`), archive/unarchive
+  (row action and command bar), the Channel and Tags column edits and channel
+  moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) all refetch `FormsTotalCount`,
+  so the counts never need a manual refresh.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -179,8 +199,8 @@
   agent-created survey), and the channel sub-header carries a
   `<n> pending approval` shortcut that filters the list — it reads its own
   `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
-  other filter, and is skipped without a `channelId` so the read-only
-  `frontline/surveys` board never offers an approval it cannot perform. A
+  other filter, and is skipped without a `channelId` so the
+  `frontline/surveys` page never shows that shortcut. A
   pending row's row menu swaps Archive/Unarchive for `Approve` and `Reject`,
   and the command bar shows an `Approve` button whenever the selection holds a
   pending or rejected survey and a `Reject` button whenever it holds a pending
@@ -193,20 +213,23 @@
   status filter offers `rejected`, `FormStatus.Badge` renders it as a
   destructive circle-x badge, and a rejected row's menu still offers `Approve`
   (never `Reject`, which the API accepts only from `pending`) so an agent can
-  reverse the call, plus `Remove` to clear it. The reason lives on
+  reverse the call, plus `Delete` to clear it. The reason lives on
   `Survey.rejectionReason`; the status cell wraps the badge in a tooltip
   carrying it, and the server drops the field on any later status change, so a
   badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
   reserved for surveys that have been live.
 - Creating and editing a survey is a full-page step wizard on
-  `settings/frontline/channels/:id/surveys/create` and
-  `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
+  `settings/frontline/channels/:id/surveys/create`,
+  `settings/frontline/channels/:id/surveys/:surveyId` and
+  `frontline/surveys/create`, laid out exactly like the
   form builder: a left panel carrying `IntegrationSteps` (STEP badge, progress
   bar, description) over the current step's fields, a live preview on the right,
   and a `Cancel` / `Previous step` / `Next step` footer whose last step reads
   `Create survey` or `Update survey`. The three steps are **General** (title,
-  brand), **Content** (the survey's steps) and **Confirmation** (duration plus a
-  read-only review of every step).
+  brand, and a required channel select only on `frontline/surveys/create`),
+  **Content** (the survey's steps) and **Confirmation** (duration plus a
+  read-only review of every step). Cancelling or finishing returns to the page
+  the wizard was opened from: the channel's surveys page or `frontline/surveys`.
 - The Content step is where a survey gains questions. Each survey step is an
   `InfoCard.Content` card holding its name, question, attachments, description,
   2–10 unique options and its own multi-answer switch; `Add Step` appends
@@ -231,8 +254,28 @@
   Desktop/Tablet/Mobile width toggles. `MessageSurvey` renders a step's
   attachments under its question — an `image/*` file inline, anything else as a
   paperclip link — so the inbox message and the wizard preview stay identical.
-  `frontline/surveys` is read-only — a card board of aggregated `Survey.results`
-  per survey, with status/search filters and no create control.
+  `frontline/surveys` renders inside the `SurveyView` layout: `SurveyPageHeader`
+  (the `Surveys` breadcrumb, its favorite toggle and a `Create survey` button on
+  the right), the status/search filters and a card board of aggregated
+  `Survey.results` per survey; its empty state links only to the survey
+  settings. The header button opens the wizard on `frontline/surveys/create`,
+  where the header breadcrumb reads `Surveys / Create survey`. Its sidebar
+  carries the same `Channels` group as `frontline/forms` (`ChooseChannel` in
+  `FrontlineSubGroups`), which toggles the `channelId` query param; the
+  sub-header filter also offers `By Channel` (`SelectChannel.FilterItem`,
+  `FilterView` and `FilterBar`, only without a `channelId` prop) on the same
+  param. The board and `SurveySubHeader`'s record count filter by it, while the pending-approval
+  shortcut still only follows a channel settings page's own channel. A `View`
+  control (`SurveysViewControl`, only where `SurveySubHeader` has no
+  `channelId` prop) switches between the card board and the `SurveyPageList`
+  record table, with its row actions and command bar; the choice persists in
+  `surveyViewAtom` (`localStorage` key `surveyView`, default `grid`). Each
+  board card is a link to the survey's edit wizard under its channel settings
+  (`settings/frontline/channels/:channelId/surveys/:surveyId`).
+- Deleting surveys always asks first, like forms: the row menu's red `Delete`
+  confirms with `confirm-delete-survey-title` and the command bar's `Delete`
+  with `confirm-delete-surveys` (pluralised) through `useConfirm` before
+  `surveyRemove` runs.
 - In a messenger conversation the composer's survey button opens
   `SendSurveyDialog`, scoped to the conversation integration's `channelId`, which
   posts a saved survey through `surveySendToConversation`.
@@ -585,9 +628,9 @@ owns the setup form and connection actions.
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
-| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                   |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel            |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers             |
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
@@ -621,8 +664,10 @@ owns the setup form and connection actions.
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
   registered in `FrontlineMain`; every one but `preview` renders inside the
   `FormView` layout and its `FormPageHeader`.
-- Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
-  and `FrontlineMain`) — the read-only survey results board.
+- Routes `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
+  and `FrontlineMain`) — the survey results board — and
+  `frontline/surveys/create` (`FrontlinePaths.SurveyCreate`) — the create
+  wizard; both render inside the `SurveyView` layout and its `SurveyPageHeader`.
 - Settings route `settings/frontline/channels/:id/surveys` (registered in the
   channels `Settings.tsx` as `FrontlinePaths.ChannelSurveys`) — the channel's
   survey management page — plus `FrontlinePaths.SurveysCreate`
@@ -911,6 +956,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - The conversations filter bar header (`ConversationsHeader`) uses
   `bg-background`, matching the host's `PageHeader` and `PageSubHeader`, never
   the sidebar tint.
@@ -965,6 +1011,42 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   equals the loaded content; the save effect skips while the debounced content
   is still the loaded reference (`loadedDescriptionRef`) and only writes after a
   real editor change.
+- On the form builder's Callout step, turning **Skip callout** on dims the
+  callout fields the way 2.x's `LeftItem $deactive` did: they sit in a
+  `<fieldset disabled>` with `opacity-30 dark:opacity-50 cursor-not-allowed`
+  (50% in dark mode, where 30% reads as black), and its children get
+  `pointer-events-none` so the image `Dropzone` (which has no `disabled` prop)
+  also refuses drops. `[&_:disabled]:opacity-100` cancels erxes-ui's own
+  `disabled:opacity-50` so the fade is applied once. The switch stays outside
+  the fieldset, and turning it off restores the fields with their values
+  intact.
+- The form builder's General step ends with **Channel** and then **Save as
+  customer**. The switch uses the plugin's labelled-row pattern (as in
+  `HelpCenterGeneralTab`'s `FeatureSection`): the uppercase `Form.Label` and its
+  description on the left and the `Switch` on the right, so it reads like the
+  step's other labelled fields.
+- Segmented `ToggleGroup` choices in the form builder (General step's
+  Appearance and Load type, the field sheet's Field width and Validation) give
+  every `ToggleGroup.Item` `flex-1` so the segments split equally; `flex-auto`
+  sizes them by label length.
+- In the form builder's field list, the whole field row is the drag source:
+  it leads with an `IconDragDrop2` drag hint, shows a
+  `grab` cursor, and while dragging lifts with `shadow-lg` and a `primary`
+  border/ring. A single click anywhere on the row opens that field's
+  `FormFieldDetailSheet`, which is where its label and other attributes are
+  edited; there is no inline rename. `FormDndField` skips the
+  click when the pointer moved at least the `MouseSensor` drag distance (10px)
+  since pointer-down, so dropping a dragged field does not open its sheet. The
+  row's `...` trigger and the dropdown content stop click propagation, so menu
+  actions such as **Remove Field** never reach the row's click handler.
+  The row `div` carries only the sortable ref and `listeners` (no role or
+  handlers); its icon and label sit in a native `<button>` that is the dnd-kit
+  activator (`setActivatorNodeRef`, `attributes`), with the `...` menu as a
+  sibling (its `DropdownMenu.Trigger` is `asChild` over the `Button`) so
+  buttons never nest. On that button **Enter** opens the sheet (its
+  keydown is kept from the `KeyboardSensor`, and during a keyboard drag it is
+  left to drop instead), while **Space** picks the field up, arrows move it and
+  **Space** drops it; Space's keyup is prevented so it never clicks the button.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
@@ -1347,11 +1429,19 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   form has no messenger integration in the channel, and `frontline_api` rejects
   it. The selector lists every brand in the org, so a wrong pick surfaces as the
   mutation's error toast rather than as a filtered-out option.
-- Creating, editing, archiving, and removing a survey lives only under a
-  channel's settings page. `frontline/surveys` must stay read-only — its
-  `SurveySubHeader` renders filters and the record count only, and the
-  `Create survey` button lives in `ChannelSettingsBreadcrumb`, which supplies the
-  route's `channelId`.
+- A survey is always created with a channel. The wizard runs under two route
+  families — `frontline/surveys/create` and
+  `settings/frontline/channels/:id/surveys/*` — and tells them apart by the `id`
+  route param through `useSurveySetupChannel`, never by a flag. Under settings
+  the channel is the `:id` param; on `frontline/surveys/create` it is the
+  General step's channel select, required by `SURVEY_GENERAL_CREATE_SCHEMA`.
+  `useSurveyMutate`, `SurveyMutateLayout`'s cancel and
+  `SurveyOptionTicketConfig`'s pipeline select all read the channel and the
+  return path from that hook. Changing that channel select clears every
+  option's `ticketPipelineId` and `ticketStatusId` in `surveySetupContentAtom`,
+  because pipelines belong to a channel and the API does not check that a
+  survey's pipeline matches its channel. Editing, archiving, and removing a
+  survey still live only under a channel's settings page.
 - The wizard keeps one step's values per Jotai `atomWithStorage` atom
   (`surveySetupGeneralAtom`, `surveySetupContentAtom`, `surveySetupConfirmationAtom`),
   synced by the shared `FormValueEffectComponent`, exactly as the form builder

@@ -8,13 +8,17 @@ export const JournalReports = () => {
   const { t } = useTranslation('accounting');
   return (
     <AccountingLayout>
-      <AccountingHeader
-        returnLink="/accounting/journal-reports"
-        returnText={t('Reports')}
-      />
       <div className="flex flex-auto overflow-hidden">
         <ReportsList />
-        <ReportForm />
+        <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+          <AccountingHeader
+            returnLink="/accounting/journal-reports"
+            returnText={t('Reports')}
+          />
+          <div className="flex flex-auto overflow-hidden">
+            <ReportForm />
+          </div>
+        </div>
       </div>
     </AccountingLayout>
   );

@@ -1,10 +1,11 @@
 import { TVoucherOwnerLimit } from '../utils/voucherOwnerLimit';
+import { TVoucherValidity } from '../utils/voucherTerm';
 export interface IVoucher {
   _id: string;
   title: string;
   description?: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string | null;
+  endDate?: string | null;
   status: string;
   voucherType: string;
   kind: string;
@@ -26,5 +27,6 @@ export interface IVoucher {
     orExcludeTag?: string;
   };
   perOwnerLimit?: TVoucherOwnerLimit | null;
+  validity?: TVoucherValidity | null;
   conditions: any;
 }

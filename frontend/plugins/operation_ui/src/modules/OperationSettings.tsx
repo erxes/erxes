@@ -27,8 +27,8 @@ const OperationSettings = () => {
               <SettingsHeader
                 breadcrumbs={
                   <div className="flex items-center justify-between w-full gap-2">
-                    <Button variant="ghost" className="font-semibold">
-                      <IconUserSquare className="w-4 h-4 text-accent-foreground" />
+                    <Button variant="ghost">
+                      <IconUserSquare />
                       {t('team')}
                     </Button>
                     <CreateTeam />
