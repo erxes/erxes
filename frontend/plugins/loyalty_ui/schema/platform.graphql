@@ -137,6 +137,7 @@ extend type Mutation {
   engageMessageCancelSchedule(_id: String!): EngageMessage
   engageMessageRemove(_ids: [String]): JSON
   engageMessageSetSchedule(_id: String!, dateTime: Date, recurrence: EngageRecurrenceInput, afterSegment: EngageAfterSegmentInput): EngageMessage
+  segmentsAdd(contentType: String!, name: String, description: String, color: String, root: JSON!, visibility: SegmentVisibility, status: SegmentStatus, ownedBy: String): Segment
 }
 
 # backend/core-api/src/modules/products/graphql/schemas/product.ts
@@ -468,4 +469,21 @@ input WorkflowInput {
 enum CPUserType {
   customer
   company
+}
+
+# backend/core-api/src/modules/segments/graphql/schemas/index.ts
+
+enum SegmentStatus {
+  draft
+  building
+  active
+  failed
+  cancelled
+}
+
+# backend/core-api/src/modules/segments/graphql/schemas/index.ts
+
+enum SegmentVisibility {
+  private
+  organization
 }

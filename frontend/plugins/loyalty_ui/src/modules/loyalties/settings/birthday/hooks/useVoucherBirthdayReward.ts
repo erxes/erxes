@@ -2,7 +2,8 @@ import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { generateAutomationElementId, SEGMENT_ADD } from 'ui-modules';
+import { generateAutomationElementId } from 'ui-modules';
+import type { LoyaltyBirthdayVoucherCampaignQuery } from '~/gql/graphql';
 import {
   BIRTHDAY_AUTO_ISSUE_KIND,
   BIRTHDAY_SEGMENT_ROOT,
@@ -18,22 +19,20 @@ import {
   LOYALTY_BIRTHDAY_BROADCAST_FOLLOW,
   LOYALTY_BIRTHDAY_BROADCAST_REMOVE,
   LOYALTY_BIRTHDAY_REWARD_SET,
+  LOYALTY_BIRTHDAY_SEGMENT_ADD,
 } from '../graphql/birthdayRewardMutations';
 import {
   LOYALTY_BIRTHDAY_SEGMENTS,
   LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN,
 } from '../graphql/birthdayRewardQueries';
 
-type TAutoIssuePart = { engine: string; id: string };
-
-type TVoucherCampaign = {
-  _id: string;
-  title?: string;
-  perOwnerLimit?: { count: number; period: string } | null;
-  autoIssue?: { kind: string; segmentId: string; parts?: TAutoIssuePart[] }[];
-};
-
-type TSegment = { _id: string; root?: Record<string, unknown> };
+type TAutoIssue = NonNullable<
+  NonNullable<
+    NonNullable<
+      LoyaltyBirthdayVoucherCampaignQuery['voucherCampaignDetail']
+    >['autoIssue']
+  >[number]
+>;
 
 export type TBirthdayReward = {
   campaignId: string;
@@ -43,8 +42,8 @@ export type TBirthdayReward = {
   automationId?: string;
 };
 
-const partId = (parts: TAutoIssuePart[] = [], engine: string) =>
-  parts.find((part) => part.engine === engine)?.id;
+const partId = (parts: TAutoIssue['parts'], engine: string) =>
+  parts?.find((part) => part?.engine === engine)?.id ?? undefined;
 
 // Each run acts for one customer: the broadcast's recipient, or the one who
 // entered the segment.
@@ -63,29 +62,27 @@ export const useVoucherBirthdayReward = (campaignId: string) => {
   const client = useApolloClient();
   const [connecting, setConnecting] = useState(false);
 
-  const { data, loading, error } = useQuery<{
-    voucherCampaignDetail?: TVoucherCampaign;
-  }>(LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN, {
+  const { data, loading, error } = useQuery(LOYALTY_BIRTHDAY_VOUCHER_CAMPAIGN, {
     variables: { _id: campaignId },
     skip: !campaignId,
     fetchPolicy: 'cache-and-network',
   });
   const campaign = data?.voucherCampaignDetail;
   const entry = campaign?.autoIssue?.find(
-    ({ kind }) => kind === BIRTHDAY_AUTO_ISSUE_KIND,
+    (issue) => issue?.kind === BIRTHDAY_AUTO_ISSUE_KIND,
   );
   const reward: TBirthdayReward | null =
     campaign && entry
       ? {
           campaignId: campaign._id,
           campaignTitle: campaign.title || '',
-          segmentId: entry.segmentId,
+          segmentId: entry.segmentId ?? '',
           broadcastId: partId(entry.parts, 'broadcast'),
           automationId: partId(entry.parts, 'automation'),
         }
       : null;
 
-  const [addSegment] = useMutation(SEGMENT_ADD);
+  const [addSegment] = useMutation(LOYALTY_BIRTHDAY_SEGMENT_ADD);
   const [addBroadcast] = useMutation(LOYALTY_BIRTHDAY_BROADCAST_ADD);
   const [followSegment] = useMutation(LOYALTY_BIRTHDAY_BROADCAST_FOLLOW);
   const [removeBroadcast] = useMutation(LOYALTY_BIRTHDAY_BROADCAST_REMOVE);
@@ -98,15 +95,13 @@ export const useVoucherBirthdayReward = (campaignId: string) => {
 
   // One shared "birthday today" segment, whoever made it.
   const ensureSegment = async () => {
-    const { data: segmentsData } = await client.query<{
-      segments?: TSegment[];
-    }>({
+    const { data: segmentsData } = await client.query({
       query: LOYALTY_BIRTHDAY_SEGMENTS,
       variables: { contentTypes: [CUSTOMER_CONTENT_TYPE] },
       fetchPolicy: 'network-only',
     });
-    const existing = (segmentsData?.segments || []).find(({ root }) =>
-      isBirthdaySegmentRoot(root),
+    const existing = (segmentsData?.segments || []).find((segment) =>
+      isBirthdaySegmentRoot(segment?.root),
     );
 
     if (existing) {
@@ -122,7 +117,13 @@ export const useVoucherBirthdayReward = (campaignId: string) => {
       },
     });
 
-    return added?.segmentsAdd?._id as string;
+    const segmentId = added?.segmentsAdd?._id;
+
+    if (!segmentId) {
+      throw new Error(t('unexpected-error'));
+    }
+
+    return segmentId;
   };
 
   const connect = async () => {
@@ -148,11 +149,17 @@ export const useVoucherBirthdayReward = (campaignId: string) => {
           },
         },
       });
-      made.broadcastId = broadcast?.engageMessageAdd?._id;
+      const broadcastId = broadcast?.engageMessageAdd?._id;
+
+      if (!broadcastId) {
+        throw new Error(t('unexpected-error'));
+      }
+
+      made.broadcastId = broadcastId;
 
       await followSegment({
         variables: {
-          _id: made.broadcastId,
+          _id: broadcastId,
           // The zone decides which day a night's refresh belongs to.
           afterSegment: {
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -182,7 +189,13 @@ export const useVoucherBirthdayReward = (campaignId: string) => {
           actions: [automationStep],
         },
       });
-      made.automationId = automation?.automationsAdd?._id;
+      const automationId = automation?.automationsAdd?._id;
+
+      if (!automationId) {
+        throw new Error(t('unexpected-error'));
+      }
+
+      made.automationId = automationId;
 
       await setReward({
         variables: {
@@ -190,8 +203,8 @@ export const useVoucherBirthdayReward = (campaignId: string) => {
           kind: BIRTHDAY_AUTO_ISSUE_KIND,
           segmentId,
           parts: [
-            { engine: 'broadcast', id: made.broadcastId },
-            { engine: 'automation', id: made.automationId },
+            { engine: 'broadcast', id: broadcastId },
+            { engine: 'automation', id: automationId },
           ],
         },
       });
