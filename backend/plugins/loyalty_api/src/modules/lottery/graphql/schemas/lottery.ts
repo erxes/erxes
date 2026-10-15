@@ -2,7 +2,7 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type Lottery {
-    _id: String
+    _id: String!
     ownerId: String
     ownerType: String
     owner: JSON

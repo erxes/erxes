@@ -231,7 +231,11 @@ export const loadCouponClass = (models: IModels) => {
     }
 
     public static async updateCoupon(_id: string, doc: ICouponInput) {
-      return models.Coupons.updateOne({ _id }, { $set: doc });
+      return models.Coupons.findOneAndUpdate(
+        { _id },
+        { $set: doc },
+        { new: true },
+      );
     }
 
     public static async removeCoupon(_id: string, doc: ICouponInput) {

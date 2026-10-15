@@ -68,7 +68,7 @@ export const loadSpinClass = (models: IModels) => {
 
       const now = new Date();
 
-      return await models.Spins.updateOne(
+      return await models.Spins.findOneAndUpdate(
         { _id },
         {
           $set: {
@@ -81,6 +81,7 @@ export const loadSpinClass = (models: IModels) => {
             ...(voucherCampaignId !== undefined && { voucherCampaignId }),
           },
         },
+        { new: true },
       );
     }
 
