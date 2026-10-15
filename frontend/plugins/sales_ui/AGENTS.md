@@ -251,6 +251,9 @@
   preserve the optimistic update and cache handling when adopting generated
   types. Empty archives provide list/count/page metadata; successful label
   assignment and empty-stage sorting return success strings.
+- POS product-group saves use `productGroupsBulkInsert`. The Sales API has
+  no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
+  contracts rather than declaring documents for unsupported aliases.
 - POS edit, product-group/slot saves, and deal-watch documents already declare
   required target ids matching the backend's non-null arguments. Other legacy
   documents still declare nullable inputs even where the backend validates a

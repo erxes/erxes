@@ -287,6 +287,11 @@
 - Label assignment returns `success` after publishing the updated deal. Stage
   sorting returns `ok` even for an empty stage. An archive with no stages
   returns an empty list, zero count, and empty pagination metadata.
+- Every Sales Query/Mutation field must have an explicitly registered
+  resolver, and every registered root resolver must appear in SDL. The
+  `resolverParity` tests compare the assembled registries and declarations.
+  POS product-group writes use `productGroupsBulkInsert`; client-portal
+  pipeline reads use `cpSalesPipelines`. Do not declare unimplemented aliases.
 - `posEdit._id`, `dealsWatch._id`, `productGroupsBulkInsert.posId`, and
   `posSlotBulkUpdate.posId` are required in the SDL; resolvers also reject empty
   strings after checking permissions and before querying or mutating data.

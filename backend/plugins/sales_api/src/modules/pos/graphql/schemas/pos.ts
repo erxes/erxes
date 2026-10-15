@@ -1,12 +1,3 @@
-const groupCommonFields = `
-  posId: String
-  description: String
-  name: String
-  categoryIds: [String]
-  excludedCategoryIds: [String]
-  excludedProductIds: [String]
-`;
-
 const posCommonFields = `
   name: String
   description: String
@@ -128,7 +119,6 @@ export const mutations = `
   posAdd(${posCommonFields}, catProdMappings: [CatProdInput]): Pos
   posEdit(_id: String!, ${posCommonFields}, catProdMappings: [CatProdInput]): Pos
   posRemove(_id: String!): JSON
-  productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String!, groups:[GroupInput]): [ProductGroups]
   posSlotBulkUpdate(posId: String!, slots: [SlotInput]): [PosSlot]
 `;
