@@ -3,7 +3,7 @@ import { useQueryState } from 'erxes-ui';
 import { QUERY_SCORE_CAMPAIGN_DETAIL } from '../../graphql/queries/getScoreCampaignDetailQuery';
 
 export const useScoreDetailWithQuery = () => {
-  const [editScoreId] = useQueryState('editScoreId');
+  const [editScoreId] = useQueryState<string>('editScoreId');
 
   const { data, loading, error } = useQuery(QUERY_SCORE_CAMPAIGN_DETAIL, {
     variables: {
@@ -13,7 +13,7 @@ export const useScoreDetailWithQuery = () => {
   });
 
   return {
-    scoreDetail: data?.scoreCampaign,
+    scoreDetail: data?.scoreCampaign ?? undefined,
     loading,
     error,
   };

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SCORE_CAMPAIGN_EARN_PREVIEW = gql`
+export const SCORE_CAMPAIGN_EARN_PREVIEW = gql(`
   query ScoreCampaignEarnPreview(
     $accountTypeId: String
     $table: JSON!
@@ -17,4 +17,4 @@ export const SCORE_CAMPAIGN_EARN_PREVIEW = gql`
       breakdown
     }
   }
-`;
+`);

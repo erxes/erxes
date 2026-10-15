@@ -1,3 +1,4 @@
+import { isRecord } from '@/loyalties/utils/isRecord';
 import { LoyaltyScoreFormValues } from '../constants/formSchema';
 
 type TSubtractForm = LoyaltyScoreFormValues['subtract'];
@@ -24,12 +25,18 @@ export const toSubtractInput = ({ rules }: TSubtractForm): TSubtractInput => ({
   },
 });
 
-export const fromSubtractInput = (
-  subtract?: TSubtractInput | null,
-): TSubtractForm => ({
-  rules: {
-    minBalance: cell(subtract?.rules?.minBalance),
-    maxShare: cell(subtract?.rules?.maxShare),
-    step: cell(subtract?.rules?.step),
-  },
-});
+const ruleNumber = (value: unknown) =>
+  typeof value === 'number' ? value : undefined;
+
+export const fromSubtractInput = (subtract?: unknown): TSubtractForm => {
+  const rules =
+    isRecord(subtract) && isRecord(subtract.rules) ? subtract.rules : {};
+
+  return {
+    rules: {
+      minBalance: cell(ruleNumber(rules.minBalance)),
+      maxShare: cell(ruleNumber(rules.maxShare)),
+      step: cell(ruleNumber(rules.step)),
+    },
+  };
+};
