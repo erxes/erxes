@@ -170,7 +170,7 @@ const posEnv = gql`
 `;
 
 const posOrdersSummary = gql`
-  query PosOrdersSummary($customerId: String) {
+  query salesPosCustomerOrdersSummary($customerId: String) {
     posOrdersSummary(customerId: $customerId)
   }
 `;

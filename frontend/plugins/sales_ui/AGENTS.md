@@ -25,6 +25,9 @@
 
 ## Current Capabilities
 
+- POS Summary displays order aggregates from `posOrdersGroupSummary`, with
+  filters, payment columns, and totals. Its table has no row selection or
+  create/delete actions; summary rows are report groups, not stored records.
 - POS product settings independently persist `isShowRemainder` for display and
   `isCheckRemainder` for preventing negative stock, with category exclusions.
 
@@ -249,6 +252,8 @@
   renaming an operation, check repository-wide string references such as
   Apollo `refetchQueries` and `include`; preserve the document's exports,
   variables, arguments, and selections.
+  Check generated TypeScript names too: operation names differing only in
+  letter case can generate the same PascalCase identifiers.
 - POS report operations use their report context in their names (Orders,
   ByItems, Covers, Items, or Summary), even when their selections are identical.
   Keep document exports stable for their existing hooks and selectors.
@@ -273,9 +278,11 @@
   exports, and federation entry points have no consumers. Follow Operation's
   migration pattern of removing an unused hook together with its unsupported
   document; do not invent a backend operation to keep unused frontend code.
+- POS Summary row `_id` values come from the report's `paidDate` group key.
+  Do not pass them to POS configuration or order deletion mutations.
 - Codegen scans all Sales UI TypeScript documents, excluding only its generated
-  `src/gql/` output. Generated files are ignored by Git. Its scalar mapping is
-  `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.
+  `src/gql/` output. Generated files are ignored by Git and ESLint. Its scalar
+  mapping is `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.
 
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
