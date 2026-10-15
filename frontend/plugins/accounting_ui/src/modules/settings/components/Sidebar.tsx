@@ -28,7 +28,9 @@ export const AccountingSidebar = () => {
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(routes).map(([path, label]) => (
-              <AccountingSidebarItem key={path} to={path} children={label} />
+              <AccountingSidebarItem key={path} to={path}>
+                {label && t(label)}
+              </AccountingSidebarItem>
             ))}
           </Sidebar.Menu>
         </Sidebar.GroupContent>

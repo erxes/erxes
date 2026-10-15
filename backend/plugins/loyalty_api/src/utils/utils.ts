@@ -2,6 +2,13 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
+import { IVoucherTarget } from '~/modules/voucher/@types/voucher';
+import {
+  AUTO_SALE_VOUCHER_TYPES,
+  voucherExpiresAt,
+  voucherTerms,
+} from '~/modules/voucher/services/voucherTerm';
+import { CAMPAIGN_STATUS } from '~/constants';
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
@@ -52,8 +59,6 @@ type DealProductScoreData = {
   tickUsed?: boolean | null;
   unitPrice?: number | string | null;
 };
-
-const availableVoucherTypes = ['bonus', 'discount'];
 
 // Core service helpers
 async function coreQuery<T>(
@@ -131,8 +136,13 @@ export const applyRestriction = async ({
   const excludeProductIds = normalizeRestrictionIds(
     restrictions?.excludeProductIds,
   );
-  const tagIds = normalizeRestrictionIds(restrictions?.tagIds);
-  const excludeTagIds = normalizeRestrictionIds(restrictions?.excludeTagIds);
+  // Voucher and coupon forms save tags as `tag` / `orExcludeTag`.
+  const tagIds = normalizeRestrictionIds(
+    restrictions?.tagIds || restrictions?.tag,
+  );
+  const excludeTagIds = normalizeRestrictionIds(
+    restrictions?.excludeTagIds || restrictions?.orExcludeTag,
+  );
 
   const inputProductsIds = products.map((p) => p.productId);
 
@@ -246,120 +256,70 @@ function processProductDiscount(
   return { productId: _id, item, discount };
 }
 
-// Voucher helpers
-async function processVoucherBonus(
-  voucher: any,
-  productsIds: string[],
-  result: any,
-) {
-  for (const productId of productsIds) {
-    if (voucher.campaign.bonusProductId === productId) {
-      result[productId].voucherCampaignId = voucher.campaignId;
-      result[productId].voucherId = voucher._id;
-      result[productId].potentialBonus +=
-        voucher.campaign.bonusCount -
-        (voucher.bonusInfo || []).reduce((sum, i) => sum + i.usedCount, 0);
-      result[productId].type = 'bonus';
-      result[productId].discount = 100;
-      result[productId].bonusName = voucher.campaign.title;
-    }
-  }
-}
-
-async function processVoucherDiscount(
-  voucher: any,
-  subdomain: string,
-  products: IProductD[],
-  result: any,
-) {
-  const { title, kind, value, restrictions } = voucher.campaign;
-  const { productDocs, restrictedAmount } = await applyRestriction({
-    subdomain,
-    restrictions,
-    products,
-  });
-  for (const product of productDocs) {
-    const { productId, discount } = processProductDiscount(
-      result,
-      product,
-      products,
-      kind,
-      value,
-      restrictedAmount,
-    );
-    result[productId] = {
-      ...result[productId],
-      voucherCampaignId: voucher.campaignId,
-      voucherId: voucher._id,
-      discount,
-      voucherName: title,
-      type: 'discount',
-      sumDiscount: (result[productId]?.sumDiscount || 0) + discount,
-    };
-  }
-}
-
+// Bonus vouchers give their product whenever it is in the sale; discount and
+// reward vouchers are picked (`voucherId`), held for one order and used once.
 export const directVoucher = async ({
   result,
   ownerType,
   ownerId,
   models,
-  subdomain,
   products,
+}: {
+  result: Record<string, any>;
+  ownerType: string;
+  ownerId: string;
+  models: IModels;
+  products: IProductD[];
 }) => {
-  const NOW = new Date();
+  const now = new Date();
   const productsIds = products.map((p) => p.productId);
-  const activeCampaignIds = await models.Vouchers.find({
+
+  const vouchers = await models.Vouchers.find({
     ownerType,
     ownerId,
-    status: { $in: ['new'] },
-  }).distinct('campaignId');
+    status: VOUCHER_STATUS.NEW,
+  }).lean();
 
-  for (const voucherType of availableVoucherTypes) {
-    const campaigns = await models.VoucherCampaigns.find({
-      _id: { $in: activeCampaignIds },
-      finishDateOfUse: { $gte: NOW },
-      voucherType: { $in: [voucherType] },
-    }).lean();
+  if (!vouchers.length) {
+    return;
+  }
 
-    const vouchers = await models.Vouchers.aggregate([
-      {
-        $match: {
-          ownerType,
-          ownerId,
-          status: { $in: ['new'] },
-          campaignId: { $in: campaigns.map((c) => c._id) },
-        },
-      },
-      {
-        $lookup: {
-          from: 'voucher_campaigns',
-          localField: 'campaignId',
-          foreignField: '_id',
-          as: 'campaign_doc',
-        },
-      },
-      {
-        $project: {
-          campaignId: 1,
-          createdAt: 1,
-          modifiedAt: 1,
-          usedAt: 1,
-          userId: 1,
-          ownerType: 1,
-          ownerId: 1,
-          campaign: { $arrayElemAt: ['$campaign_doc', 0] },
-          bonusInfo: 1,
-        },
-      },
-    ]);
+  const campaigns = await models.VoucherCampaigns.find({
+    _id: { $in: [...new Set(vouchers.map((v) => v.campaignId))] },
+    status: CAMPAIGN_STATUS.ACTIVE,
+  }).lean();
+  const campaignById = new Map(campaigns.map((c) => [c._id, c]));
 
-    for (const voucher of vouchers) {
-      if (voucherType === 'bonus') {
-        await processVoucherBonus(voucher, productsIds, result);
-      } else {
-        await processVoucherDiscount(voucher, subdomain, products, result);
+  for (const voucher of vouchers) {
+    const campaign = campaignById.get(voucher.campaignId);
+
+    if (!campaign) {
+      continue;
+    }
+
+    const terms = voucherTerms(voucher, campaign);
+    const expiresAt = voucherExpiresAt(voucher, campaign);
+
+    if (
+      !AUTO_SALE_VOUCHER_TYPES.includes(terms.voucherType || '') ||
+      (expiresAt && expiresAt < now)
+    ) {
+      continue;
+    }
+
+    for (const productId of productsIds) {
+      if (terms.bonusProductId !== productId) {
+        continue;
       }
+
+      result[productId].voucherCampaignId = voucher.campaignId;
+      result[productId].voucherId = voucher._id;
+      result[productId].potentialBonus +=
+        (terms.bonusCount || 0) -
+        (voucher.bonusInfo || []).reduce((sum, i) => sum + i.usedCount, 0);
+      result[productId].type = 'bonus';
+      result[productId].discount = 100;
+      result[productId].bonusName = terms.title;
     }
   }
 };
@@ -375,23 +335,25 @@ async function applyDiscountSource(
   totalAmount: number,
   products: IProductD[],
   result: any,
+  targetId?: string,
 ) {
   let source;
   if (sourceType === 'voucher') {
+    // Free, or already held for (or used on) this very order.
     source = await models.Vouchers.checkVoucher({
       voucherId: sourceId,
       ownerType,
       ownerId,
-    });
-    await models.Vouchers.checkVoucher({
-      voucherId: sourceId,
-      ownerType,
-      ownerId,
       totalAmount,
+      targetId,
     });
   } else {
-    source = await models.Coupons.checkCoupon({ code: sourceId, ownerId });
-    await models.Coupons.checkCoupon({ code: sourceId, ownerId, totalAmount });
+    source = await models.Coupons.checkCoupon({
+      code: sourceId,
+      ownerId,
+      totalAmount,
+      targetId,
+    });
   }
   await applyDiscountRule(
     models,
@@ -402,6 +364,7 @@ async function applyDiscountSource(
     sourceType,
     sourceType === 'voucher' ? 'voucherCampaignId' : 'couponCampaignId',
     source._id,
+    sourceId,
   );
 }
 
@@ -415,6 +378,7 @@ async function applyDiscountRule(
   type: 'voucher' | 'coupon',
   idField: string,
   idValue: string,
+  sourceRef: string,
 ) {
   const { title, kind, value, restrictions = {} } = ruleSource;
   const { productDocs, restrictedAmount } = await applyRestriction({
@@ -437,7 +401,7 @@ async function applyDiscountRule(
       discount,
       voucherName: title,
       type,
-      ...(type === 'voucher' ? { voucherId: idValue } : { coupon: idValue }),
+      ...(type === 'voucher' ? { voucherId: sourceRef } : { coupon: idValue }),
     };
   }
 }
@@ -452,38 +416,11 @@ export const checkVouchersSale = async (
   discountInfo?: Record<string, string>,
 ) => {
   const result = {};
-  const { couponCode, voucherId } = discountInfo || {};
+  // `targetId`: the order or deal being priced, so its own held voucher passes.
+  const { couponCode, voucherId, targetId } = discountInfo || {};
 
   if (!ownerId && !products) {
     return 'No Data';
-  }
-
-  if (ownerType === 'customer') {
-    const customerRelatedClientPortalUserById = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'cpUsers',
-      action: 'get',
-      input: { id: ownerId },
-      defaultValue: null,
-    });
-    const customerRelatedClientPortalUser =
-      customerRelatedClientPortalUserById ||
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'cpUsers',
-        action: 'get',
-        input: { erxesCustomerId: ownerId },
-        defaultValue: null,
-      }));
-
-    if (customerRelatedClientPortalUser) {
-      ownerId = customerRelatedClientPortalUser._id;
-      ownerType = 'cpUser';
-    }
   }
 
   const totalAmount = products.reduce(
@@ -510,7 +447,6 @@ export const checkVouchersSale = async (
     ownerType,
     ownerId,
     models,
-    subdomain,
     products,
   });
 
@@ -525,6 +461,7 @@ export const checkVouchersSale = async (
       totalAmount,
       products,
       result,
+      targetId,
     );
   }
 
@@ -551,15 +488,15 @@ export const confirmVoucherSale = async (
   subdomain: string,
   checkInfo: {
     [productId: string]: {
-      voucherId: string;
-      count: number;
+      voucherId?: string | null;
+      count?: number | null;
     };
   },
   extraInfo?: {
-    couponCode?: string;
-    voucherId?: string;
-    ownerType?: string;
-    ownerId?: string;
+    couponCode?: string | null;
+    voucherId?: string | null;
+    ownerType?: string | null;
+    ownerId?: string | null;
     targetid?: string;
     targetId?: string;
     targetType?: string;
@@ -569,54 +506,36 @@ export const confirmVoucherSale = async (
   },
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
-
-  if (extraInfo?.ownerType === 'customer' && extraInfo?.ownerId) {
-    const customerRelatedClientPortalUser = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'cpUsers',
-      action: 'get',
-      input: { erxesCustomerId: extraInfo.ownerId },
-      defaultValue: null,
-    });
-    if (customerRelatedClientPortalUser) {
-      usageInfo.ownerId = customerRelatedClientPortalUser._id;
-      usageInfo.ownerType = 'cpUser';
-    }
-  }
+  const targetId = extraInfo?.targetId || extraInfo?.targetid;
+  const target: IVoucherTarget | undefined = targetId
+    ? { targetType: extraInfo?.targetType || '', targetId }
+    : undefined;
 
   if (couponCode) {
     await models.Coupons.redeemCoupon({ code: couponCode, usageInfo });
   }
 
+  // Using it twice on the same order changes nothing; on another, it fails.
   if (voucherId) {
-    await models.Vouchers.redeemVoucher({ voucherId, usageInfo });
+    await models.Vouchers.useVoucher({
+      voucherId,
+      ownerType: extraInfo?.ownerType || '',
+      ownerId: extraInfo?.ownerId || '',
+      target,
+      userId: extraInfo?.userId,
+    });
   }
 
   for (const productId of Object.keys(checkInfo)) {
     const rule = checkInfo[productId];
     if (!rule.voucherId || !rule.count) continue;
 
-    const voucher = await models.Vouchers.findOne({
-      _id: rule.voucherId,
-    }).lean();
-    if (!voucher) continue;
-
-    const campaign = await models.VoucherCampaigns.findOne({
-      _id: voucher.campaignId,
+    await models.Vouchers.useBonus({
+      voucherId: rule.voucherId,
+      count: rule.count,
+      target,
+      userId: extraInfo?.userId,
     });
-    if (!campaign) continue;
-
-    const oldBonusCount = (voucher.bonusInfo || []).reduce(
-      (sum, i) => sum + i.usedCount,
-      0,
-    );
-    const updateInfo: any = { $push: { bonusInfo: { usedCount: rule.count } } };
-    if (campaign.bonusCount - oldBonusCount <= rule.count) {
-      updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
-    }
-    await models.Vouchers.updateOne({ _id: rule.voucherId }, updateInfo);
   }
 };
 

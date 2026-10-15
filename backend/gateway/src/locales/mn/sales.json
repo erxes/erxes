@@ -962,5 +962,21 @@
   "pos-accept-coupons-hint": "Касс дээр coupon код оруулах талбар харагдана.",
   "pos-earn-tier-hint": "Төлөгдсөн захиалга дүнгээрээ энэ хэтэвчийн tier-ийг тогтооно; буцаалт tier-т хүрэхгүй.",
   "loyalty-tier-badge-sets": "Tier тогтооно → {{wallet}} · {{rule}}",
-  "loyalty-deal-points": "Лоялти оноо"
+  "loyalty-deal-points": "Лоялти оноо",
+  "deal-voucher": "Voucher",
+  "deal-voucher-title": "Voucher ба coupon",
+  "deal-voucher-vouchers": "Харилцагчийн voucher",
+  "deal-voucher-until": "{{date}} хүртэл",
+  "deal-voucher-auto": "Автомат",
+  "deal-voucher-applied": "Хэрэглэсэн",
+  "deal-voucher-apply": "Хэрэглэх",
+  "deal-voucher-none": "Энэ харилцагчид voucher байхгүй",
+  "deal-voucher-coupon": "Coupon",
+  "deal-voucher-remove": "Хасах",
+  "deal-voucher-coupon-placeholder": "Coupon код",
+  "deal-voucher-more_one": "+{{count}} voucher",
+  "deal-voucher-more_other": "+{{count}} voucher",
+  "deal-voucher-empty": "Voucher, coupon байхгүй",
+  "deal-voucher-open": "Voucher",
+  "deal-voucher-settled": "Энэ deal дээр ашиглагдсан"
 }

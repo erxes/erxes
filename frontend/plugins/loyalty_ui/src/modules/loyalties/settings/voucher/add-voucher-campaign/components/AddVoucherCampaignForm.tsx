@@ -14,7 +14,7 @@ export function AddVoucherCampaignForm({
   return (
     <Sheet.Content className="flex-auto overflow-hidden">
       <ScrollArea className="h-full">
-        <div className="p-5 flex flex-col gap-2">
+        <div className="p-5 flex flex-col gap-8">
           <VoucherAddCampaignCoreFields form={voucherForm} />
           <VoucherAddCampaignMoreFields form={voucherForm} />
         </div>

@@ -13,9 +13,5 @@ export const SurveyDetailsBreadcrumb = () => {
     return <Skeleton className="h-4 w-24" />;
   }
 
-  return (
-    <Button variant="ghost" className="font-semibold">
-      {survey?.title}
-    </Button>
-  );
+  return <Button variant="ghost">{survey?.title}</Button>;
 };

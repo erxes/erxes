@@ -1,5 +1,5 @@
-import { IProduct, IProductData } from 'ui-modules';
-import { useSetAtom } from 'jotai';
+import { IProduct, IProductData, currentUserState } from 'ui-modules';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ProductEditSheet } from '../ProductEditSheet';
@@ -23,6 +23,7 @@ import {
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { filterProducts } from '../../utils/filterProducts';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
+import { normalizeProductUom } from '../../utils/productUom';
 
 export const ProductsList = ({
   products,
@@ -39,6 +40,8 @@ export const ProductsList = ({
   refetch: () => void;
   tickUsed: boolean;
 }) => {
+  const currentUser = useAtomValue(currentUserState);
+  const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
   const [localProductsData, setLocalProductsData] =
     useState<IProductData[]>(productsData);
   const pendingProductPatchesRef = useRef<
@@ -77,13 +80,19 @@ export const ProductsList = ({
     null,
   );
 
-  products.forEach((product) => {
-    productByIdRef.current[product._id] = product;
-  });
   localProductsData.forEach((data) => {
     if (data.product?._id) {
-      productByIdRef.current[data.product._id] = data.product;
+      productByIdRef.current[data.product._id] = {
+        ...data.product,
+        ...productByIdRef.current[data.product._id],
+      };
     }
+  });
+  products.forEach((product) => {
+    productByIdRef.current[product._id] = {
+      ...productByIdRef.current[product._id],
+      ...product,
+    };
   });
 
   const availableProducts = Object.values(productByIdRef.current);
@@ -92,13 +101,15 @@ export const ProductsList = ({
 
   const productRecords = localProductsData
     .map((data) => {
-      const product =
-        data.product ||
-        (data.productId ? productByIdRef.current[data.productId] : undefined);
+      const productId = data.product?._id || data.productId;
+      const product = productId
+        ? productByIdRef.current[productId]
+        : data.product;
 
       return {
-        ...data,
+        ...normalizeProductUom(data, product),
         product,
+        currency: data.currency?.trim() ? data.currency : defaultCurrency,
       };
     })
     .filter((record) => {
@@ -154,6 +165,7 @@ export const ProductsList = ({
 
   const { handleSave } = useSaveDealProducts({
     localProductsData,
+    defaultCurrency,
     products,
     dealId,
     editDeals,
@@ -204,6 +216,7 @@ export const ProductsList = ({
 
   useSyncLocalProductsData({
     productsData,
+    defaultCurrency,
     setLocalProductsData,
     pendingProductPatchesRef,
     pendingProductDeletionsRef,

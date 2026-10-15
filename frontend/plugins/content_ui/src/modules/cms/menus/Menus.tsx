@@ -49,13 +49,13 @@ export function Menus() {
   );
 
   return (
-    <PageContainer>
-      <MenusHeader>
-        <HeaderLanguageTabs />
-        {headerActions}
-      </MenusHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <MenusHeader>
+          <HeaderLanguageTabs />
+          {headerActions}
+        </MenusHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">
           <div className="flex pt-2 pl-3 justify-between items-center mb-0">
             <div className="flex items-center gap-2">

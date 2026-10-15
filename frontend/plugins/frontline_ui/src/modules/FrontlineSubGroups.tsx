@@ -21,10 +21,11 @@ export const FrontlineSubGroups = () => {
   const isInbox = pathname.startsWith('/frontline/inbox');
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isForms = pathname.startsWith('/frontline/forms');
+  const isSurveys = pathname.startsWith('/frontline/surveys');
   if (isTickets) {
     return <TicketNavigations />;
   }
-  if (isForms) {
+  if (isForms || isSurveys) {
     return (
       <>
         <NavigationMenuGroup

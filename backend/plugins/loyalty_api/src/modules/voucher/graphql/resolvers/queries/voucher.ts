@@ -5,11 +5,16 @@ import {
 } from '@/voucher/@types/voucher';
 import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
+import { voucherExpiresAt } from '@/voucher/services/voucherTerm';
+import {
+  voucherExpiresWithinSelector,
+  voucherStatusSelector,
+} from '@/voucher/services/voucherStatusFilter';
 
-const generateFilter = (params: IVoucherParams) => {
-  const filter: FilterQuery<IVoucher> = {};
+const generateFilter = async (models: IModels, params: IVoucherParams) => {
+  let filter: FilterQuery<IVoucher> = {};
 
   const { campaignId, ownerId, ownerType, status, fromDate, toDate } =
     params || {};
@@ -27,7 +32,18 @@ const generateFilter = (params: IVoucherParams) => {
   }
 
   if (status) {
-    filter.status = status;
+    filter = { ...filter, ...(await voucherStatusSelector(models, status)) };
+  }
+
+  // Ending soon, read from the same dates as expiry.
+  if (params.expiresWithin) {
+    filter = {
+      ...filter,
+      $and: [
+        ...(filter.$and || []),
+        await voucherExpiresWithinSelector(models, params.expiresWithin),
+      ],
+    };
   }
 
   if (fromDate || toDate) {
@@ -44,47 +60,29 @@ const generateFilter = (params: IVoucherParams) => {
 
   return filter;
 };
+// A portal user is their customer: vouchers are only ever the customer's.
+const customerOfPortalUser = async (subdomain: string, ownerId: string) => {
+  const cpUser = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'cpUsers',
+    action: 'get',
+    input: { id: ownerId },
+    defaultValue: null,
+  });
+
+  return cpUser?.erxesCustomerId || ownerId;
+};
+
 const getOwnerVouchers = async (
   models: IContext['models'],
-  subdomain: string,
   ownerId: string,
-  ownerType?: string,
+  ownerType = 'customer',
 ) => {
-  let resolvedOwnerId = ownerId;
-  let resolvedOwnerType = ownerType;
-
-  if (!resolvedOwnerType || resolvedOwnerType === 'customer') {
-    const cpUserById = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'cpUsers',
-      action: 'get',
-      input: { id: resolvedOwnerId },
-      defaultValue: null,
-    });
-
-    const cpUser =
-      cpUserById ||
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'cpUsers',
-        action: 'get',
-        input: { erxesCustomerId: resolvedOwnerId },
-        defaultValue: null,
-      }));
-
-    if (cpUser) {
-      resolvedOwnerId = cpUser._id;
-      resolvedOwnerType = 'cpUser';
-    }
-  }
-
   const ownerVouchers = await models.Vouchers.find({
-    ownerId: resolvedOwnerId,
-    ...(resolvedOwnerType && { ownerType: resolvedOwnerType }),
+    ownerId,
+    ownerType,
   }).lean();
 
   const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
@@ -104,11 +102,10 @@ const getOwnerVouchers = async (
   const campaignIds = Array.from(campaignVoucherMap.keys());
   const now = new Date();
 
+  // A voucher outlives its campaign's issuing window, so each is judged alone.
   const campaigns = await models.VoucherCampaigns.find({
     _id: { $in: campaignIds },
     status: CAMPAIGN_STATUS.ACTIVE,
-    startDate: { $lte: now },
-    endDate: { $gte: now },
   }).lean();
 
   const vouchers: Array<{
@@ -128,6 +125,15 @@ const getOwnerVouchers = async (
     const voucherData = campaignVoucherMap.get(campaign._id.toString());
 
     if (!voucherData) continue;
+
+    voucherData.voucherIds = voucherData.voucherIds.filter((id) => {
+      const voucher = ownerVouchers.find((v) => v._id.toString() === id);
+      const expiresAt = voucher && voucherExpiresAt(voucher, campaign);
+
+      return !!voucher && (!expiresAt || expiresAt >= now);
+    });
+
+    if (!voucherData.voucherIds.length) continue;
 
     vouchers.push({
       campaign,
@@ -160,7 +166,7 @@ export const voucherQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('voucherView');
-    const filter = generateFilter(params);
+    const filter = await generateFilter(models, params);
 
     return await cursorPaginate<IVoucherDocument>({
       model: models.Vouchers,
@@ -181,7 +187,7 @@ export const voucherQueries = {
       sortField = 'createdAt',
       sortDirection = -1,
     } = params;
-    const filter = generateFilter(params);
+    const filter = await generateFilter(models, params);
 
     const totalCount = await models.Vouchers.countDocuments(filter);
     const list = await models.Vouchers.find(filter)
@@ -195,14 +201,9 @@ export const voucherQueries = {
   async ownerVouchers(
     _parent: undefined,
     params: { ownerId: string; ownerType?: string },
-    { models, subdomain }: IContext,
+    { models }: IContext,
   ) {
-    return getOwnerVouchers(
-      models,
-      subdomain,
-      params.ownerId,
-      params.ownerType,
-    );
+    return getOwnerVouchers(models, params.ownerId, params.ownerType);
   },
 
   async cpOwnerVouchers(
@@ -212,9 +213,7 @@ export const voucherQueries = {
   ) {
     return getOwnerVouchers(
       models,
-      subdomain,
-      params.ownerId,
-      params.ownerType,
+      await customerOfPortalUser(subdomain, params.ownerId),
     );
   },
 };

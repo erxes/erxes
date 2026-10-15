@@ -1,6 +1,7 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { ICommonCampaignDocument, ICommonCampaignFields } from '~/utils/common';
+import { IVoucherValidity } from '@/voucher/services/voucherTerm';
 
 export type TVoucherOwnerLimitPeriod = 'campaign' | 'year' | 'month';
 
@@ -32,7 +33,12 @@ export interface IVoucherAutoIssue {
   parts: IVoucherAutoIssuePart[];
 }
 
-export interface IVoucherCampaign extends ICommonCampaignFields {
+// A voucher campaign may run without a start or an end.
+export interface IVoucherCampaign
+  extends Omit<ICommonCampaignFields, 'startDate' | 'endDate'> {
+  startDate?: Date | null;
+  endDate?: Date | null;
+
   buyScore: number;
 
   score: number;
@@ -59,6 +65,7 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
   value: number;
   restrictions: any;
   perOwnerLimit?: IVoucherOwnerLimit | null;
+  validity?: IVoucherValidity | null;
   autoIssue?: IVoucherAutoIssue[];
 }
 
