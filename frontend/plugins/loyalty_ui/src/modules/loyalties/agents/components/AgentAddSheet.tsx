@@ -9,6 +9,7 @@ import { SelectProductRules } from './selects/SelectProductRules';
 import { SelectCustomer } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
 import { MonthPicker } from './selects/MonthPicker';
+import { toAgentStatus } from '../types/agent';
 
 interface AgentAddFormValues {
   number: string;
@@ -61,7 +62,7 @@ export const AgentAddSheet = () => {
     try {
       const result = await agentAdd({
         number: values.number,
-        status: values.status,
+        status: toAgentStatus(values.status),
         customerIds:
           values.customerIds.length > 0 ? values.customerIds : undefined,
         companyIds:
@@ -87,7 +88,7 @@ export const AgentAddSheet = () => {
         endDay: values.endDay,
         productRuleIds:
           values.productRuleIds.length > 0 ? values.productRuleIds : undefined,
-      } as any);
+      });
       if (result?.data) {
         setOpen(false);
         form.reset();
