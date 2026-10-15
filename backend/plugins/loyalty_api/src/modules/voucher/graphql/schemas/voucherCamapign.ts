@@ -39,7 +39,7 @@ export const types = `
   }
 
   type VoucherCampaign @key(fields: "_id") {
-    _id: String,
+    _id: String!,
     ${commonCampaignTypes}
     buyScore: Float,
 

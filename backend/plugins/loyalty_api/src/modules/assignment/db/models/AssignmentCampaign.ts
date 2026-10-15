@@ -72,7 +72,11 @@ export const loadAssignmentCampaignClass = (
         modifiedAt: new Date(),
       };
 
-      const result = await models.AssignmentCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.AssignmentCampaigns.findOneAndUpdate(
+        { _id },
+        { $set: modifier },
+        { new: true },
+      );
 
       sendDbEventLog?.({
         action: 'update',

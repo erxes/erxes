@@ -3,7 +3,7 @@ import { commonCampaignInputs, commonCampaignTypes } from '~/utils/common';
 
 export const types = `
   type SpinCampaign @key(fields: "_id") {
-    _id: String,
+    _id: String!,
     ${commonCampaignTypes}
 
     buyScore: Float,
