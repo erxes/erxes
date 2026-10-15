@@ -863,7 +863,8 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
   name and arguments, so a site written against 2.x calls it unchanged. It
   selects the active (`isActive` not `false`) `facebook-post` inbox
   `Integrations`, narrowed by `brandId` and `channelId` when either list is
-  non-empty (both lists narrow together; empty strings are ignored), then reads
+  non-empty (both lists narrow together; comma-joined ids, the form 2.0.7–2.11
+  accepted, are split and empty values ignored), then reads
   their pages and page tokens from `FacebookIntegrations` by `erxesApiId`.
   Each page is fetched once through `fetchPagesPostsList`, and the posts are
   merged newest first and cut to `limit` (default 20, at most 100, below 1 is

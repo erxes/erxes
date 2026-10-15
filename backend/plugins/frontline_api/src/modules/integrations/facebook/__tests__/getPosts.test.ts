@@ -116,6 +116,26 @@ test('without filters, reads every active post integration with the default limi
   expect(fetchPosts).toHaveBeenCalledWith('page-a', 'token-a', 20);
 });
 
+test('splits comma-joined ids the way 2.x sites send them', async () => {
+  const { context, distinct } = buildContext([], []);
+
+  await cpFacebookQueries.facebookGetPosts(
+    undefined,
+    {
+      brandIds: ['brand-1,brand-2', ' brand-3 ,'],
+      channelIds: ['channel-1,channel-2'],
+    },
+    context,
+  );
+
+  expect(distinct).toHaveBeenCalledWith('_id', {
+    kind: 'facebook-post',
+    isActive: { $ne: false },
+    brandId: { $in: ['brand-1', 'brand-2', 'brand-3'] },
+    channelId: { $in: ['channel-1', 'channel-2'] },
+  });
+});
+
 test('returns no posts without reading facebook integrations when nothing matches', async () => {
   const { context, find } = buildContext([], []);
 

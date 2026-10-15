@@ -25,7 +25,10 @@ type TFacebookPagePost = {
 };
 
 const compactIds = (ids?: (string | null)[] | null): string[] =>
-  (ids || []).filter((id): id is string => Boolean(id));
+  (ids || [])
+    .flatMap((id) => (id ? id.split(',') : []))
+    .map((id) => id.trim())
+    .filter(Boolean);
 
 const resolvePostsLimit = (limit?: number | null): number => {
   if (limit === undefined || limit === null) {
