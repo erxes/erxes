@@ -16,63 +16,63 @@ export const LOGS_SOURCE_ACTIONS = {
   mongo: [
     {
       value: 'create',
-      label: 'Created',
+      labelKey: 'action-created',
       icon: IconDatabasePlus,
     },
     {
       value: 'update',
-      label: 'Updated',
+      labelKey: 'action-updated',
       icon: IconDatabaseEdit,
     },
     {
       value: 'remove',
-      label: 'Removed',
+      labelKey: 'action-removed',
       icon: IconDatabaseMinus,
     },
   ],
   graphql: [
     {
       value: 'mutations',
-      label: 'Mutations',
+      labelKey: 'action-mutations',
       icon: IconDna,
     },
   ],
   webhook: [
     {
       value: 'GET',
-      label: 'GET',
+      labelKey: 'action-get',
       icon: IconHttpGet,
     },
     {
       value: 'POST',
-      label: 'POST',
+      labelKey: 'action-post',
       icon: IconHttpPost,
     },
     {
       value: 'PUT',
-      label: 'PUT',
+      labelKey: 'action-put',
       icon: IconHttpPut,
     },
     {
       value: 'PATCH',
-      label: 'PATCH',
+      labelKey: 'action-patch',
       icon: IconHttpPatch,
     },
     {
       value: 'DELETE',
-      label: 'DELETE',
+      labelKey: 'action-delete',
       icon: IconHttpDelete,
     },
   ],
   auth: [
     {
       value: 'login',
-      label: 'Login',
+      labelKey: 'action-login',
       icon: IconLogin,
     },
     {
       value: 'logout',
-      label: 'Logout',
+      labelKey: 'action-logout',
       icon: IconLogout,
     },
   ],

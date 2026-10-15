@@ -86,10 +86,11 @@ const StatusCell = ({ row }: { row: Row<ITransaction> }) => {
 const JournalCell = ({ row }: { row: Row<ITransaction> }) => {
   const { t } = useTranslation('accounting');
   const { journal } = row.original;
+  const label = journal ? TR_JOURNAL_LABELS[journal] : undefined;
 
   return (
     <RecordTableInlineCell>
-      {t(TR_JOURNAL_LABELS[journal] || '') || t('main')}
+      {label ? t(label) : t('main')}
     </RecordTableInlineCell>
   );
 };

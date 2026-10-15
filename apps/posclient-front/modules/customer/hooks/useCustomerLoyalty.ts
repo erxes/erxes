@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react"
 import { totalAmountAtom } from "@/store/cart.store"
-import { customerAtom, customerTypeAtom } from "@/store/order.store"
+import {
+  activeOrderIdAtom,
+  customerAtom,
+  customerTypeAtom,
+} from "@/store/order.store"
 import { useQuery } from "@apollo/client"
 import { useAtomValue } from "jotai"
 
@@ -19,6 +23,8 @@ export const useCustomerLoyalty = () => {
   const customer = useAtomValue(customerAtom)
   const customerType = useAtomValue(customerTypeAtom)
   const totalAmount = useAtomValue(totalAmountAtom)
+  // A voucher held for this very order reads as its own, not as taken.
+  const orderId = useAtomValue(activeOrderIdAtom)
   const [settledTotal, setSettledTotal] = useState(totalAmount)
 
   useEffect(() => {
@@ -34,7 +40,11 @@ export const useCustomerLoyalty = () => {
   const { data, loading } = useQuery<CustomerLoyaltyResponse>(
     queries.poscCustomerLoyalty,
     {
-      variables: { customerId: customer?._id, totalAmount: settledTotal },
+      variables: {
+        customerId: customer?._id,
+        totalAmount: settledTotal,
+        orderId: orderId || undefined,
+      },
       skip: !isCustomer,
       fetchPolicy: "cache-and-network",
     }

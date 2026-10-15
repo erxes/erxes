@@ -63,7 +63,10 @@ export function TopicEmbedScriptPanel({
         </Button>
       </div>
 
-      <Badge variant="info" className="block p-3 w-full h-auto">
+      <Badge
+        variant="info"
+        className="block p-3 w-full h-auto whitespace-normal"
+      >
         <h4 className="mb-2 text-sm font-medium">{t('installation-steps')}</h4>
         <ol className="space-y-1 text-sm list-decimal list-inside text-muted-foreground">
           <li>{t('installation-step-1')}</li>
@@ -71,6 +74,15 @@ export function TopicEmbedScriptPanel({
           <li>{t('installation-step-3')}</li>
           <li>{t('kb-install-step-4')}</li>
         </ol>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t(
+            'kb-install-inline-hint',
+            'To show it inside a page instead of as a button, add this element where it should appear:',
+          )}{' '}
+          <code className="font-mono break-all">
+            {'<div data-erxes-kbase></div>'}
+          </code>
+        </p>
       </Badge>
     </>
   );

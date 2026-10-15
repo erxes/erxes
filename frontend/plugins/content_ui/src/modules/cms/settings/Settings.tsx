@@ -18,16 +18,14 @@ export const Settings = () => {
   } = useSettingsForm();
 
   return (
-    <PageContainer>
-      <SettingsHeader
-        disabled={!canSave}
-        saving={isSaving}
-        onSave={handleSave}
-      />
-
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
-
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <SettingsHeader
+          disabled={!canSave}
+          saving={isSaving}
+          onSave={handleSave}
+        />
         <div className="min-w-0 flex-1 overflow-auto bg-muted/20">
           <SettingsForm
             cms={cms}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useBranchesList } from '../../hooks/useBranchesList';
 import { RecordTable, RecordTableTree } from 'erxes-ui';
 import { BranchColumns } from './BranchColumns';
@@ -7,6 +8,7 @@ import { BranchesCommandBar } from './BranchesCommandBar';
 import { BranchWorkingHoursSheet } from './details/BranchWorkingHoursSheet';
 
 export function BranchesSettings() {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { sortedBranches, loading } = useBranchesList();
 
   return (
@@ -16,7 +18,7 @@ export function BranchesSettings() {
       <BranchesFilter />
       <RecordTable.Provider
         data={sortedBranches || []}
-        columns={BranchColumns}
+        columns={BranchColumns(t)}
         stickyColumns={['more', 'checkbox', 'code', 'title']}
         className="m-3"
       >

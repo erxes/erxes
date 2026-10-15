@@ -6,12 +6,12 @@ import { ProductRuleRecordTable } from '@/products/settings/components/productsC
 
 export const ProductsProductRulePage = () => {
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <ProductRuleSheet />
-      </ProductsHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <ProductRuleSheet />
+        </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <div className="overflow-hidden flex-auto p-3">
             <div className="h-full">

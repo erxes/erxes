@@ -2,12 +2,17 @@ import { IContext } from '~/connectionResolvers';
 import {
   IReserveRemsAddParams,
   IReserveRem,
+  IReserveRemDocument,
 } from '~/modules/inventories/@types/reserveRems';
 import { getProducts } from './utils';
+import {
+  validateRequiredId,
+  validateRequiredIds,
+} from '~/modules/accounting/graphql/validateRequired';
 
 const reserveRemsMutations = {
   reserveRemsAdd: async (
-    _root: any,
+    _root: unknown,
     doc: IReserveRemsAddParams,
     { user, models, subdomain }: IContext,
   ) => {
@@ -36,18 +41,25 @@ const reserveRemsMutations = {
       productId: { $in: productIds },
     });
 
-    const oldReserveRemsByKey = {};
+    const oldReserveRemsByKey: Record<string, IReserveRemDocument> = {};
     for (const reserveRem of oldReserveRems) {
       oldReserveRemsByKey[
         `${reserveRem.branchId}_${reserveRem.departmentId}_${reserveRem.productId}`
       ] = reserveRem;
     }
 
-    let bulkUpdateOps: any[] = [];
-    let bulkCreateOps: any[] = [];
+    let bulkUpdateOps: Parameters<typeof models.ReserveRems.bulkWrite>[0] = [];
+    let bulkCreateOps: (Omit<IReserveRem, 'uom'> & {
+      uom?: string;
+      createdAt: Date;
+      createdBy: string;
+    })[] = [];
     const updatedIds: string[] = [];
     const now = new Date();
-    const inserteds: any = [];
+    const inserteds: (Omit<IReserveRem, 'uom'> & {
+      _id: string;
+      uom?: string;
+    })[] = [];
 
     let updateCounter = 0;
     let insertCounter = 0;
@@ -90,7 +102,7 @@ const reserveRemsMutations = {
               uom: product.uom,
               remainder,
               createdAt: now,
-              createBy: user._id,
+              createdBy: user._id,
             });
 
             insertCounter += 1;
@@ -99,7 +111,7 @@ const reserveRemsMutations = {
               const inserted = await models.ReserveRems.insertMany(
                 bulkCreateOps,
               );
-              inserteds.push(inserted);
+              inserteds.push(...inserted);
               bulkCreateOps = [];
             }
           }
@@ -113,7 +125,7 @@ const reserveRemsMutations = {
 
     if (bulkCreateOps.length) {
       const inserted = await models.ReserveRems.insertMany(bulkCreateOps);
-      inserteds.push(inserted);
+      inserteds.push(...inserted);
     }
 
     return inserteds.concat(
@@ -127,18 +139,20 @@ const reserveRemsMutations = {
     { models, user }: IContext,
   ) => {
     const { _id, ...params } = doc;
+    validateRequiredId(_id);
     await models.ReserveRems.getReserveRem({ _id });
     await models.ReserveRems.reserveRemEdit(_id, params, user);
     return await models.ReserveRems.findOne({ _id }).lean();
   },
 
   reserveRemsRemove: async (
-    _root: any,
+    _root: unknown,
     { _ids }: { _ids: string[] },
     { models }: IContext,
   ) => {
+    validateRequiredIds(_ids, '_ids');
     return await models.ReserveRems.reserveRemsRemove(_ids);
   },
 };
 
-export default reserveRemsMutations;
+export { reserveRemsMutations };

@@ -97,7 +97,7 @@ export const SelectCtaxValue = ({
   const { t } = useTranslation('accounting');
   const { ctaxRowDetail, loading } = useCtaxValue({
     variables: {
-      id: ctaxRowId,
+      id: ctaxRowId ?? '',
     },
     skip: !ctaxRowId || !!ctaxRow,
   });

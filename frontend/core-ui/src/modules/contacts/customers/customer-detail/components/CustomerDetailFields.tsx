@@ -7,7 +7,7 @@ import { useCustomerDetailSubmit } from '../../hooks/useCustomerDetailSubmit';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 
 export const CustomerDetailFields = () => {
-  const { t } = useTranslation('contact');
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { customerDetail } = useCustomerDetailWithQuery();
   const { rules, loading } = useSystemFieldRules('core:customer', 'detail');
   const form = useCustomerDetailForm(customerDetail, rules);

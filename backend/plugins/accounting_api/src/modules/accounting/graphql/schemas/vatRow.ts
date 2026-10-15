@@ -43,11 +43,11 @@ export const queries = `
     sortDirection: Int    
   ): [VatRow]
   vatRowsCount(${vatRowsQueryParams}): Int
-  vatRowDetail(_id: String): VatRow
+  vatRowDetail(_id: String!): VatRow
 `;
 
 export const mutations = `
   vatRowsAdd(${vatRowParams}): VatRow
   vatRowsEdit(_id: String!, ${vatRowParams}): VatRow
-  vatRowsRemove(vatRowIds: [String!]): String
+  vatRowsRemove(vatRowIds: [String!]!): String
 `;

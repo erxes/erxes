@@ -28,7 +28,7 @@ export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
   const [activeTab, setActiveTab] = useAtom(activeTabState);
   const { safeRemainder, loading } = useSafeRemainderDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
   const {
@@ -37,7 +37,7 @@ export const SafeRemainderDetail = () => {
     loading: detailsLoading,
     handleFetchMore,
   } = useSafeRemainderDetails({
-    variables: { remainderId: id },
+    variables: { remainderId: id ?? '' },
     skip: !id,
   });
   const { reCalcSafeRemainder, loading: reCalcLoading } =
@@ -87,7 +87,9 @@ export const SafeRemainderDetail = () => {
             variant="secondary"
             className="text-destructive"
             disabled={actionLoading}
-            onClick={() => removeSafeRemainder({ variables: { _id: id } })}
+            onClick={() =>
+              removeSafeRemainder({ variables: { _id: id ?? '' } })
+            }
           >
             <IconTrashX />
             {t('delete')}

@@ -1,8 +1,13 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingReserveRemsQuery,
+  AccountingReserveRemsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { useMultiQueryState } from 'erxes-ui';
 import { ACC_TRS__PER_PAGE } from '../../../transactions/types/constants';
 import { RESERVE_REMS_QUERY } from '../graphql/reserveRemQueries';
-import { IReserveRem } from '../types/ReserveRem';
 
 type ReserveRemQueryParams = {
   searchValue: string;
@@ -21,8 +26,9 @@ const RESERVE_REM_FILTER_KEYS: (keyof ReserveRemQueryParams)[] = [
 ];
 
 export const useReserveRemQueryParams = () => {
-  const [queryParams] =
-    useMultiQueryState<ReserveRemQueryParams>(RESERVE_REM_FILTER_KEYS);
+  const [queryParams] = useMultiQueryState<ReserveRemQueryParams>(
+    RESERVE_REM_FILTER_KEYS,
+  );
   return queryParams;
 };
 
@@ -41,13 +47,20 @@ export const useReserveRemVariables = () => {
   return variables;
 };
 
-export const useReserveRems = (options?: OperationVariables) => {
+export const useReserveRems = (
+  options?: QueryHookOptions<
+    AccountingReserveRemsQuery,
+    AccountingReserveRemsQueryVariables
+  >,
+) => {
   const filterVariables = useReserveRemVariables();
 
-  const { data, loading, error, fetchMore } = useQuery<{
-    reserveRems: IReserveRem[];
-    reserveRemsCount: number;
-  }>(RESERVE_REMS_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(RESERVE_REMS_QUERY, {
     ...options,
     variables: {
       page: 1,
@@ -56,6 +69,7 @@ export const useReserveRems = (options?: OperationVariables) => {
       ...options?.variables,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const reserveRems = data?.reserveRems;
   const totalCount = data?.reserveRemsCount ?? 0;

@@ -8,12 +8,12 @@ import { PageContainer, PageSubHeader } from 'erxes-ui';
 
 export const ProductsPackagePage = () => {
   return (
-    <PageContainer>
-      <ProductsHeader>
-        <PackageAddSheet />
-      </ProductsHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <ProductSidebar />
+    <PageContainer className="flex-row">
+      <ProductSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <ProductsHeader>
+          <PackageAddSheet />
+        </ProductsHeader>
         <div className="flex flex-col flex-auto overflow-hidden w-full">
           <PageSubHeader>
             <PackagesFilter />

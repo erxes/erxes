@@ -62,19 +62,25 @@ const AmountCell = ({ value }: { value: number }) => {
 
 const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details, side } = row.original;
-  const { amount } = details;
+  const { amount } = details ?? {};
 
   return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
 const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details, side } = row.original;
-  const { amount } = details;
+  const { amount } = details ?? {};
 
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const AmountItemCell = ({ row, value }: { row: any; value: number }) => {
+const AmountItemCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITrRecord>;
+  value: number;
+}) => {
   const { details } = row.original;
   if (!details?.productId && !details?.fixedAssetId) {
     return undefined;
@@ -126,10 +132,13 @@ const StatusCell = ({ row }: { row: Row<ITrRecord> }) => {
 const JournalCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { t } = useTranslation('accounting');
   const { journal } = row.original;
+  const label = Object.entries(TR_JOURNAL_LABELS).find(
+    ([key]) => key === journal,
+  )?.[1];
 
   return (
     <RecordTableInlineCell>
-      {t(TR_JOURNAL_LABELS[journal] || '') || t('main')}
+      {label ? t(label) : t('main')}
     </RecordTableInlineCell>
   );
 };

@@ -8,9 +8,10 @@ import {
 import { ApprovalLockedBadge } from 'ui-modules';
 import { IDocument } from '../types';
 import { IconArrowLeft } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
-/** Show document navigation with approval-lock visibility indicators. */
 export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
   const [documentId, setDocumentId] = useQueryState('documentId');
   const isMobile = useIsMobile();
 
@@ -27,7 +28,7 @@ export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
             }}
           >
             <IconArrowLeft />
-            All documents
+            {t('all-documents-list')}
           </Sidebar.GroupLabel>
           {isMobile && <Sidebar.PanelTrigger />}
         </div>
@@ -39,7 +40,7 @@ export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
                   isActive={_id === documentId}
                   onClick={() => setDocumentId(_id)}
                 >
-                  <span className="truncate">{name || 'Untitled'}</span>
+                  <span className="truncate">{name || t('untitled')}</span>
                   <ApprovalLockedBadge state={approvalLockState} />
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>

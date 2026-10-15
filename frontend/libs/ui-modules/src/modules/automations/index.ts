@@ -26,3 +26,8 @@ export type {
 export * from './hooks/useAutomationSetPropertyTargets';
 export * from './hooks/useGetFieldsProperties';
 export * from './utils/groupFieldsByType';
+export * from './types/conditionalTypes';
+export * from './utils/conditionalUtils';
+export * from './contexts/AutomationConditionalsContext';
+export * from './components/conditional/AutomationConditionalField';
+export * from './components/conditional/AutomationConditionalValueSlot';

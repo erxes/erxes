@@ -8,13 +8,8 @@ import {
   IconTrashX,
 } from '@tabler/icons-react';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import {
-  eachDayOfInterval,
-  format,
-  isAfter,
-  isBefore,
-  isSameDay,
-} from 'date-fns';
+import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
+import { formatDate as format } from '@/utils/graphqlDate';
 import {
   Button,
   DatePicker,
@@ -43,7 +38,7 @@ export const AdjustFixedAssetDetail = () => {
   const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
   const { adjustFixedAsset, loading } = useAdjustFixedAssetDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
   const {
@@ -52,7 +47,7 @@ export const AdjustFixedAssetDetail = () => {
     loading: detailsLoading,
     handleFetchMore,
   } = useAdjustFxaDetails({
-    variables: { _id: id, page: 1, perPage: ACC_TRS__PER_PAGE },
+    variables: { _id: id ?? '', page: 1, perPage: ACC_TRS__PER_PAGE },
     skip: !id,
   });
   const { runAdjustFixedAsset, loading: runLoading } = useAdjustFixedAssetRun(
@@ -231,12 +226,12 @@ const StatusBar = ({
   const { beginDate, date, successDate, status } = adjustFixedAsset;
   const start = beginDate || date;
   const end = date;
-  const current = successDate || start;
 
   if (!start || !end) {
     return null;
   }
 
+  const current = successDate || start;
   const days = eachDayOfInterval({
     start: new Date(start),
     end: new Date(end),

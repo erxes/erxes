@@ -1,5 +1,7 @@
+import { toGraphqlView } from '@/utils/graphql';
+import { gql } from '~/gql';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { gql, useQuery } from '@apollo/client';
 import {
   Form,
   isEnabled,
@@ -9,17 +11,17 @@ import {
 } from 'erxes-ui';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-const EBARIMT_PRODUCT_RULES_QUERY = gql`
-  query EbarimtProductRulesForAccounting($kind: String) {
-    ebarimtProductRules(kind: $kind) {
-      list {
-        _id
-        title
-        kind
-      }
+const EBARIMT_PRODUCT_RULES_QUERY = gql(`
+query accountingEbarimtProductRulesForAccounting($kind: String) {
+  ebarimtProductRules(kind: $kind) {
+    list {
+      _id
+      title
+      kind
     }
   }
-`;
+}
+`);
 
 type ProductRule = {
   _id: string;
@@ -46,10 +48,11 @@ const SelectEbarimtProductRules = ({
 }) => {
   const { t } = useTranslation('accounting');
   const mongolianEnabled = isEnabled('mongolian');
-  const { data, loading } = useQuery(EBARIMT_PRODUCT_RULES_QUERY, {
+  const { data: queryData, loading } = useQuery(EBARIMT_PRODUCT_RULES_QUERY, {
     variables: { kind },
     skip: !mongolianEnabled,
   });
+  const data = toGraphqlView(queryData);
 
   const productRules: ProductRule[] = data?.ebarimtProductRules?.list || [];
   const options: MultiSelectOption[] = productRules.map((rule) => ({

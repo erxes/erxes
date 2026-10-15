@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
-import { format } from 'date-fns';
+import { formatDate as format } from '@/utils/graphqlDate';
 import { Button, useQueryState, useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useState, type RefObject } from 'react';
@@ -24,9 +24,9 @@ export const ReportExcelExportButton = ({
   reportContainerRef,
 }: IReportExcelExportButtonProps) => {
   const { t } = useTranslation('accounting');
-  const [report] = useQueryState('report');
-  const [fromDate] = useQueryState('fromDate');
-  const [toDate] = useQueryState('toDate');
+  const [report] = useQueryState<string>('report');
+  const [fromDate] = useQueryState<string>('fromDate');
+  const [toDate] = useQueryState<string>('toDate');
   const organization = useAtomValue(currentOrganizationState);
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);

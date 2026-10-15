@@ -6,6 +6,7 @@ import { LogUserInfo } from '@/logs/components/LogUser';
 import { maskFields } from '../utils/logFormUtils';
 import { LogDetailJsonPanel, LogDetailSection } from './LogDetailPrimitives';
 import { IconClockHour4, IconDatabase } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const MongoContent = lazy(() =>
   import('./MongoLogDetailContent').then((module) => ({
@@ -105,6 +106,7 @@ const getStatusBadgeVariant = (
 };
 
 export const LogDetailView = ({ logId }: { logId: string }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const { detail, error, loading } = useLogDetail(logId);
 
   if (loading) {
@@ -116,7 +118,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
   }
 
   if (!detail) {
-    return error?.message || 'Something went wrong';
+    return error?.message || t('something-went-wrong');
   }
 
   const { _id, source, status, createdAt, user, payload } = detail;
@@ -139,7 +141,7 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
             <div className="flex flex-col gap-4 border-b px-6 py-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <h2 className="text-xl font-semibold text-foreground">
-                  Log Details
+                  {t('log-details')}
                 </h2>
                 <p className="mt-1 truncate font-mono text-xs text-muted-foreground">
                   {_id || logId}

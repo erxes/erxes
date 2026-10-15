@@ -13,13 +13,18 @@ import {
   ToggleGroup,
   Input,
   Tabs,
-  Switch,
-  Select,
 } from 'erxes-ui';
 import { z } from 'zod';
 import { useUpdateClientPortal } from '@/client-portal/hooks/useUpdateClientPortal';
 import { IClientPortal } from '../types/clientPortal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ClientPortalOtpChannelFields } from '@/client-portal/components/ClientPortalSecurityFields';
+
+const OTP_TABS = [
+  { tab: 'email', channel: 'email' },
+  { tab: 'phone', channel: 'sms' },
+] as const;
 
 function stripTypename<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
@@ -41,6 +46,7 @@ export const ClientPortalDetailAuth = ({
 }: {
   clientPortal?: IClientPortal;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const [activeTab, setActiveTab] = useState<
     'token' | 'email' | 'phone' | 'resend'
   >('token');
@@ -151,7 +157,7 @@ export const ClientPortalDetailAuth = ({
   }
 
   return (
-    <InfoCard title="Authentication Token">
+    <InfoCard title={t('authentication-token')}>
       <InfoCard.Content className="gap-4">
         <ToggleGroup
           type="single"
@@ -162,16 +168,16 @@ export const ClientPortalDetailAuth = ({
           variant="outline"
         >
           <ToggleGroup.Item value="token" className="flex-auto">
-            Token Settings
+            {t('token-settings')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="email" className="flex-auto">
-            Email
+            {t('email')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="phone" className="flex-auto">
-            Phone
+            {t('phone')}
           </ToggleGroup.Item>
           <ToggleGroup.Item value="resend" className="flex-auto">
-            OTP Resend
+            {t('otp-resend')}
           </ToggleGroup.Item>
         </ToggleGroup>
 
@@ -193,7 +199,7 @@ export const ClientPortalDetailAuth = ({
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label className="block">
-                        Token Pass Method
+                        {t('token-pass-method')}
                       </Form.Label>
                       <ToggleGroup
                         type="single"
@@ -203,10 +209,10 @@ export const ClientPortalDetailAuth = ({
                         className="inline-flex"
                       >
                         <ToggleGroup.Item value="header" className="flex-auto">
-                          Header
+                          {t('header')}
                         </ToggleGroup.Item>
                         <ToggleGroup.Item value="cookie" className="flex-auto">
-                          Cookie
+                          {t('cookie')}
                         </ToggleGroup.Item>
                       </ToggleGroup>
                       <Form.Message />
@@ -220,7 +226,7 @@ export const ClientPortalDetailAuth = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Token expiration duration (days)
+                          {t('token-expiration-description')}
                         </Form.Label>
                         <Input
                           type="number"
@@ -242,7 +248,7 @@ export const ClientPortalDetailAuth = ({
                     render={({ field }) => (
                       <Form.Item>
                         <Form.Label>
-                          Refresh Token expiration duration (days)
+                          {t('refresh-token-expiration-description')}
                         </Form.Label>
                         <Input
                           type="number"
@@ -269,295 +275,39 @@ export const ClientPortalDetailAuth = ({
                     }
                   >
                     {loading && <Spinner />}
-                    Update
+                    {t('update')}
                   </Button>
                 </div>
               </form>
             </Form>
           </Tabs.Content>
 
-          <Tabs.Content value="email">
-            <Form {...otpForm}>
-              <form
-                onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
-                className="flex flex-col gap-4"
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.enableEmailVerification"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          Enable Email Verification
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.enablePasswordlessLogin"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          Enable Passwordless Login
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.emailSubject"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Email Subject</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>OTP email subject</Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          OTP code length (4-6 digits)
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          Email message body with {'{{code}}'} placeholder
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="email.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          OTP expiration duration in minutes
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="mt-2"
-                  disabled={loading}
-                  variant="secondary"
+          {OTP_TABS.map(({ tab, channel }) => (
+            <Tabs.Content key={tab} value={tab}>
+              <Form {...otpForm}>
+                <form
+                  onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
+                  className="flex flex-col gap-4"
                 >
-                  {loading && (
-                    <Spinner containerClassName="w-auto flex-none mr-2" />
-                  )}
-                  Save
-                </Button>
-              </form>
-            </Form>
-          </Tabs.Content>
-
-          <Tabs.Content value="phone">
-            <Form {...otpForm}>
-              <form
-                onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
-                className="flex flex-col gap-4"
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
+                  <ClientPortalOtpChannelFields
                     control={otpForm.control}
-                    name="sms.enablePhoneVerification"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          Enable Phone Verification
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
+                    channel={channel}
                   />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.enablePasswordlessLogin"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer">
-                          Enable Passwordless Login
-                        </Form.Label>
-                        <Form.Message />
-                      </Form.Item>
+                  <Button
+                    type="submit"
+                    className="mt-2"
+                    disabled={loading}
+                    variant="secondary"
+                  >
+                    {loading && (
+                      <Spinner containerClassName="w-auto flex-none mr-2" />
                     )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.smsProvider"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>SMS Provider</Form.Label>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Form.Control>
-                            <Select.Trigger>
-                              <Select.Value placeholder="Select SMS provider" />
-                            </Select.Trigger>
-                          </Form.Control>
-                          <Select.Content>
-                            <Select.Item value="callPro">CallPro</Select.Item>
-                            <Select.Item value="twilio">Twilio</Select.Item>
-                          </Select.Content>
-                        </Select>
-                        <Form.Description>
-                          Select the SMS provider to use for sending OTP codes
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.codeLength"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Code Length</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          OTP code length (4-6 digits)
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.messageTemplate"
-                    render={({ field }) => (
-                      <Form.Item className="col-span-2">
-                        <Form.Label>Message Template</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.Description>
-                          SMS message body with {'{{code}}'} placeholder
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <Form.Field
-                    control={otpForm.control}
-                    name="sms.duration"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Expiration Duration (minutes)</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value ?? ''}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          OTP expiration duration in minutes
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="mt-2"
-                  disabled={loading}
-                  variant="secondary"
-                >
-                  {loading && (
-                    <Spinner containerClassName="w-auto flex-none mr-2" />
-                  )}
-                  Save
-                </Button>
-              </form>
-            </Form>
-          </Tabs.Content>
+                    {t('save')}
+                  </Button>
+                </form>
+              </Form>
+            </Tabs.Content>
+          ))}
 
           <Tabs.Content value="resend" className="mt-4">
             <Form {...otpResendForm}>
@@ -571,7 +321,7 @@ export const ClientPortalDetailAuth = ({
                     name="cooldownPeriodInSeconds"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Cooldown period (seconds)</Form.Label>
+                        <Form.Label>{t('cooldown-period-seconds')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -588,7 +338,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          Minimum seconds between OTP resend requests
+                          {t('cooldown-period-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -599,7 +349,7 @@ export const ClientPortalDetailAuth = ({
                     name="maxAttemptsPerHour"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Max attempts per hour</Form.Label>
+                        <Form.Label>{t('max-attempts-per-hour')}</Form.Label>
                         <Form.Control>
                           <Input
                             type="number"
@@ -616,7 +366,7 @@ export const ClientPortalDetailAuth = ({
                           />
                         </Form.Control>
                         <Form.Description>
-                          Maximum OTP resend requests per hour
+                          {t('max-attempts-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -632,7 +382,7 @@ export const ClientPortalDetailAuth = ({
                   {loading && (
                     <Spinner containerClassName="w-auto flex-none mr-2" />
                   )}
-                  Save
+                  {t('save')}
                 </Button>
               </form>
             </Form>

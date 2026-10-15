@@ -7,6 +7,7 @@ import { useProductsEdit } from '../../hooks/useProductsEdit';
 import { TagsManagerProps } from '../types/tagsTypes';
 import { useRemoveTag } from '@/settings/tags/hooks/useRemoveTag';
 import { CreateTagForm, ITag } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export function TagsManager({
   productId,
@@ -14,6 +15,9 @@ export function TagsManager({
   uom = '',
   onTagsUpdated,
 }: TagsManagerProps) {
+  const { t } = useTranslation('product', {
+    keyPrefix: 'detail',
+  });
   const client = useApolloClient();
   const { toast } = useToast();
   const { tags: availableTags = [], refetch } = useProductTags() || {};
@@ -46,7 +50,7 @@ export function TagsManager({
       }
     } catch (error) {
       toast({
-        title: 'Error refreshing data',
+        title: t('error-refreshing-data'),
         variant: 'destructive',
       });
     }
@@ -59,16 +63,16 @@ export function TagsManager({
       setTags((prevTags) => prevTags.filter((tag) => tag !== tagToDelete.id));
 
       toast({
-        title: 'Tag removed',
-        description: `Successfully removed tag: ${tagToDelete.name}`,
+        title: t('tag-removed'),
+        description: t('tag-removed-description', { name: tagToDelete.name }),
         variant: 'success',
       });
       await refreshData();
     } catch (error) {
       console.error('Failed to remove tag:', error);
       toast({
-        title: 'Error removing tag',
-        description: 'There was a problem removing the tag. Please try again.',
+        title: t('error-removing-tag'),
+        description: t('error-removing-tag-description'),
         variant: 'destructive',
       });
     } finally {
@@ -90,8 +94,8 @@ export function TagsManager({
       });
 
       toast({
-        title: 'Tags updated',
-        description: 'Product tags have been successfully updated.',
+        title: t('tags-updated'),
+        description: t('tags-updated-description'),
         variant: 'default',
       });
 
@@ -99,8 +103,8 @@ export function TagsManager({
     } catch (error) {
       console.error('Error updating tags:', error);
       toast({
-        title: 'Error updating tags',
-        description: 'There was a problem updating the tags. Please try again.',
+        title: t('error-updating-tags'),
+        description: t('error-updating-tags-description'),
         variant: 'destructive',
       });
     } finally {
@@ -114,8 +118,8 @@ export function TagsManager({
     setShowTagCreator(false);
 
     toast({
-      title: 'Tag created',
-      description: `New tag "${newTag.name}" has been created and added to the product.`,
+      title: t('tag-created'),
+      description: t('tag-created-description', { name: newTag.name }),
       variant: 'default',
     });
   };
@@ -129,7 +133,7 @@ export function TagsManager({
         disabled={isEditingTags}
       >
         <IconPlus className="h-4 w-4" />
-        <span>Add tag</span>
+        <span>{t('add-tag')}</span>
       </Button>
 
       {showTagCreator && (
@@ -155,13 +159,15 @@ export function TagsManager({
               <button
                 onClick={() => confirmTagDeletion(tagId, tagName)}
                 className="ml-1 rounded-full p-0.5 hover:bg-gray-200"
-                title="Remove tag"
-                aria-label={`Remove tag ${tagName}`}
+                title={t('remove-tag')}
+                aria-label={t('remove-tag-name', { name: tagName })}
                 disabled={isEditingTags || removeLoading}
                 type="button"
               >
                 <IconX className="h-4 w-4" />
-                <span className="sr-only">Remove {tagName}</span>
+                <span className="sr-only">
+                  {t('remove-name', { name: tagName })}
+                </span>
               </button>
             </div>
           );
@@ -173,16 +179,15 @@ export function TagsManager({
       >
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>Delete Tag</AlertDialog.Title>
+            <AlertDialog.Title>{t('delete-tag')}</AlertDialog.Title>
             <AlertDialog.Description>
-              Are you sure you want to remove the tag "{tagToDelete?.name}"?
-              This action cannot be undone.
+              {t('confirm-delete-tag', { name: tagToDelete?.name })}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+            <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
             <AlertDialog.Action onClick={handleRemoveTag}>
-              Yes, delete tag
+              {t('yes-delete-tag')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>

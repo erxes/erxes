@@ -34,6 +34,8 @@ export const types = `
     targetDate: Date
     createdAt: Date
     updatedAt: Date
+    updatedBy: String
+    statusChangedBy: String
     channelId: String
     statusChangedDate: Date
     number: String
@@ -148,6 +150,8 @@ const updateTicketParams = `
   statusId: String
   destinationStatusId: String
   priority: Int
+  branchId: String
+  departmentId: String
   labelIds: [String]
   tagIds: [String]
   assigneeId: String

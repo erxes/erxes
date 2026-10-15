@@ -1,20 +1,35 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import type {
+  AccountingAdjustFxaDetailsQuery,
+  AccountingAdjustFxaDetailsQueryVariables,
+} from '~/gql/graphql';
+import type { QueryHookOptions } from '@apollo/client';
+import { toGraphqlView } from '@/utils/graphql';
+import { useQuery } from '@apollo/client';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 import { ADJUST_FXA_DETAILS_QUERY } from '../graphql/adjustFixedAssetQueries';
-import { IAdjustFxaDetail } from '../types/AdjustFixedAsset';
 
-export const useAdjustFxaDetails = (options?: OperationVariables) => {
-  const { data, loading, error, fetchMore } = useQuery<{
-    adjustFxaDetails: IAdjustFxaDetail[];
-    adjustFxaDetailsCount: number;
-  }>(ADJUST_FXA_DETAILS_QUERY, {
+export const useAdjustFxaDetails = (
+  options?: QueryHookOptions<
+    AccountingAdjustFxaDetailsQuery,
+    AccountingAdjustFxaDetailsQueryVariables
+  >,
+) => {
+  const {
+    data: queryData,
+    loading,
+    error,
+    fetchMore,
+  } = useQuery(ADJUST_FXA_DETAILS_QUERY, {
     ...options,
+    skip: !options?.variables?._id,
     variables: {
+      _id: options?.variables?._id ?? '',
       ...options?.variables,
       page: 1,
       perPage: ACC_TRS__PER_PAGE,
     },
   });
+  const data = toGraphqlView(queryData);
 
   const adjustFxaDetails = data?.adjustFxaDetails || [];
   const adjustFxaDetailsCount = data?.adjustFxaDetailsCount || 0;
@@ -33,8 +48,8 @@ export const useAdjustFxaDetails = (options?: OperationVariables) => {
         ...prev,
         ...fetchMoreResult,
         adjustFxaDetails: [
-          ...prev.adjustFxaDetails,
-          ...fetchMoreResult.adjustFxaDetails,
+          ...(prev.adjustFxaDetails ?? []),
+          ...(fetchMoreResult.adjustFxaDetails ?? []),
         ],
       }),
     });

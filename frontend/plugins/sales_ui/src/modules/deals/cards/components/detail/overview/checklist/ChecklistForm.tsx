@@ -10,7 +10,9 @@ import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 
-export const ChecklistForm = () => {
+export const ChecklistForm = ({
+  onCreated,
+}: Readonly<{ onCreated: (checklistId: string) => void }>) => {
   const form = useForm<ChecklistFormType>({
     resolver: zodResolver(checklistFormSchema),
   });
@@ -25,9 +27,10 @@ export const ChecklistForm = () => {
       variables: {
         ...data,
       },
-      onCompleted: () => {
+      onCompleted: ({ salesChecklistsAdd }) => {
         toast({ title: t('success') });
         form.reset();
+        onCreated(salesChecklistsAdd._id);
 
         closeRef.current?.click();
       },

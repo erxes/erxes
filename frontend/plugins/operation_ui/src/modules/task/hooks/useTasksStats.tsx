@@ -1,3 +1,4 @@
+import { getTaskDateFilterVariables } from '@/task/utils/dateFilters';
 import { compactList } from '@/operation/utils/cursorList';
 import type { CycleFilterType } from '~/gql/graphql';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/operation/constants/priorityLabels';
@@ -53,11 +54,11 @@ export const useTasksStats = ({
     cycleFilter,
     createdBy,
     estimatePoint,
-    targetDate,
-    createdDate,
-    updatedDate,
-    startDate,
-    completedDate,
+    targetDateStartDate,
+    createdStartDate,
+    updatedStartDate,
+    startDateStartDate,
+    completedStartDate,
     project,
     projectStatus,
     projectPriority,
@@ -74,11 +75,11 @@ export const useTasksStats = ({
     tags: string[];
     cycleFilter: CycleFilterType;
     estimatePoint: number;
-    targetDate: string;
-    createdDate: string;
-    updatedDate: string;
-    startDate: string;
-    completedDate: string;
+    targetDateStartDate: string;
+    createdStartDate: string;
+    updatedStartDate: string;
+    startDateStartDate: string;
+    completedStartDate: string;
     project: string;
     projectStatus: number;
     projectPriority: number;
@@ -95,11 +96,11 @@ export const useTasksStats = ({
     'cycleFilter',
     'createdBy',
     'estimatePoint',
-    'targetDate',
-    'createdDate',
-    'updatedDate',
-    'startDate',
-    'completedDate',
+    'targetDateStartDate',
+    'createdStartDate',
+    'updatedStartDate',
+    'startDateStartDate',
+    'completedStartDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -127,11 +128,13 @@ export const useTasksStats = ({
         milestoneId: milestone || undefined,
         tagIds: tags || undefined,
         estimatePoint: estimatePoint || undefined,
-        targetDate: targetDate || undefined,
-        createdDate: createdDate || undefined,
-        updatedDate: updatedDate || undefined,
-        startDate: startDate || undefined,
-        completedDate: completedDate || undefined,
+        ...getTaskDateFilterVariables({
+          targetDateStartDate,
+          createdStartDate,
+          updatedStartDate,
+          startDateStartDate,
+          completedStartDate,
+        }),
         projectId: project || undefined,
         projectStatus,
         projectPriority,
@@ -308,7 +311,7 @@ export const useTasksStats = ({
       projectStats,
       tagStats,
     };
-  }, [tasks, projects, tagsData]);
+  }, [tasks, projects, tagsData, t]);
 
   return {
     tasks,

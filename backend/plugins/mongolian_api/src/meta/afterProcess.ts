@@ -24,6 +24,15 @@ const msdynamicMutationNames = new Set([
   // 'posOrdersSync', // uncomment if you have a mutation that syncs pos orders
 ]);
 
+type RequestSessionData = {
+  sessioncode?: string | string[] | null;
+};
+
+const getSessionCode = (requestData?: RequestSessionData) =>
+  Array.isArray(requestData?.sessioncode)
+    ? requestData.sessioncode[0]
+    : requestData?.sessioncode || '';
+
 const allRules: IAfterProcessRule[] = [
   {
     type: 'afterMutation',
@@ -67,9 +76,7 @@ export const afterProcess: AfterProcessConfigs = {
     // ---- Ebarimt ----
     if (ebarimtMutationNames.includes(mutationName)) {
       const { stageId } = result || {};
-      const sessionCode = Array.isArray(requestData?.sessioncode)
-        ? requestData.sessioncode[0]
-        : requestData?.sessioncode || '';
+      const sessionCode = getSessionCode(requestData);
 
       if (
         destinationStageId &&
@@ -122,6 +129,7 @@ export const afterProcess: AfterProcessConfigs = {
     // ---- Product Places ----
     if (productPlacesMutationNames.includes(mutationName)) {
       try {
+        const sessionCode = getSessionCode(requestData);
         const currentStageId = result?.stageId || destinationStageId;
         const isStageChanged =
           destinationStageId &&
@@ -136,6 +144,7 @@ export const afterProcess: AfterProcessConfigs = {
             updatedDocument: result,
             object: { _id: itemId, stageId: sourceStageId },
             user: userId,
+            sessionCode,
           });
         }
       } catch (error) {

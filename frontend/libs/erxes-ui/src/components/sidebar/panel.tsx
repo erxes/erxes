@@ -1,12 +1,15 @@
 import * as React from 'react';
 
-import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
+import {
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
+} from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
-import { createPortal } from 'react-dom';
+import { Portal } from 'radix-ui';
 import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
 import { useComposedRef } from './hooks';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +32,14 @@ const findSidebarPanelSlot = (panel: HTMLElement | null) => {
   return null;
 };
 
+const SidebarPanelInnerTriggerHiddenContext = React.createContext(false);
+
+const isSlotAbovePanel = (slot: HTMLElement, panel: HTMLElement | null) =>
+  Boolean(
+    panel &&
+      slot.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING,
+  );
+
 const useSidebarPanelSlot = (
   panelRef: React.RefObject<HTMLDivElement | null>,
   open: boolean,
@@ -37,13 +48,9 @@ const useSidebarPanelSlot = (
   const [claimed, setClaimed] = React.useState(false);
 
   React.useLayoutEffect(() => {
-    if (open) {
-      return;
-    }
-
     const found = findSidebarPanelSlot(panelRef.current);
 
-    if (!found) {
+    if (!found || (open && !isSlotAbovePanel(found, panelRef.current))) {
       setSlot(null);
       setClaimed(false);
       return;
@@ -65,18 +72,23 @@ const useSidebarPanelSlot = (
     };
   }, [open, panelRef]);
 
-  return { slot: open ? null : slot, claimed };
+  return { slot, claimed };
 };
 
 export const SidebarPanelTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
+  const hidden = React.useContext(SidebarPanelInnerTriggerHiddenContext);
   const [open, setOpen] = useAtom(sidebarPanelOpenState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const toggleLabel = open
     ? t('collapse-sidebar', 'Collapse sidebar')
     : t('expand-sidebar', 'Expand sidebar');
+
+  if (hidden) {
+    return null;
+  }
 
   return (
     <Button
@@ -93,7 +105,11 @@ export const SidebarPanelTrigger = React.forwardRef<
       }}
       {...props}
     >
-      {open ? <IconChevronsLeft /> : <IconChevronsRight />}
+      {open ? (
+        <IconLayoutSidebarLeftCollapse />
+      ) : (
+        <IconLayoutSidebarLeftExpand />
+      )}
     </Button>
   );
 });
@@ -109,6 +125,7 @@ export const SidebarPanel = React.forwardRef<
   const open = useAtomValue(sidebarPanelOpenState);
   const [panelRef, setRefs] = useComposedRef(ref);
   const { slot, claimed } = useSidebarPanelSlot(panelRef, open);
+  const triggerInSlot = Boolean(slot && claimed);
 
   return (
     <div
@@ -122,38 +139,36 @@ export const SidebarPanel = React.forwardRef<
       )}
       {...props}
     >
-      {slot &&
-        claimed &&
-        createPortal(
-          <>
+      {slot && claimed && (
+        <Portal.Root asChild container={slot}>
+          <span className="contents">
             <SidebarPanelTrigger className="size-7" />
             <Separator.Inline />
-          </>,
-          slot,
-        )}
+          </span>
+        </Portal.Root>
+      )}
       {!open && !slot && (
-        <div className="absolute top-2 left-2 z-20">
+        <div className="absolute top-2.5 left-2 z-20">
           <SidebarPanelTrigger className="size-7 border bg-background shadow-xs" />
         </div>
       )}
-      {open && label && (
-        <div className="flex shrink-0 items-center gap-1 pt-3 pr-3 pl-4">
-          <span className="min-w-0 flex-1 truncate px-2 font-mono text-xs font-semibold uppercase text-accent-foreground">
-            {label}
-          </span>
-          {actions}
-          <SidebarPanelTrigger />
-        </div>
-      )}
-      <div
-        hidden={!open}
-        className={cn(
-          'flex min-h-0 flex-1 flex-col overflow-y-auto',
-          label && '[&>[data-sidebar=group]:first-child]:pt-0',
+      <SidebarPanelInnerTriggerHiddenContext.Provider value={triggerInSlot}>
+        {open && label && (
+          <div className="flex h-12 shrink-0 items-center gap-1 px-2">
+            <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
+              {label}
+            </span>
+            {actions}
+            <SidebarPanelTrigger className="size-8" />
+          </div>
         )}
-      >
-        {children}
-      </div>
+        <div
+          hidden={!open}
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto"
+        >
+          {children}
+        </div>
+      </SidebarPanelInnerTriggerHiddenContext.Provider>
     </div>
   );
 });

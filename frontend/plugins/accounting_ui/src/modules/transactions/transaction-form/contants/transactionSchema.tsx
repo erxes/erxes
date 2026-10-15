@@ -22,14 +22,24 @@ export const ctaxSchema = z.object({
 
 const accountSchema = z.object({
   _id: z.string(),
-  code: z.string(),
-  name: z.string(),
-  currency: z.string(),
-  kind: z.string(),
+  code: z.string().optional(),
+  name: z.string().optional(),
+  currency: z.string().optional(),
+  kind: z.string().optional(),
   branchId: undefed(z.string()),
   departmentId: undefed(z.string()),
-  journal: z.string(),
+  journal: z.string().optional(),
 });
+
+export const transactionDetailFollowInfoSchema = z
+  .object({
+    currencyDiffAccountId: undefed(z.string()),
+    moveInBranchId: undefed(z.string()),
+    moveInDepartmentId: undefed(z.string()),
+    preDeprecation: undefed(z.number().nonnegative()),
+    salvageValue: undefed(z.number()),
+  })
+  .passthrough();
 
 export const baseTrDetailSchema = z.object({
   _id: z.string(),
@@ -118,7 +128,7 @@ export const baseTransactionSchema = z.object({
   ...vatSchema.shape,
   ...ctaxSchema.shape,
 
-  extraData: undefed(z.any()),
+  extraData: z.unknown().optional(),
 });
 // #endregion common
 
@@ -195,7 +205,7 @@ export const transactionTaxSchema = z.object({
 // #endregion Single trs
 
 // #region Inventories
-const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
+export const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
   z.object({
     hasSplit: z.literal(false),
     productId: undefed(z.string()),
@@ -397,6 +407,7 @@ export const fxaDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
+    followInfos: undefed(transactionDetailFollowInfoSchema),
     fixedAssetId: z.string().refine(
       (val) => val?.length,
       () => ({
@@ -442,6 +453,7 @@ export const fxaIncomeDetailSchema = z
         }),
       }),
     ),
+    followInfos: undefed(transactionDetailFollowInfoSchema),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });
@@ -458,21 +470,6 @@ export const fxaFollowInfosSchema = z.object({
   moveInBranchId: undefed(z.string()),
   moveInDepartmentId: undefed(z.string()),
   ownerId: undefed(z.string()),
-});
-
-export const fxaIncomeDetailFollowInfoSchema = z.object({
-  _id: undefed(z.string()),
-  tempId: undefed(z.string()),
-  transactionDetailId: undefed(z.string()),
-  fixedAssetId: undefed(z.string()),
-  code: undefed(z.string()),
-  sequence: undefed(z.number()),
-  salvageValue: undefed(z.number()),
-  preDeprecation: undefed(z.number()),
-});
-
-export const fxaIncomeFollowInfosSchema = fxaFollowInfosSchema.extend({
-  fxaIncomeDetails: undefed(z.array(fxaIncomeDetailFollowInfoSchema)),
 });
 
 export const fxaOutFollowInfosSchema = fxaFollowInfosSchema.extend({
@@ -559,7 +556,7 @@ export const transactionFxaIncomeSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
-    followInfos: fxaIncomeFollowInfosSchema,
+    followInfos: fxaFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(

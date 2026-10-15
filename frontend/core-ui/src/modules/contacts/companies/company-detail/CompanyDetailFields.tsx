@@ -34,7 +34,7 @@ export const CompanyDetailFields = () => {
   } = companyDetail;
   const { companiesEdit } = useCompaniesEdit();
   const { toast } = useToast();
-  const { t } = useTranslation('contact');
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
 
   const industryValue = industry
     ? industry.map((i: string) => ({ label: i, value: i }))

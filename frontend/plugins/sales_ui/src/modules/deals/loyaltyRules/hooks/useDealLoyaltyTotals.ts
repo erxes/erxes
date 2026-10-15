@@ -1,10 +1,10 @@
 import { useQuery } from '@apollo/client';
-import { isEnabled } from 'erxes-ui';
 import { SALES_DEAL_LOYALTY_TOTALS } from '../graphql/loyaltyRulesQueries';
+import { useLoyaltyEnabled } from './useLoyaltyEnabled';
 
 /** Net points per deal for the deals the list has loaded; none without loyalty. */
 export const useDealLoyaltyTotals = (dealIds: string[]) => {
-  const enabled = isEnabled('loyalty');
+  const enabled = useLoyaltyEnabled();
   // Sorted so the same page asks the same question whatever its order.
   const targetIds = [...new Set(dealIds)].sort();
   const { data, previousData, loading } = useQuery<{

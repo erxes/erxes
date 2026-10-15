@@ -5,6 +5,7 @@ import { TAutomationBuilderActions } from '@/automations/utils/automationFormDef
 import { Card, Spinner } from 'erxes-ui';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   currentIndex: number;
@@ -17,6 +18,7 @@ export const AutomationCoreActionSidebarContent = ({
   currentAction,
   onSaveActionConfig,
 }: Props) => {
+  const { t } = useTranslation('automations');
   const Component = getCoreAutomationActionComponent(
     currentAction.type,
     TAutomationActionComponent.Sidebar,
@@ -24,7 +26,9 @@ export const AutomationCoreActionSidebarContent = ({
 
   if (!Component) {
     return (
-      <Card.Content>Unknown action type: {currentAction.type}</Card.Content>
+      <Card.Content>
+        {t('sidebar-unknown-action-type', { type: currentAction.type })}
+      </Card.Content>
     );
   }
 

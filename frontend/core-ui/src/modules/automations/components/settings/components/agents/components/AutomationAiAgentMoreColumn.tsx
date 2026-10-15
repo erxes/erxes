@@ -1,6 +1,5 @@
 import {
   AUTOMATIONS_AI_AGENT_REMOVE,
-  AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
   AUTOMATIONS_AI_AGENTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
@@ -17,7 +16,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { Can } from 'ui-modules';
 
 export type TAiAgentRecord = ReturnType<
@@ -30,6 +29,7 @@ export const AutomationAiAgentMoreColumnCell = ({
   cell: Cell<TAiAgentRecord, unknown>;
 }) => {
   const { _id, name } = cell.row.original;
+  const { search } = useLocation();
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { t } = useTranslation('automations');
@@ -43,10 +43,7 @@ export const AutomationAiAgentMoreColumnCell = ({
     }).then(() => {
       removeAiAgent({
         variables: { id: _id },
-        refetchQueries: [
-          AUTOMATIONS_AI_AGENTS,
-          AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
-        ],
+        refetchQueries: [AUTOMATIONS_AI_AGENTS],
         onError: (e: ApolloError) => {
           toast({
             title: t('error'),
@@ -77,7 +74,7 @@ export const AutomationAiAgentMoreColumnCell = ({
           <Command.List>
             <Can action="automationsAiAgentEdit">
               <Command.Item value="edit" asChild>
-                <Link to={`${AutomationSettingsPath.Agents}/${_id}`}>
+                <Link to={`${AutomationSettingsPath.Agents}/${_id}${search}`}>
                   <IconEdit /> {t('edit')}
                 </Link>
               </Command.Item>

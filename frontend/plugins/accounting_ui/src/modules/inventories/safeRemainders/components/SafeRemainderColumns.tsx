@@ -57,7 +57,8 @@ export const safeRemainderColumns = (
       <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
     ),
     accessorKey: 'date',
-    cell: ({ row }) => <DateCell value={row.original.date} />,
+    cell: ({ row }) =>
+      row.original.date ? <DateCell value={row.original.date} /> : '-',
   },
   {
     id: 'branch',

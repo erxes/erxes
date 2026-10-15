@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isDeeplyEqual, Sheet, Spinner, useQueryState } from 'erxes-ui';
+import { isDeeplyEqual, toast, Sheet, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
@@ -50,7 +50,7 @@ const EditFixedAssetCategoryForm = () => {
 
   useEffect(() => {
     if (fixedAssetCategoryDetail) {
-      reset({
+      const parsed = fixedAssetCategorySchema.partial().safeParse({
         ...FIXED_ASSET_CATEGORY_DEFAULT_VALUES,
         ...fixedAssetCategoryDetail,
         defaultUsefulLife: getUsefulLifeFromRate(
@@ -60,10 +60,18 @@ const EditFixedAssetCategoryForm = () => {
           fixedAssetCategoryDetail.defaultTaxAnnualDepreciationRate,
         ),
       });
+      if (parsed.success) reset(parsed.data);
+      else
+        toast({
+          title: 'Invalid fixed asset data',
+          description: parsed.error.message,
+          variant: 'destructive',
+        });
     }
   }, [fixedAssetCategoryDetail, reset]);
 
   const handleSubmit = (data: TFixedAssetCategoryForm) => {
+    if (!fixedAssetCategoryDetail?._id) return;
     const initialData = {
       ...FIXED_ASSET_CATEGORY_DEFAULT_VALUES,
       ...fixedAssetCategoryDetail,
@@ -82,7 +90,7 @@ const EditFixedAssetCategoryForm = () => {
 
     editFixedAssetCategory({
       variables: {
-        _id: fixedAssetCategoryDetail?._id,
+        _id: fixedAssetCategoryDetail._id,
         ...data,
       },
       onCompleted: () => {

@@ -45,13 +45,15 @@ export const DOCUMENT_VARIANTS: Partial<
 };
 
 // First (default) variant for a journal, or '' when it has no variants.
-export const getDefaultVariant = (journal: TrJournalEnum): string =>
-  DOCUMENT_VARIANTS[journal]?.[0]?.value ?? '';
+export const getDefaultVariant = (journal?: TrJournalEnum): string =>
+  (journal ? DOCUMENT_VARIANTS[journal]?.[0]?.value : undefined) ?? '';
 
 // Variant options for a transaction's journal — empty when none apply.
 export const getDocumentVariants = (
   transaction: ITransaction,
-): IDocumentVariant[] => DOCUMENT_VARIANTS[transaction.journal] ?? [];
+): IDocumentVariant[] =>
+  (transaction.journal ? DOCUMENT_VARIANTS[transaction.journal] : undefined) ??
+  [];
 
 // Narrowed accessors so document components keep their precise prop types.
 export const asCashVariant = (variant: string): CashVariant =>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useBranchDetailsById } from '@/settings/structure/hooks/useBranchDetailsById';
 import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
 import { IconGitBranch } from '@tabler/icons-react';
@@ -11,6 +12,7 @@ import { useBranchEdit } from '@/settings/structure/hooks/useBranchActions';
 import { Can } from 'ui-modules';
 
 export const BranchEdit = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const [searchParams, setSearchParams] = useSearchParams();
 
   const id = searchParams.get('branch_id');
@@ -45,16 +47,16 @@ export const BranchEdit = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success!',
+          title: t('success'),
           variant: 'success',
-          description: 'Branch updated successfully',
+          description: t('branch-updated'),
         });
         methods.reset();
         setOpen(null);
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -97,11 +99,11 @@ export const BranchEdit = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Can action="branchesManage">
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : 'Save'}
+                  {isLoading ? <Spinner /> : t('save')}
                 </Button>
               </Can>
             </Sheet.Footer>

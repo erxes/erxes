@@ -1,5 +1,6 @@
+import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-import { OperationVariables, useMutation } from '@apollo/client';
 import { ACCOUNTS_EDIT } from '../graphql/mutations/accounts';
 import { toast } from 'erxes-ui';
 
@@ -7,12 +8,12 @@ export const useAccountEdit = () => {
   const { t } = useTranslation('accounting');
   const [_editAccount, { loading }] = useMutation(ACCOUNTS_EDIT);
 
-  const editAccount = (options: OperationVariables, fields: string[]) => {
-    const variables = options?.variables || {};
-    const fieldsToUpdate: Record<string, () => any> = {};
-    fields.forEach((field) => {
-      fieldsToUpdate[field] = () => variables[field];
-    });
+  const editAccount = (
+    options: GraphqlMutationOptions<typeof ACCOUNTS_EDIT>,
+    _fields: string[],
+  ) => {
+    const variables = options.variables;
+    if (!variables?._id) throw new Error('Account id is required');
     return _editAccount({
       ...options,
       variables,
@@ -32,7 +33,7 @@ export const useAccountEdit = () => {
         });
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['AccountsMain'],
+      refetchQueries: ['accountingAccountsMain'],
     });
   };
 

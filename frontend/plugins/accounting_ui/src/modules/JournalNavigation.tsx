@@ -1,12 +1,14 @@
 import { IconSquareLetterJ } from '@tabler/icons-react';
 import { cn, NavigationMenuGroup, Sidebar, useQueryState } from 'erxes-ui';
 import { useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   TR_JOURNAL_LABELS,
   TrJournalEnum,
 } from './transactions/types/constants';
 
 export const JournalNavigation = () => {
+  const { t } = useTranslation('accounting');
   const { pathname } = useLocation();
   const [journal, setJournal] = useQueryState<string>('journal');
 
@@ -15,10 +17,10 @@ export const JournalNavigation = () => {
   }
 
   return (
-    <NavigationMenuGroup name="Журнал бичилт">
+    <NavigationMenuGroup name={t('journal-entries')}>
       {Object.values(TrJournalEnum).map((trJournal) => {
         const isActive = journal === trJournal;
-        const label = TR_JOURNAL_LABELS[trJournal];
+        const label = t(TR_JOURNAL_LABELS[trJournal]);
 
         return (
           <Sidebar.MenuItem key={trJournal}>

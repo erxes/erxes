@@ -1,6 +1,11 @@
 import { cache } from 'react';
 import { query } from '@/modules/apollo/apolloClient';
+import {
+  createSharedCache,
+  TIMED_OUT,
+} from '@/modules/apollo/utils/sharedCache';
 import { getPortalConfig } from '@/modules/config/api';
+import { readScopedApiUrl } from '@/modules/config/requestScope';
 import { getT } from '@/modules/i18n/server';
 import {
   errorBodyMatches,
@@ -90,8 +95,16 @@ const readTopic = async (
   return runTopic(plain, topicId);
 };
 
+const sharedTopic = createSharedCache<KbTopic | TopicFailure>({
+  ttlMs: 60_000,
+  staleMs: 10 * 60_000,
+  maxEntries: 100,
+  keep: (value) => !isFailure(value),
+  timedOut: () => ({ error: TIMED_OUT }),
+});
+
 const fetchTopic = async (
-  document: TopicDocument,
+  key: TopicDocumentKey,
   config: PortalConfig,
 ): Promise<PortalResult<PortalTopic>> => {
   if (!config.knowledgeBaseEnabled) {
@@ -99,7 +112,10 @@ const fetchTopic = async (
   }
 
   try {
-    const topic = await readTopic(document, config.topicId);
+    const topic = await sharedTopic(
+      [readScopedApiUrl(), config.appToken, config.topicId, key].join('|'),
+      () => readTopic(DOCUMENTS[key], config.topicId),
+    );
 
     if (isFailure(topic)) {
       return { state: 'error', message: topic.error };
@@ -114,9 +130,7 @@ const fetchTopic = async (
   }
 };
 
-const cachedTopic = cache(async (key: TopicDocumentKey, config: PortalConfig) =>
-  fetchTopic(DOCUMENTS[key], config),
-);
+const cachedTopic = cache(fetchTopic);
 
 const readTopicFor = async (
   key: TopicDocumentKey,

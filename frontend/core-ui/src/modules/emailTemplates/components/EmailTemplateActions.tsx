@@ -3,23 +3,24 @@ import { EmailTemplatePath } from '@/types/paths/EmailTemplatePath';
 import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Button, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const EmailTemplateActions = ({
   templateId,
 }: {
   templateId: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeEmailTemplate } = useEmailTemplateMutations();
 
   const handleRemove = () =>
-    confirm({ message: 'Remove this email template?' }).then(() =>
+    confirm({ message: t('remove-confirm') }).then(() =>
       removeEmailTemplate({
         variables: { _id: templateId },
-        onCompleted: () =>
-          toast({ variant: 'success', title: 'Email template removed' }),
+        onCompleted: () => toast({ variant: 'success', title: t('removed') }),
       }),
     );
 
@@ -30,7 +31,7 @@ export const EmailTemplateActions = ({
           variant="ghost"
           size="icon"
           className="size-7 shrink-0"
-          aria-label="Template actions"
+          aria-label={t('template-actions')}
           onClick={(event) => event.stopPropagation()}
         >
           <IconDots className="size-4" />
@@ -44,11 +45,11 @@ export const EmailTemplateActions = ({
           onClick={() => navigate(`${EmailTemplatePath.Index}/${templateId}`)}
         >
           <IconPencil />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Item className="text-destructive" onClick={handleRemove}>
           <IconTrash />
-          Remove
+          {t('remove')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

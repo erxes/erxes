@@ -41,7 +41,7 @@ export const EditAccountingConfigForm = ({
 }) => {
   const { t } = useTranslation('accounting');
   const rule = SettingsRuleByCode[code];
-  const [configId, setConfigId] = useQueryState('configId', {
+  const [configId, setConfigId] = useQueryState<string>('configId', {
     defaultValue: '',
   });
   const configValueDetail = useAtomValue(accountingConfigDetailAtom);

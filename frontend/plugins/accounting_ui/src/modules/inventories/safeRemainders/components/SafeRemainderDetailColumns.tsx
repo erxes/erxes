@@ -107,7 +107,7 @@ export const safeRemDetailTableColumns = (
       >
         <div>
           <StatusField
-            value={row.original.status}
+            value={row.original.status ?? ''}
             field="status"
             _id={row.original._id}
             remItem={row.original}

@@ -1,7 +1,7 @@
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { Link, useLocation } from 'react-router-dom';
 
 import { ContactsPath } from '@/types/paths/ContactsPath';
-import { Link, useLocation } from 'react-router-dom';
 import { IconBookmarksFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -29,7 +29,7 @@ export const ContactsBreadcrumb = () => {
           <Breadcrumb.Item>
             <Button variant="ghost" asChild>
               <Link to={ContactsPath.Index}>
-                <IconBookmarksFilled className="text-accent-foreground" />
+                <IconBookmarksFilled />
                 {t('core-modules.contacts')}
               </Link>
             </Button>
@@ -38,7 +38,13 @@ export const ContactsBreadcrumb = () => {
             <>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
-                <Breadcrumb.Page>{currentSection.label}</Breadcrumb.Page>
+                <Breadcrumb.Page>
+                  <Button variant="ghost" asChild>
+                    <Link to={`${ContactsPath.Index}${currentSection.path}`}>
+                      {currentSection.label}
+                    </Link>
+                  </Button>
+                </Breadcrumb.Page>
               </Breadcrumb.Item>
             </>
           )}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { memo, useState, useCallback, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { IconPlus } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ export const JSONObjectContainer = memo(function JSONObjectContainer({
   value,
 }: JSONObjectContainerProps) {
   const { getValues, setValue } = useFormContext();
+  const { t } = useTranslation('automations');
   const [newKey, setNewKey] = useState('');
 
   const apply = useCallback(
@@ -74,18 +76,20 @@ export const JSONObjectContainer = memo(function JSONObjectContainer({
           />
         ))}
         {entries.length === 0 && (
-          <div className="text-xs text-muted-foreground">Empty object</div>
+          <div className="text-xs text-muted-foreground">
+            {t('webhook-json-empty-object')}
+          </div>
         )}
       </div>
       <div className="flex items-center gap-2">
         <Input
-          placeholder="Add field key"
+          placeholder={t('webhook-json-add-field-key-placeholder')}
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
           className="h-8"
         />
         <Button variant="outline" size="sm" onClick={addField}>
-          <IconPlus className="mr-1 h-3 w-3" /> Add
+          <IconPlus className="mr-1 h-3 w-3" /> {t('webhook-json-add')}
         </Button>
       </div>
     </div>

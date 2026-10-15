@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
 import { CPUserAddSheet } from '@/contacts/client-portal-users/components/CPUserAddSheet';
 
 export const ClientPortalUsersHeader = () => {
-  const favoriteBreadcrumb = createFavoriteBreadcrumb('Client Portal Users');
+  const { t } = useTranslation('contact', { keyPrefix: 'clientPortalUser' });
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('client-portal-users'));
 
   return (
     <PageHeader>

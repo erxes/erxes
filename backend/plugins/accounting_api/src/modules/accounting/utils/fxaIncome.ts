@@ -21,12 +21,10 @@ import {
   cleanFxaFollowTr,
   getDetailId,
   assignMissingFxaOwnerRecordSequences,
-  getFxaIncomeFollowInfos,
   getFxaOwnerRecordInputs,
   getUniqueFxaOwnerRecordIds,
   rebuildFixedAssetCurrentCounts,
   TFxaIncomeDetailRemoveOptions,
-  TFxaIncomeDetailFollowInfo,
   TFxaOwnerRecordInput,
 } from './fixedAssets';
 import { createOrUpdateTr } from './utils';
@@ -251,14 +249,28 @@ export const removeFxaIncomeDetails = async (
     options.detailIds,
   );
   const fixedAssetIds = fixedAssets.map((fixedAsset) => fixedAsset._id);
+  const selectedDetailIds = options.detailIds?.length
+    ? new Set(options.detailIds)
+    : undefined;
+  const referencedAssetIds = (transaction.details || [])
+    .filter(
+      (detail) =>
+        !selectedDetailIds || selectedDetailIds.has(getDetailId(detail)),
+    )
+    .map((detail) => detail.fixedAssetId)
+    .filter((id): id is string => Boolean(id));
+  const protectedAssetIds = getUniqueFxaOwnerRecordIds([
+    ...fixedAssetIds,
+    ...referencedAssetIds,
+  ]);
 
-  if (!fixedAssetIds.length) {
+  if (!protectedAssetIds.length) {
     return;
   }
 
   const blockingTransaction = await models.Transactions.findOne({
     _id: { $ne: transaction._id },
-    'details.fixedAssetId': { $in: fixedAssetIds },
+    'details.fixedAssetId': { $in: protectedAssetIds },
     $nor: [{ originId: transaction._id }],
   }).lean();
 
@@ -268,7 +280,7 @@ export const removeFxaIncomeDetails = async (
     );
   }
 
-  if (options.validateOnly) {
+  if (options.validateOnly || !fixedAssetIds.length) {
     return;
   }
 
@@ -283,96 +295,9 @@ export const removeFxaIncomeDetails = async (
   );
 };
 
-const getFollowInfoKey = ({
-  fixedAssetId,
-  tempId,
-  transactionDetailId,
-  _id,
-}: TFxaIncomeDetailFollowInfo) => {
-  if (_id) {
-    return `id:${_id}`;
-  }
-
-  if (tempId) {
-    return `temp:${tempId}`;
-  }
-
-  if (fixedAssetId && transactionDetailId) {
-    return `asset:${fixedAssetId}:${transactionDetailId}`;
-  }
-
-  return '';
-};
-
-const getIncomeFollowInfosByKey = (
-  transaction: ITransactionDocument,
-  inputs: TFxaOwnerRecordInput[],
-) => {
-  const followInfos = getFxaIncomeFollowInfos(transaction).fxaIncomeDetails;
-  const map = new Map<string, TFxaIncomeDetailFollowInfo>();
-
-  for (const detail of transaction.details || []) {
-    const detailId = getDetailId(detail);
-    const preDeprecation = Number(
-      detail.followInfos?.preDeprecation ||
-        detail.followInfos?.openingAccumulatedDepreciation ||
-        0,
-    );
-    const salvageValue = detail.followInfos?.salvageValue;
-
-    if (preDeprecation <= 0 && salvageValue === undefined) {
-      continue;
-    }
-
-    map.set(`temp:${detailId}`, {
-      tempId: detailId,
-      transactionDetailId: detailId,
-      fixedAssetId: detail.fixedAssetId,
-      salvageValue,
-      preDeprecation,
-    });
-  }
-
-  const entries = followInfos?.length ? followInfos : [];
-
-  for (const entry of entries) {
-    const key = getFollowInfoKey(entry);
-
-    if (key) {
-      map.set(key, entry);
-    }
-  }
-
-  return map;
-};
-
-const getIncomeFollowInfo = (
-  input: TFxaOwnerRecordInput,
-  followInfosByKey: Map<string, TFxaIncomeDetailFollowInfo>,
-) => {
-  const keys = [
-    input._id ? `id:${input._id}` : '',
-    input.tempId ? `temp:${input.tempId}` : '',
-    input.fixedAssetId && input.transactionDetailId
-      ? `asset:${input.fixedAssetId}:${input.transactionDetailId}`
-      : '',
-  ].filter(Boolean);
-
-  for (const key of keys) {
-    const followInfo = followInfosByKey.get(key);
-
-    if (followInfo) {
-      return followInfo;
-    }
-  }
-
-  return undefined;
-};
-
 const syncOpeningAccumulatedDepreciation = async ({
   date,
   fixedAssetsByDetailId,
-  followInfosByKey,
   inputs,
   models,
   transaction,
@@ -380,7 +305,6 @@ const syncOpeningAccumulatedDepreciation = async ({
 }: {
   date: Date;
   fixedAssetsByDetailId: Map<string, TFixedAssetWithId>;
-  followInfosByKey: Map<string, TFxaIncomeDetailFollowInfo>;
   inputs: TFxaOwnerRecordInput[];
   models: IModels;
   transaction: ITransactionDocument;
@@ -395,18 +319,13 @@ const syncOpeningAccumulatedDepreciation = async ({
   );
   const openingDepDetails = inputs
     .map((input) => {
-      const followInfo = getIncomeFollowInfo(input, followInfosByKey);
       const detail = (transaction.details || []).find(
         (item) => getDetailId(item) === input.transactionDetailId,
       );
       const fixedAsset = fixedAssetsByDetailId.get(
         input.transactionDetailId || '',
       );
-      const preDeprecation = Number(
-        followInfo?.preDeprecation ??
-          followInfo?.openingAccumulatedDepreciation ??
-          0,
-      );
+      const preDeprecation = Number(detail?.followInfos?.preDeprecation ?? 0);
 
       if (!detail || !fixedAsset?._id || preDeprecation <= 0) {
         return;
@@ -733,10 +652,6 @@ export const syncFxaIncomeDetails = async (
 
   const ownerInputs = getOwnerInputs(transaction, fixedAssetsByDetailId);
   const depreciationInputs = getDepreciationInputs(transaction);
-  const followInfosByKey = getIncomeFollowInfosByKey(
-    transaction,
-    depreciationInputs,
-  );
 
   await syncOwnerRecords({
     fixedAssetsByDetailId,
@@ -749,7 +664,6 @@ export const syncFxaIncomeDetails = async (
   await syncOpeningAccumulatedDepreciation({
     date,
     fixedAssetsByDetailId,
-    followInfosByKey,
     inputs: depreciationInputs,
     models,
     transaction,

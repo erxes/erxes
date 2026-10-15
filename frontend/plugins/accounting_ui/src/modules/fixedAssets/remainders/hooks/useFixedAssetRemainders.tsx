@@ -1,7 +1,7 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { GET_FIXED_ASSET_LOCATION_REMAINDERS } from '@/settings/fixed-assets/graphql/queries/fixedAssets';
-import { IFixedAssetLocationRemainder } from '@/settings/fixed-assets/types/FixedAsset';
 
 const FIXED_ASSET_REMAINDER_LIMIT = 200;
 
@@ -48,9 +48,13 @@ export const useFixedAssetRemainderVariables = () => {
 
 export const useFixedAssetRemainders = () => {
   const variables = useFixedAssetRemainderVariables();
-  const { data, loading, error, refetch } = useQuery<{
-    fixedAssetLocationRemainders: IFixedAssetLocationRemainder[];
-  }>(GET_FIXED_ASSET_LOCATION_REMAINDERS, { variables });
+  const {
+    data: queryData,
+    loading,
+    error,
+    refetch,
+  } = useQuery(GET_FIXED_ASSET_LOCATION_REMAINDERS, { variables });
+  const data = toGraphqlView(queryData);
 
   return {
     fixedAssetRemainders: data?.fixedAssetLocationRemainders || [],

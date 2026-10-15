@@ -12,6 +12,7 @@ import {
   IAutomationHistoryAction,
   splitAutomationNodeType,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type ExecutionActionResultProps = {
   action: IAutomationHistoryAction;
@@ -49,6 +50,7 @@ export const ExecutionActionResult = ({
   action,
   status,
 }: ExecutionActionResultProps) => {
+  const { t } = useTranslation('automations');
   const CoreActionResult = isCoreAutomationActionType(
     action.actionType,
     TAutomationActionComponent.ActionResult,
@@ -69,7 +71,7 @@ export const ExecutionActionResult = ({
           {getActionResultErrorText(action.result.error)}
         </ActionResult.Status>
         {action.result.result ? (
-          <ActionResult.Body title="Failure details">
+          <ActionResult.Body title={t('history-failure-details')}>
             <ActionResult.Json value={action.result.result} />
           </ActionResult.Body>
         ) : null}
