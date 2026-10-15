@@ -281,15 +281,19 @@
 - `Pos` has no `type` field in its public GraphQL contract. Frontend settings
   must use the existing configuration fields rather than inventing this field
   in handwritten types or the codegen snapshot.
-- Deal and pipeline watch methods return the updated record (nullable if it
-  disappears during the write/read); their model signatures must match those
-  GraphQL object results. Preserve deal-watch activity logging.
+- Deal and pipeline watch methods use atomic `$addToSet`/`$pull` updates and
+  return the updated record, or null if it no longer exists. Repeated requests
+  must not duplicate watchers or remove another user; concurrent requests must
+  preserve each user's change. Initialize legacy null/missing arrays only with
+  a conditional update. Preserve deal-watch activity logging.
 - Label assignment returns `success` after publishing the updated deal. Stage
   sorting returns `ok` even for an empty stage. An archive with no stages
   returns an empty list, zero count, and empty pagination metadata.
 - Every Sales Query/Mutation field must have an explicitly registered
   resolver, and every registered root resolver must appear in SDL. The
   `resolverParity` tests compare the assembled registries and declarations.
+  Resolver execution tests share `src/__tests__/helpers/graphql.ts` to select
+  real SDL fields without duplicating the test schema setup.
   POS product-group writes use `productGroupsBulkInsert`; client-portal
   pipeline reads use `cpSalesPipelines`. Do not declare unimplemented aliases.
 - `posEdit._id`, `dealsWatch._id`, `productGroupsBulkInsert.posId`, and

@@ -249,7 +249,8 @@
   interpolation into query, mutation, or subscription documents.
 - Deal watch responses include the persisted `_id` and `isWatched` state;
   preserve the optimistic update and cache handling when adopting generated
-  types. Empty archives provide list/count/page metadata; successful label
+  types. Watch/unwatch requests are idempotent and update only the acting user.
+  Empty archives provide list/count/page metadata; successful label
   assignment and empty-stage sorting return success strings.
 - POS product-group saves use `productGroupsBulkInsert`. The Sales API has
   no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented

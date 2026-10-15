@@ -1,11 +1,5 @@
-import {
-  buildSchema,
-  defaultFieldResolver,
-  graphql,
-  Kind,
-  parse,
-  print,
-} from 'graphql';
+import { buildSchema, defaultFieldResolver, graphql } from 'graphql';
+import { selectFields } from './helpers/graphql';
 import { deleteModel, model, Schema } from 'mongoose';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import type { IModels } from '../connectionResolvers';
@@ -43,17 +37,6 @@ jest.mock(
   () => ({}),
 );
 
-const selectFields = (sdl: string, names: string[]): string => {
-  const definition = parse(`type Root { ${sdl} }`).definitions[0];
-  if (definition.kind !== Kind.OBJECT_TYPE_DEFINITION) {
-    throw new Error('Expected root fields');
-  }
-  return (definition.fields || [])
-    .filter((field) => names.includes(field.name.value))
-    .map((field) => print(field))
-    .join('\n');
-};
-
 // Execute the real mutation declarations/resolvers and watch model method.
 // Persistence and external notifications are isolated at their boundaries.
 const schema = buildSchema(`
@@ -74,7 +57,7 @@ const mutations = {
 const models = {
   Deals: {
     getDeal: jest.fn(),
-    findOne: jest.fn(),
+    findOneAndUpdate: jest.fn(),
     updateOne: jest.fn(),
     find: jest.fn(),
     bulkWrite: jest.fn(),
@@ -130,9 +113,7 @@ it.each([true, false])(
       watchedUserIds: isAdd ? ['user'] : [],
     });
     models.Deals.getDeal.mockResolvedValue(previous);
-    models.Deals.findOne
-      .mockResolvedValueOnce(previous)
-      .mockResolvedValueOnce(updated);
+    models.Deals.findOneAndUpdate.mockResolvedValueOnce(updated);
 
     const result = await run(`mutation salesResolverWatch {
     dealsWatch(_id: "deal", isAdd: ${isAdd}) { _id isWatched }
@@ -140,9 +121,12 @@ it.each([true, false])(
 
     expect(result.errors).toBeUndefined();
     expect(result.data?.dealsWatch).toEqual({ _id: 'deal', isWatched: isAdd });
-    expect(models.Deals.updateOne).toHaveBeenCalledWith(
+    expect(models.Deals.findOneAndUpdate).toHaveBeenCalledWith(
       { _id: 'deal' },
-      { $set: { watchedUserIds: isAdd ? ['user'] : [] } },
+      isAdd
+        ? { $addToSet: { watchedUserIds: 'user' } }
+        : { $pull: { watchedUserIds: 'user' } },
+      { new: true },
     );
     expect(context.checkPermission).toHaveBeenCalledWith('dealsWatch');
     expect(createActivityLog).toHaveBeenCalledTimes(1);
@@ -156,6 +140,7 @@ it('does not write or publish when watch permission is denied', async () => {
   );
   expect(result.errors?.[0].message).toBe('Permission denied');
   expect(models.Deals.updateOne).not.toHaveBeenCalled();
+  expect(models.Deals.findOneAndUpdate).not.toHaveBeenCalled();
   expect(createActivityLog).not.toHaveBeenCalled();
 });
 
