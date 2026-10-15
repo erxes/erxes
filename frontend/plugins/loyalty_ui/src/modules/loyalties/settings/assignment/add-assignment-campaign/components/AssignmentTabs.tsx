@@ -27,17 +27,15 @@ export const AssignmentTabs = ({ onOpenChange, form }: Props) => {
       return date;
     };
 
-    const variables: any = {
-      title: data.title || '',
-      status: data.status || 'active',
-      startDate: formatDate(data.startDate),
-      endDate: formatDate(data.endDate),
-      voucherCampaignId: data.voucherCampaignId,
-      segmentIds: data.segmentIds,
-    };
-
     assignmentAdd({
-      variables,
+      variables: {
+        title: data.title || '',
+        status: data.status || 'active',
+        startDate: formatDate(data.startDate),
+        endDate: formatDate(data.endDate),
+        voucherCampaignId: data.voucherCampaignId,
+        segmentIds: data.segmentIds,
+      },
       onError: (e: ApolloError) => {
         toast({
           title: t('error'),

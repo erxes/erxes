@@ -1,30 +1,32 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
+import { useMemo } from 'react';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
+import type {
+  GetCampaignsQuery,
+  GetCampaignsQueryVariables,
+} from '~/gql/graphql';
 import { ASSIGNMENTS_CURSOR_SESSION_KEY } from '../constants/assignmentsCursorSessionKey';
 import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
-import { IAssignment } from '../types/assignmentTypes';
 
 export const ASSIGNMENTS_PER_PAGE = 30;
 
-export const useAssignments = (options?: QueryHookOptions) => {
+export const useAssignments = (
+  options?: QueryHookOptions<GetCampaignsQuery, GetCampaignsQueryVariables>,
+) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: ASSIGNMENTS_CURSOR_SESSION_KEY,
   });
-  const { data, loading, fetchMore } = useQuery<{
-    assignmentCampaigns: {
-      list: IAssignment[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(QUERY_ASSIGNMENT_CAMPAIGNS, {
+  const { data, loading, fetchMore } = useQuery(QUERY_ASSIGNMENT_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
@@ -34,11 +36,12 @@ export const useAssignments = (options?: QueryHookOptions) => {
     },
   });
 
-  const {
-    list: assignments,
-    totalCount,
-    pageInfo,
-  } = data?.assignmentCampaigns || {};
+  const assignments = useMemo(
+    () => compactList(data?.assignmentCampaigns?.list),
+    [data?.assignmentCampaigns?.list],
+  );
+  const totalCount = data?.assignmentCampaigns?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(data?.assignmentCampaigns?.pageInfo);
 
   const handleFetchMore = ({
     direction,
@@ -64,19 +67,17 @@ export const useAssignments = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.assignmentCampaigns || !prev.assignmentCampaigns) {
+          return prev;
+        }
+
         return {
           ...prev,
-          assignmentCampaigns: {
-            ...mergeCursorData({
-              direction,
-              fetchMoreResult: fetchMoreResult.assignmentCampaigns,
-              prevResult: prev.assignmentCampaigns,
-            }),
-            totalCount:
-              fetchMoreResult.assignmentCampaigns.totalCount ??
-              prev.assignmentCampaigns.totalCount,
-          },
+          assignmentCampaigns: mergeCursorList(
+            direction,
+            prev.assignmentCampaigns,
+            fetchMoreResult.assignmentCampaigns,
+          ),
         };
       },
     });

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_ASSIGNMENT_CAMPAIGNS = gql`
+export const QUERY_ASSIGNMENT_CAMPAIGNS = gql(`
   query GetCampaigns(
     $searchValue: String
     $status: String
@@ -51,4 +51,4 @@ export const QUERY_ASSIGNMENT_CAMPAIGNS = gql`
       totalCount
     }
   }
-`;
+`);
