@@ -140,15 +140,11 @@ export const paymentTypesSchema = z.array(
       type: z.string(),
       title: optionalString.transform((value) => value ?? ''),
       icon: optionalString.transform((value) => value ?? ''),
-      config: z
-        .unknown()
-        .transform((value) =>
-          value == null
-            ? undefined
-            : typeof value === 'string'
-            ? value
-            : JSON.stringify(value),
-        ),
+      config: z.unknown().transform((value) => {
+        if (value == null) return undefined;
+        if (typeof value === 'string') return value;
+        return JSON.stringify(value);
+      }),
       scoreCampaignId: optionalString.transform((value) => value ?? undefined),
     })
     .passthrough(),

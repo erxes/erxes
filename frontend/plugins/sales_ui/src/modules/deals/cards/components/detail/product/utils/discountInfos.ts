@@ -1,8 +1,5 @@
 import type { DealProductData } from '@/deals/utils/dealJson';
 
-export type DiscountInfo = NonNullable<
-  DealProductData['discountInfos']
->[number];
 export type ProductDataWithDiscountInfos = DealProductData;
 
 const HAND_TYPE = 'hand';

@@ -10,7 +10,6 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { isDefined } from 'erxes-ui';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 
 import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
@@ -24,7 +23,7 @@ import {
 import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
 import { IDeal } from '@/deals/types/deals';
 import { ColumnDef } from '@tanstack/table-core';
-import { RecordTable } from 'erxes-ui';
+import { isDefined, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { dealsMoreColumn } from './DealsMoreColumn';
 

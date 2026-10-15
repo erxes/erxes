@@ -12,11 +12,3 @@ export interface ISelectStagesContext {
   error: string | null;
   pipelineId?: string;
 }
-
-export interface StagesInlineProps {
-  stageIds?: string[];
-  stages?: IStage[];
-  placeholder?: string;
-  updateStages?: (stages: IStage[]) => void;
-  pipelineId?: string;
-}

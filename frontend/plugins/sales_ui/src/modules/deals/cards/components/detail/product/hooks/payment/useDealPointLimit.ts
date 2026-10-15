@@ -1,10 +1,5 @@
 import { useQuery } from '@apollo/client';
-import type { SalesDealPointLimitQuery } from '~/gql/graphql';
 import { SALES_DEAL_POINT_LIMIT } from '../../graphql/queries/DealPointLimitQueries';
-
-export type TDealPointLimit = NonNullable<
-  SalesDealPointLimitQuery['loyaltyScoreSpendLimit']
->;
 
 /** What this deal may pay with points under the payment type's campaign. */
 export const useDealPointLimit = ({

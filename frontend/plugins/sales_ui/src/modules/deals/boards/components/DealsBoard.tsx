@@ -7,7 +7,6 @@ import {
   useAllDealsMap,
   useDealsBoard,
 } from '@/deals/states/dealsBoardState';
-import { isDefined } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useBoards } from '@/deals/boards/hooks/useBoards';
@@ -28,7 +27,7 @@ import type {
   ColumnPaginationState,
 } from '@/deals/types/boards';
 import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
-import { useQueryState } from 'erxes-ui';
+import { isDefined, useQueryState } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 import { BoardEmptyState } from './BoardEmptyState';

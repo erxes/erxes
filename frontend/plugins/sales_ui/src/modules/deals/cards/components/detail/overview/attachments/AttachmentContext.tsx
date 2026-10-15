@@ -1,8 +1,11 @@
-import { AttachmentContextType, IAttachment } from '@/deals/types/attachments';
+import {
+  type AttachmentContextType,
+  type IAttachment,
+  toAttachmentInput,
+} from '@/deals/types/attachments';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { useDealsContext } from '@/deals/context/DealContext';
-import { toAttachmentInput } from '@/deals/types/attachments';
 import { useConfirm } from 'erxes-ui';
 
 const AttachmentContext = createContext<AttachmentContextType | null>(null);

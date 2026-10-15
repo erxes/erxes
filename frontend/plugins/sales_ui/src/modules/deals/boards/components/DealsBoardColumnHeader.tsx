@@ -65,22 +65,26 @@ export const DealsBoardColumnHeader = ({
     });
   };
 
-  const getSortLabel = (sortType: string) =>
-    sortType === 'created-desc'
-      ? t('sort-created-desc')
-      : sortType === 'created-asc'
-      ? t('sort-created-asc')
-      : sortType === 'modified-desc'
-      ? t('sort-modified-desc')
-      : sortType === 'modified-asc'
-      ? t('sort-modified-asc')
-      : sortType === 'close-asc'
-      ? t('sort-close-asc')
-      : sortType === 'close-desc'
-      ? t('sort-close-desc')
-      : sortType === 'alphabetically-asc'
-      ? t('sort-alphabetically')
-      : '';
+  const getSortLabel = (sortType: string) => {
+    switch (sortType) {
+      case 'created-desc':
+        return t('sort-created-desc');
+      case 'created-asc':
+        return t('sort-created-asc');
+      case 'modified-desc':
+        return t('sort-modified-desc');
+      case 'modified-asc':
+        return t('sort-modified-asc');
+      case 'close-asc':
+        return t('sort-close-asc');
+      case 'close-desc':
+        return t('sort-close-desc');
+      case 'alphabetically-asc':
+        return t('sort-alphabetically');
+      default:
+        return '';
+    }
+  };
 
   const handleSortOptionClick = (sortType: string) => {
     confirm({

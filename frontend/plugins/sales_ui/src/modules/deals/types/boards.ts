@@ -1,4 +1,4 @@
-import type { SalesBoardCountsQuery, SalesBoardsQuery } from '~/gql/graphql';
+import type { SalesBoardsQuery } from '~/gql/graphql';
 import type { IDeal } from './deals';
 import type { IStage } from './stages';
 
@@ -8,10 +8,6 @@ import { z } from 'zod';
 
 export type IBoard = NonNullable<
   NonNullable<SalesBoardsQuery['salesBoards']>[number]
->;
-
-export type IBoardCount = NonNullable<
-  NonNullable<SalesBoardCountsQuery['salesBoardCounts']>[number]
 >;
 
 export interface BaseBoardItem {
@@ -120,13 +116,6 @@ export interface ISelectBoardsContext {
   error: string | null;
   newBoardName?: string;
   setNewBoardName?: (name: string) => void;
-}
-
-export interface BoardsInlineProps {
-  boardIds?: string[];
-  boards?: IBoard[];
-  placeholder?: string;
-  updateBoards?: (boards: IBoard[]) => void;
 }
 
 export type TBoardForm = z.infer<typeof BOARD_CREATE_SCHEMA>;

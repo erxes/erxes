@@ -2,7 +2,6 @@ import { useApolloClient, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { dealSaleVouchersSchema } from '../utils/dealVoucherGroups';
 
 import { normalizeProductUom } from '@/deals/cards/components/detail/product/utils/productUom';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
@@ -13,7 +12,10 @@ import {
   DEAL_COUPON_CHECK,
   DEAL_SALE_VOUCHERS,
 } from '../graphql/dealVoucherQueries';
-import { groupDealVouchers } from '../utils/dealVoucherGroups';
+import {
+  dealSaleVouchersSchema,
+  groupDealVouchers,
+} from '../utils/dealVoucherGroups';
 
 /**
  * The deal's voucher and coupon: what its first customer may pick, and

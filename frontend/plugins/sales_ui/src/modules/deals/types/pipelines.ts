@@ -58,10 +58,3 @@ export interface ISelectPipelinesContext {
   error: string | null;
   boardId?: string;
 }
-
-export interface PipelinesInlineProps {
-  pipelineIds?: string[];
-  pipelines?: IPipeline[];
-  placeholder?: string;
-  updatePipelines?: (pipelines: IPipeline[]) => void;
-}
