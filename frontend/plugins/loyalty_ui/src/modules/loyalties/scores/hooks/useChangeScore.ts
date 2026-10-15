@@ -1,18 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { ChangeScoreMutationVariables } from '~/gql/graphql';
 import { CHANGE_SCORE_MUTATION } from '../graphql/mutations';
-
-export interface ChangeScoreVariables {
-  ownerType: string;
-  ownerId: string;
-  campaignId?: string;
-  targetId?: string;
-  action: string;
-  change: number;
-  description?: string;
-  serviceName?: string;
-}
 
 export const useChangeScore = (
   refetchQueries: string[] = [
@@ -29,7 +19,7 @@ export const useChangeScore = (
     { refetchQueries },
   );
 
-  const changeScore = async (variables: ChangeScoreVariables) => {
+  const changeScore = async (variables: ChangeScoreMutationVariables) => {
     return changeScoreMutation({
       variables,
       onCompleted: () => {

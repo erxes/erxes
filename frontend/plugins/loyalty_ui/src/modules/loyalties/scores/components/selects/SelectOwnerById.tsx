@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import { cn, Combobox, Command, Form, Popover } from 'erxes-ui';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 // Customer / company / team-member owners use the shared `ui-modules` selects
 // (see SelectOwnerByType). Client portal users have no ready-made select there,
@@ -14,14 +16,6 @@ interface SelectOption {
   label: string;
 }
 
-interface CpUserItem {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-}
-
 interface SelectOwnerFormItemProps {
   value: string;
   onValueChange: (val: string) => void;
@@ -31,7 +25,7 @@ interface SelectOwnerFormItemProps {
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
-const GET_CLIENT_PORTAL_USERS = gql`
+const GET_CLIENT_PORTAL_USERS = gql(`
   query ScoreClientPortalUsersSimple($filter: IClientPortalUserFilter) {
     getClientPortalUsers(filter: $filter) {
       list {
@@ -43,7 +37,7 @@ const GET_CLIENT_PORTAL_USERS = gql`
       }
     }
   }
-`;
+`);
 
 // ─── Shared option renderer ───────────────────────────────────────────────────
 
@@ -100,15 +94,13 @@ export const SelectClientPortalUserFormItem = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const { data, loading } = useQuery<{
-    getClientPortalUsers: { list: CpUserItem[] };
-  }>(GET_CLIENT_PORTAL_USERS, {
+  const { data, loading } = useQuery(GET_CLIENT_PORTAL_USERS, {
     variables: { filter: { searchValue: search || undefined } },
   });
 
   const options = useMemo<SelectOption[]>(
     () =>
-      (data?.getClientPortalUsers?.list || []).map((u) => ({
+      compactList(data?.getClientPortalUsers?.list).map((u) => ({
         value: u._id,
         label:
           [u.firstName, u.lastName].filter(Boolean).join(' ') ||
