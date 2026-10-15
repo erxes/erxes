@@ -1,10 +1,12 @@
 import { TWorkflowInputBinding } from '@/automations/components/builder/hooks/useWorkflowInputBindings';
 import { useWorkflowNodeContext } from '@/automations/context/WorkflowNodeProvider';
 import { IconAlertTriangle } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 // Read-only summary on the canvas node; editing happens in the node
 // configuration sidebar (double-click the node), like every other node type.
 export const WorkflowInputBindings = () => {
+  const { t } = useTranslation('automations');
   const { bindings } = useWorkflowNodeContext();
 
   if (!bindings.length) {
@@ -13,7 +15,9 @@ export const WorkflowInputBindings = () => {
 
   return (
     <div className="mt-2">
-      <p className="px-1 text-xs font-medium text-muted-foreground">Inputs</p>
+      <p className="px-1 text-xs font-medium text-muted-foreground">
+        {t('inputs')}
+      </p>
       <div className="mt-1 space-y-1">
         {bindings.map((binding) => (
           <WorkflowInputBindingRow key={binding.name} binding={binding} />

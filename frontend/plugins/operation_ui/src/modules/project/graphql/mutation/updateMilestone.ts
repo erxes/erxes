@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const UPDATE_MILESTONE_MUTATION = gql`
+export const UPDATE_MILESTONE_MUTATION = gql(`
   mutation UpdateMilestone(
     $id: String!
     $name: String!
@@ -19,4 +19,4 @@ export const UPDATE_MILESTONE_MUTATION = gql`
       targetDate
     }
   }
-`;
+`);

@@ -4,10 +4,11 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
-import { IModels, generateModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 import { sendPosclientHealthCheck, sendPosclientMessage } from '~/initWorker';
 import { IPosOrder, IPosOrderDocument } from './@types/orders';
 import { IPosDocument } from './@types/pos';
+import { planOrderPoints } from './orderPoints';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { IDeal } from '~/modules/sales/@types';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
@@ -174,6 +175,70 @@ export const spendOrderPoints = async (
         totalAmount: Number(order.totalAmount) || 0,
         actorId: userId || order.userId,
       },
+      throwOnError: true,
+    });
+  }
+};
+
+/** Tells loyalty what a paid order earns as it stands now. */
+export const earnOrderPoints = async (
+  subdomain: string,
+  models: IModels,
+  order: IPosOrder & { _id?: string },
+) => {
+  if (!order._id) {
+    return;
+  }
+
+  const plan = await planOrderPoints({ models, order });
+
+  // Nobody to earn for without a customer.
+  if (plan.kind !== 'sync' || !plan.customerId) {
+    return;
+  }
+
+  for (const { campaignId, totalAmount, paidAmount, items } of plan.earns) {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'earn',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: plan.customerId,
+        campaignId,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        serviceName: 'pos',
+        actorId: order.userId,
+        purchase: { totalAmount, paidAmount, items },
+      },
+    });
+  }
+
+  // A return leaves the tier alone; the next purchase sets it again.
+  if (plan.tier) {
+    const { accountTypeId, bands, onlyUpgrade, totalAmount } = plan.tier;
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'applyPurchaseTier',
+      input: {
+        ownerType: order.customerType || 'customer',
+        ownerId: plan.customerId,
+        accountTypeId,
+        bands,
+        onlyUpgrade,
+        totalAmount,
+        targetId: order._id,
+        targetType: POS_ORDER_TARGET_TYPE,
+        targetName: `POS #${order.number}`,
+        actorId: order.userId,
+      },
     });
   }
 };
@@ -202,11 +267,27 @@ export const refundOrderPoints = async (
   });
 };
 
+/** A fully returned order gives its vouchers back, with their own expiry. */
+const returnOrderVouchers = async (
+  subdomain: string,
+  order: IPosOrder & { _id?: string },
+) => {
+  if (!order._id) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'loyalty',
+    method: 'mutation',
+    module: 'voucher',
+    action: 'returnTarget',
+    input: { targetId: order._id, userId: order.userId },
+    defaultValue: 0,
+  });
+};
+
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
-  const models = await generateModels(subdomain);
-
-  await spendOrderPoints(subdomain, models, order);
-
   const confirmItems = order.items || [];
 
   if (!confirmItems.length) {
@@ -720,14 +801,27 @@ export const syncOrderFromClient = async ({
       }
     }
 
-    try {
-      if (newOrder.status === 'return') {
-        await refundOrderPoints(subdomain, newOrder);
-      } else {
-        await confirmLoyalties(subdomain, newOrder);
+    // Each on its own: a voucher refused must not stop the points.
+    const steps =
+      newOrder.status === 'return'
+        ? [
+            () => refundOrderPoints(subdomain, newOrder),
+            () => returnOrderVouchers(subdomain, newOrder),
+          ]
+        : [
+            () => spendOrderPoints(subdomain, models, newOrder),
+            () => confirmLoyalties(subdomain, newOrder),
+            () => earnOrderPoints(subdomain, models, newOrder),
+          ];
+
+    for (const step of steps) {
+      try {
+        await step();
+      } catch (e) {
+        console.error(
+          `${subdomain}: loyalty for POS order ${newOrder.number}: ${e.message}`,
+        );
       }
-    } catch (e) {
-      console.log(subdomain, e.message);
     }
 
     try {
@@ -891,7 +985,12 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 
 export const calcProductsTaxRule = async (
   subdomain: string,
-  config,
+  config:
+    | {
+        reverseVatRules?: string[];
+        reverseCtaxRules?: string[];
+      }
+    | undefined,
   products,
 ) => {
   const vatRules =
@@ -902,7 +1001,7 @@ export const calcProductsTaxRule = async (
         pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
-        input: { _id: { $in: config.reverseVatRules } },
+        input: { data: { _id: { $in: config.reverseVatRules } } },
         defaultValue: [],
       }))) ||
     [];
@@ -915,7 +1014,7 @@ export const calcProductsTaxRule = async (
         pluginName: 'mongolian',
         module: 'productRules',
         action: 'find',
-        input: { _id: { $in: config.reverseCtaxRules } },
+        input: { data: { _id: { $in: config.reverseCtaxRules } } },
         defaultValue: [],
       }))) ||
     [];

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { clearCartWithAuditAtom } from "@/store/cart.store"
 import { uiOptionsAtom } from "@/store/config.store"
 import { setInitialAtom } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -13,8 +14,10 @@ const Header = () => {
   const { logo, kioskHeaderImage } = useAtomValue(uiOptionsAtom) || {}
   const router = useRouter()
   const setInitialState = useSetAtom(setInitialAtom)
+  const clearCart = useSetAtom(clearCartWithAuditAtom)
 
   const reset = () => {
+    clearCart()
     setInitialState()
     router.push("/")
   }

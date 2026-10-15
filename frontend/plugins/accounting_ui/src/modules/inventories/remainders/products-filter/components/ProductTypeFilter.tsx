@@ -23,7 +23,7 @@ export const ProductTypeFilterDropdown = ({ onOpenChange }: any) => {
             onOpenChange(false);
           }}
         >
-          {t(option.label)}
+          {t(option.label, { nsSeparator: false })}
         </DropdownMenu.RadioItem>
       ))}
     </DropdownMenu.RadioGroup>
@@ -42,7 +42,7 @@ export const ProductTypeFilterBar = () => {
       <Select.Content>
         {options.map((option) => (
           <Select.Item key={option.value} value={option.value}>
-            {t(option.label)}
+            {t(option.label, { nsSeparator: false })}
           </Select.Item>
         ))}
       </Select.Content>

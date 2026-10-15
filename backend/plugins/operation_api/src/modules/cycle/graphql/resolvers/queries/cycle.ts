@@ -13,10 +13,14 @@ import {
 export const cycleQueries = {
   getCycle: async (
     _parent: undefined,
-    { _id },
+    { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('cycleRead');
+
+    if (!_id) {
+      throw new Error('_id is required');
+    }
 
     const cycle = await models.Cycle.getCycle(_id);
     return cycle;

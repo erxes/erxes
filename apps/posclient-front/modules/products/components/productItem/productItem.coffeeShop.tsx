@@ -1,21 +1,24 @@
 import { forwardRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { addToCartAtom } from "@/store/cart.store"
-import { useSetAtom } from "jotai"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import { isShowRemainderAtom } from "@/store/config.store"
+import { useAtomValue, useSetAtom } from "jotai"
+
 import { IProduct } from "@/types/product.types"
+import { blockNoteToPlainText } from "@/lib/richText"
 import { cn } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import { CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import Image from "@/components/ui/image"
 
-const ChooseSimilarities: any = dynamic(
+const ChooseSimilarities = dynamic(
   () => import("../ChooseFromBulkSimilarity"),
   {
     loading: () => <div style={{ height: "350px" }}></div>,
@@ -137,6 +140,14 @@ export const ProductItemDescription = ({
   description?: string | null
   className?: string
 }) => {
+  const blockText = blockNoteToPlainText(description)
+
+  if (blockText !== null) {
+    return (
+      <div className={cn("text-neutral-500 mb-3", className)}>{blockText}</div>
+    )
+  }
+
   return (
     <div
       className={cn("text-neutral-500 mb-3", className)}
@@ -158,11 +169,13 @@ export const ProductItemPriceWithWrapper = ({
   remainder?: number
   remainders?: { location: string; remainder: number }[]
 }) => {
+  const isShowRemainder = useAtomValue(isShowRemainderAtom)
   return (
     <div className={cn("flex items-center justify-between", className)}>
       <div className="font-black text-base">
         {(unitPrice || 0).toLocaleString()}₮{" "}
-        {typeof remainder === "number" &&
+        {isShowRemainder &&
+          typeof remainder === "number" &&
           (remainders && remainders?.length > 1 ? (
             <HoverCard>
               <HoverCardTrigger>{"/" + remainder + "/"}</HoverCardTrigger>

@@ -112,6 +112,7 @@ export const CustomerDetail = () => {
 };
 
 const CustomerDetailEmptyState = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
     <div className="flex items-center justify-center h-full">
       <Empty>
@@ -119,10 +120,8 @@ const CustomerDetailEmptyState = () => {
           <Empty.Media variant="icon">
             <IconCloudExclamation />
           </Empty.Media>
-          <Empty.Title>Customer not found</Empty.Title>
-          <Empty.Description>
-            There seems to be no customer with this ID.
-          </Empty.Description>
+          <Empty.Title>{t('not-found')}</Empty.Title>
+          <Empty.Description>{t('not-found-description')}</Empty.Description>
         </Empty.Header>
       </Empty>
     </div>
@@ -130,6 +129,7 @@ const CustomerDetailEmptyState = () => {
 };
 
 const CustomerDetailErrorState = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { error } = useCustomerDetailWithQuery();
   return (
     <div className="flex items-center justify-center h-full">
@@ -138,7 +138,7 @@ const CustomerDetailErrorState = () => {
           <Empty.Media variant="icon">
             <IconAlertCircle />
           </Empty.Media>
-          <Empty.Title>Error</Empty.Title>
+          <Empty.Title>{t('error-title')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
       </Empty>

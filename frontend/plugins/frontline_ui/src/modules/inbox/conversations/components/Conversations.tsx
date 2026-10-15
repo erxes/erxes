@@ -1,3 +1,7 @@
+import {
+  telegramChatLabel,
+  useTelegramChats,
+} from '@/integrations/telegram/useTelegramChats';
 import { IconInbox, IconLoader } from '@tabler/icons-react';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
@@ -60,17 +64,37 @@ export const Conversations = () => {
   const { channelMap, loading: channelInfoLoading } =
     useDiscordConversationChannels(discordConversationIds);
 
+  const telegramIds = useMemo(
+    () =>
+      (conversations || [])
+        .filter(
+          (conversation) =>
+            conversation.integration?.kind === 'telegram-messenger',
+        )
+        .map((conversation) => conversation._id),
+    [conversations],
+  );
+  const { chats: telegramChats, loading: telegramLoading } =
+    useTelegramChats(telegramIds);
+
   const renderConversationItem = (conversation: IConversation) => (
     <ConversationContext.Provider
       key={conversation._id}
       value={{ ...conversation, tagIds: conversation.tagIds ?? [] }}
     >
       <ConversationItem
-        channelInfo={channelMap.get(conversation._id)}
+        channelInfo={
+          channelMap.get(conversation._id) ?? {
+            channelName: telegramChatLabel(telegramChats.get(conversation._id)),
+          }
+        }
         channelInfoPending={
-          channelInfoLoading &&
-          isDiscordConversation(conversation) &&
-          !channelMap.has(conversation._id)
+          (channelInfoLoading &&
+            isDiscordConversation(conversation) &&
+            !channelMap.has(conversation._id)) ||
+          (telegramLoading &&
+            conversation.integration?.kind === 'telegram-messenger' &&
+            !telegramChats.has(conversation._id))
         }
         onConversationSelect={handleConversationSelect}
       />

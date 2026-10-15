@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useTagsContext } from '@/settings/tags/context/TagsContext';
 import { TAG_DEFAULT_COLORS } from '@/settings/tags/constants/Colors';
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
@@ -17,6 +18,7 @@ import { Can, usePermissionCheck } from 'ui-modules';
 const FIRST_TAG_COLOR = Object.values(TAG_DEFAULT_COLORS)[0];
 
 export const TagsSubHeader = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { draft, openDraft } = useTagsContext();
   const { hasActionPermission } = usePermissionCheck();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -55,7 +57,7 @@ export const TagsSubHeader = () => {
                 searchValue: event.currentTarget.value || null,
               })
             }
-            placeholder="Search tags"
+            placeholder={t('search-tags')}
             className="pl-9"
           />
         </div>
@@ -66,7 +68,7 @@ export const TagsSubHeader = () => {
               disabled={Boolean(draft)}
               onClick={() => handleOpenDraft('group')}
             >
-              Add Group
+              {t('add-group')}
             </Button>
           </Can>
           <Can action="tagsCreate">
@@ -75,7 +77,7 @@ export const TagsSubHeader = () => {
               onClick={() => handleOpenDraft('standalone')}
             >
               <IconPlus className="size-4" />
-              Add Tag
+              {t('add-tag')}
               <Kbd>C</Kbd>
             </Button>
           </Can>

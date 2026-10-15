@@ -1,12 +1,11 @@
 import { useNavigate, useParams } from 'react-router';
 import { Sheet, toast } from 'erxes-ui';
-import { PropertyForm } from './PropertyForm';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
-import { IPropertyForm } from '../types/Properties';
 import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
 import { useTranslation } from 'react-i18next';
+import { IPropertyForm, PropertyForm } from 'ui-modules';
 
 export const PropertyEdit = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });

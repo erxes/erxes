@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { CLIENTPORTAL_SOCIALPAY_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   clientPortal: IClientPortal;
 }
 
 export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const form = useForm<
     ReturnType<(typeof CLIENTPORTAL_SOCIALPAY_SCHEMA)['parse']>
   >({
@@ -51,10 +53,10 @@ export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
           name="publicKey"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>SocialPay Public Key</Form.Label>
+              <Form.Label>{t('socialpay-public-key')}</Form.Label>
               <Input {...field} autoComplete="off" />
               <Form.Description>
-                Your SocialPay public key (provided by SocialPay)
+                {t('socialpay-public-key-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -65,10 +67,10 @@ export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
           name="certId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>SocialPay Cert ID</Form.Label>
+              <Form.Label>{t('socialpay-cert-id')}</Form.Label>
               <Input {...field} autoComplete="off" />
               <Form.Description>
-                Your SocialPay CertID (provided by SocialPay)
+                {t('socialpay-cert-id-description')}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -81,7 +83,7 @@ export function ClientPortalDetailSocialPay({ clientPortal }: Props) {
           disabled={loading}
         >
           {loading && <Spinner containerClassName="w-auto flex-none" />}
-          Save
+          {t('save')}
         </Button>
       </form>
     </Form>

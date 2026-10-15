@@ -12,7 +12,13 @@ export const cpTicketQueries = {
   ) => {
     const { page, perPage, createdBy } = filter || {};
 
-    const query = await generateFilter(filter, user, models, subdomain);
+    const query = await generateFilter(
+      filter,
+      user,
+      models,
+      subdomain,
+      !!createdBy,
+    );
 
     if (createdBy) {
       query.createdBy = `cp:${createdBy}`;
@@ -35,7 +41,13 @@ export const cpTicketQueries = {
   ) => {
     const { createdBy } = filter || {};
 
-    const query = await generateFilter(filter, user, models, subdomain);
+    const query = await generateFilter(
+      filter,
+      user,
+      models,
+      subdomain,
+      !!createdBy,
+    );
 
     if (createdBy) {
       query.createdBy = `cp:${createdBy}`;

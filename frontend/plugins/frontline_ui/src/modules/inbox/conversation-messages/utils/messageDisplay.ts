@@ -130,23 +130,49 @@ export const getMessageDisplay = ({
   const legacyReplyPreview = legacyReply
     ? stripHtml(legacyReply.preview) || 'Attachment'
     : '';
-  const effectiveReplyTo = getEffectiveReplyTo(
-    Boolean(forwardedSnapshot),
-    replyTo,
-    legacyReplyPreview,
-    legacyReplyAuthor,
-  );
+  const telegramReply =
+    integrationKind === IntegrationType.TELEGRAM_MESSENGER
+      ? extraData?.telegram?.replyTo
+      : undefined;
+  const effectiveReplyTo = telegramReply
+    ? {
+        messageId: telegramReply.messageId,
+        authorName: telegramReply.senderName,
+        content: telegramReply.content,
+      }
+    : getEffectiveReplyTo(
+        Boolean(forwardedSnapshot),
+        replyTo,
+        legacyReplyPreview,
+        legacyReplyAuthor,
+      );
   const contentWithoutQuotedReply = legacyReply
     ? content.slice(legacyReply.length)
     : content;
   const contentWithoutForwardMarker = isForwardedMessage
     ? stripForwardedMarkers(contentWithoutQuotedReply)
     : contentWithoutQuotedReply;
-  const displayContent =
+  const fallbackDisplayContent =
     botText ||
     contentWithoutForwardMarker
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
+  const snapshotHasContent = Boolean(
+    forwardedSnapshot?.content ||
+    forwardedSnapshot?.attachments?.length ||
+    forwardedSnapshot?.stickers?.length ||
+    forwardedSnapshot?.embeds?.length ||
+    forwardedSnapshot?.poll,
+  );
+  let displayContent: string | undefined = fallbackDisplayContent;
+  if (
+    integrationKind === IntegrationType.INSTAGRAM_MESSENGER &&
+    forwardedSnapshot
+  ) {
+    displayContent =
+      extraData?.forwardedNote?.trim() ||
+      (snapshotHasContent ? undefined : fallbackDisplayContent);
+  }
   const postIntegrationKind = getPostIntegrationKind(integrationKind);
   const isPostConversation = Boolean(postIntegrationKind);
   const typedAttachments = isPostConversation

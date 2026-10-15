@@ -8,6 +8,7 @@ export const handlePrint = async (
   productsData,
   printConfig,
   productById,
+  sessionCode = '',
 ) => {
   const { customerCode, customerName } = await getCustomer(subdomain, deal);
 
@@ -115,7 +116,7 @@ export const handlePrint = async (
     productPlacesResponded: {
       userId: user,
       responseId: deal._id,
-      sessionCode: '',
+      sessionCode,
       content,
     },
   });

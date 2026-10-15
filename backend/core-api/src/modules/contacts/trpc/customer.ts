@@ -100,6 +100,7 @@ export const customerRouter = t.router({
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
+        console.log({input})
 
         return models.Customers.getWidgetCustomer(input);
       }),
@@ -197,6 +198,7 @@ export const customerRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { _id, doc, customData } = input;
         const { models } = ctx;
+        console.log({_id, doc, customData})
 
         return models.Customers.updateMessengerCustomer({
           _id,

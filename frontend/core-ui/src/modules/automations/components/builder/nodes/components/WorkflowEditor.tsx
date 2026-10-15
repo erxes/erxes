@@ -12,6 +12,7 @@ import { AlertDialog, Button, Input, Popover } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { TAutomationAction } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export type TWorkflowEditorValue = {
   name: string;
@@ -64,6 +65,7 @@ export const WorkflowEditor = ({
   onSave,
   onBack,
 }: TWorkflowEditorProps) => {
+  const { t } = useTranslation('automations');
   const innerForm = useForm<TAutomationBuilderForm>({
     defaultValues: {
       name: initial.name || 'Workflow',
@@ -210,18 +212,22 @@ export const WorkflowEditor = ({
       <AlertDialog open={isDiscardOpen} onOpenChange={setDiscardOpen}>
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>Unsaved changes</AlertDialog.Title>
+            <AlertDialog.Title>
+              {t('workflow-editor-unsaved-changes')}
+            </AlertDialog.Title>
             <AlertDialog.Description>
-              Leave without saving? The edits made here will be lost.
+              {t('workflow-editor-leave-description')}
             </AlertDialog.Description>
           </AlertDialog.Header>
           <AlertDialog.Footer>
-            <AlertDialog.Cancel>Keep editing</AlertDialog.Cancel>
+            <AlertDialog.Cancel>
+              {t('workflow-editor-keep-editing')}
+            </AlertDialog.Cancel>
             <AlertDialog.Action
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDiscard}
             >
-              Discard changes
+              {t('workflow-editor-discard-changes')}
             </AlertDialog.Action>
           </AlertDialog.Footer>
         </AlertDialog.Content>
@@ -251,11 +257,13 @@ const WorkflowEditorHeader = ({
 }) => {
   const { handleNodeLibraryToggle } = useAutomationBuilderSidebarHooks();
 
+  const { t } = useTranslation('automations');
+
   return (
     <div className="flex items-center gap-3 border-b bg-sidebar px-4 py-2">
       <Button variant="ghost" size="sm" onClick={onBack}>
         <IconArrowLeft className="size-4" />
-        Back
+        {t('workflow-editor-back')}
       </Button>
 
       <div className="flex min-w-0 items-center gap-1 text-sm">
@@ -267,20 +275,20 @@ const WorkflowEditorHeader = ({
               type="button"
               className="-mx-1 max-w-[16rem] truncate rounded px-1 text-left font-medium hover:bg-accent"
             >
-              {meta.name || 'Workflow'}
+              {meta.name || t('workflow-label')}
             </button>
           </Popover.Trigger>
           <Popover.Content align="start" className="w-80 space-y-2 p-3">
             <Input
               value={meta.name}
-              placeholder="Workflow name"
+              placeholder={t('workflow-editor-name-placeholder')}
               onChange={(event) =>
                 onMetaChange('name', event.currentTarget.value)
               }
             />
             <Input
               value={meta.description}
-              placeholder="Description"
+              placeholder={t('description')}
               onChange={(event) =>
                 onMetaChange('description', event.currentTarget.value)
               }
@@ -294,7 +302,7 @@ const WorkflowEditorHeader = ({
           <>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-amber-500" />
-              Unsaved changes
+              {t('workflow-editor-unsaved-changes')}
             </span>
             <Button onClick={onSave}>{saveLabel}</Button>
           </>
@@ -304,7 +312,7 @@ const WorkflowEditorHeader = ({
           onClick={() => handleNodeLibraryToggle(AutomationNodeType.Action)}
         >
           <IconPlus className="size-4" />
-          Add action
+          {t('workflow-editor-add-action')}
         </Button>
       </div>
     </div>

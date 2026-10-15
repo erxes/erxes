@@ -9,6 +9,7 @@ import {
 import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
 import { getCartTotal } from "@/lib/utils"
 
+import { recordCartAuditAtom } from "./cartAudit.store"
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 import { activeOrderIdAtom, setOpenCancelDialogAtom } from "./order.store"
 
@@ -18,6 +19,7 @@ interface IUpdateItem {
   isTake?: boolean
   description?: string
   attachment?: { url?: string } | null
+  conditionCode?: string | null
   fromAdd?: boolean
   allowed?: boolean
   status?: IOrderItemStatus
@@ -80,6 +82,7 @@ export const addToCart = (
       isTake,
       description,
       attachment,
+      conditionCode,
     }) =>
       productId === product._id &&
       [ORDER_ITEM_STATUSES.NEW, ORDER_ITEM_STATUSES.CONFIRM].includes(
@@ -88,7 +91,8 @@ export const addToCart = (
       (itemManufacturedDate || "") === manufacturedDate &&
       !isTake &&
       !description &&
-      !attachment
+      !attachment &&
+      !conditionCode
   )
 
   if (prevItem) {
@@ -155,6 +159,11 @@ export const updateCartAtom = atom(
     )
 
     const currentCart = get(cartAtom)
+    set(recordCartAuditAtom, {
+      orderId: get(activeOrderIdAtom),
+      beforeItems: currentCart,
+      afterItems: changedCartItems,
+    })
     if (currentCart.length > 0 && changedCartItems.length === 0) {
       set(setOpenCancelDialogAtom)
     }
@@ -167,3 +176,12 @@ export const setCartAtom = atom(
     set(cartAtom, update)
   }
 )
+
+export const clearCartWithAuditAtom = atom(null, (get, set) => {
+  set(recordCartAuditAtom, {
+    orderId: get(activeOrderIdAtom),
+    beforeItems: get(cartAtom),
+    afterItems: [],
+  })
+  set(cartAtom, [])
+})

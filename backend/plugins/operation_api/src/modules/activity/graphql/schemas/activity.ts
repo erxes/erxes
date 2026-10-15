@@ -7,15 +7,15 @@ export const types = `
     }
     
     type OperationActivity {
-        _id: String
-        action: String  
-        contentId: String
-        module: String
+        _id: String!
+        action: String!
+        contentId: String!
+        module: String!
         metadata:OperationActivityMetadata
         createdBy: String
 
-        createdAt: Date
-        updatedAt: Date
+        createdAt: Date!
+        updatedAt: Date!
     }
 
     type OperationActivityListResponse {

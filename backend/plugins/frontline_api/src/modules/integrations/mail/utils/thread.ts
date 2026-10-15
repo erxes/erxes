@@ -4,6 +4,7 @@ import {
   IMailAddress,
   IMailMessageDocument,
 } from '@/integrations/mail/@types/message';
+import { readInboundMailReaction } from '@/integrations/mail/utils/reactions';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -41,14 +42,24 @@ export const splitQuotedReply = (html: string) => {
 const convertAddresses = (addresses: IMailAddress[] = []) =>
   addresses.map(({ name, address }) => ({ name, email: address }));
 
-const toThreadMessage = (message: IMailMessageDocument) => {
+const toThreadMessage = async (
+  message: IMailMessageDocument,
+  subdomain: string,
+) => {
   const body = message.body ?? '';
+  const reactionEmoji =
+    message.reactionEmoji ??
+    (message.type === 'INBOX'
+      ? await readInboundMailReaction(subdomain, message.attachments)
+      : undefined);
 
   return {
     _id: message._id,
     createdAt: message.createdAt,
     mailData: {
       messageId: message.messageId,
+      providerMessageId: message.providerMessageId,
+      inReplyTo: message.inReplyTo,
       references: message.references ?? [],
       type: message.type,
       deliveryStatus: message.deliveryStatus,
@@ -63,6 +74,8 @@ const toThreadMessage = (message: IMailMessageDocument) => {
       bcc: convertAddresses(message.bcc),
       subject: message.subject,
       body,
+      reactionEmoji,
+      hasReplyTo: message.hasReplyTo ?? false,
       ...splitQuotedReply(body),
       attachments: message.attachments,
     },
@@ -71,6 +84,7 @@ const toThreadMessage = (message: IMailMessageDocument) => {
 
 export const readMailThread = async (
   models: IModels,
+  subdomain: string,
   filter: FilterQuery<IMailMessageDocument>,
   limit?: number,
 ) => {
@@ -82,9 +96,76 @@ export const readMailThread = async (
 
   const hasMore = page.length > size;
 
-  const messages = (hasMore ? page.slice(0, size) : page)
-    .reverse()
-    .map(toThreadMessage);
+  const selected = hasMore ? page.slice(0, size) : page;
+  const selectedMessages = await Promise.all(
+    selected.map((message) => toThreadMessage(message, subdomain)),
+  );
+  const selectedWireIds = new Set(
+    selected.flatMap(({ messageId, providerMessageId }) =>
+      [messageId, providerMessageId].filter(Boolean),
+    ),
+  );
+  const missingTargetIds = [
+    ...new Set(
+      selectedMessages.flatMap(({ mailData: { reactionEmoji, inReplyTo } }) =>
+        reactionEmoji && inReplyTo && !selectedWireIds.has(inReplyTo)
+          ? [inReplyTo]
+          : [],
+      ),
+    ),
+  ];
 
+  // Include paginated-out parents so reactions remain attached to their email.
+  const targets = missingTargetIds.length
+    ? await models.MailMessages.find({
+        $and: [
+          filter,
+          {
+            $or: [
+              { messageId: { $in: missingTargetIds } },
+              { providerMessageId: { $in: missingTargetIds } },
+            ],
+          },
+        ],
+      }).limit(missingTargetIds.length)
+    : [];
+  const targetMessages = await Promise.all(
+    targets.map((message) => toThreadMessage(message, subdomain)),
+  );
+  const loadedMessages = [...selectedMessages, ...targetMessages];
+  const wireIds = loadedMessages.flatMap(({ mailData }) =>
+    [mailData.messageId, mailData.providerMessageId].filter(Boolean),
+  );
+  const reactionRecords = wireIds.length
+    ? await models.MailMessages.find({
+        $and: [
+          filter,
+          {
+            _id: { $nin: loadedMessages.map(({ _id }) => _id) },
+            inReplyTo: { $in: wireIds },
+            $or: [
+              { reactionEmoji: { $exists: true, $ne: '' } },
+              { 'attachments.mimeType': 'text/vnd.google.email-reaction+json' },
+            ],
+          },
+        ],
+      })
+        .sort({ createdAt: -1, _id: -1 })
+        .limit(MAX_PAGE_SIZE)
+    : [];
+  const reactionMessages = await Promise.all(
+    reactionRecords.map((message) => toThreadMessage(message, subdomain)),
+  );
+  const messages = [
+    ...loadedMessages,
+    ...reactionMessages.filter(({ mailData }) =>
+      Boolean(mailData.reactionEmoji),
+    ),
+  ].sort(
+    (left, right) =>
+      new Date(left.createdAt).getTime() -
+        new Date(right.createdAt).getTime() ||
+      (left._id < right._id ? -1 : Number(left._id > right._id)),
+  );
   return { messages, hasMore };
 };

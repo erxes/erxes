@@ -2,10 +2,8 @@ import { normalizeFacebookAttachments } from '@/integrations/facebook/utils/mess
 import { FbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
 import { FbMessengerMessage } from '@/integrations/facebook/components/FbMessengerMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
-import {
-  MessageDaySeparator,
-  MessageItem,
-} from '@/inbox/conversation-messages/components/MessageItem';
+import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
+import { MessageDaySeparator } from '@/inbox/conversation-messages/components/messages/MessageStatus';
 import { useMemo } from 'react';
 import type { FacebookMessageRowProps } from '@/integrations/facebook/types/FacebookMessageRow';
 
@@ -17,7 +15,7 @@ export const FacebookMessageRow = ({
   const needsFacebookRenderer = Boolean(
     message.botData?.length || message.source || message.relatedMessage,
   );
-  const fbContextValue = useMemo(
+  const contextValue = useMemo(
     () => ({
       ...message,
       attachments: normalizeFacebookAttachments(message.attachments),
@@ -26,19 +24,9 @@ export const FacebookMessageRow = ({
     }),
     [message, nextMessage, previousMessage],
   );
-  const conversationContextValue = useMemo(
-    () => ({
-      ...message,
-      attachments: normalizeFacebookAttachments(message.attachments),
-      previousMessage,
-      nextMessage,
-    }),
-    [message, nextMessage, previousMessage],
-  );
-
   if (needsFacebookRenderer) {
     return (
-      <FbMessengerMessageContext.Provider value={fbContextValue}>
+      <FbMessengerMessageContext.Provider value={contextValue}>
         <MessageDaySeparator
           createdAt={message.createdAt}
           previousCreatedAt={previousMessage?.createdAt}
@@ -49,7 +37,7 @@ export const FacebookMessageRow = ({
   }
 
   return (
-    <ConversationMessageContext.Provider value={conversationContextValue}>
+    <ConversationMessageContext.Provider value={contextValue}>
       <MessageItem />
     </ConversationMessageContext.Provider>
   );

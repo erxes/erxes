@@ -17,18 +17,21 @@ import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import type { IContext } from '~/connectionResolvers';
 import { buildSchema, parse, validate } from 'graphql';
 import {
+  cmsPostizMutations,
   cmsPostizQueries,
   postizTypes,
   postizQueries,
   postizMutations,
 } from '../graphql';
 import { cmsShareSchema } from '../model';
+import { triggerCmsDeliveries } from '../worker';
 
 jest.mock('../bridge', () => ({
   ...jest.requireActual('../bridge'),
   postizBridge: jest.fn(),
 }));
 jest.mock('erxes-api-shared/utils', () => ({ sendTRPCMessage: jest.fn() }));
+jest.mock('../worker', () => ({ triggerCmsDeliveries: jest.fn() }));
 jest.mock('../../utils/cms-access', () => ({
   assertCmsAccessByClientPortal: jest.fn(),
 }));
@@ -140,8 +143,45 @@ test('the CMS social GraphQL contract composes and validates share and validatio
   const operation = parse(`mutation Share($input: CmsPostizShareInput!) {
     cmsPostizValidate(input: $input)
     cmsPostizShare(input: $input) { _id postId state channelName url message }
+    cmsPostizRefresh(postId: "postA", language: "en") { _id state }
   }`);
   expect(validate(schema, operation)).toEqual([]);
+});
+
+test('refresh runs due deliveries for the request tenant, then returns history', async () => {
+  const { context, models } = setup();
+  const query = { ...lean([]), sort: jest.fn(), limit: jest.fn() };
+  query.sort.mockReturnValue(query);
+  query.limit.mockReturnValue(query);
+  models.CmsShares.find.mockReturnValueOnce(query);
+  jest.mocked(triggerCmsDeliveries).mockResolvedValueOnce(undefined);
+  await cmsPostizMutations.cmsPostizRefresh(
+    null,
+    { postId: 'postA', language: 'en' },
+    context as IContext,
+  );
+  expect(triggerCmsDeliveries).toHaveBeenCalledWith(
+    context.subdomain,
+    context.models,
+  );
+  expect(
+    jest.mocked(triggerCmsDeliveries).mock.invocationCallOrder[0],
+  ).toBeLessThan(models.CmsShares.find.mock.invocationCallOrder[0]);
+});
+
+test('refresh without sharing access never starts a delivery run', async () => {
+  const { context } = setup();
+  jest
+    .mocked(requireCmsPermission)
+    .mockRejectedValueOnce(new Error('Permission required'));
+  await expect(
+    cmsPostizMutations.cmsPostizRefresh(
+      null,
+      { postId: 'postA', language: 'en' },
+      context as IContext,
+    ),
+  ).rejects.toThrow('Permission required');
+  expect(triggerCmsDeliveries).not.toHaveBeenCalled();
 });
 
 test('delivery history requires current Postiz access before reading saved deliveries', async () => {

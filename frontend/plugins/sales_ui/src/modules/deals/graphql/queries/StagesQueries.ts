@@ -69,7 +69,6 @@ const stageCommon = `
   code
   age
   defaultTick
-  refundPoints
   probability
   visibility
   status

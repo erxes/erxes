@@ -7,11 +7,13 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { ticketSegmentSource } from './collections';
 import { FRONTLINE_SEGMENT_FIELDS } from './fields';
+import { TICKET_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 import { TICKET_SEGMENT_RELATIONS } from './relations';
 
 const contract = (models: IModels): SegmentOwnerContract => ({
   sourceFor: (contentType) => ticketSegmentSource(models, contentType),
   fields: FRONTLINE_SEGMENT_FIELDS,
+  namespaces: TICKET_SEGMENT_FIELD_NAMESPACES,
   relations: TICKET_SEGMENT_RELATIONS,
 });
 

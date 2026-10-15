@@ -1,3 +1,5 @@
+import { TTierBandsConfig } from '@/score/services/tierBands';
+import { IVoucherValidity } from '@/voucher/services/voucherTerm';
 import {
   TAutomationProducers,
   TAutomationProducersInput,
@@ -50,6 +52,10 @@ export type LoyaltyAutomationExecution =
 export type LoyaltyAutomationAction = LoyaltyReceiveActionsInput['action'];
 
 export type AdjustScoreActionConfig = {
+  // `fixed` gives `points` into a wallet; otherwise a campaign's table earns.
+  mode?: 'campaign' | 'fixed';
+  accountTypeId?: string;
+  points?: number;
   campaignId?: string;
   action?: LoyaltyScoreAction;
   attribution?: string;
@@ -59,11 +65,16 @@ export type AdjustScoreActionConfig = {
   earnRowKeys?: string[];
 };
 
-export type SetTierActionConfig = {
+export type SetTierActionConfig = TTierBandsConfig & {
   attribution?: string;
   accountTypeId?: string;
-  // A tier key of the account type; empty clears the tier.
+  // A tier key of the account type; empty clears the tier. Unused with bands.
   tier?: string;
+  // With bands, a purchase never moves the owner to a lower tier.
+  onlyUpgrade?: boolean;
+  // The same for a fixed tier; separate because older fixed steps were saved
+  // with `onlyUpgrade` on and must keep lowering.
+  keepHigherTier?: boolean;
 };
 
 export type IssueVoucherActionConfig = {
@@ -72,7 +83,8 @@ export type IssueVoucherActionConfig = {
   ownerId?: string;
   ownerIds?: string[];
   attribution?: string;
-  customRule?: {
+  // Overrides the campaign's validity; `duration` is the older one-step form.
+  customRule?: Partial<IVoucherValidity> & {
     duration?: 'month' | 'week' | 'day' | 'minute';
   };
 };

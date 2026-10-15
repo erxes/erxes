@@ -169,3 +169,13 @@ export const AUTOMATION_ERROR_CODES = {
 
 export type TAutomationErrorCode =
   (typeof AUTOMATION_ERROR_CODES)[keyof typeof AUTOMATION_ERROR_CODES];
+
+// Never registered as an event trigger, so only a broadcast can start it.
+export const BROADCAST_TRIGGER_TYPE = 'core:broadcast';
+
+// A broadcast hands each run one customer, so it acts as that customer.
+export const BROADCAST_TARGET_TYPE = 'core:contacts.customers';
+
+// The record type a trigger hands its run; usually the trigger's own type.
+export const getTriggerTargetType = (triggerType: string) =>
+  triggerType === BROADCAST_TRIGGER_TYPE ? BROADCAST_TARGET_TYPE : triggerType;

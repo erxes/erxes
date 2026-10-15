@@ -41,7 +41,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
 
 export const loadTicketClass = (
   models: IModels,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  { sendDbEventLog }: EventDispatcherReturn,
 ) => {
   class Ticket {
     public static async getTicket(_id: string): Promise<ITicketDocument> {
@@ -179,7 +179,6 @@ export const loadTicketClass = (
       let movedTo: { name: string; type: number } | null = null;
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
-        rest.statusChangedDate = new Date();
         const status = await models.Status.getStatus(doc.statusId || '');
         rest.statusType = status.type;
         movedTo = { name: status.name, type: status.type };
@@ -210,6 +209,12 @@ export const loadTicketClass = (
         rest.statusId = newStatus?._id;
       }
 
+      rest.updatedBy = userId;
+      if (rest.statusId && rest.statusId !== ticket.statusId) {
+        rest.statusChangedDate = new Date();
+        rest.statusChangedBy = userId;
+      }
+
       await createActivity({
         contentType: 'ticket',
         oldDoc: ticket,
@@ -230,9 +235,10 @@ export const loadTicketClass = (
           action: 'assignee',
         });
       }
-      const update: { $set: Record<string, any>; [key: string]: any } = {
-        $set: { ...rest },
-      };
+      const update: { $set: Record<string, unknown>; [key: string]: unknown } =
+        {
+          $set: { ...rest },
+        };
 
       if (incomingPropertiesData) {
         for (const [key, value] of Object.entries(incomingPropertiesData)) {

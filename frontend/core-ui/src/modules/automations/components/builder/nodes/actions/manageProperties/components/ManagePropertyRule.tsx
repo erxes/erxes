@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
 import {
   ManagePropertyCustomInput,
@@ -6,7 +7,11 @@ import {
 import { IconCornerDownRight, IconTrash, IconX } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
 import { useState } from 'react';
-import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
+import {
+  AutomationConditionalField,
+  PlaceholderInput,
+  TPlaceholderInputSuggestion,
+} from 'ui-modules';
 
 interface LocalRuleProps {
   index: number;
@@ -20,6 +25,7 @@ export const ManagePropertyRule = ({
   index,
 }: LocalRuleProps) => {
   const {
+    form,
     control,
     setValue,
     groups,
@@ -31,6 +37,7 @@ export const ManagePropertyRule = ({
     rule,
     selectedField,
   } = useManagePropertyRule({ propertyType, sourceType, index });
+  const { t } = useTranslation('automations');
   const CustomInput = useManagePropertyCustomInput(propertyType, selectedField);
   const [showFallback, setShowFallback] = useState(
     () => !!String(rule?.fallbackValue ?? '').trim(),
@@ -49,11 +56,13 @@ export const ManagePropertyRule = ({
           name={`rules.${index}.field`}
           render={({ field }) => (
             <Form.Item className="w-3/5">
-              <Form.Label>Field </Form.Label>
+              <Form.Label>{t('manage-properties-field')} </Form.Label>
 
               <Select value={field.value} onValueChange={handleFieldChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select an field" />
+                  <Select.Value
+                    placeholder={t('manage-properties-select-field')}
+                  />
                 </Select.Trigger>
                 <Select.Content>
                   {Object.entries(groups).map(([key, fields], index) => {
@@ -86,11 +95,13 @@ export const ManagePropertyRule = ({
           name={`rules.${index}.operator`}
           render={({ field }) => (
             <Form.Item className="w-2/5 ">
-              <Form.Label>Operator</Form.Label>
+              <Form.Label>{t('manage-properties-operator')}</Form.Label>
 
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select an operator" />
+                  <Select.Value
+                    placeholder={t('manage-properties-select-operator')}
+                  />
                 </Select.Trigger>
                 <Select.Content>
                   {operators.map(({ value, label }) => (
@@ -115,45 +126,40 @@ export const ManagePropertyRule = ({
         </Button>
       </div>
       <div className="mb-4">
-        <Form.Field
-          control={control}
-          name={`rules.${index}.value`}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Value</Form.Label>
-
-              {CustomInput ? (
-                <ManagePropertyCustomInput
-                  CustomInput={CustomInput}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  meta={rule?.meta}
-                  onMetaChange={(meta) =>
-                    setValue(`rules.${index}.meta`, meta, {
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={placeholderInputProps.isDisabled}
-                />
-              ) : (
-                <PlaceholderInput
-                  propertyType={propertyType}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  disabled={[TPlaceholderInputSuggestion.Attribute]}
-                  isExpression={rule.isExpression}
-                  onChangeInputMode={(mode) =>
-                    handleUpdate({ isExpression: mode === 'expression' })
-                  }
-                  {...placeholderInputProps}
-                >
-                  <PlaceholderInput.Header />
-                </PlaceholderInput>
-              )}
-
-              <Form.Message />
-            </Form.Item>
-          )}
+        <AutomationConditionalField
+          form={form}
+          names={[`rules.${index}.value`, `rules.${index}.meta`]}
+          label={t('value')}
+          render={({ field, form: valueForm }) =>
+            CustomInput ? (
+              <ManagePropertyCustomInput
+                CustomInput={CustomInput}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                meta={valueForm.watch(`rules.${index}.meta`)}
+                onMetaChange={(meta) =>
+                  valueForm.setValue(`rules.${index}.meta`, meta, {
+                    shouldDirty: true,
+                  })
+                }
+                disabled={placeholderInputProps.isDisabled}
+              />
+            ) : (
+              <PlaceholderInput
+                propertyType={propertyType}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                disabled={[TPlaceholderInputSuggestion.Attribute]}
+                isExpression={rule.isExpression}
+                onChangeInputMode={(mode) =>
+                  handleUpdate({ isExpression: mode === 'expression' })
+                }
+                {...placeholderInputProps}
+              >
+                <PlaceholderInput.Header />
+              </PlaceholderInput>
+            )
+          }
         />
 
         {!CustomInput &&
@@ -165,7 +171,7 @@ export const ManagePropertyRule = ({
                 <Form.Item className="mt-2">
                   <div className="flex items-center justify-between">
                     <Form.Label className="text-muted-foreground">
-                      Else — used when the value above is empty
+                      {t('manage-properties-else-description')}
                     </Form.Label>
                     <Button
                       type="button"
@@ -199,7 +205,7 @@ export const ManagePropertyRule = ({
               onClick={() => setShowFallback(true)}
             >
               <IconCornerDownRight size={14} />
-              Else (fallback when empty)
+              {t('manage-properties-else-fallback')}
             </Button>
           ))}
       </div>

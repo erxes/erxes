@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationFunctionOptions,
   MutationHookOptions,
@@ -8,6 +9,7 @@ import { useToast } from 'erxes-ui';
 
 export const useBundleConditionRemove = (options?: MutationHookOptions) => {
   const { toast } = useToast();
+  const { t } = useTranslation('product', { keyPrefix: 'bundle-conditions' });
   const [_remove, { loading, error }] = useMutation(
     BUNDLE_CONDITION_REMOVE,
     options,
@@ -18,7 +20,7 @@ export const useBundleConditionRemove = (options?: MutationHookOptions) => {
       ...options,
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e?.message,
           variant: 'destructive',
         });
@@ -26,8 +28,8 @@ export const useBundleConditionRemove = (options?: MutationHookOptions) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Bundle condition removed successfully',
+          title: t('success'),
+          description: t('condition-removed'),
           variant: 'default',
         });
         options?.onCompleted?.();

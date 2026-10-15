@@ -9,7 +9,8 @@ import {
 } from 'erxes-ui';
 
 import { useState } from 'react';
-import { getStringArray } from '../propertyUtils';
+import { getPickableOptions, getStringArray } from '../propertyUtils';
+import { OptionLabel } from './OptionLabel';
 import { IField } from '../types/fieldsTypes';
 import { SpecificFieldProps } from './Field';
 
@@ -26,7 +27,9 @@ export const FieldSelectMultiple = (props: SpecificFieldProps) => {
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          !isDeeplyEqual(currentValue, value) && handleChange(currentValue);
+          if (!isDeeplyEqual(currentValue, value)) {
+            handleChange(currentValue);
+          }
         }
       }}
       scope={inCell ? id : undefined}
@@ -40,7 +43,7 @@ export const FieldSelectMultiple = (props: SpecificFieldProps) => {
 
           return (
             <Badge key={item} variant="secondary">
-              {option.label}
+              <OptionLabel option={option} />
             </Badge>
           );
         })}
@@ -67,7 +70,7 @@ export const FieldSelectMultipleContent = ({
   value: string[];
   onChange: (value: string[]) => void;
 }) => {
-  const options = field.options || [];
+  const options = getPickableOptions(field, value);
   const handleSelect = (optionValue: string) => {
     if (value.includes(optionValue)) {
       onChange(value.filter((v) => v !== optionValue));
@@ -90,7 +93,7 @@ export const FieldSelectMultipleContent = ({
             value={o.value as string}
             onSelect={() => handleSelect(o.value)}
           >
-            {o.label}
+            <OptionLabel option={o} />
             <Combobox.Check checked={value.includes(o.value as string)} />
           </Command.Item>
         ))}

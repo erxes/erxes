@@ -8,7 +8,7 @@ import { getMnConfigs } from './utils/utils';
 export default {};
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action, user } = params;
+  const { type, action, user, sessionCode = '' } = params;
 
   if (type !== 'sales:deal' || action !== 'update') {
     return;
@@ -101,6 +101,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       productsData,
       printConfig,
       productById,
+      sessionCode,
     );
   }
 };

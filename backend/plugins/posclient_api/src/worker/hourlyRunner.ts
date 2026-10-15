@@ -19,10 +19,24 @@ export const mainScheduler = async () => {
     const orgs = await getSaasOrganizations();
 
     for (const org of orgs) {
-      sendWorkerQueue('posclient', 'sync-remainder').add('sync-remainder', {
-        subdomain: org.subdomain,
-        timezone: org.timezone,
-      });
+      if (typeof org.subdomain !== 'string' || !org.subdomain.trim()) {
+        console.warn(
+          'Skipping POS remainder sync for organization without subdomain',
+          {
+            organizationId: org._id,
+          },
+        );
+        continue;
+      }
+
+      await sendWorkerQueue('posclient', 'sync-remainder').add(
+        'sync-remainder',
+        {
+          subdomain: org.subdomain,
+          timezone: org.timezone,
+        },
+        { removeOnComplete: true, removeOnFail: true },
+      );
     }
   } else {
     const timezone = await sendTRPCMessage({
@@ -38,19 +52,33 @@ export const mainScheduler = async () => {
       defaultValue: 'UTC',
     });
 
-    sendWorkerQueue('posclient', 'sync-remainder').add('sync-remainder', {
-      subdomain: 'os',
-      timezone,
-    });
+    await sendWorkerQueue('posclient', 'sync-remainder').add(
+      'sync-remainder',
+      {
+        subdomain: 'os',
+        timezone,
+      },
+      { removeOnComplete: true, removeOnFail: true },
+    );
   }
   return 'success';
 };
 
-export const runner = async (job: Job) => {
-  const { subdomain, timezone = 'UTC' } = job?.data ?? {};
+export const runner = async (
+  job: Job<{ subdomain?: string; timezone?: string }>,
+) => {
+  // Apply cleanup to jobs already queued with the previous retention settings.
+  job.opts.removeOnComplete = true;
+  job.opts.removeOnFail = true;
+  const { subdomain } = job.data ?? {};
 
-  if (!subdomain) {
-    throw new Error('Subdomain is required to sync POS client remainders');
+  if (typeof subdomain !== 'string' || !subdomain.trim()) {
+    console.warn('Skipping POS remainder sync job without subdomain', {
+      jobId: job.id,
+      jobName: job.name,
+      repeatJobKey: job.repeatJobKey,
+    });
+    return { skipped: true, reason: 'missing-subdomain' };
   }
 
   const models = await generateModels(subdomain);
@@ -64,7 +92,7 @@ export const runner = async (job: Job) => {
   }
 
   for (const config of posConfigs) {
-    const filter: any = {
+    const filter = {
       status: { $ne: PRODUCT_STATUSES.DELETED },
       tokens: { $in: [config.token] },
     };
@@ -77,13 +105,5 @@ export const runner = async (job: Job) => {
 
     await syncRemainders(subdomain, models, config, products);
     await syncDiscounts(subdomain, models, products);
-    console.log(
-      'Fetched remainder and discounts per hour at: ',
-      new Date(),
-      ', org: ',
-      subdomain,
-      ', pos: ',
-      config.name,
-    );
   }
 };

@@ -66,6 +66,11 @@ import {
   loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
 import { IProductRuleDocument } from '@/products/@types/rule';
+import { IProductConditionDocument } from '@/products/@types/condition';
+import {
+  IProductConditionModel,
+  loadProductConditionClass,
+} from '@/products/db/models/Conditions';
 import { IPackageDocument } from '@/products/@types/package';
 import {
   IProductCategoryModel,
@@ -267,8 +272,10 @@ import {
 import {
   IFieldDocument,
   IFieldGroupDocument,
+  ISystemFieldLayoutDocument,
   ISystemFieldSettingDocument,
 } from './modules/properties/@types';
+import { systemFieldLayoutSchema } from './modules/properties/db/definitions/systemFieldLayout';
 import {
   IFieldModel,
   loadFieldClass,
@@ -362,6 +369,7 @@ export interface IModels {
   Fields: IFieldModel;
   FieldsGroups: IFieldGroupModel;
   SystemFieldSettings: ISystemFieldSettingModel;
+  SystemFieldLayouts: Model<ISystemFieldLayoutDocument>;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
   Segments: ISegmentModel;
@@ -404,6 +412,7 @@ export interface IModels {
   BundleCondition: IBundleConditionModel;
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
+  ProductConditions: IProductConditionModel;
   PermissionGroups: IPermissionGroupModel;
   ApprovalLocks: IApprovalLockModel;
   ApprovalRequests: IApprovalRequestModel;
@@ -603,7 +612,7 @@ export const loadClasses = (
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
     'properties_fields',
-    loadFieldClass(models),
+    loadFieldClass(models, subdomain),
   );
 
   models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
@@ -615,6 +624,11 @@ export const loadClasses = (
     ISystemFieldSettingDocument,
     ISystemFieldSettingModel
   >('properties_system_fields', loadSystemFieldSettingClass(models));
+
+  models.SystemFieldLayouts = db.model<ISystemFieldLayoutDocument>(
+    'properties_system_field_layouts',
+    systemFieldLayoutSchema,
+  );
 
   models.Forms = db.model<IForm, IFormModel>('forms', loadFormClass(models));
   models.FormSubmissions = db.model<
@@ -832,6 +846,10 @@ export const loadClasses = (
     'product_rules',
     loadProductRuleClass(models, subdomain),
   );
+  models.ProductConditions = db.model<
+    IProductConditionDocument,
+    IProductConditionModel
+  >('product_conditions', loadProductConditionClass(models));
   models.PermissionGroups = db.model<
     IPermissionGroupDocument,
     IPermissionGroupModel

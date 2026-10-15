@@ -70,7 +70,7 @@ export const ConversationDetail = () => {
     if (!conversationId) {
       return;
     }
-    setExtraInfo(undefined);
+    setExtraInfo(() => undefined);
     setReplyTo(null);
   }, [conversationId, setExtraInfo, setReplyTo]);
 
@@ -101,14 +101,17 @@ export const ConversationDetail = () => {
               </MessageInputIntegrationWrapper>
             }
           >
-            {loading ? (
+            {loading && conversationDetail?._id !== conversationId ? (
               <InboxMessagesSkeleton />
             ) : (
               <>
                 {integration?.kind &&
-                  ['messenger', 'lead', 'discord-messenger'].includes(
-                    integration.kind,
-                  ) && (
+                  [
+                    'messenger',
+                    'lead',
+                    'discord-messenger',
+                    'telegram-messenger',
+                  ].includes(integration.kind) && (
                     <ConversationMessages
                       conversationId={conversationId || ''}
                     />

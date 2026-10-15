@@ -3,7 +3,7 @@ import { VAT_ROWS_EDIT } from '../graphql/mutations/vatMutations';
 
 export const useVatRowEdit = () => {
   const [editVatRow, { loading }] = useMutation(VAT_ROWS_EDIT, {
-    refetchQueries: ['vatRows'],
+    refetchQueries: ['accountingVatRows'],
   });
 
   return {

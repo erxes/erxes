@@ -6,12 +6,14 @@ import {
 import type { Editor as TiptapEditor } from '@tiptap/core';
 import { withEmailDocumentBlock } from 'erxes-ui';
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Gives the email editor a "Document" command. The editor that opened the
  * picker is kept, because the command runs before a document is chosen.
  */
 export const useEmailDocumentBlock = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'email-templates' });
   const [open, setOpen] = useState(false);
   const editorRef = useRef<TiptapEditor | null>(null);
 
@@ -30,7 +32,7 @@ export const useEmailDocumentBlock = () => {
       .focus()
       .insertDocumentPlaceholder({
         documentId: document._id,
-        documentName: document.name || 'Untitled document',
+        documentName: document.name || t('untitled-document'),
         documentCode: document.code || '',
         documentPreview: getDocumentPreview(document.content),
       })

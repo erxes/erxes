@@ -4,7 +4,11 @@ import {
   TEAM_STATUS_FORM_SCHEMA,
 } from '@/team/schemas';
 import { z } from 'zod';
-import { IUser } from 'ui-modules';
+import {
+  GetStatusesByTypeQuery,
+  GetTeamMembersQuery,
+  GetTeamsQuery,
+} from '~/gql/graphql';
 
 export enum TeamHotKeyScope {
   TeamSettingsPage = 'operation-team-page',
@@ -18,37 +22,15 @@ export enum TeamEstimateTypes {
   EXPONENTIAL = '4',
 }
 
-export interface ITeam {
-  _id: string;
-  name: string;
-  icon: string;
-  description: string;
-  estimateType: TeamEstimateTypes;
-  createdAt: string;
-  updatedAt: string;
-  cycleEnabled: boolean;
-  triageEnabled: boolean;
-  taskCount: number;
-  memberCount: number;
-}
+export type ITeam = NonNullable<NonNullable<GetTeamsQuery['getTeams']>[number]>;
 
-export interface ITeamMember {
-  _id: string;
-  memberId: string;
-  teamId: string;
+export type ITeamMember = NonNullable<
+  NonNullable<GetTeamMembersQuery['getTeamMembers']>[number]
+>;
 
-  member: IUser;
-  role: string;
-}
-
-export interface ITeamStatus {
-  _id: string;
-  name: string;
-  description: string;
-  color: string;
-  order: number;
-  type: number;
-}
+export type ITeamStatus = NonNullable<
+  NonNullable<GetStatusesByTypeQuery['getStatusesByType']>[number]
+>;
 
 export type TTeamForm = z.infer<typeof TEAM_FORM_SCHEMA>;
 

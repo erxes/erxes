@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_NOTE = gql`
+export const GET_NOTE = gql(`
   query GetNote($id: String!) {
     getNote(_id: $id) {
       _id
@@ -12,4 +12,4 @@ export const GET_NOTE = gql`
       updatedAt
     }
   }
-`;
+`);

@@ -24,6 +24,7 @@ export interface IWebInput {
   templateType?: string;
   templateId?: string;
   clientPortalId?: string;
+  thumbnail?: IWebThumbnail | null;
 }
 
 export interface IWebCustomDomainRecord {

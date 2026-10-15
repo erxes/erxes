@@ -1,29 +1,10 @@
+import { buildTaskDateRangeQuery } from '@/task/utils/dateFilters';
+import { IProjectDocument } from '@/project/@types/project';
 import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { STATUS_TYPES } from '@/status/constants/types';
 import { taskCursorPaginateByStatus } from '@/task/graphql/resolvers/utils';
-
-const handleDateFilter = (
-  filterQuery: FilterQuery<ITaskDocument>,
-  fieldName: string,
-  value: string | Date,
-) => {
-  if (value === 'no-date') {
-    filterQuery[fieldName] = { $exists: false };
-    return;
-  }
-
-  if (value === 'in-past') {
-    filterQuery[fieldName] = { $lt: new Date() };
-    return;
-  }
-
-  const stringValue = value instanceof Date ? value.toISOString() : value;
-
-  filterQuery[fieldName] = { $lte: new Date(stringValue) };
-};
 
 export const taskQueries = {
   getTask: async (
@@ -38,12 +19,16 @@ export const taskQueries = {
 
   getTasks: async (
     _parent: undefined,
-    { filter }: { filter: ITaskFilter },
+    { filter = {} }: { filter?: Partial<ITaskFilter> },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('taskRead');
 
     const filterQuery: FilterQuery<ITaskDocument> = {};
+
+    if (filter._id) {
+      filterQuery._id = filter._id;
+    }
 
     if (filter.name) {
       filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
@@ -60,26 +45,7 @@ export const taskQueries = {
       filterQuery.priority = filter.priority;
     }
 
-    if (filter.startDate) {
-      handleDateFilter(filterQuery, 'startDate', filter.startDate);
-    }
-
-    if (filter.targetDate) {
-      handleDateFilter(filterQuery, 'targetDate', filter.targetDate);
-    }
-
-    if (filter.createdDate) {
-      handleDateFilter(filterQuery, 'createdAt', filter.createdDate);
-    }
-
-    if (filter.updatedDate) {
-      handleDateFilter(filterQuery, 'updatedAt', filter.updatedDate);
-    }
-
-    if (filter.completedDate) {
-      filterQuery.statusType = STATUS_TYPES.COMPLETED;
-      handleDateFilter(filterQuery, 'statusChangedDate', filter.completedDate);
-    }
+    Object.assign(filterQuery, buildTaskDateRangeQuery(filter));
 
     if (filter.teamId) {
       filterQuery.teamId = filter.teamId;
@@ -91,7 +57,7 @@ export const taskQueries = {
 
     if (filter.assigneeId) {
       if (filter.assigneeId === 'no-assignee') {
-        filterQuery.assigneeId = { $exists: false };
+        filterQuery.assigneeId = null;
       } else {
         filterQuery.assigneeId = filter.assigneeId;
       }
@@ -181,7 +147,10 @@ export const taskQueries = {
 
       if (filter.projectMilestoneName) {
         const matchingMilestones = await models.Milestone.find({
-          name: { $regex: filter.projectMilestoneName, $options: 'i' },
+          name: {
+            $regex: escapeRegExp(filter.projectMilestoneName),
+            $options: 'i',
+          },
         }).distinct('projectId');
 
         if (matchingMilestones.length === 0) {
@@ -196,7 +165,7 @@ export const taskQueries = {
         filter.projectPriority ||
         filter.projectLeadId
       ) {
-        const projectFilter: FilterQuery<any> = {};
+        const projectFilter: FilterQuery<IProjectDocument> = {};
 
         if (filter.projectStatus) {
           projectFilter.status = filter.projectStatus;
@@ -245,6 +214,10 @@ export const taskQueries = {
 
     if (filter.tagIds && filter.tagIds.length > 0) {
       filterQuery.tagIds = { $in: filter.tagIds };
+    }
+
+    if (filter.labelIds && filter.labelIds.length > 0) {
+      filterQuery.labelIds = { $in: filter.labelIds };
     }
 
     if (

@@ -16,6 +16,21 @@ import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderEdit } from '../hooks/useSafeRemainderEdit';
 import { TSafeRemainderEditForm } from '../types/safeRemainderForm';
 import { safeRemainderEditSchema } from '../types/safeRemainderSchema';
+import { z } from 'zod';
+
+const readRule = (value: unknown) => {
+  const parsed = z
+    .object({
+      accountId: z.string().optional(),
+      outAccountId: z.string().optional(),
+      costAccountId: z.string().optional(),
+      customerType: z.string().optional(),
+      customerId: z.string().optional(),
+    })
+    .passthrough()
+    .safeParse(value);
+  return parsed.success ? parsed.data : {};
+};
 
 export const EditSafeRemainder = () => {
   const { t } = useTranslation('accounting');
@@ -25,13 +40,30 @@ export const EditSafeRemainder = () => {
   });
   const [id] = useQueryState<string>('id');
   const { safeRemainder, loading: detailLoading } = useSafeRemainderDetail({
-    variables: { _id: id },
+    variables: { _id: id ?? '' },
     skip: !id,
   });
 
   useEffect(() => {
     if (safeRemainder) {
-      form.reset({ ...safeRemainder });
+      form.reset({
+        incomeRule: { accountId: '', ...readRule(safeRemainder.incomeRule) },
+        outRule: { accountId: '', ...readRule(safeRemainder.outRule) },
+        saleRule: {
+          accountId: '',
+          outAccountId: '',
+          costAccountId: '',
+          ...readRule(safeRemainder.saleRule),
+        },
+        costIncreaseRule: {
+          accountId: '',
+          ...readRule(safeRemainder.costIncreaseRule),
+        },
+        costDecreaseRule: {
+          accountId: '',
+          ...readRule(safeRemainder.costDecreaseRule),
+        },
+      });
     }
   }, [safeRemainder, form]);
 
@@ -55,7 +87,7 @@ export const EditSafeRemainder = () => {
         <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 lg:grid-cols-2">
             <RuleSection
-              title="Орлого"
+              title={t('receipt')}
               icon={<IconArrowDownLeft size={16} />}
               trId={safeRemainder?.incomeTrId}
             >
@@ -80,7 +112,7 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Зарлага"
+              title={t('issue')}
               icon={<IconArrowUpRight size={16} />}
               trId={safeRemainder?.outTrId}
             >
@@ -105,8 +137,8 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Өртөг өсөх залруулга"
-              description="Өртөг нэмэх бараа материалын данс"
+              title={t('cost-increase-adjustment')}
+              description={t('inventory-cost-increase-account')}
               icon={<IconArrowDownLeft size={16} />}
               trId={safeRemainder?.costIncreaseTrId}
             >
@@ -131,8 +163,8 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Өртөг буурах залруулга"
-              description="Өртөг хасах бараа материалын данс"
+              title={t('cost-decrease-adjustment')}
+              description={t('inventory-cost-decrease-account')}
               icon={<IconArrowUpRight size={16} />}
               trId={safeRemainder?.costDecreaseTrId}
             >
@@ -157,7 +189,7 @@ export const EditSafeRemainder = () => {
             </RuleSection>
 
             <RuleSection
-              title="Борлуулалт"
+              title={t('sale')}
               icon={<IconShoppingCart size={16} />}
               trId={safeRemainder?.saleTrId}
             >

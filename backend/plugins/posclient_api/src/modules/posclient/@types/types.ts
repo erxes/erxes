@@ -52,6 +52,7 @@ export interface IOrderItemInput {
   bonusCount?: number;
   bonusVoucherId?: string;
   manufacturedDate?: string; // Unix epoch number
+  conditionCode?: string;
   description?: string;
   attachment?: IAttachment;
   closeDate?: Date;
@@ -59,6 +60,8 @@ export interface IOrderItemInput {
 }
 
 export interface IOrderInput {
+  // Set ahead of saving when a voucher must be held under it.
+  _id?: string;
   items: IOrderItemInput[];
   totalAmount: number;
   directDiscount?: number;

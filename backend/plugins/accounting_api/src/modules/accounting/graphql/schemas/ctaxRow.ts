@@ -39,11 +39,11 @@ export const queries = `
     sortDirection: Int    
   ): [CtaxRow]
   ctaxRowsCount(${ctaxRowsQueryParams}): Int
-  ctaxRowDetail(_id: String): CtaxRow
+  ctaxRowDetail(_id: String!): CtaxRow
 `;
 
 export const mutations = `
   ctaxRowsAdd(${ctaxRowParams}): CtaxRow
   ctaxRowsEdit(_id: String!, ${ctaxRowParams}): CtaxRow
-  ctaxRowsRemove(ctaxRowIds: [String!]): String
+  ctaxRowsRemove(ctaxRowIds: [String!]!): String
 `;

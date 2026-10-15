@@ -12,6 +12,13 @@ import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
 import { fixNum } from '@/lib/utils'
 
+import { LoyaltyDiscountBadge } from "@/modules/customer/components/LoyaltyDiscountBadge"
+
+import { StrikedPrice } from "@/modules/customer/components/StrikedPrice"
+import { usePreviewUnitPrice } from "@/modules/customer/hooks/usePreviewUnitPrice"
+
+import { CartItemConditionSelect } from "./CartItemCondition"
+
 const CartItem = ({
   _id,
   index,
@@ -19,9 +26,12 @@ const CartItem = ({
   productName,
   unitPrice,
   productId,
+  discountInfos,
+  conditionCode,
 }: OrderItem & { index: number }) => {
   const updateCart = useSetAtom(updateCartAtom)
   const formattedIndex = (index + 1).toString().padStart(2, "0")
+  const { price, originalPrice } = usePreviewUnitPrice(_id, unitPrice)
 
   const handleUpdate = (newCount: number | string) =>
     updateCart({ _id, count: Number(newCount) })
@@ -39,7 +49,15 @@ const CartItem = ({
     >
       <div className="flex w-5/12">
         <div className="w-1/12">{formattedIndex}</div>
-        <div className="w-11/12">{productName}</div>
+        <div className="w-11/12">
+          {productName}
+          <CartItemConditionSelect
+            _id={_id}
+            productId={productId}
+            conditionCode={conditionCode}
+            className="mt-0.5 h-6 w-36 px-2 text-xs"
+          />
+        </div>
       </div>
       <div className="w-3/12">
         <div className="inline-flex overflow-hidden rounded border border-primary/40">
@@ -72,14 +90,21 @@ const CartItem = ({
         <span className="block h-4 w-5/12 overflow-hidden">
           <ProductPrice
             productId={productId}
-            unitPrice={unitPrice}
+            unitPrice={price}
             className="text-xs font-extrabold"
+          />
+          <StrikedPrice price={originalPrice} />
+          <LoyaltyDiscountBadge
+            itemId={_id}
+            discountInfos={discountInfos}
+            unitPrice={unitPrice}
+            count={count}
           />
         </span>
         <span className="w-6/12">
           <ProductPrice
             productId={productId}
-            unitPrice={fixNum(unitPrice * count)}
+            unitPrice={fixNum(price * count)}
             className="text-xs font-extrabold"
           />
         </span>

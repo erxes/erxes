@@ -20,6 +20,7 @@ export const NodeDropdownActions = ({
   id: string;
   data: NodeData;
 }) => {
+  const { t } = useTranslation('automations');
   const { isReadOnly } = useAutomation();
   const {
     isOpenDialog,
@@ -76,7 +77,7 @@ export const NodeDropdownActions = ({
             onClick={(e) => openNodeConfigurationForm(id)}
           >
             <IconSettings className="size-4" />
-            Configuration
+            {t('configuration')}
           </Button>
         </DropdownMenu.Item>
         <NodeRemoveActionDialog

@@ -65,6 +65,10 @@ export interface ReportChartFilters {
   groupPropertyId?: string;
   channelIds?: string[];
   memberIds?: string[];
+  statusChangedByIds?: string[];
+  updatedByIds?: string[];
+  statusChangedDate?: string;
+  updatedAtDate?: string;
   pipelineIds?: string[];
   tagIds?: string[];
   customerIds?: string[];
@@ -72,6 +76,7 @@ export interface ReportChartFilters {
   propertyIds?: string[];
   pageIds?: string[];
   searchValue?: string;
+  description?: string;
   priority?: number[];
   propertyValueFilters?: TicketPropertyFilter[];
 }

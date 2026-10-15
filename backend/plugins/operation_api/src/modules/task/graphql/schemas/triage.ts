@@ -2,15 +2,15 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type Triage {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
     description: String
-    teamId: String
+    teamId: String!
     createdBy: String
     priority: Int
     number: Int
-    createdAt: Date
-    updatedAt: Date
+    createdAt: Date!
+    updatedAt: Date!
     status: Int
     githubIssueNumber: Int
     githubIssueUrl: String

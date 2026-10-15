@@ -9,11 +9,13 @@ import { IProduct, IProductData } from 'ui-modules';
 
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { isPatchAppliedByServer } from '../utils/isPatchAppliedByServer';
+import { normalizeProductUom, syncProductUomInfo } from '../utils/productUom';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 interface UseSyncLocalProductsDataParams {
   productsData: IProductData[];
+  defaultCurrency: string;
   setLocalProductsData: Dispatch<SetStateAction<IProductData[]>>;
   pendingProductPatchesRef: MutableRefObject<
     Record<string, Partial<IProductData>>
@@ -27,6 +29,7 @@ interface UseSyncLocalProductsDataParams {
 // still in flight, so a stale server snapshot can't clobber them.
 export const useSyncLocalProductsData = ({
   productsData,
+  defaultCurrency,
   setLocalProductsData,
   pendingProductPatchesRef,
   pendingProductDeletionsRef,
@@ -62,7 +65,7 @@ export const useSyncLocalProductsData = ({
           delete pendingProductPatchesRef.current[data._id];
         }
 
-        const updatedProductData = {
+        const incomingProductData = {
           ...data,
           product:
             data.product ||
@@ -72,6 +75,16 @@ export const useSyncLocalProductsData = ({
               : undefined),
           ...pendingProductPatchesRef.current[data._id],
         };
+        const productId =
+          incomingProductData.product?._id || incomingProductData.productId;
+        const updatedProductData = syncProductUomInfo(
+          incomingProductData,
+          (productId ? productByIdRef.current[productId] : undefined) ||
+            incomingProductData.product,
+        );
+        if (!updatedProductData.currency?.trim()) {
+          updatedProductData.currency = defaultCurrency;
+        }
 
         incomingById.set(data._id, updatedProductData);
 
@@ -90,6 +103,7 @@ export const useSyncLocalProductsData = ({
     });
   }, [
     productsData,
+    defaultCurrency,
     setLocalProductsData,
     pendingProductPatchesRef,
     pendingProductDeletionsRef,
@@ -151,7 +165,7 @@ export const useVatPercent = ({
 
       calculatePerProductAmount('', pData, false);
 
-      return pData;
+      return syncProductUomInfo(pData);
     });
 
     setLocalProductsData(updatedData);
@@ -169,6 +183,7 @@ export const useVatPercent = ({
 
 interface UseSaveDealProductsParams {
   localProductsData: IProductData[];
+  defaultCurrency: string;
   products: IProduct[];
   dealId: string;
   editDeals: (options: {
@@ -182,6 +197,7 @@ interface UseSaveDealProductsParams {
 
 export const useSaveDealProducts = ({
   localProductsData,
+  defaultCurrency,
   products,
   dealId,
   editDeals,
@@ -213,10 +229,17 @@ export const useSaveDealProducts = ({
         ...DEAL_TOAST_OPTIONS,
       });
     }
-    const formattedProductsData = localProductsData.map((data) => ({
-      ...data,
-      productId: data.product?._id || data.productId,
-    }));
+    const formattedProductsData = localProductsData.map((data) => {
+      const productId = data.product?._id || data.productId;
+      const product =
+        products.find((product) => product._id === productId) || data.product;
+
+      return {
+        ...normalizeProductUom(data, product),
+        productId,
+        currency: data.currency?.trim() ? data.currency : defaultCurrency,
+      };
+    });
 
     editDeals({
       variables: {

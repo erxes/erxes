@@ -11,7 +11,7 @@ import { ReportRules } from '../types/reportsMap';
 type JournalReportVariables = NonNullable<
   QueryHookOptions<ICursorListResponse<IJournalReport>>['variables']
 > & {
-  report?: string;
+  report: string;
   groupRule?: unknown;
 };
 

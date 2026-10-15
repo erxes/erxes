@@ -23,6 +23,16 @@ export const types = `
     tierTo: String
   }
 
+  type LoyaltyEarnEligibility {
+    who: String!
+    segmentId: String
+  }
+
+  input LoyaltyEarnEligibilityInput {
+    who: String!
+    segmentId: String
+  }
+
   type LoyaltyAccountTypeExpiry {
     mode: String!
     months: Int
@@ -44,6 +54,7 @@ export const types = `
     pendingDays: Int
     currencyRatio: Float
     pointValue: Float
+    earnEligibility: LoyaltyEarnEligibility
     fieldId: String
     tierFieldId: String
     status: String!
@@ -139,8 +150,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  loyaltyAccountTypeAdd(name: String!, ownerType: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float): LoyaltyAccountType
-  loyaltyAccountTypeEdit(_id: String!, name: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float): LoyaltyAccountType
+  loyaltyAccountTypeAdd(name: String!, ownerType: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float, earnEligibility: LoyaltyEarnEligibilityInput): LoyaltyAccountType
+  loyaltyAccountTypeEdit(_id: String!, name: String!, frozenBlocks: String, tiers: [LoyaltyTierInput], reset: LoyaltyAccountTypeResetInput, expiry: LoyaltyAccountTypeExpiryInput, pendingDays: Int, currencyRatio: Float, pointValue: Float, earnEligibility: LoyaltyEarnEligibilityInput): LoyaltyAccountType
   loyaltyAccountTypeArchive(_id: String!): LoyaltyAccountType
   loyaltyAccountTypeUnarchive(_id: String!): LoyaltyAccountType
   loyaltyAccountTypesAdoptCampaignFields: LoyaltyAccountTypeAdoptionResult

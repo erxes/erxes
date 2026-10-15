@@ -2,37 +2,12 @@ import { IconFile, IconMusic, IconX } from '@tabler/icons-react';
 import { Button, Dialog, readImage, type IAttachment } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { AttachmentKind } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
+import { getAttachmentKind } from '@/inbox/conversations/conversation-detail/utils/composerAttachment';
 
 type ComposerAttachmentProps = {
   attachment: IAttachment;
   onRemove: () => void;
-};
-
-type AttachmentKind = 'image' | 'video' | 'audio' | 'file';
-
-const getAttachmentKind = (attachment: IAttachment): AttachmentKind => {
-  const type = attachment.type?.toLowerCase();
-  const filename = `${attachment.name} ${attachment.url}`.toLowerCase();
-
-  if (
-    type?.startsWith('image') ||
-    /\.(avif|bmp|gif|ico|jpe?g|png|svg|tiff?|webp)(\?|\s|$)/.test(filename)
-  ) {
-    return 'image';
-  }
-  if (
-    type?.startsWith('video') ||
-    /\.(m4v|mkv|mov|mp4|ogv|webm)(\?|\s|$)/.test(filename)
-  ) {
-    return 'video';
-  }
-  if (
-    type?.startsWith('audio') ||
-    /\.(aac|flac|m4a|mp3|oga|ogg|wav)(\?|\s|$)/.test(filename)
-  ) {
-    return 'audio';
-  }
-  return 'file';
 };
 
 const PreviewImage = ({
@@ -134,7 +109,7 @@ const AttachmentThumbnail = ({
   </span>
 );
 
-const AttachmentPreview = ({
+export const AttachmentPreview = ({
   kind,
   source,
   label,

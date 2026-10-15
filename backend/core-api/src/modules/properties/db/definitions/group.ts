@@ -19,6 +19,9 @@ export const fieldGroupSchema = schemaWrapper(
       configs: { type: Schema.Types.Mixed, label: 'Configs' },
       owner: { type: featuredOwnerSchema, label: 'Featured group owner' },
 
+      archivedAt: { type: Date, label: 'Archived at' },
+      archivedBy: { type: String, label: 'Archived by' },
+
       createdBy: { type: String, label: 'Created By' },
       updatedBy: { type: String, label: 'Updated By' },
     },

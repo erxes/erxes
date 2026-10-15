@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   MutationHookOptions,
   OperationVariables,
@@ -15,6 +16,7 @@ const useProfile = (options?: OperationVariables) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserState);
 
   const { confirm } = useConfirm();
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
   const { loading, data } = useQuery(GET_USER_DETAIL, {
     variables: { _id: currentUser?._id },
@@ -28,7 +30,7 @@ const useProfile = (options?: OperationVariables) => {
     const confirmOptions = { confirmationValue: 'update' };
 
     confirm({
-      message: 'Are you sure you want to update the profile?',
+      message: t('confirm-update-profile'),
       options: confirmOptions,
     }).then(() => {
       updateProfile({
@@ -51,14 +53,14 @@ const useProfile = (options?: OperationVariables) => {
           }));
 
           toast({
-            title: 'Successfully updated profile',
+            title: t('profile-updated-successfully'),
             variant: 'success',
           });
         },
         onError: (error) => {
           toast({
-            title: 'Error updating profile',
-            description: error.message || 'An unexpected error occurred.',
+            title: t('error-updating-profile'),
+            description: error.message || t('unexpected-error'),
             variant: 'destructive',
           });
         },

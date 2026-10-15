@@ -33,6 +33,7 @@ export const CategoriesRecordTable = ({
       loading={loading}
       error={error}
       tableId={CATEGORIES_TABLE_ID}
+      resetKey={topicId}
       empty={
         <KbEmptyState
           icon={IconFolders}

@@ -1,0 +1,93 @@
+import type { ReactNode, RefObject } from 'react';
+import type {
+  MailDeliveryOutcome,
+  MailDeliveryStatus,
+} from '@/integrations/mail/types/mailDelivery';
+
+export interface MailComposePayload {
+  subject: string;
+  body: string;
+  to: string[];
+  cc?: string[];
+  bcc?: string[];
+  replyToMessageId?: string;
+  references?: string[];
+}
+
+export interface EmailAddress {
+  name?: string;
+  email?: string;
+}
+
+export interface Attachment {
+  filename?: string;
+  mimeType?: string;
+  size?: number;
+  url?: string;
+  contentId?: string;
+  disposition?: 'attachment' | 'inline';
+  error?: string;
+}
+
+export interface MailData {
+  messageId?: string;
+  providerMessageId?: string;
+  inReplyTo?: string;
+  references?: string[];
+  type?: 'INBOX' | 'SENT';
+  from?: EmailAddress[];
+  to?: EmailAddress[];
+  cc?: EmailAddress[];
+  bcc?: EmailAddress[];
+  subject?: string;
+  body?: string;
+  reactionEmoji?: string;
+  hasReplyTo?: boolean;
+  newContent?: string;
+  replies?: string;
+  attachments?: Attachment[];
+  deliveryStatus?: MailDeliveryStatus;
+  deliveryError?: string;
+  deliveryRetryable?: boolean;
+  bouncedRecipients?: string[];
+  envelopeFrom?: string;
+  senderMismatch?: boolean;
+}
+
+export interface MailMessage {
+  _id: string;
+  createdAt: string;
+  mailData: MailData;
+}
+
+export type ComposeMode = 'reply' | 'replyAll' | 'forward' | 'new';
+
+export interface MailReaction {
+  messageId: string;
+  emoji: string;
+  sender: string;
+  senderAddress?: string;
+  isOwn: boolean;
+  targetMessageId: string;
+}
+
+export interface MailThreadProps {
+  conversationId: string;
+  messages: MailMessage[];
+  loading: boolean;
+  sending: boolean;
+  error?: string;
+  onSend: (
+    payload: MailComposePayload,
+    onSent: () => void,
+    onOutcome?: (outcome: MailDeliveryOutcome) => void,
+  ) => void;
+  className?: string;
+  emptyLabel?: string;
+  startAddress?: string;
+  startSubject?: string;
+  readOnly?: boolean;
+  onNewEmail?: (email: string) => void;
+  beforeCompose?: ReactNode;
+  scrollViewportRef?: RefObject<HTMLDivElement>;
+}

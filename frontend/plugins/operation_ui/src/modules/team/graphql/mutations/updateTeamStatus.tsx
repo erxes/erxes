@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const UPDATE_TEAM_STATUS = gql`
+export const UPDATE_TEAM_STATUS = gql(`
   mutation updateStatus(
     $_id: String!
     $name: String
@@ -20,4 +20,4 @@ export const UPDATE_TEAM_STATUS = gql`
       _id
     }
   }
-`;
+`);

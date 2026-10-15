@@ -1,11 +1,14 @@
 import { generateModels } from '~/connectionResolvers';
 import { handleDiscordMessage } from '@/integrations/discord/handleDiscordMessage';
-import { getErrorMessage, sanitizeToken } from '@/integrations/discord/utils';
+import {
+  getErrorMessage,
+  sanitizeToken,
+} from '@/integrations/discord/utils/request';
 import {
   connectDiscordBot,
   connectDiscordToken,
   disconnectDiscordToken,
-} from '@/integrations/discord/initApp';
+} from '@/integrations/discord/services/gateway/connection';
 import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugError } from '@/integrations/discord/debuggers';
 

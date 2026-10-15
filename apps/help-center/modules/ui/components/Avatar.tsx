@@ -1,11 +1,12 @@
 import { cn } from '@/modules/ui/lib/cn';
+import { initialOf } from '@/modules/ui/lib/initial';
 
 const initialsOf = (name: string) =>
   name
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
+    .map((part) => initialOf(part))
     .join('');
 
 export const Avatar = ({

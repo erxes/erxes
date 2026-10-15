@@ -8,14 +8,14 @@ import {
   activeInstagramFormStepAtom,
   instagramFormSheetAtom,
   resetInstagramAddStateAtom,
-} from '../states/instagramStates';
+} from '@/integrations/instagram/states/instagramStates';
 import { InstagramGetPages } from './InstagramGetPages';
 import { InstagramIntegrationSetup } from './InstagramIntegrationSetup';
 import { useAtom } from 'jotai';
 import {
   IgIntegrationProvider,
   useIgIntegrationContext,
-} from '../context/IgIntegrationContext';
+} from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramIntegrationFormSheet = ({
   isPost,
@@ -34,7 +34,9 @@ export const InstagramIntegrationFormSheet = ({
           <Sheet.Trigger asChild>
             <Button>
               <IconPlus />
-              {isPost ? t('add-instagram-post-integration') : t('add-instagram-messenger-integration')}
+              {isPost
+                ? t('add-instagram-post-integration')
+                : t('add-instagram-messenger-integration')}
             </Button>
           </Sheet.Trigger>
           <Sheet.View>
@@ -72,7 +74,9 @@ export const InstagramIntegrationFormLayout = ({
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>{isPost ? t('add-instagram-post') : t('add-instagram-messenger')}</Sheet.Title>
+        <Sheet.Title>
+          {isPost ? t('add-instagram-post') : t('add-instagram-messenger')}
+        </Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
@@ -97,18 +101,9 @@ export const InstagramIntegrationFormLayout = ({
 export const InstagramIntegrationFormSteps = ({
   title,
   step,
-  description,
 }: {
   title: string;
   step: number;
-  description: string;
 }) => {
-  return (
-    <IntegrationSteps
-      step={step}
-      title={title}
-      stepsLength={3}
-      description={description}
-    />
-  );
+  return <IntegrationSteps step={step} title={title} stepsLength={3} />;
 };

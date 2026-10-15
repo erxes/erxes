@@ -10,6 +10,7 @@ import { useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { IProduct, IUseProducts } from "@/types/product.types"
+import { isShowRemainderAtom, saveRemainderAtom } from "@/store/config.store"
 
 import { queries } from "../graphql"
 
@@ -41,6 +42,11 @@ export const useProducts = (props?: {
   const [searchValue, setSearchValue] = useState(search)
   const categoryId = useAtomValue(activeCategoryAtom)
   const toggleRemainder = useAtomValue(toggleRemainderAtom)
+  const isShowRemainder = useAtomValue(isShowRemainderAtom)
+  const saveRemainder = useAtomValue(saveRemainderAtom)
+  const minRemainder = isShowRemainder && saveRemainder && toggleRemainder
+    ? 0.005
+    : undefined
   const setProductCount = useSetAtom(productCountAtom)
   const mode = useAtomValue(modeAtom)
 
@@ -55,7 +61,7 @@ export const useProducts = (props?: {
     variables: {
       perPage: perPage || FETCH_MORE_PER_PAGE,
       categoryId: categoryId,
-      minRemainder: toggleRemainder ? 0.005 : undefined,
+      minRemainder,
       minDiscountValue,
       maxDiscountValue,
       minDiscountPercent,
@@ -77,7 +83,7 @@ export const useProducts = (props?: {
   const countQuery = useQuery(queries.productsCount, {
     variables: {
       categoryId,
-      minRemainder: toggleRemainder ? 0.005 : undefined,
+      minRemainder,
       minDiscountValue,
       maxDiscountValue,
       minDiscountPercent,

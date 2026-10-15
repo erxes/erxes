@@ -1,3 +1,4 @@
+import { isRecord } from '@/operation/utils/isRecord';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
@@ -93,16 +94,19 @@ export const AddTriageForm = ({
           variant: 'default',
         });
 
-        onComplete(operationAddTriage._id);
+        if (operationAddTriage) {
+          onComplete(operationAddTriage._id);
+        }
       },
     });
   };
 
   const onTemplateSelect = async (template: IOperationTemplate) => {
-    if (template.defaults) {
-      if (template.defaults.description) {
+    if (isRecord(template.defaults)) {
+      const defaults = template.defaults;
+      if (typeof defaults.description === 'string') {
         try {
-          const content = JSON.parse(template.defaults.description);
+          const content = JSON.parse(defaults.description);
           editor.replaceBlocks(editor.document, content);
           setDescriptionContent(content);
         } catch (e) {
@@ -110,13 +114,9 @@ export const AddTriageForm = ({
         }
       }
 
-      const ALLOWED_FIELDS = ['name'];
-
-      Object.keys(template.defaults).forEach((key) => {
-        if (ALLOWED_FIELDS.includes(key)) {
-          form.setValue(key as any, template.defaults[key]);
-        }
-      });
+      if (typeof defaults.name === 'string') {
+        form.setValue('name', defaults.name);
+      }
     }
   };
 

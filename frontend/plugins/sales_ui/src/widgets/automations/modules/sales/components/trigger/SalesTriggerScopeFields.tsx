@@ -81,11 +81,14 @@ export const SalesTriggerStageField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>{label}</Form.Label>
+          {/* Optional here: an auto-picked first stage would quietly narrow
+              the trigger to a stage that may never match. */}
           <SelectStage.FormItem
             mode="single"
             onValueChange={field.onChange}
             value={field.value}
             pipelineId={pipelineId}
+            autoSelectFirst={false}
           />
         </Form.Item>
       )}

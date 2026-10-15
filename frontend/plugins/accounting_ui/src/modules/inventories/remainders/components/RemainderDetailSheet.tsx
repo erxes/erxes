@@ -11,7 +11,8 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useBranchesMain, useDepartmentsMain } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
+import { getI18n, useTranslation } from 'react-i18next';
 import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
 import { selectedRemainderProductAtom } from '../states/productDetailStates';
 
@@ -53,24 +54,28 @@ const fmt = (v: number) =>
 type LabelMap = Record<string, { code?: string; title?: string }>;
 
 const INVENTORY_GENERAL_KEY = '_';
-const GENERAL_LABEL = 'Ерөнхий';
+const GENERAL_LABEL = 'general';
 
-const joinLabel = (id: string, object: any) => {
+const joinLabel = (id: string, object: LabelMap[string] | undefined) => {
   if (id === INVENTORY_GENERAL_KEY) {
-    return GENERAL_LABEL;
+    return getI18n().t(GENERAL_LABEL, { ns: 'accounting' });
   }
 
   const { code, title } = object || {};
-  return [code, title].filter(Boolean).join('') || 'Олдоогүй';
+  return (
+    [code, title].filter(Boolean).join('') ||
+    getI18n().t('not-found', { ns: 'accounting' })
+  );
 };
 
 const buildInventoryColumns = (
   branchMap: LabelMap,
   departmentMap: LabelMap,
+  t: TFunction<'accounting'>,
 ): ColumnDef<InventoryEntry>[] => [
   {
     id: 'branch',
-    header: 'Салбар',
+    header: t('branch'),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -85,7 +90,7 @@ const buildInventoryColumns = (
   },
   {
     id: 'department',
-    header: 'Хэлтэс',
+    header: t('department'),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -100,7 +105,7 @@ const buildInventoryColumns = (
   },
   {
     id: 'remainder',
-    header: 'Үлдэгдэл',
+    header: t('remainder'),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {fmt(row.original.remainder)}
@@ -110,7 +115,7 @@ const buildInventoryColumns = (
   },
   {
     id: 'cost',
-    header: 'Өртөг',
+    header: t('cost'),
     cell: ({ row }) => (
       <RecordTableInlineCell>{fmt(row.original.cost)}</RecordTableInlineCell>
     ),
@@ -118,7 +123,7 @@ const buildInventoryColumns = (
   },
   {
     id: 'soonIn',
-    header: 'Хүлээгдэж буй орлого',
+    header: t('pending-receipts'),
     cell: ({ row }) => (
       <RecordTableInlineCell>{fmt(row.original.soonIn)}</RecordTableInlineCell>
     ),
@@ -126,7 +131,7 @@ const buildInventoryColumns = (
   },
   {
     id: 'soonOut',
-    header: 'Хүлээгдэж буй зарлага',
+    header: t('pending-issues'),
     cell: ({ row }) => (
       <RecordTableInlineCell>{fmt(row.original.soonOut)}</RecordTableInlineCell>
     ),
@@ -139,6 +144,7 @@ type InventoriesTableProps = {
 };
 
 export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
+  const { t } = useTranslation('accounting');
   const rows = parseInventories(inventories);
 
   const branchIds = [...new Set(rows.map((r) => r.branchId))].filter(
@@ -164,7 +170,7 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
     (departments ?? []).map((d) => [d._id, d]),
   );
 
-  const columns = buildInventoryColumns(branchMap, departmentMap);
+  const columns = buildInventoryColumns(branchMap, departmentMap, t);
 
   if (loadingBranches || loadingDepartment) {
     return <Spinner />;

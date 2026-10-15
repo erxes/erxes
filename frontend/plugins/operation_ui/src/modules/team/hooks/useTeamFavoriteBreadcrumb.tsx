@@ -13,10 +13,7 @@ export const useTeamFavoriteBreadcrumb = (
   ...segments: FavoriteBreadcrumbSegment[]
 ) => {
   const { t } = useTranslation('operation');
-  const { team, loading } = useGetTeam({
-    variables: { _id: teamId },
-    skip: !teamId,
-  });
+  const { team, loading } = useGetTeam(teamId);
 
   const teamSegment = teamId
     ? team?.name || UNKNOWN_BREADCRUMB_SEGMENT

@@ -9,10 +9,7 @@ import { ProgressDot } from '@/project/components/details/Progress';
 
 export const ProgressByMember = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
-  const { projectProgressByMember } = useGetProjectProgressByMember({
-    variables: { _id: projectId },
-    skip: !projectId,
-  });
+  const { projectProgressByMember } = useGetProjectProgressByMember(projectId);
 
   const getProgress = (item: IProjectProgressByMember) => {
     return Math.round(
@@ -25,7 +22,11 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
   return (
     <div className="space-y-1">
       {projectProgressByMember?.map((item) => (
-        <HoverCard openDelay={150} closeDelay={150} key={item.assigneeId}>
+        <HoverCard
+          openDelay={150}
+          closeDelay={150}
+          key={item.assigneeId ?? 'unassigned'}
+        >
           <HoverCard.Trigger asChild>
             <Button
               className="flex justify-start gap-2 items-center text-sm font-normal h-10 py-1"
@@ -35,7 +36,7 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
             >
               <div>
                 <MembersInline
-                  memberIds={[item.assigneeId]}
+                  memberIds={item.assigneeId ? [item.assigneeId] : []}
                   placeholder={t('no-assignee')}
                 />
 

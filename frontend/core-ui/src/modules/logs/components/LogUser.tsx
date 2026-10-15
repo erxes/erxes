@@ -1,5 +1,6 @@
 import { Avatar, cn, readImage } from 'erxes-ui';
 import { IUser } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 interface ILogUserInfoProps {
   user?: IUser;
@@ -12,8 +13,9 @@ export function LogUserInfo({
   email,
   variant = 'compact',
 }: ILogUserInfoProps) {
+  const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const details = user?.details;
-  const fullName = details?.fullName || user?.email || 'Unknown user';
+  const fullName = details?.fullName || user?.email || t('unknown-user');
   const secondaryEmailCandidate = email || user?.email || '';
   const secondaryEmail =
     fullName === secondaryEmailCandidate ? '' : secondaryEmailCandidate;

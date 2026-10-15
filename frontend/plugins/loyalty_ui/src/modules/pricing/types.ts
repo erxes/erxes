@@ -66,6 +66,17 @@ export interface IPricingRepeatRule {
   yearEndValue?: string;
 }
 
+// A line sold under the core product condition with this code is priced by
+// this rule instead of the plan's own rules.
+export interface IPricingConditionRule {
+  conditionCode: string;
+  discountType: 'default' | 'subtraction' | 'percentage' | 'bonus';
+  discountValue: number;
+  discountBonusProduct?: string | null;
+  priceAdjustType: string;
+  priceAdjustFactor: number;
+}
+
 export interface IPricingPlanDetail {
   _id: string;
   name: string;
@@ -138,6 +149,8 @@ export interface IPricingPlanDetail {
 
   isRepeatEnabled?: boolean;
   repeatRules?: IPricingRepeatRule[];
+
+  conditionRules?: IPricingConditionRule[];
 
   createdAt?: string;
   createdBy?: string;

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { Can, Export } from 'ui-modules';
 import { ITransaction } from '../../types/Transaction';
@@ -5,6 +6,7 @@ import { useTransactionsFilterVariables } from '../../hooks/useTransactionVars';
 import { TransactionDelete } from './TransactionDelete';
 
 export const TransactionCommandBar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const filterVariables = useTransactionsFilterVariables();
 
@@ -17,7 +19,9 @@ export const TransactionCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {selectedRows.length} {t('selected')}
+        </CommandBar.Value>
         <Separator.Inline />
         <Can action="transactionsExportManage">
           <Export

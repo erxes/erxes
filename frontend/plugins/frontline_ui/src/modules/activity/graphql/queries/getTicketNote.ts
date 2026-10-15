@@ -15,6 +15,23 @@ export const GET_TICKET_NOTE = gql`
         size
       }
       isInternal
+      mailMessageId
+      mailDelivery {
+        status
+        error
+        to
+        bouncedRecipients
+        retryable
+        canRetry
+      }
+      unsavedAttachments {
+        name
+        url
+        type
+        size
+        error
+        expiresAt
+      }
       createdAt
       updatedAt
     }

@@ -18,6 +18,10 @@ import { IListArgs, IStatsParams } from '../queries';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { CORE_AUTOMATION_CONSTANTS } from '~/meta/automations/constants';
 import { CORE_REFERENCE_TYPES } from '~/meta/references/referenceTypes';
+import {
+  AI_AGENT_RUNTIME_PRESETS,
+  TAiAgentRuntimePreset,
+} from '~/modules/automations/constants';
 import { IModels } from '~/connectionResolvers';
 
 type TWithPluginName<T> = T & {
@@ -37,6 +41,7 @@ type TAutomationConstantsResponse = {
   setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
   aiKnowledgeSourcesConst: TWithPluginName<TAiKnowledgeSourceConfig>[];
   aiToolsConst: TWithPluginName<TAiToolConfig>[];
+  aiAgentRuntimePresetsConst: TAiAgentRuntimePreset[];
   workflowTemplatesConst: TWithPluginName<TAutomationBuiltInTemplate>[];
 };
 
@@ -245,6 +250,7 @@ export const getAutomationConstants =
       workflowTemplatesConst: (
         normalizedCoreConstants.workflowTemplates || []
       ).map((template) => ({ ...template, pluginName: 'core' })),
+      aiAgentRuntimePresetsConst: AI_AGENT_RUNTIME_PRESETS,
     };
 
     for (const pluginName of plugins) {

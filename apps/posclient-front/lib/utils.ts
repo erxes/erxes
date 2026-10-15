@@ -204,15 +204,18 @@ const getManualDiscountInfos = (
   includeHandDiscounts = true
 ) =>
   includeHandDiscounts
-    ? discountInfos.filter(
+    ? discountInfos?.filter(
         (discountInfo) => discountInfo.type === HAND_DISCOUNT_TYPE
-      )
+      ) ?? []
     : []
 
 const getAutoDiscountAmount = (discountInfos: DiscountInfo[] = []) =>
   discountInfos
-    .filter((discountInfo) => discountInfo.type !== HAND_DISCOUNT_TYPE)
-    .reduce((sum, discountInfo) => sum + getDiscountInfoAmount(discountInfo), 0)
+    ?.filter((discountInfo) => discountInfo.type !== HAND_DISCOUNT_TYPE)
+    .reduce(
+      (sum, discountInfo) => sum + getDiscountInfoAmount(discountInfo),
+      0
+    ) ?? 0
 
 const getManualDiscountAmount = (discountInfos: DiscountInfo[] = []) =>
   getManualDiscountInfos(discountInfos).reduce(
@@ -236,6 +239,7 @@ export const getItemInputs = (
       isTake,
       status,
       manufacturedDate,
+      conditionCode,
       description,
       attachment,
     }) => {
@@ -268,6 +272,7 @@ export const getItemInputs = (
         isTake,
         status,
         manufacturedDate,
+        conditionCode: conditionCode || undefined,
         description,
         attachment,
       }

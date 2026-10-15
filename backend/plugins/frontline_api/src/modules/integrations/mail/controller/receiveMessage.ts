@@ -44,6 +44,7 @@ import { describeError } from '@/integrations/mail/utils/errors';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { verifySignature } from '@/integrations/mail/utils/signature';
 import { resolveInboundKeys } from '@/integrations/mail/utils/inboundKeys';
+import { readInboundMailReaction } from '@/integrations/mail/utils/reactions';
 
 const SUBJECT_PREFIX = /^\s*(?:re|fwd?|aw|antw|sv|vs)(?:\s*\[\d+\])?\s*:\s*/i;
 
@@ -144,6 +145,7 @@ interface IInboundContext {
   isAuto: boolean;
   body: string;
   attachments: IMailAttachment[];
+  reactionEmoji?: string;
 }
 
 interface ITicketTarget {
@@ -313,6 +315,8 @@ const storeMessage = (
     references: payload.references ?? [],
     subject: payload.subject,
     body,
+    reactionEmoji: context.reactionEmoji,
+    hasReplyTo: Boolean(payload.headers?.['reply-to']?.trim()),
     from: toStoredAddresses(payload.from ? [payload.from] : []),
     to: toStoredAddresses(payload.recipients),
     cc: toStoredAddresses(payload.cc),
@@ -464,6 +468,10 @@ const storeInboundMessage = async (
     createdAt: resolveReceivedAt(payload.receivedAt),
     isAuto: isAutomatedMessage(payload.headers),
     attachments,
+    reactionEmoji: await readInboundMailReaction(
+      subdomain,
+      payload.attachments,
+    ),
     body: resolveInlineImages(payload.html ?? '', attachments),
     customerId: await models.MailCustomers.findOrCreate(
       subdomain,

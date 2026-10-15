@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import {
   taskCreateDefaultValuesState,
@@ -29,7 +30,7 @@ const useMakeACopy = () => {
       assigneeId: task.assigneeId || undefined,
       projectId: task.projectId || undefined,
       cycleId: task.cycleId || undefined,
-      tagIds: task.tagIds || [],
+      tagIds: compactList(task.tagIds),
       priority: task.priority || 0,
       status: task.status || undefined,
       estimatePoint: task.estimatePoint || 0,
@@ -62,10 +63,7 @@ export const MakeACopyTrigger = ({
   setOpen,
 }: MakeACopyTriggerProps) => {
   const { t } = useTranslation('operation');
-  const { task: fetchedTask, loading } = useGetTask({
-    variables: { _id: taskId || '' },
-    skip: !taskId,
-  });
+  const { task: fetchedTask, loading } = useGetTask(taskId);
   const task = taskProp || fetchedTask;
   const { makeACopy } = useMakeACopy();
   const { toast } = useToast();

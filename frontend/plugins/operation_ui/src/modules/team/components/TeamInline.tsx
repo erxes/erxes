@@ -16,7 +16,7 @@ export const TeamInline = forwardRef<
       className={cn('inline-flex gap-1 items-center font-medium', className)}
       {...props}
     >
-      <IconComponent name={team?.icon} className="size-4" />
+      <IconComponent name={team?.icon ?? undefined} className="size-4" />
       {team?.name}
     </div>
   );

@@ -112,11 +112,11 @@ export const InventoryRow = ({
 
   const { productWeight, loading: loadingProductWeight } =
     useGetAccountingProductUnitPrice({
-      variables: { _id: detail.productId },
+      variables: { _id: detail.productId ?? '' },
       skip:
         !detail.productId ||
         (!hasProductChanged.current &&
-          initProductId.current &&
+          Boolean(initProductId.current) &&
           detail.productId === initProductId.current &&
           detail.weight != null),
     });
@@ -167,12 +167,12 @@ export const InventoryRow = ({
   const { lastIncomePriceInfo, loading: loadingLastIncomePrice } =
     useGetAccLastIncomePrice({
       variables: {
-        productIds: [detail.productId],
+        productIds: detail.productId ? [detail.productId] : [],
       },
       skip:
         !detail.productId ||
         (!hasProductChanged.current &&
-          initProductId.current &&
+          Boolean(initProductId.current) &&
           detail.productId === initProductId.current),
     });
 

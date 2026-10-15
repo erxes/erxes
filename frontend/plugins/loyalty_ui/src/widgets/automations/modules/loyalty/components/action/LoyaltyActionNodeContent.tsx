@@ -94,6 +94,10 @@ export const LoyaltyActionNodeContent = ({
       : 'add';
   const campaignId =
     config && 'campaignId' in config ? config.campaignId : undefined;
+  const fixedPoints =
+    config && 'mode' in config && config.mode === 'fixed' && 'points' in config
+      ? Number(config.points) || 0
+      : undefined;
   const Icon = action === 'subtract' ? IconMinus : IconPlus;
 
   return (
@@ -108,8 +112,11 @@ export const LoyaltyActionNodeContent = ({
         <Icon className="size-3.5" />
       </span>
       <span>
-        {SCORE_ACTION_LABELS[action]} {t('using')}{' '}
-        {campaignId ? t('score-campaign') : t('no-campaign-selected')}
+        {fixedPoints !== undefined
+          ? t('score-fixed-points-node', { points: fixedPoints })
+          : `${SCORE_ACTION_LABELS[action]} ${t('using')} ${
+              campaignId ? t('score-campaign') : t('no-campaign-selected')
+            }`}
       </span>
     </div>
   );

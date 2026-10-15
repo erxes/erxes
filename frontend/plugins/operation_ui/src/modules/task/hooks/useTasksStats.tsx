@@ -1,3 +1,6 @@
+import { getTaskDateFilterVariables } from '@/task/utils/dateFilters';
+import { compactList } from '@/operation/utils/cursorList';
+import type { CycleFilterType } from '~/gql/graphql';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/operation/constants/priorityLabels';
 import { useProjects } from '@/project/hooks/useGetProjects';
 import { IProject } from '@/project/types';
@@ -51,11 +54,11 @@ export const useTasksStats = ({
     cycleFilter,
     createdBy,
     estimatePoint,
-    targetDate,
-    createdDate,
-    updatedDate,
-    startDate,
-    completedDate,
+    targetDateStartDate,
+    createdStartDate,
+    updatedStartDate,
+    startDateStartDate,
+    completedStartDate,
     project,
     projectStatus,
     projectPriority,
@@ -66,20 +69,20 @@ export const useTasksStats = ({
     assignee: string;
     createdBy: string;
     team: string;
-    priority: string;
-    status: string;
+    priority: number;
+    status: string | number;
     milestone: string;
     tags: string[];
-    cycleFilter: string;
+    cycleFilter: CycleFilterType;
     estimatePoint: number;
-    targetDate: string;
-    createdDate: string;
-    updatedDate: string;
-    startDate: string;
-    completedDate: string;
+    targetDateStartDate: string;
+    createdStartDate: string;
+    updatedStartDate: string;
+    startDateStartDate: string;
+    completedStartDate: string;
     project: string;
-    projectStatus: string;
-    projectPriority: string;
+    projectStatus: number;
+    projectPriority: number;
     projectLeadId: string;
     projectMilestoneName: string;
   }>([
@@ -93,11 +96,11 @@ export const useTasksStats = ({
     'cycleFilter',
     'createdBy',
     'estimatePoint',
-    'targetDate',
-    'createdDate',
-    'updatedDate',
-    'startDate',
-    'completedDate',
+    'targetDateStartDate',
+    'createdStartDate',
+    'updatedStartDate',
+    'startDateStartDate',
+    'completedStartDate',
     'project',
     'projectStatus',
     'projectPriority',
@@ -118,19 +121,23 @@ export const useTasksStats = ({
         assigneeId: assignee || undefined,
         createdBy: createdBy || undefined,
         priority: priority || undefined,
-        status: effectiveTeamId ? status : undefined,
-        statusType: effectiveTeamId ? undefined : status,
+        status:
+          effectiveTeamId && typeof status === 'string' ? status : undefined,
+        statusType:
+          !effectiveTeamId && typeof status === 'number' ? status : undefined,
         milestoneId: milestone || undefined,
         tagIds: tags || undefined,
         estimatePoint: estimatePoint || undefined,
-        targetDate: targetDate || undefined,
-        createdDate: createdDate || undefined,
-        updatedDate: updatedDate || undefined,
-        startDate: startDate || undefined,
-        completedDate: completedDate || undefined,
+        ...getTaskDateFilterVariables({
+          targetDateStartDate,
+          createdStartDate,
+          updatedStartDate,
+          startDateStartDate,
+          completedStartDate,
+        }),
         projectId: project || undefined,
-        projectStatus: projectStatus ? Number(projectStatus) : undefined,
-        projectPriority: projectPriority ? Number(projectPriority) : undefined,
+        projectStatus,
+        projectPriority,
         projectLeadId: projectLeadId || undefined,
         projectMilestoneName: projectMilestoneName || undefined,
         limit: 100,
@@ -140,7 +147,7 @@ export const useTasksStats = ({
   });
 
   const tasks: ITask[] = useMemo(
-    () => tasksData?.getTasks?.list || [],
+    () => compactList(tasksData?.getTasks?.list),
     [tasksData],
   );
 
@@ -160,7 +167,7 @@ export const useTasksStats = ({
     },
     skip: projectIds.length === 0,
   });
-  
+
   const projects: IProject[] = useMemo(() => {
     return projectsList || [];
   }, [projectsList]);
@@ -169,7 +176,7 @@ export const useTasksStats = ({
     const ids = new Set<string>();
     tasks.forEach((task) => {
       if (task.tagIds) {
-        task.tagIds.forEach((tagId) => ids.add(tagId));
+        compactList(task.tagIds).forEach((tagId) => ids.add(tagId));
       }
     });
     return Array.from(ids);
@@ -237,7 +244,7 @@ export const useTasksStats = ({
       projectMap.set(projectId, projectStatItem);
 
       if (task.tagIds && task.tagIds.length > 0) {
-        task.tagIds.forEach((tagId) => {
+        compactList(task.tagIds).forEach((tagId) => {
           const tagStatItem = tagMap.get(tagId) || {
             total: 0,
             completed: 0,
@@ -268,7 +275,9 @@ export const useTasksStats = ({
           id: projectId,
           name:
             project?.name ||
-            (projectId === 'no-project' ? t('no-project-label') : t('unknown-project')),
+            (projectId === 'no-project'
+              ? t('no-project-label')
+              : t('unknown-project')),
           totalTasks: stats.total,
           completedTasks: stats.completed,
           startedTasks: stats.started,
@@ -302,7 +311,7 @@ export const useTasksStats = ({
       projectStats,
       tagStats,
     };
-  }, [tasks, projects, tagsData]);
+  }, [tasks, projects, tagsData, t]);
 
   return {
     tasks,

@@ -14,3 +14,4 @@ export * from './hooks/useSegmentDetail';
 export * from './hooks/useSegmentFields';
 export * from './hooks/useSegmentLabels';
 export * from './types';
+export * from './components/form/SegmentConjunctionRail';

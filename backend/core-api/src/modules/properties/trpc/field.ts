@@ -10,7 +10,13 @@ export const fieldTrpcRouter = t.router({
       const { models } = ctx;
       const { query, projection, sort } = input;
 
-      return models.Fields.find(query, projection).sort(sort).lean();
+      // Plugins see only live fields unless the query names archivedAt itself.
+      return models.Fields.find(
+        { archivedAt: { $exists: false }, ...query },
+        projection,
+      )
+        .sort(sort)
+        .lean();
     }),
   }),
 });

@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { defaultPaginate } from 'erxes-api-shared/utils';
+import { helpCenterIdForHost } from '@/customdomain/service';
 import { normalizeHelpCenterUrl } from '@/helpcenter/utils/helpCenterConfig';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -35,16 +36,30 @@ const buildQuery = ({ searchValue, brandId }: IListArgs) => {
   return query;
 };
 
-const getByHost = async (models: IModels, req: IContext['req']) => {
+const getByHost = async (
+  models: IModels,
+  subdomain: string,
+  req: IContext['req'],
+) => {
   const origin = normalizeHelpCenterUrl(req.headers.origin);
 
   if (!origin) {
     throw new Error('Not found');
   }
 
-  const config = await models.HelpCenterConfigs.findOne({
-    url: { $regex: `^${escapeRegExp(origin)}(?:/|$)`, $options: 'i' },
-  });
+  // A custom domain connected to a help center serves that help center,
+  // whatever its url says.
+  const connectedId = await helpCenterIdForHost(
+    subdomain,
+    origin.replace(/^\w+:\/\//, ''),
+  ).catch(() => null);
+
+  const config =
+    (connectedId &&
+      (await models.HelpCenterConfigs.findOne({ _id: connectedId }))) ||
+    (await models.HelpCenterConfigs.findOne({
+      url: { $regex: `^${escapeRegExp(origin)}(?:/|$)`, $options: 'i' },
+    }));
 
   if (!config) {
     throw new Error('Not found');
@@ -92,8 +107,12 @@ export const helpCenterConfigQueries: Record<
     return models.HelpCenterConfigs.countDocuments(buildQuery(args));
   },
 
-  async helpCenterGetConfigByDomain(_root, _args, { models, req }: IContext) {
-    return getByHost(models, req);
+  async helpCenterGetConfigByDomain(
+    _root,
+    _args,
+    { models, subdomain, req }: IContext,
+  ) {
+    return getByHost(models, subdomain, req);
   },
 };
 

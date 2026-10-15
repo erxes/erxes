@@ -88,6 +88,26 @@ export const CashierPermissions: React.FC<CashierPermissionsProps> = ({
 
         <Form.Field
           control={control}
+          name="cashierCreateCustomer"
+          render={({ field }) => (
+            <Form.Item>
+              <div className="flex gap-2 items-center">
+                <Label className="text-xs">
+                  {t('CREATE-CUSTOMER', { defaultValue: 'CREATE CUSTOMER' })}
+                </Label>
+                <Form.Control>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Control>
+              </div>
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={control}
           name="cashierDirectDiscount"
           render={({ field }) => (
             <Form.Item>

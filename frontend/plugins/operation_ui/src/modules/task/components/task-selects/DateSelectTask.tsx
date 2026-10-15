@@ -141,7 +141,7 @@ export const DateSelectTaskRoot = ({
   scope,
   variant = DateSelectVariant.TABLE,
 }: {
-  value?: Date | string;
+  value?: Date | string | null;
   id?: string;
   type: 'startDate' | 'targetDate';
   scope?: string;
@@ -176,7 +176,13 @@ export const DateSelectTaskRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>
-          <DateSelectValue placeholder={t('not-specified')} />
+          <DateSelectValue
+            placeholder={
+              variant === DateSelectVariant.DETAIL
+                ? t(type === 'startDate' ? 'start-date' : 'due-date')
+                : t('not-specified')
+            }
+          />
         </DateSelectTrigger>
         <Content className="w-fit" onClick={(e) => e.stopPropagation()}>
           <DateSelectContent />
@@ -191,7 +197,7 @@ export const DateSelectTaskFormItem = ({
   onValueChange,
   placeholder,
 }: {
-  value?: Date | string;
+  value?: Date | string | null;
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
 }) => {

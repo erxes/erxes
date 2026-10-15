@@ -47,6 +47,8 @@ export const ticketSchema = schemaWrapper(
       assigneeId: { type: String, label: 'Assignee' },
       assignedMembers: { type: [String], label: 'Assigned Members' },
       createdBy: { type: String, label: 'Created By' },
+      updatedBy: { type: String, label: 'Modified by' },
+      statusChangedBy: { type: String, label: 'Stage moved user' },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       labelIds: { type: [String], label: 'Labels' },
       tagIds: { type: [String], label: 'Tags' },

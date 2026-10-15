@@ -3,7 +3,7 @@ import { Dialog, cn, readImage, type IAttachment } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
-import { UnsupportedMessage } from '@/inbox/conversation-messages/components/MessagePresentation';
+import { UnsupportedMessage } from '@/inbox/conversation-messages/components/messages/MessageStatus';
 import { attachmentKey } from '@/inbox/conversation-messages/utils/attachmentKey';
 
 const MessageAttachment = ({

@@ -30,10 +30,16 @@ export const LoyaltyVoucherAddSheet = () => {
     defaultValues: {
       title: '',
       buyScore: '0',
-      type: 'Product discount',
+      type: 'discount',
+      kind: 'percent',
+      value: 0,
       description: '',
       status: 'active',
       count: 0,
+      noEndDate: true,
+      validityMode: 'period',
+      validityCount: 1,
+      validityUnit: 'month',
     },
   });
 

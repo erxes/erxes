@@ -47,7 +47,7 @@ export const adjustFxaDetailSchema = new Schema({
     optional: true,
     label: 'Opening book value',
   },
-  openingAccumulatedDepreciation: {
+  preDeprecation: {
     type: Number,
     optional: true,
     label: 'Opening accumulated depreciation',

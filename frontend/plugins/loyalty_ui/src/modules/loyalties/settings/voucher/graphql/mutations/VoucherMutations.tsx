@@ -26,6 +26,8 @@ export const CREATE_VOUCHER_CAMPAIGN = gql`
     $kind: Kind
     $value: Float
     $restrictions: JSON
+    $perOwnerLimit: VoucherOwnerLimitInput
+    $validity: VoucherValidityInput
   ) {
     voucherCampaignsAdd(
       title: $title
@@ -52,6 +54,8 @@ export const CREATE_VOUCHER_CAMPAIGN = gql`
       kind: $kind
       value: $value
       restrictions: $restrictions
+      perOwnerLimit: $perOwnerLimit
+      validity: $validity
     ) {
       _id
       createdAt

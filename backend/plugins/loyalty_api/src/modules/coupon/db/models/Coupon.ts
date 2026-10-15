@@ -15,9 +15,11 @@ export interface ICouponModel extends Model<ICouponDocument> {
     code,
     ownerId,
     totalAmount,
+    targetId,
   }: {
     code: string;
     ownerId?: string;
+    targetId?: string;
     totalAmount?: number;
   }): Promise<ICouponCampaignDocument>;
   redeemCoupon({
@@ -35,9 +37,11 @@ export const loadCouponClass = (models: IModels) => {
       code,
       ownerId,
       totalAmount,
+      targetId,
     }: {
       code: string;
       ownerId?: string;
+      targetId?: string;
       totalAmount?: number;
     }) {
       const coupon = await models.Coupons.findOne({ code });
@@ -50,7 +54,13 @@ export const loadCouponClass = (models: IModels) => {
         throw new Error('Coupon code is not associated with any campaign');
       }
 
-      if (coupon.usageCount >= coupon.usageLimit) {
+      // Already redeemed on this very order or deal: pricing it again is not
+      // another use.
+      const usedHere =
+        !!targetId &&
+        (coupon.usageLogs || []).some((log) => log.targetId === targetId);
+
+      if (!usedHere && coupon.usageCount >= coupon.usageLimit) {
         throw new Error('Coupon code usage limit reached');
       }
 
@@ -58,7 +68,7 @@ export const loadCouponClass = (models: IModels) => {
         throw new Error('Coupon code has already been used and is expired');
       }
 
-      if (ownerId && coupon.redemptionLimitPerUser) {
+      if (!usedHere && ownerId && coupon.redemptionLimitPerUser) {
         const redeemedUser =
           coupon.usageLogs?.filter(
             (log) => log.ownerId === ownerId && coupon.code === code,
@@ -235,7 +245,15 @@ export const loadCouponClass = (models: IModels) => {
       code: string;
       usageInfo?: any;
     }) {
-      const { ownerId } = usageInfo || {};
+      const { ownerId, targetId } = usageInfo || {};
+
+      // Each order or deal redeems a code once, however often it syncs.
+      if (
+        targetId &&
+        (await models.Coupons.exists({ code, 'usageLogs.targetId': targetId }))
+      ) {
+        return models.Coupons.findOne({ code });
+      }
 
       const isValid = await this.checkCoupon({
         code,

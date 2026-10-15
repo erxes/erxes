@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   AiAgentObjectFieldBuilder,
   TAiAgentFieldsGroupName,
@@ -14,6 +15,7 @@ export const AiAgentObjectBuilder = ({
   name?: TAiAgentFieldsGroupName;
   addLabel?: string;
 }) => {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAiAgentConfigForm>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -23,9 +25,9 @@ export const AiAgentObjectBuilder = ({
   return (
     <div className="flex flex-col gap-2 p-4">
       <div className="grid grid-cols-12 items-center gap-2">
-        <Label className="col-span-5">Field Key</Label>
-        <Label className="col-span-2">Data Type</Label>
-        <Label className="col-span-4">Validation</Label>
+        <Label className="col-span-5">{t('ai-agent-field-key')}</Label>
+        <Label className="col-span-2">{t('ai-agent-data-type')}</Label>
+        <Label className="col-span-4">{t('ai-agent-validation')}</Label>
         <div className="col-span-1" />
       </div>
 

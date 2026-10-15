@@ -2,17 +2,18 @@ import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-det
 import {
   IconCommand,
   IconCornerDownLeft,
+  IconLock,
   IconMessage2,
   IconPaperclip,
+  IconSend,
 } from '@tabler/icons-react';
-import { Button, Input, Kbd, Spinner, Toggle } from 'erxes-ui';
+import { Button, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 const FILE_INPUT_ID = 'ticket-note-file-upload';
 
 interface NoteInputToolbarProps {
   isInternalNote: boolean;
-  onInternalNoteChange: (isInternalNote: boolean) => void;
   onTemplateSelect: (templateContent: string) => void;
   onFilesSelected: (files: FileList) => void;
   onSend: () => void;
@@ -21,7 +22,6 @@ interface NoteInputToolbarProps {
 
 export const NoteInputToolbar = ({
   isInternalNote,
-  onInternalNoteChange,
   onTemplateSelect,
   onFilesSelected,
   onSend,
@@ -35,18 +35,20 @@ export const NoteInputToolbar = ({
     e.target.value = '';
   };
 
+  const submitLabel = isInternalNote
+    ? t('add-note', 'Add note')
+    : t('send', 'Send');
+
+  let submitIcon = <IconSend />;
+
+  if (isSending) {
+    submitIcon = <Spinner size="sm" />;
+  } else if (isInternalNote) {
+    submitIcon = <IconLock />;
+  }
+
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-1 mt-2 sm:gap-4">
-      <Toggle
-        pressed={isInternalNote}
-        size="lg"
-        variant="outline"
-        className="min-w-20 max-w-full px-2 sm:px-5"
-        onPressedChange={() => onInternalNoteChange(!isInternalNote)}
-      >
-        <span className="truncate">{t('internal-note')}</span>
-      </Toggle>
-
       {!isInternalNote && (
         <ResponseTemplateSelector onSelect={onTemplateSelect}>
           <Button
@@ -77,12 +79,15 @@ export const NoteInputToolbar = ({
 
       <Button
         size="lg"
-        className="ml-auto flex-none"
+        className={cn(
+          'ml-auto flex-none',
+          isInternalNote && 'bg-warning text-foreground hover:bg-warning/80',
+        )}
         disabled={isSending}
         onClick={onSend}
       >
-        {isSending ? <Spinner size="sm" /> : null}
-        {t('send')}
+        {submitIcon}
+        {submitLabel}
         <Kbd className="ml-1">
           <IconCommand size={12} />
           <IconCornerDownLeft size={12} />

@@ -36,10 +36,13 @@ const SafeRemainderFilterPopover = () => {
                   <IconCalendar />
                   {t('date')}
                 </Filter.Item>
-                <SelectBranches.FilterItem value="branchId" label="Салбар" />
+                <SelectBranches.FilterItem
+                  value="branchId"
+                  label={t('branch')}
+                />
                 <SelectDepartments.FilterItem
                   value="departmentId"
-                  label="Хэлтэс"
+                  label={t('department')}
                 />
                 <Filter.Item value="statuses" disabled={true}>
                   <IconToggleRightFilled />
@@ -49,11 +52,11 @@ const SafeRemainderFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <SelectMember.FilterItem
                   value="createdUserId"
-                  label="Үүсгэсэн"
+                  label={t('date-type-created')}
                 />
                 <SelectMember.FilterItem
                   value="modifiedUserId"
-                  label="Өөрчилсөн"
+                  label={t('modified')}
                 />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
@@ -137,24 +140,24 @@ export const SafeRemainderFilter = ({
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
         <SelectBranches.FilterBar
-          label="Салбар"
+          label={t('branch')}
           filterKey="branchId"
           mode="single"
         />
         <SelectDepartments.FilterBar
-          label="Хэлтэс"
+          label={t('department')}
           filterKey="departmentId"
           mode="single"
         />
 
         <SelectMember.FilterBar
           queryKey="createdUserId"
-          label="Үүсгэсэн"
+          label={t('date-type-created')}
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="modifiedUserId"
-          label="Өөрчилсөн"
+          label={t('modified')}
           mode="single"
         />
         <Filter.BarItem queryKey="createdDate">

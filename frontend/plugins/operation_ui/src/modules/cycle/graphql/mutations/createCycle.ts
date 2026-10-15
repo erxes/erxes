@@ -1,9 +1,9 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_CYCLE = gql`
-  mutation CreateCycle($input: CycleInput) {
+export const CREATE_CYCLE = gql(`
+  mutation CreateCycle($input: CycleInput!) {
     createCycle(input: $input) {
       _id
     }
   }
-`;
+`);

@@ -4,42 +4,54 @@ import {
   resetCustomDomain,
   saveCustomDomain,
 } from '@/customdomain/service';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
+
+export const assertHelpCenter = async (
+  models: IModels,
+  helpCenterId: string,
+) => {
+  if (!(await models.HelpCenterConfigs.exists({ _id: helpCenterId }))) {
+    throw new Error('Help center not found');
+  }
+};
 
 export const customDomainMutations = {
   async frontlineCustomDomainSave(
     _root,
-    { hostname }: { hostname: string },
-    { subdomain, checkPermission }: IContext,
+    { helpCenterId, hostname }: { helpCenterId: string; hostname: string },
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('helpCenterManage');
+    await assertHelpCenter(models, helpCenterId);
 
-    await saveCustomDomain(subdomain, hostname);
+    await saveCustomDomain(models, subdomain, helpCenterId, hostname);
 
-    return getCustomDomainView(subdomain);
+    return getCustomDomainView(models, subdomain, helpCenterId);
   },
 
   async frontlineCustomDomainRefresh(
     _root,
-    _args,
-    { subdomain, checkPermission }: IContext,
+    { helpCenterId }: { helpCenterId: string },
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('helpCenterManage');
+    await assertHelpCenter(models, helpCenterId);
 
-    await refreshCustomDomain(subdomain);
+    await refreshCustomDomain(models, subdomain, helpCenterId);
 
-    return getCustomDomainView(subdomain);
+    return getCustomDomainView(models, subdomain, helpCenterId);
   },
 
   async frontlineCustomDomainReset(
     _root,
-    _args,
-    { subdomain, checkPermission }: IContext,
+    { helpCenterId }: { helpCenterId: string },
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('helpCenterManage');
+    await assertHelpCenter(models, helpCenterId);
 
-    await resetCustomDomain(subdomain);
+    await resetCustomDomain(models, subdomain, helpCenterId);
 
-    return getCustomDomainView(subdomain);
+    return getCustomDomainView(models, subdomain, helpCenterId);
   },
 };

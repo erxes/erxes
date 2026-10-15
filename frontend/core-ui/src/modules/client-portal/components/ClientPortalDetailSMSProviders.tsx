@@ -5,12 +5,14 @@ import { CLIENTPORTAL_SMS_PROVIDERS_SCHEMA } from '@/client-portal/constants/cli
 import { IClientPortal } from '../types/clientPortal';
 import { useUpdateClientPortal } from '../hooks/useUpdateClientPortal';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   clientPortal?: IClientPortal | null;
 }
 
 export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
+  const { t } = useTranslation('settings', { keyPrefix: 'client-portals' });
   const [activeTab, setActiveTab] = useState<'callPro' | 'twilio'>('callPro');
 
   const smsProvidersConfig = clientPortal?.smsProvidersConfig;
@@ -67,7 +69,7 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
   }
 
   return (
-    <InfoCard title="SMS Providers Configuration">
+    <InfoCard title={t('sms-providers-configuration')}>
       <InfoCard.Content>
         <Form {...form}>
           <form
@@ -90,12 +92,12 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                     name="callPro.phone"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Phone</Form.Label>
+                        <Form.Label>{t('phone')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          CallPro phone number
+                          {t('callpro-phone-number')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -106,7 +108,7 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                     name="callPro.token"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Token</Form.Label>
+                        <Form.Label>{t('token')}</Form.Label>
                         <Form.Control>
                           <Input
                             {...field}
@@ -115,7 +117,7 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                           />
                         </Form.Control>
                         <Form.Description>
-                          CallPro authentication token
+                          {t('callpro-authentication-token')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -131,7 +133,7 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                     name="twilio.apiKey"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>API Key</Form.Label>
+                        <Form.Label>{t('api-key')}</Form.Label>
                         <Form.Control>
                           <Input
                             {...field}
@@ -139,7 +141,9 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                             autoComplete="new-password"
                           />
                         </Form.Control>
-                        <Form.Description>Twilio API Key</Form.Description>
+                        <Form.Description>
+                          {t('twilio-api-key')}
+                        </Form.Description>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -149,7 +153,7 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                     name="twilio.apiSecret"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>API Secret</Form.Label>
+                        <Form.Label>{t('api-secret')}</Form.Label>
                         <Form.Control>
                           <Input
                             {...field}
@@ -157,7 +161,9 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                             autoComplete="new-password"
                           />
                         </Form.Control>
-                        <Form.Description>Twilio API Secret</Form.Description>
+                        <Form.Description>
+                          {t('twilio-api-secret')}
+                        </Form.Description>
                         <Form.Message />
                       </Form.Item>
                     )}
@@ -167,12 +173,12 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
                     name="twilio.apiUrl"
                     render={({ field }) => (
                       <Form.Item className="col-span-2">
-                        <Form.Label>API URL</Form.Label>
+                        <Form.Label>{t('api-url')}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
                         <Form.Description>
-                          Twilio API URL (optional)
+                          {t('twilio-api-url-description')}
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -189,7 +195,7 @@ export function ClientPortalDetailSMSProviders({ clientPortal }: Props) {
               disabled={loading}
             >
               {loading && <Spinner containerClassName="w-auto flex-none" />}
-              Save
+              {t('save')}
             </Button>
           </form>
         </Form>

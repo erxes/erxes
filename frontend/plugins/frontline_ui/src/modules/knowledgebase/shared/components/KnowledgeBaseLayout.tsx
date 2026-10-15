@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
-import { KnowledgeBaseSidebar } from '@/knowledgebase/shared/components/KnowledgeBaseSidebar';
+import { KnowledgeBaseSidebar } from '@/knowledgebase/sidebar/components/KnowledgeBaseSidebar';
+import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
 import { TKnowledgeBaseSection } from '@/knowledgebase/types';
 
 const SECTION_LABELS: Record<TKnowledgeBaseSection, [string, string]> = {
@@ -28,75 +29,75 @@ export const KnowledgeBaseLayout = ({
   children: ReactNode;
 }) => {
   const { t } = useTranslation('frontline');
+  const { topics } = useTopics();
 
   const rootLabel = t('knowledge-base', 'Knowledge Base');
   const sectionLabel = section
     ? t(SECTION_LABELS[section][0], SECTION_LABELS[section][1])
     : undefined;
-  const topicLabel = topicTitle || t('unnamed-topic', 'Unnamed topic');
+  const topicLabel =
+    topicTitle ||
+    topics?.find((topic) => topic._id === topicId)?.title ||
+    t('unnamed-topic', 'Unnamed topic');
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to={KNOWLEDGE_BASE_PATH}>
-                    <IconBook />
-                    {rootLabel}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
+    <div className="flex overflow-hidden h-full">
+      <KnowledgeBaseSidebar />
+      <PageContainer className="flex-auto min-w-0">
+        <PageHeader>
+          <PageHeader.Start>
+            <Breadcrumb>
+              <Breadcrumb.List className="gap-1">
+                <Breadcrumb.Item>
+                  <Button variant="ghost" asChild>
+                    <Link to={KNOWLEDGE_BASE_PATH}>
+                      <IconBook />
+                      {rootLabel}
+                    </Link>
+                  </Button>
+                </Breadcrumb.Item>
 
-              {topicId && (
-                <>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Button variant="ghost" asChild>
-                      <Link to={`${KNOWLEDGE_BASE_PATH}/${topicId}/articles`}>
-                        {topicLabel}
-                      </Link>
-                    </Button>
-                  </Breadcrumb.Item>
-                </>
+                {topicId && (
+                  <>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Button variant="ghost" asChild>
+                        <Link to={`${KNOWLEDGE_BASE_PATH}/${topicId}/articles`}>
+                          {topicLabel}
+                        </Link>
+                      </Button>
+                    </Breadcrumb.Item>
+                  </>
+                )}
+
+                {sectionLabel && (
+                  <>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Button variant="ghost">{sectionLabel}</Button>
+                    </Breadcrumb.Item>
+                  </>
+                )}
+              </Breadcrumb.List>
+            </Breadcrumb>
+
+            <Separator.Inline />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={createFavoriteBreadcrumb(
+                rootLabel,
+                topicId && topicLabel,
+                sectionLabel,
               )}
+              icon="IconBook"
+            />
+          </PageHeader.Start>
+          <PageHeader.End>{actions}</PageHeader.End>
+        </PageHeader>
 
-              {sectionLabel && (
-                <>
-                  <Breadcrumb.Separator />
-                  <Breadcrumb.Item>
-                    <Button variant="ghost">{sectionLabel}</Button>
-                  </Breadcrumb.Item>
-                </>
-              )}
-            </Breadcrumb.List>
-          </Breadcrumb>
-
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={createFavoriteBreadcrumb(
-              rootLabel,
-              topicId && topicLabel,
-              sectionLabel,
-            )}
-            icon="IconBook"
-          />
-        </PageHeader.Start>
-        <PageHeader.End>{actions}</PageHeader.End>
-      </PageHeader>
-
-      {topicId && section ? (
-        <div className="flex flex-auto overflow-hidden">
-          <KnowledgeBaseSidebar topicId={topicId} section={section} />
-          <div className="flex flex-col flex-auto overflow-hidden">
-            {children}
-          </div>
+        <div className="flex overflow-hidden flex-col flex-auto">
+          {children}
         </div>
-      ) : (
-        children
-      )}
-    </PageContainer>
+      </PageContainer>
+    </div>
   );
 };

@@ -15,7 +15,7 @@ export const TemplateFormPage = () => {
   const navigate = useNavigate();
 
   const { data, loading } = useQuery(templateDetailQuery, {
-    variables: { _id: templateId },
+    variables: templateId ? { _id: templateId } : undefined,
     skip: !templateId,
   });
 
@@ -53,7 +53,7 @@ export const TemplateFormPage = () => {
           <div className="max-w-4xl mx-auto border rounded-lg bg-card text-card-foreground shadow-sm">
             <TemplateForm
               teamId={teamId}
-              template={template}
+              template={template ?? undefined}
               onCancel={() => navigate(-1)}
               afterSave={() =>
                 navigate(`/settings/operation/team/templates/${teamId}`)

@@ -25,6 +25,7 @@ import { paymentKind } from '~/modules/payment/utils';
 import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
 import TdbCGWForm from '~/modules/settings/payment/components/TdbCGWForm';
+import CorporateGolomtBankForm from '~/modules/settings/payment/components/CorporateGolomtBankForm';
 import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
 
 type Props = {
@@ -94,6 +95,13 @@ const tdbCgwSchema = z.object({
   accountNumber: z.string().min(1, 'Account is required'),
   iban: z.string().min(1, 'IBAN is required'),
   accountName: z.string().min(1, 'Account name is required'),
+});
+
+const corporateGolomtSchema = z.object({
+  kind: z.string().min(1, 'Payment method is required'),
+  name: z.string().min(1, 'Name is required'),
+  status: z.enum(['active', 'inactive']),
+  accountId: z.string().min(1, 'Account is required'),
 });
 
 // Dynamic schema generator based on payment kind
@@ -168,6 +176,19 @@ const createPaymentSchema = (selectedKind: string) => {
     return tdbCgwSchema.extend(settingsFields);
   }
   return baseSchema.extend(dynamicFields).extend(settingsFields);
+  if (selectedKind === PaymentKind.QUICKQR) {
+  return quickQrSchema.extend(settingsFields);
+}
+
+if (selectedKind === PaymentKind.KHANBANK) {
+  return khanbankSchema.extend(settingsFields);
+}
+
+if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {
+  return corporateGolomtSchema.extend(settingsFields);
+}
+
+return baseSchema.extend(dynamicFields).extend(settingsFields);
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
@@ -366,6 +387,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     return <TdbCGWForm payment={payment} form={form} />;
   };
 
+  const renderCorporateGolomt = () => {
+    if (selectedKind !== PaymentKind.CORPORATE_GOLOMTBANK) {
+      return null;
+    }
+
+    return <CorporateGolomtBankForm payment={payment} form={form} />;
+  };
+
   return (
     <Form {...form}>
       {/* Payment Kind Selection */}
@@ -557,7 +586,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                         <Input
                           {...field}
                           type={fieldConfig.type || 'text'}
-                          placeholder={`Enter ${t(fieldConfig.label).toLowerCase()}`}
+                          placeholder={`Enter ${t(
+                            fieldConfig.label,
+                          ).toLowerCase()}`}
                           autoComplete={
                             fieldConfig.type === 'password' ? '' : 'off'
                           }
@@ -571,6 +602,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
               {renderQuickQr()}
               {renderKhanbank()}
               {renderTdbCgw()}
+              {renderCorporateGolomt()}
             </div>
           </ScrollArea>
         </Sheet.Content>

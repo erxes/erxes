@@ -1,8 +1,7 @@
+import { ICycleStatistics } from '@/cycle/types';
 import { CHART_CONFIG, STATUS_COLORS } from '@/cycle/constants';
-import {
-  IGetCycleProgressChart,
-  useGetCycleProgressChart,
-} from '@/cycle/hooks/useGetCycleProgressChart';
+import { useGetCycleProgressChart } from '@/cycle/hooks/useGetCycleProgressChart';
+
 import { endOfDay, format, isAfter, parseISO, subDays } from 'date-fns';
 import { ChartContainer } from 'erxes-ui';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
@@ -14,15 +13,13 @@ export const CycleProgressChart = ({
 }: {
   cycleId: string;
   isCompleted: boolean;
-  statistics: any;
+  statistics?: ICycleStatistics;
 }) => {
-  const { getCycleProgressChart } = useGetCycleProgressChart({
-    variables: { _id: cycleId },
-    skip: !cycleId || isCompleted,
-  });
+  const { getCycleProgressChart } = useGetCycleProgressChart(
+    isCompleted ? undefined : cycleId,
+  );
 
-  const progress =
-    getCycleProgressChart || (statistics.chartData as IGetCycleProgressChart);
+  const progress = getCycleProgressChart || statistics?.chartData;
 
   const rawData = progress?.chartData || [];
   const totalScopeValue = progress?.totalScope || 0;

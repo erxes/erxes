@@ -1,3 +1,4 @@
+import { resolveActionForRun } from './resolveActionForRun';
 import { executeCoreActions } from './executeCoreActions';
 import { executeCreateAction } from './actions/executeCreateAction';
 import { notifyParentExecution } from './startWorkflowExecution';
@@ -26,6 +27,7 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
   resolveActionBranchTarget,
+  getTriggerTargetType,
   resolveActionOutcome,
   splitType,
 } from 'erxes-api-shared/core-modules';
@@ -49,7 +51,7 @@ export const getTargetType = (
     const [type] = targetAction.type.split('.');
     return type;
   }
-  return triggerType;
+  return getTriggerTargetType(triggerType);
 };
 
 /**
@@ -178,6 +180,10 @@ export const executeActions = async (
   );
 
   try {
+    const { action: runAction, conditionalMatches } =
+      await resolveActionForRun({ subdomain, execution, action });
+    execAction.conditionalMatches = conditionalMatches;
+
     if (isCoreAction) {
       const coreDeferred = resolveCoreDeferredConfig(actionType);
 
@@ -191,7 +197,7 @@ export const executeActions = async (
           actionType,
           subdomain,
           execution,
-          action,
+          runAction,
           execAction,
           actionsMap,
         );
@@ -230,7 +236,7 @@ export const executeActions = async (
         const createActionResponse = await executeCreateAction(
           subdomain,
           execution,
-          action,
+          runAction,
         );
         if (createActionResponse.shouldBreak) {
           execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;

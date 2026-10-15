@@ -110,7 +110,9 @@ const ExpandableSection = <T,>({
                   setExpanded(!expanded);
                 }}
               >
-                {expanded ? t('show-less') : t('show-more', { count: remainingCount })}
+                {expanded
+                  ? t('show-less')
+                  : t('show-more', { count: remainingCount })}
               </Button>
             )}
           </>
@@ -252,13 +254,19 @@ const SelectAssigneeValue = ({
         memberIds={memberIds}
         members={members}
         allowUnassigned
+        showInactive
         updateMembers={setMembers}
       >
         <MembersInline.Avatar />
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return (
+    <SelectMember.Value
+      placeholder={placeholder || t('select-assignee')}
+      showInactive
+    />
+  );
 };
 
 const SelectTeamMemberContent = ({
@@ -275,6 +283,7 @@ const SelectTeamMemberContent = ({
   const [debouncedSearch] = useDebounce(search, 500);
   const currentUser = useAtomValue(currentUserState) as IUser;
   const { memberIds, members } = useSelectMemberContext();
+  const activeMembers = members.filter((member) => member.isActive !== false);
   const filteredIds = excludeIds?.filter((id) => id !== currentUser._id);
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
@@ -305,9 +314,9 @@ const SelectTeamMemberContent = ({
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {activeMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {activeMembers.map((member) => (
               <SelectMember.CommandItem key={member._id} user={member} />
             ))}
             {!loading && membersList.length > 0 && (
@@ -398,7 +407,7 @@ const SelectAssigneeTaskRoot = ({
   id,
   teamIds,
 }: {
-  value: string;
+  value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
@@ -415,12 +424,12 @@ const SelectAssigneeTaskRoot = ({
   }, [value]);
 
   const handleValueChange = (newValue: string | string[] | null) => {
-    setInternalValue((newValue as string) ?? undefined);
+    setInternalValue(typeof newValue === 'string' ? newValue : null);
     if (id) {
       updateTask({
         variables: {
           _id: id,
-          assigneeId: newValue,
+          assigneeId: Array.isArray(newValue) ? newValue[0] : newValue,
         },
       });
     }
@@ -459,7 +468,7 @@ const SelectAssigneeTaskRoot = ({
 
   return (
     <SelectAssigneeProvider
-      value={internalValue}
+      value={internalValue ?? undefined}
       onValueChange={handleValueChange}
       mode="single"
       allowUnassigned

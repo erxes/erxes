@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { ColumnDef } from '@tanstack/table-core';
@@ -18,6 +19,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
   const uom = props.row.original;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm } = useConfirm();
+  const { t } = useTranslation('product', { keyPrefix: 'uoms' });
   const { removeUoms, loading } = useUomsRemove();
   const confirmOptions = { confirmationValue: 'delete' };
 
@@ -27,7 +29,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete "${uom.name}"?`,
+      message: t('confirm-delete', { name: uom.name }),
       options: confirmOptions,
     }).then(() => {
       removeUoms({
@@ -49,7 +51,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
             <Command.List>
               <Command.Item value="edit" onSelect={handleEdit}>
                 <IconEdit className="w-4 h-4" />
-                Edit
+                {t('edit')}
               </Command.Item>
               <Command.Item
                 value="delete"
@@ -57,7 +59,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
                 disabled={loading}
               >
                 <IconTrash className="w-4 h-4" />
-                Delete
+                {t('delete')}
               </Command.Item>
             </Command.List>
           </Command>

@@ -22,7 +22,7 @@ const WorkflowTemplateDetailPage = lazy(() =>
 
 export const AutomationRoutes = () => {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Spinner withMascot />}>
       <Routes>
         <Route path={AutomationsPath.Index} element={<AutomationIndexPage />} />
         <Route

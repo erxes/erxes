@@ -1,6 +1,6 @@
 import Remainders from './remainders';
 import SafeRemainders from './safeRemainders';
-import ReserveRems from './reserveRems';
-import SafeRemainderItems from './safeRemainderItems';
+export { reserveRemsMutations as ReserveRems } from './reserveRems';
+export { safeRemainderItemMutations as SafeRemainderItems } from './safeRemainderItems';
 
-export { Remainders, SafeRemainders, SafeRemainderItems, ReserveRems };
+export { Remainders, SafeRemainders };

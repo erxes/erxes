@@ -28,6 +28,7 @@ import {
 } from '~/modules/inbox/db/definitions/constants';
 import { trackViewPageEvent } from '~/modules/inbox/events';
 import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
+import { withLiveTicketOptions } from '~/modules/ticket/utils/ticketConfig';
 
 export const pConversationClientMessageInserted = async (
   subdomain,
@@ -361,6 +362,7 @@ export const widgetMutations: Record<string, Resolver> = {
       deviceToken,
       visitorId,
     } = args;
+    console.log(JSON.stringify({args}, null, 2))
 
     const customData = data;
 
@@ -382,6 +384,8 @@ export const widgetMutations: Record<string, Resolver> = {
 
     let customer;
 
+    console.log({cachedCustomerId , email , phone , code})
+
     if (cachedCustomerId || email || phone || code) {
       customer = await sendTRPCMessage({
         subdomain,
@@ -398,6 +402,8 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
+console.log(JSON.stringify({customer}))
+
       const doc = {
         integrationId: integration._id,
         email,
@@ -406,8 +412,9 @@ export const widgetMutations: Record<string, Resolver> = {
         isUser,
         deviceToken,
       };
-      customer = customer
-        ? await sendTRPCMessage({
+      
+      if(customer){
+        const updatedCustomer  = await sendTRPCMessage({
             subdomain,
             pluginName: 'core',
             method: 'mutation',
@@ -419,7 +426,11 @@ export const widgetMutations: Record<string, Resolver> = {
               customData,
             },
           })
-        : await sendTRPCMessage({
+          console.log({updatedCustomer})
+
+          // customer = updatedCustomer
+      }else {
+        const newCustomer = await sendTRPCMessage({
             subdomain,
             pluginName: 'core',
             method: 'mutation',
@@ -430,6 +441,12 @@ export const widgetMutations: Record<string, Resolver> = {
               customData,
             },
           });
+
+          console.log(JSON.stringify({newCustomer }, null, 2))
+
+
+          customer = newCustomer
+      }
     }
 
     // get or create company
@@ -495,7 +512,37 @@ export const widgetMutations: Record<string, Resolver> = {
 
       if (customer && company) {
         // add company to customer's companyIds list
+        const relatedCompanyIds: string[] = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'relation',
+          action: 'getRelationIds',
+          input: {
+            contentType: 'core:customer',
+            contentId: customer._id,
+            relatedContentType: 'core:company',
+          },
+          defaultValue: [],
+        });
 
+        if (!relatedCompanyIds.includes(company._id)) {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'relation',
+            action: 'createRelation',
+            input: {
+              relation: {
+                entities: [
+                  { contentType: 'core:customer', contentId: customer._id },
+                  { contentType: 'core:company', contentId: company._id },
+                ],
+              },
+            },
+          });
+        }
         await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -511,32 +558,35 @@ export const widgetMutations: Record<string, Resolver> = {
         });
       }
     }
-    if (visitorId && !cachedCustomerId && !customer) {
-      const lead = await createVisitor(subdomain, visitorId);
-      const docs = { ...args } as any;
-      docs.customerId = lead._id;
 
-      await models.ConversationMessages.updateVisitorEngageMessages(
-        visitorId,
-        lead._id,
-      );
-      await models.Conversations.updateMany(
-        {
-          visitorId,
-        },
-        { $set: { customerId: lead._id, visitorId: '' } },
-      );
-      customer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'saveVisitorContactInfo',
-        input: {
-          params: docs,
-        },
-      });
-    }
+    console.log({visitorId,cachedCustomerId,customer})
+
+    // if (visitorId && !cachedCustomerId && !customer) {
+    //   const lead = await createVisitor(subdomain, visitorId);
+    //   const docs = { ...args } as any;
+    //   docs.customerId = lead._id;
+
+    //   await models.ConversationMessages.updateVisitorEngageMessages(
+    //     visitorId,
+    //     lead._id,
+    //   );
+    //   await models.Conversations.updateMany(
+    //     {
+    //       visitorId,
+    //     },
+    //     { $set: { customerId: lead._id, visitorId: '' } },
+    //   );
+    //   customer = await sendTRPCMessage({
+    //     subdomain,
+    //     pluginName: 'core',
+    //     method: 'mutation',
+    //     module: 'customers',
+    //     action: 'saveVisitorContactInfo',
+    //     input: {
+    //       params: docs,
+    //     },
+    //   });
+    // }
 
     if (!integration.isConnected) {
       await models.Integrations.updateOne(
@@ -544,18 +594,27 @@ export const widgetMutations: Record<string, Resolver> = {
         { $set: { isConnected: true } },
       );
     }
-    let ticketConfigs = [];
-    if (integration.ticketConfigIds && integration.ticketConfigIds.length > 0) {
-      ticketConfigs = await models.TicketConfig.find({
-        _id: { $in: integration.ticketConfigIds },
-      });
-    }
+    const configs = integration.ticketConfigIds?.length
+      ? await models.TicketConfig.find({
+          _id: { $in: integration.ticketConfigIds },
+        }).lean()
+      : [];
+
+    const ticketConfigs = await Promise.all(
+      configs.map(async (config) => ({
+        ...config,
+        propertyFields: await withLiveTicketOptions(
+          subdomain,
+          config.propertyFields,
+        ),
+      })),
+    );
 
     return {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketConfigs: ticketConfigs || [],
+      ticketConfigs,
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer?._id,
       visitorId: customer ? null : visitorId,
@@ -788,6 +847,7 @@ export const widgetMutations: Record<string, Resolver> = {
             {
               ...msg.toObject(),
               ...(parsedPayload || {}),
+              integrationId,
               automationId: automationId || undefined,
             },
           ],
