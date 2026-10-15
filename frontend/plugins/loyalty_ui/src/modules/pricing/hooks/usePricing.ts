@@ -1,45 +1,13 @@
-import { IPricing, PricingPriority } from '@/pricing/types';
-import { PRICING_PLANS } from '@/pricing/graphql/queries';
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { toPricingPriority } from '@/pricing/constants';
+import { IPricing } from '@/pricing/types';
+import { PRICING_PLANS } from '@/pricing/graphql/queries';
+import type { PricingPlansQueryVariables } from '~/gql/graphql';
 import { useCallback, useMemo } from 'react';
 import { EnumCursorDirection, useMultiQueryState } from 'erxes-ui';
 
 const PRICING_PER_PAGE = 20;
-
-interface IPricingPlansQueryResult {
-  pricingPlans: Array<{
-    _id: string;
-    name: string;
-    status: string;
-    priority: PricingPriority;
-    applyType: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy?: string;
-    createdUser?: {
-      details?: {
-        fullName?: string;
-      };
-      email?: string;
-    };
-  }>;
-  pricingPlansCount: number;
-}
-
-interface PricingFilterVariables {
-  page?: number;
-  perPage?: number;
-  status?: string;
-  priority?: string;
-  branchId?: string;
-  departmentId?: string;
-  productId?: string;
-  date?: string;
-  isQuantityEnabled?: boolean;
-  isPriceEnabled?: boolean;
-  isExpiryEnabled?: boolean;
-  isRepeatEnabled?: boolean;
-}
 
 interface HandleFetchMoreParams {
   direction?: EnumCursorDirection;
@@ -71,8 +39,8 @@ export const usePricing = () => {
     'isRepeatEnabled',
   ]);
 
-  const variables = useMemo<PricingFilterVariables>(() => {
-    const nextVariables: PricingFilterVariables = {
+  const variables = useMemo<PricingPlansQueryVariables>(() => {
+    const nextVariables: PricingPlansQueryVariables = {
       page: 1,
       perPage: PRICING_PER_PAGE,
       status: 'all',
@@ -99,30 +67,32 @@ export const usePricing = () => {
     return nextVariables;
   }, [queries]);
 
-  const { data, loading, fetchMore } = useQuery<IPricingPlansQueryResult>(
-    PRICING_PLANS,
-    {
-      variables,
-      fetchPolicy: 'cache-and-network',
-      notifyOnNetworkStatusChange: true,
-    },
-  );
+  const { data, loading, fetchMore } = useQuery(PRICING_PLANS, {
+    variables,
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const pricing: IPricing[] =
-    data?.pricingPlans?.map((plan) => ({
-      _id: plan._id,
-      name: plan.name,
-      status: plan.status as IPricing['status'],
-      priority: plan.priority,
-      applyType: plan.applyType as IPricing['applyType'],
-      createdBy:
-        plan.createdUser?.details?.fullName ||
-        plan.createdBy ||
-        plan.createdUser?.email ||
-        '',
-      createdAt: plan.createdAt,
-      updatedAt: plan.updatedAt,
-    })) || [];
+  const pricing = useMemo(
+    () =>
+      compactList(data?.pricingPlans).map(
+        (plan): IPricing => ({
+          _id: plan._id,
+          name: plan.name,
+          status: plan.status,
+          priority: toPricingPriority(plan.priority),
+          applyType: plan.applyType,
+          createdBy:
+            plan.createdUser?.details?.fullName ||
+            plan.createdBy ||
+            plan.createdUser?.email ||
+            '',
+          createdAt: plan.createdAt,
+          updatedAt: plan.updatedAt,
+        }),
+      ),
+    [data?.pricingPlans],
+  );
 
   const totalCount = data?.pricingPlansCount || 0;
   const hasNextPage = pricing.length < totalCount;

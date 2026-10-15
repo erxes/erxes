@@ -1,3 +1,4 @@
+import { compactList } from '@/loyalties/utils/cursorList';
 import { useEffect, useState } from 'react';
 import { Button, Form, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -35,8 +36,8 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
   useEffect(() => {
     if (pricingDetail) {
       form.reset({
-        departmentIds: pricingDetail.departmentIds || [],
-        branchIds: pricingDetail.branchIds || [],
+        departmentIds: compactList(pricingDetail.departmentIds),
+        branchIds: compactList(pricingDetail.branchIds),
       });
       setHasChanges(false);
     }

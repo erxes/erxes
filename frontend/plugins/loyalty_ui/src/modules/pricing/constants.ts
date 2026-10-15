@@ -28,6 +28,16 @@ export const PRICING_APPLIES_TO_OPTIONS: Array<{
   { value: 'bundle', label: 'specific-bundle' },
 ];
 
+const PRICING_PRIORITIES: PricingPriority[] = [
+  '',
+  'public',
+  'posBase',
+  'pipelineBase',
+];
+
+export const toPricingPriority = (value?: string | null): PricingPriority =>
+  PRICING_PRIORITIES.find((priority) => priority === value) ?? '';
+
 export const priorityToFormValue = (
   priority?: PricingPriority,
 ): PricingPriorityFormValue => priority || 'none';
