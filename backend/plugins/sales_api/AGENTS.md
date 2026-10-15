@@ -41,6 +41,8 @@
   from persistence; only a different selected unit needs stored metadata.
   `utils/productUom.ts` separates missing-base-unit lookup from input
   normalization, and validates the incoming ratio once before conversion.
+- Deal product GraphQL discount checks accept fractional `quantity` values, so
+  pricing and loyalty calculations stay aligned with POS weighted products.
 - Deal creation, saving, and product-row creation/editing fill missing or blank
   currencies from the tenant's first Core `dealCurrency` configuration value
   (fallback `MNT`) before calculating totals, preserving explicit currencies.

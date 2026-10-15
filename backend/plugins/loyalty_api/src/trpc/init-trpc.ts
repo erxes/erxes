@@ -22,9 +22,12 @@ const t = initTRPC.context<LoyaltyTRPCContext>().create();
 
 // Zod schemas
 
-const productSchema = z.object({
+export const saleQuantitySchema = z.number().positive();
+export const saleCountSchema = z.number().nonnegative();
+
+export const productSchema = z.object({
   productId: z.string(),
-  quantity: z.number().int().positive(),
+  quantity: saleQuantitySchema,
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
 });
@@ -36,7 +39,7 @@ const discountInfoSchema = z
   })
   .optional();
 
-const checkLoyaltiesInput = z.object({
+export const checkLoyaltiesInput = z.object({
   ownerType: z.string().optional().default('customer'),
   ownerId: z
     .string()
@@ -53,11 +56,11 @@ const ownerSummaryInput = z.object({
   totalAmount: z.number().min(0).optional(),
 });
 
-const confirmLoyaltiesInput = z.object({
+export const confirmLoyaltiesInput = z.object({
   checkInfo: z.record(
     z.object({
       voucherId: z.string(),
-      count: z.number().int().nonnegative(),
+      count: saleCountSchema,
     }),
   ),
   extraInfo: z
@@ -76,13 +79,13 @@ const confirmLoyaltiesInput = z.object({
     .optional(),
 });
 
-const pricingProductSchema = z.object({
+export const pricingProductSchema = z.object({
   _id: z.string().optional(),
   itemId: z.string().optional(),
   productId: z.string().optional(),
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
-  quantity: z.number().int().positive(),
+  quantity: saleQuantitySchema,
   manufacturedDate: z.string().nullish(),
   conditionCode: z.string().nullish(),
 });
@@ -92,7 +95,7 @@ const participantKindSchema = z.preprocess(
   z.enum(['customer', 'company', 'user']),
 );
 
-const checkPricingInput = z.object({
+export const checkPricingInput = z.object({
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
   departmentId: z.string().optional().default(''),
