@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -177,15 +177,25 @@
   selects, update the snapshot from that source; codegen fails on a field the
   snapshot lacks.
 - The score, voucher, coupon, donate, spin, lottery and assignment settings
-  modules are typed from the schema: every document is `gql()` from `~/gql`,
-  hooks infer from their documents, and list and detail types derive from the
-  generated query types. JSON fields the forms read (`awards`, `restrictions`,
-  `codeRule`, the score `add`/`subtract`/`additionalConfig`, earn preview
-  `breakdown`, automation action `config`) are narrowed by small parsers built
-  on `@/loyalties/utils/isRecord`, never cast.
+  modules, wallets (`settings/account-type`), the birthday reward, `accounts`
+  and `scores` are typed from the schema: every document is `gql()` from
+  `~/gql`, hooks infer from their documents, and list and detail types derive
+  from the generated query types. JSON fields the UI reads (`awards`,
+  `restrictions`, `codeRule`, the score `add`/`subtract`/`additionalConfig`,
+  earn and score log `breakdown`, automation action `config`, the `owner` of
+  score logs, accounts and tier logs (`scores/utils/parseScoreOwner`), tier
+  log `createdVia`, score log `target`, `scoreLogStatistics`, segment `root`)
+  are narrowed by small parsers built on `@/loyalties/utils/isRecord`, never
+  cast. Wallet strings the form keeps as unions (owner type, frozen blocks,
+  reset, expiry, earn eligibility) are narrowed against the form's zod enum
+  options.
 - Cursor lists merge pages through `@/loyalties/utils/cursorList`, copied from
   `operation_ui` because core's `PageInfo` booleans and list items are
   nullable; delete it when core tightens `PageInfo`.
+- The birthday reward makes its "birthday today" segment through its own
+  `LoyaltyBirthdaySegmentAdd` document, not `ui-modules`' untyped
+  `SEGMENT_ADD`, so the snapshot carries `segmentsAdd`, `SegmentVisibility`
+  and `SegmentStatus`.
 - Voucher campaign pickers in assignment, donate, lottery, spin and the
   vouchers list share `settings/voucher/hooks/useSelectVoucherCampaign` (cursor
   pages) and `useVoucherCampaignInline` (`voucherCampaignDetail` by `_id`).
@@ -221,6 +231,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-15` — Wallets, birthday reward, accounts and scores typed
+
+- **Summary:** Wallets, the birthday reward, accounts and scores use typed documents. The wallet fragment is spread by name instead of interpolated, and the account and score lists merge pages through `cursorList`. Period run and preview numbers the SDL leaves nullable default to zero, and a run with an unknown status shows as failed. The birthday reward stops instead of saving a reward whose segment, broadcast or automation came back without an id.
+- **Affected areas:** `settings/{account-type,birthday}/**`, `accounts/**`, `scores/**` (`utils/parseScoreOwner.ts` new), `schema/platform.graphql` (`segmentsAdd`), automation widgets that read wallet tiers (`SetTierNodeContent`, `TierChangedTriggerNodeContent`, `useScoreActionResult`, `useSetTierActionResult`).
+- **Contracts changed:** None; new operation `LoyaltyBirthdaySegmentAdd` replaces the shared `SegmentsAdd` in the birthday reward.
 
 ### `2026-10-14` — Settings campaigns typed from the schema
 
@@ -272,10 +288,4 @@
 
 - **Summary:** Voucher campaigns can be limited to N per customer per year, month or campaign from the Restriction tab; empty means no limit.
 - **Affected areas:** `settings/voucher/{constants/voucherFormSchema.ts,utils/voucherOwnerLimit.ts,types/voucherTypes.ts}`, `add-voucher-campaign/components/{AddVoucherRestrictionForm,VoucherTabs}.tsx`, `voucher-restriction-field/VoucherOwnerLimitField.tsx`, `voucher-detail/components/{EditVoucherTabs,LoyaltyVoucherEditSheet}.tsx`, voucher add/edit mutations and detail query; `owner-limit*` translations.
-- **Contracts changed:** None
-
-### `2026-09-30` — No-earn window shown
-
-- **Summary:** The wallet preview names the days before a reset in which purchases earn nothing, and the Adjust score history explains such a skip with both dates.
-- **Affected areas:** `settings/account-type/{hooks/useLoyaltyAccountTypePeriodPreview.ts,components/LoyaltyAccountTypePeriodPreview.tsx,graphql/loyaltyAccountTypeQueries.ts}`, `widgets/automations/modules/loyalty/hooks/useScoreActionResult.ts`; `period-preview-no-earn`, `score-skip-held-past-reset` translations.
 - **Contracts changed:** None
