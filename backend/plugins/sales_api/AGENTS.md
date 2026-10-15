@@ -288,6 +288,9 @@
 - `sales_api:schema:print` is uncached so shared SDL helpers, dependency
   versions, and TypeScript path changes cannot restore an outdated schema.
   `sales_ui:codegen` depends on this export and hashes the resulting SDL.
+  Every Sales UI document is generated-typed and lint-enforced, so renaming or
+  removing an SDL field fails the `sales_ui` codegen/build; update the UI
+  documents in the same change.
 - Public fields owned by other services belong in the frontend's tooling
   snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
   runtime SDL. Do not add backend fields just to satisfy frontend codegen.

@@ -245,7 +245,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 ## Local Invariants
 
 - All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
-  infer their results from those documents. Derive row/detail aliases from
+  infer their results from those documents. `eslint.config.js` enforces this
+  with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are
+  restricted imports, and Apollo hooks and `subscribeToMore` reject type
+  arguments. Derive row/detail aliases from
   generated query types and keep local form types separate.
   Keep only aliases with consumers; selector context, pagination, drag state,
   attachment state, and Zod form types remain UI contracts.
