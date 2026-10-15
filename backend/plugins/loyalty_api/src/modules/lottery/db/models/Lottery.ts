@@ -72,7 +72,7 @@ export const loadLotteryClass = (models: IModels) => {
 
       const now = new Date();
 
-      return await models.Lotteries.updateOne(
+      return await models.Lotteries.findOneAndUpdate(
         { _id },
         {
           $set: {
@@ -84,6 +84,7 @@ export const loadLotteryClass = (models: IModels) => {
             userId,
           },
         },
+        { new: true },
       );
     }
 
