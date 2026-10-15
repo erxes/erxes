@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { VouchersAddManyMutationVariables } from '~/gql/graphql';
 import { VOUCHERS_ADD_MANY_MUTATION } from '../graphql/mutations/mutations';
 
 export const useAddVoucher = () => {
@@ -14,13 +15,7 @@ export const useAddVoucher = () => {
     },
   );
 
-  const voucherAdd = async (variables: {
-    campaignId?: string;
-    ownerIds?: string[];
-    ownerType?: string;
-    tagIds?: string[];
-    status?: string;
-  }) => {
+  const voucherAdd = async (variables: VouchersAddManyMutationVariables) => {
     return addVouchers({
       variables,
       onCompleted: (data) => {

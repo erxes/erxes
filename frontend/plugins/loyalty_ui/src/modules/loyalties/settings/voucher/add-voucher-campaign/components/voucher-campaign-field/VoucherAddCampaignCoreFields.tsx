@@ -101,7 +101,8 @@ export const VoucherAddCampaignCoreFields: React.FC<
                     variant="outline"
                     value={kind}
                     onValueChange={(next) =>
-                      next && form.setValue('kind', next, { shouldDirty: true })
+                      (next === 'amount' || next === 'percent') &&
+                      form.setValue('kind', next, { shouldDirty: true })
                     }
                   >
                     {VOUCHER_KIND_TYPES.map((option) => (
