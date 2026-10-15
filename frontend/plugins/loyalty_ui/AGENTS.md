@@ -184,17 +184,18 @@
   `codegen` target, which depends on `gateway:schema:compose`. A field from
   core, sales or another plugin needs no local copy; fix a validation error in
   the document, or in the backend that owns the field.
-- The score, voucher, coupon, donate, spin, lottery and assignment settings
-  modules, wallets (`settings/account-type`), the birthday reward, `accounts`,
-  `scores` and `pricing` are typed from the schema: every document is `gql()` from
-  `~/gql`, hooks infer from their documents, and list and detail types derive
-  from the generated query types. JSON fields the UI reads (`awards`,
+- Every module and widget is typed from the schema: every document is `gql()`
+  from `~/gql`, hooks infer from their documents, and list and detail types
+  derive from the generated query types. `eslint.config.js` (copied from
+  `operation_ui`) fails the lint on a `graphql-tag` or `@apollo/client` `gql`
+  import and on type arguments to Apollo hooks or `subscribeToMore`. JSON fields the UI reads (`awards`,
   `restrictions`, `codeRule`, the score `add`/`subtract`/`additionalConfig`,
   earn and score log `breakdown`, automation action `config`, the `owner` of
   score logs, accounts and tier logs (`scores/utils/parseScoreOwner`), tier
   log `createdVia`, score log `target`, `scoreLogStatistics`, segment `root`)
   are narrowed by small parsers built on `@/loyalties/utils/isRecord`, never
-  cast. Wallet strings the form keeps as unions (owner type, frozen blocks,
+  cast; so are the relation settings widget's automation trigger and action
+  `config`. Wallet strings the form keeps as unions (owner type, frozen blocks,
   reset, expiry, earn eligibility) are narrowed against the form's zod enum
   options. Pricing narrows `priority` with `toPricingPriority`, normalizes
   condition rules into the `IPricingConditionRule` form model and fixed value
@@ -203,10 +204,12 @@
 - Cursor lists merge pages through `@/loyalties/utils/cursorList`, copied from
   `operation_ui` because core's `PageInfo` booleans and list items are
   nullable; delete it when core tightens `PageInfo`.
-- The birthday reward makes its "birthday today" segment through its own
-  `LoyaltyBirthdaySegmentAdd` document, not `ui-modules`' untyped
-  `SEGMENT_ADD`, so the snapshot carries `segmentsAdd`, `SegmentVisibility`
-  and `SegmentStatus`.
+- Segments are made and removed through the plugin's own documents
+  (`LoyaltyBirthdaySegmentAdd` for the birthday reward,
+  `LoyaltySourceSegmentAdd` and `LoyaltySourceSegmentsRemove` for the relation
+  settings widget), not `ui-modules`' untyped `SEGMENT_ADD`/`SEGMENT_REMOVE`,
+  so the snapshot carries `segmentsAdd`, `segmentsRemove`,
+  `SegmentVisibility` and `SegmentStatus`.
 - Voucher campaign pickers in assignment, donate, lottery, spin and the
   vouchers list share `settings/voucher/hooks/useSelectVoucherCampaign` (cursor
   pages) and `useVoucherCampaignInline` (`voucherCampaignDetail` by `_id`).
@@ -214,10 +217,8 @@
   non-null (`String!`, removes as `[String!]!`), so codegen accepts them;
   queries that need an id keep `skip` until it exists.
 - Operation names are unique within the plugin even ignoring case, because
-  codegen PascalCases them into type names; codegen only accepts byte-identical
-  copies, as `GetCampaigns`, `UpdateLotteryCampaign` and `UpdateSpinCampaign`
-  are today. `refetchQueries` strings name operations, so a rename updates them
-  in the same change.
+  codegen PascalCases them into type names. `refetchQueries` strings name
+  operations, so a rename updates them in the same change.
 
 ## Validation
 
@@ -249,6 +250,12 @@
 - **Summary:** Codegen reads the composed gateway schema from #9603 instead of the printed `loyalty_api` schema plus the core and sales snapshot; the generated types are unchanged. CI also runs when a backend schema source changes.
 - **Affected areas:** `codegen.ts`, `project.json` (`codegen` depends on `gateway:schema:compose`, `build` hashes the generated files), removed `schema/platform.graphql`; `.github/workflows/ci-ui-loyalty.yml`.
 - **Contracts changed:** None (build tooling only).
+
+### `2026-10-15` — Entry lists and widgets typed; codegen enforced
+
+- **Summary:** The voucher, donate, lottery, spin, coupon, assignment and agent lists and the relation settings widget use typed documents, so every `loyalty_ui` document now comes from `~/gql`, and `eslint.config.js` enforces it. The coupon and assignment lists merge pages through `cursorList`; agent add and edit drop their `as any` and narrow the status to `AgentStatus`; the agent delete cache update and the voucher bulk delete no longer type values as `any`. The relation settings widget makes and removes segments through its own documents and reads automation `config` through `isRecord`. Removed as unused: the customer and company lookups of the entry modules, `LoyaltyVouchersAdd`, coupon edit and remove documents, `voucherCompaniesQuery.ts`, and the `posId` prop of the voucher, donate, lottery and spin tables, which no caller passed and no query declared. The snapshot drops the customer and company fields only those lookups selected.
+- **Affected areas:** `modules/loyalties/{vouchers,donates,lotteries,spin,coupons,assignments,agents}/**`, `widgets/relationSettings/**`, `schema/platform.graphql`, `eslint.config.js`.
+- **Contracts changed:** None; new operations `LoyaltySourceSegmentAdd` and `LoyaltySourceSegmentsRemove` replace the shared `SegmentsAdd` and `SegmentsRemove` in the relation settings widget.
 
 ### `2026-10-15` — Pricing typed from the schema
 
@@ -297,8 +304,3 @@
 - **Summary:** The voucher campaign form says what a voucher gives and how long it works; campaigns may run without an end, and automation steps may override a voucher's term. Creating a campaign now also sends the per-customer limit (the create document lacked it).
 - **Affected areas:** `settings/voucher/{constants/voucherFormSchema.ts,utils/voucherTerm.ts,types/voucherTypes.ts,hooks/useAddVoucher.tsx,graphql/mutations/{VoucherMutations.tsx,voucherEditStatusMutations.ts},graphql/queries/getCampaignQuery.ts,components/{VoucherAddSheet,VoucherColumns}.tsx}`, `add-voucher-campaign/components/{AddVoucherCampaignForm,VoucherTabs}.tsx`, `voucher-campaign-field/*`, `voucher-detail/components/{EditVoucherTabs,LoyaltyVoucherEditSheet}.tsx`, `components/LoyaltyCampaignColumnHelpers.tsx`, `widgets/automations/modules/loyalty/{states/campaignActionConfigFormDefinitions.ts,hooks/useCampaignActionForm.ts,components/action/voucher/IssueVoucherActionConfigForm.tsx}`; `voucher-*` translations.
 - **Contracts changed:** None
-
-### `2026-10-08` — Score campaign picker for other plugins
-
-- **Summary:** Loyalty offers a score campaign field with create and edit to other plugins' forms (first used by sales' score earn configuration).
-- **Affected areas:** `widgets/recordPicker/**`, `config.tsx`, `module-federation.config.ts`.
