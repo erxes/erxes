@@ -103,7 +103,11 @@ export const loadLotteryCampaignClass = (
         modifiedAt: new Date(),
       };
 
-      const result = await models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.LotteryCampaigns.findOneAndUpdate(
+        { _id },
+        { $set: modifier },
+        { new: true },
+      );
 
       sendDbEventLog?.({
         action: 'update',

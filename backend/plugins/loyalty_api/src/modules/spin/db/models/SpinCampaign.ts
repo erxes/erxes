@@ -39,7 +39,7 @@ export const loadSpinCampaignClass = (
     static async validSpinCampaign(doc) {
       validCampaign(doc);
       let sumProbability = 0;
-      for (const award of doc.awards) {
+      for (const award of doc.awards || []) {
         sumProbability += award.probability;
       }
 
@@ -85,7 +85,11 @@ export const loadSpinCampaignClass = (
         modifiedAt: new Date(),
       };
 
-      const result = await models.SpinCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.SpinCampaigns.findOneAndUpdate(
+        { _id },
+        { $set: modifier },
+        { new: true },
+      );
 
       sendDbEventLog?.({
         action: 'update',
