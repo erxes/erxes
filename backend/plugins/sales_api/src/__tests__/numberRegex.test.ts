@@ -36,6 +36,9 @@ describe.each([
   ['INV.', 'INVx'],
   ['INV(', 'INV'],
   ['INV[1]', 'INV1'],
+  ['INV(', 'XINV('],
+  ['2026-', 'X2026-'],
+  ['', 'INV'],
 ])('literal number prefix %s', (prefix, otherPrefix) => {
   const lastNum = `${prefix}0007`;
   const config = {

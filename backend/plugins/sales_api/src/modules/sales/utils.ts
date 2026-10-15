@@ -111,7 +111,7 @@ export const boardNumberGenerator = async (
 
   if (!skip) {
     const pipeline = await models.Pipelines.findOne({
-      lastNum: new RegExp(`${escapeRegExp(replacedConfig)}[0-9]+$`),
+      lastNum: new RegExp(`^${escapeRegExp(replacedConfig)}[0-9]+$`),
       type,
     });
 
@@ -220,7 +220,7 @@ export const generateLastNum = async (models: IModels, doc: IPipeline) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
 
   const pipeline = await models.Pipelines.findOne({
-    lastNum: new RegExp(`${escapeRegExp(replacedConfig)}[0-9]+$`),
+    lastNum: new RegExp(`^${escapeRegExp(replacedConfig)}[0-9]+$`),
     type: doc.type,
   });
 
@@ -229,7 +229,7 @@ export const generateLastNum = async (models: IModels, doc: IPipeline) => {
   }
 
   const item = await models.Deals.findOne({
-    number: new RegExp(`${escapeRegExp(replacedConfig)}[0-9]+$`),
+    number: new RegExp(`^${escapeRegExp(replacedConfig)}[0-9]+$`),
   }).sort({ createdAt: -1 });
 
   if (item) {

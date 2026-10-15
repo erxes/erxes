@@ -257,7 +257,9 @@
   contracts rather than declaring documents for unsupported aliases.
 - Pipeline number configuration is literal prefix text with supported date
   placeholders (`{year}`, `{month}`, `{day}`); send the original text and let
-  the API escape it for number lookup. Do not pre-escape it in the UI.
+  the API escape it for number lookup. The API matches that prefix at the
+  start of the stored number, followed only by digits. Do not pre-escape it
+  in the UI.
 - Send deal, POS, and address search text unchanged; the API owns regex
   escaping and case-insensitive matching. Formatted-phone matching and the
   shared stage/archive fuzzy-search behavior remain supported.

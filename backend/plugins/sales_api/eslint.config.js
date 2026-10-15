@@ -21,7 +21,7 @@ module.exports = [
       'no-restricted-syntax': [
         'error',
         {
-          selector: `NewExpression[callee.name='RegExp']:has(> *.arguments${NOT_SAFE_PATTERN})`,
+          selector: `:matches(NewExpression, CallExpression)[callee.name='RegExp']:has(> *.arguments${NOT_SAFE_PATTERN})`,
           message:
             'Wrap user input in escapeRegExp from erxes-api-shared/utils before building a RegExp.',
         },

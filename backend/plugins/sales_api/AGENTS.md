@@ -290,11 +290,14 @@
   sorting returns `ok` even for an empty stage. An archive with no stages
   returns an empty list, zero count, and empty pagination metadata.
 - Deal-number lookup escapes the configured prefix after date substitution
-  with the shared `escapeRegExp` helper. Keep the numeric `[0-9]+$` suffix as
-  regex syntax; date placeholders, padding, and reset behavior stay intact.
+  with the shared `escapeRegExp` helper. Anchor the prefix at the start (`^`)
+  in both pipeline and deal fallback lookups so longer, unrelated prefixes
+  cannot supply the counter. Keep the numeric `[0-9]+$` suffix as regex syntax;
+  date placeholders, padding, and reset behavior stay intact.
 - Request text used in regex patterns goes through `escapeRegExp` from
   `erxes-api-shared/utils`. The plugin-local ESLint config follows Operation's
-  rule and requires escaping at each construction site. Prefer escaped string
+  rule and requires escaping at each construction site, covering both
+  `new RegExp(...)` and `RegExp(...)`. Prefer escaped string
   `$regex` values with `$options`, including queries sent over tRPC.
   Phone lookup first limits input to digits, escapes them, then adds fixed
   `\D*` separators; its two documented lint exceptions preserve formatted-phone
