@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { LotteriesEditMutationVariables } from '~/gql/graphql';
 import { LOTTERIES_EDIT_MUTATION } from '../graphql/mutations/mutations';
 
 export const useEditLottery = () => {
@@ -14,14 +15,7 @@ export const useEditLottery = () => {
     },
   );
 
-  const lotteryEdit = async (variables: {
-    _id: string;
-    campaignId?: string;
-    ownerId?: string;
-    ownerType?: string;
-    status?: string;
-    voucherCampaignId?: string;
-  }) => {
+  const lotteryEdit = async (variables: LotteriesEditMutationVariables) => {
     return editLottery({
       variables,
       onCompleted: () => {
