@@ -52,7 +52,7 @@ import {
 type TSimulatorView = 'welcome' | 'conversation';
 
 export const FacebookBotSimulator = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form, facebookMessengerBot } = useFbBotFormContext();
   const [view, setView] = useState<TSimulatorView>('welcome');
   const [device, setDevice] = useState<TMessengerDevice>('mobile');
@@ -314,7 +314,7 @@ const WelcomeScreen = ({
   selectedKey?: string;
   onSelect: (key: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
@@ -364,7 +364,7 @@ const WelcomeScreen = ({
 };
 
 const ConversationScreen = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   return (
     <div className="flex flex-col gap-2">
@@ -378,7 +378,7 @@ const ConversationScreen = () => {
 };
 
 const UnsavedBadge = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   return (
     <Badge variant="secondary" className={className}>
@@ -527,7 +527,7 @@ const MenuOutcome = ({
   seedLink?: string;
   isUnsaved?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   const body = () => {
     if (outcome.kind === 'opensLink') {
@@ -635,7 +635,7 @@ const SimulatorNotices = ({
   isOverLimit: boolean;
   itemCount: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   const notices = [
     isOverLimit && {

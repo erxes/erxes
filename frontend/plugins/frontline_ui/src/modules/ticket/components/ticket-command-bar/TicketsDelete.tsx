@@ -14,7 +14,7 @@ export const TicketsDelete = ({
   rows: Row<ITicket>[];
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { confirm } = useConfirm();
   const { removeTicket } = useTicketRemove();
   const { toast } = useToast();

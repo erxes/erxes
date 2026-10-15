@@ -15,7 +15,7 @@ export const CommentTriggerForm = ({
   activeTrigger,
   onSaveTriggerConfig,
 }: AutomationTriggerFormProps<TCommentTriggerForm>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form, botId, checkContent, postType } = useCommentTriggerForm({
     formRef,
     activeTrigger,

@@ -26,7 +26,7 @@ export const DirectMessageConditionCard = ({
   ) => void;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const {
     hasKeywords,
     draftKeyword,

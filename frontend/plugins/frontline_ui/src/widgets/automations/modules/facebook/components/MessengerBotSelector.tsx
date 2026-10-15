@@ -30,7 +30,7 @@ type Props = {
 const getPageName = (bot?: IFacebookBot) => bot?.page?.name || '';
 
 export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedBotId, setBotId] = useState(botId || '');
   const [isOpen, setOpen] = useState(!botId || false);
 
@@ -127,7 +127,7 @@ const MessengerBotList = ({
   selectedBotId: string;
   handleSelect: (_id: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   if (!bots?.length) {
     return (

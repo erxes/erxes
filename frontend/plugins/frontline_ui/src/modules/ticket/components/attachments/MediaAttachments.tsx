@@ -13,7 +13,7 @@ import { useAttachmentContext } from './AttachmentContext';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 
 const MediaAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 

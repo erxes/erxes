@@ -21,7 +21,7 @@ export const AddTicketSheet = ({
   onComplete?: (ticketId: string) => void;
   isRelation?: boolean;
 } & ButtonProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useAtom(ticketCreateSheetState);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -68,7 +68,7 @@ export const AddTicketSheet = ({
 };
 
 export const AddTicketSheetHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
     <Sheet.Header className="p-5">
       <Sheet.Title>{t('add-ticket', 'Add ticket')}</Sheet.Title>

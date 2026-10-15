@@ -63,7 +63,7 @@ export const SelectCreateContainer = ({
   loading: boolean;
   children: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -89,7 +89,7 @@ export const SelectCreateContainer = ({
       <Separator />
       <div className="p-3">
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? <Spinner /> : t('create', 'Create')}
+          {loading ? <Spinner /> : t('create')}
         </Button>
       </div>
     </form>

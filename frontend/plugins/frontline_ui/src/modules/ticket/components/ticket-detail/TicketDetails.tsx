@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const location = useLocation();
   const isInInbox = location.pathname.includes('my-inbox');
   const { ticket, loading, error } = useGetTicket({

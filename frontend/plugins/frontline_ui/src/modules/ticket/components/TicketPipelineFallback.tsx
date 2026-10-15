@@ -8,7 +8,7 @@ export const TicketPipelineFallback = ({
 }: {
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [channelId] = useQueryState<string | null>('channelId');
   const settingsPath = channelId
     ? `/settings/frontline/channels/${channelId}/pipelines`
@@ -56,7 +56,7 @@ export const TicketStatusesFallback = ({
 }: {
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId] = useQueryState<string | null>('pipelineId');
 

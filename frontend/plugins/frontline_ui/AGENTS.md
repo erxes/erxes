@@ -1911,6 +1911,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - New user-visible strings go through `useTranslation('frontline')` with keys
   added to both `en` and `mn` gateway-owned locale files; that is a
   repository-level change and must be requested explicitly.
+- Translated modules scope their keys with a `keyPrefix` matching the module
+  (`modules.integrations`, `modules.helpcenter`, `widgets.automations-mail`, …)
+  and call `t('key')` without inline English defaults; every key used under a
+  prefix must exist in both `en` and `mn` under the same path.
 - Ticket tag selectors must go through `SelectTagsTicket`
   (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
   `TagsSelect.SelectedList` directly — the shared component chains every
