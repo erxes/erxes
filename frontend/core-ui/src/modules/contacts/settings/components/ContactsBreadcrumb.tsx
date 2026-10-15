@@ -6,8 +6,8 @@ export const ContactsBreadcrumb = () => {
   const { t } = useTranslation('contact');
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
-        <IconBookmarksFilled className="w-4 h-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconBookmarksFilled />
         {t('contacts')}
       </Button>
       <Separator.Inline />

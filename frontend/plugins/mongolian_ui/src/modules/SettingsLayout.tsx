@@ -15,21 +15,23 @@ export const SettingsLayout = ({
 }) => {
   return (
     <Filter id="mongolian-settings">
-      <div className="flex h-full min-h-0 flex-auto flex-col overflow-hidden">
-        <SettingsHeader breadcrumbs={breadcrumbs}>
-          {actions && <div className="ml-auto">{actions}</div>}
-        </SettingsHeader>
-        <div className="flex min-h-0 flex-auto overflow-hidden">
-          {sidebar}
-          <Suspense
-            fallback={
-              <div className="flex justify-center items-center h-full w-full">
-                <Spinner />
-              </div>
-            }
-          >
-            {children}
-          </Suspense>
+      <div className="flex h-full min-h-0 flex-auto overflow-hidden">
+        {sidebar}
+        <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+          <SettingsHeader breadcrumbs={breadcrumbs}>
+            {actions && <div className="ml-auto">{actions}</div>}
+          </SettingsHeader>
+          <div className="flex min-h-0 flex-auto overflow-hidden">
+            <Suspense
+              fallback={
+                <div className="flex justify-center items-center h-full w-full">
+                  <Spinner />
+                </div>
+              }
+            >
+              {children}
+            </Suspense>
+          </div>
         </div>
       </div>
     </Filter>

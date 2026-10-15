@@ -22,51 +22,52 @@ export const PosEditPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-2">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/sales/pos">
-                    <IconCashRegister />
-                    {t('pos')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Select value={id} onValueChange={handlePosChange}>
-                  <Select.Trigger className="w-[200px]">
-                    <Select.Value
-                      placeholder={
-                        loading
-                          ? t('loading')
-                          : currentPos?.name || t('select-pos')
-                      }
-                    />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {posList.map((pos: IPos) => (
-                      <Select.Item key={pos._id} value={pos._id}>
-                        {pos.name}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-        </PageHeader.Start>
+      <PosEdit
+        id={id}
+        header={
+          <PageHeader>
+            <PageHeader.Start>
+              <Breadcrumb>
+                <Breadcrumb.List className="gap-2">
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link to="/settings/sales/pos">
+                        <IconCashRegister />
+                        {t('pos')}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Select value={id} onValueChange={handlePosChange}>
+                      <Select.Trigger className="w-[200px]">
+                        <Select.Value
+                          placeholder={
+                            loading
+                              ? t('loading')
+                              : currentPos?.name || t('select-pos')
+                          }
+                        />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {posList.map((pos: IPos) => (
+                          <Select.Item key={pos._id} value={pos._id}>
+                            {pos.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Breadcrumb.Item>
+                </Breadcrumb.List>
+              </Breadcrumb>
+            </PageHeader.Start>
 
-        <PageHeader.End>
-          <PosDelete posId={id} />
-        </PageHeader.End>
-      </PageHeader>
-
-      <div className="flex-1 min-h-0">
-        <PosEdit id={id} />
-      </div>
+            <PageHeader.End>
+              <PosDelete posId={id} />
+            </PageHeader.End>
+          </PageHeader>
+        }
+      />
     </div>
   );
 };

@@ -10,7 +10,6 @@ import {
   SelectStage,
   TagsSelect,
 } from 'ui-modules';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 
 const ChipPopover = ({
   open,
@@ -26,7 +25,7 @@ const ChipPopover = ({
   children: React.ReactNode;
 }) => (
   <Popover open={open} onOpenChange={onOpenChange}>
-    <DealChipTrigger label={label}>{value}</DealChipTrigger>
+    <Combobox.ChipTrigger label={label}>{value}</Combobox.ChipTrigger>
     <Combobox.Content>{children}</Combobox.Content>
   </Popover>
 );
@@ -92,9 +91,9 @@ export const DealTagsChip = ({
       onValueChange={onValueChange}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <DealChipTrigger label={label || t('tags')}>
+        <Combobox.ChipTrigger label={label || t('tags')}>
           <TagsSelect.Value placeholder={t('select-tags')} showValue />
-        </DealChipTrigger>
+        </Combobox.ChipTrigger>
         {showSelectedTagsOutside ? <TagsSelect.SelectedList /> : null}
         <Combobox.Content>
           <TagsSelect.Content />

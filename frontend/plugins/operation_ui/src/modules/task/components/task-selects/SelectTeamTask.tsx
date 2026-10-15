@@ -6,10 +6,12 @@ export const SelectTeamTask = ({
   variant,
   taskId,
   value,
+  label,
 }: {
   variant: `${SelectTriggerVariant}`;
   taskId: string;
   value: string | string[];
+  label?: string;
 }) => {
   const { updateTask } = useUpdateTask();
 
@@ -26,6 +28,7 @@ export const SelectTeamTask = ({
       }
       mode="single"
       variant={variant}
+      label={label}
     />
   );
 };

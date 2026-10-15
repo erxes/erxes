@@ -7,6 +7,7 @@ import {
   cursorPaginate,
   cursorPaginateAggregation,
   escapeRegExp,
+  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -14,13 +15,29 @@ interface FilterArgs {
   type?: string;
   channelId?: string;
   searchValue?: string;
-  tag?: string;
+  tagId?: string;
   status?: string;
 }
+
+const getTagIdsWithChildren = async (subdomain: string, tagId: string) => {
+  const tag = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'tags',
+    action: 'findOne',
+    input: { query: { _id: tagId } },
+    defaultValue: null,
+  });
+
+  return [tagId, ...(tag?.relatedIds || [])];
+};
+
 const generateFilterQuery = async (
-  { type, channelId, searchValue, status }: FilterArgs,
+  { type, channelId, searchValue, tagId, status }: FilterArgs,
   models: IModels,
   user: IUserDocument,
+  subdomain: string,
 ) => {
   const query: any = {};
 
@@ -53,11 +70,9 @@ const generateFilterQuery = async (
     query.name = new RegExp(escapeRegExp(searchValue), 'i');
   }
 
-  // if (tag) {
-  //   const object = await models.Tags.findOne({ _id: tag });
-
-  //   query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
-  // }
+  if (tagId) {
+    query.tagIds = { $in: await getTagIdsWithChildren(subdomain, tagId) };
+  }
 
   if (status) {
     query.status = status;
@@ -70,7 +85,7 @@ type FormsArgs = {
   type: string;
   searchValue?: string;
   channelId?: string;
-  tag?: string;
+  tagId?: string;
   status?: string;
   sortField?: string;
   sortDirection?: 1 | -1;
@@ -82,9 +97,9 @@ const formQueries: Record<string, Resolver> = {
    * Forms list
    */
   async forms(_root, args: FormsArgs, context) {
-    const { models, user } = context as IContext;
+    const { models, user, subdomain } = context as IContext;
     const qry = {
-      ...(await generateFilterQuery(args, models, user)),
+      ...(await generateFilterQuery(args, models, user, subdomain)),
     };
     if (args.type === 'lead') {
       return models.Forms.findLeadForms(qry, args);
@@ -103,9 +118,9 @@ const formQueries: Record<string, Resolver> = {
   },
 
   async cpForms(_root, args: FormsArgs, context) {
-    const { models, user } = context as IContext;
+    const { models, user, subdomain } = context as IContext;
     const qry = {
-      ...(await generateFilterQuery(args, models, user)),
+      ...(await generateFilterQuery(args, models, user, subdomain)),
     };
     if (args.type === 'lead') {
       return models.Forms.findLeadForms(qry, args);
@@ -119,9 +134,9 @@ const formQueries: Record<string, Resolver> = {
   },
 
   async formsMain(_root: undefined, args: FormsArgs, context) {
-    const { models, user } = context as IContext;
+    const { models, user, subdomain } = context as IContext;
     const qry = {
-      ...(await generateFilterQuery(args, models, user)),
+      ...(await generateFilterQuery(args, models, user, subdomain)),
     };
 
     if (args.type === 'lead') {
@@ -136,31 +151,50 @@ const formQueries: Record<string, Resolver> = {
   },
 
   async formsTotalCount(_root, args, context) {
-    const { models, user } = context as IContext;
+    const { models, user, subdomain } = context as IContext;
     const counts = {
       total: 0,
-      byTag: {},
-      byChannel: {},
+      byTag: {} as Record<string, number>,
+      byChannel: {} as Record<string, number>,
       byStatus: { active: 0, archived: 0 },
     };
 
     const qry = {
-      ...(await generateFilterQuery(args, models, user)),
+      ...(await generateFilterQuery(args, models, user, subdomain)),
     };
     const count = async (query) => {
       return models.Forms.find(query).countDocuments();
     };
-    // const tags = await models.Tags.find({ type: `form:${args.type}` }).lean();
+    const tagQry = await generateFilterQuery(
+      { ...args, tagId: undefined },
+      models,
+      user,
+      subdomain,
+    );
+    const channelQry = await generateFilterQuery(
+      { ...args, channelId: undefined, tagId: undefined },
+      models,
+      user,
+      subdomain,
+    );
+    const groupCounts = (
+      field: 'tagIds' | 'channelId',
+    ): Promise<{ _id: string; count: number }[]> =>
+      models.Forms.aggregate<{ _id: string; count: number }>([
+        { $match: field === 'channelId' ? channelQry : tagQry },
+        ...(field === 'tagIds' ? [{ $unwind: '$tagIds' }] : []),
+        { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+      ]).exec();
 
-    // for (const tag of tags) {
-    //   const countQueryResult = await count({ tagIds: tag._id, ...qry });
+    for (const { _id, count: tagCount } of await groupCounts('tagIds')) {
+      counts.byTag[_id] = tagCount;
+    }
 
-    //   counts.byTag[tag._id] = !args.tag
-    //     ? countQueryResult
-    //     : args.tag === tag._id
-    //     ? countQueryResult
-    //     : 0;
-    // }
+    for (const { _id, count: channelCount } of await groupCounts('channelId')) {
+      if (_id) {
+        counts.byChannel[_id] = channelCount;
+      }
+    }
 
     counts.byStatus.active = await count({ status: 'active', ...qry });
     counts.byStatus.archived = await count({ status: 'archived', ...qry });

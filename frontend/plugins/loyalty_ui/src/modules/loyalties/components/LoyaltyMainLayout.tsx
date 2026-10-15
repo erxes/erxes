@@ -1,4 +1,4 @@
-import { PageContainer, Separator } from 'erxes-ui';
+import { Breadcrumb, Button, PageContainer, Separator } from 'erxes-ui';
 import { Suspense } from 'react';
 import { IconAward } from '@tabler/icons-react';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
@@ -46,10 +46,24 @@ export const LoyaltyMainLayout = ({
   return (
     <LoyaltyHeaderActionProvider>
       <PageContainer className="flex flex-col h-full">
-        <PageHeader className="p-3 mx-0">
+        <PageHeader>
           <PageHeader.Start>
-            <IconAward className="size-4" />
-            <span className="font-medium">{t('loyalty-title')}</span>
+            <Breadcrumb>
+              <Breadcrumb.List className="gap-1">
+                <Breadcrumb.Item>
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className="cursor-default hover:bg-transparent"
+                  >
+                    <span>
+                      <IconAward />
+                      {t('loyalty-title')}
+                    </span>
+                  </Button>
+                </Breadcrumb.Item>
+              </Breadcrumb.List>
+            </Breadcrumb>
             <Separator.Inline />
             <PageHeader.FavoriteToggleButton
               breadcrumb={favoriteBreadcrumb}

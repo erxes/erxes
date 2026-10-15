@@ -24,19 +24,17 @@ const PosEditPage = lazy(() =>
 const DealsSettings = () => {
   const { t } = useTranslation('sales');
   return (
-    <PageContainer>
-      <SettingsHeader breadcrumbs={[]}>
-        <Button variant="ghost" className="font-semibold">
-          <IconSandbox className="w-4 h-4 text-accent-foreground" />
-          {t('boards-and-pipelines')}
-        </Button>
-        <PipelineFormBar />
-      </SettingsHeader>
-      <div className="flex flex-auto overflow-hidden">
-        <BoardsList />
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <PipelineRecordTable />
-        </div>
+    <PageContainer className="flex-row">
+      <BoardsList />
+      <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+        <SettingsHeader breadcrumbs={[]}>
+          <Button variant="ghost">
+            <IconSandbox />
+            {t('boards-and-pipelines')}
+          </Button>
+          <PipelineFormBar />
+        </SettingsHeader>
+        <PipelineRecordTable />
       </div>
     </PageContainer>
   );
