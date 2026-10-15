@@ -1,10 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 import { QUERY_COUPON_CAMPAIGN } from '../../graphql/queries/getCampaignQuery';
-import { ICoupon } from '../../types/couponTypes';
 
 export const useCouponDetailWithQuery = () => {
-  const [editCouponId] = useQueryState('editCouponId');
+  const [editCouponId] = useQueryState<string>('editCouponId');
 
   const { data, loading, error } = useQuery(QUERY_COUPON_CAMPAIGN, {
     variables: {
@@ -14,7 +13,7 @@ export const useCouponDetailWithQuery = () => {
   });
 
   return {
-    couponDetail: data?.couponCampaign as ICoupon,
+    couponDetail: data?.couponCampaign ?? undefined,
     loading,
     error,
   };

@@ -53,7 +53,7 @@ export const CouponTabs = ({ onOpenChange, form }: Props) => {
       return date;
     };
 
-    const variables: any = {
+    const variables = {
       title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
