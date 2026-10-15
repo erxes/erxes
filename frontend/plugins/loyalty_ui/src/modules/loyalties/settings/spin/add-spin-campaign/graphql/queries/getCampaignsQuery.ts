@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_SPIN_CAMPAIGNS = gql`
+export const QUERY_SPIN_CAMPAIGNS = gql(`
   query GetSpinCampaigns(
     $searchValue: String
     $status: String
@@ -50,4 +50,4 @@ export const QUERY_SPIN_CAMPAIGNS = gql`
       totalCount
     }
   }
-`;
+`);

@@ -1,8 +1,16 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateSpinCampaignMutation,
+  UpdateSpinCampaignMutationVariables,
+} from '~/gql/graphql';
 import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
-import { UPDATE_SPIN_CAMPAIGN } from '../graphql/mutations/editSpinMutation';
+import { UPDATE_SPIN_CAMPAIGN } from '../graphql/mutations/spinEditStatusMutations';
+
+type SpinEditVariables = Omit<UpdateSpinCampaignMutationVariables, 'id'> & {
+  _id: string;
+};
 
 export function useEditSpin() {
   const { t } = useTranslation('loyalty');
@@ -16,19 +24,21 @@ export function useEditSpin() {
     ],
   });
 
-  const spinEdit = async (options: MutationHookOptions<any, any>) => {
-    const { variables } = options;
+  const spinEdit = async (
+    options: Omit<
+      MutationHookOptions<
+        UpdateSpinCampaignMutation,
+        UpdateSpinCampaignMutationVariables
+      >,
+      'variables'
+    > & { variables: SpinEditVariables },
+  ) => {
+    const { _id, ...variables } = options.variables;
 
     return editSpin({
       variables: {
-        id: variables._id,
-        title: variables.title,
-        buyScore: variables.buyScore,
-        startDate: variables.startDate,
-        endDate: variables.endDate,
-        status: variables.status,
-        type: variables.type,
-        awards: variables.awards,
+        ...variables,
+        id: _id,
       },
       onCompleted: (data) => {
         toast({

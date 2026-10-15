@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const UPDATE_SPIN_CAMPAIGN = gql`
+export const UPDATE_SPIN_CAMPAIGN = gql(`
   mutation UpdateSpinCampaign(
     $id: String!
     $title: String
@@ -48,4 +48,4 @@ export const UPDATE_SPIN_CAMPAIGN = gql`
       spinsCount
     }
   }
-`;
+`);
