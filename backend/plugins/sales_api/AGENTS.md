@@ -281,6 +281,12 @@
 - `Pos` has no `type` field in its public GraphQL contract. Frontend settings
   must use the existing configuration fields rather than inventing this field
   in handwritten types or the codegen snapshot.
+- Deal and pipeline watch methods return the updated record (nullable if it
+  disappears during the write/read); their model signatures must match those
+  GraphQL object results. Preserve deal-watch activity logging.
+- Label assignment returns `success` after publishing the updated deal. Stage
+  sorting returns `ok` even for an empty stage. An archive with no stages
+  returns an empty list, zero count, and empty pagination metadata.
 - `posEdit._id`, `dealsWatch._id`, `productGroupsBulkInsert.posId`, and
   `posSlotBulkUpdate.posId` are required in the SDL; resolvers also reject empty
   strings after checking permissions and before querying or mutating data.

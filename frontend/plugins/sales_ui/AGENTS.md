@@ -247,6 +247,10 @@
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
+- Deal watch responses include the persisted `_id` and `isWatched` state;
+  preserve the optimistic update and cache handling when adopting generated
+  types. Empty archives provide list/count/page metadata; successful label
+  assignment and empty-stage sorting return success strings.
 - POS edit, product-group/slot saves, and deal-watch documents already declare
   required target ids matching the backend's non-null arguments. Other legacy
   documents still declare nullable inputs even where the backend validates a

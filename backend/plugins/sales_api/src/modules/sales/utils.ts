@@ -415,7 +415,16 @@ export const archivedItems = async (models: IModels, params: IArchiveArgs) => {
     return { list, pageInfo, totalCount };
   }
 
-  return {};
+  return {
+    list: [],
+    totalCount: 0,
+    pageInfo: {
+      hasNextPage: false,
+      hasPreviousPage: false,
+      startCursor: null,
+      endCursor: null,
+    },
+  };
 };
 
 export const archivedItemsCount = async (
