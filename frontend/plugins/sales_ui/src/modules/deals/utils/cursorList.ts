@@ -49,6 +49,7 @@ export const mergeCursorList = <T, L extends GqlCursorList<T>>(
   return {
     ...next,
     list: merged.list,
+    totalCount: next.totalCount ?? prev.totalCount,
     pageInfo: {
       hasNextPage: merged.pageInfo.hasNextPage,
       hasPreviousPage: merged.pageInfo.hasPreviousPage,

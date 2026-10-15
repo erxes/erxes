@@ -262,6 +262,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   immediately and refetch active lists for complete computed data.
 - `deals/utils/cursorList.ts` follows Operation's adapter for nullable PageInfo
   booleans. Filter nullable list members before passing rows to UI components.
+  Keep the previous total when a later page returns a null count; accept an
+  explicit zero as the new total.
   Memoize filtered query collections by the source array; form synchronization
   and board effects rely on stable references when Apollo data is unchanged.
 - Memoize overview attachment inputs by the server attachment array so unrelated
