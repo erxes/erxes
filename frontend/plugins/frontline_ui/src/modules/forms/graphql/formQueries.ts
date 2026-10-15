@@ -140,7 +140,6 @@ export const GET_FORMS_CHANNEL_LIST = gql`
       name
       icon
       scope
-      formCount
     }
   }
 `;

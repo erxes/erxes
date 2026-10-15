@@ -2,10 +2,7 @@ import { useQuery } from '@apollo/client';
 import { GET_FORMS_CHANNEL_LIST } from '@/forms/graphql/formQueries';
 import { IChannel } from '@/channels/types';
 
-export type IFormsChannel = Pick<
-  IChannel,
-  '_id' | 'name' | 'icon' | 'scope' | 'formCount'
->;
+export type IFormsChannel = Pick<IChannel, '_id' | 'name' | 'icon' | 'scope'>;
 
 interface IFormsChannelListResponse {
   getMyChannels: IFormsChannel[];

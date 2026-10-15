@@ -1,4 +1,5 @@
 import { useFormsChannelList } from '@/forms/hooks/useFormsChannelList';
+import { useFormsFilterCounts } from '@/forms/hooks/useFormsFilterCounts';
 import { IconCheck } from '@tabler/icons-react';
 import {
   Command,
@@ -20,6 +21,7 @@ export const FormChannelFilterView = () => {
   const { channels, loading } = useFormsChannelList(
     debouncedSearch || undefined,
   );
+  const { byChannel } = useFormsFilterCounts();
 
   return (
     <Filter.View filterKey="channelId">
@@ -53,7 +55,7 @@ export const FormChannelFilterView = () => {
                   <span className="truncate">{channel.name}</span>
                   <span className="ml-auto flex items-center gap-2">
                     <span className="tabular-nums text-xs text-muted-foreground">
-                      {channel.formCount ?? 0}
+                      {byChannel[channel._id] ?? 0}
                     </span>
                     {channelId === channel._id && <IconCheck />}
                   </span>

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -289,8 +289,11 @@
   action writes `Forms.tagIds` and whose `count` action counts forms carrying a
   tag. The `forms`/`formsMain`/`cpForms`/`formsTotalCount` queries filter by
   `tagId`, expanded with the tag's `relatedIds` from core `tags.findOne`.
-  `formsTotalCount.byTag` counts forms per tag over the caller's visible forms
-  (only `type` narrows it, not the list's other filters) in one aggregation.
+  `formsTotalCount.byTag` and `byChannel` count forms per tag and per channel,
+  one aggregation each, over the caller's visible forms with the list's filters
+  minus their own group: `byTag` drops `tagId`, `byChannel` drops `channelId`
+  and `tagId`. Picking a channel or tag therefore never zeroes the other
+  entries in the forms page sidebar.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before

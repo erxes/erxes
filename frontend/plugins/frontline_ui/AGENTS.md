@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -136,24 +136,26 @@
   finishing returns to `frontline/forms`; the settings flow
   (`settings/frontline/channels/:id/forms/create`) still returns to the
   channel's forms page.
-- The `frontline/forms` sidebar Channels group (`ChooseChannel`) and the
+- The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
-  `SelectChannel.FilterView`) show each channel's form count next to its name.
-  Both read their own
-  `frontlineFormsChannelList` query (`getMyChannels { formCount }`) through
-  `useFormsChannelList`, not `GET_MY_CHANNELS`, so the inbox sidebar and other
-  channel pickers never pay for the per-channel count. The count is the
-  channel's total forms (`Channel.formCount`), independent of the list's status,
-  tag and search filters; `formsTotalCount.byChannel` is not populated by the
-  API. Form create (`useFormMutate`), remove (`useRemoveForm`), the Channel
-  column edit and channel moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) refetch
-  it, so the count never needs a manual refresh.
-- Tags filter `frontline/forms` only from the sidebar's Tags group
-  (`ChooseFormTag`, under Channels); the sub-header filter has no tag entry.
-  The group lists non-group `frontline:form` tags from `useTags`, each with its
-  form count from `formsTotalCount.byTag`, and toggles the `tagId` query param.
-  Tagging from the Tags column and removing forms refetch `Forms` and
-  `FormsTotalCount`, so the counts never need a manual refresh.
+  `SelectChannel.FilterView`) and the sidebar Tags group (`ChooseFormTag`,
+  under Channels) show a form count next to each entry. Channel names come from
+  the `frontlineFormsChannelList` query (`getMyChannels`) through
+  `useFormsChannelList`, not `GET_MY_CHANNELS`; every count comes from
+  `useFormsFilterCounts`, which calls `formsTotalCount` with the URL's
+  `channelId`, `tagId`, `status` and `searchValue` and reads its `byChannel`
+  and `byTag`. A count never reacts to a pick in its own group, so choosing a
+  channel or tag never zeroes the others: channel counts ignore the channel and
+  tag picks and follow only status and search; tag counts ignore the tag pick and
+  follow channel, status and search. Channel and tag filters combine (AND) on
+  the list.
+- Tags filter `frontline/forms` only from the sidebar's Tags group; the
+  sub-header filter has no tag entry. The group lists non-group
+  `frontline:form` tags from `useTags` and toggles the `tagId` query param.
+- Form create (`useFormMutate`), remove (`useRemoveForm`), archive/unarchive
+  (row action and command bar), the Channel and Tags column edits and channel
+  moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) all refetch `FormsTotalCount`,
+  so the counts never need a manual refresh.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -560,9 +562,9 @@ owns the setup form and connection actions.
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
-| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                   |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel            |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers             |
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |

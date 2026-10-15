@@ -25,7 +25,6 @@ import { useState } from 'react';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import {
-  GET_FORMS_CHANNEL_LIST,
   GET_FORMS_LIST,
   GET_FORMS_TOTAL_COUNT,
 } from '@/forms/graphql/formQueries';
@@ -218,7 +217,7 @@ export const formColumns: ColumnDef<IForm>[] = [
             type,
             channelId: value,
           },
-          refetchQueries: [GET_FORMS_LIST, GET_FORMS_CHANNEL_LIST],
+          refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
           onCompleted: () => {
             toast({
               title: t('success', 'Success!'),

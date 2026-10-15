@@ -1,7 +1,7 @@
 import { Button, Skeleton, TextOverflowTooltip, useQueryState } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { ITag, useTags } from 'ui-modules';
-import { useFormsTotalCount } from '@/forms/hooks/useFormsTotalCount';
+import { useFormsFilterCounts } from '@/forms/hooks/useFormsFilterCounts';
 import { useTranslation } from 'react-i18next';
 
 const FORM_TAG_TYPE = 'frontline:form';
@@ -12,7 +12,7 @@ export const ChooseFormTag = () => {
     variables: { type: FORM_TAG_TYPE, limit: 100 },
     fetchPolicy: 'cache-and-network',
   });
-  const { byTag } = useFormsTotalCount({ fetchPolicy: 'cache-and-network' });
+  const { byTag } = useFormsFilterCounts();
 
   if (loading && !tags?.length)
     return (
@@ -33,11 +33,7 @@ export const ChooseFormTag = () => {
     );
 
   return visibleTags.map((tag) => (
-    <FormTagItem
-      key={tag._id}
-      tag={tag}
-      count={(byTag as Record<string, number> | undefined)?.[tag._id] ?? 0}
-    />
+    <FormTagItem key={tag._id} tag={tag} count={byTag[tag._id] ?? 0} />
   ));
 };
 

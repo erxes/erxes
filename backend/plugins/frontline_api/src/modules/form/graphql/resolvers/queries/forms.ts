@@ -155,7 +155,7 @@ const formQueries: Record<string, Resolver> = {
     const counts = {
       total: 0,
       byTag: {} as Record<string, number>,
-      byChannel: {},
+      byChannel: {} as Record<string, number>,
       byStatus: { active: 0, archived: 0 },
     };
 
@@ -165,21 +165,35 @@ const formQueries: Record<string, Resolver> = {
     const count = async (query) => {
       return models.Forms.find(query).countDocuments();
     };
-    const scopeQry = await generateFilterQuery(
-      { type: args.type },
+    const tagQry = await generateFilterQuery(
+      { ...args, tagId: undefined },
       models,
       user,
       subdomain,
     );
-    const tagCounts: { _id: string; count: number }[] =
-      await models.Forms.aggregate([
-        { $match: { ...scopeQry, 'tagIds.0': { $exists: true } } },
-        { $unwind: '$tagIds' },
-        { $group: { _id: '$tagIds', count: { $sum: 1 } } },
+    const channelQry = await generateFilterQuery(
+      { ...args, channelId: undefined, tagId: undefined },
+      models,
+      user,
+      subdomain,
+    );
+    const groupCounts = async (
+      field: 'tagIds' | 'channelId',
+    ): Promise<{ _id: string; count: number }[]> =>
+      models.Forms.aggregate([
+        { $match: field === 'channelId' ? channelQry : tagQry },
+        ...(field === 'tagIds' ? [{ $unwind: '$tagIds' }] : []),
+        { $group: { _id: `$${field}`, count: { $sum: 1 } } },
       ]);
 
-    for (const { _id, count: tagCount } of tagCounts) {
+    for (const { _id, count: tagCount } of await groupCounts('tagIds')) {
       counts.byTag[_id] = tagCount;
+    }
+
+    for (const { _id, count: channelCount } of await groupCounts('channelId')) {
+      if (_id) {
+        counts.byChannel[_id] = channelCount;
+      }
     }
 
     counts.byStatus.active = await count({ status: 'active', ...qry });

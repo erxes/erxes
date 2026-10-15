@@ -1,7 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { FORM_REMOVE } from '../graphql/formMutations';
 import {
-  GET_FORMS_CHANNEL_LIST,
   GET_FORMS_LIST,
   GET_FORMS_TOTAL_COUNT,
 } from '@/forms/graphql/formQueries';
@@ -12,11 +11,7 @@ export const useRemoveForm = () => {
   const removeForm = async (formIds: string[]) => {
     await _remove({
       variables: { _ids: formIds },
-      refetchQueries: [
-        GET_FORMS_LIST,
-        GET_FORMS_CHANNEL_LIST,
-        GET_FORMS_TOTAL_COUNT,
-      ],
+      refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
     });
   };
 

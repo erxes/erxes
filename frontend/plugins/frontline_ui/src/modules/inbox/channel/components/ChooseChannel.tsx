@@ -10,6 +10,7 @@ import {
   IFormsChannel,
   useFormsChannelList,
 } from '@/forms/hooks/useFormsChannelList';
+import { useFormsFilterCounts } from '@/forms/hooks/useFormsFilterCounts';
 import { ChannelScope } from '@/channels/types';
 import { channelScopeOf } from '@/channels/utils/channelScope';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,7 @@ export const ChooseChannel = ({
 }) => {
   const { t } = useTranslation('frontline');
   const { channels, loading } = useFormsChannelList();
+  const { byChannel } = useFormsFilterCounts();
 
   if (loading)
     return (
@@ -45,11 +47,20 @@ export const ChooseChannel = ({
     );
 
   return visibleChannels?.map((channel) => (
-    <ChannelItem key={channel._id} {...channel} />
+    <ChannelItem
+      key={channel._id}
+      {...channel}
+      count={byChannel[channel._id] ?? 0}
+    />
   ));
 };
 
-const ChannelItem = ({ _id, name, icon, formCount }: IFormsChannel) => {
+const ChannelItem = ({
+  _id,
+  name,
+  icon,
+  count,
+}: IFormsChannel & { count: number }) => {
   const [channelId, setChannelId] = useQueryState<string>('channelId');
 
   const isActive = channelId === _id;
@@ -74,7 +85,7 @@ const ChannelItem = ({ _id, name, icon, formCount }: IFormsChannel) => {
       )}
       <TextOverflowTooltip className="flex-1 min-w-0" value={name} />
       <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-        {formCount ?? 0}
+        {count}
       </span>
     </Button>
   );

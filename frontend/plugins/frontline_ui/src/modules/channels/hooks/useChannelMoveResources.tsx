@@ -32,11 +32,7 @@ export const CHANNEL_RESOURCE_LIST_QUERIES: Record<
     'IntegrationsGetUsedTypesByChannel',
   ],
   [ChannelResourceType.PIPELINE]: ['GetTicketPipelines'],
-  [ChannelResourceType.FORM]: [
-    'Forms',
-    'FormsTotalCount',
-    'frontlineFormsChannelList',
-  ],
+  [ChannelResourceType.FORM]: ['Forms', 'FormsTotalCount'],
   [ChannelResourceType.SURVEY]: ['surveyList', 'surveyTotalCount'],
   [ChannelResourceType.RESPONSE_TEMPLATE]: ['ResponseTemplates'],
 };
