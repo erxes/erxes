@@ -486,6 +486,7 @@
 
 ## Validation
 
+- `pnpm nx run sales_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - POS catalog sync smoke: sync more than 100 products with base pricing and
   verify discounts apply to products on both sides of each batch boundary.
 - `pnpm nx build sales_api`
