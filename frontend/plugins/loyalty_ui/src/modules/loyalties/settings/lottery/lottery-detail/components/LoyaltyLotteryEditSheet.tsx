@@ -18,6 +18,7 @@ import {
   LotteryFormValues,
 } from '../../constants/lotteryFormSchema';
 import { useLottery } from '../../hooks/useLotteries';
+import { parseLotteryAwards } from '../../utils/lotteryAwards';
 import { LotteryHotKeyScope } from '../../types/LotteryHotKeyScope';
 import { EditLotteryTabs } from './EditLotteryTabs';
 
@@ -31,10 +32,8 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { lottery } = useLottery();
-  const [editLotteryId, setEditLotteryId] = useQueryState('editLotteryId') as [
-    string | null,
-    (value: string | null) => void,
-  ];
+  const [editLotteryId, setEditLotteryId] =
+    useQueryState<string>('editLotteryId');
 
   const form = useForm<LotteryFormValues>({
     resolver: zodResolver(lotteryFormSchema),
@@ -71,8 +70,8 @@ export const LoyaltyLotteryEditSheet = ({ lotteryId }: Props) => {
         buyScore: lotteryDetail.buyScore ?? 0,
         numberFormat: lotteryDetail.numberFormat || '',
 
-        awards: lotteryDetail.awards?.length
-          ? lotteryDetail.awards
+        awards: parseLotteryAwards(lotteryDetail.awards).length
+          ? parseLotteryAwards(lotteryDetail.awards)
           : [{ name: '', voucherCampaignId: '', count: 0 }],
       });
     }

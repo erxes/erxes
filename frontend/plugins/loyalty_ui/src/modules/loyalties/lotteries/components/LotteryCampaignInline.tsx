@@ -79,7 +79,7 @@ const LotteryCampaignInlineTitle = () => {
   const { campaignList, loading: listLoading } = useLotteryCampaign({
     variables: { searchValue: '' },
     skip: !targetId || !!campaignFromContext,
-  } as any);
+  });
 
   if (loading || listLoading) {
     return <Skeleton className="h-4 w-32" />;
