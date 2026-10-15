@@ -31,10 +31,11 @@ export const useVoucherDetail = (voucher: IVoucher) => {
 
     const done =
       action === 'extend'
-        ? await extendVoucher({
+        ? !!endDate &&
+          (await extendVoucher({
             _id: voucher._id,
-            endDate: (endDate as Date).toISOString(),
-          })
+            endDate: endDate.toISOString(),
+          }))
         : action === 'cancel'
         ? await cancelVoucher({ _id: voucher._id, reason: text.trim() })
         : await markVoucherUsed({ _id: voucher._id, note: text.trim() });

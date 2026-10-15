@@ -58,8 +58,8 @@ export const VoucherDetailSheet = ({
         <Sheet.Content className="flex flex-col gap-4 p-5 overflow-y-auto">
           <div className="flex items-center justify-between gap-2">
             <VoucherOwner
-              ownerId={voucher.ownerId}
-              ownerType={voucher.ownerType}
+              ownerId={voucher.ownerId ?? undefined}
+              ownerType={voucher.ownerType ?? undefined}
             />
             <VoucherStatusBadge status={status} />
           </div>

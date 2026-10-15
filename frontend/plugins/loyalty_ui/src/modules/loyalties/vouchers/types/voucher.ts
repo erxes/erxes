@@ -1,3 +1,5 @@
+import type { VouchersMainQuery } from '~/gql/graphql';
+
 export type TVoucherStatus =
   | 'new'
   | 'onhold'
@@ -33,29 +35,16 @@ export interface IVoucherHistoryEntry {
   note?: string;
 }
 
-export interface IVoucher {
-  _id: string;
-  campaignId?: string;
-  voucherCampaignId?: string;
-  ownerType?: string;
-  ownerId?: string;
-  owner?: {
-    _id: string;
-    firstName?: string;
-    lastName?: string;
-    primaryEmail?: string;
-    primaryPhone?: string;
-    primaryName?: string;
-  };
-  status?: string;
-  createdAt?: string;
-  usedAt?: string;
-  terms?: IVoucherTerms | null;
-  expiresAt?: string | null;
-  usedIn?: { targetType?: string; targetId?: string; note?: string } | null;
-  heldAt?: string | null;
-  cancelledAt?: string | null;
-  cancelReason?: string | null;
-  createdVia?: { source?: string; sourceName?: string } | null;
-  history?: IVoucherHistoryEntry[] | null;
-}
+export type TVoucherRow = NonNullable<
+  NonNullable<NonNullable<VouchersMainQuery['vouchersMain']>['list']>[number]
+>;
+
+export type IVoucher = Omit<
+  TVoucherRow,
+  'terms' | 'usedIn' | 'createdVia' | 'history'
+> & {
+  terms: IVoucherTerms | null;
+  usedIn: { targetType?: string; targetId?: string; note?: string } | null;
+  createdVia: { source?: string; sourceName?: string } | null;
+  history: IVoucherHistoryEntry[];
+};

@@ -37,7 +37,10 @@ const RecipientCell = ({ voucher }: { voucher: IVoucher }) => {
         className="cursor-pointer hover:underline"
         onClick={() => setOpen(true)}
       >
-        <VoucherOwner ownerId={voucher.ownerId} ownerType={voucher.ownerType} />
+        <VoucherOwner
+          ownerId={voucher.ownerId ?? undefined}
+          ownerType={voucher.ownerType ?? undefined}
+        />
       </RecordTableInlineCell>
       {open && (
         <VoucherDetailSheet

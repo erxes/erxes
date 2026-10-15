@@ -3,11 +3,6 @@ import type { VoucherFormValues } from '../constants/voucherFormSchema';
 export const VOUCHER_VALIDITY_UNITS = ['day', 'week', 'month'] as const;
 export type TVoucherValidityUnit = (typeof VOUCHER_VALIDITY_UNITS)[number];
 
-export type TVoucherValidity = {
-  count: number;
-  unit: TVoucherValidityUnit;
-};
-
 type TTermFields = Pick<
   VoucherFormValues,
   | 'startDate'
@@ -35,12 +30,14 @@ export const toVoucherTerm = (data: TTermFields) => ({
 export const fromVoucherTerm = (campaign: {
   startDate?: string | null;
   endDate?: string | null;
-  validity?: TVoucherValidity | null;
+  validity?: { count?: number | null; unit?: string | null } | null;
 }): TTermFields => ({
   startDate: campaign.startDate ? new Date(campaign.startDate) : null,
   endDate: campaign.endDate ? new Date(campaign.endDate) : null,
   noEndDate: !campaign.endDate,
   validityMode: campaign.validity ? 'period' : 'campaign',
-  validityCount: campaign.validity?.count,
-  validityUnit: campaign.validity?.unit ?? 'month',
+  validityCount: campaign.validity?.count ?? undefined,
+  validityUnit:
+    VOUCHER_VALIDITY_UNITS.find((unit) => unit === campaign.validity?.unit) ??
+    'month',
 });
