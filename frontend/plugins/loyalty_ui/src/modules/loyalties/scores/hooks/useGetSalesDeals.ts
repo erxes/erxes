@@ -1,6 +1,14 @@
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { gql } from '~/gql';
+import type { SalesDealsQuery } from '~/gql/graphql';
 
-const GET_SALES_DEALS = gql`
+export type TSalesDeal = NonNullable<
+  NonNullable<NonNullable<SalesDealsQuery['deals']>['list']>[number]
+>;
+
+const GET_SALES_DEALS = gql(`
   query SalesDeals(
     $search: String
     $pipelineId: String
@@ -25,20 +33,13 @@ const GET_SALES_DEALS = gql`
       }
     }
   }
-`;
+`);
 
 // Surface more results, newest first, so deals from previous days are findable
 // instead of being cut off by the backend's small default page (sorted by the
 // manual card `order`, which buries older deals).
 const DEALS_SEARCH_LIMIT = 100;
 const DEALS_SEARCH_ORDER_BY = { createdAt: -1 };
-
-interface IDeal {
-  _id: string;
-  name: string;
-  number: string;
-  stageId: string;
-}
 
 interface IParams {
   search?: string;
@@ -47,20 +48,22 @@ interface IParams {
 }
 
 export const useGetSalesDeals = (params: IParams) => {
-  const { data, loading, error } = useQuery<{ deals: { list: IDeal[] } }>(
-    GET_SALES_DEALS,
-    {
-      variables: {
-        ...params,
-        limit: DEALS_SEARCH_LIMIT,
-        orderBy: DEALS_SEARCH_ORDER_BY,
-        // Include archived deals so deals in archived stages/pipelines are
-        // still findable when giving scores.
-        noSkipArchive: true,
-      },
-      skip: !params.pipelineId && !params.stageId && !params.search,
-      errorPolicy: 'all',
+  const { data, loading, error } = useQuery(GET_SALES_DEALS, {
+    variables: {
+      ...params,
+      limit: DEALS_SEARCH_LIMIT,
+      orderBy: DEALS_SEARCH_ORDER_BY,
+      // Include archived deals so deals in archived stages/pipelines are
+      // still findable when giving scores.
+      noSkipArchive: true,
     },
+    skip: !params.pipelineId && !params.stageId && !params.search,
+    errorPolicy: 'all',
+  });
+  const deals = useMemo(
+    () => compactList(data?.deals?.list),
+    [data?.deals?.list],
   );
-  return { deals: data?.deals?.list || [], loading, error };
+
+  return { deals, loading, error };
 };

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SCORE_LOGS_QUERY = gql`
+export const SCORE_LOGS_QUERY = gql(`
   query ScoreLogs(
     $searchValue: String
     $campaignId: String
@@ -61,9 +61,9 @@ export const SCORE_LOGS_QUERY = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const SCORE_LOG_STATISTICS_QUERY = gql`
+export const SCORE_LOG_STATISTICS_QUERY = gql(`
   query ScoreLogStatistics(
     $searchValue: String
     $campaignId: String
@@ -87,9 +87,9 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
       description: $description
     )
   }
-`;
+`);
 
-export const SCORE_CAMPAIGNS_SIMPLE_QUERY = gql`
+export const SCORE_CAMPAIGNS_SIMPLE_QUERY = gql(`
   query ScoreCampaignsSimple(
     $searchValue: String
     $limit: Int
@@ -104,10 +104,10 @@ export const SCORE_CAMPAIGNS_SIMPLE_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 // Everything one record (a deal, an order) moved, whoever owned the points.
-export const LOYALTY_TARGET_SCORE_LOGS = gql`
+export const LOYALTY_TARGET_SCORE_LOGS = gql(`
   query LoyaltyTargetScoreLogs($targetId: String) {
     scoreLogs(targetId: $targetId, limit: 100) {
       list {
@@ -126,4 +126,4 @@ export const LOYALTY_TARGET_SCORE_LOGS = gql`
       }
     }
   }
-`;
+`);

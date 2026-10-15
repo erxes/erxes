@@ -3,6 +3,8 @@ import { fixNum, RecordTable, Sheet, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SCORE_LOGS_QUERY } from '../graphql/queries';
 import { IScoreLog } from '../types/score';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { parseScoreOwner } from '../utils/parseScoreOwner';
 import { getOwnerName, scoreDetailColumns } from './ScoreColumns';
 
 interface ScoreDetailSheetProps {
@@ -21,22 +23,24 @@ export const ScoreDetailSheet = ({
   record,
 }: ScoreDetailSheetProps) => {
   const { t } = useTranslation('loyalty');
-  const ownerName = record ? getOwnerName(record.owner, record.ownerType) : '';
+  const ownerName = record
+    ? getOwnerName(parseScoreOwner(record.owner), record.ownerType ?? undefined)
+    : '';
 
   // The detail is keyed by person: every score log row of the same owner opens
   // the same set of entries. We resolve them from the owner carried by the
   // selected (latest) score log, without a separate owner lookup.
   const { data, loading, error } = useQuery(SCORE_LOGS_QUERY, {
     variables: {
-      ownerId: record?.ownerId,
-      ownerType: record?.ownerType,
+      ownerId: record?.ownerId ?? undefined,
+      ownerType: record?.ownerType ?? undefined,
       limit: SCORE_DETAIL_LIMIT,
     },
     skip: !open || !record?.ownerId,
     fetchPolicy: 'cache-and-network',
   });
 
-  const logs: IScoreLog[] = data?.scoreLogs?.list || [];
+  const logs = compactList(data?.scoreLogs?.list);
   const isTruncated = logs.length >= SCORE_DETAIL_LIMIT;
 
   const renderBody = () => {
@@ -91,7 +95,7 @@ export const ScoreDetailSheet = ({
             <p className="text-xs text-muted-foreground mt-1 capitalize">
               {record?.ownerType || ''} · {t('total-score-label')}{' '}
               <span className="font-semibold text-foreground">
-                {formatScore(record?.totalScore)}
+                {formatScore(record?.totalScore ?? undefined)}
               </span>
             </p>
           </div>

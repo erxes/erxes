@@ -19,6 +19,7 @@ import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { SCORE_CAMPAIGNS_SIMPLE_QUERY } from '../../graphql/queries';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface CampaignOption {
   value: string;
@@ -32,12 +33,10 @@ const useScoreCampaignOptions = (searchValue?: string, status?: string) => {
 
   const options = useMemo<CampaignOption[]>(
     () =>
-      (data?.scoreCampaigns?.list || []).map(
-        (c: { _id: string; title: string }) => ({
-          value: c._id,
-          label: c.title,
-        }),
-      ),
+      compactList(data?.scoreCampaigns?.list).map((campaign) => ({
+        value: campaign._id,
+        label: campaign.title || '',
+      })),
     [data?.scoreCampaigns?.list],
   );
 
