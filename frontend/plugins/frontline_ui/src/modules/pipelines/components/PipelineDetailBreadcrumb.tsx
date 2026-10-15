@@ -7,9 +7,7 @@ export const PipelineDetailBreadcrumb = () => {
   const { pipeline } = useGetPipeline(pipelineId);
   return (
     <Link to={`/settings/frontline/channels/${id}/pipelines/${pipelineId}`}>
-      <Button variant="ghost" className="font-semibold">
-        {pipeline?.name}
-      </Button>
+      <Button variant="ghost">{pipeline?.name}</Button>
     </Link>
   );
 };

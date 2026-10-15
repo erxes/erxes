@@ -5,10 +5,10 @@ import MsdynamicTopNav from '~/modules/msdynamic/components/MsdynamicTopNav';
 
 const MsdynamicLayout = () => {
   return (
-    <PageContainer>
-      <MsdynamicTopNav />
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <MSDynamicSidebar />
+    <PageContainer className="flex-row">
+      <MSDynamicSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <MsdynamicTopNav />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </div>

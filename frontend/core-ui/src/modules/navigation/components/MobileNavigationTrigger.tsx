@@ -13,7 +13,7 @@ export const MobileNavigationTrigger = () => {
   const label = t('toggle-panel');
 
   return (
-    <div className="absolute top-0 left-0 z-30 flex h-13 w-10 items-center justify-center bg-sidebar pt-1">
+    <div className="absolute top-0 left-0 z-30 flex h-12 w-10 items-center justify-center bg-sidebar">
       <Button
         aria-label={label}
         className="size-8 shrink-0"

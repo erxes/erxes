@@ -164,12 +164,14 @@ const SelectAssigneeTicketRoot = ({
   variant,
   id,
   disabled,
+  label,
 }: {
   value: string;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -197,6 +199,7 @@ const SelectAssigneeTicketRoot = ({
         <SelectTriggerTicket
           variant={variant === 'card' ? 'icon' : variant}
           disabled={disabled}
+          label={label}
         >
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerTicket>
@@ -212,10 +215,12 @@ export const SelectAssigneeTicketFormItem = ({
   value,
   onValueChange,
   scope,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   scope?: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -229,7 +234,7 @@ export const SelectAssigneeTicketFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectAssigneeValue />
         </SelectTriggerTicket>
         <Combobox.Content>

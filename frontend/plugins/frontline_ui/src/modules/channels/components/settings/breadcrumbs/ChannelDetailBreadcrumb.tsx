@@ -37,7 +37,7 @@ export const ChannelDetailBreadcrumb = ({
   }
   return (
     <Link to={`/settings/frontline/channels/${channelId || id}`}>
-      <Button variant="ghost" className="font-semibold">
+      <Button variant="ghost">
         <IconComponent
           name={channel?.icon}
           className="w-4 h-4 text-accent-foreground"
