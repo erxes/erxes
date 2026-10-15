@@ -7,7 +7,6 @@ import {
   IconPlus,
   IconTagMinus,
 } from '@tabler/icons-react';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import {
@@ -465,9 +464,9 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         {variant === 'detail' ? (
-          <DealChipTrigger label={t('labels')}>
+          <Combobox.ChipTrigger label={t('labels')}>
             <SelectLabelsValue showLabels={showLabels} />
-          </DealChipTrigger>
+          </Combobox.ChipTrigger>
         ) : (
           <SelectTriggerOperation variant={variant || 'filter'}>
             <SelectLabelsValue showLabels={showLabels} />

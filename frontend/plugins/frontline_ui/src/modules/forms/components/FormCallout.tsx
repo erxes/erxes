@@ -2,6 +2,7 @@ import { IconX } from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
+  cn,
   Dropzone,
   DropzoneContent,
   DropzoneEmptyState,
@@ -28,6 +29,8 @@ export const FormCallout = () => {
     resolver: zodResolver(FORM_CALLOUT_SCHEMA),
     defaultValues: FORM_STATES_DEFAULT_VALUES.CALLOUT,
   });
+
+  const isSkipped = form.watch('skip');
 
   const onSubmit = (_values: z.infer<typeof FORM_CALLOUT_SCHEMA>) => null;
 
@@ -57,57 +60,66 @@ export const FormCallout = () => {
             </Form.Item>
           )}
         />
-        <Form.Field
-          name="title"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('title-label', 'Title')}</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
+        <fieldset
+          disabled={isSkipped}
+          className={cn(
+            'space-y-5',
+            isSkipped &&
+              'opacity-30 dark:opacity-50 cursor-not-allowed [&>*]:pointer-events-none [&_:disabled]:opacity-100',
           )}
-        />
-        <Form.Field
-          name="body"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('callout-body', 'Body')}</Form.Label>
-              <Form.Control>
-                <Textarea {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          name="buttonText"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('button-text', 'Button text')}</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          name="featuredImage"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('image-label', 'Image')}</Form.Label>
-              <Form.Control>
-                <FormCalloutImage
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+        >
+          <Form.Field
+            name="title"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('title-label', 'Title')}</Form.Label>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="body"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('callout-body', 'Body')}</Form.Label>
+                <Form.Control>
+                  <Textarea {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="buttonText"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('button-text', 'Button text')}</Form.Label>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="featuredImage"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('image-label', 'Image')}</Form.Label>
+                <Form.Control>
+                  <FormCalloutImage
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </fieldset>
       </div>
     </FormMutateLayout>
   );

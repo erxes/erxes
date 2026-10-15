@@ -12,9 +12,11 @@ import { SelectBranches } from 'ui-modules';
 const SelectBranchTicketFormItem = ({
   value,
   onValueChange,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
+  label?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
@@ -29,9 +31,9 @@ const SelectBranchTicketFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form">
+        <SelectTriggerTicket variant="form" label={label}>
           <SelectBranches.List
-            placeholder={t('branch-label', 'Branch')}
+            placeholder={label ? t('none', 'None') : t('branch-label', 'Branch')}
             renderAsPlainText
           />
         </SelectTriggerTicket>
@@ -46,6 +48,7 @@ const SelectBranchTicketFormItem = ({
 const SelectBranchTicketRoot = ({
   variant = 'detail',
   disabled,
+  label,
   scope,
   value,
   onValueChange,
@@ -53,6 +56,7 @@ const SelectBranchTicketRoot = ({
 }: {
   variant?: `${SelectTriggerVariant}`;
   disabled?: boolean;
+  label?: string;
   scope?: string;
   value: string;
   onValueChange?: (value: string) => void;
@@ -79,9 +83,15 @@ const SelectBranchTicketRoot = ({
       }
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant} disabled={disabled}>
+        <SelectTriggerTicket
+          variant={variant}
+          disabled={disabled}
+          label={label}
+        >
           <SelectBranches.List
-            placeholder={t('branch-label', 'Branch')}
+            placeholder={
+              label ? t('none', 'None') : t('branch-label', 'Branch')
+            }
             renderAsPlainText
           />
         </SelectTriggerTicket>
