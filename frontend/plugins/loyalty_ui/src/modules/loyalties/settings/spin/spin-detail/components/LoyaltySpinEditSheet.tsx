@@ -18,6 +18,7 @@ import { SpinHotKeyScope } from '../../types/SpinHotKeyScope';
 import { spinFormSchema, SpinFormValues } from '../../constants/spinFormSchema';
 import { useSpins } from '../../hooks/useSpins';
 import { EditSpinTabs } from './EditSpinTabs';
+import { parseSpinAwards } from '../../utils/spinAwards';
 
 type Props = {
   spinId?: string;
@@ -29,10 +30,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { spins } = useSpins();
-  const [editSpinId, setEditSpinId] = useQueryState('editSpinId') as [
-    string | null,
-    (value: string | null) => void,
-  ];
+  const [editSpinId, setEditSpinId] = useQueryState<string>('editSpinId');
 
   const form = useForm<SpinFormValues>({
     resolver: zodResolver(spinFormSchema),
@@ -62,16 +60,12 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
           ? new Date(spinDetail.startDate)
           : undefined,
         endDate: spinDetail.endDate ? new Date(spinDetail.endDate) : undefined,
-        kind: spinDetail.kind || '',
         buyScore: spinDetail.buyScore || 0,
 
-        awards: spinDetail.awards || [
-          {
-            name: spinDetail.awards?.name || '',
-            voucherCampaignId: spinDetail.awards?.voucherCampaignId || '',
-            probability: spinDetail.awards?.probability || 0,
-          },
-        ],
+        awards:
+          spinDetail.awards == null
+            ? [{ name: '', voucherCampaignId: '', probability: 0 }]
+            : parseSpinAwards(spinDetail.awards),
       });
     }
   }, [spinDetail, editSpinId, form]);
