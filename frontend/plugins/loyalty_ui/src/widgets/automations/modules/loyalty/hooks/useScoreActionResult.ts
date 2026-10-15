@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { IAutomationHistoryAction } from 'ui-modules';
 import { useLoyaltyAccountTypes } from '~/modules/loyalties/settings/account-type/hooks/useLoyaltyAccountTypes';
+import { compactList } from '~/modules/loyalties/utils/cursorList';
 
 type TEarnCondition =
   | 'minAmount'
@@ -43,7 +44,7 @@ export const useScoreActionResult = (action: IAutomationHistoryAction) => {
     key === NO_TIER
       ? t('loyalty-tier-none')
       : accounts
-          .flatMap(({ tiers }) => tiers || [])
+          .flatMap(({ tiers }) => compactList(tiers))
           .find((tier) => tier.key === key)?.name || key;
 
   const describe = (skip: TScoreSkip) => {
