@@ -86,7 +86,7 @@ export const couponColumns = (
     accessorKey: 'code',
     header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     size: 140,
-    cell: ({ row }) => <CodeCell code={row.original.code} />,
+    cell: ({ row }) => <CodeCell code={row.original.code ?? undefined} />,
   },
   {
     id: 'usageCount',
