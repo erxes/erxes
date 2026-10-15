@@ -104,13 +104,13 @@
   `LoyaltyAccountTypeArchive`, `LoyaltyAccountTypeUnarchive`,
   `LoyaltyAccountTypesAdoptCampaignFields`, `LoyaltyAccountOfOwner`,
   `LoyaltyAccountFreeze`, `LoyaltyAccountUnfreeze`, and `LoyaltyAccountSetTier`.
-- Birthday reward operations `LoyaltyBirthdayVoucherCampaign`, `LoyaltyBirthdaySegments`, `LoyaltyBirthdayBroadcast`, `LoyaltyBirthdayAutomation`, `LoyaltyBirthdayBroadcastAdd`, `LoyaltyBirthdayBroadcastFollow`, `LoyaltyBirthdayBroadcastUnfollow`, `LoyaltyBirthdayBroadcastRemove`, `LoyaltyBirthdayAutomationAdd`, `LoyaltyBirthdayAutomationSetStatus`, `LoyaltyBirthdayAutomationRemove`, `LoyaltyBirthdayRewardSet`, `LoyaltyBirthdayRewardRemove`.
+- Birthday reward operations `LoyaltyBirthdayVoucherCampaign`, `LoyaltyBirthdaySegments`, `LoyaltyBirthdayBroadcast`, `LoyaltyBirthdayAutomation`, `LoyaltyBirthdaySegmentAdd`, `LoyaltyBirthdayBroadcastAdd`, `LoyaltyBirthdayBroadcastFollow`, `LoyaltyBirthdayBroadcastUnfollow`, `LoyaltyBirthdayBroadcastRemove`, `LoyaltyBirthdayAutomationAdd`, `LoyaltyBirthdayAutomationSetStatus`, `LoyaltyBirthdayAutomationRemove`, `LoyaltyBirthdayRewardSet`, `LoyaltyBirthdayRewardRemove`.
 - `PricingPlans` queries request `pricingPlansCount` with the same filters as
   the list and page through `page`/`perPage`.
 
 ### Consumes
 
-- Core segments (`segments`, `SEGMENT_ADD` from `ui-modules`), broadcasts (`engageMessageAdd` with `method: workflow` + `workflow`, `engageMessageSetSchedule(afterSegment)`, `engageMessageCancelSchedule`, `engageMessageDetail`, `engageMessageRemove`) and automations (`automationsAdd`, `automationsEdit` status, `automationDetail`, `automationsRemove`) for the birthday bundle.
+- Core segments (`segments`, and `segmentsAdd` through the plugin's own `LoyaltyBirthdaySegmentAdd`), broadcasts (`engageMessageAdd` with `method: workflow` + `workflow`, `engageMessageSetSchedule(afterSegment)`, `engageMessageCancelSchedule`, `engageMessageDetail`, `engageMessageRemove`) and automations (`automationsAdd`, `automationsEdit` status, `automationDetail`, `automationsRemove`) for the birthday bundle.
 - Core `productConditions` (product conditions owned by core products, matched by code).
 
 - Public components and hooks from `erxes-ui` and `ui-modules`.
@@ -185,8 +185,8 @@
   core, sales or another plugin needs no local copy; fix a validation error in
   the document, or in the backend that owns the field.
 - The score, voucher, coupon, donate, spin, lottery and assignment settings
-  modules, wallets (`settings/account-type`), the birthday reward, `accounts`
-  and `scores` are typed from the schema: every document is `gql()` from
+  modules, wallets (`settings/account-type`), the birthday reward, `accounts`,
+  `scores` and `pricing` are typed from the schema: every document is `gql()` from
   `~/gql`, hooks infer from their documents, and list and detail types derive
   from the generated query types. JSON fields the UI reads (`awards`,
   `restrictions`, `codeRule`, the score `add`/`subtract`/`additionalConfig`,
@@ -196,7 +196,10 @@
   are narrowed by small parsers built on `@/loyalties/utils/isRecord`, never
   cast. Wallet strings the form keeps as unions (owner type, frozen blocks,
   reset, expiry, earn eligibility) are narrowed against the form's zod enum
-  options.
+  options. Pricing narrows `priority` with `toPricingPriority`, normalizes
+  condition rules into the `IPricingConditionRule` form model and fixed value
+  page rows in `FixedPricingTable`, and reads the bulk edit JSON result through
+  a parser; plan detail lists (`[String]`) go through `compactList`.
 - Cursor lists merge pages through `@/loyalties/utils/cursorList`, copied from
   `operation_ui` because core's `PageInfo` booleans and list items are
   nullable; delete it when core tightens `PageInfo`.
@@ -247,6 +250,12 @@
 - **Affected areas:** `codegen.ts`, `project.json` (`codegen` depends on `gateway:schema:compose`, `build` hashes the generated files), removed `schema/platform.graphql`; `.github/workflows/ci-ui-loyalty.yml`.
 - **Contracts changed:** None (build tooling only).
 
+### `2026-10-15` — Pricing typed from the schema
+
+- **Summary:** Pricing documents use `gql()` from `~/gql` instead of `graphql-tag`, the hooks infer from them, and plan, rule, board, pipeline, stage and product condition types derive from the generated types. `useEditPricing` takes `PricingPlanEditInput` and drops its `as any`; the fixed price CSV import parses its JSON result and no longer types the error as `any`. Unused `ProductCategories`, `AssignedProducts` and `PricingFixedValueRemove` documents, the unused `RepeatInfo` card and the unused pricing types are gone, and the snapshot drops `productCategories` and `productsMain`.
+- **Affected areas:** `src/modules/pricing/{graphql,hooks,types.ts,constants.ts}`, `edit-pricing/components/{general/utils.ts,options/{CustomerBrokerConditions,Location,OptionsInfo}.tsx,rules/FixedPricingTable.tsx}`, `components/SelectPricing.tsx`, `schema/platform.graphql`.
+- **Contracts changed:** None.
+
 ### `2026-10-15` — Wallets, birthday reward, accounts and scores typed
 
 - **Summary:** Wallets, the birthday reward, accounts and scores use typed documents. The wallet fragment is spread by name instead of interpolated, and the account and score lists merge pages through `cursorList`. Period run and preview numbers the SDL leaves nullable default to zero, and a run with an unknown status shows as failed. The birthday reward stops instead of saving a reward whose segment, broadcast or automation came back without an id.
@@ -293,8 +302,3 @@
 
 - **Summary:** Loyalty offers a score campaign field with create and edit to other plugins' forms (first used by sales' score earn configuration).
 - **Affected areas:** `widgets/recordPicker/**`, `config.tsx`, `module-federation.config.ts`.
-
-### `2026-10-07` — Birthday tab on voucher campaigns
-
-- **Summary:** A voucher campaign's edit sheet connects it to birthdays: the nightly broadcast and the daytime segment-entry automation are made, switched and removed together.
-- **Affected areas:** `settings/birthday/{constants,graphql,hooks,components}`, `settings/voucher/voucher-detail/components/EditVoucherTabs.tsx`; `birthday-reward-*` translations.
