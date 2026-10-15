@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/loyalties/utils/cursorList';
 import { useMemo, useCallback, useEffect } from 'react';
 import { IAgent } from '../types/agent';
 import { useMultiQueryState, useQueryState } from 'erxes-ui';
@@ -52,8 +53,8 @@ export const useAgentList = (): UseAgentListReturn => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const agentList = useMemo<IAgent[]>(
-    () => data?.agentsMain?.list || [],
+  const agentList = useMemo(
+    () => compactList(data?.agentsMain?.list),
     [data?.agentsMain?.list],
   );
 

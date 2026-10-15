@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AGENTS_ADD_MUTATION } from '../graphql/mutations/mutations';
-import { IAgent } from '../types/agent';
+import type { AgentsAddMutationVariables } from '~/gql/graphql';
 
 export const useAddAgent = () => {
   const { toast } = useToast();
@@ -10,7 +10,7 @@ export const useAddAgent = () => {
 
   const [addAgent, { loading, error }] = useMutation(AGENTS_ADD_MUTATION);
 
-  const agentAdd = async (variables: Omit<IAgent, '_id'>) => {
+  const agentAdd = async (variables: AgentsAddMutationVariables) => {
     return addAgent({
       variables,
       update(cache, { data }) {

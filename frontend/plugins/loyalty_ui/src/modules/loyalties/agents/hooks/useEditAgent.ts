@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AGENTS_EDIT_MUTATION } from '../graphql/mutations/mutations';
-import { IAgent } from '../types/agent';
+import type { AgentsEditMutationVariables } from '~/gql/graphql';
 
 export const useEditAgent = () => {
   const { toast } = useToast();
@@ -12,7 +12,7 @@ export const useEditAgent = () => {
   // from the mutation is enough to update the cache in-place.
   const [editAgent, { loading, error }] = useMutation(AGENTS_EDIT_MUTATION);
 
-  const agentEdit = async (variables: IAgent) => {
+  const agentEdit = async (variables: AgentsEditMutationVariables) => {
     return editAgent({
       variables,
       onCompleted: () => {
