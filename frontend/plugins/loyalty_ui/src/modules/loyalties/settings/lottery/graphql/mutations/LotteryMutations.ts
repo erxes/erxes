@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_LOTTERY_CAMPAIGN = gql`
+export const CREATE_LOTTERY_CAMPAIGN = gql(`
   mutation CreateLotteryCampaign(
     $title: String
     $description: String
@@ -49,4 +49,4 @@ export const CREATE_LOTTERY_CAMPAIGN = gql`
       lotteriesCount
     }
   }
-`;
+`);

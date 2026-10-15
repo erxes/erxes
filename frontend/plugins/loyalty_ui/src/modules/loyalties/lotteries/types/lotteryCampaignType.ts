@@ -1,12 +1,6 @@
-export interface ILotteryCampaign {
-  _id: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  kind?: string;
-  startDate?: string;
-  endDate?: string;
-}
+import type { ILottery } from '@/loyalties/settings/lottery/types/lotteryTypes';
+
+export type ILotteryCampaign = Pick<ILottery, '_id' | 'title' | 'description'>;
 
 export interface LotteryCampaignInlineProps {
   lotteryCampaignId?: string | string[];

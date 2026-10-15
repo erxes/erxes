@@ -1,5 +1,5 @@
-import { gql } from '@apollo/client';
-export const QUERY_LOTTERY_CAMPAIGNS = gql`
+import { gql } from '~/gql';
+export const QUERY_LOTTERY_CAMPAIGNS = gql(`
   query LotteryCampaigns(
     $status: String
     $searchValue: String
@@ -41,8 +41,13 @@ export const QUERY_LOTTERY_CAMPAIGNS = gql`
         lotteriesCount
         updatedAt
       }
-
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       totalCount
     }
   }
-`;
+`);
