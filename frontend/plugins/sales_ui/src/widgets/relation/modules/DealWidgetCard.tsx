@@ -1,12 +1,12 @@
-import { Badge, Card, Separator, Tooltip } from 'erxes-ui';
 import { IconBuildingSkyscraper, IconMapPin } from '@tabler/icons-react';
+import { Badge, Card, isDefined, Separator, Tooltip } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
+import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { PriorityBadge } from '@/deals/components/deal-selects/PriorityInline';
-import { IDeal } from '@/deals/types/deals';
-import { ItemFooter } from '@/deals/cards/components/item/Footer';
-import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
+import { IDealDetail } from '@/deals/types/deals';
 
 const PRIORITY_MAP: Record<string, number> = {
   'No Priority': 0,
@@ -46,7 +46,7 @@ const OverflowItems = ({ items }: { items: { title: string }[] }) => {
   );
 };
 
-export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
+export const DealWidgetCard = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
   const {
     startDate,
@@ -113,7 +113,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
       <div className="p-3">
         {labels && labels.length !== 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <Labels labels={labels} type="toggle" />
+            <Labels labels={labels.filter(isDefined)} type="toggle" />
           </div>
         )}
         <div className="flex flex-col gap-1 min-w-0">
@@ -147,7 +147,11 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
                     <IconBuildingSkyscraper className="size-3.5 shrink-0" />
                     {t('dept')}
                   </span>
-                  <OverflowItems items={departments} />
+                  <OverflowItems
+                    items={departments
+                      .filter(isDefined)
+                      .map(({ title }) => ({ title: title ?? '' }))}
+                  />
                 </>
               )}
               {hasBranches && (
@@ -156,7 +160,11 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
                     <IconMapPin className="size-3.5 shrink-0" />
                     {t('branch')}
                   </span>
-                  <OverflowItems items={branches} />
+                  <OverflowItems
+                    items={branches
+                      .filter(isDefined)
+                      .map(({ title }) => ({ title: title ?? '' }))}
+                  />
                 </>
               )}
               {isArchived && (

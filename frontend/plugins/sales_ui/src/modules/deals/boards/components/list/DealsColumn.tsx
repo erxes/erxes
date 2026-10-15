@@ -1,4 +1,8 @@
-import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
+import {
+  NameCell,
+  NumberCell,
+  ProductsCell,
+} from '@/deals/components/deal-selects/MoveDealSelect';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
@@ -6,26 +10,23 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import {
-  NameCell,
-  NumberCell,
-  ProductsCell,
-} from '@/deals/components/deal-selects/MoveDealSelect';
+import { isDefined } from 'erxes-ui';
+import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 
-import { ColumnDef } from '@tanstack/table-core';
+import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
-import { IDeal } from '@/deals/types/deals';
-import { RecordTable } from 'erxes-ui';
-import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { dealsMoreColumn } from './DealsMoreColumn';
 import {
   DealLoyaltyPointsCell,
   DealLoyaltyPointsHead,
 } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
-import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
+import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
+import { IDeal } from '@/deals/types/deals';
+import { ColumnDef } from '@tanstack/table-core';
+import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { dealsMoreColumn } from './DealsMoreColumn';
 
 const loyaltyPointsColumn: ColumnDef<IDeal> = {
   id: 'loyaltyPoints',
@@ -66,7 +67,9 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       header: () => (
         <RecordTable.InlineHead label={t('board')} icon={IconLabelFilled} />
       ),
-      cell: ({ row }) => <BoardSelect boardId={row.original.boardId} />,
+      cell: ({ row }) => (
+        <BoardSelect boardId={row.original.boardId ?? undefined} />
+      ),
     },
     {
       id: 'pipeline',
@@ -91,7 +94,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       cell: ({ row }) => {
         return (
           <StageSelect
-            stageId={row.original.stageId}
+            stageId={row.original.stageId ?? undefined}
             pipelineId={row.original.pipeline?._id || ''}
             onChange={(stageId) => {
               moveDealStage({
@@ -125,7 +128,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
         <SelectAssigneeDeal
           variant="table"
           id={row.original._id}
-          value={row.original.assignedUserIds || []}
+          value={row.original.assignedUserIds?.filter(isDefined) || []}
         />
       ),
       size: 240,

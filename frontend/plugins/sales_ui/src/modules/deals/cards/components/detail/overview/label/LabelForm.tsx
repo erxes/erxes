@@ -1,4 +1,10 @@
 import {
+  usePipelineLabelAdd,
+  usePipelineLabelDetail,
+  usePipelineLabelEdit,
+  usePipelineLabelRemove,
+} from '@/deals/pipelines/hooks/usePipelineDetails';
+import {
   Button,
   Form,
   Input,
@@ -6,24 +12,19 @@ import {
   Spinner,
   cn,
   useConfirm,
+  useQueryState,
 } from 'erxes-ui';
-import { LabelFormType, labelFormSchema } from './constants/labelFormSchema';
 import { useEffect, useRef } from 'react';
-import {
-  usePipelineLabelAdd,
-  usePipelineLabelDetail,
-  usePipelineLabelEdit,
-  usePipelineLabelRemove,
-} from '@/deals/pipelines/hooks/usePipelineDetails';
+import { LabelFormType, labelFormSchema } from './constants/labelFormSchema';
 
-import { COLORS } from './constants/colors';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconLoader } from '@tabler/icons-react';
 import { TwitterPicker } from 'react-color';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { COLORS } from './constants/colors';
 
-const LabelForm = ({
+export const LabelForm = ({
   onSuccess,
   labelId,
 }: {
@@ -36,6 +37,7 @@ const LabelForm = ({
 
   const closeRef = useRef<HTMLButtonElement>(null);
   const isEdit = Boolean(labelId);
+  const [pipelineId] = useQueryState<string>('pipelineId');
   const { confirm } = useConfirm();
 
   const handleSuccess = () => {
@@ -46,14 +48,14 @@ const LabelForm = ({
   const { pipelineLabelDetail, loading: labelDetailLoading } =
     usePipelineLabelDetail({
       skip: !labelId,
-      variables: { _id: labelId },
+      variables: labelId ? { _id: labelId } : undefined,
     });
 
   useEffect(() => {
     if (pipelineLabelDetail && labelId) {
       form.reset({
         name: pipelineLabelDetail.name,
-        colorCode: pipelineLabelDetail.colorCode,
+        colorCode: pipelineLabelDetail.colorCode ?? '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,17 +81,19 @@ const LabelForm = ({
     });
 
   const onSubmit = (data: LabelFormType) => {
-    if (isEdit) {
+    if (labelId && pipelineId) {
       editPipelineLabel({
         variables: {
           ...data,
           _id: labelId,
+          pipelineId,
         },
       });
-    } else {
+    } else if (pipelineId) {
       addPipelineLabel({
         variables: {
           ...data,
+          pipelineId,
         },
       });
     }
@@ -102,7 +106,7 @@ const LabelForm = ({
       message: `Are you sure you want to delete ${pipelineLabelDetail?.name}?`,
     }).then(() => {
       removePipelineLabel({
-        variables: { _id: labelId },
+        variables: labelId ? { _id: labelId } : undefined,
       });
     });
   };
@@ -183,12 +187,14 @@ const LabelForm = ({
                 : 'bg-primary text-primary-foreground hover:bg-primary/90 mt-2',
             )}
           >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save')}
+            {loading ? (
+              <IconLoader className="w-4 h-4 animate-spin" />
+            ) : (
+              t('save')
+            )}
           </Button>
         </div>
       </form>
     </Form>
   );
 };
-
-export default LabelForm;

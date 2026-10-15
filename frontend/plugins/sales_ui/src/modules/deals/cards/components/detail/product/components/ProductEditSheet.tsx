@@ -1,13 +1,14 @@
-import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import { useTranslation } from 'react-i18next';
+import { SelectProductsBulk } from 'ui-modules';
 
 import { calculateProductValues } from '@/deals/cards/components/detail/product/hooks/useProductCalculations';
-import { getProductDefaultUom } from '../utils/productUom';
-import type { ProductDataWithUom } from '../utils/productUom';
 import { useUpdateProductRecord } from '@/deals/cards/components/detail/product/hooks/useProductRecord';
+import type { ProductDataWithUom } from '../utils/productUom';
+import { getProductDefaultUom } from '../utils/productUom';
 
 interface ProductEditSheetProps {
-  productData: IProductData | null;
+  productData: DealProductData | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -27,7 +28,7 @@ export const ProductEditSheet = ({
 
   const replaceProduct = async (
     productIds: string[],
-    selectedProducts: IProduct[] = [],
+    selectedProducts: DealProduct[] = [],
   ) => {
     const replacementProduct = selectedProducts.find(
       (product) => product._id === productIds[0],
@@ -62,7 +63,6 @@ export const ProductEditSheet = ({
       open={open}
       onOpenChange={onOpenChange}
       productIds={[currentProduct._id]}
-      initialProducts={[currentProduct]}
       selectionLimit={1}
       title={t('edit-product')}
       description={t('edit-product-description')}

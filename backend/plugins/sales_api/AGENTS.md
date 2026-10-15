@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -265,6 +265,11 @@
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
+
+- Deal product rows, payments, pipeline payment types, and pipeline event data
+  remain JSON scalar contracts. Sales UI validates the fields it consumes;
+  changing these outputs to object selections requires a coordinated API and
+  caller migration. Do not change their scalar shape solely for frontend types.
 
 - `generated/schema.graphql` is generated and gitignored; edit the owning SDL
   files and re-run `schema:print` instead of editing the exported schema.

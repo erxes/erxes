@@ -1,3 +1,4 @@
+import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
 import {
   Dispatch,
   MutableRefObject,
@@ -5,24 +6,23 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { IProduct, IProductData } from 'ui-modules';
 
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { isPatchAppliedByServer } from '../utils/isPatchAppliedByServer';
-import { normalizeProductUom, syncProductUomInfo } from '../utils/productUom';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { isPatchAppliedByServer } from '../utils/isPatchAppliedByServer';
+import { normalizeProductUom, syncProductUomInfo } from '../utils/productUom';
 
 interface UseSyncLocalProductsDataParams {
-  productsData: IProductData[];
+  productsData: DealProductData[];
   defaultCurrency: string;
-  setLocalProductsData: Dispatch<SetStateAction<IProductData[]>>;
+  setLocalProductsData: Dispatch<SetStateAction<DealProductData[]>>;
   pendingProductPatchesRef: MutableRefObject<
-    Record<string, Partial<IProductData>>
+    Record<string, Partial<DealProductData>>
   >;
   pendingProductDeletionsRef: MutableRefObject<Set<string>>;
-  productByIdRef: MutableRefObject<Record<string, IProduct>>;
-  sortByStableProductOrder: (data: IProductData[]) => IProductData[];
+  productByIdRef: MutableRefObject<Record<string, DealProduct>>;
+  sortByStableProductOrder: (data: DealProductData[]) => DealProductData[];
 }
 
 // Reconciles server productsData with any optimistic local edits/deletes
@@ -55,7 +55,7 @@ export const useSyncLocalProductsData = ({
         (data) => !pendingProductDeletionsRef.current.has(data._id),
       );
       const previousById = new Map(prev.map((data) => [data._id, data]));
-      const incomingById = new Map<string, IProductData>();
+      const incomingById = new Map<string, DealProductData>();
 
       const updatedIncoming = incomingProductsData.map((data) => {
         const previousRecord = previousById.get(data._id);
@@ -113,12 +113,12 @@ export const useSyncLocalProductsData = ({
 };
 
 interface UseVatPercentParams {
-  localProductsData: IProductData[];
-  setLocalProductsData: Dispatch<SetStateAction<IProductData[]>>;
-  updateTotal: (productsData: IProductData[]) => void;
+  localProductsData: DealProductData[];
+  setLocalProductsData: Dispatch<SetStateAction<DealProductData[]>>;
+  updateTotal: (productsData: DealProductData[]) => void;
   calculatePerProductAmount: (
     type: string,
-    productData: IProductData,
+    productData: DealProductData,
     callUpdateTotal?: boolean,
   ) => void;
 }
@@ -159,7 +159,9 @@ export const useVatPercent = ({
         unitPrice: p.isVatApplied
           ? p.unitPrice
           : Number.parseFloat(
-              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4),
+              (((p.unitPrice ?? 0) * 100) / (100 + (vatPercent || 0))).toFixed(
+                4,
+              ),
             ),
       };
 
@@ -182,13 +184,13 @@ export const useVatPercent = ({
 };
 
 interface UseSaveDealProductsParams {
-  localProductsData: IProductData[];
+  localProductsData: DealProductData[];
   defaultCurrency: string;
-  products: IProduct[];
+  products: DealProduct[];
   dealId: string;
   editDeals: (options: {
     variables: {
-      productsData: IProductData[];
+      productsData: DealProductData[];
       processId: string;
       _id: string;
     };

@@ -1,13 +1,10 @@
 import { useQuery } from '@apollo/client';
+import type { SalesDealPointLimitQuery } from '~/gql/graphql';
 import { SALES_DEAL_POINT_LIMIT } from '../../graphql/queries/DealPointLimitQueries';
 
-export type TDealPointLimit = {
-  balance: number;
-  pointValue: number;
-  maxAmount: number;
-  step?: number | null;
-  blocked?: 'frozen' | 'belowMin' | 'empty' | null;
-};
+export type TDealPointLimit = NonNullable<
+  SalesDealPointLimitQuery['loyaltyScoreSpendLimit']
+>;
 
 /** What this deal may pay with points under the payment type's campaign. */
 export const useDealPointLimit = ({
@@ -21,16 +18,17 @@ export const useDealPointLimit = ({
   dealId: string;
   totalAmount: number;
 }) => {
-  const { data, loading, error } = useQuery<{
-    loyaltyScoreSpendLimit?: TDealPointLimit | null;
-  }>(SALES_DEAL_POINT_LIMIT, {
-    variables: {
-      campaignId,
-      ownerType: 'customer',
-      ownerId: customerId,
-      totalAmount,
-      targetId: dealId,
-    },
+  const { data, loading, error } = useQuery(SALES_DEAL_POINT_LIMIT, {
+    variables:
+      campaignId && customerId
+        ? {
+            campaignId,
+            ownerType: 'customer',
+            ownerId: customerId,
+            totalAmount,
+            targetId: dealId,
+          }
+        : undefined,
     skip: !campaignId || !customerId,
     fetchPolicy: 'cache-and-network',
   });

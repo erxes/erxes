@@ -1,8 +1,8 @@
 'use client';
 
+import { cn } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSyncExternalStore } from 'react';
-import { cn } from 'erxes-ui';
 
 import { IPipelineLabel } from '@/deals/types/pipelines';
 
@@ -35,7 +35,7 @@ export const Labels = ({
   labels,
   type,
 }: {
-  labels: IPipelineLabel[];
+  labels: Pick<IPipelineLabel, '_id' | 'name' | 'colorCode'>[];
   type?: 'label' | 'toggle';
 }) => {
   const isToggle = type === 'toggle';
@@ -58,7 +58,7 @@ export const Labels = ({
           <div
             key={label._id}
             className="px-2 py-1 rounded text-white text-sm font-medium inline-block"
-            style={{ backgroundColor: label.colorCode }}
+            style={{ backgroundColor: label.colorCode ?? undefined }}
           >
             {label.name}
           </div>
@@ -76,7 +76,7 @@ export const Labels = ({
         showText ? 'py-0.5' : 'py-1',
       )}
       style={{
-        backgroundColor: label.colorCode,
+        backgroundColor: label.colorCode ?? undefined,
         width: showText ? 'auto' : '40px',
       }}
       whileHover={{ scale: 1.05 }}

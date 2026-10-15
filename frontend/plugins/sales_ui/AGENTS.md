@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-15`
+- **Last synchronized:** `2026-10-16`
 
 ## Scope
 
@@ -244,6 +244,22 @@
 
 ## Local Invariants
 
+- Deals documents use `gql()` from `~/gql`; hooks and cache/subscription updates
+  infer their results from those documents. Derive row/detail aliases from
+  generated query types and keep local form types separate.
+- Deal `productsData`, `paymentsData`, pipeline payment types, voucher results,
+  and event payloads remain JSON in the public API. Validate consumed structure
+  in Sales UI (`deals/utils/dealJson.ts` and the owning hook); preserve extra
+  JSON keys on round trips. Invalid editable data must show an error and block
+  saving, rather than becoming an empty form.
+- List and detail deal subscriptions select the fields used by their respective
+  queries. Pipeline order events carry stored JSON, so move an existing card
+  immediately and refetch active lists for complete computed data.
+- `deals/utils/cursorList.ts` follows Operation's adapter for nullable PageInfo
+  booleans. Filter nullable list members before passing rows to UI components.
+- Deal printing owns typed documents for the public Core document service;
+  their tooling snapshot does not change that service's runtime contract.
+
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
@@ -406,7 +422,10 @@
 - Codegen startup smoke: with `src/gql/` absent, both the production build and
   `ENABLED_PLUGINS=sales pnpm dev:uis` must generate it before booting. During
   development, editing a GraphQL document must trigger the codegen watcher.
-- `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealJson.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
+- Deals migration smoke: create/edit/watch a deal; move stages, edit labels and
+  checklists, and add/edit/remove products. Verify immediate list/detail updates
+  and subscription updates with no Apollo cache or missing-field warnings.
 - Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
   quantity, save and reload; verify Advanced shows base price/quantity and the
   saved ratio. Switching units alone preserves totals; changing catalog ratios

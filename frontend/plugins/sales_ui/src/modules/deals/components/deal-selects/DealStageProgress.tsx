@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { IStage } from '@/deals/types/stages';
 import { IconCheck } from '@tabler/icons-react';
 import { Tooltip, cn } from 'erxes-ui';
-import { IStage } from '@/deals/types/stages';
+import { useMemo } from 'react';
 
 interface DealStageProgressProps {
   stages: IStage[];
@@ -17,7 +17,7 @@ export const DealStageProgress = ({
   className,
 }: DealStageProgressProps) => {
   const sorted = useMemo(
-    () => [...stages].sort((a, b) => a.order - b.order),
+    () => [...stages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     [stages],
   );
 

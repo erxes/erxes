@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type { DealProductData } from '@/deals/utils/dealJson';
+import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
 import {
   Checkbox,
   CurrencyCode,
@@ -14,24 +15,24 @@ import {
   formatAmount,
   useToast,
 } from 'erxes-ui';
-import { IProductData, SelectBranches, SelectDepartments } from 'ui-modules';
-import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
 import { TFunction } from 'i18next';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 
-import { ColumnDef } from '@tanstack/table-core';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import { ColumnDef } from '@tanstack/table-core';
 import clsx from 'clsx';
-import { useUpdateProductRecord } from '../../hooks/useProductRecord';
 import { calculateProductValues } from '../../hooks/useProductCalculations';
+import { useUpdateProductRecord } from '../../hooks/useProductRecord';
 import { applyRowDiscount, productBaseAmount } from '../../utils/discountInfos';
 import {
+  ProductDataWithUom,
   getProductBaseUom,
   getProductUomCodes,
   getProductUomInfo,
   getProductUomRatio,
   normalizeProductUom,
-  ProductDataWithUom,
 } from '../../utils/productUom';
 
 export const ProductNumberField = ({
@@ -43,7 +44,7 @@ export const ProductNumberField = ({
   calculateProduct = false,
   children,
 }: INumberFieldContainerProps & {
-  product: IProductData;
+  product: DealProductData;
   formatValue?: (value: number) => string;
   calculateProduct?: boolean;
   children?: React.ReactNode;
@@ -77,7 +78,7 @@ export const ProductCalculatedNumberField = ({
   field,
   _id,
   product,
-}: INumberFieldContainerProps & { product: IProductData }) => {
+}: INumberFieldContainerProps & { product: DealProductData }) => {
   const { updateRecord } = useUpdateProductRecord();
 
   return (
@@ -160,7 +161,7 @@ export const ProductDiscountNumberField = ({
   field,
   _id,
   product,
-}: INumberFieldContainerProps & { product: IProductData }) => {
+}: INumberFieldContainerProps & { product: DealProductData }) => {
   const { updateRecord } = useUpdateProductRecord();
   const [isOpen, setIsOpen] = useState(false);
   const [editingValue, setEditingValue] = useState(String(value));
@@ -267,7 +268,7 @@ export const CheckInputField = ({
 }: {
   value: boolean;
   field: string;
-  product: IProductData;
+  product: DealProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
   const [checked, setChecked] = useState(value);
@@ -298,7 +299,7 @@ export const ProductAssigneeField = ({
   value: string[];
   field: string;
   _id: string;
-  product: IProductData;
+  product: DealProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
 
@@ -322,7 +323,7 @@ export const ProductCurrencyField = ({
 }: {
   value: CurrencyCode;
   field: string;
-  product: IProductData;
+  product: DealProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
 
@@ -397,7 +398,7 @@ export const ProductBranchField = ({
 }: {
   value: string;
   field: string;
-  product: IProductData;
+  product: DealProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
 
@@ -419,7 +420,7 @@ export const ProductDepartmentField = ({
 }: {
   value: string;
   field: string;
-  product: IProductData;
+  product: DealProductData;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
 
@@ -434,7 +435,7 @@ export const ProductDepartmentField = ({
   );
 };
 
-export const taxPercent = (t: TFunction): ColumnDef<IProductData> => ({
+export const taxPercent = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'taxPercent',
   accessorKey: 'taxPercent',
   header: () => <RecordTable.InlineHead label={t('tax-percent')} />,
@@ -453,7 +454,7 @@ export const taxPercent = (t: TFunction): ColumnDef<IProductData> => ({
   size: 100,
 });
 
-export const tax = (t: TFunction): ColumnDef<IProductData> => ({
+export const tax = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'tax',
   accessorKey: 'tax',
   header: () => <RecordTable.InlineHead label={t('tax')} />,
@@ -472,7 +473,7 @@ export const tax = (t: TFunction): ColumnDef<IProductData> => ({
   size: 100,
 });
 
-export const currency = (t: TFunction): ColumnDef<IProductData> => ({
+export const currency = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'currency',
   accessorKey: 'currency',
   header: () => <RecordTable.InlineHead label={t('currency')} />,
@@ -489,7 +490,7 @@ export const currency = (t: TFunction): ColumnDef<IProductData> => ({
   },
 });
 
-export const baseUom = (t: TFunction): ColumnDef<IProductData> => ({
+export const baseUom = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uom',
   accessorKey: 'uom',
   header: () => <RecordTable.InlineHead label={t('uom')} />,
@@ -505,7 +506,7 @@ export const baseUom = (t: TFunction): ColumnDef<IProductData> => ({
   maxSize: 52,
 });
 
-export const uomInfoUom = (t: TFunction): ColumnDef<IProductData> => ({
+export const uomInfoUom = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.uom',
   accessorFn: (row) => getProductUomInfo(row).uom,
   header: () => <RecordTable.InlineHead label={t('uom')} />,
@@ -517,7 +518,7 @@ export const uomInfoUom = (t: TFunction): ColumnDef<IProductData> => ({
   size: 140,
 });
 
-export const uomRatio = (t: TFunction): ColumnDef<IProductData> => ({
+export const uomRatio = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.ratio',
   accessorFn: (row) => getProductUomInfo(row).ratio,
   header: () => <RecordTable.InlineHead label={t('ratio', 'Ratio')} />,
@@ -531,7 +532,7 @@ export const uomRatio = (t: TFunction): ColumnDef<IProductData> => ({
   size: 90,
 });
 
-export const uomInfoUnitPrice = (t: TFunction): ColumnDef<IProductData> => ({
+export const uomInfoUnitPrice = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.unitPrice',
   accessorFn: (row) => getProductUomInfo(row).unitPrice,
   header: () => <RecordTable.InlineHead label={t('unit-price')} />,
@@ -543,7 +544,7 @@ export const uomInfoUnitPrice = (t: TFunction): ColumnDef<IProductData> => ({
   size: 130,
 });
 
-export const uomInfoQuantity = (t: TFunction): ColumnDef<IProductData> => ({
+export const uomInfoQuantity = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.quantity',
   accessorFn: (row) => getProductUomInfo(row).quantity,
   header: () => <RecordTable.InlineHead label={t('quantity')} />,
@@ -555,7 +556,7 @@ export const uomInfoQuantity = (t: TFunction): ColumnDef<IProductData> => ({
   size: 150,
 });
 
-export const branch = (t: TFunction): ColumnDef<IProductData> => ({
+export const branch = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'branchId',
   accessorKey: 'branchId',
   header: () => (
@@ -572,7 +573,7 @@ export const branch = (t: TFunction): ColumnDef<IProductData> => ({
   },
 });
 
-export const department = (t: TFunction): ColumnDef<IProductData> => ({
+export const department = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'departmentId',
   accessorKey: 'departmentId',
   header: () => (

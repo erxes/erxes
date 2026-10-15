@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import {
   IconExternalLink,
   IconInfoCircle,
@@ -12,19 +12,18 @@ import {
   Spinner,
   readImage,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { IUser, TNotification } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
 
-import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
-import { IDeal } from '@/deals/types/deals';
-import { DealsProvider } from '@/deals/context/DealContext';
 import { Overview } from '@/deals/cards/components/detail/overview/Overview';
+import { DealsProvider } from '@/deals/context/DealContext';
+import { IDealDetail } from '@/deals/types/deals';
 
 const getUserDisplayName = (user?: IUser) =>
   user?.details?.fullName || user?.email || 'Unknown user';
 
-const buildDealPath = (deal: IDeal) => {
+const buildDealPath = (deal: IDealDetail) => {
   const searchParams = new URLSearchParams({ salesItemId: deal._id });
   if (deal.boardId) searchParams.set('boardId', deal.boardId);
   if (deal.pipeline?._id) searchParams.set('pipelineId', deal.pipeline._id);
@@ -74,7 +73,7 @@ const DealActorBadge = ({ fromUser }: Pick<TNotification, 'fromUser'>) => {
   );
 };
 
-const DealTitleBlock = ({ deal }: { deal: IDeal }) => {
+const DealTitleBlock = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
 
   return (
@@ -89,7 +88,7 @@ const DealTitleBlock = ({ deal }: { deal: IDeal }) => {
   );
 };
 
-const DealOpenButton = ({ deal }: { deal: IDeal }) => {
+const DealOpenButton = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
 
   return (
@@ -108,7 +107,7 @@ const DealNotificationHeader = ({
   deal,
   fromUser,
 }: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'> & {
-  deal: IDeal;
+  deal: IDealDetail;
 }) => (
   <header className="border-b py-5">
     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -123,7 +122,7 @@ const DealNotificationHeader = ({
   </header>
 );
 
-const DealNotificationBody = ({ deal }: { deal: IDeal }) => (
+const DealNotificationBody = ({ deal }: { deal: IDealDetail }) => (
   <div className="flex-1 py-4">
     <Overview deal={deal} />
   </div>
@@ -135,7 +134,7 @@ const SalesDealDetailView = ({
   deal,
   fromUser,
 }: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'> & {
-  deal: IDeal;
+  deal: IDealDetail;
 }) => (
   <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6">
     <DealNotificationHeader
@@ -155,13 +154,10 @@ const SalesDealNotificationContent = ({
   fromUser,
 }: TNotification) => {
   const { t } = useTranslation('sales');
-  const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
-    GET_DEAL_DETAIL,
-    {
-      variables: { _id: contentTypeId || '' },
-      skip: !contentTypeId,
-    },
-  );
+  const { deal, loading, error } = useDealDetail({
+    variables: { _id: contentTypeId || '' },
+    skip: !contentTypeId,
+  });
 
   if (error) {
     return (
@@ -186,8 +182,6 @@ const SalesDealNotificationContent = ({
       />
     );
   }
-
-  const deal = data?.dealDetail;
 
   if (loading) {
     return (
