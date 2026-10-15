@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SPINS_ADD_MUTATION = gql`
+export const SPINS_ADD_MUTATION = gql(`
   mutation SpinsAdd(
     $campaignId: String!
     $ownerId: String!
@@ -22,9 +22,9 @@ export const SPINS_ADD_MUTATION = gql`
       voucherCampaignId
     }
   }
-`;
+`);
 
-export const SPINS_EDIT_MUTATION = gql`
+export const SPINS_EDIT_MUTATION = gql(`
   mutation SpinsEdit(
     $_id: String!
     $campaignId: String
@@ -48,10 +48,10 @@ export const SPINS_EDIT_MUTATION = gql`
       voucherCampaignId
     }
   }
-`;
+`);
 
-export const DELETE_SPIN_MUTATION = gql`
+export const DELETE_SPIN_MUTATION = gql(`
   mutation SpinsRemove($_ids: [String!]!) {
     spinsRemove(_ids: $_ids)
   }
-`;
+`);

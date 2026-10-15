@@ -1,5 +1,7 @@
 import * as queries from '~/modules/loyalties/spin/graphql/queries/queries';
 import { useQuery } from '@apollo/client';
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { SpinsMainQueryVariables } from '~/gql/graphql';
 import { useMemo, useCallback, useEffect } from 'react';
 import { ISpin } from '@/loyalties/spin/types/spin';
 import { useMultiQueryState, useQueryState } from 'erxes-ui';
@@ -8,9 +10,7 @@ import { spinTotalCountAtom } from '../states/useSpinCounts';
 
 const SPIN_PER_PAGE = 30;
 
-interface UseSpinsListOptions {
-  [key: string]: string | number | boolean | string[] | undefined;
-}
+type UseSpinsListOptions = Partial<SpinsMainQueryVariables>;
 
 interface UseSpinsListReturn {
   loading: boolean;
@@ -59,8 +59,8 @@ export const useSpinList = (
     notifyOnNetworkStatusChange: true,
   });
 
-  const spinsList = useMemo<ISpin[]>(
-    () => data?.spinsMain?.list || [],
+  const spinsList = useMemo(
+    () => compactList(data?.spinsMain?.list),
     [data?.spinsMain?.list],
   );
 

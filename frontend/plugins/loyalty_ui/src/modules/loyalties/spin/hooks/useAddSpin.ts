@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { SpinsAddMutationVariables } from '~/gql/graphql';
 import { SPINS_ADD_MUTATION } from '../graphql/mutations/mutations';
 
 export const useAddSpin = () => {
@@ -11,13 +12,7 @@ export const useAddSpin = () => {
     refetchQueries: ['SpinsMain'],
   });
 
-  const spinAdd = async (variables: {
-    campaignId?: string;
-    ownerId?: string;
-    ownerType?: string;
-    status?: string;
-    voucherCampaignId?: string;
-  }) => {
+  const spinAdd = async (variables: SpinsAddMutationVariables) => {
     return addSpin({
       variables,
       onCompleted: () => {
