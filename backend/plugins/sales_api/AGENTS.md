@@ -278,6 +278,9 @@
 - Public fields owned by other services belong in the frontend's tooling
   snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
   runtime SDL. Do not add backend fields just to satisfy frontend codegen.
+- `Pos` has no `type` field in its public GraphQL contract. Frontend settings
+  must use the existing configuration fields rather than inventing this field
+  in handwritten types or the codegen snapshot.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.
   Preserve saved ratios, and sync info values after server-side pricing changes

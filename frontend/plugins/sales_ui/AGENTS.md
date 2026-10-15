@@ -280,6 +280,11 @@
   document; do not invent a backend operation to keep unused frontend code.
 - POS Summary row `_id` values come from the report's `paidDate` group key.
   Do not pass them to POS configuration or order deletion mutations.
+- POS settings do not receive a `Pos.type` field: the Sales SDL and settings
+  query do not expose one. Do not derive settings tabs or badges from it.
+- POS item detail forms use `pos-items/types/posItemType.ts`; the Items report
+  does not mount a separate POS selector. Orders hooks import their named
+  documents directly from `orders/graphql/queries`.
 - POS By Items displays product sales aggregates and does not own catalog
   product deletion. Do not wire its report rows to Core's `productsRemove`.
 - Codegen scans all Sales UI TypeScript documents, excluding only its generated
