@@ -27,7 +27,8 @@ const load = (filename) => {
   );
   return exports;
 };
-const { toPosDetail, restorePosPaymentConfig } = load('../posJson.ts');
+const { toPosDetail, restorePosPaymentConfig, restorePosPaymentText } =
+  load('../posJson.ts');
 const { cleanData } = load('../cleanData.ts');
 const { toPosOrderDetail, toPosItemRow, parsePosPaidAmounts, readPosData } =
   load('../posOrderJson.ts');
@@ -207,4 +208,13 @@ test('cover deletion tolerates an empty nullable result', () => {
   const cache = new InMemoryCache();
   cache.writeQuery({ query: COVERS, data: { posCovers: null } });
   assert.doesNotThrow(() => updateCacheAfterRemove(cache, ['missing']));
+});
+
+test('empty controlled payment inputs retain nullable stored fields until edited', () => {
+  assert.equal(restorePosPaymentText('', null), null);
+  assert.equal(restorePosPaymentText('', undefined), undefined);
+  assert.equal(restorePosPaymentText('changed', null), 'changed');
+  assert.equal(restorePosPaymentText('', 'clear me'), '');
+  assert.equal(restorePosPaymentText(undefined, null), null);
+  assert.equal(restorePosPaymentConfig(undefined, null), null);
 });

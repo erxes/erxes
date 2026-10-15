@@ -19,11 +19,11 @@ export interface ScreenConfigFormData {
   kitchenIsActive: boolean;
   kitchenShowType: string;
   kitchenType: string;
-  kitchenValue: string;
+  kitchenValue: string | number;
   kitchenIsPrint: boolean;
   waitingIsActive: boolean;
   waitingType: string;
-  waitingValue: string;
+  waitingValue: string | number;
   waitingContentUrl: string;
   waitingIsPrint: boolean;
 }
@@ -69,11 +69,11 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
       kitchenIsActive: kitchenScreen.isActive ?? false,
       kitchenShowType: kitchenScreen.showType || 'all',
       kitchenType: kitchenScreen.type || 'manual',
-      kitchenValue: kitchenScreen.value ? String(kitchenScreen.value) : '',
+      kitchenValue: kitchenScreen.value || '',
       kitchenIsPrint: kitchenScreen.isPrint ?? false,
       waitingIsActive: waitingScreen.isActive ?? false,
       waitingType: waitingScreen.type || 'time',
-      waitingValue: waitingScreen.value ? String(waitingScreen.value) : '',
+      waitingValue: waitingScreen.value || '',
       waitingContentUrl: waitingScreen.contentUrl || '',
       waitingIsPrint: waitingScreen.isPrint ?? false,
     });

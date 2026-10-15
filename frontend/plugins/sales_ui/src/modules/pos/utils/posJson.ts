@@ -128,12 +128,25 @@ export const toPosDetail = (
     .parse(pos.customerCreateConfig),
 });
 
+// Controlled inputs display null as empty text; keep that stored value when the
+// user edits another field, and preserve opaque JSON configs until edited.
+export const restorePosPaymentText = (
+  edited: string | undefined,
+  original: string | null | undefined,
+) =>
+  (original == null && edited === (original ?? '')) ||
+  (original === null && edited === undefined)
+    ? original
+    : edited;
+
 export const restorePosPaymentConfig = (
   edited: string | undefined,
   original: unknown,
-): unknown =>
-  original != null &&
-  typeof original !== 'string' &&
-  JSON.stringify(original) === edited
+): unknown => {
+  if (original === null && edited === undefined) return null;
+  return original != null &&
+    typeof original !== 'string' &&
+    JSON.stringify(original) === edited
     ? original
     : edited;
+};

@@ -268,7 +268,8 @@
 
 - POS configuration, order items/payments, and aggregate report values remain
   JSON scalar outputs. Order details return an items array; item reports unwind
-  it into a single object. Frontend narrowing must preserve those contracts.
+  it into a single object. Frontend narrowing must preserve those contracts,
+  including nullable payment fields and existing numeric screen values.
 - Deal product rows, payments, pipeline payment types, and pipeline event data
   remain JSON scalar contracts. Sales UI validates the fields it consumes;
   changing these outputs to object selections requires a coordinated API and

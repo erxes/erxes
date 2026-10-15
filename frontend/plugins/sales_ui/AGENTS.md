@@ -284,7 +284,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - POS JSON configuration and report fields are narrowed in `pos/utils/posJson.ts`
   and `pos/utils/posOrderJson.ts`; preserve extension keys and legacy numeric
   screen timers. Payment amounts support both arrays and legacy maps. An
-  unchanged structured payment configuration retains its original JSON type.
+  unchanged structured payment configuration retains its original JSON type;
+  nullable payment fields and numeric screen values retain their stored types
+  until edited.
   Memoize parsed query objects before using them to reset forms. Invalid JSON
   must be reported; never enable saving an empty replacement for failed data.
 - Order detail `items` is an array; `posOrderRecords.items` is the unwound row

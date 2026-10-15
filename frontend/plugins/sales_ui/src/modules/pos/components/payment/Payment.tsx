@@ -1,4 +1,7 @@
-import { restorePosPaymentConfig } from '@/pos/utils/posJson';
+import {
+  restorePosPaymentConfig,
+  restorePosPaymentText,
+} from '@/pos/utils/posJson';
 import { toTierBands } from '@/deals/loyaltyRules/tierBands';
 import {
   OtherPaymentsField,
@@ -113,18 +116,22 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
             _id: posId,
             paymentIds: data.paymentIds,
             paymentTypes: data.paymentTypes.map(
-              ({ _id, type, title, icon, config, scoreCampaignId }) => ({
-                _id,
-                type,
-                title,
-                icon,
-                config: restorePosPaymentConfig(
-                  config,
-                  posDetail?.paymentTypes.find((payment) => payment._id === _id)
-                    ?.config,
-                ),
-                scoreCampaignId,
-              }),
+              ({ _id, type, title, icon, config, scoreCampaignId }) => {
+                const original = posDetail?.paymentTypes.find(
+                  (payment) => payment._id === _id,
+                );
+                return {
+                  _id,
+                  type: restorePosPaymentText(type, original?.type),
+                  title: restorePosPaymentText(title, original?.title),
+                  icon: restorePosPaymentText(icon, original?.icon),
+                  config: restorePosPaymentConfig(config, original?.config),
+                  scoreCampaignId: restorePosPaymentText(
+                    scoreCampaignId,
+                    original?.scoreCampaignId,
+                  ),
+                };
+              },
             ),
             earnScoreCampaignId: data.earnScoreCampaignId || null,
             earnTier: data.earnTier,
