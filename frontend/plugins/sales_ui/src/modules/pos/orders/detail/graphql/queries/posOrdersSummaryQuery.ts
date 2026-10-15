@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ORDERS_SUMMARY_QUERY = gql`
+export const POS_ORDERS_SUMMARY_QUERY = gql(`
   query salesPosOrdersSummary(
     $page: Int
     $perPage: Int
@@ -40,4 +40,4 @@ export const POS_ORDERS_SUMMARY_QUERY = gql`
       excludeStatuses: $excludeStatuses
     )
   }
-`;
+`);

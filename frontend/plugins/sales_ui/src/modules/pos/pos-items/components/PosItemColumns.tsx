@@ -1,24 +1,24 @@
 import {
   IconBuilding,
   IconChartBar,
-  IconLabel,
   IconClock,
+  IconLabel,
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  RecordTable,
-  TextOverflowTooltip,
-  RecordTableInlineCell,
   Badge,
+  RecordTable,
+  RecordTableInlineCell,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 
-import { IPosItem } from '@/pos/pos-items/types/posItem';
 import { PosItemMoreColumn } from '@/pos/pos-items/components/PosItemMoreColumns';
-import { ClickableBillNumber } from './ClickableBillNumber';
+import { IPosItem } from '@/pos/pos-items/types/posItem';
 import { TFunction } from 'i18next';
+import { ClickableBillNumber } from './ClickableBillNumber';
 
-const fmt = (val: number | null | undefined) =>
+const fmt = (val: number | string | null | undefined) =>
   val != null ? val.toLocaleString() : '0';
 
 export const PosItemColumns: (t: TFunction) => ColumnDef<IPosItem>[] = (t) => [
@@ -345,9 +345,9 @@ export const PosItemColumns: (t: TFunction) => ColumnDef<IPosItem>[] = (t) => [
     cell: ({ row }) => {
       const item = row.original.items;
       let value = '';
-      if (item?.discountPercent && item.discountPercent > 0) {
+      if (item?.discountPercent && Number(item.discountPercent) > 0) {
         value = 'Percent';
-      } else if (item?.discountAmount && item.discountAmount > 0) {
+      } else if (item?.discountAmount && Number(item.discountAmount) > 0) {
         value = 'Amount';
       }
       return (

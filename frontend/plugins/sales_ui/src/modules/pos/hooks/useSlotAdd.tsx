@@ -1,16 +1,22 @@
-import { useMutation, MutationHookOptions } from '@apollo/client';
+import { MutationHookOptions, useMutation } from '@apollo/client';
+import {
+  PosSlotBulkUpdateMutation,
+  PosSlotBulkUpdateMutationVariables,
+} from '~/gql/graphql';
 import { mutations } from '../graphql';
-import { PosSlotBulkUpdateResult, PosSlotBulkUpdateVariables } from '../types/slot';
 
 export function useUpdatePosSlots(
-  options?: MutationHookOptions<PosSlotBulkUpdateResult, PosSlotBulkUpdateVariables>,
+  options?: MutationHookOptions<
+    PosSlotBulkUpdateMutation,
+    PosSlotBulkUpdateMutationVariables
+  >,
 ) {
-  const [updatePosSlots, { loading, error }] = useMutation<
-    PosSlotBulkUpdateResult,
-    PosSlotBulkUpdateVariables
-  >(mutations.saveSlots, {
-    ...options,
-  });
+  const [updatePosSlots, { loading, error }] = useMutation(
+    mutations.saveSlots,
+    {
+      ...options,
+    },
+  );
 
   return { updatePosSlots, loading, error };
 }

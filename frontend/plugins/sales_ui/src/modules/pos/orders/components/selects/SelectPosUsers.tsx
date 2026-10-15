@@ -1,3 +1,16 @@
+import { useQuery } from '@apollo/client';
+import {
+  cn,
+  Combobox,
+  Command,
+  Filter,
+  Form,
+  isDefined,
+  Popover,
+  PopoverScoped,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
 import React, {
   createContext,
   useCallback,
@@ -6,49 +19,19 @@ import React, {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  cn,
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  PopoverScoped,
-  Form,
-  useFilterContext,
-  useQueryState,
-} from 'erxes-ui';
+import type { SalesPosOrdersUsersQuery } from '~/gql/graphql';
 
 import { IconUsers } from '@tabler/icons-react';
 import { POS_USERS_QUERY } from '../../graphql/queries/posUsersQuery';
-import { useQuery } from '@apollo/client';
 import {
   SelectContent,
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
 
-interface IUser {
-  _id: string;
-  username: string;
-  firstName?: string;
-  lastName?: string;
-  primaryPhone?: string;
-  primaryEmail?: string;
-  email?: string;
-  isActive?: boolean;
-  isOwner?: boolean;
-  details?: {
-    avatar?: string;
-    fullName?: string;
-    shortName?: string;
-    birthDate?: string;
-    position?: string;
-    workStartedDate?: string;
-    location?: string;
-    description?: string;
-    operatorPhone?: string;
-  };
-}
+type IUser = NonNullable<
+  NonNullable<SalesPosOrdersUsersQuery['posUsers']>[number]
+>;
 
 interface SelectUsersContextType {
   value: string;
@@ -90,7 +73,10 @@ export const SelectUsersProvider = ({
     },
   });
 
-  const users = useMemo(() => data?.posUsers || [], [data?.posUsers]);
+  const users = useMemo(
+    () => (data?.posUsers ?? []).filter(isDefined),
+    [data?.posUsers],
+  );
 
   const handleValueChange = useCallback(
     (user: string) => {

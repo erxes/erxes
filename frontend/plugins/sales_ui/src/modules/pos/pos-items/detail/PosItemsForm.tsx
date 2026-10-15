@@ -1,3 +1,4 @@
+import type { PosPaidAmount } from '@/pos/utils/posOrderJson';
 import { Control } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import React from 'react';
@@ -6,7 +7,7 @@ import { TPosItemFormData } from '../types/posItemType';
 interface PosItemsFormProps {
   control: Control<TPosItemFormData>;
   // paidAmounts from backend: [{ type, amount, title }]
-  paidAmounts?: Array<{ type: string; amount: number; title?: string }>;
+  paidAmounts?: PosPaidAmount[];
 }
 
 const formatNumberWithCommas = (value: string | number | undefined) => {

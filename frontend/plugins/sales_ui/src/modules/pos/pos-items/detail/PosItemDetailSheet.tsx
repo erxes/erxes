@@ -1,33 +1,31 @@
+import type { PosOrderItem } from '@/pos/utils/posOrderJson';
 import {
-  Sheet,
-  RecordTable,
-  TextOverflowTooltip,
-  RecordTableInlineCell,
-  Form,
-  Button,
-  useToast,
-} from 'erxes-ui';
-import React from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { usePosItemDetail } from './hooks/usePosItemDetail';
-import { usePosItemForm } from './hooks/usePosItemForm';
+  IconChessKnight,
+  IconShoppingCart,
+  IconTag,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  IconTag,
-  IconShoppingCart,
-  IconChessKnight,
-} from '@tabler/icons-react';
-import { PosItemsForm } from './PosItemsForm';
-import { usePosItemChangePayments } from './hooks/usePosItemsChangePayments';
-import { SubmitHandler } from 'react-hook-form';
-import { TPosItemFormData } from '../types/posItemType';
-import { IPosItem } from '../types/posItem';
-import { useTranslation } from 'react-i18next';
+  Button,
+  Form,
+  RecordTable,
+  RecordTableInlineCell,
+  Sheet,
+  TextOverflowTooltip,
+  useToast,
+} from 'erxes-ui';
 import { TFunction } from 'i18next';
+import React from 'react';
+import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { TPosItemFormData } from '../types/posItemType';
+import { PosItemsForm } from './PosItemsForm';
+import { usePosItemDetail } from './hooks/usePosItemDetail';
+import { usePosItemForm } from './hooks/usePosItemForm';
+import { usePosItemChangePayments } from './hooks/usePosItemsChangePayments';
 
-const itemColumns: (
-  t: TFunction,
-) => ColumnDef<NonNullable<IPosItem['items']>>[] = (t) => [
+const itemColumns: (t: TFunction) => ColumnDef<PosOrderItem>[] = (t) => [
   {
     id: 'productName',
     accessorKey: 'productName',
@@ -82,7 +80,7 @@ const itemColumns: (
       const count = row.original.count || 0;
       const unitPrice = row.original.unitPrice || 0;
       const discountAmount = row.original.discountAmount || 0;
-      const amount = count * unitPrice - discountAmount;
+      const amount = Number(count) * Number(unitPrice) - Number(discountAmount);
       return (
         <RecordTableInlineCell className="text-right font-medium">
           <TextOverflowTooltip value={amount?.toLocaleString() || '0'} />
@@ -118,7 +116,7 @@ export const PosItemDetailSheet = () => {
     },
     [searchParams, setSearchParams],
   );
-  const { posItem, loading, refetch } = usePosItemDetail();
+  const { posItem, loading, error, refetch } = usePosItemDetail();
   const { posItemChangePayments, loading: mutationLoading } =
     usePosItemChangePayments();
 
@@ -163,7 +161,7 @@ export const PosItemDetailSheet = () => {
             {t('date')}
           </span>
           <span className="text-base font-medium">
-            {new Date(posItem.createdAt).toLocaleDateString()}
+            {new Date(posItem.createdAt ?? 0).toLocaleDateString()}
           </span>
         </div>
         <div className="flex justify-between w-full gap-1">
@@ -209,7 +207,7 @@ export const PosItemDetailSheet = () => {
       <div className="rounded-md overflow-hidden">
         <RecordTable.Provider
           columns={itemColumns(t)}
-          data={[posItem.items]}
+          data={posItem.items}
           className="w-full"
         >
           <RecordTable>
@@ -242,6 +240,7 @@ export const PosItemDetailSheet = () => {
 
   const submitHandler: SubmitHandler<TPosItemFormData> = React.useCallback(
     async (data) => {
+      if (!posItem || error) return;
       if (!posItemId) return;
 
       try {
@@ -311,8 +310,8 @@ export const PosItemDetailSheet = () => {
     },
     [
       posItemId,
-      posItem?.status,
-      posItem?.totalAmount,
+      posItem,
+      error,
       posItemChangePayments,
       refetch,
       toast,
@@ -340,6 +339,11 @@ export const PosItemDetailSheet = () => {
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
+              {error && (
+                <p role="alert" className="text-destructive">
+                  {error.message}
+                </p>
+              )}
               {posItem && (
                 <div className="flex flex-col gap-4 w-full my-4">
                   {renderCustomerInfo}
@@ -347,21 +351,16 @@ export const PosItemDetailSheet = () => {
                   {renderTotalAmount}
                   <PosItemsForm
                     control={methods.control}
-                    paidAmounts={(
-                      (posItem?.paidAmounts as Array<{
-                        type: string;
-                        amount: number;
-                        title?: string;
-                      }>) || []
-                    ).filter(
-                      (p) => p.type !== undefined && p.amount !== undefined,
-                    )}
+                    paidAmounts={posItem.paidAmounts}
                   />
                 </div>
               )}
             </Sheet.Content>
             <Sheet.Footer>
-              <Button type="submit" disabled={mutationLoading || loading}>
+              <Button
+                type="submit"
+                disabled={mutationLoading || loading || !!error || !posItem}
+              >
                 {t('save-payments-change')}
               </Button>
             </Sheet.Footer>

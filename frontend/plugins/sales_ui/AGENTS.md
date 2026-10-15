@@ -244,7 +244,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
-- Deals documents use `gql()` from `~/gql`; hooks and cache/subscription updates
+- Deals and POS documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. Derive row/detail aliases from
   generated query types and keep local form types separate.
   Keep only aliases with consumers; selector context, pagination, drag state,
@@ -281,6 +281,17 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   types. Watch/unwatch requests are idempotent and update only the acting user.
   Empty archives provide list/count/page metadata; successful label
   assignment and empty-stage sorting return success strings.
+- POS JSON configuration and report fields are narrowed in `pos/utils/posJson.ts`
+  and `pos/utils/posOrderJson.ts`; preserve extension keys and legacy numeric
+  screen timers. Payment amounts support both arrays and legacy maps. An
+  unchanged structured payment configuration retains its original JSON type.
+  Memoize parsed query objects before using them to reset forms. Invalid JSON
+  must be reported; never enable saving an empty replacement for failed data.
+- Order detail `items` is an array; `posOrderRecords.items` is the unwound row
+  object. Keep these two report shapes distinct.
+- Product-group saves project only `GroupInput` fields and refetch that POS's
+  groups before completing. Cover deletion removes each successfully deleted
+  id from every cached `posCovers` filter variant.
 - POS product-group saves use `productGroupsBulkInsert`. The Sales API has
   no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
   contracts rather than declaring documents for unsupported aliases.
@@ -432,6 +443,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   blur; clearing sends `null` so the backend unsets the date.
 
 ## Validation
+
+- `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
+- Smoke POS settings save/reopen, product-group add/remove, order/item payment
+  details, filtered Cover deletion, and all POS report routes.
 
 - `pnpm nx lint sales_ui`
 - `pnpm exec tsc -p frontend/plugins/sales_ui/tsconfig.app.json --noEmit`:

@@ -1,12 +1,14 @@
+import type { TPosOrderFormData } from '../types/posOrderType';
+import type { PosPaidAmount } from '@/pos/utils/posOrderJson';
 import { Control } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import React from 'react';
 import { options } from '../../constants';
 
 interface PosOrderFormProps {
-  control: Control<any>;
-  summary?: any;
-  paidAmounts?: Array<{ type: string; amount: number }>;
+  control: Control<TPosOrderFormData>;
+  summary?: Record<string, number>;
+  paidAmounts?: PosPaidAmount[];
   posName?: string;
 }
 

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_ITEMS_CHANGE_PAYMENTS = gql`
+export const POS_ITEMS_CHANGE_PAYMENTS = gql(`
   mutation salesPosItemsChangePayments(
     $id: String!
     $cashAmount: Float
@@ -53,4 +53,4 @@ export const POS_ITEMS_CHANGE_PAYMENTS = gql`
       returnInfo
     }
   }
-`;
+`);

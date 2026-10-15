@@ -1,28 +1,32 @@
-import {
-  useQuery,
-  QueryHookOptions,
-  OperationVariables,
-  gql,
-} from '@apollo/client';
+import { hasId } from '@/pos/utils/posJson';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { gql } from '~/gql';
+import type {
+  SalesPosCoversPosListQuery,
+  SalesPosCoversPosListQueryVariables,
+  SalesPosCoversSelectDetailQuery,
+  SalesPosCoversSelectDetailQueryVariables,
+} from '~/gql/graphql';
 import { POS_QUERY } from '../graphql/queries/posQuery';
-import { IPos } from '../types/pos';
 
 const POS_PER_PAGE = 20;
 
-export const usePos = (options?: QueryHookOptions<{ posList: IPos[] }>) => {
-  const { data, loading, error, fetchMore } = useQuery<{ posList: IPos[] }>(
-    POS_QUERY,
-    {
-      ...options,
-      variables: {
-        perPage: POS_PER_PAGE,
-        page: 1,
-        ...options?.variables,
-      },
+export const usePos = (
+  options?: QueryHookOptions<
+    SalesPosCoversPosListQuery,
+    SalesPosCoversPosListQueryVariables
+  >,
+) => {
+  const { data, loading, error, fetchMore } = useQuery(POS_QUERY, {
+    ...options,
+    variables: {
+      perPage: POS_PER_PAGE,
+      page: 1,
+      ...options?.variables,
     },
-  );
+  });
 
-  const posList = data?.posList || [];
+  const posList = (data?.posList ?? []).filter(hasId);
 
   const handleFetchMore = () => {
     const currentPage = Math.floor(posList.length / POS_PER_PAGE) + 1;
@@ -35,7 +39,10 @@ export const usePos = (options?: QueryHookOptions<{ posList: IPos[] }>) => {
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return {
-          posList: [...prev.posList, ...fetchMoreResult.posList],
+          posList: [
+            ...(prev.posList ?? []),
+            ...(fetchMoreResult.posList ?? []),
+          ],
         };
       },
     });
@@ -49,11 +56,14 @@ export const usePos = (options?: QueryHookOptions<{ posList: IPos[] }>) => {
     totalCount: posList.length,
   };
 };
-export const usePosByIds = (options: OperationVariables) => {
-  const { data, loading, error } = useQuery<{
-    posDetail: IPos;
-  }>(
-    gql`
+export const usePosByIds = (
+  options: QueryHookOptions<
+    SalesPosCoversSelectDetailQuery,
+    SalesPosCoversSelectDetailQueryVariables
+  >,
+) => {
+  const { data, loading, error } = useQuery(
+    gql(`
       query salesPosCoversSelectDetail($_id: String!) {
         posDetail(_id: $_id) {
           _id
@@ -73,7 +83,7 @@ export const usePosByIds = (options: OperationVariables) => {
           onServer
         }
       }
-    `,
+    `),
     {
       ...options,
     },
@@ -82,7 +92,7 @@ export const usePosByIds = (options: OperationVariables) => {
   const { posDetail } = data || {};
 
   return {
-    posDetail,
+    posDetail: hasId(posDetail) ? posDetail : undefined,
     loading,
     error,
   };

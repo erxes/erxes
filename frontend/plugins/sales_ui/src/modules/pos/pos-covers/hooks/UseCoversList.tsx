@@ -1,18 +1,17 @@
-import { useQuery } from '@apollo/client';
-import { useMemo, useCallback, useEffect } from 'react';
 import { ICovers } from '@/pos/pos-covers/types/posCover';
-import { useMultiQueryState, parseDateRangeFromString } from 'erxes-ui';
+import { hasId } from '@/pos/utils/posJson';
+import { useQuery } from '@apollo/client';
+import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
-import { posCovers } from '../graphql/queries/queries';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { PosCoversQueryVariables } from '~/gql/graphql';
+import { posCovers } from '../graphql/queries/queries';
+import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
 
 const COVERS_PER_PAGE = 30;
 
-interface UseCoversListOptions {
-  posId?: string;
-  [key: string]: any;
-}
+type UseCoversListOptions = PosCoversQueryVariables & { posId?: string };
 
 interface UseCoversListReturn {
   loading: boolean;
@@ -62,7 +61,7 @@ export const useCoversList = (
 
   const transformedCoversList = useMemo(
     () =>
-      data?.posCovers?.map((cover: ICovers) => ({
+      data?.posCovers?.filter(hasId).map((cover) => ({
         _id: cover._id,
         posName: cover.posName,
         status: cover.status,
@@ -71,7 +70,7 @@ export const useCoversList = (
         description: cover.description,
         note: cover.note,
         createdAt: cover.createdAt,
-        createdBy: cover?.createdUser?.email || t('unknown'),
+        createdBy: t('unknown'),
       })) || [],
     [data?.posCovers],
   );

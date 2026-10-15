@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const POS_COVER_DETAIL_QUERY = gql`
+export const POS_COVER_DETAIL_QUERY = gql(`
   query PosCoverDetail($id: String!) {
     posCoverDetail(_id: $id) {
       _id
@@ -67,4 +67,4 @@ export const POS_COVER_DETAIL_QUERY = gql`
       }
     }
   }
-`;
+`);

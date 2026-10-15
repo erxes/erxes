@@ -1,16 +1,13 @@
-import { QueryHookOptions, useQuery, gql } from '@apollo/client';
+import { hasId } from '@/pos/utils/posJson';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { gql } from '~/gql';
 
-export interface IPosInline {
-  _id: string;
-  name: string;
-  code: string;
-}
+import type {
+  SalesPosOrdersInlineDetailQuery,
+  SalesPosOrdersInlineDetailQueryVariables,
+} from '~/gql/graphql';
 
-export interface IPosInlineQuery {
-  posDetail: IPosInline;
-}
-
-const POS_DETAIL_QUERY = gql`
+const POS_DETAIL_QUERY = gql(`
   query salesPosOrdersInlineDetail($_id: String!) {
     posDetail(_id: $_id) {
       _id
@@ -66,15 +63,20 @@ const POS_DETAIL_QUERY = gql`
       departmentTitle
     }
   }
-`;
+`);
 
-export const usePosInline = (options?: QueryHookOptions<IPosInlineQuery>) => {
-  const { data, loading, error } = useQuery<IPosInlineQuery>(POS_DETAIL_QUERY, {
+export const usePosInline = (
+  options?: QueryHookOptions<
+    SalesPosOrdersInlineDetailQuery,
+    SalesPosOrdersInlineDetailQueryVariables
+  >,
+) => {
+  const { data, loading, error } = useQuery(POS_DETAIL_QUERY, {
     ...options,
   });
 
   return {
-    posDetail: data?.posDetail,
+    posDetail: hasId(data?.posDetail) ? data.posDetail : undefined,
     loading,
     error,
   };

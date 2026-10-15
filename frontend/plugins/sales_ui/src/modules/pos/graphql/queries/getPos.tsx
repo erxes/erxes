@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
-export const POS_LIST = gql`
+export const POS_LIST = gql(`
   query salesPosNavigationList(
     $page: Int
     $perPage: Int
@@ -69,4 +69,4 @@ export const POS_LIST = gql`
       departmentTitle
     }
   }
-`;
+`);

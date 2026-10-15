@@ -1,3 +1,5 @@
+import { useQuery } from '@apollo/client';
+import { hasId } from '@/pos/utils/posJson';
 import {
   parseDateRangeFromString,
   useMultiQueryState,
@@ -5,18 +7,16 @@ import {
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import type { PosProductsQueryVariables } from '~/gql/graphql';
 
-import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
 import { POS_BY_ITEMS_QUERY } from '@/pos/pos-by-items/graphql/queries';
-import { posByItemsTotalCountAtom } from '../states/usePosByItemsCounts';
-import { useQuery } from '@apollo/client';
+import { IProduct } from '@/pos/pos-by-items/types/PosByItemType';
 import { useSetAtom } from 'jotai';
+import { posByItemsTotalCountAtom } from '../states/usePosByItemsCounts';
 
 const POS_PER_PAGE = 30;
 
-interface UsePosByItemsListOptions {
-  [key: string]: unknown;
-}
+type UsePosByItemsListOptions = PosProductsQueryVariables;
 
 interface UsePosByItemsListReturn {
   loading: boolean;
@@ -111,7 +111,7 @@ export const usePosByItemsList = (
   });
 
   const posByItemsList = useMemo<IProduct[]>(
-    () => data?.posProducts?.products || [],
+    () => (data?.posProducts?.products ?? []).filter(hasId),
     [data?.posProducts],
   );
 
@@ -139,7 +139,7 @@ export const usePosByItemsList = (
             ...prev.posProducts,
             products: [
               ...(prev.posProducts?.products || []),
-              ...fetchMoreResult.posProducts.products,
+              ...(fetchMoreResult.posProducts.products ?? []),
             ],
             totalCount: fetchMoreResult.posProducts.totalCount,
           },
