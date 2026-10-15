@@ -11,6 +11,7 @@ import {
 import { Icon } from '@/modules/ui/components/Icon';
 import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
+import { startRouteProgress } from '@/modules/layout/utils/routeProgress';
 
 const LIVE_DELAY_MS = 300;
 
@@ -85,7 +86,10 @@ export const SidebarSearch = ({ onNavigate }: { onNavigate?: () => void }) => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     window.clearTimeout(timer.current);
-    router.push(searchHref(query.trim()));
+    const target = searchHref(query.trim());
+
+    startRouteProgress(target);
+    router.push(target);
     onNavigate?.();
   };
 
@@ -100,6 +104,7 @@ export const SidebarSearch = ({ onNavigate }: { onNavigate?: () => void }) => {
       <input
         ref={inputRef}
         type="search"
+        autoComplete="off"
         value={query}
         onChange={handleChange}
         onKeyDown={(event) => {

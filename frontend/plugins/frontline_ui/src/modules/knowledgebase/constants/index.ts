@@ -73,19 +73,22 @@ export const TOPICS_PER_PAGE = 100;
 export const CATEGORIES_PER_PAGE = 100;
 export const ARTICLES_PER_PAGE = 100;
 
-export const TOPICS_TABLE_ID = 'frontline_kb_topics_record_table';
 export const CATEGORIES_TABLE_ID = 'frontline_kb_categories_record_table';
 export const ARTICLES_TABLE_ID = 'frontline_kb_articles_record_table';
 
-export const TOPICS_FILTER_ID = 'frontline-kb-topics-filter';
 export const CATEGORIES_FILTER_ID = 'frontline-kb-categories-filter';
 export const ARTICLES_FILTER_ID = 'frontline-kb-articles-filter';
 
 export const ARTICLE_STATUSES = [
   { value: 'draft', key: 'kb-draft', label: 'Draft' },
+  { value: 'scheduled', key: 'kb-scheduled', label: 'Scheduled' },
   { value: 'publish', key: 'kb-published', label: 'Published' },
   { value: 'archived', key: 'archived', label: 'Archived' },
 ] as const;
+
+export const QUICK_ARTICLE_STATUSES = ARTICLE_STATUSES.filter(
+  (status) => status.value !== 'scheduled',
+);
 
 const ICON_ENTRIES: [string, Icon, string?][] = [
   ['alarm', IconAlarm],

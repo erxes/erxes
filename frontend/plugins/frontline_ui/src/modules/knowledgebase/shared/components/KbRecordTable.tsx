@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { KbErrorState } from '@/knowledgebase/shared/components/KbStates';
+import { useProgressiveRows } from '@/knowledgebase/shared/hooks/useProgressiveRows';
 
 export const KbRecordTable = <T,>({
   columns,
@@ -11,6 +12,7 @@ export const KbRecordTable = <T,>({
   tableId,
   empty,
   commandBar,
+  resetKey,
 }: {
   columns: ColumnDef<T>[];
   data: T[];
@@ -19,7 +21,10 @@ export const KbRecordTable = <T,>({
   tableId: string;
   empty: ReactNode;
   commandBar: ReactNode;
+  resetKey?: string;
 }) => {
+  const rows = useProgressiveRows(data, resetKey);
+
   if (error) {
     return <KbErrorState message={error.message} />;
   }
@@ -31,7 +36,7 @@ export const KbRecordTable = <T,>({
   return (
     <RecordTable.Provider
       columns={columns}
-      data={data}
+      data={rows}
       stickyColumns={['more', 'checkbox', 'title']}
       className="m-3"
       tableId={tableId}

@@ -28,6 +28,11 @@ export interface IItem {
   createdUser?: IUser;
   companies: ICompany[];
   customers: ICustomer[];
+  // `voucherId` / `couponCode` the deal uses, priced in and held by loyalty.
+  extraData?: { voucherId?: string | null; couponCode?: string | null } & Record<
+    string,
+    unknown
+  >;
   attachments?: IAttachment[];
   labels: IPipelineLabel[];
   pipeline: IPipeline;

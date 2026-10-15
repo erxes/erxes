@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import {
@@ -37,6 +38,7 @@ export const ExpenseRow = ({
   expenseIndex: number;
   journalIndex: number;
 }) => {
+  const { t } = useTranslation('accounting');
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -211,7 +213,7 @@ export const ExpenseRow = ({
                   <Select.Content>
                     {INV_INCOME_EXPENSE_TYPES.map((rule) => (
                       <Select.Item key={rule.value} value={rule.value}>
-                        {rule.label}
+                        {t(rule.label || '', { nsSeparator: false })}
                       </Select.Item>
                     ))}
                   </Select.Content>

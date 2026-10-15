@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { IAdjustClosing } from '../../types/AdjustClosing';
 import { Button, useConfirm, useToast } from 'erxes-ui';
@@ -6,6 +7,7 @@ import { useAdjustClosingEntryRemove } from '../../hooks/useAdjustClosingRemove'
 import { ApolloError } from '@apollo/client';
 
 export const AdjustClosingDelete = ({ row }: { row: Row<IAdjustClosing> }) => {
+  const { t } = useTranslation('accounting');
   const { confirm } = useConfirm();
   const { removeAdjust } = useAdjustClosingEntryRemove();
   const { toast } = useToast();
@@ -16,14 +18,14 @@ export const AdjustClosingDelete = ({ row }: { row: Row<IAdjustClosing> }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete this adjustment?`,
+          message: t('Are you sure you want to delete this adjustment?'),
         }).then(() => {
           const entryId = row.original?._id;
 
           removeAdjust(entryId, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -32,8 +34,8 @@ export const AdjustClosingDelete = ({ row }: { row: Row<IAdjustClosing> }) => {
               row.toggleSelected(false);
 
               toast({
-                title: 'Success',
-                description: 'Adjustment deleted successfully',
+                title: t('success'),
+                description: t('Adjustment deleted successfully'),
                 variant: 'success',
               });
             },
@@ -42,7 +44,7 @@ export const AdjustClosingDelete = ({ row }: { row: Row<IAdjustClosing> }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

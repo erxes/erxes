@@ -235,11 +235,11 @@ export function CmsLayout({
 
         <div className="flex flex-1 min-w-0 overflow-auto">
           {showSidebar && (
-            <Sidebar collapsible="none" className="border-r flex-none">
+            <Sidebar.Panel
+              className="border-r flex-none"
+              label={t('content-management')}
+            >
               <Sidebar.Group>
-                <Sidebar.GroupLabel>
-                  {t('content-management')}
-                </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   {navigationItems.map((item) => (
                     <Sidebar.Menu key={item.id}>
@@ -257,7 +257,7 @@ export function CmsLayout({
                   ))}
                 </Sidebar.GroupContent>
               </Sidebar.Group>
-            </Sidebar>
+            </Sidebar.Panel>
           )}
 
           <div className="w-full py-2 px-4">{children}</div>

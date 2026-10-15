@@ -309,35 +309,18 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               {t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}
             </Tooltip.Content>
           </Tooltip>
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <SelectBranchTicket
-                value={branchId || ''}
-                variant="detail"
-                disabled
-              />
-            </div>
-            <Tooltip.Content>
-              {t('branch-cannot-be-changed', 'Branch cannot be changed')}
-            </Tooltip.Content>
-          </Tooltip>
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <SelectDepartmentTicket
-                value={departmentId || ''}
-                variant="detail"
-                disabled
-              />
-            </div>
-            <Tooltip.Content>
-              {t(
-                'department-cannot-be-changed',
-                'Department cannot be changed',
-              )}
-            </Tooltip.Content>
-          </Tooltip>
+          <SelectBranchTicket
+            id={ticketId}
+            value={branchId || ''}
+            variant="detail"
+            disabled={!canEditTicket}
+          />
+          <SelectDepartmentTicket
+            id={ticketId}
+            value={departmentId || ''}
+            variant="detail"
+            disabled={!canEditTicket}
+          />
           <SelectStatusTicket
             variant="detail"
             value={statusId}

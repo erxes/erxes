@@ -1,19 +1,6 @@
+import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { ADJUST_FUND_RATE_QUERY } from '../graphql/adjustFundRateQueries';
-import { IAdjustFundRate } from '../types/AdjustFundRate';
-
-interface IAdjustFundRatesResponse {
-  adjustFundRates: {
-    list: IAdjustFundRate[];
-    totalCount: number;
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string | null;
-      endCursor: string | null;
-    };
-  };
-}
 
 type TAdjustFundRatesVariables = {
   limit?: number;
@@ -23,10 +10,12 @@ type TAdjustFundRatesVariables = {
 };
 
 export const useAdjustFundRates = (variables?: TAdjustFundRatesVariables) => {
-  const { data, loading, error, refetch } = useQuery<
-    IAdjustFundRatesResponse,
-    TAdjustFundRatesVariables
-  >(ADJUST_FUND_RATE_QUERY, {
+  const {
+    data: queryData,
+    loading,
+    error,
+    refetch,
+  } = useQuery(ADJUST_FUND_RATE_QUERY, {
     variables: {
       limit: 20,
       cursor: null,
@@ -36,6 +25,7 @@ export const useAdjustFundRates = (variables?: TAdjustFundRatesVariables) => {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
+  const data = toGraphqlView(queryData);
 
   return {
     adjustFundRates: data?.adjustFundRates?.list || [],

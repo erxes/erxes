@@ -27,6 +27,8 @@ export interface IAutomationExecAction {
   attempt?: number;
   // Set on workflow node actions: links to the child execution for drill-in
   childExecutionId?: string;
+  // Which row each conditional value used, keyed by conditional id
+  conditionalMatches?: Record<string, string>;
   // Deferred actions only: matches the completion callback to this attempt so
   // a stale or retried job can never overwrite a newer one.
   jobId?: string;
@@ -120,6 +122,7 @@ const execActionSchema = new Schema({
   nextActionId: { type: String },
   result: { type: Object },
   childExecutionId: { type: String },
+  conditionalMatches: { type: Object },
   errorCode: { type: String },
   skipReason: { type: String },
   attempt: { type: Number },

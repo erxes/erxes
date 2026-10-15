@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { TAutomationWaitEventConfig } from '@/automations/components/builder/nodes/actions/waitEvent/type/waitEvent';
 import { IncomingWebhookBodyField } from '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookBodyField';
 import { IncomingWebhookHeadersBuilder } from '@/automations/components/builder/nodes/triggers/webhooks/components/IncomingWebhookHeaderBuilder';
@@ -25,6 +26,7 @@ export function WaitEventConfigCustomForm({
   configFieldNamePrefix: TAutomationActionConfigFieldPrefix;
   handleSave: (config: TAutomationWaitEventConfig) => void;
 }) {
+  const { t } = useTranslation('automations');
   const { control } = useFormContext<TAutomationBuilderForm>();
   const formRef = useRef<{ submit: () => void }>(null);
 
@@ -33,7 +35,7 @@ export function WaitEventConfigCustomForm({
       className="flex flex-col flex-1 overflow-auto"
       footer={
         <Button onClick={() => formRef.current?.submit()}>
-          Save Configuration
+          {t('save-configuration')}
         </Button>
       }
     >
@@ -42,15 +44,11 @@ export function WaitEventConfigCustomForm({
         control={control}
         render={({ field }) => (
           <Form.Item className="flex-1 overflow-auto">
-            <Form.Label>Webhook Configuration</Form.Label>
+            <Form.Label>{t('wait-event-webhook-configuration')}</Form.Label>
 
             <Form.Description className="flex flex-row items-center gap-2 text-xs text-muted-foreground mt-1 mb-3 rounded border py-2 px-4">
               <IconInfoOctagon />
-              <span>
-                Pauses the workflow until an HTTP request is received. The
-                endpoint URL is auto-generated. Customize headers, body schema,
-                and security as needed (all optional).
-              </span>
+              <span>{t('wait-event-webhook-description')}</span>
             </Form.Description>
             <WaitWebhookContent
               formRef={formRef}
@@ -87,6 +85,7 @@ const WaitWebhookContent = ({
   handleSave: (config: TAutomationWaitEventConfig['webhookConfig']) => void;
   config: TAutomationWaitEventConfig['webhookConfig'];
 }) => {
+  const { t } = useTranslation('automations');
   const form = useForm<TIncomingWebhookForm>({
     resolver: zodResolver(
       z.object({
@@ -121,7 +120,7 @@ const WaitWebhookContent = ({
     submit: () =>
       form.handleSubmit(handleSave, () => {
         toast({
-          title: 'There is some error in the form',
+          title: t('wait-event-form-error'),
           variant: 'destructive',
         });
       })(),
@@ -133,19 +132,19 @@ const WaitWebhookContent = ({
       <Tabs defaultValue="headers">
         <Tabs.List>
           <Tabs.Trigger value="headers">
-            Headers
+            {t('headers')}
             {formValues?.headers?.length && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="body">
-            Body
+            {t('body')}
             {formValues?.schema && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}
           </Tabs.Trigger>
           <Tabs.Trigger value="settings">
-            Settings
+            {t('wait-event-settings')}
             {formValues?.isEnabledSecurity && (
               <div className="ml-2 size-1 bg-primary rounded-full" />
             )}

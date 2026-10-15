@@ -21,7 +21,7 @@ const inputDeps = `
 
   input SalesProductField {
     productId : String
-    quantity: Int
+    quantity: Float
     unitPrice: Float
   }
 `;

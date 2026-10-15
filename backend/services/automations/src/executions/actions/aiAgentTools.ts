@@ -5,7 +5,11 @@ import {
   IAutomationWorkflow,
   replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { TAiAgentActionConfig, TAiToolRuntime } from '../../ai';
+import {
+  TAiAgentActionConfig,
+  TAiAgentObjectField,
+  TAiToolRuntime,
+} from '../../ai';
 import { IModels } from '../../connectionResolver';
 import { getActionsMap } from '../../utils/utils';
 import { executeActions } from '../executeActions';
@@ -26,7 +30,11 @@ const sanitizeToolName = (name: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9_-]+/g, '_')
     .replace(/^_+|_+$/g, '')
-    .slice(0, 64) || 'tool';
+    .slice(0, 64);
+
+// The provider name can lose the user's wording; the description keeps it
+const describeTool = (name: string, description?: string) =>
+  [name, description].filter(Boolean).join(': ');
 
 // The workflow's derived input contract splits into two groups: inputs whose
 // binding resolves in this execution are system values — filled from the
@@ -78,6 +86,33 @@ const buildToolInputPlan = async ({
   };
 };
 
+// Providers accept JSON Schema types only: an option field is a string limited
+// to its values, with each value's rule kept so the model still sees it
+const toCaptureFieldSchema = ({
+  dataType,
+  prompt,
+  options = [],
+}: TAiAgentObjectField) => {
+  if (dataType === 'option') {
+    return {
+      type: 'string',
+      enum: options.map(({ value }) => value),
+      description: [
+        prompt,
+        ...options.map(({ value, prompt: rule }) => `${value}: ${rule}`),
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    };
+  }
+
+  if (dataType === 'array') {
+    return { type: 'array', items: { type: 'string' }, description: prompt };
+  }
+
+  return { type: dataType, description: prompt };
+};
+
 // generateText capture fields double as handoff parameters when the target
 // is not a workflow
 const buildCaptureFieldParameters = (actionConfig: TAiAgentActionConfig) => {
@@ -89,9 +124,9 @@ const buildCaptureFieldParameters = (actionConfig: TAiAgentActionConfig) => {
   return {
     type: 'object' as const,
     properties: Object.fromEntries(
-      captureFields.map(({ fieldName, prompt, dataType }) => [
-        fieldName,
-        { type: dataType, description: prompt },
+      captureFields.map((field) => [
+        field.fieldName,
+        toCaptureFieldSchema(field),
       ]),
     ),
     required: captureFields.map(({ fieldName }) => fieldName),
@@ -214,7 +249,10 @@ export const buildAiAgentTools = async ({
   const runtimes: TAiToolRuntime[] = [];
 
   for (const tool of actionConfig.tools) {
-    const base = sanitizeToolName(tool.name);
+    const base =
+      sanitizeToolName(tool.name) ||
+      sanitizeToolName(`${tool.kind}_${tool.id}`) ||
+      'tool';
     let name = base;
     for (let counter = 2; usedNames.has(name); counter++) {
       name = `${base}_${counter}`;
@@ -247,7 +285,10 @@ export const buildAiAgentTools = async ({
         kind: 'helper',
         definition: {
           name,
-          description: tool.description || targetWorkflow.description,
+          description: describeTool(
+            tool.name,
+            tool.description || targetWorkflow.description,
+          ),
           parameters,
         },
         execute: (args) =>
@@ -276,7 +317,10 @@ export const buildAiAgentTools = async ({
       kind: 'handoff',
       definition: {
         name,
-        description: tool.description || targetWorkflow?.description,
+        description: describeTool(
+          tool.name,
+          tool.description || targetWorkflow?.description,
+        ),
         parameters: handoffParameters,
       },
     });

@@ -2,8 +2,10 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { IconArrowBackUp } from '@tabler/icons-react';
 import { Button, Separator, Tooltip } from 'erxes-ui';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationDuplicatedFromLink = () => {
+  const { t } = useTranslation('automations');
   const { detail } = useAutomation();
   const { duplicatedFrom, duplicatedFromName } = detail || {};
 
@@ -11,7 +13,7 @@ export const AutomationDuplicatedFromLink = () => {
     return null;
   }
 
-  const label = duplicatedFromName || 'the original';
+  const label = duplicatedFromName || t('header-the-original');
 
   return (
     <>
@@ -26,7 +28,9 @@ export const AutomationDuplicatedFromLink = () => {
               </Link>
             </Button>
           </Tooltip.Trigger>
-          <Tooltip.Content>Duplicated from “{label}” — open it</Tooltip.Content>
+          <Tooltip.Content>
+            {t('header-duplicated-from', { name: label })}
+          </Tooltip.Content>
         </Tooltip>
       </Tooltip.Provider>
     </>

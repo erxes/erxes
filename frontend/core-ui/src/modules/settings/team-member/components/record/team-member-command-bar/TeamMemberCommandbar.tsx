@@ -39,7 +39,11 @@ export const TeamMemberCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {t('selected', {
+            selectedCount: selectedRows.length,
+          })}
+        </CommandBar.Value>
         <Can action="teamMembersExportManage">
           <Separator.Inline />
           <Export

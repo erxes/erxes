@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, useToast } from 'erxes-ui';
 import { IAdjustClosing } from '../../types/AdjustClosing';
@@ -38,6 +39,7 @@ const buildTagSelectOptions = (
 });
 
 export const AdjustClosingCommandBar = () => {
+  const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
 
@@ -54,7 +56,9 @@ export const AdjustClosingCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {selectedRows.length} {t('selected')}
+        </CommandBar.Value>
         <Separator.Inline />
         <TagsSelect
           type="core:adjustClosing"

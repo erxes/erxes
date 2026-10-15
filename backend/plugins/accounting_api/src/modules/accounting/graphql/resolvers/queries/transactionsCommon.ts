@@ -536,6 +536,10 @@ export const generateFilter = async (
 };
 
 const transactionCommon = {
+  accOddTransactions(): null {
+    return null;
+  },
+
   async accTransactionsDetail(
     _root,
     params: { _id: string },

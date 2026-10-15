@@ -206,24 +206,16 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       ),
       cell: ({ cell }) => {
         return (
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <Tooltip.Content>
-                {t('branch-cannot-be-changed', 'Branch cannot be changed')}
-              </Tooltip.Content>
-              <SelectBranchTicket
-                variant="table"
-                value={cell.row.original.branchId || ''}
-                disabled
-                scope={clsx(
-                  TicketHotKeyScope.TicketTableCell,
-                  cell.row.original._id,
-                  'Branch',
-                )}
-              />
-            </div>
-          </Tooltip>
+          <SelectBranchTicket
+            variant="table"
+            id={cell.row.original._id}
+            value={cell.row.original.branchId || ''}
+            scope={clsx(
+              TicketHotKeyScope.TicketTableCell,
+              cell.row.original._id,
+              'Branch',
+            )}
+          />
         );
       },
       size: 170,
@@ -238,27 +230,16 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       ),
       cell: ({ cell }) => {
         return (
-          <Tooltip>
-            <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
-              <Tooltip.Content>
-                {t(
-                  'department-cannot-be-changed',
-                  'Department cannot be changed',
-                )}
-              </Tooltip.Content>
-              <SelectDepartmentTicket
-                variant="table"
-                value={cell.row.original.departmentId || ''}
-                disabled
-                scope={clsx(
-                  TicketHotKeyScope.TicketTableCell,
-                  cell.row.original._id,
-                  'Department',
-                )}
-              />
-            </div>
-          </Tooltip>
+          <SelectDepartmentTicket
+            variant="table"
+            id={cell.row.original._id}
+            value={cell.row.original.departmentId || ''}
+            scope={clsx(
+              TicketHotKeyScope.TicketTableCell,
+              cell.row.original._id,
+              'Department',
+            )}
+          />
         );
       },
       size: 170,

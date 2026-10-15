@@ -8,10 +8,13 @@ export const NotificationSettingsSidebar = () => {
   const { pluginsNotifications } = useNotificationPluginsTypes();
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
-      {(pluginsNotifications || []).map(({ pluginName, modules }) => (
+    <Sidebar.Panel className="flex-none border-r">
+      {(pluginsNotifications || []).map(({ pluginName, modules }, index) => (
         <Sidebar.Group key={pluginName}>
-          <Sidebar.GroupLabel className="mb-1">{`${pluginName} plugin`}</Sidebar.GroupLabel>
+          <div className="mb-1 flex items-center">
+            <Sidebar.GroupLabel className="min-w-0 flex-1">{`${pluginName} plugin`}</Sidebar.GroupLabel>
+            {index === 0 && <Sidebar.PanelTrigger />}
+          </div>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {(modules || []).map(({ name: moduleName }) => {
@@ -34,6 +37,6 @@ export const NotificationSettingsSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

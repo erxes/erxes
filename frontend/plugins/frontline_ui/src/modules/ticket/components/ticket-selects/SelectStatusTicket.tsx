@@ -23,12 +23,14 @@ import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { canMoveTicketToStatus } from '@/ticket/hooks/useTicketPermissions';
+import type { ApolloError } from '@apollo/client';
 
 interface SelectStatusContextType {
   value: string;
+  selectedValues?: string[];
   onValueChange: (status: string) => void;
   loading?: boolean;
-  error?: any;
+  error?: ApolloError;
   statuses?: ITicketStatusChoice[];
   pipelineId?: string;
   restrictToMovable?: boolean;
@@ -50,12 +52,14 @@ const useSelectStatusContext = () => {
 
 export const SelectStatusProvider = ({
   value,
+  selectedValues,
   onValueChange,
   pipelineId,
   restrictToMovable,
   children,
 }: {
   value: string;
+  selectedValues?: string[];
   onValueChange: (status: string) => void;
   children: React.ReactNode;
   pipelineId?: string;
@@ -73,6 +77,7 @@ export const SelectStatusProvider = ({
     <SelectStatusContext.Provider
       value={{
         value: value || '',
+        selectedValues,
         onValueChange: handleValueChange,
         statuses,
         loading,
@@ -124,7 +129,8 @@ const SelectStatusCommandItem = ({
   status: ITicketStatusChoice;
 }) => {
   const { t } = useTranslation('frontline');
-  const { onValueChange, value, restrictToMovable } = useSelectStatusContext();
+  const { onValueChange, value, selectedValues, restrictToMovable } =
+    useSelectStatusContext();
   const currentUser = useAtomValue(currentUserState);
   const { label, value: statusValue, type, color } = status || {};
 
@@ -134,6 +140,7 @@ const SelectStatusCommandItem = ({
   return (
     <Command.Item
       value={statusValue}
+      keywords={[label]}
       disabled={isBlocked}
       onSelect={() => {
         if (isBlocked) return;
@@ -149,25 +156,43 @@ const SelectStatusCommandItem = ({
           </span>
         )}
       </div>
-      <Combobox.Check checked={value === statusValue} />
+      <Combobox.Check
+        checked={
+          selectedValues
+            ? selectedValues.includes(statusValue)
+            : value === statusValue
+        }
+      />
     </Command.Item>
   );
 };
 
-const SelectStatusContent = () => {
+const SelectStatusContent = ({ onClear }: { onClear?: () => void }) => {
   const { t } = useTranslation('frontline');
-  const { statuses, pipelineId } = useSelectStatusContext();
+  const { statuses, pipelineId, loading, error, selectedValues } =
+    useSelectStatusContext();
   return (
     <Command>
       <Command.Input placeholder={t('search-status', 'Search status')} />
-      <Command.Empty>
-        <span className="text-muted-foreground">
-          {pipelineId
-            ? t('no-status-found', 'No status found')
-            : t('pipeline-not-selected', 'Pipeline not selected')}
-        </span>
-      </Command.Empty>
+      {!loading && !error && (
+        <Command.Empty>
+          <span className="text-muted-foreground">
+            {pipelineId
+              ? t('no-status-found', 'No status found')
+              : t('pipeline-not-selected', 'Pipeline not selected')}
+          </span>
+        </Command.Empty>
+      )}
       <Command.List>
+        {(loading || error) && (
+          <Combobox.Empty loading={loading} error={error} />
+        )}
+        {onClear && pipelineId && !loading && !error && (
+          <Command.Item value="all" onSelect={onClear}>
+            {t('all-statuses', 'All Statuses')}
+            <Combobox.Check checked={selectedValues?.length === 0} />
+          </Command.Item>
+        )}
         {statuses?.map((status) => (
           <SelectStatusCommandItem key={status.value} status={status} />
         ))}

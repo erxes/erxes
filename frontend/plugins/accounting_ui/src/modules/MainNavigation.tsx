@@ -4,84 +4,41 @@ import {
   IconListCheck,
   IconListDetails,
   IconRefreshAlert,
-  IconSquareLetterJ,
 } from '@tabler/icons-react';
-import { cn, NavigationMenuLinkItem, Sidebar, useQueryState } from 'erxes-ui';
-import { useLocation } from 'react-router';
-import {
-  TR_JOURNAL_LABELS,
-  TrJournalEnum,
-} from './transactions/types/constants';
 
-function RenderJournals() {
-  const path = 'accounting/records';
-  const { pathname } = useLocation();
-  const [journal, setJournal] = useQueryState<string>('journal');
-
-  if (!pathname.startsWith(`/${path}`)) {
-    return null;
-  }
-
-  return (
-    <Sidebar.GroupContent>
-      <Sidebar.Menu>
-        {Object.values(TrJournalEnum).map((trJournal) => (
-          <Sidebar.MenuItem key={trJournal}>
-            <Sidebar.MenuButton
-              asChild
-              isActive={journal === trJournal}
-              className="pl-6 font-medium"
-              onClick={() => setJournal(trJournal)}
-            >
-              <div>
-                <IconSquareLetterJ
-                  className={cn(
-                    'text-accent-foreground',
-                    journal === trJournal && 'text-primary',
-                  )}
-                />
-                <span className="capitalize">
-                  {TR_JOURNAL_LABELS[trJournal]}
-                </span>
-              </div>
-            </Sidebar.MenuButton>
-          </Sidebar.MenuItem>
-        ))}
-      </Sidebar.Menu>
-    </Sidebar.GroupContent>
-  );
-}
+import { NavigationMenuLinkItem } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const MainNavigation = () => {
+  const { t } = useTranslation('accounting');
   return (
     <>
       <NavigationMenuLinkItem
-        name="Баримтууд"
+        name={t('receipts')}
         icon={IconListDetails}
         path="main"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Журнал бичилт"
+        name={t('journal-entries')}
         icon={IconListCheck}
         path="records"
         pathPrefix="accounting"
       />
-      <RenderJournals />
       <NavigationMenuLinkItem
-        name="Бүрэн бус баримтууд"
+        name={t('incomplete-vouchers')}
         icon={IconCrane}
         path="odd-transactions"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Тайлан"
+        name={t('report')}
         icon={IconClipboardTextFilled}
         path="journal-reports"
         pathPrefix="accounting"
       />
       <NavigationMenuLinkItem
-        name="Мэдээ таталт"
+        name={t('check-sync')}
         icon={IconRefreshAlert}
         path="check-sync"
         pathPrefix="accounting"

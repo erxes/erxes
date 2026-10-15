@@ -32,22 +32,27 @@ export const useArticleFilters = (): IArticleFilters => {
   };
 };
 
+export const articlesQueryVariables = (
+  topicId?: string,
+  { searchValue, categoryId, status }: IArticleFilters = {},
+) => ({
+  topicIds: categoryId || !topicId ? undefined : [topicId],
+  categoryIds: categoryId ? [categoryId] : undefined,
+  searchValue,
+  status,
+  page: 1,
+  perPage: ARTICLES_PER_PAGE,
+});
+
 export const useArticles = (topicId?: string) => {
   const setTotalCount = useSetAtom(articlesTotalCountAtom);
-  const { searchValue, categoryId, status } = useArticleFilters();
+  const filters = useArticleFilters();
 
   const { data, loading, error, refetch } = useQuery<IArticleListResponse>(
     ARTICLES,
     {
       skip: !topicId,
-      variables: {
-        topicIds: categoryId || !topicId ? undefined : [topicId],
-        categoryIds: categoryId ? [categoryId] : undefined,
-        searchValue,
-        status,
-        page: 1,
-        perPage: ARTICLES_PER_PAGE,
-      },
+      variables: articlesQueryVariables(topicId, filters),
     },
   );
 

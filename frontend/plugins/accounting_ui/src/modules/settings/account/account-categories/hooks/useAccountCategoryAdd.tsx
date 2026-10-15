@@ -5,7 +5,7 @@ export const useAccountCategoryAdd = () => {
   const [addAccountCategory, { loading }] = useMutation(
     ACCOUNT_CATEGORIES_ADD,
     {
-      refetchQueries: ['accountCategories'],
+      refetchQueries: ['accountingAccountCategories'],
     },
   );
 

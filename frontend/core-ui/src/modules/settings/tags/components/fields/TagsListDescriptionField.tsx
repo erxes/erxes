@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import {
   Popover,
@@ -20,6 +21,7 @@ export const TagsListDescriptionField = ({
   const [isOpen, setIsOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [descriptionState, setDescriptionState] = useState(description);
+  const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { editTag } = useTagEdit();
 
   useEffect(() => {
@@ -96,7 +98,7 @@ export const TagsListDescriptionField = ({
             ref={textareaRef}
             onChange={(e) => setDescriptionState(e.target.value)}
             value={descriptionState}
-            placeholder="Add tag description..."
+            placeholder={t('add-tag-description')}
             className="focus-visible:ring-0 focus-visible:shadow-none resize-none text-xs! font-medium min-h-0 px-2 py-[calc((24px-var(--text-xs--line-height))/2)] overflow-hidden "
             maxLength={255}
             onClick={(e) => e.stopPropagation()}

@@ -69,7 +69,10 @@ export const ownersWithinLimit = async (
   ];
 
   const [vouchers, spins, lotteries] = await Promise.all([
-    models.Vouchers.aggregate(grouped({ campaignId: campaign._id })),
+    // A cancelled voucher was a mistake taken back, not one received.
+    models.Vouchers.aggregate(
+      grouped({ campaignId: campaign._id, status: { $ne: 'cancelled' } }),
+    ),
     models.Spins.aggregate(grouped({ voucherCampaignId: campaign._id })),
     models.Lotteries.aggregate(grouped({ voucherCampaignId: campaign._id })),
   ]);

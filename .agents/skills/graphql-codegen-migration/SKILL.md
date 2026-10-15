@@ -11,7 +11,7 @@ The composed schema is the repo-wide codegen schema. No single deployment serves
 
 **Drift** is any mismatch between a document and the composed schema. Fix drift at its source: the query, or the backend SDL and resolver that own the field. Keep every type as strict as the composed schema says.
 
-`operation_ui` is the finished reference. Copy its `codegen.ts`, the `codegen`, `build` and `serve` targets in its `project.json`, its `eslint.config.js`, and its `src/modules/task/types/index.ts` for types derived from generated queries.
+`operation_ui` is the finished reference. Copy its `codegen.ts`, the `codegen`, `codegen:watch`, `build` and `serve` targets in its `project.json`, its `eslint.config.js`, and its `src/modules/task/types/index.ts` for types derived from generated queries.
 
 Work inside `backend/plugins/<name>_api` and `frontend/plugins/<name>_ui`, plus the plugin's `ci-ui-<name>.yml`.
 
@@ -26,6 +26,8 @@ Ship each step as its own PR when the plugin is large. Each one builds and type-
 - Copy operation's `build` `inputs`, including `{ "dependentTasksOutputFiles": "**/*.ts" }`. `src/gql/` is gitignored, so Nx hashes it only through that input. Without it, a backend-only SDL change replays a cached bundle built against stale types.
 - Add `src/gql/` to the plugin's `.gitignore`.
 - Copy the backend `paths` block from `ci-ui-operation.yml` into the plugin's CI workflow. It watches every backend's `src/**`, because SDL strings import constants from anywhere in `src`.
+
+`codegen:watch` runs `graphql-codegen --config codegen.ts --watch` with the same `cwd` as `codegen`, without `dependsOn`. Keep it out of `serve` dependencies because a watcher never exits. `scripts/start-ui-dev.js` discovers enabled plugins with a `codegen` target, runs generation once, then starts their watchers before the dev server. Nx starts host-managed remotes without their `dependsOn`, so those dependencies alone do not cover `pnpm dev:uis`.
 
 Done when `nx run gateway:schema:compose` passes and `nx run <name>_ui:codegen --skip-nx-cache` runs as far as validating documents. Validation errors are expected at this point.
 
@@ -73,6 +75,8 @@ Copy the `no-restricted-imports` and `no-restricted-syntax` rules and the `src/g
 
 Done when the step 4 `rg` over all of `frontend/plugins/<name>_ui/src` prints nothing, so every document in the plugin goes through `gql()` from `~/gql`, and `nx lint <name>_ui` reports no new errors.
 
+Also verify a build from an empty `src/gql/` and the enabled plugin's `pnpm dev:uis` startup. Generation must finish before compilation, and source changes must regenerate documents. Accounting uses its existing Rspack compiler hooks for host-managed builds and watch compilations; those hooks compose the gateway schema before codegen.
+
 ## Nullability
 
 Generated types follow the composed schema. A nullable field comes out `T | null`, and an `Int` comes out `number`. Each new type error asks whether the SDL or the UI is wrong.
@@ -108,6 +112,8 @@ pnpm nx lint <name>_ui
 
 ## Gotchas
 
+- The shared printer exits explicitly because `erxes-api-shared/utils` opens Redis connections on import.
+- `src/gql/` is gitignored. Nx build and serve regenerate it; direct Rspack invocation needs its own preparation hook.
 - A subscription that evicts cache entries selects `__typename`, so `cache.identify` finds the entry.
 - The shared `PageInfo` SDL has nullable booleans, and list items come out nullable. `erxes-ui` cursor helpers expect non-null values. Operation adapts them in `@/operation/utils/cursorList`. Stop and report before copying that into another plugin, because the real fix is tightening `PageInfo` in core.
 - Frontend plugins have no `package.json`, so `pnpm nx` from inside a plugin folder runs at the workspace root. Run Nx from the repo root with the project name.

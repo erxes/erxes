@@ -9,7 +9,6 @@ import { useLastBoard } from '@/deals/boards/hooks/useLastBoard';
 import { useTranslation } from 'react-i18next';
 
 export const SalesLeftSidebar = () => {
-
   const { t } = useTranslation('sales');
 
   const navigate = useNavigate();
@@ -52,7 +51,7 @@ export const SalesLeftSidebar = () => {
   }
 
   return (
-    <Sidebar collapsible="none" className="border-r flex-none">
+    <Sidebar.Panel className="border-r flex-none">
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Accordion
@@ -61,9 +60,14 @@ export const SalesLeftSidebar = () => {
             defaultValue={['boards', 'pipelines']}
           >
             <Accordion.Item value="boards">
-              <Accordion.Trigger className="text-gray-400 text-sm">
-                {t('boards')} ({boards?.length || 0})
-              </Accordion.Trigger>
+              <div className="flex items-center gap-1">
+                <div className="min-w-0 flex-1">
+                  <Accordion.Trigger className="text-gray-400 text-sm">
+                    {t('boards')} ({boards?.length || 0})
+                  </Accordion.Trigger>
+                </div>
+                <Sidebar.PanelTrigger />
+              </div>
               <Accordion.Content className="content">
                 <Sidebar.Menu className="px-2">
                   {boards?.map((board) => (
@@ -96,6 +100,6 @@ export const SalesLeftSidebar = () => {
           </Accordion>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

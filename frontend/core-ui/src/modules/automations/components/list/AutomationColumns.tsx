@@ -131,16 +131,16 @@ export const getAutomationColumns: (
           },
           onError: (e: ApolloError) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
           },
           onCompleted: () => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Automation updated successfully',
+              description: t('automation-updated-success'),
             });
           },
         });

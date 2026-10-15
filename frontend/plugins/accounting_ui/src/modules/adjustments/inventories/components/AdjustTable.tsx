@@ -1,14 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import { useAdjustInventories } from '../hooks/useAdjustInventories';
 import { adjustTableColumns } from './AdjustTableColumns';
 import { RecordTable } from 'erxes-ui';
 
 export const AdjustTable = () => {
+  const { t } = useTranslation('accounting');
   const { adjustInventories, loading, totalCount, handleFetchMore } =
     useAdjustInventories();
 
   return (
     <RecordTable.Provider
-      columns={adjustTableColumns}
+      columns={adjustTableColumns(t)}
       data={adjustInventories || []}
       stickyColumns={[]}
       className="m-3"
