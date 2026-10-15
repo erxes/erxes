@@ -20,44 +20,6 @@ export const useDeleteVoucher = () => {
         },
       },
     ],
-    update: (cache, { data }) => {
-      try {
-        const deletedCampaignIds = data?.voucherCampaignsRemove || {};
-
-        if (!deletedCampaignIds.length) {
-          return;
-        }
-
-        const existingData: any = cache.readQuery({
-          query: QUERY_VOUCHER_CAMPAIGNS,
-          variables: { limit: VOUCHERS_PER_PAGE, cursor },
-        });
-
-        if (!existingData?.voucherCampaigns) {
-          return;
-        }
-
-        cache.writeQuery({
-          query: QUERY_VOUCHER_CAMPAIGNS,
-          variables: { limit: VOUCHERS_PER_PAGE, cursor },
-          data: {
-            voucherCampaigns: {
-              ...existingData.voucherCampaigns,
-              list: existingData.voucherCampaigns.list.filter(
-                (campaign: any) => !deletedCampaignIds.includes(campaign._id),
-              ),
-              totalCount: Math.max(
-                (existingData.voucherCampaigns.totalCount || 0) -
-                  deletedCampaignIds.length,
-                0,
-              ),
-            },
-          },
-        });
-      } catch (e) {
-        console.error('Cache update error:', e);
-      }
-    },
     awaitRefetchQueries: true,
   });
 

@@ -13,12 +13,12 @@ import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconReceipt } from '@tabler/icons-react';
-import { IVoucherCampaign } from '../../types/voucherCampaignType';
+import { IVoucherCampaign } from '@/loyalties/settings/voucher/types/voucherCampaignType';
 import {
   SelectVoucherCampaignContext,
   useSelectVoucherCampaignContext,
 } from '../../context/SelectVoucherCampaignContext';
-import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
+import { useVoucherCampaign } from '@/loyalties/settings/voucher/hooks/useSelectVoucherCampaign';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
 import { ValueChangeValueType } from '../../../types/selectValue';
 

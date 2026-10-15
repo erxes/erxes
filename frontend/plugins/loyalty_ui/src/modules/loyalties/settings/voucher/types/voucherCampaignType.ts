@@ -1,12 +1,6 @@
-export interface IVoucherCampaign {
-  _id: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  kind?: string;
-  startDate?: string;
-  endDate?: string;
-}
+import { IVoucher } from './voucherTypes';
+
+export type IVoucherCampaign = Pick<IVoucher, '_id' | 'title'>;
 
 export interface VoucherCampaignInlineProps {
   voucherCampaignId?: string | string[];

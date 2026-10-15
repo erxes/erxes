@@ -1,8 +1,17 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateVoucherCampaignMutation,
+  UpdateVoucherCampaignMutationVariables,
+} from '~/gql/graphql';
 import { UPDATE_VOUCHER_CAMPAIGN } from '../graphql/mutations/voucherEditStatusMutations';
 import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
+
+type VoucherStatusVariables = Pick<
+  UpdateVoucherCampaignMutationVariables,
+  '_id' | 'status'
+>;
 
 export function useVoucherStatusEdit() {
   const { t } = useTranslation('loyalty');
@@ -19,7 +28,15 @@ export function useVoucherStatusEdit() {
     },
   );
 
-  const editStatus = async (options: MutationHookOptions<any, any>) => {
+  const editStatus = async (
+    options: Omit<
+      MutationHookOptions<
+        UpdateVoucherCampaignMutation,
+        UpdateVoucherCampaignMutationVariables
+      >,
+      'variables'
+    > & { variables: VoucherStatusVariables },
+  ) => {
     const { variables } = options;
 
     return editVoucher({

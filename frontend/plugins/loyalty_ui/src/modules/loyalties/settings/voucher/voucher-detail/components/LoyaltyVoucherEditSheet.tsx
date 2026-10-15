@@ -21,6 +21,8 @@ import {
 } from '../../constants/voucherFormSchema';
 import { useVoucherDetailWithQuery } from '../hooks/useVoucherDetailWithQuery';
 import { fromVoucherTerm } from '../../utils/voucherTerm';
+import { parseCampaignRestrictions } from '@/loyalties/utils/campaignRestrictions';
+import { toOwnerLimitPeriod } from '../../utils/voucherOwnerLimit';
 
 type Props = {
   voucherId?: string;
@@ -48,7 +50,9 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
 
   useEffect(() => {
     if (voucherDetail && voucherDetail._id === editVoucherId) {
-      const restrictions = voucherDetail.restrictions || {};
+      const restrictions = parseCampaignRestrictions(
+        voucherDetail.restrictions,
+      );
 
       form.reset({
         title: voucherDetail.title || '',
@@ -58,30 +62,24 @@ export const LoyaltyVoucherEditSheet = ({ voucherId }: Props) => {
         status: voucherDetail.status || 'active',
         value: voucherDetail.value || 0,
         ...fromVoucherTerm(voucherDetail),
-        kind: voucherDetail.kind || '',
-        minimumSpend: restrictions.minimumSpend ?? undefined,
-        maximumSpend: restrictions.maximumSpend ?? undefined,
-        categoryIds: restrictions.categoryIds ?? [],
-        excludeCategoryIds: restrictions.excludeCategoryIds ?? [],
-        productIds: restrictions.productIds ?? [],
-        excludeProductIds: restrictions.excludeProductIds ?? [],
-        tag: Array.isArray(restrictions.tag)
-          ? restrictions.tag
-          : restrictions.tag
-          ? [restrictions.tag]
-          : [],
-        orExcludeTag: Array.isArray(restrictions.orExcludeTag)
-          ? restrictions.orExcludeTag
-          : restrictions.orExcludeTag
-          ? [restrictions.orExcludeTag]
-          : [],
+        kind: voucherDetail.kind ?? 'amount',
+        minimumSpend: restrictions.minimumSpend,
+        maximumSpend: restrictions.maximumSpend,
+        categoryIds: restrictions.categoryIds,
+        excludeCategoryIds: restrictions.excludeCategoryIds,
+        productIds: restrictions.productIds,
+        excludeProductIds: restrictions.excludeProductIds,
+        tag: restrictions.tag,
+        orExcludeTag: restrictions.orExcludeTag,
         bonusProduct: voucherDetail.bonusProductId ?? undefined,
         bonusCount: voucherDetail.bonusCount ?? undefined,
         spinCount: voucherDetail.spinCount ?? undefined,
         spinCampaignId: voucherDetail.spinCampaignId ?? undefined,
         lotteryCount: voucherDetail.lotteryCount ?? undefined,
         ownerLimitCount: voucherDetail.perOwnerLimit?.count ?? undefined,
-        ownerLimitPeriod: voucherDetail.perOwnerLimit?.period ?? 'year',
+        ownerLimitPeriod: toOwnerLimitPeriod(
+          voucherDetail.perOwnerLimit?.period,
+        ),
       });
     }
   }, [voucherDetail, editVoucherId, form]);
