@@ -184,7 +184,9 @@
   `restrictions`, `codeRule`, the score `add`/`subtract`/`additionalConfig`,
   earn and score log `breakdown`, automation action `config`, the `owner` of
   score logs, accounts and tier logs (`scores/utils/parseScoreOwner`), tier
-  log `createdVia`, score log `target`, `scoreLogStatistics`, segment `root`)
+  log `createdVia`, score log `target`, `scoreLogStatistics`, segment `root`,
+  voucher `terms`/`usedIn`/`createdVia`/`history` through
+  `vouchers/utils/parseVoucher`)
   are narrowed by small parsers built on `@/loyalties/utils/isRecord`, never
   cast; so are the relation settings widget's automation trigger and action
   `config`. Wallet strings the form keeps as unions (owner type, frozen blocks,
@@ -238,7 +240,7 @@
 
 ### `2026-10-15` — Entry lists and widgets typed; codegen enforced
 
-- **Summary:** The voucher, donate, lottery, spin, coupon, assignment and agent lists and the relation settings widget use typed documents, so every `loyalty_ui` document now comes from `~/gql`, and `eslint.config.js` enforces it. The coupon and assignment lists merge pages through `cursorList`; agent add and edit drop their `as any` and narrow the status to `AgentStatus`; the agent delete cache update and the voucher bulk delete no longer type values as `any`. The relation settings widget makes and removes segments through its own documents and reads automation `config` through `isRecord`. Removed as unused: the customer and company lookups of the entry modules, `LoyaltyVouchersAdd`, coupon edit and remove documents, `voucherCompaniesQuery.ts`, and the `posId` prop of the voucher, donate, lottery and spin tables, which no caller passed and no query declared. The snapshot drops the customer and company fields only those lookups selected.
+- **Summary:** The voucher, donate, lottery, spin, coupon, assignment and agent lists and the relation settings widget use typed documents, so every `loyalty_ui` document now comes from `~/gql`, and `eslint.config.js` enforces it. The voucher list, detail sheet and owner card read `terms`, `usedIn`, `createdVia` and `history` through `parseVoucher`, and cancel, mark used and extend run typed documents; the coupon and assignment lists merge pages through `cursorList`; agent add and edit drop their `as any` and narrow the status to `AgentStatus`; the agent delete cache update and the voucher bulk delete no longer type values as `any`. The relation settings widget makes and removes segments through its own documents and reads automation `config` through `isRecord`, still leaving fixed-points steps out of the campaign list. Removed as unused: the customer and company lookups of the entry modules, `LoyaltyVouchersAdd`, coupon edit and remove documents, `voucherCompaniesQuery.ts`, and the `posId` prop of the voucher, donate, lottery and spin tables, which no caller passed and no query declared. The snapshot drops the customer and company fields only those lookups selected.
 - **Affected areas:** `modules/loyalties/{vouchers,donates,lotteries,spin,coupons,assignments,agents}/**`, `widgets/relationSettings/**`, `schema/platform.graphql`, `eslint.config.js`.
 - **Contracts changed:** None; new operations `LoyaltySourceSegmentAdd` and `LoyaltySourceSegmentsRemove` replace the shared `SegmentsAdd` and `SegmentsRemove` in the relation settings widget.
 
