@@ -187,7 +187,7 @@ export function FormDndProvider({
     const field = {
       id: fieldId,
       type: type.value,
-      label: type.label,
+      label: type.defaultLabel ?? type.label,
       description: '',
       placeholder: '',
       required: false,

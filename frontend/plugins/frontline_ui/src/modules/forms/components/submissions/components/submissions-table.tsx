@@ -119,12 +119,16 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
       const { t } = useTranslation('frontline');
       const value = getValue();
 
-      if (type === 'core:customer:avatar') {
+      if (type === 'core:customer:avatar' || type === 'core:company:avatar') {
         return (
           <RecordTableInlineCell>
             <Avatar size={'lg'}>
               <Avatar.Image
-                src={readImage(decodeURIComponent(String(value ?? '')))}
+                src={readImage(
+                  decodeURIComponent(
+                    parseFilesAsAttachments(value)[0]?.url ?? '',
+                  ),
+                )}
                 alt="avatar"
               />
               <Avatar.Fallback>C</Avatar.Fallback>
