@@ -56,7 +56,7 @@ export const loadDealClass = (
       }
 
       // Calculate totals
-      if (doc.productsData) {
+      if (Array.isArray(doc.productsData)) {
         doc.productsData = normalizeProductDiscountInfos(
           await normalizeProductUomInfo(
             subdomain,
