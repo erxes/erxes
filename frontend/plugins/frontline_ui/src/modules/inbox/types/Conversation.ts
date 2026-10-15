@@ -19,10 +19,7 @@ export interface IConversation {
   > | null;
   createdAt: string;
   updatedAt: string;
-  customer: ICustomerInline & {
-    isOnline?: boolean | null;
-    lastSeenAt?: string | null;
-  };
+  customer: ICustomerInline;
   customerId?: string;
   integrationId?: string;
   integration?: IIntegration;

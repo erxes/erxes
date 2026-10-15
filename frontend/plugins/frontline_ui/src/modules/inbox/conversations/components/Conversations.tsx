@@ -19,7 +19,7 @@ import { useDiscordConversationChannels } from '@/integrations/discord/hooks/use
 import { useMemo, type ReactNode } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
-import { useVisibleCustomerPresence } from '../hooks/useVisibleCustomerPresence';
+import { ConversationIdleClockProvider } from '../context/ConversationIdleClockContext';
 
 const ConversationsLoading = () => (
   <div className="divide-y" aria-label="Loading conversations">
@@ -54,12 +54,6 @@ export const Conversations = () => {
     () => ({ conversations, loading, totalCount }),
     [conversations, loading, totalCount],
   );
-  const presence = useVisibleCustomerPresence(
-    containerRef,
-    (conversations ?? [])
-      .map(({ _id, customer }) => `${_id}:${customer?._id ?? ''}`)
-      .join(','),
-  );
 
   const discordConversationIds = useMemo(
     () =>
@@ -85,11 +79,7 @@ export const Conversations = () => {
     useTelegramChats(telegramIds);
 
   const renderConversationItem = (conversation: IConversation) => (
-    <ConversationRowProvider
-      key={conversation._id}
-      conversation={conversation}
-      presence={presence}
-    >
+    <ConversationRowProvider key={conversation._id} conversation={conversation}>
       <ConversationItem
         channelInfo={
           channelMap.get(conversation._id) ?? {
@@ -165,7 +155,9 @@ export const Conversations = () => {
             ref={containerRef}
             onScroll={handleScroll}
           >
-            {renderContent()}
+            <ConversationIdleClockProvider>
+              {renderContent()}
+            </ConversationIdleClockProvider>
           </div>
           {fetchingMore && (
             <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
@@ -182,25 +174,17 @@ export const Conversations = () => {
 
 const ConversationRowProvider = ({
   conversation,
-  presence,
   children,
 }: {
   conversation: IConversation;
-  presence: ReturnType<typeof useVisibleCustomerPresence>;
   children: ReactNode;
 }) => {
   const value = useMemo(
     () => ({
       ...conversation,
-      customer: conversation.customer
-        ? {
-            ...conversation.customer,
-            ...presence.get(conversation.customer._id),
-          }
-        : conversation.customer,
       tagIds: conversation.tagIds ?? [],
     }),
-    [conversation, presence],
+    [conversation],
   );
   return (
     <ConversationContext.Provider value={value}>

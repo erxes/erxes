@@ -65,6 +65,7 @@ export const GET_CONVERSATIONS = gql`
       }
       createdAt
       updatedAt
+      status
       integrationId
       customer {
         _id
@@ -73,8 +74,6 @@ export const GET_CONVERSATIONS = gql`
         lastName
         primaryEmail
         avatar
-        isOnline
-        lastSeenAt
         primaryPhone
         __typename
       }

@@ -273,7 +273,7 @@ const ConversationContainer = ({
   }>(['conversationId']);
   const setActiveConversation = useSetAtom(activeConversationState);
   const conversation = useConversationContext();
-  const { _id, readUserIds, customer } = conversation;
+  const { _id, readUserIds } = conversation;
   const currentUser = useAtomValue(currentUserState);
   const isRead = readUserIds?.includes(currentUser?._id || '');
   return (
@@ -282,7 +282,7 @@ const ConversationContainer = ({
       size="lg"
       asChild
       className={cn(
-        'flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent',
+        'relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent',
         isRead && 'text-muted-foreground',
         className,
         conversationId === _id &&
@@ -294,7 +294,10 @@ const ConversationContainer = ({
         onConversationSelect();
       }}
     >
-      <div data-inbox-customer-id={customer?._id}>{children}</div>
+      <div>
+        {children}
+        <ConversationIdleIndicator conversation={conversation} />
+      </div>
     </Button>
   );
 };
@@ -333,7 +336,6 @@ const ConversationSelector = ({
           </Avatar>
         )}
       </div>
-      <ConversationIdleIndicator customer={customer} />
     </div>
   );
 };
