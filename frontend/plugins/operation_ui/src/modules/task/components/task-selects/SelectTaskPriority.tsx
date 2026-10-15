@@ -6,16 +6,19 @@ export const SelectTaskPriority = ({
   taskId,
   value,
   variant,
+  label,
 }: {
   taskId: string;
   value?: number | null;
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
   const { updateTask } = useUpdateTask();
 
   return (
     <SelectPriority
       variant={variant}
+      label={label}
       value={value}
       onValueChange={(value) => {
         updateTask({

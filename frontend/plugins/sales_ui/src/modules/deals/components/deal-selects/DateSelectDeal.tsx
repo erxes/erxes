@@ -3,7 +3,6 @@ import {
   formatDealDateForMutation,
   parseDealDate,
 } from '@/deals/components/deal-selects/dateSelectUtils';
-import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 import {
   rejectOnMutationError,
   useOptimisticField,
@@ -226,7 +225,7 @@ export const DateSelectDealRoot = ({
         error={error}
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-          <DealChipTrigger
+          <Combobox.ChipTrigger
             label={label}
             onClear={
               dateValue ? () => optimisticDate.setValue(undefined) : undefined
@@ -249,7 +248,7 @@ export const DateSelectDealRoot = ({
                 {endedDiff === 1 ? t('day') : t('days')} {t('ago')}
               </span>
             )}
-          </DealChipTrigger>
+          </Combobox.ChipTrigger>
           <Combobox.Content className="w-fit">
             <DateSelectContent />
           </Combobox.Content>

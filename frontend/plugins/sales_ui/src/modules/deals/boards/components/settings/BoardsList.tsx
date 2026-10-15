@@ -38,12 +38,6 @@ export const BoardsList = () => {
       actions={<BoardForm />}
     >
       <Sidebar.Group>
-        <div className="mt-(--navigation-top-controls-space,0rem) flex w-full items-center justify-between">
-          <Sidebar.GroupLabel>
-            {t('boards')} ({boards?.length || 0})
-          </Sidebar.GroupLabel>
-          <BoardForm />
-        </div>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {boards?.map((board) => (

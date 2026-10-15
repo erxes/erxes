@@ -53,7 +53,7 @@ export const CONFIG: IUIConfig = {
       </Suspense>
     ),
     subGroup: () => (
-      <Suspense fallback={<div />}>
+      <Suspense fallback={null}>
         <TeamsNavigation />
       </Suspense>
     ),

@@ -273,20 +273,20 @@ export function CustomFields() {
   };
 
   return (
-    <PageContainer>
-      <CustomFieldsHeader>
-        <Button
-          onClick={() => {
-            setEditingGroup(null);
-            setIsGroupDrawerOpen(true);
-          }}
-        >
-          <IconPlus className="w-4 h-4 mr-2" />
-          {t('add-group')}
-        </Button>
-      </CustomFieldsHeader>
-      <div className="flex overflow-hidden flex-auto">
-        <CmsSidebar />
+    <PageContainer className="flex-row">
+      <CmsSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <CustomFieldsHeader>
+          <Button
+            onClick={() => {
+              setEditingGroup(null);
+              setIsGroupDrawerOpen(true);
+            }}
+          >
+            <IconPlus className="w-4 h-4 mr-2" />
+            {t('add-group')}
+          </Button>
+        </CustomFieldsHeader>
         <div className="flex min-h-0 overflow-hidden flex-col flex-auto w-full">
           <div className="min-h-0 flex-auto overflow-y-auto">
             <div className="p-6">

@@ -6,9 +6,7 @@ export const ResponseDetailBreadcrumb = () => {
   const { response } = useGetResponse(responseId);
   return (
     <Link to={`/settings/frontline/channels/${id}/response/${responseId}`}>
-      <Button variant="ghost" className="font-semibold">
-        {response?.name}
-      </Button>
+      <Button variant="ghost">{response?.name}</Button>
     </Link>
   );
 };
