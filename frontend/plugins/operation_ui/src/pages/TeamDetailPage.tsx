@@ -17,7 +17,7 @@ export const TeamDetailPage = () => {
               <Breadcrumb.Link asChild className="flex items-center gap-1">
                 <Button
                   variant="ghost"
-                  className="text-foreground font-semibold"
+                  className="text-foreground"
                   onClick={() => navigate('/settings/operation/team')}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />

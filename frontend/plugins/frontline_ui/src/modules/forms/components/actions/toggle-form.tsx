@@ -1,4 +1,7 @@
-import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import {
+  GET_FORMS_LIST,
+  GET_FORMS_TOTAL_COUNT,
+} from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { IconSquareToggle } from '@tabler/icons-react';
 import { DropdownMenu, toast } from 'erxes-ui';
@@ -19,7 +22,7 @@ export function FormToggleStatus({ formId, status, setOpen }: Props) {
       variables: {
         ids: [formId],
       },
-      refetchQueries: [GET_FORMS_LIST],
+      refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
       onCompleted: () => {
         setOpen(false);
       },

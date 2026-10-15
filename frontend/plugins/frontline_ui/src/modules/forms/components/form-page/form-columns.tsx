@@ -24,7 +24,10 @@ import { MembersInline, SelectTags } from 'ui-modules';
 import { useState } from 'react';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
-import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
+import {
+  GET_FORMS_LIST,
+  GET_FORMS_TOTAL_COUNT,
+} from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import { ChannelResourceType } from '@/channels/types';
@@ -214,7 +217,7 @@ export const formColumns: ColumnDef<IForm>[] = [
             type,
             channelId: value,
           },
-          refetchQueries: [GET_FORMS_LIST],
+          refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
           onCompleted: () => {
             toast({
               title: t('success', 'Success!'),
@@ -259,6 +262,9 @@ export const formColumns: ColumnDef<IForm>[] = [
           mode="multiple"
           value={cell.getValue() as string[]}
           targetIds={[cell.row.original._id]}
+          options={() => ({
+            refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
+          })}
         />
       );
     },

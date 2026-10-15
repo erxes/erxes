@@ -206,11 +206,13 @@ export const SelectProjectFormItem = ({
   teamId,
   scope,
   value,
+  label,
 }: {
   teamId?: string;
   scope?: string;
   onValueChange: (value: string | null) => void;
   value?: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -225,7 +227,7 @@ export const SelectProjectFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectProjectValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant="form">
@@ -242,12 +244,14 @@ const SelectProjectRoot = ({
   scope,
   variant,
   teamId,
+  label,
 }: {
   taskId: string;
   value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamId?: string;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
@@ -269,7 +273,7 @@ const SelectProjectRoot = ({
       value={value}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectProjectValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>

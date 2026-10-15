@@ -22,5 +22,34 @@ export const formTrpcRouter = t.router({
 
         return getConversationFormSubmissions(models, conversationId);
       }),
+
+    tag: t.procedure
+      .input(
+        z.discriminatedUnion('action', [
+          z.object({
+            action: z.literal('count'),
+            _ids: z.array(z.string()),
+          }),
+          z.object({
+            action: z.literal('tagObject'),
+            tagIds: z.array(z.string()),
+            targetIds: z.array(z.string()),
+          }),
+        ]),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        if (input.action === 'count') {
+          return models.Forms.countDocuments({ tagIds: { $in: input._ids } });
+        }
+
+        await models.Forms.updateMany(
+          { _id: { $in: input.targetIds } },
+          { $set: { tagIds: input.tagIds } },
+        );
+
+        return models.Forms.find({ _id: { $in: input.targetIds } }).lean();
+      }),
   }),
 });
