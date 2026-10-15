@@ -289,6 +289,9 @@
 - Label assignment returns `success` after publishing the updated deal. Stage
   sorting returns `ok` even for an empty stage. An archive with no stages
   returns an empty list, zero count, and empty pagination metadata.
+- Deal-number lookup escapes the configured prefix after date substitution
+  with the shared `escapeRegExp` helper. Keep the numeric `[0-9]+$` suffix as
+  regex syntax; date placeholders, padding, and reset behavior stay intact.
 - Every Sales Query/Mutation field must have an explicitly registered
   resolver, and every registered root resolver must appear in SDL. The
   `resolverParity` tests compare the assembled registries and declarations.

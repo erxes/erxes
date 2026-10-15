@@ -1,6 +1,7 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
+  escapeRegExp,
   getNextMonth,
   getToday,
   regexSearchText,
@@ -105,13 +106,12 @@ export const boardNumberGenerator = async (
   type?: string,
 ) => {
   const replacedConfig = await configReplacer(config);
-  const re = replacedConfig + '[0-9]+$';
 
   let number;
 
   if (!skip) {
     const pipeline = await models.Pipelines.findOne({
-      lastNum: new RegExp(re),
+      lastNum: new RegExp(`${escapeRegExp(replacedConfig)}[0-9]+$`),
       type,
     });
 
@@ -218,10 +218,9 @@ export const createBoardItem = async (models: IModels, doc: IDeal) => {
 
 export const generateLastNum = async (models: IModels, doc: IPipeline) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
-  const re = replacedConfig + '[0-9]+$';
 
   const pipeline = await models.Pipelines.findOne({
-    lastNum: new RegExp(re),
+    lastNum: new RegExp(`${escapeRegExp(replacedConfig)}[0-9]+$`),
     type: doc.type,
   });
 
@@ -230,7 +229,7 @@ export const generateLastNum = async (models: IModels, doc: IPipeline) => {
   }
 
   const item = await models.Deals.findOne({
-    number: new RegExp(re),
+    number: new RegExp(`${escapeRegExp(replacedConfig)}[0-9]+$`),
   }).sort({ createdAt: -1 });
 
   if (item) {
