@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const LOYALTY_ACCOUNT_FIELDS = gql`
+export const LOYALTY_ACCOUNT_FIELDS = gql(`
   fragment LoyaltyAccountFields on LoyaltyAccount {
     _id
     number
@@ -37,19 +37,17 @@ const LOYALTY_ACCOUNT_FIELDS = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_OF_OWNER = gql`
-  ${LOYALTY_ACCOUNT_FIELDS}
+export const LOYALTY_ACCOUNT_OF_OWNER = gql(`
   query LoyaltyAccountOfOwner($ownerType: String!, $ownerId: String!) {
     loyaltyAccountOfOwner(ownerType: $ownerType, ownerId: $ownerId) {
       ...LoyaltyAccountFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNTS = gql`
-  ${LOYALTY_ACCOUNT_FIELDS}
+export const LOYALTY_ACCOUNTS = gql(`
   query LoyaltyAccounts(
     $searchValue: String
     $ownerType: String
@@ -85,19 +83,17 @@ export const LOYALTY_ACCOUNTS = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_FREEZE = gql`
-  ${LOYALTY_ACCOUNT_FIELDS}
+export const LOYALTY_ACCOUNT_FREEZE = gql(`
   mutation LoyaltyAccountFreeze($_id: String!, $reason: String!) {
     loyaltyAccountFreeze(_id: $_id, reason: $reason) {
       ...LoyaltyAccountFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_SET_TIER = gql`
-  ${LOYALTY_ACCOUNT_FIELDS}
+export const LOYALTY_ACCOUNT_SET_TIER = gql(`
   mutation LoyaltyAccountSetTier(
     $_id: String!
     $accountTypeId: String!
@@ -111,18 +107,17 @@ export const LOYALTY_ACCOUNT_SET_TIER = gql`
       ...LoyaltyAccountFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_UNFREEZE = gql`
-  ${LOYALTY_ACCOUNT_FIELDS}
+export const LOYALTY_ACCOUNT_UNFREEZE = gql(`
   mutation LoyaltyAccountUnfreeze($_id: String!) {
     loyaltyAccountUnfreeze(_id: $_id) {
       ...LoyaltyAccountFields
     }
   }
-`;
+`);
 
-export const LOYALTY_TIER_LOGS = gql`
+export const LOYALTY_TIER_LOGS = gql(`
   query LoyaltyTierLogs($accountId: String, $targetId: String, $limit: Int) {
     loyaltyTierLogs(accountId: $accountId, targetId: $targetId, limit: $limit) {
       _id
@@ -151,4 +146,4 @@ export const LOYALTY_TIER_LOGS = gql`
       createdAt
     }
   }
-`;
+`);

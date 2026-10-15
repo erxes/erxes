@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
+export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql(`
   query GetScoreCampaigns(
     $searchValue: String
     $status: String
@@ -48,4 +48,4 @@ export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
       }
     }
   }
-`;
+`);

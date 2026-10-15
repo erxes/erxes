@@ -5,6 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { QUERY_LOTTERY_CAMPAIGNS } from '../../../lottery/add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface AddVoucherLotteryFormProps {
   form: UseFormReturn<VoucherFormValues>;
@@ -16,7 +17,7 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
   const { t } = useTranslation('loyalty');
   const { data: campaignsData } = useQuery(QUERY_LOTTERY_CAMPAIGNS);
 
-  const lotteryCampaigns = campaignsData?.getCampaigns?.list || [];
+  const lotteryCampaigns = compactList(campaignsData?.lotteryCampaigns?.list);
 
   return (
     <div className="space-y-4 p-5">
@@ -32,11 +33,11 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
                   className={field.value ? '' : 'text-muted-foreground'}
                 >
                   {lotteryCampaigns.find(
-                    (campaign: any) => campaign._id === field.value,
+                    (campaign) => campaign._id === field.value,
                   )?.title || t('select-lottery')}
                 </Select.Trigger>
                 <Select.Content>
-                  {lotteryCampaigns.map((campaign: any) => (
+                  {lotteryCampaigns.map((campaign) => (
                     <Select.Item key={campaign._id} value={campaign._id}>
                       {campaign.title}
                     </Select.Item>

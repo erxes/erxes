@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const DONATES_QUERY = gql`
+export const DONATES_QUERY = gql(`
   query DonatesMain(
     $page: Int
     $perPage: Int
@@ -39,9 +39,9 @@ export const DONATES_QUERY = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const QUERY_DONATE_CAMPAIGNS = gql`
+export const QUERY_DONATE_CAMPAIGNS = gql(`
   query DonateCampaigns($status: String, $searchValue: String, $perPage: Int) {
     donateCampaigns(
       status: $status
@@ -55,30 +55,4 @@ export const QUERY_DONATE_CAMPAIGNS = gql`
       }
     }
   }
-`;
-
-export const DONATE_COMPANIES_QUERY = gql`
-  query DonateCompanies($limit: Int, $searchValue: String) {
-    companies(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        primaryName
-        names
-      }
-    }
-  }
-`;
-
-export const DONATE_CUSTOMERS_QUERY = gql`
-  query DonateCustomers($limit: Int, $searchValue: String) {
-    customers(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
-    }
-  }
-`;
+`);

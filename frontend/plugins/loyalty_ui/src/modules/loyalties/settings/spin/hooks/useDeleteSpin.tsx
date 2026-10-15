@@ -1,14 +1,9 @@
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor } from 'erxes-ui';
-import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
 import { REMOVE_SPIN_CAMPAIGN } from '../graphql/mutations/removeSpinMutations';
-import { ISpin } from '../types/spinTypes';
+import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_PER_PAGE } from './useSpins';
-
-interface SpinCampaignsQueryData {
-  spinCampaigns: { list: ISpin[]; totalCount: number };
-}
 
 export const useDeleteSpin = () => {
   const { cursor } = useRecordTableCursor({
@@ -25,50 +20,6 @@ export const useDeleteSpin = () => {
         },
       },
     ],
-    update: (cache, { data }) => {
-      try {
-        const deletedCampaign = data?.spinCampaignsRemove || {};
-
-        if (!deletedCampaign) {
-          return;
-        }
-
-        const existingData = cache.readQuery<SpinCampaignsQueryData>({
-          query: QUERY_SPIN_CAMPAIGNS,
-          variables: {
-            limit: SPINS_PER_PAGE,
-            cursor,
-          },
-        });
-
-        if (!existingData?.spinCampaigns) {
-          return;
-        }
-
-        cache.writeQuery({
-          query: QUERY_SPIN_CAMPAIGNS,
-          variables: {
-            limit: SPINS_PER_PAGE,
-            cursor,
-          },
-          data: {
-            spinCampaigns: {
-              ...existingData.spinCampaigns,
-              list: existingData.spinCampaigns.list.filter(
-                (campaign) => !deletedCampaign?._ids?.includes(campaign._id),
-              ),
-              totalCount: Math.max(
-                (existingData.spinCampaigns.totalCount || 0) -
-                  deletedCampaign?._ids?.length,
-                0,
-              ),
-            },
-          },
-        });
-      } catch (e) {
-        console.error('Cache update error:', e);
-      }
-    },
     awaitRefetchQueries: true,
   });
 

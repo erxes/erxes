@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const LOTTERIES_ADD_MUTATION = gql`
+export const LOTTERIES_ADD_MUTATION = gql(`
   mutation LotteriesAdd(
     $campaignId: String!
     $ownerId: String!
@@ -22,9 +22,9 @@ export const LOTTERIES_ADD_MUTATION = gql`
       voucherCampaignId
     }
   }
-`;
+`);
 
-export const LOTTERIES_EDIT_MUTATION = gql`
+export const LOTTERIES_EDIT_MUTATION = gql(`
   mutation LotteriesEdit(
     $_id: String!
     $campaignId: String
@@ -48,10 +48,10 @@ export const LOTTERIES_EDIT_MUTATION = gql`
       voucherCampaignId
     }
   }
-`;
+`);
 
-export const DELETE_LOTTERY_MUTATION = gql`
+export const DELETE_LOTTERY_MUTATION = gql(`
   mutation LotteriesRemove($_ids: [String!]!) {
     lotteriesRemove(_ids: $_ids)
   }
-`;
+`);

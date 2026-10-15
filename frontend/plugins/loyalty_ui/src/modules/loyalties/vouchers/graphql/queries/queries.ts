@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const VOUCHERS_QUERY = gql`
+export const VOUCHERS_QUERY = gql(`
   query VouchersMain(
     $page: Int
     $perPage: Int
@@ -49,9 +49,9 @@ export const VOUCHERS_QUERY = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const VOUCHER_CP_USER_QUERY = gql`
+export const VOUCHER_CP_USER_QUERY = gql(`
   query VoucherOwnerCpUser($_id: String!) {
     getClientPortalUser(_id: $_id) {
       _id
@@ -62,29 +62,4 @@ export const VOUCHER_CP_USER_QUERY = gql`
       erxesCustomerId
     }
   }
-`;
-
-export const VOUCHER_COMPANIES_QUERY = gql`
-  query VoucherCompanies($limit: Int, $searchValue: String) {
-    companies(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        primaryName
-        names
-        avatar
-        size
-        website
-        industry
-        businessType
-        status
-        code
-        location
-        getTags {
-          _id
-          name
-          colorCode
-        }
-      }
-    }
-  }
-`;
+`);

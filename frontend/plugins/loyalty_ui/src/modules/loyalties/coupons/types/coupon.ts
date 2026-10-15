@@ -1,14 +1,4 @@
-export interface ICoupon {
-  _id: string;
-  code?: string;
-  campaignId?: string;
-  campaign?: { title?: string };
-  ownerType?: string;
-  ownerId?: string;
-  status?: string;
-  usageLimit?: number;
-  usageCount?: number;
-  redemptionLimitPerUser?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { CouponsMainQuery } from '~/gql/graphql';
+export type ICoupon = NonNullable<
+  NonNullable<NonNullable<CouponsMainQuery['coupons']>['list']>[number]
+>;

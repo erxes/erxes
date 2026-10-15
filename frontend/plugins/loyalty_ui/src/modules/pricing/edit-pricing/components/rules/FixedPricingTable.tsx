@@ -13,25 +13,50 @@ import {
   Button,
   useToast,
 } from 'erxes-ui';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { isRecord } from '@/loyalties/utils/isRecord';
+import type { PricingFixedValuesPageQuery } from '~/gql/graphql';
 import { CommonRuleFormValues } from './types';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
-interface IPageItem {
-  _id: string | null;
-  productId: string;
-  productName: string;
-  sortField: string;
-  uom: string;
-  unitPrice: number;
-  newPrice: number;
-  productStatus: string | null;
-  status: FixedPricingStatus;
-}
+const FIXED_PRICING_STATUSES: FixedPricingStatus[] = ['NEW', 'SAVED', 'STALE'];
+
+type TFixedValuePageItem = NonNullable<
+  NonNullable<
+    NonNullable<PricingFixedValuesPageQuery['pricingFixedValuesPage']>['list']
+  >[number]
+>;
+
+const toPageItem = (item: TFixedValuePageItem) => ({
+  _id: item._id,
+  productId: item.productId ?? '',
+  productName: item.productName ?? '',
+  sortField: item.sortField ?? '',
+  uom: item.uom ?? '',
+  unitPrice: item.unitPrice ?? 0,
+  newPrice: item.newPrice ?? 0,
+  productStatus: item.productStatus,
+  status:
+    FIXED_PRICING_STATUSES.find((status) => status === item.status) ?? 'NEW',
+});
+
+const parseBulkEditResult = (value: unknown) => {
+  const result = isRecord(value) ? value : {};
+
+  return {
+    count: typeof result.count === 'number' ? result.count : 0,
+    notFound: Array.isArray(result.notFound)
+      ? result.notFound.filter(
+          (code): code is string => typeof code === 'string',
+        )
+      : [],
+  };
+};
 
 interface IProductRow {
   _id: string;
@@ -202,7 +227,10 @@ export const FixedPricingTable = ({
   });
 
   const pageResult = data?.pricingFixedValuesPage;
-  const pageItems: IPageItem[] = pageResult?.list || [];
+  const pageItems = useMemo(
+    () => compactList(pageResult?.list).map(toPageItem),
+    [pageResult?.list],
+  );
   const totalCount: number = pageResult?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
   const pageItemsKey = JSON.stringify(pageItems);
@@ -249,8 +277,9 @@ export const FixedPricingTable = ({
       const result = await bulkEdit({
         variables: { pricingPlanId: pricingId, productsData },
       });
-      const { count = 0, notFound = [] } =
-        result.data?.pricingFixedValuesBulkEdit ?? {};
+      const { count, notFound } = parseBulkEditResult(
+        result.data?.pricingFixedValuesBulkEdit,
+      );
       await client.refetchQueries({ include: ['PricingFixedValuesPage'] });
       if (notFound.length) {
         toast({
@@ -262,8 +291,11 @@ export const FixedPricingTable = ({
       } else {
         toast({ title: `Imported ${count} rows successfully` });
       }
-    } catch (err: any) {
-      toast({ title: err?.message || 'Import failed', variant: 'destructive' });
+    } catch (err) {
+      toast({
+        title: err instanceof Error ? err.message : 'Import failed',
+        variant: 'destructive',
+      });
     }
   };
 

@@ -23,7 +23,7 @@ export const TierChangedTriggerNodeContent = ({
   }
 
   const tierName = config?.toTier
-    ? accountType.tiers?.find(({ key }) => key === config.toTier)?.name
+    ? accountType.tiers?.find((tier) => tier?.key === config.toTier)?.name
     : t('tier-changed-any-tier');
 
   return (

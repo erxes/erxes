@@ -18,7 +18,7 @@ export const TierBandsFields = ({
   value,
   onChange,
 }: {
-  tiers: ILoyaltyTier[] | null | undefined;
+  tiers: readonly (ILoyaltyTier | null)[] | null | undefined;
   value: TTierBandsValue;
   onChange: (value: TTierBandsValue) => void;
 }) => {

@@ -17,13 +17,6 @@ import {
 } from '../graphql/birthdayRewardQueries';
 import { TBirthdayReward } from './useVoucherBirthdayReward';
 
-type TBroadcast = {
-  _id: string;
-  nextRunAt?: string;
-  lastRunAt?: string;
-  scheduleDate?: { type?: string } | null;
-};
-
 /** The two halves of one reward, read and switched as one. */
 export const useBirthdayRewardParts = ({
   campaignId,
@@ -35,18 +28,13 @@ export const useBirthdayRewardParts = ({
   const { confirm } = useConfirm();
   const [busy, setBusy] = useState(false);
 
-  const broadcastQuery = useQuery<{ engageMessageDetail?: TBroadcast | null }>(
-    LOYALTY_BIRTHDAY_BROADCAST,
-    {
-      variables: { _id: broadcastId },
-      skip: !broadcastId,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
-  const automationQuery = useQuery<{
-    automationDetail?: { _id: string; status?: string } | null;
-  }>(LOYALTY_BIRTHDAY_AUTOMATION, {
-    variables: { _id: automationId },
+  const broadcastQuery = useQuery(LOYALTY_BIRTHDAY_BROADCAST, {
+    variables: { _id: broadcastId },
+    skip: !broadcastId,
+    fetchPolicy: 'cache-and-network',
+  });
+  const automationQuery = useQuery(LOYALTY_BIRTHDAY_AUTOMATION, {
+    variables: { _id: automationId || '' },
     skip: !automationId,
     fetchPolicy: 'cache-and-network',
   });

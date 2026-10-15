@@ -1,32 +1,14 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
+import type {
+  CreateLotteryCampaignMutation,
+  CreateLotteryCampaignMutationVariables,
+} from '~/gql/graphql';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
 import { CREATE_LOTTERY_CAMPAIGN } from '../graphql/mutations/LotteryMutations';
-import { ILottery } from '../types/lotteryTypes';
+import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { LOTTERY_PER_PAGE } from './useLotteries';
-
-interface LotteryCampaignsQueryData {
-  lotteryCampaigns: { list: ILottery[]; totalCount: number };
-}
-
-export interface AddLotteryResult {
-  lotteryCampaignsAdd: ILottery;
-}
-
-export interface AddLotteryVariables {
-  status?: string;
-  startDate?: string;
-  endDate?: string;
-  title?: string;
-  awards?: {
-    name?: string;
-    voucherCampaignId?: string;
-    count?: number;
-    buyScore?: number;
-  };
-}
 
 export const useAddLottery = () => {
   const { t } = useTranslation('loyalty');
@@ -34,58 +16,23 @@ export const useAddLottery = () => {
   const { cursor } = useRecordTableCursor({
     sessionKey: LOTTERY_CURSOR_SESSION_KEY,
   });
-  const [addLottery, { loading, error }] = useMutation<
-    AddLotteryResult,
-    AddLotteryVariables
-  >(CREATE_LOTTERY_CAMPAIGN, {
-    refetchQueries: [
-      {
-        query: QUERY_LOTTERY_CAMPAIGNS,
-        variables: { limit: LOTTERY_PER_PAGE, cursor },
-      },
-    ],
-    update: (cache, { data }) => {
-      try {
-        const newCampaign = data?.lotteryCampaignsAdd;
-
-        if (!newCampaign) {
-          return;
-        }
-
-        const existingData = cache.readQuery<LotteryCampaignsQueryData>({
+  const [addLottery, { loading, error }] = useMutation(
+    CREATE_LOTTERY_CAMPAIGN,
+    {
+      refetchQueries: [
+        {
           query: QUERY_LOTTERY_CAMPAIGNS,
-          variables: {
-            limit: LOTTERY_PER_PAGE,
-            cursor,
-          },
-        });
-
-        if (!existingData?.lotteryCampaigns) {
-          return;
-        }
-
-        cache.writeQuery({
-          query: QUERY_LOTTERY_CAMPAIGNS,
-          variables: {
-            limit: LOTTERY_PER_PAGE,
-            cursor,
-          },
-          data: {
-            lotteryCampaigns: {
-              ...existingData.lotteryCampaigns,
-              list: [newCampaign, ...existingData.lotteryCampaigns.list],
-              totalCount: (existingData.lotteryCampaigns.totalCount || 0) + 1,
-            },
-          },
-        });
-      } catch (e) {
-        console.error('Cache update error:', e);
-      }
+          variables: { limit: LOTTERY_PER_PAGE, cursor },
+        },
+      ],
     },
-  });
+  );
 
   const lotteryAdd = async (
-    options: MutationHookOptions<AddLotteryResult, AddLotteryVariables>,
+    options: MutationHookOptions<
+      CreateLotteryCampaignMutation,
+      CreateLotteryCampaignMutationVariables
+    >,
   ) => {
     return addLottery({
       ...options,

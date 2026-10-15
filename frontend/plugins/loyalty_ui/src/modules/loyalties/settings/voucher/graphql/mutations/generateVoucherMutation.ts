@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GENERATE_VOUCHER = gql`
+export const GENERATE_VOUCHER = gql(`
   mutation VouchersAdd(
     $campaignId: String!
     $ownerId: String!
@@ -24,4 +24,4 @@ export const GENERATE_VOUCHER = gql`
       createdAt
     }
   }
-`;
+`);

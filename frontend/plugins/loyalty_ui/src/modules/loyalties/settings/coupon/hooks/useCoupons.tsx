@@ -1,30 +1,35 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { COUPONS_CURSOR_SESSION_KEY } from '../constants/couponsCursorSessionKey';
+import { useMemo } from 'react';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
+import type {
+  GetCouponCampaignsQuery,
+  GetCouponCampaignsQueryVariables,
+} from '~/gql/graphql';
 import { QUERY_COUPON_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
-import { ICoupon } from '../types/couponTypes';
+import { COUPONS_CURSOR_SESSION_KEY } from '../constants/couponsCursorSessionKey';
 
 export const COUPONS_PER_PAGE = 30;
 
-export const useCoupons = (options?: QueryHookOptions) => {
+export const useCoupons = (
+  options?: QueryHookOptions<
+    GetCouponCampaignsQuery,
+    GetCouponCampaignsQueryVariables
+  >,
+) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: COUPONS_CURSOR_SESSION_KEY,
   });
-  const { data, loading, fetchMore } = useQuery<{
-    couponCampaigns: {
-      list: ICoupon[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(QUERY_COUPON_CAMPAIGNS, {
+  const { data, loading, fetchMore } = useQuery(QUERY_COUPON_CAMPAIGNS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(cursor),
     variables: {
@@ -34,7 +39,12 @@ export const useCoupons = (options?: QueryHookOptions) => {
     },
   });
 
-  const { list: coupons, totalCount, pageInfo } = data?.couponCampaigns || {};
+  const coupons = useMemo(
+    () => compactList(data?.couponCampaigns?.list),
+    [data?.couponCampaigns?.list],
+  );
+  const totalCount = data?.couponCampaigns?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(data?.couponCampaigns?.pageInfo);
 
   const handleFetchMore = ({
     direction,
@@ -60,19 +70,17 @@ export const useCoupons = (options?: QueryHookOptions) => {
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.couponCampaigns || !prev.couponCampaigns) {
+          return prev;
+        }
+
         return {
           ...prev,
-          couponCampaigns: {
-            ...mergeCursorData({
-              direction,
-              fetchMoreResult: fetchMoreResult.couponCampaigns,
-              prevResult: prev.couponCampaigns,
-            }),
-            totalCount:
-              fetchMoreResult.couponCampaigns.totalCount ??
-              prev.couponCampaigns.totalCount,
-          },
+          couponCampaigns: mergeCursorList(
+            direction,
+            prev.couponCampaigns,
+            fetchMoreResult.couponCampaigns,
+          ),
         };
       },
     });

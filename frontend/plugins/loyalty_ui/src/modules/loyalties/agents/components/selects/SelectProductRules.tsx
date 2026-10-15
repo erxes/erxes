@@ -1,13 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { Combobox, Command, Form, Popover } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AGENT_PRODUCT_RULES_QUERY } from '../../graphql/queries/queries';
-
-interface IProductRule {
-  _id: string;
-  name: string;
-}
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface SelectProductRulesProps {
   value: string[];
@@ -24,7 +20,10 @@ export const SelectProductRules = ({
   const { t } = useTranslation('loyalty');
 
   const { data, loading } = useQuery(AGENT_PRODUCT_RULES_QUERY);
-  const rules: IProductRule[] = data?.productRules || [];
+  const rules = useMemo(
+    () => compactList(data?.productRules),
+    [data?.productRules],
+  );
 
   const selectedNames = rules
     .filter((r) => value.includes(r._id))

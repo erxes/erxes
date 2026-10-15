@@ -1,20 +1,4 @@
-export interface ISpin {
-  _id: string;
-  campaignId?: string;
-  spinCampaignId?: string;
-  ownerType?: string;
-  ownerId?: string;
-  owner?: {
-    _id: string;
-    firstName?: string;
-    lastName?: string;
-    primaryEmail?: string;
-    primaryPhone?: string;
-    primaryName?: string;
-  };
-  status?: string;
-  number?: string;
-  voucherCampaignId?: string;
-  createdAt?: string;
-  usedAt?: string;
-}
+import type { SpinsMainQuery } from '~/gql/graphql';
+export type ISpin = NonNullable<
+  NonNullable<NonNullable<SpinsMainQuery['spinsMain']>['list']>[number]
+>;

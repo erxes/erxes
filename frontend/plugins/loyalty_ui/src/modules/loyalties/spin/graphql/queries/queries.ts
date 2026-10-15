@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const SPINS_QUERY = gql`
+export const SPINS_QUERY = gql(`
   query SpinsMain(
     $page: Int
     $perPage: Int
@@ -38,30 +38,4 @@ export const SPINS_QUERY = gql`
       totalCount
     }
   }
-`;
-
-export const SPIN_COMPANIES_QUERY = gql`
-  query SpinCompanies($limit: Int, $searchValue: String) {
-    companies(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        primaryName
-        names
-      }
-    }
-  }
-`;
-
-export const SPIN_CUSTOMERS_QUERY = gql`
-  query SpinCustomers($limit: Int, $searchValue: String) {
-    customers(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
-    }
-  }
-`;
+`);

@@ -18,8 +18,8 @@ import {
   SelectVoucherCampaignContext,
   useSelectVoucherCampaignContext,
 } from '../../context/SelectVoucherCampaignContext';
-import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
-import { IVoucherCampaign } from '../../types/voucherCampaignType';
+import { useVoucherCampaign } from '@/loyalties/settings/voucher/hooks/useSelectVoucherCampaign';
+import { IVoucherCampaign } from '@/loyalties/settings/voucher/types/voucherCampaignType';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
 
 export const SelectVoucherCampaignProvider = ({

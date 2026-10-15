@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ASSIGNMENTS_QUERY = gql`
+export const ASSIGNMENTS_QUERY = gql(`
   query AssignmentsMain(
     $limit: Int
     $cursor: String
@@ -42,9 +42,9 @@ export const ASSIGNMENTS_QUERY = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const QUERY_ASSIGNMENT_CAMPAIGNS_SIMPLE = gql`
+export const QUERY_ASSIGNMENT_CAMPAIGNS_SIMPLE = gql(`
   query AssignmentCampaignsSimple($searchValue: String, $limit: Int) {
     assignmentCampaigns(searchValue: $searchValue, limit: $limit) {
       list {
@@ -54,4 +54,4 @@ export const QUERY_ASSIGNMENT_CAMPAIGNS_SIMPLE = gql`
       }
     }
   }
-`;
+`);

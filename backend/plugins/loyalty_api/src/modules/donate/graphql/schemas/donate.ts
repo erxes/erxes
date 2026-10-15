@@ -2,7 +2,7 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type Donate {
-    _id: String
+    _id: String!
     campaignId: String
     ownerId: String
     ownerType: String

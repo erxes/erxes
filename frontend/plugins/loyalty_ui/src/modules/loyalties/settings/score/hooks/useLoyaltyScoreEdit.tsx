@@ -1,6 +1,10 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateScoreCampaignMutation,
+  UpdateScoreCampaignMutationVariables,
+} from '~/gql/graphql';
 import { UPDATE_SCORE_CAMPAIGN } from '../graphql/mutations/editLoyaltyScoreMutation';
 
 export const useLoyaltyScoreEdit = () => {
@@ -8,11 +12,18 @@ export const useLoyaltyScoreEdit = () => {
   const { toast } = useToast();
   const [editStatus, { loading }] = useMutation(UPDATE_SCORE_CAMPAIGN);
 
-  const mutate = ({ variables, ...options }: MutationHookOptions) => {
+  const mutate = ({
+    variables,
+    ...options
+  }: MutationHookOptions<
+    UpdateScoreCampaignMutation,
+    UpdateScoreCampaignMutationVariables
+  >) => {
     editStatus({
       ...options,
       variables,
-      onCompleted: () => toast({ title: t('score-campaign-updated'), variant: 'success' }),
+      onCompleted: () =>
+        toast({ title: t('score-campaign-updated'), variant: 'success' }),
       onError(error) {
         toast({
           title: t('error'),

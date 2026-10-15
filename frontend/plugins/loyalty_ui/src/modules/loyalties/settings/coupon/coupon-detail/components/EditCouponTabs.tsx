@@ -63,7 +63,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
       return date;
     };
 
-    const variables: any = {
+    const variables = {
       _id: couponDetail._id,
       title: data.title || '',
       description: data.description || '',

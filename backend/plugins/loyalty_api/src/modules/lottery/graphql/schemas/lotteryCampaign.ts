@@ -3,7 +3,7 @@ import { commonCampaignInputs, commonCampaignTypes } from '~/utils';
 
 export const types = `
   type LotteryCampaign {
-    _id: String
+    _id: String!
     ${commonCampaignTypes}
 
     numberFormat: String

@@ -37,7 +37,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
       return date;
     };
 
-    const variables: any = {
+    const variables = {
       _id: lotteryId,
       title: data.title || '',
       description: data.description || '',

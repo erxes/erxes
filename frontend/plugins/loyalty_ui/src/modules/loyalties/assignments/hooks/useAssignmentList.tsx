@@ -4,13 +4,16 @@ import {
   useMultiQueryState,
   useRecordTableCursor,
   EnumCursorDirection,
-  mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { assignmentTotalCountAtom } from '../states/assignmentCounts';
 import { ASSIGNMENTS_QUERY } from '../graphql/queries';
-import { IAssignmentItem } from '../types/assignment';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
 
 const ASSIGNMENT_PER_PAGE = 30;
 export const ASSIGNMENT_CURSOR_SESSION_KEY = 'assignments_cursor';
@@ -54,8 +57,8 @@ export const useAssignmentList = () => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const list = useMemo<IAssignmentItem[]>(
-    () => data?.assignments?.list || [],
+  const list = useMemo(
+    () => compactList(data?.assignments?.list),
     [data?.assignments?.list],
   );
 
@@ -64,7 +67,7 @@ export const useAssignmentList = () => {
     [data?.assignments?.totalCount],
   );
 
-  const pageInfo = data?.assignments?.pageInfo;
+  const pageInfo = toCursorPageInfo(data?.assignments?.pageInfo);
 
   const handleFetchMore = useCallback(
     ({ direction }: { direction: EnumCursorDirection }) => {
@@ -81,14 +84,15 @@ export const useAssignmentList = () => {
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult.assignments || !prev.assignments) return prev;
           return {
+            ...prev,
             assignments: {
-              ...mergeCursorData({
+              ...mergeCursorList(
                 direction,
-                fetchMoreResult: fetchMoreResult.assignments,
-                prevResult: prev.assignments,
-              }),
+                prev.assignments,
+                fetchMoreResult.assignments,
+              ),
               totalCount:
                 fetchMoreResult.assignments.totalCount ??
                 prev.assignments.totalCount,

@@ -1,81 +1,63 @@
-import { useQuery } from '@apollo/client';
-import { useMemo, useCallback } from 'react';
-import { ISpinCampaign } from '../types/spinCampaignType';
+import { QueryHookOptions, useQuery } from '@apollo/client';
+import { EnumCursorDirection } from 'erxes-ui';
+import { useMemo } from 'react';
+import { compactList, mergeCursorList } from '@/loyalties/utils/cursorList';
+import type {
+  GetSpinCampaignsQuery,
+  GetSpinCampaignsQueryVariables,
+} from '~/gql/graphql';
 import { QUERY_SPIN_CAMPAIGNS } from '../../settings/spin/add-spin-campaign/graphql/queries/getCampaignsQuery';
 
 const SPIN_CAMPAIGN_PER_PAGE = 20;
 
-interface UseSpinCampaignOptions {
-  variables?: {
-    searchValue?: string;
-    status?: string;
-    spinType?: string;
-    excludeSpinTypes?: string[];
-    [key: string]: string | number | boolean | string[] | undefined;
-  };
-  skip?: boolean;
-}
-
-interface UseSpinCampaignReturn {
-  campaignList: ISpinCampaign[];
-  loading: boolean;
-  handleFetchMore: () => void;
-  totalCount: number;
-}
-
 export const useSpinCampaign = (
-  options: UseSpinCampaignOptions = {},
-): UseSpinCampaignReturn => {
-  const { variables = {}, skip } = options;
-
+  options?: QueryHookOptions<
+    GetSpinCampaignsQuery,
+    GetSpinCampaignsQueryVariables
+  >,
+) => {
   const { data, loading, fetchMore } = useQuery(QUERY_SPIN_CAMPAIGNS, {
+    ...options,
     variables: {
       limit: SPIN_CAMPAIGN_PER_PAGE,
-      ...variables,
+      ...options?.variables,
     },
-    skip,
   });
 
-  const campaignList = useMemo<ISpinCampaign[]>(
-    () => data?.spinCampaigns?.list || [],
+  const campaignList = useMemo(
+    () => compactList(data?.spinCampaigns?.list),
     [data?.spinCampaigns?.list],
   );
 
-  const totalCount = useMemo(
-    () => data?.spinCampaigns?.totalCount || 0,
-    [data?.spinCampaigns?.totalCount],
-  );
-
-  const handleFetchMore = useCallback(() => {
+  const handleFetchMore = () => {
     if (!data?.spinCampaigns) return;
 
     fetchMore({
       variables: {
-        page: Math.floor(campaignList.length / SPIN_CAMPAIGN_PER_PAGE) + 1,
-        ...variables,
+        limit: SPIN_CAMPAIGN_PER_PAGE,
+        cursor: data.spinCampaigns.pageInfo?.endCursor,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.spinCampaigns) {
+        if (!fetchMoreResult.spinCampaigns || !prev.spinCampaigns) {
           return prev;
         }
 
         return {
-          spinCampaigns: {
-            ...fetchMoreResult.spinCampaigns,
-            list: [
-              ...(prev?.spinCampaigns?.list || []),
-              ...fetchMoreResult.spinCampaigns.list,
-            ],
-          },
+          ...prev,
+          spinCampaigns: mergeCursorList(
+            EnumCursorDirection.FORWARD,
+            prev.spinCampaigns,
+            fetchMoreResult.spinCampaigns,
+          ),
         };
       },
     });
-  }, [data, campaignList.length, fetchMore, variables]);
+  };
 
   return {
     campaignList,
     loading,
     handleFetchMore,
-    totalCount,
+    totalCount: data?.spinCampaigns?.totalCount || 0,
   };
 };

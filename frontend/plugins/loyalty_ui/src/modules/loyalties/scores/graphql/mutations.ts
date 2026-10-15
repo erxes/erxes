@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CHANGE_SCORE_MUTATION = gql`
+export const CHANGE_SCORE_MUTATION = gql(`
   mutation ChangeScore(
     $ownerType: String!
     $ownerId: String!
@@ -30,10 +30,10 @@ export const CHANGE_SCORE_MUTATION = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const LOYALTY_SCORE_REPAIR_OWNER_MUTATION = gql`
+export const LOYALTY_SCORE_REPAIR_OWNER_MUTATION = gql(`
   mutation LoyaltyScoreRepairOwner($ownerId: String!, $ownerType: String!) {
     loyaltyScoreRepairOwner(ownerId: $ownerId, ownerType: $ownerType)
   }
-`;
+`);

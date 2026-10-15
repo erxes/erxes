@@ -1,4 +1,4 @@
-import { TEarnBreakdownItem } from './earnCalc';
+import type { ScoreLogsQuery } from '~/gql/graphql';
 
 export interface IScoreOwner {
   _id?: string;
@@ -19,27 +19,8 @@ export interface IScoreOwner {
   primaryName?: string;
 }
 
-export interface IScoreLog {
-  _id: string;
-  ownerId: string;
-  ownerType: string;
-  owner?: IScoreOwner;
-  totalScore?: number;
-  preScore?: number;
-  change?: number;
-  action?: string;
-  description?: string;
-  // Earning table rows this entry came from.
-  breakdown?: TEarnBreakdownItem[] | null;
-  campaignId?: string;
-  campaign?: { _id: string; title: string };
-  targetId?: string;
-  target?: { _id?: string; number?: string };
-  serviceName?: string;
-  createdBy?: string;
-  createdAt?: string;
-  // present on aggregated owner rows (one row per owner in the main list)
-  logCount?: number;
-}
+export type IScoreLog = NonNullable<
+  NonNullable<NonNullable<ScoreLogsQuery['scoreLogs']>['list']>[number]
+>;
 
 export type IScoreLogItem = IScoreLog;

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_COUPON_CAMPAIGN = gql`
+export const QUERY_COUPON_CAMPAIGN = gql(`
   query GetCouponCampaign($_id: String!) {
     couponCampaign(_id: $_id) {
       _id
@@ -29,4 +29,4 @@ export const QUERY_COUPON_CAMPAIGN = gql`
       redemptionLimitPerUser
     }
   }
-`;
+`);

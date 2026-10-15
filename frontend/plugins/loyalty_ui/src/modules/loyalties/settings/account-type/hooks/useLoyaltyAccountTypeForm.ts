@@ -8,11 +8,24 @@ import {
   useLoyaltyAccountTypeEdit,
 } from './useLoyaltyAccountTypeMutations';
 
+const OWNER_TYPES = z.enum(['customer', 'company', 'user']);
+const FROZEN_BLOCKS = z.enum(['spending', 'all']);
+const RESET_PERIODS = z.enum(['never', 'monthly', 'yearly']);
+const TIER_RESET_TO = z.enum(['keep', 'none', 'lowest']);
+const EXPIRY_MODES = z.enum(['none', 'calendar', 'rolling']);
+const EARN_WHO = z.enum(['all', 'clientPortal', 'segment']);
+
+const oneOf = <T extends string>(
+  options: readonly T[],
+  value: string | null | undefined,
+  fallback: T,
+): T => options.find((option) => option === value) ?? fallback;
+
 export const loyaltyAccountTypeFormSchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
-    ownerType: z.enum(['customer', 'company', 'user']),
-    frozenBlocks: z.enum(['spending', 'all']),
+    ownerType: OWNER_TYPES,
+    frozenBlocks: FROZEN_BLOCKS,
     // Lowest first; the key keeps a renamed tier the same tier on records.
     tiers: z
       .array(
@@ -39,18 +52,18 @@ export const loyaltyAccountTypeFormSchema = z
         });
       }),
     reset: z.object({
-      period: z.enum(['never', 'monthly', 'yearly']),
-      tierTo: z.enum(['keep', 'none', 'lowest']),
+      period: RESET_PERIODS,
+      tierTo: TIER_RESET_TO,
     }),
     expiry: z.object({
-      mode: z.enum(['none', 'calendar', 'rolling']),
+      mode: EXPIRY_MODES,
       months: z.coerce.number().int().optional(),
     }),
     pendingDays: z.coerce.number().int().min(0, 'Must be zero or more'),
     currencyRatio: z.coerce.number().positive('Must be more than zero'),
     pointValue: z.coerce.number().positive('Must be more than zero'),
     earnEligibility: z.object({
-      who: z.enum(['all', 'clientPortal', 'segment']),
+      who: EARN_WHO,
       segmentId: z.string().optional(),
     }),
   })
@@ -109,22 +122,26 @@ const toFormValues = (
   accountType: ILoyaltyAccountType,
 ): TLoyaltyAccountTypeFormValues => ({
   name: accountType.name,
-  ownerType: accountType.ownerType,
-  frozenBlocks: accountType.frozenBlocks || 'spending',
+  ownerType: oneOf(OWNER_TYPES.options, accountType.ownerType, 'customer'),
+  frozenBlocks: oneOf(
+    FROZEN_BLOCKS.options,
+    accountType.frozenBlocks,
+    'spending',
+  ),
   tiers: activeTiers(accountType.tiers).map(({ key, name }) => ({ key, name })),
   reset: {
-    period: accountType.reset?.period || 'never',
-    tierTo: accountType.reset?.tierTo || 'keep',
+    period: oneOf(RESET_PERIODS.options, accountType.reset?.period, 'never'),
+    tierTo: oneOf(TIER_RESET_TO.options, accountType.reset?.tierTo, 'keep'),
   },
   expiry: {
-    mode: accountType.expiry?.mode || 'none',
+    mode: oneOf(EXPIRY_MODES.options, accountType.expiry?.mode, 'none'),
     months: accountType.expiry?.months ?? 12,
   },
   pendingDays: accountType.pendingDays ?? 0,
   currencyRatio: accountType.currencyRatio ?? 1,
   pointValue: accountType.pointValue ?? 1,
   earnEligibility: {
-    who: accountType.earnEligibility?.who || 'all',
+    who: oneOf(EARN_WHO.options, accountType.earnEligibility?.who, 'all'),
     segmentId: accountType.earnEligibility?.segmentId || undefined,
   },
 });

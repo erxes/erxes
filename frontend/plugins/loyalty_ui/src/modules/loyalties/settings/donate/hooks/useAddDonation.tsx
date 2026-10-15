@@ -1,25 +1,14 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+import type {
+  CreateDonateCampaignMutation,
+  CreateDonateCampaignMutationVariables,
+} from '~/gql/graphql';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
 import { CREATE_DONATE_CAMPAIGN } from '../graphql/mutations/DonationMutations';
+import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
 import { DONATIONS_PER_PAGE } from './useDonations';
-
-export interface AddDonationResult {
-  createCampaign: any;
-}
-
-export interface AddDonationVariables {
-  name: string;
-  status?: string;
-  startDate?: string;
-  endDate?: string;
-  title?: string;
-  voucherCampaignId?: string;
-  minScore?: number;
-  maxScore?: number;
-}
 
 export const useAddDonation = () => {
   const { t } = useTranslation('loyalty');
@@ -27,58 +16,23 @@ export const useAddDonation = () => {
   const { cursor } = useRecordTableCursor({
     sessionKey: DONATIONS_CURSOR_SESSION_KEY,
   });
-  const [addDonation, { loading, error }] = useMutation<
-    AddDonationResult,
-    AddDonationVariables
-  >(CREATE_DONATE_CAMPAIGN, {
-    refetchQueries: [
-      {
-        query: QUERY_DONATE_CAMPAIGNS,
-        variables: { limit: DONATIONS_PER_PAGE, cursor },
-      },
-    ],
-    update: (cache, { data }) => {
-      try {
-        const newCampaign = data?.createCampaign;
-
-        if (!newCampaign) {
-          return;
-        }
-
-        const existingData: any = cache.readQuery({
+  const [addDonation, { loading, error }] = useMutation(
+    CREATE_DONATE_CAMPAIGN,
+    {
+      refetchQueries: [
+        {
           query: QUERY_DONATE_CAMPAIGNS,
-          variables: {
-            limit: DONATIONS_PER_PAGE,
-            cursor,
-          },
-        });
-
-        if (!existingData?.donateCampaigns) {
-          return;
-        }
-
-        cache.writeQuery({
-          query: QUERY_DONATE_CAMPAIGNS,
-          variables: {
-            limit: DONATIONS_PER_PAGE,
-            cursor,
-          },
-          data: {
-            donateCampaigns: {
-              ...existingData.donateCampaigns,
-              list: [newCampaign, ...existingData.donateCampaigns.list],
-              totalCount: (existingData.donateCampaigns.totalCount || 0) + 1,
-            },
-          },
-        });
-      } catch (e) {
-        console.error('Cache update error:', e);
-      }
+          variables: { limit: DONATIONS_PER_PAGE, cursor },
+        },
+      ],
     },
-  });
+  );
 
   const donationAdd = async (
-    options: MutationHookOptions<AddDonationResult, AddDonationVariables>,
+    options: MutationHookOptions<
+      CreateDonateCampaignMutation,
+      CreateDonateCampaignMutationVariables
+    >,
   ) => {
     return addDonation({
       ...options,

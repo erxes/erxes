@@ -1,4 +1,8 @@
-import { DocumentNode, useMutation } from '@apollo/client';
+import {
+  OperationVariables,
+  TypedDocumentNode,
+  useMutation,
+} from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -10,8 +14,8 @@ import {
 // Every list that shows a voucher reads `VouchersMain`.
 const REFETCH = ['VouchersMain'];
 
-const useVoucherMutation = <TVariables extends Record<string, unknown>>(
-  mutation: DocumentNode,
+const useVoucherMutation = <TData, TVariables extends OperationVariables>(
+  mutation: TypedDocumentNode<TData, TVariables>,
   successKey: string,
 ) => {
   const { t } = useTranslation('loyalty');
@@ -41,15 +45,15 @@ const useVoucherMutation = <TVariables extends Record<string, unknown>>(
 
 /** The only things done to an issued voucher: cancel, mark used, extend. */
 export const useVoucherActions = () => {
-  const cancel = useVoucherMutation<{ _id: string; reason: string }>(
+  const cancel = useVoucherMutation(
     VOUCHER_CANCEL_MUTATION,
     'voucher-cancelled',
   );
-  const markUsed = useVoucherMutation<{ _id: string; note: string }>(
+  const markUsed = useVoucherMutation(
     VOUCHER_MARK_USED_MUTATION,
     'voucher-marked-used',
   );
-  const extend = useVoucherMutation<{ _id: string; endDate: string }>(
+  const extend = useVoucherMutation(
     VOUCHER_EXTEND_MUTATION,
     'voucher-extended',
   );

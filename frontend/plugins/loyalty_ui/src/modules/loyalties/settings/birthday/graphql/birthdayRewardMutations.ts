@@ -1,6 +1,24 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const LOYALTY_BIRTHDAY_BROADCAST_ADD = gql`
+export const LOYALTY_BIRTHDAY_SEGMENT_ADD = gql(`
+  mutation LoyaltyBirthdaySegmentAdd(
+    $contentType: String!
+    $name: String
+    $root: JSON!
+    $visibility: SegmentVisibility
+  ) {
+    segmentsAdd(
+      contentType: $contentType
+      name: $name
+      root: $root
+      visibility: $visibility
+    ) {
+      _id
+    }
+  }
+`);
+
+export const LOYALTY_BIRTHDAY_BROADCAST_ADD = gql(`
   mutation LoyaltyBirthdayBroadcastAdd(
     $title: String
     $targetIds: [String]
@@ -19,9 +37,9 @@ export const LOYALTY_BIRTHDAY_BROADCAST_ADD = gql`
       _id
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_BROADCAST_FOLLOW = gql`
+export const LOYALTY_BIRTHDAY_BROADCAST_FOLLOW = gql(`
   mutation LoyaltyBirthdayBroadcastFollow(
     $_id: String!
     $afterSegment: EngageAfterSegmentInput
@@ -34,9 +52,9 @@ export const LOYALTY_BIRTHDAY_BROADCAST_FOLLOW = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_BROADCAST_UNFOLLOW = gql`
+export const LOYALTY_BIRTHDAY_BROADCAST_UNFOLLOW = gql(`
   mutation LoyaltyBirthdayBroadcastUnfollow($_id: String!) {
     engageMessageCancelSchedule(_id: $_id) {
       _id
@@ -46,15 +64,15 @@ export const LOYALTY_BIRTHDAY_BROADCAST_UNFOLLOW = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_BROADCAST_REMOVE = gql`
+export const LOYALTY_BIRTHDAY_BROADCAST_REMOVE = gql(`
   mutation LoyaltyBirthdayBroadcastRemove($_ids: [String]) {
     engageMessageRemove(_ids: $_ids)
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_AUTOMATION_ADD = gql`
+export const LOYALTY_BIRTHDAY_AUTOMATION_ADD = gql(`
   mutation LoyaltyBirthdayAutomationAdd(
     $name: String
     $status: String
@@ -70,25 +88,25 @@ export const LOYALTY_BIRTHDAY_AUTOMATION_ADD = gql`
       _id
     }
   }
-`;
+`);
 
 // Returning the status updates the cached automation.
-export const LOYALTY_BIRTHDAY_AUTOMATION_SET_STATUS = gql`
+export const LOYALTY_BIRTHDAY_AUTOMATION_SET_STATUS = gql(`
   mutation LoyaltyBirthdayAutomationSetStatus($_id: String, $status: String) {
     automationsEdit(_id: $_id, status: $status) {
       _id
       status
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_AUTOMATION_REMOVE = gql`
+export const LOYALTY_BIRTHDAY_AUTOMATION_REMOVE = gql(`
   mutation LoyaltyBirthdayAutomationRemove($automationIds: [String]) {
     automationsRemove(automationIds: $automationIds)
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_REWARD_SET = gql`
+export const LOYALTY_BIRTHDAY_REWARD_SET = gql(`
   mutation LoyaltyBirthdayRewardSet(
     $_id: String!
     $kind: String!
@@ -104,12 +122,12 @@ export const LOYALTY_BIRTHDAY_REWARD_SET = gql`
       _id
     }
   }
-`;
+`);
 
-export const LOYALTY_BIRTHDAY_REWARD_REMOVE = gql`
+export const LOYALTY_BIRTHDAY_REWARD_REMOVE = gql(`
   mutation LoyaltyBirthdayRewardRemove($_id: String!, $kind: String!) {
     voucherCampaignRemoveAutoIssue(_id: $_id, kind: $kind) {
       _id
     }
   }
-`;
+`);

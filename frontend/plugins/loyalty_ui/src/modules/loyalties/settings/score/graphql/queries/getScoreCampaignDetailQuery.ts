@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_SCORE_CAMPAIGN_DETAIL = gql`
+export const QUERY_SCORE_CAMPAIGN_DETAIL = gql(`
   query GetScoreCampaignDetail($_id: String!) {
     scoreCampaign(_id: $_id) {
       _id
@@ -18,4 +18,4 @@ export const QUERY_SCORE_CAMPAIGN_DETAIL = gql`
       createdAt
     }
   }
-`;
+`);

@@ -375,7 +375,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      return models.Vouchers.updateOne(
+      return models.Vouchers.findOneAndUpdate(
         { _id },
         {
           $set: {
@@ -386,6 +386,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             userId,
           },
         },
+        { new: true },
       );
     }
 

@@ -1,3 +1,4 @@
+import { compactList } from '@/loyalties/utils/cursorList';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Label, useToast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
@@ -70,7 +71,7 @@ const WEEKDAY_TO_LABEL: Record<string, string> = {
 const getWeekDayFromValue = (value: string) =>
   NUMBER_TO_WEEKDAY[value] || value;
 
-const getRepeatRuleType = (value?: string): RepeatRuleType => {
+const getRepeatRuleType = (value?: string | null): RepeatRuleType => {
   switch (value) {
     case 'everyYear':
     case 'everyMonth':
@@ -110,42 +111,47 @@ const timeToIso = (time: string): string => {
 const getRepeatRules = (
   pricingDetail?: IPricingPlanDetail,
 ): RepeatRuleConfig[] =>
-  pricingDetail?.repeatRules?.flatMap((rule, index): RepeatRuleConfig[] => {
-    const baseRule: Omit<RepeatRuleConfig, '_id' | 'weekDay' | 'monthDay'> = {
-      ruleType: getRepeatRuleType(rule.type),
-      startTime: isoToTime(rule.dayStartValue),
-      endTime: isoToTime(rule.dayEndValue),
-      startDate: rule.yearStartValue || null,
-      endDate: rule.yearEndValue || null,
-    };
+  compactList(pricingDetail?.repeatRules).flatMap(
+    (rule, index): RepeatRuleConfig[] => {
+      const baseRule: Omit<RepeatRuleConfig, '_id' | 'weekDay' | 'monthDay'> = {
+        ruleType: getRepeatRuleType(rule.type),
+        startTime: isoToTime(rule.dayStartValue ?? undefined),
+        endTime: isoToTime(rule.dayEndValue ?? undefined),
+        startDate: rule.yearStartValue || null,
+        endDate: rule.yearEndValue || null,
+      };
 
-    if (rule.weekValue?.length) {
-      return rule.weekValue.map((weekValue, weekIndex) => ({
-        ...baseRule,
-        _id: `rule_${index}_week_${weekIndex}`,
-        weekDay: getWeekDayFromValue(weekValue.value),
-        monthDay: null,
-      }));
-    }
+      const weekValues = compactList(rule.weekValue);
+      const monthValues = compactList(rule.monthValue);
 
-    if (rule.monthValue?.length) {
-      return rule.monthValue.map((monthValue, monthIndex) => ({
-        ...baseRule,
-        _id: `rule_${index}_month_${monthIndex}`,
-        weekDay: null,
-        monthDay: monthValue.value,
-      }));
-    }
+      if (weekValues.length) {
+        return weekValues.map((weekValue, weekIndex) => ({
+          ...baseRule,
+          _id: `rule_${index}_week_${weekIndex}`,
+          weekDay: getWeekDayFromValue(weekValue.value ?? ''),
+          monthDay: null,
+        }));
+      }
 
-    return [
-      {
-        ...baseRule,
-        _id: `rule_${index}`,
-        weekDay: null,
-        monthDay: null,
-      },
-    ];
-  }) || [];
+      if (monthValues.length) {
+        return monthValues.map((monthValue, monthIndex) => ({
+          ...baseRule,
+          _id: `rule_${index}_month_${monthIndex}`,
+          weekDay: null,
+          monthDay: monthValue.value,
+        }));
+      }
+
+      return [
+        {
+          ...baseRule,
+          _id: `rule_${index}`,
+          weekDay: null,
+          monthDay: null,
+        },
+      ];
+    },
+  );
 
 const normalizeIds = (values: string[] = []) =>
   [...values].filter(Boolean).sort((a, b) => a.localeCompare(b));
@@ -214,8 +220,8 @@ export const OptionsInfo = ({
       return;
     }
 
-    const departmentIds = pricingDetail.departmentIds || [];
-    const branchIds = pricingDetail.branchIds || [];
+    const departmentIds = compactList(pricingDetail.departmentIds);
+    const branchIds = compactList(pricingDetail.branchIds);
     const rules = getRepeatRules(pricingDetail);
 
     const values: OptionsFormValues = {

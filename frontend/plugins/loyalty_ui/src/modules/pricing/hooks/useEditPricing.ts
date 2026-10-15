@@ -1,33 +1,20 @@
 import { useMutation } from '@apollo/client';
 import { PRICING_PLAN_EDIT } from '@/pricing/graphql/mutations';
-import { IPricingPlanDetail } from '@/pricing/types';
+import type { PricingPlanEditInput } from '~/gql/graphql';
 
-interface IEditPricingVariables {
-  doc: Partial<IPricingPlanDetail> & { _id: string };
-}
-
-interface IEditPricingResult {
-  pricingPlanEdit: {
-    _id: string;
-  };
-}
+export type TPricingPlanEditDoc = PricingPlanEditInput & { _id: string };
 
 export const useEditPricing = () => {
-  const [mutate, result] = useMutation<
-    IEditPricingResult,
-    IEditPricingVariables
-  >(PRICING_PLAN_EDIT, {
+  const [mutate, result] = useMutation(PRICING_PLAN_EDIT, {
     refetchQueries: ['PricingPlanDetail'],
   });
 
-  const editPricing = (doc: IEditPricingVariables['doc']) => {
-    const { fixedValues, ...rest } = doc as any;
-    return mutate({
+  const editPricing = (doc: TPricingPlanEditDoc) =>
+    mutate({
       variables: {
-        doc: rest,
+        doc,
       },
     });
-  };
 
   return {
     editPricing,

@@ -301,7 +301,9 @@ export const GiveScoreModal = ({
         onSelect={(deal) => {
           form.setValue('targetId', deal._id);
           setSelectedDealName(
-            deal.number ? `${deal.name} (${deal.number})` : deal.name,
+            deal.number
+              ? `${deal.name || ''} (${deal.number})`
+              : deal.name || '',
           );
         }}
       />

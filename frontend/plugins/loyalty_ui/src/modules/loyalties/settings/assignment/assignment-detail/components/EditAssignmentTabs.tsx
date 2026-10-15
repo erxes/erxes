@@ -31,18 +31,16 @@ export const EditAssignmentTabs = ({ onOpenChange, form }: Props) => {
       return new Date(date);
     };
 
-    const variables: any = {
-      _id: assignmentDetail._id,
-      title: data.title || '',
-      status: data.status || 'active',
-      startDate: formatDate(data.startDate),
-      endDate: formatDate(data.endDate),
-      voucherCampaignId: data.voucherCampaignId || '',
-      segmentIds: data.segmentIds || '',
-    };
-
     assignmentEdit({
-      variables,
+      variables: {
+        _id: assignmentDetail._id,
+        title: data.title || '',
+        status: data.status || 'active',
+        startDate: formatDate(data.startDate),
+        endDate: formatDate(data.endDate),
+        voucherCampaignId: data.voucherCampaignId || '',
+        segmentIds: data.segmentIds ?? [],
+      },
       onError: (e: ApolloError) => {
         toast({
           title: t('error'),

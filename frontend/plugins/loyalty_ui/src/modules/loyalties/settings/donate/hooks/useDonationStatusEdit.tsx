@@ -1,8 +1,17 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+import type {
+  UpdateDonateCampaignMutation,
+  UpdateDonateCampaignMutationVariables,
+} from '~/gql/graphql';
 import { UPDATE_DONATE_CAMPAIGN } from '../graphql/mutations/donationEditStatusMutations';
+import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
+
+type StatusVariables = Pick<
+  UpdateDonateCampaignMutationVariables,
+  '_id' | 'status'
+>;
 
 export function useDonationStatusEdit() {
   const { t } = useTranslation('loyalty');
@@ -19,12 +28,20 @@ export function useDonationStatusEdit() {
     },
   );
 
-  const editStatus = async (options: MutationHookOptions<any, any>) => {
+  const editStatus = async (
+    options: Omit<
+      MutationHookOptions<
+        UpdateDonateCampaignMutation,
+        UpdateDonateCampaignMutationVariables
+      >,
+      'variables'
+    > & { variables: StatusVariables },
+  ) => {
     const { variables } = options;
 
     return editDonation({
       variables: {
-        id: variables._id,
+        _id: variables._id,
         status: variables.status,
       },
       onCompleted: (data) => {

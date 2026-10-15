@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { IVoucherCampaign } from '../types/voucherCampaignType';
+import { IVoucherCampaign } from '@/loyalties/settings/voucher/types/voucherCampaignType';
 
 export type ISelectVoucherCampaignContext = {
   voucherCampaignId: string[];

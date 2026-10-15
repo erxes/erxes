@@ -27,18 +27,18 @@ const NumberCell = ({ agent }: { agent: IAgent }) => {
 };
 
 const ProductRulesCell = ({ agent }: { agent: IAgent }) => {
-  const rules = agent.rulesOfProducts || [];
+  const ruleCount = agent.rulesOfProducts?.length ?? 0;
 
   const { t } = useTranslation('loyalty');
 
-  if (rules.length === 0) {
+  if (ruleCount === 0) {
     return <RecordTableInlineCell>—</RecordTableInlineCell>;
   }
 
   return (
     <RecordTableInlineCell>
       <span className="text-xs text-muted-foreground">
-        {t('rules-count', { count: rules.length })}
+        {t('rules-count', { count: ruleCount })}
       </span>
     </RecordTableInlineCell>
   );

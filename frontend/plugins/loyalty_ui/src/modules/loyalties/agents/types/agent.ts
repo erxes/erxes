@@ -1,20 +1,10 @@
-export interface IAgent {
-  _id: string;
-  number: string;
-  status: string;
-  customerIds?: string[];
-  companyIds?: string[];
-  hasReturn: boolean;
-  returnAmount?: number;
-  returnPercent?: number;
-  prepaidPercent?: number;
-  discountPercent?: number;
-  startDate?: string;
-  endDate?: string;
-  startMonth?: string;
-  endMonth?: string;
-  startDay?: string;
-  endDay?: string;
-  productRuleIds?: string[];
-  rulesOfProducts?: Record<string, unknown>[];
-}
+import type { AgentStatus, AgentsMainQuery } from '~/gql/graphql';
+
+export type IAgent = NonNullable<
+  NonNullable<NonNullable<AgentsMainQuery['agentsMain']>['list']>[number]
+>;
+
+const AGENT_STATUSES: AgentStatus[] = ['active', 'draft', 'archived'];
+
+export const toAgentStatus = (value: string): AgentStatus =>
+  AGENT_STATUSES.find((status) => status === value) ?? 'draft';

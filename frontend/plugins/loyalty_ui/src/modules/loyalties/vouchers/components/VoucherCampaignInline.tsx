@@ -10,11 +10,11 @@ import {
   useVoucherCampaignInlineContext,
   VoucherCampaignInlineContext,
 } from '../context/VoucherCampaignInlineContext';
-import { useVoucherCampaignInline } from '../hooks/useVoucherCampaignInline';
+import { useVoucherCampaignInline } from '@/loyalties/settings/voucher/hooks/useVoucherCampaignInline';
 import {
   IVoucherCampaign,
   VoucherCampaignInlineProps,
-} from '../types/voucherCampaignType';
+} from '@/loyalties/settings/voucher/types/voucherCampaignType';
 
 const VoucherCampaignInlineRoot = (props: VoucherCampaignInlineProps) => {
   return (

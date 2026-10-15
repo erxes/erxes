@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_ASSIGNMENT_CAMPAIGN = gql`
+export const QUERY_ASSIGNMENT_CAMPAIGN = gql(`
   query GetAssignmentCampaign($_id: String!) {
     assignmentCampaignDetail(_id: $_id) {
       _id
@@ -27,4 +27,4 @@ export const QUERY_ASSIGNMENT_CAMPAIGN = gql`
       voucherCampaignId
     }
   }
-`;
+`);

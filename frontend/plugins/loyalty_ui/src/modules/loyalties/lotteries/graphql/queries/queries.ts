@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const LOTTERIES_QUERY = gql`
+export const LOTTERIES_QUERY = gql(`
   query LotteriesMain(
     $page: Int
     $perPage: Int
@@ -38,30 +38,4 @@ export const LOTTERIES_QUERY = gql`
       totalCount
     }
   }
-`;
-
-export const LOTTERY_COMPANIES_QUERY = gql`
-  query LotteryCompanies($limit: Int, $searchValue: String) {
-    companies(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        primaryName
-        names
-      }
-    }
-  }
-`;
-
-export const LOTTERY_CUSTOMERS_QUERY = gql`
-  query LotteryCustomers($limit: Int, $searchValue: String) {
-    customers(limit: $limit, searchValue: $searchValue) {
-      list {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
-    }
-  }
-`;
+`);

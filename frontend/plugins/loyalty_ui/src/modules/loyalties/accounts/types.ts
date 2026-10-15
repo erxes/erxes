@@ -1,61 +1,34 @@
-import { IScoreOwner } from '../scores/types/score';
-import { ILoyaltyTier } from '../settings/account-type/types';
+import type {
+  LoyaltyAccountFieldsFragment,
+  LoyaltyAccountsQuery,
+  LoyaltyTierLogsQuery,
+} from '~/gql/graphql';
 
 export type TLoyaltyAccountStatus = 'active' | 'frozen' | 'closed';
 
-export interface ILoyaltyAccountBalance {
-  accountTypeId: string;
-  accountType?: {
-    _id: string;
-    name: string;
-    status: string;
-    tiers?: ILoyaltyTier[] | null;
-  } | null;
-  balance: number;
-  pending?: number | null;
-  expiringSoon?: { amount: number; expiresAt: string } | null;
-  updatedAt?: string;
-  tier?: ILoyaltyTier | null;
-  tierSince?: string;
-}
+const ACCOUNT_STATUSES: TLoyaltyAccountStatus[] = [
+  'active',
+  'frozen',
+  'closed',
+];
 
-export interface ILoyaltyAccount {
-  _id: string;
-  number: string;
-  status: TLoyaltyAccountStatus;
-  balances: ILoyaltyAccountBalance[];
-  joinedAt?: string;
-  frozenAt?: string;
-  frozenReason?: string;
-  // Present on list rows; the owner card already knows whose account it is.
-  ownerType?: string;
-  ownerId?: string;
-  owner?: IScoreOwner | null;
-}
+export const isLoyaltyAccountStatus = (
+  value: string,
+): value is TLoyaltyAccountStatus =>
+  ACCOUNT_STATUSES.some((status) => status === value);
 
-export interface ILoyaltyTierLog {
-  _id: string;
-  ownerType?: string | null;
-  ownerId?: string | null;
-  owner?: IScoreOwner | null;
-  accountTypeId: string;
-  accountType?: {
-    _id: string;
-    name: string;
-    tiers?: ILoyaltyTier[] | null;
-  } | null;
-  fromTier?: string | null;
-  toTier?: string | null;
-  direction: 'up' | 'down';
-  createdBy?: string | null;
-  createdVia?: {
-    source?: string;
-    sourceId?: string;
-    sourceName?: string;
-    actorId?: string;
-  } | null;
-  targetId?: string | null;
-  targetType?: string | null;
-  targetName?: string | null;
-  createdAt: string;
-}
+export type ILoyaltyAccount = LoyaltyAccountFieldsFragment;
+
+export type ILoyaltyAccountRow = NonNullable<
+  NonNullable<
+    NonNullable<LoyaltyAccountsQuery['loyaltyAccounts']>['list']
+  >[number]
+>;
+
+export type ILoyaltyAccountBalance = NonNullable<
+  NonNullable<ILoyaltyAccount['balances']>[number]
+>;
+
+export type ILoyaltyTierLog = NonNullable<
+  NonNullable<LoyaltyTierLogsQuery['loyaltyTierLogs']>[number]
+>;

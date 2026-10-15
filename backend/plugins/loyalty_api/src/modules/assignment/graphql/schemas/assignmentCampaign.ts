@@ -2,7 +2,7 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type AssignmentCampaign @key(fields: "_id"){
-    _id: String
+    _id: String!
     createdAt: Date
     createdBy: String
     modifiedAt: Date

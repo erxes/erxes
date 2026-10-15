@@ -15,7 +15,7 @@ export const SetTierNodeContent = ({
   const tierName = config?.bands?.length
     ? t('set-tier-mode-amount')
     : config?.tier
-    ? accountType?.tiers?.find(({ key }) => key === config.tier)?.name
+    ? accountType?.tiers?.find((tier) => tier?.key === config.tier)?.name
     : t('loyalty-tier-none');
 
   return (

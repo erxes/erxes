@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const AGENTS_ADD_MUTATION = gql`
+export const AGENTS_ADD_MUTATION = gql(`
   mutation AgentsAdd(
     $number: String!
     $status: AgentStatus!
@@ -57,9 +57,9 @@ export const AGENTS_ADD_MUTATION = gql`
       rulesOfProducts
     }
   }
-`;
+`);
 
-export const AGENTS_EDIT_MUTATION = gql`
+export const AGENTS_EDIT_MUTATION = gql(`
   mutation AgentsEdit(
     $_id: String!
     $number: String!
@@ -118,12 +118,12 @@ export const AGENTS_EDIT_MUTATION = gql`
       rulesOfProducts
     }
   }
-`;
+`);
 
-export const DELETE_AGENT_MUTATION = gql`
+export const DELETE_AGENT_MUTATION = gql(`
   mutation AgentsRemove($_id: String!) {
     agentsRemove(_id: $_id) {
       _id
     }
   }
-`;
+`);

@@ -2,7 +2,19 @@ import { useToast } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
-import { IPricingConditionRule, IPricingPlanDetail } from '@/pricing/types';
+import { compactList } from '@/loyalties/utils/cursorList';
+import {
+  IPricingConditionRule,
+  IPricingPlanDetail,
+  TPricingConditionRuleRow,
+} from '@/pricing/types';
+
+const DISCOUNT_TYPES: IPricingConditionRule['discountType'][] = [
+  'default',
+  'subtraction',
+  'percentage',
+  'bonus',
+];
 
 // Picks the input fields only; the query result also carries __typename.
 const toRule = ({
@@ -12,14 +24,19 @@ const toRule = ({
   discountBonusProduct,
   priceAdjustType,
   priceAdjustFactor,
-}: IPricingConditionRule): IPricingConditionRule => ({
-  conditionCode,
-  discountType,
-  discountValue: discountValue ?? 0,
-  discountBonusProduct: discountType === 'bonus' ? discountBonusProduct : null,
-  priceAdjustType: priceAdjustType || 'none',
-  priceAdjustFactor: priceAdjustFactor ?? 0,
-});
+}: TPricingConditionRuleRow | IPricingConditionRule): IPricingConditionRule => {
+  const type =
+    DISCOUNT_TYPES.find((item) => item === discountType) ?? 'default';
+
+  return {
+    conditionCode,
+    discountType: type,
+    discountValue: discountValue ?? 0,
+    discountBonusProduct: type === 'bonus' ? discountBonusProduct : null,
+    priceAdjustType: priceAdjustType || 'none',
+    priceAdjustFactor: priceAdjustFactor ?? 0,
+  };
+};
 
 type ConditionRuleEditor =
   | { open: false }
@@ -40,7 +57,7 @@ export const usePricingConditionRules = ({
   const [editor, setEditor] = useState<ConditionRuleEditor>({ open: false });
 
   useEffect(() => {
-    setRules((pricingDetail?.conditionRules || []).map(toRule));
+    setRules(compactList(pricingDetail?.conditionRules).map(toRule));
     setIsDirty(false);
   }, [pricingDetail]);
 

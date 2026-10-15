@@ -100,7 +100,7 @@ export const loadDonateCampaignClass = (
       const prevDoc = await models.DonateCampaigns.findOne({ _id }).lean();
       const modifier = {
         ...doc,
-        awards: getSortAwards(doc.awards),
+        ...(doc.awards && { awards: getSortAwards(doc.awards) }),
         modifiedAt: new Date(),
       };
 
@@ -110,7 +110,11 @@ export const loadDonateCampaignClass = (
         throw new Error(e.message);
       }
 
-      const result = await models.DonateCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.DonateCampaigns.findOneAndUpdate(
+        { _id },
+        { $set: modifier },
+        { new: true },
+      );
 
       sendDbEventLog?.({
         action: 'update',

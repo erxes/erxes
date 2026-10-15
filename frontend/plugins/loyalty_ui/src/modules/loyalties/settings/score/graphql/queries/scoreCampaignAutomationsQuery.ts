@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
 // Filtered by action type on the server; the campaign lives in the action's
 // config, so the hook narrows further.
-export const SCORE_CAMPAIGN_AUTOMATIONS = gql`
+export const SCORE_CAMPAIGN_AUTOMATIONS = gql(`
   query LoyaltyScoreCampaignAutomations($actionTypes: [String]) {
     automations(actionTypes: $actionTypes) {
       _id
@@ -15,4 +15,4 @@ export const SCORE_CAMPAIGN_AUTOMATIONS = gql`
       }
     }
   }
-`;
+`);

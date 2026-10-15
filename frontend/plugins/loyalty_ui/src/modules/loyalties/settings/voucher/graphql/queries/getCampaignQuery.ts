@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const QUERY_VOUCHER_CAMPAIGN = gql`
+export const QUERY_VOUCHER_CAMPAIGN = gql(`
   query GetVoucherCampaign($_id: String!) {
     voucherCampaignDetail(_id: $_id) {
       _id
@@ -50,4 +50,4 @@ export const QUERY_VOUCHER_CAMPAIGN = gql`
       }
     }
   }
-`;
+`);

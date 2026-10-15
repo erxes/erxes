@@ -1,5 +1,5 @@
 import React from 'react';
-import { IVoucherCampaign } from '../types/voucherCampaignType';
+import { IVoucherCampaign } from '@/loyalties/settings/voucher/types/voucherCampaignType';
 
 export interface SelectVoucherCampaignContextType {
   voucherCampaigns: IVoucherCampaign[];

@@ -1,26 +1,33 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { LoyaltyTargetScoreLogsQuery } from '~/gql/graphql';
 import { LOYALTY_TARGET_SCORE_LOGS } from '../graphql/queries';
-import { IScoreLog } from '../types/score';
 
-export type TTargetScoreLog = IScoreLog & {
-  createdAt?: string;
-  campaign?: { _id: string; title?: string } | null;
-};
+export type TTargetScoreLog = NonNullable<
+  NonNullable<
+    NonNullable<LoyaltyTargetScoreLogsQuery['scoreLogs']>['list']
+  >[number]
+>;
 
 /** The points one record moved, newest first, and where they stand now. */
 export const useTargetScoreLogs = (targetId?: string) => {
-  const { data, loading, error, refetch, networkStatus } = useQuery<{
-    scoreLogs?: { list?: TTargetScoreLog[] };
-  }>(LOYALTY_TARGET_SCORE_LOGS, {
-    variables: { targetId },
-    skip: !targetId,
-    fetchPolicy: 'cache-and-network',
-    // The record's own plugin writes these (a deal moved, an order synced)
-    // and loyalty hears nothing of it; asked again while open, by index.
-    pollInterval: 10_000,
-  });
+  const { data, loading, error, refetch, networkStatus } = useQuery(
+    LOYALTY_TARGET_SCORE_LOGS,
+    {
+      variables: { targetId },
+      skip: !targetId,
+      fetchPolicy: 'cache-and-network',
+      // The record's own plugin writes these (a deal moved, an order synced)
+      // and loyalty hears nothing of it; asked again while open, by index.
+      pollInterval: 10_000,
+    },
+  );
 
-  const logs = data?.scoreLogs?.list || [];
+  const logs = useMemo(
+    () => compactList(data?.scoreLogs?.list),
+    [data?.scoreLogs?.list],
+  );
 
   return {
     logs,

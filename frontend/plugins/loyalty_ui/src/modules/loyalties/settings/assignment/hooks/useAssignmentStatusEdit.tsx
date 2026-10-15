@@ -1,8 +1,17 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type {
+  UpdateAssignmentCampaignMutation,
+  UpdateAssignmentCampaignMutationVariables,
+} from '~/gql/graphql';
 import { UPDATE_ASSIGNMENT_CAMPAIGN } from '../graphql/mutations/assignmentEditStatusMutations';
 import { QUERY_ASSIGNMENT_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
+
+type AssignmentStatusVariables = Pick<
+  UpdateAssignmentCampaignMutationVariables,
+  '_id' | 'status'
+>;
 
 export function useAssignmentStatusEdit() {
   const { t } = useTranslation('loyalty');
@@ -19,7 +28,15 @@ export function useAssignmentStatusEdit() {
     },
   );
 
-  const editStatus = async (options: MutationHookOptions<any, any>) => {
+  const editStatus = async (
+    options: Omit<
+      MutationHookOptions<
+        UpdateAssignmentCampaignMutation,
+        UpdateAssignmentCampaignMutationVariables
+      >,
+      'variables'
+    > & { variables: AssignmentStatusVariables },
+  ) => {
     const { variables } = options;
 
     return editAssignment({

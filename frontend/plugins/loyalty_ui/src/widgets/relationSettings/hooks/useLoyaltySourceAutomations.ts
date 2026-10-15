@@ -8,8 +8,6 @@ import {
   generateAutomationElementId,
   IRelationSettingsTriggerScope,
   IRelationSettingsWidgetContext,
-  SEGMENT_ADD,
-  SEGMENT_REMOVE,
   TAutomationSeedAction,
   TSegmentNode,
 } from 'ui-modules';
@@ -24,7 +22,13 @@ import {
   SET_TIER_ACTION_TYPE,
 } from '~/modules/loyalties/settings/score/add-score-campaign/constants/campaignAutomations';
 import { SCORE_CAMPAIGNS_SIMPLE_QUERY } from '~/modules/loyalties/scores/graphql/queries';
+import { compactList } from '~/modules/loyalties/utils/cursorList';
+import { isRecord } from '~/modules/loyalties/utils/isRecord';
 import { LOYALTY_SOURCE_AUTOMATIONS } from '../graphql/loyaltySourceAutomationsQuery';
+import {
+  LOYALTY_SOURCE_SEGMENT_ADD,
+  LOYALTY_SOURCE_SEGMENTS_REMOVE,
+} from '../graphql/loyaltySourceSegmentMutations';
 import { readLoyaltyBuiltIn } from '../utils/loyaltyBuiltIn';
 import {
   DEFAULT_TIER_HISTORY,
@@ -39,23 +43,6 @@ const CUSTOMER_TRIGGER_TYPE = 'core:contacts.customers';
 const SPLIT_ACTION_TYPE = 'split';
 // Conditions the automation keeps to itself, as the builder's own are.
 const AUTOMATION_SEGMENT_OWNER = 'automation';
-
-// A history automation runs on the buyer, not the purchase; this names the
-// source it was made for so it is listed here.
-type TPurchaseSource = {
-  triggerType?: string;
-  triggerConfig?: Record<string, unknown>;
-};
-
-type TNode = { type: string; config?: Record<string, unknown> };
-
-type TAutomationRecord = {
-  _id: string;
-  name?: string;
-  status?: string;
-  triggers?: TNode[];
-  actions?: TNode[];
-};
 
 export type TLoyaltySourceConnection = {
   _id: string;
@@ -80,8 +67,11 @@ export type TLoyaltyBuiltInConnection = {
 
 const ACTIVE = 'active';
 
-const valueOf = (config: Record<string, unknown> | undefined, key: string) =>
-  String(config?.[key] ?? '');
+const configValue = (config: unknown, key: string) =>
+  isRecord(config) ? config[key] : undefined;
+
+const valueOf = (config: unknown, key: string) =>
+  String(configValue(config, key) ?? '');
 
 /**
  * What this source's purchases do in loyalty — points given, tiers set — and
@@ -110,15 +100,10 @@ export const useLoyaltySourceAutomations = ({
   const [tierHistory, setTierHistory] =
     useState<TTierHistoryValue>(DEFAULT_TIER_HISTORY);
   const [seeding, setSeeding] = useState(false);
-  const [addSegment] = useMutation<
-    { segmentsAdd: { _id: string } },
-    { contentType: string; ownedBy: string; root: TSegmentNode }
-  >(SEGMENT_ADD);
-  const [removeSegments] = useMutation(SEGMENT_REMOVE);
+  const [addSegment] = useMutation(LOYALTY_SOURCE_SEGMENT_ADD);
+  const [removeSegments] = useMutation(LOYALTY_SOURCE_SEGMENTS_REMOVE);
 
-  const { data, loading, error } = useQuery<{
-    automations: TAutomationRecord[];
-  }>(LOYALTY_SOURCE_AUTOMATIONS, {
+  const { data, loading, error } = useQuery(LOYALTY_SOURCE_AUTOMATIONS, {
     variables: {
       triggerTypes: [triggerType, CUSTOMER_TRIGGER_TYPE],
       actionTypes: [ADJUST_SCORE_ACTION_TYPE, SET_TIER_ACTION_TYPE],
@@ -128,11 +113,7 @@ export const useLoyaltySourceAutomations = ({
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data: campaignsData } = useQuery<{
-    scoreCampaigns?: {
-      list?: { _id: string; title: string; status?: string }[];
-    };
-  }>(SCORE_CAMPAIGNS_SIMPLE_QUERY, {
+  const { data: campaignsData } = useQuery(SCORE_CAMPAIGNS_SIMPLE_QUERY, {
     variables: { limit: 100 },
     skip: !triggerType,
   });
@@ -144,7 +125,9 @@ export const useLoyaltySourceAutomations = ({
   const tierWallets = accounts.filter(({ tiers }) => activeTiers(tiers).length);
 
   const campaignOf = (id: unknown) =>
-    campaignsData?.scoreCampaigns?.list?.find(({ _id }) => _id === id);
+    compactList(campaignsData?.scoreCampaigns?.list).find(
+      ({ _id }) => _id === id,
+    );
   const campaignTitle = (id: unknown) => campaignOf(id)?.title || '';
   const walletName = (id: unknown) =>
     accounts.find(({ _id }) => _id === id)?.name || '';
@@ -154,7 +137,7 @@ export const useLoyaltySourceAutomations = ({
       scopes.flatMap(({ triggerConfig }) => Object.keys(triggerConfig)),
     ),
   ];
-  const scopeOf = (config?: Record<string, unknown>) =>
+  const scopeOf = (config: unknown) =>
     scopes.find(({ triggerConfig }) =>
       keys.every((key) => valueOf(config, key) === valueOf(triggerConfig, key)),
     );
@@ -165,19 +148,19 @@ export const useLoyaltySourceAutomations = ({
     nameOf: (id: unknown) => string,
     builtInIds: string[],
   ): TLoyaltySourceConnection[] =>
-    (data?.automations || []).flatMap(
+    compactList(data?.automations).flatMap(
       ({ _id, name, status, triggers, actions }) => {
-        const scope = (triggers || [])
+        const scope = compactList(triggers)
           .map(({ type, config }) => {
             if (type === triggerType) {
               return scopeOf(config);
             }
 
-            const source = config?.purchaseSource as
-              | TPurchaseSource
-              | undefined;
+            // A history automation runs on the buyer, not the purchase; this
+            // names the source it was made for so it is listed here.
+            const source = configValue(config, 'purchaseSource');
 
-            return source &&
+            return isRecord(source) &&
               type === CUSTOMER_TRIGGER_TYPE &&
               source.triggerType === triggerType
               ? scopeOf(source.triggerConfig)
@@ -185,8 +168,9 @@ export const useLoyaltySourceAutomations = ({
           })
           .find((found): found is IRelationSettingsTriggerScope => !!found);
         // A fixed-points step feeds a wallet directly, not a campaign.
-        const steps = (actions || []).filter(
-          ({ type, config }) => type === actionType && config?.mode !== 'fixed',
+        const steps = compactList(actions).filter(
+          ({ type, config }) =>
+            type === actionType && configValue(config, 'mode') !== 'fixed',
         );
 
         if (!scope || !steps.length) {
@@ -197,18 +181,22 @@ export const useLoyaltySourceAutomations = ({
           {
             _id,
             name: name || '',
-            status,
+            status: status ?? undefined,
             scopeLabel: scope.label,
             target: [
               ...new Set(
-                steps.map(({ config }) => nameOf(config?.[targetKey])),
+                steps.map(({ config }) =>
+                  nameOf(configValue(config, targetKey)),
+                ),
               ),
             ]
               .filter(Boolean)
               .join(', '),
-            incomplete: steps.some(({ config }) => !config?.[targetKey]),
+            incomplete: steps.some(
+              ({ config }) => !configValue(config, targetKey),
+            ),
             alsoBuiltIn: steps.some(({ config }) =>
-              builtInIds.includes(String(config?.[targetKey] ?? '')),
+              builtInIds.includes(valueOf(config, targetKey)),
             ),
           },
         ];
@@ -313,7 +301,7 @@ export const useLoyaltySourceAutomations = ({
           root,
         },
       });
-      const id = added?.segmentsAdd._id;
+      const id = added?.segmentsAdd?._id;
 
       if (!id) {
         throw new Error('The segment was not created');

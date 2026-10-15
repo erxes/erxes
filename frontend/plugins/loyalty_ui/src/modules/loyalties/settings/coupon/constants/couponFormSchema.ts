@@ -6,7 +6,7 @@ export const CouponStatusSchema = z.enum(['active', 'inactive', 'expired']);
 export const couponFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   buyScore: z.coerce.number().min(0, 'Buy score must be positive').optional(),
-  kind: z.string().default('coupon'),
+  kind: z.enum(['amount', 'percent']).default('amount'),
   description: z.string().optional(),
   status: z.string().optional(),
   count: z.number().min(0, 'Count must be positive').optional(),

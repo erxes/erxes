@@ -2,14 +2,17 @@ import { useQuery } from '@apollo/client';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
   EnumCursorDirection,
-  mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { SCORE_LOGS_QUERY } from '../graphql/queries';
-import { IScoreLog } from '../types/score';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
 import { scoreTotalCountAtom } from '../states/scoreCounts';
 import { useScoreFilters } from './useScoreFilters';
 import { SCORE_CURSOR_SESSION_KEY } from '../constants/scoreCursorSessionKey';
@@ -47,8 +50,8 @@ export const useScoreList = () => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const list = useMemo<IScoreLog[]>(
-    () => data?.scoreLogs?.list || [],
+  const list = useMemo(
+    () => compactList(data?.scoreLogs?.list),
     [data?.scoreLogs?.list],
   );
 
@@ -57,7 +60,7 @@ export const useScoreList = () => {
     [data?.scoreLogs?.totalCount],
   );
 
-  const pageInfo = data?.scoreLogs?.pageInfo;
+  const pageInfo = toCursorPageInfo(data?.scoreLogs?.pageInfo);
 
   const handleFetchMore = useCallback(
     ({ direction }: { direction: EnumCursorDirection }) => {
@@ -73,15 +76,16 @@ export const useScoreList = () => {
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult?.scoreLogs) return prev;
+          if (!fetchMoreResult.scoreLogs || !prev.scoreLogs) return prev;
 
           return {
+            ...prev,
             scoreLogs: {
-              ...mergeCursorData({
+              ...mergeCursorList(
                 direction,
-                fetchMoreResult: fetchMoreResult.scoreLogs,
-                prevResult: prev.scoreLogs,
-              }),
+                prev.scoreLogs,
+                fetchMoreResult.scoreLogs,
+              ),
               totalCount:
                 fetchMoreResult.scoreLogs.totalCount ??
                 prev.scoreLogs.totalCount,
