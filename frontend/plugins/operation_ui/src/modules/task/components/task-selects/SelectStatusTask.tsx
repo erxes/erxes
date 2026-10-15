@@ -155,6 +155,7 @@ const SelectStatusTaskRoot = ({
   variant,
   scope,
   onValueChange,
+  label,
 }: {
   value: string;
   id: string;
@@ -162,6 +163,7 @@ const SelectStatusTaskRoot = ({
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: string) => void;
+  label?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();
@@ -186,7 +188,7 @@ const SelectStatusTaskRoot = ({
       onValueChange={handleValueChange}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant={variant}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectStatusValue />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
@@ -253,10 +255,12 @@ export const SelectStatusTaskFormItem = ({
   value,
   onValueChange,
   form,
+  label,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   form?: UseFormReturn<z.infer<typeof addTaskSchema>>;
+  label?: string;
 }) => {
   const teamId = useWatch({ name: 'teamId', control: form?.control });
   const { statuses } = useGetStatusByTeam({
@@ -286,7 +290,7 @@ export const SelectStatusTaskFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant="form" label={label}>
           <SelectStatusValue />
         </SelectTriggerOperation>
         <Combobox.Content>
