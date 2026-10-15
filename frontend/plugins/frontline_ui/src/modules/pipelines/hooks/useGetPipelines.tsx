@@ -18,7 +18,7 @@ interface IGetPipelinesResponse {
 export const useGetPipelines = (
   options?: QueryHookOptions<IGetPipelinesResponse, ITicketsPipelineFilter>,
 ) => {
-  const { data, loading } = useQuery<
+  const { data, loading, error } = useQuery<
     IGetPipelinesResponse,
     ITicketsPipelineFilter
   >(GET_TICKET_PIPELINES, {
@@ -37,5 +37,6 @@ export const useGetPipelines = (
     pipelines: data?.getTicketPipelines?.list,
     totalCount: data?.getTicketPipelines?.totalCount,
     loading,
+    error,
   };
 };

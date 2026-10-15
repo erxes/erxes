@@ -292,6 +292,49 @@
   fields are stored on the pipeline, and ticket detail renders only that
   pipeline's selected fields. Legacy pipelines continue rendering all fields
   until their Properties selection is saved for the first time.
+- Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
+  live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
+  ticket sheet header; the fields row carries no actions. The notification
+  ticket view has none of its own — its `Open ticket` button opens that sheet.
+  The header's close button sits in a `w-16` strip aligned with the relation
+  side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+  While one action is in flight the menu and its items stay disabled.
+- Ticket detail chips render as labelled field groups, as Sales' deal detail
+  chips do: a muted label segment, then the value and a chevron, e.g.
+  `Priority | High ⌄`. A ticket select's root and `FormItem` take `label`,
+  and `SelectTriggerTicket` and `SelectDateTicket` draw the chip (erxes-ui
+  `Combobox.ChipTrigger`, shared with Sales) only for the `detail` and `form`
+  variants with a label — every other variant and unlabelled caller keeps its
+  plain trigger. Every ticket detail chip, status included, and every add
+  ticket form chip is labelled; other `FormItem` callers stay unlabelled.
+  Branch and department show `None` rather than repeating their label.
+- Ticket start/target dates follow Sales' `DateSelectDeal`: every variant's
+  popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the
+  calendar). The detail chip swaps its chevron for an X that clears the date
+  while one is set and the field is editable. Unlike Sales, a past target
+  date gets no red styling or `Ended` badge. The picked date shows at once;
+  a failed save shows an error toast and, only when it is the latest save,
+  rolls back to the last server-confirmed value (the `value` prop, which the
+  mutation's cache write keeps current) — an older failed save never undoes
+  a newer edit. Clearing sends `null`. Every variant, the add-ticket
+  `FormItem` included, closes its popover on any date change and on Enter
+  in the typed input (`DateSelectContent` catches Enter in the capture phase,
+  since `DatePicker` stops its propagation).
+- The ticket channel, pipeline and status selects create inline without leaving
+  the page. `useSelectCreate` (`ticket-selects/SelectCreate.tsx`) holds the
+  search and the pending name; a `Create new …: "<search>"` item appears
+  whenever the search matches no name exactly, and swaps the popover to
+  a small form that reuses `ChannelForm` / `CreatePipelineForm` (status reuses
+  the settings status sheet's `StatusNameColorField`, which takes the
+  caller's `form`, and adds a type field) and selects the new record once its list
+  has refetched. Create is on only where `allowCreate` is passed: every
+  `FormItem` variant (add ticket, conversation convert, help center drawer,
+  pipeline config, automation create-ticket action) and the status select's
+  root (ticket detail, card, table). Pipeline needs a channel, status a
+  pipeline, and the status option also `ticketStatusesManage`. No create
+  option shows while the select's list query is loading or has failed.
+  `SelectStatusTicket.Content` takes both `allowCreate` and the report filter's
+  `onClear` ("All Statuses"); filters pass `onClear` only, never `allowCreate`.
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
 - The messenger ticket form builder lives on a pipeline's configuration sheet
   (`src/modules/pipelines/components/configs/`): a pipeline owns **one**
@@ -1834,6 +1877,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   selected tag as a badge with no cap, which is the long-list look the ticket
   UI intentionally avoids in favor of a "Tag +N" count trigger, matching how
   Sales' `DealTagsChip` calls `TagsSelect.Trigger` with `showSelectedTagsOutside={false}`.
+- Ticket channel, pipeline and status command items carry
+  `keywords={[name]}`: their `value` is the record id, and `cmdk` searches only
+  `value` and `keywords`.
+- Inline create forms submit through `SelectCreateContainer`, which stops the
+  `submit` event: the popover is portaled, but React still bubbles it to a form
+  that renders the select. Each form must wait for the select's list to refetch
+  before selecting the new id — `useChannelAdd` refetches no list the select
+  reads, so the channel form calls the provider's `refetch` itself.
+- `TicketDetailActions` reads `ticket` from the cache, which changes only once
+  a mutation settles; every action runs through its `pending` guard so a
+  second pick cannot resend the same stale toggle or remove twice.
+- Each inline-create select gates the create option on its list query's
+  `error` as well as `loading`: a failed query leaves an empty list that would
+  otherwise invite a duplicate of an existing record. `useGetPipelines`
+  returns `error` for this.
 - The ticket index favorite control uses selected channel and pipeline query
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.

@@ -78,12 +78,14 @@ const SelectAssignedMembersTicketRoot = ({
   variant,
   id,
   disabled,
+  label,
 }: {
   value?: string[];
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
   disabled?: boolean;
+  label?: string;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -109,6 +111,7 @@ const SelectAssignedMembersTicketRoot = ({
         <SelectTriggerTicket
           variant={variant === 'card' ? 'icon' : variant}
           disabled={disabled}
+          label={label}
         >
           <SelectAssignedMembersValue />
         </SelectTriggerTicket>
