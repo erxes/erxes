@@ -52,6 +52,7 @@ export const initApproval = async (
   app.use(
     '/approval',
     trpcExpress.createExpressMiddleware({
+      allowMethodOverride: true,
       router: t.router(procedures),
       createContext: createTRPCContext(async (_subdomain, context) => context),
     }),
