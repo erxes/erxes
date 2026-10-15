@@ -31,8 +31,8 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
       return date;
     };
 
-    const variables: any = {
-      _idid: donationDetail._id,
+    const variables = {
+      _id: donationDetail._id,
       title: data.title || '',
       status: data.status || 'active',
       startDate: formatDate(data.startDate),

@@ -20,6 +20,7 @@ import {
   DonationFormValues,
 } from '../../constants/donationFormSchema';
 import { useDonationDetailWithQuery } from '../hooks/useDonationDetailWithQuery';
+import { parseDonateAwards } from '../../utils/donateAwards';
 import { EditDonationTabs } from './EditDonationTabs';
 
 type Props = {
@@ -60,18 +61,11 @@ export const LoyaltyDonationEditSheet = ({ donationId }: Props) => {
         endDate: donationDetail.endDate
           ? new Date(donationDetail.endDate)
           : undefined,
-        kind: donationDetail.kind || '',
         maxScore: donationDetail.maxScore || 0,
-        awards: donationDetail.awards?.map((award: any) => ({
-          voucherCampaignId: award.voucherCampaignId || '',
-          minScore: award.minScore || 0,
-        })) || [
-          {
-            voucherCampaignId: '',
-            minScore: 0,
-            maxScore: 0,
-          },
-        ],
+        awards:
+          donationDetail.awards == null
+            ? [{ voucherCampaignId: '', minScore: 0 }]
+            : parseDonateAwards(donationDetail.awards),
       });
     }
   }, [donationDetail, editDonationId, form]);
