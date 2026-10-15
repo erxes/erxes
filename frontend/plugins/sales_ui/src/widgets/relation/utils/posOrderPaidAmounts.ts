@@ -1,4 +1,5 @@
 import { isRecord } from '@/deals/utils/dealJson';
+import type { InvoiceDetailByContentQuery } from '~/gql/graphql';
 
 export type DealPosPaidAmount = {
   type: string;
@@ -16,3 +17,21 @@ export const toDealPosPaidAmounts = (value: unknown): DealPosPaidAmount[] =>
         amount: Number(entry.amount) || 0,
       }))
     : [];
+
+// Paid transaction totals by payment kind; untyped kinds count as mobile.
+export const sumPaidTransactionsByKind = (
+  invoices: InvoiceDetailByContentQuery['invoiceDetailByContent'],
+): Record<string, number> => {
+  const byKind: Record<string, number> = {};
+
+  for (const transaction of (invoices ?? []).flatMap(
+    (invoice) => invoice?.transactions ?? [],
+  )) {
+    if (transaction?.status === 'paid') {
+      const kind = transaction.paymentKind || 'mobile';
+      byKind[kind] = (byKind[kind] || 0) + (Number(transaction.amount) || 0);
+    }
+  }
+
+  return byKind;
+};

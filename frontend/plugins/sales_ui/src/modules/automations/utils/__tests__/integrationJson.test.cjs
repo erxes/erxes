@@ -26,7 +26,7 @@ const load = (file) => {
 const { toSourceTriggers } = load(
   path.join(MODULES, 'automations/utils/sourceTriggers.ts'),
 );
-const { toDealPosPaidAmounts } = load(
+const { toDealPosPaidAmounts, sumPaidTransactionsByKind } = load(
   path.join(MODULES, '../widgets/relation/utils/posOrderPaidAmounts.ts'),
 );
 
@@ -64,4 +64,25 @@ test('deal POS paid amounts list array entries as before and skip non-objects', 
   );
   assert.deepEqual(toDealPosPaidAmounts({ qpay: 500 }), []);
   assert.deepEqual(toDealPosPaidAmounts(null), []);
+});
+
+test('deal POS paid transactions total by kind and skip unpaid or null rows', () => {
+  assert.deepEqual(
+    sumPaidTransactionsByKind([
+      null,
+      { _id: 'a', transactions: null },
+      {
+        _id: 'b',
+        transactions: [
+          { _id: '1', paymentKind: 'qpay', amount: 300, status: 'paid' },
+          { _id: '2', paymentKind: 'qpay', amount: 200, status: 'paid' },
+          { _id: '3', paymentKind: null, amount: 50, status: 'paid' },
+          { _id: '4', paymentKind: 'qpay', amount: 999, status: 'pending' },
+          null,
+        ],
+      },
+    ]),
+    { qpay: 500, mobile: 50 },
+  );
+  assert.deepEqual(sumPaidTransactionsByKind(undefined), {});
 });
