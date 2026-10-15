@@ -44,6 +44,8 @@ test('startup removes the legacy scheduler and cleans failed jobs in batches', a
     async upsertJobScheduler(id, repeat, template) {
       assert.equal(this.name, 'posclient-hourly-sync-remainder');
       assert.equal(id, 'posclient-hourly-sync-remainder');
+      assert.equal(repeat.pattern, '0 20 * * *');
+      assert.equal(repeat.tz, 'UTC');
       assert.equal(template.opts.removeOnFail, true);
       assert.equal(template.opts.removeOnComplete, true);
       events.push(['schedule']);
