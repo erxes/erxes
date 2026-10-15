@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import type { DonatesEditMutationVariables } from '~/gql/graphql';
 import { DONATES_EDIT_MUTATION } from '../graphql/mutations/mutations';
 
 export const useEditDonate = () => {
@@ -11,15 +12,7 @@ export const useEditDonate = () => {
     refetchQueries: ['DonatesMain'],
   });
 
-  const donateEdit = async (variables: {
-    _id: string;
-    campaignId?: string;
-    ownerId?: string;
-    ownerType?: string;
-    status?: string;
-    voucherCampaignId?: string;
-    donateScore?: number;
-  }) => {
+  const donateEdit = async (variables: DonatesEditMutationVariables) => {
     return editDonate({
       variables,
       onCompleted: () => {

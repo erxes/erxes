@@ -5,10 +5,8 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { DonateCommandBar } from './DonateCommandBar';
 
-export const DonateRecordTable = ({ posId }: { posId?: string }) => {
-  const { donateList, handleFetchMore, loading, pageInfo } = useDonateList({
-    posId,
-  });
+export const DonateRecordTable = () => {
+  const { donateList, handleFetchMore, loading, pageInfo } = useDonateList();
   const { t } = useTranslation('loyalty');
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 

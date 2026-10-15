@@ -20,6 +20,7 @@ import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { QUERY_DONATE_CAMPAIGNS } from '../../graphql/queries/queries';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface DonateCampaignOption {
   value: string;
@@ -56,12 +57,10 @@ const useDonateCampaignOptions = (): {
 
   const options = useMemo<DonateCampaignOption[]>(
     () =>
-      (data?.donateCampaigns?.list || []).map(
-        (c: { _id: string; title: string }) => ({
-          value: c._id,
-          label: c.title,
-        }),
-      ),
+      compactList(data?.donateCampaigns?.list).map((campaign) => ({
+        value: campaign._id,
+        label: campaign.title || '',
+      })),
     [data?.donateCampaigns?.list],
   );
 
