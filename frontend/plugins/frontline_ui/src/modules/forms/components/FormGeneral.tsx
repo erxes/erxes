@@ -106,10 +106,10 @@ export const FormGeneral = () => {
                   variant="outline"
                   className="max-w-96"
                 >
-                  <ToggleGroup.Item value="iframe" className="flex-auto">
+                  <ToggleGroup.Item value="iframe" className="flex-1">
                     {t('iframe', 'Iframe')}
                   </ToggleGroup.Item>
-                  <ToggleGroup.Item value="messenger" className="flex-auto">
+                  <ToggleGroup.Item value="messenger" className="flex-1">
                     {t('messenger', 'Messenger')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
@@ -131,10 +131,10 @@ export const FormGeneral = () => {
                   variant="outline"
                   className="max-w-96"
                 >
-                  <ToggleGroup.Item value="embedded" className="flex-auto">
+                  <ToggleGroup.Item value="embedded" className="flex-1">
                     {t('embedded', 'Embedded')}
                   </ToggleGroup.Item>
-                  <ToggleGroup.Item value="popup" className="flex-auto">
+                  <ToggleGroup.Item value="popup" className="flex-1">
                     {t('popup', 'Popup')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
@@ -156,31 +156,6 @@ export const FormGeneral = () => {
           )}
         />
         <Form.Field
-          name="saveAsCustomer"
-          render={({ field }) => (
-            <Form.Item>
-              <div className="flex items-center gap-2">
-                <Form.Control>
-                  <Switch
-                    checked={field.value ?? false}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Label variant="peer">
-                  {t('save-as-customer', 'Save as customer')}
-                </Form.Label>
-              </div>
-              <Form.Description>
-                {t(
-                  'save-as-customer-description',
-                  'Forcibly turn lead to customer.',
-                )}
-              </Form.Description>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
           name="channelId"
           render={({ field }) => (
             <Form.Item>
@@ -191,6 +166,30 @@ export const FormGeneral = () => {
                 onValueChange={field.onChange}
               />
               <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="saveAsCustomer"
+          render={({ field }) => (
+            <Form.Item className="flex flex-row gap-3 justify-between items-center space-y-0">
+              <div className="space-y-1">
+                <Form.Label>
+                  {t('save-as-customer', 'Save as customer')}
+                </Form.Label>
+                <Form.Description>
+                  {t(
+                    'save-as-customer-description',
+                    'Forcibly turn lead to customer.',
+                  )}
+                </Form.Description>
+              </div>
+              <Form.Control>
+                <Switch
+                  checked={field.value ?? false}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
             </Form.Item>
           )}
         />

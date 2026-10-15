@@ -45,6 +45,8 @@ export const types = `
     kind: String
     value: Float
     expiresAt: Date
+    status: String
+    heldFor: JSON
     autoApplied: Boolean
     applicable: Boolean
     reason: String
@@ -117,10 +119,10 @@ export const queries = `
   poscCustomers(searchValue: String!, type: String, perPage: Int, page: Int): [PosCustomer]
   poscCustomerDetail(_id: String!, type: String): PosCustomer
   poscCustomerForm: PosCustomerForm
-  poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty
+  poscCustomerLoyalty(customerId: String!, totalAmount: Float, orderId: String): PosCustomerLoyalty
   poscProductConditions(productId: String!): [PosProductCondition]
   poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String
-  poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String): PosLoyaltyPreview
+  poscLoyaltyPreview(items: [PosLoyaltyPreviewItem!]!, customerId: String, couponCode: String, voucherId: String, orderId: String): PosLoyaltyPreview
   poscLoyaltyEarnPreview(items: [PosLoyaltyEarnItem!]!, totalAmount: Float!, customerId: String, orderType: String): PosLoyaltyEarnPreview
 `;
 

@@ -140,16 +140,16 @@ export const NavigationActivityRail = (props: TNavigationActivityRailProps) => {
     <aside
       ref={asideRef}
       className={cn(
-        'nav-rail relative flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden border-none bg-sidebar px-2 py-2',
+        'nav-rail relative flex h-full w-full min-w-0 shrink-0 flex-col overflow-hidden border-none bg-sidebar px-2 pt-1 pb-2',
         !expanded && 'border-r!',
       )}
     >
       <NavigationRailLogo expanded={expanded} />
       <div
         className={cn(
-          'min-h-0 flex-1 overflow-x-hidden overflow-y-auto',
+          '-mr-2 min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-2',
           !showSettings && 'nav-scroll-fade',
-          !expanded && 'hide-scroll',
+          expanded ? 'styled-scroll' : 'hide-scroll',
         )}
       >
         <div className="flex min-h-full flex-col">

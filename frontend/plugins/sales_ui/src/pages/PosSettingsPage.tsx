@@ -19,8 +19,8 @@ export const PosSettingsPage = () => {
       <div className="flex overflow-hidden relative flex-col flex-1">
         <SettingsHeader breadcrumbs={[]}>
           <div className="flex justify-between items-center w-full">
-            <Button variant="ghost" className="font-semibold">
-              <IconCashRegister className="w-4 h-4 text-accent-foreground" />
+            <Button variant="ghost">
+              <IconCashRegister />
               {t('pos')}
             </Button>
             <Button onClick={onCreatePos}>
@@ -35,10 +35,7 @@ export const PosSettingsPage = () => {
           </div>
         </div>
       </div>
-      <PosCreate
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-      />
+      <PosCreate open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </PageContainer>
   );
 };

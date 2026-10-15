@@ -33,6 +33,7 @@ export function SettingsBreadcrumbs({
       ...settingsData.developer,
     ].find((entry: TSettingPath) => pathname.includes(entry.path));
   }, [pathname, t, version]);
+  const Icon = currentPath?.icon;
 
   return (
     <PageHeader>
@@ -41,7 +42,10 @@ export function SettingsBreadcrumbs({
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to={pathname}>{currentPath?.name}</Link>
+                <Link to={pathname}>
+                  {Icon && <Icon />}
+                  {currentPath?.name}
+                </Link>
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>

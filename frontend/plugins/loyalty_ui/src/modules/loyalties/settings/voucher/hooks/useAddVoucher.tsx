@@ -5,6 +5,8 @@ import { VOUCHERS_CURSOR_SESSION_KEY } from '../constants/vouchersCursorSessionK
 import { CREATE_VOUCHER_CAMPAIGN } from '../graphql/mutations/VoucherMutations';
 import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 import { VOUCHERS_PER_PAGE } from './useVouchers';
+import { TVoucherOwnerLimit } from '../utils/voucherOwnerLimit';
+import { TVoucherValidity } from '../utils/voucherTerm';
 
 export interface AddVoucherResult {
   voucherCampaignsAdd: any;
@@ -15,8 +17,8 @@ export interface AddVoucherVariables {
   description?: string;
   status?: string;
 
-  startDate?: string;
-  endDate?: string;
+  startDate?: string | null;
+  endDate?: string | null;
 
   buyScore?: number;
   score?: number;
@@ -43,6 +45,8 @@ export interface AddVoucherVariables {
   value?: number;
 
   restrictions?: any;
+  perOwnerLimit?: TVoucherOwnerLimit | null;
+  validity?: TVoucherValidity | null;
 }
 
 export const useAddVoucher = () => {

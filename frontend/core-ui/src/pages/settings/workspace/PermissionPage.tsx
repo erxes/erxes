@@ -12,8 +12,8 @@ export function PermissionPage() {
       <UsersGroupSidebar />
       <div className="flex-1 flex flex-col relative overflow-hidden">
         <SettingsHeader breadcrumbs={[]}>
-          <Button variant="ghost" className="font-semibold">
-            <IconUserCog className="w-4 h-4 text-accent-foreground" />
+          <Button variant="ghost">
+            <IconUserCog />
             {t('permissions')}
           </Button>
           <Permissions.Topbar />
