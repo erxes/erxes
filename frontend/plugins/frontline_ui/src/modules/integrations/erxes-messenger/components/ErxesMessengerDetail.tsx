@@ -20,7 +20,9 @@ export const ErxesMessengerActions = ({
 }: {
   cell: CellContext<IIntegration, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
   return (
     <div className="flex flex-col gap-2 w-full">

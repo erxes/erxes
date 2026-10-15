@@ -17,6 +17,9 @@ const VerifiedEmailSelect = ({
   onValueChange: (value: string) => void;
   onRecipientSelect: (customerId?: string) => void;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [searchValue, setSearchValue] = useState('');
@@ -162,7 +165,7 @@ const VerifiedEmailSelect = ({
           type="button"
           variant="ghost"
           className="h-9 min-w-0 justify-between px-0 font-normal hover:bg-transparent"
-          aria-label="Select recipient"
+          aria-label={t('mail-select-recipient')}
         >
           <span className="truncate">{value}</span>
           <IconChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -174,7 +177,7 @@ const VerifiedEmailSelect = ({
       >
         <Command shouldFilter={false}>
           <Command.Input
-            placeholder="Search verified contact emails"
+            placeholder={t('mail-search-verified-contacts')}
             value={search}
             onValueChange={setSearch}
             focusOnMount
@@ -182,7 +185,7 @@ const VerifiedEmailSelect = ({
           <Command.List ref={listRef} className="max-h-64 overflow-y-auto">
             {loading && (
               <p className="p-3 text-sm text-muted-foreground">
-                Loading contacts…
+                {t('mail-loading-contacts')}
               </p>
             )}
             {error && (
@@ -192,12 +195,12 @@ const VerifiedEmailSelect = ({
                 className="w-full justify-start"
                 onClick={() => refetch().catch(() => undefined)}
               >
-                Could not load contacts. Retry
+                {t('mail-load-contacts-failed')}
               </Button>
             )}
             {!loading && !error && options.length === 0 && (
               <p className="p-3 text-sm text-muted-foreground">
-                No verified contact emails found.
+                {t('mail-no-verified-contacts')}
               </p>
             )}
             {options.map(({ email, customerId, name }) => (
@@ -230,7 +233,7 @@ const VerifiedEmailSelect = ({
                   loadMore();
                 }}
               >
-                Could not load more contacts. Retry
+                {t('mail-load-more-contacts-failed')}
               </Button>
             )}
             {data?.customers.pageInfo.hasNextPage && !loadMoreError && (
@@ -238,7 +241,7 @@ const VerifiedEmailSelect = ({
                 ref={sentinelRef}
                 className="p-2 text-center text-xs text-muted-foreground"
               >
-                {loadingMore ? 'Loading…' : ''}
+                {loadingMore ? t('mail-loading-more') : ''}
               </div>
             )}
           </Command.List>
@@ -253,7 +256,9 @@ export const ToRow = ({
 }: {
   onRecipientSelect: (customerId?: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { showCc, showBcc, openCc, openBcc } = useDirectMailComposerFields();
   const {
     control,
@@ -263,7 +268,7 @@ export const ToRow = ({
   return (
     <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center border-b px-4 py-1.5">
       <label className="text-xs text-muted-foreground" htmlFor="direct-mail-to">
-        To
+        {t('mail-to')}
       </label>
       <Controller
         name="to"

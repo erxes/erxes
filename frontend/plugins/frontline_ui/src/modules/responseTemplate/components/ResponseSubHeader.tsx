@@ -11,7 +11,7 @@ import { useGetResponses } from '../hooks/useGetResponses';
 import { useTranslation } from 'react-i18next';
 
 export const ResponseSubHeader = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const [queries] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
   ]);

@@ -14,7 +14,9 @@ export const EMLayout = ({
   actions: React.ReactNode;
   title: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const step = useAtomValue(erxesMessengerSetupStepAtom);
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
 
@@ -48,7 +50,9 @@ export const EMLayout = ({
 };
 
 export const EMLayoutPreviousStepButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [step, setStep] = useAtom(erxesMessengerSetupStepAtom);
   return (
     <Button

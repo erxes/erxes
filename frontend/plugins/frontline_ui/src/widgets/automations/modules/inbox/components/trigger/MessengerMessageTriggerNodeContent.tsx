@@ -1,12 +1,13 @@
+import { useTranslation } from 'react-i18next';
 import { AutomationNodeMetaInfoRow } from 'ui-modules';
 import type { AutomationTriggerConfigProps } from 'ui-modules';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 
-const EVENT_LABELS: Record<string, string> = {
-  directMessage: 'Direct Message',
-  getStarted: 'Get Started',
-  quickReply: 'Quick Reply',
-  customerRegistration: 'Customer Registration',
+const EVENT_LABEL_KEYS: Record<string, string> = {
+  directMessage: 'event-direct-message',
+  getStarted: 'event-get-started',
+  quickReply: 'event-quick-reply',
+  customerRegistration: 'event-customer-registration',
 };
 
 type TMessengerMessageCondition = {
@@ -22,6 +23,9 @@ type TMessengerMessageConfig = {
 export const MessengerMessageTriggerNodeContent = ({
   config,
 }: AutomationTriggerConfigProps<TMessengerMessageConfig>) => {
+  const { t } = useTranslation('automations', {
+    keyPrefix: 'messenger-message-trigger',
+  });
   const { integrationDetail } = useIntegrationDetail({
     integrationId: config?.integrationId || null,
   });
@@ -29,20 +33,23 @@ export const MessengerMessageTriggerNodeContent = ({
   const selected = conditions.filter((c) => c.isSelected);
 
   const content = selected.length
-    ? selected.map((c) => EVENT_LABELS[c.type] || c.type).join(', ')
-    : 'No events selected';
+    ? selected
+        .map((c) =>
+          EVENT_LABEL_KEYS[c.type] ? t(EVENT_LABEL_KEYS[c.type]) : c.type,
+        ).join(', ')
+    : t('no-events-selected');
 
   return (
     <>
       <AutomationNodeMetaInfoRow
-        fieldName="Messenger"
+        fieldName={t('node-messenger')}
         content={
           config?.integrationId
             ? integrationDetail?.name || config.integrationId
-            : 'All erxes messengers'
+            : t('all-messengers')
         }
       />
-      <AutomationNodeMetaInfoRow fieldName="Events" content={content} />
+      <AutomationNodeMetaInfoRow fieldName={t('node-events')} content={content} />
     </>
   );
 };

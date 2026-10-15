@@ -26,8 +26,12 @@ import {
   ComposerFooter,
   ComposerHeader,
 } from './DirectMailComposerFields';
+import { useTranslation } from 'react-i18next';
 
 export const DirectMailComposer = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
   const [recipientCustomerId, setRecipientCustomerId] = useState<string>();
   const [showCc, setShowCc] = useState(false);
@@ -162,7 +166,7 @@ export const DirectMailComposer = () => {
   return (
     <FormProvider {...form}>
       <section
-        aria-label="New email"
+        aria-label={t('new-email')}
         className="fixed inset-x-2 bottom-2 z-50 flex max-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(40rem,calc(100vw-2rem))]"
       >
         <ComposerHeader onClose={close} loading={sending} />
@@ -183,8 +187,8 @@ export const DirectMailComposer = () => {
             />
             {failedDelivery && (
               <p role="alert" className="px-4 py-3 text-sm text-destructive">
-                {failedDelivery.deliveryError || 'Email was not delivered.'}
-                {' Retry sending, or close this draft to start a new email.'}
+                {failedDelivery.deliveryError || t('mail-email-not-delivered')}{' '}
+                {t('mail-retry-or-close-draft')}
               </p>
             )}
             <ComposerFooter

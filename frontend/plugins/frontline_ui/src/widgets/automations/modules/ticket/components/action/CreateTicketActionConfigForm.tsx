@@ -143,7 +143,7 @@ export const CreateTicketActionConfigForm = ({
   const { control, handleSubmit } = form;
 
   const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Ticket Action Configuration',
+    formName: t('ticket-action-configuration'),
   });
 
   useAutomationRemoteFormSubmit({

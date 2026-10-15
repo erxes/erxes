@@ -181,7 +181,9 @@ const mn: Record<keyof typeof en, string> = {
 export const useTelegramTranslation = (): {
   t: (key: keyof typeof en) => string;
 } => {
-  const { i18n } = useTranslation('frontline');
+  const { i18n } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   // Plugin-owned resources keep the integration independently deployable.
   for (const [language, resources] of Object.entries({ en, mn })) {
     if (!i18n.hasResourceBundle(language, 'frontline-telegram')) {

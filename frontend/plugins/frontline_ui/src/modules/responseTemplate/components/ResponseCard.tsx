@@ -27,7 +27,7 @@ const stripHtml = (html?: string) =>
     .trim();
 
 export const ResponseCard = ({ response }: { response: IResponseTemplate }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const navigate = useNavigate();
   const { _id, channelId, name, content, createdAt, files } = response;
 

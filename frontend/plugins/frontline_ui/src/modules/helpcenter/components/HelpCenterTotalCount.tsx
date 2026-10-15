@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { helpCenterTotalCountAtom } from '@/helpcenter/states/helpCentersTotalCountState';
 
 export const HelpCenterTotalCount = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const totalCount = useAtomValue(helpCenterTotalCountAtom);
 
   return (

@@ -12,7 +12,9 @@ type Props = {
 };
 
 export const InstagramIntegrationRepair = ({ cell }: Props) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { _id, healthStatus } = cell.row.original;
   const { repairIntegration, loading: repairLoading } =
     useIgIntegrationsRepair();
@@ -40,7 +42,6 @@ export const InstagramIntegrationRepair = ({ cell }: Props) => {
   );
 
   const handleRepair = () => {
-
     if (isUnhealthy) {
       reauth();
     } else {

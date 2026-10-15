@@ -23,7 +23,9 @@ export const useIntegrationReauth = (
   authMessageType: string,
   onAuthorized: () => void,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [loading, setLoading] = useState(false);
   const mountedRef = useRef(true);
 
@@ -57,7 +59,6 @@ export const useIntegrationReauth = (
     }
 
     setLoading(true);
-
 
     let succeeded = false;
 

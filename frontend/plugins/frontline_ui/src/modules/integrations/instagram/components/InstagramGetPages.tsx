@@ -13,7 +13,9 @@ import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPa
 import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramGetPages = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { isPost } = useIgIntegrationContext();
   const [selectedPage, setSelectedPage] = useAtom(selectedInstagramPageAtom);
   const { instagramGetPages } = useInstagramPages({

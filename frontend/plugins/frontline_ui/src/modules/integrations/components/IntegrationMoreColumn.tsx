@@ -72,7 +72,9 @@ export const IntegrationMoreColumnCell = ({
 }: {
   cell: CellContext<IIntegration, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { _id, name, isActive, channelId } = cell.row.original;
   const { integrationType } = useParams();
   const [menuOpen, setMenuOpen] = useState(false);

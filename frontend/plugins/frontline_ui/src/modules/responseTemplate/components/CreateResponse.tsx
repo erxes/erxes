@@ -18,7 +18,7 @@ import { CreateResponseForm } from '@/responseTemplate/components/CreateResponse
 import { TCreateResponseForm } from '@/responseTemplate/types';
 
 export const CreateResponse = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const { id: channelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();

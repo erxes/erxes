@@ -8,7 +8,9 @@ import {
 import { IconArrowLeft } from '@tabler/icons-react';
 
 export const EMPreviewWebsiteApp = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const url = useAtomValue(emPreviewWebsiteAppUrl);
   const title = useAtomValue(emPreviewWebsiteAppHeaderTitle);
   const setActiveTab = useSetAtom(emPreviewTabAtom);

@@ -65,7 +65,7 @@ export const FromRow = ({
       return (
         <span className="flex items-center gap-2 text-muted-foreground">
           <Spinner size="sm" />
-          {'Loading sender…'}
+          {t('mail-loading-sender')}
         </span>
       );
     }
@@ -82,10 +82,10 @@ export const FromRow = ({
               disabled={disabled}
             >
               <Select.Trigger
-                aria-label="From"
+                aria-label={t('mail-from')}
                 className="h-9 min-w-0 border-0 px-0 shadow-none"
               >
-                <Select.Value placeholder="Select sender">
+                <Select.Value placeholder={t('mail-select-sender')}>
                   {selectedSender &&
                     `${selectedSender.name} <${selectedSender.address}>`}
                 </Select.Value>
@@ -111,7 +111,7 @@ export const FromRow = ({
 
   return (
     <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
-      <span className="text-xs text-muted-foreground">From</span>
+      <span className="text-xs text-muted-foreground">{t('mail-from')}</span>
       <div className="flex min-h-9 min-w-0 items-center text-sm">
         {renderSender()}
       </div>
@@ -182,6 +182,9 @@ export const CcBccFields = () => {
 };
 
 export const SubjectRow = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const {
     register,
     formState: { errors },
@@ -192,7 +195,7 @@ export const SubjectRow = () => {
         className="text-xs text-muted-foreground"
         htmlFor="direct-mail-subject"
       >
-        Subject
+        {t('subject')}
       </label>
       <Input
         id="direct-mail-subject"
@@ -209,6 +212,9 @@ export const SubjectRow = () => {
 };
 
 export const BodyField = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const {
     register,
     formState: { errors },
@@ -217,9 +223,9 @@ export const BodyField = () => {
     <div className="min-h-0 flex-1 bg-muted/10 p-3">
       <Textarea
         id="direct-mail-body"
-        aria-label="Email message"
+        aria-label={t('mail-email-message')}
         className="h-full min-h-52 resize-none rounded-lg border-0 bg-transparent p-2 text-sm leading-6 shadow-none focus-visible:ring-0"
-        placeholder="Write your message"
+        placeholder={t('mail-write-your-message')}
         {...register('body')}
       />
       {errors.body && (

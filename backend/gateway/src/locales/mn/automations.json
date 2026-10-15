@@ -982,5 +982,30 @@
   "settings-agent-saved-added": "Амжилттай нэмэгдлээ",
   "settings-bots-not-found": "Ботын тохиргоо олдсонгүй",
   "runs": "Ажиллалтууд",
-  "stats": "Статистик"
+  "stats": "Статистик",
+  "messenger-message-trigger": {
+    "validation-error-title": "Баталгаажуулалтын алдаа",
+    "validation-error-description": "Дор хаяж нэг үйл явдлын төрөл сонгоно уу",
+    "description": "Ямар мессенжер виджетийн үйл явдал энэ автоматжуулалтыг ажиллуулахыг сонгоно уу.",
+    "messenger": "Erxes Messenger",
+    "all-messengers": "Бүх erxes мессенжер",
+    "messenger-description": "Хоосон орхивол erxes мессенжер бүрт ажиллана.",
+    "triggers": "Триггерүүд",
+    "event-required": "Дор хаяж нэг үйл явдлын төрөл сонгоно уу",
+    "no-events-selected": "Үйл явдал сонгоогүй",
+    "node-messenger": "Мессенжер",
+    "node-events": "Үйл явдлууд",
+    "event-direct-message": "Шууд мессеж",
+    "event-get-started": "Эхлэх",
+    "event-quick-reply": "Түргэн хариулт",
+    "event-customer-registration": "Үйлчлүүлэгчийн бүртгэл",
+    "event-ticket-form-submission": "Тикет формын илгээлт",
+    "event-request-create-ticket": "Тикет үүсгэх хүсэлт",
+    "event-direct-message-description": "Үйлчлүүлэгч дурын текст мессеж илгээхэд ажиллана (анхдагч)",
+    "event-get-started-description": "Үйлчлүүлэгч Эхлэх товчийг дарахад ажиллана",
+    "event-quick-reply-description": "Үйлчлүүлэгч түргэн хариултын товчийг дарахад ажиллана",
+    "event-customer-registration-description": "Үйлчлүүлэгч холбоо барих мэдээллээ илгээхэд ажиллана",
+    "event-ticket-form-submission-description": "Үйлчлүүлэгч нэр болон тайлбартай тикет үүсгэх форм илгээхэд ажиллана",
+    "event-request-create-ticket-description": "Үйлчлүүлэгч байнгын цэс дэх Тикет үүсгэх товчийг дарахад ажиллана"
+  }
 }
