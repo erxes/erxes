@@ -1,4 +1,5 @@
 import { hasId } from '@/pos/utils/posJson';
+import { getNextPosSelectorPage } from '@/pos/utils/posSelectorPage';
 import {
   type QueryHookOptions,
   type TypedDocumentNode,
@@ -22,20 +23,25 @@ export const usePosSelector = (
     SalesPosOrdersPosListQueryVariables
   >,
 ) => {
+  const variables = {
+    perPage: POS_PER_PAGE,
+    page: 1,
+    ...options?.variables,
+  };
   const { data, loading, error, fetchMore } = useQuery(query, {
     ...options,
-    variables: {
-      perPage: POS_PER_PAGE,
-      page: 1,
-      ...options?.variables,
-    },
+    variables,
   });
-  const posList = (data?.posList ?? []).filter(hasId);
+  const loadedPosList = data?.posList ?? [];
+  const posList = loadedPosList.filter(hasId);
 
   const handleFetchMore = () => {
-    const currentPage = Math.floor(posList.length / POS_PER_PAGE) + 1;
     fetchMore({
-      variables: { page: currentPage + 1, perPage: POS_PER_PAGE },
+      variables: getNextPosSelectorPage(
+        variables,
+        loadedPosList.length,
+        POS_PER_PAGE,
+      ),
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         return {

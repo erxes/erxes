@@ -68,6 +68,7 @@ export const useCoversList = (
         description: cover.description,
         note: cover.note,
         createdAt: cover.createdAt,
+        user: cover.user,
       })) || [],
     [data?.posCovers],
   );

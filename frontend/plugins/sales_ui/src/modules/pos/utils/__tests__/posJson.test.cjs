@@ -40,6 +40,7 @@ const {
   mergePosSummaryPages,
 } = load('../posOrderJson.ts');
 const { updateCacheAfterRemove } = load('../updatePosCoversCache.ts');
+const { getNextPosSelectorPage } = load('../posSelectorPage.ts');
 
 test('settings retain nested extension keys, nullable fields, and legacy numeric timers', () => {
   const input = {
@@ -310,4 +311,36 @@ test('empty controlled payment inputs retain nullable stored fields until edited
   assert.equal(restorePosPaymentText('', 'clear me'), '');
   assert.equal(restorePosPaymentText(undefined, null), null);
   assert.equal(restorePosPaymentConfig(undefined, null), null);
+});
+
+test('POS selector continues after the loaded rows of the original request', () => {
+  const firstPage = { page: 1, perPage: 20 };
+  assert.deepEqual(getNextPosSelectorPage(firstPage, 20, 20), {
+    page: 2,
+    perPage: 20,
+  });
+  assert.deepEqual(getNextPosSelectorPage(firstPage, 40, 20), {
+    page: 3,
+    perPage: 20,
+  });
+  assert.deepEqual(getNextPosSelectorPage(firstPage, 25, 20), {
+    page: 3,
+    perPage: 20,
+  });
+  assert.deepEqual(getNextPosSelectorPage({ page: 3, perPage: 7 }, 7, 20), {
+    page: 4,
+    perPage: 7,
+  });
+});
+
+test('POS selector page falls back like the API for missing page values', () => {
+  assert.deepEqual(getNextPosSelectorPage({}, 0, 20), { page: 1, perPage: 20 });
+  assert.deepEqual(
+    getNextPosSelectorPage({ page: null, perPage: null }, 20, 20),
+    { page: 2, perPage: 20 },
+  );
+  assert.deepEqual(getNextPosSelectorPage({ page: 0, perPage: 0 }, 20, 20), {
+    page: 2,
+    perPage: 20,
+  });
 });

@@ -296,7 +296,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Order detail `items` is an array; `posOrderRecords.items` is the unwound row
   object. Keep these two report shapes distinct.
 - A Cover's `user` is its assignee, while `createdUser` resolves `createdBy`.
-  Do not substitute one for the other when deriving display data.
+  Do not substitute one for the other when deriving display data. Covers list
+  rows keep the selected `user` for the assignee column.
 - Product-group saves project only `GroupInput` fields and refetch that POS's
   groups before completing. Cover deletion removes each successfully deleted
   id from every cached `posCovers` filter variant.
@@ -330,8 +331,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   ByItems, Covers, Items, or Summary), even when their selections are identical.
   Keep document exports stable for their existing hooks and selectors.
   Identical POS list behavior lives in `pos/hooks/usePosSelector.ts`; each
-  report passes its own typed document and options. Shared company/user selector
-  row aliases in `pos/types/posSelector.ts` follow the generated Orders selections.
+  report passes its own typed document and options. Its next page continues from
+  the request's effective `page`/`perPage` and the unfiltered row count
+  (`pos/utils/posSelectorPage.ts`). `posList` returns no total, so selectors
+  report the loaded length as their total and do not offer load-more.
+  Shared company/user selector row aliases in `pos/types/posSelector.ts`
+  follow the generated Orders selections.
   Keep those selections compatible when reusing the aliases in another report.
 - Follow the `operation_ui` reference for codegen changes; inspect its existing
   implementation and, when needed, its merged migration diff before introducing
@@ -458,7 +463,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order/item payment
-  details, filtered Cover deletion, and all POS report routes.
+  details, filtered Cover deletion, Cover assignee display, and all POS report
+  routes.
 
 - `pnpm nx lint sales_ui`
 - `pnpm exec tsc -p frontend/plugins/sales_ui/tsconfig.app.json --noEmit`:
