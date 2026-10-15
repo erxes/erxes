@@ -5,21 +5,23 @@ import {
   useQueryState,
   useRecordTableCursor,
   EnumCursorDirection,
-  mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
 import { parseDateRangeFromString } from 'erxes-ui/modules/filter/date-filter/utils/parseDateRangeFromString';
 import { useSetAtom } from 'jotai';
 import { couponTotalCountAtom } from '../states/useCouponCounts';
 import { COUPONS_QUERY } from '../graphql/queries/queries';
-import { ICoupon } from '../types/coupon';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '@/loyalties/utils/cursorList';
+import type { CouponsMainQueryVariables } from '~/gql/graphql';
 
 const COUPON_PER_PAGE = 30;
 const COUPON_CURSOR_SESSION_KEY = 'coupons_cursor';
 
-interface UseCouponListOptions {
-  [key: string]: string | number | boolean | string[] | undefined;
-}
+type UseCouponListOptions = Partial<CouponsMainQueryVariables>;
 
 export const useCouponVariables = (options: UseCouponListOptions = {}) => {
   const [
@@ -83,8 +85,8 @@ export const useCouponList = (options: UseCouponListOptions = {}) => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const couponList = useMemo<ICoupon[]>(
-    () => data?.coupons?.list || [],
+  const couponList = useMemo(
+    () => compactList(data?.coupons?.list),
     [data?.coupons?.list],
   );
 
@@ -93,7 +95,7 @@ export const useCouponList = (options: UseCouponListOptions = {}) => {
     [data?.coupons?.totalCount],
   );
 
-  const pageInfo = data?.coupons?.pageInfo;
+  const pageInfo = toCursorPageInfo(data?.coupons?.pageInfo);
 
   const handleFetchMore = useCallback(
     ({ direction }: { direction: EnumCursorDirection }) => {
@@ -110,14 +112,15 @@ export const useCouponList = (options: UseCouponListOptions = {}) => {
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult.coupons || !prev.coupons) return prev;
           return {
+            ...prev,
             coupons: {
-              ...mergeCursorData({
+              ...mergeCursorList(
                 direction,
-                fetchMoreResult: fetchMoreResult.coupons,
-                prevResult: prev.coupons,
-              }),
+                prev.coupons,
+                fetchMoreResult.coupons,
+              ),
               totalCount:
                 fetchMoreResult.coupons.totalCount ?? prev.coupons.totalCount,
             },

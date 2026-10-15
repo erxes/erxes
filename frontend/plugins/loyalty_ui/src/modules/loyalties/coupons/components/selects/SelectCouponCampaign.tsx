@@ -13,6 +13,7 @@ import { useQuery } from '@apollo/client';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QUERY_COUPON_CAMPAIGNS } from '../../graphql/queries/queries';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface CouponCampaignOption {
   value: string;
@@ -26,12 +27,10 @@ const useCouponCampaignOptions = () => {
 
   const options = useMemo<CouponCampaignOption[]>(
     () =>
-      (data?.couponCampaigns?.list || []).map(
-        (c: { _id: string; title: string }) => ({
-          value: c._id,
-          label: c.title,
-        }),
-      ),
+      compactList(data?.couponCampaigns?.list).map((campaign) => ({
+        value: campaign._id,
+        label: campaign.title || '',
+      })),
     [data?.couponCampaigns?.list],
   );
 
