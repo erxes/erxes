@@ -41,10 +41,10 @@ export const spinsMutations = {
 
   async doSpin(
     _root: undefined,
-    spinId: string,
-    { models, checkPermission, subdomain }: IContext,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('spinDo');
-    return models.Spins.doSpin(spinId);
+    return models.Spins.doSpin(_id);
   },
 };

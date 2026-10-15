@@ -47,7 +47,7 @@ export const PRICING_PLAN_ADD = gql`
 `;
 
 export const PRICING_PLAN_REMOVE = gql`
-  mutation PricingPlanRemove($pricingPlanRemoveId: String) {
+  mutation PricingPlanRemove($pricingPlanRemoveId: String!) {
     pricingPlanRemove(id: $pricingPlanRemoveId) {
       _id
     }

@@ -53,7 +53,7 @@ const queryParams = `
 
 export const queries = `
   scoreCampaigns(${queryParams}): ScoreCampaignListResponse
-  scoreCampaign(_id:String): ScoreCampaign
+  scoreCampaign(_id: String!): ScoreCampaign
   scoreCampaignServices: JSON
   scoreCampaignEarnPreview(accountTypeId: String, table: JSON!, amount: Float!): [ScoreCampaignEarnPreview]
   checkOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
@@ -78,8 +78,8 @@ const mutationParams = `
 
 export const mutations = `
   scoreCampaignAdd(${mutationParams}): JSON
-  scoreCampaignUpdate(_id:String, ${mutationParams}): ScoreCampaign
+  scoreCampaignUpdate(_id: String!, ${mutationParams}): ScoreCampaign
   scoreCampaignRemove(_id:String): JSON
-  scoreCampaignsRemove(_ids:[String]): JSON
+  scoreCampaignsRemove(_ids: [String!]!): JSON
   refundLoyaltyScore(ownerId:String, ownerType:String, targetId:String): JSON
 `;

@@ -22,6 +22,7 @@ import { scoreStatistic } from '@/score/utils';
 import {
   buildCursorQuery,
   encodeCursor,
+  escapeRegExp,
   PageInfo,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -154,7 +155,10 @@ const generateFilter = async (
   }
 
   if (params.description) {
-    filter.description = { $regex: params.description, $options: 'i' };
+    filter.description = {
+      $regex: escapeRegExp(params.description),
+      $options: 'i',
+    };
   }
 
   return filter;

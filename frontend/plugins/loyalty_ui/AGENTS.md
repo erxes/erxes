@@ -175,6 +175,9 @@
   document selects another core or sales field, or its owner changes one it
   selects, update the snapshot from that source; codegen fails on a field the
   snapshot lacks.
+- Documents declare the variables of arguments `loyalty_api` requires as
+  non-null (`String!`, removes as `[String!]!`), so codegen accepts them;
+  queries that need an id keep `skip` until it exists.
 - Operation names are unique within the plugin even ignoring case, because
   codegen PascalCases them into type names; codegen only accepts byte-identical
   copies, as `GetCampaigns`, `UpdateLotteryCampaign` and `UpdateSpinCampaign`
@@ -204,6 +207,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — Required loyalty arguments
+
+- **Summary:** Documents follow the backend making the arguments its resolvers cannot run without non-null: detail, edit and remove ids, `_ids` on removes, and campaign and owner on donate, lottery, spin, voucher and assignment adds.
+- **Affected areas:** `graphql` documents of `assignments`, `coupons`, `donates`, `lotteries`, `spin`, `vouchers`, `settings/{assignment,birthday,coupon,donate,lottery,score,spin,voucher}`, and `pricing/graphql/{queries,mutations}.ts`.
+- **Contracts changed:** 40 variable declarations tightened; no operation renamed.
 
 ### `2026-10-14` — GraphQL codegen setup
 
@@ -256,9 +265,3 @@
 - **Summary:** The Expiry & reset section shows what the settings do in dates and what the next reset would do to the wallet's accounts, before saving.
 - **Affected areas:** `settings/account-type/{components/LoyaltyAccountTypePeriodPreview.tsx,components/LoyaltyAccountTypeExpirySection.tsx,components/LoyaltyAccountTypeFormSheet.tsx,hooks/useLoyaltyAccountTypePeriodPreview.ts,graphql/loyaltyAccountTypeQueries.ts}`; `period-preview-*` translations.
 - **Contracts changed:** Consumes GraphQL `loyaltyAccountTypePeriodPreview`.
-
-### `2026-09-30` — Period run panel on Wallets
-
-- **Summary:** The Wallets page tells when the next period run is, what it will do and how the last runs went.
-- **Affected areas:** `settings/account-type/{components/LoyaltyPeriodRunPanel.tsx,hooks/useLoyaltyPeriodRunStatus.ts,graphql/loyaltyAccountTypeQueries.ts,hooks/useLoyaltyAccountTypeMutations.ts}`, `pages/loyalties-config/LoyaltyAccountTypePage.tsx`; `period-run-*` translations.
-- **Contracts changed:** Consumes GraphQL `loyaltyPeriodRunStatus`.

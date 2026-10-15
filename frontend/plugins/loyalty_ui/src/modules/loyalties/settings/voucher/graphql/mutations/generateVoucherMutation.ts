@@ -2,9 +2,9 @@ import { gql } from '@apollo/client';
 
 export const GENERATE_VOUCHER = gql`
   mutation VouchersAdd(
-    $campaignId: String
-    $ownerId: String
-    $ownerType: String
+    $campaignId: String!
+    $ownerId: String!
+    $ownerType: String!
     $status: String
     $conditions: JSON
   ) {

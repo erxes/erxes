@@ -75,26 +75,34 @@ export const queries = `
 `;
 
 const mutationParams = `
-  campaignId: String
-  ownerId: String
-  ownerType: String
   status: String
   conditions: JSON
 `;
 
 const mutationManyParams = `
-  campaignId: String
-  ownerType: String
+  campaignId: String!
+  ownerType: String!
   ownerIds: [String]
   tagIds: [String]
   status: String
 `;
 
 export const mutations = `
-  vouchersAdd(${mutationParams}): Voucher
+  vouchersAdd(
+    campaignId: String!
+    ownerId: String!
+    ownerType: String!
+    ${mutationParams}
+  ): Voucher
   vouchersAddMany(${mutationManyParams}): String
-  vouchersEdit(_id: String!, ${mutationParams}): Voucher
-  vouchersRemove(_ids: [String]): JSON
+  vouchersEdit(
+    _id: String!
+    campaignId: String
+    ownerId: String
+    ownerType: String
+    ${mutationParams}
+  ): Voucher
+  vouchersRemove(_ids: [String!]!): JSON
   vouchersRemoveByFilter(${mainQueryParams}): Int
   buyVoucher(campaignId: String, ownerType: String, ownerId: String, count: Int): Voucher
   voucherCancel(_id: String!, reason: String!): Voucher

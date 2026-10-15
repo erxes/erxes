@@ -1,6 +1,10 @@
 import { IContext, IModels } from '~/connectionResolvers';
 import dayjs from 'dayjs';
-import { defaultPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  defaultPaginate,
+  escapeRegExp,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import {
   getAllowedProducts,
   getProductIdsForPlan,
@@ -275,7 +279,9 @@ export const pricingPlanQueries = {
         pluginName: 'core',
         module: 'products',
         action: 'find',
-        input: { query: { name: { $regex: search, $options: 'i' } } },
+        input: {
+          query: { name: { $regex: escapeRegExp(search), $options: 'i' } },
+        },
         defaultValue: [],
       });
       const matchedByName = new Set(

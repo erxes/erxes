@@ -57,17 +57,25 @@ export const queries = `
 `;
 
 const mutationParams = `
-  ownerId: String
-  ownerType: String
-  campaignId: String
   usedAt: Date
   status: String
   voucherCampaignId: String
 `;
 
 export const mutations = `
-  lotteriesAdd(${mutationParams}): Lottery
-  lotteriesEdit(_id: String!, ${mutationParams}): Lottery
-  lotteriesRemove(_ids: [String]): JSON
+  lotteriesAdd(
+    ownerId: String!
+    ownerType: String!
+    campaignId: String!
+    ${mutationParams}
+  ): Lottery
+  lotteriesEdit(
+    _id: String!
+    ownerId: String
+    ownerType: String
+    campaignId: String
+    ${mutationParams}
+  ): Lottery
+  lotteriesRemove(_ids: [String!]!): JSON
   buyLottery(campaignId: String, ownerType: String, ownerId: String, count: Int): Lottery
 `;

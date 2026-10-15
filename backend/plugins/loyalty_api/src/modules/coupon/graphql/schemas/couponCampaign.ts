@@ -36,7 +36,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  couponCampaign(_id: String): CouponCampaign
+  couponCampaign(_id: String!): CouponCampaign
   couponCampaigns(${queryParams}): CouponCampaignListResponse
 `;
 
@@ -54,6 +54,6 @@ const mutationParams = `
 
 export const mutations = `
   couponCampaignAdd(${mutationParams}): CouponCampaign
-  couponCampaignEdit(_id: String, ${mutationParams}): CouponCampaign
-  couponCampaignsRemove(_ids: [String]): JSON
+  couponCampaignEdit(_id: String!, ${mutationParams}): CouponCampaign
+  couponCampaignsRemove(_ids: [String!]!): JSON
 `;
