@@ -7,31 +7,10 @@ import {
 } from '@tabler/icons-react';
 
 import { INVOICE_DETAIL_BY_CONTENT } from '../graphql/posOrdersByDeal';
+import type { IDealPosOrder } from '../types/posOrders';
+import { toDealPosPaidAmounts } from '../utils/posOrderPaidAmounts';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
-
-type IPosOrder = {
-  _id: string;
-  number?: string;
-  paidDate?: string;
-  totalAmount?: number;
-  cashAmount?: number;
-  mobileAmount?: number;
-  paidAmounts?: Array<{ type: string; amount: number; title?: string }>;
-  posName?: string;
-};
-
-type IPaymentTransaction = {
-  _id: string;
-  paymentKind?: string;
-  amount?: number;
-  status?: string;
-};
-
-type IInvoiceWithTransactions = {
-  _id: string;
-  transactions?: IPaymentTransaction[];
-};
 
 type PaymentKind = 'cash' | 'card' | 'mobile';
 
@@ -56,7 +35,7 @@ const PaymentIcon = ({ kind }: { kind: PaymentKind }) => {
   return <IconCreditCard className="size-3.5 shrink-0" />;
 };
 
-export const PosOrderRow = ({ order }: { order: IPosOrder }) => {
+export const PosOrderRow = ({ order }: { order: IDealPosOrder }) => {
   const { t } = useTranslation('sales');
   const hasMobile = !!order.mobileAmount && order.mobileAmount > 0;
 
@@ -76,25 +55,22 @@ export const PosOrderRow = ({ order }: { order: IPosOrder }) => {
     });
   }
 
-  if (order.paidAmounts?.length) {
-    for (const paidAmount of order.paidAmounts) {
-      entries.push({
-        label: paidAmount.title || capitalize(paidAmount.type),
-        amount: Number(paidAmount.amount) || 0,
-        kind: 'card',
-      });
-    }
+  for (const paidAmount of toDealPosPaidAmounts(order.paidAmounts)) {
+    entries.push({
+      label: paidAmount.title || capitalize(paidAmount.type),
+      amount: paidAmount.amount,
+      kind: 'card',
+    });
   }
 
   if (hasMobile) {
-    const invoices: IInvoiceWithTransactions[] =
-      invoiceData?.invoiceDetailByContent || [];
+    const invoices = invoiceData?.invoiceDetailByContent ?? [];
 
     const byKind: Record<string, number> = {};
 
     for (const invoice of invoices) {
-      for (const transaction of invoice.transactions || []) {
-        if (transaction.status !== 'paid') {
+      for (const transaction of invoice?.transactions ?? []) {
+        if (transaction?.status !== 'paid') {
           continue;
         }
 

@@ -272,6 +272,8 @@
   including nullable payment fields and existing numeric screen values.
   Stored order payment entries may omit `type` or contain `type: null`;
   frontend parsing must not make that optional field required.
+  The deal relation panel (`posOrders(dealId)`) also reads `paidAmounts` as a
+  JSON array of `{ type, title, amount }` entries.
 - Deal product rows, payments, pipeline payment types, and pipeline event data
   remain JSON scalar contracts. Sales UI validates the fields it consumes;
   changing these outputs to object selections requires a coordinated API and

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_BOARD_PIPELINE_STAGE_NAME = gql`
+export const GET_BOARD_PIPELINE_STAGE_NAME = gql(`
   query salesAutomationBoardPipelineStageNames(
     $boardId: String!
     $pipelineId: String!
@@ -16,4 +16,4 @@ export const GET_BOARD_PIPELINE_STAGE_NAME = gql`
       name
     }
   }
-`;
+`);

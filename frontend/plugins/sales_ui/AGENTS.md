@@ -244,11 +244,18 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
-- Deals and POS documents use `gql()` from `~/gql`; hooks and cache/subscription updates
+- All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. Derive row/detail aliases from
   generated query types and keep local form types separate.
   Keep only aliases with consumers; selector context, pagination, drag state,
   attachment state, and Zod form types remain UI contracts.
+- Source-automation trigger `config` and deal relation POS `paidAmounts` are
+  JSON, narrowed in `automations/utils/sourceTriggers.ts` and
+  `widgets/relation/utils/posOrderPaidAmounts.ts`. Only object trigger configs
+  are read; the relation panel lists array payment entries only (legacy maps
+  stay hidden) and skips non-object entries. Payment selector rows alias the
+  generated `Payments` query. The automation board/pipeline/stage text skips its
+  query until all three ids are present.
 - Deal `productsData`, `paymentsData`, pipeline payment types, voucher results,
   and event payloads remain JSON in the public API. Validate consumed structure
   in Sales UI (`deals/utils/dealJson.ts` and the owning hook); preserve extra
@@ -462,9 +469,13 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 ## Validation
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order/item payment
   details, filtered Cover deletion, Cover assignee display, and all POS report
   routes.
+- Integrations smoke: POS/pipeline Automations tab list and remove, payment
+  selectors, deal relation POS orders panel, and the automation
+  board/pipeline/stage text.
 
 - `pnpm nx lint sales_ui`
 - `pnpm exec tsc -p frontend/plugins/sales_ui/tsconfig.app.json --noEmit`:
