@@ -258,6 +258,9 @@
 - Pipeline number configuration is literal prefix text with supported date
   placeholders (`{year}`, `{month}`, `{day}`); send the original text and let
   the API escape it for number lookup. Do not pre-escape it in the UI.
+- Send deal, POS, and address search text unchanged; the API owns regex
+  escaping and case-insensitive matching. Formatted-phone matching and the
+  shared stage/archive fuzzy-search behavior remain supported.
 - POS edit, product-group/slot saves, and deal-watch documents already declare
   required target ids matching the backend's non-null arguments. Other legacy
   documents still declare nullable inputs even where the backend validates a

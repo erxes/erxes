@@ -292,6 +292,14 @@
 - Deal-number lookup escapes the configured prefix after date substitution
   with the shared `escapeRegExp` helper. Keep the numeric `[0-9]+$` suffix as
   regex syntax; date placeholders, padding, and reset behavior stay intact.
+- Request text used in regex patterns goes through `escapeRegExp` from
+  `erxes-api-shared/utils`. The plugin-local ESLint config follows Operation's
+  rule and requires escaping at each construction site. Prefer escaped string
+  `$regex` values with `$options`, including queries sent over tRPC.
+  Phone lookup first limits input to digits, escapes them, then adds fixed
+  `\D*` separators; its two documented lint exceptions preserve formatted-phone
+  matching. Stage/archive fuzzy searches use the public `regexSearchText`
+  helper, which escapes metacharacters itself; do not double-escape its input.
 - Every Sales Query/Mutation field must have an explicitly registered
   resolver, and every registered root resolver must appear in SDL. The
   `resolverParity` tests compare the assembled registries and declarations.

@@ -2,7 +2,8 @@ import type { IModels } from '../connectionResolvers';
 import { boardNumberGenerator, generateLastNum } from '../modules/sales/utils';
 
 jest.mock('erxes-api-shared/utils', () => ({
-  escapeRegExp: jest.requireActual<typeof import('lodash')>('lodash').escapeRegExp,
+  escapeRegExp:
+    jest.requireActual<typeof import('lodash')>('lodash').escapeRegExp,
 }));
 jest.mock('../modules/sales/graphql/resolvers/queries/deals', () => ({}));
 
@@ -14,7 +15,8 @@ const createModels = (pipelines: PipelineNumber[], numbers: string[] = []) => {
       findOne: jest.fn(async (query: { lastNum: RegExp; type: string }) =>
         pipelines.find(
           (pipeline) =>
-            pipeline.type === query.type && query.lastNum.test(pipeline.lastNum),
+            pipeline.type === query.type &&
+            query.lastNum.test(pipeline.lastNum),
         ),
       ),
     },
@@ -62,11 +64,10 @@ describe.each([
   });
 
   it('falls back to a deal number with the literal prefix and numeric suffix', async () => {
-    const models = createModels([], [
-      `${otherPrefix}0099`,
-      `${prefix}0010-extra`,
-      lastNum,
-    ]);
+    const models = createModels(
+      [],
+      [`${otherPrefix}0099`, `${prefix}0010-extra`, lastNum],
+    );
     await expect(generateLastNum(models, config)).resolves.toBe(lastNum);
   });
 });
