@@ -247,6 +247,14 @@
 - GraphQL documents are literal strings so codegen can read their complete
   variables, arguments, and selections. Do not reintroduce JavaScript string
   interpolation into query, mutation, or subscription documents.
+- POS edit, product-group/slot saves, and deal-watch documents already declare
+  required target ids matching the backend's non-null arguments. Other legacy
+  documents still declare nullable inputs even where the backend validates a
+  required value at runtime (deal products, checklists, and POS bulk arrays).
+  Update and deploy caller variable declarations before tightening those SDL
+  arguments; supplying a non-null value does not make a nullable variable
+  declaration valid at a non-null GraphQL argument. Keep explicit empty arrays
+  for clearing POS groups/slots and for an empty deal-product selection.
 - Give distinct GraphQL operations unique Sales-prefixed names, including
   queries selecting the same backend field for different screens. Before
   renaming an operation, check repository-wide string references such as

@@ -489,6 +489,16 @@ export const createProductsData = async ({
   dealId: string;
   docs: IProductData[];
 }) => {
+  if (!dealId) {
+    throw new Error('dealId is required');
+  }
+  if (
+    !Array.isArray(docs) ||
+    docs.some((doc) => !doc || typeof doc !== 'object' || Array.isArray(doc))
+  ) {
+    throw new Error('docs must be an array of product objects');
+  }
+
   const deal = await models.Deals.getDeal(dealId);
   const stage = await models.Stages.getStage(deal.stageId);
 

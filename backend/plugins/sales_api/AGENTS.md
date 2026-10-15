@@ -281,6 +281,18 @@
 - `Pos` has no `type` field in its public GraphQL contract. Frontend settings
   must use the existing configuration fields rather than inventing this field
   in handwritten types or the codegen snapshot.
+- `posEdit._id`, `dealsWatch._id`, `productGroupsBulkInsert.posId`, and
+  `posSlotBulkUpdate.posId` are required in the SDL; resolvers also reject empty
+  strings after checking permissions and before querying or mutating data.
+- Preserve nullable argument signatures where existing caller documents use
+  nullable variables. POS order detail still requires an id at runtime; POS
+  bulk saves require arrays and valid row identifiers; deal product mutations
+  require their target ids and object/array payloads; checklist creation needs
+  a parent id and reordering needs an integer destination. Reject malformed
+  inputs before writes. Empty arrays remain valid for clearing POS groups or
+  slots and for an empty deal-product selection; position `0` is valid.
+  Tightening those SDL arguments requires coordinating their caller documents,
+  including `mongolian_ui`'s nullable POS order-detail id.
 - `productsData.uomInfo` is the entry input; derive root `uom`, `quantity`,
   `unitPrice`, and amounts in base units before calculating deal totals.
   Preserve saved ratios, and sync info values after server-side pricing changes
@@ -505,6 +517,7 @@
 
 ## Validation
 
+- `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
 - `pnpm nx run sales_api:schema:print --skip-nx-cache`
 - `pnpm nx lint sales_api`
 - POS catalog sync smoke: sync more than 100 products with base pricing and

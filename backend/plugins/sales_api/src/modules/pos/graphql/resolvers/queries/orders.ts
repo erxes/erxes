@@ -458,10 +458,13 @@ const queries = {
 
   posOrderDetail: async (
     _root,
-    { _id },
+    { _id }: { _id?: string | null },
     { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('posOrderRead');
+    if (!_id) {
+      throw new Error('_id is required');
+    }
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error(`PosOrder ${_id} not found`);
