@@ -44,9 +44,9 @@
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
 - Surveys UI: per-channel survey management inside channel settings (list, the
-  step-based create/edit wizard, archive, remove), the read-only results board
-  on the main `frontline/surveys` route, and the composer dialog that posts a
-  saved survey into a messenger conversation.
+  step-based create/edit wizard, archive, remove), the results board and the
+  create wizard on the main `frontline/surveys` route, and the composer dialog
+  that posts a saved survey into a messenger conversation.
 - Knowledge base UI: a topic tree sidebar beside every knowledge base page —
   each topic collapses open to its categories (nested by parent, with article
   counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
@@ -179,8 +179,8 @@
   agent-created survey), and the channel sub-header carries a
   `<n> pending approval` shortcut that filters the list — it reads its own
   `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
-  other filter, and is skipped without a `channelId` so the read-only
-  `frontline/surveys` board never offers an approval it cannot perform. A
+  other filter, and is skipped without a `channelId` so the
+  `frontline/surveys` page never shows that shortcut. A
   pending row's row menu swaps Archive/Unarchive for `Approve` and `Reject`,
   and the command bar shows an `Approve` button whenever the selection holds a
   pending or rejected survey and a `Reject` button whenever it holds a pending
@@ -193,20 +193,23 @@
   status filter offers `rejected`, `FormStatus.Badge` renders it as a
   destructive circle-x badge, and a rejected row's menu still offers `Approve`
   (never `Reject`, which the API accepts only from `pending`) so an agent can
-  reverse the call, plus `Remove` to clear it. The reason lives on
+  reverse the call, plus `Delete` to clear it. The reason lives on
   `Survey.rejectionReason`; the status cell wraps the badge in a tooltip
   carrying it, and the server drops the field on any later status change, so a
   badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
   reserved for surveys that have been live.
 - Creating and editing a survey is a full-page step wizard on
-  `settings/frontline/channels/:id/surveys/create` and
-  `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
+  `settings/frontline/channels/:id/surveys/create`,
+  `settings/frontline/channels/:id/surveys/:surveyId` and
+  `frontline/surveys/create`, laid out exactly like the
   form builder: a left panel carrying `IntegrationSteps` (STEP badge, progress
   bar, description) over the current step's fields, a live preview on the right,
   and a `Cancel` / `Previous step` / `Next step` footer whose last step reads
   `Create survey` or `Update survey`. The three steps are **General** (title,
-  brand), **Content** (the survey's steps) and **Confirmation** (duration plus a
-  read-only review of every step).
+  brand, and a required channel select only on `frontline/surveys/create`),
+  **Content** (the survey's steps) and **Confirmation** (duration plus a
+  read-only review of every step). Cancelling or finishing returns to the page
+  the wizard was opened from: the channel's surveys page or `frontline/surveys`.
 - The Content step is where a survey gains questions. Each survey step is an
   `InfoCard.Content` card holding its name, question, attachments, description,
   2–10 unique options and its own multi-answer switch; `Add Step` appends
@@ -231,8 +234,28 @@
   Desktop/Tablet/Mobile width toggles. `MessageSurvey` renders a step's
   attachments under its question — an `image/*` file inline, anything else as a
   paperclip link — so the inbox message and the wizard preview stay identical.
-  `frontline/surveys` is read-only — a card board of aggregated `Survey.results`
-  per survey, with status/search filters and no create control.
+  `frontline/surveys` renders inside the `SurveyView` layout: `SurveyPageHeader`
+  (the `Surveys` breadcrumb, its favorite toggle and a `Create survey` button on
+  the right), the status/search filters and a card board of aggregated
+  `Survey.results` per survey; its empty state links only to the survey
+  settings. The header button opens the wizard on `frontline/surveys/create`,
+  where the header breadcrumb reads `Surveys / Create survey`. Its sidebar
+  carries the same `Channels` group as `frontline/forms` (`ChooseChannel` in
+  `FrontlineSubGroups`), which toggles the `channelId` query param; the
+  sub-header filter also offers `By Channel` (`SelectChannel.FilterItem`,
+  `FilterView` and `FilterBar`, only without a `channelId` prop) on the same
+  param. The board and `SurveySubHeader`'s record count filter by it, while the pending-approval
+  shortcut still only follows a channel settings page's own channel. A `View`
+  control (`SurveysViewControl`, only where `SurveySubHeader` has no
+  `channelId` prop) switches between the card board and the `SurveyPageList`
+  record table, with its row actions and command bar; the choice persists in
+  `surveyViewAtom` (`localStorage` key `surveyView`, default `grid`). Each
+  board card is a link to the survey's edit wizard under its channel settings
+  (`settings/frontline/channels/:channelId/surveys/:surveyId`).
+- Deleting surveys always asks first, like forms: the row menu's red `Delete`
+  confirms with `confirm-delete-survey-title` and the command bar's `Delete`
+  with `confirm-delete-surveys` (pluralised) through `useConfirm` before
+  `surveyRemove` runs.
 - In a messenger conversation the composer's survey button opens
   `SendSurveyDialog`, scoped to the conversation integration's `channelId`, which
   posts a saved survey through `surveySendToConversation`.
@@ -578,8 +601,10 @@ owns the setup form and connection actions.
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
   registered in `FrontlineMain`; every one but `preview` renders inside the
   `FormView` layout and its `FormPageHeader`.
-- Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
-  and `FrontlineMain`) — the read-only survey results board.
+- Routes `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
+  and `FrontlineMain`) — the survey results board — and
+  `frontline/surveys/create` (`FrontlinePaths.SurveyCreate`) — the create
+  wizard; both render inside the `SurveyView` layout and its `SurveyPageHeader`.
 - Settings route `settings/frontline/channels/:id/surveys` (registered in the
   channels `Settings.tsx` as `FrontlinePaths.ChannelSurveys`) — the channel's
   survey management page — plus `FrontlinePaths.SurveysCreate`
@@ -1341,11 +1366,19 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   form has no messenger integration in the channel, and `frontline_api` rejects
   it. The selector lists every brand in the org, so a wrong pick surfaces as the
   mutation's error toast rather than as a filtered-out option.
-- Creating, editing, archiving, and removing a survey lives only under a
-  channel's settings page. `frontline/surveys` must stay read-only — its
-  `SurveySubHeader` renders filters and the record count only, and the
-  `Create survey` button lives in `ChannelSettingsBreadcrumb`, which supplies the
-  route's `channelId`.
+- A survey is always created with a channel. The wizard runs under two route
+  families — `frontline/surveys/create` and
+  `settings/frontline/channels/:id/surveys/*` — and tells them apart by the `id`
+  route param through `useSurveySetupChannel`, never by a flag. Under settings
+  the channel is the `:id` param; on `frontline/surveys/create` it is the
+  General step's channel select, required by `SURVEY_GENERAL_CREATE_SCHEMA`.
+  `useSurveyMutate`, `SurveyMutateLayout`'s cancel and
+  `SurveyOptionTicketConfig`'s pipeline select all read the channel and the
+  return path from that hook. Changing that channel select clears every
+  option's `ticketPipelineId` and `ticketStatusId` in `surveySetupContentAtom`,
+  because pipelines belong to a channel and the API does not check that a
+  survey's pipeline matches its channel. Editing, archiving, and removing a
+  survey still live only under a channel's settings page.
 - The wizard keeps one step's values per Jotai `atomWithStorage` atom
   (`surveySetupGeneralAtom`, `surveySetupContentAtom`, `surveySetupConfirmationAtom`),
   synced by the shared `FormValueEffectComponent`, exactly as the form builder
