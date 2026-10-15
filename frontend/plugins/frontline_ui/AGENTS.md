@@ -542,9 +542,9 @@ owns the setup form and connection actions.
 | Message copy actions      | `src/modules/inbox/conversation-messages/components/{MessageCopyActions,MessageCopyAction,CopyTextAction}.tsx`                                    | Copy text/attachment actions; Instagram images fall back to `frontlineInstagramCopyImage` via `useCopyMessageImage`                             |
 | Instagram error feedback  | `src/modules/integrations/instagram/utils/`                                                                                                       | `instagramErrorFeedback` rule matcher shared by send and reaction toasts                                                                        |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                  |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel           |
-| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers          |
+| Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                   |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel            |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers             |
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
@@ -923,6 +923,42 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   equals the loaded content; the save effect skips while the debounced content
   is still the loaded reference (`loadedDescriptionRef`) and only writes after a
   real editor change.
+- On the form builder's Callout step, turning **Skip callout** on dims the
+  callout fields the way 2.x's `LeftItem $deactive` did: they sit in a
+  `<fieldset disabled>` with `opacity-30 dark:opacity-50 cursor-not-allowed`
+  (50% in dark mode, where 30% reads as black), and its children get
+  `pointer-events-none` so the image `Dropzone` (which has no `disabled` prop)
+  also refuses drops. `[&_:disabled]:opacity-100` cancels erxes-ui's own
+  `disabled:opacity-50` so the fade is applied once. The switch stays outside
+  the fieldset, and turning it off restores the fields with their values
+  intact.
+- The form builder's General step ends with **Channel** and then **Save as
+  customer**. The switch uses the plugin's labelled-row pattern (as in
+  `HelpCenterGeneralTab`'s `FeatureSection`): the uppercase `Form.Label` and its
+  description on the left and the `Switch` on the right, so it reads like the
+  step's other labelled fields.
+- Segmented `ToggleGroup` choices in the form builder (General step's
+  Appearance and Load type, the field sheet's Field width and Validation) give
+  every `ToggleGroup.Item` `flex-1` so the segments split equally; `flex-auto`
+  sizes them by label length.
+- In the form builder's field list, the whole field row is the drag source:
+  it leads with an `IconDragDrop2` drag hint, shows a
+  `grab` cursor, and while dragging lifts with `shadow-lg` and a `primary`
+  border/ring. A single click anywhere on the row opens that field's
+  `FormFieldDetailSheet`, which is where its label and other attributes are
+  edited; there is no inline rename. `FormDndField` skips the
+  click when the pointer moved at least the `MouseSensor` drag distance (10px)
+  since pointer-down, so dropping a dragged field does not open its sheet. The
+  row's `...` trigger and the dropdown content stop click propagation, so menu
+  actions such as **Remove Field** never reach the row's click handler.
+  The row `div` carries only the sortable ref and `listeners` (no role or
+  handlers); its icon and label sit in a native `<button>` that is the dnd-kit
+  activator (`setActivatorNodeRef`, `attributes`), with the `...` menu as a
+  sibling (its `DropdownMenu.Trigger` is `asChild` over the `Button`) so
+  buttons never nest. On that button **Enter** opens the sheet (its
+  keydown is kept from the `KeyboardSensor`, and during a keyboard drag it is
+  left to drop instead), while **Space** picks the field up, arrows move it and
+  **Space** drops it; Space's keyup is prevented so it never clicks the button.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
