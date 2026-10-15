@@ -18,7 +18,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import type { SalesPosSummaryCompaniesQuery } from '~/gql/graphql';
+import type { PosCompany as ICompany } from '@/pos/types/posSelector';
 
 import { IconBuilding } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -28,12 +28,6 @@ import {
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
-
-type ICompany = NonNullable<
-  NonNullable<
-    NonNullable<SalesPosSummaryCompaniesQuery['companies']>['list']
-  >[number]
-> & { _id: string };
 
 interface SelectCompaniesContextType {
   value: string;

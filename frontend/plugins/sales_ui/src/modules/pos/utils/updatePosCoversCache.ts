@@ -12,15 +12,17 @@ export const updateCacheAfterRemove = (
   cache.modify({
     fields: {
       posCovers(
-        existing: readonly (Reference | StoreObject)[] | Reference | null = [],
+        existing:
+          | readonly (Reference | StoreObject)[]
+          | Reference
+          | null
+          | undefined,
         { readField },
       ) {
         if (existing === null || isReference(existing)) return existing;
-        return (
-          existing.filter(
-            (cover) =>
-              !posCoverIds.includes(readField<string>('_id', cover) ?? ''),
-          ) ?? existing
+        return (existing ?? []).filter(
+          (cover) =>
+            !posCoverIds.includes(readField<string>('_id', cover) ?? ''),
         );
       },
     },

@@ -19,7 +19,7 @@ import React, {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SalesPosOrdersCompaniesQuery } from '~/gql/graphql';
+import type { PosCompany as ICompany } from '@/pos/types/posSelector';
 
 import { IconBuilding } from '@tabler/icons-react';
 import { POS_COMPANIES_QUERY } from '../../graphql/queries/posCompaniesQuery';
@@ -28,12 +28,6 @@ import {
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
-
-type ICompany = NonNullable<
-  NonNullable<
-    NonNullable<SalesPosOrdersCompaniesQuery['companies']>['list']
-  >[number]
-> & { _id: string };
 
 interface SelectCompaniesContextType {
   value: string;

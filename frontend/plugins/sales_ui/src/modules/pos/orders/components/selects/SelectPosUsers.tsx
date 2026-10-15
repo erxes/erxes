@@ -19,7 +19,7 @@ import React, {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SalesPosOrdersUsersQuery } from '~/gql/graphql';
+import type { PosUser as IUser } from '@/pos/types/posSelector';
 
 import { IconUsers } from '@tabler/icons-react';
 import { POS_USERS_QUERY } from '../../graphql/queries/posUsersQuery';
@@ -28,10 +28,6 @@ import {
   SelectTrigger,
   SelectTriggerVariantType,
 } from './SelectShared';
-
-type IUser = NonNullable<
-  NonNullable<SalesPosOrdersUsersQuery['posUsers']>[number]
->;
 
 interface SelectUsersContextType {
   value: string;

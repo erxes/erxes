@@ -329,6 +329,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - POS report operations use their report context in their names (Orders,
   ByItems, Covers, Items, or Summary), even when their selections are identical.
   Keep document exports stable for their existing hooks and selectors.
+  Identical POS list behavior lives in `pos/hooks/usePosSelector.ts`; each
+  report passes its own typed document and options. Shared company/user selector
+  row aliases in `pos/types/posSelector.ts` follow the generated Orders selections.
+  Keep those selections compatible when reusing the aliases in another report.
 - Follow the `operation_ui` reference for codegen changes; inspect its existing
   implementation and, when needed, its merged migration diff before introducing
   a different pattern. Keep explicit Apollo refetch target names at their

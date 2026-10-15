@@ -20,24 +20,26 @@ export const usePosEditProductGroup = () => {
     (options: SaveOptions) => {
       const variables = options.variables;
       const groups = variables?.groups;
+      let inputGroups = groups;
+      if (groups != null) {
+        inputGroups = (Array.isArray(groups) ? groups : [groups]).map(
+          (group) => {
+            if (group == null) return group;
+            return {
+              _id: group._id,
+              categoryIds: group.categoryIds,
+              excludedCategoryIds: group.excludedCategoryIds,
+              excludedProductIds: group.excludedProductIds,
+            };
+          },
+        );
+      }
       return saveProductGroups({
         ...options,
         variables: variables
           ? {
               ...variables,
-              groups:
-                groups == null
-                  ? groups
-                  : (Array.isArray(groups) ? groups : [groups]).map((group) =>
-                      group == null
-                        ? group
-                        : {
-                            _id: group._id,
-                            categoryIds: group.categoryIds,
-                            excludedCategoryIds: group.excludedCategoryIds,
-                            excludedProductIds: group.excludedProductIds,
-                          },
-                    ),
+              groups: inputGroups,
             }
           : undefined,
         refetchQueries: variables

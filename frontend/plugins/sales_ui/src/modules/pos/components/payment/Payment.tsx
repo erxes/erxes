@@ -61,19 +61,19 @@ const Payment: React.FC<PaymentProps> = ({ posId, onSaveActionChange }) => {
 
     const validPaymentTypes = (posDetail.paymentTypes ?? [])
       .filter((payment) => !!payment._id)
-      .map(({ _id, type, title, icon, config, scoreCampaignId }) => ({
-        _id: _id ?? '',
-        type: type ?? '',
-        title: title ?? '',
-        icon: icon ?? '',
-        config:
-          typeof config === 'string'
-            ? config
-            : config == null
-            ? undefined
-            : JSON.stringify(config),
-        scoreCampaignId: scoreCampaignId ?? undefined,
-      }));
+      .map(({ _id, type, title, icon, config, scoreCampaignId }) => {
+        let configText: string | undefined;
+        if (typeof config === 'string') configText = config;
+        else if (config != null) configText = JSON.stringify(config);
+        return {
+          _id: _id ?? '',
+          type: type ?? '',
+          title: title ?? '',
+          icon: icon ?? '',
+          config: configText,
+          scoreCampaignId: scoreCampaignId ?? undefined,
+        };
+      });
 
     reset({
       paymentIds: (posDetail.paymentIds ?? []).filter(isDefined),

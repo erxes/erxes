@@ -57,6 +57,7 @@ const LoadingSkeleton = () => {
 };
 
 const PROPERTIES_FORM_ID = 'pos-properties-form';
+const OFFLINE_POS_VALUES: readonly unknown[] = [true, 'true', 'True', 1, '1'];
 
 const DEFAULT_FORM_VALUES: FormData = {
   name: '',
@@ -233,9 +234,9 @@ const Properties: FC<PropertiesProps> = ({
                   <OrderPasswordField control={control} />
                   <BrandField control={control} />
                   {!isOnline &&
-                    [true, 'true', 'True', 1, '1'].some(
-                      (value) => value === posEnv?.ALLOW_OFFLINE_POS,
-                    ) && <OnServerField control={control} />}
+                    OFFLINE_POS_VALUES.includes(posEnv?.ALLOW_OFFLINE_POS) && (
+                      <OnServerField control={control} />
+                    )}
                   <DescriptionField control={control} />
                 </div>
               )}
