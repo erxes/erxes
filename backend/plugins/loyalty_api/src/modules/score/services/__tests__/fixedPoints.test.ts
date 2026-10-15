@@ -84,7 +84,14 @@ describe('giveFixedPoints', () => {
     const result = await giveFixedPoints(
       buildModels(wallet, { _id: 'earlier' } as never),
       'os',
-      { ...input, createdVia: { source: 'automation', runId: 'run1' } },
+      {
+        ...input,
+        createdVia: {
+          source: 'automation',
+          sourceId: 'automation1',
+          runId: 'run1',
+        },
+      },
     );
 
     expect(result).toEqual({ log: { _id: 'earlier' } });
