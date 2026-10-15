@@ -1,3 +1,13 @@
+
+
+## [3.2.25](https://github.com/erxes/erxes/compare/3.2.24...3.2.25) (2026-10-15)
+
+
+### Bug Fixes
+
+* posclient worker ([c50435a](https://github.com/erxes/erxes/commit/c50435aa74a3d0c4fb5f4e83b850a3fc7f944b1a))
+* some int to float ([2e0bc86](https://github.com/erxes/erxes/commit/2e0bc8623672042e1b381e7577f22d813aa5287e))
+
 # Changelog
 
 ## [3.2.24](https://github.com/erxes/erxes/compare/3.2.23...3.2.24) (2026-10-14)

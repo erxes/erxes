@@ -1,4 +1,4 @@
-import { Job, UnrecoverableError } from 'bullmq';
+import { Job } from 'bullmq';
 import {
   getEnv,
   getSaasOrganizations,
@@ -19,6 +19,16 @@ export const mainScheduler = async () => {
     const orgs = await getSaasOrganizations();
 
     for (const org of orgs) {
+      if (typeof org.subdomain !== 'string' || !org.subdomain.trim()) {
+        console.warn(
+          'Skipping POS remainder sync for organization without subdomain',
+          {
+            organizationId: org._id,
+          },
+        );
+        continue;
+      }
+
       await sendWorkerQueue('posclient', 'sync-remainder').add(
         'sync-remainder',
         {
@@ -62,10 +72,13 @@ export const runner = async (
   job.opts.removeOnFail = true;
   const { subdomain } = job.data ?? {};
 
-  if (!subdomain) {
-    throw new UnrecoverableError(
-      'Subdomain is required to sync POS client remainders',
-    );
+  if (typeof subdomain !== 'string' || !subdomain.trim()) {
+    console.warn('Skipping POS remainder sync job without subdomain', {
+      jobId: job.id,
+      jobName: job.name,
+      repeatJobKey: job.repeatJobKey,
+    });
+    return { skipped: true, reason: 'missing-subdomain' };
   }
 
   const models = await generateModels(subdomain);
