@@ -15,6 +15,16 @@ const lint = (source: string) =>
   linter.verify(source, { rules: { 'no-restricted-syntax': rule } });
 
 describe.each(['new RegExp', 'RegExp'])('%s regex guard', (constructor) => {
+  it('allows variable flags when the pattern is escaped', () => {
+    expect(lint(`${constructor}(escapeRegExp(input), flags)`)).toEqual([]);
+  });
+
+  it('still rejects an unsafe pattern when flags are variable', () => {
+    expect(lint(`${constructor}(input, flags)`)).toEqual([
+      expect.objectContaining({ ruleId: 'no-restricted-syntax', severity: 2 }),
+    ]);
+  });
+
   it.each([
     'input',
     '`^${input}$`',

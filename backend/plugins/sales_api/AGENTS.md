@@ -297,7 +297,8 @@
 - Request text used in regex patterns goes through `escapeRegExp` from
   `erxes-api-shared/utils`. The plugin-local ESLint config follows Operation's
   rule and requires escaping at each construction site, covering both
-  `new RegExp(...)` and `RegExp(...)`. Prefer escaped string
+  `new RegExp(...)` and `RegExp(...)`. The guard checks only the first (pattern)
+  argument; flags do not need regex escaping. Prefer escaped string
   `$regex` values with `$options`, including queries sent over tRPC.
   Phone lookup first limits input to digits, escapes them, then adds fixed
   `\D*` separators; its two documented lint exceptions preserve formatted-phone
