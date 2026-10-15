@@ -8,7 +8,10 @@ import {
 
 import { INVOICE_DETAIL_BY_CONTENT } from '../graphql/posOrdersByDeal';
 import type { IDealPosOrder } from '../types/posOrders';
-import { toDealPosPaidAmounts } from '../utils/posOrderPaidAmounts';
+import {
+  sumPaidTransactionsByKind,
+  toDealPosPaidAmounts,
+} from '../utils/posOrderPaidAmounts';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 
@@ -64,20 +67,9 @@ export const PosOrderRow = ({ order }: { order: IDealPosOrder }) => {
   }
 
   if (hasMobile) {
-    const invoices = invoiceData?.invoiceDetailByContent ?? [];
-
-    const byKind: Record<string, number> = {};
-
-    for (const invoice of invoices) {
-      for (const transaction of invoice?.transactions ?? []) {
-        if (transaction?.status !== 'paid') {
-          continue;
-        }
-
-        const kind = transaction.paymentKind || 'mobile';
-        byKind[kind] = (byKind[kind] || 0) + (Number(transaction.amount) || 0);
-      }
-    }
+    const byKind = sumPaidTransactionsByKind(
+      invoiceData?.invoiceDetailByContent,
+    );
 
     for (const [kind, amount] of Object.entries(byKind)) {
       entries.push({ label: capitalize(kind), amount, kind: 'mobile' });
