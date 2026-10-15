@@ -166,6 +166,8 @@
 - Arguments a resolver cannot run without are non-null on the operations `loyalty_ui` calls: the id on `pricingPlanDetail`, `pricingPlanRemove`, `couponCampaign`, `couponCampaignEdit`, `scoreCampaign`, `scoreCampaignUpdate` and `voucherCampaignDetail`; `_ids: [String!]!` on every remove `loyalty_ui` sends; `campaignId`, `ownerId` and `ownerType` on `donatesAdd`, `lotteriesAdd`, `spinsAdd`, `vouchersAdd` and `assignmentsAdd`; `campaignId` and `ownerType` on `vouchersAddMany`. Those adds declare the three themselves, and the shared `mutationParams` strings hold only optional fields, so the edit and `cp*` variants keep them optional.
 - Client portal (`cp*`) operations and operations no repository client calls (`buy*`, `doLottery`, `doLotteryMultiple`, `getNextChar`, `shareScore`, `loyalties`, `checkLoyalties`, `checkOwnerScore`, `refundLoyaltyScore`, `scoreCampaignRemove`) keep nullable arguments so outside clients are not broken; their resolvers still reject a missing value.
 - GraphQL validation lets an empty string through a non-null argument, so model writes reject an empty owner themselves (`createDonate`, `createLottery`, `createSpin`, `createVoucher`, `createVouchers`, `createAssignment`).
+- `_id` is `String!` on `AssignmentCampaign`, `CouponCampaign`, `DonateCampaign`, `LotteryCampaign`, `ScoreCampaign`, `SpinCampaign` and `VoucherCampaign`; entry types keep a nullable `_id` until their UI is typed.
+- Every campaign edit mutation resolves to the saved campaign: `updateAssignmentCampaign`, `updateDonateCampaign`, `updateLotteryCampaign`, `updateSpinCampaign` and `updateScoreCampaign` return the updated document (`findOneAndUpdate` with `new: true`), and the voucher and coupon resolvers read it back. A status-only edit (no `awards`) is valid on donate and spin campaigns.
 - Every query and mutation declared in the SDL has a resolver, and every resolver (root or type field) is declared in the SDL.
 - Request text that reaches `new RegExp()` or `$regex` goes through `escapeRegExp` from `erxes-api-shared/utils`; `eslint.config.js` (copied from `operation_api`) fails the lint otherwise.
 
@@ -185,6 +187,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — Campaign ids are non-null, edits return the campaign
+
+- **Summary:** Every campaign type's `_id` is non-null in the SDL, so the typed settings UI uses it as a row key and in edit and remove variables without null checks. Assignment, donate, lottery, spin and score campaign edits returned the raw `updateOne` result, so every field of their `*Edit` results came back null (an error once `_id` is non-null); they now return the updated campaign. A status-only edit without `awards` crashed donate and spin (`getSortAwards(undefined)`, `for … of undefined`); both now accept it.
+- **Affected areas:** `graphql/schemas` of assignment, donate, lottery, score, spin and voucher campaigns; `db/models/{AssignmentCampaign,DonateCampaign,LotteryCampaign,ScoreCampaign,SpinCampaign}.ts`.
+- **Contracts changed:** `_id: String!` on six campaign types (an output tightening; clients are unaffected); `assignmentCampaignsEdit`, `donateCampaignsEdit`, `lotteryCampaignsEdit`, `spinCampaignsEdit` and `scoreCampaignUpdate` now return the campaign fields they declare.
 
 ### `2026-10-14` — SDL is the contract for loyalty_ui
 
@@ -239,9 +247,3 @@
 - **Summary:** Sales and POS restate a purchase with `score.earn` on every save in an earning stage or paid sync; loyalty keeps one standing entry per campaign and target.
 - **Affected areas:** `trpc/init-trpc.ts`.
 - **Contracts changed:** tRPC `score.earn`.
-
-### `2026-10-07` — Voucher auto-issue bundles (birthday)
-
-- **Summary:** A voucher campaign keeps the ids of the core broadcast and automation that hand it out on birthdays, so the pair is shown, switched and removed as one.
-- **Affected areas:** `modules/voucher/{@types/voucherCampaign.ts,db/definitions/voucherCampaign.ts,db/models/VoucherCampaign.ts,graphql/schemas/voucherCamapign.ts,graphql/resolvers/{mutations,queries}/voucherCampaign.ts}`.
-- **Contracts changed:** `VoucherCampaign.autoIssue`, `voucherCampaignSetAutoIssue`, `voucherCampaignRemoveAutoIssue`.

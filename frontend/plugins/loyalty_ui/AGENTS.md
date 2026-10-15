@@ -89,6 +89,7 @@
 | Owner loyalty account | `src/modules/loyalties/accounts/**`, `src/modules/loyalties/scores/components/ScoreSummaryWidget.tsx`     | Account card, tier select and freeze dialog in the relation widget.                     |
 | Score campaigns       | `src/modules/loyalties/settings/score/**`                                                                 | Score campaign list, create sheet, and edit sheet.                                      |
 | GraphQL codegen       | `codegen.ts`, `schema/platform.graphql`                                                                   | Generates `src/gql/` (gitignored) from the printed `loyalty_api` schema and the snapshot. |
+| Loyalty utils         | `src/modules/loyalties/utils/{cursorList,isRecord,campaignRestrictions}.ts`                               | Cursor list adapters, JSON type guard, voucher and coupon restrictions parser.          |
 
 ## Contracts
 
@@ -175,6 +176,19 @@
   document selects another core or sales field, or its owner changes one it
   selects, update the snapshot from that source; codegen fails on a field the
   snapshot lacks.
+- The score, voucher, coupon, donate, spin, lottery and assignment settings
+  modules are typed from the schema: every document is `gql()` from `~/gql`,
+  hooks infer from their documents, and list and detail types derive from the
+  generated query types. JSON fields the forms read (`awards`, `restrictions`,
+  `codeRule`, the score `add`/`subtract`/`additionalConfig`, earn preview
+  `breakdown`, automation action `config`) are narrowed by small parsers built
+  on `@/loyalties/utils/isRecord`, never cast.
+- Cursor lists merge pages through `@/loyalties/utils/cursorList`, copied from
+  `operation_ui` because core's `PageInfo` booleans and list items are
+  nullable; delete it when core tightens `PageInfo`.
+- Voucher campaign pickers in assignment, donate, lottery, spin and the
+  vouchers list share `settings/voucher/hooks/useSelectVoucherCampaign` (cursor
+  pages) and `useVoucherCampaignInline` (`voucherCampaignDetail` by `_id`).
 - Documents declare the variables of arguments `loyalty_api` requires as
   non-null (`String!`, removes as `[String!]!`), so codegen accepts them;
   queries that need an id keep `skip` until it exists.
@@ -207,6 +221,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-14` — Settings campaigns typed from the schema
+
+- **Summary:** The score, voucher, coupon, donate, spin, lottery and assignment settings modules use typed documents. Fixed on the way: donate edit sent `_idid`; the unused donate and spin status hooks sent `id` and `_id` where their documents take `_id` and `id`; voucher create dropped `perOwnerLimit`; voucher campaign pickers showed the first campaign's name for every selection; the vouchers, spin and lottery campaign pickers re-fetched the first page on "Load more"; the voucher lottery tab read a nonexistent `getCampaigns`; the lottery list never paged (no `pageInfo` selected); edit hooks refetched nonexistent operation names; the coupon form schema accepted any `kind` and defaulted it to the invalid `coupon` (now `amount` or `percent`); assignment edit saved empty segments as `['']`.
+- **Affected areas:** `settings/{assignment,score,voucher,coupon,donate,spin,lottery}/**`, `scores/utils/parseEarnBreakdown.ts`, `spin/hooks`, `spin/types`, `lotteries/hooks`, `lotteries/types`, `vouchers/hooks`, `widgets/automations/modules/loyalty/hooks/useCampaignEarnRows.ts`, `loyalties/utils/**`.
+- **Contracts changed:** None; the lottery list now selects `pageInfo`, voucher create sends `perOwnerLimit`.
 
 ### `2026-10-14` — Required loyalty arguments
 
@@ -259,9 +279,3 @@
 - **Summary:** The wallet preview names the days before a reset in which purchases earn nothing, and the Adjust score history explains such a skip with both dates.
 - **Affected areas:** `settings/account-type/{hooks/useLoyaltyAccountTypePeriodPreview.ts,components/LoyaltyAccountTypePeriodPreview.tsx,graphql/loyaltyAccountTypeQueries.ts}`, `widgets/automations/modules/loyalty/hooks/useScoreActionResult.ts`; `period-preview-no-earn`, `score-skip-held-past-reset` translations.
 - **Contracts changed:** None
-
-### `2026-09-30` — Wallet time settings preview
-
-- **Summary:** The Expiry & reset section shows what the settings do in dates and what the next reset would do to the wallet's accounts, before saving.
-- **Affected areas:** `settings/account-type/{components/LoyaltyAccountTypePeriodPreview.tsx,components/LoyaltyAccountTypeExpirySection.tsx,components/LoyaltyAccountTypeFormSheet.tsx,hooks/useLoyaltyAccountTypePeriodPreview.ts,graphql/loyaltyAccountTypeQueries.ts}`; `period-preview-*` translations.
-- **Contracts changed:** Consumes GraphQL `loyaltyAccountTypePeriodPreview`.
