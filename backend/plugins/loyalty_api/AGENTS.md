@@ -166,8 +166,9 @@
 - Arguments a resolver cannot run without are non-null on the operations `loyalty_ui` calls: the id on `pricingPlanDetail`, `pricingPlanRemove`, `couponCampaign`, `couponCampaignEdit`, `scoreCampaign`, `scoreCampaignUpdate` and `voucherCampaignDetail`; `_ids: [String!]!` on every remove `loyalty_ui` sends; `campaignId`, `ownerId` and `ownerType` on `donatesAdd`, `lotteriesAdd`, `spinsAdd`, `vouchersAdd` and `assignmentsAdd`; `campaignId` and `ownerType` on `vouchersAddMany`. Those adds declare the three themselves, and the shared `mutationParams` strings hold only optional fields, so the edit and `cp*` variants keep them optional.
 - Client portal (`cp*`) operations and operations no repository client calls (`buy*`, `doLottery`, `doLotteryMultiple`, `getNextChar`, `shareScore`, `loyalties`, `checkLoyalties`, `checkOwnerScore`, `refundLoyaltyScore`, `scoreCampaignRemove`) keep nullable arguments so outside clients are not broken; their resolvers still reject a missing value.
 - GraphQL validation lets an empty string through a non-null argument, so model writes reject an empty owner themselves (`createDonate`, `createLottery`, `createSpin`, `createVoucher`, `createVouchers`, `createAssignment`).
-- `_id` is `String!` on `AssignmentCampaign`, `CouponCampaign`, `DonateCampaign`, `LotteryCampaign`, `ScoreCampaign`, `SpinCampaign`, `VoucherCampaign`, `ScoreLogItem` (every row is a stored score log) and `PricingPlan`; entry types keep a nullable `_id` until their UI is typed.
+- `_id` is `String!` on every campaign type (`AssignmentCampaign`, `CouponCampaign`, `DonateCampaign`, `LotteryCampaign`, `ScoreCampaign`, `SpinCampaign`, `VoucherCampaign`), every entry type (`Voucher`, `Donate`, `Lottery`, `Spin`, `Coupon`, `Assignment`, `Agent`), `ScoreLogItem` and `PricingPlan`: each is returned as a stored document.
 - Every campaign edit mutation resolves to the saved campaign: `updateAssignmentCampaign`, `updateDonateCampaign`, `updateLotteryCampaign`, `updateSpinCampaign` and `updateScoreCampaign` return the updated document (`findOneAndUpdate` with `new: true`), and the voucher and coupon resolvers read it back. A status-only edit (no `awards`) is valid on donate and spin campaigns.
+- Entry edits resolve to the saved entry: `updateVoucher`, `updateLottery`, `updateSpin` and `updateCoupon` return the updated document (`findOneAndUpdate` with `new: true`), and `editDonate` reads it back.
 - Every query and mutation declared in the SDL has a resolver, and every resolver (root or type field) is declared in the SDL.
 - Request text that reaches `new RegExp()` or `$regex` goes through `escapeRegExp` from `erxes-api-shared/utils`; `eslint.config.js` (copied from `operation_api`) fails the lint otherwise.
 
@@ -187,6 +188,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-15` — Entry ids are non-null, entry edits return the entry
+
+- **Summary:** `Voucher`, `Donate`, `Lottery`, `Spin`, `Coupon` and `Assignment` ids are non-null now that their UI is typed. `updateVoucher`, `updateLottery`, `updateSpin` and `updateCoupon` returned the raw `updateOne` result, so `vouchersEdit`, `lotteriesEdit`, `spinsEdit` and `couponEdit` came back with every field null; they now return the updated entry.
+- **Affected areas:** `graphql/schemas` of voucher, donate, lottery, spin, coupon and assignment; `db/models/{Voucher,Lottery,Spin,Coupon}.ts`.
+- **Contracts changed:** `_id: String!` on six entry types (output tightenings; clients are unaffected); the four edit mutations return the entry fields they declare.
 
 ### `2026-10-15` — Score log and pricing plan ids are non-null
 
@@ -241,9 +248,3 @@
 - **Summary:** Every tier change is kept in `loyalty_tier_logs` with who or what moved it and shown on the owner's timeline; new score campaigns default to active instead of draft.
 - **Affected areas:** `modules/score/{@types/tierLog.ts,db/definitions/tierLog.ts,db/models/TierLog.ts (+ test),services/accountTier.ts,services/purchaseTier.ts,services/accountReset.ts,graphql/schemas/account.ts,graphql/resolvers/queries/account.ts,graphql/resolvers/mutations/account.ts,db/definitions/scoreCampaign.ts}`, `meta/automations/score/producers.ts`, `trpc/init-trpc.ts`, `connectionResolvers.ts`.
 - **Contracts changed:** GraphQL `loyaltyTierLogs` (`LoyaltyTierLog`, by account or target); collection `loyalty_tier_logs`; activity `loyalty.tier.change`; tRPC `score.applyPurchaseTier` takes `targetId`, `targetType`, `actorId`; `ScoreCampaign.status` defaults to `active`.
-
-### `2026-10-09` — Purchase tier for the selling side
-
-- **Summary:** The Set tier action's band and owner logic moved into `services/purchaseTier.ts`, and sales/POS call it directly through `score.applyPurchaseTier` instead of an automation.
-- **Affected areas:** `modules/score/services/purchaseTier.ts`, `meta/automations/score/producers.ts`, `trpc/init-trpc.ts`.
-- **Contracts changed:** tRPC `score.applyPurchaseTier`.
