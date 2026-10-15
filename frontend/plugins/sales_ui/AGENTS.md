@@ -371,6 +371,11 @@
 
 ## Validation
 
+- `pnpm nx lint sales_ui`
+- `pnpm exec tsc -p frontend/plugins/sales_ui/tsconfig.app.json --noEmit`:
+  no diagnostics may point into `frontend/plugins/sales_ui`. Report diagnostics
+  in shared libraries separately; do not suppress them or change those libraries
+  as part of a Sales migration layer.
 - Export the API schema with `pnpm nx run sales_api:schema:print --skip-nx-cache`.
 - `pnpm nx run sales_ui:codegen --skip-nx-cache`
 - `pnpm nx build sales_ui`

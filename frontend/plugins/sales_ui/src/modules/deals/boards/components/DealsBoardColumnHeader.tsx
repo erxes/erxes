@@ -11,7 +11,7 @@ import {
 } from '@/deals/stage/hooks/useStages';
 
 import { BoardDealColumn } from '@/deals/types/boards';
-import ItemProductProbabilities from './ItemProductProbabilities';
+import { ItemProductProbabilities } from './ItemProductProbabilities';
 import { PrintDialog } from './common/Print';
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
