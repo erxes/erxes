@@ -1,46 +1,42 @@
 const nx = require('@nx/eslint-plugin');
 const baseConfig = require('../../../eslint.config.js');
 
+// Same restrictions as the Operation plugin: documents come from gql() in
+// ~/gql so codegen types them, and Apollo hooks infer from those documents.
+const USE_GENERATED_GQL =
+  "Use `import { gql } from '~/gql'` so codegen picks the document up.";
+const APOLLO_HOOK =
+  '/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/';
+
+const noTypeArguments = (callee, target) => ({
+  selector: `CallExpression[typeArguments]:matches([callee.name=${callee}], [callee.property.name=${callee}])`,
+  message: `Do not pass type arguments to ${target}; infer them from a document created with gql() from ~/gql.`,
+});
+
 module.exports = [
   { ignores: ['src/gql/**'] },
   ...baseConfig,
   ...nx.configs['flat/react'],
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    // Override or add rules here
     rules: {
       'no-restricted-imports': [
         'error',
         {
           paths: [
-            {
-              name: 'graphql-tag',
-              message:
-                "Use `import { gql } from '~/gql'` so codegen picks the document up.",
-            },
+            { name: 'graphql-tag', message: USE_GENERATED_GQL },
             {
               name: '@apollo/client',
               importNames: ['gql'],
-              message:
-                "Use `import { gql } from '~/gql'` so codegen picks the document up.",
+              message: USE_GENERATED_GQL,
             },
           ],
         },
       ],
       'no-restricted-syntax': [
         'error',
-        {
-          selector:
-            'CallExpression[typeArguments]:matches([callee.name=/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/], [callee.property.name=/^use(Query|Mutation|Subscription|LazyQuery|SuspenseQuery)$/])',
-          message:
-            'Do not pass type arguments to Apollo hooks; infer them from a document created with gql() from ~/gql.',
-        },
-        {
-          selector:
-            "CallExpression[typeArguments]:matches([callee.name='subscribeToMore'], [callee.property.name='subscribeToMore'])",
-          message:
-            'Do not pass type arguments to subscribeToMore; infer them from a document created with gql() from ~/gql.',
-        },
+        noTypeArguments(APOLLO_HOOK, 'Apollo hooks'),
+        noTypeArguments("'subscribeToMore'", 'subscribeToMore'),
       ],
     },
   },
