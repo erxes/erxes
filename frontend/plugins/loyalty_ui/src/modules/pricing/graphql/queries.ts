@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '~/gql';
 
 // Sales Board/Pipeline/Stage queries
-export const GET_BOARDS = gql`
+export const GET_BOARDS = gql(`
   query SalesBoards {
     salesBoards {
       _id
@@ -12,9 +12,9 @@ export const GET_BOARDS = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_PIPELINES = gql`
+export const GET_PIPELINES = gql(`
   query SalesPipelines($boardId: String) {
     salesPipelines(boardId: $boardId) {
       list {
@@ -24,9 +24,9 @@ export const GET_PIPELINES = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_STAGES = gql`
+export const GET_STAGES = gql(`
   query SalesStages($pipelineId: String) {
     salesStages(pipelineId: $pipelineId) {
       _id
@@ -35,9 +35,9 @@ export const GET_STAGES = gql`
       pipelineId
     }
   }
-`;
+`);
 
-export const PRICING_PLANS = gql`
+export const PRICING_PLANS = gql(`
   query PricingPlans(
     $page: Int
     $perPage: Int
@@ -108,9 +108,9 @@ export const PRICING_PLANS = gql`
       isRepeatEnabled: $isRepeatEnabled
     )
   }
-`;
+`);
 
-export const PRICING_PLAN_DETAIL = gql`
+export const PRICING_PLAN_DETAIL = gql(`
   query PricingPlanDetail($pricingPlanDetailId: String!) {
     pricingPlanDetail(id: $pricingPlanDetailId) {
       _id
@@ -230,35 +230,9 @@ export const PRICING_PLAN_DETAIL = gql`
       productIds
     }
   }
-`;
+`);
 
-export const productCategories = gql`
-  query ProductCategories {
-    productCategories {
-      _id
-      parentId
-      code
-      name
-      order
-    }
-  }
-`;
-
-export const GET_PRODUCTS_BY_IDS = gql`
-  query AssignedProducts($ids: [String], $categoryIds: [String], $limit: Int) {
-    productsMain(ids: $ids, categoryIds: $categoryIds, limit: $limit) {
-      list {
-        _id
-        name
-        uom
-        unitPrice
-        code
-      }
-    }
-  }
-`;
-
-export const PRICING_FIXED_VALUES_PAGE = gql`
+export const PRICING_FIXED_VALUES_PAGE = gql(`
   query PricingFixedValuesPage(
     $pricingPlanId: String!
     $page: Int
@@ -285,10 +259,10 @@ export const PRICING_FIXED_VALUES_PAGE = gql`
       }
     }
   }
-`;
+`);
 
 // Core product conditions a plan can give a discount to, matched by code.
-export const PRICING_PRODUCT_CONDITIONS = gql`
+export const PRICING_PRODUCT_CONDITIONS = gql(`
   query pricingProductConditions {
     productConditions {
       _id
@@ -296,4 +270,4 @@ export const PRICING_PRODUCT_CONDITIONS = gql`
       name
     }
   }
-`;
+`);

@@ -217,12 +217,6 @@ type ProductRule {
   unitPrice: Float!
 }
 
-# backend/core-api/src/modules/products/graphql/schemas/product.ts
-
-type ProductsListResponse {
-  list: [Product]
-}
-
 # core-api root fields
 
 extend type Query {
@@ -233,10 +227,8 @@ extend type Query {
   engageMessageDetail(_id: String): EngageMessage
   getClientPortalUser(_id: String!): CPUser
   getClientPortalUsers(filter: IClientPortalUserFilter): CPUserListResponse
-  productCategories(ids: [String], parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brandIds: [String]): [ProductCategory]
   productConditions: [ProductCondition]
   productRules: [ProductRule]
-  productsMain(type: String, status: String, categoryId: String, categoryIds: [String], searchValue: String, vendorId: String, brandIds: [String], tag: String, tagIds: [String], ids: [String], excludeIds: Boolean, excludeTagIds: [String], tagWithRelated: Boolean, pipelineId: String, boardId: String, segment: String, segmentIds: [String], propertiesData: String, groupedSimilarity: String, similarity: Boolean, image: String, brand: String, branchId: String, departmentId: String, minRemainder: Float, maxRemainder: Float, minPrice: Float, maxPrice: Float, minDiscountValue: Float, maxDiscountValue: Float, minDiscountPercent: Float, maxDiscountPercent: Float, discountConditions: JSON, limit: Int, cursor: String, cursorMode: CURSOR_MODE, direction: CURSOR_DIRECTION, orderBy: JSON, sortMode: String, aggregationPipeline: [JSON], sortField: String, sortDirection: Int): ProductsListResponse
   segments(contentTypes: [String]!, ids: [String], excludeIds: [String], searchValue: String): [Segment]
 }
 
