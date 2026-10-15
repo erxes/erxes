@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 const ts = require('typescript');
 
-function loadSource(file, dependencies) {
+function loadSource(file, dependencies, warnings = []) {
   const filename = path.resolve(__dirname, '..', file);
   const { outputText } = ts.transpileModule(readFileSync(filename, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS },
@@ -16,6 +16,7 @@ function loadSource(file, dependencies) {
     {
       module,
       exports: module.exports,
+      console: { warn: (...args) => warnings.push(args) },
       require: (name) => dependencies[name] || {},
     },
     { filename },
@@ -94,24 +95,75 @@ test('SaaS dispatch includes each tenant and removes terminal jobs', async () =>
   }
 });
 
-test('missing tenant cannot retry or retain an old queued job', async () => {
-  class UnrecoverableError extends Error {}
-  let modelAccess = false;
-  const { runner } = loadSource('hourlyRunner.ts', {
-    bullmq: { UnrecoverableError },
-    '~/connectionResolvers': {
-      generateModels: async () => {
-        modelAccess = true;
+test('SaaS dispatch skips organizations with invalid subdomains and continues valid tenants', async () => {
+  const tenants = [];
+  const warnings = [];
+  const { mainScheduler } = loadSource(
+    'hourlyRunner.ts',
+    {
+      'erxes-api-shared/utils': {
+        getEnv: () => 'saas',
+        getSaasOrganizations: async () => [
+          { _id: 'missing' },
+          { _id: 'null', subdomain: null },
+          { _id: 'empty', subdomain: '' },
+          { _id: 'blank', subdomain: '   ' },
+          { _id: 'invalid', subdomain: 42 },
+          { _id: 'valid', subdomain: 'tenant' },
+        ],
+        sendWorkerQueue: () => ({
+          add: async (name, data) => tenants.push(data.subdomain),
+        }),
       },
     },
-  });
-  const job = {
-    data: {},
-    opts: { attempts: 5, removeOnFail: { count: 5000 } },
-  };
-  await assert.rejects(runner(job), UnrecoverableError);
-  assert.equal(job.opts.removeOnFail, true);
-  assert.equal(job.opts.removeOnComplete, true);
+    warnings,
+  );
+  await mainScheduler();
+  assert.deepEqual(tenants, ['tenant']);
+  assert.deepEqual(
+    warnings.map(([, context]) => context.organizationId),
+    ['missing', 'null', 'empty', 'blank', 'invalid'],
+  );
+});
+
+test('missing tenant is skipped and removed without model access or retries', async () => {
+  let modelAccess = false;
+  const warnings = [];
+  const { runner } = loadSource(
+    'hourlyRunner.ts',
+    {
+      '~/connectionResolvers': {
+        generateModels: async () => {
+          modelAccess = true;
+        },
+      },
+    },
+    warnings,
+  );
+  for (const data of [
+    undefined,
+    {},
+    { subdomain: null },
+    { subdomain: '' },
+    { subdomain: '   ' },
+    { subdomain: 42 },
+  ]) {
+    const job = {
+      id: 'legacy-job',
+      name: 'posclient-sync-remainder',
+      repeatJobKey: 'legacy-scheduler',
+      data,
+      opts: { attempts: 5, removeOnFail: { count: 5000 } },
+    };
+    const result = await runner(job);
+    assert.equal(result.skipped, true);
+    assert.equal(result.reason, 'missing-subdomain');
+    assert.equal(job.opts.removeOnFail, true);
+    assert.equal(job.opts.removeOnComplete, true);
+  }
+  assert.equal(warnings.length, 6);
+  assert.equal(warnings[0][1].jobId, 'legacy-job');
+  assert.equal(warnings[0][1].repeatJobKey, 'legacy-scheduler');
   assert.equal(modelAccess, false);
 });
 

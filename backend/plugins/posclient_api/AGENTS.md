@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-14`
+- **Last synchronized:** `2026-10-15`
 
 ## Scope
 
@@ -160,8 +160,8 @@
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
-- The remainder scheduler runs every minute on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain` (SaaS organizations or `os` for self-hosted deployments).
-- Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure; missing tenant data is an unrecoverable failure. Queue metadata remains while the queues are in use.
+- The remainder scheduler runs hourly on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain` (SaaS organizations or `os` for self-hosted deployments). Organizations with missing, non-string, or blank subdomains are skipped before enqueueing, with an organization-ID warning.
+- Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure. A job with missing, non-string, or blank tenant data completes with `{ skipped: true, reason: 'missing-subdomain' }` before model access; its warning includes job ID, name, and repeat key. Valid tenant sync errors still propagate. Queue metadata remains while the queues are in use.
 
 ## Local Invariants
 
