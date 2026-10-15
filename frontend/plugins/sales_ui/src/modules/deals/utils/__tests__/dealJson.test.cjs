@@ -19,6 +19,7 @@ const load = (file) => {
 };
 const json = load('../dealJson.ts');
 const { toDealSubscriptionFilter } = load('../dealSubscriptionFilter.ts');
+const { resolveDealDetail } = load('../resolveDealDetail.ts');
 const uom = load('../../cards/components/detail/product/utils/productUom.ts');
 const discounts = load(
   '../../cards/components/detail/product/utils/discountInfos.ts',
@@ -189,4 +190,32 @@ test('subscription filters preserve clearing and normalize GraphQL singleton lis
   assert.equal(result.stageId, 'stage');
   assert.equal(result.search, 'literal.*');
   assert.equal(toDealSubscriptionFilter(undefined), undefined);
+});
+
+test('incomplete subscription metadata cannot roll back an archive or cleared field', () => {
+  const previous = {
+    _id: 'deal',
+    status: 'active',
+    pipeline: { _id: 'pipeline', paymentTypes: [] },
+    products: [{ _id: 'product', name: 'Product' }],
+    startDate: '2026-10-15',
+    tagIds: ['tag'],
+  };
+  const current = {
+    ...previous,
+    status: 'archived',
+    pipeline: null,
+    products: null,
+    startDate: null,
+    tagIds: [],
+  };
+  const result = resolveDealDetail(current, previous, 'deal');
+  assert.equal(result.status, 'archived');
+  assert.equal(result.startDate, null);
+  assert.deepEqual(result.tagIds, []);
+  assert.deepEqual(result.pipeline, previous.pipeline);
+  assert.deepEqual(result.products, previous.products);
+  assert.equal(resolveDealDetail(current, previous, 'another-deal'), undefined);
+  assert.equal(resolveDealDetail(current, undefined, 'deal'), undefined);
+  assert.equal(resolveDealDetail(previous, current, 'deal'), previous);
 });

@@ -391,6 +391,10 @@
   `IProduct` assertion is limited to the shared `initialProducts` prop, which
   reads only `_id`, `name`, and `code`; selected replacements come from the
   shared chooser's full product query. Do not widen the Sales query types.
+- When subscription data temporarily lacks computed pipeline metadata, detail
+  views retain the last resolved metadata for the same deal only. Newer stored
+  fields (including archive status and explicit null/empty clears) must not be
+  replaced by the older complete snapshot (`utils/resolveDealDetail.ts`).
 - Deal product selectors may pass sales context such as `pipelineId` into
   shared `ui-modules` selectors, but must not import another plugin directly.
 - Expanded product view must render the same product workspace as the inline

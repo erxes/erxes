@@ -1,4 +1,5 @@
 import { toDealDetail } from '@/deals/utils/dealJson';
+import { resolveDealDetail } from '@/deals/utils/resolveDealDetail';
 import {
   QueryHookOptions,
   SubscribeToMoreOptions,
@@ -176,10 +177,10 @@ export const useDealDetail = (
       ? lastCompleteDealRef.current
       : undefined;
 
-  const deal =
-    currentDeal?.pipeline && currentDeal._id === finalId
-      ? currentDeal
-      : lastCompleteDeal;
+  const deal = useMemo(
+    () => resolveDealDetail(currentDeal, lastCompleteDeal, finalId),
+    [currentDeal, finalId, lastCompleteDeal],
+  );
 
   const parsed = useMemo(() => {
     if (!deal) return { deal: undefined, error: undefined };
