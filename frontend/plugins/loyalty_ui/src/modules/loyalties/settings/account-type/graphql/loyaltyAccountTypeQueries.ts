@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const LOYALTY_ACCOUNT_TYPE_FIELDS = gql`
+export const LOYALTY_ACCOUNT_TYPE_FIELDS = gql(`
   fragment LoyaltyAccountTypeFields on LoyaltyAccountType {
     _id
     name
@@ -32,24 +32,23 @@ export const LOYALTY_ACCOUNT_TYPE_FIELDS = gql`
     campaignCount
     createdAt
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_TYPE_LIST = gql`
-  ${LOYALTY_ACCOUNT_TYPE_FIELDS}
+export const LOYALTY_ACCOUNT_TYPE_LIST = gql(`
   query LoyaltyAccountTypeList($status: String, $ownerType: String) {
     loyaltyAccountTypes(status: $status, ownerType: $ownerType) {
       ...LoyaltyAccountTypeFields
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_TYPE_LEGACY_FIELD_COUNT = gql`
+export const LOYALTY_ACCOUNT_TYPE_LEGACY_FIELD_COUNT = gql(`
   query LoyaltyAccountTypeLegacyFieldCount {
     loyaltyAccountTypeLegacyFieldCount
   }
-`;
+`);
 
-export const LOYALTY_PERIOD_RUN_STATUS = gql`
+export const LOYALTY_PERIOD_RUN_STATUS = gql(`
   query LoyaltyPeriodRunStatus {
     loyaltyPeriodRunStatus {
       nextRunAt
@@ -78,9 +77,9 @@ export const LOYALTY_PERIOD_RUN_STATUS = gql`
       }
     }
   }
-`;
+`);
 
-export const LOYALTY_ACCOUNT_TYPE_PERIOD_PREVIEW = gql`
+export const LOYALTY_ACCOUNT_TYPE_PERIOD_PREVIEW = gql(`
   query LoyaltyAccountTypePeriodPreview(
     $_id: String
     $expiry: LoyaltyAccountTypeExpiryInput
@@ -113,4 +112,4 @@ export const LOYALTY_ACCOUNT_TYPE_PERIOD_PREVIEW = gql`
       }
     }
   }
-`;
+`);
