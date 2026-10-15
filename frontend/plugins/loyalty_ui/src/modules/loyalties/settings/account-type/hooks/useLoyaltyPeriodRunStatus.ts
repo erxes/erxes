@@ -1,39 +1,16 @@
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/loyalties/utils/cursorList';
+import type { LoyaltyPeriodRunStatusQuery } from '~/gql/graphql';
 import { LOYALTY_PERIOD_RUN_STATUS } from '../graphql/loyaltyAccountTypeQueries';
 
-export type TLoyaltyPeriodRun = {
-  _id: string;
-  startedAt: string;
-  finishedAt?: string;
-  status: 'running' | 'done' | 'failed';
-  batches: number;
-  released: number;
-  expired: number;
-  reset: number;
-  failed: number;
-  error?: string;
-  // Whole seconds the run took; none while it is still running.
-  seconds?: number | null;
-};
+type TPeriodRunStatus = NonNullable<
+  LoyaltyPeriodRunStatusQuery['loyaltyPeriodRunStatus']
+>;
 
-type TLoyaltyPeriodRunStatus = {
-  nextRunAt?: string | null;
-  timeZone: string;
-  preview?: {
-    releasing: number;
-    expiring: number;
-    resets: {
-      accountTypeId: string;
-      name: string;
-      boundary: string;
-      accounts: number;
-    }[];
-  } | null;
-  runs: TLoyaltyPeriodRun[];
-};
+const RUN_STATUSES = ['running', 'done', 'failed'] as const;
 
-const secondsOf = ({ startedAt, finishedAt }: TLoyaltyPeriodRun) =>
+const secondsOf = (startedAt: string, finishedAt?: string | null) =>
   finishedAt
     ? Math.max(
         0,
@@ -44,17 +21,37 @@ const secondsOf = ({ startedAt, finishedAt }: TLoyaltyPeriodRun) =>
       )
     : null;
 
+const toRuns = (runs: TPeriodRunStatus['runs'] | undefined) =>
+  compactList(runs).flatMap(({ _id, startedAt, ...run }) =>
+    _id && startedAt
+      ? [
+          {
+            ...run,
+            _id,
+            startedAt,
+            status:
+              RUN_STATUSES.find((status) => status === run.status) ?? 'failed',
+            batches: run.batches ?? 0,
+            released: run.released ?? 0,
+            expired: run.expired ?? 0,
+            reset: run.reset ?? 0,
+            failed: run.failed ?? 0,
+            seconds: secondsOf(startedAt, run.finishedAt),
+          },
+        ]
+      : [],
+  );
+
+export type TLoyaltyPeriodRun = ReturnType<typeof toRuns>[number];
+
 export const useLoyaltyPeriodRunStatus = () => {
   const { t } = useTranslation('loyalty');
-  const { data, loading, error } = useQuery<{
-    loyaltyPeriodRunStatus: TLoyaltyPeriodRunStatus;
-  }>(LOYALTY_PERIOD_RUN_STATUS, { fetchPolicy: 'cache-and-network' });
+  const { data, loading, error } = useQuery(LOYALTY_PERIOD_RUN_STATUS, {
+    fetchPolicy: 'cache-and-network',
+  });
 
   const status = data?.loyaltyPeriodRunStatus;
-  const runs = (status?.runs || []).map((run) => ({
-    ...run,
-    seconds: secondsOf(run),
-  }));
+  const runs = toRuns(status?.runs);
 
   return {
     loading: loading && !status,
@@ -62,11 +59,11 @@ export const useLoyaltyPeriodRunStatus = () => {
     // there are none.
     error: !status ? error : undefined,
     nextRunAt: status?.nextRunAt ? new Date(status.nextRunAt) : null,
-    timeZone: status?.timeZone,
+    timeZone: status?.timeZone ?? undefined,
     preview: status?.preview,
-    resetsLabel: (status?.preview?.resets || [])
+    resetsLabel: compactList(status?.preview?.resets)
       .map(({ name, accounts }) =>
-        t('period-run-reset-item', { name, count: accounts }),
+        t('period-run-reset-item', { name, count: accounts ?? 0 }),
       )
       .join(', '),
     runs,

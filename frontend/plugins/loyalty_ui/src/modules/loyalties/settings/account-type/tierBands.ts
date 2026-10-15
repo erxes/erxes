@@ -15,7 +15,7 @@ export const EMPTY_TIER_BANDS: TTierBandsValue = {
 
 // One row per active tier, highest first, holding what was entered for it.
 export const tierBandRows = (
-  tiers: ILoyaltyTier[] | null | undefined,
+  tiers: readonly (ILoyaltyTier | null)[] | null | undefined,
   bands: TTierBand[],
 ) =>
   [...activeTiers(tiers)].reverse().map(({ key, name }) => ({

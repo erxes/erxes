@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { IconTransfer } from '@tabler/icons-react';
 import { Button, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { compactList } from '@/loyalties/utils/cursorList';
 import { LOYALTY_ACCOUNT_TYPE_LEGACY_FIELD_COUNT } from '../graphql/loyaltyAccountTypeQueries';
 import { useLoyaltyAccountTypesAdoptCampaignFields } from '../hooks/useLoyaltyAccountTypeMutations';
 
@@ -10,9 +11,7 @@ import { useLoyaltyAccountTypesAdoptCampaignFields } from '../hooks/useLoyaltyAc
 export const LoyaltyAccountTypeLegacyBanner = () => {
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();
-  const { data } = useQuery<{ loyaltyAccountTypeLegacyFieldCount: number }>(
-    LOYALTY_ACCOUNT_TYPE_LEGACY_FIELD_COUNT,
-  );
+  const { data } = useQuery(LOYALTY_ACCOUNT_TYPE_LEGACY_FIELD_COUNT);
   const { run: adopt, loading } = useLoyaltyAccountTypesAdoptCampaignFields();
   const count = data?.loyaltyAccountTypeLegacyFieldCount || 0;
 
@@ -22,8 +21,9 @@ export const LoyaltyAccountTypeLegacyBanner = () => {
 
   const onAdopt = () =>
     adopt({}, (result) => {
-      const skipped =
-        result?.loyaltyAccountTypesAdoptCampaignFields.skipped || [];
+      const skipped = compactList(
+        result.loyaltyAccountTypesAdoptCampaignFields?.skipped,
+      );
 
       if (skipped.length) {
         toast({

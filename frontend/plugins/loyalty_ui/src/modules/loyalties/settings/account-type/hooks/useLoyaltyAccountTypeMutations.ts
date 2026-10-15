@@ -1,4 +1,9 @@
-import { ApolloError, DocumentNode, useMutation } from '@apollo/client';
+import {
+  ApolloError,
+  OperationVariables,
+  TypedDocumentNode,
+  useMutation,
+} from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -8,27 +13,6 @@ import {
   LOYALTY_ACCOUNT_TYPE_UNARCHIVE,
   LOYALTY_ACCOUNTS_ADOPT_CAMPAIGN_FIELDS,
 } from '../graphql/loyaltyAccountTypeMutations';
-import {
-  ILoyaltyAccountTypeAdoption,
-  ILoyaltyAccountTypeExpiry,
-  ILoyaltyEarnEligibility,
-  ILoyaltyAccountTypeReset,
-  TLoyaltyFrozenBlocks,
-  TLoyaltyOwnerType,
-} from '../types';
-
-type TLoyaltyAccountTypeSettings = {
-  name: string;
-  frozenBlocks: TLoyaltyFrozenBlocks;
-  tiers: { key?: string; name: string }[];
-  reset: ILoyaltyAccountTypeReset;
-  expiry: ILoyaltyAccountTypeExpiry;
-  pendingDays: number;
-  currencyRatio: number;
-  pointValue: number;
-  earnEligibility: ILoyaltyEarnEligibility;
-};
-
 // Account type changes show up in the account type list, the legacy banner and the
 // campaign account type selector, so each of them is refetched.
 const REFETCH_QUERIES = [
@@ -39,18 +23,18 @@ const REFETCH_QUERIES = [
   'LoyaltyPeriodRunStatus',
 ];
 
-const useAccountMutation = <TData, TVariables extends Record<string, unknown>>(
-  document: DocumentNode,
+const useAccountMutation = <TData, TVariables extends OperationVariables>(
+  document: TypedDocumentNode<TData, TVariables>,
   successMessage: string,
 ) => {
   const { t } = useTranslation('loyalty');
   const { toast } = useToast();
-  const [mutate, { loading }] = useMutation<TData, TVariables>(document, {
+  const [mutate, { loading }] = useMutation(document, {
     refetchQueries: REFETCH_QUERIES,
     awaitRefetchQueries: true,
   });
 
-  const run = (variables: TVariables, onDone?: (data?: TData | null) => void) =>
+  const run = (variables: TVariables, onDone?: (data: TData) => void) =>
     mutate({
       variables,
       onCompleted: (data) => {
@@ -69,31 +53,25 @@ const useAccountMutation = <TData, TVariables extends Record<string, unknown>>(
 };
 
 export const useLoyaltyAccountTypeAdd = () =>
-  useAccountMutation<
-    { loyaltyAccountTypeAdd?: { _id: string } },
-    TLoyaltyAccountTypeSettings & { ownerType: TLoyaltyOwnerType }
-  >(LOYALTY_ACCOUNT_TYPE_ADD, 'loyalty-account-type-created');
+  useAccountMutation(LOYALTY_ACCOUNT_TYPE_ADD, 'loyalty-account-type-created');
 
 export const useLoyaltyAccountTypeEdit = () =>
-  useAccountMutation<unknown, TLoyaltyAccountTypeSettings & { _id: string }>(
-    LOYALTY_ACCOUNT_TYPE_EDIT,
-    'loyalty-account-type-updated',
-  );
+  useAccountMutation(LOYALTY_ACCOUNT_TYPE_EDIT, 'loyalty-account-type-updated');
 
 export const useLoyaltyAccountTypeArchive = () =>
-  useAccountMutation<unknown, { _id: string }>(
+  useAccountMutation(
     LOYALTY_ACCOUNT_TYPE_ARCHIVE,
     'loyalty-account-type-archived',
   );
 
 export const useLoyaltyAccountTypeUnarchive = () =>
-  useAccountMutation<unknown, { _id: string }>(
+  useAccountMutation(
     LOYALTY_ACCOUNT_TYPE_UNARCHIVE,
     'loyalty-account-type-restored',
   );
 
 export const useLoyaltyAccountTypesAdoptCampaignFields = () =>
-  useAccountMutation<
-    { loyaltyAccountTypesAdoptCampaignFields: ILoyaltyAccountTypeAdoption },
-    Record<string, never>
-  >(LOYALTY_ACCOUNTS_ADOPT_CAMPAIGN_FIELDS, 'loyalty-account-types-adopted');
+  useAccountMutation(
+    LOYALTY_ACCOUNTS_ADOPT_CAMPAIGN_FIELDS,
+    'loyalty-account-types-adopted',
+  );
