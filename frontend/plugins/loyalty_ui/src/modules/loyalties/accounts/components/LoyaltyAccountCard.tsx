@@ -10,7 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { useLoyaltyAccountFreeze } from '../hooks/useLoyaltyAccountFreeze';
 import { useLoyaltyAccountOfOwner } from '../hooks/useLoyaltyAccountOfOwner';
 import { useLoyaltyAccountPermissions } from '../hooks/useLoyaltyAccountPermissions';
-import { TLoyaltyAccountStatus } from '../types';
+import { compactList } from '@/loyalties/utils/cursorList';
+import { isLoyaltyAccountStatus, TLoyaltyAccountStatus } from '../types';
 import { FreezeAccountDialog } from './FreezeAccountDialog';
 import { LoyaltyAccountTierSelect } from './LoyaltyAccountTierSelect';
 import { LoyaltyTierHistoryDialog } from './LoyaltyTierHistoryDialog';
@@ -63,7 +64,13 @@ export const LoyaltyAccountCard = ({
       <div className="flex items-center gap-2">
         <IconWallet className="size-4 text-muted-foreground" />
         <span className="text-sm font-semibold">{account.number}</span>
-        <Badge variant={STATUS_VARIANTS[account.status]}>
+        <Badge
+          variant={
+            isLoyaltyAccountStatus(account.status)
+              ? STATUS_VARIANTS[account.status]
+              : 'secondary'
+          }
+        >
           {t(`loyalty-account-status-${account.status}`)}
         </Badge>
         <Button
@@ -99,7 +106,7 @@ export const LoyaltyAccountCard = ({
         </p>
       )}
       <div className="flex flex-col gap-1">
-        {account.balances.map((balance) => (
+        {compactList(account.balances).map((balance) => (
           <div key={balance.accountTypeId} className="flex flex-col px-1">
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">

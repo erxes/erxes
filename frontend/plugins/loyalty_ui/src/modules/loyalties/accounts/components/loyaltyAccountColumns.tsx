@@ -17,7 +17,8 @@ import {
 import { TFunction } from 'i18next';
 import { getOwnerName } from '../../scores/components/ScoreColumns';
 import { ILoyaltyAccountType } from '../../settings/account-type/types';
-import { ILoyaltyAccount } from '../types';
+import { parseScoreOwner } from '@/loyalties/scores/utils/parseScoreOwner';
+import { ILoyaltyAccountRow } from '../types';
 import { LoyaltyAccountMoreCell } from './LoyaltyAccountMoreCell';
 import { LoyaltyAccountTierSelect } from './LoyaltyAccountTierSelect';
 
@@ -27,7 +28,7 @@ const STATUS_VARIANTS: Record<string, 'success' | 'destructive' | 'secondary'> =
 // One column per account type: its balance and, when it has tiers, the tier.
 const balanceColumn = (
   accountType: ILoyaltyAccountType,
-): ColumnDef<ILoyaltyAccount> => ({
+): ColumnDef<ILoyaltyAccountRow> => ({
   id: `balance-${accountType._id}`,
   header: () => (
     <RecordTable.InlineHead icon={IconCoins} label={accountType.name} />
@@ -36,7 +37,7 @@ const balanceColumn = (
   cell: ({ row }) => {
     const account = row.original;
     const balance = account.balances?.find(
-      ({ accountTypeId }) => accountTypeId === accountType._id,
+      (item) => item?.accountTypeId === accountType._id,
     );
 
     if (!balance) {
@@ -65,7 +66,7 @@ const balanceColumn = (
 export const loyaltyAccountColumns = (
   t: TFunction<'loyalty'>,
   accountTypes: ILoyaltyAccountType[],
-): ColumnDef<ILoyaltyAccount>[] => [
+): ColumnDef<ILoyaltyAccountRow>[] => [
   {
     id: 'more',
     size: 33,
@@ -77,21 +78,22 @@ export const loyaltyAccountColumns = (
       <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />
     ),
     size: 200,
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip
-          value={
-            getOwnerName(
-              row.original.owner || undefined,
-              row.original.ownerType,
-            ) ||
-            row.original.owner?.primaryEmail ||
-            row.original.ownerId ||
-            ''
-          }
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ row }) => {
+      const owner = parseScoreOwner(row.original.owner);
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={
+              getOwnerName(owner, row.original.ownerType) ||
+              owner?.primaryEmail ||
+              row.original.ownerId ||
+              ''
+            }
+          />
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'ownerType',
