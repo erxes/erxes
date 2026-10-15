@@ -259,9 +259,9 @@
   Keep document exports stable for their existing hooks and selectors.
 - Follow the `operation_ui` reference for codegen changes; inspect its existing
   implementation and, when needed, its merged migration diff before introducing
-  a different pattern. Keep explicit Apollo `refetchQueries` / `include` arrays
-  at their callers. When splitting a reused operation name, retain every intended
-  target and update those arrays with the renamed operations. Legacy names
+  a different pattern. Keep explicit Apollo refetch target names at their
+  callers. When splitting a reused operation name, retain every intended target
+  and update those names with the renamed operations. Legacy names
   `Deals`, `SalesStages`, `posList`, and `posDetail` still target shared or
   other-plugin queries; do not remove them solely because Sales uses new names.
 - Keep public-contract snapshots faithful to their owning SDL, including
@@ -306,6 +306,9 @@
   passes a translated `label` by default so the field is named.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
+- POS creation refetches the explicit POS query names that are currently active,
+  preserving each query's variables. Unmounted report queries must not produce
+  Apollo unknown-query warnings.
 - An enabled POS customer form must keep `primaryEmail` or `primaryPhone`;
   the last one placed cannot be hidden. Featured (plugin-owned) customer
   properties are not offered.
