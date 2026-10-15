@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { redis, sendTRPCMessage, startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from '~/trpc/init-trpc';
 import { initMQWorkers } from '~/worker';

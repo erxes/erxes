@@ -48,6 +48,7 @@ COPY backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
 COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
 COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
 COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
+COPY backend/erxes-api-shared/instrument ./node_modules/erxes-api-shared/instrument
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 COPY backend/plugins/tourism_api/dist ./dist
