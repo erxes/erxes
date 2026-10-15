@@ -5,7 +5,15 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
-import { Button, CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
+import {
+  Button,
+  CommandBar,
+  RecordTable,
+  Separator,
+  Spinner,
+  toast,
+  useConfirm,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -23,6 +31,7 @@ export const SurveyCommandBar = () => {
   const [rejectOpen, setRejectOpen] = useState(false);
   const { removeSurveys, loading: removing } = useSurveyRemove();
   const { toggleSurveyStatus, loading: toggling } = useSurveyToggleStatus();
+  const { confirm } = useConfirm();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const surveyIds = selectedRows.map((row: Row<ISurvey>) => row.original._id);
@@ -50,17 +59,21 @@ export const SurveyCommandBar = () => {
     });
 
   const handleRemove = () =>
-    removeSurveys({
-      variables: { _ids: surveyIds },
-      onCompleted: () => {
-        table.resetRowSelection();
-        toast({
-          variant: 'success',
-          title: t('survey-removed', 'Survey removed'),
-        });
-      },
-      onError,
-    });
+    confirm({
+      message: t('confirm-delete-surveys', { count: surveyIds.length }),
+    }).then(() =>
+      removeSurveys({
+        variables: { _ids: surveyIds },
+        onCompleted: () => {
+          table.resetRowSelection();
+          toast({
+            variant: 'success',
+            title: t('survey-removed', 'Survey removed'),
+          });
+        },
+        onError,
+      }),
+    );
 
   const handleApprove = () =>
     toggleSurveyStatus({
@@ -124,8 +137,8 @@ export const SurveyCommandBar = () => {
           onClick={handleRemove}
           disabled={removing}
         >
-          <IconTrash />
-          {t('remove')}
+          {removing ? <Spinner /> : <IconTrash />}
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
       <SurveyRejectDialog

@@ -9,8 +9,8 @@ export const TagsBreadcrumb = () => {
   const { types } = useTagTypes();
   return (
     <div className="flex gap-1 items-center">
-      <Button variant="ghost" className="font-semibold">
-        <IconTagsFilled className="size-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconTagsFilled />
         {getTagTypeDescription({ type, tagTypes: types })}
         {' tags'}
       </Button>

@@ -5,10 +5,10 @@ import { PutResponseTopNav } from '~/modules/ebarimt/put-response/components/Put
 
 export const PutResponseLayout = () => {
   return (
-    <PageContainer>
-      <PutResponseTopNav />
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <PutResponseSidebar />
+    <PageContainer className="flex-row">
+      <PutResponseSidebar />
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+        <PutResponseTopNav />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </div>

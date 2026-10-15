@@ -154,6 +154,7 @@ export const AddTicketForm = ({
                     {t('channels', 'Channels')}
                   </Form.Label>
                   <SelectChannel.FormItem
+                    label={t('channel', 'Channel')}
                     value={field.value || ''}
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -178,6 +179,7 @@ export const AddTicketForm = ({
                     {t('pipeline-label', 'Pipeline')}
                   </Form.Label>
                   <SelectPipeline.FormItem
+                    label={t('pipeline', 'Pipeline')}
                     value={field.value || ''}
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -202,6 +204,7 @@ export const AddTicketForm = ({
                     {t('status-label', 'Status')}
                   </Form.Label>
                   <SelectStatusTicket.FormItem
+                    label={t('status', 'Status')}
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
                     form={form}
@@ -223,6 +226,7 @@ export const AddTicketForm = ({
                     {t('priority-label', 'Priority')}
                   </Form.Label>
                   <SelectPriorityTicket.FormItem
+                    label={t('priority', 'Priority')}
                     value={field.value || 0}
                     onValueChange={(value) => field.onChange(value)}
                   />
@@ -238,6 +242,7 @@ export const AddTicketForm = ({
                     {t('assignee-label', 'Assignee')}
                   </Form.Label>
                   <SelectAssigneeTicket.FormItem
+                    label={t('assignee', 'Assignee')}
                     value={field.value || ''}
                     onValueChange={(value: any) => {
                       field.onChange(value);
@@ -256,6 +261,7 @@ export const AddTicketForm = ({
                     {t('branch-label', 'Branch')}
                   </Form.Label>
                   <SelectBranchTicket.FormItem
+                    label={t('branch-label', 'Branch')}
                     value={field.value || ''}
                     onValueChange={(value) =>
                       field.onChange(value || undefined)
@@ -274,6 +280,7 @@ export const AddTicketForm = ({
                     {t('department-label', 'Department')}
                   </Form.Label>
                   <SelectDepartmentTicket.FormItem
+                    label={t('department-label', 'Department')}
                     value={field.value || ''}
                     onValueChange={(value) =>
                       field.onChange(value || undefined)
@@ -293,7 +300,7 @@ export const AddTicketForm = ({
                   </Form.Label>
                   <SelectDateTicket.FormItem
                     value={field.value}
-                    placeholder={t('start-date-label', 'Start Date')}
+                    label={t('start-date', 'Start date')}
                     onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
@@ -310,7 +317,7 @@ export const AddTicketForm = ({
                   <SelectDateTicket.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
-                    placeholder={t('due-date-label', 'Due Date')}
+                    label={t('target-date', 'Target date')}
                   />
                 </Form.Item>
               )}
@@ -324,6 +331,7 @@ export const AddTicketForm = ({
                     {t('tags-label', 'Tags')}
                   </Form.Label>
                   <SelectTagsTicket.FormItem
+                    label={t('tags', 'Tags')}
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}
                   />

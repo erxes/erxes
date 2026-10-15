@@ -24,38 +24,46 @@ export const PricingEditPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <PageHeader>
-        <PageHeaderStart>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-2">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/loyalty/pricing">
-                    <IconCoins />
-                    {t('pricing')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <SelectPricing value={id} onValueChange={handlePricingChange} />
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-        </PageHeaderStart>
+      <PricingEdit
+        key={id}
+        id={id}
+        onSaveActionChange={setSaveAction}
+        header={
+          <PageHeader>
+            <PageHeaderStart>
+              <Breadcrumb>
+                <Breadcrumb.List className="gap-2">
+                  <Breadcrumb.Item>
+                    <Button variant="ghost" asChild>
+                      <Link to="/settings/loyalty/pricing">
+                        <IconCoins />
+                        {t('pricing')}
+                      </Link>
+                    </Button>
+                  </Breadcrumb.Item>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <SelectPricing
+                      value={id}
+                      onValueChange={handlePricingChange}
+                    />
+                  </Breadcrumb.Item>
+                </Breadcrumb.List>
+              </Breadcrumb>
+            </PageHeaderStart>
 
-        <PageHeaderEnd className="gap-2">
-          {id && (
-            <PricingDelete
-              pricingIds={id}
-              onDeleteSuccess={handleDeleteSuccess}
-            />
-          )}
-          {saveAction}
-        </PageHeaderEnd>
-      </PageHeader>
-
-      <PricingEdit key={id} id={id} onSaveActionChange={setSaveAction} />
+            <PageHeaderEnd className="gap-2">
+              {id && (
+                <PricingDelete
+                  pricingIds={id}
+                  onDeleteSuccess={handleDeleteSuccess}
+                />
+              )}
+              {saveAction}
+            </PageHeaderEnd>
+          </PageHeader>
+        }
+      />
     </div>
   );
 };

@@ -9,13 +9,13 @@ export const AccountSettingsBreadcrumb = () => {
   const { pathname } = useLocation();
   return (
     <>
-      <Button variant="ghost" className="font-semibold">
-        <IconCashBanknote className="w-4 h-4 text-accent-foreground" />
+      <Button variant="ghost">
+        <IconCashBanknote />
         {t('accounting-settings')}
       </Button>
       <Separator.Inline />
-      <Button variant="ghost" className="hover:bg-transparent font-semibold">
-        {SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES]}
+      <Button variant="ghost" className="hover:bg-transparent">
+        {t(SETTINGS_ROUTES[pathname as keyof typeof SETTINGS_ROUTES] ?? '')}
       </Button>
     </>
   );

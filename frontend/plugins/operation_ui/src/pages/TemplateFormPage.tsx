@@ -31,11 +31,7 @@ export const TemplateFormPage = () => {
             <Breadcrumb.List>
               <Breadcrumb.Item>
                 <Breadcrumb.Link asChild className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    className="text-foreground font-semibold"
-                    asChild
-                  >
+                  <Button variant="ghost" className="text-foreground" asChild>
                     <Link to={`/settings/operation/team/templates/${teamId}`}>
                       <IconArrowLeft
                         size={16}
