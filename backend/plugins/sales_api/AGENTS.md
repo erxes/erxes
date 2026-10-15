@@ -270,6 +270,9 @@
   subscription definitions; document conversion does not redefine the API.
   The exporter exits explicitly because shared utility imports open Redis
   clients that would otherwise keep the command running.
+- `sales_api:schema:print` is uncached so shared SDL helpers, dependency
+  versions, and TypeScript path changes cannot restore an outdated schema.
+  `sales_ui:codegen` depends on this export and hashes the resulting SDL.
 - Public fields owned by other services belong in the frontend's tooling
   snapshot (`frontend/plugins/sales_ui/schema/platform.graphql`), not in Sales
   runtime SDL. Do not add backend fields just to satisfy frontend codegen.

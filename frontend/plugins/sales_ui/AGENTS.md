@@ -283,6 +283,12 @@
 - Codegen scans all Sales UI TypeScript documents, excluding only its generated
   `src/gql/` output. Generated files are ignored by Git and ESLint. Its scalar
   mapping is `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.
+- `build` and `serve` depend on `codegen`, which first runs the uncached
+  `sales_api:schema:print` target. Codegen caches its output against the exported
+  SDL, `schema/**/*.graphql`, `codegen.ts`, and authored TypeScript documents.
+- `codegen:watch` has no dependencies and must not be a dependency of `serve`:
+  the watcher never exits. With Sales enabled, `pnpm dev:uis` generates types,
+  starts the watcher, then starts the host and Sales remote.
 
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
@@ -348,9 +354,11 @@
 ## Validation
 
 - Export the API schema with `pnpm nx run sales_api:schema:print --skip-nx-cache`.
-- Run the standalone codegen configuration from this plugin directory with
-  `../../../node_modules/.bin/graphql-codegen --config codegen.ts`.
+- `pnpm nx run sales_ui:codegen --skip-nx-cache`
 - `pnpm nx build sales_ui`
+- Codegen startup smoke: with `src/gql/` absent, both the production build and
+  `ENABLED_PLUGINS=sales pnpm dev:uis` must generate it before booting. During
+  development, editing a GraphQL document must trigger the codegen watcher.
 - `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
 - Deal UOM smoke scenario: in normal view select a sub-UOM, edit its price and
   quantity, save and reload; verify Advanced shows base price/quantity and the

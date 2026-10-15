@@ -59,12 +59,7 @@
     },
     "schema:print": {
       "executor": "nx:run-commands",
-      "cache": true,
-      "inputs": [
-        "{projectRoot}/print-schema.ts",
-        "{projectRoot}/src/**/*.ts",
-        "{workspaceRoot}/backend/erxes-api-shared/src/utils/apollo/**/*"
-      ],
+      "cache": false,
       "outputs": ["{projectRoot}/generated"],
       "options": {
         "cwd": "backend/plugins/sales_api",
