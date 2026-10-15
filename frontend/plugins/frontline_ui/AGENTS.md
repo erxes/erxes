@@ -193,7 +193,7 @@
   status filter offers `rejected`, `FormStatus.Badge` renders it as a
   destructive circle-x badge, and a rejected row's menu still offers `Approve`
   (never `Reject`, which the API accepts only from `pending`) so an agent can
-  reverse the call, plus `Remove` to clear it. The reason lives on
+  reverse the call, plus `Delete` to clear it. The reason lives on
   `Survey.rejectionReason`; the status cell wraps the badge in a tooltip
   carrying it, and the server drops the field on any later status change, so a
   badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
@@ -252,6 +252,10 @@
   `surveyViewAtom` (`localStorage` key `surveyView`, default `grid`). Each
   board card is a link to the survey's edit wizard under its channel settings
   (`settings/frontline/channels/:channelId/surveys/:surveyId`).
+- Deleting surveys always asks first, like forms: the row menu's red `Delete`
+  confirms with `confirm-delete-survey-title` and the command bar's `Delete`
+  with `confirm-delete-surveys` (pluralised) through `useConfirm` before
+  `surveyRemove` runs.
 - In a messenger conversation the composer's survey button opens
   `SendSurveyDialog`, scoped to the conversation integration's `channelId`, which
   posts a saved survey through `surveySendToConversation`.
