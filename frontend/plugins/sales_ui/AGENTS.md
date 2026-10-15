@@ -268,9 +268,9 @@
   arguments and nullability. Do not add fields to the snapshot to make an
   unsupported operation validate. Including a contract does not register its
   service with the runtime gateway.
-- Product tags use Core's `tags(limit: ...) { list { ... } }` contract, and
-  Core product removal takes the `productIds` argument. Sales board counts
-  take no arguments; assigned-user counts take `pipelineId` and `stackBy`.
+- Product tags use Core's `tags(limit: ...) { list { ... } }` contract. Sales
+  board counts take no arguments; assigned-user counts take `pipelineId` and
+  `stackBy`.
   Stage conversion statistics select `compareNextStage` and the
   `initialDealsTotalCount`, `stayedDealsTotalCount`, and
   `inProcessDealsTotalCount` fields provided by Sales.
@@ -280,6 +280,8 @@
   document; do not invent a backend operation to keep unused frontend code.
 - POS Summary row `_id` values come from the report's `paidDate` group key.
   Do not pass them to POS configuration or order deletion mutations.
+- POS By Items displays product sales aggregates and does not own catalog
+  product deletion. Do not wire its report rows to Core's `productsRemove`.
 - Codegen scans all Sales UI TypeScript documents, excluding only its generated
   `src/gql/` output. Generated files are ignored by Git and ESLint. Its scalar
   mapping is `Date` input `string | Date`, output `string`, and `JSON` as `unknown`.

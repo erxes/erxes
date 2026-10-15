@@ -175,8 +175,6 @@ extend type Mutation {
   brandsAdd(name: String!, description: String, emailConfig: JSON): Brand
   # backend/plugins/payment_api/src/modules/payment/graphql/schemas/invoices.ts
   generateInvoiceUrl(input: InvoiceInput!): String
-  # backend/core-api/src/modules/products/graphql/schemas/product.ts
-  productsRemove(productIds: [String!]): String
 }
 
 # backend/plugins/payment_api/src/modules/payment/graphql/schemas/payment.ts
