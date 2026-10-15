@@ -1,16 +1,4 @@
-export interface IAssignmentItem {
-  _id: string;
-  campaignId?: string;
-  campaign?: { _id?: string; title?: string };
-  ownerType?: string;
-  ownerId?: string;
-  owner?: {
-    primaryPhone?: string;
-    primaryEmail?: string;
-    firstName?: string;
-    lastName?: string;
-  };
-  status?: string;
-  createdAt?: string;
-  usedAt?: string;
-}
+import type { AssignmentsMainQuery } from '~/gql/graphql';
+export type IAssignmentItem = NonNullable<
+  NonNullable<NonNullable<AssignmentsMainQuery['assignments']>['list']>[number]
+>;

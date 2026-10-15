@@ -13,6 +13,7 @@ import { useQuery } from '@apollo/client';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QUERY_ASSIGNMENT_CAMPAIGNS_SIMPLE } from '../../graphql/queries';
+import { compactList } from '@/loyalties/utils/cursorList';
 
 interface Option {
   value: string;
@@ -26,12 +27,10 @@ const useAssignmentCampaignOptions = () => {
 
   const options = useMemo<Option[]>(
     () =>
-      (data?.assignmentCampaigns?.list || []).map(
-        (c: { _id: string; title: string }) => ({
-          value: c._id,
-          label: c.title,
-        }),
-      ),
+      compactList(data?.assignmentCampaigns?.list).map((campaign) => ({
+        value: campaign._id,
+        label: campaign.title || '',
+      })),
     [data?.assignmentCampaigns?.list],
   );
 
