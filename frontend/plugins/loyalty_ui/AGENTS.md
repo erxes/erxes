@@ -185,15 +185,25 @@
   core, sales or another plugin needs no local copy; fix a validation error in
   the document, or in the backend that owns the field.
 - The score, voucher, coupon, donate, spin, lottery and assignment settings
-  modules are typed from the schema: every document is `gql()` from `~/gql`,
-  hooks infer from their documents, and list and detail types derive from the
-  generated query types. JSON fields the forms read (`awards`, `restrictions`,
-  `codeRule`, the score `add`/`subtract`/`additionalConfig`, earn preview
-  `breakdown`, automation action `config`) are narrowed by small parsers built
-  on `@/loyalties/utils/isRecord`, never cast.
+  modules, wallets (`settings/account-type`), the birthday reward, `accounts`
+  and `scores` are typed from the schema: every document is `gql()` from
+  `~/gql`, hooks infer from their documents, and list and detail types derive
+  from the generated query types. JSON fields the UI reads (`awards`,
+  `restrictions`, `codeRule`, the score `add`/`subtract`/`additionalConfig`,
+  earn and score log `breakdown`, automation action `config`, the `owner` of
+  score logs, accounts and tier logs (`scores/utils/parseScoreOwner`), tier
+  log `createdVia`, score log `target`, `scoreLogStatistics`, segment `root`)
+  are narrowed by small parsers built on `@/loyalties/utils/isRecord`, never
+  cast. Wallet strings the form keeps as unions (owner type, frozen blocks,
+  reset, expiry, earn eligibility) are narrowed against the form's zod enum
+  options.
 - Cursor lists merge pages through `@/loyalties/utils/cursorList`, copied from
   `operation_ui` because core's `PageInfo` booleans and list items are
   nullable; delete it when core tightens `PageInfo`.
+- The birthday reward makes its "birthday today" segment through its own
+  `LoyaltyBirthdaySegmentAdd` document, not `ui-modules`' untyped
+  `SEGMENT_ADD`, so the snapshot carries `segmentsAdd`, `SegmentVisibility`
+  and `SegmentStatus`.
 - Voucher campaign pickers in assignment, donate, lottery, spin and the
   vouchers list share `settings/voucher/hooks/useSelectVoucherCampaign` (cursor
   pages) and `useVoucherCampaignInline` (`voucherCampaignDetail` by `_id`).
@@ -236,6 +246,12 @@
 - **Summary:** Codegen reads the composed gateway schema from #9603 instead of the printed `loyalty_api` schema plus the core and sales snapshot; the generated types are unchanged. CI also runs when a backend schema source changes.
 - **Affected areas:** `codegen.ts`, `project.json` (`codegen` depends on `gateway:schema:compose`, `build` hashes the generated files), removed `schema/platform.graphql`; `.github/workflows/ci-ui-loyalty.yml`.
 - **Contracts changed:** None (build tooling only).
+
+### `2026-10-15` — Wallets, birthday reward, accounts and scores typed
+
+- **Summary:** Wallets, the birthday reward, accounts and scores use typed documents. The wallet fragment is spread by name instead of interpolated, and the account and score lists merge pages through `cursorList`. Period run and preview numbers the SDL leaves nullable default to zero, and a run with an unknown status shows as failed. The birthday reward stops instead of saving a reward whose segment, broadcast or automation came back without an id.
+- **Affected areas:** `settings/{account-type,birthday}/**`, `accounts/**`, `scores/**` (`utils/parseScoreOwner.ts` new), `schema/platform.graphql` (`segmentsAdd`), automation widgets that read wallet tiers (`SetTierNodeContent`, `TierChangedTriggerNodeContent`, `useScoreActionResult`, `useSetTierActionResult`).
+- **Contracts changed:** None; new operation `LoyaltyBirthdaySegmentAdd` replaces the shared `SegmentsAdd` in the birthday reward.
 
 ### `2026-10-14` — Settings campaigns typed from the schema
 
@@ -282,9 +298,3 @@
 
 - **Summary:** A voucher campaign's edit sheet connects it to birthdays: the nightly broadcast and the daytime segment-entry automation are made, switched and removed together.
 - **Affected areas:** `settings/birthday/{constants,graphql,hooks,components}`, `settings/voucher/voucher-detail/components/EditVoucherTabs.tsx`; `birthday-reward-*` translations.
-
-### `2026-09-30` — Per-customer voucher limit
-
-- **Summary:** Voucher campaigns can be limited to N per customer per year, month or campaign from the Restriction tab; empty means no limit.
-- **Affected areas:** `settings/voucher/{constants/voucherFormSchema.ts,utils/voucherOwnerLimit.ts,types/voucherTypes.ts}`, `add-voucher-campaign/components/{AddVoucherRestrictionForm,VoucherTabs}.tsx`, `voucher-restriction-field/VoucherOwnerLimitField.tsx`, `voucher-detail/components/{EditVoucherTabs,LoyaltyVoucherEditSheet}.tsx`, voucher add/edit mutations and detail query; `owner-limit*` translations.
-- **Contracts changed:** None
