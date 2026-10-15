@@ -21,7 +21,8 @@ export const PosItemsForm = ({ control, paidAmounts }: PosItemsFormProps) => {
   const paymentEntries = React.useMemo(() => {
     const seen = new Set<string>();
     return (paidAmounts || [])
-      .filter(({ type }) => {
+      .filter((payment): payment is PosPaidAmount & { type: string } => {
+        const { type } = payment;
         if (!type || type === '_id' || seen.has(type)) return false;
         seen.add(type);
         return true;

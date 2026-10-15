@@ -30,8 +30,15 @@ const load = (filename) => {
 const { toPosDetail, restorePosPaymentConfig, restorePosPaymentText } =
   load('../posJson.ts');
 const { cleanData } = load('../cleanData.ts');
-const { toPosOrderDetail, toPosItemRow, parsePosPaidAmounts, readPosData } =
-  load('../posOrderJson.ts');
+const {
+  toPosOrderDetail,
+  toPosOrderRow,
+  toPosItemRow,
+  parsePosPaidAmounts,
+  preserveUntypedPosPayments,
+  readPosData,
+  mergePosSummaryPages,
+} = load('../posOrderJson.ts');
 const { updateCacheAfterRemove } = load('../updatePosCoversCache.ts');
 
 test('settings retain nested extension keys, nullable fields, and legacy numeric timers', () => {
@@ -131,6 +138,92 @@ test('payment amounts support current arrays and legacy maps including numeric s
     { type: 'mobile', amount: 0 },
   ]);
   assert.deepEqual(parsePosPaidAmounts(null), []);
+});
+
+test('legacy untyped payments do not prevent loading order lists or details', () => {
+  const paidAmounts = [
+    { type: null, amount: 100, info: { receipt: 'keep' } },
+    { amount: 200 },
+    { type: '', amount: 0 },
+    { type: 'qpay', amount: 300 },
+  ];
+  const order = { _id: 'legacy', items: [], paidAmounts };
+  for (const read of [toPosOrderRow, toPosItemRow, toPosOrderDetail]) {
+    const result = readPosData(() =>
+      read === toPosItemRow ? read({ ...order, items: null }) : read(order),
+    );
+    assert.equal(result.error, undefined);
+    assert.deepEqual(result.value.paidAmounts, paidAmounts);
+  }
+});
+
+test('editing named payments preserves untyped amounts and metadata in the save payload', () => {
+  const original = [
+    { type: null, amount: 100, info: { receipt: 'keep' } },
+    { amount: 200 },
+    { type: '', amount: 0 },
+    { type: 'qpay', amount: 300 },
+  ];
+  const edited = [{ type: 'qpay', amount: 400 }];
+  const result = preserveUntypedPosPayments(edited, original);
+  assert.deepEqual(result, [edited[0], ...original.slice(0, 3)]);
+  assert.equal(
+    result.reduce((sum, payment) => sum + payment.amount, 0),
+    700,
+  );
+  assert.deepEqual(preserveUntypedPosPayments(edited, undefined), edited);
+  assert.equal(original.length, 4);
+});
+
+test('summary pagination retains the previous result when either JSON page is malformed', () => {
+  const previous = {
+    posOrdersGroupSummary: {
+      amounts: [{ paidDate: '2026-10-15', totalAmount: 100 }],
+      columns: { qpay: 'QPay' },
+    },
+  };
+  for (const posOrdersGroupSummary of [
+    { amounts: {} },
+    { amounts: [{ totalAmount: {} }] },
+    { amounts: [], columns: [] },
+    null,
+  ]) {
+    assert.equal(
+      mergePosSummaryPages(previous, { posOrdersGroupSummary }),
+      previous,
+    );
+  }
+  const invalidPrevious = { posOrdersGroupSummary: { amounts: {} } };
+  assert.equal(
+    mergePosSummaryPages(invalidPrevious, previous),
+    invalidPrevious,
+  );
+  assert.equal(mergePosSummaryPages(previous, undefined), previous);
+});
+
+test('valid summary pagination appends rows and retains or replaces column labels', () => {
+  const previous = {
+    posOrdersGroupSummary: {
+      amounts: [{ paidDate: '2026-10-15', totalAmount: 100 }],
+      columns: { qpay: 'QPay' },
+    },
+  };
+  const next = { posOrdersGroupSummary: { amounts: [{ totalAmount: '200' }] } };
+  const result = mergePosSummaryPages(previous, next);
+  assert.deepEqual(result.posOrdersGroupSummary, {
+    amounts: [
+      ...previous.posOrdersGroupSummary.amounts,
+      ...next.posOrdersGroupSummary.amounts,
+    ],
+    columns: previous.posOrdersGroupSummary.columns,
+  });
+  assert.deepEqual(
+    mergePosSummaryPages(previous, {
+      posOrdersGroupSummary: { amounts: [], columns: {} },
+    }).posOrdersGroupSummary.columns,
+    {},
+  );
+  assert.equal(previous.posOrdersGroupSummary.amounts.length, 1);
 });
 
 test('detail items remain an array while the item report keeps its unwound object', () => {

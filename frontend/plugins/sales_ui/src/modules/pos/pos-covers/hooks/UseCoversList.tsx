@@ -4,7 +4,6 @@ import { useQuery } from '@apollo/client';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { PosCoversQueryVariables } from '~/gql/graphql';
 import { posCovers } from '../graphql/queries/queries';
 import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
@@ -52,7 +51,6 @@ export const useCoversVariables = (options: UseCoversListOptions = {}) => {
 export const useCoversList = (
   options: UseCoversListOptions = {},
 ): UseCoversListReturn => {
-  const { t } = useTranslation('sales');
   const variables = useCoversVariables(options);
   const setPosCoverTotalCount = useSetAtom(posCoverTotalCountAtom);
   const { data, loading, fetchMore } = useQuery(posCovers, {
@@ -70,7 +68,6 @@ export const useCoversList = (
         description: cover.description,
         note: cover.note,
         createdAt: cover.createdAt,
-        createdBy: t('unknown'),
       })) || [],
     [data?.posCovers],
   );

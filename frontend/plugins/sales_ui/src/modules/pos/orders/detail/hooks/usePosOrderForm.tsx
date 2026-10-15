@@ -16,7 +16,7 @@ const buildDefaultValues = (
   });
 
   normalized.forEach(({ type, amount }) => {
-    result[type] = amount;
+    if (type) result[type] = amount;
   });
 
   return result;

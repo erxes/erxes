@@ -26,7 +26,9 @@ export const PosOrderForm = ({
 }: PosOrderFormProps) => {
   const paymentTypes = React.useMemo(() => {
     const summaryKeys = Object.keys(summary || {});
-    const paidKeys = (paidAmounts || []).map((p) => p.type);
+    const paidKeys = (paidAmounts || [])
+      .map((p) => p.type)
+      .filter((type): type is string => !!type);
 
     const standardPaymentTypes = options.map((opt) => opt.value);
 

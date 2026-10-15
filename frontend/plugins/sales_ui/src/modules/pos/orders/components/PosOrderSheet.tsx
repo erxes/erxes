@@ -1,3 +1,4 @@
+import { preserveUntypedPosPayments } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
 import {
   IconChessKnight,
@@ -215,12 +216,16 @@ export const PosOrderSheet = () => {
         const cashAmount = Number(data.cashAmount) || 0;
         const mobileAmount = Number(data.mobileAmount) || 0;
 
-        const paidAmounts = Object.entries(data)
+        const editedPaidAmounts = Object.entries(data)
           .filter(([key]) => !['cashAmount', 'mobileAmount'].includes(key))
           .map(([type, amount]) => ({
             type,
             amount: Number(amount) || 0,
           }));
+        const paidAmounts = preserveUntypedPosPayments(
+          editedPaidAmounts,
+          posOrder?.paidAmounts,
+        );
         const expectedTotal = posOrder?.totalAmount ?? 0;
         const sum =
           Number(cashAmount || 0) +

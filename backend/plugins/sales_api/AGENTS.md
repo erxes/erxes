@@ -270,6 +270,8 @@
   JSON scalar outputs. Order details return an items array; item reports unwind
   it into a single object. Frontend narrowing must preserve those contracts,
   including nullable payment fields and existing numeric screen values.
+  Stored order payment entries may omit `type` or contain `type: null`;
+  frontend parsing must not make that optional field required.
 - Deal product rows, payments, pipeline payment types, and pipeline event data
   remain JSON scalar contracts. Sales UI validates the fields it consumes;
   changing these outputs to object selections requires a coordinated API and

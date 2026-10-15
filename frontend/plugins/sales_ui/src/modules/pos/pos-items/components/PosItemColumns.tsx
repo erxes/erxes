@@ -393,13 +393,7 @@ export const PosItemColumns: (t: TFunction) => ColumnDef<IPosItem>[] = (t) => [
       <RecordTable.InlineHead icon={IconUser} label={t('payment-type')} />
     ),
     cell: ({ row }) => {
-      const raw = row.original.paidAmounts;
-      const paidAmounts: Array<{ type?: string }> = Array.isArray(raw)
-        ? raw
-        : raw
-        ? [raw as { type?: string }]
-        : [];
-      const types = paidAmounts
+      const types = row.original.paidAmounts
         .map((pa) => pa.type)
         .filter((t): t is string => Boolean(t))
         .join(', ');

@@ -1,4 +1,7 @@
-import type { PosOrderItem } from '@/pos/utils/posOrderJson';
+import {
+  type PosOrderItem,
+  preserveUntypedPosPayments,
+} from '@/pos/utils/posOrderJson';
 import {
   IconChessKnight,
   IconShoppingCart,
@@ -125,16 +128,10 @@ export const PosItemDetailSheet = () => {
   // Build a flat map of { [type]: amount } for form default values
   const paymentSummary = React.useMemo(() => {
     if (!posItem?.paidAmounts || !Array.isArray(posItem.paidAmounts)) return {};
-    return posItem.paidAmounts.reduce(
-      (
-        acc: Record<string, number>,
-        item: { type?: string; amount?: number },
-      ) => {
-        if (item?.type) acc[item.type] = item.amount ?? 0;
-        return acc;
-      },
-      {},
-    );
+    return posItem.paidAmounts.reduce<Record<string, number>>((acc, item) => {
+      if (item?.type) acc[item.type] = item.amount ?? 0;
+      return acc;
+    }, {});
   }, [posItem?.paidAmounts]);
 
   const renderCustomerInfo = React.useMemo(() => {
@@ -257,10 +254,14 @@ export const PosItemDetailSheet = () => {
         const cashAmount = Number(data?.cash ?? 0) || 0;
         const mobileAmount = Number(data?.mobile ?? 0) || 0;
 
-        const paidAmounts = Object.entries(data)
+        const editedPaidAmounts = Object.entries(data)
           .filter(([key]) => !['cash', 'mobile'].includes(key))
           .map(([type, amount]) => ({ type, amount: Number(amount) || 0 }))
           .filter(({ amount }) => amount !== 0);
+        const paidAmounts = preserveUntypedPosPayments(
+          editedPaidAmounts,
+          posItem?.paidAmounts,
+        );
 
         const expectedTotal = posItem?.totalAmount ?? 0;
         const sum =

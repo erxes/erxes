@@ -6,6 +6,7 @@ import type {
   PosOrdersQuery,
   SalesPosOrderDetailQuery,
   SalesPosItemDetailQuery,
+  QueryQuery,
 } from '~/gql/graphql';
 import { isDefined } from 'erxes-ui';
 import { hasId } from './posJson';
@@ -40,7 +41,7 @@ export const posOrderItemSchema = z
 export type PosOrderItem = z.infer<typeof posOrderItemSchema>;
 export const posPaidAmountSchema = z
   .object({
-    type: z.string(),
+    type: text,
     amount: numeric.transform((value) => Number(value) || 0),
     title: text,
   })
@@ -59,6 +60,16 @@ export const parsePosPaidAmounts = (value: unknown): PosPaidAmount[] => {
     amount: Number(amount) || 0,
   }));
 };
+
+// Untyped legacy payments have no editable form field but still belong to the order.
+export const preserveUntypedPosPayments = (
+  edited: PosPaidAmount[],
+  original: PosPaidAmount[] | undefined,
+): PosPaidAmount[] => [
+  ...edited,
+  ...(original ?? []).filter(({ type }) => !type),
+];
+
 const locationSchema = z
   .object({ order: text, title: text })
   .passthrough()
@@ -155,6 +166,35 @@ export const posSummarySchema = z
     columns: z.record(z.string().nullish()).optional(),
   })
   .passthrough();
+
+export const mergePosSummaryPages = (
+  previous: QueryQuery,
+  next: QueryQuery | undefined,
+): QueryQuery => {
+  const nextParsed = posSummarySchema.safeParse(
+    next?.posOrdersGroupSummary ?? {},
+  );
+  const previousParsed = posSummarySchema.safeParse(
+    previous.posOrdersGroupSummary ?? {},
+  );
+  if (
+    !nextParsed.success ||
+    !previousParsed.success ||
+    !nextParsed.data.amounts
+  ) {
+    return previous;
+  }
+  return {
+    ...previous,
+    posOrdersGroupSummary: {
+      amounts: [
+        ...(previousParsed.data.amounts ?? []),
+        ...nextParsed.data.amounts,
+      ],
+      columns: nextParsed.data.columns || previousParsed.data.columns,
+    },
+  };
+};
 
 export const readPosCount = (value: unknown): number =>
   typeof value === 'number' ? value : 0;

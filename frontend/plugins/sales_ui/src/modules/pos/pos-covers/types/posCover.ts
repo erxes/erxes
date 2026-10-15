@@ -11,4 +11,4 @@ export type ICovers = Pick<
   | 'note'
   | 'createdAt'
 > &
-  Partial<Pick<Cover, 'user'>> & { _id: string; createdBy: string };
+  Partial<Pick<Cover, 'user'>> & { _id: string };

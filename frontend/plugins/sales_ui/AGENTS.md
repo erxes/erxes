@@ -283,14 +283,20 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   assignment and empty-stage sorting return success strings.
 - POS JSON configuration and report fields are narrowed in `pos/utils/posJson.ts`
   and `pos/utils/posOrderJson.ts`; preserve extension keys and legacy numeric
-  screen timers. Payment amounts support both arrays and legacy maps. An
-  unchanged structured payment configuration retains its original JSON type;
+  screen timers. Payment amounts support both arrays and legacy maps. An order
+  payment's `type` may be null or missing; retain the entry in save payloads and
+  balance checks while excluding it from named payment inputs.
+  Summary pagination keeps its previous cache
+  result when either JSON page cannot be parsed.
+  An unchanged structured payment configuration retains its original JSON type;
   nullable payment fields and numeric screen values retain their stored types
   until edited.
   Memoize parsed query objects before using them to reset forms. Invalid JSON
   must be reported; never enable saving an empty replacement for failed data.
 - Order detail `items` is an array; `posOrderRecords.items` is the unwound row
   object. Keep these two report shapes distinct.
+- A Cover's `user` is its assignee, while `createdUser` resolves `createdBy`.
+  Do not substitute one for the other when deriving display data.
 - Product-group saves project only `GroupInput` fields and refetch that POS's
   groups before completing. Cover deletion removes each successfully deleted
   id from every cached `posCovers` filter variant.

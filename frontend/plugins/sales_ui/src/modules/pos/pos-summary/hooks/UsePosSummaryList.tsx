@@ -1,5 +1,9 @@
 import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
-import { posSummarySchema, readPosData } from '@/pos/utils/posOrderJson';
+import {
+  mergePosSummaryPages,
+  posSummarySchema,
+  readPosData,
+} from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
 import {
   parseDateRangeFromString,
@@ -160,27 +164,8 @@ export const usePosSummaryList = (
         page: Math.ceil(posSummaryList.length / POS_PER_PAGE) + 1,
         perPage: POS_PER_PAGE,
       },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        const nextSummary = posSummarySchema.parse(
-          fetchMoreResult?.posOrdersGroupSummary ?? {},
-        );
-        const previousSummary = posSummarySchema.parse(
-          prev.posOrdersGroupSummary ?? {},
-        );
-        if (!nextSummary.amounts) {
-          return prev;
-        }
-        return {
-          ...prev,
-          posOrdersGroupSummary: {
-            amounts: [
-              ...(previousSummary.amounts || []),
-              ...(nextSummary.amounts || []),
-            ],
-            columns: nextSummary.columns || previousSummary.columns,
-          },
-        };
-      },
+      updateQuery: (prev, { fetchMoreResult }) =>
+        mergePosSummaryPages(prev, fetchMoreResult),
     });
   }, [posSummaryList.length, fetchMore, summary?.amounts?.length]);
 
