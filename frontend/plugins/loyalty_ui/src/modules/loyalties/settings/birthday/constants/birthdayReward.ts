@@ -1,3 +1,5 @@
+import { isRecord } from '@/loyalties/utils/isRecord';
+
 export const BIRTHDAY_AUTO_ISSUE_KIND = 'birthday';
 
 export const CUSTOMER_CONTENT_TYPE = 'core:contacts.customers';
@@ -26,22 +28,22 @@ export const BIRTHDAY_SEGMENT_ROOT = {
   children: [BIRTHDAY_CONDITION],
 };
 
-type TSegmentNode = {
-  kind?: string;
-  children?: TSegmentNode[];
-  contentType?: string;
-  fieldKey?: string;
-  operator?: string;
-};
-
 /** A segment of exactly "birthday today", whoever made it. */
-export const isBirthdaySegmentRoot = (root?: TSegmentNode | null) => {
-  const [only, ...rest] = root?.children || [];
+export const isBirthdaySegmentRoot = (root: unknown) => {
+  if (
+    !isRecord(root) ||
+    root.kind !== 'group' ||
+    !Array.isArray(root.children)
+  ) {
+    return false;
+  }
+
+  const [only, ...rest] = root.children;
 
   return (
-    root?.kind === 'group' &&
     !rest.length &&
-    only?.kind === BIRTHDAY_CONDITION.kind &&
+    isRecord(only) &&
+    only.kind === BIRTHDAY_CONDITION.kind &&
     only.contentType === BIRTHDAY_CONDITION.contentType &&
     only.fieldKey === BIRTHDAY_CONDITION.fieldKey &&
     only.operator === BIRTHDAY_CONDITION.operator
