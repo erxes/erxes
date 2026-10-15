@@ -20,7 +20,7 @@ export const toDealPosPaidAmounts = (value: unknown): DealPosPaidAmount[] =>
 
 // Paid transaction totals by payment kind; untyped kinds count as mobile.
 export const sumPaidTransactionsByKind = (
-  invoices: InvoiceDetailByContentQuery['invoiceDetailByContent'],
+  invoices?: InvoiceDetailByContentQuery['invoiceDetailByContent'],
 ): Record<string, number> => {
   const byKind: Record<string, number> = {};
 
