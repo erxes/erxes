@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { getProfileUrl } from '../../scores/components/ScoreMoreColumn';
-import { ILoyaltyAccount } from '../types';
+import { ILoyaltyAccountRow } from '../types';
 import { useLoyaltyAccountFreeze } from './useLoyaltyAccountFreeze';
 
-export const useLoyaltyAccountRowActions = (account: ILoyaltyAccount) => {
+export const useLoyaltyAccountRowActions = (account: ILoyaltyAccountRow) => {
   const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const navigate = useNavigate();

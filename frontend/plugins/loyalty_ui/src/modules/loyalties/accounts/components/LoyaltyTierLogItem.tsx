@@ -3,7 +3,11 @@ import { Badge } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MembersInline } from 'ui-modules';
 import { SafeRelativeDate } from '../../components/SafeRelativeDate';
-import { tierLogSource, tierLogTierName } from '../hooks/useLoyaltyTierLogs';
+import {
+  tierLogSource,
+  tierLogTierName,
+  tierLogVia,
+} from '../hooks/useLoyaltyTierLogs';
 import { ILoyaltyTierLog } from '../types';
 
 // One tier change: wallet, from → to, when, what moved it and who.
@@ -17,7 +21,8 @@ export const LoyaltyTierLogItem = ({
 }) => {
   const { t } = useTranslation('loyalty');
   const up = log.direction === 'up';
-  const actorId = log.createdBy || log.createdVia?.actorId;
+  const via = tierLogVia(log);
+  const actorId = log.createdBy || via?.actorId;
 
   return (
     <div className="flex flex-col gap-1 rounded-md border px-3 py-2 text-sm">
@@ -38,7 +43,7 @@ export const LoyaltyTierLogItem = ({
           {tierLogTierName(log, log.toTier) || t('loyalty-tier-none')}
         </Badge>
         <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-          <SafeRelativeDate value={log.createdAt} />
+          <SafeRelativeDate value={log.createdAt ?? undefined} />
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
@@ -50,7 +55,7 @@ export const LoyaltyTierLogItem = ({
         )}
         <span>
           {t(`loyalty-tier-via-${tierLogSource(log)}`, {
-            name: log.createdVia?.sourceName || log.targetName || '',
+            name: via?.sourceName || log.targetName || '',
           })}
         </span>
         {actorId && <MembersInline memberIds={[actorId]} placeholder="—" />}
