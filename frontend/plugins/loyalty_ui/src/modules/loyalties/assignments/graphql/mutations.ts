@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const ASSIGNMENTS_ADD_MUTATION = gql`
+export const ASSIGNMENTS_ADD_MUTATION = gql(`
   mutation AssignmentsAdd(
     $campaignId: String!
     $ownerType: String!
@@ -19,10 +19,10 @@ export const ASSIGNMENTS_ADD_MUTATION = gql`
       createdAt
     }
   }
-`;
+`);
 
-export const ASSIGNMENTS_REMOVE_MUTATION = gql`
+export const ASSIGNMENTS_REMOVE_MUTATION = gql(`
   mutation AssignmentsRemove($_ids: [String!]!) {
     assignmentsRemove(_ids: $_ids)
   }
-`;
+`);
