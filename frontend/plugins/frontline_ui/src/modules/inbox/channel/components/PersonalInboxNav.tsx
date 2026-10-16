@@ -20,7 +20,7 @@ import {
 } from '@/inbox/conversations/constants/inboxTarget';
 
 export const PersonalInboxNav = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(true);
   const { channels } = useGetMyChannels();
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({

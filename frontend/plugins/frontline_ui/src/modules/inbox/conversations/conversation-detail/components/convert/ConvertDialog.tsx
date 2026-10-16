@@ -46,7 +46,7 @@ const ConvertForm = ({
   title: string;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { _id, assignedUserId, integration } = useConversationContext();
   const { convertToCard, loading } = useConversationConvertToCard();
   const [propertiesData, setPropertiesData] = useState<TConvertPropertiesData>(

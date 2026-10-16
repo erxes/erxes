@@ -34,6 +34,7 @@ import {
   type LegendPayload,
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { CustomLegendContent } from '../chart/legend';
 import { AreaGradient } from '../chart/AreaGradient';
 import { getReportChartTypeAtom } from '@/report/states';
@@ -45,6 +46,7 @@ import {
 } from '../chart-pagination/ChartPagination';
 import { ReportChartActions } from '../report-chart/ReportChartActions';
 import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
+import { useTranslation } from 'react-i18next';
 
 interface ConversationOpenProps {
   title: string;
@@ -61,6 +63,7 @@ interface ChartProps {
 export const OpenBarChart = memo(function OpenBarChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -82,7 +85,7 @@ export const OpenBarChart = memo(function OpenBarChart({
         margin={{ top: 24, right: 10, left: 10, bottom: 60 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Bar dataKey="count" fill="var(--primary)" name="Count">
+        <Bar dataKey="count" fill="var(--primary)" name={t('count')}>
           <LabelList
             dataKey="count"
             position="top"
@@ -103,7 +106,7 @@ export const OpenBarChart = memo(function OpenBarChart({
           dataKey="count"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props) => <CustomLegendContent {...props} />} />
@@ -115,6 +118,7 @@ export const OpenBarChart = memo(function OpenBarChart({
 export const OpenLineChart = memo(function OpenLineChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -145,7 +149,7 @@ export const OpenLineChart = memo(function OpenLineChart({
           stroke="var(--primary)"
           fill="url(#fl-open-primary)"
           strokeWidth={2}
-          name="Count"
+          name={t('count')}
           dot={false}
           activeDot={{ r: 4 }}
         />
@@ -161,7 +165,7 @@ export const OpenLineChart = memo(function OpenLineChart({
           dataKey="count"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props) => <CustomLegendContent {...props} />} />
@@ -259,6 +263,7 @@ export const OpenPieChart = memo(function OpenPieChart({
 export const OpenRadarChart = memo(function OpenRadarChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -301,7 +306,7 @@ export const OpenRadarChart = memo(function OpenRadarChart({
           axisLine={false}
         />
         <Radar
-          name="Count"
+          name={t('count')}
           dataKey="count"
           stroke="var(--primary)"
           fill="var(--primary)"
@@ -322,6 +327,7 @@ interface OpenTableData {
 export const OpenTableChart = memo(function OpenTableChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const tableData = useMemo(() => {
     if (!chartData || chartData.length === 0) {
       return [];
@@ -335,7 +341,7 @@ export const OpenTableChart = memo(function OpenTableChart({
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
-        columns={openTableColumns}
+        columns={openTableColumns(t)}
         data={tableData}
         className="m-3"
       >
@@ -352,10 +358,12 @@ export const OpenTableChart = memo(function OpenTableChart({
   );
 });
 
-export const openTableColumns: ColumnDef<OpenTableData>[] = [
+export const openTableColumns = (
+  t: TFunction,
+): ColumnDef<OpenTableData>[] => [
   {
     id: 'date',
-    header: 'Date',
+    header: t('date'),
     accessorKey: 'date',
     cell: ({ cell }) => {
       return (
@@ -367,7 +375,7 @@ export const openTableColumns: ColumnDef<OpenTableData>[] = [
   },
   {
     id: 'count',
-    header: 'Count',
+    header: t('count'),
     accessorKey: 'count',
     cell: ({ cell }) => {
       return (
@@ -391,6 +399,7 @@ export const ConversationOpen = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationOpenProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -441,7 +450,7 @@ export const ConversationOpen = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Total conversations open in the last 30 days"
+        description={t('total-conversations-open-last-30-days')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -478,7 +487,7 @@ export const ConversationOpen = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Total conversations open in the last 30 days"
+      description={t('total-conversations-open-last-30-days')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >

@@ -5,7 +5,7 @@ import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignCon
 import { useTranslation } from 'react-i18next';
 
 export const ReplaceAssignee = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [selectedConversations] = useAtom(selectConversationsState);
   const { assignConversations } = useAssignConversations();
 

@@ -35,6 +35,7 @@ import {
   type LegendPayload,
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { CustomLegendContent } from '../chart/legend';
 import { AreaGradient } from '../chart/AreaGradient';
 import { ReportFilter } from '../filter-popover/report-filter';
@@ -45,6 +46,7 @@ import {
 } from '../chart-pagination/ChartPagination';
 import { ReportChartActions } from '../report-chart/ReportChartActions';
 import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
+import { useTranslation } from 'react-i18next';
 
 interface ConversationResolvedProps {
   title: string;
@@ -61,6 +63,7 @@ interface ChartProps {
 export const ResolvedBarChart = memo(function ResolvedBarChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -94,9 +97,9 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count">
+        <Bar dataKey="count" fill="var(--primary)" name={t('count')}>
           <LabelList
             dataKey="count"
             position="top"
@@ -114,6 +117,7 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
 export const ResolvedLineChart = memo(function ResolvedLineChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -144,7 +148,7 @@ export const ResolvedLineChart = memo(function ResolvedLineChart({
           stroke="var(--primary)"
           fill="url(#fl-resolved-primary)"
           strokeWidth={2}
-          name="Count"
+          name={t('count')}
           dot={false}
           activeDot={{ r: 4 }}
         />
@@ -160,7 +164,7 @@ export const ResolvedLineChart = memo(function ResolvedLineChart({
           dataKey="count"
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props) => <CustomLegendContent {...props} />} />
@@ -258,6 +262,7 @@ export const ResolvedPieChart = memo(function ResolvedPieChart({
 export const ResolvedRadarChart = memo(function ResolvedRadarChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -300,7 +305,7 @@ export const ResolvedRadarChart = memo(function ResolvedRadarChart({
           axisLine={false}
         />
         <Radar
-          name="Count"
+          name={t('count')}
           dataKey="count"
           stroke="var(--primary)"
           fill="var(--primary)"
@@ -321,6 +326,7 @@ interface ResolvedTableData {
 export const ResolvedTableChart = memo(function ResolvedTableChart({
   chartData,
 }: ChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const tableData = useMemo(() => {
     if (!chartData || chartData.length === 0) {
       return [];
@@ -334,7 +340,7 @@ export const ResolvedTableChart = memo(function ResolvedTableChart({
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
-        columns={resolvedTableColumns}
+        columns={resolvedTableColumns(t)}
         data={tableData}
         className="m-3"
       >
@@ -351,10 +357,12 @@ export const ResolvedTableChart = memo(function ResolvedTableChart({
   );
 });
 
-export const resolvedTableColumns: ColumnDef<ResolvedTableData>[] = [
+export const resolvedTableColumns = (
+  t: TFunction,
+): ColumnDef<ResolvedTableData>[] => [
   {
     id: 'date',
-    header: 'Date',
+    header: t('date'),
     accessorKey: 'date',
     cell: ({ cell }) => {
       return (
@@ -366,7 +374,7 @@ export const resolvedTableColumns: ColumnDef<ResolvedTableData>[] = [
   },
   {
     id: 'count',
-    header: 'Count',
+    header: t('count'),
     accessorKey: 'count',
     cell: ({ cell }) => {
       return (
@@ -390,6 +398,7 @@ export const ConversationResolved = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationResolvedProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -440,7 +449,7 @@ export const ConversationResolved = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Total conversations resolved in the last 30 days"
+        description={t('total-conversations-resolved-last-30-days')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -479,7 +488,7 @@ export const ConversationResolved = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Total conversations resolved in the last 30 days"
+      description={t('total-conversations-resolved-last-30-days')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >

@@ -9,7 +9,7 @@ interface SlaQueueTableProps {
 }
 
 export function SlaQueueTable({ queues }: SlaQueueTableProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   if (!queues.length) {
     return (
