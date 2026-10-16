@@ -23,11 +23,18 @@ import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 
-const TransactionsFilterPopover = () => {
+const SIDEBAR_FILTER_KEYS = ['branchId', 'departmentId', 'journal'];
+
+const TransactionsFilterPopover = ({
+  sidebarFilters,
+}: {
+  sidebarFilters?: boolean;
+}) => {
   const { t } = useTranslation('accounting');
   const queryParams = useTransactionsQueryParams();
-  const hasFilters = Object.values(queryParams || {}).some(
-    (value) => value !== null,
+  const hasFilters = Object.entries(queryParams || {}).some(
+    ([key, value]) =>
+      value !== null && !(sidebarFilters && SIDEBAR_FILTER_KEYS.includes(key)),
   );
 
   return (
@@ -55,22 +62,28 @@ const TransactionsFilterPopover = () => {
                   <IconCalendar />
                   {t('date')}
                 </Filter.Item>
-                <SelectBranches.FilterItem
-                  value="branchId"
-                  label={t('branch')}
-                />
-                <SelectDepartments.FilterItem
-                  value="departmentId"
-                  label={t('department')}
-                />
+                {!sidebarFilters && (
+                  <>
+                    <SelectBranches.FilterItem
+                      value="branchId"
+                      label={t('branch')}
+                    />
+                    <SelectDepartments.FilterItem
+                      value="departmentId"
+                      label={t('department')}
+                    />
+                  </>
+                )}
                 <Filter.Item value="currency">
                   <IconCoins />
                   {t('currency')}
                 </Filter.Item>
-                <Filter.Item value="journal">
-                  <IconNotebook />
-                  {t('journal')}
-                </Filter.Item>
+                {!sidebarFilters && (
+                  <Filter.Item value="journal">
+                    <IconNotebook />
+                    {t('journal')}
+                  </Filter.Item>
+                )}
 
                 <Command.Separator className="my-1" />
                 <Filter.Item value="statuses">
@@ -132,11 +145,15 @@ const TransactionsFilterPopover = () => {
           <Filter.View filterKey="date">
             <Filter.DateView filterKey="date" />
           </Filter.View>
-          <SelectBranches.FilterView mode="single" filterKey="branchId" />
-          <SelectDepartments.FilterView
-            mode="single"
-            filterKey="departmentId"
-          />
+          {!sidebarFilters && (
+            <>
+              <SelectBranches.FilterView mode="single" filterKey="branchId" />
+              <SelectDepartments.FilterView
+                mode="single"
+                filterKey="departmentId"
+              />
+            </>
+          )}
           <Filter.View filterKey="currency">
             <AccountsFilterCurrency />
           </Filter.View>
@@ -146,9 +163,11 @@ const TransactionsFilterPopover = () => {
           <SelectMember.FilterView mode="single" queryKey="mentionOwnerId" />
           <SelectMember.FilterView mode="single" queryKey="mentionUserId" />
 
-          <Filter.View filterKey="journal">
-            <AccountsFilterTrJournal />
-          </Filter.View>
+          {!sidebarFilters && (
+            <Filter.View filterKey="journal">
+              <AccountsFilterTrJournal />
+            </Filter.View>
+          )}
           <SelectAccount.FilterView mode="multiple" queryKey="accountIds" />
 
           <SelectMember.FilterView mode="single" queryKey="createdUserId" />
@@ -187,8 +206,10 @@ const TransactionsFilterPopover = () => {
 
 export const TransactionsFilter = ({
   afterBar,
+  sidebarFilters,
 }: {
   afterBar?: React.ReactNode;
+  sidebarFilters?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<{
@@ -227,19 +248,23 @@ export const TransactionsFilter = ({
           </Filter.BarName>
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
-        <SelectBranches.FilterBar
-          label={t('branch')}
-          filterKey="branchId"
-          mode="single"
-        />
-        <SelectDepartments.FilterBar
-          label={t('department')}
-          filterKey="departmentId"
-          mode="single"
-        />
+        {!sidebarFilters && (
+          <>
+            <SelectBranches.FilterBar
+              label={t('branch')}
+              filterKey="branchId"
+              mode="single"
+            />
+            <SelectDepartments.FilterBar
+              label={t('department')}
+              filterKey="departmentId"
+              mode="single"
+            />
+          </>
+        )}
         <FilterBarCurrency />
         <FilterBarTrStatus />
-        <FilterBarTrJournal />
+        {!sidebarFilters && <FilterBarTrJournal />}
 
         <SelectAccount.FilterBar queryKey="accountIds" mode="multiple" />
         <Filter.BarItem queryKey="accountSearchValue">
@@ -287,7 +312,7 @@ export const TransactionsFilter = ({
           <Filter.Date filterKey="updatedDate" />
         </Filter.BarItem>
 
-        <TransactionsFilterPopover />
+        <TransactionsFilterPopover sidebarFilters={sidebarFilters} />
         {afterBar && <>{afterBar}</>}
       </Filter.Bar>
     </Filter>
