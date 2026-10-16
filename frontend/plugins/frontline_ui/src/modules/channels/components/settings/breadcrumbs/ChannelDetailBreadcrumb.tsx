@@ -29,8 +29,10 @@ export const ChannelDetailBreadcrumb = ({
     }
   }, [id]);
 
+  const resolvedChannelId = channelId || id;
   const { channel, loading } = useGetChannel({
-    variables: { id: channelId || id },
+    variables: resolvedChannelId ? { id: resolvedChannelId } : undefined,
+    skip: !resolvedChannelId,
   });
   if (loading) {
     return <Skeleton className="w-12 h-lh" />;
@@ -39,7 +41,7 @@ export const ChannelDetailBreadcrumb = ({
     <Link to={`/settings/frontline/channels/${channelId || id}`}>
       <Button variant="ghost">
         <IconComponent
-          name={channel?.icon}
+          name={channel?.icon ?? undefined}
           className="w-4 h-4 text-accent-foreground"
         />
         {channel?.name}

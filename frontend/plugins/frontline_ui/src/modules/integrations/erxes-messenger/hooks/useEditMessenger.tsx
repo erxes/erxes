@@ -43,13 +43,14 @@ export const useEditMessenger = () => {
         ...createVariables,
       },
       async onCompleted({ integrationsEditMessengerIntegration }) {
+        if (!integrationsEditMessengerIntegration) return;
+
         const { _id: integrationId } = integrationsEditMessengerIntegration;
 
-        const saves: Promise<any>[] = [
+        const saves: Promise<unknown>[] = [
           saveConfigsMutation({
             variables: {
               _id: integrationId,
-              channelId: createVariables.channelId,
               brandId: createVariables.brandId,
               ...saveConfigVariables,
             },
@@ -63,7 +64,6 @@ export const useEditMessenger = () => {
           saveAppearanceMutation({
             variables: {
               _id: integrationId,
-              channelId: configFormValues.channelId,
               uiOptions,
               brandId: configFormValues.brandId,
             },
@@ -96,7 +96,7 @@ export const useEditMessenger = () => {
         await Promise.all(saves);
 
         await client.refetchQueries({
-          include: ['Integrations', 'integrationDetail'],
+          include: ['Integrations', 'ErxesMessengerIntegrationDetail'],
         });
 
         onComplete?.();

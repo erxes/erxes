@@ -88,7 +88,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
               'The receiving server rejected {{recipients}}',
               { recipients: (delivery.bouncedRecipients ?? []).join(', ') },
             )
-          : (delivery.error ?? undefined),
+          : delivery.error ?? undefined,
       variant: 'destructive',
     });
   };
@@ -105,7 +105,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
           trimmedContent as Parameters<typeof getMentionedUserIds>[0],
         ),
         attachments: attachments
-          .filter((file) => !!file.url)
+          .filter((file): file is typeof file & { url: string } => !!file.url)
           .map(({ name, url, type, size }) => ({ name, url, type, size })),
         isInternal: isInternalNote,
       },

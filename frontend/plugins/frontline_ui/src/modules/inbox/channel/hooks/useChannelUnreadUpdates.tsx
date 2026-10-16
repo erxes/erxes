@@ -41,17 +41,12 @@ export const useChannelUnreadUpdates = (refetch: unknown) => {
   });
 
   useSubscription(CONVERSATION_CLIENT_MESSAGE_INSERTED, {
-    variables: { userId },
+    variables: userId ? { userId } : undefined,
     skip: !userId,
     onData: () => refreshCounts(),
   });
 
-  useSubscription<{
-    conversationUnreadCountChanged: {
-      channelId: string;
-      unreadConversationCount: number;
-    };
-  }>(CONVERSATION_UNREAD_COUNT_CHANGED, {
+  useSubscription(CONVERSATION_UNREAD_COUNT_CHANGED, {
     skip: !userId,
     onData: ({ data }) => {
       const change = data.data?.conversationUnreadCountChanged;

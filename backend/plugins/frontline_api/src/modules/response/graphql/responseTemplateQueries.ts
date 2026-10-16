@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import {
   IResponseTemplateDocument,
   ResponseTemplatesFilter,
@@ -16,8 +16,8 @@ const generateFilter = (args: ResponseTemplatesFilter) => {
 
   if (searchValue) {
     filter.$or = [
-      { name: new RegExp(`.*${searchValue}.*`, 'i') },
-      { content: new RegExp(`.*${searchValue}.*`, 'i') },
+      { name: new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i') },
+      { content: new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i') },
     ];
   }
 
@@ -27,10 +27,11 @@ const generateFilter = (args: ResponseTemplatesFilter) => {
 export const responseTemplateQueries = {
   async responseTemplates(
     _parent: undefined,
-    { filter }: { filter: ResponseTemplatesFilter },
+    args: { filter?: ResponseTemplatesFilter | null },
 
     { models }: IContext,
   ) {
+    const filter: ResponseTemplatesFilter = args.filter ?? {};
     const filterQuery = generateFilter(filter);
 
     filterQuery.channelId = { $exists: true, $ne: null };
@@ -58,15 +59,5 @@ export const responseTemplateQueries = {
     { models }: IContext,
   ) {
     return models.ResponseTemplates.findById(_id);
-  },
-
-  async responseTemplatesTotalCount(
-    _parent: undefined,
-    args: ResponseTemplatesFilter,
-    { models }: IContext,
-  ) {
-    const filterQuery = generateFilter(args);
-
-    return models.ResponseTemplates.find(filterQuery).countDocuments();
   },
 };

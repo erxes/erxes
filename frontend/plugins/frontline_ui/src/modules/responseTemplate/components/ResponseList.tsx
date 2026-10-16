@@ -98,7 +98,7 @@ const ResponseMoreCell = ({
         onOpenChange={setMoveOpen}
         resourceType={ChannelResourceType.RESPONSE_TEMPLATE}
         resourceIds={[_id]}
-        sourceChannelId={channelId}
+        sourceChannelId={channelId ?? ''}
       />
     </>
   );
@@ -227,7 +227,7 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
 
   return (
     <RecordTable.Provider
-      columns={responseColumns as unknown as ColumnDef<IResponseTemplate>[]}
+      columns={responseColumns}
       data={responses || []}
       className="m-3"
     >

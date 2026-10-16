@@ -1,15 +1,8 @@
-import { IOrderInput } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { IField, IFieldDocument } from '~/modules/form/db/definitions/fields';
 
 export interface IFieldsEdit extends IField {
   _id: string;
-}
-
-export interface IUpdateVisibleParams {
-  _id: string;
-  isVisible?: boolean;
-  isVisibleInDetail?: boolean;
 }
 
 export interface IFieldsBulkAddAndEditParams {
@@ -21,30 +14,6 @@ export interface IFieldsBulkAddAndEditParams {
 }
 
 export const fieldMutations = {
-  /**
-   * Adds field object
-   */
-  async fieldsAdd(_root, args: IField, { user, models }: IContext) {
-    const field = await models.Fields.createField({
-      ...args,
-      lastUpdatedUserId: user._id,
-    });
-
-    // await putCreateLog(
-    //   models,
-    //   subdomain,
-    //   {
-    //     type: 'field',
-    //     newData: args,
-    //     object: field,
-    //     description: `Field "${args.text}" has been created`,
-    //   },
-    //   user,
-    // );
-
-    return field;
-  },
-
   async frontlineFieldsBulkAction(
     _root,
     args: IFieldsBulkAddAndEditParams,
@@ -59,7 +28,7 @@ export const fieldMutations = {
       return;
     }
 
-    for (const f of newFields) {
+    for (const f of newFields ?? []) {
       if (f.logics && f.logics.length > 0) {
         logicalFields.push(f);
         continue;
@@ -150,90 +119,6 @@ export const fieldMutations = {
     }
 
     return response;
-  },
-
-  /**
-   * Updates field object
-   */
-  async fieldsEdit(
-    _root,
-    { _id, ...doc }: IFieldsEdit,
-    { user, models }: IContext,
-  ) {
-    return models.Fields.updateField(_id, {
-      ...doc,
-      lastUpdatedUserId: user._id,
-    });
-  },
-
-  /**
-   * Remove a channel
-   */
-  async fieldsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Fields.removeField(_id);
-  },
-
-  /**
-   * Update field orders
-   */
-  async fieldsUpdateOrder(
-    _root,
-    { orders }: { orders: IOrderInput[] },
-    { models }: IContext,
-  ) {
-    return models.Fields.updateOrder(orders);
-  },
-
-  /**
-   * Update field's visible
-   */
-  async fieldsUpdateVisible(
-    _root,
-    { _id, isVisible, isVisibleInDetail }: IUpdateVisibleParams,
-    { user, models }: IContext,
-  ) {
-    return models.Fields.updateFieldsVisible(
-      _id,
-      user._id,
-      isVisible,
-      isVisibleInDetail,
-    );
-  },
-
-  /**
-   * Update field's visible to create
-   */
-  async fieldsUpdateSystemFields(
-    _root,
-    {
-      _id,
-      isVisibleToCreate,
-      isRequired,
-    }: { _id: string; isVisibleToCreate?: boolean; isRequired?: boolean },
-    { user, models }: IContext,
-  ) {
-    const doc: any = { lastUpdatedUserId: user._id };
-
-    if (isVisibleToCreate !== undefined) {
-      doc.isVisibleToCreate = isVisibleToCreate;
-    }
-
-    if (isRequired !== undefined) {
-      doc.isRequired = isRequired;
-    }
-
-    await models.Fields.updateOne(
-      {
-        _id,
-      },
-      {
-        $set: doc,
-      },
-    );
-
-    return models.Fields.findOne({
-      _id,
-    });
   },
 };
 

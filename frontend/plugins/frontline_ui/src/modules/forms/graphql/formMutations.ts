@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const FORMS_ADD = gql`
+export const FORMS_ADD = gql(`
   mutation FormsAdd(
     $name: String!
     $type: String!
@@ -26,9 +26,9 @@ export const FORMS_ADD = gql`
       _id
     }
   }
-`;
+`);
 
-export const FORM_BULK_ACTION = gql`
+export const FORM_BULK_ACTION = gql(`
   mutation FrontlineFieldsBulkAction(
     $contentType: String!
     $contentTypeId: String
@@ -46,15 +46,15 @@ export const FORM_BULK_ACTION = gql`
       _id
     }
   }
-`;
+`);
 
-export const FORM_REMOVE = gql`
-  mutation FormsRemove($_ids: [String]) {
+export const FORM_REMOVE = gql(`
+  mutation FormsRemove($_ids: [String!]!) {
     formsRemove(_ids: $_ids)
   }
-`;
+`);
 
-export const FORM_EDIT = gql`
+export const FORM_EDIT = gql(`
   mutation FormsEdit(
     $id: String!
     $name: String!
@@ -82,15 +82,15 @@ export const FORM_EDIT = gql`
       _id
     }
   }
-`;
+`);
 
-export const FORM_TOGGLE_STATUS = gql`
+export const FORM_TOGGLE_STATUS = gql(`
   mutation FormsToggleStatus($ids: [String]!, $status: String) {
     formsToggleStatus(_ids: $ids, status: $status)
   }
-`;
+`);
 
-export const CRAETE_LEAD_INTEGRATION = gql`
+export const CRAETE_LEAD_INTEGRATION = gql(`
   mutation IntegrationsCreateLeadIntegration(
     $name: String!
     $channelId: String
@@ -99,4 +99,4 @@ export const CRAETE_LEAD_INTEGRATION = gql`
       _id
     }
   }
-`;
+`);

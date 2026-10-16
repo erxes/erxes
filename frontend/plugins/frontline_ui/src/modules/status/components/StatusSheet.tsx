@@ -84,6 +84,8 @@ const StatusSheetForm = ({
       return;
     }
 
+    if (!pipelineId) return;
+
     addStatus({
       variables: { name, description, color, pipelineId, type: statusType },
       onCompleted,

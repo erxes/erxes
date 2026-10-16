@@ -4,8 +4,14 @@ export const getBooleanFilterVariable = (
   value: boolean | null | undefined,
 ): string | undefined => (value ? 'true' : undefined);
 
+/** Variables are strings; an unparsable custom range end is left out. */
+export const getDateFilterVariable = (date?: Date): string | undefined =>
+  date && !Number.isNaN(date.getTime()) ? date.toISOString() : undefined;
+
 export const getConversationRecency = (conversation: IConversation) => {
-  const time = Date.parse(conversation.updatedAt || conversation.createdAt);
+  const time = Date.parse(
+    conversation.updatedAt || conversation.createdAt || '',
+  );
 
   return Number.isNaN(time) ? 0 : time;
 };

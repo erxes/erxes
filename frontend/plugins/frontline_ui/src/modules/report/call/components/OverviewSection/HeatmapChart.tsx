@@ -86,7 +86,7 @@ export const HeatmapChart = memo(function HeatmapChart({
     let max = 0;
     for (const cell of cells) {
       map.set(`${cell.dow}:${cell.hour}`, cell);
-      if (cell[metric] > max) max = cell[metric];
+      if ((cell[metric] ?? 0) > max) max = cell[metric] ?? 0;
     }
     return { maxValue: Math.max(max, 1), cellMap: map };
   }, [cells, metric]);
@@ -161,7 +161,7 @@ export const HeatmapChart = memo(function HeatmapChart({
               </div>
               {HOURS.map((hour) => {
                 const cell = cellMap.get(`${dow}:${hour}`);
-                const intensity = cell ? cell[metric] / maxValue : 0;
+                const intensity = cell ? (cell[metric] ?? 0) / maxValue : 0;
                 return (
                   <div
                     key={hour}
@@ -171,7 +171,9 @@ export const HeatmapChart = memo(function HeatmapChart({
                             'calls',
                           )}, ${cell.answered} ${t('answered', 'Answered')}, ${
                             cell.noAnswer
-                          } ${t('no-answer', 'No answer')} (${fmtPct(cell.answerRate)})`
+                          } ${t('no-answer', 'No answer')} (${fmtPct(
+                            cell.answerRate,
+                          )})`
                         : t('no-data', 'No data')
                     }
                     className="flex-1 m-[1px] rounded-sm aspect-square"

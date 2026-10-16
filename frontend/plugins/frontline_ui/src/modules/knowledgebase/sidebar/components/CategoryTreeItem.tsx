@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
 import { CategoryRowActions } from '@/knowledgebase/sidebar/components/CategoryRowActions';
-import { ICategory } from '@/knowledgebase/types';
+import { ICategoryFields } from '@/knowledgebase/types';
 
 export const CategoryTreeItem = ({
   topicId,
@@ -13,10 +13,10 @@ export const CategoryTreeItem = ({
   onEdit,
 }: {
   topicId: string;
-  category: ICategory;
-  categoryGroups: Map<string, ICategory[]>;
+  category: ICategoryFields;
+  categoryGroups: Map<string, ICategoryFields[]>;
   activeCategoryId?: string | null;
-  onEdit: (category: ICategory) => void;
+  onEdit: (category: ICategoryFields) => void;
 }) => {
   const { t } = useTranslation('frontline');
   const children = categoryGroups.get(category._id) ?? [];

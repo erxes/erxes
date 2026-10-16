@@ -105,7 +105,7 @@ export const SelectChannelsContent = ({
   const { onSelect, channels } = useSelectChannelContext();
 
   const { channels: allChannels, loading: allLoading } = useGetChannels({
-    variables: { searchValue: debouncedSearch },
+    variables: { name: debouncedSearch || undefined },
     skip: myChannelsOnly,
   });
   const { channels: myChannels, loading: myLoading } = useGetMyChannels({
@@ -343,11 +343,7 @@ const SelectChannelList = ({
   onValueChange: (value: string) => void;
 }) => {
   const { channels, onSelect } = useSelectChannelContext();
-  const { channels: channelsData, loading } = useGetChannels({
-    variables: {
-      searchValue: '',
-    },
-  });
+  const { channels: channelsData, loading } = useGetChannels();
 
   const allChannels = [
     ...channels,

@@ -83,14 +83,6 @@ export default {
     });
   },
 
-  async knowledgeBaseMessengerApps(_args) {
-    return [];
-  },
-
-  async leadMessengerApps(_args) {
-    return [];
-  },
-
   async healthStatus(
     integration: IIntegrationDocument,
     _args,

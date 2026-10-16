@@ -1,33 +1,33 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_CONVERSATION_OPEN = gql`
+export const GET_CONVERSATION_OPEN = gql(`
   query ReportConversationOpen($filters: ConversationReportFilter) {
     reportConversationOpen(filters: $filters) {
       count
       percentage
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_CLOSE = gql`
+export const GET_CONVERSATION_CLOSE = gql(`
   query ReportConversationClosed($filters: ConversationReportFilter) {
     reportConversationClosed(filters: $filters) {
       count
       percentage
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_RESOLVED = gql`
+export const GET_CONVERSATION_RESOLVED = gql(`
   query ReportConversationResolved($filters: ConversationReportFilter) {
     reportConversationResolved(filters: $filters) {
       count
       percentage
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_TAG = gql`
+export const GET_CONVERSATION_TAG = gql(`
   query ReportConversationTags($filters: ConversationReportFilter) {
     reportConversationTags(filters: $filters) {
       _id
@@ -36,9 +36,9 @@ export const GET_CONVERSATION_TAG = gql`
       percentage
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_SOURCE = gql`
+export const GET_CONVERSATION_SOURCE = gql(`
   query ReportConversationSources($filters: ConversationReportFilter) {
     reportConversationSources(filters: $filters) {
       _id
@@ -47,9 +47,9 @@ export const GET_CONVERSATION_SOURCE = gql`
       percentage
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_RESPONSES = gql`
+export const GET_CONVERSATION_RESPONSES = gql(`
   query ReportConversationResponses($filters: ConversationReportFilter) {
     reportConversationResponses(filters: $filters) {
       user {
@@ -64,9 +64,9 @@ export const GET_CONVERSATION_RESPONSES = gql`
       messageCount
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_LIST = gql`
+export const GET_CONVERSATION_LIST = gql(`
   query ReportConversationList($filters: ConversationReportFilter) {
     reportConversationList(filters: $filters) {
       list {
@@ -97,27 +97,27 @@ export const GET_CONVERSATION_LIST = gql`
       totalPages
     }
   }
-`;
+`);
 
-export const GET_OPEN_CONVERSATIONS_BY_DATE = gql`
+export const GET_OPEN_CONVERSATIONS_BY_DATE = gql(`
   query ReportConversationOpenDate($filters: ConversationReportFilter) {
     reportConversationOpenDate(filters: $filters) {
       count
       date
     }
   }
-`;
+`);
 
-export const GET_RESOLVED_CONVERSATIONS_BY_DATE = gql`
+export const GET_RESOLVED_CONVERSATIONS_BY_DATE = gql(`
   query ReportConversationResolvedDate($filters: ConversationReportFilter) {
     reportConversationResolvedDate(filters: $filters) {
       count
       date
     }
   }
-`;
+`);
 
-export const GET_CONVERSATION_EXPORT = gql`
+export const GET_CONVERSATION_EXPORT = gql(`
   query ReportConversationExport($filters: ConversationReportFilter) {
     reportConversationExport(filters: $filters) {
       _id
@@ -131,4 +131,4 @@ export const GET_CONVERSATION_EXPORT = gql`
       closedAt
     }
   }
-`;
+`);

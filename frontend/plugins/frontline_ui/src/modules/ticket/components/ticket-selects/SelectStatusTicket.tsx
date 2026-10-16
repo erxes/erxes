@@ -149,7 +149,7 @@ const SelectStatusValue = ({
     <div className="flex items-center gap-2">
       <StatusInlineIcon
         statusType={selectedStatus.type}
-        color={selectedStatus.color}
+        color={selectedStatus.color ?? undefined}
       />
       <p className={cn('font-medium text-sm capitalize', className)}>
         {selectedStatus.label}
@@ -183,7 +183,7 @@ const SelectStatusCommandItem = ({
       }}
     >
       <div className="flex items-center gap-2 flex-1">
-        <StatusInlineIcon statusType={type} color={color} />
+        <StatusInlineIcon statusType={type} color={color ?? undefined} />
         <span className="font-medium capitalize">{label}</span>
         {isBlocked && (
           <span className="text-xs text-muted-foreground">
@@ -231,7 +231,7 @@ const SelectStatusCreateForm = ({
       onCompleted: async ({ addTicketStatus }) => {
         await refetch();
         onBack();
-        onValueChange(addTicketStatus._id);
+        if (addTicketStatus) onValueChange(addTicketStatus._id);
       },
     });
   };

@@ -110,7 +110,8 @@ export const FrontlineReportsList = () => {
   });
   const { reportCharts } = useReportCharts();
   const savedConversationCharts = useMemo(
-    () => reportCharts.filter((chart) => reportComponents[chart.chartType]),
+    () =>
+      reportCharts.filter((chart) => reportComponents[chart.chartType ?? '']),
     [reportCharts],
   );
   const [cards, setCards] = useState<CardConfig[]>(INITIAL_CARDS);
@@ -216,7 +217,7 @@ export const FrontlineReportsList = () => {
     const savedChart: ReportChart | undefined = savedChartsById.get(id);
 
     if (savedChart) {
-      const Component = reportComponents[savedChart.chartType];
+      const Component = reportComponents[savedChart.chartType ?? ''];
       if (!Component) return null;
       return { title: savedChart.name, component: Component, savedChart };
     }
@@ -241,7 +242,7 @@ export const FrontlineReportsList = () => {
 
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: cardConfig.title,
+      title: cardConfig.title ?? '',
       cardId: id,
       savedChart: cardConfig.savedChart,
       colSpan: overrideColSpan ?? colSpan,

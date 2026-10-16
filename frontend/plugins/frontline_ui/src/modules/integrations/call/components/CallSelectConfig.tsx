@@ -1,4 +1,4 @@
-import { Button, Dialog, Input, Label, Select } from 'erxes-ui';
+import { Button, Dialog, Input, isDefined, Label, Select } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +16,7 @@ export const CallSelectConfig = ({
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(callSelectConfigDialogAtom);
   const [selectedIntegrationId, setSelectedIntegrationId] = useState(
-    callUserIntegrations[0]?._id,
+    callUserIntegrations[0]?._id ?? undefined,
   );
   const setCallConfig = useSetAtom(callConfigAtom);
   const selectedIntegration = callUserIntegrations.find(
@@ -50,7 +50,7 @@ export const CallSelectConfig = ({
                 <Select.Group>
                   <Select.Label>{t('call-configs')}</Select.Label>
                   {callUserIntegrations.map((config) => (
-                    <Select.Item key={config._id} value={config._id}>
+                    <Select.Item key={config._id} value={config._id ?? ''}>
                       {config.phone}
                     </Select.Item>
                   ))}
@@ -71,7 +71,7 @@ export const CallSelectConfig = ({
           <div className="space-y-2">
             <Label>{t('source-trunk')}</Label>
             <Input
-              value={selectedIntegration?.srcTrunk}
+              value={selectedIntegration?.srcTrunk ?? ''}
               disabled
               readOnly
               placeholder="srcTrunk"
@@ -81,7 +81,7 @@ export const CallSelectConfig = ({
           <div className="space-y-2">
             <Label>{t('destination-trunk')}</Label>
             <Input
-              value={selectedIntegration?.dstTrunk}
+              value={selectedIntegration?.dstTrunk ?? ''}
               disabled
               readOnly
               placeholder="dstTrunk"
@@ -90,31 +90,35 @@ export const CallSelectConfig = ({
           </div>
           <div className="space-y-2">
             <Label>{t('operators')}</Label>
-            {selectedIntegration?.operators.map((operator) => (
-              <div key={operator.userId} className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  className="w-full h-8 shadow-xs disabled:opacity-90"
-                  disabled
-                >
-                  <MembersInline memberIds={[operator.userId]} />
-                </Button>
-                <Input
-                  value={operator.gsUsername}
-                  disabled
-                  readOnly
-                  placeholder="gsUsername"
-                  className="disabled:opacity-90"
-                />
-                <Input
-                  value={operator.gsPassword}
-                  disabled
-                  readOnly
-                  placeholder="gsPassword"
-                  className="disabled:opacity-90"
-                />
-              </div>
-            ))}
+            {selectedIntegration?.operators
+              ?.filter(isDefined)
+              .map((operator) => (
+                <div key={operator.userId} className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-full h-8 shadow-xs disabled:opacity-90"
+                    disabled
+                  >
+                    <MembersInline
+                      memberIds={operator.userId ? [operator.userId] : []}
+                    />
+                  </Button>
+                  <Input
+                    value={operator.gsUsername ?? ''}
+                    disabled
+                    readOnly
+                    placeholder="gsUsername"
+                    className="disabled:opacity-90"
+                  />
+                  <Input
+                    value={operator.gsPassword ?? ''}
+                    disabled
+                    readOnly
+                    placeholder="gsPassword"
+                    className="disabled:opacity-90"
+                  />
+                </div>
+              ))}
           </div>
         </div>
         <Dialog.Footer className="gap-0 pt-4">

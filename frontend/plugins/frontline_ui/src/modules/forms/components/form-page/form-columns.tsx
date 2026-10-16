@@ -97,7 +97,7 @@ export const FormsMoreColumnCell = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
-          formId={code}
+          formId={code ?? ''}
           channelId={channelId as string}
           inActionBar={true}
         />
@@ -110,7 +110,11 @@ export const FormsMoreColumnCell = ({
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
         <OpenSubmissionsAction formId={_id} />
-        <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+        <FormToggleStatus
+          formId={_id}
+          status={status ?? ''}
+          setOpen={setOpen}
+        />
         <DropdownMenu.Item
           onSelect={() => {
             setOpen(false);
@@ -120,7 +124,7 @@ export const FormsMoreColumnCell = ({
           <IconArrowBarToRight />
           {t('move-to-channel', 'Move to Channel')}
         </DropdownMenu.Item>
-        <RemoveForm formId={_id} title={cell.row.original.name} />
+        <RemoveForm formId={_id} title={cell.row.original.name ?? undefined} />
       </DropdownMenu.Content>
       <MoveToChannelDialog
         open={moveOpen}
@@ -213,9 +217,9 @@ export const formColumns: ColumnDef<IForm>[] = [
         editForm({
           variables: {
             id: _id,
-            name,
-            type,
-            channelId: value,
+            name: name ?? '',
+            type: type ?? '',
+            channelId: Array.isArray(value) ? value[0] : value,
           },
           refetchQueries: [GET_FORMS_LIST, GET_FORMS_TOTAL_COUNT],
           onCompleted: () => {

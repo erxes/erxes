@@ -111,7 +111,7 @@ const StatusCell = ({
       onOpenChange={setOpen}
     >
       <RecordTableInlineCell.Trigger>
-        <Badge variant={statusVariant(article.status)}>
+        <Badge variant={statusVariant(article.status ?? '')}>
           {current ? t(current.key, current.label) : article.status}
         </Badge>
       </RecordTableInlineCell.Trigger>
@@ -152,7 +152,7 @@ const CategoryCell = ({
     <SelectKbCategory
       variant="table"
       topicId={topicId}
-      value={article.categoryId}
+      value={article.categoryId ?? undefined}
       scope={clsx(
         KnowledgeBaseHotKeyScope.ArticlesPage,
         article._id,

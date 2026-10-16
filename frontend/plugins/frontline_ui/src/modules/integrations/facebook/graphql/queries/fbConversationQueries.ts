@@ -1,10 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const commonCommentAndMessageFields = `
-  content
-  conversationId
-`;
-export const GET_CONVERSATION_MESSAGES = gql`
+export const GET_CONVERSATION_MESSAGES = gql(`
   query FacebookConversationMessages(
     $conversationId: String!
     $getFirst: Boolean
@@ -16,11 +12,12 @@ export const GET_CONVERSATION_MESSAGES = gql`
       getFirst: $getFirst
       skip: $skip
       limit: $limit
-    )
-   {
+    ) {
+      __typename
       _id
       mid
-      ${commonCommentAndMessageFields}
+      content
+      conversationId
       customerId
       userId
       fromBot
@@ -44,16 +41,4 @@ export const GET_CONVERSATION_MESSAGES = gql`
     }
     facebookConversationMessagesCount(conversationId: $conversationId)
   }
-`;
-
-export const GET_CONVERSATION_MESSAGES_COUNT = gql`
-  query FacebookConversationMessagesCount($conversationId: String!) {
-    facebookConversationMessagesCount(conversationId: $conversationId)
-  }
-`;
-
-export const HAS_TAGGED_MESSAGES = gql`
-  query FacebookHasTaggedMessages($conversationId: String!) {
-    facebookHasTaggedMessages(conversationId: $conversationId)
-  }
-`;
+`);

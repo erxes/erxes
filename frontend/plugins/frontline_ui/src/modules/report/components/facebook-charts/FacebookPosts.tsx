@@ -8,6 +8,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  isDefined,
 } from 'erxes-ui';
 import {
   IconChevronLeft,
@@ -57,7 +58,10 @@ export const FacebookPosts = ({
     skip: !filtersRestored,
   });
 
-  const posts = useMemo(() => facebookPosts?.list || [], [facebookPosts]);
+  const posts = useMemo(
+    () => facebookPosts?.list?.filter(isDefined) || [],
+    [facebookPosts],
+  );
   const totalPages = facebookPosts?.totalPages ?? 1;
   const lastSyncedAt = useMemo(() => {
     const stamps = posts
@@ -85,7 +89,9 @@ export const FacebookPosts = ({
   const filterEl = (
     <>
       <FacebookReportFilter cardId={id} showSearch />
-      <SyncFacebookStatsButton pageIds={filterConfig.pageIds} />
+      <SyncFacebookStatsButton
+        pageIds={filterConfig.pageIds?.filter(isDefined)}
+      />
       <ReportChartActions
         chartType="facebook-posts"
         colSpan={colSpan}

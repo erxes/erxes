@@ -46,8 +46,9 @@ export const AddMembers = () => {
 
   const submitHandler: SubmitHandler<TChannelMemberForm> = React.useCallback(
     async (data) => {
+      if (!id) return;
       channelAddMembers({
-        variables: { ...data, id },
+        variables: { id, memberIds: data.memberIds ?? [] },
         onCompleted: () => {
           toast({ title: t('success', 'Success!') });
           form.reset();

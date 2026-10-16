@@ -181,7 +181,7 @@ const SelectAssigneeTicketRoot = ({
       updateTicket({
         variables: {
           _id: id,
-          assigneeId: value,
+          assigneeId: Array.isArray(value) ? value[0] ?? null : value,
         },
       });
     }

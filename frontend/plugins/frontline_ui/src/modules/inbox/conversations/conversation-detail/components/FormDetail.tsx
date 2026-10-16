@@ -11,10 +11,11 @@ import { useTranslation } from 'react-i18next';
 
 export const FormDetailMessages = () => {
   const { t } = useTranslation('frontline');
-  const [conversationId] = useQueryState('conversationId');
+  const [conversationId] = useQueryState<string>('conversationId');
 
   const { conversationMessages, loading } = useFormWidgetData({
-    variables: { conversationId, limit: 10 },
+    variables: conversationId ? { conversationId, limit: 10 } : undefined,
+    skip: !conversationId,
   });
 
   if (loading) {

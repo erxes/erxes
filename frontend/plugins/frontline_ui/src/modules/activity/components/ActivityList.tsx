@@ -31,7 +31,7 @@ export const ActivityList = ({
               {activity.module === ACTIVITY_MODULES.NOTE && (
                 <NoteInputReadOnly
                   key={activity._id}
-                  newValueId={activity.metadata?.newValue}
+                  newValueId={activity.metadata?.newValue ?? ''}
                 />
               )}
             </div>

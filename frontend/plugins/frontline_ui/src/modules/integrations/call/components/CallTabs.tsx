@@ -18,6 +18,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, Tabs } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
+import { TAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
 
 export const CallTabs = ({ keypad }: { keypad: React.ReactNode }) => {
   const { t } = useTranslation('frontline');
@@ -68,7 +69,7 @@ const CallTabsTrigger = ({
   );
 };
 
-export const Dialpad = ({ addCustomer }: { addCustomer: any }) => {
+export const Dialpad = ({ addCustomer }: { addCustomer: TAddCallCustomer }) => {
   return (
     <div className="px-3 pt-3">
       <CallSipActions />
@@ -79,7 +80,11 @@ export const Dialpad = ({ addCustomer }: { addCustomer: any }) => {
   );
 };
 
-export const CallButton = ({ addCustomer }: { addCustomer: any }) => {
+export const CallButton = ({
+  addCustomer,
+}: {
+  addCustomer: TAddCallCustomer;
+}) => {
   const { t } = useTranslation('frontline');
   const { startCall } = useSip();
   const sipState = useAtomValue(sipStateAtom);

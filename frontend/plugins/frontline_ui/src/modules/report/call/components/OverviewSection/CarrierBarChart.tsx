@@ -21,7 +21,10 @@ export const CarrierBarChart = memo(function CarrierBarChart({
   data,
 }: CarrierBarChartProps) {
   const { t } = useTranslation('frontline');
-  const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
+  const total = useMemo(
+    () => data.reduce((s, d) => s + (d.value ?? 0), 0),
+    [data],
+  );
 
   if (!data.length) {
     return (
@@ -37,7 +40,7 @@ export const CarrierBarChart = memo(function CarrierBarChart({
 
   const chartData = data.map((slice) => ({
     ...slice,
-    share: total ? (slice.value / total) * 100 : 0,
+    share: total ? ((slice.value ?? 0) / total) * 100 : 0,
   }));
 
   return (
@@ -65,7 +68,7 @@ export const CarrierBarChart = memo(function CarrierBarChart({
         />
         <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={20}>
           {chartData.map((slice, i) => (
-            <Cell key={slice.name} fill={getColor(slice.name, i)} />
+            <Cell key={slice.name} fill={getColor(slice.name ?? 'Other', i)} />
           ))}
           <LabelList
             dataKey="share"

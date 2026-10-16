@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import { isDefined } from 'erxes-ui';
 import { downloadExcel } from '@/report/utils/exportCsv';
 import type { DayHourCell, HeatMetric } from './types';
 
@@ -60,7 +61,10 @@ const daysInRange = (startDate: string, endDate: string): Date[] => {
 };
 
 const hourWindow = (cells: DayHourCell[]): number[] => {
-  const busy = cells.filter((cell) => cell.total > 0).map((cell) => cell.hour);
+  const busy = cells
+    .filter((cell) => (cell.total ?? 0) > 0)
+    .map((cell) => cell.hour)
+    .filter(isDefined);
   if (!busy.length) return Array.from({ length: 24 }, (_, hour) => hour);
 
   const from = Math.min(...busy);
@@ -87,7 +91,7 @@ export const buildHeatmapWorkbook = ({
   const valueByCell = new Map<string, number>();
   for (const cell of cells) {
     if (Number.isNaN(new Date(cell.day).getTime())) continue;
-    valueByCell.set(`${pbxDayKey(cell.day)}:${cell.hour}`, cell[metric]);
+    valueByCell.set(`${pbxDayKey(cell.day)}:${cell.hour}`, cell[metric] ?? 0);
   }
 
   sheet.columns = [

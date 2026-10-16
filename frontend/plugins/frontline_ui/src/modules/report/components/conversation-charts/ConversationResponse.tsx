@@ -38,7 +38,7 @@ import {
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
-import { IUser, MembersInline } from 'ui-modules';
+import { MembersInline } from 'ui-modules';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
@@ -339,10 +339,10 @@ export const ResponseBarChart = memo(function ResponseBarChart({
             formatter={(value) => `${value}%`}
           />
         </Bar>
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}
-          formatter={(value: number, name: string, props: any) => {
+          formatter={(value: number, name: string, props) => {
             if (name === 'Percentage') {
               return [props.payload.percentage?.toFixed(1) + '%', 'Percentage'];
             }
@@ -464,7 +464,7 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </AreaChart>
     </ChartContainer>
@@ -545,7 +545,7 @@ export const ResponsePieChart = memo(function ResponsePieChart({
           ))}
         </Pie>
         <Legend
-          content={(props: any) => (
+          content={(props) => (
             <CustomLegendContent
               {...props}
               onMouseEnter={(data: LegendPayload) => {
@@ -649,10 +649,10 @@ export const ResponseRadarChart = memo(function ResponseRadarChart({
           fill="var(--success)"
           fillOpacity={0.3}
         />
-        <Legend content={(props: any) => <CustomLegendContent {...props} />} />
+        <Legend content={(props) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}
-          formatter={(value: number, name: string, props: any) => {
+          formatter={(value: number, name: string, props) => {
             if (name === 'Percentage') {
               return [
                 props.payload.percentageOriginal?.toFixed(1) + '%',
@@ -697,7 +697,11 @@ export const responseRecordTableColumns: ColumnDef<ConversationUserMessageStat>[
       accessorKey: 'user',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-xs">
-          <MembersInline members={[cell.getValue() as IUser]} />
+          <MembersInline
+            memberIds={
+              cell.row.original.user?._id ? [cell.row.original.user._id] : []
+            }
+          />
         </RecordTableInlineCell>
       ),
     },

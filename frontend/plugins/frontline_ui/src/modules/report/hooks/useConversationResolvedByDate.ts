@@ -1,25 +1,24 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_RESOLVED_CONVERSATIONS_BY_DATE } from '../graphql/queries/getChart';
-
-interface ReportConversationResolvedDate {
-  count: number;
-  date: string;
-}
-
-interface ReportConversationResolvedDateResponse {
-  reportConversationResolvedDate: ReportConversationResolvedDate[];
-}
+import type {
+  ReportConversationResolvedDateQuery,
+  ReportConversationResolvedDateQueryVariables,
+} from '~/gql/graphql';
 
 export const useConversationResolvedByDate = (
-  options?: QueryHookOptions<ReportConversationResolvedDateResponse>,
+  options?: QueryHookOptions<
+    ReportConversationResolvedDateQuery,
+    ReportConversationResolvedDateQueryVariables
+  >,
 ) => {
-  const { data, loading, error, refetch } =
-    useQuery<ReportConversationResolvedDateResponse>(
-      GET_RESOLVED_CONVERSATIONS_BY_DATE,
-      options,
-    );
+  const { data, loading, error, refetch } = useQuery(
+    GET_RESOLVED_CONVERSATIONS_BY_DATE,
+    options,
+  );
 
-  const handleRefetch = (variables: any) => {
+  const handleRefetch = (
+    variables: ReportConversationResolvedDateQueryVariables,
+  ) => {
     if (!refetch) return;
     refetch(variables);
   };
@@ -31,4 +30,3 @@ export const useConversationResolvedByDate = (
     handleRefetch,
   };
 };
-

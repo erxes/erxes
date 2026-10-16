@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format, endOfDay, startOfMonth, subMonths } from 'date-fns';
-import { ScrollArea, Spinner, Tabs } from 'erxes-ui';
+import { ScrollArea, Spinner, Tabs, isDefined } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { useCallReportIntegrations } from './hooks/useCallReportIntegrations';
@@ -48,7 +48,7 @@ export function CallReportsPage() {
     useCallReportIntegrations();
 
   const integrationOptions = useMemo<SelectOption[]>(() => {
-    const deduped = deduplicateIntegrations(integrations as any);
+    const deduped = deduplicateIntegrations(integrations);
     return deduped.map((i) => ({ label: i.phone, value: i.inboxId }));
   }, [integrations]);
 
@@ -61,6 +61,7 @@ export function CallReportsPage() {
     () => [
       { label: 'All Queues', value: ALL_QUEUES },
       ...(integrations.find((i) => i.inboxId === integrationId)?.queues ?? [])
+        .filter(isDefined)
         .map(normalizeQueue)
         .filter((q): q is SelectOption => Boolean(q)),
     ],
@@ -94,8 +95,8 @@ export function CallReportsPage() {
             'MMM dd, yyyy HH:mm',
           )}`
       : sameDay
-        ? format(start, 'MMM dd, yyyy')
-        : `${format(start, 'MMM dd, yyyy')} — ${format(end, 'MMM dd, yyyy')}`;
+      ? format(start, 'MMM dd, yyyy')
+      : `${format(start, 'MMM dd, yyyy')} — ${format(end, 'MMM dd, yyyy')}`;
 
     return {
       startDate: start.toISOString(),

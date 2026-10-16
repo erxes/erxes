@@ -143,8 +143,6 @@ const callQueries = {
       },
       user,
     )) as any;
-    console.log(queueData, 'extension list queueData');
-
     if (queueData?.response) {
       const { account } = queueData.response;
 
@@ -163,7 +161,8 @@ const callQueries = {
       }
       return [];
     }
-    return 'request failed';
+
+    throw new Error('Failed to load extensions from the PBX');
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
     const integration = await models.CallIntegrations.getIntegration(
@@ -319,12 +318,6 @@ const callQueries = {
     } catch (error) {
       throw new Error('Failed to retrieve call history details');
     }
-  },
-
-  async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
-    return await models.CallCdrs.find({
-      uniqueid: uniqueId,
-    });
   },
 };
 markResolvers(callQueries, {
