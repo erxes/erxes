@@ -5,6 +5,10 @@ import {
   parseBlockStructureFromHTML,
 } from '../utils/blockStructureHTML';
 
+type EditorInitialContent = NonNullable<
+  Parameters<typeof useBlockEditor>[0]
+>['initialContent'];
+
 interface CmsPostEditorProps {
   className?: string;
   initialContent: string;
@@ -31,7 +35,8 @@ export const CmsPostEditor = ({
     [initialContent],
   );
   const editor = useBlockEditor({
-    initialContent: parsedInitialContent,
+    // useBlockEditor types initialContent with the default schema but builds the editor with BLOCK_SCHEMA.
+    initialContent: parsedInitialContent as EditorInitialContent,
     uploadFile,
   });
 

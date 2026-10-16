@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import { CMS_CUSTOM_FIELD_GROUP_EDIT } from '../graphql/mutations';
 import { ICustomFieldGroup } from '../types/customFieldTypes';
+import { FieldDefinition } from '../../posts/CustomFieldInput';
 import { compareByOrder } from '../utils/comparators';
 
 /**
@@ -74,7 +75,7 @@ export const useCustomFieldOrdering = (websiteId?: string) => {
   // `fields` array in its desired order (array position is the display order).
   const reorderFields = async (
     groupId: string,
-    reorderedFields: ICustomFieldGroup['fields'],
+    reorderedFields: FieldDefinition[],
   ) => {
     const group = allGroups.find((g) => g._id === groupId);
     if (!group) return;

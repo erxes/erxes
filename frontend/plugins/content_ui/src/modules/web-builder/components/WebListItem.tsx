@@ -67,7 +67,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
         <div className="flex items-center gap-1 flex-shrink-0">
           <Button
             variant="ghost"
-            size="icon-sm"
+            size={null}
             onClick={handleEdit}
             title={t('edit')}
           >
@@ -75,7 +75,7 @@ export const WebListItem = ({ web, index }: WebListItemProps) => {
           </Button>
           <Button
             variant="ghost"
-            size="icon-sm"
+            size={null}
             onClick={handleDelete}
             title={t('delete')}
             className="text-destructive hover:text-destructive"
