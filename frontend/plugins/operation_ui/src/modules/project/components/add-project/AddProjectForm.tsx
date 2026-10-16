@@ -22,8 +22,11 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import { SelectMember, SelectTags } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import {
+  OperationMembersChip,
+  OperationTagsChip,
+} from '@/operation/components/OperationChips';
 
 export const AddProjectForm = ({
   onClose,
@@ -164,6 +167,7 @@ export const AddProjectForm = ({
                   <SelectStatus.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
+                    label={t('status')}
                   />
                 </Form.Item>
               )}
@@ -177,6 +181,7 @@ export const AddProjectForm = ({
                   <SelectPriority.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
+                    label={t('priority')}
                   />
                 </Form.Item>
               )}
@@ -190,10 +195,11 @@ export const AddProjectForm = ({
                   <SelectLead.FormItem
                     {...field}
                     value={field.value}
-                    onValueChange={(value: any) => {
-                      field.onChange(value);
+                    onValueChange={(value: string | string[] | null) => {
+                      field.onChange(value || undefined);
                     }}
                     teamIds={form.getValues('teamIds')}
+                    label={t('lead')}
                   />
                 </Form.Item>
               )}
@@ -204,10 +210,10 @@ export const AddProjectForm = ({
               render={({ field }) => (
                 <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">{t('members')}</Form.Label>
-                  <SelectMember.FormItem
-                    value={field.value}
+                  <OperationMembersChip
+                    value={field.value || []}
                     onValueChange={field.onChange}
-                    mode="multiple"
+                    label={t('members')}
                   />
                 </Form.Item>
               )}
@@ -221,7 +227,7 @@ export const AddProjectForm = ({
                   <DateSelect.FormItem
                     {...field}
                     type="start"
-                    placeholder={t('start-date')}
+                    label={t('start-date')}
                   />
                 </Form.Item>
               )}
@@ -231,11 +237,13 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('target-date')}
+                  </Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="target"
-                    placeholder={t('target-date')}
+                    label={t('target-date')}
                   />
                 </Form.Item>
               )}
@@ -246,11 +254,11 @@ export const AddProjectForm = ({
               render={({ field }) => (
                 <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">{t('tags')}</Form.Label>
-                  <SelectTags.FormItem
-                    tagType="operation:project"
-                    mode="multiple"
+                  <OperationTagsChip
+                    type="operation:project"
                     value={field.value || []}
-                    onValueChange={(value) => field.onChange(value)}
+                    onValueChange={field.onChange}
+                    label={t('tags')}
                   />
                 </Form.Item>
               )}

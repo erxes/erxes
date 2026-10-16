@@ -6,10 +6,12 @@ export const SelectProjectTeam = ({
   projectId,
   variant,
   value,
+  label,
 }: {
   projectId: string;
   value: string | string[];
   variant: `${SelectTriggerVariant}`;
+  label?: string;
 }) => {
   const { updateProject } = useUpdateProject();
   return (
@@ -20,6 +22,7 @@ export const SelectProjectTeam = ({
       }
       mode="multiple"
       variant={variant}
+      label={label}
     />
   );
 };
